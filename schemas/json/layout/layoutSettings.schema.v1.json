@@ -4,7 +4,7 @@
   "title": "Altinn layout settings",
   "description": "Schema that describes settings for the layout configuration for Altinn applications.",
   "type": "object",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
       "pages": {
           "type": "object",
