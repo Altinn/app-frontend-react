@@ -72,6 +72,15 @@
               "type": "string"
             },
             "examples": [{"simpleBinding": "some.data.binding"}]
+          },
+          "triggers": {
+            "title": "Triggers",
+            "description": "An array of actions that should be triggered when data connected to this component changes.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["validation"]
+            }
           }
         },
         "required": ["id", "type"],
