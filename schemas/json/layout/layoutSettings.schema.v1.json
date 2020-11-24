@@ -19,12 +19,24 @@
           "properties": {
             "order": {
               "$ref": "#/definitions/order"
+            },
+            "excludeFromPdf": {
+              "$ref": "#/definitions/excludeFromPdf"
             }
           }
       },
       "order": {
         "additionalProperties": false,
         "description": "An array specifying which order the pages should appear in the application",
+        "type": "array",
+        "items": {
+          "description": "A layout name, for instance 'Page1'",
+          "type": "string"
+        }
+      },
+      "excludeFromPdf": {
+        "additionalProperties": false,
+        "description": "An array specifying which pages to exclude from the pdf",
         "type": "array",
         "items": {
           "description": "A layout name, for instance 'Page1'",
