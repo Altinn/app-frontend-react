@@ -79,7 +79,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["validation"]
+              "enum": ["validation", "validatePage", "validateAllPages"]
             }
           }
         },
