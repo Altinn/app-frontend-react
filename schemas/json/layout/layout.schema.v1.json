@@ -41,7 +41,7 @@
             "type": "string",
             "title": "Type",
             "description": "The component type.",
-            "enum": ["AddressComponent", "Button", "Checkboxes", "Datepicker", "Dropdown", "FileUpload", "Group", "Header", "Input", "NavigationButtons", "Paragraph", "RadioButtons", "TextArea"]
+            "enum": ["AddressComponent", "Button", "Checkboxes", "Datepicker", "Dropdown", "FileUpload", "Group", "Header", "Input", "NavigationButtons", "Paragraph", "RadioButtons", "Summary", "TextArea"]
           },
           "required": {
             "type": "boolean",
@@ -92,7 +92,8 @@
           { "if": {"properties": {"type": { "const": "Dropdown"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
           { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
           { "if": {"properties": {"type": { "const": "Checkboxes"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
-          { "if": {"properties": {"type": { "const": "AddressComponent"}}}, "then": { "$ref": "#/definitions/addressComponent"}}
+          { "if": {"properties": {"type": { "const": "AddressComponent"}}}, "then": { "$ref": "#/definitions/addressComponent"}},
+          { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}}
         ]
       },
       "fileUploadComponent": {
@@ -230,6 +231,20 @@
             "title": "Simplified",
             "description": "Boolean value indicating if the address component should be shown in simple mode.",
             "default": false
+          }
+        }
+      },
+      "summaryComponent": {
+        "properties": {
+          "componentRef": {
+            "type": "string",
+            "title": "Component reference",
+            "description": "String value indicating which layout component (by ID) the summary is for."
+          },
+          "pageRef": {
+            "type": "string",
+            "title": "Page reference",
+            "description": "String value indicating which layout page the referenced component is defined on."
           }
         }
       }
