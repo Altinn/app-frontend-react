@@ -6,12 +6,26 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
+      "components": {
+        "type": "object",
+        "$ref": "#/definitions/components"
+      },
       "pages": {
           "type": "object",
           "$ref": "#/definitions/pages"
       }
   },
   "definitions": {
+      "components": {
+        "type": "object",
+          "additionalProperties": false,
+          "description": "Settings regarding components",
+          "properties": {
+            "excludeFromPdf": {
+              "$ref": "#/definitions/excludeFromPdf"
+            }
+          }
+      },
       "pages": {
           "type": "object",
           "additionalProperties": false,
