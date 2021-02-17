@@ -94,6 +94,13 @@
               "default": true
             }
           }
+        },
+        "grid": {
+            "type": "object",
+            "title": "Grid",
+            "description": "Settings for the components grid. Used for controlling horizontal alignment.",
+            "$ref": "#/definitions/gridSettings",
+            "examples": [{ "xs": 12 }]
         }
       },
       "required": ["id", "type"],
@@ -181,6 +188,52 @@
           "description": "Shows two buttons (back/next) instead of just 'next'."
         }
       }
+    },
+    "gridValue": {
+        "type": "integer",
+        "maximum": 12,
+        "minimum": 1,
+        "examples": [12]
+    },
+    "gridSettings": {
+        "allOf": [{ "$ref": "#/definitions/gridProps"}],
+        "properties": {
+            "innerGrid": {
+                "title": "innerGrid",
+                "description": "Optional grid for inner component content like input field or dropdown. Used to avoid inner content filling the component width.",
+                "examples": [{ "xs": 12 }],
+                "$ref": "#/definitions/gridProps"
+            }
+        }
+    },
+    "gridProps": {
+        "properties": {
+            "xs": {
+                "$ref": "#/definitions/gridValue",
+                "title": "xs",
+                "description": "Grid breakpoint at 0px"
+            },
+            "sm": {
+                "$ref": "#/definitions/gridValue",
+                "title": "sm",
+                "description": "Grid breakpoint at 600px"
+            },
+            "md": {
+                "$ref": "#/definitions/gridValue",
+                "title": "md",
+                "description": "Grid breakpoint at 960px"
+            },
+            "lg": {
+                "$ref": "#/definitions/gridValue",
+                "title": "lg",
+                "description": "Grid breakpoint at 1280px"
+            },
+            "xl": {
+                "$ref": "#/definitions/gridValue",
+                "title": "xl",
+                "description": "Grid breakpoint at 1920px"
+            }
+        }
     },
     "groupComponent": {
       "properties": {
