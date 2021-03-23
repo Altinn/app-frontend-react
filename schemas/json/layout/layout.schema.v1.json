@@ -62,7 +62,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "examples": [{"title": "some.text.binding", "helpText": "some.other.text.binding" }]
+          "examples": [{"title": "some.text.binding", "help": "some.other.text.binding" }]
         },
         "dataModelBindings": {
           "type": "object",
