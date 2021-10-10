@@ -35,6 +35,7 @@
         "id": {
           "type": "string",
           "title": "id",
+          "pattern": "^[0-9a-zA-Z][0-9a-zA-Z-]*[0-9a-zA-Z]$",
           "description": "The component ID. Must be unique within a given layout."
         },
         "type": {
