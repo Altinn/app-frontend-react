@@ -254,7 +254,16 @@
             "title": "Maximum count",
             "description": "The maximum number of iterations of a group. Only relevant if group is repeating.",
             "minimum": 0
-        }
+        },
+        "tableHeaders": {
+          "title": "Table Headers",
+          "description": "An array of the id of child components that should be included as table headers. If not defined all components are shown.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
       },
       "required": ["children"]
     },
