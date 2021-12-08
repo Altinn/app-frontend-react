@@ -124,8 +124,20 @@
         { "if": {"properties": {"type": { "const": "Input"}}}, "then": { "$ref": "#/definitions/inputComponent"}},
         { "if": {"properties": {"type": { "const": "NavigationButtons"}}}, "then": { "$ref": "#/definitions/navigationButtonsComponent"}},
         { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
-        { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}}
+        { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}},
+        { "if": {"properties": {"type": { "const": "Header"}}}, "then": {"$ref": "#/definitions/headerComponent"}}
       ]
+    },
+    "headerComponent": {
+      "properties": {
+        "size": {
+          "title": "Header size",
+          "description": "'L'=<h2>, 'M'=<h3>, 'S'=<h4>",
+          "type": "string",
+          "enum": ["L", "M", "S"]
+        }
+      },
+      "required": ["size"]
     },
     "fileUploadComponent": {
       "properties": {
