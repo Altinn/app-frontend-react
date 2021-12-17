@@ -135,7 +135,7 @@
           "title": "Header size",
           "description": "'L'=<h2>, 'M'=<h3>, 'S'=<h4>",
           "type": "string",
-          "enum": ["L", "M", "S"]
+          "enum": ["L", "M", "S", "h2", "h3", "h4"]
         }
       },
       "required": ["size"]
