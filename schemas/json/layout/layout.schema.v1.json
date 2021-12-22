@@ -353,6 +353,11 @@
           "title": "Multi-page",
           "description": "Boolean value indicating if form components in edit mode should be shown over multiple pages/views.",
           "type": "boolean"
+        },
+        "addButton": {
+          "title": "Add button",
+          "description": "Boolean value indicating whether add new button should be shown or not under the table.",
+          "type": "boolean"
         }
       }
     },
