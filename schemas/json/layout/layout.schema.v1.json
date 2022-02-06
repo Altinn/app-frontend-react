@@ -197,8 +197,8 @@
         "timeStamp": {
           "type": "boolean",
           "title": "Time stamp",
-          "description": "Boolean value indicating if the date time should be stored as a timeStamp. Defaults to false.",
-          "default": false
+          "description": "Boolean value indicating if the date time should be stored as a timeStamp. Defaults to true.",
+          "default": true
         }
       },
       "required": []
