@@ -114,7 +114,7 @@
       "required": ["id", "type"],
       "allOf": [
         { "if": {"properties": {"type": { "const": "AddressComponent"}}}, "then": { "$ref": "#/definitions/addressComponent"}},
-        { "if": {"properties": {"type": { "const": "AttachmentList"}}}, "then": { "ref": "#/definitions/attachmentListComponent"}},
+        { "if": {"properties": {"type": { "const": "AttachmentList"}}}, "then": { "$ref": "#/definitions/attachmentListComponent"}},
         { "if": {"properties": {"type": { "const": "Checkboxes"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
         { "if": {"properties": {"type": { "const": "Datepicker"}}}, "then": { "$ref": "#/definitions/datepickerComponent"}},
         { "if": {"properties": {"type": { "const": "Dropdown"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
