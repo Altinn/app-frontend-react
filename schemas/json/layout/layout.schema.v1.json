@@ -419,6 +419,11 @@
           "title": "Preselected option index",
           "description": "Sets a preselected index.",
           "minimum": 0
+        },
+        "secure": {
+          "type": "boolean",
+          "title": "Secure Options",
+          "description": "Boolean value indicating if the options should be instance aware. Defaults to false. See more on docs: https://docs.altinn.studio/app/development/data/options/"
         }
       }
     },
