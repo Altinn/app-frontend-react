@@ -119,6 +119,7 @@
         { "if": {"properties": {"type": { "const": "Datepicker"}}}, "then": { "$ref": "#/definitions/datepickerComponent"}},
         { "if": {"properties": {"type": { "const": "Dropdown"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
         { "if": {"properties": {"type": { "const": "FileUpload"}}}, "then": { "$ref": "#/definitions/fileUploadComponent"}},
+        { "if": {"properties": {"type": { "const": "FileUploadWithTag"}}}, "then": { "$ref": "#/definitions/fileUploadWithTagComponent"}},
         { "if": {"properties": {"type": { "const": "Group"}}}, "then": { "$ref": "#/definitions/groupComponent"}},
         { "if": {"properties": {"type": { "const": "Image"}}}, "then": { "$ref": "#/definitions/imageComponent"}},
         { "if": {"properties": {"type": { "const": "Input"}}}, "then": { "$ref": "#/definitions/inputComponent"}},
@@ -175,10 +176,23 @@
           "title": "Valid file endings",
           "description": "A separated string of valid file endings to upload. If not set all endings are accepted.",
           "type": "string",
-          "examples": ["csv", "doc", "docx", "gif", "jpeg", "pdf", "txt"]
+          "examples": [".csv", ".doc", ".docx", ".gif", ".jpeg", ".pdf", ".txt"]
         }
       },
       "required": ["displayMode", "maxFileSizeInMB", "maxNumberOfAttachments", "minNumberOfAttachments" ]
+    },
+    "fileUploadWithTagComponent": {
+      "allOf": [
+        { "$ref": "#/definitions/fileUploadComponent" }
+      ],
+      "properties": {
+        "optionsId": {
+          "type": "string",
+          "title": "Options ID",
+          "description": "Reference to connected options by id."
+        }
+      },
+      "required": ["optionsId"]
     },
     "datepickerComponent": {
       "properties": {
