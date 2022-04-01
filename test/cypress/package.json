@@ -1,7 +1,7 @@
 {
-  "name": "cypress-studio",
+  "name": "cypress-altinn-app-frontend",
   "version": "1.0.0",
-  "description": "studio tests",
+  "description": "altinn-app-frontend tests",
   "main": "index.js",
   "config": {
     "localtestPath": "C:/Repos/altinn-studio/src/development",
