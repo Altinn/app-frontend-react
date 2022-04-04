@@ -2,12 +2,12 @@ name: Cypress altinn-app-frontend Test
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - 'src/altinn-app-frontend/**'
       - 'src/shared/**'
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - 'src/altinn-app-frontend/**'
       - 'src/shared/**'
