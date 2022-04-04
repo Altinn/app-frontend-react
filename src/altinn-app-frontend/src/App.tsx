@@ -89,6 +89,7 @@ export const App = () => {
           exact={true}
           component={ProcessWrapper}
         />
+        <div>test</div>
       </Switch>
     </MuiThemeProvider>
   );
