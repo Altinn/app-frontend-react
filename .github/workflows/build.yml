@@ -12,12 +12,12 @@ jobs:
     name: Build PR
     defaults:
       run:
-        working-directory: src/altinn-app-frontend
+        working-directory: src
     steps:
       - name: checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: install node
         uses: actions/setup-node@v2
         with:
@@ -26,6 +26,7 @@ jobs:
         run: yarn --immutable
       - name: run build
         run: yarn build
+        working-directory: src/altinn-app-frontend
       - name: run eslint
         run: yarn lint --output-file eslint_report.json --format json
       - name: run tests
