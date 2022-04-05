@@ -28,7 +28,7 @@ jobs:
         run: yarn build
         working-directory: src/altinn-app-frontend
       - name: run eslint
-        run: yarn lint --output-file eslint_report.json --format json
+        run: yarn lint
       - name: run tests
         run: yarn test --coverage
       - name: SonarCloud Scan
