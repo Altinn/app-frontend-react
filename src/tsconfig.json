@@ -14,7 +14,11 @@
     "noImplicitAny": true,
     "strictNullChecks": false,
     "noUnusedLocals": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "altinn-shared/*": ["./shared/src/*"]
+    },
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
