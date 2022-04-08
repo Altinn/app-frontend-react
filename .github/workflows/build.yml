@@ -26,17 +26,18 @@ jobs:
       - name: run build
         working-directory: app-frontend/src/altinn-app-frontend
         run: yarn build
-      - name: run eslint
-        working-directory: app-frontend/src
-        run: yarn lint
-      - name: run tests
-        working-directory: app-frontend/src
-        run: yarn test --coverage
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # - name: run eslint
+      #   working-directory: app-frontend/src
+      #   run: yarn lint
+      # - name: run tests
+      #   working-directory: app-frontend/src
+      #   run: yarn test --coverage
+      # - name: SonarCloud Scan
+      #   working-directory: app-frontend
+      #   uses: SonarSource/sonarcloud-github-action@master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Checkout Altinn-CDN repository
         # if: github.ref == 'refs/heads/main'
         uses: actions/checkout@v3
