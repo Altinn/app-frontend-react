@@ -50,7 +50,7 @@ jobs:
         working-directory: app-frontend
         run: |
           echo Clone, copy, commit and push to Altinn-CDN
-          APP_VERSION=$(jq '.version' ./app-frontend/src/altinn-app-frontend/package.json)
+          APP_VERSION=$(jq '.version' ./src/altinn-app-frontend/package.json)
           APP_MAJOR=$(echo $APP_VERSION | tr --delete '"' | cut -d'.' -f1)
           APP_MINOR=$(echo $APP_VERSION | tr --delete '"' | cut -d'.' -f2)
           APP_PATCH=$(echo $APP_VERSION | tr --delete '"' | cut -d'.' -f3)
