@@ -81,6 +81,5 @@ jobs:
           echo "$AUTHOR_FULL updated altinn-app-frontend to $APP_MAJOR.$APP_MINOR.$APP_PATCH" > ./../commit1.txt
           echo "based on commit https://github.com/Altinn/altinn-studio/commit/$COMMIT_ID" > ./../commit2.txt
           cat ./../commit1.txt ./../commit2.txt ./../commitmsg.txt > ./../commit.txt
-
-# git commit -F ./../commit.txt
-# git push
+          git commit -F ./../commit.txt
+          git push
