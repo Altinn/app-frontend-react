@@ -37,7 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Publish to CDN (main branch only)
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
         working-directory: src
         run: |
           echo Clone, copy, commit and push to Altinn-CDN
