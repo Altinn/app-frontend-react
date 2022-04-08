@@ -26,27 +26,28 @@ jobs:
       - name: run build
         working-directory: app-frontend/src/altinn-app-frontend
         run: yarn build
-      # - name: run eslint
-      #   working-directory: app-frontend/src
-      #   run: yarn lint
-      # - name: run tests
-      #   working-directory: app-frontend/src
-      #   run: yarn test --coverage
-      # - name: SonarCloud Scan
-      #   working-directory: app-frontend
-      #   uses: SonarSource/sonarcloud-github-action@master
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: run eslint
+        working-directory: app-frontend/src
+        run: yarn lint
+      - name: run tests
+        working-directory: app-frontend/src
+        run: yarn test --coverage
+      - name: SonarCloud Scan
+        with:
+          projectBaseDir: app-frontend
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Checkout Altinn-CDN repository
-        # if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         uses: actions/checkout@v3
         with:
           repository: 'Altinn/altinn-cdn'
           token: ${{secrets.ALTINN_CDN_TOKEN}}
           path: cdn
       - name: Publish to CDN
-        # if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         working-directory: app-frontend
         run: |
           echo Clone, copy, commit and push to Altinn-CDN
@@ -80,5 +81,6 @@ jobs:
           echo "$AUTHOR_FULL updated altinn-app-frontend to $APP_MAJOR.$APP_MINOR.$APP_PATCH" > ./../commit1.txt
           echo "based on commit https://github.com/Altinn/altinn-studio/commit/$COMMIT_ID" > ./../commit2.txt
           cat ./../commit1.txt ./../commit2.txt ./../commitmsg.txt > ./../commit.txt
+
 # git commit -F ./../commit.txt
 # git push
