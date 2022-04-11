@@ -32,11 +32,11 @@ export default function Label(props: IFormLabelProps) {
           {props.labelText}
           {props.labelSettings?.optionalIndicator === false ||
           props.required ||
-          props.readOnly ? null : (
-            <span className='label-optional'>
-              {` (${getLanguageFromKey('general.optional', props.language)})`}
+          props.readOnly ? (
+            <span className='label-required'>
+              {` ${getLanguageFromKey('form_filler.required_label', props.language)}`}
             </span>
-          )}
+          ) : null}
         </label>
       </Grid>
       {props.helpText && (
