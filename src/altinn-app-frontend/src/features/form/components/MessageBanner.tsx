@@ -29,11 +29,13 @@ export default function MessageBanner(props: IMessageBannerProps) {
 
   return (
     <Grid
+      id={'MessageBanner-container'}
       item={true}
       className={classNames(
         classes.banner,
         props.error ? classes.error : classes.default
       )}
+      data-testid={'MessageBanner-container'}
     >
       <span>{getLanguageFromKey(props.messageKey, props.language)}</span>
     </Grid>

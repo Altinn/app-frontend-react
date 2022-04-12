@@ -1,78 +1,73 @@
 import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
-import Label from './Label';
+import Label, { IFormLabelProps } from './Label';
 
 describe('features > form > components >Label.tsx', () => {
-  it('should render optional', () => {
-    const rendered = renderer.create(
-      <Label
-        id='label1'
-        labelText='label.text'
-        helpText=''
-        language={{}}
-        readOnly={false}
-        required={false}
-      />,
-    );
-    expect(rendered).toMatchSnapshot();
+  let mockId: string;
+  let mockLabelText: string;
+  let mockHelpText: string;
+  let mockLanguage: any;
+  let requiredMarking: string;
+  let optionalMarking: string;
+
+  beforeEach(() => {
+    mockId =  'label1';
+    mockLabelText = 'label.text';
+    mockHelpText = '';
+    requiredMarking = '*';
+    optionalMarking = 'valgfri';
+    mockLanguage = {
+      general: {
+        optional: optionalMarking,
+      },
+      'form_filler': {
+        'required_label': requiredMarking,
+      },
+    };
   });
 
-  it('should not render optional because required', () => {
-    const rendered = renderer.create(
-      <Label
-        id='label1'
-        labelText='label.text'
-        helpText=''
-        language={{}}
-        readOnly={false}
-        required={true}
-      />,
-    );
-    expect(rendered).toMatchSnapshot();
+  test('form/components/Label.tsx -- should render default', () => {
+    const { asFragment } = renderLabelComponent();
+    expect(asFragment()).toMatchSnapshot();
   });
 
-  it('should not render optional because readOnly', () => {
-    const rendered = renderer.create(
-      <Label
-        id='label1'
-        labelText='label.text'
-        helpText=''
-        language={{}}
-        readOnly={true}
-        required={false}
-      />,
-    );
-    expect(rendered).toMatchSnapshot();
+  test('form/components/Label.tsx -- should render required marking when field is required', () => {
+    const { queryByText } = renderLabelComponent({ required: true });
+    expect(queryByText(requiredMarking)).toBeTruthy();
   });
 
-  it('should not render optional because labelSettings.optionalIndicator is false', () => {
-    const rendered = renderer.create(
-      <Label
-        id='label1'
-        labelText='label.text'
-        helpText=''
-        language={{}}
-        readOnly={false}
-        required={false}
-        labelSettings={{ optionalIndicator: false }}
-      />,
-    );
-    expect(rendered).toMatchSnapshot();
+  test('form/components/Label.tsx -- should not render required marking when field is readOnly', () => {
+    const { queryByText } = renderLabelComponent({ required: true, readOnly: true });
+    expect(queryByText(requiredMarking)).toBeFalsy();
   });
 
-  it('should not render optional because required is true even when labelSettings.optionalIndicator is true', () => {
-    const rendered = renderer.create(
-      <Label
-        id='label1'
-        labelText='label.text'
-        helpText=''
-        language={{}}
-        readOnly={false}
-        required={true}
-        labelSettings={{ optionalIndicator: true }}
-      />,
-    );
-    expect(rendered).toMatchSnapshot();
+  test('form/components/Label.tsx -- should render optional marking when labelSettings.optionalIndicator is true, and required, readOnly are both false', () => {
+    const { queryByText } = renderLabelComponent({ labelSettings: { optionalIndicator: true } });
+    expect(queryByText(optionalMarking)).toBeTruthy();
   });
+
+  test('form/components/Label.tsx -- should not render optional marking when required, even if labelSettings.optionalIndicator is true', () => {
+    const { queryByText } = renderLabelComponent({ labelSettings: { optionalIndicator: true }, required: true });
+    expect(queryByText(optionalMarking)).toBeFalsy();
+  });
+
+  test('form/components/Label.tsx -- should not render optional marking when readOnly, even if labelSettings.optionalIndicator is true', () => {
+    const { queryByText } = renderLabelComponent({ labelSettings: { optionalIndicator: true }, readOnly: true });
+    expect(queryByText(optionalMarking)).toBeFalsy();
+  });
+
+  function renderLabelComponent(props: Partial<IFormLabelProps> = {}) {
+    const defaultProps: IFormLabelProps = {
+      id: mockId,
+      labelText: mockLabelText,
+      helpText: mockHelpText,
+      language: mockLanguage,
+      readOnly: false,
+      required: false,
+      labelSettings: {}
+    };
+
+    return render(<Label {...defaultProps} {...props} />);
+  }
 });

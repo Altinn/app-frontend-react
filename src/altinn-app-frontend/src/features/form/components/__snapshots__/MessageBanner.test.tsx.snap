@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`form/components/MessageBanner.tsx form/components/MessageBanner -- should match snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="MuiGrid-root makeStyles-banner-1 makeStyles-default-2 MuiGrid-item"
+    data-testid="MessageBanner-container"
+    id="MessageBanner-container"
+  >
+    <span>
+      Obligatoriske felter er merket med *
+    </span>
+  </div>
+</DocumentFragment>
+`;
