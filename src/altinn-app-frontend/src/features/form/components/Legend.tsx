@@ -35,8 +35,8 @@ export default function Legend(props: IFormLegendProps) {
             </span>
           ) : null}
           {/* Mark optional fields only if optionalIndicator===true */}
-          {props.labelSettings?.optionalIndicator === true && !props.required ? (
-            <span className='label-optional'>
+          {props.labelSettings?.optionalIndicator && !props.required ? (
+            <span className='label-optional' data-testid='optional-label'>
               {` (${getLanguageFromKey('general.optional', props.language)})`}
             </span>
           ) : null}

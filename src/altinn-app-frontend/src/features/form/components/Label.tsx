@@ -37,8 +37,7 @@ export default function Label(props: IFormLabelProps) {
             </span>
           ) : null}
           {/* Mark optional fields only if optionalIndicator===true (and field is not readOnly) */}
-          {props.labelSettings?.optionalIndicator === true &&
-          !props.required && !props.readOnly ? (
+          {props.labelSettings?.optionalIndicator && !props.required && !props.readOnly ? (
             <span className='label-optional'>
             ({` (${getLanguageFromKey('general.optional', props.language)})`}
             </span>
