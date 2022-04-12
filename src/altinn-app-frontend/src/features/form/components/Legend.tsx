@@ -28,13 +28,18 @@ export default function Legend(props: IFormLegendProps) {
         htmlFor={props.id}
       >
         {props.labelText}
-        {(props.labelSettings?.optionalIndicator === false || props.required) ?
-          null
-          :
-          <span className='label-optional'>
-            {` (${getLanguageFromKey('general.optional', props.language)})`}
-          </span>
-        }
+         {/* Mark required fields */}
+          {props.required ? (
+            <span className='label-optional'>
+              {` ${getLanguageFromKey('form_filler.required_label', props.language)}`}
+            </span>
+          ) : null}
+          {/* Mark optional fields only if optionalIndicator===true */}
+          {props.labelSettings?.optionalIndicator === true && !props.required ? (
+            <span className='label-optional'>
+              {` (${getLanguageFromKey('general.optional', props.language)})`}
+            </span>
+          ) : null}
         {props.helpText &&
           <HelpTextContainer
             language={props.language}
