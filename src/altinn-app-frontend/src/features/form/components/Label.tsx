@@ -30,11 +30,17 @@ export default function Label(props: IFormLabelProps) {
           data-testid={`label-${props.id}`}
         >
           {props.labelText}
-          {props.labelSettings?.optionalIndicator === false ||
-          props.required ||
-          props.readOnly ? (
-            <span className='label-required'>
+          {/* Mark required fields (unless field is readOnly) */}
+          {props.required && !props.readOnly ? (
+            <span className='label-optional'>
               {` ${getLanguageFromKey('form_filler.required_label', props.language)}`}
+            </span>
+          ) : null}
+          {/* Mark optional fields only if optionalIndicator===true (and field is not readOnly) */}
+          {props.labelSettings?.optionalIndicator === true &&
+          !props.required && !props.readOnly ? (
+            <span className='label-optional'>
+              {` ${getLanguageFromKey('general.optional', props.language)}`}
             </span>
           ) : null}
         </label>
