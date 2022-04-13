@@ -103,7 +103,7 @@ describe('features > form > layout > layoutSlice.ts', () => {
       expect(nextState.uiConfig.currentView).toEqual('page2');
     });
   
-    it('should set curretnView to first page in settings.pages.order if key is cached in localStorage but does not exist in order', () => {
+    it('should set currentView to first page in settings.pages.order if key is cached in localStorage but does not exist in order', () => {
       jest.spyOn(window.localStorage.__proto__, 'getItem');
       window.localStorage.__proto__.getItem = jest.fn().mockReturnValue('page3');
       
