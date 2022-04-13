@@ -11,11 +11,11 @@ import { ILayoutSettings, IRuntimeState, ILayoutSets } from '../../../../types';
 import { ILayouts } from '../index';
 import { getLayoutSetIdForApplication } from '../../../../utils/appMetadata';
 
-const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
-const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
-const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
+export const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
+export const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
+export const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 
-function* fetchLayoutSaga(): SagaIterator {
+export function* fetchLayoutSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
     const instance: IInstance = yield select(instanceSelector);
