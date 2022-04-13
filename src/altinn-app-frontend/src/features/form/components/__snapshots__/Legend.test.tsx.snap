@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`features > form > components >Legend.tsx form/components/Legend.tsx -- should render default 1`] = `
+exports[`features > form > components > Legend.tsx should render default 1`] = `
 <DocumentFragment>
   <label
     class="a-form-label title-label"
