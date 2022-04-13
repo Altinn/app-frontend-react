@@ -33,10 +33,16 @@ function* fetchLayoutSaga(): SagaIterator {
     } else {
       const orderedLayoutKeys = Object.keys(layoutResponse).sort();
 
-      // use instance id as cache key for current page
-      const currentViewCacheKey = instance?.id || 'stateless';
+      // use instance id (or application id for stateless) as cache key for current page
+      const currentViewCacheKey = instance?.id || applicationMetadata.id;
       yield put(Actions.setCurrentViewCacheKey({ key: currentViewCacheKey }));
-      firstLayoutKey = localStorage.getItem(currentViewCacheKey) || orderedLayoutKeys[0];
+
+      const lastVisitedPage = localStorage.getItem(currentViewCacheKey);
+      if (lastVisitedPage && orderedLayoutKeys.includes(lastVisitedPage)) {
+        firstLayoutKey = lastVisitedPage;
+      } else {
+        firstLayoutKey = orderedLayoutKeys[0];
+      }
 
       orderedLayoutKeys.forEach((key) => {
         layouts[key] = layoutResponse[key].data.layout;
