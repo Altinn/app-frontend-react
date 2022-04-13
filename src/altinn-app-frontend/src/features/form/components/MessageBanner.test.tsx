@@ -3,31 +3,34 @@ import { render } from '@testing-library/react';
 import { AltinnAppTheme } from 'altinn-shared/theme';
 
 import MessageBanner from './MessageBanner';
+import { ILanguage } from 'altinn-shared/types';
 
-describe('form/components/MessageBanner.tsx', () => {
-  let mockLanguage: any;
-  let mockMessageKey: string;
-
-  beforeEach(() => {
-    mockMessageKey = 'form_filler.required_description';
-    mockLanguage = {
-      'form_filler': {
-        'required_description': 'Obligatoriske felter er merket med *',
-      }
+describe('features > form > components > MessageBanner.tsx', () => {
+  const descriptionText = 'Obligatoriske felter er merket med *';
+  const mockLanguage: ILanguage = {
+    'form_filler': {
+      'required_description': descriptionText,
     }
-  });
+  };
+  const mockMessageKey = 'form_filler.required_description';
 
-  test('form/components/MessageBanner -- should match snapshot', () => {
-    const { asFragment } = render(
+
+  it('should have grey background by default', () => {
+    const { getByTestId } = render(
       <MessageBanner
         language={mockLanguage}
         messageKey={mockMessageKey}
       />
     );
-    expect(asFragment()).toMatchSnapshot();
+
+    const messageBanner: HTMLElement = getByTestId('MessageBanner-container');
+    expect(messageBanner).toBeInTheDocument();
+    expect(messageBanner.className).toContain('default');
+    const backgroundColor = window.getComputedStyle(messageBanner).backgroundColor;
+    expect(backgroundColor).toEqual(convertToRgb(AltinnAppTheme.altinnPalette.primary.greyLight));
   });
 
-  test('form/components/MessageBanner -- should have red background when error==true', () => {
+  it('should have red background when error==true', () => {
     const { getByTestId } = render(
       <MessageBanner
         language={mockLanguage}

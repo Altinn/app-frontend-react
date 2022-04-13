@@ -4,55 +4,46 @@ import { render } from '@testing-library/react';
 import Label, { IFormLabelProps } from './Label';
 
 describe('features > form > components >Label.tsx', () => {
-  let mockId: string;
-  let mockLabelText: string;
-  let mockHelpText: string;
-  let mockLanguage: any;
-  let requiredMarking: string;
-  let optionalMarking: string;
+  const mockId =  'label1';
+  const mockLabelText = 'label.text';
+  const mockHelpText = '';
+  const requiredMarking = '*';
+  const optionalMarking = 'valgfri';
+  const mockLanguage = {
+    general: {
+      optional: optionalMarking,
+    },
+    'form_filler': {
+      'required_label': requiredMarking,
+    },
+  };
 
-  beforeEach(() => {
-    mockId =  'label1';
-    mockLabelText = 'label.text';
-    mockHelpText = '';
-    requiredMarking = '*';
-    optionalMarking = 'valgfri';
-    mockLanguage = {
-      general: {
-        optional: optionalMarking,
-      },
-      'form_filler': {
-        'required_label': requiredMarking,
-      },
-    };
-  });
-
-  test('form/components/Label.tsx -- should render default', () => {
+  it('should render default', () => {
     const { asFragment } = renderLabelComponent();
     expect(asFragment()).toMatchSnapshot();
   });
 
-  test('form/components/Label.tsx -- should render required marking when field is required', () => {
+  it('should render required marking when field is required', () => {
     const { queryByText } = renderLabelComponent({ required: true });
     expect(queryByText(requiredMarking)).toBeTruthy();
   });
 
-  test('form/components/Label.tsx -- should not render required marking when field is readOnly', () => {
+  it('should not render required marking when field is readOnly', () => {
     const { queryByText } = renderLabelComponent({ required: true, readOnly: true });
     expect(queryByText(requiredMarking)).toBeFalsy();
   });
 
-  test('form/components/Label.tsx -- should render optional marking when labelSettings.optionalIndicator is true, and required, readOnly are both false', () => {
+  it('should render optional marking when labelSettings.optionalIndicator is true, and required, readOnly are both false', () => {
     const { queryByTestId } = renderLabelComponent({ labelSettings: { optionalIndicator: true } });
     expect(queryByTestId('optional-label')).toBeTruthy();
   });
 
-  test('form/components/Label.tsx -- should not render optional marking when required, even if labelSettings.optionalIndicator is true', () => {
+  it('should not render optional marking when required, even if labelSettings.optionalIndicator is true', () => {
     const { queryByTestId } = renderLabelComponent({ labelSettings: { optionalIndicator: true }, required: true });
     expect(queryByTestId('optional-label')).toBeFalsy();
   });
 
-  test('form/components/Label.tsx -- should not render optional marking when readOnly, even if labelSettings.optionalIndicator is true', () => {
+  it('should not render optional marking when readOnly, even if labelSettings.optionalIndicator is true', () => {
     const { queryByTestId } = renderLabelComponent({ labelSettings: { optionalIndicator: true }, readOnly: true });
     expect(queryByTestId('optional-label')).toBeFalsy();
   });
