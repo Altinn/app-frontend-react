@@ -14,15 +14,23 @@ describe('features / form / layout / fetch / fetchFormLayoutSagas', () => {
     const application = {
       id: 'someOrg/someApp'
     } as IApplication;
+    const mockResponse = {
+      page1: {
+        data: {
+          layout: []
+        }
+      }
+    };
+    const mockResponseTwoLayouts = {
+      ...mockResponse,
+      page2: {
+        data: {
+          layout: []
+        }
+      },
+    };
 
     it('should call relevant actions when layout is fetched successfully', () => {
-      const mockResponse = {
-        page1: {
-          data: {
-            layout: []
-          }
-        }
-      };
       jest.spyOn(networking, 'get').mockResolvedValue(mockResponse);
 
       return expectSaga(fetchLayoutSaga)
@@ -52,19 +60,7 @@ describe('features / form / layout / fetch / fetchFormLayoutSagas', () => {
     });
 
     it('should set current view to cached key if key exists in fetched layout', () => {
-      const mockResponse = {
-        page1: {
-          data: {
-            layout: []
-          }
-        },
-        page2: {
-          data: {
-            layout: []
-          }
-        },
-      };
-      jest.spyOn(networking, 'get').mockResolvedValue(mockResponse);
+      jest.spyOn(networking, 'get').mockResolvedValue(mockResponseTwoLayouts);
       jest.spyOn(window.localStorage.__proto__, 'getItem');
       window.localStorage.__proto__.getItem = jest.fn().mockReturnValue('page2');
 
@@ -80,21 +76,9 @@ describe('features / form / layout / fetch / fetchFormLayoutSagas', () => {
         .put(FormLayoutActions.updateCurrentView({ newView: 'page2', skipPageCaching: true }))
         .run();
     });
-    
+
     it('should set current view to first page in layout if a cached key exists but no longer exists in layout order', () => {
-      const mockResponse = {
-        page1: {
-          data: {
-            layout: []
-          }
-        },
-        page2: {
-          data: {
-            layout: []
-          }
-        },
-      };
-      jest.spyOn(networking, 'get').mockResolvedValue(mockResponse);
+      jest.spyOn(networking, 'get').mockResolvedValue(mockResponseTwoLayouts);
       jest.spyOn(window.localStorage.__proto__, 'getItem');
       window.localStorage.__proto__.getItem = jest.fn().mockReturnValue('page3');
 
@@ -106,6 +90,36 @@ describe('features / form / layout / fetch / fetchFormLayoutSagas', () => {
         ])
         .put(FormLayoutActions.setCurrentViewCacheKey({ key: instance.id }))
         .put(FormLayoutActions.fetchLayoutFulfilled({ layouts: { page1: [], page2: [] }, navigationConfig: { page1: undefined, page2: undefined } }))
+        .put(FormLayoutActions.updateAutoSave({ autoSave: undefined }))
+        .put(FormLayoutActions.updateCurrentView({ newView: 'page1', skipPageCaching: true }))
+        .run();
+    });
+
+    it('should use instance.id as currentViewCacheKey if instance exists', () => {
+      jest.spyOn(networking, 'get').mockResolvedValue(mockResponse);
+      return expectSaga(fetchLayoutSaga)
+        .provide([
+          [select(layoutSetsSelector), undefined],
+          [select(instanceSelector), instance],
+          [select(applicationMetadataSelector), application]
+        ])
+        .put(FormLayoutActions.setCurrentViewCacheKey({ key: instance.id }))
+        .put(FormLayoutActions.fetchLayoutFulfilled({ layouts: { page1: [] }, navigationConfig: { page1: undefined } }))
+        .put(FormLayoutActions.updateAutoSave({ autoSave: undefined }))
+        .put(FormLayoutActions.updateCurrentView({ newView: 'page1', skipPageCaching: true }))
+        .run();
+    });
+
+    it('should use app.id as currentViewCacheKey if no instance exists (stateless)', () => {
+      jest.spyOn(networking, 'get').mockResolvedValue(mockResponse);
+      return expectSaga(fetchLayoutSaga)
+        .provide([
+          [select(layoutSetsSelector), undefined],
+          [select(instanceSelector), undefined],
+          [select(applicationMetadataSelector), application]
+        ])
+        .put(FormLayoutActions.setCurrentViewCacheKey({ key: application.id }))
+        .put(FormLayoutActions.fetchLayoutFulfilled({ layouts: { page1: [] }, navigationConfig: { page1: undefined } }))
         .put(FormLayoutActions.updateAutoSave({ autoSave: undefined }))
         .put(FormLayoutActions.updateCurrentView({ newView: 'page1', skipPageCaching: true }))
         .run();
