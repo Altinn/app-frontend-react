@@ -438,6 +438,32 @@
           "type": "boolean",
           "title": "Secure Options",
           "description": "Boolean value indicating if the options should be instance aware. Defaults to false. See more on docs: https://docs.altinn.studio/app/development/data/options/"
+        },
+        "source": {
+            "type": "object",
+            "title": "Source",
+            "description": "Object to define a data model source to be used as basis for options. Can not be used if options or optionId is set. See more on docs: https://docs.altinn.studio/app/development/data/options/",
+            "properties": {
+                "group": {
+                    "type": "string",
+                    "title": "Group",
+                    "description": "The repeating group to base options on.",
+                    "examples": ["model.some.group"]
+                },
+                "label": {
+                    "type": "string",
+                    "title": "Label",
+                    "description": "Reference to a text resource to be used as the option label.",
+                    "examples": ["some.text.key"]
+                },
+                "value": {
+                    "type": "string",
+                    "title": "Label",
+                    "description": "Field in the group that should be used as value",
+                    "examples": ["model.some.group[{0}].someField"]
+                }
+            },
+            "required": ["group", "label", "value"]
         }
       }
     },
