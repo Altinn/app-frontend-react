@@ -4,9 +4,8 @@ import {
   Grid,
   Input,
   InputLabel,
-  WithStyles,
+  makeStyles,
 } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import * as React from 'react';
 import altinnTheme from '../theme/altinnStudioTheme';
 
@@ -50,8 +49,7 @@ const styles = createStyles({
 });
 
 export interface IAltinnInputProps extends
-  React.InputHTMLAttributes<any>,
-  WithStyles<typeof styles> {
+  React.InputHTMLAttributes<any> {
   iconString?: string;
   widthPercentage?: number;
   showLabel?: boolean;
@@ -59,10 +57,12 @@ export interface IAltinnInputProps extends
   label: string;
 }
 
+const useStyles = makeStyles(styles);
+
 function AltinnInput(props: IAltinnInputProps) {
   const inputRef = React.createRef<HTMLInputElement>();
-  const { classes, iconString, label, widthPercentage, showLabel, validationError, ...rest } = props;
-
+  const { iconString, label, widthPercentage, showLabel, validationError, ...rest } = props;
+  const classes = useStyles();
   function focusInput() {
     inputRef.current.focus();
   }
@@ -92,8 +92,7 @@ function AltinnInput(props: IAltinnInputProps) {
         className={validationError ? classes.altinnInputValidationError : classes.altinnInput}
       >
       {iconString ?
-        // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
-        <i data-testid="altinninput-iconString" className={`${classes.altinnInputIcon} ${iconString}`} onClick={focusInput}/> :
+        <i data-testid="altinninput-iconString" className={`${classes.altinnInputIcon} ${iconString}`}/> :
         null
       }
         <Input
@@ -120,4 +119,4 @@ AltinnInput.defaultProps = {
   validationError: false,
 };
 
-export default withStyles(styles)(AltinnInput);
+export default AltinnInput;
