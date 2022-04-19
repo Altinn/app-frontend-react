@@ -25,13 +25,16 @@ export const AddressLabel = ({
   return (
     <label className='a-form-label title-label' htmlFor={id}>
       {label}
-      {required ||
-      readOnly ||
-      labelSettings?.optionalIndicator === false ? null : (
+      {required && !readOnly &&
+        <span>
+        {` ${getLanguageFromKey('form_filler.required_label', language)}`}
+      </span>
+      }
+      {!required && !readOnly && labelSettings?.optionalIndicator &&
         <span className='label-optional'>
           {` (${getLanguageFromKey('general.optional', language)})`}
         </span>
-      )}
+      }
     </label>
   );
 };
