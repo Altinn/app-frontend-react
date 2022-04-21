@@ -107,7 +107,7 @@ const StyledModal = (props: React.PropsWithChildren<IAltinnModalComponentProvide
             )}
             onClick={props.onClose}
           >
-            <i className={classNames('ai ai-exit-test', classes.iconStyling)}/>
+            <i className={classNames('ai ai-exit-test', classes.iconStyling)} tabIndex={-1}/>
           </IconButton>
         }
         <Typography className={classes.headerText}>

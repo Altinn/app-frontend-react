@@ -29,6 +29,7 @@ const ErrorReport = () => {
       className='a-modal-content-target'
       style={{ marginTop: '55px' }}
       ref={errorRef}
+      tabIndex={-1}
     >
       <div className='a-page a-current-page'>
         <div className='modalPage'>
