@@ -5,12 +5,16 @@ import { getUnmappedErrors } from 'src/utils/validation';
 import { useAppSelector } from 'src/common/hooks';
 
 const ErrorReport = () => {
-  const validations = useAppSelector(state => state.formValidations.validations,);
+  const validations = useAppSelector(
+    (state) => state.formValidations.validations,
+  );
   const unmappedErrors = getUnmappedErrors(validations);
   const hasUnmappedErrors = unmappedErrors.length > 0;
-  const language = useAppSelector(state => state.language.language);
-  const formHasErrors = useAppSelector(state => getFormHasErrors(state.formValidations.validations));
-  const hasSubmitted = useAppSelector(state => state.formData.hasSubmitted);
+  const language = useAppSelector((state) => state.language.language);
+  const formHasErrors = useAppSelector((state) =>
+    getFormHasErrors(state.formValidations.validations),
+  );
+  const hasSubmitted = useAppSelector((state) => state.formData.hasSubmitted);
   const errorRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -64,16 +68,17 @@ const ErrorReport = () => {
               className='modal-body a-modal-body'
               style={{ paddingTop: '0px', paddingBottom: '24px' }}
             >
-              {hasUnmappedErrors &&
+              {hasUnmappedErrors && (
                 <div>
-                  <ul style={{ listStylePosition: 'inside'}}>
-                    {unmappedErrors.map((error: React.ReactNode, index: number) => {
-                      return (
-                        <li key={index}>{error}</li>
-                      );
-                    })}
+                  <ul style={{ listStylePosition: 'inside' }}>
+                    {unmappedErrors.map(
+                      (error: React.ReactNode, index: number) => {
+                        return <li key={index}>{error}</li>;
+                      },
+                    )}
                   </ul>
-                </div>}
+                </div>
+              )}
               {!hasUnmappedErrors && (
                 // No errors to list, show a generic error message
                 <h4 className='a-fontReg' style={{ marginBottom: '12px' }}>

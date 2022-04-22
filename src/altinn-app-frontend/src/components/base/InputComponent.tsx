@@ -63,11 +63,10 @@ function NumberFormatCustom(props: IFormattedNumberInputProps) {
   );
 }
 
-export function BasicInputComponent(props: IBasicInputProps) {
-  const { inputRef, ...rest } = props;
+export function BasicInputComponent({ inputRef, ...rest }: IBasicInputProps) {
   return (
     <>
-      <input data-testid={props.id} ref={ inputRef } {...rest} />
+      <input data-testid={rest.id} ref={inputRef} {...rest} />
     </>
   );
 }

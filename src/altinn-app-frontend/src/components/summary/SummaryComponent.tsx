@@ -1,23 +1,27 @@
 import * as React from 'react';
-import {Grid, makeStyles} from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import {
   componentHasValidationMessages,
   getComponentValidations,
   getDisplayFormDataForComponent,
 } from 'src/utils/formComponentUtils';
-import {shallowEqual} from 'react-redux';
-import {getTextFromAppOrDefault} from 'src/utils/textResource';
-import {IGrid, ILayoutComponent, ISelectionComponentProps} from 'src/features/form/layout';
-import {FormLayoutActions} from 'src/features/form/layout/formLayoutSlice';
-import {IComponentValidations} from 'src/types';
-import {makeGetHidden} from 'src/selectors/getLayoutData';
+import { shallowEqual } from 'react-redux';
+import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import {
+  IGrid,
+  ILayoutComponent,
+  ISelectionComponentProps,
+} from 'src/features/form/layout';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { IComponentValidations } from 'src/types';
+import { makeGetHidden } from 'src/selectors/getLayoutData';
 import ErrorPaper from '../message/ErrorPaper';
 import SummaryGroupComponent from './SummaryGroupComponent';
 import SingleInputSummary from './SingleInputSummary';
-import {AttachmentSummaryComponent} from './AttachmentSummaryComponent';
-import {AttachmentWithTagSummaryComponent} from './AttachmentWithTagSummaryComponent';
+import { AttachmentSummaryComponent } from './AttachmentSummaryComponent';
+import { AttachmentWithTagSummaryComponent } from './AttachmentWithTagSummaryComponent';
 import MultipleChoiceSummary from './MultipleChoiceSummary';
-import {useAppDispatch, useAppSelector} from 'src/common/hooks';
+import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 
 export interface ISummaryComponent {
   id: string;
@@ -48,14 +52,19 @@ const useStyles = makeStyles({
 export function SummaryComponent(props: ISummaryComponent) {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const {pageRef, id} = props;
+  const { pageRef, id } = props;
   const GetHiddenSelector = makeGetHidden();
   const [componentValidations, setComponentValidations] =
     React.useState<IComponentValidations>({});
-  const [hasValidationMessages, setHasValidationMessages] = React.useState(false);
-  const hidden: boolean = useAppSelector(state => GetHiddenSelector(state, {id}));
-  const summaryPageName = useAppSelector(state => state.formLayout.uiConfig.currentView);
-  const changeText = useAppSelector(state =>
+  const [hasValidationMessages, setHasValidationMessages] =
+    React.useState(false);
+  const hidden: boolean = useAppSelector((state) =>
+    GetHiddenSelector(state, { id }),
+  );
+  const summaryPageName = useAppSelector(
+    (state) => state.formLayout.uiConfig.currentView,
+  );
+  const changeText = useAppSelector((state) =>
     getTextFromAppOrDefault(
       'form_filler.summary_item_change',
       state.textResources.resources,
@@ -64,14 +73,18 @@ export function SummaryComponent(props: ISummaryComponent) {
       true,
     ),
   );
-  const formValidations = useAppSelector(state => state.formValidations.validations);
-  const layout = useAppSelector(state => state.formLayout.layouts[props.pageRef]);
-  const formComponent = useAppSelector(state => {
+  const formValidations = useAppSelector(
+    (state) => state.formValidations.validations,
+  );
+  const layout = useAppSelector(
+    (state) => state.formLayout.layouts[props.pageRef],
+  );
+  const formComponent = useAppSelector((state) => {
     return state.formLayout.layouts[props.pageRef].find(
       (c) => c.id === props.componentRef,
     );
   });
-  const goToCorrectPageLinkText = useAppSelector(state => {
+  const goToCorrectPageLinkText = useAppSelector((state) => {
     return getTextFromAppOrDefault(
       'form_filler.summary_go_to_correct_page',
       state.textResources.resources,
@@ -80,12 +93,13 @@ export function SummaryComponent(props: ISummaryComponent) {
       true,
     );
   });
-  const formData = useAppSelector(state => {
+  const formData = useAppSelector((state) => {
     if (
       formComponent.type.toLowerCase() === 'group' ||
       formComponent.type.toLowerCase() === 'fileupload' ||
       formComponent.type.toLowerCase() === 'fileuploadwithtag'
-    ) return undefined;
+    )
+      return undefined;
     return (
       props.formData ||
       getDisplayFormDataForComponent(
@@ -97,7 +111,7 @@ export function SummaryComponent(props: ISummaryComponent) {
       )
     );
   }, shallowEqual);
-  const title = useAppSelector(state => {
+  const title = useAppSelector((state) => {
     const titleKey = formComponent.textResourceBindings?.title;
     if (titleKey) {
       return getTextFromAppOrDefault(
@@ -150,16 +164,11 @@ export function SummaryComponent(props: ISummaryComponent) {
     }
     const change = {
       onChangeClick,
-      changeText
-    }
+      changeText,
+    };
     switch (formComponent.type.toLowerCase()) {
       case 'group': {
-        return (
-          <SummaryGroupComponent
-            {...change}
-            {...props}
-          />
-        );
+        return <SummaryGroupComponent {...change} {...props} />;
       }
       case 'fileupload': {
         return (
@@ -224,15 +233,16 @@ export function SummaryComponent(props: ISummaryComponent) {
       <Grid container={true} className={classes.row}>
         {renderSummaryComponent()}
         {hasValidationMessages && (
-          <Grid
-            container={true}
-            style={{paddingTop: '12px'}}
-            spacing={2}
-          >
+          <Grid container={true} style={{ paddingTop: '12px' }} spacing={2}>
             {Object.keys(componentValidations).map((binding: string) =>
               componentValidations[binding]?.errors?.map(
-                (validationText: string) => <ErrorPaper key={`key-${validationText}`} message={validationText}/>
-              )
+                (validationText: string) => (
+                  <ErrorPaper
+                    key={`key-${validationText}`}
+                    message={validationText}
+                  />
+                ),
+              ),
             )}
             <Grid item={true} xs={12}>
               <button

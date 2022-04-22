@@ -1,9 +1,17 @@
-import {createTheme, createStyles, makeStyles, IconButton, Typography, Modal} from '@material-ui/core';
+import {
+  createTheme,
+  createStyles,
+  makeStyles,
+  IconButton,
+  Typography,
+  Modal,
+} from '@material-ui/core';
 import classNames from 'classnames';
 import * as React from 'react';
 import altinnTheme from './../../theme/altinnStudioTheme';
 
-export interface IAltinnModalComponentProvidedProps extends IAltinnModalComponentState {
+export interface IAltinnModalComponentProvidedProps
+  extends IAltinnModalComponentState {
   /** Text or react element shown in the header */
   headerText?: any;
   /** Show close-icon outside modal */
@@ -94,37 +102,42 @@ const styles = createStyles({
 
 const useStyles = makeStyles(styles);
 
-const StyledModal = (props: React.PropsWithChildren<IAltinnModalComponentProvidedProps>) => {
+const StyledModal = (
+  props: React.PropsWithChildren<IAltinnModalComponentProvidedProps>,
+) => {
   const classes = useStyles();
   return (
     <div className={classes.modal}>
       <div className={classes.header}>
-        {props.hideCloseIcon && props.hideCloseIcon === true ? null :
+        {props.hideCloseIcon && props.hideCloseIcon === true ? null : (
           <IconButton
-            className={classNames(
-              classes.iconBtn,
-              {[classes.closeButtonOutsideModal]: props.closeButtonOutsideModal === true},
-            )}
+            className={classNames(classes.iconBtn, {
+              [classes.closeButtonOutsideModal]:
+                props.closeButtonOutsideModal === true,
+            })}
             onClick={props.onClose}
           >
-            <i className={classNames('ai ai-exit-test', classes.iconStyling)} tabIndex={-1}/>
+            <i
+              className={classNames('ai ai-exit-test', classes.iconStyling)}
+              tabIndex={-1}
+            />
           </IconButton>
-        }
+        )}
         <Typography className={classes.headerText}>
           {props.headerText}
         </Typography>
       </div>
-      <div className={classes.body}>
-        {props.children}
-      </div>
+      <div className={classes.body}>{props.children}</div>
     </div>
   );
-}
+};
 
-const AltinnModal = (props: React.PropsWithChildren<IAltinnModalComponentProvidedProps>) => {
+const AltinnModal = (
+  props: React.PropsWithChildren<IAltinnModalComponentProvidedProps>,
+) => {
   const classes = useStyles();
   if (!props.printView) {
-    const {isOpen, hideBackdrop, allowCloseOnBackdropClick, onClose} = props;
+    const { isOpen, hideBackdrop, allowCloseOnBackdropClick, onClose } = props;
     return (
       <Modal
         open={isOpen}
@@ -132,13 +145,11 @@ const AltinnModal = (props: React.PropsWithChildren<IAltinnModalComponentProvide
         hideBackdrop={hideBackdrop}
         onBackdropClick={allowCloseOnBackdropClick === false ? null : onClose}
       >
-        <StyledModal {...props}/>
+        <StyledModal {...props} />
       </Modal>
     );
   }
-  return (
-    <StyledModal {...props}/>
-  );
-}
+  return <StyledModal {...props} />;
+};
 
 export default AltinnModal;

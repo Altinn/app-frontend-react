@@ -48,8 +48,7 @@ const styles = createStyles({
   },
 });
 
-export interface IAltinnInputProps extends
-  React.InputHTMLAttributes<any> {
+export interface IAltinnInputProps extends React.InputHTMLAttributes<any> {
   iconString?: string;
   widthPercentage?: number;
   showLabel?: boolean;
@@ -61,8 +60,16 @@ const useStyles = makeStyles(styles);
 
 function AltinnInput(props: IAltinnInputProps) {
   const inputRef = React.createRef<HTMLInputElement>();
-  const { iconString, label, widthPercentage, showLabel, validationError, ...rest } = props;
+  const {
+    iconString,
+    label,
+    widthPercentage,
+    showLabel,
+    validationError,
+    ...rest
+  } = props;
   const classes = useStyles();
+
   function focusInput() {
     inputRef.current.focus();
   }
@@ -78,28 +85,29 @@ function AltinnInput(props: IAltinnInputProps) {
         width: widthPercentage ? `${widthPercentage}%` : '100%',
       }}
     >
-      {showLabel ?
-        <InputLabel
-          className={classes.altinnInputLabel}
-        >
-          {label}
-        </InputLabel>
-        : null
-      }
+      {showLabel ? (
+        <InputLabel className={classes.altinnInputLabel}>{label}</InputLabel>
+      ) : null}
       <Grid
         container={true}
         direction={'row'}
-        className={validationError ? classes.altinnInputValidationError : classes.altinnInput}
+        className={
+          validationError
+            ? classes.altinnInputValidationError
+            : classes.altinnInput
+        }
       >
-      {iconString ?
-        <i data-testid="altinninput-iconString" className={`${classes.altinnInputIcon} ${iconString}`}/> :
-        null
-      }
+        {iconString ? (
+          <i
+            data-testid='altinninput-iconString'
+            className={`${classes.altinnInputIcon} ${iconString}`}
+          />
+        ) : null}
         <Input
           inputProps={{
             'aria-label': `${label}`,
             'aria-required': 'true',
-            ...rest
+            ...rest,
           }}
           className={classes.altinnInputField}
           disableUnderline={true}
