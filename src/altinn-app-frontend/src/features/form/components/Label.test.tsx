@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 
-import Label, { IFormLabelProps } from './Label';
+import Label from './Label';
+import type { IFormLabelProps } from './Label';
 
 describe('features > form > components >Label.tsx', () => {
   const mockId =  'label1';
@@ -18,10 +19,6 @@ describe('features > form > components >Label.tsx', () => {
     },
   };
 
-  it('should render default', () => {
-    const { asFragment } = renderLabelComponent();
-    expect(asFragment()).toMatchSnapshot();
-  });
 
   it('should render required marking when field is required', () => {
     const { queryByText } = renderLabelComponent({ required: true });

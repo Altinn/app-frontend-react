@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import { AltinnAppTheme } from 'altinn-shared/theme';
 
 import MessageBanner from './MessageBanner';
-import { ILanguage } from 'altinn-shared/types';
+import type { ILanguage } from 'altinn-shared/types';
 
 describe('features > form > components > MessageBanner.tsx', () => {
   const descriptionText = 'Obligatoriske felter er merket med *';
@@ -23,7 +23,7 @@ describe('features > form > components > MessageBanner.tsx', () => {
       />
     );
 
-    const messageBanner: HTMLElement = getByTestId('MessageBanner-container');
+    const messageBanner = getByTestId('MessageBanner-container');
     expect(messageBanner).toBeInTheDocument();
     expect(messageBanner.className).toContain('default');
     const backgroundColor = window.getComputedStyle(messageBanner).backgroundColor;

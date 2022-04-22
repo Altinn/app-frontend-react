@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 
-import Legend, {  IFormLegendProps } from './Legend';
+import Legend from './Legend';
+import type { IFormLegendProps } from './Legend';
 
 describe('features > form > components > Legend.tsx', () => {
   const mockId =  'label1';
@@ -19,10 +20,6 @@ describe('features > form > components > Legend.tsx', () => {
     },
   };
 
-  it('should render default', () => {
-    const { asFragment } = renderLegendComponent();
-    expect(asFragment()).toMatchSnapshot();
-  });
 
   it('should render required marking when field is required', () => {
     const { queryByText } = renderLegendComponent({ required: true });

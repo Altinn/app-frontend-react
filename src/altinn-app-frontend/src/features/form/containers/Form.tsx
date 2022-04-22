@@ -67,7 +67,7 @@ function RenderLayoutGroup(layoutGroup: ILayoutGroup, layout: ILayout): JSX.Elem
 export function Form() {
   const [filteredLayout, setFilteredLayout] = React.useState<any[]>([]);
   const [currentLayout, setCurrentLayout] = React.useState<string>();
-  const [requiredFieldsMissing, setRequiredFieldsMissing] = React.useState<boolean>(false);
+  const [requiredFieldsMissing, setRequiredFieldsMissing] = React.useState(false);
 
   const currentView = useAppSelector(state => state.formLayout.uiConfig.currentView);
   const layout = useAppSelector(state => state.formLayout.layouts[state.formLayout.uiConfig.currentView]);

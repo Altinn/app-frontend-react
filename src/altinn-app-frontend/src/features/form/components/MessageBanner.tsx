@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import { AltinnAppTheme } from 'altinn-shared/theme';
 import { getLanguageFromKey } from 'altinn-shared/utils';
-import { ILanguage } from 'altinn-shared/types';
+import type { ILanguage } from 'altinn-shared/types';
 import classNames from 'classnames';
 
 const useStyles = makeStyles({
@@ -26,7 +26,7 @@ const useStyles = makeStyles({
   }
 });
 
-export interface IMessageBannerProps {
+interface IMessageBannerProps {
   language: ILanguage;
   error?: boolean;
   messageKey: string;
