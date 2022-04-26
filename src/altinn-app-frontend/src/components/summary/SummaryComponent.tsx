@@ -166,11 +166,13 @@ export function SummaryComponent(props: ISummaryComponent) {
       onChangeClick,
       changeText,
     };
-    switch (formComponent.type.toLowerCase()) {
+
+    switch (formComponent.type) {
+      case 'Group':
       case 'group': {
         return <SummaryGroupComponent {...change} {...props} />;
       }
-      case 'fileupload': {
+      case 'FileUpload': {
         return (
           <AttachmentSummaryComponent
             {...change}
@@ -180,7 +182,7 @@ export function SummaryComponent(props: ISummaryComponent) {
           />
         );
       }
-      case 'fileuploadwithtag': {
+      case 'FileUploadWithTag': {
         return (
           <AttachmentWithTagSummaryComponent
             {...change}
@@ -191,7 +193,7 @@ export function SummaryComponent(props: ISummaryComponent) {
           />
         );
       }
-      case 'checkboxes': {
+      case 'Checkboxes': {
         return (
           <MultipleChoiceSummary
             {...change}
