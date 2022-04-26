@@ -226,10 +226,12 @@ function SummaryGroupComponent({
               `${groupComponent.dataModelBindings.group}[${i}]`,
             );
             if (parentGroup) {
-              const parentGroup = layout.find((c) => c.id === parentGroup);
+              const { dataModelBindings } = layout.find(
+                (c) => c.id === parentGroup,
+              );
               binding = binding.replace(
-                parentGroup.dataModelBindings.group,
-                `${parentGroup.dataModelBindings.group}[${index}]`,
+                dataModelBindings.group,
+                `${dataModelBindings.group}[${index}]`,
               );
             }
             componentDeepCopy.dataModelBindings[key] = binding;
