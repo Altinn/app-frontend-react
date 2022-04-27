@@ -5,21 +5,34 @@ import Legend from './Legend';
 import type { IFormLegendProps } from './Legend';
 
 describe('features > form > components > Legend.tsx', () => {
-  const mockId =  'label1';
-  const mockLegendText = 'label.text';
-  const mockHelpText = '';
-  const mockDescriptionText = '';
   const requiredMarking = '*';
-  const optionalMarking = 'valgfri';
-  const mockLanguage = {
-    general: {
-      optional: optionalMarking,
-    },
-    'form_filler': {
-      'required_label': requiredMarking,
-    },
-  };
+  const optionalMarking = 'Valgfri';
 
+  function renderLegendComponent(props: Partial<IFormLegendProps> = {}) {
+    const defaultProps: IFormLegendProps = {
+      id: 'label1',
+      labelText: 'label.text',
+      descriptionText: '',
+      helpText: '',
+      language: {
+        general: {
+          optional: optionalMarking,
+        },
+        'form_filler': {
+          'required_label': requiredMarking,
+        },
+      },
+      required: false,
+      labelSettings: {}
+    };
+
+    return render(<Legend {...defaultProps} {...props} />);
+  }
+
+  it('should render legend', () => {
+    const { queryByText } = renderLegendComponent();
+    expect(queryByText('label.text')).toBeInTheDocument();
+  });
 
   it('should render required marking when field is required', () => {
     const { queryByText } = renderLegendComponent({ required: true });
@@ -27,26 +40,12 @@ describe('features > form > components > Legend.tsx', () => {
   });
 
   it('should render optional marking when labelSettings.optionalIndicator is true', () => {
-    const { queryByTestId } = renderLegendComponent({ labelSettings: { optionalIndicator: true } });
-    expect(queryByTestId('optional-label')).toBeTruthy();
+    const { queryByText } = renderLegendComponent({ labelSettings: { optionalIndicator: true } });
+    expect(queryByText(`(${optionalMarking})`)).toBeTruthy();
   });
 
   it('should not render optional marking when required, even if labelSettings.optionalIndicator is true', () => {
-    const { queryByTestId } = renderLegendComponent({ labelSettings: { optionalIndicator: true }, required: true });
-    expect(queryByTestId('optional-label')).toBeFalsy();
+    const { queryByText } = renderLegendComponent({ labelSettings: { optionalIndicator: true }, required: true });
+    expect(queryByText(`(${optionalMarking})`)).toBeFalsy();
   });
-
-  function renderLegendComponent(props: Partial<IFormLegendProps> = {}) {
-    const defaultProps: IFormLegendProps = {
-      id: mockId,
-      labelText: mockLegendText,
-      descriptionText: mockDescriptionText,
-      helpText: mockHelpText,
-      language: mockLanguage,
-      required: false,
-      labelSettings: {}
-    };
-
-    return render(<Legend {...defaultProps} {...props} />);
-  }
 });

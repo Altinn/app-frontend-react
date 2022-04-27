@@ -14,7 +14,6 @@ describe('features > form > components > MessageBanner.tsx', () => {
   };
   const mockMessageKey = 'form_filler.required_description';
 
-
   it('should have grey background by default', () => {
     const { getByTestId } = render(
       <MessageBanner

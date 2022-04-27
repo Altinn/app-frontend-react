@@ -32,20 +32,20 @@ interface IMessageBannerProps {
   messageKey: string;
 }
 
-export default function MessageBanner(props: IMessageBannerProps) {
+export default function MessageBanner({ language, error, messageKey}: IMessageBannerProps) {
   const classes = useStyles();
 
   return (
     <Grid
-      id={'MessageBanner-container'}
+      id='MessageBanner-container'
       item={true}
       className={classNames(
         classes.banner,
-        props.error ? classes.error : classes.default
+        error ? classes.error : classes.default
       )}
-      data-testid={'MessageBanner-container'}
+      data-testid='MessageBanner-container'
     >
-      <span>{getLanguageFromKey(props.messageKey, props.language)}</span>
+      <span>{getLanguageFromKey(messageKey, language)}</span>
     </Grid>
   );
 }

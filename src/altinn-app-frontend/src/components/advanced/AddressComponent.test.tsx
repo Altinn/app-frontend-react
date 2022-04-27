@@ -60,37 +60,57 @@ const getField = ({ method, regex }) =>
     name: regex,
   });
 
-const getAddressField = ({ useQuery = false, optional = false } = {}) => {
+const getAddressField = ({ useQuery = false, optional = false, required = false } = {}) => {
   const method = useQuery ? 'queryByRole' : 'getByRole';
-  const regex = optional
-    ? /^address_component\.address \(general\.optional\)$/i
-    : /^address_component\.address$/i;
+  let regex;
+  if (required) {
+    regex = /^address_component\.address form_filler\.required_label$/i;
+  } else if (optional) {
+    regex = /^address_component\.address \(general\.optional\)$/i;
+  } else {
+    regex = /^address_component\.address$/i;
+  }
 
   return getField({ method, regex });
 };
-const getZipCodeField = ({ useQuery = false, optional = false } = {}) => {
+const getZipCodeField = ({ useQuery = false, optional = false, required = false } = {}) => {
   const method = useQuery ? 'queryByRole' : 'getByRole';
-  const regex = optional
-    ? /^address_component\.zip_code \(general\.optional\)$/i
-    : /^address_component\.zip_code$/i;
+  let regex;
+  if (required) {
+    regex = /^address_component\.zip_code form_filler\.required_label$/i;
+  } else if (optional) {
+    regex = /^address_component\.zip_code \(general\.optional\)$/i;
+  } else {
+    regex = /^address_component\.zip_code$/i;
+  }
 
   return getField({ method, regex });
 };
 
-const getGareOfField = ({ useQuery = false, optional = false } = {}) => {
+const getGareOfField = ({ useQuery = false, optional = false, required = false } = {}) => {
   const method = useQuery ? 'queryByRole' : 'getByRole';
-  const regex = optional
-    ? /^address_component\.care_of \(general\.optional\)$/i
-    : /^address_component\.care_of$/i;
+  let regex;
+  if (required) {
+    regex = /^address_component\.care_of form_filler\.required_label$/i;
+  } else if (optional) {
+    regex = /^address_component\.care_of \(general\.optional\)$/i;
+  } else {
+    regex = /^address_component\.care_of$/i;
+  }
 
   return getField({ method, regex });
 };
 
-const getHouseNumberField = ({ useQuery = false, optional = false } = {}) => {
+const getHouseNumberField = ({ useQuery = false, optional = false, required = false } = {}) => {
   const method = useQuery ? 'queryByRole' : 'getByRole';
-  const regex = optional
-    ? /^address_component\.house_number \(general\.optional\)$/i
-    : /^address_component\.house_number$/i;
+  let regex;
+  if (required) {
+    regex = /^address_component\.house_number form_filler\.required_label$/i;
+  } else if (optional) {
+    regex = /^address_component\.house_number \(general\.optional\)$/i;
+  } else {
+    regex = /^address_component\.house_number$/i;
+  }
 
   return getField({ method, regex });
 };
@@ -100,20 +120,16 @@ const getPostPlaceField = () =>
 
 describe('components > advanced > AddressComponent', () => {
   it('should return simplified version when simplified is true', () => {
-    render();
+    render({
+      simplified: true,
+    });
 
-    expect(getAddressField({ optional: true })).toBeInTheDocument();
-    expect(getZipCodeField({ optional: true })).toBeInTheDocument();
+    expect(getAddressField()).toBeInTheDocument();
+    expect(getZipCodeField()).toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
 
     expect(getGareOfField({ useQuery: true })).not.toBeInTheDocument();
     expect(getHouseNumberField({ useQuery: true })).not.toBeInTheDocument();
-    expect(
-      getGareOfField({ optional: true, useQuery: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getHouseNumberField({ optional: true, useQuery: true }),
-    ).not.toBeInTheDocument();
   });
 
   it('should return complex version when simplified is false', () => {
@@ -121,11 +137,11 @@ describe('components > advanced > AddressComponent', () => {
       simplified: false,
     });
 
-    expect(getAddressField({ optional: true })).toBeInTheDocument();
-    expect(getZipCodeField({ optional: true })).toBeInTheDocument();
+    expect(getAddressField()).toBeInTheDocument();
+    expect(getZipCodeField()).toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
-    expect(getGareOfField({ optional: true })).toBeInTheDocument();
-    expect(getHouseNumberField({ optional: true })).toBeInTheDocument();
+    expect(getGareOfField()).toBeInTheDocument();
+    expect(getHouseNumberField()).toBeInTheDocument();
   });
 
   it('should fire change event when user types into field, and field is blurred', () => {
@@ -139,7 +155,7 @@ describe('components > advanced > AddressComponent', () => {
       handleDataChange,
     });
 
-    const address = getAddressField({ optional: true });
+    const address = getAddressField();
     userEvent.type(address, 'Slottsplassen 1');
     fireEvent.blur(address);
 
@@ -180,7 +196,7 @@ describe('components > advanced > AddressComponent', () => {
       handleDataChange,
     });
 
-    const field = getZipCodeField();
+    const field = getZipCodeField({ required: true });
     userEvent.type(field, '1');
     fireEvent.blur(field);
 
@@ -223,7 +239,7 @@ describe('components > advanced > AddressComponent', () => {
       handleDataChange,
     });
 
-    const field = getZipCodeField();
+    const field = getZipCodeField({ required: true });
     userEvent.clear(field);
     userEvent.type(field, '0001');
     fireEvent.blur(field);
@@ -245,7 +261,7 @@ describe('components > advanced > AddressComponent', () => {
     expect(screen.getByDisplayValue('0001')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Oslo')).toBeInTheDocument();
 
-    const field = getZipCodeField({ optional: true });
+    const field = getZipCodeField();
     userEvent.clear(field);
     fireEvent.blur(field);
 
@@ -273,28 +289,28 @@ describe('components > advanced > AddressComponent', () => {
     expect(screen.queryByText(errorMessage)).toBeInTheDocument();
   });
 
-  it('should display optional labels when required is false, and labelSettings.optionalIndicator is not false', () => {
+  it('should display no extra markings when required is false, and labelSettings.optionalIndicator is not true', () => {
     render({
       required: false,
       simplified: false,
     });
-    expect(getAddressField({ optional: true })).toBeInTheDocument();
-    expect(getZipCodeField({ optional: true })).toBeInTheDocument();
+    expect(getAddressField()).toBeInTheDocument();
+    expect(getZipCodeField()).toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
-    expect(getGareOfField({ optional: true })).toBeInTheDocument();
-    expect(getHouseNumberField({ optional: true })).toBeInTheDocument();
+    expect(getGareOfField()).toBeInTheDocument();
+    expect(getHouseNumberField()).toBeInTheDocument();
   });
 
-  it('should not display optional labels when required is true', () => {
+  it('should display required labels when required is true', () => {
     render({
       required: true,
       simplified: false,
     });
 
-    expect(getAddressField()).toBeInTheDocument();
-    expect(getZipCodeField()).toBeInTheDocument();
-    expect(getGareOfField()).toBeInTheDocument();
-    expect(getHouseNumberField()).toBeInTheDocument();
+    expect(getAddressField({ required: true })).toBeInTheDocument();
+    expect(getZipCodeField({ required: true })).toBeInTheDocument();
+    expect(getGareOfField({ required: true })).toBeInTheDocument();
+    expect(getHouseNumberField({ required: true })).toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
 
     expect(
@@ -331,12 +347,9 @@ describe('components > advanced > AddressComponent', () => {
     expect(getHouseNumberField({ optional: true })).toBeInTheDocument();
   });
 
-  it('should not display optional labels when optionalIndicator is false', () => {
+  it('should not display optional labels by default', () => {
     render({
       simplified: false,
-      labelSettings: {
-        optionalIndicator: false,
-      },
     });
 
     expect(
@@ -423,10 +436,10 @@ describe('components > advanced > AddressComponent', () => {
       },
     });
 
-    expect(getAddressField()).toBeInTheDocument();
-    expect(getZipCodeField()).toBeInTheDocument();
-    expect(getGareOfField()).toBeInTheDocument();
-    expect(getHouseNumberField()).toBeInTheDocument();
+    expect(getAddressField({ required: true })).toBeInTheDocument();
+    expect(getZipCodeField({ required: true })).toBeInTheDocument();
+    expect(getGareOfField({ required: true })).toBeInTheDocument();
+    expect(getHouseNumberField({ required: true })).toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
 
     expect(

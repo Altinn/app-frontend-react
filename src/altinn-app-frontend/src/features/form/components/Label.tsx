@@ -2,9 +2,10 @@
 import * as React from 'react';
 import { Grid } from '@material-ui/core';
 import { ILabelSettings } from 'src/types';
-import { getLanguageFromKey } from 'altinn-shared/utils';
 import { HelpTextContainer } from './HelpTextContainer';
 import { ILanguage } from 'altinn-shared/types';
+import { RequiredIndicator } from './RequiredIndicator';
+import { OptionalIndicator } from './OptionalIndicator';
 
 export interface IFormLabelProps {
   labelText: any;
@@ -21,6 +22,9 @@ export default function Label(props: IFormLabelProps) {
     return null;
   }
 
+  const shouldShowRequiredMarking = props.required && !props.readOnly;
+  const shouldShowOptionalMarking = props.labelSettings?.optionalIndicator && !props.required && !props.readOnly;
+
   return (
     <Grid item={true} container={true} xs={12}>
       <Grid item={true}>
@@ -30,18 +34,12 @@ export default function Label(props: IFormLabelProps) {
           data-testid={`label-${props.id}`}
         >
           {props.labelText}
-          {/* Mark required fields (unless field is readOnly) */}
-          {props.required && !props.readOnly ? (
-            <span className='label-optional'>
-              {` ${getLanguageFromKey('form_filler.required_label', props.language)}`}
-            </span>
-          ) : null}
-          {/* Mark optional fields only if optionalIndicator===true (and field is not readOnly) */}
-          {props.labelSettings?.optionalIndicator && !props.required && !props.readOnly ? (
-            <span className='label-optional' data-testid='optional-label'>
-            {` (${getLanguageFromKey('general.optional', props.language)})`}
-            </span>
-          ) : null}
+          {shouldShowRequiredMarking &&
+            <RequiredIndicator language={props.language}/>
+          }
+          {shouldShowOptionalMarking &&
+            <OptionalIndicator language={props.language}/>
+          }
         </label>
       </Grid>
       {props.helpText && (
