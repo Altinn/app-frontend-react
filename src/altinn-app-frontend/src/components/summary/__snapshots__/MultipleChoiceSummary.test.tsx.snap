@@ -40,6 +40,7 @@ exports[`components/summary/MultipleChoiceSummary.tsx components/summary/Multipl
   </div>
   <div
     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12"
+    data-testid="multiple-choice-summary"
   >
     <ul
       class="MuiList-root MuiList-padding"
