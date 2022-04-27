@@ -30,14 +30,30 @@ const attachment2 = {
 };
 
 describe('AltinnReceipt', () => {
-  it('should show titleSubmitted when set', () => {
+  it('should not show titleSubmitted when there are no pdfs', () => {
     render();
+
+    expect(
+      screen.queryByRole('heading', {
+        name: /titlesubmitted/i,
+      }),
+    ).not.toBeInTheDocument();
+
+    // No list of attachments expected
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+
+  it('should show titleSubmitted when there are pdfs', () => {
+    render({ pdf: [{}] });
 
     expect(
       screen.getByRole('heading', {
         name: /titlesubmitted/i,
       }),
     ).toBeInTheDocument();
+
+    // A list of attachments expected
+    expect(screen.getByRole('list')).toBeInTheDocument();
   });
 
   it('should not show titleSubmitted when not set', () => {
