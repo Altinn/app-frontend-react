@@ -141,7 +141,7 @@ export function ReceiptComponent(props: IReceiptComponentProps) {
         >
           {props.body}
         </Typography>
-        {props.pdf && props.pdf.length && (
+        {props.pdf && props.pdf.length > 0 && (
           <React.Fragment>
               {props.titleSubmitted && (
               <Typography
