@@ -39,8 +39,7 @@ describe('AltinnReceipt', () => {
       }),
     ).not.toBeInTheDocument();
 
-    // No list of attachments expected
-    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('attachment-list')).not.toBeInTheDocument();
   });
 
   it('should show titleSubmitted when there are pdfs', () => {
@@ -52,8 +51,7 @@ describe('AltinnReceipt', () => {
       }),
     ).toBeInTheDocument();
 
-    // A list of attachments expected
-    expect(screen.getByRole('list')).toBeInTheDocument();
+    expect(screen.getByTestId('attachment-list')).toBeInTheDocument();
   });
 
   it('should not show titleSubmitted when not set', () => {
