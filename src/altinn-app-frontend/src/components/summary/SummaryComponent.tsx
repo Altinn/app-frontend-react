@@ -22,6 +22,7 @@ import { AttachmentSummaryComponent } from './AttachmentSummaryComponent';
 import { AttachmentWithTagSummaryComponent } from './AttachmentWithTagSummaryComponent';
 import MultipleChoiceSummary from './MultipleChoiceSummary';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import SummaryWrapper from 'src/components/summary/SummaryWrapper';
 
 export interface ISummaryComponent {
   id: string;
@@ -173,23 +174,27 @@ export function SummaryComponent(props: ISummaryComponent) {
       }
       case 'FileUpload': {
         return (
-          <AttachmentSummaryComponent
+          <SummaryWrapper
             {...change}
             label={title}
             hasValidationMessages={hasValidationMessages}
-            componentRef={props.componentRef}
-          />
+          >
+            <AttachmentSummaryComponent componentRef={props.componentRef} />
+          </SummaryWrapper>
         );
       }
       case 'FileUploadWithTag': {
         return (
-          <AttachmentWithTagSummaryComponent
+          <SummaryWrapper
             {...change}
             label={title}
             hasValidationMessages={hasValidationMessages}
-            componentRef={props.componentRef}
-            component={formComponent as ISelectionComponentProps}
-          />
+          >
+            <AttachmentWithTagSummaryComponent
+              componentRef={props.componentRef}
+              component={formComponent as ISelectionComponentProps}
+            />
+          </SummaryWrapper>
         );
       }
       case 'Checkboxes': {

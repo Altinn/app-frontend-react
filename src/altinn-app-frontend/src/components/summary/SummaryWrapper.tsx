@@ -9,6 +9,7 @@ interface BoilerplateProps extends React.PropsWithChildren<any> {
   onChangeClick: ()=> void,
   changeText: string,
   label: any,
+  readOnlyComponent?: boolean,
 }
 const useStyles = makeStyles({
   label: {
@@ -26,11 +27,14 @@ const useStyles = makeStyles({
     },
   },
 });
-export default function AttachmentSummaryWrapper({ hasValidationMessages, onChangeClick, changeText, label, children }: BoilerplateProps) {
+export default function SummaryWrapper({ hasValidationMessages, onChangeClick, changeText, label, readOnlyComponent, children }: BoilerplateProps) {
   const classes = useStyles();
+  const testDataId = {
+    ...(hasValidationMessages && { 'data-testid': 'has-validation-message' }),
+  };
   return (
     <>
-      <Grid item={true} xs={10}>
+      <Grid item={true} xs={10} {...testDataId}>
         <Typography
           variant='body1'
           className={ cn(classes.label, hasValidationMessages && classes.labelWithError) }
@@ -40,7 +44,9 @@ export default function AttachmentSummaryWrapper({ hasValidationMessages, onChan
         </Typography>
       </Grid>
       <Grid item xs={2}>
-        <EditButton onClick={onChangeClick} editText={changeText} />
+        {!readOnlyComponent && (
+          <EditButton onClick={onChangeClick} editText={changeText} />
+        )}
       </Grid>
       {children}
     </>

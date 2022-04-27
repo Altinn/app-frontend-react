@@ -19,6 +19,7 @@ import GroupInputSummary from './GroupInputSummary';
 import ErrorPaper from '../message/ErrorPaper';
 import { EditButton } from './EditButton';
 import { useAppSelector } from 'src/common/hooks';
+import cn from 'classnames';
 
 export interface ISummaryGroupComponent {
   id: string;
@@ -360,9 +361,10 @@ function SummaryGroupComponent({
         <Grid item={true} xs={10}>
           <Typography
             variant='body1'
-            className={`${classes.label} ${
-              groupHasErrors ? ` ${classes.labelWithError}` : ''
-            }`}
+            className={cn(
+              classes.label,
+              groupHasErrors && classes.labelWithError,
+            )}
             component='span'
           >
             {title}

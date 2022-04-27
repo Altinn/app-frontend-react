@@ -2,8 +2,10 @@ import * as React from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import appTheme from 'altinn-shared/theme/altinnAppTheme';
 import { EditButton } from './EditButton';
+import InputSummaryBoilerplate from 'src/components/summary/InputSummaryBoilerplate';
+import cn from 'classnames';
 
-export interface ISingleInputSumary {
+export interface ISingleInputSummary {
   formData: any;
   label: any;
   hasValidationMessages: boolean;
@@ -41,29 +43,22 @@ function SingleInputSummary({
   changeText,
   onChangeClick,
   readOnlyComponent,
-}: ISingleInputSumary) {
+}: ISingleInputSummary) {
   const classes = useStyles();
   const [displayData, setDisplayData] = React.useState<string>('');
 
-  React.useEffect(() => {
-    if (formData && typeof formData === 'object') {
-      let displayString = '';
-      Object.keys(formData).forEach((key, index) => {
-        displayString += `${index > 0 ? ' ' : ''}${formData[key]}`;
-      });
-      setDisplayData(displayString);
-    } else {
-      setDisplayData(formData);
-    }
-  }, [formData]);
   return (
-    <>
+    <InputSummaryBoilerplate
+      setDisplayData={setDisplayData}
+      formData={formData}
+    >
       <Grid item={true} xs={10}>
         <Typography
           variant='body1'
-          className={`${classes.label}${
-            hasValidationMessages ? ` ${classes.labelWithError}` : ''
-          }`}
+          className={cn(
+            classes.label,
+            hasValidationMessages && classes.labelWithError,
+          )}
           component='span'
         >
           {label}
@@ -77,7 +72,7 @@ function SingleInputSummary({
       <Grid item xs={12} data-testid={'single-input-summary'}>
         <Typography variant='body1'>{displayData}</Typography>
       </Grid>
-    </>
+    </InputSummaryBoilerplate>
   );
 }
 

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { makeStyles, Typography } from '@material-ui/core';
+import InputSummaryBoilerplate from 'src/components/summary/InputSummaryBoilerplate';
 
-export interface ISingleInputSumary {
+export interface ISingleInputSummary {
   formData: any;
   label: any;
 }
@@ -15,28 +16,21 @@ const useStyles = makeStyles({
   },
 });
 
-function GroupInputSummary({ formData, label }: ISingleInputSumary) {
+function GroupInputSummary({ formData, label }: ISingleInputSummary) {
   const [displayData, setDisplayData] = React.useState<string>('');
   const classes = useStyles();
-
-  React.useEffect(() => {
-    if (formData && typeof formData === 'object') {
-      let displayString = '';
-      Object.keys(formData).forEach((key, index) => {
-        displayString += `${index > 0 ? ' ' : ''}${formData[key]}`;
-      });
-      setDisplayData(displayString);
-    } else {
-      setDisplayData(formData);
-    }
-  }, [formData]);
   return (
-    <Typography variant='body1'>
-      <span className={classes.label}>
-        {label} {': '}
-      </span>
-      <span>{displayData}</span>
-    </Typography>
+    <InputSummaryBoilerplate
+      formData={formData}
+      setDisplayData={setDisplayData}
+    >
+      <Typography variant='body1'>
+        <span className={classes.label}>
+          {label} {': '}
+        </span>
+        <span>{displayData}</span>
+      </Typography>
+    </InputSummaryBoilerplate>
   );
 }
 
