@@ -1,4 +1,6 @@
 const ForkTsCheckerNotifierWebpackPlugin = require('fork-ts-checker-notifier-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const ReactRefreshTypeScript = require('react-refresh-typescript');
 
 const common = require('./webpack.common');
 
@@ -14,10 +16,16 @@ module.exports = {
       ...common.module.rules,
       {
         test: /\.tsx?/,
+        exclude: /node_modules/,
         use: [
           {
             loader: 'ts-loader',
-            options: { transpileOnly: true },
+            options: {
+              getCustomTransformers: () => ({
+                before: [ReactRefreshTypeScript()],
+              }),
+              transpileOnly: true,
+            },
           },
         ],
       },
@@ -28,10 +36,16 @@ module.exports = {
       },
     ],
   },
-  plugins: [...common.plugins, new ForkTsCheckerNotifierWebpackPlugin()],
+  plugins: [
+    ...common.plugins,
+    new ForkTsCheckerNotifierWebpackPlugin(),
+    new ReactRefreshWebpackPlugin(),
+  ],
   devServer: {
     historyApiFallback: true,
     allowedHosts: 'all',
+    hot: true,
+    headers: { "Access-Control-Allow-Origin": "*" },
     client: {
       overlay: {
         errors: true,
