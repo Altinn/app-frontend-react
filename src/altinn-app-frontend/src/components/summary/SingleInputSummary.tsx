@@ -74,7 +74,7 @@ function SingleInputSummary({
           <EditButton onClick={onChangeClick} editText={changeText} />
         )}
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} data-testid={'single-input-summary'}>
         <Typography variant='body1'>{displayData}</Typography>
       </Grid>
     </>

@@ -54,7 +54,7 @@ export function AttachmentSummaryComponent(props: IAttachmentSummaryComponent) {
       <Grid item xs={2}>
         <EditButton onClick={props.onChangeClick} editText={props.changeText} />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} data-testid={'attachment-summary-component'}>
         {attachments &&
           attachments.map((attachment) => {
             return (

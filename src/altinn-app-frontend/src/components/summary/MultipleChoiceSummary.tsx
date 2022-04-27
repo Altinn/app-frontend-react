@@ -83,7 +83,7 @@ export default function MultipleChoiceSummary({
           <EditButton onClick={onChangeClick} editText={changeText} />
         )}
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} data-testid={'multiple-choice-summary'}>
         <List>
           {formData &&
             Object.keys(formData).map((key) => {

@@ -356,7 +356,7 @@ function SummaryGroupComponent({
 
   return (
     <>
-      <Grid container={true}>
+      <Grid container={true} data-testid={'summary-group-component'}>
         <Grid item={true} xs={10}>
           <Typography
             variant='body1'

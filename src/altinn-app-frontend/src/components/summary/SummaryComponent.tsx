@@ -25,7 +25,6 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 
 export interface ISummaryComponent {
   id: string;
-  type: string;
   pageRef?: string;
   componentRef?: string;
   largeGroup?: boolean;
