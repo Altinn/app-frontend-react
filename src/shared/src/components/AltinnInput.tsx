@@ -8,40 +8,34 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import altinnTheme from '../theme/altinnStudioTheme';
+import cn from 'classnames';
 
 const theme = createTheme(altinnTheme);
 const styles = createStyles({
-  altinnInputWrapper: {
-    height: 'auto',
-    width: 'auto',
-  },
-  altinnInput: {
+  input: {
     backgroundColor: theme.altinnPalette.primary.white,
     border: `2px solid ${theme.altinnPalette.primary.blue}`,
     display: 'flex',
     flexDirection: 'row',
   },
-  altinnInputValidationError: {
-    backgroundColor: theme.altinnPalette.primary.white,
+  inputValidationError: {
     border: `2px solid ${theme.altinnPalette.primary.red}`,
-    display: 'flex',
-    flexDirection: 'row',
   },
-  altinnInputField: {
+  inputField: {
     fontSize: '1.6rem',
     border: 0,
     outline: 'none',
     flexGrow: 2,
     maxWidth: 'match-parent',
   },
-  altinnInputIcon: {
+  inputIcon: {
     color: theme.altinnPalette.primary.black,
     fontSize: '2.5rem',
     padding: '1.6rem 1rem 1.6rem 1rem',
     flexGrow: 0,
     alignSelf: 'stretch',
   },
-  altinnInputLabel: {
+  inputLabel: {
     color: theme.altinnPalette.primary.black,
     fontSize: '1.6rem',
     paddingBottom: '1rem',
@@ -73,34 +67,32 @@ function AltinnInput(props: IAltinnInputProps) {
   function focusInput() {
     inputRef.current.focus();
   }
-
   return (
     <Grid
       container={true}
       direction={'column'}
       onClick={focusInput}
       aria-label={label}
-      className={classes.altinnInputWrapper}
       style={{
         width: widthPercentage ? `${widthPercentage}%` : '100%',
       }}
     >
       {showLabel ? (
-        <InputLabel className={classes.altinnInputLabel}>{label}</InputLabel>
+        <InputLabel className={classes.inputLabel}>{label}</InputLabel>
       ) : null}
       <Grid
+        {...(validationError && {'data-testid': 'input-validation-error'})}
         container={true}
         direction={'row'}
-        className={
-          validationError
-            ? classes.altinnInputValidationError
-            : classes.altinnInput
-        }
+        className={cn(
+          classes.input,
+          validationError && classes.inputValidationError
+        )}
       >
         {iconString ? (
           <i
             data-testid='altinninput-iconString'
-            className={`${classes.altinnInputIcon} ${iconString}`}
+            className={`${classes.inputIcon} ${iconString}`}
           />
         ) : null}
         <Input
@@ -109,7 +101,7 @@ function AltinnInput(props: IAltinnInputProps) {
             'aria-required': 'true',
             ...rest,
           }}
-          className={classes.altinnInputField}
+          className={classes.inputField}
           disableUnderline={true}
           style={{
             padding: '0rem 0.5rem 0rem 0.5rem',
