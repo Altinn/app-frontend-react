@@ -6,7 +6,7 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import * as React from 'react';
-import SummaryWrapper from 'src/components/summary/SummaryWrapper';
+import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
 
 export interface IMultipleChoiceSummaryProps {
   formData: any;
@@ -40,13 +40,14 @@ export default function MultipleChoiceSummary({
   const classes = useStyles();
 
   return (
-    <SummaryWrapper
-      changeText={changeText}
-      onChangeClick={onChangeClick}
-      label={label}
-      hasValidationMessages={hasValidationMessages}
-      readOnlyComponent={readOnlyComponent}
-    >
+    <>
+      <SummaryBoilerplate
+        changeText={changeText}
+        onChangeClick={onChangeClick}
+        label={label}
+        hasValidationMessages={hasValidationMessages}
+        readOnlyComponent={readOnlyComponent}
+      />
       <Grid item xs={12} data-testid={'multiple-choice-summary'}>
         <List>
           {formData &&
@@ -57,6 +58,6 @@ export default function MultipleChoiceSummary({
             ))}
         </List>
       </Grid>
-    </SummaryWrapper>
+    </>
   );
 }

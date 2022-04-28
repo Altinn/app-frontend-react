@@ -1,36 +1,28 @@
 import * as React from 'react';
 import { screen, render } from '@testing-library/react';
 
-import SummaryWrapper from './SummaryWrapper';
+import SummaryBoilerplate from './SummaryBoilerplate';
 
-describe('SummaryWrapper', () => {
+describe('SummaryBoilerplate', () => {
 const defaultProps = {
   onChangeClick: () => { return },
   changeText: 'some text on a button',
   label: <h3>label text</h3>
 }
-  test('should render the wrapper with div inside', () => {
-    render(<SummaryWrapper {...defaultProps}>
-      <div data-testid={'innermost'}>
-        <p>Something</p>
-      </div>
-    </SummaryWrapper>);
+  test('should render the boilerplate with the default props', () => {
+    render(<SummaryBoilerplate {...defaultProps} />);
     expect(screen.getByRole('heading')).toBeInTheDocument();
     expect(screen.getByRole('button')).toBeInTheDocument();
     expect(screen.getByRole('button').innerHTML).toContain('some text on a button');
-    expect(screen.getByTestId('innermost')).toBeInTheDocument();
-    expect(screen.queryByTestId('has-validation-message')).toBeNull();
   });
 
   test('should not render change-button', () => {
-    render(<SummaryWrapper {...defaultProps} readOnlyComponent>
-    </SummaryWrapper>)
+    render(<SummaryBoilerplate {...defaultProps} readOnlyComponent />);
     expect(screen.queryByRole('button')).toBeNull();
   });
 
   test('should add validation message', () => {
-    render(<SummaryWrapper {...defaultProps} hasValidationMessages>
-    </SummaryWrapper>)
+    render(<SummaryBoilerplate {...defaultProps} hasValidationMessages />);
     expect(screen.queryByTestId('has-validation-message')).not.toBeNull();
   });
 

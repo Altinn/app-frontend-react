@@ -4,7 +4,7 @@ import cn from 'classnames';
 import { EditButton } from 'src/components/summary/EditButton';
 import appTheme from 'altinn-shared/theme/altinnAppTheme';
 
-interface SummaryWrapperProps extends React.PropsWithChildren<any> {
+interface SummaryBoilerplateProps {
   hasValidationMessages?: boolean;
   onChangeClick: () => void;
   changeText: string;
@@ -28,14 +28,13 @@ const useStyles = makeStyles({
     },
   },
 });
-export default function SummaryWrapper({
+export default function SummaryBoilerplate({
   hasValidationMessages,
   onChangeClick,
   changeText,
   label,
   readOnlyComponent,
-  children,
-}: SummaryWrapperProps) {
+}: SummaryBoilerplateProps) {
   const classes = useStyles();
   return (
     <>
@@ -62,7 +61,6 @@ export default function SummaryWrapper({
           <EditButton onClick={onChangeClick} editText={changeText} />
         )}
       </Grid>
-      {children}
     </>
   );
 }
