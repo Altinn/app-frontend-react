@@ -1,3 +1,4 @@
+import { createElement } from 'react';
 import { getInitialStateMock } from '../../__mocks__/initialStateMock';
 import { getMockValidationState } from '../../__mocks__/validationStateMock';
 import * as oneOfOnRootSchema from '../../__mocks__/json-schema/one-of-on-root.json';
@@ -1931,11 +1932,25 @@ describe('utils > validation', () => {
       const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
       expect(result).toBeFalsy();
     });
-    it('should return true when validations contain messages for missing fields', () => {
+    it('should return true when validations contain messages (string) for missing fields', () => {
       const validations: ILayoutValidations = {
         field: {
           'simple_binding': {
             errors: ['Some random error', 'Feltet er påkrevd'],
+            warnings: [],
+          }
+        }
+      };
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
+      expect(result).toBeTruthy();
+    });
+    it('should return true when validations contain messages (react element) for missing fields', () => {
+      const node = createElement('span', {}, 'Feltet er påkrevd');
+      console.log(node);
+      const validations: ILayoutValidations = {
+        field: {
+          'simple_binding': {
+            errors: ['Some random error', node],
             warnings: [],
           }
         }

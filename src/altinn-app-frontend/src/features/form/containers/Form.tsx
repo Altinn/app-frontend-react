@@ -80,7 +80,8 @@ export function Form() {
 
   React.useEffect(() => {
     if (validations && validations[currentView]) {
-      setRequiredFieldsMissing(missingFieldsInLayoutValidations(validations[currentView], language));
+      const areRequiredFieldsMissing = missingFieldsInLayoutValidations(validations[currentView], language)
+      setRequiredFieldsMissing(areRequiredFieldsMissing);
     }
   }, [currentView, language, validations]);
 
