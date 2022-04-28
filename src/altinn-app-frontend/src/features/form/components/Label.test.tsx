@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
+import { Provider } from 'react-redux';
 
 import Label from './Label';
 import type { IFormLabelProps } from './Label';
-import { Provider } from 'react-redux';
+
 
 describe('features > form > components >Label.tsx', () => {
   const requiredMarking = '*';

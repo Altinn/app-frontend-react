@@ -1,32 +1,43 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
+import configureStore from 'redux-mock-store';
+import { Provider } from 'react-redux';
 
 import Legend from './Legend';
 import type { IFormLegendProps } from './Legend';
 
 describe('features > form > components > Legend.tsx', () => {
+
   const requiredMarking = '*';
   const optionalMarking = 'Valgfri';
 
   function renderLegendComponent(props: Partial<IFormLegendProps> = {}) {
+    const createStore = configureStore();
+    const mockLanguage = {
+      general: {
+        optional: optionalMarking,
+      },
+      'form_filler': {
+        'required_label': requiredMarking,
+      },
+    };
     const defaultProps: IFormLegendProps = {
       id: 'label1',
       labelText: 'label.text',
       descriptionText: '',
       helpText: '',
-      language: {
-        general: {
-          optional: optionalMarking,
-        },
-        'form_filler': {
-          'required_label': requiredMarking,
-        },
-      },
+      language: mockLanguage,
       required: false,
       labelSettings: {}
     };
 
-    return render(<Legend {...defaultProps} {...props} />);
+    const mockStore = createStore({ language: { language: mockLanguage } });
+
+    return render(
+      <Provider store={mockStore}>
+        <Legend {...defaultProps} {...props} />
+      </Provider>
+    );
   }
 
   it('should render legend', () => {
