@@ -764,16 +764,12 @@ describe('utils > validation', () => {
             simpleBinding: {
               errors: [getParsedTextResourceByKey('Error message', [])],
               info: [getParsedTextResourceByKey('Info message', [])],
-              success: [],
-              warnings: [],
             }
           },
           componentId_2: {
             customBinding: {
               success: [getParsedTextResourceByKey('Success message', [])],
               warnings: [getParsedTextResourceByKey('Warning message', [])],
-              errors: [],
-              info: [],
             }
           }
         }
@@ -810,13 +806,11 @@ describe('utils > validation', () => {
           [],
         );
       const expected = {
-        ...getMockValidationState(true),
+        ...getMockValidationState(false),
         AnotherPage: {
           AnotherComponent: {
             simpleBinding: {
               errors: [getParsedTextResourceByKey('Error message 1', []), getParsedTextResourceByKey('Error message 2', [])],
-              warnings: [],
-              fixed: []
             },
           }
         }
@@ -1379,7 +1373,6 @@ describe('utils > validation', () => {
                   [],
                 ),
               ],
-              warnings: [],
             },
           },
           'componentId_5-0-1': {
@@ -1391,7 +1384,6 @@ describe('utils > validation', () => {
                   [10],
                 ),
               ],
-              warnings: [],
             },
           },
         },
@@ -1465,7 +1457,6 @@ describe('utils > validation', () => {
                   [10],
                 ),
               ],
-              warnings: [],
             },
           },
         },

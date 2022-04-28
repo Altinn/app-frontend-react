@@ -13,7 +13,6 @@ export function getMockValidationState(withFixed = false): IValidations {
       },
       componentId_2: {
         customBinding: {
-          errors: [],
           warnings: [getParsedTextResourceByKey('Warning message 1', []), getParsedTextResourceByKey('Warning message 2', [])],
           fixed,
         },
