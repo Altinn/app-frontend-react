@@ -23,7 +23,7 @@ import { mapToComponentValidations } from './validation';
 
 describe('utils > validation', () => {
   let mockLayout: any;
-  let mockReduxFormat: any;
+  let mockReduxFormat: IValidations;
   let mockLayoutState: any;
   let mockJsonSchema: any;
   let mockInvalidTypes: any;
@@ -718,8 +718,75 @@ describe('utils > validation', () => {
           mockLayoutState.layouts,
           [],
         );
-      const expected = getMockValidationState(true);
+      const expected = getMockValidationState(false);
       expect(mappedDataElementValidations).toEqual(expected);
+    });
+
+    it('should map correctly for all possible validations', () => {
+      const serverValidationResponse: IValidationIssue[] = [
+        {
+          field: 'dataModelField_1',
+          severity: Severity.Error,
+          scope: null,
+          targetId: '',
+          description: 'Error message',
+          code: '',
+        },
+        {
+          field: 'dataModelField_1',
+          severity: Severity.Informational,
+          scope: null,
+          targetId: '',
+          description: 'Info message',
+          code: '',
+        },
+        {
+          field: 'dataModelField_2',
+          severity: Severity.Success,
+          scope: null,
+          targetId: '',
+          description: 'Success message',
+          code: '',
+        },
+        {
+          field: 'dataModelField_2',
+          severity: Severity.Warning,
+          scope: null,
+          targetId: '',
+          description: 'Warning message',
+          code: '',
+        },
+      ];
+
+      const expectedResult: IValidations = {
+        FormLayout: {
+          componentId_1: {
+            simpleBinding: {
+              errors: [getParsedTextResourceByKey('Error message', [])],
+              info: [getParsedTextResourceByKey('Info message', [])],
+              success: [],
+              warnings: [],
+            }
+          },
+          componentId_2: {
+            customBinding: {
+              success: [getParsedTextResourceByKey('Success message', [])],
+              warnings: [getParsedTextResourceByKey('Warning message', [])],
+              errors: [],
+              info: [],
+            }
+          }
+        }
+      };
+
+      const mappedDataElementValidations =
+        validation.mapDataElementValidationToRedux(
+          serverValidationResponse,
+          mockLayoutState.layouts,
+          [],
+        );
+
+      expect(mappedDataElementValidations).toEqual(expectedResult);
     });
 
     it('should support mapping to two different components on different pages', () => {
@@ -1749,6 +1816,31 @@ describe('utils > validation', () => {
         errors: original.errors.concat(newValidations.errors),
         warnings: newValidations.warnings,
       });
+    });
+
+    it('should merge all types of validations and ignore duplicated errors', () => {
+      const original: IComponentBindingValidation = {
+        errors: ['error1', 'error2'],
+        warnings: ['warning1', 'warning2'],
+        info: ['info1', 'info2'],
+        success: ['success1', 'success2'],
+      };
+      const newValidations: IComponentBindingValidation = {
+        errors: ['error1', 'error3'],
+        warnings: ['warning1', 'warning3'],
+        info: ['info1', 'info3'],
+        success: ['success1', 'success3'],
+      };
+
+      const merged = validation.mergeComponentBindingValidations(
+        original,
+        newValidations
+      );
+
+      expect(merged.errors).toEqual(['error1', 'error2', 'error3']);
+      expect(merged.warnings).toEqual(['warning1', 'warning2', 'warning3']);
+      expect(merged.info).toEqual(['info1', 'info2', 'info3']);
+      expect(merged.success).toEqual(['success1', 'success2', 'success3']);
     });
   });
 
