@@ -42,8 +42,8 @@ export const componentHasValidationMessages = (componentValidations) => {
   let hasMessages = false;
   Object.keys(componentValidations).forEach((key: string) => {
     if (
-      componentValidations[key].errors.length > 0 ||
-      componentValidations[key].warnings.length > 0
+      componentValidations[key].errors?.length > 0 ||
+      componentValidations[key].warnings?.length > 0
     ) {
       hasMessages = true;
     }
@@ -237,7 +237,7 @@ export const isComponentValid = (
   let isValid = true;
 
   Object.keys(validations).forEach((key: string) => {
-    if (validations[key].errors.length > 0) {
+    if (validations[key].errors?.length > 0) {
       isValid = false;
     }
   });
