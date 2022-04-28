@@ -142,7 +142,7 @@ export function ReceiptComponent(props: IReceiptComponentProps) {
           {props.body}
         </Typography>
         {props.pdf && props.pdf.length > 0 && (
-          <React.Fragment>
+          <>
               {props.titleSubmitted && (
               <Typography
                 variant='h3'
@@ -159,7 +159,7 @@ export function ReceiptComponent(props: IReceiptComponentProps) {
               attachments={props.pdf}
               id='attachment-list-pdf'
             />
-          </React.Fragment>
+          </>
           )
         }
         {props.attachmentGroupings && (
