@@ -1946,7 +1946,6 @@ describe('utils > validation', () => {
     });
     it('should return true when validations contain messages (react element) for missing fields', () => {
       const node = createElement('span', {}, 'Feltet er påkrevd');
-      console.log(node);
       const validations: ILayoutValidations = {
         field: {
           'simple_binding': {
