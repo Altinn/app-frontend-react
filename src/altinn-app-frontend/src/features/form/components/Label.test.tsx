@@ -1,35 +1,14 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
+import configureStore from 'redux-mock-store';
 
 import Label from './Label';
 import type { IFormLabelProps } from './Label';
+import { Provider } from 'react-redux';
 
 describe('features > form > components >Label.tsx', () => {
   const requiredMarking = '*';
   const optionalMarking = 'Valgfri';
-
-  function renderLabelComponent(props: Partial<IFormLabelProps> = {}) {
-    const defaultProps: IFormLabelProps = {
-      id: 'label1',
-      labelText: 'label.text',
-      helpText: '',
-      language: {
-        general: {
-          optional: optionalMarking,
-        },
-        'form_filler': {
-          'required_label': requiredMarking,
-        },
-      },
-      readOnly: false,
-      required: false,
-      labelSettings: {
-        optionalIndicator: true,
-      }
-    };
-
-    return render(<Label {...defaultProps} {...props} />);
-  }
 
   it('should render label', () => {
     const { queryByText } = renderLabelComponent();
@@ -60,4 +39,37 @@ describe('features > form > components >Label.tsx', () => {
     const { queryByText } = renderLabelComponent({ labelSettings: { optionalIndicator: true }, readOnly: true });
     expect(queryByText(` (${optionalMarking})`)).toBeFalsy();
   });
+
+  function renderLabelComponent(props: Partial<IFormLabelProps> = {}) {
+    const createStore = configureStore();
+    const mockLanguage = {
+      general: {
+        optional: optionalMarking,
+      },
+      'form_filler': {
+        'required_label': requiredMarking,
+      },
+    };
+
+    const defaultProps: IFormLabelProps = {
+      id: 'label1',
+      labelText: 'label.text',
+      helpText: '',
+      language: mockLanguage,
+      readOnly: false,
+      required: false,
+      labelSettings: {
+        optionalIndicator: true,
+      }
+    };
+
+    const mockStore = createStore({ language: { language: mockLanguage } });
+
+    return render(
+      <Provider store={mockStore}>
+        <Label {...defaultProps} {...props} />
+      </Provider>
+
+    );
+  }
 });

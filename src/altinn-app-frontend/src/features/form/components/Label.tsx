@@ -35,10 +35,10 @@ export default function Label(props: IFormLabelProps) {
         >
           {props.labelText}
           {shouldShowRequiredMarking &&
-            <RequiredIndicator language={props.language}/>
+            <RequiredIndicator />
           }
           {shouldShowOptionalMarking &&
-            <OptionalIndicator language={props.language}/>
+            <OptionalIndicator />
           }
         </label>
       </Grid>

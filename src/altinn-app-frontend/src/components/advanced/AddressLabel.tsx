@@ -3,6 +3,8 @@ import * as React from 'react';
 import type { ILanguage } from 'altinn-shared/types';
 import type { ILabelSettings } from 'src/types';
 import { getLanguageFromKey } from 'altinn-shared/utils';
+import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';
+import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
 
 interface IAddressLabel {
   labelKey: string;
@@ -26,14 +28,10 @@ export const AddressLabel = ({
     <label className='a-form-label title-label' htmlFor={id}>
       {label}
       {required && !readOnly &&
-        <span>
-        {` ${getLanguageFromKey('form_filler.required_label', language)}`}
-      </span>
+        <RequiredIndicator/>
       }
       {!required && !readOnly && labelSettings?.optionalIndicator &&
-        <span className='label-optional'>
-          {` (${getLanguageFromKey('general.optional', language)})`}
-        </span>
+        <OptionalIndicator/>
       }
     </label>
   );
