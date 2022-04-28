@@ -10,19 +10,13 @@ import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import {
   IGrid,
   ILayoutComponent,
-  ISelectionComponentProps,
 } from 'src/features/form/layout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { IComponentValidations } from 'src/types';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import ErrorPaper from '../message/ErrorPaper';
-import SummaryGroupComponent from './SummaryGroupComponent';
-import SingleInputSummary from './SingleInputSummary';
-import { AttachmentSummaryComponent } from './AttachmentSummaryComponent';
-import { AttachmentWithTagSummaryComponent } from './AttachmentWithTagSummaryComponent';
-import MultipleChoiceSummary from './MultipleChoiceSummary';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
+import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
 
 export interface ISummaryComponent {
   id: string;
@@ -49,10 +43,10 @@ const useStyles = makeStyles({
   },
 });
 
-export function SummaryComponent(props: ISummaryComponent) {
+export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponent) {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const { pageRef, id } = props;
+  const { componentRef, pageRef, largeGroup, index } = summaryProps;
   const GetHiddenSelector = makeGetHidden();
   const [componentValidations, setComponentValidations] =
     React.useState<IComponentValidations>({});
@@ -77,11 +71,11 @@ export function SummaryComponent(props: ISummaryComponent) {
     (state) => state.formValidations.validations,
   );
   const layout = useAppSelector(
-    (state) => state.formLayout.layouts[props.pageRef],
+    (state) => state.formLayout.layouts[pageRef],
   );
   const formComponent = useAppSelector((state) => {
-    return state.formLayout.layouts[props.pageRef].find(
-      (c) => c.id === props.componentRef,
+    return state.formLayout.layouts[pageRef].find(
+      (c) => c.id === componentRef,
     );
   });
   const goToCorrectPageLinkText = useAppSelector((state) => {
@@ -101,7 +95,7 @@ export function SummaryComponent(props: ISummaryComponent) {
     )
       return undefined;
     return (
-      props.formData ||
+      summaryProps.formData ||
       getDisplayFormDataForComponent(
         state.formData.formData,
         formComponent as ILayoutComponent,
@@ -111,7 +105,7 @@ export function SummaryComponent(props: ISummaryComponent) {
       )
     );
   }, shallowEqual);
-  const title = useAppSelector((state) => {
+  const label = useAppSelector((state) => {
     const titleKey = formComponent.textResourceBindings?.title;
     if (titleKey) {
       return getTextFromAppOrDefault(
@@ -138,9 +132,9 @@ export function SummaryComponent(props: ISummaryComponent) {
   React.useEffect(() => {
     if (formComponent && formComponent.type.toLowerCase() !== 'group') {
       const componentId =
-        props.index >= 0
-          ? `${props.componentRef}-${props.index}`
-          : props.componentRef;
+        index >= 0
+          ? `${componentRef}-${index}`
+          : componentRef;
       const validations = getComponentValidations(
         formValidations,
         componentId,
@@ -154,92 +148,35 @@ export function SummaryComponent(props: ISummaryComponent) {
     layout,
     pageRef,
     formComponent,
-    props.componentRef,
-    props.index,
+    componentRef,
+    index,
   ]);
-
-  const renderSummaryComponent = () => {
-    if (!formComponent) {
-      return null;
-    }
-    const change = {
-      onChangeClick,
-      changeText,
-    };
-
-    switch (formComponent.type) {
-      case 'Group':
-      case 'group': {
-        return <SummaryGroupComponent {...change} {...props} />;
-      }
-      case 'FileUpload': {
-        return (
-          <>
-            <SummaryBoilerplate
-              {...change}
-              label={title}
-              hasValidationMessages={hasValidationMessages}
-            />
-            <AttachmentSummaryComponent componentRef={props.componentRef} />
-          </>
-        );
-      }
-      case 'FileUploadWithTag': {
-        return (
-          <>
-            <SummaryBoilerplate
-              {...change}
-              label={title}
-              hasValidationMessages={hasValidationMessages}
-            />
-            <AttachmentWithTagSummaryComponent
-              componentRef={props.componentRef}
-              component={formComponent as ISelectionComponentProps}
-            />
-          </>
-        );
-      }
-      case 'Checkboxes': {
-        return (
-          <MultipleChoiceSummary
-            {...change}
-            label={title}
-            hasValidationMessages={hasValidationMessages}
-            {...props}
-            formData={formData}
-            readOnlyComponent={(formComponent as ILayoutComponent).readOnly}
-          />
-        );
-      }
-      default:
-        return (
-          <SingleInputSummary
-            {...change}
-            label={title}
-            hasValidationMessages={hasValidationMessages}
-            {...props}
-            formData={formData}
-            readOnlyComponent={(formComponent as ILayoutComponent).readOnly}
-          />
-        );
-    }
-  };
 
   if (hidden) {
     return null;
   }
-
+  const change = {
+    onChangeClick,
+    changeText,
+  };
   return (
     <Grid
       item={true}
-      xs={props.grid?.xs || 12}
-      sm={props.grid?.sm || false}
-      md={props.grid?.md || false}
-      lg={props.grid?.lg || false}
-      xl={props.grid?.xl || false}
+      xs={grid?.xs || 12}
+      sm={grid?.sm || false}
+      md={grid?.md || false}
+      lg={grid?.lg || false}
+      xl={grid?.xl || false}
     >
       <Grid container={true} className={classes.row}>
-        {renderSummaryComponent()}
+        <SummaryComponentSwitch
+          change={change}
+          formComponent={formComponent}
+          label={label}
+          formData={formData}
+          componentRef={componentRef}
+          groupProps={{ pageRef, largeGroup, index }}
+        />
         {hasValidationMessages && (
           <Grid container={true} style={{ paddingTop: '12px' }} spacing={2}>
             {Object.keys(componentValidations).map((binding: string) =>

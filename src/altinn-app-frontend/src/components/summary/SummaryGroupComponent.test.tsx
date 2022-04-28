@@ -126,7 +126,6 @@ describe('SummaryGroupComponent', () => {
     props: Partial<ISummaryGroupComponent> = {},
   ) {
     const defaultProps: ISummaryGroupComponent = {
-      id: 'groupComponent-summary',
       pageRef: 'page1',
       componentRef: 'groupComponent',
       largeGroup: false,

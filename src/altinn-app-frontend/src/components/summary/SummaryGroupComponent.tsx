@@ -22,7 +22,6 @@ import { useAppSelector } from 'src/common/hooks';
 import cn from 'classnames';
 
 export interface ISummaryGroupComponent {
-  id: string;
   pageRef?: string;
   componentRef?: string;
   index?: number;
