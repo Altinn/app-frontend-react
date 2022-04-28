@@ -14,8 +14,7 @@ const defaultProps = {
       <div data-testid={'innermost'}>
         <p>Something</p>
       </div>
-    </SummaryWrapper>)
-    expect(screen.queryByRole('button')).not.toBeNull();
+    </SummaryWrapper>);
     expect(screen.getByRole('heading')).toBeInTheDocument();
     expect(screen.getByRole('button')).toBeInTheDocument();
     expect(screen.getByRole('button').innerHTML).toContain('some text on a button');

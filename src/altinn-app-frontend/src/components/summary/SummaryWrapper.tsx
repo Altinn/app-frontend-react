@@ -1,16 +1,17 @@
 import * as React from 'react';
-import {Grid, makeStyles, Typography} from '@material-ui/core';
+import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
-import {EditButton} from 'src/components/summary/EditButton';
+import { EditButton } from 'src/components/summary/EditButton';
 import appTheme from 'altinn-shared/theme/altinnAppTheme';
 
-interface BoilerplateProps extends React.PropsWithChildren<any> {
-  hasValidationMessages?: boolean,
-  onChangeClick: ()=> void,
-  changeText: string,
-  label: any,
-  readOnlyComponent?: boolean,
+interface SummaryWrapperProps extends React.PropsWithChildren<any> {
+  hasValidationMessages?: boolean;
+  onChangeClick: () => void;
+  changeText: string;
+  label: any;
+  readOnlyComponent?: boolean;
 }
+
 const useStyles = makeStyles({
   label: {
     fontWeight: 500,
@@ -27,17 +28,30 @@ const useStyles = makeStyles({
     },
   },
 });
-export default function SummaryWrapper({ hasValidationMessages, onChangeClick, changeText, label, readOnlyComponent, children }: BoilerplateProps) {
+export default function SummaryWrapper({
+  hasValidationMessages,
+  onChangeClick,
+  changeText,
+  label,
+  readOnlyComponent,
+  children,
+}: SummaryWrapperProps) {
   const classes = useStyles();
-  const testDataId = {
-    ...(hasValidationMessages && { 'data-testid': 'has-validation-message' }),
-  };
   return (
     <>
-      <Grid item={true} xs={10} {...testDataId}>
+      <Grid
+        item={true}
+        xs={10}
+        {...(hasValidationMessages && {
+          'data-testid': 'has-validation-message',
+        })}
+      >
         <Typography
           variant='body1'
-          className={ cn(classes.label, hasValidationMessages && classes.labelWithError) }
+          className={cn(
+            classes.label,
+            hasValidationMessages && classes.labelWithError,
+          )}
           component='span'
         >
           {label}

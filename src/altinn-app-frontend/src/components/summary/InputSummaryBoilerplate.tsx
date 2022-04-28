@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {useDisplayData} from '../hooks';
 
 interface BoilerplateProps extends React.PropsWithChildren<any> {
   formData: any;
@@ -6,16 +7,6 @@ interface BoilerplateProps extends React.PropsWithChildren<any> {
 }
 
 export default function InputSummaryBoilerplate({ setDisplayData, formData, children }: BoilerplateProps) {
-  React.useEffect(() => {
-    if (formData && typeof formData === 'object') {
-      let displayString = '';
-      Object.keys(formData).forEach((key, index) => {
-        displayString += `${index > 0 ? ' ' : ''}${formData[key]}`;
-      });
-      setDisplayData(displayString);
-    } else {
-      setDisplayData(formData);
-    }
-  }, [formData, setDisplayData]);
+  setDisplayData(useDisplayData({formData}))
   return <>{children}</>;
 }
