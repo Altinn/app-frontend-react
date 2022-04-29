@@ -5,7 +5,7 @@ import { AltinnAppTheme } from 'altinn-shared/theme';
 import ProcessWrapper from './shared/containers/ProcessWrapper';
 import UnknownError from './features/instantiate/containers/UnknownError';
 import PartySelection from './features/instantiate/containers/PartySelection';
-import { startInitialAppTaskQueue } from './shared/resources/queue/queueSlice';
+import { startInitialAppTaskQueue, startInitialUserTaskQueue} from './shared/resources/queue/queueSlice';
 import { get } from './utils/networking';
 import {
   getEnvironmentLoginUrl,
@@ -64,6 +64,8 @@ export const App = () => {
 
     refreshJwtToken();
     dispatch(startInitialAppTaskQueue());
+    // if user is not anonymous
+    dispatch(startInitialUserTaskQueue());
     setUpEventListeners();
 
     return () => {
