@@ -58,9 +58,20 @@ function* fetchFormDataInitialSaga(): SagaIterator {
     if (isStatelessApp(applicationMetadata)) {
       // stateless app
       const dataType = getDataTypeByLayoutSetId(applicationMetadata.onEntry.show, layoutSets);
-      const selectedPartyId = yield select((state: IRuntimeState) => state.party.selectedParty.partyId);
+      const anonymous = true; // TODO! replace with check in app metadata
+      let options = {};
+
+      if (!anonymous) {
+        const selectedPartyId = yield select((state: IRuntimeState) => state.party.selectedParty.partyId);
+        options = {
+          headers: {
+            party: `partyid:${selectedPartyId}`,
+          },
+        };
+      }
+
       try {
-        fetchedData = yield call(get, getStatelessFormDataUrl(dataType), { headers: { party: `partyid:${selectedPartyId}` } });
+        fetchedData = yield call(get, getStatelessFormDataUrl(dataType, anonymous), options);
       } catch (error) {
         if (error?.response?.status === 403 && error.response.data) {
           const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;
@@ -89,6 +100,7 @@ function* fetchFormDataInitialSaga(): SagaIterator {
 
     yield call(FormDynamicsActions.fetchFormDynamics);
   } catch (error) {
+    console.error(error);
     yield put(FormDataActions.fetchFormDataRejected({ error }));
     yield call(dataTaskQueueError, error);
   }
@@ -117,6 +129,9 @@ export function* watchFetchFormDataInitialSaga(): SagaIterator {
         take(GET_INSTANCEDATA_FULFILLED),
         take(fetchJsonSchemaFulfilled),
       ]);
+    } else if (application.id === 'ttd/gettingstarted-110422') {
+      // stateless app with allowAnonymous
+      yield take(fetchJsonSchemaFulfilled);
     } else {
       // stateless app
       yield all([

@@ -14,6 +14,7 @@ import {
 import { makeGetHasErrorsSelector } from './selectors/getErrors';
 import Entrypoint from './features/entrypoint/Entrypoint';
 import { useAppDispatch, useAppSelector } from './common/hooks';
+import { makeGetAllowAnonymousSelector } from './selectors/getAllowAnonymous';
 
 const theme = createTheme(AltinnAppTheme);
 
@@ -28,6 +29,10 @@ export const App = () => {
     (state) => state.applicationSettings?.applicationSettings?.appOidcProvider,
   );
   const lastRefreshTokenTimestamp = React.useRef(0);
+
+  const allowAnonymousSelector = makeGetAllowAnonymousSelector();
+  const anonymous = useAppSelector(allowAnonymousSelector);
+  console.log(anonymous);
 
   React.useEffect(() => {
     function setUpEventListeners() {
@@ -45,6 +50,7 @@ export const App = () => {
     }
 
     function refreshJwtToken() {
+      if (anonymous) return;
       const timeNow = Date.now();
       if (
         timeNow - lastRefreshTokenTimestamp.current >
@@ -62,16 +68,18 @@ export const App = () => {
       }
     }
 
-    refreshJwtToken();
+    if (!anonymous) {
+      refreshJwtToken();
+      dispatch(startInitialUserTaskQueue());
+    }
+
     dispatch(startInitialAppTaskQueue());
-    // if user is not anonymous
-    dispatch(startInitialUserTaskQueue());
     setUpEventListeners();
 
     return () => {
       removeEventListeners();
     };
-  }, [dispatch, appOidcProvider]);
+  }, [anonymous, dispatch, appOidcProvider]);
 
   if (hasApiErrors) {
     return <UnknownError />;
