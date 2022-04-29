@@ -6,7 +6,7 @@ import {
 } from '../queueSlice';
 import ApplicationMetadataActions from '../../applicationMetadata/actions';
 import { ApplicationSettingsActions } from '../../applicationSettings/applicationSettingsSlice';
-
+import OrgsActions from 'src/shared/resources/orgs/orgsActions';
 import TextResourcesActions from '../../textResources/textResourcesActions';
 import LanguageActions from '../../language/languageActions';
 
@@ -15,6 +15,7 @@ export function* startInitialAppTaskQueueSaga(): SagaIterator {
   yield call(TextResourcesActions.fetchTextResources);
   yield call(LanguageActions.fetchLanguage);
   yield call(ApplicationMetadataActions.getApplicationMetadata);
+  yield call(OrgsActions.fetchOrgs);
   yield put(startInitialAppTaskQueueFulfilled());
 }
 
