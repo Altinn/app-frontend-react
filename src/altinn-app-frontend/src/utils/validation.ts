@@ -208,7 +208,11 @@ export function validateEmptyFieldsForLayout(
   const validations: any = {};
   const allGroups = formLayout.filter((component) => component.type.toLowerCase() === 'group');
   const fieldsInGroup = allGroups
-    .map((group: ILayoutGroup) => group.children)
+    .map((group: ILayoutGroup) => (
+      group.edit?.multiPage
+        ? group.children.map(componentId => componentId.replace(/^\d+:/g, ''))
+        : group.children
+    ))
     .flat();
   const groupsToCheck = allGroups.filter(group => !hiddenFields.includes(group.id));
   const fieldsToCheck = formLayout.filter((component) => (
