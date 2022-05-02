@@ -170,6 +170,10 @@ export function getCalculatePageOrderUrl() {
   return `${appPath}/instances/${altinnWindow.instanceId}/pages/order`;
 }
 
+export function getCalculatePageOrderStatelessUrl() {
+  return `${appPath}/v1/pages/order`;
+}
+
 export function getPartyValidationUrl(partyId: string) {
   return `${appPath}/api/v1/parties/validateInstantiation?partyId=${partyId}`;
 }
