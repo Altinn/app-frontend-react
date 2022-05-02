@@ -9,12 +9,14 @@ import { ApplicationSettingsActions } from '../../applicationSettings/applicatio
 import OrgsActions from 'src/shared/resources/orgs/orgsActions';
 import TextResourcesActions from '../../textResources/textResourcesActions';
 import LanguageActions from '../../language/languageActions';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 
 export function* startInitialAppTaskQueueSaga(): SagaIterator {
   yield put(ApplicationSettingsActions.fetchApplicationSettings());
   yield call(TextResourcesActions.fetchTextResources);
   yield call(LanguageActions.fetchLanguage);
   yield call(ApplicationMetadataActions.getApplicationMetadata);
+  yield put(FormLayoutActions.fetchLayoutSets());
   yield call(OrgsActions.fetchOrgs);
   yield put(startInitialAppTaskQueueFulfilled());
 }

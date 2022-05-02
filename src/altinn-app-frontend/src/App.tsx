@@ -32,7 +32,6 @@ export const App = () => {
 
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const anonymous = useAppSelector(allowAnonymousSelector);
-  console.log(anonymous);
 
   React.useEffect(() => {
     function setUpEventListeners() {
@@ -50,7 +49,6 @@ export const App = () => {
     }
 
     function refreshJwtToken() {
-      if (anonymous) return;
       const timeNow = Date.now();
       if (
         timeNow - lastRefreshTokenTimestamp.current >
@@ -68,18 +66,21 @@ export const App = () => {
       }
     }
 
-    if (!anonymous) {
+    if (anonymous === false) {
       refreshJwtToken();
       dispatch(startInitialUserTaskQueue());
+      setUpEventListeners();
+
+      return () => {
+        removeEventListeners();
+      };
     }
 
-    dispatch(startInitialAppTaskQueue());
-    setUpEventListeners();
-
-    return () => {
-      removeEventListeners();
-    };
   }, [anonymous, dispatch, appOidcProvider]);
+
+  React.useEffect(() => {
+    dispatch(startInitialAppTaskQueue());
+  }, [dispatch]);
 
   if (hasApiErrors) {
     return <UnknownError />;
