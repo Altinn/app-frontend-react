@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
+import {IFormDataState} from 'src/features/form/data/formDataReducer';
 
-export const useDisplayData = ({ formData }: any) => {
+export const useDisplayData = ({
+  formData,
+}: IFormDataState | { formData: string }) => {
   const [displayData, setDisplayData] = useState('');
   useEffect(() => {
     if (formData && typeof formData === 'object') {
@@ -10,7 +13,7 @@ export const useDisplayData = ({ formData }: any) => {
       });
       setDisplayData(displayString);
     } else {
-      setDisplayData(formData);
+      setDisplayData(formData as string);
     }
   }, [formData, setDisplayData]);
   return displayData;

@@ -4,33 +4,103 @@ import { screen } from '@testing-library/react';
 
 import { AttachmentWithTagSummaryComponent } from './AttachmentWithTagSummaryComponent';
 import {ISelectionComponentProps} from 'src/features/form/layout';
+import {RootState} from 'src/store';
 
 describe('AttachmentWithTagSummaryComponent', () => {
-  const name = 'FileUploadWithTag'
-  const mockLayout = {
-    layouts: {
-      FormLayout: [
+  const typeName = 'FileUploadWithTag';
+  const attachmentName = 'attachment-name-1';
+  const formLayoutItem: ISelectionComponentProps =
         {
-          id: name,
-          type: name,
-          dataModelBindings:{}
-        }
-      ]
-    }
-  } as any;
+          id: typeName,
+          type: typeName,
+          dataModelBindings: {},
+          textResourceBindings: {},
+          optionsId: 'a',
+          mapping: {a: 'b'}
+        };
+  const mockState = (formLayoutItem: ISelectionComponentProps) => ({
+    formLayout: {
+      layouts: {
+        FormLayout: [formLayoutItem],
+      },
+      uiConfig: undefined,
+      layoutsets: undefined,
+      error: undefined,
+    },
+    attachments: {
+      attachments: {
+        [typeName]: [
+          {
+            name: attachmentName,
+            id: 'attachment-id-1',
+            uploaded: true,
+            deleting: false,
+            updating: false,
+            size: 1200,
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    },
+  });
+  const extendedState = {
+    textResources: {
+      language: 'nb',
+      error: null,
+      resources: [
+        {
+          id: 'a',
+          value: 'the a',
+        },
+        {
+          id: 'b',
+          value: 'the b',
+        },
+        {
+          id: 'c',
+          value: 'the c',
+        },
+        {
+          id: 'ba option value',
+          value: 'the result',
+        },
+      ],
+    },
+    optionState: {
+      error: null,
+      options: {
+        a: { id: 'a', options: [{ value: 'a', label: 'aa option value' },{ value: 'b', label: 'ab option value' },{ value: 'c', label: 'ac option value' },] },
+        b: { id: 'a', options: [{ value: 'a', label: 'ba option value' },{ value: 'b', label: 'bb option value' },{ value: 'c', label: 'bc option value' },] },
+        c: { id: 'a', options: [{ value: 'a', label: 'ca option value' },{ value: 'b', label: 'cb option value' },{ value: 'c', label: 'cc option value' },] },
+        ['{"id":"a","mapping":{"a":"b"}}']: { id: 'a', options: [{ value: 'a', label: 'da option value' },{ value: 'b', label: 'db option value' },{ value: 'c', label: 'dc option value' },] },
+      },
+    },
+  }
   test('should render file upload with tag', () => {
-    renderHelper(mockLayout.layouts.FormLayout[0]);
+    renderHelper(formLayoutItem);
     expect(screen.getByTestId('attachment-with-tag-summary')).toBeInTheDocument();
   });
+  test('should contain attachments', () => {
+    renderHelper(formLayoutItem);
+    expect(screen.getByText(attachmentName)).toBeInTheDocument();
+  });
+  test('should render mapped option label', () => {
+    renderHelper(formLayoutItem, extendedState);
+    expect(screen.getByText('da option value')).toBeInTheDocument();
+  });
+  test('should render the text resource', () => {
+    renderHelper({ ...formLayoutItem, optionsId: 'b', mapping: null }, extendedState);
+    expect(screen.getByText('the result')).toBeInTheDocument();
+  });
 
-  const renderHelper = ( options: ISelectionComponentProps ) => {
+  const renderHelper = ( options: ISelectionComponentProps, extendState?: Partial<RootState> ) => {
     renderWithProviders(
       <AttachmentWithTagSummaryComponent
-        componentRef={name}
+        componentRef={typeName}
         component={options}
       />,
       {
-        preloadedState: { formLayout: mockLayout },
+        preloadedState: { ...mockState(options), ...extendState },
       },
     );
   };
