@@ -1,3 +1,4 @@
+import { createElement } from 'react';
 import { getInitialStateMock } from '../../__mocks__/initialStateMock';
 import { getMockValidationState } from '../../__mocks__/validationStateMock';
 import * as oneOfOnRootSchema from '../../__mocks__/json-schema/one-of-on-root.json';
@@ -11,6 +12,7 @@ import type {
   IRuntimeState,
   IComponentBindingValidation,
   IComponentValidations,
+  ILayoutValidations,
 } from 'src/types';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 
@@ -150,6 +152,25 @@ describe('utils > validation', () => {
           readOnly: false,
           textResourceBindings: {},
         },
+        {
+          type: 'group',
+          id: 'group_simple',
+          dataModelBindings: {
+            group: 'group_simple',
+          },
+          maxCount: 0,
+          children: ['required_in_group_simple'],
+        },
+        {
+          type: 'Input',
+          id: 'required_in_group_simple',
+          dataModelBindings: {
+            simpleBinding: 'group_simple.required_in_group_simple',
+          },
+          required: true,
+          readOnly: false,
+          textResourceBindings: {},
+        }
       ],
     };
 
@@ -580,7 +601,7 @@ describe('utils > validation', () => {
     });
   });
 
-  describe('valiadteEmptyFields', () => {
+  describe('validateEmptyFields', () => {
       it('should return error if empty fields are required', () => {
         const repeatingGroups = {
           group1: {
@@ -610,6 +631,10 @@ describe('utils > validation', () => {
               postPlace: { errors: ['Feltet er påkrevd'], warnings: [] },
               zipCode: { errors: ['Feltet er påkrevd'], warnings: [] },
             },
+            required_in_group_simple: { simpleBinding: {
+                errors: ['Feltet er påkrevd'],
+                warnings: [],
+            }},
           },
         };
 
@@ -642,6 +667,10 @@ describe('utils > validation', () => {
               postPlace: { errors: ['Feltet er påkrevd'], warnings: [] },
               zipCode: { errors: ['Feltet er påkrevd'], warnings: [] },
             },
+            required_in_group_simple: { simpleBinding: {
+              errors: ['Feltet er påkrevd'],
+              warnings: [],
+            }}
           },
         };
 
@@ -708,6 +737,27 @@ describe('utils > validation', () => {
 
         expect(validations).toEqual(mockResult);
       });
+  });
+
+  describe('validateEmptyFieldsForLayout', () => {
+    const withHidden = (hiddenFields:string[]) => validation.validateEmptyFieldsForLayout(
+      {},
+      mockLayout.FormLayout,
+      mockLanguage.language,
+      hiddenFields,
+      {}
+    );
+    const requiredField = 'required_in_group_simple';
+
+    it('should skip validation on required field in hidden group', () => {
+      expect(withHidden(['group_simple'])[requiredField]).toBeUndefined();
+    });
+
+    it('should run validation on required field in visible group', () => {
+      expect(withHidden([])[requiredField]).toEqual({
+        simpleBinding: { errors: ['Feltet er påkrevd'], warnings: [] },
+      });
+    });
   });
 
   describe('mapDataElementValidationToRedux', () => {
@@ -1914,6 +1964,46 @@ describe('utils > validation', () => {
       const result = validation.getUnmappedErrors(validations);
       const expected = ['unmapped1', 'unmapped2'];
       expect(result).toEqual(expected);
+    });
+  });
+
+  describe('missingFieldsInLayoutValidations', () => {
+    it('should return false when validations contain no messages for missing fields', () => {
+      const validations: ILayoutValidations = {
+        field: {
+          'simple_binding': {
+            errors: ['Some random error'],
+            warnings: [],
+          }
+        }
+      };
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
+      expect(result).toBeFalsy();
+    });
+    it('should return true when validations contain messages (string) for missing fields', () => {
+      const validations: ILayoutValidations = {
+        field: {
+          'simple_binding': {
+            errors: ['Some random error', 'Feltet er påkrevd'],
+            warnings: [],
+          }
+        }
+      };
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
+      expect(result).toBeTruthy();
+    });
+    it('should return true when validations contain messages (react element) for missing fields', () => {
+      const node = createElement('span', {}, 'Feltet er påkrevd');
+      const validations: ILayoutValidations = {
+        field: {
+          'simple_binding': {
+            errors: ['Some random error', node],
+            warnings: [],
+          }
+        }
+      };
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
+      expect(result).toBeTruthy();
     });
   });
 });
