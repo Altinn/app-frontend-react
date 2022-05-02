@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import {IFormDataState} from 'src/features/form/data/formDataReducer';
+import { IFormDataState } from 'src/features/form/data/formDataReducer';
 
 export const useDisplayData = ({
   formData,
-}: IFormDataState | { formData: string }) => {
+}: Partial<IFormDataState> | { formData: string | string[] }  ) => {
   const [displayData, setDisplayData] = useState('');
   useEffect(() => {
     if (formData && typeof formData === 'object') {
@@ -13,7 +13,7 @@ export const useDisplayData = ({
       });
       setDisplayData(displayString);
     } else {
-      setDisplayData(formData as string);
+      setDisplayData(formData as string || '');
     }
   }, [formData, setDisplayData]);
   return displayData;
