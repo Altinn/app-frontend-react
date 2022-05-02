@@ -26,7 +26,7 @@ describe('languageActions', () => {
       type: 'LANGUAGE_DATA.FETCH_LANGUAGE_REJECTED',
       error: mockError,
     };
-    expect(LanguageActions.fetchLanguageRecjeted(mockError)).toEqual(
+    expect(LanguageActions.fetchLanguageRejected(mockError)).toEqual(
       expectedAction,
     );
   });

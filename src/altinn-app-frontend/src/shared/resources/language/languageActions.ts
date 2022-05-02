@@ -9,7 +9,7 @@ export interface ILanguageActions extends ActionCreatorsMapObject {
   fetchLanguageFulfilled: (
     language: ILanguage,
   ) => FetchLanguage.IFetchLanguageFulfilled;
-  fetchLanguageRecjeted: (
+  fetchLanguageRejected: (
     error: Error,
   ) => FetchLanguage.IFetchLanguageRejected;
 }
@@ -17,7 +17,7 @@ export interface ILanguageActions extends ActionCreatorsMapObject {
 const actions: ILanguageActions = {
   fetchLanguage: FetchLanguage.fetchLanguage,
   fetchLanguageFulfilled: FetchLanguage.fetchLanguageFulfilled,
-  fetchLanguageRecjeted: FetchLanguage.fetchLanguageRejected,
+  fetchLanguageRejected: FetchLanguage.fetchLanguageRejected,
 };
 
 const LanguageActions: ILanguageActions = bindActionCreators<any, any>(actions, store.dispatch);
