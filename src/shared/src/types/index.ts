@@ -71,6 +71,7 @@ export interface IDataType {
   maxCount: number;
   minCount: number;
   grouping?: string;
+  allowAnonymousOnStateless?: boolean;
 }
 
 export interface IExtendedInstance {
