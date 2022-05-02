@@ -4,6 +4,7 @@ import { startInitialAppTaskQueueSaga } from 'src/shared/resources/queue/appTask
 import {startInitialAppTaskQueueFulfilled} from 'src/shared/resources/queue/queueSlice';
 import TextResourcesActions from 'src/shared/resources/textResources/textResourcesActions';
 import LanguageActions from 'src/shared/resources/language/languageActions';
+import OrgsActions from 'src/shared/resources/orgs/orgsActions';
 import ApplicationMetadataActionDispatcher from 'src/shared/resources/applicationMetadata/actions';
 import {startInitialUserTaskQueueSaga} from 'src/shared/resources/queue/userTask/userTaskQueueSagas';
 
@@ -14,6 +15,7 @@ describe('appTaskQueueSagas', () => {
       .call(TextResourcesActions.fetchTextResources)
       .call(LanguageActions.fetchLanguage)
       .call(ApplicationMetadataActionDispatcher.getApplicationMetadata)
+      .call(OrgsActions.fetchOrgs)
       .put(startInitialAppTaskQueueFulfilled())
       .run();
   });
