@@ -21,6 +21,7 @@ import { GET_INSTANCEDATA_FULFILLED } from '../../../../shared/resources/instanc
 import { IProcessState } from '../../../../shared/resources/process/processReducer';
 import { getFetchFormDataUrl, getStatelessFormDataUrl, invalidateCookieUrl, redirectToUpgrade } from '../../../../utils/appUrlHelper';
 import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';
+import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 
 const appMetaDataSelector =
   (state: IRuntimeState): IApplicationMetadata => state.applicationMetadata.applicationMetadata;
@@ -58,10 +59,12 @@ function* fetchFormDataInitialSaga(): SagaIterator {
     if (isStatelessApp(applicationMetadata)) {
       // stateless app
       const dataType = getDataTypeByLayoutSetId(applicationMetadata.onEntry.show, layoutSets);
-      const anonymous = true; // TODO! replace with check in app metadata
+      const allowAnonymousSelector = makeGetAllowAnonymousSelector();
+      const allowAnonymous = yield select(allowAnonymousSelector);
+
       let options = {};
 
-      if (!anonymous) {
+      if (!allowAnonymous) {
         const selectedPartyId = yield select((state: IRuntimeState) => state.party.selectedParty.partyId);
         options = {
           headers: {
@@ -71,7 +74,7 @@ function* fetchFormDataInitialSaga(): SagaIterator {
       }
 
       try {
-        fetchedData = yield call(get, getStatelessFormDataUrl(dataType, anonymous), options);
+        fetchedData = yield call(get, getStatelessFormDataUrl(dataType, allowAnonymous), options);
       } catch (error) {
         if (error?.response?.status === 403 && error.response.data) {
           const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;
