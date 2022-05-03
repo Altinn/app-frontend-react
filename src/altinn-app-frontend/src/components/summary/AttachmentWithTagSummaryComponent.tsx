@@ -7,7 +7,7 @@ import { useAppSelector } from 'src/common/hooks';
 
 export interface IAttachmentWithTagSummaryComponent {
   componentRef: string;
-  component: ISelectionComponentProps
+  component: ISelectionComponentProps;
 }
 
 const useStyles = makeStyles({
@@ -37,41 +37,35 @@ export function AttachmentWithTagSummaryComponent(
       ]?.options,
   );
 
+  const getOptionsTagLabel = ({ tags }: { tags: string[] }) => {
+    return options?.find((option) => option.value === tags[0])?.label;
+  };
+  const tryToGetTextResource = (attachment) => {
+    const optionsTagLabel = getOptionsTagLabel(attachment);
+    return textResources?.find(({ id }) => id === optionsTagLabel)?.value || optionsTagLabel;
+  }
   return (
     <Grid item xs={12} data-testid={'attachment-with-tag-summary'}>
-      {attachments &&
-        attachments.map((attachment) => {
-          return (
-            <Grid
-              container={true}
-              className={classes.row}
-              key={`attachment-summary-${attachment.id}`}
-            >
-              <Typography
-                key={`attachment-summary-name-${attachment.id}`}
-                variant='body1'
-              >
-                {attachment.name}
-              </Typography>
-              <Typography
-                key={`attachment-summary-tag-${attachment.id}`}
-                variant='body1'
-              >
-                {attachment.tags[0] &&
-                  (textResources?.find(
-                    (resource) =>
-                      resource.id ===
-                      options?.find(
-                        (option) => option.value === attachment.tags[0],
-                      )?.label,
-                  )?.value ||
-                    options?.find(
-                      (option) => option.value === attachment.tags[0],
-                    )?.label)}
-              </Typography>
-            </Grid>
-          );
-        })}
+      {attachments?.map((attachment) => (
+        <Grid
+          container={true}
+          className={classes.row}
+          key={`attachment-summary-${attachment.id}`}
+        >
+          <Typography
+            key={`attachment-summary-name-${attachment.id}`}
+            variant='body1'
+          >
+            {attachment.name}
+          </Typography>
+          <Typography
+            key={`attachment-summary-tag-${attachment.id}`}
+            variant='body1'
+          >
+            {attachment.tags[0] && tryToGetTextResource(attachment)}
+          </Typography>
+        </Grid>
+      ))}
     </Grid>
   );
 }

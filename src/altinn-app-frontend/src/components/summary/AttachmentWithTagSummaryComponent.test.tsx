@@ -26,7 +26,9 @@ describe('AttachmentWithTagSummaryComponent', () => {
       uiConfig: undefined,
       layoutsets: undefined,
       error: undefined,
-    },
+    }
+  });
+  const extendedState = {
     attachments: {
       attachments: {
         [typeName]: [
@@ -42,8 +44,6 @@ describe('AttachmentWithTagSummaryComponent', () => {
         ],
       },
     },
-  });
-  const extendedState = {
     textResources: {
       language: 'nb',
       error: null,
@@ -76,12 +76,13 @@ describe('AttachmentWithTagSummaryComponent', () => {
       },
     },
   }
-  test('should render file upload with tag', () => {
+  test('should render file upload with tag without content', () => {
     renderHelper(formLayoutItem);
-    expect(screen.getByTestId('attachment-with-tag-summary')).toBeInTheDocument();
+    const element = screen.getByTestId('attachment-with-tag-summary');
+    expect(element).toBeEmptyDOMElement();
   });
   test('should contain attachments', () => {
-    renderHelper(formLayoutItem);
+    renderHelper(formLayoutItem, extendedState);
     expect(screen.getByText(attachmentName)).toBeInTheDocument();
   });
   test('should render mapped option label', () => {
