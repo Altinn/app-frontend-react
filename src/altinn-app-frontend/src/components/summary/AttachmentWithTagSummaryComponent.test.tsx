@@ -92,6 +92,10 @@ describe('AttachmentWithTagSummaryComponent', () => {
     renderHelper({ ...formLayoutItem, optionsId: 'b', mapping: null }, extendedState);
     expect(screen.getByText('the result')).toBeInTheDocument();
   });
+  test('should not render a text resource', () => {
+    renderHelper({ ...formLayoutItem, optionsId: 'c', mapping: null }, extendedState);
+    expect(screen.getByText('ca option value')).toBeInTheDocument();
+  });
 
   const renderHelper = ( options: ISelectionComponentProps, extendState?: Partial<RootState> ) => {
     renderWithProviders(
