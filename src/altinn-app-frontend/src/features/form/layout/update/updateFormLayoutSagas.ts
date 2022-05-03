@@ -7,7 +7,7 @@ import { getFileUploadersWithTag, getRepeatingGroups, removeRepeatingGroupFromUI
 import { AxiosRequestConfig } from 'axios';
 import { get, post } from 'altinn-shared/utils';
 import { getCurrentTaskDataElementId, getDataTaskDataTypeId, isStatelessApp, getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
-import { getCalculatePageOrderUrl, getDataValidationUrl, getCalculatePageOrderStatelessUrl } from 'src/utils/appUrlHelper';
+import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/appUrlHelper';
 import { validateFormData, validateFormComponents, validateEmptyFields, mapDataElementValidationToRedux, canFormBeSaved, mergeValidationObjects, removeGroupValidationsByIndex, validateGroup, getValidator } from 'src/utils/validation';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
 import { startInitialDataTaskQueueFulfilled } from 'src/shared/resources/queue/queueSlice';
@@ -209,55 +209,39 @@ export function* calculatePageOrderAndMoveToNextPageSaga({ payload: { runValidat
     const state: IRuntimeState = yield select();
     const layoutSets = state.formLayout.layoutsets;
     const currentView = state.formLayout.uiConfig.currentView;
-    let layoutOrder = null;
-    if (isStatelessApp(state.applicationMetadata.applicationMetadata)) {
-      const formData: any = convertDataBindingToModel(state.formData.formData);
-      const showOnEntry: string = state.applicationMetadata.applicationMetadata?.onEntry?.show;
-      const dataTypeId: string = getCurrentDataTypeForApplication(
-        state.applicationMetadata.applicationMetadata,
-        state.instanceData.instance,
-        state.formLayout.layoutsets,
-      );
-      layoutOrder = yield call(
-        post,
-        getCalculatePageOrderStatelessUrl(),
-        formData,
-        {
-          params: {
-            currentPage: currentView,
-            layoutSetId: showOnEntry,
-            dataTypeId,
-          },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
+    let layoutSetId: string = null;
+    let dataTypeId: string = null;
+    const formData: any = convertDataBindingToModel(state.formData.formData);
+    const appIsStateless: boolean = isStatelessApp(state.applicationMetadata.applicationMetadata)
+    if (appIsStateless) {
+      dataTypeId = getCurrentDataTypeForApplication({
+        application: state.applicationMetadata.applicationMetadata,
+        layoutSets: state.formLayout.layoutsets,
+      });
+      layoutSetId = state.applicationMetadata.applicationMetadata?.onEntry?.show;
     } else {
       const instance = state.instanceData.instance;
-      const dataTypeId: string = getDataTaskDataTypeId(instance.process.currentTask.elementId,
+      dataTypeId = getDataTaskDataTypeId(instance.process.currentTask.elementId,
         state.applicationMetadata.applicationMetadata.dataTypes);
-      let layoutSetId: string = null;
       if (layoutSets != null) {
         layoutSetId = getLayoutsetForDataElement(instance, dataTypeId, layoutSets);
       }
-      const formData: any = convertDataBindingToModel(state.formData.formData);
-      layoutOrder = yield call(
-        post,
-        getCalculatePageOrderUrl(),
-        formData,
-        {
-          params: {
-            currentPage: currentView,
-            layoutSetId,
-            dataTypeId,
-          },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
     }
+    const layoutOrder = yield call(
+      post,
+      getCalculatePageOrderUrl(appIsStateless),
+      formData,
+      {
+        params: {
+          currentPage: currentView,
+          layoutSetId: layoutSetId,
+          dataTypeId,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
     yield put(FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({ order: layoutOrder }));
     if (skipMoveToNext) {
       return;
