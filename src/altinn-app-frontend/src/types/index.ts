@@ -96,7 +96,7 @@ export interface ILayoutSets {
 export interface ILayoutSet {
   id: string;
   dataType: string;
-  tasks: string[];
+  tasks?: string[];
 }
 
 export interface ILayoutSettings {
