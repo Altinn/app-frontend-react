@@ -53,6 +53,12 @@ export function getLayoutSetIdForApplication(
   return getLayoutsetForDataElement(instance, dataType, layoutSets);
 }
 
+interface IGetDataTypeForApplicationParams {
+  application: IApplication;
+  instance?: IInstance;
+  layoutSets?: ILayoutSets;
+}
+
 /**
  * Get the current data type for the application
  * @param application the application metadata
@@ -61,18 +67,16 @@ export function getLayoutSetIdForApplication(
  * @returns the current data type
  */
 export function getCurrentDataTypeForApplication(
-  application: IApplication,
-  instance?: IInstance,
-  layoutSets?: ILayoutSets,
+  params: IGetDataTypeForApplicationParams
 ): string {
-  const showOnEntry: string = application?.onEntry?.show;
-  if (isStatelessApp(application)) {
+  const showOnEntry: string = params.application?.onEntry?.show;
+  if (isStatelessApp(params.application)) {
     // we have a stateless app with a layout set
-    return getDataTypeByLayoutSetId(showOnEntry, layoutSets);
+    return getDataTypeByLayoutSetId(showOnEntry, params.layoutSets);
   }
 
   // instance - get data element based on current process step
-  return getDataTaskDataTypeId(instance.process.currentTask.elementId, application.dataTypes);
+  return getDataTaskDataTypeId(params.instance.process.currentTask.elementId, params.application.dataTypes);
 }
 
 export function isStatelessApp(application: IApplication) {
