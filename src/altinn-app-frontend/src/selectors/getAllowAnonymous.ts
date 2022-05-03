@@ -24,8 +24,7 @@ const getAllowAnonymousSelector = (state: IRuntimeState) => {
 
   const dataType = application.dataTypes.find(d => d.id === dataTypeId);
   if (dataType) {
-    return dataType.allowedContentTypes?.includes('stateless'); // Mock. TODO remove when ready to use real check
-    // return dataType.allowAnonymousOnStateless;  // TODO uncomment when ready to use
+    return dataType.appLogic?.allowAnonymousOnStateless;
   }
 
   return false;
