@@ -6,11 +6,13 @@ on:
     paths:
       - 'src/altinn-app-frontend/**'
       - 'src/shared/**'
+      - 'test/cypress/**'
   pull_request:
     branches: [main]
     paths:
       - 'src/altinn-app-frontend/**'
       - 'src/shared/**'
+      - 'test/cypress/**'
 
   workflow_dispatch:
 
