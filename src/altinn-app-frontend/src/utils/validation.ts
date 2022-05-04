@@ -1182,6 +1182,12 @@ function addValidation(
       break;
   }
 
+  Object.keys(updatedValidations).forEach((key) => {
+    if (!updatedValidations[key] || updatedValidations[key].length === 0) {
+      delete updatedValidations[key];
+    }
+  });
+
   return updatedValidations;
 }
 

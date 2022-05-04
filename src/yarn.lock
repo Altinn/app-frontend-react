@@ -5,6 +5,25 @@ __metadata:
   version: 6
   cacheKey: 8
 
+"@altinn/altinn-design-system@npm:0.0.5":
+  version: 0.0.5
+  resolution: "@altinn/altinn-design-system@npm:0.0.5::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Faltinn-design-system%2F0.0.5%2Fdc36855a9671ddcbf724677f5178b9e5292e467826abee61567e395c600274f7"
+  dependencies:
+    "@altinn/figma-design-tokens": ^0.0.24
+  peerDependencies:
+    react: ^17.0.0 || ^18.0.0
+    react-dom: ^17.0.0 || ^18.0.0
+  checksum: eaf21edfb16bfd63af4647c7d4c815e4875665cd10d265f5325034042f73fc7b04b267f655f462b2daa870ff03985816a539339e1b6b1f8000c0ed01170264dc
+  languageName: node
+  linkType: hard
+
+"@altinn/figma-design-tokens@npm:^0.0.24":
+  version: 0.0.24
+  resolution: "@altinn/figma-design-tokens@npm:0.0.24::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Ffigma-design-tokens%2F0.0.24%2F82f124497829051e6453293aa934c1c57449b759c9ad280548242b56c5417d03"
+  checksum: d6a38e9737eb3645361caa470d22680acb231fa79c5cc5a91ea3bfaca7d4961a05e00877c7cbdd4fb9465b5987ecdbffbd1a2ae55a880bf5aafdaae4bd2246fe
+  languageName: node
+  linkType: hard
+
 "@ampproject/remapping@npm:^2.1.0":
   version: 2.1.2
   resolution: "@ampproject/remapping@npm:2.1.2"
@@ -4056,6 +4075,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "altinn-app-frontend@workspace:altinn-app-frontend"
   dependencies:
+    "@altinn/altinn-design-system": 0.0.5
     "@babel/core": ^7.17.8
     "@babel/polyfill": ^7.12.1
     "@babel/preset-env": ^7.16.11
