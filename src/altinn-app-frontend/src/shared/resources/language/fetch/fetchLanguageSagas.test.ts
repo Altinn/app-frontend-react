@@ -5,8 +5,8 @@ import {
   fetchLanguageSaga,
   watchFetchLanguageSaga,
   allowAnonymousSelector,
-  profileStateSelector,
 } from './fetchLanguageSagas';
+import { profileStateSelector } from 'src/selectors/simpleSelectors';
 import LanguageActions from '../languageActions';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromCode } from 'altinn-shared/language';

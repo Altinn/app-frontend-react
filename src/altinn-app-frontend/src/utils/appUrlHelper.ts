@@ -143,7 +143,7 @@ export function getFetchFormDataUrl(instanceId: string, dataElementId: string) {
 
 export function getStatelessFormDataUrl(dataType: string, anonymous = false) {
   if (anonymous) {
-    return `${appPath}/v1/data?dataType=${dataType}`; // Update to allowAnonymous endpoint
+    return `${appPath}/v1/data/anonymous?dataType=${dataType}`;
   }
   return `${appPath}/v1/data?dataType=${dataType}`;
 }
