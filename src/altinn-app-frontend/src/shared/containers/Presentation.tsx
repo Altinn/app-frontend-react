@@ -8,12 +8,9 @@ import {
   returnUrlToMessagebox,
   getTextResourceByKey,
   getLanguageFromKey,
-  returnUrlFromQueryParameter
+  returnUrlFromQueryParameter,
 } from 'altinn-shared/utils';
-import {
-  ProcessTaskType,
-  PresentationType,
-} from 'src/types';
+import { ProcessTaskType, PresentationType } from 'src/types';
 import { getNextView } from 'src/utils/formLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { get } from 'src/utils/networking';
@@ -22,6 +19,9 @@ import ErrorReport from '../../components/message/ErrorReport';
 import Header from '../../components/presentation/Header';
 import NavBar from '../../components/presentation/NavBar';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import AppLanguagesActions from '../resources/appLanguage/appLanguagesActions';
+import TextResourcesActions from '../resources/textResources/textResourcesActions';
+import optionsActions from '../resources/options/optionsActions';
 
 export interface IPresentationProvidedProps {
   header: string;
@@ -52,7 +52,24 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
       true,
     ),
   );
-  const returnToView = useAppSelector(state => state.formLayout.uiConfig.returnToView);
+  const returnToView = useAppSelector(
+    (state) => state.formLayout.uiConfig.returnToView,
+  );
+  const appLanguages = useAppSelector(
+    (state) => state.appLanguages.resources || [],
+  );
+  const selectedAppLanguage = useAppSelector(
+    (state) => state.appLanguages.selectedAppLanguage,
+  );
+  const showLanguageDropdown = useAppSelector(
+    (state) => state.formLayout.uiConfig.showLanguageDropdown,
+  );
+
+  const handleAppLanguageChange = (languageCode: string) => {
+    AppLanguagesActions.updateAppLanguage(languageCode);
+    TextResourcesActions.fetchTextResources();
+    optionsActions.fetchOptions();
+  };
 
   const handleBackArrowButton = () => {
     if (returnToView) {
@@ -74,7 +91,10 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
 
   const handleModalCloseButton = () => {
     const queryParameterReturnUrl = returnUrlFromQueryParameter();
-    const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId);
+    const messageBoxUrl = returnUrlToMessagebox(
+      window.location.origin,
+      party?.partyId,
+    );
     if (!queryParameterReturnUrl) {
       window.location.href = messageBoxUrl;
       return;
@@ -135,6 +155,10 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
                   props.type === PresentationType.Stateless)
               }
               hideCloseButton={hideCloseButton}
+              showLanguageDropdown={showLanguageDropdown}
+              appLanguages={appLanguages}
+              selectedAppLanguage={selectedAppLanguage}
+              onAppLanguageChange={handleAppLanguageChange}
             />
             <div className='a-modal-content-target'>
               <div className='a-page a-current-page'>

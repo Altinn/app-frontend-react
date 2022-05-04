@@ -108,7 +108,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     },
     textResources: {
       resources: [
-        { id: 'option.from.rep.group.label', value: 'The value from the group is: {0}', unparsedValue: 'The value from the group is: {0}', variables: [ { dataSource: 'dataModel.skjema', key: 'someGroup[{0}].labelField' }] }
+        { id: 'option.from.rep.group.label', value: 'The value from the group is: {0}', unparsedValue: 'The value from the group is: {0}', variables: [{ dataSource: 'dataModel.skjema', key: 'someGroup[{0}].labelField' }] }
       ],
       error: null,
       language: 'nb',
@@ -120,7 +120,8 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     applicationSettings: {
       applicationSettings: applicationSettingsMock,
       error: null,
-    }
+    },
+    appLanguages: undefined
   };
 
   return {

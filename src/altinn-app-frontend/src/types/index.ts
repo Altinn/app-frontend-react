@@ -21,6 +21,7 @@ import { IQueueState } from '../shared/resources/queue/queueSlice';
 import { ITextResourcesState } from '../shared/resources/textResources/textResourcesReducer';
 import { IApplicationSettingsState } from 'src/shared/resources/applicationSettings/applicationSettingsSlice';
 import { IFormData } from 'src/features/form/data/formDataReducer';
+import { IAppLanguageState } from 'src/shared/resources/appLanguage/appLanguageReducer';
 
 export interface IAltinnWindow extends Window {
   app: string;
@@ -107,6 +108,7 @@ export interface IPagesSettings {
   order: string[];
   triggers?: Triggers[];
   hideCloseButton?: boolean;
+  showLanguageDropdown?: boolean;
 }
 
 export interface ILayoutNavigation {
@@ -190,7 +192,8 @@ export interface IRuntimeState {
   process: IProcessState;
   profile: IProfileState;
   queue: IQueueState;
-  textResources: ITextResourcesState;
+  textResources: ITextResourcesState,
+  appLanguages: IAppLanguageState;
 }
 
 export interface ISchemaValidator {
@@ -238,6 +241,7 @@ export interface IUiConfig {
   layoutOrder: string[];
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
+  showLanguageDropdown?: boolean;
 }
 
 export interface IValidationResult {
