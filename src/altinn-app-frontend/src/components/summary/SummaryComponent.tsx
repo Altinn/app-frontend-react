@@ -175,6 +175,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
           change={change}
           formComponent={formComponent}
           label={label}
+          hasValidationMessages={hasValidationMessages}
           formData={formData}
           componentRef={componentRef}
           groupProps={groupProps}
