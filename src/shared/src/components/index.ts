@@ -8,7 +8,6 @@ export { default as AltinnInformationCard } from './AltinnInformationCard';
 export { default as AltinnInput } from './AltinnInput';
 export { default as AltinnLink } from './AltinnLink';
 export { default as AltinnLogo } from './AltinnLogo';
-export {default as AltinnNavBarDropdown} from './AltinnNavBarDropdown';
 export { default as AltinnPopover } from './AltinnPopover';
 export { default as AltinnSpinner } from './AltinnSpinner';
 export { default as AltinnLoader } from './AltinnLoader';
