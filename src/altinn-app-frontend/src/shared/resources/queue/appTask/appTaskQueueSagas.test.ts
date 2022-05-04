@@ -7,6 +7,7 @@ import LanguageActions from 'src/shared/resources/language/languageActions';
 import OrgsActions from 'src/shared/resources/orgs/orgsActions';
 import ApplicationMetadataActionDispatcher from 'src/shared/resources/applicationMetadata/actions';
 import {startInitialUserTaskQueueSaga} from 'src/shared/resources/queue/userTask/userTaskQueueSagas';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 
 describe('appTaskQueueSagas', () => {
   it('startInitialAppTaskQueueSaga, app queue is started', () => {
@@ -15,6 +16,7 @@ describe('appTaskQueueSagas', () => {
       .call(TextResourcesActions.fetchTextResources)
       .call(LanguageActions.fetchLanguage)
       .call(ApplicationMetadataActionDispatcher.getApplicationMetadata)
+      .put(FormLayoutActions.fetchLayoutSets())
       .call(OrgsActions.fetchOrgs)
       .put(startInitialAppTaskQueueFulfilled())
       .run();

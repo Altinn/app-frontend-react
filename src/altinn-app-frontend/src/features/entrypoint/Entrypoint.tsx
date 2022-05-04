@@ -47,7 +47,7 @@ export default function Entrypoint() {
   const dispatch = useAppDispatch();
 
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
-  const anonymous = useAppSelector(allowAnonymousSelector);
+  const allowAnonymous = useAppSelector(allowAnonymousSelector);
 
   const handleNewInstance = () => {
     setAction('new-instance');
@@ -153,7 +153,7 @@ export default function Entrypoint() {
   }
 
   // stateless view
-  if ((partyValidation?.valid || anonymous) && isStatelessApp(applicationMetadata)) {
+  if ((partyValidation?.valid || allowAnonymous) && isStatelessApp(applicationMetadata)) {
     if (statelessLoading === null) {
       dispatch(startInitialStatelessQueue());
     }
