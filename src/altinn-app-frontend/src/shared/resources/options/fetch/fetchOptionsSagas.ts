@@ -20,6 +20,7 @@ export const userLanguageSelector = (state: IRuntimeState) =>
   state.profile.profile.profileSettingPreference.language;
 export const optionsSelector = (state: IRuntimeState): IOptions => state.optionState.options;
 export const instanceIdSelector = (state: IRuntimeState): string => state.instanceData.instance?.id;
+const appLanguageState = (state: IRuntimeState) => state.appLanguages.selectedAppLanguage;
 
 export function* fetchOptionsSaga(): SagaIterator {
   const layouts: ILayouts = yield select(formLayoutSelector);
@@ -58,7 +59,10 @@ export function* fetchSpecificOptionSaga({
     };
     yield call(OptionsActions.fetchingOptions, optionKey, optionMetaData);
     const formData: IFormData = yield select(formDataSelector);
-    const language: string = yield select(userLanguageSelector);
+    let language: string = yield select(appLanguageState);
+    if(!language) {
+      language = yield select(userLanguageSelector);
+    }
     const url = getOptionsUrl({ optionsId, formData, language, dataMapping, secure, instanceId });
     const options: IOption[] = yield call(get, url);
     yield call(OptionsActions.fetchOptionsFulfilled, optionKey, options);

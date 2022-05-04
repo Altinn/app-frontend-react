@@ -10,6 +10,7 @@ import OrgsActions from 'src/shared/resources/orgs/orgsActions';
 import TextResourcesActions from '../../textResources/textResourcesActions';
 import { LanguageActions } from '../../language/languageSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import AppLanguagesActions from '../../appLanguage/appLanguagesActions';
 
 export function* startInitialAppTaskQueueSaga(): SagaIterator {
   yield put(ApplicationSettingsActions.fetchApplicationSettings());
@@ -18,6 +19,7 @@ export function* startInitialAppTaskQueueSaga(): SagaIterator {
   yield call(ApplicationMetadataActions.getApplicationMetadata);
   yield put(FormLayoutActions.fetchLayoutSets());
   yield call(OrgsActions.fetchOrgs);
+  yield call(AppLanguagesActions.fetchAppLanguages);
   yield put(startInitialAppTaskQueueFulfilled());
 }
 
