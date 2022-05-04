@@ -20,8 +20,9 @@ import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitc
 
 export interface ISummaryComponent {
   id: string;
-  pageRef?: string;
   componentRef?: string;
+  pageRef?: string;
+  parentGroup?: string;
   largeGroup?: boolean;
   index?: number;
   formData?: any;
@@ -44,9 +45,10 @@ const useStyles = makeStyles({
 });
 
 export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponent) {
+  const { componentRef, ...groupProps } = summaryProps;
+  const { pageRef, index } = groupProps;
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const { componentRef, pageRef, largeGroup, index } = summaryProps;
   const GetHiddenSelector = makeGetHidden();
   const [componentValidations, setComponentValidations] =
     React.useState<IComponentValidations>({});
@@ -175,7 +177,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
           label={label}
           formData={formData}
           componentRef={componentRef}
-          groupProps={{ pageRef, largeGroup, index }}
+          groupProps={groupProps}
         />
         {hasValidationMessages && (
           <Grid container={true} style={{ paddingTop: '12px' }} spacing={2}>

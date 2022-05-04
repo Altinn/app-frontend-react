@@ -22,6 +22,7 @@ export interface ISummaryComponentSwitch {
   formData?: any;
   componentRef?: string;
   groupProps?: {
+    parentGroup?: string;
     pageRef?: string;
     largeGroup?: boolean;
     index?: number;
