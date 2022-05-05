@@ -128,7 +128,7 @@ describe('utils/appmetadata.ts', () => {
       };
       const result = getCurrentDataTypeForApplication({
         application: statelessApplication,
-        layoutSets: layoutSets,
+        layoutSets,
       });
       const expected = 'Stateless';
       expect(result).toEqual(expected);
