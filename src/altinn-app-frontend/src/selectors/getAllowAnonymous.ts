@@ -23,8 +23,10 @@ const getAllowAnonymousSelector = (state: IRuntimeState) => {
   if (!dataTypeId) return undefined;
 
   const dataType = application.dataTypes.find(d => d.id === dataTypeId);
-  if (dataType) {
-    return dataType.appLogic?.allowAnonymousOnStateless;
+  if (dataType
+      && dataType.appLogic
+      && dataType.appLogic.allowAnonymousOnStateless !== undefined) {
+    return dataType.appLogic.allowAnonymousOnStateless;
   }
 
   return false;

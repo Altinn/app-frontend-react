@@ -13,7 +13,7 @@ function* getApplicationMetadata(): SagaIterator {
     yield call(ApplicationMetadataActions.getApplicationMetadataFulfilled, applicationMetadata);
   } catch (error) {
     yield call(ApplicationMetadataActions.getApplicationMetadataRejected, error);
-    yield put(LanguageActions.fetchLanguage()); // make sure default texts are fetched
+    yield put(LanguageActions.fetchDefaultLanguage()); // make sure default texts are fetched
     yield put(appTaskQueueError({ error }));
   }
 }
