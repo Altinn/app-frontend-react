@@ -56,37 +56,7 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
 
     if (isStatelessApp(applicationMetadata)) {
       // stateless app
-      const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
-      const dataType = getDataTypeByLayoutSetId(applicationMetadata.onEntry.show, layoutSets);
-
-      const allowAnonymous = yield select(allowAnonymousSelector);
-
-      let options = {};
-
-      if (!allowAnonymous) {
-        const selectedPartyId = yield select(currentSelectedPartyIdSelector);
-        options = {
-          headers: {
-            party: `partyid:${selectedPartyId}`,
-          },
-        };
-      }
-
-      try {
-        fetchedData = yield call(get, getStatelessFormDataUrl(dataType, allowAnonymous), options);
-      } catch (error) {
-        if (error?.response?.status === 403 && error.response.data) {
-          const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;
-          if (reqAuthLevel) {
-            putWithoutConfig(invalidateCookieUrl);
-            yield call(redirectToUpgrade, reqAuthLevel);
-          } else {
-            throw error;
-          }
-        } else {
-          throw error;
-        }
-      }
+      fetchedData = yield call(fetchFormDataStateless, applicationMetadata);
     } else {
       // app with instance
       const instance: IInstance = yield select(instanceDataSelector);
@@ -106,6 +76,41 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
     console.error(error);
     yield put(FormDataActions.fetchFormDataRejected({ error }));
     yield call(dataTaskQueueError, error);
+  }
+}
+
+function* fetchFormDataStateless(applicationMetadata: IApplicationMetadata) {
+  const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
+  const dataType = getDataTypeByLayoutSetId(applicationMetadata.onEntry.show, layoutSets);
+
+  const allowAnonymous = yield select(allowAnonymousSelector);
+
+  let options = {};
+
+  if (!allowAnonymous) {
+    const selectedPartyId = yield select(currentSelectedPartyIdSelector);
+    options = {
+      headers: {
+        party: `partyid:${selectedPartyId}`,
+      },
+    };
+  }
+
+  try {
+    const fetchedData = yield call(get, getStatelessFormDataUrl(dataType, allowAnonymous), options);
+    return fetchedData;
+  } catch (error) {
+    if (error?.response?.status === 403 && error.response.data) {
+      const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;
+      if (reqAuthLevel) {
+        putWithoutConfig(invalidateCookieUrl);
+        yield call(redirectToUpgrade, reqAuthLevel);
+      } else {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
   }
 }
 

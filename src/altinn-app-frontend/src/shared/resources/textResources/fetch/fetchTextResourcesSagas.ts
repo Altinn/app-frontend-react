@@ -16,7 +16,7 @@ const profileState = (state: IRuntimeState): IProfile => state.profile.profile;
 
 function* fetchTextResources(): SagaIterator {
   try {
-    let languageCode = 'nb'; // TODO decide how to handle default language code
+    let languageCode = 'nb'; // Use 'nb' as default until we decide how to handle default language
     const allowAnonymousSelector = makeGetAllowAnonymousSelector();
     const allowAnonymous = yield select(allowAnonymousSelector);
     if (!allowAnonymous) {
