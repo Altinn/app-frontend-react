@@ -67,16 +67,16 @@ interface IGetDataTypeForApplicationParams {
  * @returns the current data type
  */
 export function getCurrentDataTypeForApplication(
-  params: IGetDataTypeForApplicationParams
+  { application, instance, layoutSets }: IGetDataTypeForApplicationParams
 ): string {
-  const showOnEntry: string = params.application?.onEntry?.show;
-  if (isStatelessApp(params.application)) {
+  const showOnEntry: string = application?.onEntry?.show;
+  if (isStatelessApp(application)) {
     // we have a stateless app with a layout set
-    return getDataTypeByLayoutSetId(showOnEntry, params.layoutSets);
+    return getDataTypeByLayoutSetId(showOnEntry, layoutSets);
   }
 
   // instance - get data element based on current process step
-  return getDataTaskDataTypeId(params.instance.process.currentTask.elementId, params.application.dataTypes);
+  return getDataTaskDataTypeId(instance.process.currentTask.elementId, application.dataTypes);
 }
 
 export function isStatelessApp(application: IApplication) {

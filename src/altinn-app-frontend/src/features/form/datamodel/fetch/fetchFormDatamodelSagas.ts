@@ -26,8 +26,8 @@ function* fetchJsonSchemaSaga(): SagaIterator {
 
     const dataTypeId = getCurrentDataTypeForApplication({
       application: appMetadata, 
-      instance: instance, 
-      layoutSets: layoutSets
+      instance, 
+      layoutSets
     });
 
     if (dataTypeId) {
