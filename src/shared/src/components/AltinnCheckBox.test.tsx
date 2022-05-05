@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { render as rtlRender, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 
 import AltinnCheckBoxComponent from './AltinnCheckBox';
 
@@ -30,7 +30,7 @@ describe('AltinnCheckBox', () => {
 
     const checkbox = screen.getByRole('checkbox');
 
-    expect(async () => await userEvent.click(checkbox)).toThrow(); // When disabled, pointer-events: none is set, so it will not be clickable, and it should throw
+    await userEvent.click(checkbox, { pointerEventsCheck: PointerEventsCheckLevel.Never});
     expect(handleChange).not.toHaveBeenCalled();
   });
 

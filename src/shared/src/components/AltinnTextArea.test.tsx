@@ -14,13 +14,13 @@ const render = (props = {}) => {
 };
 
 describe('AltinnTextArea', () => {
-  it('should call onChange when typing in the textarea', () => {
+  it('should call onChange when typing in the textarea', async () => {
     const handleChange = jest.fn();
     render({ onChange: handleChange });
 
     const input = screen.getByRole('textbox');
 
-    userEvent.type(input, 'input-text');
+    await userEvent.type(input, 'input-text');
 
     expect(handleChange).toHaveBeenCalled();
   });
