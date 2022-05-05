@@ -11,7 +11,7 @@ export interface INavBarProps {
   showBackArrow?: boolean;
   hideCloseButton?: boolean;
   showLanguageDropdown?: boolean;
-  appLanguages: string[];
+  appLanguages: { [languageCode: string]: string };
   selectedAppLanguage: string;
   onAppLanguageChange: (languageCode: string) => void;
 }
@@ -19,26 +19,30 @@ export interface INavBarProps {
 const NavBar = (props: INavBarProps) => {
   return (
     <Box mt={5} width={'100%'} display='flex' justifyContent={'space-between'}>
-      {props.showBackArrow && (
-        <button
-          type='button'
-          className='a-modal-back a-js-tabable-popover'
-          aria-label={getLanguageFromKey('general.back', props.language)}
-          onClick={props.handleBack}
-        >
-          <span className='ai-stack'>
-            <i className='ai-stack-1x ai ai-back' aria-hidden='true' />
-          </span>
-          <span className='hidden-button-text'>
-            {getLanguageFromKey('general.back', props.language)}
-          </span>
-        </button>
-      )}
-
+      <div>
+        {props.showBackArrow && (
+          <button
+            type='button'
+            className='a-modal-back a-js-tabable-popover'
+            aria-label={getLanguageFromKey('general.back', props.language)}
+            onClick={props.handleBack}
+          >
+            <span className='ai-stack'>
+              <i className='ai-stack-1x ai ai-back' aria-hidden='true' />
+            </span>
+            <span className='hidden-button-text'>
+              {getLanguageFromKey('general.back', props.language)}
+            </span>
+          </button>
+        )}
+      </div>
       <Box display='flex'>
         <Box mr={1}>
           <AltinnDropdown
-            options={props.appLanguages.map((l) => ({ label: l, value: l }))}
+            options={Object.entries(props.appLanguages).map(([key, value]) => ({
+              label: value,
+              value: key,
+            }))}
             onChange={(ev) => props.onAppLanguageChange(ev.target.value)}
             value={props.selectedAppLanguage}
             id='app-language-select'
