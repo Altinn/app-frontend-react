@@ -27,7 +27,7 @@ export function textResourcesUrl(language: string) {
 }
 
 export function appLanguagesUrl() {
-  return `${origin}/${org}/${app}/api/v1/texts/languages`;
+  return `${origin}/${org}/${app}/api/v1/applicationlanguages`;
 }
 
 export function fileUploadUrl(attachmentType: string) {
@@ -38,8 +38,9 @@ export function fileUploadUrl(attachmentType: string) {
 }
 
 export function fileTagUrl(dataGuid: string) {
-  return `${appPath}/instances/` +
-    `${altinnWindow.instanceId}/data/${dataGuid}/tags`;
+  return (
+    `${appPath}/instances/` + `${altinnWindow.instanceId}/data/${dataGuid}/tags`
+  );
 }
 
 export function dataElementUrl(dataGuid: string) {
@@ -202,7 +203,14 @@ export interface IGetOptionsUrlParams {
   instanceId?: string;
 }
 
-export const getOptionsUrl = ({ optionsId, dataMapping, formData, language, secure, instanceId }: IGetOptionsUrlParams) => {
+export const getOptionsUrl = ({
+  optionsId,
+  dataMapping,
+  formData,
+  language,
+  secure,
+  instanceId,
+}: IGetOptionsUrlParams) => {
   let url: URL;
   if (secure) {
     url = new URL(`${appPath}/instances/${instanceId}/options/${optionsId}`);

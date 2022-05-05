@@ -1,15 +1,20 @@
 import update from 'immutability-helper';
 import { Action, Reducer } from 'redux';
-import { IFetchAppLanguagesFulfilled, IFetchAppLanguagesRejected, IUpdateAppLanguages } from './fetch/fetchAppLanguagesActions';
+import {
+  IFetchAppLanguagesFulfilled,
+  IFetchAppLanguagesRejected,
+  IUpdateAppLanguages,
+} from './fetch/fetchAppLanguagesActions';
 import * as ActionTypes from './fetch/fetchAppLanguagesActionTypes';
 
 import { IAltinnWindow } from 'src/types';
+import { IAppLanguage } from 'altinn-shared/types';
 const altinnWindow = window as Window as IAltinnWindow;
 const { app } = altinnWindow;
-const localStorageLanguageKey = `selectedAppLanguage${app}`
+const localStorageLanguageKey = `selectedAppLanguage${app}`;
 
 export interface IAppLanguageState {
-  resources: string[];
+  resources: IAppLanguage[];
   error: Error;
   selectedAppLanguage: string;
 }
@@ -17,7 +22,7 @@ export interface IAppLanguageState {
 const initialState: IAppLanguageState = {
   resources: [],
   error: null,
-  selectedAppLanguage: localStorage.getItem(localStorageLanguageKey) || "",
+  selectedAppLanguage: localStorage.getItem(localStorageLanguageKey) || '',
 };
 
 const AppLanguageReducer: Reducer<IAppLanguageState> = (
@@ -46,12 +51,12 @@ const AppLanguageReducer: Reducer<IAppLanguageState> = (
       });
     }
     case ActionTypes.UPDATE_SELECTED_APP_LANGUAGE: {
-      const {language} = action as IUpdateAppLanguages;
+      const { language } = action as IUpdateAppLanguages;
       localStorage.setItem(localStorageLanguageKey, language);
       return update<IAppLanguageState>(state, {
         selectedAppLanguage: {
-          $set: language
-        }
+          $set: language,
+        },
       });
     }
 
