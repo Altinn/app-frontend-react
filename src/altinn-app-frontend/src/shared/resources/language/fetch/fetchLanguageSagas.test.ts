@@ -7,7 +7,7 @@ import {
   allowAnonymousSelector,
 } from './fetchLanguageSagas';
 import { profileStateSelector } from 'src/selectors/simpleSelectors';
-import LanguageActions from '../languageActions';
+import { LanguageActions } from '../languageSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromCode } from 'altinn-shared/language';
 import type { IProfile } from 'altinn-shared/types';
@@ -15,37 +15,41 @@ import type { IProfile } from 'altinn-shared/types';
 describe('languageActions', () => {
   it('should create an action with correct type: FETCH_LANGUAGE', () => {
     const expectedAction = {
-      type: 'LANGUAGE_DATA.FETCH_LANGUAGE',
+      type: 'language/fetchLanguage',
     };
     expect(LanguageActions.fetchLanguage()).toEqual(expectedAction);
   });
   it('should create an action with correct type: FETCH_LANGUAGE_FULFILLED', () => {
     const expectedAction = {
-      type: 'LANGUAGE_DATA.FETCH_LANGUAGE_FULFILLED',
-      language: {},
+      type: 'language/fetchLanguageFulfilled',
+      payload: {
+        language: {},
+      },
     };
-    expect(LanguageActions.fetchLanguageFulfilled({})).toEqual(expectedAction);
+    expect(LanguageActions.fetchLanguageFulfilled({ language: {} })).toEqual(expectedAction);
   });
   it('should create an action with correct type: FETCH_LANGUAGE_REJECTED', () => {
     const mockError: Error = new Error();
     const expectedAction = {
-      type: 'LANGUAGE_DATA.FETCH_LANGUAGE_REJECTED',
-      error: mockError,
+      type: 'language/fetchLanguageRejected',
+      payload: {
+        error: mockError,
+      },
     };
-    expect(LanguageActions.fetchLanguageRejected(mockError)).toEqual(
+    expect(LanguageActions.fetchLanguageRejected({ error: mockError })).toEqual(
       expectedAction,
     );
   });
 });
 
 describe('fetchLanguageSagas', () => {
-  it('should dispatch action "LANGUAGE_DATA.FETCH_LANGUAGE" ', () => {
+  it('should dispatch action "language/fetchLanguage" ', () => {
     const generator = watchFetchLanguageSaga();
     expect(generator.next().value).toEqual(
       all([
         take(FormLayoutActions.fetchLayoutSetsFulfilled),
         take('APPLICATION_METADATA.FETCH_APPLICATION_METADATA_FULFILLED'),
-        take('LANGUAGE_DATA.FETCH_LANGUAGE'),
+        take(LanguageActions.fetchLanguage),
       ]),
     );
     expect(generator.next().value).toEqual(select(allowAnonymousSelector));
@@ -60,7 +64,7 @@ describe('fetchLanguageSagas', () => {
       .provide([
         [select(allowAnonymousSelector), true],
       ])
-      .call(LanguageActions.fetchLanguageFulfilled, getLanguageFromCode('nb'))
+      .put(LanguageActions.fetchLanguageFulfilled({ language: getLanguageFromCode('nb') }))
       .run();
   });
 
@@ -82,7 +86,7 @@ describe('fetchLanguageSagas', () => {
         [select(allowAnonymousSelector), false],
         [select(profileStateSelector), profileMock]
       ])
-      .call(LanguageActions.fetchLanguageFulfilled, getLanguageFromCode('en'))
+      .put(LanguageActions.fetchLanguageFulfilled({ language: getLanguageFromCode('en') }))
       .run();
   });
 });

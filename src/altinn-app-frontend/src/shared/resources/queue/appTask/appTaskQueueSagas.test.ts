@@ -3,7 +3,7 @@ import { expectSaga } from 'redux-saga-test-plan';
 import { startInitialAppTaskQueueSaga } from 'src/shared/resources/queue/appTask/appTaskQueueSagas';
 import {startInitialAppTaskQueueFulfilled} from 'src/shared/resources/queue/queueSlice';
 import TextResourcesActions from 'src/shared/resources/textResources/textResourcesActions';
-import LanguageActions from 'src/shared/resources/language/languageActions';
+import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 import OrgsActions from 'src/shared/resources/orgs/orgsActions';
 import ApplicationMetadataActionDispatcher from 'src/shared/resources/applicationMetadata/actions';
 import {startInitialUserTaskQueueSaga} from 'src/shared/resources/queue/userTask/userTaskQueueSagas';
@@ -14,7 +14,7 @@ describe('appTaskQueueSagas', () => {
     expectSaga(startInitialUserTaskQueueSaga).run()
     return expectSaga(startInitialAppTaskQueueSaga)
       .call(TextResourcesActions.fetchTextResources)
-      .call(LanguageActions.fetchLanguage)
+      .put(LanguageActions.fetchLanguage())
       .call(ApplicationMetadataActionDispatcher.getApplicationMetadata)
       .put(FormLayoutActions.fetchLayoutSets())
       .call(OrgsActions.fetchOrgs)

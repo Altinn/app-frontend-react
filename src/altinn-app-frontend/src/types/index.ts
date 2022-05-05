@@ -12,7 +12,7 @@ import { IInstantiationState } from '../features/instantiate/instantiation/reduc
 import { IApplicationMetadataState } from '../shared/resources/applicationMetadata/reducer';
 import { IAttachmentState } from '../shared/resources/attachments/attachmentReducer';
 import { IInstanceDataState } from '../shared/resources/instanceData/instanceDataReducers';
-import { ILanguageState } from '../shared/resources/language/languageReducers';
+import { ILanguageState } from '../shared/resources/language/languageSlice';
 import { IOrgsState } from '../shared/resources/orgs/orgsReducers';
 import { IPartyState } from '../shared/resources/party/partyReducers';
 import { IProcessState } from '../shared/resources/process/processReducer';

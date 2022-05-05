@@ -4,8 +4,7 @@ import { call, put, all, take, select } from 'redux-saga/effects';
 import type { IProfile } from 'altinn-shared/types';
 
 import { getLanguageFromCode } from 'altinn-shared/language';
-import LanguageActions from '../languageActions';
-import * as LanguageActionTypes from './fetchLanguageActionTypes';
+import { LanguageActions } from '../languageSlice';
 import * as ProfileActionTypes from '../../profile/fetch/fetchProfileActionTypes';
 import { appTaskQueueError } from '../../queue/queueSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
@@ -15,19 +14,21 @@ import { profileStateSelector } from 'src/selectors/simpleSelectors';
 
 export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
-export function* fetchLanguageSaga(): SagaIterator {
+export function* fetchLanguageSaga(defaultLanguage = false): SagaIterator {
   try {
     let languageCode = 'nb';
-    const allowAnonymous = yield select(allowAnonymousSelector);
-    if (!allowAnonymous) {
-      const profile: IProfile = yield select(profileStateSelector);
-      languageCode = profile.profileSettingPreference.language;
+    if (!defaultLanguage) {
+      const allowAnonymous = yield select(allowAnonymousSelector);
+      if (!allowAnonymous) {
+        const profile: IProfile = yield select(profileStateSelector);
+        languageCode = profile.profileSettingPreference.language;
+      }
     }
-    const language = getLanguageFromCode(languageCode);
 
-    yield call(LanguageActions.fetchLanguageFulfilled, language);
+    const language = getLanguageFromCode(languageCode);
+    yield put(LanguageActions.fetchLanguageFulfilled({ language }));
   } catch (error) {
-    yield call(LanguageActions.fetchLanguageRejected, error);
+    yield put(LanguageActions.fetchLanguageRejected({ error }));
     yield put(appTaskQueueError({ error }));
   }
 }
@@ -36,7 +37,7 @@ export function* watchFetchLanguageSaga(): SagaIterator {
   yield all([
     take(FormLayoutActions.fetchLayoutSetsFulfilled),
     take(FETCH_APPLICATION_METADATA_FULFILLED),
-    take(LanguageActionTypes.FETCH_LANGUAGE),
+    take(LanguageActions.fetchLanguage),
   ]);
 
   const allowAnonymous = yield select(allowAnonymousSelector);
@@ -45,4 +46,9 @@ export function* watchFetchLanguageSaga(): SagaIterator {
   }
 
   yield call(fetchLanguageSaga);
+}
+
+export function* watchFetchDefaultLanguageSaga(): SagaIterator {
+  yield take(LanguageActions.fetchDefaultLanguage);
+  yield call(fetchLanguageSaga, true);
 }
