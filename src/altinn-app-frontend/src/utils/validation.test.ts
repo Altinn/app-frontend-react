@@ -1,26 +1,27 @@
-import {createElement} from 'react';
-import {getInitialStateMock} from '../../__mocks__/initialStateMock';
-import {getMockValidationState} from '../../__mocks__/validationStateMock';
+import { createElement } from 'react';
+import { getInitialStateMock } from '../../__mocks__/initialStateMock';
+import { getMockValidationState } from '../../__mocks__/validationStateMock';
 import * as oneOfOnRootSchema from '../../__mocks__/json-schema/one-of-on-root.json';
 import * as refOnRootSchema from '../../__mocks__/json-schema/ref-on-root.json';
 import * as complexSchema from '../../__mocks__/json-schema/complex.json';
 
 import type {
+  IValidationIssue,
+  IValidations,
+  IRepeatingGroups,
+  IRuntimeState,
   IComponentBindingValidation,
   IComponentValidations,
   ILayoutValidations,
-  IRepeatingGroups,
-  IRuntimeState,
-  IValidationIssue,
-  IValidations,
 } from 'src/types';
-import {Severity} from 'src/types';
-import type {ILayoutComponent, ILayoutGroup} from 'src/features/form/layout';
-import {getParsedLanguageFromKey} from '../../../shared/src';
-import {createRepeatingGroupComponents} from 'src/utils/formLayout';
-import {getParsedTextResourceByKey} from 'src/utils/textResource';
+import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+
+import { Severity } from 'src/types';
+import { getParsedLanguageFromKey } from '../../../shared/src';
+import { createRepeatingGroupComponents } from 'src/utils/formLayout';
+import { getParsedTextResourceByKey } from 'src/utils/textResource';
 import * as validation from './validation';
-import {mapToComponentValidations} from './validation';
+import { mapToComponentValidations } from './validation';
 
 describe('utils > validation', () => {
   let mockLayout: any;
