@@ -234,7 +234,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({ payload: { runValidat
       {
         params: {
           currentPage: currentView,
-          layoutSetId: layoutSetId,
+          layoutSetId,
           dataTypeId,
         },
         headers: {
