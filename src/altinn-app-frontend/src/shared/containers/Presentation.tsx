@@ -56,7 +56,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
     (state) => state.formLayout.uiConfig.returnToView,
   );
   const appLanguages = useAppSelector(
-    (state) => state.appLanguages.resources || {},
+    (state) => state.appLanguages.resources || [],
   );
   const selectedAppLanguage = useAppSelector(
     (state) => state.appLanguages.selectedAppLanguage,

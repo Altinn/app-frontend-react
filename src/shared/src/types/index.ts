@@ -16,7 +16,6 @@ export interface IApplication {
   onEntry?: IOnEntry;
 }
 
-
 export interface IAltinnOrg {
   name: ITitle;
   logo: string;
@@ -45,7 +44,7 @@ export interface IAttachment {
   iconClass: string;
   url: string;
   dataType: string;
-  tags?: string[]
+  tags?: string[];
 }
 
 export interface IData {
@@ -122,9 +121,15 @@ export interface IInstanceState {
   isMarkedForHardDelete: boolean;
   isArchived: boolean;
 }
-
+// Language for altinn
 export interface ILanguage {
-    [key: string]: string | ILanguage;
+  [key: string]: string | ILanguage;
+}
+// Language for the rendered alltinn app
+export interface IAppLanguage {
+  language: string;
+  languageCode: string;
+  dropdownLabel: string;
 }
 
 export interface IOrganisation {
@@ -250,7 +255,7 @@ export interface IAttachmentGrouping {
   [title: string]: IAttachment[];
 }
 
-export interface IDataSource{
+export interface IDataSource {
   [key: string]: any;
 }
 
