@@ -14,42 +14,42 @@ const render = (props = {}) => {
 };
 
 describe('AltinnCheckBox', () => {
-  it('should call change handler when clicked', () => {
+  it('should call change handler when clicked', async () => {
     const handleChange = jest.fn();
     render({ onChangeFunction: handleChange });
 
     const checkbox = screen.getByRole('checkbox');
-    userEvent.click(checkbox);
+    await userEvent.click(checkbox);
 
     expect(handleChange).toHaveBeenCalled();
   });
 
-  it('should not call change handler when clicked and disabled is true', () => {
+  it('should not call change handler when clicked and disabled is true', async () => {
     const handleChange = jest.fn();
     render({ onChangeFunction: handleChange, disabled: true });
 
     const checkbox = screen.getByRole('checkbox');
 
-    expect(() => userEvent.click(checkbox)).toThrow(); // When disabled, pointer-events: none is set, so it will not be clickable, and it should throw
+    expect(async () => await userEvent.click(checkbox)).toThrow(); // When disabled, pointer-events: none is set, so it will not be clickable, and it should throw
     expect(handleChange).not.toHaveBeenCalled();
   });
 
-  it('should call change handler when focused with tab and enter is hit', () => {
+  it('should call change handler when focused with tab and enter is hit', async () => {
     const handleChange = jest.fn();
     render({ onKeyPressFunction: handleChange });
 
-    userEvent.tab();
-    userEvent.keyboard('{enter}');
+    await userEvent.tab();
+    await userEvent.keyboard('{enter}');
 
     expect(handleChange).toHaveBeenCalled();
   });
 
-  it('should not call change handler when focused with tab and enter is hit, when disabled is true', () => {
+  it('should not call change handler when focused with tab and enter is hit, when disabled is true', async () => {
     const handleChange = jest.fn();
     render({ onKeyPressFunction: handleChange, disabled: true });
 
-    userEvent.tab();
-    userEvent.keyboard('{enter}');
+    await userEvent.tab();
+    await userEvent.keyboard('{enter}');
 
     expect(handleChange).not.toHaveBeenCalled();
   });
