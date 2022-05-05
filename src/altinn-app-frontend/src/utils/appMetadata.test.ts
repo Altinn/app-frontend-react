@@ -99,9 +99,9 @@ describe('utils/appmetadata.ts', () => {
   describe('getCurrentDataTypeForApplication', () => {
     it('should return correct data type if we have an instance', () => {
       const result = getCurrentDataTypeForApplication({
-        application: application,
-        instance: instance,
-        layoutSets: layoutSets,
+        application,
+        instance,
+        layoutSets,
       });
       const expected = 'Datamodel';
       expect(result).toEqual(expected);
