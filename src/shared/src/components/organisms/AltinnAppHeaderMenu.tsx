@@ -47,6 +47,10 @@ function AltinnAppHeaderMenu(props: IAltinnAppHeaderMenuProps) {
     setAnchorEl(null);
   };
 
+  if (!party) {
+    return null;
+  }
+
   return (
     <>
       <IconButton
