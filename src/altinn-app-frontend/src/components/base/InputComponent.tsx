@@ -11,7 +11,6 @@ export interface IInputBaseProps {
   readOnly: boolean;
   required: boolean;
   handleDataChange: (value: any) => void;
-  inputRef?: ((el: HTMLInputElement) => void) | React.Ref<any>;
 }
 
 export interface IInputFormatting {
@@ -30,6 +29,7 @@ export interface IBasicInputProps extends IInputBaseProps {
 }
 
 export interface IFormattedNumberInputProps extends IInputBaseProps {
+  inputRef: ((el: HTMLInputElement) => void) | React.Ref<any>;
   name: any;
   onChange: (e: any) => void;
   formatting?: IInputFormatting;
@@ -63,10 +63,10 @@ function NumberFormatCustom(props: IFormattedNumberInputProps) {
   );
 }
 
-export function BasicInputComponent({ inputRef, ...rest }: IBasicInputProps) {
+export function BasicInputComponent(props: IBasicInputProps) {
   return (
     <>
-      <input data-testid={rest.id} ref={inputRef} {...rest} />
+      <input data-testid={props.id} {...props} />
     </>
   );
 }

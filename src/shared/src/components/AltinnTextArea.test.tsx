@@ -2,7 +2,7 @@ import * as React from 'react';
 import { render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import AltinnInput from './AltinnInput';
+import AltinnTextArea from './AltinnTextArea';
 
 const render = (props = {}) => {
   const allProps = {
@@ -10,17 +10,15 @@ const render = (props = {}) => {
     ...props,
   };
 
-  rtlRender(<AltinnInput {...allProps} />);
+  rtlRender(<AltinnTextArea {...allProps} />);
 };
 
-describe('AltinnInput', () => {
-  it('should call onChange when typing in the input field', () => {
+describe('AltinnTextArea', () => {
+  it('should call onChange when typing in the textarea', () => {
     const handleChange = jest.fn();
     render({ onChange: handleChange });
 
-    const input = screen.getByRole('textbox', {
-      name: /inputlabel/i,
-    });
+    const input = screen.getByRole('textbox');
 
     userEvent.type(input, 'input-text');
 
@@ -37,19 +35,5 @@ describe('AltinnInput', () => {
     render({ showLabel: false });
 
     expect(screen.queryByText(/inpulabel/i)).not.toBeInTheDocument();
-  });
-
-  it('should show icon when iconString is set', () => {
-    render({ iconString: 'icon-str' });
-
-    expect(screen.getByTestId('altinninput-iconString')).toBeInTheDocument();
-  });
-
-  it('should show icon when iconString is set', () => {
-    render();
-
-    expect(
-      screen.queryByTestId('altinninput-iconString'),
-    ).not.toBeInTheDocument();
   });
 });

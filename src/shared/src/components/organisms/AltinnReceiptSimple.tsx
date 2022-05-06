@@ -1,3 +1,5 @@
+/* eslint-disable import/no-named-as-default */
+/* eslint-disable react/prop-types */
 import { Typography } from '@material-ui/core';
 import { createTheme, createStyles, MuiThemeProvider, WithStyles, withStyles } from '@material-ui/core/styles';
 import * as React from 'react';

@@ -4,9 +4,11 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
+  Typography,
 } from '@material-ui/core';
 import * as React from 'react';
-import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
+import appTheme from 'altinn-shared/theme/altinnAppTheme';
+import { EditButton } from './EditButton';
 
 export interface IMultipleChoiceSummaryProps {
   formData: any;
@@ -18,6 +20,20 @@ export interface IMultipleChoiceSummaryProps {
 }
 
 const useStyles = makeStyles({
+  label: {
+    fontWeight: 500,
+    fontSize: '1.8rem',
+    '& p': {
+      fontWeight: 500,
+      fontSize: '1.8rem',
+    },
+  },
+  labelWithError: {
+    color: appTheme.altinnPalette.primary.red,
+    '& p': {
+      color: appTheme.altinnPalette.primary.red,
+    },
+  },
   row: {
     borderBottom: '1px dashed #008FD6',
     marginBottom: 10,
@@ -39,23 +55,40 @@ export default function MultipleChoiceSummary({
 }: IMultipleChoiceSummaryProps) {
   const classes = useStyles();
 
+  const RenderListItem = (value: string, displayText: string) => {
+    return (
+      <ListItem key={value} classes={{ root: classes.list }}>
+        <ListItemText id={value} primary={displayText} />
+      </ListItem>
+    );
+  };
+
+  const validationErrorClass = hasValidationMessages
+    ? ` ${classes.labelWithError}`
+    : '';
+
   return (
     <>
-      <SummaryBoilerplate
-        changeText={changeText}
-        onChangeClick={onChangeClick}
-        label={label}
-        hasValidationMessages={hasValidationMessages}
-        readOnlyComponent={readOnlyComponent}
-      />
-      <Grid item xs={12} data-testid={'multiple-choice-summary'}>
+      <Grid item={true} xs={10}>
+        <Typography
+          variant='body1'
+          className={`${classes.label}${validationErrorClass}`}
+          component='span'
+        >
+          {label}
+        </Typography>
+      </Grid>
+      <Grid item xs={2}>
+        {!readOnlyComponent && (
+          <EditButton onClick={onChangeClick} editText={changeText} />
+        )}
+      </Grid>
+      <Grid item xs={12}>
         <List>
           {formData &&
-            Object.keys(formData).map((key) => (
-              <ListItem key={key} classes={{ root: classes.list }}>
-                <ListItemText id={key} primary={formData[key]} />
-              </ListItem>
-            ))}
+            Object.keys(formData).map((key) => {
+              return RenderListItem(key, formData[key]);
+            })}
         </List>
       </Grid>
     </>

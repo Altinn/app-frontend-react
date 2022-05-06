@@ -12,7 +12,7 @@ import type { ISummaryGroupComponent } from './SummaryGroupComponent';
 
 import SummaryGroupComponent from './SummaryGroupComponent';
 
-describe('SummaryGroupComponent', () => {
+describe('components/summary/MultipleChoiceSummary.tsx', () => {
   let mockHandleDataChange: () => void;
   let mockStore;
 
@@ -117,15 +117,16 @@ describe('SummaryGroupComponent', () => {
     mockHandleDataChange = jest.fn();
   });
 
-  test('SummaryGroupComponent -- should match snapshot', () => {
-    const { asFragment } = renderSummaryGroupComponent();
+  test('components/summary/MultipleChoiceSummary.tsx -- should match snapshot', () => {
+    const { asFragment } = renderMultipleChoiceSummaryComponent();
     expect(asFragment()).toMatchSnapshot();
   });
 
-  function renderSummaryGroupComponent(
+  function renderMultipleChoiceSummaryComponent(
     props: Partial<ISummaryGroupComponent> = {},
   ) {
     const defaultProps: ISummaryGroupComponent = {
+      id: 'groupComponent-summary',
       pageRef: 'page1',
       componentRef: 'groupComponent',
       largeGroup: false,

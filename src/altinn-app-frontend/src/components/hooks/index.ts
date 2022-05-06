@@ -62,6 +62,3 @@ export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsPara
 
   return options;
 }
-
-export { useDisplayData } from './useDisplayData';
-

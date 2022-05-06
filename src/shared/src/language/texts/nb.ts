@@ -1,4 +1,5 @@
 
+// eslint-disable-next-line import/prefer-default-export
 export function nb() {
   return {
     address_component: {
