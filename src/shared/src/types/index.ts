@@ -121,7 +121,7 @@ export interface IInstanceState {
   isMarkedForHardDelete: boolean;
   isArchived: boolean;
 }
-// Language for altinn
+// Language translations for altinn
 export interface ILanguage {
   [key: string]: string | ILanguage;
 }

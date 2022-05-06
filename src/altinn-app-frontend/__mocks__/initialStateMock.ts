@@ -20,7 +20,9 @@ export const mockParty: IParty = {
   childParties: null,
 };
 
-export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRuntimeState {
+export function getInitialStateMock(
+  customStates?: Partial<IRuntimeState>,
+): IRuntimeState {
   const initialState: IRuntimeState = {
     applicationMetadata: {
       applicationMetadata: applicationMetadataMock,
@@ -78,19 +80,14 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
           logo: '',
           orgnr: '',
           homepage: '',
-          environments: [
-            'tt02',
-            'production',
-          ],
+          environments: ['tt02', 'production'],
         },
       },
       error: null,
     },
     party: {
       error: null,
-      parties: [
-        mockParty,
-      ],
+      parties: [mockParty],
       selectedParty: mockParty,
     },
     process: {
@@ -108,7 +105,17 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     },
     textResources: {
       resources: [
-        { id: 'option.from.rep.group.label', value: 'The value from the group is: {0}', unparsedValue: 'The value from the group is: {0}', variables: [{ dataSource: 'dataModel.skjema', key: 'someGroup[{0}].labelField' }] }
+        {
+          id: 'option.from.rep.group.label',
+          value: 'The value from the group is: {0}',
+          unparsedValue: 'The value from the group is: {0}',
+          variables: [
+            {
+              dataSource: 'dataModel.skjema',
+              key: 'someGroup[{0}].labelField',
+            },
+          ],
+        },
       ],
       error: null,
       language: 'nb',
@@ -121,7 +128,14 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       applicationSettings: applicationSettingsMock,
       error: null,
     },
-    appLanguages: undefined
+    appLanguages: {
+      error: null,
+      selectedAppLanguage: 'nb',
+      resources: [
+        { language: 'Norsk', languageCode: 'nb', dropdownLabel: 'Språk' },
+        { language: 'English', languageCode: 'en', dropdownLabel: 'Language' },
+      ],
+    },
   };
 
   return {
