@@ -6,61 +6,77 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-      "components": {
-        "type": "object",
-        "$ref": "#/definitions/components"
-      },
-      "pages": {
-          "type": "object",
-          "$ref": "#/definitions/pages"
-      }
+    "components": {
+      "type": "object",
+      "$ref": "#/definitions/components"
+    },
+    "pages": {
+      "type": "object",
+      "$ref": "#/definitions/pages"
+    }
   },
   "definitions": {
-      "components": {
-        "type": "object",
-          "additionalProperties": false,
-          "description": "Settings regarding components",
-          "properties": {
-            "excludeFromPdf": {
-              "$ref": "#/definitions/excludeFromPdf"
-            }
-          }
-      },
-      "pages": {
-          "type": "object",
-          "additionalProperties": false,
-          "description": "Settings regarding layout pages",
-          "properties": {
-            "order": {
-              "$ref": "#/definitions/order"
-            },
-            "excludeFromPdf": {
-              "$ref": "#/definitions/excludeFromPdf"
-            },
-            "triggers": {
-              "$ref": "https://altinncdn.no/schemas/json/layout/layout.schema.v1.json#/definitions/triggers",
-              "title": "Triggers",
-              "description": "Triggers that apply for all navigation components across all pages. Can be overrided at the component level."
-            }
-          }
-      },
-      "order": {
-        "additionalProperties": false,
-        "description": "An array specifying which order the pages should appear in the application",
-        "type": "array",
-        "items": {
-          "description": "A layout name, for instance 'Page1'",
-          "type": "string"
-        }
-      },
-      "excludeFromPdf": {
-        "additionalProperties": false,
-        "description": "An array specifying which pages to exclude from the pdf",
-        "type": "array",
-        "items": {
-          "description": "A layout name, for instance 'Page1'",
-          "type": "string"
+    "components": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Settings regarding components",
+      "properties": {
+        "excludeFromPdf": {
+          "$ref": "#/definitions/excludeFromPdf"
         }
       }
+    },
+    "pages": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Settings regarding layout pages",
+      "properties": {
+        "order": {
+          "$ref": "#/definitions/order"
+        },
+        "excludeFromPdf": {
+          "$ref": "#/definitions/excludeFromPdf"
+        },
+        "triggers": {
+          "$ref": "https://altinncdn.no/schemas/json/layout/layout.schema.v1.json#/definitions/triggers",
+          "title": "Triggers",
+          "description": "Triggers that apply for all navigation components across all pages. Can be overrided at the component level."
+        },
+        "hideCloseButton": {
+          "$ref": "#/definitions/hideCloseButton"
+        },
+        "showLanguageDropdown": {
+          "$ref": "#/definitions/showLanguageDropdown"
+        }
+      }
+    },
+    "order": {
+      "additionalProperties": false,
+      "description": "An array specifying which order the pages should appear in the application",
+      "type": "array",
+      "items": {
+        "description": "A layout name, for instance 'Page1'",
+        "type": "string"
+      }
+    },
+    "excludeFromPdf": {
+      "additionalProperties": false,
+      "description": "An array specifying which pages to exclude from the pdf",
+      "type": "array",
+      "items": {
+        "description": "A layout name, for instance 'Page1'",
+        "type": "string"
+      }
+    },
+    "hideCloseButton": {
+      "additionalProperties": false,
+      "description": "An attribute specifiying if the close button should be hidden",
+      "type": "boolean"
+    },
+    "showLanguageDropdown": {
+      "additionalProperties": false,
+      "description": "An attribute specifying if the translation dropdown menu should be visible",
+      "type": "boolean"
+    }
   }
 }
