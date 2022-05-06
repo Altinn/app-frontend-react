@@ -22,7 +22,7 @@ const NavBar = (props: INavBarProps) => {
   const CloseButton = (
     <button
       type='button'
-      className='a-modal-close a-js-tabable-popover'
+      className='a-modal-close a-js-tabable-popover ml-1'
       aria-label={getLanguageFromKey('general.close_schema', props.language)}
       onClick={props.handleClose}
     >
@@ -42,6 +42,7 @@ const NavBar = (props: INavBarProps) => {
       width={'100%'}
       display='flex'
       justifyContent={'space-between'}
+      alignItems={'flex-end'}
       className='mt-3'
     >
       <div>
@@ -64,7 +65,7 @@ const NavBar = (props: INavBarProps) => {
 
       <Box display='flex' alignItems={'end'}>
         {showLanguageSelect && (
-          <Box mr={1} display='flex' flexDirection='column' className='mb-1'>
+          <Box display='flex' flexDirection='column' className='mb-1'>
             <label className='a-form-label' htmlFor='app-language-select'>
               {
                 props.appLanguages.find(
