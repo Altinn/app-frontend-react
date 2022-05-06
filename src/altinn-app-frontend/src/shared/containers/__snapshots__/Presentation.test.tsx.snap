@@ -195,28 +195,33 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
           </div>
         </div>
         <div
-          className="a-modal-navbar"
+          className="MuiBox-root MuiBox-root-8 mt-3"
         >
-          <button
-            aria-label="Lukk skjema"
-            className="a-modal-close a-js-tabable-popover"
-            onClick={[Function]}
-            type="button"
+          <div />
+          <div
+            className="MuiBox-root MuiBox-root-9"
           >
-            <span
-              className="ai-stack"
+            <button
+              aria-label="Lukk skjema"
+              className="a-modal-close a-js-tabable-popover"
+              onClick={[Function]}
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                className="ai-stack-1x ai ai-exit  a-modal-close-icon"
-              />
-            </span>
-            <span
-              className="hidden-button-text"
-            >
-              Lukk skjema
-            </span>
-          </button>
+              <span
+                className="ai-stack"
+              >
+                <i
+                  aria-hidden="true"
+                  className="ai-stack-1x ai ai-exit  a-modal-close-icon"
+                />
+              </span>
+              <span
+                className="hidden-button-text"
+              >
+                Lukk skjema
+              </span>
+            </button>
+          </div>
         </div>
         <div
           className="a-modal-content-target"

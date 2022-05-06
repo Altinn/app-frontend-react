@@ -15,7 +15,7 @@ const localStorageLanguageKey = `selectedAppLanguage${app}`;
 
 export interface IAppLanguageState {
   resources: IAppLanguage[];
-  error: Error;
+  error: Error | null;
   selectedAppLanguage: string;
 }
 
