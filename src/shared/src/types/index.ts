@@ -127,9 +127,9 @@ export interface ILanguage {
 }
 // Language for the rendered alltinn app
 export interface IAppLanguage {
-  language: string;
-  languageCode: string;
-  dropdownLabel: string;
+  languageDescription: string;
+  language: string; // Language code
+  dropdownLabel: string; // Used to translate label for combobox
 }
 
 export interface IOrganisation {

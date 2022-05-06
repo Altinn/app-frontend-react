@@ -68,14 +68,14 @@ const NavBar = (props: INavBarProps) => {
             <label className='a-form-label' htmlFor='app-language-select'>
               {
                 props.appLanguages.find(
-                  (l) => l.languageCode === props.selectedAppLanguage,
+                  (l) => l.language === props.selectedAppLanguage,
                 )?.dropdownLabel
               }
             </label>
             <AltinnDropdown
               options={props.appLanguages.map((l) => ({
-                value: l.languageCode,
-                label: l.language,
+                value: l.language,
+                label: l.languageDescription,
               }))}
               onChange={(ev) => props.onAppLanguageChange(ev.target.value)}
               value={props.selectedAppLanguage}
