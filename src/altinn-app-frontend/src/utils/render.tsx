@@ -1,4 +1,6 @@
+import { Panel } from '@altinn/altinn-design-system';
 import * as React from 'react';
+import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { MessageComponent } from '../components/message/MessageComponent';
 
 const messageComponentStyle = {
@@ -29,32 +31,77 @@ export function renderValidationMessagesForComponent(
       renderValidationMessages(
         validationMessages.warnings,
         `message_${id}`,
-        'message',
+        'warning',
       ),
     );
   }
+
+  if (validationMessages.info && validationMessages.info.length > 0) {
+    validationMessageElements.push(
+      renderValidationMessages(
+        validationMessages.info,
+        `info_${id}`,
+        'info'
+      ),
+    );
+  }
+
+  if (validationMessages.success && validationMessages.success.length > 0) {
+    validationMessageElements.push(
+      renderValidationMessages(
+        validationMessages.success,
+        `success_${id}`,
+        'success'
+      ),
+    );
+  }
+
   return validationMessageElements.length > 0
     ? validationMessageElements
     : null;
 }
 
+
 export function renderValidationMessages(
-  messages: (
-    | string
-    | React.ReactElement<any, string | React.JSXElementConstructor<any>>[]
-  )[],
+  messages: React.ReactNode[],
   id: string,
   messageType: any,
 ) {
+  if (messageType !== 'error') {
+    return (
+      <FullWidthWrapper>
+        <Panel
+          variant={messageType}
+          showPointer
+          showIcon
+          title={'Nyttig å vite'}
+        >
+          <ol>
+            {messages.map((message: React.ReactNode, idx: number) => {
+              if (typeof message === 'string') {
+                return (
+                  <li key={`validationMessage-${id}-${message}`}>
+                    <p role='alert'>{message}</p>
+                  </li>
+                );
+              }
+              return <li role='alert' key={`validationMessage-${id}-${idx}`}>{message}</li>;
+            })}
+          </ol>
+        </Panel>
+      </FullWidthWrapper>
+    );
+  }
+
   return (
     <MessageComponent
-      messageType={messageType}
+      messageType='error'
       style={messageComponentStyle}
-      key={messageType}
+      key='error'
       id={id}
     >
       <ol>
-        {messages.map((message: any, idx: number) => {
+        {messages.map((message: React.ReactNode, idx: number) => {
           if (typeof message === 'string') {
             return (
               <li key={`validationMessage-${id}-${message}`}>

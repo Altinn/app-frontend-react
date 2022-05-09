@@ -8,6 +8,5 @@
     "**/node_modules": true
   },
   "typescript.surveys.enabled": false,
-  "typescript.preferences.quoteStyle": "single",
   "editor.codeActionsOnSave": { "source.fixAll": true }
 }

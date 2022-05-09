@@ -35,20 +35,15 @@ export const componentValidationsHandledByGenericComponent = (
   );
 };
 
-export const componentHasValidationMessages = (componentValidations) => {
+export const componentHasValidationMessages = (componentValidations: IComponentValidations) => {
   if (!componentValidations) {
     return false;
   }
-  let hasMessages = false;
-  Object.keys(componentValidations).forEach((key: string) => {
-    if (
-      componentValidations[key].errors?.length > 0 ||
-      componentValidations[key].warnings?.length > 0
-    ) {
-      hasMessages = true;
-    }
+  return Object.keys(componentValidations).some((key: string) => {
+    return Object.keys(componentValidations[key]).some(validationKey => {
+      return componentValidations[key][validationKey]?.length > 0;
+    });
   });
-  return hasMessages;
 };
 
 export const getComponentValidations = (
