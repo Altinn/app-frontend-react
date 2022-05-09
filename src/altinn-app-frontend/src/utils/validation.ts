@@ -207,8 +207,12 @@ export function validateEmptyFieldsForLayout(
 ): ILayoutValidations {
   const validations: any = {};
   const allGroups = formLayout.filter((component) => component.type.toLowerCase() === 'group');
+  const childrenWithoutMultiPagePrefix = (group:ILayoutGroup) => group.edit?.multiPage
+    ? group.children.map((componentId) => componentId.replace(/^\d+:/g, ''))
+    : group.children;
+
   const fieldsInGroup = allGroups
-    .map((group: ILayoutGroup) => group.children)
+    .map(childrenWithoutMultiPagePrefix)
     .flat();
   const groupsToCheck = allGroups.filter(group => !hiddenFields.includes(group.id));
   const fieldsToCheck = formLayout.filter((component) => (
@@ -232,7 +236,7 @@ export function validateEmptyFieldsForLayout(
     const componentsToCheck = formLayout.filter((component) => {
       return (
         (component as ILayoutComponent).required &&
-        group.children?.indexOf(component.id) > -1
+        childrenWithoutMultiPagePrefix(group).indexOf(component.id) > -1
       );
     });
 
@@ -1673,6 +1677,16 @@ export function missingFieldsInLayoutValidations(
 ): boolean {
   let result = false;
   const requiredMessage = getLanguageFromKey('form_filler.error_required', language);
+  const lookForRequiredMsg = (e: any) => {
+    if (typeof(e) === 'string') {
+      return e.includes(requiredMessage);
+    }
+    if (Array.isArray(e)) {
+      return e.findIndex(lookForRequiredMsg) > -1;
+    }
+    return (e?.props?.children as string).includes(requiredMessage);
+  };
+
   Object.keys(layoutValidations).forEach((component: string) => {
     if (!layoutValidations[component]) return;
     if (result) return;
@@ -1681,12 +1695,7 @@ export function missingFieldsInLayoutValidations(
       if (result) return;
 
       const errors = layoutValidations[component][binding].errors;
-      result = (errors && errors.length > 0 && errors.findIndex((e: any) => {
-        if (typeof(e) === 'string') {
-          return e.includes(requiredMessage);
-        }
-        return (e?.props?.children as string).includes(requiredMessage);
-      }) > -1)
+      result = (errors && errors.length > 0 && errors.findIndex(lookForRequiredMsg) > -1)
     })
   });
 
