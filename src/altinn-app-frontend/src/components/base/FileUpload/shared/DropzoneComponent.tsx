@@ -87,7 +87,7 @@ export function DropzoneComponent({
               id={`altinn-drop-zone-${id}`}
               data-testid={`altinn-drop-zone-${id}`}
               className={`file-upload${hasValidationMessages ? ' file-upload-invalid' : ''}`}
-              aria-describedby={`file-upload-description file-format-description max-size number-of-attachments${textResourceBindings?.description ? `description-${id}` : undefined}` }
+              aria-describedby={`file-upload-description file-format-description max-size number-of-attachments${textResourceBindings?.description ? ` description-${id}` : undefined}` }
               aria-labelledby={`label-${id}`}
               role='button'
             >
