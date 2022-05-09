@@ -203,7 +203,7 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
           >
             <button
               aria-label="Lukk skjema"
-              className="a-modal-close a-js-tabable-popover"
+              className="a-modal-close a-js-tabable-popover ml-1"
               onClick={[Function]}
               type="button"
             >
