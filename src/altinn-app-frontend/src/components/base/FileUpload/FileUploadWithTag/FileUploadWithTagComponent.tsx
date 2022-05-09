@@ -96,12 +96,12 @@ export function FileUploadWithTagComponent({
     }
   };
 
-  const handleDropdownDataChange = (id: string, value: string) => {
+  const handleDropdownDataChange = (attachmentId: string, value: string) => {
     if (value !== undefined) {
       const option = options?.find((o) => o.value === value);
       if (option !== undefined) {
         dataDispatch(FormLayoutActions.updateFileUploaderWithTagChosenOptions({
-          uploader: id, id, option
+          uploader: id, id: attachmentId, option
         }));
       } else {
         console.error(`Could not find option for ${value}`);

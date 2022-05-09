@@ -78,6 +78,10 @@ export function DropzoneComponent({
           styles = isDragReject ? { ...styles, ...rejectStyle } : styles;
           styles = (hasValidationMessages) ? { ...styles, ...validationErrorStyle } : styles;
 
+          const ariaDescribedByDefault = 'file-upload-description file-format-description max-size number-of-attachments';
+          const ariaDescribedByDescription = `${textResourceBindings?.description ? `description-${id}` : undefined}`;
+          const ariaDescribedBy = ariaDescribedByDescription ? `${ariaDescribedByDefault} ${ariaDescribedByDescription}` : ariaDescribedByDefault;
+
           return (
             <div
               {...getRootProps({
@@ -87,7 +91,7 @@ export function DropzoneComponent({
               id={`altinn-drop-zone-${id}`}
               data-testid={`altinn-drop-zone-${id}`}
               className={`file-upload${hasValidationMessages ? ' file-upload-invalid' : ''}`}
-              aria-describedby={`file-upload-description file-format-description max-size number-of-attachments${textResourceBindings?.description ? ` description-${id}` : undefined}` }
+              aria-describedby={ariaDescribedBy}
               aria-labelledby={`label-${id}`}
               role='button'
             >
