@@ -16,7 +16,7 @@ const useStyles = makeStyles({
 const optionStyle = {
   display: 'none',
 };
-interface IAltinnDropdownProps {
+interface ISelectProps {
   id: string;
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLSelectElement>) => void;
@@ -28,7 +28,7 @@ interface IAltinnDropdownProps {
   className?: string;
 }
 
-const AltinnDropdown = ({
+const Select = ({
   id,
   onChange,
   onBlur,
@@ -38,10 +38,9 @@ const AltinnDropdown = ({
   error = false,
   fullWidth = false,
   className,
-}: IAltinnDropdownProps) => {
+}: ISelectProps) => {
   const classes = useStyles();
   return (
-    <React.Fragment>
       <select
         id={id}
         value={value}
@@ -66,8 +65,7 @@ const AltinnDropdown = ({
           </option>
         ))}
       </select>
-    </React.Fragment>
   );
 };
 
-export default AltinnDropdown;
+export default Select

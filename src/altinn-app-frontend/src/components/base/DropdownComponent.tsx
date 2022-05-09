@@ -3,7 +3,7 @@ import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
 import { IComponentProps } from '..';
 import type { IMapping, IOptionSource } from 'src/types';
 import { getOptionLookupKey } from 'src/utils/options';
-import { AltinnDropdown, AltinnSpinner } from 'altinn-shared/components';
+import { AltinnSpinner, Select } from 'altinn-shared/components';
 import { useGetOptions } from '../hooks';
 
 export interface IDropdownProps extends IComponentProps {
@@ -69,7 +69,7 @@ function DropdownComponent({
       {fetchingOptions ? (
         <AltinnSpinner />
       ) : (
-        <AltinnDropdown
+        <Select
           id={id}
           onChange={handleChange}
           onBlur={handleBlur}
