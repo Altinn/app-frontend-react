@@ -97,8 +97,7 @@ function* fetchFormDataStateless(applicationMetadata: IApplicationMetadata) {
   }
 
   try {
-    const fetchedData = yield call(get, getStatelessFormDataUrl(dataType, allowAnonymous), options);
-    return fetchedData;
+    return yield call(get, getStatelessFormDataUrl(dataType, allowAnonymous), options);
   } catch (error) {
     if (error?.response?.status === 403 && error.response.data) {
       const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;

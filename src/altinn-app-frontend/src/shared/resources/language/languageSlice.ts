@@ -13,7 +13,7 @@ export interface ILanguageState {
   error: Error;
 }
 
-const initialState: ILanguageState = {
+export const initialState: ILanguageState = {
   language: null,
   error: null,
 };
