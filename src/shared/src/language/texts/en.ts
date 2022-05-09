@@ -1,5 +1,4 @@
 
-// eslint-disable-next-line import/prefer-default-export
 export function en() {
   return {
     address_component: {
@@ -72,6 +71,8 @@ export function en() {
       file_uploader_validation_error_no_chosen_tag: 'You have to choose one',
       placeholder_receipt_header: 'The form has been submitted',
       placeholder_user: 'OLA PRIVATPERSON',
+      required_description: 'Required fields are marked with *',
+      required_label: '*',
       summary_item_change: 'Change',
       summary_go_to_correct_page: 'Go to the correct page in the form',
     },

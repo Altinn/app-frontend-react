@@ -1,3 +1,4 @@
+import { createElement } from 'react';
 import { getInitialStateMock } from '../../__mocks__/initialStateMock';
 import { getMockValidationState } from '../../__mocks__/validationStateMock';
 import * as oneOfOnRootSchema from '../../__mocks__/json-schema/one-of-on-root.json';
@@ -11,6 +12,7 @@ import type {
   IRuntimeState,
   IComponentBindingValidation,
   IComponentValidations,
+  ILayoutValidations,
 } from 'src/types';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 
@@ -24,6 +26,11 @@ import { mapToComponentValidations } from './validation';
 describe('utils > validation', () => {
   let mockLayout: any;
   let mockReduxFormat: IValidations;
+  let mockGroup1: any; // Repeating group
+  let mockGroup2: any; // Repeating group nested inside group1
+  let mockGroup3: any; // Repeating multiPage group
+  let mockComponent4: any; // Required input inside group1
+  let mockComponent5: any; // Non-required input inside group2
   let mockLayoutState: any;
   let mockJsonSchema: any;
   let mockInvalidTypes: any;
@@ -49,6 +56,63 @@ describe('utils > validation', () => {
           pattern: 'Feil format eller verdi',
         },
       },
+    };
+
+    mockComponent4 = {
+      type: 'Input',
+      id: 'componentId_4',
+      dataModelBindings: {
+        simpleBinding: 'group_1.dataModelField_4',
+      },
+      required: true,
+      readOnly: false,
+      textResourceBindings: {},
+    };
+
+    mockComponent5 = {
+      type: 'Input',
+      id: 'componentId_5',
+      dataModelBindings: {
+        simpleBinding: 'group_1.group_2.dataModelField_5',
+      },
+      required: false,
+      readOnly: false,
+      textResourceBindings: {},
+    };
+
+    mockGroup2 = {
+      type: 'group',
+      id: 'group2',
+      dataModelBindings: {
+        group: 'group_1.group_2',
+      },
+      maxCount: 3,
+      children: [mockComponent5.id],
+    };
+
+    mockGroup1 = {
+      type: 'group',
+      id: 'group1',
+      dataModelBindings: {
+        group: 'group_1',
+      },
+      maxCount: 3,
+      children: [mockComponent4.id, mockGroup2.id],
+    };
+
+    mockGroup3 = {
+      type: 'group',
+      id: 'group3',
+      dataModelBindings: {
+        group: 'group_3',
+      },
+      maxCount: 2,
+      edit: {
+        multiPage: true,
+      },
+      children: [
+        // Add your own children (remember page prefixes!)
+      ],
     };
 
     mockLayout = {
@@ -83,34 +147,9 @@ describe('utils > validation', () => {
           readOnly: false,
           textResourceBindings: {},
         },
-        {
-          type: 'group',
-          id: 'group1',
-          dataModelBindings: {
-            group: 'group_1',
-          },
-          maxCount: 3,
-          children: ['componentId_4', 'group2'],
-        },
-        {
-          type: 'group',
-          id: 'group2',
-          dataModelBindings: {
-            group: 'group_1.group_2',
-          },
-          maxCount: 3,
-          children: ['componentId_5'],
-        },
-        {
-          type: 'Input',
-          id: 'componentId_4',
-          dataModelBindings: {
-            simpleBinding: 'group_1.dataModelField_4',
-          },
-          required: true,
-          readOnly: false,
-          textResourceBindings: {},
-        },
+        mockGroup1,
+        mockGroup2,
+        mockComponent4,
         {
           type: 'FileUpload',
           id: 'componentId_7',
@@ -118,16 +157,7 @@ describe('utils > validation', () => {
           maxNumberOfAttachments: '3',
           minNumberOfAttachments: '2',
         },
-        {
-          type: 'Input',
-          id: 'componentId_5',
-          dataModelBindings: {
-            simpleBinding: 'group_1.group_2.dataModelField_5',
-          },
-          required: false,
-          readOnly: false,
-          textResourceBindings: {},
-        },
+        mockComponent5,
         {
           type: 'AddressComponent',
           id: 'componentId_6',
@@ -150,6 +180,25 @@ describe('utils > validation', () => {
           readOnly: false,
           textResourceBindings: {},
         },
+        {
+          type: 'group',
+          id: 'group_simple',
+          dataModelBindings: {
+            group: 'group_simple',
+          },
+          maxCount: 0,
+          children: ['required_in_group_simple'],
+        },
+        {
+          type: 'Input',
+          id: 'required_in_group_simple',
+          dataModelBindings: {
+            simpleBinding: 'group_simple.required_in_group_simple',
+          },
+          required: true,
+          readOnly: false,
+          textResourceBindings: {},
+        }
       ],
     };
 
@@ -580,7 +629,7 @@ describe('utils > validation', () => {
     });
   });
 
-  describe('valiadteEmptyFields', () => {
+  describe('validateEmptyFields', () => {
       it('should return error if empty fields are required', () => {
         const repeatingGroups = {
           group1: {
@@ -610,6 +659,10 @@ describe('utils > validation', () => {
               postPlace: { errors: ['Feltet er påkrevd'], warnings: [] },
               zipCode: { errors: ['Feltet er påkrevd'], warnings: [] },
             },
+            required_in_group_simple: { simpleBinding: {
+                errors: ['Feltet er påkrevd'],
+                warnings: [],
+            }},
           },
         };
 
@@ -642,6 +695,10 @@ describe('utils > validation', () => {
               postPlace: { errors: ['Feltet er påkrevd'], warnings: [] },
               zipCode: { errors: ['Feltet er påkrevd'], warnings: [] },
             },
+            required_in_group_simple: { simpleBinding: {
+              errors: ['Feltet er påkrevd'],
+              warnings: [],
+            }}
           },
         };
 
@@ -708,6 +765,118 @@ describe('utils > validation', () => {
 
         expect(validations).toEqual(mockResult);
       });
+  });
+
+  describe('validateEmptyFieldsForLayout', () => {
+    const _with = ({
+      formData = {},
+      formLayout = mockLayout.FormLayout,
+      hiddenFields = [],
+      repeatingGroups = {},
+    }) => validation.validateEmptyFieldsForLayout(
+      formData,
+      formLayout,
+      mockLanguage.language,
+      hiddenFields,
+      repeatingGroups,
+    );
+
+    const requiredFieldInSimpleGroup = 'required_in_group_simple';
+    const requiredError = {
+      simpleBinding: { errors: ['Feltet er påkrevd'], warnings: [] },
+    };
+
+    it('should skip validation on required field in hidden group', () => {
+      expect(_with({hiddenFields: ['group_simple']})[requiredFieldInSimpleGroup]).toBeUndefined();
+    });
+    it('should run validation on required field in visible group', () => {
+      expect(_with({hiddenFields: []})[requiredFieldInSimpleGroup]).toEqual(requiredError);
+    });
+
+    it('should validate successfully with no instances of repeating groups', () => {
+      expect(_with({
+        formLayout: [
+          mockGroup1,
+          mockGroup2,
+          mockComponent4,
+          {...mockComponent5, required: true},
+        ],
+        repeatingGroups: {},
+      })).toEqual({});
+    });
+
+    it('should support nested repeating groups', () => {
+      expect(_with({
+        formLayout: [
+          mockGroup1,
+          mockGroup2,
+          mockComponent4,
+          {...mockComponent5, required: true},
+        ],
+        repeatingGroups: {
+          group1: { index: 2 }, // Group1 has 3 instances
+          'group2-0': { index: 1 }, // Group2 has 2 instances inside the first instance of group1
+          'group2-1': { index: 0 }, // Group2 has 1 instance inside the second instance of group1
+          // Group2 has no instances inside the third instance of group1
+        },
+      })).toEqual({
+        'componentId_4-0': requiredError,
+        'componentId_4-1': requiredError,
+        'componentId_4-2': requiredError,
+        'componentId_5-0-0': requiredError,
+        'componentId_5-0-1': requiredError,
+        'componentId_5-1-0': requiredError,
+      });
+    });
+
+    it('should support repeating groups', () => {
+      expect(_with({
+        formLayout: [mockGroup1, mockGroup2, mockComponent4, mockComponent5],
+        repeatingGroups: {
+          group1: { index: 1 }, // Group1 has 2 instances
+        },
+      })).toEqual({
+        'componentId_4-0': requiredError,
+        'componentId_4-1': requiredError,
+      });
+    });
+
+    it('should support multiPage repeating groups', () => {
+      expect(_with({
+        formLayout: [
+          {...mockGroup3, children: [`0:${mockComponent4.id}`, `1:${mockComponent5.id}`]},
+          mockComponent4,
+          mockComponent5,
+        ],
+        repeatingGroups: {
+          group3: { index: 1 },
+        },
+      })).toEqual({
+        'componentId_4-0': requiredError,
+        'componentId_4-1': requiredError,
+      });
+    });
+
+    it('should support multiPage repeating and nesting groups', () => {
+      expect(_with({
+        formLayout: [
+          mockGroup1,
+          mockGroup2,
+          {...mockGroup3, children: [`0:${mockGroup1.id}`, `1:${mockGroup2.id}`]},
+          mockComponent4,
+          {...mockComponent5, required: true},
+        ],
+        repeatingGroups: {
+          group3: { index: 1 },
+          'group1': { index: 1 },
+          'group2-0': { index: 0 },
+        },
+      })).toEqual({
+        'componentId_4-0': requiredError,
+        'componentId_4-1': requiredError,
+        'componentId_5-0-0': requiredError,
+      });
+    });
   });
 
   describe('mapDataElementValidationToRedux', () => {
@@ -1998,5 +2167,62 @@ describe('utils > validation', () => {
       const expected = ['unmapped1', 'unmapped2'];
       expect(result).toEqual(expected);
     });
+  });
+
+  describe('missingFieldsInLayoutValidations', () => {
+    it('should return false when validations contain no messages for missing fields', () => {
+      const validations: ILayoutValidations = {
+        field: {
+          'simple_binding': {
+            errors: ['Some random error'],
+            warnings: [],
+          }
+        }
+      };
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
+      expect(result).toBeFalsy();
+    });
+    it('should return true when validations contain messages (string) for missing fields', () => {
+      const validations: ILayoutValidations = {
+        field: {
+          'simple_binding': {
+            errors: ['Some random error', 'Feltet er påkrevd'],
+            warnings: [],
+          }
+        }
+      };
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
+      expect(result).toBeTruthy();
+    });
+    it('should return true when validations contain messages (react element) for missing fields', () => {
+      const node = createElement('span', {}, 'Feltet er påkrevd');
+      const validations: ILayoutValidations = {
+        field: {
+          'simple_binding': {
+            errors: ['Some random error', node],
+            warnings: [],
+          }
+        }
+      };
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
+      expect(result).toBeTruthy();
+    });
+    it('should return true when validations contain arrays with error message for missing fields', () => {
+      const validations = (err:any[]):ILayoutValidations => ({
+        field: {
+          'simple_binding': {
+            errors: ['Some random error', err],
+            warnings: [],
+          }
+        }
+      });
+      const shallow = ['Første linje', "\n", 'Feltet er påkrevd'];
+      const deep = ['Dette er feil:', ['Første linje', "\n", 'Feltet er påkrevd']];
+      const withNode = ['Dette er feil:', ['Første linje', "\n", createElement('span', {}, 'Feltet er påkrevd')]];
+      expect(validation.missingFieldsInLayoutValidations(validations(shallow), mockLanguage.language)).toBeTruthy();
+      expect(validation.missingFieldsInLayoutValidations(validations(deep), mockLanguage.language)).toBeTruthy();
+      expect(validation.missingFieldsInLayoutValidations(validations(withNode), mockLanguage.language)).toBeTruthy();
+    });
+
   });
 });

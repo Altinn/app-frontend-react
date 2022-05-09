@@ -4,9 +4,12 @@ import * as React from 'react';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
 import { GroupContainer } from './GroupContainer';
-import { renderGenericComponent } from '../../../utils/layout';
+import { renderGenericComponent } from 'src/utils/layout';
 import { DisplayGroupContainer } from './DisplayGroupContainer';
 import { useAppSelector } from 'src/common/hooks';
+import MessageBanner from 'src/features/form/components/MessageBanner';
+import { hasRequiredFields } from 'src/utils/formLayout';
+import { missingFieldsInLayoutValidations } from 'src/utils/validation';
 
 export function renderLayoutComponent(layoutComponent: ILayoutComponent | ILayoutGroup, layout: ILayout) {
   switch (layoutComponent.type) {
@@ -44,6 +47,7 @@ function RenderLayoutGroup(layoutGroup: ILayoutGroup, layout: ILayout): JSX.Elem
     // If not repeating, treat as regular components
     return (
       <DisplayGroupContainer
+        key={layoutGroup.id}
         container={layoutGroup}
         components={groupComponents}
         renderLayoutComponent={renderLayoutComponent}
@@ -64,13 +68,23 @@ function RenderLayoutGroup(layoutGroup: ILayoutGroup, layout: ILayout): JSX.Elem
 export function Form() {
   const [filteredLayout, setFilteredLayout] = React.useState<any[]>([]);
   const [currentLayout, setCurrentLayout] = React.useState<string>();
+  const [requiredFieldsMissing, setRequiredFieldsMissing] = React.useState(false);
 
   const currentView = useAppSelector(state => state.formLayout.uiConfig.currentView);
   const layout = useAppSelector(state => state.formLayout.layouts[state.formLayout.uiConfig.currentView]);
+  const language = useAppSelector(state => state.language.language);
+  const validations = useAppSelector(state => state.formValidations.validations);
 
   React.useEffect(() => {
     setCurrentLayout(currentView);
   }, [currentView]);
+
+  React.useEffect(() => {
+    if (validations && validations[currentView]) {
+      const areRequiredFieldsMissing = missingFieldsInLayoutValidations(validations[currentView], language)
+      setRequiredFieldsMissing(areRequiredFieldsMissing);
+    }
+  }, [currentView, language, validations]);
 
   React.useEffect(() => {
     let componentsToRender: any[] = layout;
@@ -95,15 +109,24 @@ export function Form() {
   }, [layout]);
 
   return (
-    <Grid
-      container={true}
-      spacing={3}
-      alignItems='flex-start'
-    >
-      {currentView === currentLayout && filteredLayout && filteredLayout.map((component) => {
-        return renderLayoutComponent(component, layout);
-      })}
-    </Grid>
+    <div>
+      {hasRequiredFields(layout) &&
+        <MessageBanner
+          language={language}
+          error={requiredFieldsMissing}
+          messageKey={'form_filler.required_description'}
+        />
+      }
+      <Grid
+        container={true}
+        spacing={3}
+        alignItems='flex-start'
+      >
+        {currentView === currentLayout && filteredLayout && filteredLayout.map((component) => {
+          return renderLayoutComponent(component, layout);
+        })}
+      </Grid>
+    </div>
   );
 }
 

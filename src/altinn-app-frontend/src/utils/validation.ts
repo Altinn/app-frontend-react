@@ -207,21 +207,21 @@ export function validateEmptyFieldsForLayout(
   repeatingGroups: IRepeatingGroups,
 ): ILayoutValidations {
   const validations: any = {};
-  let fieldsInGroup = [];
-  const groupsToCheck = formLayout.filter(
-    (component) => component.type.toLowerCase() === 'group',
-  );
-  groupsToCheck.forEach((groupComponent: ILayoutGroup) => {
-    fieldsInGroup = fieldsInGroup.concat(groupComponent.children);
-  });
-  const fieldsToCheck = formLayout.filter((component) => {
-    return (
-      component.type.toLowerCase() !== 'group' &&
-      !hiddenFields.includes(component.id) &&
-      (component as ILayoutComponent).required &&
-      !fieldsInGroup.includes(component.id)
-    );
-  });
+  const allGroups = formLayout.filter((component) => component.type.toLowerCase() === 'group');
+  const childrenWithoutMultiPagePrefix = (group:ILayoutGroup) => group.edit?.multiPage
+    ? group.children.map((componentId) => componentId.replace(/^\d+:/g, ''))
+    : group.children;
+
+  const fieldsInGroup = allGroups
+    .map(childrenWithoutMultiPagePrefix)
+    .flat();
+  const groupsToCheck = allGroups.filter(group => !hiddenFields.includes(group.id));
+  const fieldsToCheck = formLayout.filter((component) => (
+    component.type.toLowerCase() !== 'group' &&
+    !hiddenFields.includes(component.id) &&
+    (component as ILayoutComponent).required &&
+    !fieldsInGroup.includes(component.id)
+  ));
   fieldsToCheck.forEach((component: any) => {
     const result = validateEmptyField(
       formData,
@@ -237,7 +237,7 @@ export function validateEmptyFieldsForLayout(
     const componentsToCheck = formLayout.filter((component) => {
       return (
         (component as ILayoutComponent).required &&
-        group.children?.indexOf(component.id) > -1
+        childrenWithoutMultiPagePrefix(group).indexOf(component.id) > -1
       );
     });
 
@@ -1704,4 +1704,35 @@ export function getHighestIndexOfChildGroup(
     index += 1;
   }
   return index - 1;
+}
+
+export function missingFieldsInLayoutValidations(
+  layoutValidations: ILayoutValidations,
+  language: ILanguage,
+): boolean {
+  let result = false;
+  const requiredMessage = getLanguageFromKey('form_filler.error_required', language);
+  const lookForRequiredMsg = (e: any) => {
+    if (typeof(e) === 'string') {
+      return e.includes(requiredMessage);
+    }
+    if (Array.isArray(e)) {
+      return e.findIndex(lookForRequiredMsg) > -1;
+    }
+    return (e?.props?.children as string).includes(requiredMessage);
+  };
+
+  Object.keys(layoutValidations).forEach((component: string) => {
+    if (!layoutValidations[component]) return;
+    if (result) return;
+    Object.keys(layoutValidations[component]).forEach((binding: string) => {
+      if (!layoutValidations[component][binding]) return;
+      if (result) return;
+
+      const errors = layoutValidations[component][binding].errors;
+      result = (errors && errors.length > 0 && errors.findIndex(lookForRequiredMsg) > -1)
+    })
+  });
+
+  return result;
 }
