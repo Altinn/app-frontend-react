@@ -79,7 +79,7 @@ export function DropzoneComponent({
           styles = (hasValidationMessages) ? { ...styles, ...validationErrorStyle } : styles;
 
           const ariaDescribedByDefault = 'file-upload-description file-format-description max-size number-of-attachments';
-          const ariaDescribedByDescription = `${textResourceBindings?.description ? `description-${id}` : undefined}`;
+          const ariaDescribedByDescription = textResourceBindings?.description ? `description-${id}` : undefined;
           const ariaDescribedBy = ariaDescribedByDescription ? `${ariaDescribedByDefault} ${ariaDescribedByDescription}` : ariaDescribedByDefault;
 
           return (
