@@ -16,6 +16,7 @@ const getHasErrorsSelector = (state: IRuntimeState) => {
     state.instanceData.error ||
     state.applicationMetadata.error ||
     state.formDataModel.error ||
+    state.appLanguages.error ||
     state.optionState.error);
 
   if (error !== null) {
