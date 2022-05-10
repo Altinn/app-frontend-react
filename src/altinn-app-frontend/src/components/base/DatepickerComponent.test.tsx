@@ -251,6 +251,6 @@ describe('DatepickerComponent', () => {
   it('should not have aria-describedby if textResources.description does not exist', () => {
     render({ textResourceBindings: {}, id: 'test-id' });
     const inputField = screen.getByRole('textbox');
-    expect(inputField).not.toHaveAttribute('aria-describedby', 'description-test-id');
+    expect(inputField).not.toHaveAttribute('aria-describedby');
   });
 });

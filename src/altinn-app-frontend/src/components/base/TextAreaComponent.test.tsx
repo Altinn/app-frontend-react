@@ -64,7 +64,7 @@ describe('TextAreaComponent.tsx', () => {
   it('should not have aria-describedby if textResourceBindings.description is not present', () => {
     renderTextAreaComponent();
     const inputComponent = screen.getByTestId(mockId);
-    expect(inputComponent).not.toHaveAttribute('aria-describedby', 'description-mock-id');
+    expect(inputComponent).not.toHaveAttribute('aria-describedby');
   });
 
   function renderTextAreaComponent(props: Partial<IComponentProps> = {}) {

@@ -80,7 +80,7 @@ describe('InputComponent.tsx', () => {
   it('should not show aria-describedby if textResourceBindings.description is not present',  () => {
     renderInputComponent();
     const inputComponent = screen.getByTestId(mockId);
-    expect(inputComponent).not.toHaveAttribute('aria-describedby', 'description-mock-id');
+    expect(inputComponent).not.toHaveAttribute('aria-describedby');
   });
 
   function renderInputComponent(props: Partial<IInputProps> = {}) {
