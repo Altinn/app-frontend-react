@@ -283,7 +283,6 @@ function DatepickerComponent({
             maxDate={calculatedMaxDate}
             InputProps={{
               disableUnderline: true,
-              'aria-describedby': textResourceBindings?.description ? `description-${id}`: undefined,
               error: !isValid || !validDate,
               readOnly: readOnly,
               classes: {
@@ -295,6 +294,7 @@ function DatepickerComponent({
                   (readOnly ? ' disabled' : ''),
                 input: classes.input,
               },
+              ...(textResourceBindings?.description && {'aria-describedby': `description-${id}`} )
             }}
             FormHelperTextProps={{
               classes: {
