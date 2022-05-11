@@ -133,14 +133,10 @@ export function getInitialStateMock(
       selectedAppLanguage: 'nb',
       resources: [
         {
-          languageDescription: 'Norsk',
-          language: 'nb',
-          dropdownLabel: 'Språk',
+          language: "nb",
         },
         {
-          languageDescription: 'English',
-          language: 'en',
-          dropdownLabel: 'Language',
+          language: "en",
         },
       ],
     },

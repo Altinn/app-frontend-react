@@ -10,11 +10,11 @@ const renderNavBar = (props?: Partial<INavBarProps>) => {
   const mockBack = jest.fn();
   const mockAppLanguageChange = jest.fn();
   const mockAppLanguages: IAppLanguage[] = [
-    { languageDescription: 'Norsk', language: 'nb', dropdownLabel: 'Språk' },
     {
-      languageDescription: 'English',
+      language: 'nb',
+    },
+    {
       language: 'en',
-      dropdownLabel: 'Language',
     },
   ];
   render(
