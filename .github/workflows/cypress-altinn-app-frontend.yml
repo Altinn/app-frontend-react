@@ -59,6 +59,9 @@ jobs:
         working-directory: test/cypress
 
   altinn-app-frontend-test-on-fork-pr:
+    if: |
+      github.repository_owner == 'Altinn' &&
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true)
 
     runs-on: ubuntu-latest
 
