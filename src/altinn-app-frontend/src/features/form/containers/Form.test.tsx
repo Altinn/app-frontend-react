@@ -12,7 +12,7 @@ import type { ILayoutGroup } from '../layout';
 
 import { Form } from './Form';
 
-describe('>>> features/form/components/Form.tsx', () => {
+describe('Form.tsx', () => {
   let mockStore: any;
   let mockLayout: ILayoutState;
   let mockComponents: any;
