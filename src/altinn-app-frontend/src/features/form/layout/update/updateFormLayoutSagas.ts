@@ -211,8 +211,8 @@ export function* calculatePageOrderAndMoveToNextPageSaga({ payload: { runValidat
     const currentView = state.formLayout.uiConfig.currentView;
     let layoutSetId: string = null;
     let dataTypeId: string = null;
-    const formData: any = convertDataBindingToModel(state.formData.formData);
-    const appIsStateless: boolean = isStatelessApp(state.applicationMetadata.applicationMetadata)
+    const formData = convertDataBindingToModel(state.formData.formData);
+    const appIsStateless = isStatelessApp(state.applicationMetadata.applicationMetadata)
     if (appIsStateless) {
       dataTypeId = getCurrentDataTypeForApplication({
         application: state.applicationMetadata.applicationMetadata,
@@ -221,8 +221,10 @@ export function* calculatePageOrderAndMoveToNextPageSaga({ payload: { runValidat
       layoutSetId = state.applicationMetadata.applicationMetadata?.onEntry?.show;
     } else {
       const instance = state.instanceData.instance;
-      dataTypeId = getDataTaskDataTypeId(instance.process.currentTask.elementId,
-        state.applicationMetadata.applicationMetadata.dataTypes);
+      dataTypeId = getDataTaskDataTypeId(
+        instance.process.currentTask.elementId,
+        state.applicationMetadata.applicationMetadata.dataTypes
+      );
       if (layoutSets != null) {
         layoutSetId = getLayoutsetForDataElement(instance, dataTypeId, layoutSets);
       }

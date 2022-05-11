@@ -106,7 +106,8 @@
       "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.js",
       "\\./applicationMetadataMock.json": "<rootDir>/__mocks__/applicationMetadataMock.json",
       "^altinn-shared/(.*)$": "<rootDir>/../shared/src/$1",
-      "^src/(.*)$": "<rootDir>/src/$1"
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "^__mocks__/(.*)$": "<rootDir>/__mocks__/$1"
     },
     "testRegex": "(/__tests__/.*|.*.(test|spec)).(ts|tsx|js|jsx)$",
     "moduleFileExtensions": [
