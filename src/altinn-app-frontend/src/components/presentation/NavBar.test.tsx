@@ -57,7 +57,7 @@ describe('components/presentation/NavBar.tsx', () => {
   });
   it('should render app language', async () => {
     const { mockAppLanguageChange } = renderNavBar({
-      showLanguageDropdown: true,
+      showLanguageSelector: true,
     });
     const dropdown = screen.getByRole('combobox', { name: /Språk/i });
     await userEvent.selectOptions(dropdown, 'English');

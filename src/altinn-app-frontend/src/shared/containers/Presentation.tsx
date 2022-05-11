@@ -61,8 +61,8 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
   const selectedAppLanguage = useAppSelector(
     (state) => state.appLanguages.selectedAppLanguage,
   );
-  const showLanguageDropdown = useAppSelector(
-    (state) => state.formLayout.uiConfig.showLanguageDropdown,
+  const showLanguageSelector = useAppSelector(
+    (state) => state.formLayout.uiConfig.showLanguageSelector,
   );
 
   const handleAppLanguageChange = (languageCode: string) => {
@@ -155,7 +155,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
                   props.type === PresentationType.Stateless)
               }
               hideCloseButton={hideCloseButton}
-              showLanguageDropdown={showLanguageDropdown}
+              showLanguageSelector={showLanguageSelector}
               appLanguages={appLanguages}
               selectedAppLanguage={selectedAppLanguage}
               onAppLanguageChange={handleAppLanguageChange}

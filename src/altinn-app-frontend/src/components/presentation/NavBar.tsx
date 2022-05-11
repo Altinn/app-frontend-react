@@ -10,7 +10,7 @@ export interface INavBarProps {
   handleBack: (e: any) => void;
   showBackArrow?: boolean;
   hideCloseButton?: boolean;
-  showLanguageDropdown?: boolean;
+  showLanguageSelector?: boolean;
   appLanguages: IAppLanguage[];
   selectedAppLanguage: string;
   onAppLanguageChange: (languageCode: string) => void;
@@ -18,7 +18,7 @@ export interface INavBarProps {
 
 const NavBar = (props: INavBarProps) => {
   const showLanguageSelect =
-    props.showLanguageDropdown && props.appLanguages.length > 0;
+    props.showLanguageSelector && props.appLanguages.length > 0;
   const CloseButton = (
     <button
       type='button'
