@@ -68,8 +68,6 @@ export function AltinnAppHeader({
       classes={{ root: classes.altinnAppHeader }}
       style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
     >
-              {getLanguageFromKey('navigation.to_main_content', language)}
-
       <MainContentNav navigateText={getLanguageFromKey('navigation.to_main_content', language)} />
       <Grid
         container={true}
