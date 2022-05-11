@@ -23,7 +23,12 @@ export interface IFileUploadProps extends IFileUploadGenericProps {
 export const bytesInOneMB = 1048576;
 export const emptyArray = [];
 
-export function FileUploadComponent({ 
+type ReducerType = React.Reducer<IAttachment[],
+  { type: 'replace', value: IAttachment[] } |
+  { type: 'add', value: IAttachment } |
+  { type: 'delete', index: number }>;
+
+export function FileUploadComponent({
   id,
   baseComponentId,
   componentValidations,
@@ -37,12 +42,7 @@ export function FileUploadComponent({
   hasCustomFileEndings,
   textResourceBindings
 }: IFileUploadProps) {
-  const [attachments, dispatch] = React.useReducer(reducer, []);
-  const [validations, setValidations] = React.useState([]);
-  const [showFileUpload, setShowFileUpload] = React.useState(false);
-  const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
-
-  function reducer(state, action) {
+  const reducer:ReducerType = (state, action) => {
     if (action.type === 'replace') {
       return action.value;
     }
@@ -62,7 +62,12 @@ export function FileUploadComponent({
       return newList;
     }
     return state;
-  }
+  };
+
+  const [attachments, dispatch] = React.useReducer(reducer, []);
+  const [validations, setValidations] = React.useState([]);
+  const [showFileUpload, setShowFileUpload] = React.useState(false);
+  const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
 
   const currentAttachments: IAttachment[] = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
 
@@ -224,7 +229,7 @@ export function FileUploadComponent({
             </tr>
           </thead>
           <tbody>
-            {attachments.map((attachment: IAttachment, index: number) => {
+            {attachments.map((attachment, index: number) => {
               return (
                 <tr
                   key={attachment.id}
@@ -407,7 +412,7 @@ export function FileUploadComponent({
           hasValidationMessages={hasValidationMessages}
           hasCustomFileEndings={hasCustomFileEndings}
           validFileEndings={validFileEndings}
-          textResourceBindings={textResourceBindings}        
+          textResourceBindings={textResourceBindings}
       />
       )}
 
