@@ -1,6 +1,5 @@
 import { call, select } from 'redux-saga/effects';
 import { expectSaga } from 'redux-saga-test-plan';
-import { get } from 'altinn-shared/utils';
 
 import {
   fetchFormDataSaga,
@@ -15,7 +14,8 @@ import { appMetaDataSelector,
   currentSelectedPartyIdSelector
 } from 'src/selectors/simpleSelectors';
 import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
-import { getFetchFormDataUrl, getStatelessFormDataUrl, redirectToUpgrade } from 'src/utils/appUrlHelper';
+import * as appUrlHelper from 'src/utils/appUrlHelper';
+import { get } from 'altinn-shared/utils';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId } from 'src/utils/appMetadata';
 import FormDataActions from '../formDataActions';
 import type { IApplication } from 'altinn-shared/types';
@@ -42,7 +42,7 @@ describe('fetchFormDataSagas', () => {
     const appMetadata = appMetaDataSelector(mockInitialState);
     const instance = instanceDataSelector(mockInitialState);
     const taskId = getCurrentTaskDataElementId(appMetadata, instance);
-    const url = getFetchFormDataUrl(instance.id, taskId);
+    const url = appUrlHelper.getFetchFormDataUrl(instance.id, taskId);
 
     expectSaga(fetchFormDataSaga)
     .provide([
@@ -58,7 +58,7 @@ describe('fetchFormDataSagas', () => {
     const appMetadata = appMetaDataSelector(mockInitialState);
     const instance = instanceDataSelector(mockInitialState);
     const taskId = getCurrentTaskDataElementId(appMetadata, instance);
-    const url = getFetchFormDataUrl(instance.id, taskId);
+    const url = appUrlHelper.getFetchFormDataUrl(instance.id, taskId);
     const error = new Error('some error');
 
     expectSaga(fetchFormDataSaga)
@@ -75,7 +75,7 @@ describe('fetchFormDataSagas', () => {
     const appMetadata = appMetaDataSelector(mockInitialState);
     const instance = instanceDataSelector(mockInitialState);
     const taskId = getCurrentTaskDataElementId(appMetadata, instance);
-    const url = getFetchFormDataUrl(instance.id, taskId);
+    const url = appUrlHelper.getFetchFormDataUrl(instance.id, taskId);
 
     expectSaga(fetchFormDataInitialSaga)
     .provide([
@@ -91,7 +91,7 @@ describe('fetchFormDataSagas', () => {
     const appMetadata = appMetaDataSelector(mockInitialState);
     const instance = instanceDataSelector(mockInitialState);
     const taskId = getCurrentTaskDataElementId(appMetadata, instance);
-    const url = getFetchFormDataUrl(instance.id, taskId);
+    const url = appUrlHelper.getFetchFormDataUrl(instance.id, taskId);
     const error = new Error('some error');
 
     expectSaga(fetchFormDataInitialSaga)
@@ -122,7 +122,7 @@ describe('fetchFormDataSagas', () => {
     };
 
     const dataType = getDataTypeByLayoutSetId('stateless', mockLayoutSets);
-    const url = getStatelessFormDataUrl(dataType);
+    const url = appUrlHelper.getStatelessFormDataUrl(dataType);
     const options = {
       headers: {
         party: 'partyid:1234',
@@ -159,7 +159,7 @@ describe('fetchFormDataSagas', () => {
     };
 
     const dataType = getDataTypeByLayoutSetId('stateless', mockLayoutSets);
-    const url = getStatelessFormDataUrl(dataType);
+    const url = appUrlHelper.getStatelessFormDataUrl(dataType);
     const options = {};
 
     expectSaga(fetchFormDataInitialSaga)
@@ -191,7 +191,7 @@ describe('fetchFormDataSagas', () => {
     };
 
     const dataType = getDataTypeByLayoutSetId('stateless', mockLayoutSets);
-    const url = getStatelessFormDataUrl(dataType);
+    const url = appUrlHelper.getStatelessFormDataUrl(dataType, true);
     const options = {};
     const error = new Error('some error');
 
@@ -225,7 +225,7 @@ describe('fetchFormDataSagas', () => {
     };
 
     const dataType = getDataTypeByLayoutSetId('stateless', mockLayoutSets);
-    const url = getStatelessFormDataUrl(dataType);
+    const url = appUrlHelper.getStatelessFormDataUrl(dataType, true);
     const options = {};
     const error = {
       status: 403,
@@ -240,6 +240,10 @@ describe('fetchFormDataSagas', () => {
       config: {},
     }
 
+    jest.spyOn(appUrlHelper, 'redirectToUpgrade').mockImplementation(() => {
+      return;
+    });
+
     expectSaga(fetchFormDataInitialSaga)
     .provide([
       [select(appMetaDataSelector), appMetadata],
@@ -247,7 +251,7 @@ describe('fetchFormDataSagas', () => {
       [select(allowAnonymousSelector), true],
       [call(get, url, options), error],
     ])
-    .call(redirectToUpgrade, 2)
+    .call(appUrlHelper.redirectToUpgrade, 2)
     .run();
   });
 
