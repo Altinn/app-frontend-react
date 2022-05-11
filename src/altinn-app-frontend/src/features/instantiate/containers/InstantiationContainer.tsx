@@ -41,7 +41,9 @@ function InstantiateContainer(props: IInstantiateContainerProps) {
         profile={profile}
         type={props.type}
       />
-      {children}
+      <main id='main-content'>
+        {children}
+      </main>
     </Grid>
   );
 }

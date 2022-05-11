@@ -8,7 +8,6 @@ import { IParty } from 'altinn-shared/types';
 import {
   returnUrlToMessagebox,
   getTextResourceByKey,
-  getLanguageFromKey,
   returnUrlFromQueryParameter
 } from 'altinn-shared/utils';
 import {
@@ -104,11 +103,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
         userParty={userParty}
         logoColor={AltinnAppTheme.altinnPalette.primary.blueDarker}
         headerBackgroundColor={backgroundColor}
-        logoutText={getLanguageFromKey('general.log_out', language)}
-        ariaLabelIcon={getLanguageFromKey(
-          'general.header_profile_icon_label',
-          language,
-        )}
+        language={language}
       />
       <div className='container'>
         <div className='row'>

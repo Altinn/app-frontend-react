@@ -14,6 +14,7 @@ import {
   returnUrlToProfile,
 } from 'altinn-shared/utils/urlHelper';
 import { renderParty } from '../resources/utils/party';
+import { MainContentNav } from 'altinn-shared/components/MainContentNav';
 
 export interface IHeaderProps {
   classes: any;
@@ -107,11 +108,16 @@ const gridStyle = { flexGrow: 1 };
 
 const emptyObj = {};
 
-const AltinnAppHeader = (props: IHeaderProps) => {
-  const { classes, type } = props;
-  const party = props.profile ? props.profile.party : null;
+const AltinnAppHeader = ({
+  classes,
+  type,
+  profile,
+  language,
+} : IHeaderProps) => {
+  const party = profile ? profile.party : null;
   return (
     <div className={classes.appBarWrapper}>
+      <MainContentNav language={language} />
       <AppBar position='static' className={classes.default}>
         <Toolbar className={`container ${classes.toolbarContainer}`}>
           <Grid
@@ -136,12 +142,12 @@ const AltinnAppHeader = (props: IHeaderProps) => {
                     party?.partyId,
                   )}
                 >
-                  {getLanguageFromKey('instantiate.inbox', props.language)}
+                  {getLanguageFromKey('instantiate.inbox', language)}
                 </a>
               </li>
               <li className={classes.headerLink}>
                 <a href={returnUrlToAllSchemas(window.location.origin)}>
-                  {getLanguageFromKey('instantiate.all_forms', props.language)}
+                  {getLanguageFromKey('instantiate.all_forms', language)}
                 </a>
               </li>
               <li className={classes.headerLink}>
@@ -151,12 +157,12 @@ const AltinnAppHeader = (props: IHeaderProps) => {
                     party?.partyId,
                   )}
                 >
-                  {getLanguageFromKey('instantiate.profile', props.language)}
+                  {getLanguageFromKey('instantiate', language)}
                 </a>
               </li>
             </ul>
           )}
-          <div className='a-personSwitcher' title={renderParty(props.profile)}>
+          <div className='a-personSwitcher' title={renderParty(profile)}>
             <span className='a-personSwitcher-name' style={spanStyle}>
               {!type && (
                 <>
@@ -165,7 +171,7 @@ const AltinnAppHeader = (props: IHeaderProps) => {
                       type ? classes.blueDark : classes.blueDarker
                     }`}
                   >
-                    {renderParty(props.profile)}
+                    {renderParty(profile)}
                   </span>
                   <span
                     className={type ? classes.blueDark : classes.blueDarker}
@@ -174,7 +180,7 @@ const AltinnAppHeader = (props: IHeaderProps) => {
                       party.organisation &&
                       `${getLanguageFromKey(
                         'general.for',
-                        props.language,
+                        language,
                       )} ${party.organisation.name.toUpperCase()}`}
                   </span>
                 </>
