@@ -15,7 +15,7 @@ import { appMetaDataSelector,
 } from 'src/selectors/simpleSelectors';
 import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
 import * as appUrlHelper from 'src/utils/appUrlHelper';
-import { get } from 'altinn-shared/utils';
+import * as networking from 'altinn-shared/utils/networking';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId } from 'src/utils/appMetadata';
 import FormDataActions from '../formDataActions';
 import type { IApplication } from 'altinn-shared/types';
@@ -23,9 +23,10 @@ import type { ILayoutSets } from 'src/types';
 import { GET_INSTANCEDATA_FULFILLED } from 'src/shared/resources/instanceData/get/getInstanceDataActionTypes';
 import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';
 import { dataTaskQueueError } from 'src/shared/resources/queue/queueSlice';
+import { AxiosError } from 'axios';
 
 describe('fetchFormDataSagas', () => {
-  const mockInitialState = getInitialStateMock();
+  let mockInitialState;
   const mockFormData = {
     someField: 'test test',
     otherField: 'testing 123',
@@ -38,6 +39,10 @@ describe('fetchFormDataSagas', () => {
     otherField: 'testing 123',
     'group.groupField': 'this is a field in a group',
   };
+
+  beforeEach(() => {
+    mockInitialState = getInitialStateMock();
+  })
   it('should fetch form data', () => {
     const appMetadata = appMetaDataSelector(mockInitialState);
     const instance = instanceDataSelector(mockInitialState);
@@ -48,7 +53,7 @@ describe('fetchFormDataSagas', () => {
     .provide([
       [select(appMetaDataSelector), {...mockInitialState.applicationMetadata.applicationMetadata}],
       [select(instanceDataSelector), {...mockInitialState.instanceData.instance}],
-      [call(get, url), mockFormData],
+      [call(networking.get, url), mockFormData],
     ])
     .put(FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }))
     .run();
@@ -57,15 +62,29 @@ describe('fetchFormDataSagas', () => {
   it('should handle error in fetchFormData', () => {
     const appMetadata = appMetaDataSelector(mockInitialState);
     const instance = instanceDataSelector(mockInitialState);
-    const taskId = getCurrentTaskDataElementId(appMetadata, instance);
-    const url = appUrlHelper.getFetchFormDataUrl(instance.id, taskId);
-    const error = new Error('some error');
+    const error: AxiosError = {
+      config: {},
+      isAxiosError: true,
+      message: 'error',
+      name: 'error',
+      toJSON: () => { return {} },
+      response: {
+        config: {},
+        data: null,
+        headers: {},
+        status: 500,
+        statusText: 'error',
+      }
+    };
+
+    jest.spyOn(networking, 'get').mockImplementation(() => {
+      throw error;
+    });
 
     expectSaga(fetchFormDataSaga)
     .provide([
-      [select(appMetaDataSelector), {...mockInitialState.applicationMetadata.applicationMetadata}],
-      [select(instanceDataSelector), {...mockInitialState.instanceData.instance}],
-      [call(get, url), error],
+      [select(appMetaDataSelector), appMetadata],
+      [select(instanceDataSelector), instance],
     ])
     .put(FormDataActions.fetchFormDataRejected({ error }))
     .run();
@@ -81,7 +100,7 @@ describe('fetchFormDataSagas', () => {
     .provide([
       [select(appMetaDataSelector), {...mockInitialState.applicationMetadata.applicationMetadata}],
       [select(instanceDataSelector), {...mockInitialState.instanceData.instance}],
-      [call(get, url), mockFormData],
+      [call(networking.get, url), mockFormData],
     ])
     .put(FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }))
     .run();
@@ -90,15 +109,29 @@ describe('fetchFormDataSagas', () => {
   it('should handle error in fetchFormDataInitial', () => {
     const appMetadata = appMetaDataSelector(mockInitialState);
     const instance = instanceDataSelector(mockInitialState);
-    const taskId = getCurrentTaskDataElementId(appMetadata, instance);
-    const url = appUrlHelper.getFetchFormDataUrl(instance.id, taskId);
-    const error = new Error('some error');
+    const error: AxiosError = {
+      config: {},
+      isAxiosError: true,
+      message: 'error',
+      name: 'error',
+      toJSON: () => { return {} },
+      response: {
+        config: {},
+        data: null,
+        headers: {},
+        status: 500,
+        statusText: 'error',
+      }
+    };
+
+    jest.spyOn(networking, 'get').mockImplementation(() => {
+      throw error;
+    });
 
     expectSaga(fetchFormDataInitialSaga)
     .provide([
-      [select(appMetaDataSelector), {...mockInitialState.applicationMetadata.applicationMetadata}],
-      [select(instanceDataSelector), {...mockInitialState.instanceData.instance}],
-      [call(get, url), error],
+      [select(appMetaDataSelector), {...appMetadata}],
+      [select(instanceDataSelector), {...instance}],
     ])
     .put(FormDataActions.fetchFormDataRejected({ error }))
     .call(dataTaskQueueError, error)
@@ -135,7 +168,7 @@ describe('fetchFormDataSagas', () => {
       [select(layoutSetsSelector), mockLayoutSets],
       [select(allowAnonymousSelector), false],
       [select(currentSelectedPartyIdSelector), '1234'],
-      [call(get, url, options), mockFormData],
+      [call(networking.get, url, options), mockFormData],
     ])
     .put(FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }))
     .run();
@@ -167,7 +200,7 @@ describe('fetchFormDataSagas', () => {
       [select(appMetaDataSelector), appMetadata],
       [select(layoutSetsSelector), mockLayoutSets],
       [select(allowAnonymousSelector), true],
-      [call(get, url, options), mockFormData],
+      [call(networking.get, url, options), mockFormData],
     ])
     .put(FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }))
     .run();
@@ -190,17 +223,30 @@ describe('fetchFormDataSagas', () => {
       ],
     };
 
-    const dataType = getDataTypeByLayoutSetId('stateless', mockLayoutSets);
-    const url = appUrlHelper.getStatelessFormDataUrl(dataType, true);
-    const options = {};
-    const error = new Error('some error');
+    const error: AxiosError = {
+      config: {},
+      isAxiosError: true,
+      message: 'error',
+      name: 'error',
+      toJSON: () => { return {} },
+      response: {
+        config: {},
+        data: null,
+        headers: {},
+        status: 500,
+        statusText: 'error',
+      }
+    };
+
+    jest.spyOn(networking, 'get').mockImplementation(() => {
+      throw error;
+    });
 
     expectSaga(fetchFormDataInitialSaga)
     .provide([
       [select(appMetaDataSelector), appMetadata],
       [select(layoutSetsSelector), mockLayoutSets],
       [select(allowAnonymousSelector), true],
-      [call(get, url, options), error],
     ])
     .put(FormDataActions.fetchFormDataRejected({ error }))
     .call(dataTaskQueueError, error)
@@ -224,21 +270,24 @@ describe('fetchFormDataSagas', () => {
       ],
     };
 
-    const dataType = getDataTypeByLayoutSetId('stateless', mockLayoutSets);
-    const url = appUrlHelper.getStatelessFormDataUrl(dataType, true);
-    const options = {};
-    const error = {
-      status: 403,
-      name: 'error',
-      message: 'error',
-      response: {
-        data: {
-          RequiredAuthenticationLevel: 2,
-        },
-        status: 403,
-      },
+    const error: AxiosError = {
       config: {},
-    }
+      isAxiosError: true,
+      message: 'error',
+      name: 'error',
+      toJSON: () => { return {} },
+      response: {
+        config: {},
+        data: null,
+        headers: {},
+        status: 403,
+        statusText: 'error',
+      }
+    };
+
+    jest.spyOn(networking, 'get').mockImplementation(() => {
+      throw error;
+    });
 
     jest.spyOn(appUrlHelper, 'redirectToUpgrade').mockImplementation(() => {
       return;
@@ -249,7 +298,6 @@ describe('fetchFormDataSagas', () => {
       [select(appMetaDataSelector), appMetadata],
       [select(layoutSetsSelector), mockLayoutSets],
       [select(allowAnonymousSelector), true],
-      [call(get, url, options), error],
     ])
     .call(appUrlHelper.redirectToUpgrade, 2)
     .run();
