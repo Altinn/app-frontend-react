@@ -218,7 +218,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({ payload: { runValidat
         application: state.applicationMetadata.applicationMetadata,
         layoutSets: state.formLayout.layoutsets,
       });
-      layoutSetId = state.applicationMetadata.applicationMetadata?.onEntry?.show;
+      layoutSetId = state.applicationMetadata.applicationMetadata.onEntry.show;
     } else {
       const instance = state.instanceData.instance;
       dataTypeId = getDataTaskDataTypeId(
