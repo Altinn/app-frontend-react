@@ -1,7 +1,14 @@
 import { IData } from 'altinn-shared/types';
 import { IAttachments } from '../shared/resources/attachments';
+import { IFormData } from "src/features/form/data/formDataReducer";
+import { ILayouts } from "src/features/form/layout";
 
-export function mapAttachmentListToAttachments(data: IData[], defaultElementId: string): IAttachments {
+export function mapAttachmentListToAttachments(
+  data: IData[],
+  defaultElementId: string,
+  formData: IFormData,
+  formLayout: ILayouts,
+): IAttachments {
   const attachments: IAttachments = {};
 
   data.forEach((element: IData) => {
