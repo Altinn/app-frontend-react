@@ -1,11 +1,9 @@
 import { makeStyles } from "@material-ui/core";
 import React from "react";
-import { ILanguage } from "../types";
-import { getLanguageFromKey } from "../utils";
 import cn from 'classnames';
 
-interface IMainContentNavProps {
-  language: ILanguage;
+export interface IMainContentNavProps {
+  navigateText: string;
 }
 
 const useStyles = makeStyles({
@@ -41,7 +39,7 @@ const useStyles = makeStyles({
 });
 
 export function MainContentNav({
-  language,
+  navigateText,
 }: IMainContentNavProps) {
   const classes = useStyles();
 
@@ -60,7 +58,7 @@ export function MainContentNav({
         onClick={handleOnClick}
         className={cn(classes.button, classes["sr-only"], classes["sr-only-focusable"])}
       >
-        {getLanguageFromKey('navigation.to_main_content', language)}
+        {navigateText}
       </button>
     </nav>
   );

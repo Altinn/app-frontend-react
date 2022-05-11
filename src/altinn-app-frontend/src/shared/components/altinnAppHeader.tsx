@@ -117,7 +117,7 @@ const AltinnAppHeader = ({
   const party = profile ? profile.party : null;
   return (
     <div className={classes.appBarWrapper}>
-      <MainContentNav language={language} />
+      <MainContentNav navigateText={getLanguageFromKey('navigation.to_main_content', language)} />
       <AppBar position='static' className={classes.default}>
         <Toolbar className={`container ${classes.toolbarContainer}`}>
           <Grid
