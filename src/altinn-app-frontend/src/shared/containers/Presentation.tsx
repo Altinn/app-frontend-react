@@ -105,7 +105,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
         headerBackgroundColor={backgroundColor}
         language={language}
       />
-      <div className='container'>
+      <main className='container'>
         <div className='row'>
           <div className='col-xl-12 a-p-static'>
             <ErrorReport />
@@ -146,7 +146,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

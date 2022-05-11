@@ -116,7 +116,7 @@ export function Form() {
           {renderLayoutComponent(navComponent, layout)}
         </Grid>
       }
-      <main id='main-content'>
+      <section id='main-content'>
         {hasRequiredFields(layout) &&
           <MessageBanner
             language={language}
@@ -133,7 +133,7 @@ export function Form() {
             return renderLayoutComponent(component, layout);
           })}
         </Grid>
-      </main>
+      </section>
     </div>
   );
 }
