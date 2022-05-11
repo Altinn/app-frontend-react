@@ -11,6 +11,7 @@ import { LanguageActions } from '../languageSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromCode } from 'altinn-shared/language';
 import type { IProfile } from 'altinn-shared/types';
+import * as language from 'altinn-shared/language';
 
 describe('languageActions', () => {
   it('should create an action with correct type: FETCH_LANGUAGE', () => {
@@ -68,6 +69,13 @@ describe('fetchLanguageSagas', () => {
       .run();
   });
 
+  it('should fetch default language when defaultLanguage is true', () => {
+
+    return expectSaga(fetchLanguageSaga, true)
+      .put(LanguageActions.fetchLanguageFulfilled({ language: getLanguageFromCode('nb') }))
+      .run();
+  });
+
   it('should fetch language from profile settings when allowAnonymous is false', () => {
     const profileMock: IProfile = {
       userId: 1,
@@ -89,4 +97,14 @@ describe('fetchLanguageSagas', () => {
       .put(LanguageActions.fetchLanguageFulfilled({ language: getLanguageFromCode('en') }))
       .run();
   });
+
+  it('should handle error in fetchLanguageSaga', () => {
+    const error = new Error('error');
+    jest.spyOn(language, 'getLanguageFromCode').mockImplementation(() => {
+      throw error;
+    });
+    expectSaga(fetchLanguageSaga, true)
+    .put(LanguageActions.fetchLanguageRejected({ error }))
+    .run();
+  })
 });

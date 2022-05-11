@@ -15,13 +15,14 @@ import { appMetaDataSelector,
   currentSelectedPartyIdSelector
 } from 'src/selectors/simpleSelectors';
 import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
-import { getFetchFormDataUrl, getStatelessFormDataUrl } from 'src/utils/appUrlHelper';
+import { getFetchFormDataUrl, getStatelessFormDataUrl, redirectToUpgrade } from 'src/utils/appUrlHelper';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId } from 'src/utils/appMetadata';
 import FormDataActions from '../formDataActions';
 import type { IApplication } from 'altinn-shared/types';
 import type { ILayoutSets } from 'src/types';
 import { GET_INSTANCEDATA_FULFILLED } from 'src/shared/resources/instanceData/get/getInstanceDataActionTypes';
 import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';
+import { dataTaskQueueError } from 'src/shared/resources/queue/queueSlice';
 
 describe('fetchFormDataSagas', () => {
   const mockInitialState = getInitialStateMock();
@@ -53,6 +54,23 @@ describe('fetchFormDataSagas', () => {
     .run();
   });
 
+  it('should handle error in fetchFormData', () => {
+    const appMetadata = appMetaDataSelector(mockInitialState);
+    const instance = instanceDataSelector(mockInitialState);
+    const taskId = getCurrentTaskDataElementId(appMetadata, instance);
+    const url = getFetchFormDataUrl(instance.id, taskId);
+    const error = new Error('some error');
+
+    expectSaga(fetchFormDataSaga)
+    .provide([
+      [select(appMetaDataSelector), {...mockInitialState.applicationMetadata.applicationMetadata}],
+      [select(instanceDataSelector), {...mockInitialState.instanceData.instance}],
+      [call(get, url), error],
+    ])
+    .put(FormDataActions.fetchFormDataRejected({ error }))
+    .run();
+  })
+
   it('should fetch form data initial', () => {
     const appMetadata = appMetaDataSelector(mockInitialState);
     const instance = instanceDataSelector(mockInitialState);
@@ -66,6 +84,24 @@ describe('fetchFormDataSagas', () => {
       [call(get, url), mockFormData],
     ])
     .put(FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }))
+    .run();
+  });
+
+  it('should handle error in fetchFormDataInitial', () => {
+    const appMetadata = appMetaDataSelector(mockInitialState);
+    const instance = instanceDataSelector(mockInitialState);
+    const taskId = getCurrentTaskDataElementId(appMetadata, instance);
+    const url = getFetchFormDataUrl(instance.id, taskId);
+    const error = new Error('some error');
+
+    expectSaga(fetchFormDataInitialSaga)
+    .provide([
+      [select(appMetaDataSelector), {...mockInitialState.applicationMetadata.applicationMetadata}],
+      [select(instanceDataSelector), {...mockInitialState.instanceData.instance}],
+      [call(get, url), error],
+    ])
+    .put(FormDataActions.fetchFormDataRejected({ error }))
+    .call(dataTaskQueueError, error)
     .run();
   });
 
@@ -134,6 +170,84 @@ describe('fetchFormDataSagas', () => {
       [call(get, url, options), mockFormData],
     ])
     .put(FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }))
+    .run();
+  });
+
+  it('should handle error in fetchFormDataStateless', () => {
+    const appMetadata: IApplication = {
+      ...appMetaDataSelector(mockInitialState),
+      onEntry: {
+        show: 'stateless',
+      },
+    };
+
+    const mockLayoutSets: ILayoutSets = {
+      sets: [
+        {
+          id: 'stateless',
+          dataType: 'test-data-model',
+        },
+      ],
+    };
+
+    const dataType = getDataTypeByLayoutSetId('stateless', mockLayoutSets);
+    const url = getStatelessFormDataUrl(dataType);
+    const options = {};
+    const error = new Error('some error');
+
+    expectSaga(fetchFormDataInitialSaga)
+    .provide([
+      [select(appMetaDataSelector), appMetadata],
+      [select(layoutSetsSelector), mockLayoutSets],
+      [select(allowAnonymousSelector), true],
+      [call(get, url, options), error],
+    ])
+    .put(FormDataActions.fetchFormDataRejected({ error }))
+    .call(dataTaskQueueError, error)
+    .run();
+  });
+
+  it('should handle redirect to authentication in fetchFormDataStateless', () => {
+    const appMetadata: IApplication = {
+      ...appMetaDataSelector(mockInitialState),
+      onEntry: {
+        show: 'stateless',
+      },
+    };
+
+    const mockLayoutSets: ILayoutSets = {
+      sets: [
+        {
+          id: 'stateless',
+          dataType: 'test-data-model',
+        },
+      ],
+    };
+
+    const dataType = getDataTypeByLayoutSetId('stateless', mockLayoutSets);
+    const url = getStatelessFormDataUrl(dataType);
+    const options = {};
+    const error = {
+      status: 403,
+      name: 'error',
+      message: 'error',
+      response: {
+        data: {
+          RequiredAuthenticationLevel: 2,
+        },
+        status: 403,
+      },
+      config: {},
+    }
+
+    expectSaga(fetchFormDataInitialSaga)
+    .provide([
+      [select(appMetaDataSelector), appMetadata],
+      [select(layoutSetsSelector), mockLayoutSets],
+      [select(allowAnonymousSelector), true],
+      [call(get, url, options), error],
+    ])
+    .call(redirectToUpgrade, 2)
     .run();
   });
 
