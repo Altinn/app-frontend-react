@@ -45,8 +45,8 @@
         "hideCloseButton": {
           "$ref": "#/definitions/hideCloseButton"
         },
-        "showLanguageDropdown": {
-          "$ref": "#/definitions/showLanguageDropdown"
+        "showLanguageSelector": {
+          "$ref": "#/definitions/showLanguageSelector"
         }
       }
     },
@@ -73,7 +73,7 @@
       "description": "An attribute specifiying if the close button should be hidden",
       "type": "boolean"
     },
-    "showLanguageDropdown": {
+    "showLanguageSelector": {
       "additionalProperties": false,
       "description": "An attribute specifying if the translation dropdown menu should be visible",
       "type": "boolean"
