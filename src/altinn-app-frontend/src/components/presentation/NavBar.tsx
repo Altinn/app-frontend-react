@@ -3,6 +3,8 @@ import { getLanguageFromKey } from 'altinn-shared/utils';
 import { ILanguage, IAppLanguage } from 'altinn-shared/types';
 import { Select } from 'altinn-shared/components';
 import { Box } from '@material-ui/core';
+import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import { useAppSelector } from 'src/common/hooks';
 
 export interface INavBarProps {
   language: ILanguage;
@@ -17,6 +19,10 @@ export interface INavBarProps {
 }
 
 const NavBar = (props: INavBarProps) => {
+  const textResources = useAppSelector(
+    (state) => state.textResources.resources,
+  );
+  const language = useAppSelector((state) => state.language.language);
   const showLanguageSelect =
     props.showLanguageSelector && props.appLanguages.length > 0;
   const CloseButton = (
@@ -67,16 +73,24 @@ const NavBar = (props: INavBarProps) => {
         {showLanguageSelect && (
           <Box display='flex' flexDirection='column' className='mb-1'>
             <label className='a-form-label' htmlFor='app-language-select'>
-              {
-                props.appLanguages.find(
-                  (l) => l.language === props.selectedAppLanguage,
-                )?.dropdownLabel
-              }
+              {getTextFromAppOrDefault(
+                'language.selector.label',
+                textResources,
+                language,
+                null,
+                true,
+              )}
             </label>
             <Select
               options={props.appLanguages.map((l) => ({
                 value: l.language,
-                label: l.languageDescription,
+                label: getTextFromAppOrDefault(
+                  'language.full_name.' + l.language,
+                  textResources,
+                  language,
+                  null,
+                  true,
+                ),
               }))}
               onChange={(ev) => props.onAppLanguageChange(ev.target.value)}
               value={props.selectedAppLanguage}
