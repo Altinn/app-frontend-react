@@ -25,6 +25,7 @@ export const emptyArray = [];
 
 export function FileUploadComponent({ 
   id,
+  baseComponentId,
   componentValidations,
   readOnly,
   maxNumberOfAttachments,
@@ -90,7 +91,7 @@ export function FileUploadComponent({
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     const newFiles: IAttachment[] = [];
-    const fileType = id; // component id used as filetype identifier for now, see issue #1364
+    const fileType = baseComponentId || id;
     const tmpValidations: string[] = [];
     const totalAttachments =
       acceptedFiles.length + rejectedFiles.length + attachments.length;
@@ -174,7 +175,7 @@ export function FileUploadComponent({
 
   const handleDeleteFile = (index: number) => {
     const attachmentToDelete = attachments[index];
-    const fileType = id; // component id used as filetype identifier for now, see issue #1364
+    const fileType = baseComponentId || id;
     dispatch({ type: 'delete', index });
     AttachmentDispatcher.deleteAttachment(
       attachmentToDelete,

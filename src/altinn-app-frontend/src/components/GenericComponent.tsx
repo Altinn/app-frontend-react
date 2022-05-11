@@ -36,6 +36,7 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 
 export interface IGenericComponentProps {
   id: string;
+  baseComponentId?: string;
   type: string;
   textResourceBindings: ITextResourceBindings;
   dataModelBindings: IDataModelBindings;
