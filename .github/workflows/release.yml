@@ -6,7 +6,11 @@ on:
         description: "The type of release (one of 'patch', 'minor', or 'major')"
         required: true
         default: patch
-        type: string
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
 
 jobs:
   build:
