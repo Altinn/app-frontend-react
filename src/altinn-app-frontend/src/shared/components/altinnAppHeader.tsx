@@ -157,7 +157,7 @@ const AltinnAppHeader = ({
                     party?.partyId,
                   )}
                 >
-                  {getLanguageFromKey('instantiate', language)}
+                  {getLanguageFromKey('instantiate.profile', language)}
                 </a>
               </li>
             </ul>

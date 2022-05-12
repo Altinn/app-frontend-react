@@ -19,7 +19,7 @@ const styles = createStyles({
 });
 
 export interface IInstantiateContainerProps extends WithStyles<typeof styles> {
-  children?: any;
+  children?: React.ReactNode;
   type: 'normal' | 'partyChoice';
 }
 
