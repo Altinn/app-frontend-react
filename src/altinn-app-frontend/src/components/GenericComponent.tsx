@@ -148,7 +148,11 @@ export function GenericComponent(props: IGenericComponentProps) {
     return null;
   }
 
-  const handleDataUpdate = (value: string, key = 'simpleBinding', skipValidation = false) => {
+  const handleDataChange: IComponentProps['handleDataChange'] = (
+    value,
+    key = 'simpleBinding',
+    skipValidation = false,
+  ) => {
     if (!props.dataModelBindings || !props.dataModelBindings[key]) {
       return;
     }
@@ -275,7 +279,7 @@ export function GenericComponent(props: IGenericComponentProps) {
   };
 
   const componentProps: IComponentProps = {
-    handleDataChange: handleDataUpdate,
+    handleDataChange: handleDataChange,
     handleFocusUpdate,
     getTextResource: getTextResourceWrapper,
     getTextResourceAsString,
