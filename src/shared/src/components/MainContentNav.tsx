@@ -43,7 +43,7 @@ export function MainContentNav({
 }: IMainContentNavProps) {
   const classes = useStyles();
 
-  const handleOnClick = () => {
+  const handleClick = () => {
     // workaround because we still use a hash-router (sigh...)
     // can be replaced by the more elegant solution <a href="#main-content></a> once this is no longer the case.
     const main = document.getElementById('main-content');
