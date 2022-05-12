@@ -55,7 +55,7 @@ export function MainContentNav({
     <nav className={cn(classes.jumpNav)}>
       <button
         role='link'
-        onClick={handleOnClick}
+        onClick={handleClick}
         className={cn(classes.button, classes["sr-only"], classes["sr-only-focusable"])}
       >
         {navigateText}
