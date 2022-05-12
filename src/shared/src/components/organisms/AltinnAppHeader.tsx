@@ -5,7 +5,7 @@ import type { ILanguage, IParty } from '../../types';
 import { getLanguageFromKey } from '../../utils';
 import { renderPartyName } from '../../utils/party';
 import AltinnLogo from '../AltinnLogo';
-import { MainContentNav } from '../MainContentNav';
+import { LandmarkShortcuts } from '../LandmarkShortcuts';
 import AltinnAppHeaderMenu from './AltinnAppHeaderMenu';
 
 export interface IAltinnAppHeaderProps extends WithStyles<typeof styles> {
@@ -68,7 +68,7 @@ export function AltinnAppHeader({
       classes={{ root: classes.altinnAppHeader }}
       style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
     >
-      <MainContentNav navigateText={getLanguageFromKey('navigation.to_main_content', language)} />
+      <LandmarkShortcuts navToMainText={getLanguageFromKey('navigation.to_main_content', language)} />
       <Grid
         container={true}
         className={classes.mainContent}

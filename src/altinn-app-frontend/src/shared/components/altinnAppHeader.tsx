@@ -14,7 +14,7 @@ import {
   returnUrlToProfile,
 } from 'altinn-shared/utils/urlHelper';
 import { renderParty } from '../resources/utils/party';
-import { MainContentNav } from 'altinn-shared/components/MainContentNav';
+import { LandmarkShortcuts } from 'altinn-shared/components/LandmarkShortcuts';
 
 export interface IHeaderProps {
   classes: any;
@@ -117,7 +117,7 @@ const AltinnAppHeader = ({
   const party = profile ? profile.party : null;
   return (
     <div className={classes.appBarWrapper}>
-      <MainContentNav navigateText={getLanguageFromKey('navigation.to_main_content', language)} />
+      <LandmarkShortcuts navToMainText={getLanguageFromKey('navigation.to_main_content', language)} />
       <AppBar position='static' className={classes.default}>
         <Toolbar className={`container ${classes.toolbarContainer}`}>
           <Grid

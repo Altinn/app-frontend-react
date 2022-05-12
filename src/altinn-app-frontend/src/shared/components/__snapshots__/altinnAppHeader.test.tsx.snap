@@ -59,7 +59,7 @@ exports[`features/altinnAppHeader.tsx should match snapshot 1`] = `
           <a
             href="/ui/Reportee/ChangeReporteeAndRedirect?goTo=/ui/profile&R=123456"
           >
-            instantiate
+            instantiate.profile
           </a>
         </li>
       </ul>

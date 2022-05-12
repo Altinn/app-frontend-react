@@ -2,8 +2,8 @@ import { makeStyles } from "@material-ui/core";
 import React from "react";
 import cn from 'classnames';
 
-export interface IMainContentNavProps {
-  navigateText: string;
+export interface ILandmarkShortcutsProps {
+  navToMainText: string;
 }
 
 const useStyles = makeStyles({
@@ -38,9 +38,9 @@ const useStyles = makeStyles({
   }
 });
 
-export function MainContentNav({
-  navigateText,
-}: IMainContentNavProps) {
+export function LandmarkShortcuts({
+  navToMainText,
+}: ILandmarkShortcutsProps) {
   const classes = useStyles();
 
   const handleClick = () => {
@@ -58,7 +58,7 @@ export function MainContentNav({
         onClick={handleClick}
         className={cn(classes.button, classes["sr-only"], classes["sr-only-focusable"])}
       >
-        {navigateText}
+        {navToMainText}
       </button>
     </nav>
   );

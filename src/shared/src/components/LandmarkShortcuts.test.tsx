@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import type { IMainContentNavProps } from "./MainContentNav";
-import { MainContentNav } from "./MainContentNav";
+import type { ILandmarkShortcutsProps } from "./LandmarkShortcuts";
+import { LandmarkShortcuts } from "./LandmarkShortcuts";
 
-describe('MainContentNav.tsx', () => {
+describe('LandmarkShortcuts.tsx', () => {
   it('should render supplied text', () => {
     renderMainContentNav();
     expect(screen.getByText('Hopp til hovedinnhold')).toBeInTheDocument();
@@ -16,13 +16,13 @@ describe('MainContentNav.tsx', () => {
     expect(document.activeElement).toBe(document.getElementById('main-content'));
   });
 
-  function renderMainContentNav(props: Partial<IMainContentNavProps> = {}) {
-    const defaultProps: IMainContentNavProps = {
-      navigateText: 'Hopp til hovedinnhold'
+  function renderMainContentNav(props: Partial<ILandmarkShortcutsProps> = {}) {
+    const defaultProps: ILandmarkShortcutsProps = {
+      navToMainText: 'Hopp til hovedinnhold'
     };
     render(
       <>
-        <MainContentNav {...defaultProps} {...props} />
+        <LandmarkShortcuts {...defaultProps} {...props} />
         <main id='main-content'></main>
       </>
     );
