@@ -12,6 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -44,7 +45,6 @@ jobs:
         run: yarn build
 
       - name: Checkout Altinn-CDN repository
-        if: github.ref == 'refs/heads/main'
         uses: actions/checkout@v3
         with:
           repository: 'Altinn/altinn-cdn'
@@ -52,7 +52,6 @@ jobs:
           path: cdn
 
       - name: Publish to CDN
-        if: github.ref == 'refs/heads/main'
         working-directory: app-frontend
         run: |
           echo Clone, copy, commit and push to Altinn-CDN
