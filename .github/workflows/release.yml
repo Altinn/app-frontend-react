@@ -35,7 +35,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          yarn release ${{ github.event.inputs.release_type }}
+          npm version ${{ github.event.inputs.release_type }}
           echo "release_version=`git describe`" >> $GITHUB_ENV
           git push --follow-tags
 
