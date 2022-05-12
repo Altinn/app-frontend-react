@@ -4,7 +4,7 @@ import type {
   ILayoutGroup,
 } from 'src/features/form/layout';
 import type { IAttachmentState } from 'src/shared/resources/attachments/attachmentReducer';
-import type { IRepeatingGroups, IMapping } from 'src/types';
+import type { IRepeatingGroups, IMapping, ITextResource } from 'src/types';
 
 import {
   createRepeatingGroupComponents,
@@ -329,6 +329,82 @@ describe('formLayout', () => {
     );
 
     expect(result).toEqual(expected);
+  });
+
+  it('baseComponentId should never contain group index', () => {
+      const groupProps: Pick<
+        ILayoutGroup,
+        'type' | 'dataModelBindings' | 'textResourceBindings' | 'maxCount'
+      > = {
+        type: 'Group',
+        dataModelBindings: {},
+        textResourceBindings: { label: 't' },
+        maxCount: 3,
+      };
+      const layout: ((ILayoutGroup | ILayoutComponent) & { baseComponentId: string })[] = [
+        {
+          id: 'first-0',
+          baseComponentId: 'first',
+          children: ['second'],
+          ...groupProps,
+        },
+        {
+          id: 'second-0-1',
+          baseComponentId: 'second',
+          children: ['third'],
+          ...groupProps,
+        },
+        {
+          id: 'third-0-1-1',
+          baseComponentId: 'third',
+          children: ['fourth'],
+          ...groupProps,
+        },
+        {
+          id: 'input-0-1-1-2',
+          type: 'Input',
+          baseComponentId: 'input',
+          dataModelBindings: {},
+          textResourceBindings: { label: 't' },
+        },
+      ];
+
+    const mockTextResources:ITextResource[] = [
+      {
+        id: 't',
+        value: 'Text',
+      },
+    ];
+
+    const result = createRepeatingGroupComponents(
+      layout[0] as ILayoutGroup,
+      layout,
+      1,
+      mockTextResources,
+    );
+
+    const allBaseComponentIds = [];
+    const findBaseComponentId = (obj:any) => {
+      if (Array.isArray(obj)) {
+        for (const item of obj) {
+          findBaseComponentId(item);
+        }
+        return;
+      }
+      for (const key of Object.keys(obj)) {
+        if (key === 'baseComponentId') {
+          allBaseComponentIds.push(obj[key]);
+        }
+        if (typeof obj[key] === 'object') {
+          findBaseComponentId(obj[key]);
+        }
+      }
+    };
+
+    findBaseComponentId(result);
+    const numericBaseComponentIds = allBaseComponentIds.filter(id => id.match(/\d+/));
+
+    expect(numericBaseComponentIds).toEqual([]);
   });
 
   it('getFileUploadersWithTag should return expected uiConfig', () => {

@@ -249,7 +249,7 @@ export function createRepeatingGroupComponents(
           textResourceBindings: componentDeepCopy.textResourceBindings,
           dataModelBindings,
           id: deepCopyId,
-          baseComponentId: componentDeepCopy.id,
+          baseComponentId: (componentDeepCopy as any).baseComponentId || componentDeepCopy.id,
           hidden,
           mapping
         };
