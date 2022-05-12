@@ -3,7 +3,7 @@ import { Form } from './Form';
 import { PreloadedState } from '@reduxjs/toolkit';
 import { RootState } from 'src/store';
 import { renderWithProviders } from 'src/../testUtils';
-import { ILayout, ILayoutComponent } from '../layout';
+import type { ILayout, ILayoutComponent } from '../layout';
 import { getFormLayoutStateMock } from 'src/../__mocks__/formLayoutStateMock';
 import { screen } from '@testing-library/react'
 
