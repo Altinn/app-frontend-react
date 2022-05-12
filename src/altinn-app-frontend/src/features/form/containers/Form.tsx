@@ -88,7 +88,6 @@ export function Form() {
   }, [currentView, language, validations]);
 
   React.useEffect(() => {
-    let componentsToRender: ILayout = layout;
     let renderedInGroup: string[] = [];
     if (layout) {
       const groupComponents = layout.filter((component) => component.type.toLowerCase() === 'group');
@@ -99,7 +98,7 @@ export function Form() {
         }
         renderedInGroup = renderedInGroup.concat(childList);
       });
-      componentsToRender = layout.filter((component) => (!renderedInGroup.includes(component.id) && component.type !== 'NavigationBar'));
+      const componentsToRender = layout.filter((component) => (!renderedInGroup.includes(component.id) && component.type !== 'NavigationBar'));
       setFilteredLayout(componentsToRender);
       setNavComponent(layout.find((c) => c.type === 'NavigationBar') as ILayoutComponent);
     }
