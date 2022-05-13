@@ -1,7 +1,7 @@
 import { SagaIterator } from 'redux-saga';
 import { fork, call, select, takeLatest, takeEvery } from 'redux-saga/effects';
-import { IRuntimeState, IOption, IFetchSpecificOptionSaga, IOptions, IOptionsMetaData } from 'src/types';
-import { ILayouts, ISelectionComponentProps } from 'src/features/form/layout';
+import type { IRuntimeState, IOption, IFetchSpecificOptionSaga, IOptions, IOptionsMetaData } from 'src/types';
+import type { ILayouts, ISelectionComponentProps } from 'src/features/form/layout';
 import { get } from 'altinn-shared/utils';
 import { getOptionsUrl } from 'src/utils/appUrlHelper';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
