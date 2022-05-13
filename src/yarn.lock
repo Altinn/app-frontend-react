@@ -4309,7 +4309,7 @@ __metadata:
     eslint: ^8.15.0
     fork-ts-checker-notifier-webpack-plugin: 6.0.0
     fork-ts-checker-webpack-plugin: ^7.2.11
-    immutability-helper: 2.9.1
+    immutability-helper: 3.1.1
     jest: ^27.5.1
     jest-junit: ^13.2.0
     jsonpointer: 5.0.0
@@ -9101,12 +9101,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immutability-helper@npm:2.9.1":
-  version: 2.9.1
-  resolution: "immutability-helper@npm:2.9.1"
-  dependencies:
-    invariant: ^2.2.0
-  checksum: 8b66d20c22d517d4bff861616adec67294f1cf40bc1aedf68a5ebd5ae42c56593dc6c9bfb507f18705048bdecec03ef01f2b7817d6864fd7b06cbcc5e1f3f855
+"immutability-helper@npm:3.1.1":
+  version: 3.1.1
+  resolution: "immutability-helper@npm:3.1.1"
+  checksum: 6fdbf6d2123efa567263e904bbaff07aca0e24560d270d34967b03aab8ec20bd3e4057f394d59e50eb6c4718c9415591a6281692bb0aafd522ad72cf4887133f
   languageName: node
   linkType: hard
 
@@ -9260,7 +9258,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invariant@npm:^2.2.0, invariant@npm:^2.2.4":
+"invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
