@@ -66,7 +66,7 @@ const getPanelVariant = ({ messageType }) => {
     case 'success':
       return PanelVariant.Success;
   }
-  return null;
+  return undefined;
 };
 
 export function renderValidationMessages(
