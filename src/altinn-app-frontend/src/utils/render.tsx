@@ -1,4 +1,4 @@
-import { Panel } from '@altinn/altinn-design-system';
+import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import * as React from 'react';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { MessageComponent } from '../components/message/MessageComponent';
@@ -38,11 +38,7 @@ export function renderValidationMessagesForComponent(
 
   if (validationMessages.info && validationMessages.info.length > 0) {
     validationMessageElements.push(
-      renderValidationMessages(
-        validationMessages.info,
-        `info_${id}`,
-        'info'
-      ),
+      renderValidationMessages(validationMessages.info, `info_${id}`, 'info'),
     );
   }
 
@@ -51,7 +47,7 @@ export function renderValidationMessagesForComponent(
       renderValidationMessages(
         validationMessages.success,
         `success_${id}`,
-        'success'
+        'success',
       ),
     );
   }
@@ -61,17 +57,29 @@ export function renderValidationMessagesForComponent(
     : null;
 }
 
+const getPanelVariant = ({ messageType }) => {
+  switch (messageType) {
+    case 'warning':
+      return PanelVariant.Warning;
+    case 'info':
+      return PanelVariant.Info;
+    case 'success':
+      return PanelVariant.Success;
+  }
+  return null;
+};
 
 export function renderValidationMessages(
   messages: React.ReactNode[],
   id: string,
   messageType: any,
 ) {
+
   if (messageType !== 'error') {
     return (
       <FullWidthWrapper>
         <Panel
-          variant={messageType}
+          variant={getPanelVariant({ messageType })}
           showPointer
           showIcon
           title={'Nyttig å vite'}
@@ -85,7 +93,11 @@ export function renderValidationMessages(
                   </li>
                 );
               }
-              return <li role='alert' key={`validationMessage-${id}-${idx}`}>{message}</li>;
+              return (
+                <li role='alert' key={`validationMessage-${id}-${idx}`}>
+                  {message}
+                </li>
+              );
             })}
           </ol>
         </Panel>
@@ -109,7 +121,11 @@ export function renderValidationMessages(
               </li>
             );
           }
-          return <li role='alert' key={`validationMessage-${id}-${idx}`}>{message}</li>;
+          return (
+            <li role='alert' key={`validationMessage-${id}-${idx}`}>
+              {message}
+            </li>
+          );
         })}
       </ol>
     </MessageComponent>

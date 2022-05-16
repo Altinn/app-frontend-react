@@ -5,22 +5,22 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@altinn/altinn-design-system@npm:0.0.8":
-  version: 0.0.8
-  resolution: "@altinn/altinn-design-system@npm:0.0.8::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Faltinn-design-system%2F0.0.8%2F205ffcafbfb9592951e5eee31491d49b689d308e3be9755efed48a263bdaaa91"
+"@altinn/altinn-design-system@npm:0.0.10":
+  version: 0.0.10
+  resolution: "@altinn/altinn-design-system@npm:0.0.10::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Faltinn-design-system%2F0.0.10%2Fafd2f13c248ea2fabddabfec2fdde04580aa5a628a6e4818d9ac27fbe4815c9e"
   dependencies:
-    "@altinn/figma-design-tokens": ^0.0.26
+    "@altinn/figma-design-tokens": ^0.0.27
   peerDependencies:
     react: ^17.0.0 || ^18.0.0
     react-dom: ^17.0.0 || ^18.0.0
-  checksum: 7b0057e5bb48f14d95bdfde4f27bd40de95fc9c3e992c2d5aa9d69566af5922799af0b65de80d8047ca9863e6edaea62a9c4ad6e4673d52fd47867a38b182ba3
+  checksum: 0c1d1c5e97f3ea48b3e0a70ee2005fdf5212d0a549cc88464b743f88e7aa13ff94a55b41d8a20eaccd56321002ef5ddd36c94f0227b60d4babba7a37e14c9671
   languageName: node
   linkType: hard
 
-"@altinn/figma-design-tokens@npm:^0.0.26":
-  version: 0.0.26
-  resolution: "@altinn/figma-design-tokens@npm:0.0.26::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Ffigma-design-tokens%2F0.0.26%2Fd4860e1aea49ce7529087d9b076fe6ff44a635ee8a7a36f1080af52caf87d80b"
-  checksum: 8650b1a6e2b0590891800587ca147a54a50eb544299df95cf78c1639cc83982710b19348ed6d3ef2e731633b9c1688aff4bffbe11791e15692317cad531f62b5
+"@altinn/figma-design-tokens@npm:^0.0.27":
+  version: 0.0.27
+  resolution: "@altinn/figma-design-tokens@npm:0.0.27::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Ffigma-design-tokens%2F0.0.27%2F1e86bbc282ea2400ceb3b010cb20219dcf775c2c05b2bd215cbe545adaa2fd54"
+  checksum: cfc00631239c03c1d205653ec027d4c9a453d217b0b5f6386cf5e2f41862b073f2386afab7342bbcfbfbf4658b4ef1adca49cb6b73f521e41962581f5d4cc9b8
   languageName: node
   linkType: hard
 
@@ -4281,7 +4281,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "altinn-app-frontend@workspace:altinn-app-frontend"
   dependencies:
-    "@altinn/altinn-design-system": 0.0.8
+    "@altinn/altinn-design-system": 0.0.10
     "@babel/core": ^7.17.10
     "@babel/polyfill": ^7.12.1
     "@babel/preset-env": ^7.17.10
