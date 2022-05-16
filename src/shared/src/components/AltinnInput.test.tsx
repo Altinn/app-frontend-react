@@ -2,9 +2,9 @@ import * as React from 'react';
 import { render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import AltinnInput from './AltinnInput';
+import AltinnInput, {IAltinnInputProps} from './AltinnInput';
 
-const render = (props = {}) => {
+const render = (props: Partial<IAltinnInputProps> = {}) => {
   const allProps = {
     label: 'inputLabel',
     ...props,
@@ -14,7 +14,7 @@ const render = (props = {}) => {
 };
 
 describe('AltinnInput', () => {
-  it('should call onChange when typing in the input field', () => {
+  it('should call onChange when typing in the input field', async () => {
     const handleChange = jest.fn();
     render({ onChange: handleChange });
 
@@ -22,7 +22,7 @@ describe('AltinnInput', () => {
       name: /inputlabel/i,
     });
 
-    userEvent.type(input, 'input-text');
+    await userEvent.type(input, 'input-text');
 
     expect(handleChange).toHaveBeenCalled();
   });
@@ -31,6 +31,17 @@ describe('AltinnInput', () => {
     render({ showLabel: true });
 
     expect(screen.getByText(/inputlabel/i)).toBeInTheDocument();
+  });
+
+  it('should add input-validation-error id when applying inputValidationError class', () => {
+    render({ validationError: true });
+    expect(screen.getByTestId(/input-validation-error/i)).toBeInTheDocument();
+    expect(screen.queryByTestId(/input-validation-error/i)).not.toBeNull();
+  });
+
+  it('should not add input-validation-error id when applying inputValidationError class', () => {
+    render({ validationError: false });
+    expect(screen.queryByTestId(/input-validation-error/i)).toBeNull();
   });
 
   it('should not show label when showLabel is false', () => {

@@ -11,6 +11,7 @@ export interface IInputBaseProps {
   readOnly: boolean;
   required: boolean;
   handleDataChange: (value: any) => void;
+  inputRef?: ((el: HTMLInputElement) => void) | React.Ref<any>;
 }
 
 export interface IInputFormatting {
@@ -29,7 +30,6 @@ export interface IBasicInputProps extends IInputBaseProps {
 }
 
 export interface IFormattedNumberInputProps extends IInputBaseProps {
-  inputRef: ((el: HTMLInputElement) => void) | React.Ref<any>;
   name: any;
   onChange: (e: any) => void;
   formatting?: IInputFormatting;
@@ -63,27 +63,26 @@ function NumberFormatCustom(props: IFormattedNumberInputProps) {
   );
 }
 
-export function BasicInputComponent(props: IBasicInputProps) {
+export function BasicInputComponent({ inputRef, ...rest }: IBasicInputProps) {
   return (
     <>
-      <input data-testid={props.id} {...props} />
+      <input data-testid={rest.id} ref={inputRef} {...rest} />
     </>
   );
 }
 
-export function InputComponent(props: IInputProps) {
+export function InputComponent({
+  id,
+  readOnly,
+  required,
+  isValid,
+  formData,
+  formatting,
+  handleDataChange,
+  textResourceBindings
+}: IInputProps) {
   const classes = useStyles();
-
-  const [value, setValue] = React.useState(props.formData?.simpleBinding ?? '');
-  const {
-    id,
-    readOnly,
-    required,
-    isValid,
-    formData,
-    formatting,
-    handleDataChange,
-  } = props;
+  const [value, setValue] = React.useState(formData?.simpleBinding ?? '');
 
   React.useEffect(() => {
     setValue(formData?.simpleBinding ?? '');
@@ -108,7 +107,7 @@ export function InputComponent(props: IInputProps) {
       fullWidth={true}
       disableUnderline={true}
       value={value}
-      aria-describedby={`description-${props.id}`}
+      aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
       inputComponent={
         formatting?.number ? NumberFormatCustom : BasicInputComponent
       }
