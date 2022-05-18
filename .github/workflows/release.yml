@@ -33,16 +33,14 @@ jobs:
         working-directory: app-frontend/src
         run: yarn --immutable
 
-      - name: Prepare release version
-        working-directory: app-frontend/src/altinn-app-frontend
+      - name: Create version tag
+        working-directory: scripts
         # This step runs if the trigger is run via github action
         if: ${{ ! github.event.after }}
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          npm version ${{ github.event.inputs.release_type }}
-          echo "release_version=`git describe`" >> $GITHUB_ENV
-          git push --follow-tags
+          ./bump-version.sh -v ${{ github.event.inputs.release_type }}
 
       - name: run build
         working-directory: app-frontend/src/altinn-app-frontend
@@ -59,10 +57,11 @@ jobs:
         working-directory: app-frontend
         run: |
           echo Clone, copy, commit and push to Altinn-CDN
-          APP_VERSION=$(jq '.version' ./src/altinn-app-frontend/package.json)
-          APP_MAJOR=$(echo $APP_VERSION | tr --delete '"' | cut -d'.' -f1)
-          APP_MINOR=$(echo $APP_VERSION | tr --delete '"' | cut -d'.' -f2)
-          APP_PATCH=$(echo $APP_VERSION | tr --delete '"' | cut -d'.' -f3)
+          CURRENT_VERSION=`git describe --abbrev=0 --tags 2>/dev/null`
+          CURRENT_VERSION_PARTS=(${CURRENT_VERSION//./ })
+          APP_MAJOR=${CURRENT_VERSION_PARTS[0]:1}
+          APP_MINOR=${CURRENT_VERSION_PARTS[1]}
+          APP_PATCH=${CURRENT_VERSION_PARTS[2]}
           echo altinn-app-frontend version: $APP_MAJOR.$APP_MINOR.$APP_PATCH
           AUTHOR_FULL=$(git log -1 | grep Author)
           AUTHOR_NAME=$(git log -1 | grep Author | cut -d' ' -f2)
@@ -89,5 +88,6 @@ jobs:
           echo "$AUTHOR_FULL updated altinn-app-frontend to $APP_MAJOR.$APP_MINOR.$APP_PATCH" > ./../commit1.txt
           echo "based on commit https://github.com/Altinn/altinn-studio/commit/$COMMIT_ID" > ./../commit2.txt
           cat ./../commit1.txt ./../commit2.txt ./../commitmsg.txt > ./../commit.txt
+          cat ./../commit.txt
           git commit -F ./../commit.txt
           git push
