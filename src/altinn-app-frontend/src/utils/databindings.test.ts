@@ -198,6 +198,26 @@ describe('utils/databindings.ts', () => {
       const result = flattenObject(testObject);
       expect(result).toEqual(expected);
     });
+
+    it('should flatten arrays with primitive types as expected', () => {
+      const testObject = {
+        employees: [
+          {name: 'Jane Smith'},
+          {name: 'John Smith'},
+        ],
+        industries: ['Carpentry', 'Construction'],
+      };
+
+      const expected = {
+        'employees[0].name': 'Jane Smith',
+        'employees[1].name': 'John Smith',
+        'industries[0]': 'Carpentry',
+        'industries[1]': 'Construction',
+      };
+
+      const result = flattenObject(testObject);
+      expect(result).toEqual(expected);
+    });
   });
 
   describe('removeGroupData', () => {

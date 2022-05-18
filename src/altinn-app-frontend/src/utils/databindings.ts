@@ -64,7 +64,9 @@ export function flattenObject(data: any, index = false): any {
       Object.keys(flatObject).forEach((x) => {
         if (!x || (!flatObject[x] && flatObject[x] !== 0)) return;
         let key = '';
-        if (Array.isArray(data[i])) {
+        if (Array.isArray(data[i]) && x.match(/^\d+$/)) {
+          key = `${i}[${x}]`;
+        } else if (Array.isArray(data[i])) {
           key = `${i}[${x}`;
         } else {
           key = index ? `${i}].${x}` : `${i}.${x}`;
