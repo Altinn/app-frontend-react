@@ -1,5 +1,5 @@
 import { bindActionCreators } from 'redux';
-import { store } from '../../../store';
+import { store } from 'src/store';
 
 import * as deleteActions from './delete/deleteAttachmentActions';
 import * as mapActions from './map/mapAttachmentsActions';
