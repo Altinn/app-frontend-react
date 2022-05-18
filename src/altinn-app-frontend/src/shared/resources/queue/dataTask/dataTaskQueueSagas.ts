@@ -4,6 +4,7 @@ import { fetchJsonSchema } from 'src/features/form/datamodel/datamodelSlice';
 import FormDataActions from '../../../../features/form/data/formDataActions';
 import { FormLayoutActions } from '../../../../features/form/layout/formLayoutSlice';
 import { startInitialDataTaskQueue, startInitialDataTaskQueueFulfilled } from '../queueSlice';
+import AttachmentActions from "src/shared/resources/attachments/attachmentActions";
 
 export function* startInitialDataTaskQueueSaga(): SagaIterator {
   yield put(FormDataActions.fetchFormDataInitial());
@@ -12,6 +13,7 @@ export function* startInitialDataTaskQueueSaga(): SagaIterator {
   yield put(FormLayoutActions.fetchLayout());
   yield put(FormLayoutActions.fetchLayoutSettings());
   yield put(startInitialDataTaskQueueFulfilled());
+  yield put(AttachmentActions.mapAttachments());
 }
 
 export function* watchStartInitialDataTaskQueueSaga(): SagaIterator {

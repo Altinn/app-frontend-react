@@ -40,7 +40,8 @@ export function FileUploadWithTagComponent({
   mapping,
   getTextResource,
   getTextResourceAsString,
-  textResourceBindings
+  textResourceBindings,
+  dataModelBindings,
 }: IFileUploadWithTagProps): JSX.Element {
   const dataDispatch = useDispatch();
   const [validations, setValidations] = React.useState<Array<{ id: string, message: string }>>([]);
@@ -136,13 +137,26 @@ export function FileUploadWithTagComponent({
       );
     } else {
       // we should upload all files, if any rejected files we should display an error
-      acceptedFiles.forEach((file: File) => {
+      acceptedFiles.forEach((file: File, index) => {
         if ((attachments.length + newFiles.length) < maxNumberOfAttachments) {
           const tmpId: string = uuidv4();
           newFiles.push({
-            name: file.name, size: file.size, uploaded: false, tags: [], id: tmpId, deleting: false, updating: false,
+            name: file.name,
+            size: file.size,
+            uploaded: false,
+            tags: [],
+            id: tmpId,
+            deleting: false,
+            updating: false,
           });
-          AttachmentDispatcher.uploadAttachment(file, fileType, tmpId, id);
+          AttachmentDispatcher.uploadAttachment(
+            file,
+            fileType,
+            tmpId,
+            id,
+            dataModelBindings,
+            attachments.length + index,
+          );
         }
       });
 

@@ -11,6 +11,7 @@ import { fileUploadUrl } from '../../../../utils/appUrlHelper';
 import AttachmentDispatcher from '../attachmentActions';
 import * as AttachmentActionsTypes from '../attachmentActionTypes';
 import * as uploadActions from './uploadAttachmentActions';
+import FormDataActions from "src/features/form/data/formDataActions";
 
 export function* uploadAttachmentSaga(
   {
@@ -18,6 +19,8 @@ export function* uploadAttachmentSaga(
     attachmentType,
     tmpAttachmentId,
     componentId,
+    dataModelBindings,
+    index,
   }: uploadActions.IUploadAttachmentAction,
 ): SagaIterator {
   const state: IRuntimeState = yield select();
@@ -65,6 +68,14 @@ export function* uploadAttachmentSaga(
       };
       yield call(AttachmentDispatcher.uploadAttachmentFulfilled,
         attachment, attachmentType, tmpAttachmentId, componentId);
+
+      if (dataModelBindings && dataModelBindings.simpleBinding) {
+        yield put(FormDataActions.updateFormData({
+          componentId: componentId,
+          data: response.data.id,
+          field: `${dataModelBindings.simpleBinding}[${index}]`,
+        }));
+      }
     } else {
       const validations = getFileUploadComponentValidations('upload', language);
       yield put(updateComponentValidations({

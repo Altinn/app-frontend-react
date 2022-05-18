@@ -21,7 +21,6 @@ import { GET_INSTANCEDATA_FULFILLED } from '../../../../shared/resources/instanc
 import { IProcessState } from '../../../../shared/resources/process/processReducer';
 import { getFetchFormDataUrl, getStatelessFormDataUrl, invalidateCookieUrl, redirectToUpgrade } from '../../../../utils/appUrlHelper';
 import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';
-import AttachmentActions from 'src/shared/resources/attachments/attachmentActions';
 
 const appMetaDataSelector =
   (state: IRuntimeState): IApplicationMetadata => state.applicationMetadata.applicationMetadata;
@@ -83,10 +82,7 @@ function* fetchFormDataInitialSaga(): SagaIterator {
 
     const formData = convertModelToDataBinding(fetchedData);
     yield put(FormDataActions.fetchFormDataFulfilled({ formData }));
-
     yield call(FormRulesActions.fetchRuleModel);
-    yield call(AttachmentActions.mapAttachments)
-
     yield call(FormDynamicsActions.fetchFormDynamics);
   } catch (error) {
     yield put(FormDataActions.fetchFormDataRejected({ error }));

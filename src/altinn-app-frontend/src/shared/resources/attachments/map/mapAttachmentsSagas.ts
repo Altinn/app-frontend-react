@@ -1,5 +1,5 @@
 import { SagaIterator } from 'redux-saga';
-import { call, select, takeLatest } from 'redux-saga/effects';
+import { call, select, take, takeLatest } from 'redux-saga/effects';
 import { IData, IInstance } from 'altinn-shared/types';
 import { IAttachments } from '..';
 import { IRuntimeState } from 'src/types';
@@ -9,7 +9,7 @@ import * as AttachmentActionsTypes from '../attachmentActionTypes';
 import { IApplicationMetadata } from '../../applicationMetadata';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
 import { IFormData } from "src/features/form/data/formDataReducer";
-import { ILayouts } from "src/features/form/layout";
+import FormDataActions from "src/features/form/data/formDataActions";
 
 export function* watchMapAttachmentsSaga(): SagaIterator {
   yield takeLatest(AttachmentActionsTypes.MAP_ATTACHMENTS, mapAttachments);
@@ -22,6 +22,8 @@ const SelectApplicationMetaData =
 
 export function* mapAttachments(): SagaIterator {
   try {
+    yield take(FormDataActions.fetchFormDataFulfilled);
+
     const instance = yield select(SelectInstance);
 
     const applicationMetadata = yield select(SelectApplicationMetaData);
@@ -29,11 +31,10 @@ export function* mapAttachments(): SagaIterator {
     const defaultElement = getCurrentTaskData(applicationMetadata, instance);
 
     const formData = yield select((state:IRuntimeState) : IFormData => state.formData.formData);
-    const formLayout = yield select((state:IRuntimeState) : ILayouts => state.formLayout.layouts);
 
     const attachments: IData[] = yield select(selectAttachments);
     const mappedAttachments: IAttachments = mapAttachmentListToAttachments(
-      attachments, defaultElement.id, formData, formLayout
+      attachments, defaultElement.id, formData
     );
 
     yield call(AttachmentDispatcher.mapAttachmentsFulfilled, mappedAttachments);

@@ -40,7 +40,8 @@ export function FileUploadComponent({
   language,
   displayMode,
   hasCustomFileEndings,
-  textResourceBindings
+  textResourceBindings,
+  dataModelBindings,
 }: IFileUploadProps) {
   const reducer:ReducerType = (state, action) => {
     if (action.type === 'replace') {
@@ -114,7 +115,7 @@ export function FileUploadComponent({
       );
     } else {
       // we should upload all files, if any rejected files we should display an error
-      acceptedFiles.forEach((file: File) => {
+      acceptedFiles.forEach((file: File, index) => {
         if (
           attachments.length + newFiles.length <
           maxNumberOfAttachments
@@ -134,6 +135,8 @@ export function FileUploadComponent({
             fileType,
             tmpId,
             id,
+            dataModelBindings,
+            attachments.length + index
           );
         }
       });
