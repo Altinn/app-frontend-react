@@ -84,7 +84,7 @@ export interface IGridStyling {
 }
 
 export interface IGroupEditProperties {
-  mode?: 'hideTable' | 'showTable' | 'showAll';
+  mode?: 'hideTable' | 'showTable' | 'showAll' | 'likert';
   filter?: IGroupFilter[];
   addButton?: boolean;
   saveButton?: boolean;

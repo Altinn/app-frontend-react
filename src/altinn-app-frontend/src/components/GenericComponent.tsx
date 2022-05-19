@@ -46,6 +46,7 @@ export interface IGenericComponentProps {
   grid?: IGrid;
   triggers?: Triggers[];
   hidden?: boolean;
+  likertDisplay?: 'desktop' | 'mobile';
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -56,40 +57,40 @@ const useStyles = makeStyles((theme) => ({
   },
   xs: {
     'border-bottom': '1px dashed #949494',
-    '& > div:nth-child(2)':{
-      paddingLeft: theme.spacing(3/2) // Half the spacing of <Grid in <Form
-    }
+    '& > div:nth-child(2)': {
+      paddingLeft: theme.spacing(3 / 2), // Half the spacing of <Grid in <Form
+    },
   },
   sm: {
     [theme.breakpoints.up('sm')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
-      }
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2),
+      },
     },
   },
   md: {
     [theme.breakpoints.up('md')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
-      }
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2),
+      },
     },
   },
   lg: {
     [theme.breakpoints.up('lg')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
-      }
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2),
+      },
     },
   },
   xl: {
     [theme.breakpoints.up('xl')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
-      }
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2),
+      },
     },
   },
 }));
@@ -121,10 +122,11 @@ export function GenericComponent(props: IGenericComponentProps) {
     (state) => state.textResources.resources,
   );
 
-  const texts = useAppSelector(state =>
+  const texts = useAppSelector((state) =>
     selectComponentTexts(
       state.textResources.resources,
       props.textResourceBindings,
+      props.likertDisplay !== undefined,
     ),
   );
 
@@ -147,7 +149,11 @@ export function GenericComponent(props: IGenericComponentProps) {
     return null;
   }
 
-  const handleDataUpdate = (value: string, key = 'simpleBinding', skipValidation = false) => {
+  const handleDataUpdate = (
+    value: string,
+    key = 'simpleBinding',
+    skipValidation = false,
+  ) => {
     if (!props.dataModelBindings || !props.dataModelBindings[key]) {
       return;
     }
@@ -177,7 +183,7 @@ export function GenericComponent(props: IGenericComponentProps) {
         field: dataModelBinding,
         data: value,
         componentId: props.id,
-        skipValidation
+        skipValidation,
       }),
     );
   };
@@ -196,7 +202,8 @@ export function GenericComponent(props: IGenericComponentProps) {
       props.type === 'AddressComponent' ||
       props.type === 'Datepicker' ||
       props.type === 'FileUpload' ||
-      props.type === 'FileUploadWithTag'
+      props.type === 'FileUploadWithTag' ||
+      (props.type === 'RadioButtons' && props.likertDisplay === 'desktop')
     ) {
       return componentValidations;
     }
@@ -304,6 +311,16 @@ export function GenericComponent(props: IGenericComponentProps) {
     'NavigationBar',
   ];
 
+  const showValidationMessages =
+    componentValidationsHandledByGenericComponent(
+      props.dataModelBindings,
+      props.type,
+    ) && hasValidationMessages;
+
+  if (props.likertDisplay === 'desktop') {
+    return <RenderComponent.Tag {...componentProps} />;
+  }
+
   return (
     <Grid
       item={true}
@@ -351,12 +368,7 @@ export function GenericComponent(props: IGenericComponentProps) {
         xl={props.grid?.innerGrid?.xl || false}
       >
         <RenderComponent.Tag {...componentProps} />
-
-        {componentValidationsHandledByGenericComponent(
-          props.dataModelBindings,
-          props.type,
-        ) &&
-          hasValidationMessages &&
+        {showValidationMessages &&
           renderValidationMessagesForComponent(
             componentValidations?.simpleBinding,
             props.id,

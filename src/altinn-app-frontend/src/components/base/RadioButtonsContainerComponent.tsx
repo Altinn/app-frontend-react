@@ -4,7 +4,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio, { RadioProps } from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import { makeStyles } from '@material-ui/core/styles';
-import { FormLabel } from '@material-ui/core';
+import { Box, FormLabel, TableCell, TableRow } from '@material-ui/core';
 import cn from 'classnames';
 
 import { renderValidationMessagesForComponent } from '../../utils/render';
@@ -26,6 +26,7 @@ export interface IRadioButtonsContainerProps extends IComponentProps {
   mapping?: IMapping;
   layout?: LayoutStyle;
   source?: IOptionSource;
+  likertDisplay?: 'desktop' | 'mobile';
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -92,6 +93,8 @@ export const RadioButtonContainerComponent = ({
   validationMessages,
   mapping,
   source,
+  likertDisplay,
+  componentValidations,
 }: IRadioButtonsContainerProps) => {
   const classes = useStyles();
 
@@ -141,50 +144,105 @@ export const RadioButtonContainerComponent = ({
 
   const RenderLegend = legend;
 
-  return (
-    <FormControl component='fieldset'>
-      <FormLabel component='legend' classes={{ root: cn(classes.legend) }}>
-        <RenderLegend />
-      </FormLabel>
-      {fetchingOptions ? (
-        <AltinnSpinner />
-      ) : (
-        <RadioGroup
-          aria-label={title}
-          name={title}
-          value={selected}
-          onBlur={handleBlur}
-          onChange={handleChange}
-          row={shouldUseRowLayout({
-            layout,
-            optionsCount: calculatedOptions.length,
-          })}
-          id={id}
-        >
-          {calculatedOptions.map((option: any, index: number) => (
-            <React.Fragment key={index}>
-              <FormControlLabel
-                control={
+  switch (likertDisplay) {
+    case 'desktop': {
+      const rowLabelId = `row-label-${id}`;
+      return (
+        <TableRow role={'radiogroup'} aria-labelledby={rowLabelId}>
+          <TableCell
+            scope='row'
+            id={rowLabelId}
+            style={{ whiteSpace: 'normal' }}
+          >
+            <Box pt={1} pb={1}>
+              <RenderLegend />
+              {renderValidationMessagesForComponent(
+                componentValidations?.simpleBinding,
+                id,
+              )}
+            </Box>
+          </TableCell>
+          {calculatedOptions?.map((option, colIndex) => {
+            // column label must reference correct id of header in table
+            const colLabelId = `col-label-${colIndex}`;
+            const inputId = `input-${id}-${colIndex}`;
+            const isChecked = selected === option.value;
+            return (
+              <TableCell key={option.value}>
+                <label
+                  htmlFor={inputId}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                  }}
+                >
                   <StyledRadio
-                    autoFocus={shouldFocus && selected === option.value}
+                    inputProps={{
+                      'aria-labelledby': `${rowLabelId} ${colLabelId}`,
+                      id: inputId,
+                      role: 'radio',
+                      name: rowLabelId,
+                      'aria-checked': isChecked,
+                    }}
+                    checked={isChecked}
+                    onChange={handleChange}
+                    value={option.value}
                   />
-                }
-                label={getTextResource(option.label)}
-                value={option.value}
-                classes={{ root: cn(classes.margin) }}
-              />
-              {validationMessages &&
-                selected === option.value &&
-                renderValidationMessagesForComponent(
-                  validationMessages.simpleBinding,
-                  id,
-                )}
-            </React.Fragment>
-          ))}
-        </RadioGroup>
-      )}
-    </FormControl>
-  );
+                </label>
+              </TableCell>
+            );
+          })}
+        </TableRow>
+      );
+    }
+    case 'mobile':
+    default:
+      return (
+        <FormControl component='fieldset'>
+          <FormLabel component='legend' classes={{ root: cn(classes.legend) }}>
+            <RenderLegend />
+          </FormLabel>
+          {fetchingOptions ? (
+            <AltinnSpinner />
+          ) : (
+            <RadioGroup
+              aria-label={title}
+              name={title}
+              value={selected}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              row={shouldUseRowLayout({
+                layout,
+                optionsCount: calculatedOptions.length,
+              })}
+              id={id}
+            >
+              {calculatedOptions.map((option: any, index: number) => (
+                <React.Fragment key={index}>
+                  <FormControlLabel
+                    control={
+                      <StyledRadio
+                        autoFocus={shouldFocus && selected === option.value}
+                      />
+                    }
+                    label={getTextResource(option.label)}
+                    value={option.value}
+                    classes={{ root: cn(classes.margin) }}
+                  />
+                  {validationMessages &&
+                    selected === option.value &&
+                    renderValidationMessagesForComponent(
+                      validationMessages.simpleBinding,
+                      id,
+                    )}
+                </React.Fragment>
+              ))}
+            </RadioGroup>
+          )}
+        </FormControl>
+      );
+  }
 };
 
 const StyledRadio = (radioProps: RadioProps) => {

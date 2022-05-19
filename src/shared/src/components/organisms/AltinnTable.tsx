@@ -4,21 +4,28 @@ import React from 'react';
 export interface IAltinnTableProps {
   children: React.ReactNode;
   id: string;
+  tableLayout?: 'fixed' | 'auto';
+  wordBreak?: 'break-word' | 'normal';
 }
 
-const useStyles = makeStyles({
-  table: {
-    tableLayout: 'fixed',
-    marginBottom: '12px',
-    wordBreak: 'break-word',
-  },
+const useStyles = makeStyles(() => {
+  return {
+    table: ({
+      tableLayout = 'fixed',
+      wordBreak = 'break-word',
+    }: IAltinnTableProps) => {
+      return {
+        tableLayout: tableLayout,
+        marginBottom: '12px',
+        wordBreak,
+      };
+    },
+  };
 });
 
 export default function AltinnTable(props: IAltinnTableProps) {
-  const {
-    id, children,
-  } = props;
-  const classes = useStyles();
+  const { id, children } = props;
+  const classes = useStyles(props);
   return (
     <TableContainer component={Grid} id={`${id}-container`}>
       <Table className={classes.table} id={id}>
