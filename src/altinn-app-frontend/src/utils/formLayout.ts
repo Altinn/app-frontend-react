@@ -210,10 +210,10 @@ export function removeRepeatingGroupFromUIConfig(
 
 export const getRepeatingGroupStartStopIndex = (
   repeatingGroupIndex: number,
-  edit: IGroupEditProperties,
+  edit: IGroupEditProperties | undefined,
 ) => {
-  const start = edit?.filter.find(({ key }) => key === 'start')?.value;
-  const stop = edit?.filter.find(({ key }) => key === 'stop')?.value;
+  const start = edit?.filter?.find(({ key }) => key === 'start')?.value;
+  const stop = edit?.filter?.find(({ key }) => key === 'stop')?.value;
   const startIndex = start ? parseInt(start) : 0;
   const stopIndex = stop ? parseInt(stop) - 1 : repeatingGroupIndex;
   return { startIndex, stopIndex };

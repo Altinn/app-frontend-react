@@ -4,12 +4,12 @@ import { render, waitFor } from '@testing-library/react';
 import axios, { AxiosError } from 'axios';
 import { createStore } from 'redux';
 import { MemoryRouter } from 'react-router-dom';
-
 import { getInitialStateMock } from '../../../__mocks__/initialStateMock';
-import type { IRuntimeState } from '../../types';
-
-import { IApplicationMetadata } from '../../shared/resources/applicationMetadata';
+import type { IRuntimeState } from 'src/types';
+import { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import Entrypoint from './Entrypoint';
+import { createTheme, ThemeProvider } from '@material-ui/core';
+import { AltinnAppTheme } from 'altinn-shared/theme';
 
 jest.mock('axios');
 
@@ -132,7 +132,9 @@ describe('features > entrypoint > Entrypoint.tsx', () => {
 
     const rendered = render(
       <Provider store={mockStore}>
-        <Entrypoint />
+        <ThemeProvider theme={createTheme(AltinnAppTheme)}>
+          <Entrypoint />
+        </ThemeProvider>
       </Provider>,
     );
 

@@ -6,11 +6,14 @@ import type {
   ILayoutGroup,
   ISelectionComponentProps,
 } from '../layout';
-import type { IOption, ITextResource } from '../../../types';
+import type { IOption, ITextResource } from 'src/types';
 import type { ILayoutState } from '../layout/formLayoutSlice';
 
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { RepeatingGroupTable } from './RepeatingGroupTable';
+import { createTheme } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/styles';
+import { AltinnAppTheme } from 'altinn-shared/theme';
 
 describe('features > form > containers > RepeatingGroupTable.tsx', () => {
   let mockContainer: ILayoutGroup;
@@ -134,24 +137,28 @@ describe('features > form > containers > RepeatingGroupTable.tsx', () => {
 
   it('should match snapshot', () => {
     const { asFragment } = render(
-      <RepeatingGroupTable
-        container={mockContainer}
-        language={mockLanguage}
-        textResources={mockTextResources}
-        components={mockComponents}
-        currentView={mockCurrentView}
-        editIndex={-1}
-        formData={mockData}
-        hiddenFields={[]}
-        id={mockContainer.id}
-        layout={mockLayout.layouts[mockCurrentView]}
-        options={{}}
-        repeatingGroupDeepCopyComponents={mockRepeatingGroupDeepCopyComponents}
-        repeatingGroupIndex={repeatingGroupIndex}
-        repeatingGroups={mockLayout.uiConfig.repeatingGroups}
-        setEditIndex={jest.fn()}
-        validations={{}}
-      />,
+      <ThemeProvider theme={createTheme(AltinnAppTheme)}>
+        <RepeatingGroupTable
+          container={mockContainer}
+          language={mockLanguage}
+          textResources={mockTextResources}
+          components={mockComponents}
+          currentView={mockCurrentView}
+          editIndex={-1}
+          formData={mockData}
+          hiddenFields={[]}
+          id={mockContainer.id}
+          layout={mockLayout.layouts[mockCurrentView]}
+          options={{}}
+          repeatingGroupDeepCopyComponents={
+            mockRepeatingGroupDeepCopyComponents
+          }
+          repeatingGroupIndex={repeatingGroupIndex}
+          repeatingGroups={mockLayout.uiConfig.repeatingGroups}
+          setEditIndex={jest.fn()}
+          validations={{}}
+        />
+      </ThemeProvider>,
     );
     expect(asFragment()).toMatchSnapshot();
   });
