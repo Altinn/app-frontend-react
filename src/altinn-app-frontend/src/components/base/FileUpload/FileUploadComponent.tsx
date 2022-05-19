@@ -23,11 +23,6 @@ export interface IFileUploadProps extends IFileUploadGenericProps {
 export const bytesInOneMB = 1048576;
 export const emptyArray = [];
 
-type ReducerType = React.Reducer<IAttachment[],
-  { type: 'replace', value: IAttachment[] } |
-  { type: 'add', value: IAttachment } |
-  { type: 'delete', index: number }>;
-
 export function FileUploadComponent({
   id,
   baseComponentId,
@@ -43,38 +38,10 @@ export function FileUploadComponent({
   textResourceBindings,
   dataModelBindings,
 }: IFileUploadProps) {
-  const reducer:ReducerType = (state, action) => {
-    if (action.type === 'replace') {
-      return action.value;
-    }
-
-    if (action.type === 'add') {
-      return state.concat(action.value);
-    }
-
-    if (action.type === 'delete') {
-      const attachmentToDelete = state[action.index];
-      if (!attachmentToDelete.uploaded) {
-        return state;
-      }
-      attachmentToDelete.deleting = true;
-      const newList = state.slice();
-      newList[action.index] = attachmentToDelete;
-      return newList;
-    }
-    return state;
-  };
-
-  const [attachments, dispatch] = React.useReducer(reducer, []);
+  const attachments: IAttachment[] = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
   const [validations, setValidations] = React.useState([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
-
-  const currentAttachments: IAttachment[] = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
-
-  React.useEffect(() => {
-    dispatch({ type: 'replace', value: currentAttachments });
-  }, [currentAttachments]);
 
   const getComponentValidations = (): IComponentValidations => {
     const validationMessages = {
@@ -184,7 +151,6 @@ export function FileUploadComponent({
   const handleDeleteFile = (index: number) => {
     const attachmentToDelete = attachments[index];
     const fileType = baseComponentId || id;
-    dispatch({ type: 'delete', index });
     AttachmentDispatcher.deleteAttachment(
       attachmentToDelete,
       fileType,
