@@ -75,7 +75,8 @@
     "fork-ts-checker-notifier-webpack-plugin": "6.0.0",
     "fork-ts-checker-webpack-plugin": "^7.2.11",
     "html-react-parser": "^1.4.12",
-    "jest": "^27.5.1",
+    "jest": "^28.1.0",
+    "jest-environment-jsdom": "^28.1.0",
     "jest-junit": "^13.2.0",
     "mini-css-extract-plugin": "^2.6.0",
     "msw": "^0.40.0",
@@ -89,7 +90,7 @@
     "source-map-loader": "^3.0.1",
     "style-loader": "^3.3.1",
     "terser-webpack-plugin": "^5.3.1",
-    "ts-jest": "^27.1.5",
+    "ts-jest": "^28.0.2",
     "ts-loader": "^9.3.0",
     "webpack": "^5.72.1",
     "webpack-cli": "^4.9.2",
@@ -109,7 +110,8 @@
       "\\./applicationMetadataMock.json": "<rootDir>/__mocks__/applicationMetadataMock.json",
       "^altinn-shared/(.*)$": "<rootDir>/../shared/src/$1",
       "^src/(.*)$": "<rootDir>/src/$1",
-      "^__mocks__/(.*)$": "<rootDir>/__mocks__/$1"
+      "^__mocks__/(.*)$": "<rootDir>/__mocks__/$1",
+      "^uuid$": "<rootDir>/../node_modules/uuid/dist/index.js"
     },
     "testRegex": "(/__tests__/.*|.*.(test|spec)).(ts|tsx|js|jsx)$",
     "moduleFileExtensions": [
@@ -128,7 +130,9 @@
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
     ],
-    "testEnvironment": "jsdom",
-    "testURL": "https://altinn3local.no/ttd/test"
+    "testEnvironmentOptions": {
+      "url": "https://altinn3local.no/ttd/test"
+    },
+    "testEnvironment": "jsdom"
   }
 }
