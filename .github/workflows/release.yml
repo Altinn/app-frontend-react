@@ -1,16 +1,7 @@
-name: Create release
+name: Publish to CDN
 on:
-  workflow_dispatch:
-    inputs:
-      release_type:
-        description: "The type of release (one of 'patch', 'minor', or 'major')"
-        required: true
-        default: patch
-        type: choice
-        options:
-        - patch
-        - minor
-        - major
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -32,15 +23,6 @@ jobs:
       - name: install dependencies
         working-directory: app-frontend/src
         run: yarn --immutable
-
-      - name: Create version tag
-        working-directory: scripts
-        # This step runs if the trigger is run via github action
-        if: ${{ ! github.event.after }}
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          ./bump-version.sh -v ${{ github.event.inputs.release_type }}
 
       - name: run build
         working-directory: app-frontend/src/altinn-app-frontend
