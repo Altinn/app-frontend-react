@@ -1,9 +1,10 @@
 /* eslint-disable max-len */
 import { object } from 'dot-object';
 import { ILayout, ILayoutGroup } from 'src/features/form/layout';
-import { IMapping, IRepeatingGroup } from 'src/types';
+import { IMapping, IRepeatingGroup, IDataModelBindings } from 'src/types';
 import { getParentGroup } from './validation';
 import { IFormData } from 'src/features/form/data/formDataReducer';
+import { IAttachments } from "src/shared/resources/attachments";
 
 /**
  * Converts the formdata in store (that is flat) to a JSON
@@ -115,6 +116,28 @@ export function removeGroupData(
     for (let i = index + 1; i <= repeatingGroup.index + 1; i++) {
       deleteGroupData(result, groupDataModelBinding, i, true);
     }
+  }
+
+  return result;
+}
+
+export function removeAttachmentReference(
+  formData: IFormData,
+  index: number,
+  layout: ILayout,
+  attachments: IAttachments,
+  dataModelBindings: IDataModelBindings,
+  componentId: string,
+):IFormData {
+  if (!dataModelBindings || !dataModelBindings.simpleBinding) {
+    return formData;
+  }
+
+  const result = { ...formData };
+  deleteGroupData(result, dataModelBindings.simpleBinding, index);
+
+  for (let laterIdx = index + 1; laterIdx <= attachments[componentId].length - 1; laterIdx++) {
+    deleteGroupData(result, dataModelBindings.simpleBinding, laterIdx, true);
   }
 
   return result;

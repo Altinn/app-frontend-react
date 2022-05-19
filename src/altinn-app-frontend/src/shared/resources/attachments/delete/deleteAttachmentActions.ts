@@ -1,11 +1,14 @@
-import { Action } from 'redux';
-import { IAttachment } from '..';
+import type { Action } from 'redux';
+import type { IAttachment } from '..';
 import * as ActionTypes from '../attachmentActionTypes';
+import type { IDataModelBindings } from "src/types";
 
 export interface IDeleteAttachmentAction extends Action {
   attachment: IAttachment;
   attachmentType: string;
   componentId: string;
+  dataModelBindings: IDataModelBindings;
+  index: number,
 }
 
 export interface IDeleteAttachmentActionFulfilled extends Action {
@@ -24,12 +27,16 @@ export function deleteAttachment(
   attachment: IAttachment,
   attachmentType: string,
   componentId: string,
+  dataModelBindings: IDataModelBindings,
+  index: number,
 ): IDeleteAttachmentAction {
   return {
     type: ActionTypes.DELETE_ATTACHMENT,
     attachment,
     attachmentType,
     componentId,
+    dataModelBindings,
+    index,
   };
 }
 

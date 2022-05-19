@@ -8,6 +8,7 @@ import { dataElementUrl } from '../../../../utils/appUrlHelper';
 import AttachmentDispatcher from '../attachmentActions';
 import * as AttachmentActionsTypes from '../attachmentActionTypes';
 import * as deleteActions from './deleteAttachmentActions';
+import FormDataActions from "src/features/form/data/formDataActions";
 
 export function* watchDeleteAttachmentSaga(): SagaIterator {
   yield takeEvery(AttachmentActionsTypes.DELETE_ATTACHMENT, deleteAttachmentSaga);
@@ -17,10 +18,12 @@ export function* deleteAttachmentSaga({
   attachment,
   attachmentType,
   componentId,
+  dataModelBindings,
+  index,
 }: deleteActions.IDeleteAttachmentAction): SagaIterator {
-  const state: IRuntimeState = yield select();
-  const currentView = state.formLayout.uiConfig.currentView;
-  const language = state.language.language;
+  const language = yield select((s:IRuntimeState) => s.language.language);
+  const currentView:string = yield select((s:IRuntimeState) => s.formLayout.uiConfig.currentView);
+
   try {
     // Sets validations to empty.
     const newValidations = getFileUploadComponentValidations(null, null);
@@ -32,6 +35,13 @@ export function* deleteAttachmentSaga({
 
     const response: any = yield call(httpDelete, dataElementUrl(attachment.id));
     if (response.status === 200) {
+      if (dataModelBindings) {
+        yield put(FormDataActions.deleteAttachmentReference({
+          componentId,
+          index,
+          dataModelBindings,
+        }));
+      }
       yield call(AttachmentDispatcher.deleteAttachmentFulfilled, attachment.id, attachmentType, componentId);
     } else {
       const validations = getFileUploadComponentValidations('delete', language);

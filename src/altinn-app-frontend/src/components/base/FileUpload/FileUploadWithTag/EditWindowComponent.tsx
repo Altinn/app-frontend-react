@@ -59,7 +59,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   const classes = useStyles();
 
   const handleDeleteFile = () => {
-    AttachmentDispatcher.deleteAttachment(props.attachment, props.id, props.id);
+    AttachmentDispatcher.deleteAttachment(props.attachment, props.id, props.id, {}, 0);
     props.setEditIndex(-1);
   };
 

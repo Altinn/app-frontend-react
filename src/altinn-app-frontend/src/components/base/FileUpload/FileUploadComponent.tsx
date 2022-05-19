@@ -189,6 +189,8 @@ export function FileUploadComponent({
       attachmentToDelete,
       fileType,
       id,
+      dataModelBindings,
+      index,
     );
   };
 
