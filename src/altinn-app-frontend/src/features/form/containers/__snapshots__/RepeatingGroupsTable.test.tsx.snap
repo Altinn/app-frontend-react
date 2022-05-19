@@ -12,62 +12,67 @@ exports[`features > form > containers > RepeatingGroupTable.tsx should match sna
       id="group-mock-container-id-table-container"
     >
       <table
-        class="MuiTable-root makeStyles-table-1"
+        class="MuiTable-root makeStyles-table-4"
         id="group-mock-container-id-table"
       >
         <thead
-          class="MuiTableHead-root makeStyles-tableHeader-3"
+          class="MuiTableHead-root makeStyles-tableHeader-6"
           id="group-mock-container-id-table-header"
         >
           <tr
-            class="MuiTableRow-root"
+            class="MuiTableRow-root MuiTableRow-head"
           >
-            <td
-              class="MuiTableCell-root MuiTableCell-alignLeft"
+            <th
+              class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft"
+              scope="col"
             >
               Title1
-            </td>
-            <td
-              class="MuiTableCell-root MuiTableCell-alignLeft"
+            </th>
+            <th
+              class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft"
+              scope="col"
             >
               Title2
-            </td>
-            <td
-              class="MuiTableCell-root MuiTableCell-alignLeft"
+            </th>
+            <th
+              class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft"
+              scope="col"
             >
               Title3
-            </td>
-            <td
-              class="MuiTableCell-root MuiTableCell-alignLeft"
+            </th>
+            <th
+              class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft"
+              scope="col"
             >
               Title4
-            </td>
-            <td
-              class="MuiTableCell-root"
+            </th>
+            <th
+              class="MuiTableCell-root MuiTableCell-head"
+              scope="col"
             />
           </tr>
         </thead>
         <tbody
-          class="MuiTableBody-root makeStyles-tableBody-4"
+          class="MuiTableBody-root makeStyles-tableBody-7"
           id="group-mock-container-id-table-body"
         >
           <tr
             class="MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-alignRight"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root makeStyles-tableEditButton-3"
@@ -92,19 +97,19 @@ exports[`features > form > containers > RepeatingGroupTable.tsx should match sna
             class="MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-alignRight"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root makeStyles-tableEditButton-3"
@@ -129,19 +134,19 @@ exports[`features > form > containers > RepeatingGroupTable.tsx should match sna
             class="MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-alignRight"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root makeStyles-tableEditButton-3"
@@ -166,19 +171,19 @@ exports[`features > form > containers > RepeatingGroupTable.tsx should match sna
             class="MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-alignRight"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root makeStyles-tableEditButton-3"
