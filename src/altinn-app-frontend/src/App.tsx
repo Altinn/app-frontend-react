@@ -31,7 +31,9 @@ export const App = () => {
   const lastRefreshTokenTimestamp = React.useRef(0);
 
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
-  const anonymous = useAppSelector(allowAnonymousSelector);
+  const allowAnonymous = useAppSelector(allowAnonymousSelector);
+
+  const [ready, setReady] = React.useState(false);
 
   React.useEffect(() => {
     function setUpEventListeners() {
@@ -66,7 +68,12 @@ export const App = () => {
       }
     }
 
-    if (anonymous === false) {
+    if (allowAnonymous !== undefined) {
+      // Page is ready to be rendered once allowAnonymous value has been determined
+      setReady(true);
+    }
+
+    if (allowAnonymous === false) {
       refreshJwtToken();
       dispatch(startInitialUserTaskQueue());
       setUpEventListeners();
@@ -76,7 +83,7 @@ export const App = () => {
       };
     }
 
-  }, [anonymous, dispatch, appOidcProvider]);
+  }, [allowAnonymous, dispatch, appOidcProvider]);
 
   React.useEffect(() => {
     dispatch(startInitialAppTaskQueue());
@@ -86,10 +93,16 @@ export const App = () => {
     return <UnknownError />;
   }
 
+  if (!ready) {
+    return null;
+  }
+
   return (
     <MuiThemeProvider theme={theme}>
       <Switch>
-        <Route path='/' exact={true} component={Entrypoint} />
+        <Route path='/' exact={true}>
+          <Entrypoint allowAnonymous={allowAnonymous} />
+        </Route>
         <Route
           path='/partyselection/:errorCode?'
           exact={true}
