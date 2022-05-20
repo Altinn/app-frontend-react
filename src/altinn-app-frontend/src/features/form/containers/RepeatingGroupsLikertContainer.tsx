@@ -1,9 +1,4 @@
-import {
-  ILayout,
-  ILayoutComponent,
-  ILayoutGroup,
-} from 'src/features/form/layout';
-import { ILanguage } from 'altinn-shared/types';
+import { ILayoutComponent } from 'src/features/form/layout';
 import { ITextResource } from 'src/types';
 import * as React from 'react';
 import { TableCell } from '@material-ui/core';
@@ -24,11 +19,8 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 type RepeatingGroupsLikertContainerProps = {
   id: string;
-  container: ILayoutGroup;
   repeatingGroupDeepCopyComponents: ILayoutComponent[];
-  language: ILanguage;
   textResources: ITextResource[];
-  layout: ILayout;
 };
 
 export const RepeatingGroupsLikertContainer = ({

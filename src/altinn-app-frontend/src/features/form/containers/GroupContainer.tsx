@@ -270,13 +270,10 @@ export function GroupContainer({
     return (
       <>
         <RepeatingGroupsLikertContainer
-          container={container}
           id={id}
-          language={language}
           repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents.map(
             (c) => c[0] as ILayoutComponent,
           )}
-          layout={layout}
           textResources={textResources}
         />
         {tableHasErrors && (

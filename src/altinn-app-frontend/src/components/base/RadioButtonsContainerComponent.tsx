@@ -6,8 +6,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, FormLabel, TableCell, TableRow } from '@material-ui/core';
 import cn from 'classnames';
-
-import { renderValidationMessagesForComponent } from '../../utils/render';
+import { renderValidationMessagesForComponent } from 'src/utils/render';
 import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
 import { IComponentProps } from '..';
 import type { IMapping, IOption, IOptionSource } from 'src/types';
@@ -87,7 +86,6 @@ export const RadioButtonContainerComponent = ({
   formData,
   layout,
   legend,
-  title,
   shouldFocus,
   getTextResource,
   validationMessages,
@@ -97,7 +95,6 @@ export const RadioButtonContainerComponent = ({
   componentValidations,
 }: IRadioButtonsContainerProps) => {
   const classes = useStyles();
-
   const selected = formData?.simpleBinding ?? '';
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions = apiOptions || options || defaultArray;
@@ -200,15 +197,19 @@ export const RadioButtonContainerComponent = ({
     default:
       return (
         <FormControl component='fieldset'>
-          <FormLabel component='legend' classes={{ root: cn(classes.legend) }}>
+          <FormLabel
+            component='legend'
+            classes={{ root: cn(classes.legend) }}
+            id={`${id}-label`}
+          >
             <RenderLegend />
           </FormLabel>
           {fetchingOptions ? (
             <AltinnSpinner />
           ) : (
             <RadioGroup
-              aria-label={title}
-              name={title}
+              aria-labelledby={`${id}-label`}
+              name={id}
               value={selected}
               onBlur={handleBlur}
               onChange={handleChange}

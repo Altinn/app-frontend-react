@@ -24,6 +24,8 @@ export interface ILayoutComponent extends ILayoutEntry {
   dataModelBindings: IDataModelBindings;
   isValid?: boolean;
   readOnly?: boolean;
+  optionsId?: string;
+  options?: IOption[];
   disabled?: boolean;
   required?: boolean;
   textResourceBindings: ITextResourceBindings;

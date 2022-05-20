@@ -267,9 +267,10 @@ export const getTextResource = (
     (resource: ITextResource) => resource.id === resourceKey,
   );
   if (tryNesting && textResource) {
-    textResource = textResources.find(
-      (resource: ITextResource) => resource.id === textResource.value,
-    );
+    textResource =
+      textResources.find(
+        (resource: ITextResource) => resource.id === textResource.value,
+      ) || textResource;
   }
 
   return textResource
@@ -293,7 +294,6 @@ export function selectComponentTexts(
       );
     });
   }
-
   return result;
 }
 
