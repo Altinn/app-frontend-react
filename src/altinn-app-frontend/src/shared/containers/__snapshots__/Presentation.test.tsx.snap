@@ -216,7 +216,7 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
                 />
               </span>
               <span
-                className="hidden-button-text"
+                className="sr-only"
               >
                 Lukk skjema
               </span>
