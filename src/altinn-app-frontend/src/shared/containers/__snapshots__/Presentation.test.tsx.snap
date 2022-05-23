@@ -22,7 +22,7 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
       className="makeStyles-jumpNav-5"
     >
       <button
-        className="makeStyles-button-4 makeStyles-sr-only-6 makeStyles-sr-only-focusable-7"
+        className="makeStyles-button-4 makeStyles-srOnly-6"
         onClick={[Function]}
         role="link"
       >
@@ -64,7 +64,7 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
           <button
             aria-haspopup="true"
             aria-label="Profil ikon knapp"
-            className="MuiButtonBase-root MuiIconButton-root makeStyles-iconButton-10"
+            className="MuiButtonBase-root MuiIconButton-root makeStyles-iconButton-9"
             disabled={false}
             id="profile-icon-button"
             onBlur={[Function]}

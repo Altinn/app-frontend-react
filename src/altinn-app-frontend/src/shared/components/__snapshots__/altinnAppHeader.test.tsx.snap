@@ -8,7 +8,7 @@ exports[`features/altinnAppHeader.tsx should match snapshot 1`] = `
     className="makeStyles-jumpNav-14"
   >
     <button
-      className="makeStyles-button-13 makeStyles-sr-only-15 makeStyles-sr-only-focusable-16"
+      className="makeStyles-button-13 makeStyles-srOnly-15"
       onClick={[Function]}
       role="link"
     >
