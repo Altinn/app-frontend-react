@@ -3,7 +3,12 @@ import React from "react";
 import cn from 'classnames';
 
 export interface ILandmarkShortcutsProps {
-  navToMainText: string;
+  shortcuts: ILandmarkShortcut[];
+}
+
+interface ILandmarkShortcut {
+  id: string;
+  text: string;
 }
 
 const useStyles = makeStyles({
@@ -39,27 +44,32 @@ const useStyles = makeStyles({
 });
 
 export function LandmarkShortcuts({
-  navToMainText,
+  shortcuts,
 }: ILandmarkShortcutsProps) {
   const classes = useStyles();
 
-  const handleClick = () => {
+  const handleClick = (id: string) => {
     // workaround because we still use a hash-router (sigh...)
     // can be replaced by the more elegant solution <a href="#main-content></a> once this is no longer the case.
-    const main = document.getElementById('main-content');
+    const main = document.getElementById(id);
     main.tabIndex = -1;
     main.focus();
   }
 
   return (
     <nav className={cn(classes.jumpNav)}>
-      <button
-        role='link'
-        onClick={handleClick}
-        className={cn(classes.button, classes['sr-only'], classes['sr-only-focusable'])}
-      >
-        {navToMainText}
-      </button>
+      {shortcuts.map((shortcut) => {
+        return (
+          <button
+            key={shortcut.id}
+            role='link'
+            className={cn(classes.button, classes['sr-only'], classes['sr-only-focusable'])}
+            onClick={() => handleClick(shortcut.id)}
+          >
+            {shortcut.text}
+          </button>
+        );
+      })}
     </nav>
   );
 }

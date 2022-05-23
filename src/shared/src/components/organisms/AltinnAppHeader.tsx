@@ -68,7 +68,7 @@ export function AltinnAppHeader({
       classes={{ root: classes.altinnAppHeader }}
       style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
     >
-      <LandmarkShortcuts navToMainText={getLanguageFromKey('navigation.to_main_content', language)} />
+      <LandmarkShortcuts shortcuts={[{ id: 'main-content', text: getLanguageFromKey('navigation.to_main_content', language) }]} />
       <Grid
         container={true}
         className={classes.mainContent}

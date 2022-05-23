@@ -18,7 +18,7 @@ describe('LandmarkShortcuts.tsx', () => {
 
   function renderMainContentNav(props: Partial<ILandmarkShortcutsProps> = {}) {
     const defaultProps: ILandmarkShortcutsProps = {
-      navToMainText: 'Hopp til hovedinnhold'
+      shortcuts: [{text: 'Hopp til hovedinnhold', id: 'main-content'}]
     };
     render(
       <>
