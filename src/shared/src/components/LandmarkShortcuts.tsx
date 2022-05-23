@@ -56,7 +56,7 @@ export function LandmarkShortcuts({
       <button
         role='link'
         onClick={handleClick}
-        className={cn(classes.button, classes["sr-only"], classes["sr-only-focusable"])}
+        className={cn(classes.button, classes['sr-only'], classes['sr-only-focusable'])}
       >
         {navToMainText}
       </button>
