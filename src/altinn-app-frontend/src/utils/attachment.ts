@@ -18,7 +18,7 @@ export function mapAttachmentListToAttachments(
       return;
     }
 
-    let [key, index] = convertToComponentId(
+    let [key, index] = convertToDashedComponentId(
       baseComponentId,
       formData,
       element.id,
@@ -47,13 +47,13 @@ export function mapAttachmentListToAttachments(
   return attachments;
 }
 
-function convertToComponentId(
+function convertToDashedComponentId(
   baseComponentId: string,
   formData: IFormData,
-  attachmentId: string,
+  attachmentUuid: string,
 ): [string, number] {
   const formDataKey = Object.keys(formData).find(
-    (key) => formData[key] === attachmentId,
+    (key) => formData[key] === attachmentUuid,
   );
 
   if (!formDataKey) {
