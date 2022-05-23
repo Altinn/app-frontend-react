@@ -1,9 +1,10 @@
 import React from 'react';
 import NavBar, { INavBarProps } from './NavBar';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { getLanguageFromCode } from 'altinn-shared/language';
 import userEvent from '@testing-library/user-event';
 import { IAppLanguage } from 'altinn-shared/types';
+import { renderWithProviders } from '../../../testUtils';
 
 const renderNavBar = (props?: Partial<INavBarProps>) => {
   const mockClose = jest.fn();
@@ -17,7 +18,7 @@ const renderNavBar = (props?: Partial<INavBarProps>) => {
       language: 'en',
     },
   ];
-  render(
+  renderWithProviders(
     <NavBar
       language={getLanguageFromCode('nb')}
       handleClose={mockClose}
@@ -36,13 +37,15 @@ describe('components/presentation/NavBar.tsx', () => {
   it('should render close button', async () => {
     const { mockClose } = renderNavBar();
     const closeButton = screen.getByRole('button', { name: /Lukk Skjema/i });
+    // Should not render back button
+    expect(screen.queryAllByRole('button')).toHaveLength(1);
     await userEvent.click(closeButton);
     expect(mockClose).toHaveBeenCalled();
   });
 
   it('should hide close button', () => {
     renderNavBar({ hideCloseButton: true });
-    expect(screen.queryByRole('button', { name: /Lukk Skjema/i })).toBeNull();
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
   it('should render back button', async () => {
@@ -51,20 +54,16 @@ describe('components/presentation/NavBar.tsx', () => {
     await userEvent.click(backButton);
     expect(mockBack).toHaveBeenCalled();
   });
-  it('should not render back button', async () => {
-    renderNavBar();
-    expect(screen.queryByRole('button', { name: /Tilbake/i })).toBeNull();
-  });
   it('should render app language', async () => {
     const { mockAppLanguageChange } = renderNavBar({
       showLanguageSelector: true,
     });
     const dropdown = screen.getByRole('combobox', { name: /Språk/i });
-    await userEvent.selectOptions(dropdown, 'English');
+    await userEvent.selectOptions(dropdown, 'en');
     expect(mockAppLanguageChange).toHaveBeenCalledWith('en');
   });
   it('should not render app language combobox', async () => {
     renderNavBar();
-    expect(screen.queryByRole('combobox', { name: /Språk/i })).toBeNull();
+    expect(screen.queryAllByRole('combobox')).toHaveLength(0);
   });
 });

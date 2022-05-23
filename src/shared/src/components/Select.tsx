@@ -41,31 +41,31 @@ const Select = ({
 }: ISelectProps) => {
   const classes = useStyles();
   return (
-      <select
-        id={id}
-        value={value}
-        disabled={disabled}
-        className={cn(
-          classes.select,
-          'custom-select a-custom-select',
-          {
-            'validation-error': error,
-            'disabled !important': disabled,
-          },
-          className,
-        )}
-        style={{ width: fullWidth ? '100%' : 'unset' }}
-        onChange={onChange}
-        onBlur={onBlur}
-      >
-        <option style={optionStyle} />
-        {options.map((option, index) => (
-          <option key={index} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+    <select
+      id={id}
+      value={value}
+      disabled={disabled}
+      className={cn(
+        classes.select,
+        'custom-select a-custom-select',
+        {
+          'validation-error': error,
+          'disabled !important': !disabled,
+        },
+        className,
+      )}
+      style={{ width: fullWidth ? '100%' : 'unset' }}
+      onChange={onChange}
+      onBlur={onBlur}
+    >
+      <option style={optionStyle} />
+      {options.map((option, index) => (
+        <option key={index} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
   );
 };
 
-export default Select
+export default Select;

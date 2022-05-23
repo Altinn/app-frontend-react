@@ -1,14 +1,14 @@
 import { SagaIterator } from 'redux-saga';
-import { all, call, put, take } from 'redux-saga/effects';
-import { get } from '../../../../utils/networking';
-import { appLanguagesUrl } from '../../../../utils/appUrlHelper';
+import { call, put, take } from 'redux-saga/effects';
+import { get } from 'src/utils/networking';
+import { appLanguagesUrl } from 'src/utils/appUrlHelper';
 import AppLanguagesActions from '../appLanguagesActions';
 import { appTaskQueueError } from '../../queue/queueSlice';
 import { FETCH_APP_LANGUAGES } from './fetchAppLanguagesActionTypes';
 
 function* fetchAppLanguages(): SagaIterator {
   try {
-    const resource = yield call(get, appLanguagesUrl())
+    const resource = yield call(get, appLanguagesUrl());
     yield call(AppLanguagesActions.fetchAppLanguagesFulfilled, resource);
   } catch (error) {
     yield call(AppLanguagesActions.fetchAppLanguagesRejected, error);
@@ -17,8 +17,6 @@ function* fetchAppLanguages(): SagaIterator {
 }
 
 export function* watchFetchAppLanguagesSaga(): SagaIterator {
-  yield all([
-    take(FETCH_APP_LANGUAGES),
-  ]);
+  take(FETCH_APP_LANGUAGES);
   yield call(fetchAppLanguages);
 }
