@@ -113,7 +113,7 @@ const AltinnAppHeader = ({
   type,
   profile,
   language,
-} : IHeaderProps) => {
+}: IHeaderProps) => {
   const party = profile ? profile.party : null;
   return (
     <div className={classes.appBarWrapper}>
@@ -133,7 +133,7 @@ const AltinnAppHeader = ({
               }
             />
           </Grid>
-          {type && (
+          {type && party && (
             <ul className={classes.headerLinkList}>
               <li className={classes.headerLink}>
                 <a
@@ -162,47 +162,46 @@ const AltinnAppHeader = ({
               </li>
             </ul>
           )}
-          <div className='a-personSwitcher' title={renderParty(profile)}>
-            <span className='a-personSwitcher-name' style={spanStyle}>
-              {!type && (
-                <>
-                  <span
-                    className={`d-block ${
-                      type ? classes.blueDark : classes.blueDarker
+          {party &&
+            <div className='a-personSwitcher' title={renderParty(profile)}>
+              <span className='a-personSwitcher-name' style={spanStyle}>
+                {!type && (
+                  <>
+                    <span
+                      className={`d-block ${type ? classes.blueDark : classes.blueDarker
+                        }`}
+                    >
+                      {renderParty(profile)}
+                    </span>
+                    <span
+                      className={type ? classes.blueDark : classes.blueDarker}
+                    >
+                      {party &&
+                        party.organisation &&
+                        `${getLanguageFromKey(
+                          'general.for',
+                          language,
+                        )} ${party.organisation.name.toUpperCase()}`}
+                    </span>
+                  </>
+                )}
+                <span className='d-block' />
+              </span>
+              {party && party.organisation ? (
+                <i
+                  className={`fa fa-corp-circle-big ${classes.partyIcon} ${type ? classes.blueDark : classes.blueDarker
                     }`}
-                  >
-                    {renderParty(profile)}
-                  </span>
-                  <span
-                    className={type ? classes.blueDark : classes.blueDarker}
-                  >
-                    {party &&
-                      party.organisation &&
-                      `${getLanguageFromKey(
-                        'general.for',
-                        language,
-                      )} ${party.organisation.name.toUpperCase()}`}
-                  </span>
-                </>
+                  aria-hidden='true'
+                />
+              ) : (
+                <i
+                  className={`fa fa-private-circle-big ${classes.partyIcon} ${type ? classes.blueDark : classes.blueDarker
+                    }`}
+                  aria-hidden='true'
+                />
               )}
-              <span className='d-block' />
-            </span>
-            {party && party.organisation ? (
-              <i
-                className={`fa fa-corp-circle-big ${classes.partyIcon} ${
-                  type ? classes.blueDark : classes.blueDarker
-                }`}
-                aria-hidden='true'
-              />
-            ) : (
-              <i
-                className={`fa fa-private-circle-big ${classes.partyIcon} ${
-                  type ? classes.blueDark : classes.blueDarker
-                }`}
-                aria-hidden='true'
-              />
-            )}
-          </div>
+            </div>
+          }
         </Toolbar>
       </AppBar>
     </div>
