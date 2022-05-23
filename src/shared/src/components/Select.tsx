@@ -50,7 +50,7 @@ const Select = ({
         'custom-select a-custom-select',
         {
           'validation-error': error,
-          'disabled !important': !disabled,
+          'disabled !important': disabled,
         },
         className,
       )}

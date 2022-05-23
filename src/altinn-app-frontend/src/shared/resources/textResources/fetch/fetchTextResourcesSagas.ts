@@ -1,19 +1,8 @@
 import { SagaIterator } from 'redux-saga';
 import { IProfile } from 'altinn-shared/types';
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeLatest,
-} from 'redux-saga/effects';
-import { get } from '../../../../utils/networking';
-import {
-  textResourcesUrl,
-  oldTextResourcesUrl,
-} from '../../../../utils/appUrlHelper';
+import { all, call, put, select, take, takeLatest } from 'redux-saga/effects';
+import { get } from 'src/utils/networking';
+import { textResourcesUrl, oldTextResourcesUrl } from 'src/utils/appUrlHelper';
 import TextResourcesActions from '../textResourcesActions';
 import { appTaskQueueError } from '../../queue/queueSlice';
 import { FETCH_TEXT_RESOURCES } from './fetchTextResourcesActionTypes';
@@ -21,12 +10,13 @@ import { FETCH_PROFILE_FULFILLED } from '../../profile/fetch/fetchProfileActionT
 import { FETCH_APPLICATION_METADATA_FULFILLED } from 'src/shared/resources/applicationMetadata/actions/types';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-import { profileStateSelector } from 'src/selectors/simpleSelectors';
-import { IRuntimeState } from 'src/types';
+import {
+  profileStateSelector,
+  appLanguageState,
+} from 'src/selectors/simpleSelectors';
 
 export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
-const appLanguageState = (state: IRuntimeState) =>
-  state.appLanguages.selectedAppLanguage;
+
 export function* fetchTextResources(): SagaIterator {
   try {
     let appLanguage: string = yield select(appLanguageState);
@@ -74,9 +64,5 @@ export function* watchFetchTextResourcesSaga(): SagaIterator {
     yield take(FETCH_PROFILE_FULFILLED);
   }
   yield call(fetchTextResources);
-  yield fork(continueWatchFetchTextResourcesSaga);
-}
-
-export function* continueWatchFetchTextResourcesSaga(): SagaIterator {
   yield takeLatest(FETCH_TEXT_RESOURCES, fetchTextResources);
 }
