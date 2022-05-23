@@ -110,7 +110,7 @@ export const RepeatingGroupsLikertContainer = ({
             <AltinnTableRow>
               <TableCell />
               {calculatedOptions.map((option, index) => {
-                const colLabelId = `col-label-${index}`;
+                const colLabelId = `${id}-likert-columnheader-${index}`;
                 return (
                   <TableCell key={option.value} id={colLabelId} align='center'>
                     {getTextResource(option.label, textResources)}
@@ -126,6 +126,7 @@ export const RepeatingGroupsLikertContainer = ({
                   key={comp.id}
                   {...comp}
                   likertDisplay={'desktop'}
+                  groupContainerId={id}
                 />
               );
             })}

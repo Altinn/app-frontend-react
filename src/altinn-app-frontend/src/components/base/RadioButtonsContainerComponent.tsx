@@ -93,6 +93,7 @@ export const RadioButtonContainerComponent = ({
   source,
   likertDisplay,
   componentValidations,
+  groupContainerId,
 }: IRadioButtonsContainerProps) => {
   const classes = useStyles();
   const selected = formData?.simpleBinding ?? '';
@@ -161,7 +162,7 @@ export const RadioButtonContainerComponent = ({
           </TableCell>
           {calculatedOptions?.map((option, colIndex) => {
             // column label must reference correct id of header in table
-            const colLabelId = `col-label-${colIndex}`;
+            const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
             const inputId = `input-${id}-${colIndex}`;
             const isChecked = selected === option.value;
             return (

@@ -47,6 +47,7 @@ export interface IGenericComponentProps {
   triggers?: Triggers[];
   hidden?: boolean;
   likertDisplay?: 'desktop' | 'mobile';
+  groupContainerId?: string;
 }
 
 const useStyles = makeStyles((theme) => ({
