@@ -15,32 +15,22 @@ const useStyles = makeStyles({
   button: {
     textDecoration: 'underline',
     textAlign: 'left',
-    width: 'fit-content',
+    padding: '5px',
+    paddingLeft: '10px',
   },
   jumpNav: {
     backgroundColor: "#fff",
   },
-  'sr-only': {
+  srOnly: {
     position: 'absolute',
-    width: '1px',
-    height: '1px',
-    padding: 0,
-    margin: '-1px',
-    overflow: 'hidden',
     clip: 'rect(0,0,0,0)',
     border: 0,
-  },
-  'sr-only-focusable': {
     '&:focus': {
       position: 'relative',
       width: 'auto',
       height: 'auto',
-      clip: 'initial',
-      margin: 'inherit',
-      padding: 'inherit',
-      border: 'initial',
     },
-  }
+  },
 });
 
 export function LandmarkShortcuts({
@@ -63,7 +53,7 @@ export function LandmarkShortcuts({
           <button
             key={shortcut.id}
             role='link'
-            className={cn(classes.button, classes['sr-only'], classes['sr-only-focusable'])}
+            className={cn(classes.button, classes.srOnly)}
             onClick={() => handleClick(shortcut.id)}
           >
             {shortcut.text}
