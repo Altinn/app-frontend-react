@@ -6,7 +6,7 @@ import {
   render,
   validateRadioLayout,
   validateTableLayout,
-} from 'src/features/form/containers/LikertComponentTestUtils';
+} from 'src/features/form/containers/GroupContainerLikertTestUtils';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -187,7 +187,7 @@ describe('GroupContainer', () => {
         createFormDataUpdateAction(1, '3'),
       );
     });
-    it('should render accordian view with selected values', () => {
+    it('should render mobile view with selected values', () => {
       const mockQuestions = defaultMockQuestions.map((mock, index) => {
         if (index === 2) {
           // Set one answer to selected

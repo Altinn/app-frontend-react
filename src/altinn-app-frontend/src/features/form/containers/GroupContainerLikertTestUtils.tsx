@@ -219,7 +219,6 @@ export const render = ({
     unsavedChanges: false,
   };
 
-  setScreenWidth(mobileView ? 600 : 1200);
   const preloadedState = getInitialStateMock({
     formLayout: createLayout(
       mockLikertContainer,
@@ -244,7 +243,7 @@ export const render = ({
   const mockStore = setupStore(preloadedState);
   const mockStorDispatch = jest.fn();
   mockStore.dispatch = mockStorDispatch;
-
+  setScreenWidth(mobileView ? 600 : 1200);
   renderWithProviders(
     <GroupContainer
       components={components}
