@@ -191,11 +191,11 @@ export function* saveStatelessData(state: IRuntimeState, model: any) {
     };
   }
 
-  const currentDataType = getCurrentDataTypeForApplication(
-    state.applicationMetadata.applicationMetadata,
-    state.instanceData.instance,
-    state.formLayout.layoutsets,
-  );
+  const currentDataType = getCurrentDataTypeForApplication({
+    application: state.applicationMetadata.applicationMetadata,
+    instance: state.instanceData.instance,
+    layoutSets: state.formLayout.layoutsets,
+  });
   const response = yield call(post, getStatelessFormDataUrl(currentDataType, allowAnonymous), options, model);
   const formData = convertModelToDataBinding(response?.data);
   yield sagaPut(FormDataActions.fetchFormDataFulfilled({ formData }));
