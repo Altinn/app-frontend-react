@@ -74,7 +74,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
 
   const handleModalCloseButton = () => {
     const queryParameterReturnUrl = returnUrlFromQueryParameter();
-    const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party.partyId);
+    const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId);
     if (!queryParameterReturnUrl) {
       window.location.href = messageBoxUrl;
       return;
