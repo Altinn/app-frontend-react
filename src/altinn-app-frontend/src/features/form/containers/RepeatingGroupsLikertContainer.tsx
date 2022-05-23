@@ -1,7 +1,7 @@
-import { ILayoutComponent } from 'src/features/form/layout';
+import { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import { ITextResource } from 'src/types';
 import * as React from 'react';
-import { TableCell } from '@material-ui/core';
+import { Grid, TableCell, Typography } from '@material-ui/core';
 import { GenericComponent } from 'src/components/GenericComponent';
 import {
   AltinnSpinner,
@@ -21,12 +21,14 @@ type RepeatingGroupsLikertContainerProps = {
   id: string;
   repeatingGroupDeepCopyComponents: ILayoutComponent[];
   textResources: ITextResource[];
+  container: ILayoutGroup;
 };
 
 export const RepeatingGroupsLikertContainer = ({
   id,
   repeatingGroupDeepCopyComponents,
   textResources,
+  container,
 }: RepeatingGroupsLikertContainerProps) => {
   const { optionsId, mapping, source, options } =
     repeatingGroupDeepCopyComponents[0] as IRadioButtonsContainerProps;
@@ -39,28 +41,71 @@ export const RepeatingGroupsLikertContainer = ({
         ?.loading,
   );
 
+  const getText = (key: string | undefined) => {
+    return key ? getTextResource(key, textResources) : undefined;
+  };
+
+  const title = getText(container.textResourceBindings?.title);
+  const description = getText(container.textResourceBindings?.description);
+  const titleId = `likert-title-${id}`;
+  const descriptionId = `likert-description-${id}`;
+
+  const Header = (
+    <Grid item={true} xs={12}>
+      {title && (
+        <Typography
+          component='h5'
+          variant='h3'
+          style={{ width: '100%' }}
+          id={titleId}
+        >
+          {title}
+        </Typography>
+      )}
+      {description && (
+        <Typography variant='body1' gutterBottom id={descriptionId}>
+          {description}
+        </Typography>
+      )}
+    </Grid>
+  );
+
   if (mobileView) {
     return (
-      <>
-        {repeatingGroupDeepCopyComponents.map((comp) => {
-          return (
-            <GenericComponent
-              key={comp.id}
-              {...comp}
-              likertDisplay={'mobile'}
-            />
-          );
-        })}
-      </>
+      <Grid item container>
+        {Header}
+        <div
+          role='group'
+          aria-labelledby={title && titleId}
+          aria-describedby={description && descriptionId}
+        >
+          {repeatingGroupDeepCopyComponents.map((comp) => {
+            return (
+              <GenericComponent
+                key={comp.id}
+                {...comp}
+                likertDisplay={'mobile'}
+              />
+            );
+          })}
+        </div>
+      </Grid>
     );
   }
 
   return (
     <>
+      {Header}
       {fetchingOptions ? (
         <AltinnSpinner />
       ) : (
-        <AltinnTable id={id} tableLayout='auto' wordBreak='normal'>
+        <AltinnTable
+          id={id}
+          tableLayout='auto'
+          wordBreak='normal'
+          aria-labelledby={title && titleId}
+          aria-describedby={description && descriptionId}
+        >
           <AltinnTableHeader id={`likert-table-header-${id}`} padding={'dense'}>
             <AltinnTableRow>
               <TableCell />

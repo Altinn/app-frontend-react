@@ -154,8 +154,35 @@ describe('GroupContainer', () => {
       expect(screen.getAllByRole('alert')).toHaveLength(2);
       screen.getByText(/En av radene er ikke fylt ut riktig/i);
     });
+    it('should display title and description', async () => {
+      render({
+        likertContainerProps: {
+          textResourceBindings: {
+            title: 'Likert test title',
+            description: 'This is a test description',
+          },
+        },
+      });
+      expect(
+        screen.getByRole('table', { name: /Likert test title/i }),
+      ).toHaveAccessibleDescription('This is a test description');
+    });
   });
   describe('Mobile', () => {
+    it('should display title and description', async () => {
+      render({
+        likertContainerProps: {
+          textResourceBindings: {
+            title: 'Likert test title',
+            description: 'This is a test description',
+          },
+        },
+        mobileView: true,
+      });
+      expect(
+        screen.getByRole('group', { name: /Likert test title/i }),
+      ).toHaveAccessibleDescription('This is a test description');
+    });
     it('should render mobile view and click radiobuttons', async () => {
       const { mockStorDispatch } = render({ mobileView: true });
       validateRadioLayout(defaultMockQuestions);

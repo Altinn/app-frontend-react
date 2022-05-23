@@ -14,7 +14,7 @@ const useStyles = makeStyles({
       borderBottom: `2px solid ${theme.altinnPalette.primary.blueMedium}`,
       '& th': {
         fontSize: '1.4rem',
-        padding: padding === 'dense' ? '0 18px 4px 18px' : '0 18px 4px 36px',
+        padding: padding === 'dense' ? '0 12px 4px 12px' : '0 18px 4px 36px',
         fontFamily: 'Altinn-DIN',
         '& p': {
           fontWeight: '500',

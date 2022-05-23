@@ -1,11 +1,16 @@
-import { Grid, makeStyles, Table, TableContainer } from '@material-ui/core';
+import {
+  Grid,
+  makeStyles,
+  Table,
+  TableContainer,
+  TableProps,
+} from '@material-ui/core';
 import React from 'react';
 
 export interface IAltinnTableProps {
-  children: React.ReactNode;
-  id: string;
   tableLayout?: 'fixed' | 'auto';
   wordBreak?: 'break-word' | 'normal';
+  id: string;
 }
 
 const useStyles = makeStyles(() => {
@@ -23,14 +28,14 @@ const useStyles = makeStyles(() => {
   };
 });
 
-export default function AltinnTable(props: IAltinnTableProps) {
-  const { id, children } = props;
+export default function AltinnTable(
+  props: IAltinnTableProps & Omit<TableProps, 'id'>,
+) {
+  const { tableLayout, wordBreak, ...tableProps } = props;
   const classes = useStyles(props);
   return (
-    <TableContainer component={Grid} id={`${id}-container`}>
-      <Table className={classes.table} id={id}>
-        {children}
-      </Table>
+    <TableContainer component={Grid} id={`${tableProps.id}-container`}>
+      <Table className={classes.table} {...tableProps} />
     </TableContainer>
   );
 }

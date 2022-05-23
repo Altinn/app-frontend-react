@@ -275,6 +275,7 @@ export function GroupContainer({
             (c) => c[0] as ILayoutComponent,
           )}
           textResources={textResources}
+          container={container}
         />
         {tableHasErrors && (
           <Grid container={true} style={gridStyle} direction='column'>

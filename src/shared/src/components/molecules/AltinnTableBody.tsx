@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     return {
       '& td': {
         borderBottom: `1px solid ${theme.altinnPalette.primary.blueMedium}`,
-        padding: padding === 'dense' ? '0 18px 0px 18px' : '0 18px 0px 36px',
+        padding: padding === 'dense' ? '0 12px' : '0 18px 0px 36px',
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
