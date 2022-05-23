@@ -22,7 +22,6 @@ const NavBar = (props: INavBarProps) => {
   const textResources = useAppSelector(
     (state) => state.textResources.resources,
   );
-  const language = useAppSelector((state) => state.language.language);
   const showLanguageSelect =
     props.showLanguageSelector && props.appLanguages.length > 0;
   const CloseButton = (
@@ -38,7 +37,7 @@ const NavBar = (props: INavBarProps) => {
           aria-hidden='true'
         />
       </span>
-      <span className='hidden-button-text'>
+      <span className='sr-only'>
         {getLanguageFromKey('general.close_schema', props.language)}
       </span>
     </button>
@@ -62,7 +61,7 @@ const NavBar = (props: INavBarProps) => {
             <span className='ai-stack'>
               <i className='ai-stack-1x ai ai-back' aria-hidden='true' />
             </span>
-            <span className='hidden-button-text'>
+            <span className='sr-only'>
               {getLanguageFromKey('general.back', props.language)}
             </span>
           </button>
@@ -76,7 +75,7 @@ const NavBar = (props: INavBarProps) => {
               {getTextFromAppOrDefault(
                 'language.selector.label',
                 textResources,
-                language,
+                props.language,
                 null,
                 true,
               )}
@@ -87,7 +86,7 @@ const NavBar = (props: INavBarProps) => {
                 label: getTextFromAppOrDefault(
                   'language.full_name.' + l.language,
                   textResources,
-                  language,
+                  props.language,
                   null,
                   true,
                 ),
