@@ -1,28 +1,18 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import { render } from '@testing-library/react';
 import InstanceSelection, {
   IInstanceSelectionProps,
 } from './InstanceSelection';
 import { IRuntimeState, ISimpleInstance } from 'src/types';
 import { getInitialStateMock } from '../../../../__mocks__/initialStateMock';
-import { createTheme, ThemeProvider } from '@material-ui/core';
-import { AltinnAppTheme } from 'altinn-shared/theme';
 import { Store } from 'redux';
-import { mockMediaQuery } from '../../../../testUtils';
+import { mockMediaQuery, renderWithProviders } from '../../../../testUtils';
 
 const renderInstanceSelection = (
   store: Store,
   props: IInstanceSelectionProps,
 ) => {
-  return render(
-    <Provider store={store}>
-      <ThemeProvider theme={createTheme(AltinnAppTheme)}>
-        <InstanceSelection {...props} />
-      </ThemeProvider>
-    </Provider>,
-  );
+  return renderWithProviders(<InstanceSelection {...props} />, { store });
 };
 
 const { setScreenWidth } = mockMediaQuery(992);
