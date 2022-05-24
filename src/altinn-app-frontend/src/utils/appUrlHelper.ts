@@ -141,7 +141,10 @@ export function getFetchFormDataUrl(instanceId: string, dataElementId: string) {
   return `${appPath}/instances/${instanceId}/data/${dataElementId}`;
 }
 
-export function getStatelessFormDataUrl(dataType: string) {
+export function getStatelessFormDataUrl(dataType: string, anonymous = false) {
+  if (anonymous) {
+    return `${appPath}/v1/data/anonymous?dataType=${dataType}`;
+  }
   return `${appPath}/v1/data?dataType=${dataType}`;
 }
 
@@ -166,8 +169,12 @@ export function getRulehandlerUrl(layoutset: string) {
   return `${appPath}/api/rulehandler/${layoutset}`;
 }
 
-export function getCalculatePageOrderUrl() {
-  return `${appPath}/instances/${altinnWindow.instanceId}/pages/order`;
+export function getCalculatePageOrderUrl(stateless: boolean) {
+  if (stateless) {
+    return `${appPath}/v1/pages/order`;
+  } else {
+    return `${appPath}/instances/${altinnWindow.instanceId}/pages/order`;
+  }
 }
 
 export function getPartyValidationUrl(partyId: string) {

@@ -2,10 +2,12 @@ import {
   getEnvironmentLoginUrl,
   getOptionsUrl,
   getRulehandlerUrl,
+  getCalculatePageOrderUrl,
   getLayoutsUrl,
   getFetchFormDynamicsUrl,
   getLayoutSettingsUrl,
   getHostname,
+  getStatelessFormDataUrl,
 } from './appUrlHelper';
 
 describe('Frontend urlHelper.ts', () => {
@@ -263,6 +265,24 @@ describe('Frontend urlHelper.ts', () => {
     });
   });
 
+  describe('getCalculatePageOrderUrl', () => {
+    test('should return stateful url if stateless is false', () => {
+      const result = getCalculatePageOrderUrl(false);
+
+      expect(result).toBe(
+        "https://altinn3local.no/ttd/test/instances/undefined/pages/order"
+      );
+    });
+
+    test('should return stateless url if stateless is true', () => {
+      const result = getCalculatePageOrderUrl(true);
+
+      expect(result).toBe(
+        "https://altinn3local.no/ttd/test/v1/pages/order"
+      );
+    });
+  })
+
   describe('getLayoutsUrl', () => {
     test('should return default when no parameter is passed', () => {
       const result = getLayoutsUrl(null);
@@ -319,4 +339,29 @@ describe('Frontend urlHelper.ts', () => {
       );
     });
   });
+
+  describe('getStatelessFormDataUrl', () => {
+    const dataType = 'someDataType';
+    it('should return default when only dataType parameter is passed', () => {
+      const nullResult = getStatelessFormDataUrl(dataType, null);
+      const undefinedResult = getStatelessFormDataUrl(dataType);
+
+      const expected = `https://altinn3local.no/ttd/test/v1/data?dataType=${dataType}`;
+
+      expect(nullResult).toBe(expected);
+      expect(undefinedResult).toBe(expected);
+    });
+
+    it('should return anonymous url when anonymous is passed as true', () => {
+      const trueResult = getStatelessFormDataUrl(dataType, true);
+      const expected = `https://altinn3local.no/ttd/test/v1/data/anonymous?dataType=${dataType}`;
+      expect(trueResult).toBe(expected);
+    });
+
+    it('should return default url when anonymous is passed as false', () => {
+      const trueResult = getStatelessFormDataUrl(dataType, false);
+      const expected = `https://altinn3local.no/ttd/test/v1/data?dataType=${dataType}`;
+      expect(trueResult).toBe(expected);
+    });
+  })
 });
