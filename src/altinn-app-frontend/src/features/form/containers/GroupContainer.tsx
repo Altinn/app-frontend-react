@@ -7,7 +7,7 @@ import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { getHiddenFieldsForGroup } from 'src/utils/layout';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import { ILayoutComponent, ILayoutGroup } from '../layout';
+import type { ILayoutComponent, ILayoutGroup } from '../layout';
 import { FormLayoutActions } from '../layout/formLayoutSlice';
 import { Triggers } from '../../../types';
 import { RepeatingGroupTable } from './RepeatingGroupTable';
@@ -172,12 +172,6 @@ export function GroupContainer({
 
   const onClickRemove = (groupIndex: number) => {
     dispatch(
-      FormLayoutActions.updateRepeatingGroupsEditIndex({
-        group: id,
-        index: -1,
-      }),
-    );
-    dispatch(
       FormLayoutActions.updateRepeatingGroups({
         layoutElementId: id,
         remove: true,
@@ -192,12 +186,6 @@ export function GroupContainer({
     ) {
       dispatch(
         FormLayoutActions.updateRepeatingGroups({ layoutElementId: id }),
-      );
-      dispatch(
-        FormLayoutActions.updateRepeatingGroupsEditIndex({
-          group: id,
-          index: groupIndex,
-        }),
       );
     }
   };

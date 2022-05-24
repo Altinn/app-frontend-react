@@ -1,10 +1,13 @@
 /* eslint-disable max-len */
 import { object } from 'dot-object';
-import { ILayout, ILayoutGroup } from 'src/features/form/layout';
-import { IMapping, IRepeatingGroup, IDataModelBindings } from 'src/types';
+import type { ILayout, ILayoutGroup, ILayoutComponent } from 'src/features/form/layout';
+import type { IMapping, IRepeatingGroup, IDataModelBindings , IFormFileUploaderComponent } from 'src/types';
 import { getParentGroup } from './validation';
-import { IFormData } from 'src/features/form/data/formDataReducer';
-import { IAttachments } from "src/shared/resources/attachments";
+import type { IFormData } from 'src/features/form/data/formDataReducer';
+import type {
+  IAttachment,
+  IAttachments,
+} from 'src/shared/resources/attachments';
 
 /**
  * Converts the formdata in store (that is flat) to a JSON
@@ -52,6 +55,19 @@ export function getKeyWithoutIndex(keyWithIndex: string): string {
 }
 
 /**
+ * Returns key indexes:
+ *
+ * MyForm.Group[0].SubGroup[1]
+ *              ^           ^
+ *
+ * as an array => [0, 1]
+ */
+export function getKeyIndex(keyWithIndex:string):number[] {
+  const match = keyWithIndex.match(/(?<=\[)\d+(?=])]/g) || [];
+  return match.map((n) => parseInt(n, 10));
+}
+
+/**
  * Converts JSON to the flat datamodel used in Redux data store
  * @param data The form data as JSON
  */
@@ -82,33 +98,35 @@ export function flattenObject(data: any, index = false): any {
   return toReturn;
 }
 
-export function removeGroupData(
-  formData: any,
-  index: any,
-  layout: ILayout,
-  groupId: string,
-  repeatingGroup: IRepeatingGroup,
-): any {
-  const result = { ...formData };
+function getGroupDataModelBinding(repeatingGroup:IRepeatingGroup, groupId:string, layout:ILayout) {
   const groupElementId = repeatingGroup.baseGroupId || groupId;
-  const groupElement: ILayoutGroup = layout.find((element) => {
+  const groupElement = layout.find((element) => {
     return element.id === groupElementId;
   }) as ILayoutGroup;
   const parentGroup = getParentGroup(groupElement.id, layout);
-
-  let groupDataModelBinding;
   if (parentGroup) {
     const splitId = groupId.split('-');
     const parentIndex = Number.parseInt(splitId[splitId.length - 1], 10);
     const parentDataBinding = parentGroup.dataModelBindings?.group;
     const indexedParentDataBinding = `${parentDataBinding}[${parentIndex}]`;
-    groupDataModelBinding = groupElement.dataModelBindings?.group.replace(
+    return groupElement.dataModelBindings?.group.replace(
       parentDataBinding,
       indexedParentDataBinding,
     );
-  } else {
-    groupDataModelBinding = groupElement.dataModelBindings.group;
   }
+
+  return groupElement.dataModelBindings.group;
+}
+
+export function removeGroupData(
+  formData: IFormData,
+  index: number,
+  layout: ILayout,
+  groupId: string,
+  repeatingGroup: IRepeatingGroup,
+): IFormData {
+  const result = { ...formData };
+  const groupDataModelBinding = getGroupDataModelBinding(repeatingGroup, groupId, layout);
 
   deleteGroupData(result, groupDataModelBinding, index);
 
@@ -164,6 +182,58 @@ function deleteGroupData(
         formData[newKey] = prevData[key];
       }
     });
+}
+
+interface FoundAttachment {
+  attachment: IAttachment,
+  component: IFormFileUploaderComponent & ILayoutComponent,
+  componentId: string,
+  index: number,
+}
+
+/**
+ * Find all attachments added to file upload components in a given group. Uploading attachments in repeating groups
+ * requires data model bindings with references to the attachment(s) in form data.
+ */
+export function findChildAttachments(
+  formData: IFormData,
+  attachments: IAttachments,
+  layout: ILayout,
+  groupId: string,
+  repeatingGroup: IRepeatingGroup,
+  index: number,
+):FoundAttachment[] {
+  const groupDataModelBinding = getGroupDataModelBinding(repeatingGroup, groupId, layout);
+  const out:FoundAttachment[] = [];
+  const components = layout.filter((c) => ['fileupload', 'fileuploadwithtag'].includes(c.type.toLowerCase()));
+  const formDataKeys = Object.keys(formData).filter((key) => key.startsWith(`${groupDataModelBinding}[${index}]`));
+
+  for (const key of formDataKeys) {
+    const dataBinding = getKeyWithoutIndex(key);
+    const component:(IFormFileUploaderComponent & ILayoutComponent) =
+      components.find((c) => c.dataModelBindings?.simpleBinding === dataBinding) as any;
+
+    if (component) {
+      const groupKeys = getKeyIndex(key);
+      if (component.maxNumberOfAttachments > 1) {
+        groupKeys.pop();
+      }
+
+      const componentId = component.id + (groupKeys.length ? `-${groupKeys.join('-')}` : '');
+      const foundIndex = (attachments[componentId] || []).findIndex((a) => a.id === formData[key]);
+      if (foundIndex > -1) {
+        const attachment = attachments[componentId][foundIndex];
+        out.push({
+          attachment,
+          component,
+          componentId,
+          index: foundIndex,
+        });
+      }
+    }
+  }
+
+  return out;
 }
 
 export function mapFormData(formData: IFormData, mapping: IMapping) {

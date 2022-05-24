@@ -1,31 +1,79 @@
 /* eslint-disable max-len */
-import { PayloadAction } from '@reduxjs/toolkit';
-import { SagaIterator } from 'redux-saga';
-import { all, call, put, select, take, takeEvery, takeLatest } from 'redux-saga/effects';
-import { IFileUploadersWithTag, IFormFileUploaderWithTagComponent, IRepeatingGroups, IRuntimeState, IValidationIssue, IValidations, Triggers } from 'src/types';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { SagaIterator } from 'redux-saga';
+import type { RaceEffect, TakeEffect } from 'redux-saga/effects';
+import { all, call, put, select, take, takeEvery, takeLatest, race } from 'redux-saga/effects';
+import type {
+  IFileUploadersWithTag,
+  IFormFileUploaderWithTagComponent,
+  IRepeatingGroups,
+  IRuntimeState,
+  IValidationIssue,
+  IValidations
+} from 'src/types';
+import { Triggers } from 'src/types';
 import { getFileUploadersWithTag, getRepeatingGroups, removeRepeatingGroupFromUIConfig } from 'src/utils/formLayout';
-import { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig } from 'axios';
 import { get, post } from 'altinn-shared/utils';
-import { getCurrentTaskDataElementId, getDataTaskDataTypeId, isStatelessApp, getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
+import {
+  getCurrentTaskDataElementId,
+  getDataTaskDataTypeId,
+  isStatelessApp,
+  getCurrentDataTypeForApplication
+} from 'src/utils/appMetadata';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/appUrlHelper';
-import { validateFormData, validateFormComponents, validateEmptyFields, mapDataElementValidationToRedux, canFormBeSaved, mergeValidationObjects, removeGroupValidationsByIndex, validateGroup, getValidator } from 'src/utils/validation';
+import {
+  validateFormData,
+  validateFormComponents,
+  validateEmptyFields,
+  mapDataElementValidationToRedux,
+  canFormBeSaved,
+  mergeValidationObjects,
+  removeGroupValidationsByIndex,
+  validateGroup,
+  getValidator
+} from 'src/utils/validation';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
 import { startInitialDataTaskQueueFulfilled } from 'src/shared/resources/queue/queueSlice';
 import { updateValidations } from 'src/features/form/validation/validationSlice';
-import { IAttachmentState } from 'src/shared/resources/attachments/attachmentReducer';
-import { ILayoutComponent, ILayoutEntry, ILayoutGroup, ILayouts } from '..';
+import type { IAttachmentState } from 'src/shared/resources/attachments/attachmentReducer';
+import type { ILayoutComponent, ILayoutEntry, ILayoutGroup, ILayouts } from '..';
 import ConditionalRenderingActions from '../../dynamics/formDynamicsActions';
-import { FormLayoutActions, ILayoutState } from '../formLayoutSlice';
-import { IUpdateFocus, IUpdateRepeatingGroups, IUpdateCurrentView, ICalculatePageOrderAndMoveToNextPage, IUpdateRepeatingGroupsEditIndex, IUpdateFileUploaderWithTagEditIndex, IUpdateFileUploaderWithTagChosenOptions } from '../formLayoutTypes';
-import { IFormDataState } from '../../data/formDataReducer';
+import type { ILayoutState } from '../formLayoutSlice';
+import { FormLayoutActions } from '../formLayoutSlice';
+import type {
+  IUpdateFocus,
+  IUpdateRepeatingGroups,
+  IUpdateCurrentView,
+  ICalculatePageOrderAndMoveToNextPage,
+  IUpdateRepeatingGroupsEditIndex,
+  IUpdateFileUploaderWithTagEditIndex,
+  IUpdateFileUploaderWithTagChosenOptions
+} from '../formLayoutTypes';
+import type { IFormDataState } from '../../data/formDataReducer';
 import FormDataActions from '../../data/formDataActions';
-import { convertDataBindingToModel, removeGroupData } from '../../../../utils/databindings';
+import {
+  convertDataBindingToModel,
+  removeGroupData,
+  findChildAttachments
+} from '../../../../utils/databindings';
 import { getOptionLookupKey } from 'src/utils/options';
+import type {
+  IDeleteAttachmentActionFulfilled, IDeleteAttachmentActionRejected
+} from "src/shared/resources/attachments/delete/deleteAttachmentActions";
+import {
+  deleteAttachment
+} from "src/shared/resources/attachments/delete/deleteAttachmentActions";
+import {
+  DELETE_ATTACHMENT_FULFILLED,
+  DELETE_ATTACHMENT_REJECTED
+} from "src/shared/resources/attachments/attachmentActionTypes";
 
 const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
 const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
 const selectFormLayouts = (state: IRuntimeState): ILayouts => state.formLayout.layouts;
 const selectAttachmentState = (state: IRuntimeState): IAttachmentState => state.attachments;
+const selectValidations = (state: IRuntimeState): IValidations => state.formValidations.validations;
 
 function* updateFocus({ payload: { currentComponentId, step } }: PayloadAction<IUpdateFocus>): SagaIterator {
   try {
@@ -91,25 +139,65 @@ function* updateRepeatingGroupsSaga({ payload: {
       }
     });
 
-    yield put(FormLayoutActions.updateRepeatingGroupsFulfilled({ repeatingGroups: updatedRepeatingGroups }));
-
     if (remove) {
-      // Remove the form data associated with the group
       const formDataState: IFormDataState = yield select(selectFormData);
-      const state: IRuntimeState = yield select();
+      const attachments: IAttachmentState = yield select(selectAttachmentState);
       const layout = formLayoutState.layouts[formLayoutState.uiConfig.currentView];
-      const updatedFormData = removeGroupData(formDataState.formData, index,
-        layout, layoutElementId, formLayoutState.uiConfig.repeatingGroups[layoutElementId]);
+      const validations: IValidations = yield select(selectValidations);
+      const repeatingGroup = formLayoutState.uiConfig.repeatingGroups[layoutElementId];
 
-      // Remove the validations associated with the group
-      const updatedValidations = removeGroupValidationsByIndex(
-        layoutElementId, index, formLayoutState.uiConfig.currentView, formLayoutState.layouts,
-        formLayoutState.uiConfig.repeatingGroups, state.formValidations.validations,
-      );
-      yield put(updateValidations({ validations: updatedValidations }));
+      // Find uploaded attachments inside group and delete them
+      const childAttachments = findChildAttachments(formDataState.formData, attachments.attachments,
+        layout, layoutElementId, repeatingGroup, index);
+      const races:RaceEffect<TakeEffect>[] = [];
+      for (const {attachment, component, componentId, index} of childAttachments) {
+        yield put(deleteAttachment(attachment, component.id, componentId, component.dataModelBindings, index));
+        races.push(race({
+          fulfilled: take(DELETE_ATTACHMENT_FULFILLED),
+          rejected: take(DELETE_ATTACHMENT_REJECTED),
+        }));
+      }
+      const raceResults:{
+        fulfilled?:IDeleteAttachmentActionFulfilled,
+        rejected?:IDeleteAttachmentActionRejected,
+      }[] = yield all(races);
 
-      yield put(FormDataActions.setFormDataFulfilled({ formData: updatedFormData }));
-      yield put(FormDataActions.saveFormData());
+      let attachmentRemovalSuccessful = true;
+      for (const raceResult of raceResults) {
+        if (raceResult.rejected) {
+          attachmentRemovalSuccessful = false;
+          break;
+        }
+      }
+
+      if (attachmentRemovalSuccessful) {
+        // Remove the form data associated with the group
+        const updatedFormData = removeGroupData(formDataState.formData, index,
+          layout, layoutElementId, repeatingGroup);
+
+        // Remove the validations associated with the group
+        const updatedValidations = removeGroupValidationsByIndex(
+          layoutElementId, index, formLayoutState.uiConfig.currentView, formLayoutState.layouts,
+          formLayoutState.uiConfig.repeatingGroups, validations,
+        );
+        yield put(updateValidations({ validations: updatedValidations }));
+
+        yield put(FormLayoutActions.updateRepeatingGroupsEditIndex({
+          group: layoutElementId,
+          index: -1,
+        }));
+        yield put(FormLayoutActions.updateRepeatingGroupsFulfilled({repeatingGroups: updatedRepeatingGroups}));
+        yield put(FormDataActions.setFormDataFulfilled({ formData: updatedFormData }));
+        yield put(FormDataActions.saveFormData());
+      } else {
+        yield put(FormLayoutActions.updateRepeatingGroupsRejected({ error: undefined }));
+      }
+    } else {
+      yield put(FormLayoutActions.updateRepeatingGroupsEditIndex({
+        group: layoutElementId,
+        index: index,
+      }));
+      yield put(FormLayoutActions.updateRepeatingGroupsFulfilled({repeatingGroups: updatedRepeatingGroups}));
     }
 
     yield call(ConditionalRenderingActions.checkIfConditionalRulesShouldRun);
