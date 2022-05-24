@@ -1,18 +1,18 @@
-import { ILanguage } from 'altinn-shared/types';
+import type { ILanguage } from 'altinn-shared/types';
 import {
   getLanguageFromKey,
   getParsedLanguageFromText,
   getTextResourceByKey,
 } from 'altinn-shared/utils';
-import React from 'react';
-import { IFormData } from 'src/features/form/data/formDataReducer';
-import {
+import type React from 'react';
+import type { IFormData } from 'src/features/form/data/formDataReducer';
+import type {
   ILayoutComponent,
   ILayoutGroup,
   ISelectionComponentProps,
 } from 'src/features/form/layout';
-import { IAttachment } from 'src/shared/resources/attachments';
-import {
+import type { IAttachment } from 'src/shared/resources/attachments';
+import type {
   IDataModelBindings,
   IComponentValidations,
   ITextResource,
@@ -272,7 +272,7 @@ export function selectComponentTexts(
 }
 
 export function getFileUploadComponentValidations(
-  validationError: string,
+  validationError: 'upload' | 'update' | 'delete' | null,
   language: ILanguage,
   attachmentId: string = undefined
 ): IComponentValidations {
