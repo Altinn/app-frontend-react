@@ -32,11 +32,11 @@ interface IGetPanelTitleProps {
 export const getPanelTitle = ({ variant, textResources, language }: IGetPanelTitleProps) => {
     switch (variant) {
         case 'warning':
-            return getTextFromAppOrDefault('panel.warning', textResources, language, undefined, true);
+            return getTextFromAppOrDefault('soft_validation.warning_title', textResources, language, undefined, true);
         case 'info':
-            return getTextFromAppOrDefault('panel.info', textResources, language, undefined, true);
+            return getTextFromAppOrDefault('soft_validation.info_title', textResources, language, undefined, true);
         case 'success':
-            return getTextFromAppOrDefault('panel.success', textResources, language, undefined, true);
+            return getTextFromAppOrDefault('soft_validation.success_title', textResources, language, undefined, true);
     }
 };
 
