@@ -6,7 +6,6 @@ import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
 import { nb } from 'altinn-shared/language/texts/nb';
 import type { IRuntimeState, ITextResource } from 'src/types';
 
-
 const render = (props: Partial<ISoftValidationProps> = {}, suppliedState: Partial<IRuntimeState> = {}) => {
   const allProps: ISoftValidationProps = {
     variant: 'info',
