@@ -1,6 +1,5 @@
-import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import * as React from 'react';
-import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
+import { SoftValidations } from 'src/features/form/components/SoftValidations';
 import { MessageComponent } from '../components/message/MessageComponent';
 
 const messageComponentStyle = {
@@ -57,51 +56,20 @@ export function renderValidationMessagesForComponent(
     : null;
 }
 
-const getPanelVariant = ({ messageType }) => {
-  switch (messageType) {
-    case 'warning':
-      return PanelVariant.Warning;
-    case 'info':
-      return PanelVariant.Info;
-    case 'success':
-      return PanelVariant.Success;
-  }
-  return undefined;
-};
 
 export function renderValidationMessages(
   messages: React.ReactNode[],
   id: string,
-  messageType: any,
+  variant: 'error' | 'warning' | 'info' | 'success',
 ) {
 
-  if (messageType !== 'error') {
+  if (variant !== 'error') {
     return (
-      <FullWidthWrapper>
-        <Panel
-          variant={getPanelVariant({ messageType })}
-          showPointer
-          showIcon
-          title={'Nyttig å vite'}
-        >
-          <ol>
-            {messages.map((message: React.ReactNode, idx: number) => {
-              if (typeof message === 'string') {
-                return (
-                  <li key={`validationMessage-${id}-${message}`}>
-                    <p role='alert'>{message}</p>
-                  </li>
-                );
-              }
-              return (
-                <li role='alert' key={`validationMessage-${id}-${idx}`}>
-                  {message}
-                </li>
-              );
-            })}
-          </ol>
-        </Panel>
-      </FullWidthWrapper>
+      <SoftValidations variant={variant}>
+        <ol>
+          {messages.map(validationMessagesToList)}
+        </ol>
+      </SoftValidations>
     );
   }
 
@@ -113,21 +81,16 @@ export function renderValidationMessages(
       id={id}
     >
       <ol>
-        {messages.map((message: React.ReactNode, idx: number) => {
-          if (typeof message === 'string') {
-            return (
-              <li key={`validationMessage-${id}-${message}`}>
-                <p role='alert'>{message}</p>
-              </li>
-            );
-          }
-          return (
-            <li role='alert' key={`validationMessage-${id}-${idx}`}>
-              {message}
-            </li>
-          );
-        })}
+        {messages.map(validationMessagesToList)}
       </ol>
     </MessageComponent>
+  );
+}
+
+const validationMessagesToList = (message: React.ReactNode, index: number) => {
+  return (
+    <li role='alert' key={`validationMessage-${index}`}>
+      {message}
+    </li>
   );
 }
