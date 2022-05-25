@@ -9,7 +9,7 @@ import { getHiddenFieldsForGroup } from 'src/utils/layout';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ILayoutComponent, ILayoutGroup } from '../layout';
 import { FormLayoutActions } from '../layout/formLayoutSlice';
-import { Triggers } from '../../../types';
+import { Triggers, IRuntimeState } from '../../../types';
 import { RepeatingGroupTable } from './RepeatingGroupTable';
 import { RepeatingGroupAddButton } from '../components/RepeatingGroupAddButton';
 import { RepeatingGroupsEditContainer } from './RepeatingGroupsEditContainer';
@@ -69,7 +69,14 @@ export function GroupContainer({
     JSON.stringify(components),
   );
 
-  const editIndex = useAppSelector(state => state.formLayout.uiConfig.repeatingGroups[id]?.editIndex ?? -1);
+  const editIndex = useAppSelector(
+    (state: IRuntimeState) =>
+      state.formLayout.uiConfig.repeatingGroups[id]?.editIndex ?? -1,
+  );
+  const deletingIndexes = useAppSelector(
+    (state: IRuntimeState) =>
+      state.formLayout.uiConfig.repeatingGroups[id]?.deletingIndex ?? [],
+  );
   const [filteredIndexList, setFilteredIndexList] =
     React.useState<number[]>(null);
   const [multiPageIndex, setMultiPageIndex] = React.useState<number>(-1);
@@ -266,6 +273,7 @@ export function GroupContainer({
           language={language}
           textResources={textResources}
           layout={layout}
+          deleting={deletingIndexes.includes(repeatingGroupIndex)}
           onClickRemove={onClickRemove}
           onClickSave={onClickSave}
           repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
@@ -297,6 +305,7 @@ export function GroupContainer({
                 language={language}
                 textResources={textResources}
                 layout={layout}
+                deleting={deletingIndexes.includes(index)}
                 onClickRemove={onClickRemove}
                 onClickSave={onClickSave}
                 repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}

@@ -151,6 +151,7 @@ export interface IRepeatingGroup {
   baseGroupId?: string;
   dataModelBinding?: string;
   editIndex?: number;
+  deletingIndex?: number[];
 }
 
 export interface IRepeatingGroups {

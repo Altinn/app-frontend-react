@@ -182,12 +182,17 @@ function* updateRepeatingGroupsSaga({ payload: {
         );
         yield put(updateValidations({ validations: updatedValidations }));
 
+        updatedRepeatingGroups[layoutElementId].deletingIndex =
+          updatedRepeatingGroups[layoutElementId].deletingIndex?.filter((value) => value !== index);
         updatedRepeatingGroups[layoutElementId].editIndex = -1;
         yield put(FormLayoutActions.updateRepeatingGroupsFulfilled({repeatingGroups: updatedRepeatingGroups}));
         yield put(FormDataActions.setFormDataFulfilled({ formData: updatedFormData }));
         yield put(FormDataActions.saveFormData());
       } else {
-        yield put(FormLayoutActions.updateRepeatingGroupsRejected({ error: undefined }));
+        yield put(FormLayoutActions.updateRepeatingGroupsRemoveCancelled({
+          layoutElementId,
+          index,
+        }));
       }
     } else {
       updatedRepeatingGroups[layoutElementId].editIndex = index;

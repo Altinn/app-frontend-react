@@ -60,6 +60,11 @@ export interface IUpdateRepeatingGroupsFulfilled {
   repeatingGroups: any;
 }
 
+export interface IUpdateRepeatingGroupsRemoveCancelled {
+  layoutElementId: string;
+  index: number;
+}
+
 export interface IUpdateRepeatingGroupsEditIndex {
   group: string;
   index: number;

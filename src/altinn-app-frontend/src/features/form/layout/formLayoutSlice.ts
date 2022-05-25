@@ -108,9 +108,22 @@ const formLayoutSlice = createSlice({
       const { componentsToHide } = action.payload;
       state.uiConfig.hiddenFields = componentsToHide;
     },
+    updateRepeatingGroups: (state, action:PayloadAction<LayoutTypes.IUpdateRepeatingGroups>) => {
+      const { layoutElementId, remove, index } = action.payload;
+      if (remove) {
+        state.uiConfig.repeatingGroups[layoutElementId].deletingIndex =
+          state.uiConfig.repeatingGroups[layoutElementId].deletingIndex || [];
+        state.uiConfig.repeatingGroups[layoutElementId].deletingIndex.push(index);
+      }
+    },
     updateRepeatingGroupsFulfilled: (state, action: PayloadAction<LayoutTypes.IUpdateRepeatingGroupsFulfilled>) => {
       const { repeatingGroups } = action.payload;
       state.uiConfig.repeatingGroups = repeatingGroups;
+    },
+    updateRepeatingGroupsRemoveCancelled: (state, action: PayloadAction<LayoutTypes.IUpdateRepeatingGroupsRemoveCancelled>) => {
+      const { layoutElementId, index } = action.payload;
+      state.uiConfig.repeatingGroups[layoutElementId].deletingIndex =
+        (state.uiConfig.repeatingGroups[layoutElementId].deletingIndex || []).filter((value) => value !== index);
     },
     updateRepeatingGroupsRejected: (state, action: PayloadAction<LayoutTypes.IFormLayoutActionRejected>) => {
       const { error } = action.payload;
@@ -168,7 +181,6 @@ const actions = {
   fetchLayoutSettings: createAction(`${moduleName}/fetchLayoutSettings`),
   updateCurrentView: createAction<LayoutTypes.IUpdateCurrentView>(`${moduleName}/updateCurrentView`),
   updateFocus: createAction<LayoutTypes.IUpdateFocus>(`${moduleName}/updateFocus`),
-  updateRepeatingGroups: createAction<LayoutTypes.IUpdateRepeatingGroups>(`${moduleName}/updateRepeatingGroups`),
   updateRepeatingGroupsEditIndex: createAction<LayoutTypes.IUpdateRepeatingGroupsEditIndex>(`${moduleName}/updateRepeatingGroupsEditIndex`),
   updateFileUploaderWithTagEditIndex: createAction<LayoutTypes.IUpdateFileUploaderWithTagEditIndex>(`${moduleName}/updateFileUploaderWithTagEditIndex`),
   updateFileUploaderWithTagChosenOptions: createAction<LayoutTypes.IUpdateFileUploaderWithTagChosenOptions>(`${moduleName}/updateFileUploaderWithTagChosenOptions`),
