@@ -2,15 +2,16 @@ import {
   AltinnContentIconFormData,
   AltinnContentLoader,
 } from 'altinn-shared/components';
-import { AxiosError } from 'axios';
+import type { AxiosError } from 'axios';
 import * as React from 'react';
 import { Redirect } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'src/common/hooks';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import Presentation from 'src/shared/containers/Presentation';
-import { ShowTypes } from 'src/shared/resources/applicationMetadata';
+import type { ShowTypes } from 'src/shared/resources/applicationMetadata';
 import { startInitialStatelessQueue } from 'src/shared/resources/queue/queueSlice';
-import { ISimpleInstance, PresentationType, ProcessTaskType } from 'src/types';
+import type { ISimpleInstance } from 'src/types';
+import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
 import {
   checkIfAxiosError,
@@ -29,19 +30,19 @@ import InstanceSelection from '../instantiate/containers/InstanceSelection';
 import MissingRolesError from '../instantiate/containers/MissingRolesError';
 import NoValidPartiesError from '../instantiate/containers/NoValidPartiesError';
 
-export default function Entrypoint() {
-  const applicationMetadata = useAppSelector(
-    (state) => state.applicationMetadata.applicationMetadata,
-  );
-  const selectedParty = useAppSelector((state) => state.party.selectedParty);
+export default function Entrypoint({ allowAnonymous }: any) {
   const [action, setAction] = React.useState<ShowTypes>(null);
   const [partyValidation, setPartyValidation] = React.useState(null);
   const [activeInstances, setActiveInstances] =
     React.useState<ISimpleInstance[]>(null);
+  const applicationMetadata = useAppSelector(
+    (state) => state.applicationMetadata?.applicationMetadata,
+  );
+  const selectedParty = useAppSelector((state) => state.party.selectedParty);
   const statelessLoading = useAppSelector((state) => state.isLoading.stateless);
   const formDataError = useAppSelector((state) => state.formData.error);
   const appName = useAppSelector(selectAppName);
-  const appOwner = useAppSelector (selectAppOwner);
+  const appOwner = useAppSelector(selectAppOwner);
   const dispatch = useAppDispatch();
 
   const handleNewInstance = () => {
@@ -148,7 +149,10 @@ export default function Entrypoint() {
   }
 
   // stateless view
-  if (partyValidation?.valid && isStatelessApp(applicationMetadata)) {
+  if (
+    isStatelessApp(applicationMetadata) &&
+    (allowAnonymous || partyValidation?.valid)
+  ) {
     if (statelessLoading === null) {
       dispatch(startInitialStatelessQueue());
     }

@@ -1,8 +1,11 @@
-import { IApplication, IInstance } from 'altinn-shared/types';
-import { ILayoutSets } from 'src/types';
+import type { IApplication, IInstance } from 'altinn-shared/types';
+import type { ILayoutSets } from 'src/types';
 import { getLayoutsetForDataElement } from './layout';
 
-export function getDataTaskDataTypeId(taskId: string, dataTypes: any[]): string {
+export function getDataTaskDataTypeId(
+  taskId: string,
+  dataTypes: any[],
+): string {
   if (!dataTypes || dataTypes.length === 0) {
     return null;
   }
@@ -13,7 +16,10 @@ export function getDataTaskDataTypeId(taskId: string, dataTypes: any[]): string 
   return result?.id;
 }
 
-export function getDataTypeByLayoutSetId(layoutSetId: string, layoutSets: ILayoutSets) {
+export function getDataTypeByLayoutSetId(
+  layoutSetId: string,
+  layoutSets: ILayoutSets,
+) {
   return layoutSets?.sets.find((set) => set.id === layoutSetId)?.dataType;
 }
 
@@ -48,9 +54,17 @@ export function getLayoutSetIdForApplication(
   if (!layoutSets) {
     return null;
   }
-  const dataType = getDataTaskDataTypeId(instance.process.currentTask.elementId,
-    application.dataTypes);
+  const dataType = getDataTaskDataTypeId(
+    instance.process.currentTask.elementId,
+    application.dataTypes,
+  );
   return getLayoutsetForDataElement(instance, dataType, layoutSets);
+}
+
+interface IGetDataTypeForApplicationParams {
+  application: IApplication;
+  instance?: IInstance;
+  layoutSets?: ILayoutSets;
 }
 
 /**
@@ -60,11 +74,11 @@ export function getLayoutSetIdForApplication(
  * @param layoutSets the layout sets, if present
  * @returns the current data type
  */
-export function getCurrentDataTypeForApplication(
-  application: IApplication,
-  instance?: IInstance,
-  layoutSets?: ILayoutSets,
-): string {
+export function getCurrentDataTypeForApplication({
+  application,
+  instance,
+  layoutSets,
+}: IGetDataTypeForApplicationParams): string {
   const showOnEntry: string = application?.onEntry?.show;
   if (isStatelessApp(application)) {
     // we have a stateless app with a layout set
@@ -72,7 +86,10 @@ export function getCurrentDataTypeForApplication(
   }
 
   // instance - get data element based on current process step
-  return getDataTaskDataTypeId(instance.process.currentTask.elementId, application.dataTypes);
+  return getDataTaskDataTypeId(
+    instance.process.currentTask.elementId,
+    application.dataTypes,
+  );
 }
 
 export function isStatelessApp(application: IApplication) {
@@ -84,16 +101,29 @@ export function isStatelessApp(application: IApplication) {
   return show && !onEntryValuesThatHaveState.includes(show);
 }
 
-export const getCurrentTaskDataElementId = (appMetaData: IApplication, instance: IInstance) => {
+export const getCurrentTaskDataElementId = (
+  appMetaData: IApplication,
+  instance: IInstance,
+) => {
   const currentTaskId = instance.process.currentTask.elementId;
-  const appLogicDataType =
-    appMetaData.dataTypes.find((element) => element.appLogic !== null && element.taskId === currentTaskId);
-  const currentTaskDataElement = instance.data.find((element) => element.dataType === appLogicDataType.id);
+  const appLogicDataType = appMetaData.dataTypes.find(
+    (element) => element.appLogic !== null && element.taskId === currentTaskId,
+  );
+  const currentTaskDataElement = instance.data.find(
+    (element) => element.dataType === appLogicDataType.id,
+  );
   return currentTaskDataElement.id;
 };
 
-export const getCurrentTaskData = (appMetaData: IApplication, instance: IInstance) => {
+export const getCurrentTaskData = (
+  appMetaData: IApplication,
+  instance: IInstance,
+) => {
   const currentTaskId = instance.process.currentTask.elementId;
-  const currentDataType = appMetaData.dataTypes.find((element) => element.appLogic !== null && element.taskId === currentTaskId);
-  return instance.data.find((element) => element.dataType === currentDataType.id);
+  const currentDataType = appMetaData.dataTypes.find(
+    (element) => element.appLogic !== null && element.taskId === currentTaskId,
+  );
+  return instance.data.find(
+    (element) => element.dataType === currentDataType.id,
+  );
 };

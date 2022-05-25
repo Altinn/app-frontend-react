@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { Grid, GridJustification, makeStyles } from '@material-ui/core';
+import type { GridJustification } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
-import { IAltinnWindow } from '../../types';
+import type { IAltinnWindow } from '../../types';
 import { useAppSelector } from 'src/common/hooks';
-import { IComponentProps } from '..';
+import type { IComponentProps } from '..';
 
 export interface IImageProps extends IComponentProps {
   image: IImage;
@@ -30,62 +31,60 @@ const useStyles = makeStyles({
 
 export function ImageComponent(props: IImageProps) {
   const classes = useStyles();
-  const language = useAppSelector(state => state.profile.profile.profileSettingPreference.language);
+  const language = useAppSelector(
+    (state) => state.profile.profile?.profileSettingPreference.language || 'nb',
+  );
   const width = props.image.width || '100%';
   const align = props.image.align || 'center';
-  const altText = props.getTextResourceAsString(props.textResourceBindings.altTextImg);
+  const altText = props.getTextResourceAsString(
+    props.textResourceBindings.altTextImg,
+  );
 
   let imgSrc = props.image.src[language] || props.image.src.nb;
   if (imgSrc.startsWith('wwwroot')) {
-    imgSrc = imgSrc.replace('wwwroot', `/${(window as Window as IAltinnWindow).org}/${(window as Window as IAltinnWindow).app}`);
+    imgSrc = imgSrc.replace(
+      'wwwroot',
+      `/${(window as Window as IAltinnWindow).org}/${
+        (window as Window as IAltinnWindow).app
+      }`,
+    );
   }
 
   const imgType = imgSrc.slice(-3);
   const renderSvg = imgType.toLowerCase() === 'svg';
 
   return (
-    <Grid
-      container
-      direction='row'
-      justify={align}
-    >
+    <Grid container direction='row' justify={align}>
       <Grid item={true}>
-        {renderSvg ?
-          (
-            <object
-              type='image/svg+xml'
-              id={props.id}
-              data={imgSrc}
-            >
-              <img
-                src={imgSrc}
-                alt={altText}
-                style={{
-                  width: width,
-                }}
-              />
-            </object>
-          )
-          : (
+        {renderSvg ? (
+          <object type='image/svg+xml' id={props.id} data={imgSrc}>
             <img
-              id={props.id}
               src={imgSrc}
               alt={altText}
               style={{
                 width: width,
               }}
             />
-          )
-        }
+          </object>
+        ) : (
+          <img
+            id={props.id}
+            src={imgSrc}
+            alt={altText}
+            style={{
+              width: width,
+            }}
+          />
+        )}
       </Grid>
-      {props.textResourceBindings?.help &&
+      {props.textResourceBindings?.help && (
         <Grid item={true} className={classes.spacing}>
           <HelpTextContainer
             language={props.language}
             helpText={props.getTextResource(props.textResourceBindings.help)}
           />
         </Grid>
-      }
+      )}
     </Grid>
   );
 }

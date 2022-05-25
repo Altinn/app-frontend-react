@@ -1,10 +1,10 @@
 import { getLanguageFromCode } from '../../shared/src/language';
-import { IRuntimeState } from '../src/types';
+import type { IRuntimeState } from '../src/types';
 import { getFormLayoutStateMock } from './formLayoutStateMock';
 import { getFormDataStateMock } from './formDataStateMock';
 import { applicationMetadataMock } from './applicationMetadataMock';
 import { applicationSettingsMock } from './applicationSettingsMock';
-import { IParty } from '../../shared/src';
+import type { IParty } from '../../shared/src';
 import { getInstanceDataStateMock } from './instanceDataStateMock';
 import { getProfileStateMock } from './profileStateMock';
 
@@ -20,7 +20,9 @@ export const mockParty: IParty = {
   childParties: null,
 };
 
-export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRuntimeState {
+export function getInitialStateMock(
+  customStates?: Partial<IRuntimeState>,
+): IRuntimeState {
   const initialState: IRuntimeState = {
     applicationMetadata: {
       applicationMetadata: applicationMetadataMock,
@@ -78,19 +80,14 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
           logo: '',
           orgnr: '',
           homepage: '',
-          environments: [
-            'tt02',
-            'production',
-          ],
+          environments: ['tt02', 'production'],
         },
       },
       error: null,
     },
     party: {
       error: null,
-      parties: [
-        mockParty,
-      ],
+      parties: [mockParty],
       selectedParty: mockParty,
     },
     process: {
@@ -104,10 +101,21 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       dataTask: null,
       infoTask: null,
       stateless: null,
+      userTask: null,
     },
     textResources: {
       resources: [
-        { id: 'option.from.rep.group.label', value: 'The value from the group is: {0}', unparsedValue: 'The value from the group is: {0}', variables: [ { dataSource: 'dataModel.skjema', key: 'someGroup[{0}].labelField' }] }
+        {
+          id: 'option.from.rep.group.label',
+          value: 'The value from the group is: {0}',
+          unparsedValue: 'The value from the group is: {0}',
+          variables: [
+            {
+              dataSource: 'dataModel.skjema',
+              key: 'someGroup[{0}].labelField',
+            },
+          ],
+        },
       ],
       error: null,
       language: 'nb',
@@ -119,7 +127,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     applicationSettings: {
       applicationSettings: applicationSettingsMock,
       error: null,
-    }
+    },
   };
 
   return {

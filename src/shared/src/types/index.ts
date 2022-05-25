@@ -16,7 +16,6 @@ export interface IApplication {
   onEntry?: IOnEntry;
 }
 
-
 export interface IAltinnOrg {
   name: ITitle;
   logo: string;
@@ -29,6 +28,13 @@ export interface IAltinnOrgs {
   [org: string]: IAltinnOrg;
 }
 
+export interface IApplicationLogic {
+  allowAnonymousOnStateless?: boolean;
+  autoCreate?: boolean;
+  classRef: string;
+  schemaRef?: string;
+}
+
 export interface IOnEntry {
   show: 'new-instance' | 'startpage' | string;
 }
@@ -38,7 +44,7 @@ export interface IAttachment {
   iconClass: string;
   url: string;
   dataType: string;
-  tags?: string[]
+  tags?: string[];
 }
 
 export interface IData {
@@ -65,7 +71,7 @@ export interface IDataType {
   description?: string;
   allowedContentTypes: string[];
   allowedContributers?: string[];
-  appLogic?: any;
+  appLogic?: IApplicationLogic;
   taskId?: string;
   maxSize?: number;
   maxCount: number;
@@ -117,7 +123,7 @@ export interface IInstanceState {
 }
 
 export interface ILanguage {
-    [key: string]: string | ILanguage;
+  [key: string]: string | ILanguage;
 }
 
 export interface IOrganisation {
@@ -243,7 +249,7 @@ export interface IAttachmentGrouping {
   [title: string]: IAttachment[];
 }
 
-export interface IDataSource{
+export interface IDataSource {
   [key: string]: any;
 }
 

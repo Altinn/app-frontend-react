@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react';
-import axios, { AxiosError } from 'axios';
+import type { AxiosError } from 'axios';
+import axios from 'axios';
 import { createStore } from 'redux';
 import { MemoryRouter } from 'react-router-dom';
 
 import { getInitialStateMock } from '../../../__mocks__/initialStateMock';
 import type { IRuntimeState } from '../../types';
 
-import { IApplicationMetadata } from '../../shared/resources/applicationMetadata';
+import type { IApplicationMetadata } from '../../shared/resources/applicationMetadata';
 import Entrypoint from './Entrypoint';
 
 jest.mock('axios');
@@ -89,6 +90,39 @@ describe('features > entrypoint > Entrypoint.tsx', () => {
         show: 'stateless',
       },
     };
+    const mockStateWithStatelessApplication: IRuntimeState = {
+      ...mockInitialState,
+    };
+    mockStateWithStatelessApplication.applicationMetadata.applicationMetadata =
+      statelessApplication;
+    mockStore = createStore(mockReducer, mockStateWithStatelessApplication);
+    mockStore.dispatch = jest.fn();
+
+    const rendered = render(
+      <Provider store={mockStore}>
+        <Entrypoint />
+      </Provider>,
+    );
+
+    const contentLoader = await rendered.findByText('Loading...');
+    expect(contentLoader).not.toBeNull();
+
+    // should have started the initialStatelessQueue
+    await waitFor(() => {
+      expect(mockStore.dispatch).toHaveBeenCalledWith({
+        type: 'queue/startInitialStatelessQueue',
+      });
+    });
+  });
+
+  it('should show loader while fetching data then start statelessQueue if stateless app with allowAnonymous', async () => {
+    const statelessApplication: IApplicationMetadata = {
+      ...mockInitialState.applicationMetadata.applicationMetadata,
+      onEntry: {
+        show: 'stateless',
+      },
+    };
+    statelessApplication.dataTypes[0].appLogic.allowAnonymousOnStateless = true;
     const mockStateWithStatelessApplication: IRuntimeState = {
       ...mockInitialState,
     };

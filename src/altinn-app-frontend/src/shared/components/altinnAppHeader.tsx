@@ -8,7 +8,7 @@ import * as React from 'react';
 import { AltinnLogo } from 'altinn-shared/components';
 import { AltinnAppTheme } from 'altinn-shared/theme';
 import { getLanguageFromKey, returnUrlToMessagebox } from 'altinn-shared/utils';
-import { ILanguage, IProfile } from 'altinn-shared/types';
+import type { ILanguage, IProfile } from 'altinn-shared/types';
 import {
   returnUrlToAllSchemas,
   returnUrlToProfile,
@@ -127,7 +127,7 @@ const AltinnAppHeader = (props: IHeaderProps) => {
               }
             />
           </Grid>
-          {type && (
+          {type && party && (
             <ul className={classes.headerLinkList}>
               <li className={classes.headerLink}>
                 <a
@@ -156,47 +156,52 @@ const AltinnAppHeader = (props: IHeaderProps) => {
               </li>
             </ul>
           )}
-          <div className='a-personSwitcher' title={renderParty(props.profile)}>
-            <span className='a-personSwitcher-name' style={spanStyle}>
-              {!type && (
-                <>
-                  <span
-                    className={`d-block ${
-                      type ? classes.blueDark : classes.blueDarker
-                    }`}
-                  >
-                    {renderParty(props.profile)}
-                  </span>
-                  <span
-                    className={type ? classes.blueDark : classes.blueDarker}
-                  >
-                    {party &&
-                      party.organisation &&
-                      `${getLanguageFromKey(
-                        'general.for',
-                        props.language,
-                      )} ${party.organisation.name.toUpperCase()}`}
-                  </span>
-                </>
+          {party && (
+            <div
+              className='a-personSwitcher'
+              title={renderParty(props.profile)}
+            >
+              <span className='a-personSwitcher-name' style={spanStyle}>
+                {!type && (
+                  <>
+                    <span
+                      className={`d-block ${
+                        type ? classes.blueDark : classes.blueDarker
+                      }`}
+                    >
+                      {renderParty(props.profile)}
+                    </span>
+                    <span
+                      className={type ? classes.blueDark : classes.blueDarker}
+                    >
+                      {party &&
+                        party.organisation &&
+                        `${getLanguageFromKey(
+                          'general.for',
+                          props.language,
+                        )} ${party.organisation.name.toUpperCase()}`}
+                    </span>
+                  </>
+                )}
+                <span className='d-block' />
+              </span>
+              {party && party.organisation ? (
+                <i
+                  className={`fa fa-corp-circle-big ${classes.partyIcon} ${
+                    type ? classes.blueDark : classes.blueDarker
+                  }`}
+                  aria-hidden='true'
+                />
+              ) : (
+                <i
+                  className={`fa fa-private-circle-big ${classes.partyIcon} ${
+                    type ? classes.blueDark : classes.blueDarker
+                  }`}
+                  aria-hidden='true'
+                />
               )}
-              <span className='d-block' />
-            </span>
-            {party && party.organisation ? (
-              <i
-                className={`fa fa-corp-circle-big ${classes.partyIcon} ${
-                  type ? classes.blueDark : classes.blueDarker
-                }`}
-                aria-hidden='true'
-              />
-            ) : (
-              <i
-                className={`fa fa-private-circle-big ${classes.partyIcon} ${
-                  type ? classes.blueDark : classes.blueDarker
-                }`}
-                aria-hidden='true'
-              />
-            )}
-          </div>
+            </div>
+          )}
         </Toolbar>
       </AppBar>
     </div>

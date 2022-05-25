@@ -1,39 +1,24 @@
-import { Action, ActionCreatorsMapObject, bindActionCreators } from 'redux';
-import { store } from '../../../store';
+import { bindActionCreators } from 'redux';
+import { store } from 'src/store';
 
 import * as ApiActions from './api/apiActions';
 import * as ConditionalRenderActions from './conditionalRendering/conditionalRenderingActions';
 import * as FetchDynamicActions from './fetch/fetchFormDynamicsActions';
 
-export interface IFormDynamicsActions extends ActionCreatorsMapObject {
-  checkIfApiShouldFetch: (
-    updatedComponentId: string,
-    updatedDataField: string,
-    updatedData: string,
-    repeating: boolean,
-    dataModelGroup?: string,
-    index?: number,
-  ) => ApiActions.ICheckIfApiShouldFetchAction;
-  checkIfConditionalRulesShouldRun: (
-    repeatingContainerId?: string,
-  ) => ConditionalRenderActions.ICheckIfConditionalRulesShouldRun;
-  fetchFormDynamics: () => Action;
-  fetchFormDynamicsFulfilled: (
-    apis: any,
-    roleConnections: any,
-    conditionalRendering: any,
-  ) => FetchDynamicActions.IFetchServiceConfigFulfilled;
-  fetchFormDynamicsRejected: (error: Error) => FetchDynamicActions.IFetchServiceConfigRejected;
-}
+export type IFormDynamicsActions = typeof actions;
 
-const actions: IFormDynamicsActions = {
+const actions = {
   checkIfApiShouldFetch: ApiActions.checkIfApiShouldFetch,
-  checkIfConditionalRulesShouldRun: ConditionalRenderActions.checkIfConditionalRulesShouldRun,
+  checkIfConditionalRulesShouldRun:
+    ConditionalRenderActions.checkIfConditionalRulesShouldRun,
   fetchFormDynamics: FetchDynamicActions.fetchServiceConfig,
   fetchFormDynamicsFulfilled: FetchDynamicActions.fetchServiceConfigFulfilled,
   fetchFormDynamicsRejected: FetchDynamicActions.fetchServiceConfigRejected,
 };
 
-const FormDynamicsRules: IFormDynamicsActions = bindActionCreators<any, any>(actions, store.dispatch);
+const FormDynamicsRules: IFormDynamicsActions = bindActionCreators<any, any>(
+  actions,
+  store.dispatch,
+);
 
 export default FormDynamicsRules;

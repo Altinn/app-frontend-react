@@ -1,5 +1,5 @@
-import { IFormData } from 'src/features/form/data/formDataReducer';
-import { IAltinnWindow, IMapping } from 'src/types';
+import type { IFormData } from 'src/features/form/data/formDataReducer';
+import type { IAltinnWindow, IMapping } from 'src/types';
 import { mapFormData } from 'src/utils/databindings';
 
 const altinnWindow = window as Window as IAltinnWindow;
@@ -34,8 +34,9 @@ export function fileUploadUrl(attachmentType: string) {
 }
 
 export function fileTagUrl(dataGuid: string) {
-  return `${appPath}/instances/` +
-    `${altinnWindow.instanceId}/data/${dataGuid}/tags`;
+  return (
+    `${appPath}/instances/` + `${altinnWindow.instanceId}/data/${dataGuid}/tags`
+  );
 }
 
 export function dataElementUrl(dataGuid: string) {
@@ -141,7 +142,10 @@ export function getFetchFormDataUrl(instanceId: string, dataElementId: string) {
   return `${appPath}/instances/${instanceId}/data/${dataElementId}`;
 }
 
-export function getStatelessFormDataUrl(dataType: string) {
+export function getStatelessFormDataUrl(dataType: string, anonymous = false) {
+  if (anonymous) {
+    return `${appPath}/v1/data/anonymous?dataType=${dataType}`;
+  }
   return `${appPath}/v1/data?dataType=${dataType}`;
 }
 
@@ -166,8 +170,12 @@ export function getRulehandlerUrl(layoutset: string) {
   return `${appPath}/api/rulehandler/${layoutset}`;
 }
 
-export function getCalculatePageOrderUrl() {
-  return `${appPath}/instances/${altinnWindow.instanceId}/pages/order`;
+export function getCalculatePageOrderUrl(stateless: boolean) {
+  if (stateless) {
+    return `${appPath}/v1/pages/order`;
+  } else {
+    return `${appPath}/instances/${altinnWindow.instanceId}/pages/order`;
+  }
 }
 
 export function getPartyValidationUrl(partyId: string) {
@@ -191,7 +199,14 @@ export interface IGetOptionsUrlParams {
   instanceId?: string;
 }
 
-export const getOptionsUrl = ({ optionsId, dataMapping, formData, language, secure, instanceId }: IGetOptionsUrlParams) => {
+export const getOptionsUrl = ({
+  optionsId,
+  dataMapping,
+  formData,
+  language,
+  secure,
+  instanceId,
+}: IGetOptionsUrlParams) => {
   let url: URL;
   if (secure) {
     url = new URL(`${appPath}/instances/${instanceId}/options/${optionsId}`);
