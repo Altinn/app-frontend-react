@@ -72,7 +72,7 @@ const createRadioButton = (
 ): ILayoutComponent => {
   return {
     id: 'field1',
-    type: 'RadioButtons',
+    type: 'Likert',
     dataModelBindings: {
       simpleBinding: `${groupBinding}.${answerBinding}`,
     },

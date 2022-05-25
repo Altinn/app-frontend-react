@@ -14,7 +14,7 @@ import { getTextResource } from 'src/utils/formComponentUtils';
 import { useGetOptions } from 'src/components/hooks';
 import { useAppSelector } from 'src/common/hooks';
 import { getOptionLookupKey } from 'src/utils/options';
-import { IRadioButtonsContainerProps } from 'src/components/base/RadioButtonsContainerComponent';
+import { IRadioButtonsContainerProps } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 type RepeatingGroupsLikertContainerProps = {

@@ -53,7 +53,8 @@ export type ComponentTypes =
   | 'RadioButtons'
   | 'Summary'
   | 'TextArea'
-  | 'NavigationBar';
+  | 'NavigationBar'
+  | 'Likert';
 
 export interface IDataModelBindings {
   [id: string]: string;

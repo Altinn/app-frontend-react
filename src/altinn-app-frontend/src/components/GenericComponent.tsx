@@ -204,7 +204,7 @@ export function GenericComponent(props: IGenericComponentProps) {
       props.type === 'Datepicker' ||
       props.type === 'FileUpload' ||
       props.type === 'FileUploadWithTag' ||
-      (props.type === 'RadioButtons' && props.likertDisplay === 'desktop')
+      (props.type === 'Likert' && props.likertDisplay === 'desktop')
     ) {
       return componentValidations;
     }
@@ -310,6 +310,7 @@ export function GenericComponent(props: IGenericComponentProps) {
     'AttachmentList',
     'InstantiationButton',
     'NavigationBar',
+    'Likert',
   ];
 
   const showValidationMessages =
@@ -318,7 +319,7 @@ export function GenericComponent(props: IGenericComponentProps) {
       props.type,
     ) && hasValidationMessages;
 
-  if (props.likertDisplay === 'desktop') {
+  if (props.type === 'Likert' && props.likertDisplay === 'desktop') {
     return <RenderComponent.Tag {...componentProps} />;
   }
 
