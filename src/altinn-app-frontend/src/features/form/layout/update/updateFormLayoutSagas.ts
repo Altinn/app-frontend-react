@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
-import type { RaceEffect, TakeEffect } from 'redux-saga/effects';
 import { all, call, put, select, take, takeEvery, takeLatest, race } from 'redux-saga/effects';
 import type {
   IFileUploadersWithTag,
@@ -149,24 +148,30 @@ function* updateRepeatingGroupsSaga({ payload: {
       // Find uploaded attachments inside group and delete them
       const childAttachments = findChildAttachments(formDataState.formData, attachments.attachments,
         layout, layoutElementId, repeatingGroup, index);
-      const races:RaceEffect<TakeEffect>[] = [];
+      const idsExpectedToBeDeleted = new Set(childAttachments.map((c) => c.attachment.id));
+
       for (const {attachment, component, componentId, index} of childAttachments) {
         yield put(deleteAttachment(attachment, component.id, componentId, component.dataModelBindings, index));
-        races.push(race({
-          fulfilled: take(DELETE_ATTACHMENT_FULFILLED),
-          rejected: take(DELETE_ATTACHMENT_REJECTED),
-        }));
       }
-      const raceResults:{
-        fulfilled?:IDeleteAttachmentActionFulfilled,
-        rejected?:IDeleteAttachmentActionRejected,
-      }[] = yield all(races);
 
       let attachmentRemovalSuccessful = true;
-      for (const raceResult of raceResults) {
-        if (raceResult.rejected) {
+      while (idsExpectedToBeDeleted.size) {
+        const completion: {
+          fulfilled?: IDeleteAttachmentActionFulfilled,
+          rejected?: IDeleteAttachmentActionRejected
+        } = yield race({
+          fulfilled: take(DELETE_ATTACHMENT_FULFILLED),
+          rejected: take(DELETE_ATTACHMENT_REJECTED),
+        });
+        const attachmentId = completion.fulfilled?.attachmentId || completion.rejected.attachment.id;
+        if (!idsExpectedToBeDeleted.has(attachmentId)) {
+          // Some other attachment elsewhere had its event complete, we'll ignore it
+          continue;
+        }
+
+        idsExpectedToBeDeleted.delete(attachmentId);
+        if (completion.rejected) {
           attachmentRemovalSuccessful = false;
-          break;
         }
       }
 
