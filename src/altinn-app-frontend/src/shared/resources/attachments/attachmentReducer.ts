@@ -141,6 +141,19 @@ const attachmentReducer: Reducer<IAttachmentState> = (
       });
     }
 
+    case (AttachmentActionsTypes.DELETE_ATTACHMENT): {
+      const { componentId, index } = action as deleteActions.IDeleteAttachmentAction;
+      return update<IAttachmentState>(state, {
+        attachments: {
+          [componentId]: {
+            [index]: {
+              deleting: { $set: true },
+            },
+          },
+        },
+      });
+    }
+
     case (AttachmentActionsTypes.DELETE_ATTACHMENT_FULFILLED): {
       const { attachmentId: id, componentId } = action as deleteActions.IDeleteAttachmentActionFulfilled;
       return update<IAttachmentState>(state, {
