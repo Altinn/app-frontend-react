@@ -182,10 +182,7 @@ function* updateRepeatingGroupsSaga({ payload: {
         );
         yield put(updateValidations({ validations: updatedValidations }));
 
-        yield put(FormLayoutActions.updateRepeatingGroupsEditIndex({
-          group: layoutElementId,
-          index: -1,
-        }));
+        updatedRepeatingGroups[layoutElementId].editIndex = -1;
         yield put(FormLayoutActions.updateRepeatingGroupsFulfilled({repeatingGroups: updatedRepeatingGroups}));
         yield put(FormDataActions.setFormDataFulfilled({ formData: updatedFormData }));
         yield put(FormDataActions.saveFormData());
@@ -193,10 +190,7 @@ function* updateRepeatingGroupsSaga({ payload: {
         yield put(FormLayoutActions.updateRepeatingGroupsRejected({ error: undefined }));
       }
     } else {
-      yield put(FormLayoutActions.updateRepeatingGroupsEditIndex({
-        group: layoutElementId,
-        index: index,
-      }));
+      updatedRepeatingGroups[layoutElementId].editIndex = index;
       yield put(FormLayoutActions.updateRepeatingGroupsFulfilled({repeatingGroups: updatedRepeatingGroups}));
     }
 
