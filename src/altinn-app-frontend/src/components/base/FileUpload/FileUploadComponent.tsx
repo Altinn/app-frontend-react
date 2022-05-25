@@ -201,6 +201,20 @@ export function FileUploadComponent({
           </thead>
           <tbody>
             {attachments.map((attachment, index: number) => {
+              const readableSize = `${(attachment.size / bytesInOneMB).toFixed(
+                2,
+              )} ${getLanguageFromKey(
+                'form_filler.file_uploader_mb',
+                language,
+              )}`;
+
+              const status = attachment.uploaded
+                ? getLanguageFromKey(
+                    'form_filler.file_uploader_list_status_done',
+                    language,
+                  )
+                : getLanguageFromKey('general.loading', language);
+
               return (
                 <tr
                   key={attachment.id}
@@ -216,55 +230,29 @@ export function FileUploadComponent({
                           color: AltinnAppTheme.altinnPalette.primary.grey,
                         }}
                       >
-                        {`${(attachment.size / bytesInOneMB).toFixed(
-                          2,
-                        )} ${getLanguageFromKey(
-                          'form_filler.file_uploader_mb',
-                          language,
-                        )}`}
+                        {readableSize}
                       </div>
                     ) : null}
                   </td>
-                  {!mobileView ? (
-                    <td>
-                      {`${(attachment.size / bytesInOneMB).toFixed(
-                        2,
-                      )} ${getLanguageFromKey(
-                        'form_filler.file_uploader_mb',
-                        language,
-                      )}`}
-                    </td>
-                  ) : null}
+                  {!mobileView ? <td>{readableSize}</td> : null}
                   <td>
-                    {attachment.uploaded && (
+                    {attachment.uploaded ? (
                       <div>
-                        {!mobileView
-                          ? getLanguageFromKey(
-                              'form_filler.file_uploader_list_status_done',
-                              language,
-                            )
-                          : null}
+                        {mobileView ? null : status}
                         <i
                           className='ai ai-check-circle'
-                          aria-label={getLanguageFromKey(
-                            'form_filler.file_uploader_list_status_done',
-                            language,
-                          )}
+                          aria-label={status}
                           style={mobileView ? { marginLeft: '10px' } : null}
                         />
                       </div>
-                    )}
-                    {!attachment.uploaded && (
+                    ) : (
                       <AltinnLoader
                         id='loader-upload'
                         style={{
                           marginBottom: '1.6rem',
                           marginRight: '1.3rem',
                         }}
-                        srContent={getLanguageFromKey(
-                          'general.loading',
-                          language,
-                        )}
+                        srContent={status}
                       />
                     )}
                   </td>
@@ -276,13 +264,22 @@ export function FileUploadComponent({
                       tabIndex={0}
                       role='button'
                     >
-                      {!attachment.deleting && (
+                      {attachment.deleting ? (
+                        <AltinnLoader
+                          id='loader-delete'
+                          style={{
+                            marginBottom: '1.6rem',
+                            marginRight: '1.0rem',
+                          }}
+                          srContent={getLanguageFromKey(
+                            'general.loading',
+                            language,
+                          )}
+                        />
+                      ) : (
                         <>
                           {mobileView
-                            ? getLanguageFromKey(
-                                'general.delete',
-                                language,
-                              )
+                            ? getLanguageFromKey('general.delete', language)
                             : getLanguageFromKey(
                                 'form_filler.file_uploader_list_delete',
                                 language,
@@ -295,19 +292,6 @@ export function FileUploadComponent({
                             )}
                           />
                         </>
-                      )}
-                      {attachment.deleting && (
-                        <AltinnLoader
-                          id='loader-delete'
-                          style={{
-                            marginBottom: '1.6rem',
-                            marginRight: '1.0rem',
-                          }}
-                          srContent={getLanguageFromKey(
-                            'general.loading',
-                            language,
-                          )}
-                        />
                       )}
                     </div>
                   </td>
