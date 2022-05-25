@@ -53,6 +53,7 @@ const NavBar = (props: INavBarProps) => {
       <div>
         {props.showBackArrow && (
           <button
+            data-testid='altinn-back-button'
             type='button'
             className='a-modal-back a-js-tabable-popover'
             aria-label={getLanguageFromKey('general.back', props.language)}

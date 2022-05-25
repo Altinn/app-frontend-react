@@ -48,9 +48,14 @@ describe('components/presentation/NavBar.tsx', () => {
     expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
+  it('should hide back button', () => {
+    renderNavBar();
+    expect(screen.queryByTestId('altinn-back-button')).toBeNull();
+  });
+
   it('should render back button', async () => {
     const { mockBack } = renderNavBar({ showBackArrow: true });
-    const backButton = screen.getByRole('button', { name: /Tilbake/i });
+    const backButton = screen.getByTestId('altinn-back-button');
     await userEvent.click(backButton);
     expect(mockBack).toHaveBeenCalled();
   });
