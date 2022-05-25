@@ -1,9 +1,8 @@
 import { SagaIterator } from 'redux-saga';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { call, select, takeLatest } from 'redux-saga/effects';
 import { get } from 'src/utils/networking';
 import { appLanguagesUrl } from 'src/utils/appUrlHelper';
 import AppLanguagesActions from '../appLanguagesActions';
-import { appTaskQueueError } from '../../queue/queueSlice';
 import { IRuntimeState } from 'src/types';
 import { FormLayoutActions as Actions } from 'src/features/form/layout/formLayoutSlice';
 
@@ -18,7 +17,6 @@ function* fetchAppLanguages(): SagaIterator {
     }
   } catch (error) {
     yield call(AppLanguagesActions.fetchAppLanguagesRejected, error);
-    yield put(appTaskQueueError({ error }));
   }
 }
 
