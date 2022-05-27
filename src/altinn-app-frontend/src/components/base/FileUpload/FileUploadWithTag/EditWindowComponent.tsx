@@ -43,6 +43,7 @@ const useStyles = makeStyles({
 });
 
 export interface EditWindowProps extends IComponentProps{
+  index: number;
   attachment: IAttachment;
   mobileView: boolean;
   options: IOption[];
@@ -59,7 +60,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   const classes = useStyles();
 
   const handleDeleteFile = () => {
-    AttachmentDispatcher.deleteAttachment(props.attachment, props.id, props.id, {}, 0);
+    AttachmentDispatcher.deleteAttachment(props.attachment, props.id, props.id, props.dataModelBindings, props.index);
     props.setEditIndex(-1);
   };
 

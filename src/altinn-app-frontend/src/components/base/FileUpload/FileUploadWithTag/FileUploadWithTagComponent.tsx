@@ -234,6 +234,7 @@ export function FileUploadWithTagComponent({
         onDropdownDataChange={handleDropdownDataChange}
         setEditIndex={setEditIndex}
         textResourceBindings={textResourceBindings}
+        dataModelBindings={dataModelBindings}
         {...({} as IComponentProps)}
       />
 
