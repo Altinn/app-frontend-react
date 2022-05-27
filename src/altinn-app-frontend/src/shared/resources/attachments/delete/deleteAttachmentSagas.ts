@@ -36,7 +36,7 @@ export function* deleteAttachmentSaga({
 
     const response:AxiosResponse = yield call(httpDelete, dataElementUrl(attachment.id));
     if (response.status === 200) {
-      if (dataModelBindings) {
+      if (dataModelBindings && dataModelBindings.simpleBinding) {
         yield put(FormDataActions.deleteAttachmentReference({
           componentId,
           index,
