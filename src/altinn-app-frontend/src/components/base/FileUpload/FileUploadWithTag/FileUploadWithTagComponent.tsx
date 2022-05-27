@@ -28,6 +28,7 @@ export const emptyArray = [];
 
 export function FileUploadWithTagComponent({
   id,
+  baseComponentId,
   componentValidations,
   language,
   maxFileSizeInMB,
@@ -62,7 +63,9 @@ export function FileUploadWithTagComponent({
 
   const setEditIndex = (index: number) => {
     dataDispatch(FormLayoutActions.updateFileUploaderWithTagEditIndex({
-      uploader: id, index
+      componentId: id,
+      baseComponentId: baseComponentId,
+      index
     }));
   };
 
@@ -101,9 +104,14 @@ export function FileUploadWithTagComponent({
     if (value !== undefined) {
       const option = options?.find((o) => o.value === value);
       if (option !== undefined) {
-        dataDispatch(FormLayoutActions.updateFileUploaderWithTagChosenOptions({
-          uploader: id, id: attachmentId, option
-        }));
+        dataDispatch(
+          FormLayoutActions.updateFileUploaderWithTagChosenOptions({
+            componentId: id,
+            baseComponentId: baseComponentId || id,
+            id: attachmentId,
+            option,
+          }),
+        );
       } else {
         console.error(`Could not find option for ${value}`);
       }
@@ -113,7 +121,7 @@ export function FileUploadWithTagComponent({
   const setAttachmentTag = (attachment: IAttachment, optionValue: string) => {
     const option = options?.find((o) => o.value === optionValue);
     if (option !== undefined) {
-      AttachmentDispatcher.updateAttachment(attachment, id, option.value);
+      AttachmentDispatcher.updateAttachment(attachment, id, baseComponentId, option.value);
     } else {
       console.error(`Could not find option for ${optionValue}`);
     }
@@ -125,7 +133,7 @@ export function FileUploadWithTagComponent({
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     const newFiles: IAttachment[] = [];
-    const fileType = id;
+    const fileType = baseComponentId || id;
     const tmpValidations: string[] = [];
     const totalAttachments = acceptedFiles.length + rejectedFiles.length + attachments.length;
 

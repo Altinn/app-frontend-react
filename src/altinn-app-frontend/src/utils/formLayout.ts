@@ -1,20 +1,63 @@
-import { ITextResource } from 'altinn-shared/types';
-import { IInstantiationButtonProps } from 'src/components/base/InstantiationButtonComponent';
-import { IAttachmentState } from 'src/shared/resources/attachments/attachmentReducer';
-import {
+import type { ITextResource } from 'altinn-shared/types';
+import type { IInstantiationButtonProps } from 'src/components/base/InstantiationButtonComponent';
+import type { IAttachmentState } from 'src/shared/resources/attachments/attachmentReducer';
+import type {
   IRepeatingGroups,
   ILayoutNavigation,
   ITextResourceBindings,
   IFileUploadersWithTag,
   IOptionsChosen,
-  IFormFileUploaderWithTagComponent,
   IMapping,
 } from 'src/types';
-import {
+import type {
   ILayout,
   ILayoutComponent,
   ILayoutGroup
 } from '../features/form/layout';
+
+interface SplitKey {
+  baseComponentId: string;
+  stringDepth: string;
+  depth: number[];
+}
+
+/**
+ * Takes a dashed component id (possibly inside a repeating group row), like 'myComponent-0-1' and returns
+ * a workable object:
+ *   {
+ *     baseComponentId: 'myComponent',
+ *     stringDepth: '0-1',
+ *     depth: [0, 1],
+ *   }
+ */
+export function splitDashedKey(componentId:string):SplitKey {
+  const parts = componentId.split('-');
+
+  const depth: number[] = [];
+  while (parts.length) {
+    const toConsider = parts.pop();
+
+    // Since our form component IDs are usually UUIDs, they will contain hyphens and may even end in '-<number>'.
+    // We'll assume the application has less than 5-digit repeating group elements (the last leg of UUIDs are always
+    // longer than 5 digits).
+    if (toConsider.match(/^\d{1,5}$/)) {
+      depth.push(parseInt(toConsider, 10));
+    } else {
+      depth.reverse();
+      return {
+        baseComponentId: [...parts, toConsider].join('-'),
+        stringDepth: depth.join('-').toString(),
+        depth: depth,
+      };
+    }
+  }
+
+  return {
+    baseComponentId: componentId,
+    stringDepth: '',
+    depth: [],
+  };
+}
 
 export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   const repeatingGroups: IRepeatingGroups = {};
@@ -101,33 +144,28 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   return repeatingGroups;
 }
 
-export function getFileUploadersWithTag(
+export function mapFileUploadersWithTag(
   formLayout: ILayout,
   attachmentState: IAttachmentState
 ) {
   const fileUploaders: IFileUploadersWithTag = {};
-  const uploaders = formLayout.filter((layoutElement) => layoutElement.type.toLowerCase() === 'fileuploadwithtag');
-  uploaders.forEach((component: ILayoutComponent) => {
-    const uploader = component as unknown as IFormFileUploaderWithTagComponent;
-    const attachments = attachmentState.attachments[uploader.id];
-    if (
-      attachments !== undefined
-    ) {
-      const chosenOptions: IOptionsChosen = {};
-      for (let index = 0; index < attachments.length; index++) {
-        chosenOptions[attachments[index].id] = attachments[index].tags[0];
-      }
-      fileUploaders[uploader.id] = {
-        editIndex: -1,
-        chosenOptions,
-      };
-    } else {
-      fileUploaders[uploader.id] = {
-        editIndex: -1,
-        chosenOptions: {} as IOptionsChosen,
-      };
+  for (const componentId of Object.keys(attachmentState.attachments)) {
+    const baseComponentId = splitDashedKey(componentId).baseComponentId;
+    const component = formLayout.find((layoutElement) => layoutElement.id === baseComponentId);
+    if (!component || component.type.toLowerCase() !== 'fileuploadwithtag') {
+      continue;
     }
-  });
+
+    const attachments = attachmentState.attachments[componentId];
+    const chosenOptions: IOptionsChosen = {};
+    for (let index = 0; index < attachments.length; index++) {
+      chosenOptions[attachments[index].id] = attachments[index].tags[0];
+    }
+    fileUploaders[componentId] = {
+      editIndex: -1,
+      chosenOptions,
+    };
+  }
   return fileUploaders;
 }
 

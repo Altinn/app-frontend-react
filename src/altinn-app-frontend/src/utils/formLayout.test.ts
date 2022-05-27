@@ -8,7 +8,7 @@ import type { IRepeatingGroups, IMapping, ITextResource } from 'src/types';
 
 import {
   createRepeatingGroupComponents,
-  getFileUploadersWithTag,
+  mapFileUploadersWithTag,
   getRepeatingGroups,
   hasRequiredFields,
   removeRepeatingGroupFromUIConfig,
@@ -529,7 +529,7 @@ describe('formLayout', () => {
         chosenOptions: {},
       },
     };
-    const result = getFileUploadersWithTag(testLayout, testAttachments);
+    const result = mapFileUploadersWithTag(testLayout, testAttachments);
     expect(result).toEqual(expected);
   });
 

@@ -86,7 +86,7 @@ export interface IOptionsChosen {
 }
 
 export interface IFileUploadersWithTag {
-  [id: string]: IFormFileUploaderWithTag;
+  [componentId: string]: IFormFileUploaderWithTag;
 }
 
 export interface ILayoutSets {

@@ -11,7 +11,7 @@ import type {
   IValidations
 } from 'src/types';
 import { Triggers } from 'src/types';
-import { getFileUploadersWithTag, getRepeatingGroups, removeRepeatingGroupFromUIConfig } from 'src/utils/formLayout';
+import { mapFileUploadersWithTag, getRepeatingGroups, removeRepeatingGroupFromUIConfig } from 'src/utils/formLayout';
 import type { AxiosRequestConfig } from 'axios';
 import { get, post } from 'altinn-shared/utils';
 import {
@@ -65,7 +65,7 @@ import {
 } from "src/shared/resources/attachments/delete/deleteAttachmentActions";
 import {
   DELETE_ATTACHMENT_FULFILLED,
-  DELETE_ATTACHMENT_REJECTED
+  DELETE_ATTACHMENT_REJECTED, MAP_ATTACHMENTS
 } from "src/shared/resources/attachments/attachmentActionTypes";
 
 const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
@@ -484,19 +484,35 @@ export function* watchInitRepeatingGroupsSaga(): SagaIterator {
 }
 
 export function* updateFileUploaderWithTagEditIndexSaga({ payload: {
-  uploader, index, attachmentId = null
+  componentId, baseComponentId, index, attachmentId = null
 } }: PayloadAction<IUpdateFileUploaderWithTagEditIndex>): SagaIterator {
   try {
     if (attachmentId && index === -1) { // In the case of closing an edit view.
       const state: IRuntimeState = yield select();
-      const chosenOption = state.formLayout.uiConfig.fileUploadersWithTag[uploader].chosenOptions[attachmentId]
+      const chosenOption = state.formLayout.uiConfig.fileUploadersWithTag[componentId].chosenOptions[attachmentId]
       if (chosenOption && chosenOption !== '') {
-        yield put(FormLayoutActions.updateFileUploaderWithTagEditIndexFulfilled({ uploader, index }));
+        yield put(
+          FormLayoutActions.updateFileUploaderWithTagEditIndexFulfilled({
+            componentId,
+            baseComponentId,
+            index,
+          }),
+        );
       } else {
-        yield put(FormLayoutActions.updateFileUploaderWithTagEditIndexRejected({ error: null }));
+        yield put(
+          FormLayoutActions.updateFileUploaderWithTagEditIndexRejected({
+            error: null,
+          }),
+        );
       }
     } else {
-      yield put(FormLayoutActions.updateFileUploaderWithTagEditIndexFulfilled({ uploader, index }));
+      yield put(
+        FormLayoutActions.updateFileUploaderWithTagEditIndexFulfilled({
+          componentId,
+          baseComponentId,
+          index,
+        }),
+      );
     }
   } catch (error) {
     yield put(FormLayoutActions.updateFileUploaderWithTagEditIndexRejected({ error }));
@@ -508,18 +524,18 @@ export function* watchUpdateFileUploaderWithTagEditIndexSaga(): SagaIterator {
 }
 
 export function* updateFileUploaderWithTagChosenOptionsSaga({ payload: {
-  uploader, id, option
+  componentId, baseComponentId, id, option
 } }: PayloadAction<IUpdateFileUploaderWithTagChosenOptions>): SagaIterator {
   try {
     // Validate option to available options
     const state: IRuntimeState = yield select();
     const currentView = state.formLayout.uiConfig.currentView;
     const component = state.formLayout.layouts[currentView]
-      .find((component: ILayoutComponent) => component.id === uploader) as unknown as IFormFileUploaderWithTagComponent;
+      .find((component: ILayoutComponent) => component.id === baseComponentId) as unknown as IFormFileUploaderWithTagComponent;
     const componentOptions = state.optionState.options[getOptionLookupKey(component.optionsId, component.mapping)]?.options;
     if (componentOptions.find(op => op.value === option.value)) {
       yield put(FormLayoutActions.updateFileUploaderWithTagChosenOptionsFulfilled({
-        uploader, id, option,
+        componentId, baseComponentId, id, option,
       }));
     } else {
       yield put(FormLayoutActions.updateFileUploaderWithTagChosenOptionsRejected({ error: new Error('Could not find the selected option!') }));
@@ -533,26 +549,30 @@ export function* watchUpdateFileUploaderWithTagChosenOptionsSaga(): SagaIterator
   yield takeLatest(FormLayoutActions.updateFileUploaderWithTagChosenOptions, updateFileUploaderWithTagChosenOptionsSaga);
 }
 
-export function* initFileUploaderWithTagSaga(): SagaIterator {
+export function* mapFileUploaderWithTagSaga(): SagaIterator {
   const attachmentState: IAttachmentState = yield select(selectAttachmentState);
   const layouts = yield select(selectFormLayouts);
   let newUploads: IFileUploadersWithTag = {};
   Object.keys(layouts).forEach((layoutKey: string) => {
     newUploads = {
       ...newUploads,
-      ...getFileUploadersWithTag(layouts[layoutKey], attachmentState),
+      ...mapFileUploadersWithTag(layouts[layoutKey], attachmentState),
     };
   });
   yield put(FormLayoutActions.updateFileUploadersWithTagFulfilled({ uploaders: newUploads }));
 }
 
-export function* watchInitFileUploaderWithTagSaga(): SagaIterator {
-  yield take(FormLayoutActions.fetchLayoutFulfilled);
-  yield call(initFileUploaderWithTagSaga);
+export function* watchMapFileUploaderWithTagSaga(): SagaIterator {
+  yield all([
+    take(FormLayoutActions.fetchLayoutFulfilled),
+    take(MAP_ATTACHMENTS),
+  ]);
+  yield call(mapFileUploaderWithTagSaga);
+
   yield takeLatest([
-    FormLayoutActions.initFileUploaderWithTag,
+    MAP_ATTACHMENTS,
     FormLayoutActions.fetchLayoutFulfilled
   ],
-    initFileUploaderWithTagSaga
+    mapFileUploaderWithTagSaga
   );
 }

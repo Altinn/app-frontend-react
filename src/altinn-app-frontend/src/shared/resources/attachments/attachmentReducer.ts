@@ -86,20 +86,20 @@ const attachmentReducer: Reducer<IAttachmentState> = (
     case (AttachmentActionsTypes.UPDATE_ATTACHMENT): {
       const {
         attachment,
-        attachmentType,
+        componentId,
       } = action as updateActions.IUpdateAttachmentAction;
-      if (!state.attachments[attachmentType]) {
+      if (!state.attachments[componentId]) {
         state = update<IAttachmentState>(state, {
           attachments: {
-            [attachmentType]: { $set: [] },
+            [componentId]: { $set: [] },
           },
         });
       }
       const newAttachment = { ...attachment, updating: true };
-      const index = state.attachments[attachmentType].findIndex((item) => item.id === attachment.id);
+      const index = state.attachments[componentId].findIndex((item) => item.id === attachment.id);
       return update<IAttachmentState>(state, {
         attachments: {
-          [attachmentType]: {
+          [componentId]: {
             [index]: { $set: newAttachment },
           },
         },
@@ -107,18 +107,15 @@ const attachmentReducer: Reducer<IAttachmentState> = (
     }
 
     case (AttachmentActionsTypes.UPDATE_ATTACHMENT_REJECTED): {
-      const {
-        attachment,
-        attachmentType,
-        tag,
-      } = action as updateActions.IUpdateAttachmentActionRejected;
+      const { attachment, componentId, tag } =
+        action as updateActions.IUpdateAttachmentActionRejected;
       const newAttachment = {
         ...attachment, tag, updating: false,
       };
-      const index = state.attachments[attachmentType].findIndex((item) => item.id === attachment.id);
+      const index = state.attachments[componentId].findIndex((item) => item.id === attachment.id);
       return update<IAttachmentState>(state, {
         attachments: {
-          [attachmentType]: {
+          [componentId]: {
             [index]: { $set: newAttachment },
           },
         },
@@ -126,15 +123,13 @@ const attachmentReducer: Reducer<IAttachmentState> = (
     }
 
     case (AttachmentActionsTypes.UPDATE_ATTACHMENT_FULFILLED): {
-      const {
-        attachment,
-        attachmentType,
-      } = action as updateActions.IUpdateAttachmentActionFulfilled;
+      const { attachment, componentId } =
+        action as updateActions.IUpdateAttachmentActionFulfilled;
       const newAttachment = { ...attachment, updating: false };
-      const index = state.attachments[attachmentType].findIndex((item) => item.id === attachment.id);
+      const index = state.attachments[componentId].findIndex((item) => item.id === attachment.id);
       return update<IAttachmentState>(state, {
         attachments: {
-          [attachmentType]: {
+          [componentId]: {
             [index]: { $set: newAttachment },
           },
         },
