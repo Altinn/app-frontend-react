@@ -151,11 +151,17 @@ export function removeAttachmentReference(
     return formData;
   }
 
+  const binding = dataModelBindings.simpleBinding;
   const result = { ...formData };
-  deleteGroupData(result, dataModelBindings.simpleBinding, index);
 
-  for (let laterIdx = index + 1; laterIdx <= attachments[componentId].length - 1; laterIdx++) {
-    deleteGroupData(result, dataModelBindings.simpleBinding, laterIdx, true);
+  if (typeof result[binding] === 'string') {
+    delete result[binding];
+  } else {
+    deleteGroupData(result, binding, index);
+
+    for (let laterIdx = index + 1; laterIdx <= attachments[componentId].length - 1; laterIdx++) {
+      deleteGroupData(result, binding, laterIdx, true);
+    }
   }
 
   return result;

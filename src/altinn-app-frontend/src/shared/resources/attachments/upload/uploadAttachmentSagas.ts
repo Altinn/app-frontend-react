@@ -1,17 +1,19 @@
-import { SagaIterator } from 'redux-saga';
+import type { SagaIterator } from 'redux-saga';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig } from 'axios';
 import { customEncodeURI } from 'altinn-shared/utils';
 import { updateComponentValidations } from 'src/features/form/validation/validationSlice';
-import { IAttachment } from '..';
+import type { IAttachment } from '..';
 import { getFileUploadComponentValidations } from '../../../../utils/formComponentUtils';
-import { IRuntimeState } from '../../../../types';
+import type { IRuntimeState } from '../../../../types';
 import { post } from '../../../../utils/networking';
 import { fileUploadUrl } from '../../../../utils/appUrlHelper';
 import AttachmentDispatcher from '../attachmentActions';
 import * as AttachmentActionsTypes from '../attachmentActionTypes';
 import * as uploadActions from './uploadAttachmentActions';
 import FormDataActions from "src/features/form/data/formDataActions";
+import type { ILanguage } from "altinn-shared/types";
+import type { ILayout } from "src/features/form/layout";
 
 export function* uploadAttachmentSaga(
   {
@@ -23,9 +25,15 @@ export function* uploadAttachmentSaga(
     index,
   }: uploadActions.IUploadAttachmentAction,
 ): SagaIterator {
-  const state: IRuntimeState = yield select();
-  const currentView = state.formLayout.uiConfig.currentView;
-  const language = state.language.language;
+  const currentView: string = yield select(
+    (s: IRuntimeState) => s.formLayout.uiConfig.currentView,
+  );
+  const language: ILanguage = yield select(
+    (s: IRuntimeState) => s.language.language,
+  );
+  const layout:ILayout = yield select(
+    (s: IRuntimeState) => s.formLayout.layouts[currentView],
+  );
 
   try {
     // Sets validations to empty.
@@ -70,10 +78,12 @@ export function* uploadAttachmentSaga(
         attachment, attachmentType, tmpAttachmentId, componentId);
 
       if (dataModelBindings && dataModelBindings.simpleBinding) {
+        const component:any = layout.find((c) => c.id === attachmentType);
+        const indexSuffix = component?.maxNumberOfAttachments > 1 ? `[${index}]` : '';
         yield put(FormDataActions.updateFormData({
           componentId: componentId,
           data: response.data.id,
-          field: `${dataModelBindings.simpleBinding}[${index}]`,
+          field: `${dataModelBindings.simpleBinding}${indexSuffix}`,
         }));
       }
     } else {
