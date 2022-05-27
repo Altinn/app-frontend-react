@@ -62,7 +62,9 @@ jobs:
           mkdir -p ./cdn/toolkits/altinn-app-frontend/$APP_MAJOR.$APP_MINOR.$APP_PATCH
           cp -fr ./app-frontend/src/altinn-app-frontend/dist/altinn-app-frontend.js ./cdn/toolkits/altinn-app-frontend/$APP_MAJOR.$APP_MINOR.$APP_PATCH/altinn-app-frontend.js
           cp -fr ./app-frontend/src/altinn-app-frontend/dist/altinn-app-frontend.css ./cdn/toolkits/altinn-app-frontend/$APP_MAJOR.$APP_MINOR.$APP_PATCH/altinn-app-frontend.css
-          cd cdn
+          cd cdn/toolkits/altinn-app-frontend
+          ls -1 | grep --perl-regexp '^[\d\.]+$' | sort --version-sort | jq --raw-input --slurp 'split("\n") | map(select(. != ""))' > index.json
+          cd ../..
           git config --global user.email "$AUTHOR_EMAIL"
           git config --global user.name "$AUTHOR_NAME"
           git add .
