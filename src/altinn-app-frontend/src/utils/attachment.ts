@@ -1,11 +1,15 @@
 import type { IData } from 'altinn-shared/types';
 import type { IAttachments } from '../shared/resources/attachments';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
+import { getKeyIndex } from "src/utils/databindings";
+import { ILayout } from "src/features/form/layout";
+import { IFormFileUploaderComponent, IFormFileUploaderWithTagComponent } from "src/types";
 
 export function mapAttachmentListToAttachments(
   data: IData[],
   defaultElementId: string,
   formData: IFormData,
+  layout: ILayout
 ): IAttachments {
   const attachments: IAttachments = {};
 
@@ -18,10 +22,17 @@ export function mapAttachmentListToAttachments(
       return;
     }
 
+    const component = layout.find(
+      (c) => c.id === baseComponentId,
+    ) as unknown as
+      | IFormFileUploaderComponent
+      | IFormFileUploaderWithTagComponent;
+
     let [key, index] = convertToDashedComponentId(
       baseComponentId,
       formData,
       element.id,
+      component?.maxNumberOfAttachments > 1,
     );
 
     if (!key) {
@@ -51,6 +62,7 @@ function convertToDashedComponentId(
   baseComponentId: string,
   formData: IFormData,
   attachmentUuid: string,
+  hasIndex:boolean,
 ): [string, number] {
   const formDataKey = Object.keys(formData).find(
     (key) => formData[key] === attachmentUuid,
@@ -60,13 +72,22 @@ function convertToDashedComponentId(
     return ['', 0];
   }
 
-  const groups = formDataKey
-    .match(/\[\d+]/g)
-    .map((s) => parseInt(s.replace('[', '').replace(']', '')));
-  const componentId = `${baseComponentId}-${groups
-    .slice(0, groups.length - 1)
-    .join('-')}`;
-  const index = groups[groups.length - 1];
+  const groups = getKeyIndex(formDataKey);
+  let componentId: string;
+  let index:number;
+  if (hasIndex) {
+    const groupSuffix =
+      groups.length > 1 ? `-${groups.slice(0, groups.length - 1).join('-')}` : '';
+
+    componentId = `${baseComponentId}${groupSuffix}`;
+    index = groups[groups.length - 1];
+  } else {
+    const groupSuffix =
+      groups.length ? `-${groups.slice(0, groups.length - 1).join('-')}` : '';
+
+    componentId = `${baseComponentId}${groupSuffix}`;
+    index = 0;
+  }
 
   return [componentId, index];
 }

@@ -9,10 +9,12 @@ import * as updateActions from './update/updateAttachmentActions';
 
 export interface IAttachmentState {
   attachments: IAttachments;
+  error?: Error,
 }
 
 const initialState: IAttachmentState = {
   attachments: {},
+  error: undefined,
 };
 
 const attachmentReducer: Reducer<IAttachmentState> = (
@@ -185,6 +187,16 @@ const attachmentReducer: Reducer<IAttachmentState> = (
         },
       });
     }
+
+    case (AttachmentActionsTypes.MAP_ATTACHMENTS_REJECTED): {
+      const { error } = action as mapActions.IMapAttachmentsActionRejected;
+      return update<IAttachmentState>(state, {
+        error: {
+          $set: error,
+        },
+      });
+    }
+
     default:
       return state;
   }
