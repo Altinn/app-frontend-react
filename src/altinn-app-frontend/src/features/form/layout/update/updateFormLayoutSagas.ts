@@ -65,7 +65,7 @@ import {
 } from "src/shared/resources/attachments/delete/deleteAttachmentActions";
 import {
   DELETE_ATTACHMENT_FULFILLED,
-  DELETE_ATTACHMENT_REJECTED, MAP_ATTACHMENTS
+  DELETE_ATTACHMENT_REJECTED, MAP_ATTACHMENTS_FULFILLED
 } from "src/shared/resources/attachments/attachmentActionTypes";
 
 const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
@@ -565,12 +565,12 @@ export function* mapFileUploaderWithTagSaga(): SagaIterator {
 export function* watchMapFileUploaderWithTagSaga(): SagaIterator {
   yield all([
     take(FormLayoutActions.fetchLayoutFulfilled),
-    take(MAP_ATTACHMENTS),
+    take(MAP_ATTACHMENTS_FULFILLED),
   ]);
   yield call(mapFileUploaderWithTagSaga);
 
   yield takeLatest([
-    MAP_ATTACHMENTS,
+    MAP_ATTACHMENTS_FULFILLED,
     FormLayoutActions.fetchLayoutFulfilled
   ],
     mapFileUploaderWithTagSaga
