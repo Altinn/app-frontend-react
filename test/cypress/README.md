@@ -47,7 +47,8 @@ Other remote environments could also be used (see `e2e/config/*.json`).
 ### Running tests locally
 
 1. Clone the apps (
-   [ttd/frontend-test](https://dev.altinn.studio/repos/ttd/frontend-test) and
+   [ttd/frontend-test](https://dev.altinn.studio/repos/ttd/frontend-test),
+   [ttd/anonymous-stateless-app](https://dev.altinn.studio/repos/ttd/anonymous-stateless-app) and
    [ttd/stateless-app](https://dev.altinn.studio/repos/ttd/stateless-app)
    ) to be tested.
 
