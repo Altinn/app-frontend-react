@@ -54,16 +54,14 @@ export function renderValidationMessages(
       id={id}
     >
       <ol>
-        {messages.map((message: any, idx: number) => {
-          if (typeof message === 'string') {
-            return (
-              <li key={`validationMessage-${id}-${message}`}>
-                <p role='alert'>{message}</p>
-              </li>
-            );
-          }
-          return <li role='alert' key={`validationMessage-${id}-${idx}`}>{message}</li>;
-        })}
+        {
+          typeof messages[0] === 'string' ?
+            <li key={`validationMessage-${id}-${messages[0]}`}>
+              <p role='alert'>{messages[0]}</p>
+            </li>
+          :
+            <li role='alert' key={`validationMessage-${id}`}>{messages[0]}</li>
+        }
       </ol>
     </MessageComponent>
   );
