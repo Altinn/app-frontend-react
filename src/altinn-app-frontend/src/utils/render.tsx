@@ -55,12 +55,11 @@ export function renderValidationMessages(
     >
       <ol>
         {
-          typeof messages[0] === 'string' ?
-            <li key={`validationMessage-${id}-${messages[0]}`}>
+          typeof messages[0] === 'string'
+          ? <li key={`validationMessage-${id}-${messages[0]}`}>
               <p role='alert'>{messages[0]}</p>
             </li>
-          :
-            <li role='alert' key={`validationMessage-${id}`}>{messages[0]}</li>
+          : <li role='alert' key={`validationMessage-${id}`}>{messages[0]}</li>
         }
       </ol>
     </MessageComponent>
