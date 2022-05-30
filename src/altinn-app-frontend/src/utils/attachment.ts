@@ -83,7 +83,7 @@ function convertToDashedComponentId(
     index = groups[groups.length - 1];
   } else {
     const groupSuffix =
-      groups.length ? `-${groups.slice(0, groups.length - 1).join('-')}` : '';
+      groups.length ? `-${groups.join('-')}` : '';
 
     componentId = `${baseComponentId}${groupSuffix}`;
     index = 0;
