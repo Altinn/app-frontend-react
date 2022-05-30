@@ -410,7 +410,7 @@ describe('formLayout', () => {
   it('getFileUploadersWithTag should return expected uiConfig', () => {
     const testLayout: ILayout = [
       {
-        id: 'file-upload-with-tag-1',
+        id: 'file-upload-with-tag1',
         type: 'FileUploadWithTag',
         textResourceBindings: {
           title: 'VedleggTest',
@@ -428,7 +428,7 @@ describe('formLayout', () => {
         validFileEndings: ['.jpeg', '.jpg', '.pdf'],
       } as ILayoutComponent,
       {
-        id: 'file-upload-with-tag-2',
+        id: 'file-upload-with-tag2',
         type: 'FileUploadWithTag',
         textResourceBindings: {
           title: 'VedleggTest',
@@ -446,7 +446,7 @@ describe('formLayout', () => {
         validFileEndings: ['.jpeg', '.jpg', '.pdf'],
       } as ILayoutComponent,
       {
-        id: 'file-upload-with-tag-3',
+        id: 'file-upload-with-tag3',
         type: 'FileUploadWithTag',
         textResourceBindings: {
           title: 'VedleggTest',
@@ -467,7 +467,7 @@ describe('formLayout', () => {
 
     const testAttachments: IAttachmentState = {
       attachments: {
-        'file-upload-with-tag-1': [
+        'file-upload-with-tag1': [
           {
             name: 'test-1.pdf',
             size: 18302,
@@ -487,7 +487,7 @@ describe('formLayout', () => {
             updating: false,
           },
         ],
-        'file-upload-with-tag-2': [
+        'file-upload-with-tag2': [
           {
             name: 'test-3.pdf',
             size: 18302,
@@ -510,23 +510,19 @@ describe('formLayout', () => {
       },
     };
     const expected = {
-      'file-upload-with-tag-1': {
+      'file-upload-with-tag1': {
         editIndex: -1,
         chosenOptions: {
           'id-1': 'TAG-1',
           'id-2': 'TAG-2',
         },
       },
-      'file-upload-with-tag-2': {
+      'file-upload-with-tag2': {
         editIndex: -1,
         chosenOptions: {
           'id-3': 'TAG-3',
           'id-4': 'TAG-4',
         },
-      },
-      'file-upload-with-tag-3': {
-        editIndex: -1,
-        chosenOptions: {},
       },
     };
     const result = mapFileUploadersWithTag(testLayout, testAttachments);
