@@ -15,7 +15,7 @@ These instructions will get you run the integration tests on altinn-app-frontend
 ### Test data prerequisite
 
 1. For running the test against remote test environments like AT, TT02, test user has to be created. You won't need
-these if you intend to only run the tests against your local setup.
+   these if you intend to only run the tests against your local setup.
 
 Create a new file name `cypress.env.json` under `test\cypress` with a username and password:
 
@@ -24,15 +24,6 @@ Create a new file name `cypress.env.json` under `test\cypress` with a username a
   "testUserName": "",
   "testUserPwd": ""
 }
-```
-
-2. Create test files that are used by the tests as attachments in app instances. This is only needed the first time, or
-when files are deleted from `e2e/fixtures`.
-
-**Note:** Use cmd or git bash to run the scripts.
-
-```cmd
-    yarn run create:testfiles
 ```
 
 ### Running tests against a remote environment
