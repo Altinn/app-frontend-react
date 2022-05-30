@@ -39,7 +39,7 @@ const getHasErrorsSelector = (state: IRuntimeState) => {
   if (error !== null) {
     // We have an error on something we consider critical
     if (lastLogged !== error) {
-      console.error(error);
+      typeof jest === 'undefined' && console.error(error);
       lastLogged = error;
     }
 
