@@ -19,6 +19,7 @@ export function* watchMapAttachmentsSaga(): SagaIterator {
   yield all([
     take(FormDataActions.fetchFormDataFulfilled),
     take(FormLayoutActions.fetchLayoutFulfilled),
+    take(FormLayoutActions.updateCurrentViewFulfilled),
     take(GET_INSTANCEDATA_FULFILLED),
     take(FETCH_APPLICATION_METADATA_FULFILLED),
   ]);
