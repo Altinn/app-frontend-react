@@ -1,23 +1,19 @@
 const path = require('node:path');
-const fs = require('fs-extra');
+const fs = require('node:fs/promises');
 
-function getConfigurationByFile(pathToFile, file) {
-  const pathToJsonDataFile = path.resolve(pathToFile, `${file}.json`);
-  return fs.readJson(pathToJsonDataFile);
+async function getConfigurationByFile(file) {
+  const pathToJsonDataFile = path.resolve('e2e/config', `${file}.json`);
+  return JSON.parse((await fs.readFile(pathToJsonDataFile)).toString());
 }
 
 module.exports = (on, config) => {
-  var pathToConfig = 'e2e/config';
-  switch (config.env.environment) {
-    case 'local':
-      return getConfigurationByFile(pathToConfig, 'local');
-    case 'at21':
-      return getConfigurationByFile(pathToConfig, 'at21');
-    case 'at22':
-      return getConfigurationByFile(pathToConfig, 'at22');
-    case 'tt02':
-      return getConfigurationByFile(pathToConfig, 'tt02');
+  const validEnvironments = ['local', 'at21', 'at22', 'tt02'];
+
+  if (validEnvironments.includes(config.env.environment)) {
+    return getConfigurationByFile(config.env.environment);
   }
 
-  return config;
+  throw new Error(`Unknown environment "${config.env.environment}"
+Valid environments are:
+- ${validEnvironments.join('\n- ')}`);
 };

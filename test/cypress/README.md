@@ -54,7 +54,7 @@ Other remote environments could also be used (see `e2e/config/*.json`).
 2. Create (or update) `.env` file with the correct paths (see `template.env`)
 
 3. To start localtest, app frontend, and the app you configured above, run the command below.
-   (Skip to step 4 if the solutions are already running)
+   (Skip to step 4 if the solutions are already running). The command will not finish, but it will start the app-frontend server in development mode. When you see the message `[app-frontend] No errors found.` you can move on to the next step.
 
 ```cmd
     yarn run before:appfrontend
