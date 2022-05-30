@@ -53,9 +53,24 @@ export type ComponentTypes =
   | 'TextArea'
   | 'NavigationBar';
 
-export interface IDataModelBindings {
-  [id: string]: string;
+export interface IDataModelBindingsSimple {
+  simpleBinding: string;
 }
+
+export interface IDataModelBindingsForGroup {
+  group: string;
+}
+
+export interface IDataModelBindingsForAddress {
+  address: string;
+  zipCode: string;
+  postPlace: string;
+}
+
+export type IDataModelBindings =
+  & Partial<IDataModelBindingsSimple>
+  & Partial<IDataModelBindingsForGroup>
+  & Partial<IDataModelBindingsForAddress>;
 
 export interface ITextResourceBindings {
   [id: string]: string;

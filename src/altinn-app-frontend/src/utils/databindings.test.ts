@@ -59,7 +59,7 @@ describe('utils/databindings.ts', () => {
         id: 'field1',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.prop1',
+          simpleBinding: 'Group.prop1',
         },
         textResourceBindings: {
           title: 'Title',
@@ -72,7 +72,7 @@ describe('utils/databindings.ts', () => {
         id: 'field2',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.prop2',
+          simpleBinding: 'Group.prop2',
         },
         textResourceBindings: {
           title: 'Title',
@@ -85,7 +85,7 @@ describe('utils/databindings.ts', () => {
         id: 'field3',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.prop3',
+          simpleBinding: 'Group.prop3',
         },
         textResourceBindings: {
           title: 'Title',
@@ -98,7 +98,7 @@ describe('utils/databindings.ts', () => {
         id: 'field4',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.Group2.group2prop',
+          simpleBinding: 'Group.Group2.group2prop',
         },
         textResourceBindings: {
           title: 'Title',
