@@ -2,16 +2,17 @@ import type { IData } from 'altinn-shared/types';
 import type { IAttachments } from '../shared/resources/attachments';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
 import { getKeyIndex } from "src/utils/databindings";
-import { ILayout } from "src/features/form/layout";
-import { IFormFileUploaderComponent, IFormFileUploaderWithTagComponent } from "src/types";
+import { ILayouts, ILayoutComponent, ILayoutGroup } from "src/features/form/layout";
+import { isFileUploadComponent, isFileUploadWithTagComponent } from "src/utils/formLayout";
 
 export function mapAttachmentListToAttachments(
   data: IData[],
   defaultElementId: string,
   formData: IFormData,
-  layout: ILayout
+  layouts: ILayouts
 ): IAttachments {
   const attachments: IAttachments = {};
+  const allComponents = [].concat(...Object.values(layouts)) as (ILayoutComponent | ILayoutGroup)[];
 
   data.forEach((element: IData) => {
     const baseComponentId = element.dataType;
@@ -22,17 +23,16 @@ export function mapAttachmentListToAttachments(
       return;
     }
 
-    const component = layout.find(
-      (c) => c.id === baseComponentId,
-    ) as unknown as
-      | IFormFileUploaderComponent
-      | IFormFileUploaderWithTagComponent;
+    const component = allComponents.find((c) => c.id === baseComponentId);
+    if (!component || (!isFileUploadComponent(component) && !isFileUploadWithTagComponent(component))) {
+      return;
+    }
 
     let [key, index] = convertToDashedComponentId(
       baseComponentId,
       formData,
       element.id,
-      component?.maxNumberOfAttachments > 1,
+      component.maxNumberOfAttachments > 1,
     );
 
     if (!key) {

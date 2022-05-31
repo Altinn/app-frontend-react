@@ -10,7 +10,7 @@ import { IApplicationMetadata } from '../../applicationMetadata';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
 import { IFormData } from "src/features/form/data/formDataReducer";
 import FormDataActions from "src/features/form/data/formDataActions";
-import { ILayout } from "src/features/form/layout";
+import type { ILayouts } from "src/features/form/layout";
 import { FormLayoutActions } from "src/features/form/layout/formLayoutSlice";
 import { GET_INSTANCEDATA_FULFILLED } from "src/shared/resources/instanceData/get/getInstanceDataActionTypes";
 import { FETCH_APPLICATION_METADATA_FULFILLED } from "src/shared/resources/applicationMetadata/actions/types";
@@ -40,12 +40,11 @@ export function* mapAttachments(): SagaIterator {
     const defaultElement = getCurrentTaskData(applicationMetadata, instance);
 
     const formData = yield select((state:IRuntimeState) : IFormData => state.formData.formData);
-    const currentView = yield select((state:IRuntimeState) : string => state.formLayout.uiConfig.currentView);
-    const layout = yield select((state:IRuntimeState) : ILayout => state.formLayout.layouts[currentView]);
+    const layouts = yield select((state:IRuntimeState) : ILayouts => state.formLayout.layouts);
 
     const attachments: IData[] = yield select(selectAttachments);
     const mappedAttachments: IAttachments = mapAttachmentListToAttachments(
-      attachments, defaultElement.id, formData, layout
+      attachments, defaultElement.id, formData, layouts
     );
 
     yield call(AttachmentDispatcher.mapAttachmentsFulfilled, mappedAttachments);
