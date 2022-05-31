@@ -14,6 +14,8 @@ import type {
   ILayoutComponent,
   ILayoutGroup
 } from '../features/form/layout';
+import { IFormFileUploaderComponent, IFormFileUploaderWithTagComponent } from "src/types";
+import { IDatePickerProps } from "src/components/base/DatepickerComponent";
 
 interface SplitKey {
   baseComponentId: string;
@@ -345,4 +347,33 @@ export function setVariableTextKeysForRepeatingGroupComponent(
 
 export function hasRequiredFields(layout: ILayout) {
   return layout.find((c: ILayoutComponent) => c.required);
+}
+
+/**
+ * Type guards for inferring component types
+ * @see https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
+ */
+
+export function isGroupComponent(
+  component:ILayoutComponent|ILayoutGroup
+):component is ILayoutGroup {
+  return component.type.toLowerCase() === 'group';
+}
+
+export function isFileUploadComponent(
+  component:ILayoutComponent|ILayoutGroup
+):component is (IFormFileUploaderComponent & ILayoutComponent) {
+  return component.type.toLowerCase() === 'fileupload';
+}
+
+export function isFileUploadWithTagComponent(
+  component:ILayoutComponent|ILayoutGroup
+):component is (IFormFileUploaderWithTagComponent & ILayoutComponent) {
+  return component.type.toLowerCase() === 'fileuploadwithtag';
+}
+
+export function isDatePickerComponent(
+  component:ILayoutComponent|ILayoutGroup
+):component is (IDatePickerProps & ILayoutComponent) {
+  return component.type.toLowerCase() === 'datepicker';
 }
