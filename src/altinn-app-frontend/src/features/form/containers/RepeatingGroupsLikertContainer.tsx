@@ -1,5 +1,5 @@
 import { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
-import { ITextResource } from 'src/types';
+import { ITextResource, LayoutStyle } from 'src/types';
 import * as React from 'react';
 import { Grid, TableCell, Typography } from '@material-ui/core';
 import { GenericComponent } from 'src/components/GenericComponent';
@@ -84,7 +84,6 @@ export const RepeatingGroupsLikertContainer = ({
               <GenericComponent
                 key={comp.id}
                 {...comp}
-                likertDisplay={'mobile'}
               />
             );
           })}
@@ -125,7 +124,7 @@ export const RepeatingGroupsLikertContainer = ({
                 <GenericComponent
                   key={comp.id}
                   {...comp}
-                  likertDisplay={'desktop'}
+                  layout={LayoutStyle.Table}
                   groupContainerId={id}
                 />
               );

@@ -2,7 +2,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useGetOptions } from 'src/components/hooks';
 import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
 import { getOptionLookupKey } from 'src/utils/options';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { IRadioButtonsContainerProps } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
 
 export const useRadioStyles = makeStyles((theme) => ({
@@ -64,7 +64,7 @@ export const useRadioButtons = ({
 }: IRadioButtonsContainerProps) => {
   const selected = formData?.simpleBinding ?? '';
   const apiOptions = useGetOptions({ optionsId, mapping, source });
-  const calculatedOptions = apiOptions || options || [];
+  const calculatedOptions = useMemo(()=>apiOptions || options || [],[apiOptions, options]);
   const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
   const fetchingOptions = useAppSelector(
     (state) =>

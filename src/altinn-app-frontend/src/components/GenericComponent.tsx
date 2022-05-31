@@ -4,18 +4,12 @@ import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
 import type { IComponentProps } from '.';
-import type { ILanguage } from 'altinn-shared/types';
-import type { ILabelSettings, IComponentValidations } from 'src/types';
-import type {
-  IDataModelBindings,
-  IGrid,
-  IGridStyling,
-  ITextResourceBindings,
-} from '../features/form/layout';
-
 import components from '.';
+import type { ILanguage } from 'altinn-shared/types';
+import type { IComponentValidations, ILabelSettings } from 'src/types';
+import { LayoutStyle, Triggers } from 'src/types';
+import type { IDataModelBindings, IGrid, IGridStyling, ITextResourceBindings } from '../features/form/layout';
 import { getTextResourceByKey } from 'altinn-shared/utils';
-import { Triggers } from 'src/types';
 import FormDataActions from '../features/form/data/formDataActions';
 import { setCurrentSingleFieldValidation } from '../features/form/validation/validationSlice';
 import { makeGetFocus, makeGetHidden } from '../selectors/getLayoutData';
@@ -23,9 +17,9 @@ import Label from '../features/form/components/Label';
 import Legend from '../features/form/components/Legend';
 import { renderValidationMessagesForComponent } from '../utils/render';
 import {
-  getFormDataForComponent,
-  componentValidationsHandledByGenericComponent,
   componentHasValidationMessages,
+  componentValidationsHandledByGenericComponent,
+  getFormDataForComponent,
   getTextResource,
   isComponentValid,
   selectComponentTexts,
@@ -46,7 +40,7 @@ export interface IGenericComponentProps {
   grid?: IGrid;
   triggers?: Triggers[];
   hidden?: boolean;
-  likertDisplay?: 'desktop' | 'mobile';
+  layout?: LayoutStyle;
   groupContainerId?: string;
 }
 
@@ -127,7 +121,7 @@ export function GenericComponent(props: IGenericComponentProps) {
     selectComponentTexts(
       state.textResources.resources,
       props.textResourceBindings,
-      props.likertDisplay !== undefined,
+      props.type === "Likert",
     ),
   );
 
@@ -204,7 +198,7 @@ export function GenericComponent(props: IGenericComponentProps) {
       props.type === 'Datepicker' ||
       props.type === 'FileUpload' ||
       props.type === 'FileUploadWithTag' ||
-      (props.type === 'Likert' && props.likertDisplay === 'desktop')
+      (props.type === 'Likert' && props.layout === LayoutStyle.Table)
     ) {
       return componentValidations;
     }
@@ -319,7 +313,7 @@ export function GenericComponent(props: IGenericComponentProps) {
       props.type,
     ) && hasValidationMessages;
 
-  if (props.type === 'Likert' && props.likertDisplay === 'desktop') {
+  if (props.type === 'Likert' && props.layout === LayoutStyle.Table) {
     return <RenderComponent.Tag {...componentProps} />;
   }
 

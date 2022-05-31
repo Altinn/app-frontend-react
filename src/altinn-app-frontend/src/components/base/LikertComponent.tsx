@@ -8,19 +8,16 @@ import {
   IControlledRadioGroupProps,
 } from 'src/components/base/RadioButtons/ControlledRadioGroup';
 import { IRadioButtonsContainerProps } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
+import { LayoutStyle } from 'src/types';
 
-export interface ILikertComponent extends IRadioButtonsContainerProps {
-  likertDisplay?: 'desktop' | 'mobile';
-}
 
-export const LikertComponent = (props: ILikertComponent) => {
-  const { likertDisplay } = props;
+export const LikertComponent = (props: IRadioButtonsContainerProps) => {
+  const { layout } = props;
   const useRadioProps = useRadioButtons(props);
 
-  switch (likertDisplay) {
-    case 'desktop':
+  switch (layout) {
+    case LayoutStyle.Table:
       return <RadioGroupTableRow {...props} {...useRadioProps} />;
-    case 'mobile':
     default:
       return <ControlledRadioGroup {...props} {...useRadioProps} />;
   }
