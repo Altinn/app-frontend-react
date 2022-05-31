@@ -147,20 +147,19 @@ export function removeAttachmentReference(
   dataModelBindings: IDataModelBindings,
   componentId: string,
 ):IFormData {
-  if (!dataModelBindings || !dataModelBindings.simpleBinding) {
+  if (!dataModelBindings || (!dataModelBindings.simpleBinding && !dataModelBindings.list)) {
     return formData;
   }
 
-  const binding = dataModelBindings.simpleBinding;
   const result = { ...formData };
 
-  if (typeof result[binding] === 'string') {
-    delete result[binding];
-  } else {
-    deleteGroupData(result, binding, index);
+  if (dataModelBindings.simpleBinding && typeof result[dataModelBindings.simpleBinding] === 'string') {
+    delete result[dataModelBindings.simpleBinding];
+  } else if (dataModelBindings.list) {
+    deleteGroupData(result, dataModelBindings.list, index);
 
     for (let laterIdx = index + 1; laterIdx <= attachments[componentId].length - 1; laterIdx++) {
-      deleteGroupData(result, binding, laterIdx, true);
+      deleteGroupData(result, dataModelBindings.list, laterIdx, true);
     }
   }
 
@@ -216,12 +215,16 @@ export function findChildAttachments(
 
   for (const key of formDataKeys) {
     const dataBinding = getKeyWithoutIndex(key);
-    const component:(IFormFileUploaderComponent & ILayoutComponent) =
-      components.find((c) => c.dataModelBindings?.simpleBinding === dataBinding) as any;
+    const component =
+      components.find(
+        (c) =>
+          c.dataModelBindings?.simpleBinding === dataBinding ||
+          c.dataModelBindings?.list === dataBinding,
+      ) as unknown as IFormFileUploaderComponent & ILayoutComponent;
 
     if (component) {
       const groupKeys = getKeyIndex(key);
-      if (component.maxNumberOfAttachments > 1) {
+      if (component.dataModelBindings.list) {
         groupKeys.pop();
       }
 

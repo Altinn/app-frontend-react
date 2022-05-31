@@ -13,7 +13,6 @@ import * as AttachmentActionsTypes from '../attachmentActionTypes';
 import * as uploadActions from './uploadAttachmentActions';
 import FormDataActions from "src/features/form/data/formDataActions";
 import type { ILanguage } from "altinn-shared/types";
-import type { ILayout } from "src/features/form/layout";
 
 export function* uploadAttachmentSaga(
   {
@@ -30,9 +29,6 @@ export function* uploadAttachmentSaga(
   );
   const language: ILanguage = yield select(
     (s: IRuntimeState) => s.language.language,
-  );
-  const layout:ILayout = yield select(
-    (s: IRuntimeState) => s.formLayout.layouts[currentView],
   );
 
   try {
@@ -77,13 +73,13 @@ export function* uploadAttachmentSaga(
       yield call(AttachmentDispatcher.uploadAttachmentFulfilled,
         attachment, attachmentType, tmpAttachmentId, componentId);
 
-      if (dataModelBindings && dataModelBindings.simpleBinding) {
-        const component:any = layout.find((c) => c.id === attachmentType);
-        const indexSuffix = component?.maxNumberOfAttachments > 1 ? `[${index}]` : '';
+      if (dataModelBindings && (dataModelBindings.simpleBinding || dataModelBindings.list)) {
         yield put(FormDataActions.updateFormData({
           componentId: componentId,
           data: response.data.id,
-          field: `${dataModelBindings.simpleBinding}${indexSuffix}`,
+          field: dataModelBindings.simpleBinding
+            ? `${dataModelBindings.simpleBinding}`
+            : `${dataModelBindings.list}[${index}]`,
         }));
       }
     } else {

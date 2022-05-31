@@ -49,9 +49,7 @@ export interface IComponentValidations {
   [id: string]: IComponentBindingValidation;
 }
 
-export interface IDataModelBindings {
-  [id: string]: string;
-}
+export { IDataModelBindings } from '../features/form/layout/index';
 
 export interface IFormComponent {
   id: string;

@@ -61,6 +61,14 @@ export interface IDataModelBindingsForGroup {
   group: string;
 }
 
+/**
+ * A middle ground between group and simple bindings, a list binding can be used to
+ * store a list of primitive values, like string[].
+ */
+export interface IDataModelBindingsList {
+  list: string;
+}
+
 export interface IDataModelBindingsForAddress {
   address: string;
   zipCode: string;
@@ -69,6 +77,7 @@ export interface IDataModelBindingsForAddress {
 
 export type IDataModelBindings =
   & Partial<IDataModelBindingsSimple>
+  & Partial<IDataModelBindingsList>
   & Partial<IDataModelBindingsForGroup>
   & Partial<IDataModelBindingsForAddress>;
 
