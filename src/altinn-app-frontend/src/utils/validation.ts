@@ -92,12 +92,11 @@ export function createValidator(schema: any): ISchemaValidator {
   ajv.addFormat('year', /^[0-9]{4}$/);
   ajv.addFormat('year-month', /^[0-9]{4}-(0[1-9]|1[0-2])$/);
   ajv.addSchema(schema, 'schema');
-  const schemaValidator: ISchemaValidator = {
+  return {
     validator: ajv,
     schema,
     rootElementPath,
   };
-  return schemaValidator;
 }
 
 export const errorMessageKeys = {
@@ -182,14 +181,13 @@ export function validateEmptyFields(
   const validations = {};
   Object.keys(layouts).forEach((id) => {
     if (layoutOrder.includes(id)) {
-      const result = validateEmptyFieldsForLayout(
+      validations[id] = validateEmptyFieldsForLayout(
         formData,
         layouts[id],
         language,
         hiddenFields,
         repeatingGroups,
       );
-      validations[id] = result;
     }
   });
   return validations;
@@ -418,14 +416,13 @@ export function validateFormComponents(
   const validations: any = {};
   Object.keys(layouts).forEach((id) => {
     if (layoutOrder.includes(id)) {
-      const result = validateFormComponentsForLayout(
+      validations[id] = validateFormComponentsForLayout(
         attachments,
         layouts[id],
         formData,
         language,
         hiddenFields,
       );
-      validations[id] = result;
     }
   });
 
