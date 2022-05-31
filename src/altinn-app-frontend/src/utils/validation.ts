@@ -367,10 +367,7 @@ export function validateEmptyField(
   if (!dataModelBindings) {
     return null;
   }
-  const fieldKeys: string[] = [];
-  Object.keys(dataModelBindings).forEach((modelBinding) => {
-    fieldKeys.push(modelBinding);
-  });
+  const fieldKeys = Object.keys(dataModelBindings) as (keyof IDataModelBindings)[];
   const componentValidations: IComponentValidations = {};
   fieldKeys.forEach((fieldKey) => {
     let dataModelBindingKey = dataModelBindings[fieldKey];
@@ -380,7 +377,20 @@ export function validateEmptyField(
         `${groupDataBinding}[${index}]`,
       );
     }
-    const value = formData[dataModelBindingKey];
+    let value = formData[dataModelBindingKey];
+    if (fieldKey === 'list') {
+      value = [];
+      for (const key of Object.keys(formData)) {
+        if (key.startsWith(dataModelBindingKey) && key.substring(dataModelBindingKey.length).match(/^\[\d+]$/)) {
+          const indexes = getKeyIndex(key);
+          value[indexes.pop()] = formData[key];
+        }
+      }
+      if (!value.length) {
+        value = undefined;
+      }
+    }
+
     if (!value && fieldKey) {
       componentValidations[fieldKey] = {
         errors: [],
