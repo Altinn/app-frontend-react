@@ -30,8 +30,9 @@ export const componentValidationsHandledByGenericComponent = (
 ): boolean => {
   return (
     !!dataModelBindings?.simpleBinding &&
-    type !== 'FileUpload' &&
-    type !== 'Datepicker'
+    type.toLowerCase() !== 'fileupload' &&
+    type.toLowerCase() !== 'fileuploadwithtag' &&
+    type.toLowerCase() !== 'datepicker'
   );
 };
 
