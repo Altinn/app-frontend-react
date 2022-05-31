@@ -200,8 +200,9 @@ interface IteratedComponent {
 
 export function* iterateFieldsInLayout(
   formLayout: ILayout,
-  hiddenFields: string[],
   repeatingGroups: IRepeatingGroups,
+  hiddenFields?: string[],
+  filter?: (component:ILayoutComponent)=>boolean,
 ):Generator<IteratedComponent, void> {
   const allGroups = formLayout.filter(isGroupComponent);
   const childrenWithoutMultiPagePrefix = (group:ILayoutGroup) => group.edit?.multiPage
@@ -211,11 +212,11 @@ export function* iterateFieldsInLayout(
   const fieldsInGroup = allGroups
     .map(childrenWithoutMultiPagePrefix)
     .flat();
-  const groupsToCheck = allGroups.filter(group => !hiddenFields.includes(group.id));
+  const groupsToCheck = allGroups.filter(group => !hiddenFields?.includes(group.id));
   const fieldsToCheck = formLayout.filter((component) => (
     !isGroupComponent(component) &&
-    !hiddenFields.includes(component.id) &&
-    (component as ILayoutComponent).required &&
+    !hiddenFields?.includes(component.id) &&
+    (filter ? filter(component) : true) &&
     !fieldsInGroup.includes(component.id)
   )) as ILayoutComponent[];
 
@@ -227,9 +228,9 @@ export function* iterateFieldsInLayout(
     const componentsToCheck = formLayout.filter(
       (component) =>
         !isGroupComponent(component) &&
-        component.required &&
+        (filter ? filter(component) : true) &&
         childrenWithoutMultiPagePrefix(group).indexOf(component.id) > -1 &&
-        !hiddenFields.includes(component.id),
+        !hiddenFields?.includes(component.id),
     ) as ILayoutComponent[];
 
     for (const component of componentsToCheck) {
@@ -269,7 +270,7 @@ export function* iterateFieldsInLayout(
                 id: `${component.id}-${parentIndex}-${index}`,
                 dataModelBindings,
               } as ILayoutComponent;
-              if (!hiddenFields.includes(componentToCheck.id)) {
+              if (!hiddenFields?.includes(componentToCheck.id)) {
                 yield {
                   component: componentToCheck,
                   groupDataModelBinding: indexedGroupDataBinding,
@@ -285,7 +286,7 @@ export function* iterateFieldsInLayout(
               ...component,
               id: `${component.id}-${index}`,
             } as ILayoutComponent;
-            if (!hiddenFields.includes(componentToCheck.id)) {
+            if (!hiddenFields?.includes(componentToCheck.id)) {
               yield {
                 component: componentToCheck,
                 groupDataModelBinding,
@@ -312,7 +313,8 @@ export function validateEmptyFieldsForLayout(
   repeatingGroups: IRepeatingGroups,
 ): ILayoutValidations {
   const validations: any = {};
-  for (const {component, groupDataModelBinding, index} of iterateFieldsInLayout(formLayout, hiddenFields, repeatingGroups)) {
+  const generator = iterateFieldsInLayout(formLayout, repeatingGroups, hiddenFields, (component) => component.required);
+  for (const {component, groupDataModelBinding, index} of generator) {
     if (isFileUploadComponent(component) || isFileUploadWithTagComponent(component)) {
       // These components have their own validation in validateFormComponents(). With data model bindings enabled for
       // attachments, the empty field validations would interfere.
@@ -453,7 +455,7 @@ export function validateFormComponentsForLayout(
 ): ILayoutValidations {
   const validations: ILayoutValidations = {};
   const fieldKey:keyof IDataModelBindings = 'simpleBinding';
-  for (const {component} of iterateFieldsInLayout(formLayout, hiddenFields, repeatingGroups)) {
+  for (const {component} of iterateFieldsInLayout(formLayout, repeatingGroups, hiddenFields)) {
     if (isFileUploadComponent(component)) {
       if (!attachmentsValid(attachments, component)) {
         validations[component.id] = {
