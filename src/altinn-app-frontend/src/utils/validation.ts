@@ -1,9 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable max-len */
-import {
-  getLanguageFromKey,
-  getParsedLanguageFromKey,
-} from 'altinn-shared/utils';
+import { getLanguageFromKey, getParsedLanguageFromKey, } from 'altinn-shared/utils';
 import moment from 'moment';
 import Ajv, { Options } from 'ajv';
 import * as AjvCore from 'ajv/dist/core';
@@ -22,12 +19,7 @@ import {
   IDataModelBindings,
   IRuntimeState,
 } from 'src/types';
-import {
-  ILayouts,
-  ILayoutComponent,
-  ILayoutGroup,
-  ILayout,
-} from '../features/form/layout';
+import { ILayouts, ILayoutComponent, ILayoutGroup, ILayout, } from '../features/form/layout';
 import { IValidationIssue, Severity, DateFlags } from '../types';
 // eslint-disable-next-line import/no-cycle
 import {
@@ -178,7 +170,7 @@ export const errorMessageKeys = {
 };
 
 export function validateEmptyFields(
-  formData: any,
+  formData: IFormData,
   layouts: ILayouts,
   layoutOrder: string[],
   language: ILanguage,
@@ -313,7 +305,7 @@ export function* iterateFieldsInLayout(
   Fetches validations for fields without data
 */
 export function validateEmptyFieldsForLayout(
-  formData: any,
+  formData: IFormData,
   formLayout: ILayout,
   language: ILanguage,
   hiddenFields: string[],
@@ -321,6 +313,12 @@ export function validateEmptyFieldsForLayout(
 ): ILayoutValidations {
   const validations: any = {};
   for (const {component, groupDataModelBinding, index} of iterateFieldsInLayout(formLayout, hiddenFields, repeatingGroups)) {
+    if (isFileUploadComponent(component) || isFileUploadWithTagComponent(component)) {
+      // These components have their own validation in validateFormComponents(). With data model bindings enabled for
+      // attachments, the empty field validations would interfere.
+      continue;
+    }
+
     const result = validateEmptyField(
       formData,
       component.dataModelBindings,
@@ -417,12 +415,13 @@ export function validateEmptyField(
 }
 
 export function validateFormComponents(
-  attachments: any,
-  layouts: any,
+  attachments: IAttachments,
+  layouts: ILayouts,
   layoutOrder: string[],
-  formData: any,
+  formData: IFormData,
   language: ILanguage,
   hiddenFields: string[],
+  repeatingGroups: IRepeatingGroups,
 ) {
   const validations: any = {};
   Object.keys(layouts).forEach((id) => {
@@ -433,6 +432,7 @@ export function validateFormComponents(
         formData,
         language,
         hiddenFields,
+        repeatingGroups,
       );
     }
   });
@@ -449,23 +449,20 @@ export function validateFormComponentsForLayout(
   formData: IFormData,
   language: ILanguage,
   hiddenFields: string[],
+  repeatingGroups: IRepeatingGroups,
 ): ILayoutValidations {
-  const validations: any = {};
-  const fieldKey = 'simpleBinding';
-  for (const component of formLayout) {
-    if (hiddenFields.includes(component.id)) {
-      continue;
-    }
+  const validations: ILayoutValidations = {};
+  const fieldKey:keyof IDataModelBindings = 'simpleBinding';
+  for (const {component} of iterateFieldsInLayout(formLayout, hiddenFields, repeatingGroups)) {
     if (isFileUploadComponent(component)) {
       if (!attachmentsValid(attachments, component)) {
-        validations[component.id] = {};
-        const componentValidations: IComponentValidations = {
+        validations[component.id] = {
           [fieldKey]: {
             errors: [],
             warnings: [],
           },
         };
-        componentValidations[fieldKey].errors.push(
+        validations[component.id][fieldKey].errors.push(
           `${getLanguageFromKey(
             'form_filler.file_uploader_validation_error_file_number_1',
             language,
@@ -474,37 +471,51 @@ export function validateFormComponentsForLayout(
             language,
           )}`,
         );
-        validations[component.id] = componentValidations;
       }
-    }
-    if (isFileUploadWithTagComponent(component)) {
-      validations[component.id] = {};
-      const componentValidations: IComponentValidations = {
+    } else if (isFileUploadWithTagComponent(component)) {
+      validations[component.id] = {
         [fieldKey]: {
           errors: [],
           warnings: [],
         },
       };
-      const isValid = attachmentsValid(attachments, component);
-      if (!isValid) {
-        if (!isValid) {
-          componentValidations[fieldKey].errors.push(
-              `${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_1', language)} ${component.minNumberOfAttachments} ${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_2', language)}`,
-          );
-        }
-      } else {
+
+      if (attachmentsValid(attachments, component)) {
         const missingTagAttachments = attachments[component.id]
           ?.filter((attachment) => attachmentIsMissingTag(attachment))
           .map((attachment) => attachment.id);
+
         if (missingTagAttachments?.length > 0) {
           missingTagAttachments.forEach((missingId) => {
-            componentValidations[fieldKey].errors.push(
-                `${missingId + AsciiUnitSeparator + getLanguageFromKey('form_filler.file_uploader_validation_error_no_chosen_tag', language)} ${component.textResourceBindings.tagTitle.toLowerCase()}.`,
+            validations[component.id][fieldKey].errors.push(
+              `${
+                missingId +
+                AsciiUnitSeparator +
+                getLanguageFromKey(
+                  'form_filler.file_uploader_validation_error_no_chosen_tag',
+                  language,
+                )
+              } ${component.textResourceBindings.tagTitle.toLowerCase()}.`,
             );
           });
         }
+      } else {
+        validations[component.id][fieldKey].errors.push(
+          `${getLanguageFromKey(
+            'form_filler.file_uploader_validation_error_file_number_1',
+            language,
+          )} ${component.minNumberOfAttachments} ${getLanguageFromKey(
+            'form_filler.file_uploader_validation_error_file_number_2',
+            language,
+          )}`,
+        );
       }
-      validations[component.id] = componentValidations;
+    }
+  }
+
+  for (const component of formLayout) {
+    if (hiddenFields.includes(component.id)) {
+      continue;
     }
     if (isDatePickerComponent(component)) {
       let componentValidations: IComponentValidations = {};
@@ -1521,6 +1532,7 @@ export function validateGroup(
       formData,
       language,
       hiddenFields,
+      repeatingGroups,
     );
   const formDataValidations: IValidations = validateFormDataForLayout(
     jsonFormData,

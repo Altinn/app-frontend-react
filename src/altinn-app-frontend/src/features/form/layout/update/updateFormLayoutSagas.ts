@@ -241,9 +241,15 @@ export function* updateCurrentViewSaga({ payload: {
         validator, state.language.language, state.textResources.resources,
       );
 
-      const componentSpecificValidations =
-        validateFormComponents(state.attachments.attachments, state.formLayout.layouts, layoutOrder, state.formData.formData,
-          state.language.language, state.formLayout.uiConfig.hiddenFields);
+      const componentSpecificValidations = validateFormComponents(
+        state.attachments.attachments,
+        state.formLayout.layouts,
+        layoutOrder,
+        state.formData.formData,
+        state.language.language,
+        state.formLayout.uiConfig.hiddenFields,
+        state.formLayout.uiConfig.repeatingGroups,
+      );
       const emptyFieldsValidations = validateEmptyFields(
         state.formData.formData,
         state.formLayout.layouts,

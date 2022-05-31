@@ -505,6 +505,7 @@ describe('utils > validation', () => {
         mockFormData,
         mockLanguage.language,
         [],
+        {},
       );
 
       const mockResult = {
@@ -532,6 +533,7 @@ describe('utils > validation', () => {
         mockFormData,
         mockLanguage.language,
         [],
+        {},
       );
 
       const mockResult = {
@@ -567,6 +569,7 @@ describe('utils > validation', () => {
         mockFormData,
         mockLanguage.language,
         [],
+        {},
       );
 
       const mockResult = {
@@ -595,6 +598,7 @@ describe('utils > validation', () => {
         mockFormData,
         mockLanguage.language,
         ['componentId_4'],
+        {},
       );
 
       const mockResult = {
@@ -623,6 +627,7 @@ describe('utils > validation', () => {
         mockFormData,
         mockLanguage.language,
         [],
+        {},
       );
 
       expect(componentSpesificValidations).toEqual({});
