@@ -200,6 +200,115 @@ export function validateEmptyFields(
   return validations;
 }
 
+interface IteratedComponent {
+  component: ILayoutComponent;
+  groupDataModelBinding?:string;
+  index?:number;
+}
+
+export function* iterateFieldsInLayout(
+  formLayout: ILayout,
+  hiddenFields: string[],
+  repeatingGroups: IRepeatingGroups,
+):Generator<IteratedComponent, void> {
+  const allGroups = formLayout.filter(isGroupComponent);
+  const childrenWithoutMultiPagePrefix = (group:ILayoutGroup) => group.edit?.multiPage
+    ? group.children.map((componentId) => componentId.replace(/^\d+:/g, ''))
+    : group.children;
+
+  const fieldsInGroup = allGroups
+    .map(childrenWithoutMultiPagePrefix)
+    .flat();
+  const groupsToCheck = allGroups.filter(group => !hiddenFields.includes(group.id));
+  const fieldsToCheck = formLayout.filter((component) => (
+    !isGroupComponent(component) &&
+    !hiddenFields.includes(component.id) &&
+    (component as ILayoutComponent).required &&
+    !fieldsInGroup.includes(component.id)
+  )) as ILayoutComponent[];
+
+  for (const component of fieldsToCheck) {
+    yield {component};
+  }
+
+  for (const group of groupsToCheck) {
+    const componentsToCheck = formLayout.filter(
+      (component) =>
+        !isGroupComponent(component) &&
+        component.required &&
+        childrenWithoutMultiPagePrefix(group).indexOf(component.id) > -1 &&
+        !hiddenFields.includes(component.id),
+    ) as ILayoutComponent[];
+
+    for (const component of componentsToCheck) {
+      if (group.maxCount > 1) {
+        const parentGroup = getParentGroup(group.id, formLayout);
+        if (parentGroup) {
+          // If we have a parent group there can exist several instances of the child group.
+          const allGroupIds = Object.keys(repeatingGroups).filter(
+            (key) => key.startsWith(group.id),
+          );
+          for (const childGroupId of allGroupIds) {
+            const splitId = childGroupId.split('-');
+            const parentIndexString = splitId[splitId.length - 1];
+            const parentIndex = Number.parseInt(parentIndexString, 10);
+            const parentDataBinding = parentGroup.dataModelBindings?.group;
+            const indexedParentDataBinding = `${parentDataBinding}[${parentIndex}]`;
+            const indexedGroupDataBinding =
+              group.dataModelBindings?.group.replace(
+                parentDataBinding,
+                indexedParentDataBinding,
+              );
+            const dataModelBindings = {};
+            for (const key of Object.keys(component.dataModelBindings)) {
+              dataModelBindings[key] = component.dataModelBindings[key].replace(
+                parentDataBinding,
+                indexedParentDataBinding,
+              );
+            }
+
+            for (
+              let index = 0;
+              index <= repeatingGroups[childGroupId]?.index;
+              index++
+            ) {
+              const componentToCheck = {
+                ...component,
+                id: `${component.id}-${parentIndex}-${index}`,
+                dataModelBindings,
+              } as ILayoutComponent;
+              if (!hiddenFields.includes(componentToCheck.id)) {
+                yield {
+                  component: componentToCheck,
+                  groupDataModelBinding: indexedGroupDataBinding,
+                  index: index,
+                };
+              }
+            }
+          }
+        } else {
+          const groupDataModelBinding = group.dataModelBindings.group;
+          for (let index = 0; index <= repeatingGroups[group.id]?.index; index++) {
+            const componentToCheck = {
+              ...component,
+              id: `${component.id}-${index}`,
+            } as ILayoutComponent;
+            if (!hiddenFields.includes(componentToCheck.id)) {
+              yield {
+                component: componentToCheck,
+                groupDataModelBinding,
+                index
+              };
+            }
+          }
+        }
+      } else {
+        yield {component};
+      }
+    }
+  }
+}
+
 /*
   Fetches validations for fields without data
 */
@@ -211,123 +320,18 @@ export function validateEmptyFieldsForLayout(
   repeatingGroups: IRepeatingGroups,
 ): ILayoutValidations {
   const validations: any = {};
-  const allGroups = formLayout.filter((component) => component.type.toLowerCase() === 'group');
-  const childrenWithoutMultiPagePrefix = (group:ILayoutGroup) => group.edit?.multiPage
-    ? group.children.map((componentId) => componentId.replace(/^\d+:/g, ''))
-    : group.children;
-
-  const fieldsInGroup = allGroups
-    .map(childrenWithoutMultiPagePrefix)
-    .flat();
-  const groupsToCheck = allGroups.filter(group => !hiddenFields.includes(group.id));
-  const fieldsToCheck = formLayout.filter((component) => (
-    component.type.toLowerCase() !== 'group' &&
-    !hiddenFields.includes(component.id) &&
-    (component as ILayoutComponent).required &&
-    !fieldsInGroup.includes(component.id)
-  ));
-  fieldsToCheck.forEach((component: any) => {
+  for (const {component, groupDataModelBinding, index} of iterateFieldsInLayout(formLayout, hiddenFields, repeatingGroups)) {
     const result = validateEmptyField(
       formData,
       component.dataModelBindings,
       language,
+      groupDataModelBinding,
+      index
     );
     if (result !== null) {
       validations[component.id] = result;
     }
-  });
-
-  groupsToCheck.forEach((group: ILayoutGroup) => {
-    const componentsToCheck = formLayout.filter((component) => {
-      return (
-        (component as ILayoutComponent).required &&
-        childrenWithoutMultiPagePrefix(group).indexOf(component.id) > -1 &&
-        !hiddenFields.includes(component.id)
-      );
-    });
-
-    componentsToCheck.forEach((component) => {
-      if (group.maxCount > 1) {
-        const parentGroup = getParentGroup(group.id, formLayout);
-        if (parentGroup) {
-          // If we have a parent group there can exist several instances of the child group.
-          Object.keys(repeatingGroups)
-            .filter((key) => key.startsWith(group.id))
-            .forEach((repeatingGroupId) => {
-              const splitId = repeatingGroupId.split('-');
-              const parentIndexString = splitId[splitId.length - 1];
-              const parentIndex = Number.parseInt(parentIndexString, 10);
-              const parentDataBinding = parentGroup.dataModelBindings?.group;
-              const indexedParentDataBinding = `${parentDataBinding}[${parentIndex}]`;
-              const indexedGroupDataBinding =
-                group.dataModelBindings?.group.replace(
-                  parentDataBinding,
-                  indexedParentDataBinding,
-                );
-              const dataModelBindings = {};
-              Object.keys(component.dataModelBindings).forEach((key) => {
-                // eslint-disable-next-line no-param-reassign
-                dataModelBindings[key] = component.dataModelBindings[
-                  key
-                ].replace(parentDataBinding, `${indexedParentDataBinding}`);
-              });
-              for (
-                let i = 0;
-                i <= repeatingGroups[repeatingGroupId]?.index;
-                i++
-              ) {
-                const componentToCheck = {
-                  ...component,
-                  id: `${component.id}-${parentIndex}-${i}`,
-                  dataModelBindings,
-                };
-                if (!hiddenFields.includes(componentToCheck.id)) {
-                  const result = validateEmptyField(
-                    formData,
-                    componentToCheck.dataModelBindings,
-                    language,
-                    indexedGroupDataBinding,
-                    i,
-                  );
-                  if (result !== null) {
-                    validations[componentToCheck.id] = result;
-                  }
-                }
-              }
-            });
-        } else {
-          const groupDataModelBinding = group.dataModelBindings.group;
-          for (let i = 0; i <= repeatingGroups[group.id]?.index; i++) {
-            const componentToCheck = {
-              ...component,
-              id: `${component.id}-${i}`,
-            };
-            if (!hiddenFields.includes(componentToCheck.id)) {
-              const result = validateEmptyField(
-                formData,
-                componentToCheck.dataModelBindings,
-                language,
-                groupDataModelBinding,
-                i,
-              );
-              if (result !== null) {
-                validations[componentToCheck.id] = result;
-              }
-            }
-          }
-        }
-      } else {
-        const result = validateEmptyField(
-          formData,
-          component.dataModelBindings,
-          language,
-        );
-        if (result !== null) {
-          validations[component.id] = result;
-        }
-      }
-    });
-  });
+  }
 
   return validations;
 }
