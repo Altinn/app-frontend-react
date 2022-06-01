@@ -10,6 +10,7 @@ import { renderValidationMessages } from 'src/utils/render';
 import { FileName } from '../shared/render';
 import classNames from 'classnames';
 import { IComponentProps } from 'src/components';
+import { useAppSelector } from 'src/common/hooks';
 
 const useStyles = makeStyles({
   textContainer: {
@@ -57,6 +58,8 @@ export interface EditWindowProps extends IComponentProps{
 
 export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   const classes = useStyles();
+
+  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
 
   const handleDeleteFile = () => {
     AttachmentDispatcher.deleteAttachment(props.attachment, props.id, props.id);
@@ -186,7 +189,12 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
             whiteSpace: 'pre-wrap',
           }}
         >
-          {renderValidationMessages(props.attachmentValidations.filter((i) => i.id === props.attachment.id).map((e) => { return e.message; }), `attachment-error-${props.attachment.id}`, 'error')}
+          {renderValidationMessages(
+            props.attachmentValidations.filter((i) => i.id === props.attachment.id).map((e) => { return e.message; }),
+           `attachment-error-${props.attachment.id}`,
+            'error',
+            showAllValidationMessages
+          )}
         </div>
         : undefined
       }

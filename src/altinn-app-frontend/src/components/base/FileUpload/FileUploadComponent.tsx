@@ -23,7 +23,7 @@ export interface IFileUploadProps extends IFileUploadGenericProps {
 export const bytesInOneMB = 1048576;
 export const emptyArray = [];
 
-export function FileUploadComponent({ 
+export function FileUploadComponent({
   id,
   componentValidations,
   readOnly,
@@ -64,6 +64,7 @@ export function FileUploadComponent({
   }
 
   const currentAttachments: IAttachment[] = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
+  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
 
   React.useEffect(() => {
     dispatch({ type: 'replace', value: currentAttachments });
@@ -406,7 +407,7 @@ export function FileUploadComponent({
           hasValidationMessages={hasValidationMessages}
           hasCustomFileEndings={hasCustomFileEndings}
           validFileEndings={validFileEndings}
-          textResourceBindings={textResourceBindings}        
+          textResourceBindings={textResourceBindings}
       />
       )}
 
@@ -424,6 +425,7 @@ export function FileUploadComponent({
         renderValidationMessagesForComponent(
           validationMessages.simpleBinding,
           id,
+          showAllValidationMessages
         )}
 
       {renderFileList()}
@@ -442,6 +444,7 @@ export function FileUploadComponent({
         renderValidationMessagesForComponent(
           validationMessages.simpleBinding,
           id,
+          showAllValidationMessages
         )}
 
       {renderAddMoreAttachmentsButton()}

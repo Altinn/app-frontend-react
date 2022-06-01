@@ -74,6 +74,7 @@ export function GroupContainer({
     React.useState<number[]>(null);
   const [multiPageIndex, setMultiPageIndex] = React.useState<number>(-1);
 
+  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
   const validations = useAppSelector(state => state.formValidations.validations);
   const currentView = useAppSelector(state => state.formLayout.uiConfig.currentView);
   const language = useAppSelector(state => state.language.language);
@@ -342,6 +343,7 @@ export function GroupContainer({
           renderValidationMessagesForComponent(
             validations[currentView][id].group,
             container.id,
+            showAllValidationMessages
           )}
       </Grid>
     </Grid>

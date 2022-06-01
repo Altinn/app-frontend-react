@@ -116,6 +116,7 @@ export function GenericComponent(props: IGenericComponentProps) {
       state.formValidations.validations[currentView]?.[props.id],
     ),
   );
+  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
   const language = useAppSelector((state) => state.language.language);
   const textResources = useAppSelector(
     (state) => state.textResources.resources,
@@ -360,6 +361,7 @@ export function GenericComponent(props: IGenericComponentProps) {
           renderValidationMessagesForComponent(
             componentValidations?.simpleBinding,
             props.id,
+            showAllValidationMessages
           )}
       </Grid>
     </Grid>

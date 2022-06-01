@@ -130,6 +130,8 @@ export const RadioButtonContainerComponent = ({
     }
   }, [handleDataChange, optionsHasChanged, formData]);
 
+  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleFocusUpdate(id);
     handleDataChange(event.target.value);
@@ -178,6 +180,7 @@ export const RadioButtonContainerComponent = ({
                 renderValidationMessagesForComponent(
                   validationMessages.simpleBinding,
                   id,
+                  showAllValidationMessages
                 )}
             </React.Fragment>
           ))}

@@ -100,6 +100,7 @@ export interface ILayoutSet {
 }
 
 export interface ILayoutSettings {
+  showAllValidationMessages?: boolean;
   pages: IPagesSettings;
 }
 
@@ -238,6 +239,7 @@ export interface IUiConfig {
   layoutOrder: string[];
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
+  showAllValidationMessages?: boolean;
 }
 
 export interface IValidationResult {
