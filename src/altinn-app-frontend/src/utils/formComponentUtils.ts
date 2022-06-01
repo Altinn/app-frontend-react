@@ -319,7 +319,7 @@ export function getFileUploadWithTagComponentValidations(
       }
     };
   }
-  if (validationMessages.simpleBinding !== undefined && validationMessages.simpleBinding.errors.length > 0) {
+  if (validationMessages.simpleBinding !== undefined && validationMessages.simpleBinding.errors?.length > 0) {
     parseFileUploadComponentWithTagValidationObject(validationMessages.simpleBinding.errors as string[]).forEach((validation) => {
       result.push(validation);
     });

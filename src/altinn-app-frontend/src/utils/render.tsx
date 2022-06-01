@@ -66,7 +66,7 @@ export function renderValidationMessages(
   if (variant !== 'error') {
     return (
       <SoftValidations variant={variant}>
-        <ol>
+        <ol id={id}>
           {messages.map(validationMessagesToList)}
         </ol>
       </SoftValidations>
