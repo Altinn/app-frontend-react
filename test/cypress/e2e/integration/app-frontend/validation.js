@@ -43,8 +43,7 @@ describe('Validation', () => {
     cy.get(appFrontend.fieldValidationWarning.replace('field', appFrontend.changeOfName.newMiddleName.substring(1)))
       .should('exist')
       .should('be.visible')
-      .should('have.text', texts.testIsNotValidValue)
-      .should('have.css', 'background-color', 'rgb(239, 239, 239)');
+      .should('have.text', texts.testIsNotValidValue);
   });
 
   it('Page validation on clicking next', () => {
