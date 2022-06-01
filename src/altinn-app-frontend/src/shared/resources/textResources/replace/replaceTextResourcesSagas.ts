@@ -42,7 +42,7 @@ export function* replaceTextResourcesSaga(): SagaIterator {
     const updatedTextsResources: ITextResource[] =
       replaceTextResourceParams(textResources.resources, dataSources, repeatingGroups);
     if (JSON.stringify(textResources) !== JSON.stringify(updatedTextsResources)) {
-      yield call(TextResourceActions.replaceTextResourcesFulfilled, textResources.language, updatedTextsResources);
+      yield call(TextResourceActions.replaceTextResourcesFulfilled, textResources.language, JSON.parse(JSON.stringify(updatedTextsResources)));
     }
   } catch (error) {
     yield call(TextResourceActions.replaceTextResourcesRejected, error);
@@ -60,6 +60,7 @@ export function* watchReplaceTextResourcesSaga(): SagaIterator {
   yield takeLatest(FormDataActions.updateFormDataFulfilled, replaceTextResourcesSaga);
   yield takeLatest(FormDataActions.updateFormDataSkipAutosave, replaceTextResourcesSaga);
   yield takeLatest(FormDataActions.setFormDataFulfilled, replaceTextResourcesSaga);
+  yield takeLatest(FETCH_TEXT_RESOURCES_FULFILLED, replaceTextResourcesSaga);
 }
 
 export function* watchReplaceTextResourcesSagaDirect(): SagaIterator {
