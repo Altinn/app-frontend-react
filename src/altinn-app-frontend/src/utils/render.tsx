@@ -29,7 +29,7 @@ export function renderValidationMessagesForComponent(
     validationMessageElements.push(
       renderValidationMessages(
         validationMessages.warnings,
-        `message_${id}`,
+        `warning_${id}`,
         'warning',
       ),
     );
