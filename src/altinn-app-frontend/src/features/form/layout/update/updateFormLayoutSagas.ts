@@ -301,7 +301,6 @@ export function* watchUpdateCurrentViewSaga(): SagaIterator {
       yield take(FormDataActions.submitFormDataFulfilled);
     }
     const value = yield take(requestChan);
-    console.log(value.payload);
     yield call(updateCurrentViewSaga, value);
   }
 }
