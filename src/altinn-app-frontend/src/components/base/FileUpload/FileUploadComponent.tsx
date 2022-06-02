@@ -38,10 +38,10 @@ export function FileUploadComponent({
   textResourceBindings,
   dataModelBindings,
 }: IFileUploadProps) {
-  const attachments: IAttachment[] = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
   const [validations, setValidations] = React.useState([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
+  const attachments = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
 
   const getComponentValidations = (): IComponentValidations => {
     const validationMessages = {
