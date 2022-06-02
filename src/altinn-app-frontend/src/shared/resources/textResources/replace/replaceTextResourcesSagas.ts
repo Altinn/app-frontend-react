@@ -42,7 +42,7 @@ export function* replaceTextResourcesSaga(): SagaIterator {
     const updatedTextsResources: ITextResource[] =
       replaceTextResourceParams(textResources.resources, dataSources, repeatingGroups);
     if (JSON.stringify(textResources) !== JSON.stringify(updatedTextsResources)) {
-      yield call(TextResourceActions.replaceTextResourcesFulfilled, textResources.language, JSON.parse(JSON.stringify(updatedTextsResources)));
+      yield call(TextResourceActions.replaceTextResourcesFulfilled, textResources.language, updatedTextsResources);
     }
   } catch (error) {
     yield call(TextResourceActions.replaceTextResourcesRejected, error);
