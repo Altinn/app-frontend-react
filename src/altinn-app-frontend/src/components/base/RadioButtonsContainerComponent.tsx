@@ -4,7 +4,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio, { RadioProps } from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import { makeStyles } from '@material-ui/core/styles';
-import { FormLabel } from '@material-ui/core';
+import { FormLabel, Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { renderValidationMessagesForComponent } from '../../utils/render';
@@ -16,6 +16,7 @@ import { getOptionLookupKey } from 'src/utils/options';
 import { AltinnSpinner } from 'altinn-shared/components';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { useGetOptions } from '../hooks';
+import { gridToProps } from '../GenericComponent';
 
 export interface IRadioButtonsContainerProps extends IComponentProps {
   validationMessages?: any;
@@ -87,6 +88,7 @@ export const RadioButtonContainerComponent = ({
   layout,
   legend,
   title,
+  grid,
   shouldFocus,
   getTextResource,
   validationMessages,
@@ -142,47 +144,52 @@ export const RadioButtonContainerComponent = ({
   const RenderLegend = legend;
 
   return (
-    <FormControl component='fieldset'>
-      <FormLabel component='legend' classes={{ root: cn(classes.legend) }}>
-        <RenderLegend />
-      </FormLabel>
-      {fetchingOptions ? (
-        <AltinnSpinner />
-      ) : (
-        <RadioGroup
-          aria-label={title}
-          name={title}
-          value={selected}
-          onBlur={handleBlur}
-          onChange={handleChange}
-          row={shouldUseRowLayout({
-            layout,
-            optionsCount: calculatedOptions.length,
-          })}
-          id={id}
-        >
-          {calculatedOptions.map((option: any, index: number) => (
-            <React.Fragment key={index}>
-              <FormControlLabel
-                control={
-                  <StyledRadio
-                    autoFocus={shouldFocus && selected === option.value}
-                  />
-                }
-                label={getTextResource(option.label)}
-                value={option.value}
-                classes={{ root: cn(classes.margin) }}
-              />
-              {validationMessages &&
-                selected === option.value &&
-                renderValidationMessagesForComponent(
-                  validationMessages.simpleBinding,
-                  id,
-                )}
-            </React.Fragment>
-          ))}
-        </RadioGroup>
-      )}
+    <FormControl component='fieldset' style={{ display: 'contents' }}>
+      <Grid item={true} {...gridToProps(grid?.labelGrid)}>
+        <FormLabel component='legend' classes={{ root: cn(classes.legend) }}>
+          <RenderLegend />
+        </FormLabel>
+      </Grid>
+
+      <Grid item={true} className="innerGrid" {...gridToProps(grid?.innerGrid)}>
+        {fetchingOptions ? (
+          <AltinnSpinner />
+        ) : (
+          <RadioGroup
+            aria-label={title}
+            name={title}
+            value={selected}
+            onBlur={handleBlur}
+            onChange={handleChange}
+            row={shouldUseRowLayout({
+              layout,
+              optionsCount: calculatedOptions.length,
+            })}
+            id={id}
+          >
+            {calculatedOptions.map((option: any, index: number) => (
+              <React.Fragment key={index}>
+                <FormControlLabel
+                  control={
+                    <StyledRadio
+                      autoFocus={shouldFocus && selected === option.value}
+                    />
+                  }
+                  label={getTextResource(option.label)}
+                  value={option.value}
+                  classes={{ root: cn(classes.margin) }}
+                />
+                {validationMessages &&
+                  selected === option.value &&
+                  renderValidationMessagesForComponent(
+                    validationMessages.simpleBinding,
+                    id,
+                  )}
+              </React.Fragment>
+            ))}
+          </RadioGroup>
+        )}
+      </Grid>
     </FormControl>
   );
 };
