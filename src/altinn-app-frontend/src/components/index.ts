@@ -166,11 +166,6 @@ export const schemaComponents: IComponent[] = [
     name: 'Likert',
     Tag: LikertComponent,
     Type: ComponentTypes.Likert,
-    customProperties: {
-      options: [],
-      required: false,
-      readOnly: false,
-    },
   },
 ];
 
