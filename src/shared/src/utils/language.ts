@@ -89,7 +89,7 @@ export function getTextResourceByKey(key: string, textResources: ITextResource[]
  * @param textResources the original text resources
  * @param dataSources the data sources
  * @param repeatingGroups the repeating groups
- * @returns a new array with replace values.
+ * @returns a new array with replaced values.
  */
 export function replaceTextResourceParams(
   textResources: ITextResource[],
@@ -156,7 +156,7 @@ export function replaceTextResourceParams(
     }
     return textResourceCopy;
   });
-  
+
   return mappedResources.concat(repeatingGroupResources);
 }
 
