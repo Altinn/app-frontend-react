@@ -23,7 +23,7 @@ export interface IFileUploadProps extends IFileUploadGenericProps {
 export const bytesInOneMB = 1048576;
 export const emptyArray = [];
 
-export function FileUploadComponent({ 
+export function FileUploadComponent({
   id,
   componentValidations,
   readOnly,
@@ -39,7 +39,7 @@ export function FileUploadComponent({
   const [validations, setValidations] = React.useState([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
-  const attachments: IAttachment[] = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
+  const attachments = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
 
   const getComponentValidations = (): IComponentValidations => {
     const validationMessages = {
@@ -377,7 +377,7 @@ export function FileUploadComponent({
           hasValidationMessages={hasValidationMessages}
           hasCustomFileEndings={hasCustomFileEndings}
           validFileEndings={validFileEndings}
-          textResourceBindings={textResourceBindings}        
+          textResourceBindings={textResourceBindings}
       />
       )}
 
