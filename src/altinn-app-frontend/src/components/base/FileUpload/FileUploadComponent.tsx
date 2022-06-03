@@ -40,35 +40,7 @@ export function FileUploadComponent({
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
 
-  function reducer(state, action) {
-    if (action.type === 'replace') {
-      return action.value;
-    }
-
-    if (action.type === 'add') {
-      return state.concat(action.value);
-    }
-
-    if (action.type === 'delete') {
-      const attachmentToDelete = state[action.index];
-      if (!attachmentToDelete.uploaded) {
-        return state;
-      }
-      attachmentToDelete.deleting = true;
-      const newList = state.slice();
-      newList[action.index] = attachmentToDelete;
-      return newList;
-    }
-    return state;
-  }
-
-  const currentAttachments: IAttachment[] = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
   const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
-
-  React.useEffect(() => {
-    dispatch({ type: 'replace', value: currentAttachments });
-  }, [currentAttachments]);
-    
   const attachments = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
 
   const getComponentValidations = (): IComponentValidations => {
