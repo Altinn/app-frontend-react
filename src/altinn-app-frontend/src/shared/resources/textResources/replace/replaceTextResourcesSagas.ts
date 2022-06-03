@@ -12,13 +12,13 @@ import { ITextResourcesState } from '../textResourcesReducer';
 import { REPLACE_TEXT_RESOURCES } from './replaceTextResourcesActionTypes';
 import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
 
-export const InstanceSelector: (state: IRuntimeState) => IInstance = 
+export const InstanceSelector: (state: IRuntimeState) => IInstance =
   (state) => state.instanceData?.instance;
-export const FormDataSelector: (state: IRuntimeState) => IFormData = 
+export const FormDataSelector: (state: IRuntimeState) => IFormData =
   (state) => state.formData?.formData;
-export const ApplicationSettingsSelector: (state: IRuntimeState) => IApplicationSettings = 
+export const ApplicationSettingsSelector: (state: IRuntimeState) => IApplicationSettings =
   (state) => state.applicationSettings?.applicationSettings;
-export const TextResourcesSelector: (state: IRuntimeState) => ITextResourcesState = 
+export const TextResourcesSelector: (state: IRuntimeState) => ITextResourcesState =
   (state) => state.textResources;
 export const RepeatingGroupsSelector: (state: IRuntimeState) => IRepeatingGroups =
   (state) => state.formLayout.uiConfig.repeatingGroups;
@@ -32,10 +32,10 @@ export function* replaceTextResourcesSaga(): SagaIterator {
     const repeatingGroups: IRepeatingGroups = yield select(RepeatingGroupsSelector);
 
     const instanceContext: IInstanceContext = buildInstanceContext(instance);
-    
-    const dataSources: IDataSources = { 
-      dataModel: formData, 
-      applicationSettings:  applicationSettings, 
+
+    const dataSources: IDataSources = {
+      dataModel: formData,
+      applicationSettings: applicationSettings,
       instanceContext: instanceContext
     };
 
@@ -60,6 +60,7 @@ export function* watchReplaceTextResourcesSaga(): SagaIterator {
   yield takeLatest(FormDataActions.updateFormDataFulfilled, replaceTextResourcesSaga);
   yield takeLatest(FormDataActions.updateFormDataSkipAutosave, replaceTextResourcesSaga);
   yield takeLatest(FormDataActions.setFormDataFulfilled, replaceTextResourcesSaga);
+  yield takeLatest(FETCH_TEXT_RESOURCES_FULFILLED, replaceTextResourcesSaga);
 }
 
 export function* watchReplaceTextResourcesSagaDirect(): SagaIterator {
