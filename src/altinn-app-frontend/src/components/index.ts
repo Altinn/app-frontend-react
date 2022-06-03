@@ -1,4 +1,4 @@
-import { AddressComponent } from './advanced/AddressComponent';
+import { AddressComponent as Address} from './advanced/AddressComponent';
 import { AttachmentListComponent } from './base/AttachmentListComponent';
 import { ButtonComponent } from './base/ButtonComponent';
 import { CheckboxContainerComponent } from './base/CheckboxesContainerComponent';
@@ -13,8 +13,8 @@ import { RadioButtonContainerComponent } from './base/RadioButtonsContainerCompo
 import { TextAreaComponent } from './base/TextAreaComponent';
 import { ImageComponent } from './base/ImageComponent';
 import { NavigationButtons as NavigationButtonsComponent } from './presentation/NavigationButtons';
-import { NavigationBar } from './base/NavigationBar';
-import { Panel } from './base/Panel';
+import { NavigationBar as NavigationBarComponent} from './base/NavigationBar';
+import { Panel as PanelComponent } from './base/Panel';
 import { InstantiationButtonComponent } from './base/InstantiationButtonComponent';
 import { IGenericComponentProps } from './GenericComponent';
 import { IComponentFormData } from 'src/utils/formComponentUtils';
@@ -159,12 +159,12 @@ export const schemaComponents: IComponent[] = [
   },
   {
     name: 'NavigationBar',
-    Tag: NavigationBar,
+    Tag: NavigationBarComponent,
     Type: ComponentTypes.NavigationBar,
   },
   {
     name: 'Panel',
-    Tag: Panel,
+    Tag: PanelComponent,
     Type: ComponentTypes.Panel,
   },
 ];
@@ -172,7 +172,7 @@ export const schemaComponents: IComponent[] = [
 export const advancedComponents: IComponent[] = [
   {
     name: 'AddressComponent',
-    Tag: AddressComponent,
+    Tag: Address,
     Type: ComponentTypes.AddressComponent,
     customProperties: {
       simplified: true,
