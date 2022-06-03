@@ -50,3 +50,5 @@ export const Panel = ({
     </FullWidthWrapper>
   );
 };
+
+export { PanelVariant };
