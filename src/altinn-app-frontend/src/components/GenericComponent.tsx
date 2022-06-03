@@ -302,6 +302,7 @@ export function GenericComponent(props: IGenericComponentProps) {
     'AttachmentList',
     'InstantiationButton',
     'NavigationBar',
+    'Panel',
   ];
 
   return (

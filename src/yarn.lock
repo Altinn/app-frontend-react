@@ -5,6 +5,26 @@ __metadata:
   version: 6
   cacheKey: 8
 
+"@altinn/altinn-design-system@npm:^0.0.16":
+  version: 0.0.16
+  resolution: "@altinn/altinn-design-system@npm:0.0.16::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Faltinn-design-system%2F0.0.16%2Fe502551174bcd4b47d80ece6cf3fc0c5e64c683f24faccad654b85c0966a01ed"
+  dependencies:
+    "@altinn/figma-design-tokens": ^0.0.27
+    "@react-hookz/web": ^14.2.2
+  peerDependencies:
+    react: ^17.0.0 || ^18.0.0
+    react-dom: ^17.0.0 || ^18.0.0
+  checksum: 3be1c53a075b4475341cfc5ac3f67b61ba9051487f3995ce5d699853d77cdc12daa4978da7bc768196ffb791709d50c7016b3f67ac114e60fbb148ec5bc58711
+  languageName: node
+  linkType: hard
+
+"@altinn/figma-design-tokens@npm:^0.0.27":
+  version: 0.0.27
+  resolution: "@altinn/figma-design-tokens@npm:0.0.27::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Ffigma-design-tokens%2F0.0.27%2F1e86bbc282ea2400ceb3b010cb20219dcf775c2c05b2bd215cbe545adaa2fd54"
+  checksum: cfc00631239c03c1d205653ec027d4c9a453d217b0b5f6386cf5e2f41862b073f2386afab7342bbcfbfbf4658b4ef1adca49cb6b73f521e41962581f5d4cc9b8
+  languageName: node
+  linkType: hard
+
 "@ampproject/remapping@npm:^2.1.0":
   version: 2.1.2
   resolution: "@ampproject/remapping@npm:2.1.2"
@@ -2838,6 +2858,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-hookz/deep-equal@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@react-hookz/deep-equal@npm:1.0.2"
+  checksum: a5d3f5012c34fae3d573e9245d00f2162b0f35a163700a325459090f18996408211f30ad51692fcec3d1de50859d496900ddffe18696f4a9e843623f95c2e6a3
+  languageName: node
+  linkType: hard
+
+"@react-hookz/web@npm:^14.2.2":
+  version: 14.2.2
+  resolution: "@react-hookz/web@npm:14.2.2"
+  dependencies:
+    "@react-hookz/deep-equal": ^1.0.2
+  peerDependencies:
+    js-cookie: ^3.0.1
+    react: ^16.8 || ^17 || ^18
+    react-dom: ^16.8 || ^17 || ^18
+  peerDependenciesMeta:
+    js-cookie:
+      optional: true
+  checksum: b85f3bdb64c569e5046d58cea838e23e92b6381241688ee77844c94055b46b86c278d3d1892ac79f00a2b9ad389bab0b68fd020125fe3832a5b1cbcd4606b9ab
+  languageName: node
+  linkType: hard
+
 "@redux-saga/core@npm:^1.1.3":
   version: 1.1.3
   resolution: "@redux-saga/core@npm:1.1.3"
@@ -4396,6 +4439,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "altinn-app-frontend@workspace:altinn-app-frontend"
   dependencies:
+    "@altinn/altinn-design-system": ^0.0.16
     "@babel/core": ^7.18.2
     "@babel/polyfill": ^7.12.1
     "@babel/preset-env": ^7.18.2

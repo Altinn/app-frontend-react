@@ -14,6 +14,7 @@ import { TextAreaComponent } from './base/TextAreaComponent';
 import { ImageComponent } from './base/ImageComponent';
 import { NavigationButtons as NavigationButtonsComponent } from './presentation/NavigationButtons';
 import { NavigationBar } from './base/NavigationBar';
+import { Panel } from './base/Panel';
 import { InstantiationButtonComponent } from './base/InstantiationButtonComponent';
 import { IGenericComponentProps } from './GenericComponent';
 import { IComponentFormData } from 'src/utils/formComponentUtils';
@@ -48,6 +49,7 @@ export enum ComponentTypes {
   InstantiationButton,
   AttachmentList,
   NavigationBar,
+  Panel,
 }
 
 export const textComponents: IComponent[] = [
@@ -159,6 +161,11 @@ export const schemaComponents: IComponent[] = [
     name: 'NavigationBar',
     Tag: NavigationBar,
     Type: ComponentTypes.NavigationBar,
+  },
+  {
+    name: 'Panel',
+    Tag: Panel,
+    Type: ComponentTypes.Panel,
   },
 ];
 
