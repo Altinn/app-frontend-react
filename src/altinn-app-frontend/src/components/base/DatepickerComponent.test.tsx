@@ -1,10 +1,12 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import { render as rtlRender, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 
 import DatepickerComponent from './DatepickerComponent';
 import type { IComponentProps } from 'src/components';
 import type { IDatePickerProps } from './DatepickerComponent';
+import { renderWithProviders } from '../../../testUtils';
+import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 
 const render = (props: Partial<IDatePickerProps> = {}) => {
   const allProps: IDatePickerProps = {
@@ -16,7 +18,44 @@ const render = (props: Partial<IDatePickerProps> = {}) => {
     ...props,
   };
 
-  rtlRender(<DatepickerComponent {...allProps} />);
+  const formLayout = getFormLayoutStateMock({
+    layouts: {
+      FormLayout: [
+        {
+          type: 'Input',
+          id: 'mockId',
+          dataModelBindings: {
+            simpleBiding: 'mockDataBinding',
+          },
+          readOnly: false,
+          required: false,
+          disabled: false,
+          textResourceBindings: {},
+          triggers: [],
+          grid: {
+            xs: 12,
+            sm: 10,
+            md: 8,
+            lg: 6,
+            xl: 4,
+            innerGrid: {
+              xs: 11,
+              sm: 9,
+              md: 7,
+              lg: 5,
+              xl: 3,
+            },
+          },
+        },
+      ],
+    },
+  });
+
+  renderWithProviders(<DatepickerComponent {...allProps} />, {
+    preloadedState: {
+      formLayout
+    },
+  });
 };
 
 const currentYearNumeric = new Date().toLocaleDateString(navigator.language, {

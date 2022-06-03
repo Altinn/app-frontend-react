@@ -61,6 +61,11 @@ describe('FileUploadComponent', () => {
           },
         },
       },
+      formLayout: {
+        uiConfig: {
+          showAllValidationMessages: true
+        }
+      },
     };
     mockMaxNumberOfAttachments = 4;
     mockMinNumberOfAttachments = 1;

@@ -60,6 +60,7 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
       currentView: 'FormLayout',
       navigationConfig: {},
       layoutOrder: [],
+      showAllValidationMessages: true
     },
     layoutsets: null,
   };

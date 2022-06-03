@@ -1,14 +1,13 @@
 import * as React from 'react';
-import { render as rtlRender, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import configureStore from 'redux-mock-store';
-import { Provider } from 'react-redux';
 
 import { IComponentProps } from 'src/components';
 import { AddressComponent } from './AddressComponent';
 import type { IAddressComponentProps } from './AddressComponent';
 
-import { setupServer, handlers } from '../../../testUtils';
+import { setupServer, handlers, renderWithProviders } from '../../../testUtils';
+import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 
 const server = setupServer(...handlers);
 
@@ -17,7 +16,6 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 const render = (props: Partial<IAddressComponentProps> = {}) => {
-  const createStore = configureStore();
   const mockLanguage = {
     ux_editor: {
       modal_configure_address_component_address: 'Adresse',
@@ -57,12 +55,45 @@ const render = (props: Partial<IAddressComponentProps> = {}) => {
     ...props,
   };
 
-  const mockStore = createStore({ language: { language: mockLanguage } });
+  const formLayout = getFormLayoutStateMock({
+    layouts: {
+      FormLayout: [
+        {
+          type: 'Input',
+          id: 'mockId',
+          dataModelBindings: {
+            simpleBiding: 'mockDataBinding',
+          },
+          readOnly: false,
+          required: false,
+          disabled: false,
+          textResourceBindings: {},
+          triggers: [],
+          grid: {
+            xs: 12,
+            sm: 10,
+            md: 8,
+            lg: 6,
+            xl: 4,
+            innerGrid: {
+              xs: 11,
+              sm: 9,
+              md: 7,
+              lg: 5,
+              xl: 3,
+            },
+          },
+        },
+      ],
+    },
+  });
 
-  rtlRender(
-  <Provider store={mockStore}>
-    <AddressComponent {...allProps} />
-  </Provider>);
+  renderWithProviders(<AddressComponent {...allProps} />, {
+    preloadedState: {
+      language: { language: mockLanguage, error: null },
+      formLayout
+    }
+  });
 };
 
 const getField = ({ method, regex }) =>

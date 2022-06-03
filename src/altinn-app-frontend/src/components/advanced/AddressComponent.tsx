@@ -11,6 +11,7 @@ import { AddressLabel } from './AddressLabel';
 import './AddressComponent.css';
 import '../../styles/shared.css';
 import { useAppSelector } from 'src/common/hooks';
+
 export interface IAddressComponentProps extends IComponentProps {
   simplified: boolean;
   labelSettings?: ILabelSettings;
