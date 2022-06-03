@@ -36,7 +36,6 @@ export function FileUploadComponent({
   hasCustomFileEndings,
   textResourceBindings
 }: IFileUploadProps) {
-  const [attachments, dispatch] = React.useReducer(reducer, []);
   const [validations, setValidations] = React.useState([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
@@ -69,6 +68,8 @@ export function FileUploadComponent({
   React.useEffect(() => {
     dispatch({ type: 'replace', value: currentAttachments });
   }, [currentAttachments]);
+    
+  const attachments = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
 
   const getComponentValidations = (): IComponentValidations => {
     const validationMessages = {
@@ -176,7 +177,6 @@ export function FileUploadComponent({
   const handleDeleteFile = (index: number) => {
     const attachmentToDelete = attachments[index];
     const fileType = id; // component id used as filetype identifier for now, see issue #1364
-    dispatch({ type: 'delete', index });
     AttachmentDispatcher.deleteAttachment(
       attachmentToDelete,
       fileType,
