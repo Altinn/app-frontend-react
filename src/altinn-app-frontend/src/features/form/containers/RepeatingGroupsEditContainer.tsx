@@ -138,7 +138,7 @@ export function RepeatingGroupsEditContainer({
   };
 
   return (
-    <div className={classes.editContainer}>
+    <div className={classes.editContainer} id='repeating-group-edit-container'>
       <Grid container={true} item={true} direction='row' spacing={3}>
         {!hideDeleteButton && (
           <Grid
