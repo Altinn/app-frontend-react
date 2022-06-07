@@ -19,9 +19,6 @@ import ErrorReport from '../../components/message/ErrorReport';
 import Header from '../../components/presentation/Header';
 import NavBar from '../../components/presentation/NavBar';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import AppLanguagesActions from '../resources/appLanguage/appLanguagesActions';
-import TextResourcesActions from '../resources/textResources/textResourcesActions';
-import optionsActions from '../resources/options/optionsActions';
 
 export interface IPresentationProvidedProps {
   header: string;
@@ -38,7 +35,6 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const party = useAppSelector(state => state.party?.selectedParty);
   const language = useAppSelector(state => state.language.language || {});
-  const hideCloseButton = useAppSelector(state => state.formLayout.uiConfig.hideCloseButton);
   const instance = useAppSelector(state => state.instanceData?.instance);
   const userParty = useAppSelector(state => state.profile.profile?.party);
   const textResources = useAppSelector(state => state.textResources.resources);
@@ -55,21 +51,6 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
   const returnToView = useAppSelector(
     (state) => state.formLayout.uiConfig.returnToView,
   );
-  const appLanguages = useAppSelector(
-    (state) => state.appLanguages.resources || [],
-  );
-  const selectedAppLanguage = useAppSelector(
-    (state) => state.appLanguages.selectedAppLanguage,
-  );
-  const showLanguageSelector = useAppSelector(
-    (state) => state.formLayout.uiConfig.showLanguageSelector,
-  );
-
-  const handleAppLanguageChange = (languageCode: string) => {
-    AppLanguagesActions.updateAppLanguage(languageCode);
-    TextResourcesActions.fetchTextResources();
-    optionsActions.fetchOptions();
-  };
 
   const handleBackArrowButton = () => {
     if (returnToView) {
@@ -148,17 +129,11 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
             <NavBar
               handleClose={handleModalCloseButton}
               handleBack={handleBackArrowButton}
-              language={language}
               showBackArrow={
                 !!previousFormPage &&
                 (props.type === ProcessTaskType.Data ||
                   props.type === PresentationType.Stateless)
               }
-              hideCloseButton={hideCloseButton}
-              showLanguageSelector={showLanguageSelector}
-              appLanguages={appLanguages}
-              selectedAppLanguage={selectedAppLanguage}
-              onAppLanguageChange={handleAppLanguageChange}
             />
             <div className='a-modal-content-target'>
               <div className='a-page a-current-page'>

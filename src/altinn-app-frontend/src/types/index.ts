@@ -21,7 +21,6 @@ import { IQueueState } from '../shared/resources/queue/queueSlice';
 import { ITextResourcesState } from '../shared/resources/textResources/textResourcesReducer';
 import { IApplicationSettingsState } from 'src/shared/resources/applicationSettings/applicationSettingsSlice';
 import { IFormData } from 'src/features/form/data/formDataReducer';
-import { IAppLanguageState } from 'src/shared/resources/appLanguage/appLanguageReducer';
 
 export interface IAltinnWindow extends Window {
   app: string;
@@ -192,8 +191,7 @@ export interface IRuntimeState {
   process: IProcessState;
   profile: IProfileState;
   queue: IQueueState;
-  textResources: ITextResourcesState,
-  appLanguages: IAppLanguageState;
+  textResources: ITextResourcesState;
 }
 
 export interface ISchemaValidator {

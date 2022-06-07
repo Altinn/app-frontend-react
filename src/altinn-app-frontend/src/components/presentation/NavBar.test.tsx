@@ -1,33 +1,27 @@
 import React from 'react';
 import NavBar, { INavBarProps } from './NavBar';
 import { screen } from '@testing-library/react';
-import { getLanguageFromCode } from 'altinn-shared/language';
 import userEvent from '@testing-library/user-event';
-import { IAppLanguage } from 'altinn-shared/types';
 import { renderWithProviders } from '../../../testUtils';
 
 const renderNavBar = (props?: Partial<INavBarProps>) => {
   const mockClose = jest.fn();
   const mockBack = jest.fn();
   const mockAppLanguageChange = jest.fn();
-  const mockAppLanguages: IAppLanguage[] = [
-    {
-      language: 'nb',
-    },
-    {
-      language: 'en',
-    },
-  ];
+  // const mockAppLanguages: IAppLanguage[] = [
+  //   {
+  //     language: 'nb',
+  //   },
+  //   {
+  //     language: 'en',
+  //   },
+  // ];
   renderWithProviders(
     <NavBar
-      language={getLanguageFromCode('nb')}
       handleClose={mockClose}
       handleBack={mockBack}
-      appLanguages={mockAppLanguages}
-      onAppLanguageChange={mockAppLanguageChange}
-      selectedAppLanguage={'nb'}
       {...props}
-    />,
+    />
   );
 
   return { mockClose, mockBack, mockAppLanguageChange };
@@ -44,7 +38,7 @@ describe('components/presentation/NavBar.tsx', () => {
   });
 
   it('should hide close button', () => {
-    renderNavBar({ hideCloseButton: true });
+    renderNavBar();
     expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
@@ -60,9 +54,7 @@ describe('components/presentation/NavBar.tsx', () => {
     expect(mockBack).toHaveBeenCalled();
   });
   it('should render app language', async () => {
-    const { mockAppLanguageChange } = renderNavBar({
-      showLanguageSelector: true,
-    });
+    const { mockAppLanguageChange } = renderNavBar();
     const dropdown = screen.getByRole('combobox', { name: /Språk/i });
     await userEvent.selectOptions(dropdown, 'en');
     expect(mockAppLanguageChange).toHaveBeenCalledWith('en');

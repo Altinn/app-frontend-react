@@ -67,6 +67,7 @@ export function getInitialStateMock(
     },
     language: {
       language: getLanguageFromCode('nb'),
+      selectedAppLanguage: '',
       error: null,
     },
     organisationMetaData: {
@@ -127,19 +128,7 @@ export function getInitialStateMock(
     applicationSettings: {
       applicationSettings: applicationSettingsMock,
       error: null,
-    },
-    appLanguages: {
-      error: null,
-      selectedAppLanguage: 'nb',
-      resources: [
-        {
-          language: "nb",
-        },
-        {
-          language: "en",
-        },
-      ],
-    },
+    }
   };
 
   return {

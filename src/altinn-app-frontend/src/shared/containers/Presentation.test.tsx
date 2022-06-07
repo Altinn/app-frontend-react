@@ -209,6 +209,7 @@ describe('containers/Presentation.tsx', () => {
             placeholder_user: 'OLA PRIVATPERSON',
           },
         },
+        selectedAppLanguage: "",
         error: null,
       },
       formValidations: {

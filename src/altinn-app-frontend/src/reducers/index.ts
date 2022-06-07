@@ -21,7 +21,6 @@ import TextResourcesReducer from '../shared/resources/textResources/textResource
 import IsLoadingReducer from '../shared/resources/isLoading/isLoadingSlice';
 import QueueReducer from '../shared/resources/queue/queueSlice';
 import { appApi } from 'src/services/AppApi';
-import AppLanguageReducer from 'src/shared/resources/appLanguage/appLanguageReducer';
 
 const reducers = {
   applicationMetadata: ApplicationMetadataReducer,
@@ -42,7 +41,6 @@ const reducers = {
   profile: ProfileReducer,
   queue: QueueReducer,
   textResources: TextResourcesReducer,
-  appLanguages: AppLanguageReducer,
   optionState: OptionsReducer,
   applicationSettings: ApplicationSettingsReducer,
   [appApi.reducerPath]: appApi.reducer,

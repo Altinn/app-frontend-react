@@ -22,7 +22,6 @@ import IsLoadingSagas from '../shared/resources/isLoading/isLoadingSagas';
 import QueueSagas from '../shared/resources/queue/queueSagas';
 import OptionSagas from '../shared/resources/options/optionsSagas';
 import { sagaMiddleware } from 'src/store';
-import AppLanguagesSagas from 'src/shared/resources/appLanguage/appLanguagesSagas';
 
 function* root(): SagaIterator {
   yield fork(FormDataSagas);
@@ -33,7 +32,6 @@ function* root(): SagaIterator {
   yield fork(FormDataModelSagas);
   yield fork(LanguageSagas);
   yield fork(TextResourcesSagas);
-  yield fork(AppLanguagesSagas)
   yield fork(ProfileSagas);
   yield fork(FormValidationSagas);
   yield fork(PartySagas);

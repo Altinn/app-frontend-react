@@ -12,14 +12,14 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import {
   profileStateSelector,
-  appLanguageState,
+  selectedAppLanguageState,
 } from 'src/selectors/simpleSelectors';
 
 export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
 export function* fetchTextResources(): SagaIterator {
   try {
-    let appLanguage: string = yield select(appLanguageState);
+    let appLanguage: string = yield select(selectedAppLanguageState);
     const allowAnonymous = yield select(allowAnonymousSelector);
     if (!allowAnonymous) {
       const profile: IProfile = yield select(profileStateSelector);

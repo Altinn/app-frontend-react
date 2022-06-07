@@ -26,10 +26,6 @@ export function textResourcesUrl(language: string) {
   return `${origin}/${org}/${app}/api/v1/texts/${language}`;
 }
 
-export function appLanguagesUrl() {
-  return `${origin}/${org}/${app}/api/v1/applicationlanguages`;
-}
-
 export function fileUploadUrl(attachmentType: string) {
   return (
     `${appPath}/instances/` +

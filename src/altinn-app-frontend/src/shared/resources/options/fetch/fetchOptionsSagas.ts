@@ -12,6 +12,7 @@ import { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { IFormData } from 'src/features/form/data/formDataReducer';
 import { getOptionLookupKey } from 'src/utils/options';
+import { selectedAppLanguageState } from 'src/selectors/simpleSelectors';
 
 export const formLayoutSelector = (state: IRuntimeState): ILayouts =>
   state.formLayout.layouts;
@@ -20,7 +21,6 @@ export const userLanguageSelector = (state: IRuntimeState) =>
   state.profile.profile.profileSettingPreference.language;
 export const optionsSelector = (state: IRuntimeState): IOptions => state.optionState.options;
 export const instanceIdSelector = (state: IRuntimeState): string => state.instanceData.instance?.id;
-const appLanguageState = (state: IRuntimeState) => state.appLanguages.selectedAppLanguage;
 
 export function* fetchOptionsSaga(): SagaIterator {
   const layouts: ILayouts = yield select(formLayoutSelector);
@@ -59,7 +59,7 @@ export function* fetchSpecificOptionSaga({
     };
     yield call(OptionsActions.fetchingOptions, optionKey, optionMetaData);
     const formData: IFormData = yield select(formDataSelector);
-    let language: string = yield select(appLanguageState);
+    let language:string = yield select(selectedAppLanguageState);
     if(!language) {
       language = yield select(userLanguageSelector);
     }
