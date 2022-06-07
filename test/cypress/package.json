@@ -29,11 +29,11 @@
   "devDependencies": {
     "axe-core": "^4.4.2",
     "concurrently": "^7.2.1",
-    "cypress": "^10.0.1",
+    "cypress": "^10.0.3",
     "cypress-axe": "^0.14.0",
     "cypress-plugin-tab": "^1.0.5",
     "dotenv": "^16.0.1",
-    "eslint": "^8.16.0",
+    "eslint": "^8.17.0",
     "eslint-plugin-cypress": "^2.12.1",
     "execa": "^6.1.0",
     "prettier": "^2.6.2",
