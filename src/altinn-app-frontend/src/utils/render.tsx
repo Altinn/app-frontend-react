@@ -41,6 +41,16 @@ export function renderValidationMessagesForComponent(
     : null;
 }
 
+function singleValidationMessage(message: any, id: string) {
+  if (typeof message === 'string') {
+  return (<li key={`validationMessage-${id}-${message}`}>
+            <p role='alert'>{message}</p>
+          </li>
+    );
+  }
+  return <li role='alert' key={`validationMessage-${id}`}>{message}</li>;
+}
+
 export function renderValidationMessages(
   messages: (
     | string
@@ -72,11 +82,7 @@ export function renderValidationMessages(
         </ol>
       : <ol>
           {
-            typeof messages[0] === 'string'
-            ? <li key={`validationMessage-${id}-${messages[0]}`}>
-                <p role='alert'>{messages[0]}</p>
-              </li>
-            : <li role='alert' key={`validationMessage-${id}`}>{messages[0]}</li>
+            singleValidationMessage(messages[0], id)
           }
         </ol>
     }
