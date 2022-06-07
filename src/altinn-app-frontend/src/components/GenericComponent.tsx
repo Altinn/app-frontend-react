@@ -56,43 +56,49 @@ const useStyles = makeStyles((theme) => ({
   },
   xs: {
     'border-bottom': '1px dashed #949494',
-    '& > div:nth-child(2)':{
-      paddingLeft: theme.spacing(3/2) // Half the spacing of <Grid in <Form
+    '& > div:nth-child(2)': {
+      paddingLeft: theme.spacing(3 / 2) // Half the spacing of <Grid in <Form
     }
   },
   sm: {
     [theme.breakpoints.up('sm')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2)
       }
     },
   },
   md: {
     [theme.breakpoints.up('md')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2)
       }
     },
   },
   lg: {
     [theme.breakpoints.up('lg')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2)
       }
     },
   },
   xl: {
     [theme.breakpoints.up('xl')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2)
       }
     },
   },
 }));
+
+export interface IComponentContext {
+  grid?: IGrid;
+}
+
+export const ComponentContext = React.createContext<IComponentContext>({});
 
 export function GenericComponent(props: IGenericComponentProps) {
   const { id, ...passThroughProps } = props;
@@ -305,64 +311,66 @@ export function GenericComponent(props: IGenericComponentProps) {
   ];
 
   return (
-    <Grid
-      item={true}
-      container={true}
-      xs={props.grid?.xs || 12}
-      sm={props.grid?.sm || false}
-      md={props.grid?.md || false}
-      lg={props.grid?.lg || false}
-      xl={props.grid?.xl || false}
-      key={`grid-${props.id}`}
-      className={classNames(
-        'form-group',
-        'a-form-group',
-        classes.container,
-        gridToHiddenProps(props.grid?.labelGrid, classes),
-      )}
-      alignItems='baseline'
-    >
-      {!noLabelComponents.includes(props.type) && (
-        <Grid
-          item={true}
-          xs={props.grid?.labelGrid?.xs || 12}
-          sm={props.grid?.labelGrid?.sm || false}
-          md={props.grid?.labelGrid?.md || false}
-          lg={props.grid?.labelGrid?.lg || false}
-          xl={props.grid?.labelGrid?.xl || false}
-        >
-          <RenderLabelScoped
-            props={props}
-            passThroughProps={passThroughProps}
-            language={language}
-            texts={texts}
-          />
-          <RenderDescription key={`description-${props.id}`} />
-        </Grid>
-      )}
+    <ComponentContext.Provider value={{ grid: props.grid }}>
       <Grid
-        key={`form-content-${props.id}`}
         item={true}
-        id={`form-content-${props.id}`}
-        xs={props.grid?.innerGrid?.xs || 12}
-        sm={props.grid?.innerGrid?.sm || false}
-        md={props.grid?.innerGrid?.md || false}
-        lg={props.grid?.innerGrid?.lg || false}
-        xl={props.grid?.innerGrid?.xl || false}
+        container={true}
+        xs={props.grid?.xs || 12}
+        sm={props.grid?.sm || false}
+        md={props.grid?.md || false}
+        lg={props.grid?.lg || false}
+        xl={props.grid?.xl || false}
+        key={`grid-${props.id}`}
+        className={classNames(
+          'form-group',
+          'a-form-group',
+          classes.container,
+          gridToHiddenProps(props.grid?.labelGrid, classes),
+        )}
+        alignItems='baseline'
       >
-        <RenderComponent.Tag {...componentProps} />
+        {!noLabelComponents.includes(props.type) && (
+          <Grid
+            item={true}
+            xs={props.grid?.labelGrid?.xs || 12}
+            sm={props.grid?.labelGrid?.sm || false}
+            md={props.grid?.labelGrid?.md || false}
+            lg={props.grid?.labelGrid?.lg || false}
+            xl={props.grid?.labelGrid?.xl || false}
+          >
+            <RenderLabelScoped
+              props={props}
+              passThroughProps={passThroughProps}
+              language={language}
+              texts={texts}
+            />
+            <RenderDescription key={`description-${props.id}`} />
+          </Grid>
+        )}
+        <Grid
+          key={`form-content-${props.id}`}
+          item={true}
+          id={`form-content-${props.id}`}
+          xs={props.grid?.innerGrid?.xs || 12}
+          sm={props.grid?.innerGrid?.sm || false}
+          md={props.grid?.innerGrid?.md || false}
+          lg={props.grid?.innerGrid?.lg || false}
+          xl={props.grid?.innerGrid?.xl || false}
+        >
+          <RenderComponent.Tag {...componentProps} />
 
-        {componentValidationsHandledByGenericComponent(
-          props.dataModelBindings,
-          props.type,
-        ) &&
-          hasValidationMessages &&
-          renderValidationMessagesForComponent(
-            componentValidations?.simpleBinding,
-            props.id,
-          )}
+          {componentValidationsHandledByGenericComponent(
+            props.dataModelBindings,
+            props.type,
+          ) &&
+            hasValidationMessages &&
+            renderValidationMessagesForComponent(
+              componentValidations?.simpleBinding,
+              props.id,
+            )}
+        </Grid>
       </Grid>
-    </Grid>
+    </ComponentContext.Provider>
   );
 }
 
