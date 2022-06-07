@@ -7,7 +7,7 @@ import { createSelector } from 'reselect';
  * @param state the redux state
  */
 const getHasErrorsSelector = (state: IRuntimeState) => {
-  const error =
+  const error = (
     state.party.error ||
     state.process.error ||
     state.profile.error ||
@@ -16,7 +16,7 @@ const getHasErrorsSelector = (state: IRuntimeState) => {
     state.instanceData.error ||
     state.applicationMetadata.error ||
     state.formDataModel.error ||
-    state.optionState.error;
+    state.optionState.error);
 
   if (error !== null) {
     // we have an error on something we consider critical, return true
@@ -25,32 +25,29 @@ const getHasErrorsSelector = (state: IRuntimeState) => {
 
   // we have a few special cases where we allow 404 status codes but not other errors
   const applicationSettingsError = state.applicationSettings.error;
-  if (
-    applicationSettingsError &&
-    !applicationSettingsError.message?.includes('404')
-  ) {
-    return true;
-  }
+  if (applicationSettingsError && !applicationSettingsError.message?.includes('404')) {
+      return true;
+    }
 
   const textResourceError = state.textResources.error;
   if (textResourceError && !textResourceError.message?.includes('404')) {
-    return true;
+      return true;
   }
 
   const formDynamicsError = state.formDynamics.error;
   if (formDynamicsError && !formDynamicsError.message?.includes('404')) {
-    return true;
+      return true;
   }
 
   const formRulesError = state.formRules.error;
   if (formRulesError && !formRulesError.message?.includes('404')) {
-    return true;
+      return true;
   }
 
   // 403 in formData handles with MissingRolesError, see Entrypoint.tsx
   const formDataError = state.formData.error;
   if (formDataError && !formDataError.message?.includes('403')) {
-    return true;
+      return true;
   }
 
   return false;

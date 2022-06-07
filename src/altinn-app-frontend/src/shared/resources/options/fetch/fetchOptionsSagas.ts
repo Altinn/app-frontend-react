@@ -12,13 +12,11 @@ import { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { IFormData } from 'src/features/form/data/formDataReducer';
 import { getOptionLookupKey } from 'src/utils/options';
-import { selectedAppLanguageState } from 'src/selectors/simpleSelectors';
+import { selectedAppLanguageStateSelector } from 'src/selectors/simpleSelectors';
 
 export const formLayoutSelector = (state: IRuntimeState): ILayouts =>
   state.formLayout.layouts;
 export const formDataSelector = (state: IRuntimeState) => state.formData.formData;
-export const userLanguageSelector = (state: IRuntimeState) =>
-  state.profile.profile.profileSettingPreference.language;
 export const optionsSelector = (state: IRuntimeState): IOptions => state.optionState.options;
 export const instanceIdSelector = (state: IRuntimeState): string => state.instanceData.instance?.id;
 
@@ -59,10 +57,7 @@ export function* fetchSpecificOptionSaga({
     };
     yield call(OptionsActions.fetchingOptions, optionKey, optionMetaData);
     const formData: IFormData = yield select(formDataSelector);
-    let language:string = yield select(selectedAppLanguageState);
-    if(!language) {
-      language = yield select(userLanguageSelector);
-    }
+    const language = yield select(selectedAppLanguageStateSelector);
     const url = getOptionsUrl({ optionsId, formData, language, dataMapping, secure, instanceId });
     const options: IOption[] = yield call(get, url);
     yield call(OptionsActions.fetchOptionsFulfilled, optionKey, options);

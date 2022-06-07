@@ -2,26 +2,40 @@ import React from 'react';
 import NavBar, { INavBarProps } from './NavBar';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from '../../../testUtils';
+import { renderWithProviders, setupServer } from '../../../testUtils';
+import { rest } from 'msw';
+
+
+const server = setupServer();
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 const renderNavBar = (props?: Partial<INavBarProps>) => {
   const mockClose = jest.fn();
   const mockBack = jest.fn();
   const mockAppLanguageChange = jest.fn();
-  // const mockAppLanguages: IAppLanguage[] = [
-  //   {
-  //     language: 'nb',
-  //   },
-  //   {
-  //     language: 'en',
-  //   },
-  // ];
+  server.use(rest.get(
+    'applicationlanguages',
+    (req, res, ctx) => {
+      const mockApiResponse = [
+        {
+          language: 'nb',
+        },
+        {
+          language: 'en',
+        },
+      ];
+      return res(ctx.json(mockApiResponse));
+    },
+  ));
   renderWithProviders(
     <NavBar
       handleClose={mockClose}
       handleBack={mockBack}
       {...props}
-    />
+    />, { preloadedState: { language: { selectedAppLanguage: 'nb', language: {}, error: null } } },
   );
 
   return { mockClose, mockBack, mockAppLanguageChange };

@@ -9,29 +9,30 @@ import { useGetAppLanguageMutation } from 'src/services/AppLanguageApi';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { selectedAppLanguageStateSelector } from 'src/selectors/simpleSelectors';
 
 export const LanguageSelector = () => {
   const language = useAppSelector(state => state.language.language || {});
-  const [getAppLanguage, {isSuccess, data, isLoading}] = useGetAppLanguageMutation();
+  const [getAppLanguage, { isSuccess, data, isLoading }] = useGetAppLanguageMutation();
   const selectedAppLanguage = useAppSelector(
-    (state) => state.language.selectedAppLanguage,
+    selectedAppLanguageStateSelector,
   );
 
-  useEffect(()=>{
-    getAppLanguage()
-  },[getAppLanguage])
+  useEffect(() => {
+    getAppLanguage();
+  }, [getAppLanguage]);
 
   const textResources = useAppSelector(state => state.textResources.resources);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const handleAppLanguageChange = (languageCode: string) => {
-    dispatch(LanguageActions.updateSelectedAppLanguage({ selected: languageCode }))
+    dispatch(LanguageActions.updateSelectedAppLanguage({ selected: languageCode }));
     TextResourcesActions.fetchTextResources();
     optionsActions.fetchOptions();
   };
 
 
   return <Box display='flex' flexDirection='column' className='mb-1'>
-    {isLoading && <AltinnSpinner/>}
+    {isLoading && <AltinnSpinner />}
     {isSuccess && <>
       <label className='a-form-label' htmlFor='app-language-select'>
         {getTextFromAppOrDefault(
@@ -58,5 +59,5 @@ export const LanguageSelector = () => {
         id='app-language-select'
       />
     </>}
-  </Box>
+  </Box>;
 };

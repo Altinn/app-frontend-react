@@ -11,7 +11,7 @@ import { FETCH_TEXT_RESOURCES } from './fetchTextResourcesActionTypes';
 import { FETCH_APPLICATION_METADATA_FULFILLED } from 'src/shared/resources/applicationMetadata/actions/types';
 import { FETCH_PROFILE_FULFILLED } from '../../profile/fetch/fetchProfileActionTypes';
 import {
-  selectedAppLanguageState,
+  selectedAppLanguageStateSelector,
   profileStateSelector,
 } from 'src/selectors/simpleSelectors';
 import { IProfile } from 'altinn-shared/types';
@@ -49,7 +49,7 @@ describe('fetchTextResourcesSagas', () => {
     };
     expectSaga(fetchTextResources)
       .provide([
-        [select(selectedAppLanguageState), ''],
+        [select(selectedAppLanguageStateSelector), ''],
         [select(allowAnonymousSelector), true],
         [call(get, textResourcesUrl('nb')), mockTextResource],
       ])
@@ -84,7 +84,7 @@ describe('fetchTextResourcesSagas', () => {
     };
     return expectSaga(fetchTextResources)
       .provide([
-        [select(selectedAppLanguageState), ''],
+        [select(selectedAppLanguageStateSelector), ''],
         [select(allowAnonymousSelector), false],
         [select(profileStateSelector), profileMock],
         [call(get, textResourcesUrl('en')), mockTextResource],
@@ -120,7 +120,7 @@ describe('fetchTextResourcesSagas', () => {
     };
     return expectSaga(fetchTextResources)
       .provide([
-        [select(selectedAppLanguageState), 'en'],
+        [select(selectedAppLanguageStateSelector), 'en'],
         [select(allowAnonymousSelector), false],
         [select(profileStateSelector), profileMock],
         [call(get, textResourcesUrl('en')), mockTextResource],

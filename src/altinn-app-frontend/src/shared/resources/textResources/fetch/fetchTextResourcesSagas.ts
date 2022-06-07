@@ -1,5 +1,4 @@
 import { SagaIterator } from 'redux-saga';
-import { IProfile } from 'altinn-shared/types';
 import { all, call, put, select, take, takeLatest } from 'redux-saga/effects';
 import { get } from 'src/utils/networking';
 import { textResourcesUrl, oldTextResourcesUrl } from 'src/utils/appUrlHelper';
@@ -11,21 +10,14 @@ import { FETCH_APPLICATION_METADATA_FULFILLED } from 'src/shared/resources/appli
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import {
-  profileStateSelector,
-  selectedAppLanguageState,
+  selectedAppLanguageStateSelector,
 } from 'src/selectors/simpleSelectors';
 
 export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
 export function* fetchTextResources(): SagaIterator {
   try {
-    let appLanguage: string = yield select(selectedAppLanguageState);
-    const allowAnonymous = yield select(allowAnonymousSelector);
-    if (!allowAnonymous) {
-      const profile: IProfile = yield select(profileStateSelector);
-      appLanguage = appLanguage || profile.profileSettingPreference.language;
-    }
-
+    const appLanguage = yield select(selectedAppLanguageStateSelector);
     let resource: any;
     try {
       resource = yield call(get, textResourcesUrl(appLanguage));
