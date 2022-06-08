@@ -362,7 +362,7 @@ export function getFileUploadWithTagComponentValidations(
   }
   if (
     validationMessages.simpleBinding !== undefined &&
-    validationMessages.simpleBinding.errors.length > 0
+    validationMessages.simpleBinding.errors?.length > 0
   ) {
     parseFileUploadComponentWithTagValidationObject(
       validationMessages.simpleBinding.errors as string[],
