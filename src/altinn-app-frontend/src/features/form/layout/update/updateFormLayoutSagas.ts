@@ -296,8 +296,8 @@ export function* watchUpdateCurrentViewSaga(): SagaIterator {
   const requestChan = yield actionChannel(FormLayoutActions.updateCurrentView);
   while (true) {
     yield take(FormLayoutActions.updateCurrentView);
-
-    if (yield select(selectUnsavedChanges)) {
+    const hasUnsavedChanges = yield select(selectUnsavedChanges);
+    if (hasUnsavedChanges) {
       yield take(FormDataActions.submitFormDataFulfilled);
     }
     const value = yield take(requestChan);

@@ -1,8 +1,7 @@
 import { expectSaga, testSaga } from 'redux-saga-test-plan';
-import { actionChannel, select } from 'redux-saga/effects';
+import { actionChannel, call, select } from 'redux-saga/effects';
 
 import FormDataActions from 'src/features/form/data/formDataActions';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import * as sharedUtils from 'altinn-shared/utils';
 import {
@@ -14,6 +13,7 @@ import {
   selectUnsavedChanges
 } from './updateFormLayoutSagas';
 import { IRuntimeState } from 'src/types';
+import { FormLayoutActions } from '../formLayoutSlice';
 
 jest.mock('altinn-shared/utils');
 
@@ -42,12 +42,17 @@ describe('updateLayoutSagas', () => {
 
   describe('watchUpdateCurrentViewSaga', () => {
     it('should save unsaved changes before updating from layout', () => {
-     // const chan = actionChannel(FormLayoutActions.updateCurrentView);
       const fakeChannel = {
-        take() {},
-        flush() {},
-        close() {},
+        take() { /* Intentionally empty */ },
+        flush() { /* Intentionally empty */ },
+        close() { /* Intentionally empty */},
       };
+
+      const mockAction = FormLayoutActions.updateCurrentView({
+        newView: 'test'
+      });
+
+      const mockSaga = function*() { /* intentially empty */};
 
       return expectSaga(watchUpdateCurrentViewSaga)
         .provide([
@@ -56,16 +61,17 @@ describe('updateLayoutSagas', () => {
           {
             take({ channel }, next) {
               if (channel === fakeChannel) {
-                return "test";
+                return mockAction;
               }
               return next();
             },
           },
+          [call(updateCurrentViewSaga, mockAction), mockSaga]
         ])
-        .take(FormLayoutActions.updateCurrentView)
-        .take(FormDataActions.submitFormDataFulfilled)
+        .dispatch(FormLayoutActions.updateCurrentView)
+        .dispatch(FormDataActions.submitFormDataFulfilled)
         .take(fakeChannel)
-        .call(updateCurrentViewSaga, "test")
+        .call(updateCurrentViewSaga, mockAction)
         .run();
     });
   });
