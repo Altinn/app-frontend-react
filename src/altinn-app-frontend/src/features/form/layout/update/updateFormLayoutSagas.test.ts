@@ -1,5 +1,5 @@
 import { expectSaga, testSaga } from 'redux-saga-test-plan';
-import { select } from 'redux-saga/effects';
+import { actionChannel, select } from 'redux-saga/effects';
 
 import FormDataActions from 'src/features/form/data/formDataActions';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
@@ -9,6 +9,9 @@ import {
   calculatePageOrderAndMoveToNextPageSaga,
   initRepeatingGroupsSaga,
   watchInitRepeatingGroupsSaga,
+  watchUpdateCurrentViewSaga,
+  updateCurrentViewSaga,
+  selectUnsavedChanges
 } from './updateFormLayoutSagas';
 import { IRuntimeState } from 'src/types';
 
@@ -34,6 +37,36 @@ describe('updateLayoutSagas', () => {
         )
         .next()
         .isDone();
+    });
+  });
+
+  describe('watchUpdateCurrentViewSaga', () => {
+    it('should save unsaved changes before updating from layout', () => {
+     // const chan = actionChannel(FormLayoutActions.updateCurrentView);
+      const fakeChannel = {
+        take() {},
+        flush() {},
+        close() {},
+      };
+
+      return expectSaga(watchUpdateCurrentViewSaga)
+        .provide([
+          [actionChannel(FormLayoutActions.updateCurrentView), fakeChannel],
+          [select(selectUnsavedChanges), true],
+          {
+            take({ channel }, next) {
+              if (channel === fakeChannel) {
+                return "test";
+              }
+              return next();
+            },
+          },
+        ])
+        .take(FormLayoutActions.updateCurrentView)
+        .take(FormDataActions.submitFormDataFulfilled)
+        .take(fakeChannel)
+        .call(updateCurrentViewSaga, "test")
+        .run();
     });
   });
 

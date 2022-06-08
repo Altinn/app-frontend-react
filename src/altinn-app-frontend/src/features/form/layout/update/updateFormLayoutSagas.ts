@@ -26,7 +26,7 @@ const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.form
 const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
 const selectFormLayouts = (state: IRuntimeState): ILayouts => state.formLayout.layouts;
 const selectAttachmentState = (state: IRuntimeState): IAttachmentState => state.attachments;
-const selectUnsavedChanges = (state: IRuntimeState): boolean => state.formData.unsavedChanges;
+export const selectUnsavedChanges = (state: IRuntimeState): boolean => state.formData.unsavedChanges;
 
 function* updateFocus({ payload: { currentComponentId, step } }: PayloadAction<IUpdateFocus>): SagaIterator {
   try {
