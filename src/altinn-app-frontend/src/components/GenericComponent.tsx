@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { shallowEqual } from 'react-redux';
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
-import components, { FormComponentContext } from '.';
+import components, { FormComponentContext, IFormComponentContext } from '.';
 import type { IComponentProps } from '.';
 import type { ILanguage } from 'altinn-shared/types';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
@@ -134,6 +134,13 @@ export function GenericComponent(props: IGenericComponentProps) {
     (state) => state.formValidations.validations[currentView]?.[props.id],
     shallowEqual,
   );
+  
+  const formComponentContext = useMemo<IFormComponentContext>(() => {
+    return {
+      grid: props.grid,
+      baseComponentId: props.baseComponentId,
+    }
+  }, [props.baseComponentId, props.grid]);
 
   React.useEffect(() => {
     setHasValidationMessages(
@@ -319,7 +326,7 @@ export function GenericComponent(props: IGenericComponentProps) {
   }
 
   return (
-    <FormComponentContext.Provider value={{ grid: props.grid, baseComponentId: props.baseComponentId }}>
+    <FormComponentContext.Provider value={formComponentContext}>
       <Grid
         item={true}
         container={true}
