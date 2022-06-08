@@ -10,9 +10,10 @@ import type {
   IMapping,
 } from 'src/types';
 import type {
+  IGroupEditProperties,
   ILayout,
   ILayoutComponent,
-  ILayoutGroup
+  ILayoutGroup,
 } from '../features/form/layout';
 import { IFormFileUploaderComponent, IFormFileUploaderWithTagComponent } from "src/types";
 import { IDatePickerProps } from "src/components/base/DatepickerComponent";
@@ -119,19 +120,21 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
             const childGroup = groups.find(
               (element) => element.id === childGroupId,
             );
-            [...Array(index + 1)].forEach((_x: any, childGroupIndex: number) => {
-              const groupId = `${childGroup.id}-${childGroupIndex}`;
-              repeatingGroups[groupId] = {
-                index: getIndexForRepeatingGroup(
-                  formData,
-                  childGroup.dataModelBindings?.group,
-                  groupElement.dataModelBindings.group,
-                  childGroupIndex,
-                ),
-                baseGroupId: childGroup.id,
-                editIndex: -1,
-              };
-            });
+            [...Array(index + 1)].forEach(
+              (_x: any, childGroupIndex: number) => {
+                const groupId = `${childGroup.id}-${childGroupIndex}`;
+                repeatingGroups[groupId] = {
+                  index: getIndexForRepeatingGroup(
+                    formData,
+                    childGroup.dataModelBindings?.group,
+                    groupElement.dataModelBindings.group,
+                    childGroupIndex,
+                  ),
+                  baseGroupId: childGroup.id,
+                  editIndex: -1,
+                };
+              },
+            );
           });
         }
       } else {
@@ -148,7 +151,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
 
 export function mapFileUploadersWithTag(
   formLayout: ILayout,
-  attachmentState: IAttachmentState
+  attachmentState: IAttachmentState,
 ) {
   const fileUploaders: IFileUploadersWithTag = {};
   for (const componentId of Object.keys(attachmentState.attachments)) {
@@ -245,6 +248,17 @@ export function removeRepeatingGroupFromUIConfig(
   return newRepGroups;
 }
 
+export const getRepeatingGroupStartStopIndex = (
+  repeatingGroupIndex: number,
+  edit: IGroupEditProperties | undefined,
+) => {
+  const start = edit?.filter?.find(({ key }) => key === 'start')?.value;
+  const stop = edit?.filter?.find(({ key }) => key === 'stop')?.value;
+  const startIndex = start ? parseInt(start) : 0;
+  const stopIndex = stop ? parseInt(stop) - 1 : repeatingGroupIndex;
+  return { startIndex, stopIndex };
+};
+
 export function createRepeatingGroupComponents(
   container: ILayoutGroup,
   renderComponents: (ILayoutComponent | ILayoutGroup)[],
@@ -253,7 +267,11 @@ export function createRepeatingGroupComponents(
   hiddenFields?: string[],
 ): Array<Array<ILayoutComponent | ILayoutGroup>> {
   const componentArray: Array<Array<ILayoutComponent | ILayoutGroup>> = [];
-  for (let i = 0; i <= repeatingGroupIndex; i++) {
+  const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
+    repeatingGroupIndex,
+    container.edit,
+  );
+  for (let i = startIndex; i <= stopIndex; i++) {
     const childComponents = renderComponents.map(
       (component: ILayoutComponent | ILayoutGroup) => {
         const componentDeepCopy: ILayoutComponent | ILayoutGroup = JSON.parse(
@@ -281,7 +299,7 @@ export function createRepeatingGroupComponents(
         if (componentDeepCopy.type === 'InstantiationButton') {
           mapping = setMappingForRepeatingGroupComponent(
             (componentDeepCopy as IInstantiationButtonProps).mapping,
-            i
+            i,
           );
         }
         return {
@@ -291,7 +309,7 @@ export function createRepeatingGroupComponents(
           id: deepCopyId,
           baseComponentId: (componentDeepCopy as any).baseComponentId || componentDeepCopy.id,
           hidden,
-          mapping
+          mapping,
         };
       },
     );
@@ -306,9 +324,11 @@ export function setMappingForRepeatingGroupComponent(
 ) {
   if (mapping) {
     const indexedMapping: IMapping = {
-      ...mapping
+      ...mapping,
     };
-    const mappingsWithRepeatingGroupSources = Object.keys(mapping).filter((source) => source.includes('[{0}]'));
+    const mappingsWithRepeatingGroupSources = Object.keys(mapping).filter(
+      (source) => source.includes('[{0}]'),
+    );
     mappingsWithRepeatingGroupSources.forEach((sourceMapping) => {
       delete indexedMapping[sourceMapping];
       const newSource = sourceMapping.replace('[{0}]', `[${index}]`);

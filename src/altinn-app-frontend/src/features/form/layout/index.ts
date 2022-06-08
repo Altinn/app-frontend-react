@@ -24,6 +24,8 @@ export interface ILayoutComponent extends ILayoutEntry {
   dataModelBindings: IDataModelBindings;
   isValid?: boolean;
   readOnly?: boolean;
+  optionsId?: string;
+  options?: IOption[];
   disabled?: boolean;
   required?: boolean;
   textResourceBindings: ITextResourceBindings;
@@ -51,7 +53,8 @@ export type ComponentTypes =
   | 'RadioButtons'
   | 'Summary'
   | 'TextArea'
-  | 'NavigationBar';
+  | 'NavigationBar'
+  | 'Likert';
 
 export interface IDataModelBindingsSimple {
   simpleBinding: string;
@@ -108,7 +111,7 @@ export interface IGridStyling {
 }
 
 export interface IGroupEditProperties {
-  mode?: 'hideTable' | 'showTable' | 'showAll';
+  mode?: 'hideTable' | 'showTable' | 'showAll' | 'likert';
   filter?: IGroupFilter[];
   addButton?: boolean;
   saveButton?: boolean;

@@ -34,6 +34,7 @@ import { convertDataBindingToModel, getKeyWithoutIndex, getKeyIndex } from './da
 import { matchLayoutComponent, setupGroupComponents } from './layout';
 import {
   createRepeatingGroupComponents,
+  getRepeatingGroupStartStopIndex,
   isFileUploadComponent,
   isFileUploadWithTagComponent,
   isDatePickerComponent,
@@ -281,7 +282,11 @@ export function* iterateFieldsInLayout(
           }
         } else {
           const groupDataModelBinding = group.dataModelBindings.group;
-          for (let index = 0; index <= repeatingGroups[group.id]?.index; index++) {
+          const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
+            repeatingGroups[group.id]?.index,
+            group.edit,
+          );
+          for (let index = startIndex; index <= stopIndex; index++) {
             const componentToCheck = {
               ...component,
               id: `${component.id}-${index}`,
@@ -556,7 +561,7 @@ function attachmentsValid(attachments: any, component: any): boolean {
 }
 
 export function attachmentIsMissingTag(attachment: IAttachment): boolean {
-  return attachment.tags === undefined || attachment.tags.length === 0
+  return attachment.tags === undefined || attachment.tags.length === 0;
 }
 
 /*
@@ -582,9 +587,13 @@ export function validateDatepickerFormData(
   }
 
   if (date && date.isBefore(minDate)) {
-    validations.errors.push(getLanguageFromKey('date_picker.min_date_exeeded', language));
+    validations.errors.push(
+      getLanguageFromKey('date_picker.min_date_exeeded', language),
+    );
   } else if (date && date.isAfter(maxDate)) {
-    validations.errors.push(getLanguageFromKey('date_picker.max_date_exeeded', language));
+    validations.errors.push(
+      getLanguageFromKey('date_picker.max_date_exeeded', language),
+    );
   }
 
   return validations;
@@ -859,13 +868,13 @@ export function mapToComponentValidations(
 ) {
   let dataModelFieldKey = validatedComponent
     ? Object.keys(
-      (validatedComponent as ILayoutComponent).dataModelBindings,
-    ).find((name) => {
-      return (
-        (validatedComponent as ILayoutComponent).dataModelBindings[name] ===
-        dataBindingName
-      );
-    })
+        (validatedComponent as ILayoutComponent).dataModelBindings,
+      ).find((name) => {
+        return (
+          (validatedComponent as ILayoutComponent).dataModelBindings[name] ===
+          dataBindingName
+        );
+      })
     : null;
 
   const layoutComponent =
@@ -882,7 +891,7 @@ export function mapToComponentValidations(
               key &&
               component.dataModelBindings[key] &&
               component.dataModelBindings[key].toLowerCase() ===
-              dataBindingWithoutIndex
+                dataBindingWithoutIndex
             );
           },
         );
@@ -999,7 +1008,6 @@ export function findLayoutIdsFromValidationIssue(
   layouts: ILayouts,
   validationIssue: IValidationIssue,
 ): string[] {
-
   if (!validationIssue.field) {
     // validation issue could be mapped to task and not to a field in the datamodel
     return ['unmapped'];
@@ -1100,7 +1108,7 @@ export function mapDataElementValidationToRedux(
       layoutIds.push('unmapped');
     }
 
-    layoutIds.forEach(layoutId => {
+    layoutIds.forEach((layoutId) => {
       const { componentId, component, componentValidations } =
         findComponentFromValidationIssue(
           layouts[layoutId] || [],
@@ -1220,7 +1228,9 @@ function addValidation(
  * gets unmapped errors from validations as string array
  * @param validations the validations
  */
-export function getUnmappedErrors(validations: IValidations): React.ReactNode[] {
+export function getUnmappedErrors(
+  validations: IValidations,
+): React.ReactNode[] {
   const messages: React.ReactNode[] = [];
   if (!validations) {
     return messages;
@@ -1234,7 +1244,6 @@ export function getUnmappedErrors(validations: IValidations): React.ReactNode[] 
   });
   return messages;
 }
-
 
 /**
  * checks if a validation contains any errors of a given severity.
@@ -1251,23 +1260,23 @@ export function hasValidationsOfSeverity(
 
   return Object.keys(validations).some((layout) => {
     return Object.keys(validations[layout]).some((componentKey: string) => {
-      return Object.keys(
-        validations[layout][componentKey] || {},
-      ).some((bindingKey: string) => {
-        if (
-          severity === Severity.Error &&
-          validations[layout][componentKey][bindingKey].errors?.length > 0
-        ) {
-          return true;
-        }
-        if (
-          severity === Severity.Warning &&
-          validations[layout][componentKey][bindingKey].warnings?.length > 0
-        ) {
-          return true;
-        }
-        return false;
-      });
+      return Object.keys(validations[layout][componentKey] || {}).some(
+        (bindingKey: string) => {
+          if (
+            severity === Severity.Error &&
+            validations[layout][componentKey][bindingKey].errors?.length > 0
+          ) {
+            return true;
+          }
+          if (
+            severity === Severity.Warning &&
+            validations[layout][componentKey][bindingKey].warnings?.length > 0
+          ) {
+            return true;
+          }
+          return false;
+        },
+      );
     });
   });
 }
@@ -1711,9 +1720,12 @@ export function missingFieldsInLayoutValidations(
   language: ILanguage,
 ): boolean {
   let result = false;
-  const requiredMessage = getLanguageFromKey('form_filler.error_required', language);
+  const requiredMessage = getLanguageFromKey(
+    'form_filler.error_required',
+    language,
+  );
   const lookForRequiredMsg = (e: any) => {
-    if (typeof(e) === 'string') {
+    if (typeof e === 'string') {
       return e.includes(requiredMessage);
     }
     if (Array.isArray(e)) {
@@ -1730,8 +1742,11 @@ export function missingFieldsInLayoutValidations(
       if (result) return;
 
       const errors = layoutValidations[component][binding].errors;
-      result = (errors && errors.length > 0 && errors.findIndex(lookForRequiredMsg) > -1)
-    })
+      result =
+        errors &&
+        errors.length > 0 &&
+        errors.findIndex(lookForRequiredMsg) > -1;
+    });
   });
 
   return result;
