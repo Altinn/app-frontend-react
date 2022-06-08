@@ -74,7 +74,7 @@ describe('updateLayoutSagas', () => {
         .call(updateCurrentViewSaga, mockAction)
         .run();
     });
-    it('should not save unsaved changes before updating from layout when no unsaved changes', () => {
+    it('should not save unsaved changes before updating form layout when no unsaved changes', () => {
       const fakeChannel = {
         take() { /* Intentionally empty */ },
         flush() { /* Intentionally empty */ },
