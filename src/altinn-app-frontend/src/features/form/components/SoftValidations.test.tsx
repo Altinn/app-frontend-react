@@ -5,15 +5,24 @@ import { renderWithProviders } from 'src/../testUtils';
 import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
 import { nb } from 'altinn-shared/language/texts/nb';
 import type { IRuntimeState, ITextResource } from 'src/types';
+import { FormComponentContext } from 'src/components';
+import type { IFormComponentContext} from 'src/components';
 
-const render = (props: Partial<ISoftValidationProps> = {}, suppliedState: Partial<IRuntimeState> = {}) => {
+const render = (
+  props: Partial<ISoftValidationProps> = {},
+  suppliedState: Partial<IRuntimeState> = {},
+  suppliedContext: Partial<IFormComponentContext> = {}
+) => {
   const allProps: ISoftValidationProps = {
     variant: 'info',
     children: <ol><li>Some message</li></ol>,
     ...props,
   };
 
-  renderWithProviders(<SoftValidations {...allProps} />, {
+  renderWithProviders(
+    <FormComponentContext.Provider value={suppliedContext}>
+      <SoftValidations {...allProps} />
+    </FormComponentContext.Provider>, {
     preloadedState: {
       ...getInitialStateMock(),
       ...suppliedState
@@ -51,5 +60,23 @@ describe('SoftValidations', () => {
 
     const title = screen.getByText(getPanelTitle({ variant, textResources: suppliedTextResources, language: nb() }));
     expect(title).toBeInTheDocument();
+  });
+
+  it('should render FullWidthWrapper if no grid or baseComponentId is supplied', () => {
+    render({ variant: 'info' }, {}, { grid: undefined });
+    const fullWidthWrapper = screen.queryByTestId('fullWidthWrapper');
+    expect(fullWidthWrapper).toBeInTheDocument();
+  });
+
+  it('should not render FullWidthWrapper if grid is supplied in context', () => {
+    render({ variant: 'info' }, {}, { grid: { md: 5} });
+    const fullWidthWrapper = screen.queryByTestId('fullWidthWrapper');
+    expect(fullWidthWrapper).not.toBeInTheDocument();
+  });
+
+  it('should not render FullWidthWrapper if baseComponentId is supplied in context', () => {
+    render({ variant: 'info' }, {}, { baseComponentId: 'some-id' });
+    const fullWidthWrapper = screen.queryByTestId('fullWidthWrapper');
+    expect(fullWidthWrapper).not.toBeInTheDocument();
   });
 });

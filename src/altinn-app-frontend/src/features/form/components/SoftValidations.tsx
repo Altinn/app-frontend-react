@@ -1,8 +1,8 @@
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import type { ILanguage, ITextResource } from 'altinn-shared/types';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useAppSelector } from 'src/common/hooks';
-import { ComponentContext } from 'src/components/GenericComponent';
+import { FormComponentContext } from 'src/components';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { FullWidthWrapper } from './FullWidthWrapper';
 
@@ -58,8 +58,8 @@ const ValidationPanel = ({ variant, children }: ISoftValidationProps) => {
 }
 
 export function SoftValidations(props: ISoftValidationProps) {
-  const { grid } = React.useContext(ComponentContext);
-  const shouldHaveFullWidth = !grid;
+  const { grid, baseComponentId } = useContext(FormComponentContext);
+  const shouldHaveFullWidth = !grid && !baseComponentId;
 
   if (shouldHaveFullWidth) {
     return (

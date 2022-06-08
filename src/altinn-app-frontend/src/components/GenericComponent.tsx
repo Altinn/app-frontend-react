@@ -3,7 +3,7 @@ import { shallowEqual } from 'react-redux';
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
-import type { IComponentProps } from '.';
+import components, { FormComponentContext, IComponentProps } from '.';
 import type { ILanguage } from 'altinn-shared/types';
 import type { ILabelSettings, IComponentValidations } from 'src/types';
 import type {
@@ -13,7 +13,6 @@ import type {
   ITextResourceBindings,
 } from '../features/form/layout';
 
-import components from '.';
 import { getTextResourceByKey } from 'altinn-shared/utils';
 import { Triggers } from 'src/types';
 import FormDataActions from '../features/form/data/formDataActions';
@@ -46,6 +45,7 @@ export interface IGenericComponentProps {
   grid?: IGrid;
   triggers?: Triggers[];
   hidden?: boolean;
+  baseComponentId?: string;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -93,12 +93,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-
-export interface IComponentContext {
-  grid?: IGrid;
-}
-
-export const ComponentContext = React.createContext<IComponentContext>({});
 
 export function GenericComponent(props: IGenericComponentProps) {
   const { id, ...passThroughProps } = props;
@@ -311,7 +305,7 @@ export function GenericComponent(props: IGenericComponentProps) {
   ];
 
   return (
-    <ComponentContext.Provider value={{ grid: props.grid }}>
+    <FormComponentContext.Provider value={{ grid: props.grid, baseComponentId: props.baseComponentId }}>
       <Grid
         item={true}
         container={true}
@@ -370,7 +364,7 @@ export function GenericComponent(props: IGenericComponentProps) {
             )}
         </Grid>
       </Grid>
-    </ComponentContext.Provider>
+    </FormComponentContext.Provider>
   );
 }
 
