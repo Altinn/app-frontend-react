@@ -29,12 +29,6 @@ import {
   ILayout,
 } from '../features/form/layout';
 import { IValidationIssue, Severity, DateFlags } from '../types';
-// eslint-disable-next-line import/no-cycle
-import {
-  DatePickerMinDateDefault,
-  DatePickerMaxDateDefault,
-  DatePickerFormatDefault,
-} from '../components/base/DatepickerComponent';
 import { getFormDataForComponent } from './formComponentUtils';
 import { getParsedTextResourceByKey } from './textResource';
 import { convertDataBindingToModel, getKeyWithoutIndex } from './databindings';
@@ -551,6 +545,11 @@ function attachmentsValid(attachments: any, component: any): boolean {
 export function attachmentIsMissingTag(attachment: IAttachment): boolean {
   return attachment.tags === undefined || attachment.tags.length === 0;
 }
+
+export const DatePickerMinDateDefault = '1900-01-01T12:00:00.000Z';
+export const DatePickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
+export const DatePickerFormatDefault = 'DD.MM.YYYY';
+export const DatePickerSaveFormatNoTimestamp = 'YYYY-MM-DD';
 
 /*
   Validates the datepicker form data, returns an array of error messages or empty array if no errors found
