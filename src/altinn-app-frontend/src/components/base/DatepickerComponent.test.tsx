@@ -5,7 +5,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import DatepickerComponent from './DatepickerComponent';
 import type { IComponentProps } from 'src/components';
 import type { IDatePickerProps } from './DatepickerComponent';
-import { renderWithProviders } from '../../../testUtils';
+import { renderWithProviders, mockMediaQuery } from '../../../testUtils';
 import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 
 const render = (props: Partial<IDatePickerProps> = {}) => {
@@ -82,22 +82,7 @@ const getCalendarDayButton = (dayNumber) =>
     hidden: true,
   });
 
-export const setScreenWidth = (width) => {
-  Object.defineProperty(window, 'innerWidth', {
-    writable: true,
-    configurable: true,
-    value: width,
-  });
-  window.matchMedia = jest.fn().mockImplementation((query) => {
-    return {
-      matches: width <= 600 ? true : false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-    };
-  });
-};
+const { setScreenWidth } = mockMediaQuery(600);
 
 describe('DatepickerComponent', () => {
   beforeEach(() => {
@@ -282,9 +267,15 @@ describe('DatepickerComponent', () => {
   });
 
   it('should have aria-describedby if textResourceBindings.description is present', () => {
-    render({ textResourceBindings: { description: 'description' }, id: 'test-id' });
+    render({
+      textResourceBindings: { description: 'description' },
+      id: 'test-id',
+    });
     const inputField = screen.getByRole('textbox');
-    expect(inputField).toHaveAttribute('aria-describedby', 'description-test-id');
+    expect(inputField).toHaveAttribute(
+      'aria-describedby',
+      'description-test-id',
+    );
   });
 
   it('should not have aria-describedby if textResources.description does not exist', () => {
