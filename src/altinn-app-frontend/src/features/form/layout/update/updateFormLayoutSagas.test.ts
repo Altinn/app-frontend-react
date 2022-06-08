@@ -74,6 +74,39 @@ describe('updateLayoutSagas', () => {
         .call(updateCurrentViewSaga, mockAction)
         .run();
     });
+    it('should not save unsaved changes before updating from layout when no unsaved changes', () => {
+      const fakeChannel = {
+        take() { /* Intentionally empty */ },
+        flush() { /* Intentionally empty */ },
+        close() { /* Intentionally empty */},
+      };
+
+      const mockAction = FormLayoutActions.updateCurrentView({
+        newView: 'test'
+      });
+
+      const mockSaga = function*() { /* intentially empty */};
+
+      return expectSaga(watchUpdateCurrentViewSaga)
+        .provide([
+          [actionChannel(FormLayoutActions.updateCurrentView), fakeChannel],
+          [select(selectUnsavedChanges), false],
+          {
+            take({ channel }, next) {
+              if (channel === fakeChannel) {
+                return mockAction;
+              }
+              return next();
+            },
+          },
+          [call(updateCurrentViewSaga, mockAction), mockSaga]
+        ])
+        .dispatch(FormLayoutActions.updateCurrentView)
+        .not.take(FormDataActions.submitFormDataFulfilled)
+        .take(fakeChannel)
+        .call(updateCurrentViewSaga, mockAction)
+        .run();
+    });
   });
 
   describe('calculatePageOrderAndMoveToNextPageSaga', () => {
