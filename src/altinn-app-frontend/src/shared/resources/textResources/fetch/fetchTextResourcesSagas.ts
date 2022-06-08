@@ -9,15 +9,14 @@ import { FETCH_PROFILE_FULFILLED } from '../../profile/fetch/fetchProfileActionT
 import { FETCH_APPLICATION_METADATA_FULFILLED } from 'src/shared/resources/applicationMetadata/actions/types';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-import {
-  selectedAppLanguageStateSelector,
-} from 'src/selectors/simpleSelectors';
+import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
+import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 
 export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
 export function* fetchTextResources(): SagaIterator {
   try {
-    const appLanguage = yield select(selectedAppLanguageStateSelector);
+    const appLanguage = yield select(appLanguageStateSelector);
     let resource: any;
     try {
       resource = yield call(get, textResourcesUrl(appLanguage));
@@ -57,4 +56,5 @@ export function* watchFetchTextResourcesSaga(): SagaIterator {
   }
   yield call(fetchTextResources);
   yield takeLatest(FETCH_TEXT_RESOURCES, fetchTextResources);
+  yield takeLatest(LanguageActions.updateSelectedAppLanguage, fetchTextResources);
 }

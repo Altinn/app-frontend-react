@@ -12,7 +12,8 @@ import { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { IFormData } from 'src/features/form/data/formDataReducer';
 import { getOptionLookupKey } from 'src/utils/options';
-import { selectedAppLanguageStateSelector } from 'src/selectors/simpleSelectors';
+import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
+import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 
 export const formLayoutSelector = (state: IRuntimeState): ILayouts =>
   state.formLayout.layouts;
@@ -57,7 +58,7 @@ export function* fetchSpecificOptionSaga({
     };
     yield call(OptionsActions.fetchingOptions, optionKey, optionMetaData);
     const formData: IFormData = yield select(formDataSelector);
-    const language = yield select(selectedAppLanguageStateSelector);
+    const language = yield select(appLanguageStateSelector);
     const url = getOptionsUrl({ optionsId, formData, language, dataMapping, secure, instanceId });
     const options: IOption[] = yield call(get, url);
     yield call(OptionsActions.fetchOptionsFulfilled, optionKey, options);
@@ -103,4 +104,5 @@ export function* watchInitialFetchOptionSaga(): SagaIterator {
 
 export function* watchFetchOptionsSaga(): SagaIterator {
   yield takeLatest(fetchOptionActionTypes.FETCH_OPTIONS, fetchOptionsSaga);
+  yield takeLatest(LanguageActions.updateSelectedAppLanguage, fetchOptionsSaga);
 }

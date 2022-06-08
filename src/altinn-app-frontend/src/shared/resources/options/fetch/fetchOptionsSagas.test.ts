@@ -15,7 +15,7 @@ import type { IOptions, IRuntimeState } from 'src/types';
 import * as networking from 'altinn-shared/utils/networking';
 import type { IInstance } from 'altinn-shared/types';
 import type { ILayouts, ISelectionComponentProps } from 'src/features/form/layout';
-import { selectedAppLanguageStateSelector } from 'src/selectors/simpleSelectors';
+import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 
 
 describe('shared > resources > options > fetch > fetchOptionsSagas', () => {
@@ -59,7 +59,7 @@ describe('shared > resources > options > fetch > fetchOptionsSagas', () => {
       return expectSaga(checkIfOptionsShouldRefetchSaga, action)
         .provide([
           [select(formDataSelector), formData],
-          [select(selectedAppLanguageStateSelector), userLanguage],
+          [select(appLanguageStateSelector), userLanguage],
           [select(optionsSelector), optionsWithField],
           [select(instanceIdSelector), 'someId'],
         ])
@@ -86,7 +86,7 @@ describe('shared > resources > options > fetch > fetchOptionsSagas', () => {
       return expectSaga(checkIfOptionsShouldRefetchSaga, action)
         .provide([
           [select(formDataSelector), formData],
-          [select(selectedAppLanguageStateSelector), userLanguage],
+          [select(appLanguageStateSelector), userLanguage],
           [select(optionsSelector), optionsWithoutField],
         ])
         .run();
