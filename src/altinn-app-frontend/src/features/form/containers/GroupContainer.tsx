@@ -84,8 +84,8 @@ export function GroupContainer({
     (state) => state.formLayout.uiConfig.currentView,
   );
   const language = useAppSelector(
-    (state) => state.language.language);
-
+    (state) => state.language.language
+  );
   const repeatingGroups = useAppSelector(
     (state) => state.formLayout.uiConfig.repeatingGroups,
   );

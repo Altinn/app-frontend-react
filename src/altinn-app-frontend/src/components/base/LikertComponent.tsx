@@ -11,7 +11,6 @@ import { IRadioButtonsContainerProps } from 'src/components/base/RadioButtons/Ra
 import { LayoutStyle } from 'src/types';
 import { useAppSelector } from 'src/common/hooks';
 
-
 export const LikertComponent = (props: IRadioButtonsContainerProps) => {
   const { layout } = props;
   const useRadioProps = useRadioButtons(props);
