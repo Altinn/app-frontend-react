@@ -286,7 +286,8 @@ export enum PresentationType {
 
 export enum LayoutStyle {
   Column = "column",
-  Row = "row"
+  Row = "row",
+  Table = "table"
 }
 
 
