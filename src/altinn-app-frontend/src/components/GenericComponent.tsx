@@ -3,8 +3,8 @@ import { shallowEqual } from 'react-redux';
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
-import components, { FormComponentContext, IFormComponentContext } from '.';
-import type { IComponentProps } from '.';
+import components, { FormComponentContext } from '.';
+import type { IComponentProps, IFormComponentContext } from '.';
 import type { ILanguage } from 'altinn-shared/types';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 import { LayoutStyle, Triggers } from 'src/types';
