@@ -38,7 +38,7 @@ describe('Validation', () => {
   it('Soft validation - warning', () => {
     cy.navigateToChangeName();
     cy.intercept('GET', '**/validate').as('validateData');
-    cy.get(appFrontend.changeOfName.newMiddleName).should('be.visible').type('success').blur();
+    cy.get(appFrontend.changeOfName.newMiddleName).should('be.visible').type('test').blur();
     cy.wait('@validateData');
     cy.get(appFrontend.fieldValidationWarning.replace('field', appFrontend.changeOfName.newMiddleName.substring(1)))
       .should('exist')
@@ -60,7 +60,7 @@ describe('Validation', () => {
   it('Soft validation - success', () => {
     cy.navigateToChangeName();
     cy.intercept('GET', '**/validate').as('validateData');
-    cy.get(appFrontend.changeOfName.newMiddleName).should('be.visible').type('test').blur();
+    cy.get(appFrontend.changeOfName.newMiddleName).should('be.visible').type('success').blur();
     cy.wait('@validateData');
     cy.get(appFrontend.fieldValidationSuccess.replace('field', appFrontend.changeOfName.newMiddleName.substring(1)))
       .should('exist')
