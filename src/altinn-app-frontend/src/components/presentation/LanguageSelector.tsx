@@ -3,22 +3,17 @@ import { AltinnSpinner, Select } from 'altinn-shared/components';
 import { Box } from '@material-ui/core';
 import * as React from 'react';
 import { useAppSelector } from 'src/common/hooks';
-import { useGetAppLanguageMutation } from 'src/services/AppLanguageApi';
+import { useGetAppLanguageQuery } from 'src/services/LanguageApi';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
-import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 
 export const LanguageSelector = () => {
   const language = useAppSelector(state => state.language.language || {});
-  const [getAppLanguage, { isSuccess, data, isLoading }] = useGetAppLanguageMutation();
+  const { isSuccess, data, isLoading } = useGetAppLanguageQuery();
   const selectedAppLanguage = useAppSelector(
     appLanguageStateSelector,
   );
-
-  useEffect(() => {
-    getAppLanguage();
-  }, [getAppLanguage]);
 
   const textResources = useAppSelector(state => state.textResources.resources);
   const dispatch = useDispatch();

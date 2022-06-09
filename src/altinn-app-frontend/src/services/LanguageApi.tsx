@@ -1,9 +1,9 @@
 import { appApi } from 'src/services/AppApi';
 import { IAppLanguage } from 'altinn-shared/types';
 
-export const appLanguageApi = appApi.injectEndpoints({
+export const languageApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAppLanguage: builder.mutation<IAppLanguage[], void>({
+    getAppLanguage: builder.query<IAppLanguage[], void>({
       query: () => ({
         url: '/api/v1/applicationlanguages',
         method: 'GET'
@@ -12,4 +12,4 @@ export const appLanguageApi = appApi.injectEndpoints({
   }),
 });
 
-export const { useGetAppLanguageMutation } = appLanguageApi;
+export const { useGetAppLanguageQuery } = languageApi;
