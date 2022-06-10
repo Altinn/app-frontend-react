@@ -21,12 +21,6 @@ import {
 } from 'src/types';
 import { ILayouts, ILayoutComponent, ILayoutGroup, ILayout, } from '../features/form/layout';
 import { IValidationIssue, Severity, DateFlags } from '../types';
-// eslint-disable-next-line import/no-cycle
-import {
-  DatePickerMinDateDefault,
-  DatePickerMaxDateDefault,
-  DatePickerFormatDefault,
-} from '../components/base/DatepickerComponent';
 import { getFormDataForComponent } from './formComponentUtils';
 import { getParsedTextResourceByKey } from './textResource';
 import { convertDataBindingToModel, getKeyWithoutIndex, getKeyIndex } from './databindings';
@@ -46,6 +40,7 @@ import JsonPointer from 'jsonpointer';
 import { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import { ILanguage } from 'altinn-shared/types';
 import { AsciiUnitSeparator } from './attachment';
+import { ReactNode } from 'react';
 import { IFormData } from 'src/features/form/data/formDataReducer';
 
 export interface ISchemaValidators {
@@ -563,6 +558,11 @@ function attachmentsValid(attachments: any, component: any): boolean {
 export function attachmentIsMissingTag(attachment: IAttachment): boolean {
   return attachment.tags === undefined || attachment.tags.length === 0;
 }
+
+export const DatePickerMinDateDefault = '1900-01-01T12:00:00.000Z';
+export const DatePickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
+export const DatePickerFormatDefault = 'DD.MM.YYYY';
+export const DatePickerSaveFormatNoTimestamp = 'YYYY-MM-DD';
 
 /*
   Validates the datepicker form data, returns an array of error messages or empty array if no errors found
@@ -1125,20 +1125,8 @@ export function mapDataElementValidationToRedux(
           validationResult[layoutId][componentId] = componentValidations;
         } else {
           const currentValidations = validationResult[layoutId][componentId];
-          Object.keys(componentValidations).forEach((key) => {
-            if (!currentValidations[key]) {
-              currentValidations[key] = componentValidations[key];
-            } else {
-              currentValidations[key].errors = currentValidations[
-                key
-              ].errors.concat(componentValidations[key].errors);
-
-              currentValidations[key].warnings = currentValidations[
-                key
-              ].warnings.concat(componentValidations[key].warnings);
-            }
-          });
-          validationResult[layoutId][componentId] = currentValidations;
+          const mergedValidations = mergeComponentValidations(currentValidations, componentValidations);
+          validationResult[layoutId][componentId] = mergedValidations;
         }
       } else {
         // unmapped error
@@ -1190,6 +1178,8 @@ function addValidation(
     errors: componentValidations?.errors || [],
     warnings: componentValidations?.warnings || [],
     fixed: componentValidations?.fixed || [],
+    success: componentValidations?.success || [],
+    info: componentValidations?.info || [],
   };
 
   switch (validation.severity) {
@@ -1198,7 +1188,7 @@ function addValidation(
         getParsedTextResourceByKey(
           validation.description,
           textResources,
-        ) as any,
+        )
       );
       break;
     }
@@ -1207,7 +1197,7 @@ function addValidation(
         getParsedTextResourceByKey(
           validation.description,
           textResources,
-        ) as any,
+        )
       );
       break;
     }
@@ -1217,9 +1207,27 @@ function addValidation(
       );
       break;
     }
+    case Severity.Success: {
+      updatedValidations.success.push(
+        getParsedTextResourceByKey(validation.description, textResources),
+      );
+      break;
+    }
+    case Severity.Informational: {
+      updatedValidations.info.push(
+        getParsedTextResourceByKey(validation.description, textResources),
+      );
+      break;
+    }
     default:
       break;
   }
+
+  Object.keys(updatedValidations).forEach((key) => {
+    if (!updatedValidations[key] || updatedValidations[key].length === 0) {
+      delete updatedValidations[key];
+    }
+  });
 
   return updatedValidations;
 }
@@ -1411,6 +1419,8 @@ export function mergeComponentBindingValidations(
 ): IComponentBindingValidation {
   const existingErrors = existingValidations?.errors || [];
   const existingWarnings = existingValidations?.warnings || [];
+  const existingInfo = existingValidations?.info || [];
+  const existingSuccess = existingValidations?.success || [];
 
   // Only merge items that are not already in the existing components errors/warnings array
   const uniqueNewErrors = getUniqueNewElements(
@@ -1421,8 +1431,16 @@ export function mergeComponentBindingValidations(
     existingWarnings,
     newValidations?.warnings,
   );
+  const uniqueNewInfo = getUniqueNewElements(
+    existingInfo,
+    newValidations?.info,
+  );
+  const uniqueNewSuccess = getUniqueNewElements(
+    existingSuccess,
+    newValidations?.success,
+  );
 
-  return {
+  const merged = {
     errors: removeFixedValidations(
       existingErrors.concat(uniqueNewErrors),
       newValidations?.fixed,
@@ -1431,10 +1449,26 @@ export function mergeComponentBindingValidations(
       existingWarnings.concat(uniqueNewWarnings),
       newValidations?.fixed,
     ),
+    info: removeFixedValidations(
+      existingInfo.concat(uniqueNewInfo),
+      newValidations?.fixed,
+    ),
+    success: removeFixedValidations(
+      existingSuccess.concat(uniqueNewSuccess),
+      newValidations?.fixed,
+    ),
   };
+
+  Object.keys(merged).forEach((key) => {
+    if (!merged[key] || merged[key].length === 0) {
+      delete merged[key];
+    }
+  });
+
+  return merged;
 }
 
-export function getUniqueNewElements(originalArray: any[], newArray?: any[]) {
+export function getUniqueNewElements(originalArray: ReactNode[], newArray?: ReactNode[]) {
   if (!newArray || newArray.length === 0) {
     return [];
   }
@@ -1452,7 +1486,7 @@ export function getUniqueNewElements(originalArray: any[], newArray?: any[]) {
   });
 }
 
-function removeFixedValidations(validations: any[], fixed?: any[]): any[] {
+function removeFixedValidations(validations?: ReactNode[], fixed?: ReactNode[]): ReactNode[] {
   if (!fixed || fixed.length === 0) {
     return validations;
   }
