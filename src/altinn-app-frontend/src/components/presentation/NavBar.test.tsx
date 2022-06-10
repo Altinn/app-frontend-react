@@ -69,6 +69,12 @@ const renderNavBar = ({
 };
 
 describe('components/presentation/NavBar.tsx', () => {
+
+  it('should render nav', () => {
+    renderNavBar({ hideCloseButton: true, showBackArrow: false, showLanguageSelector: false });
+    screen.getByRole('navigation', {name:/Appnavigasjon/i})
+  });
+
   it('should render close button', async () => {
     const { mockClose } = renderNavBar({ hideCloseButton: false, showBackArrow: false, showLanguageSelector: false });
     const closeButton = screen.getByRole('button', { name: /Lukk Skjema/i });
