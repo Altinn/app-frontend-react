@@ -9,6 +9,7 @@ import { FullWidthWrapper } from './FullWidthWrapper';
 export interface ISoftValidationProps {
   children: React.ReactNode;
   variant: SoftValidationVariant;
+  forceMobileLayout?: boolean;
 }
 
 export type SoftValidationVariant = 'warning' | 'info' | 'success';
@@ -30,20 +31,48 @@ interface IGetPanelTitleProps {
   language: ILanguage;
 }
 
-export const getPanelTitle = ({ variant, textResources, language }: IGetPanelTitleProps) => {
+export const getPanelTitle = ({
+  variant,
+  textResources,
+  language,
+}: IGetPanelTitleProps) => {
   switch (variant) {
     case 'warning':
-      return getTextFromAppOrDefault('soft_validation.warning_title', textResources, language, undefined, true);
+      return getTextFromAppOrDefault(
+        'soft_validation.warning_title',
+        textResources,
+        language,
+        undefined,
+        true,
+      );
     case 'info':
-      return getTextFromAppOrDefault('soft_validation.info_title', textResources, language, undefined, true);
+      return getTextFromAppOrDefault(
+        'soft_validation.info_title',
+        textResources,
+        language,
+        undefined,
+        true,
+      );
     case 'success':
-      return getTextFromAppOrDefault('soft_validation.success_title', textResources, language, undefined, true);
+      return getTextFromAppOrDefault(
+        'soft_validation.success_title',
+        textResources,
+        language,
+        undefined,
+        true,
+      );
   }
 };
 
-const ValidationPanel = ({ variant, children }: ISoftValidationProps) => {
-  const language = useAppSelector(state => state.language.language);
-  const textResources = useAppSelector(state => state.textResources.resources);
+const ValidationPanel = ({
+  variant,
+  children,
+  forceMobileLayout,
+}: ISoftValidationProps) => {
+  const language = useAppSelector((state) => state.language.language);
+  const textResources = useAppSelector(
+    (state) => state.textResources.resources,
+  );
 
   return (
     <Panel
@@ -51,11 +80,12 @@ const ValidationPanel = ({ variant, children }: ISoftValidationProps) => {
       showPointer
       showIcon
       title={getPanelTitle({ variant, textResources, language })}
+      forceMobileLayout={forceMobileLayout}
     >
       {children}
     </Panel>
-  )
-}
+  );
+};
 
 export function SoftValidations(props: ISoftValidationProps) {
   const { grid, baseComponentId } = useContext(FormComponentContext);
@@ -68,8 +98,6 @@ export function SoftValidations(props: ISoftValidationProps) {
       </FullWidthWrapper>
     );
   } else {
-    return (
-      <ValidationPanel {...props} />
-    )
+    return <ValidationPanel forceMobileLayout={true} {...props} />;
   }
 }
