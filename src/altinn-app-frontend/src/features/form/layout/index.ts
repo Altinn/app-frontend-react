@@ -54,7 +54,7 @@ export type ComponentTypes =
   | 'Summary'
   | 'TextArea'
   | 'NavigationBar'
-  | 'Likert';
+  | 'Likert'
   | 'Panel';
 
 export interface IDataModelBindings {

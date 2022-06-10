@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
+
 import {
   Panel as PanelDesignSystem,
   PanelVariant,
 } from '@altinn/altinn-design-system';
 
+import { FormComponentContext } from 'src/components';
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 
 import { IComponentProps } from '..';
@@ -38,16 +41,23 @@ export const Panel = ({
   variant,
   showIcon,
 }: IPanelProps) => {
+  const { grid, baseComponentId } = useContext(FormComponentContext);
+  const shouldHaveFullWidth = !grid && !baseComponentId;
+
   return (
-    <FullWidthWrapper>
+    <ConditionalWrapper
+      condition={shouldHaveFullWidth}
+      wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
+    >
       <PanelDesignSystem
         title={getTextResource(textResourceBindings.title)}
         showIcon={showIcon}
         variant={getVariant({ variant })}
+        forceMobileLayout={!shouldHaveFullWidth}
       >
         {getTextResource(textResourceBindings.body)}
       </PanelDesignSystem>
-    </FullWidthWrapper>
+    </ConditionalWrapper>
   );
 };
 

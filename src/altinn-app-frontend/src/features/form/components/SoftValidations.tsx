@@ -5,6 +5,7 @@ import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { FullWidthWrapper } from './FullWidthWrapper';
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 
 export interface ISoftValidationProps {
   children: React.ReactNode;
@@ -91,13 +92,12 @@ export function SoftValidations(props: ISoftValidationProps) {
   const { grid, baseComponentId } = useContext(FormComponentContext);
   const shouldHaveFullWidth = !grid && !baseComponentId;
 
-  if (shouldHaveFullWidth) {
-    return (
-      <FullWidthWrapper>
-        <ValidationPanel {...props} />
-      </FullWidthWrapper>
-    );
-  } else {
-    return <ValidationPanel forceMobileLayout={true} {...props} />;
-  }
+  return (
+    <ConditionalWrapper
+      condition={shouldHaveFullWidth}
+      wrapper={children => <FullWidthWrapper>{children}</FullWidthWrapper>}
+    >
+      <ValidationPanel {...props} forceMobileLayout={!shouldHaveFullWidth} />
+    </ConditionalWrapper>
+  );
 }
