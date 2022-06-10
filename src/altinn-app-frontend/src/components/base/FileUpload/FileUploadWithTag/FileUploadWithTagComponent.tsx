@@ -17,7 +17,6 @@ import { DropzoneComponent } from '../shared/DropzoneComponent';
 import { IFileUploadGenericProps } from '../shared/props';
 import { IComponentProps } from 'src/components';
 import { getOptionLookupKey } from 'src/utils/options';
-import { useAppSelector } from 'src/common/hooks';
 
 export interface IFileUploadWithTagProps extends IFileUploadGenericProps {
   optionsId: string;
@@ -53,8 +52,6 @@ export function FileUploadWithTagComponent({
   const attachments: IAttachment[] = useSelector(
     (state: IRuntimeState) => state.attachments.attachments[id] || emptyArray,
   );
-
-  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
 
   const setValidationsFromArray = (validationArray: string[]) => {
     setValidations(
@@ -204,11 +201,8 @@ export function FileUploadWithTagComponent({
       }
 
       {(hasValidationMessages && shouldShowFileUpload()) &&
-        renderValidationMessagesForComponent(
-          validationMessages,
-          id,
-          showAllValidationMessages
-        )}
+        renderValidationMessagesForComponent(validationMessages, id)
+      }
 
       <FileList
         id={id}
@@ -239,11 +233,8 @@ export function FileUploadWithTagComponent({
       }
 
       {(hasValidationMessages && !shouldShowFileUpload()) &&
-        renderValidationMessagesForComponent(
-          validationMessages,
-          id,
-          showAllValidationMessages
-        )}
+        renderValidationMessagesForComponent(validationMessages, id)
+      }
 
     </div>
   );

@@ -109,8 +109,6 @@ export const CheckboxContainerComponent = ({
         ?.loading,
   );
 
-  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
-
   const selected = formData?.simpleBinding
     ? formData.simpleBinding.split(',')
     : defaultSelectedOptions;
@@ -202,7 +200,6 @@ export const CheckboxContainerComponent = ({
                   renderValidationMessagesForComponent(
                     validationMessages.simpleBinding,
                     id,
-                    showAllValidationMessages
                   )}
               </React.Fragment>
             ))}

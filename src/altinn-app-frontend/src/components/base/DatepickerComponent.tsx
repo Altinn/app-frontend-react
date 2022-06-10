@@ -23,7 +23,6 @@ import { IComponentProps } from '..';
 
 import './DatepickerComponent.css';
 import '../../styles/shared.css';
-import { useAppSelector } from 'src/common/hooks';
 
 export interface IDatePickerProps extends IComponentProps {
   timeStamp?: boolean;
@@ -178,8 +177,6 @@ function DatepickerComponent({
     date,
     isDateEmpty,
   ]);
-
-  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
 
   React.useEffect(() => {
     const dateValue = formData?.simpleBinding
@@ -336,7 +333,6 @@ function DatepickerComponent({
       {renderValidationMessagesForComponent(
         validationMessages,
         `${id}_validations`,
-        showAllValidationMessages
       )}
     </>
   );

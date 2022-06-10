@@ -11,7 +11,6 @@ import { renderValidationMessagesForComponent } from 'src/utils/render';
 import { IRadioButtonsContainerProps } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
 import { useRadioStyles } from 'src/components/base/RadioButtons/radioButtonsUtils';
 import { StyledRadio } from 'src/components/base/RadioButtons/StyledRadio';
-import { useAppSelector } from 'src/common/hooks';
 
 export interface IControlledRadioGroupProps
   extends IRadioButtonsContainerProps {
@@ -37,7 +36,6 @@ export const ControlledRadioGroup = ({
 }: IControlledRadioGroupProps) => {
   const classes = useRadioStyles();
   const RenderLegend = legend;
-  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
   return (
     <FormControl component='fieldset'>
       <FormLabel
@@ -79,7 +77,6 @@ export const ControlledRadioGroup = ({
                 renderValidationMessagesForComponent(
                   validationMessages.simpleBinding,
                   id,
-                  showAllValidationMessages,
                 )}
             </React.Fragment>
           ))}

@@ -9,7 +9,6 @@ const messageComponentStyle = {
 export function renderValidationMessagesForComponent(
   validationMessages: any,
   id: string,
-  showAllValidationMessages: boolean
 ): JSX.Element[] {
   if (!validationMessages) {
     return null;
@@ -21,7 +20,6 @@ export function renderValidationMessagesForComponent(
         validationMessages.errors,
         `error_${id}`,
         'error',
-        showAllValidationMessages
       ),
     );
   }
@@ -32,24 +30,12 @@ export function renderValidationMessagesForComponent(
         validationMessages.warnings,
         `message_${id}`,
         'message',
-        showAllValidationMessages
       ),
     );
   }
   return validationMessageElements.length > 0
     ? validationMessageElements
     : null;
-}
-
-function singleValidationMessage(message: any, id: string) {
-  if (typeof message === 'string') {
-  return (
-    <li key={`validationMessage-${id}-${message}`}>
-      <p role='alert'>{message}</p>
-    </li>
-  );
-  }
-  return <li role='alert' key={`validationMessage-${id}`}>{message}</li>;
 }
 
 export function renderValidationMessages(
@@ -59,7 +45,6 @@ export function renderValidationMessages(
   )[],
   id: string,
   messageType: any,
-  showAllValidationMessages: boolean
 ) {
   return (
     <MessageComponent
@@ -67,26 +52,19 @@ export function renderValidationMessages(
       style={messageComponentStyle}
       key={messageType}
       id={id}
-    >{
-      showAllValidationMessages
-      ? <ol>
-          {messages.map((message: any, idx: number) => {
-              if (typeof message === 'string') {
-                return (
-                  <li key={`validationMessage-${id}-${message}`}>
-                    <p role='alert'>{message}</p>
-                  </li>
-                );
-              }
-              return <li role='alert' key={`validationMessage-${id}-${idx}`}>{message}</li>;
-            })}
-        </ol>
-      : <ol>
-          {
-            singleValidationMessage(messages[0], id)
+    >
+      <ol>
+        {messages.map((message: any, idx: number) => {
+          if (typeof message === 'string') {
+            return (
+              <li key={`validationMessage-${id}-${message}`}>
+                <p role='alert'>{message}</p>
+              </li>
+            );
           }
-        </ol>
-    }
+          return <li role='alert' key={`validationMessage-${id}-${idx}`}>{message}</li>;
+        })}
+      </ol>
     </MessageComponent>
   );
 }

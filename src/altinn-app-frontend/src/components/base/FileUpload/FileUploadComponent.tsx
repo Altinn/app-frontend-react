@@ -39,8 +39,6 @@ export function FileUploadComponent({
   const [validations, setValidations] = React.useState([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
-
-  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
   const attachments = useAppSelector(state => state.attachments.attachments[id] || emptyArray);
 
   const getComponentValidations = (): IComponentValidations => {
@@ -397,7 +395,6 @@ export function FileUploadComponent({
         renderValidationMessagesForComponent(
           validationMessages.simpleBinding,
           id,
-          showAllValidationMessages
         )}
 
       {renderFileList()}
@@ -416,7 +413,6 @@ export function FileUploadComponent({
         renderValidationMessagesForComponent(
           validationMessages.simpleBinding,
           id,
-          showAllValidationMessages
         )}
 
       {renderAddMoreAttachmentsButton()}

@@ -89,9 +89,6 @@ export function GroupContainer({
   const repeatingGroups = useAppSelector(
     (state) => state.formLayout.uiConfig.repeatingGroups,
   );
-  const showAllValidationMessages: boolean = useAppSelector(
-    (state) => state.formLayout.uiConfig.showAllValidationMessages
-  );
   const hiddenFields = useAppSelector((state) =>
     getHiddenFieldsForGroup(state.formLayout.uiConfig.hiddenFields, components),
   );
@@ -405,7 +402,6 @@ export function GroupContainer({
           renderValidationMessagesForComponent(
             validations[currentView][id].group,
             container.id,
-            showAllValidationMessages
           )}
       </Grid>
     </Grid>

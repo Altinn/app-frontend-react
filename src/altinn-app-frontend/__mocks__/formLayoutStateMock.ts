@@ -59,7 +59,6 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
       fileUploadersWithTag: null,
       currentView: 'FormLayout',
       navigationConfig: {},
-      showAllValidationMessages: true,
       layoutOrder: ['FormLayout'],
     },
     layoutsets: null,

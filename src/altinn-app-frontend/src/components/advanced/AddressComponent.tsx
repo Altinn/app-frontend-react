@@ -10,8 +10,6 @@ import { AddressLabel } from './AddressLabel';
 
 import './AddressComponent.css';
 import '../../styles/shared.css';
-import { useAppSelector } from 'src/common/hooks';
-
 export interface IAddressComponentProps extends IComponentProps {
   simplified: boolean;
   labelSettings?: ILabelSettings;
@@ -56,7 +54,6 @@ export function AddressComponent({
   const [validations, setValidations] = React.useState({} as any);
   const prevZipCode = React.useRef(null);
   const hasFetchedPostPlace = React.useRef(false);
-  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
 
   React.useEffect(() => {
     setAddress(formData.address || '');
@@ -278,7 +275,6 @@ export function AddressComponent({
         ? renderValidationMessagesForComponent(
             allValidations[AddressKeys.address],
             `${id}_${AddressKeys.address}`,
-            showAllValidationMessages
           )
         : null}
       {!simplified && (
@@ -306,7 +302,6 @@ export function AddressComponent({
             ? renderValidationMessagesForComponent(
                 allValidations[AddressKeys.careOf],
                 `${id}_${AddressKeys.careOf}`,
-                showAllValidationMessages
               )
             : null}
         </>
@@ -343,7 +338,6 @@ export function AddressComponent({
             ? renderValidationMessagesForComponent(
                 allValidations[AddressKeys.zipCode],
                 `${id}_${AddressKeys.zipCode}`,
-                showAllValidationMessages
               )
             : null}
         </div>
@@ -370,7 +364,6 @@ export function AddressComponent({
             ? renderValidationMessagesForComponent(
                 allValidations[AddressKeys.postPlace],
                 `${id}_${AddressKeys.postPlace}`,
-                showAllValidationMessages
               )
             : null}
         </div>
@@ -414,7 +407,6 @@ export function AddressComponent({
             ? renderValidationMessagesForComponent(
                 allValidations[AddressKeys.houseNumber],
                 `${id}_${AddressKeys.houseNumber}`,
-                showAllValidationMessages
               )
             : null}
         </>

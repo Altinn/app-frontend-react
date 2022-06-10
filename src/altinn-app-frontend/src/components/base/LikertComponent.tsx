@@ -9,7 +9,6 @@ import {
 } from 'src/components/base/RadioButtons/ControlledRadioGroup';
 import { IRadioButtonsContainerProps } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
 import { LayoutStyle } from 'src/types';
-import { useAppSelector } from 'src/common/hooks';
 
 export const LikertComponent = (props: IRadioButtonsContainerProps) => {
   const { layout } = props;
@@ -35,7 +34,6 @@ const RadioGroupTableRow = ({
 }: IControlledRadioGroupProps) => {
   const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
-  const showAllValidationMessages: boolean = useAppSelector((state) => state.formLayout.uiConfig.showAllValidationMessages);
   return (
     <TableRow role={'radiogroup'} aria-labelledby={rowLabelId}>
       <TableCell scope='row' id={rowLabelId} style={{ whiteSpace: 'normal' }}>
@@ -44,7 +42,6 @@ const RadioGroupTableRow = ({
           {renderValidationMessagesForComponent(
             componentValidations?.simpleBinding,
             id,
-            showAllValidationMessages,
           )}
         </Box>
       </TableCell>
