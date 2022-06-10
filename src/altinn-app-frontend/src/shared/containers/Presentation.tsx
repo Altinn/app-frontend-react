@@ -7,7 +7,6 @@ import { AltinnAppTheme } from 'altinn-shared/theme';
 import {
   returnUrlToMessagebox,
   getTextResourceByKey,
-  getLanguageFromKey,
   returnUrlFromQueryParameter,
 } from 'altinn-shared/utils';
 import { ProcessTaskType, PresentationType } from 'src/types';
@@ -104,13 +103,9 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
         userParty={userParty}
         logoColor={AltinnAppTheme.altinnPalette.primary.blueDarker}
         headerBackgroundColor={backgroundColor}
-        logoutText={getLanguageFromKey('general.log_out', language)}
-        ariaLabelIcon={getLanguageFromKey(
-          'general.header_profile_icon_label',
-          language,
-        )}
+        language={language}
       />
-      <div className='container'>
+      <main className='container'>
         <div className='row'>
           <div className='col-xl-12 a-p-static'>
             <ErrorReport />
@@ -149,7 +144,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

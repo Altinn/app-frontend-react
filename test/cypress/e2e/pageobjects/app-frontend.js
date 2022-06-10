@@ -106,6 +106,7 @@ export default class AppFrontend {
       mainGroup: '#group-mainGroup',
       subGroup: '[id^="group-subGroup"]',
       currentValue: 'input[id^="currentValue"]',
+      navigationBarButton: '#form-content-nav2 > div > nav > button',
       newValue: 'input[id^="newValue"]',
       newValueLabel: 'label[for^="newValue"]',
       addNewItem: 'div[class*="addButton"]',
@@ -128,6 +129,7 @@ export default class AppFrontend {
       number: '#number',
       idnumber: '#idnummer',
       idnummer2: '#idnummer2',
+      dropdown: '#options',
     };
 
     this.reporteeSelection = {

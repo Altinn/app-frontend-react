@@ -18,6 +18,17 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
       }
     }
   >
+    <nav
+      className="makeStyles-jumpNav-5"
+    >
+      <button
+        className="makeStyles-button-4 makeStyles-srOnly-6"
+        onClick={[Function]}
+        role="link"
+      >
+        Hopp til hovedinnholdet
+      </button>
+    </nav>
     <div
       className="MuiGrid-root AltinnAppHeader-mainContent-2 MuiGrid-container MuiGrid-align-items-xs-center"
     >
@@ -53,7 +64,7 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
           <button
             aria-haspopup="true"
             aria-label="Profil ikon knapp"
-            className="MuiButtonBase-root MuiIconButton-root makeStyles-iconButton-6"
+            className="MuiButtonBase-root MuiIconButton-root makeStyles-iconButton-9"
             disabled={false}
             id="profile-icon-button"
             onBlur={[Function]}
@@ -92,7 +103,7 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
       </div>
     </div>
   </header>
-  <div
+  <main
     className="container"
   >
     <div
@@ -194,35 +205,31 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
             </div>
           </div>
         </div>
-        <div
-          className="MuiBox-root MuiBox-root-8 mt-3"
+        <nav
+          aria-label="Appnavigasjon"
+          className="a-modal-navbar"
         >
-          <div />
-          <div
-            className="MuiBox-root MuiBox-root-9"
+          <button
+            aria-label="Lukk skjema"
+            className="a-modal-close a-js-tabable-popover"
+            onClick={[Function]}
+            type="button"
           >
-            <button
-              aria-label="Lukk skjema"
-              className="a-modal-close a-js-tabable-popover ml-1"
-              onClick={[Function]}
-              type="button"
+            <span
+              className="ai-stack"
             >
-              <span
-                className="ai-stack"
-              >
-                <i
-                  aria-hidden="true"
-                  className="ai-stack-1x ai ai-exit  a-modal-close-icon"
-                />
-              </span>
-              <span
-                className="sr-only"
-              >
-                Lukk skjema
-              </span>
-            </button>
-          </div>
-        </div>
+              <i
+                aria-hidden="true"
+                className="ai-stack-1x ai ai-exit  a-modal-close-icon"
+              />
+            </span>
+            <span
+              className="hidden-button-text"
+            >
+              Lukk skjema
+            </span>
+          </button>
+        </nav>
         <div
           className="a-modal-content-target"
         >
@@ -235,7 +242,7 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
               <div
                 className="modal-content"
               >
-                <div
+                <header
                   className="modal-header a-modal-header"
                 >
                   <div
@@ -265,7 +272,7 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
                       </div>
                     </div>
                   </div>
-                </div>
+                </header>
                 <div
                   className="modal-body a-modal-body"
                 />
@@ -275,6 +282,6 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
         </div>
       </div>
     </div>
-  </div>
+  </main>
 </div>
 `;

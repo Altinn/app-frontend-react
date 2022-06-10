@@ -20,6 +20,8 @@ const NavBar = (props: INavBarProps) => {
   );
   return (
     <Box
+      component={"nav"}
+      aria-label={getLanguageFromKey('navigation.main', language)}
       width={'100%'}
       display='flex'
       justifyContent={'space-between'}
