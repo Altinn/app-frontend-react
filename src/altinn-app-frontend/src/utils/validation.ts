@@ -29,24 +29,22 @@ import {
   ILayout,
 } from '../features/form/layout';
 import { IValidationIssue, Severity, DateFlags } from '../types';
-// eslint-disable-next-line import/no-cycle
-import {
-  DatePickerMinDateDefault,
-  DatePickerMaxDateDefault,
-  DatePickerFormatDefault,
-} from '../components/base/DatepickerComponent';
 import { getFormDataForComponent } from './formComponentUtils';
 import { getParsedTextResourceByKey } from './textResource';
 import { convertDataBindingToModel, getKeyWithoutIndex } from './databindings';
 // eslint-disable-next-line import/no-cycle
 import { matchLayoutComponent, setupGroupComponents } from './layout';
-import { createRepeatingGroupComponents } from './formLayout';
+import {
+  createRepeatingGroupComponents,
+  getRepeatingGroupStartStopIndex,
+} from './formLayout';
 import { getDataTaskDataTypeId } from './appMetadata';
 import { getFlagBasedDate } from './dateHelpers';
 import JsonPointer from 'jsonpointer';
 import { IAttachment } from 'src/shared/resources/attachments';
 import { ILanguage } from 'altinn-shared/types';
 import { AsciiUnitSeparator } from './attachment';
+import { ReactNode } from 'react';
 
 export interface ISchemaValidators {
   [id: string]: ISchemaValidator;
@@ -206,21 +204,25 @@ export function validateEmptyFieldsForLayout(
   repeatingGroups: IRepeatingGroups,
 ): ILayoutValidations {
   const validations: any = {};
-  const allGroups = formLayout.filter((component) => component.type.toLowerCase() === 'group');
-  const childrenWithoutMultiPagePrefix = (group:ILayoutGroup) => group.edit?.multiPage
-    ? group.children.map((componentId) => componentId.replace(/^\d+:/g, ''))
-    : group.children;
+  const allGroups = formLayout.filter(
+    (component) => component.type.toLowerCase() === 'group',
+  );
+  const childrenWithoutMultiPagePrefix = (group: ILayoutGroup) =>
+    group.edit?.multiPage
+      ? group.children.map((componentId) => componentId.replace(/^\d+:/g, ''))
+      : group.children;
 
-  const fieldsInGroup = allGroups
-    .map(childrenWithoutMultiPagePrefix)
-    .flat();
-  const groupsToCheck = allGroups.filter(group => !hiddenFields.includes(group.id));
-  const fieldsToCheck = formLayout.filter((component) => (
-    component.type.toLowerCase() !== 'group' &&
-    !hiddenFields.includes(component.id) &&
-    (component as ILayoutComponent).required &&
-    !fieldsInGroup.includes(component.id)
-  ));
+  const fieldsInGroup = allGroups.map(childrenWithoutMultiPagePrefix).flat();
+  const groupsToCheck = allGroups.filter(
+    (group) => !hiddenFields.includes(group.id),
+  );
+  const fieldsToCheck = formLayout.filter(
+    (component) =>
+      component.type.toLowerCase() !== 'group' &&
+      !hiddenFields.includes(component.id) &&
+      (component as ILayoutComponent).required &&
+      !fieldsInGroup.includes(component.id),
+  );
   fieldsToCheck.forEach((component: any) => {
     const result = validateEmptyField(
       formData,
@@ -292,7 +294,12 @@ export function validateEmptyFieldsForLayout(
             });
         } else {
           const groupDataModelBinding = group.dataModelBindings.group;
-          for (let i = 0; i <= repeatingGroups[group.id]?.index; i++) {
+
+          const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
+            repeatingGroups[group.id]?.index,
+            group.edit,
+          );
+          for (let i = startIndex; i <= stopIndex; i++) {
             const componentToCheck = {
               ...component,
               id: `${component.id}-${i}`,
@@ -469,7 +476,13 @@ export function validateFormComponentsForLayout(
         if (!isValid) {
           if (!isValid) {
             componentValidations[fieldKey].errors.push(
-              `${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_1', language)} ${component.minNumberOfAttachments} ${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_2', language)}`,
+              `${getLanguageFromKey(
+                'form_filler.file_uploader_validation_error_file_number_1',
+                language,
+              )} ${component.minNumberOfAttachments} ${getLanguageFromKey(
+                'form_filler.file_uploader_validation_error_file_number_2',
+                language,
+              )}`,
             );
           }
         } else {
@@ -479,7 +492,14 @@ export function validateFormComponentsForLayout(
           if (missingTagAttachments?.length > 0) {
             missingTagAttachments.forEach((missingId) => {
               componentValidations[fieldKey].errors.push(
-                `${missingId + AsciiUnitSeparator + getLanguageFromKey('form_filler.file_uploader_validation_error_no_chosen_tag', language)} ${component.textResourceBindings.tagTitle.toLowerCase()}.`,
+                `${
+                  missingId +
+                  AsciiUnitSeparator +
+                  getLanguageFromKey(
+                    'form_filler.file_uploader_validation_error_no_chosen_tag',
+                    language,
+                  )
+                } ${component.textResourceBindings.tagTitle.toLowerCase()}.`,
               );
             });
           }
@@ -523,8 +543,13 @@ function attachmentsValid(attachments: any, component: any): boolean {
 }
 
 export function attachmentIsMissingTag(attachment: IAttachment): boolean {
-  return attachment.tags === undefined || attachment.tags.length === 0
+  return attachment.tags === undefined || attachment.tags.length === 0;
 }
+
+export const DatePickerMinDateDefault = '1900-01-01T12:00:00.000Z';
+export const DatePickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
+export const DatePickerFormatDefault = 'DD.MM.YYYY';
+export const DatePickerSaveFormatNoTimestamp = 'YYYY-MM-DD';
 
 /*
   Validates the datepicker form data, returns an array of error messages or empty array if no errors found
@@ -549,9 +574,13 @@ export function validateDatepickerFormData(
   }
 
   if (date && date.isBefore(minDate)) {
-    validations.errors.push(getLanguageFromKey('date_picker.min_date_exeeded', language));
+    validations.errors.push(
+      getLanguageFromKey('date_picker.min_date_exeeded', language),
+    );
   } else if (date && date.isAfter(maxDate)) {
-    validations.errors.push(getLanguageFromKey('date_picker.max_date_exeeded', language));
+    validations.errors.push(
+      getLanguageFromKey('date_picker.max_date_exeeded', language),
+    );
   }
 
   return validations;
@@ -826,13 +855,13 @@ export function mapToComponentValidations(
 ) {
   let dataModelFieldKey = validatedComponent
     ? Object.keys(
-      (validatedComponent as ILayoutComponent).dataModelBindings,
-    ).find((name) => {
-      return (
-        (validatedComponent as ILayoutComponent).dataModelBindings[name] ===
-        dataBindingName
-      );
-    })
+        (validatedComponent as ILayoutComponent).dataModelBindings,
+      ).find((name) => {
+        return (
+          (validatedComponent as ILayoutComponent).dataModelBindings[name] ===
+          dataBindingName
+        );
+      })
     : null;
 
   const layoutComponent =
@@ -849,7 +878,7 @@ export function mapToComponentValidations(
               key &&
               component.dataModelBindings[key] &&
               component.dataModelBindings[key].toLowerCase() ===
-              dataBindingWithoutIndex
+                dataBindingWithoutIndex
             );
           },
         );
@@ -966,7 +995,6 @@ export function findLayoutIdsFromValidationIssue(
   layouts: ILayouts,
   validationIssue: IValidationIssue,
 ): string[] {
-
   if (!validationIssue.field) {
     // validation issue could be mapped to task and not to a field in the datamodel
     return ['unmapped'];
@@ -1067,7 +1095,7 @@ export function mapDataElementValidationToRedux(
       layoutIds.push('unmapped');
     }
 
-    layoutIds.forEach(layoutId => {
+    layoutIds.forEach((layoutId) => {
       const { componentId, component, componentValidations } =
         findComponentFromValidationIssue(
           layouts[layoutId] || [],
@@ -1084,20 +1112,8 @@ export function mapDataElementValidationToRedux(
           validationResult[layoutId][componentId] = componentValidations;
         } else {
           const currentValidations = validationResult[layoutId][componentId];
-          Object.keys(componentValidations).forEach((key) => {
-            if (!currentValidations[key]) {
-              currentValidations[key] = componentValidations[key];
-            } else {
-              currentValidations[key].errors = currentValidations[
-                key
-              ].errors.concat(componentValidations[key].errors);
-
-              currentValidations[key].warnings = currentValidations[
-                key
-              ].warnings.concat(componentValidations[key].warnings);
-            }
-          });
-          validationResult[layoutId][componentId] = currentValidations;
+          const mergedValidations = mergeComponentValidations(currentValidations, componentValidations);
+          validationResult[layoutId][componentId] = mergedValidations;
         }
       } else {
         // unmapped error
@@ -1149,6 +1165,8 @@ function addValidation(
     errors: componentValidations?.errors || [],
     warnings: componentValidations?.warnings || [],
     fixed: componentValidations?.fixed || [],
+    success: componentValidations?.success || [],
+    info: componentValidations?.info || [],
   };
 
   switch (validation.severity) {
@@ -1157,7 +1175,7 @@ function addValidation(
         getParsedTextResourceByKey(
           validation.description,
           textResources,
-        ) as any,
+        )
       );
       break;
     }
@@ -1166,7 +1184,7 @@ function addValidation(
         getParsedTextResourceByKey(
           validation.description,
           textResources,
-        ) as any,
+        )
       );
       break;
     }
@@ -1176,9 +1194,27 @@ function addValidation(
       );
       break;
     }
+    case Severity.Success: {
+      updatedValidations.success.push(
+        getParsedTextResourceByKey(validation.description, textResources),
+      );
+      break;
+    }
+    case Severity.Informational: {
+      updatedValidations.info.push(
+        getParsedTextResourceByKey(validation.description, textResources),
+      );
+      break;
+    }
     default:
       break;
   }
+
+  Object.keys(updatedValidations).forEach((key) => {
+    if (!updatedValidations[key] || updatedValidations[key].length === 0) {
+      delete updatedValidations[key];
+    }
+  });
 
   return updatedValidations;
 }
@@ -1187,7 +1223,9 @@ function addValidation(
  * gets unmapped errors from validations as string array
  * @param validations the validations
  */
-export function getUnmappedErrors(validations: IValidations): React.ReactNode[] {
+export function getUnmappedErrors(
+  validations: IValidations,
+): React.ReactNode[] {
   const messages: React.ReactNode[] = [];
   if (!validations) {
     return messages;
@@ -1201,7 +1239,6 @@ export function getUnmappedErrors(validations: IValidations): React.ReactNode[] 
   });
   return messages;
 }
-
 
 /**
  * checks if a validation contains any errors of a given severity.
@@ -1218,23 +1255,23 @@ export function hasValidationsOfSeverity(
 
   return Object.keys(validations).some((layout) => {
     return Object.keys(validations[layout]).some((componentKey: string) => {
-      return Object.keys(
-        validations[layout][componentKey] || {},
-      ).some((bindingKey: string) => {
-        if (
-          severity === Severity.Error &&
-          validations[layout][componentKey][bindingKey].errors?.length > 0
-        ) {
-          return true;
-        }
-        if (
-          severity === Severity.Warning &&
-          validations[layout][componentKey][bindingKey].warnings?.length > 0
-        ) {
-          return true;
-        }
-        return false;
-      });
+      return Object.keys(validations[layout][componentKey] || {}).some(
+        (bindingKey: string) => {
+          if (
+            severity === Severity.Error &&
+            validations[layout][componentKey][bindingKey].errors?.length > 0
+          ) {
+            return true;
+          }
+          if (
+            severity === Severity.Warning &&
+            validations[layout][componentKey][bindingKey].warnings?.length > 0
+          ) {
+            return true;
+          }
+          return false;
+        },
+      );
     });
   });
 }
@@ -1369,6 +1406,8 @@ export function mergeComponentBindingValidations(
 ): IComponentBindingValidation {
   const existingErrors = existingValidations?.errors || [];
   const existingWarnings = existingValidations?.warnings || [];
+  const existingInfo = existingValidations?.info || [];
+  const existingSuccess = existingValidations?.success || [];
 
   // Only merge items that are not already in the existing components errors/warnings array
   const uniqueNewErrors = getUniqueNewElements(
@@ -1379,8 +1418,16 @@ export function mergeComponentBindingValidations(
     existingWarnings,
     newValidations?.warnings,
   );
+  const uniqueNewInfo = getUniqueNewElements(
+    existingInfo,
+    newValidations?.info,
+  );
+  const uniqueNewSuccess = getUniqueNewElements(
+    existingSuccess,
+    newValidations?.success,
+  );
 
-  return {
+  const merged = {
     errors: removeFixedValidations(
       existingErrors.concat(uniqueNewErrors),
       newValidations?.fixed,
@@ -1389,10 +1436,26 @@ export function mergeComponentBindingValidations(
       existingWarnings.concat(uniqueNewWarnings),
       newValidations?.fixed,
     ),
+    info: removeFixedValidations(
+      existingInfo.concat(uniqueNewInfo),
+      newValidations?.fixed,
+    ),
+    success: removeFixedValidations(
+      existingSuccess.concat(uniqueNewSuccess),
+      newValidations?.fixed,
+    ),
   };
+
+  Object.keys(merged).forEach((key) => {
+    if (!merged[key] || merged[key].length === 0) {
+      delete merged[key];
+    }
+  });
+
+  return merged;
 }
 
-export function getUniqueNewElements(originalArray: any[], newArray?: any[]) {
+export function getUniqueNewElements(originalArray: ReactNode[], newArray?: ReactNode[]) {
   if (!newArray || newArray.length === 0) {
     return [];
   }
@@ -1410,7 +1473,7 @@ export function getUniqueNewElements(originalArray: any[], newArray?: any[]) {
   });
 }
 
-function removeFixedValidations(validations: any[], fixed?: any[]): any[] {
+function removeFixedValidations(validations?: ReactNode[], fixed?: ReactNode[]): ReactNode[] {
   if (!fixed || fixed.length === 0) {
     return validations;
   }
@@ -1677,9 +1740,12 @@ export function missingFieldsInLayoutValidations(
   language: ILanguage,
 ): boolean {
   let result = false;
-  const requiredMessage = getLanguageFromKey('form_filler.error_required', language);
+  const requiredMessage = getLanguageFromKey(
+    'form_filler.error_required',
+    language,
+  );
   const lookForRequiredMsg = (e: any) => {
-    if (typeof(e) === 'string') {
+    if (typeof e === 'string') {
       return e.includes(requiredMessage);
     }
     if (Array.isArray(e)) {
@@ -1696,8 +1762,11 @@ export function missingFieldsInLayoutValidations(
       if (result) return;
 
       const errors = layoutValidations[component][binding].errors;
-      result = (errors && errors.length > 0 && errors.findIndex(lookForRequiredMsg) > -1)
-    })
+      result =
+        errors &&
+        errors.length > 0 &&
+        errors.findIndex(lookForRequiredMsg) > -1;
+    });
   });
 
   return result;

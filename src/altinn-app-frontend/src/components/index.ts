@@ -9,7 +9,7 @@ import { FileUploadWithTagComponent } from './base/FileUpload/FileUploadWithTag/
 import { HeaderComponent } from './base/HeaderComponent';
 import { InputComponent } from './base/InputComponent';
 import { ParagraphComponent } from './base/ParagraphComponent';
-import { RadioButtonContainerComponent } from './base/RadioButtonsContainerComponent';
+import { RadioButtonContainerComponent } from './base/RadioButtons/RadioButtonsContainerComponent';
 import { TextAreaComponent } from './base/TextAreaComponent';
 import { ImageComponent } from './base/ImageComponent';
 import { NavigationButtons as NavigationButtonsComponent } from './presentation/NavigationButtons';
@@ -20,6 +20,9 @@ import { IGenericComponentProps } from './GenericComponent';
 import { IComponentFormData } from 'src/utils/formComponentUtils';
 import { ILanguage } from 'altinn-shared/types';
 import type { ITextResourceBindings } from 'src/types';
+import type { IGrid } from 'src/features/form/layout';
+import { createContext } from 'react';
+import { LikertComponent } from 'src/components/base/LikertComponent';
 
 export interface IComponent {
   name: string;
@@ -49,6 +52,7 @@ export enum ComponentTypes {
   InstantiationButton,
   AttachmentList,
   NavigationBar,
+  Likert,
   Panel,
 }
 
@@ -163,6 +167,11 @@ export const schemaComponents: IComponent[] = [
     Type: ComponentTypes.NavigationBar,
   },
   {
+    name: 'Likert',
+    Tag: LikertComponent,
+    Type: ComponentTypes.Likert,
+  },
+  {
     name: 'Panel',
     Tag: PanelComponent,
     Type: ComponentTypes.Panel,
@@ -182,7 +191,11 @@ export const advancedComponents: IComponent[] = [
 ];
 
 export interface IComponentProps extends IGenericComponentProps {
-  handleDataChange: (value: string, key?: string, skipValidation?: boolean) => void;
+  handleDataChange: (
+    value: string,
+    key?: string,
+    skipValidation?: boolean,
+  ) => void;
   handleFocusUpdate: (componentId: string, step?: number) => void;
   getTextResource: (key: string) => React.ReactNode;
   getTextResourceAsString: (key: string) => string;
@@ -200,5 +213,15 @@ const components: IComponent[] = textComponents.concat(
   schemaComponents,
   advancedComponents,
 );
+
+export interface IFormComponentContext {
+  grid?: IGrid;
+  baseComponentId?: string;
+}
+
+export const FormComponentContext = createContext<IFormComponentContext>({
+  grid: undefined,
+  baseComponentId: undefined,
+});
 
 export default components;

@@ -1,21 +1,15 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { shallowEqual } from 'react-redux';
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
-import type { IComponentProps } from '.';
+import components, { FormComponentContext } from '.';
+import type { IComponentProps, IFormComponentContext } from '.';
 import type { ILanguage } from 'altinn-shared/types';
-import type { ILabelSettings, IComponentValidations } from 'src/types';
-import type {
-  IDataModelBindings,
-  IGrid,
-  IGridStyling,
-  ITextResourceBindings,
-} from '../features/form/layout';
-
-import components from '.';
+import type { IComponentValidations, ILabelSettings } from 'src/types';
+import { LayoutStyle, Triggers } from 'src/types';
+import type { IDataModelBindings, IGrid, IGridStyling, ITextResourceBindings } from '../features/form/layout';
 import { getTextResourceByKey } from 'altinn-shared/utils';
-import { Triggers } from 'src/types';
 import FormDataActions from '../features/form/data/formDataActions';
 import { setCurrentSingleFieldValidation } from '../features/form/validation/validationSlice';
 import { makeGetFocus, makeGetHidden } from '../selectors/getLayoutData';
@@ -23,9 +17,9 @@ import Label from '../features/form/components/Label';
 import Legend from '../features/form/components/Legend';
 import { renderValidationMessagesForComponent } from '../utils/render';
 import {
-  getFormDataForComponent,
-  componentValidationsHandledByGenericComponent,
   componentHasValidationMessages,
+  componentValidationsHandledByGenericComponent,
+  getFormDataForComponent,
   getTextResource,
   isComponentValid,
   selectComponentTexts,
@@ -46,6 +40,9 @@ export interface IGenericComponentProps {
   grid?: IGrid;
   triggers?: Triggers[];
   hidden?: boolean;
+  layout?: LayoutStyle;
+  groupContainerId?: string;
+  baseComponentId?: string;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -56,40 +53,40 @@ const useStyles = makeStyles((theme) => ({
   },
   xs: {
     'border-bottom': '1px dashed #949494',
-    '& > div:nth-child(2)':{
-      paddingLeft: theme.spacing(3/2) // Half the spacing of <Grid in <Form
-    }
+    '& > div:nth-child(2)': {
+      paddingLeft: theme.spacing(3 / 2), // Half the spacing of <Grid in <Form
+    },
   },
   sm: {
     [theme.breakpoints.up('sm')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
-      }
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2),
+      },
     },
   },
   md: {
     [theme.breakpoints.up('md')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
-      }
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2),
+      },
     },
   },
   lg: {
     [theme.breakpoints.up('lg')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
-      }
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2),
+      },
     },
   },
   xl: {
     [theme.breakpoints.up('xl')]: {
       'border-bottom': '1px dashed #949494',
-      '& > div:nth-child(2)':{
-        paddingLeft: theme.spacing(3/2)
-      }
+      '& > div:nth-child(2)': {
+        paddingLeft: theme.spacing(3 / 2),
+      },
     },
   },
 }));
@@ -121,10 +118,11 @@ export function GenericComponent(props: IGenericComponentProps) {
     (state) => state.textResources.resources,
   );
 
-  const texts = useAppSelector(state =>
+  const texts = useAppSelector((state) =>
     selectComponentTexts(
       state.textResources.resources,
       props.textResourceBindings,
+      props.type === "Likert",
     ),
   );
 
@@ -136,6 +134,13 @@ export function GenericComponent(props: IGenericComponentProps) {
     (state) => state.formValidations.validations[currentView]?.[props.id],
     shallowEqual,
   );
+  
+  const formComponentContext = useMemo<IFormComponentContext>(() => {
+    return {
+      grid: props.grid,
+      baseComponentId: props.baseComponentId,
+    }
+  }, [props.baseComponentId, props.grid]);
 
   React.useEffect(() => {
     setHasValidationMessages(
@@ -147,7 +152,11 @@ export function GenericComponent(props: IGenericComponentProps) {
     return null;
   }
 
-  const handleDataUpdate = (value: string, key = 'simpleBinding', skipValidation = false) => {
+  const handleDataUpdate = (
+    value: string,
+    key = 'simpleBinding',
+    skipValidation = false,
+  ) => {
     if (!props.dataModelBindings || !props.dataModelBindings[key]) {
       return;
     }
@@ -177,7 +186,7 @@ export function GenericComponent(props: IGenericComponentProps) {
         field: dataModelBinding,
         data: value,
         componentId: props.id,
-        skipValidation
+        skipValidation,
       }),
     );
   };
@@ -196,7 +205,8 @@ export function GenericComponent(props: IGenericComponentProps) {
       props.type === 'AddressComponent' ||
       props.type === 'Datepicker' ||
       props.type === 'FileUpload' ||
-      props.type === 'FileUploadWithTag'
+      props.type === 'FileUploadWithTag' ||
+      (props.type === 'Likert' && props.layout === LayoutStyle.Table)
     ) {
       return componentValidations;
     }
@@ -302,68 +312,76 @@ export function GenericComponent(props: IGenericComponentProps) {
     'AttachmentList',
     'InstantiationButton',
     'NavigationBar',
+    'Likert',
     'Panel',
   ];
 
-  return (
-    <Grid
-      item={true}
-      container={true}
-      xs={props.grid?.xs || 12}
-      sm={props.grid?.sm || false}
-      md={props.grid?.md || false}
-      lg={props.grid?.lg || false}
-      xl={props.grid?.xl || false}
-      key={`grid-${props.id}`}
-      className={classNames(
-        'form-group',
-        'a-form-group',
-        classes.container,
-        gridToHiddenProps(props.grid?.labelGrid, classes),
-      )}
-      alignItems='baseline'
-    >
-      {!noLabelComponents.includes(props.type) && (
-        <Grid
-          item={true}
-          xs={props.grid?.labelGrid?.xs || 12}
-          sm={props.grid?.labelGrid?.sm || false}
-          md={props.grid?.labelGrid?.md || false}
-          lg={props.grid?.labelGrid?.lg || false}
-          xl={props.grid?.labelGrid?.xl || false}
-        >
-          <RenderLabelScoped
-            props={props}
-            passThroughProps={passThroughProps}
-            language={language}
-            texts={texts}
-          />
-          <RenderDescription key={`description-${props.id}`} />
-        </Grid>
-      )}
-      <Grid
-        key={`form-content-${props.id}`}
-        item={true}
-        id={`form-content-${props.id}`}
-        xs={props.grid?.innerGrid?.xs || 12}
-        sm={props.grid?.innerGrid?.sm || false}
-        md={props.grid?.innerGrid?.md || false}
-        lg={props.grid?.innerGrid?.lg || false}
-        xl={props.grid?.innerGrid?.xl || false}
-      >
-        <RenderComponent.Tag {...componentProps} />
+  const showValidationMessages =
+    componentValidationsHandledByGenericComponent(
+      props.dataModelBindings,
+      props.type,
+    ) && hasValidationMessages;
 
-        {componentValidationsHandledByGenericComponent(
-          props.dataModelBindings,
-          props.type,
-        ) &&
-          hasValidationMessages &&
-          renderValidationMessagesForComponent(
-            componentValidations?.simpleBinding,
-            props.id,
-          )}
+  if (props.type === 'Likert' && props.layout === LayoutStyle.Table) {
+    return <RenderComponent.Tag {...componentProps} />;
+  }
+
+  return (
+    <FormComponentContext.Provider value={formComponentContext}>
+      <Grid
+        item={true}
+        container={true}
+        xs={props.grid?.xs || 12}
+        sm={props.grid?.sm || false}
+        md={props.grid?.md || false}
+        lg={props.grid?.lg || false}
+        xl={props.grid?.xl || false}
+        key={`grid-${props.id}`}
+        className={classNames(
+          'form-group',
+          'a-form-group',
+          classes.container,
+          gridToHiddenProps(props.grid?.labelGrid, classes),
+        )}
+        alignItems='baseline'
+      >
+        {!noLabelComponents.includes(props.type) && (
+          <Grid
+            item={true}
+            xs={props.grid?.labelGrid?.xs || 12}
+            sm={props.grid?.labelGrid?.sm || false}
+            md={props.grid?.labelGrid?.md || false}
+            lg={props.grid?.labelGrid?.lg || false}
+            xl={props.grid?.labelGrid?.xl || false}
+          >
+            <RenderLabelScoped
+              props={props}
+              passThroughProps={passThroughProps}
+              language={language}
+              texts={texts}
+            />
+            <RenderDescription key={`description-${props.id}`} />
+          </Grid>
+        )}
+        <Grid
+          key={`form-content-${props.id}`}
+          item={true}
+          id={`form-content-${props.id}`}
+          xs={props.grid?.innerGrid?.xs || 12}
+          sm={props.grid?.innerGrid?.sm || false}
+          md={props.grid?.innerGrid?.md || false}
+          lg={props.grid?.innerGrid?.lg || false}
+          xl={props.grid?.innerGrid?.xl || false}
+        >
+          <RenderComponent.Tag {...componentProps} />
+          {showValidationMessages &&
+            renderValidationMessagesForComponent(
+              componentValidations?.simpleBinding,
+              props.id,
+            )}
+        </Grid>
       </Grid>
-    </Grid>
+    </FormComponentContext.Provider>
   );
 }
 

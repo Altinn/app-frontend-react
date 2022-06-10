@@ -75,6 +75,11 @@ export function nn() {
       summary_item_change: 'Endre',
       summary_go_to_correct_page: 'Gå til riktig side i skjema',
     },
+    navigation: {
+      main: 'Appnavigasjon',
+      form: 'Skjemanavigasjon',
+      to_main_content: 'Hopp til hovedinnholdet'
+    },
     general: {
       action: 'Handling',
       add_connection: 'Legg til tilkobling',
@@ -216,5 +221,10 @@ export function nn() {
       required: 'Feltet er påkravd',
       enum: 'Kun verdiane {0} er tillatne',
     },
+    soft_validation: {
+      info_title: 'Lurt å tenke på',
+      warning_title: 'OBS',
+      success_title: 'Så flott!'
+    }
   };
 }
