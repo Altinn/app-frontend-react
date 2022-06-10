@@ -14,7 +14,7 @@ import { TextAreaComponent } from './base/TextAreaComponent';
 import { ImageComponent } from './base/ImageComponent';
 import { NavigationButtons as NavigationButtonsComponent } from './presentation/NavigationButtons';
 import { NavigationBar as NavigationBarComponent} from './base/NavigationBar';
-import { Panel as PanelComponent } from './base/Panel';
+import { PanelComponent } from './base/PanelComponent';
 import { InstantiationButtonComponent } from './base/InstantiationButtonComponent';
 import { IGenericComponentProps } from './GenericComponent';
 import { IComponentFormData } from 'src/utils/formComponentUtils';

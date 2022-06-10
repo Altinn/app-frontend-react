@@ -9,8 +9,6 @@ import { FormComponentContext } from 'src/components';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 
-import { IComponentProps } from '..';
-
 interface IGetVariantProps {
   variant?: string;
 }
@@ -30,16 +28,20 @@ export const getVariant = ({ variant }: IGetVariantProps = defaultObj) => {
   return PanelVariant.Info;
 };
 
-interface IPanelProps extends IComponentProps {
+export interface IPanelProps {
+  title: React.ReactNode;
+  children?: React.ReactNode;
   variant?: string;
   showIcon?: boolean;
+  showPointer?: boolean;
 }
 
 export const Panel = ({
-  getTextResource,
-  textResourceBindings,
+  children,
   variant,
   showIcon,
+  title,
+  showPointer,
 }: IPanelProps) => {
   const { grid, baseComponentId } = useContext(FormComponentContext);
   const shouldHaveFullWidth = !grid && !baseComponentId;
@@ -47,15 +49,16 @@ export const Panel = ({
   return (
     <ConditionalWrapper
       condition={shouldHaveFullWidth}
-      wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
+      wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
     >
       <PanelDesignSystem
-        title={getTextResource(textResourceBindings.title)}
+        title={title}
         showIcon={showIcon}
+        showPointer={showPointer}
         variant={getVariant({ variant })}
         forceMobileLayout={!shouldHaveFullWidth}
       >
-        {getTextResource(textResourceBindings.body)}
+        {children}
       </PanelDesignSystem>
     </ConditionalWrapper>
   );

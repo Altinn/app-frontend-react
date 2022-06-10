@@ -1,30 +1,15 @@
-import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import type { ILanguage, ITextResource } from 'altinn-shared/types';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useAppSelector } from 'src/common/hooks';
-import { FormComponentContext } from 'src/components';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import { FullWidthWrapper } from './FullWidthWrapper';
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Panel } from 'src/features/form/components/Panel';
 
 export interface ISoftValidationProps {
   children: React.ReactNode;
   variant: SoftValidationVariant;
-  forceMobileLayout?: boolean;
 }
 
 export type SoftValidationVariant = 'warning' | 'info' | 'success';
-
-const getPanelVariant = (messageType: SoftValidationVariant) => {
-  switch (messageType) {
-    case 'warning':
-      return PanelVariant.Warning;
-    case 'info':
-      return PanelVariant.Info;
-    case 'success':
-      return PanelVariant.Success;
-  }
-};
 
 interface IGetPanelTitleProps {
   variant: SoftValidationVariant;
@@ -65,11 +50,7 @@ export const getPanelTitle = ({
   }
 };
 
-const ValidationPanel = ({
-  variant,
-  children,
-  forceMobileLayout,
-}: ISoftValidationProps) => {
+export function SoftValidations({ variant, children }: ISoftValidationProps) {
   const language = useAppSelector((state) => state.language.language);
   const textResources = useAppSelector(
     (state) => state.textResources.resources,
@@ -77,27 +58,12 @@ const ValidationPanel = ({
 
   return (
     <Panel
-      variant={getPanelVariant(variant)}
-      showPointer
-      showIcon
+      variant={variant}
+      showPointer={true}
+      showIcon={true}
       title={getPanelTitle({ variant, textResources, language })}
-      forceMobileLayout={forceMobileLayout}
     >
       {children}
     </Panel>
-  );
-};
-
-export function SoftValidations(props: ISoftValidationProps) {
-  const { grid, baseComponentId } = useContext(FormComponentContext);
-  const shouldHaveFullWidth = !grid && !baseComponentId;
-
-  return (
-    <ConditionalWrapper
-      condition={shouldHaveFullWidth}
-      wrapper={children => <FullWidthWrapper>{children}</FullWidthWrapper>}
-    >
-      <ValidationPanel {...props} forceMobileLayout={!shouldHaveFullWidth} />
-    </ConditionalWrapper>
   );
 }
