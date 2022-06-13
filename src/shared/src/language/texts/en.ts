@@ -234,5 +234,10 @@ export function en() {
         label: 'Language'
       }
     },
+    soft_validation: {
+      info_title: 'Information',
+      warning_title: 'Note',
+      success_title: 'How great!'
+    }
   };
 }
