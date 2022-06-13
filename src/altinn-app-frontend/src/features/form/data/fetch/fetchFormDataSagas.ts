@@ -61,7 +61,12 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
       // app with instance
       const instance: IInstance = yield select(instanceDataSelector);
       const currentTaskDataId = getCurrentTaskDataElementId(applicationMetadata, instance);
-      fetchedData = yield call(get, getFetchFormDataUrl(instance.id, currentTaskDataId));
+      if (currentTaskDataId) {
+        fetchedData = yield call(get, getFetchFormDataUrl(instance.id, currentTaskDataId));
+      }
+      else {
+        fetchedData = {};
+      }
     }
 
     const formData = convertModelToDataBinding(fetchedData);

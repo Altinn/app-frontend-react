@@ -92,8 +92,11 @@ export const getCurrentTaskDataElementId = (appMetaData: IApplication, instance:
   const currentTaskId = instance.process.currentTask.elementId;
   const appLogicDataType =
     appMetaData.dataTypes.find((element) => element.appLogic !== null && element.taskId === currentTaskId);
+  if (!appLogicDataType) {
+    return undefined;
+  }
   const currentTaskDataElement = instance.data.find((element) => element.dataType === appLogicDataType.id);
-  return currentTaskDataElement.id;
+  return currentTaskDataElement?.id;
 };
 
 export const getCurrentTaskData = (appMetaData: IApplication, instance: IInstance) => {
