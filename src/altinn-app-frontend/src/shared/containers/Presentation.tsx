@@ -135,7 +135,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
               <div className='a-page a-current-page'>
                 <div className='modalPage'>
                   <div className='modal-content'>
-                    <Header {...props} language={language} />
+                    <Header {...props} />
                     <div className='modal-body a-modal-body'>
                       {props.children}
                     </div>
