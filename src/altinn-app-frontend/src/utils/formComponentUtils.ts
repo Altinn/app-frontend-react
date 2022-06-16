@@ -11,7 +11,7 @@ import type {
   ILayoutGroup,
   ISelectionComponentProps,
 } from 'src/features/form/layout';
-import type { IAttachment } from 'src/shared/resources/attachments';
+import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IDataModelBindings,
   IComponentValidations,
@@ -23,6 +23,7 @@ import type {
 } from 'src/types';
 import { AsciiUnitSeparator } from './attachment';
 import { getOptionLookupKey } from './options';
+import { isFileUploadComponent, isFileUploadWithTagComponent } from "src/utils/formLayout";
 
 export const componentValidationsHandledByGenericComponent = (
   dataModelBindings: any,
@@ -85,7 +86,8 @@ export const getFormDataForComponent = (
 };
 
 export const getDisplayFormDataForComponent = (
-  formData: any,
+  formData: IFormData,
+  attachments: IAttachments,
   component: ILayoutComponent,
   textResources: ITextResource[],
   options: IOptions,
@@ -95,6 +97,8 @@ export const getDisplayFormDataForComponent = (
     return getDisplayFormData(
       component.dataModelBindings.simpleBinding,
       component,
+      component.id,
+      attachments,
       formData,
       options,
       textResources,
@@ -108,6 +112,8 @@ export const getDisplayFormDataForComponent = (
     formDataObj[key] = getDisplayFormData(
       binding,
       component,
+      component.id,
+      attachments,
       formData,
       options,
       textResources,
@@ -119,12 +125,20 @@ export const getDisplayFormDataForComponent = (
 export const getDisplayFormData = (
   dataModelBinding: string,
   component: ILayoutComponent | ILayoutGroup,
+  componentId: string,
+  attachments: IAttachments,
   formData: any,
   options: IOptions,
   textResources: ITextResource[],
   asObject?: boolean,
 ) => {
-  const formDataValue = formData[dataModelBinding] || '';
+  let formDataValue = formData[dataModelBinding] || '';
+  if (component.dataModelBindings.list) {
+    formDataValue = Object.keys(formData)
+      .filter((key) => key.startsWith(dataModelBinding))
+      .map((key) => formData[key]);
+  }
+
   if (formDataValue) {
     if (component.type === 'Dropdown' || component.type === 'RadioButtons') {
       const selectionComponent = component as ISelectionComponentProps;
@@ -200,12 +214,31 @@ export const getDisplayFormData = (
       });
       return label;
     }
+    if (isFileUploadComponent(component) || isFileUploadWithTagComponent(component)) {
+      if (!formDataValue || (Array.isArray(formDataValue) && !formDataValue.length)) {
+        return '';
+      }
+      const attachmentNamesList = [...formDataValue].map((uuid) => {
+        const attachmentsForComponent = attachments[componentId];
+        if (attachmentsForComponent) {
+          const foundAttachment = attachmentsForComponent.find((a) => a.id === uuid);
+          if (foundAttachment) {
+            return foundAttachment.name;
+          }
+        }
+
+        return '';
+      }).filter((name) => name !== '');
+
+      return attachmentNamesList.join(', ');
+    }
   }
   return formDataValue;
 };
 
 export const getFormDataForComponentInRepeatingGroup = (
-  formData: any,
+  formData: IFormData,
+  attachments: IAttachments,
   component: ILayoutComponent | ILayoutGroup,
   index: number,
   groupDataModelBinding: string,
@@ -221,17 +254,24 @@ export const getFormDataForComponentInRepeatingGroup = (
   ) {
     return '';
   }
-  const dataModelBinding =
-    component.type === 'AddressComponent'
+  let dataModelBinding = component.type === 'AddressComponent'
       ? component.dataModelBindings?.address
       : component.dataModelBindings?.simpleBinding;
+  if (isFileUploadComponent(component) || isFileUploadWithTagComponent(component) && component.dataModelBindings?.list) {
+    dataModelBinding = component.dataModelBindings.list;
+  }
+
   const replaced = dataModelBinding.replace(
     groupDataModelBinding,
     `${groupDataModelBinding}[${index}]`,
   );
+  const componentId = `${component.id}-${index}`;
+
   return getDisplayFormData(
     replaced,
     component,
+    componentId,
+    attachments,
     formData,
     options,
     textResources,

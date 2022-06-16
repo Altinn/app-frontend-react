@@ -12,7 +12,7 @@ import {
   ILayoutComponent,
 } from 'src/features/form/layout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { IComponentValidations } from 'src/types';
+import { IComponentValidations, IRuntimeState } from 'src/types';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import ErrorPaper from '../message/ErrorPaper';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
@@ -75,6 +75,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
   const layout = useAppSelector(
     (state) => state.formLayout.layouts[pageRef],
   );
+  const attachments = useAppSelector((state:IRuntimeState) => state.attachments.attachments);
   const formComponent = useAppSelector((state) => {
     return state.formLayout.layouts[pageRef].find(
       (c) => c.id === componentRef,
@@ -100,6 +101,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
       summaryProps.formData ||
       getDisplayFormDataForComponent(
         state.formData.formData,
+        attachments,
         formComponent as ILayoutComponent,
         state.textResources.resources,
         state.optionState.options,

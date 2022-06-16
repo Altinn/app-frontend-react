@@ -6,7 +6,7 @@ import type {
   ILayoutComponent,
   ISelectionComponentProps,
 } from 'src/features/form/layout';
-import type { IAttachment } from 'src/shared/resources/attachments';
+import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 
 import { parseOptions } from 'altinn-shared/utils/language';
 
@@ -82,35 +82,37 @@ describe('formComponentUtils', () => {
       ],
     },
   };
-  const mockAttachments: IAttachment[] = [
-    {
-      uploaded: true,
-      updating: false,
-      deleting: false,
-      name: 'mockName',
-      size: 12345,
-      tags: ['mockTag'],
-      id: '12345',
-    },
-    {
-      uploaded: true,
-      updating: false,
-      deleting: false,
-      name: 'mockName',
-      size: 12345,
-      tags: [],
-      id: '123456',
-    },
-    {
-      uploaded: true,
-      updating: false,
-      deleting: false,
-      name: 'mockName',
-      size: 12345,
-      tags: null,
-      id: '123457',
-    },
-  ];
+  const mockAttachments: IAttachments = {
+    upload: [
+      {
+        uploaded: true,
+        updating: false,
+        deleting: false,
+        name: 'mockName',
+        size: 12345,
+        tags: ['mockTag'],
+        id: '12345',
+      },
+      {
+        uploaded: true,
+        updating: false,
+        deleting: false,
+        name: 'mockName',
+        size: 12345,
+        tags: [],
+        id: '123456',
+      },
+      {
+        uploaded: true,
+        updating: false,
+        deleting: false,
+        name: 'mockName',
+        size: 12345,
+        tags: null,
+        id: '123457',
+      },
+    ],
+  };
   const mockAttachmentsWithoutTag: IAttachment[] = [
     {
       uploaded: true,
@@ -149,6 +151,8 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingInput',
         inputComponent,
+        inputComponent.id,
+        {},
         mockFormData,
         mockOptions,
         mockTextResources,
@@ -164,6 +168,8 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingCheckbox',
         checkboxComponent,
+        checkboxComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
@@ -180,6 +186,8 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingCheckboxWithMapping',
         checkboxComponent,
+        checkboxComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
@@ -195,6 +203,8 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingCheckbox',
         checkboxComponent,
+        checkboxComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
@@ -215,6 +225,8 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingDropdown',
         dropdownComponent,
+        dropdownComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
@@ -231,6 +243,8 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingDropdownWithMapping',
         checkboxComponent,
+        checkboxComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
@@ -246,6 +260,8 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingRadioButtons',
         radioButtonComponent,
+        radioButtonComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
@@ -262,6 +278,8 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingRadioButtonsWithMapping',
         radioButtonComponentWithMapping,
+        radioButtonComponentWithMapping.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
@@ -281,6 +299,7 @@ describe('formComponentUtils', () => {
       } as unknown as ISelectionComponentProps;
       const result = getFormDataForComponentInRepeatingGroup(
         mockFormData,
+        mockAttachments,
         checkboxComponent,
         0,
         'group',
@@ -456,7 +475,7 @@ describe('formComponentUtils', () => {
 
   describe('atleastOneTagExists', () => {
     it('should return true if one or more attachments has a tag', () => {
-      const result = atleastOneTagExists(mockAttachments);
+      const result = atleastOneTagExists(mockAttachments['upload']);
       expect(result).toEqual(true);
     });
 

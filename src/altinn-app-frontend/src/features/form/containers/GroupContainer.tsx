@@ -82,6 +82,10 @@ export function GroupContainer({
     React.useState<number[]>(null);
   const [multiPageIndex, setMultiPageIndex] = React.useState<number>(-1);
 
+  const attachments = useAppSelector(
+    (state:IRuntimeState) => state.attachments.attachments,
+  );
+
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
@@ -288,6 +292,7 @@ export function GroupContainer({
         (container.edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
           components={components}
+          attachments={attachments}
           container={container}
           currentView={currentView}
           editIndex={editIndex}
