@@ -11,7 +11,7 @@ export const PrintButtonComponent = ({textResourceBindings, language}: IComponen
   );
   return (
     <AltinnButton btnText={getTextFromAppOrDefault(
-      textResourceBindings.text,
+      textResourceBindings.text || 'Print',
       textResources,
       language,
       null,
