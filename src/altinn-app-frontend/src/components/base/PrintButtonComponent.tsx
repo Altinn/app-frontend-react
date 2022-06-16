@@ -1,10 +1,21 @@
 import React from 'react';
 import {IComponentProps} from 'src/components';
-import {Button, ButtonVariant} from '@altinn/altinn-design-system';
+import {AltinnButton} from 'altinn-shared/components';
+import {getTextFromAppOrDefault} from "src/utils/textResource";
+import {useAppSelector} from "src/common/hooks";
 
-export const PrintButtonComponent = ({textResourceBindings, getTextResource}: IComponentProps) => {
+
+export const PrintButtonComponent = ({textResourceBindings, language}: IComponentProps) => {
+  const textResources = useAppSelector(
+    (state) => state.textResources.resources,
+  );
   return (
-    <Button variant={ButtonVariant.Secondary} onClick={() => window.print()}>
-      {getTextResource(textResourceBindings.text)}
-    </Button>)
+    <AltinnButton btnText={getTextFromAppOrDefault(
+      textResourceBindings.text,
+      textResources,
+      language,
+      null,
+      true,
+    )} secondaryButton onClickFunction={window.print}/>
+  )
 }
