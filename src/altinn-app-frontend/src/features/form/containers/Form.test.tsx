@@ -73,6 +73,13 @@ describe('Form.tsx', () => {
     expect(screen.getByText('Third title')).toBeInTheDocument();
   });
 
+  it('should render components and groups', () => {
+    renderForm();
+    expect(screen.getByText('First title')).toBeInTheDocument();
+    expect(screen.getByText('Second title')).toBeInTheDocument();
+    expect(screen.getByText('Third title')).toBeInTheDocument();
+  });
+
   it('should render navbar', () => {
     const layoutWithNavBar: ILayout = [
       ...mockComponents,
