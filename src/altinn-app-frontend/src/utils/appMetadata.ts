@@ -8,7 +8,7 @@ export function getDataTaskDataTypeId(taskId: string, dataTypes: any[]): string 
   }
 
   const result = dataTypes.find((dataType) => {
-    return dataType.appLogic !== null && dataType.taskId === taskId;
+    return dataType.appLogic !== null && dataType.appLogic.classRef !== null && dataType.taskId === taskId;
   });
   return result?.id;
 }
@@ -91,7 +91,7 @@ export function isStatelessApp(application: IApplication) {
 export const getCurrentTaskDataElementId = (appMetaData: IApplication, instance: IInstance) => {
   const currentTaskId = instance.process.currentTask.elementId;
   const appLogicDataType =
-    appMetaData.dataTypes.find((element) => element.appLogic !== null && element.taskId === currentTaskId);
+    appMetaData.dataTypes.find((element) => element.appLogic !== null && element.appLogic.classRef !== null && element.taskId === currentTaskId);
   const currentTaskDataElement = instance.data.find((element) => element.dataType === appLogicDataType.id);
   return currentTaskDataElement.id;
 };
