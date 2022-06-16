@@ -42,6 +42,10 @@ export function dataElementUrl(dataGuid: string) {
   return `${appPath}/instances/${altinnWindow.instanceId}/data/${dataGuid}`;
 }
 
+export function dataUrl(elementType: string) {
+  return `${appPath}/instances/${altinnWindow.instanceId}/data?dataType=${encodeURIComponent(elementType)}`;
+}
+
 export function getProcessStateUrl() {
   return `${appPath}/instances/${altinnWindow.instanceId}/process`;
 }

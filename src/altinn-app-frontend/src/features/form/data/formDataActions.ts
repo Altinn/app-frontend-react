@@ -12,6 +12,7 @@ const FormDataActions = {
   fetchFormDataFulfilled: createAction<IFetchFormDataFulfilled>(`${moduleName}/fetchFulfilled`),
   fetchFormDataInitial: createAction(`${moduleName}/fetchInitial`),
   fetchFormDataRejected: createAction<IFormDataRejected>(`${moduleName}/fetchRejected`),
+  fetchShadowFieldsFulfilled: createAction<IFetchFormDataFulfilled>(`${moduleName}/fetchShadowFieldsFulfilled`),
   saveFormData: createAction(`${moduleName}/save`),
   setFormDataFulfilled: createAction<IFetchFormDataFulfilled>(`${moduleName}/setFormDataFulfilled`),
   submitFormData: createAction<ISubmitDataAction>(`${moduleName}/submit`),
@@ -21,6 +22,7 @@ const FormDataActions = {
   updateFormDataFulfilled: createAction<IUpdateFormDataFulfilled>(`${moduleName}/updateFulfilled`),
   updateFormDataSkipAutosave: createAction<IUpdateFormDataFulfilled>(`${moduleName}/updateSkipAutosave`),
   updateFormDataRejected: createAction<IFormDataRejected>(`${moduleName}/updateRejected`),
+  updateShadowFieldsFulfilled: createAction<IUpdateFormDataFulfilled>(`${moduleName}/updateShadowFieldsFulfilled`),
 };
 
 export default FormDataActions;

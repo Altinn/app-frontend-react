@@ -8,7 +8,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { post } from 'src/utils/networking';
 import ProcessDispatcher from '../../../../shared/resources/process/processDispatcher';
 import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from '../../../../utils/databindings';
-import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from '../../../../utils/appUrlHelper';
+import { dataElementUrl, dataUrl, getStatelessFormDataUrl, getValidationUrl } from '../../../../utils/appUrlHelper';
 import { canFormBeSaved,
   hasValidationsOfSeverity,
   getValidator,
@@ -202,6 +202,30 @@ export function* saveStatelessData(state: IRuntimeState, model: any) {
   yield call(FormDynamicsActions.checkIfConditionalRulesShouldRun);
 }
 
+export function* saveShadowFieldsSaga() {
+  const state: IRuntimeState = yield select();
+  const dataElements = state.instanceData.instance.data;
+  if (dataElements.length === 0 || !dataElements.find(e => e.dataType === 'shadow-fields')) {
+    yield call(
+      post,
+      dataUrl('shadow-fields'),
+      {headers: {
+        'Content-Disposition': 'attachment; filename="shadow-fields.json"',
+      }},
+      state.formData.shadowFields);
+  } else {
+    const dataElementGuid = dataElements.find(e => e.dataType === 'shadow-fields').id;
+    yield call(
+      put,
+      dataElementUrl(dataElementGuid),
+      state.formData.shadowFields,
+      {headers: {
+        'Content-Disposition': 'attachment; filename="shadow-fields.json"',
+      }
+    });
+  }
+}
+
 function* autoSaveSaga(): SagaIterator {
   const uiConfig: IUiConfig = yield select(UIConfigSelector);
   if (uiConfig.autoSave !== false) {
@@ -220,4 +244,8 @@ export function* watchSaveFormDataSaga(): SagaIterator {
 
 export function* watchAutoSaveSaga(): SagaIterator {
   yield takeLatest(FormDataActions.updateFormDataFulfilled, autoSaveSaga);
+}
+
+export function* watchSaveShadowFieldsSaga(): SagaIterator {
+  yield takeLatest(FormDataActions.updateShadowFieldsFulfilled, saveShadowFieldsSaga)
 }

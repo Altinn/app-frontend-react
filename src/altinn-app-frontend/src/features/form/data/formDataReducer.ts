@@ -7,7 +7,6 @@ import { IFetchFormDataFulfilled,
   IFormDataRejected,
   ISubmitDataAction,
   IUpdateFormDataFulfilled } from './formDataTypes';
-
 export interface IFormData {
   [dataFieldKey: string]: string;
 }
@@ -21,6 +20,7 @@ export interface IFormDataState {
   isSaving: boolean;
   hasSubmitted: boolean;
   ignoreWarnings: boolean;
+  shadowFields?: IFormData;
 }
 
 const initialState: IFormDataState = {
@@ -32,6 +32,7 @@ const initialState: IFormDataState = {
   isSaving: false,
   hasSubmitted: false,
   ignoreWarnings: false,
+  shadowFields: {},
 };
 
 const isProcessAction = (action: AnyAction) => {
@@ -88,6 +89,18 @@ const FormDataReducer = createReducer(initialState, (builder) => {
     })
     .addCase(FormLayoutActions.updateCurrentViewFulfilled, (state) => {
       state.hasSubmitted = false;
+    })
+    .addCase(FormDataActions.updateShadowFieldsFulfilled, (state, action: PayloadAction<IUpdateFormDataFulfilled>) => {
+      const { field, data } = action.payload;
+      if (data === undefined || data === null || data === '') {
+        delete state.shadowFields[field];
+      } else {
+        state.shadowFields[field] = data;
+      }
+    })
+    .addCase(FormDataActions.fetchShadowFieldsFulfilled, (state, action: PayloadAction<IFetchFormDataFulfilled>) => {
+      const { formData } = action.payload;
+      state.shadowFields = formData;
     })
     .addMatcher(isUpdateDataFulfilled, (state, action: PayloadAction<IUpdateFormDataFulfilled>) => {
       const { field, data } = action.payload;

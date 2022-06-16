@@ -1,7 +1,7 @@
 import { SagaIterator } from 'redux-saga';
 import { fork } from 'redux-saga/effects';
 import { watchFormDataSaga, watchFetchFormDataInitialSaga } from './fetch/fetchFormDataSagas';
-import { watchSaveFormDataSaga, watchSubmitFormSaga, watchAutoSaveSaga } from './submit/submitFormDataSagas';
+import { watchSaveFormDataSaga, watchSubmitFormSaga, watchAutoSaveSaga, watchSaveShadowFieldsSaga } from './submit/submitFormDataSagas';
 import { watchUpdateFormDataSaga } from './update/updateFormDataSagas';
 
 export default function* formDataSagas(): SagaIterator {
@@ -11,4 +11,5 @@ export default function* formDataSagas(): SagaIterator {
   yield fork(watchUpdateFormDataSaga);
   yield fork(watchFetchFormDataInitialSaga);
   yield fork(watchAutoSaveSaga);
+  yield fork(watchSaveShadowFieldsSaga);
 }

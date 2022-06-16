@@ -19,7 +19,7 @@ import FormDynamicsActions from '../../dynamics/formDynamicsActions';
 import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
 import { GET_INSTANCEDATA_FULFILLED } from '../../../../shared/resources/instanceData/get/getInstanceDataActionTypes';
 import { IProcessState } from '../../../../shared/resources/process/processReducer';
-import { getFetchFormDataUrl, getStatelessFormDataUrl, invalidateCookieUrl, redirectToUpgrade } from '../../../../utils/appUrlHelper';
+import { dataElementUrl, getFetchFormDataUrl, getStatelessFormDataUrl, invalidateCookieUrl, redirectToUpgrade } from '../../../../utils/appUrlHelper';
 import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { appMetaDataSelector,
@@ -53,6 +53,7 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
     // This is a temporary solution for the "one task - one datamodel - process"
     const applicationMetadata: IApplicationMetadata = yield select(appMetaDataSelector);
     let fetchedData: any;
+    let shadowFields: any;
 
     if (isStatelessApp(applicationMetadata)) {
       // stateless app
@@ -67,10 +68,19 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
       else {
         fetchedData = {};
       }
+
+      const shadowFieldsElement = instance.data.find(d => d.dataType === 'shadow-fields');
+      if (shadowFieldsElement) {
+        shadowFields = yield call(get, dataElementUrl(shadowFieldsElement.id));
+      }
     }
 
     const formData = convertModelToDataBinding(fetchedData);
     yield put(FormDataActions.fetchFormDataFulfilled({ formData }));
+
+    if (shadowFields) {
+      yield put(FormDataActions.fetchShadowFieldsFulfilled({ formData: shadowFields }));
+    }
 
     yield call(
       FormRulesActions.fetchRuleModel,

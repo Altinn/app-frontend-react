@@ -118,6 +118,14 @@ export function GenericComponent(props: IGenericComponentProps) {
     (state) => state.textResources.resources,
   );
 
+  const shadowFields = useAppSelector((state) => {
+    if (state.formData.shadowFields) {
+      return state.formData.shadowFields[`${currentView}.${props.id}`]
+    }
+    return;
+  }
+  );
+
   const texts = useAppSelector((state) =>
     selectComponentTexts(
       state.textResources.resources,
@@ -134,7 +142,7 @@ export function GenericComponent(props: IGenericComponentProps) {
     (state) => state.formValidations.validations[currentView]?.[props.id],
     shallowEqual,
   );
-  
+
   const formComponentContext = useMemo<IFormComponentContext>(() => {
     return {
       grid: props.grid,
@@ -158,6 +166,14 @@ export function GenericComponent(props: IGenericComponentProps) {
     skipValidation = false,
   ) => {
     if (!props.dataModelBindings || !props.dataModelBindings[key]) {
+      dispatch(
+        FormDataActions.updateFormData({
+          field: undefined,
+          data: value,
+          componentId: `${currentView}.${props.id}`,
+          skipValidation: true,
+        }),
+      );
       return;
     }
 
@@ -283,12 +299,14 @@ export function GenericComponent(props: IGenericComponentProps) {
     return getTextResourceByKey(key, textResources);
   };
 
+  const useFormData = Object.keys(formData).length > 0 ? formData : { simpleBinding: shadowFields };
+
   const componentProps: IComponentProps = {
     handleDataChange: handleDataUpdate,
     handleFocusUpdate,
     getTextResource: getTextResourceWrapper,
     getTextResourceAsString,
-    formData,
+    formData: useFormData,
     isValid,
     language,
     id,

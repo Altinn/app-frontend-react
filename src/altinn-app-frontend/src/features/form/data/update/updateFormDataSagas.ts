@@ -21,13 +21,17 @@ function* updateFormDataSaga({ payload: {
   try {
     const state: IRuntimeState = yield select();
     const focus = state.formLayout.uiConfig.focus;
+    const missingDataModel = Object.keys(state.formDataModel.schemas).length == 0;
 
-    if (!skipValidation) {
+    if (!(skipValidation || missingDataModel)) {
       yield call(runValidations, field, data, componentId, state);
     }
 
     if (shouldUpdateFormData(state.formData.formData[field], data)) {
-      if (!skipAutoSave) {
+      if (!field) {
+        yield put(FormDataActions.updateShadowFieldsFulfilled({ field: componentId, data}));
+      }
+      else if (!skipAutoSave) {
         yield put(FormDataActions.updateFormDataFulfilled({ field, data }));
       } else {
         yield put(FormDataActions.updateFormDataSkipAutosave({ field, data }));
