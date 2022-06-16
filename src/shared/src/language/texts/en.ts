@@ -41,7 +41,7 @@ export function en() {
       back_to_summary: 'Return to summary',
       error_report_header: 'There is a problem',
       error_report_description: 'The form contains errors that prevent it from being submitted. Try submitting again once the errors are corrected.',
-      error_required: 'Field is required',
+      error_required: 'You have to fill out {0}.',
       file_upload_valid_file_format_all: 'all',
       file_uploader_add_attachment: 'Add more attachments',
       file_uploader_drag: 'Drag and drop or',
@@ -75,6 +75,11 @@ export function en() {
       required_label: '*',
       summary_item_change: 'Change',
       summary_go_to_correct_page: 'Go to the correct page in the form',
+      address: 'Street Address',
+      careOf: 'C/O or other additional address',
+      houseNumber: 'House Number',
+      postPlace: 'Post Place',
+      zipCode: 'Zip Code',
     },
     navigation: {
       main: 'App navigation',
@@ -214,6 +219,14 @@ export function en() {
       log_out: 'Log out',
       profile_icon_aria_label: 'Profile icon button',
     },
+    soft_validation: {
+      info_title: 'Information',
+      warning_title: 'Note',
+      success_title: 'How great!'
+    },
+    validation: {
+      generic_field: 'this field',
+    },
     validation_errors: {
       min: 'Minimum valid value is {0}',
       max: 'Maximum valid value is {0}',
@@ -224,10 +237,5 @@ export function en() {
       required: 'Field is required',
       enum: 'Only the values {0} are permitted',
     },
-    soft_validation: {
-      info_title: 'Information',
-      warning_title: 'Note',
-      success_title: 'How great!'
-    }
   };
 }
