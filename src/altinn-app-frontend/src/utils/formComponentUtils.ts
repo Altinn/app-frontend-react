@@ -218,7 +218,7 @@ export const getDisplayFormData = (
       if (!formDataValue || (Array.isArray(formDataValue) && !formDataValue.length)) {
         return '';
       }
-      const attachmentNamesList = [...formDataValue].map((uuid) => {
+      const attachmentNamesList = (Array.isArray(formDataValue) ? formDataValue : [formDataValue]).map((uuid) => {
         const attachmentsForComponent = attachments[componentId];
         if (attachmentsForComponent) {
           const foundAttachment = attachmentsForComponent.find((a) => a.id === uuid);
