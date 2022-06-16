@@ -30,7 +30,6 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 
 export interface IGenericComponentProps {
   id: string;
-  baseComponentId?: string;
   type: string;
   textResourceBindings: ITextResourceBindings;
   dataModelBindings: IDataModelBindings;
@@ -135,7 +134,7 @@ export function GenericComponent(props: IGenericComponentProps) {
     (state) => state.formValidations.validations[currentView]?.[props.id],
     shallowEqual,
   );
-  
+
   const formComponentContext = useMemo<IFormComponentContext>(() => {
     return {
       grid: props.grid,

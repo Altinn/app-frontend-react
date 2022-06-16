@@ -139,17 +139,13 @@ const attachmentReducer: Reducer<IAttachmentState> = (
     }
 
     case (AttachmentActionsTypes.DELETE_ATTACHMENT): {
-      const { attachment, attachmentType } =
-        action as deleteActions.IDeleteAttachmentAction;
-      const newAttachment = { ...attachment, deleting: true };
-      const index = state.attachments[attachmentType].findIndex((element) => element.id === attachment.id);
-      if (index < 0) {
-        return state;
-      }
+      const { componentId, index } = action as deleteActions.IDeleteAttachmentAction;
       return update<IAttachmentState>(state, {
         attachments: {
-          [attachmentType]: {
-            [index]: { $set: newAttachment },
+          [componentId]: {
+            [index]: {
+              deleting: { $set: true },
+            },
           },
         },
       });

@@ -21,6 +21,8 @@ describe('attachmentReducer', () => {
       } as IAttachment,
       attachmentType: 'someType',
       componentId: 'someComponentId',
+      dataModelBindings: {},
+      index: 0,
     };
     const newState = attachmentReducer(state, action);
     expect(newState.attachments.someType[0].deleting).toBeTruthy();
