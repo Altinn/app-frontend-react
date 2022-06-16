@@ -42,7 +42,7 @@
           "type": "string",
           "title": "Type",
           "description": "The component type.",
-          "enum": ["AddressComponent", "AttachmentList", "Button", "Checkboxes", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Group", "Header", "Image", "Input", "InstantiationButton", "NavigationButtons", "NavigationBar", "Paragraph", "RadioButtons", "Summary", "TextArea" ]
+          "enum": ["AddressComponent", "AttachmentList", "Button", "Checkboxes", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Group", "Header", "Image", "Input", "InstantiationButton", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "RadioButtons", "Summary", "TextArea"]
         },
         "required": {
           "type": "boolean",
@@ -127,7 +127,8 @@
         { "if": {"properties": {"type": { "const": "NavigationButtons"}}}, "then": { "$ref": "#/definitions/navigationButtonsComponent"}},
         { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
         { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}},
-        { "if": {"properties": {"type": { "const": "Header"}}}, "then": {"$ref": "#/definitions/headerComponent"}}
+        { "if": {"properties": {"type": { "const": "Header"}}}, "then": {"$ref": "#/definitions/headerComponent"}},
+        { "if": {"properties": {"type": { "const": "Panel"}}}, "then": {"$ref": "#/definitions/panelComponent"}}
       ]
     },
     "headerComponent": {
@@ -140,6 +141,23 @@
         }
       },
       "required": ["size"]
+    },
+    "panelComponent": {
+      "properties": {
+        "variant": {
+          "title": "Panel variant",
+          "description": "Change the look of the panel.",
+          "type": "string",
+          "enum": ["info", "warning", "success"],
+          "default": "info"
+        },
+        "showIcon": {
+          "title": "Show icon",
+          "description": "Boolean value indicating if the icon should be shown.",
+          "type": "boolean",
+          "default": true
+        }
+      }
     },
     "fileUploadComponent": {
       "properties": {
