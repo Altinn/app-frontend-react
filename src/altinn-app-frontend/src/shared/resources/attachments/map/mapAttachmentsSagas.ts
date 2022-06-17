@@ -35,7 +35,7 @@ export const SelectApplicationMetaData =
 export const SelectFormData = (state:IRuntimeState) : IFormData => state.formData.formData;
 export const SelectFormLayouts = (state:IRuntimeState) : ILayouts => state.formLayout.layouts;
 
-  export function* mapAttachments(): SagaIterator {
+export function* mapAttachments(): SagaIterator {
   try {
     const instance = yield select(SelectInstance);
     const applicationMetadata = yield select(SelectApplicationMetaData);
