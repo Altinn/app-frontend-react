@@ -114,6 +114,7 @@ export function nb() {
       next: 'Neste',
       no_options: 'Ingen alternativer tilgjenglig',
       optional: 'Valgfri',
+      print_button: 'Print / Lagre PDF',
       required: 'Obligatorisk',
       save: 'Lagre',
       search: 'Søk',

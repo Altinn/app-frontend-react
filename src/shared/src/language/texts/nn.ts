@@ -111,6 +111,7 @@ export function nn() {
       next: 'Neste',
       no_options: 'Ingen alternativ tilgjengleg',
       optional: 'Valfri',
+      print_button: 'Print / Lagre PDF',
       required: 'Obligatorisk',
       save: 'Lagre',
       search: 'Søk',

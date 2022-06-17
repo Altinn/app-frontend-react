@@ -114,6 +114,7 @@ export function en() {
       next: 'Next',
       no_options: 'No options available',
       optional: 'Optional',
+      print_button: 'Print / Save as PDF',
       required: 'Required',
       save: 'Save',
       search: 'Search',

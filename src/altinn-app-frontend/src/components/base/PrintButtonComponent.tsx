@@ -3,6 +3,7 @@ import { IComponentProps } from 'src/components';
 import { AltinnButton } from 'altinn-shared/components';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { useAppSelector } from 'src/common/hooks';
+import { getLanguageFromKey } from 'altinn-shared/utils';
 
 export const PrintButtonComponent = ({
   textResourceBindings,
@@ -11,10 +12,12 @@ export const PrintButtonComponent = ({
   const textResources = useAppSelector(
     (state) => state.textResources.resources,
   );
+
   return (
     <AltinnButton
       btnText={getTextFromAppOrDefault(
-        textResourceBindings?.text || 'Print',
+        textResourceBindings?.text ||
+          getLanguageFromKey('general.print_button', language),
         textResources,
         language,
         null,
