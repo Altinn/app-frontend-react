@@ -11,7 +11,7 @@ import { selectFormLayouts } from "src/features/form/layout/update/updateFormLay
 import { getInitialStateMock } from "../../../../../__mocks__/mocks";
 import AttachmentDispatcher from "src/shared/resources/attachments/attachmentActions";
 import { IAttachments, IAttachment } from "src/shared/resources/attachments";
-import { ILayoutComponent } from "src/features/form/layout";
+import { ILayoutComponent, ILayoutGroup } from "src/features/form/layout";
 
 describe('mapAttachments', () => {
   it('should map attachments to repeating group rows', () => {
@@ -30,11 +30,31 @@ describe('mapAttachments', () => {
       },
       textResourceBindings: {},
     };
+    const uploaderInRepeatingGroup:ILayoutComponent = {
+      id: 'upload-in-repeating-group',
+      type: 'FileUpload',
+      dataModelBindings: {
+        simpleBinding: 'Group.SingleAttachment',
+      },
+      textResourceBindings: {},
+    };
+    const repeatingGroup:ILayoutGroup = {
+      id: 'repeating-group',
+      type: 'Group',
+      dataModelBindings: {
+        group: 'Group',
+      },
+      textResourceBindings: {},
+      maxCount: 3,
+      children: [uploaderInRepeatingGroup.id]
+    };
 
     state.formLayout.layouts = {
       FormLayout: [
         basicUploader,
         basicUploaderWithBindings,
+        repeatingGroup,
+        uploaderInRepeatingGroup,
       ],
     };
 
@@ -68,13 +88,21 @@ describe('mapAttachments', () => {
       id: 'attachment2',
       ...defaultAttachmentProps
     };
+    const attachment3:IAttachment = {
+      name: 'song3.mp3',
+      id: 'attachment3',
+      ...defaultAttachmentProps
+    };
+
     const expected:IAttachments = {
       [basicUploader.id]: [attachment1],
       [basicUploaderWithBindings.id + '-0']: [attachment2],
+      [uploaderInRepeatingGroup.id + '-0']: [attachment3],
     };
 
     state.formData.formData = {
       'Outside.AttachmentsWithBindings[0]': attachment2.id,
+      'Group[0].SingleAttachment': attachment3.id,
     };
 
     state.instanceData.instance.data.push({
@@ -87,6 +115,11 @@ describe('mapAttachments', () => {
       ...attachment2,
       ...defaultDataTypeProps,
       dataType: basicUploaderWithBindings.id,
+    }, {
+      filename: attachment3.name,
+      ...attachment3,
+      ...defaultDataTypeProps,
+      dataType: uploaderInRepeatingGroup.id,
     });
 
     return expectSaga(mapAttachments)
