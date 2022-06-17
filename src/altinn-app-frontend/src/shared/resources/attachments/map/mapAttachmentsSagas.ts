@@ -28,21 +28,23 @@ export function* watchMapAttachmentsSaga(): SagaIterator {
   yield takeLatest(AttachmentActionsTypes.MAP_ATTACHMENTS, mapAttachments);
 }
 
-export const selectAttachments = (state: IRuntimeState): IData[] => state.instanceData.instance.data;
-const SelectInstance = (state: IRuntimeState): IInstance => state.instanceData.instance;
-const SelectApplicationMetaData =
+export const SelectAttachments = (state: IRuntimeState): IData[] => state.instanceData.instance.data;
+export const SelectInstance = (state: IRuntimeState): IInstance => state.instanceData.instance;
+export const SelectApplicationMetaData =
   (state: IRuntimeState): IApplicationMetadata => state.applicationMetadata.applicationMetadata;
+export const SelectFormData = (state:IRuntimeState) : IFormData => state.formData.formData;
+export const SelectFormLayouts = (state:IRuntimeState) : ILayouts => state.formLayout.layouts;
 
-export function* mapAttachments(): SagaIterator {
+  export function* mapAttachments(): SagaIterator {
   try {
     const instance = yield select(SelectInstance);
     const applicationMetadata = yield select(SelectApplicationMetaData);
     const defaultElement = getCurrentTaskData(applicationMetadata, instance);
 
-    const formData = yield select((state:IRuntimeState) : IFormData => state.formData.formData);
-    const layouts = yield select((state:IRuntimeState) : ILayouts => state.formLayout.layouts);
+    const formData = yield select(SelectFormData);
+    const layouts = yield select(SelectFormLayouts);
 
-    const attachments: IData[] = yield select(selectAttachments);
+    const attachments: IData[] = yield select(SelectAttachments);
     const mappedAttachments: IAttachments = mapAttachmentListToAttachments(
       attachments, defaultElement.id, formData, layouts
     );
