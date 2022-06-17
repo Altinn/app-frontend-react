@@ -68,11 +68,11 @@ import {
   DELETE_ATTACHMENT_REJECTED, MAP_ATTACHMENTS_FULFILLED
 } from "src/shared/resources/attachments/attachmentActionTypes";
 
-const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
-const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
-const selectFormLayouts = (state: IRuntimeState): ILayouts => state.formLayout.layouts;
-const selectAttachmentState = (state: IRuntimeState): IAttachmentState => state.attachments;
-const selectValidations = (state: IRuntimeState): IValidations => state.formValidations.validations;
+export const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
+export const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
+export const selectFormLayouts = (state: IRuntimeState): ILayouts => state.formLayout.layouts;
+export const selectAttachmentState = (state: IRuntimeState): IAttachmentState => state.attachments;
+export const selectValidations = (state: IRuntimeState): IValidations => state.formValidations.validations;
 
 function* updateFocus({ payload: { currentComponentId, step } }: PayloadAction<IUpdateFocus>): SagaIterator {
   try {
@@ -92,7 +92,7 @@ function* updateFocus({ payload: { currentComponentId, step } }: PayloadAction<I
   }
 }
 
-function* updateRepeatingGroupsSaga({ payload: {
+export function* updateRepeatingGroupsSaga({ payload: {
   layoutElementId,
   remove,
   index,
