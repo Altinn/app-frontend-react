@@ -28,7 +28,7 @@ export function* watchMapAttachmentsSaga(): SagaIterator {
   yield takeLatest(AttachmentActionsTypes.MAP_ATTACHMENTS, mapAttachments);
 }
 
-export const SelectAttachments = (state: IRuntimeState): IData[] => state.instanceData.instance.data;
+export const SelectInstanceData = (state: IRuntimeState): IData[] => state.instanceData.instance.data;
 export const SelectInstance = (state: IRuntimeState): IInstance => state.instanceData.instance;
 export const SelectApplicationMetaData =
   (state: IRuntimeState): IApplicationMetadata => state.applicationMetadata.applicationMetadata;
@@ -44,9 +44,9 @@ export const SelectFormLayouts = (state:IRuntimeState) : ILayouts => state.formL
     const formData = yield select(SelectFormData);
     const layouts = yield select(SelectFormLayouts);
 
-    const attachments: IData[] = yield select(SelectAttachments);
+    const instanceAttachments: IData[] = yield select(SelectInstanceData);
     const mappedAttachments: IAttachments = mapAttachmentListToAttachments(
-      attachments, defaultElement.id, formData, layouts
+      instanceAttachments, defaultElement.id, formData, layouts
     );
 
     yield call(AttachmentDispatcher.mapAttachmentsFulfilled, mappedAttachments);
