@@ -480,7 +480,7 @@ describe('formComponentUtils', () => {
       });
   });
 
-  describe.only('getFieldName', () => {
+  describe('getFieldName', () => {
     const mockTextResources = [
       { id: 'title', value: 'Component name'},
       { id: 'short', value: 'name'},
