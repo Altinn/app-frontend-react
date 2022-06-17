@@ -18,20 +18,18 @@ const render = (
 };
 
 describe('PrintButton', () => {
-  it('should should display the default text if no textResource binding key is found', async () => {
-    render();
-    expect(screen.getByText('general.print_button')).toBeInTheDocument();
-  });
   it('should display the resource binding key if the text resource is not defined', async () => {
-    render({ textResourceBindings: { text: 'root.printButton.text' } });
-    expect(screen.getByText('root.printButton.text')).toBeInTheDocument();
+    render();
+    expect(screen.getByText('general.print_button_text')).toBeInTheDocument();
+    // this points to the default texts and can be overridden
+    // todo: write a test that actually displays the default text.
   });
   it('should display the resource if the resource is defined', async () => {
     render(
-      { textResourceBindings: { text: 'root.printButton.text' } },
+      {  } ,
       {
         textResources: {
-          resources: [{ id: 'root.printButton.text', value: 'Skriv ut' }],
+          resources: [{ id: 'general.print_button_text', value: 'Skriv ut' }],
         },
       },
     );
