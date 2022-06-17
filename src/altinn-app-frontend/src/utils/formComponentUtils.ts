@@ -257,7 +257,11 @@ export const getFormDataForComponentInRepeatingGroup = (
   let dataModelBinding = component.type === 'AddressComponent'
       ? component.dataModelBindings?.address
       : component.dataModelBindings?.simpleBinding;
-  if (isFileUploadComponent(component) || isFileUploadWithTagComponent(component) && component.dataModelBindings?.list) {
+  if (
+    (isFileUploadComponent(component) ||
+      isFileUploadWithTagComponent(component)) &&
+    component.dataModelBindings?.list
+  ) {
     dataModelBinding = component.dataModelBindings.list;
   }
 
