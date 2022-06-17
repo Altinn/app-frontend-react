@@ -1,8 +1,8 @@
 import React from 'react';
 import { IComponentProps } from 'src/components';
-import { AltinnButton } from 'altinn-shared/components';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { useAppSelector } from 'src/common/hooks';
+import { Button, ButtonVariant } from '@altinn/altinn-design-system';
 
 export const PrintButtonComponent = ({
   language,
@@ -12,16 +12,14 @@ export const PrintButtonComponent = ({
   );
 
   return (
-    <AltinnButton
-      btnText={getTextFromAppOrDefault(
+    <Button variant={ButtonVariant.Secondary} onClick={window.print}>
+      {getTextFromAppOrDefault(
         'general.print_button_text',
         textResources,
         language,
         null,
         true,
       )}
-      secondaryButton
-      onClickFunction={window.print}
-    />
+    </Button>
   );
 };
