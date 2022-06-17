@@ -225,6 +225,16 @@ export function en() {
       required: 'Field is required',
       enum: 'Only the values {0} are permitted',
     },
+    language: {
+      full_name: {
+        nb: 'Norwegian bokmål',
+        en: "English",
+        nn: "Norwegian nynorsk"
+      },
+      selector: {
+        label: 'Language'
+      }
+    },
     soft_validation: {
       info_title: 'Information',
       warning_title: 'Note',
