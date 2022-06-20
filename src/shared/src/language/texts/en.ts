@@ -162,6 +162,16 @@ export function en() {
       authorization_error_instantiate_validation_info_customer_service: 'If you need help, contact customer service at {0}.',
       starting: 'Seatbelts on, it\'s time to launch!',
     },
+    language: {
+      full_name: {
+        nb: 'Norwegian bokmål',
+        en: "English",
+        nn: "Norwegian nynorsk"
+      },
+      selector: {
+        label: 'Language'
+      }
+    },
     party_selection: {
       caption_prefix: 'Feil',
       invalid_selection_first_part: 'You started this app as',
