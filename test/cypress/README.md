@@ -55,13 +55,17 @@ Other remote environments could also be used (see `e2e/config/*.json`).
 2. Create (or update) `.env` file with the correct paths (see `template.env`)
 
 3. To start localtest, app frontend, and the app you configured above, run the command below.
-   (Skip to step 4 if the solutions are already running). The command will not finish, but it will start the app-frontend server in development mode. This command may take some time, depending on if LocalTest has been setup earlier or not, and if the docker cache is hit or not. When the output of this command seems to have stopped, you can continue to the next step.
+   (Skip to step 4 if the solutions are already running). The command will not finish, but it
+   will start the app-frontend server in development mode. This command may take some time,
+   depending on if LocalTest has been setup earlier or not, and if the docker cache is hit or not.
+   When the output of this command seems to have stopped, you can continue to the next step.
+   (`No errors found.` should be seen in the output.)
 
 ```cmd
     yarn run before:appfrontend
 ```
 
-4. Start the tests for a given app from a new terminal:
+4. Start the tests for a given app from a new terminal tab:
 
 ```cmd
     yarn run test:frontend -e environment=local
