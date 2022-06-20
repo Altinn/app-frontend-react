@@ -133,7 +133,7 @@ export const getDisplayFormData = (
   asObject?: boolean,
 ) => {
   let formDataValue = formData[dataModelBinding] || '';
-  if (component.dataModelBindings.list) {
+  if (component.dataModelBindings?.list) {
     formDataValue = Object.keys(formData)
       .filter((key) => key.startsWith(dataModelBinding))
       .map((key) => formData[key]);

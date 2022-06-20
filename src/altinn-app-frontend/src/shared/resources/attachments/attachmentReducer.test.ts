@@ -8,7 +8,7 @@ describe('attachmentReducer', () => {
   it('should set deleting to true when DELETE_ATTACHMENT action is received', () => {
     const state: IAttachmentState = {
       attachments: {
-        someType: [
+        someComponentId: [
           { id: 'someId', deleting: false, name: 'someName', size: 0, tags: [], uploaded: false, updating: false },
         ],
       },
@@ -25,13 +25,13 @@ describe('attachmentReducer', () => {
       index: 0,
     };
     const newState = attachmentReducer(state, action);
-    expect(newState.attachments.someType[0].deleting).toBeTruthy();
+    expect(newState.attachments.someComponentId[0].deleting).toBeTruthy();
   });
 
   it('should set deleting to false when DELETE_ATTACHMENT_REJECTED action is received', () => {
     const state: IAttachmentState = {
       attachments: {
-        someType: [
+        someComponentId: [
           { id: 'someId', deleting: true, name: 'someName', size: 0, tags: [], uploaded: false, updating: false },
         ],
       },
@@ -46,13 +46,13 @@ describe('attachmentReducer', () => {
       componentId: 'someComponentId',
     };
     const newState = attachmentReducer(state, action);
-    expect(newState.attachments.someType[0].deleting).toBeFalsy();
+    expect(newState.attachments.someComponentId[0].deleting).toBeFalsy();
   });
 
   it('should remove the attachment when DELETE_ATTACHMENT_FULFILLED action is received', () => {
     const state: IAttachmentState = {
       attachments: {
-        someType: [
+        someComponentId: [
           { id: 'someId', deleting: true, name: 'someName', size: 0, tags: [], uploaded: false, updating: false },
           { id: 'someOtherId', deleting: true, name: 'someName', size: 0, tags: [], uploaded: false, updating: false },
         ],
@@ -65,7 +65,7 @@ describe('attachmentReducer', () => {
       componentId: 'someComponentId',
     };
     const newState = attachmentReducer(state, action);
-    expect(newState.attachments.someType.length).toEqual(1);
-    expect(newState.attachments.someType[0].id).toEqual('someOtherId');
+    expect(newState.attachments.someComponentId.length).toEqual(1);
+    expect(newState.attachments.someComponentId[0].id).toEqual('someOtherId');
   });
 });
