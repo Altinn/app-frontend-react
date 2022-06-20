@@ -11,7 +11,12 @@ import type {
   IValidations
 } from 'src/types';
 import { Triggers } from 'src/types';
-import { mapFileUploadersWithTag, getRepeatingGroups, removeRepeatingGroupFromUIConfig } from 'src/utils/formLayout';
+import {
+  mapFileUploadersWithTag,
+  getRepeatingGroups,
+  removeRepeatingGroupFromUIConfig,
+  findChildren, isFileUploadComponent, isFileUploadWithTagComponent, splitDashedKey
+} from 'src/utils/formLayout';
 import type { AxiosRequestConfig } from 'axios';
 import { get, post } from 'altinn-shared/utils';
 import {
@@ -67,6 +72,8 @@ import {
   DELETE_ATTACHMENT_FULFILLED,
   DELETE_ATTACHMENT_REJECTED, MAP_ATTACHMENTS_FULFILLED
 } from "src/shared/resources/attachments/attachmentActionTypes";
+import AttachmentActions from 'src/shared/resources/attachments/attachmentActions';
+import { shiftAttachmentRowInRepeatingGroup } from "src/utils/attachment";
 
 export const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
 export const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
@@ -176,6 +183,21 @@ export function* updateRepeatingGroupsSaga({ payload: {
       }
 
       if (attachmentRemovalSuccessful) {
+        const attachments: IAttachmentState = yield select(selectAttachmentState);
+        const splitLayoutElementId = splitDashedKey(layoutElementId);
+        const childFileUploaders = findChildren(layout, {
+          matching: (c) => isFileUploadComponent(c) || isFileUploadWithTagComponent(c),
+          rootGroupId: splitLayoutElementId.baseComponentId,
+        })
+        let updatedAttachments = { ...attachments.attachments };
+        for (const component of childFileUploaders) {
+          updatedAttachments = shiftAttachmentRowInRepeatingGroup(
+            updatedAttachments,
+            layout,
+            `${component.id}${splitLayoutElementId.stringDepthWithLeadingDash}-${index}`,
+          );
+        }
+
         // Remove the form data associated with the group
         const updatedFormData = removeGroupData(formDataState.formData, index,
           layout, layoutElementId, repeatingGroup);
@@ -192,6 +214,7 @@ export function* updateRepeatingGroupsSaga({ payload: {
         updatedRepeatingGroups[layoutElementId].editIndex = -1;
         yield put(FormLayoutActions.updateRepeatingGroupsFulfilled({repeatingGroups: updatedRepeatingGroups}));
         yield put(FormDataActions.setFormDataFulfilled({ formData: updatedFormData }));
+        yield put(AttachmentActions.mapAttachmentsFulfilled(updatedAttachments));
         yield put(FormDataActions.saveFormData());
       } else {
         yield put(FormLayoutActions.updateRepeatingGroupsRemoveCancelled({

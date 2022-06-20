@@ -128,11 +128,11 @@ export function removeGroupData(
   const result = { ...formData };
   const groupDataModelBinding = getGroupDataModelBinding(repeatingGroup, groupId, layout);
 
-  deleteGroupData(result, groupDataModelBinding, index);
+  deleteGroupData(result, groupDataModelBinding, index, true);
 
   if (index < repeatingGroup.index + 1) {
     for (let i = index + 1; i <= repeatingGroup.index + 1; i++) {
-      deleteGroupData(result, groupDataModelBinding, i, true);
+      deleteGroupData(result, groupDataModelBinding, i, true, true);
     }
   }
 
@@ -156,35 +156,36 @@ export function removeAttachmentReference(
   if (dataModelBindings.simpleBinding && typeof result[dataModelBindings.simpleBinding] === 'string') {
     delete result[dataModelBindings.simpleBinding];
   } else if (dataModelBindings.list) {
-    deleteGroupData(result, dataModelBindings.list, index);
+    deleteGroupData(result, dataModelBindings.list, index, true);
 
     for (let laterIdx = index + 1; laterIdx <= attachments[componentId].length - 1; laterIdx++) {
-      deleteGroupData(result, dataModelBindings.list, laterIdx, true);
+      deleteGroupData(result, dataModelBindings.list, laterIdx, true, true);
     }
   }
 
   return result;
 }
 
-function deleteGroupData(
-  formData: any,
-  groupDataModelBinding: string,
+export function deleteGroupData(
+  data: {[key:string]:any},
+  keyStart: string,
   index: number,
+  isDataModelBinding: boolean,
   shiftData?: boolean,
 ) {
-  const prevData = { ...formData };
-  Object.keys(formData)
-    .filter((key) => key.startsWith(`${groupDataModelBinding}[${index}]`))
+  const prevData = { ...data };
+  Object.keys(data)
+    .filter((key) => key.startsWith(isDataModelBinding ? `${keyStart}[${index}]` : `${keyStart}-${index}`))
     .forEach((key) => {
       // eslint-disable-next-line no-param-reassign
-      delete formData[key];
+      delete data[key];
       if (shiftData) {
         const newKey = key.replace(
-          `${groupDataModelBinding}[${index}]`,
-          `${groupDataModelBinding}[${index - 1}]`,
+          isDataModelBinding ? `${keyStart}[${index}]` : `${keyStart}-${index}`,
+          isDataModelBinding ? `${keyStart}[${index - 1}]` : `${keyStart}-${index - 1}`,
         );
         // eslint-disable-next-line no-param-reassign
-        formData[newKey] = prevData[key];
+        data[newKey] = prevData[key];
       }
     });
 }

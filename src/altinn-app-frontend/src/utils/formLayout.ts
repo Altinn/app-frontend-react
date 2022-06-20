@@ -21,6 +21,7 @@ import { IDatePickerProps } from "src/components/base/DatepickerComponent";
 interface SplitKey {
   baseComponentId: string;
   stringDepth: string;
+  stringDepthWithLeadingDash: string;
   depth: number[];
 }
 
@@ -30,6 +31,7 @@ interface SplitKey {
  *   {
  *     baseComponentId: 'myComponent',
  *     stringDepth: '0-1',
+ *     stringDepthWithLeadingDash: '-0-1',
  *     depth: [0, 1],
  *   }
  */
@@ -47,9 +49,11 @@ export function splitDashedKey(componentId:string):SplitKey {
       depth.push(parseInt(toConsider, 10));
     } else {
       depth.reverse();
+      const stringDepth = depth.join('-').toString();
       return {
         baseComponentId: [...parts, toConsider].join('-'),
-        stringDepth: depth.join('-').toString(),
+        stringDepth: stringDepth,
+        stringDepthWithLeadingDash: stringDepth ? `-${stringDepth}` : '',
         depth: depth,
       };
     }
@@ -58,6 +62,7 @@ export function splitDashedKey(componentId:string):SplitKey {
   return {
     baseComponentId: componentId,
     stringDepth: '',
+    stringDepthWithLeadingDash: '',
     depth: [],
   };
 }

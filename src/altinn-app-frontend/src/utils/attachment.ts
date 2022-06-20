@@ -1,8 +1,8 @@
 import type { IData } from 'altinn-shared/types';
 import type { IAttachments } from '../shared/resources/attachments';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
-import { getKeyIndex } from "src/utils/databindings";
-import { ILayouts, ILayoutComponent, ILayoutGroup } from "src/features/form/layout";
+import { getKeyIndex, deleteGroupData } from "src/utils/databindings";
+import { ILayouts, ILayoutComponent, ILayoutGroup, ILayout } from "src/features/form/layout";
 import { isFileUploadComponent, isFileUploadWithTagComponent } from "src/utils/formLayout";
 
 export function mapAttachmentListToAttachments(
@@ -112,6 +112,36 @@ export function removeFileEnding(filename: string): string {
     return filename;
   }
   return filename.replace(`.${split[split.length - 1]}`, '');
+}
+
+/**
+ * When removing a row in a repeating group, this function shifts attachments bound to later rows upwards.
+ */
+export function shiftAttachmentRowInRepeatingGroup(
+  attachments: IAttachments,
+  layout: ILayout,
+  componentId: string,
+):IAttachments {
+  const result = { ...attachments };
+
+  const match = componentId.match(/^(.*)-(\d+)$/);
+  const [baseComponentId, index] = [match[1], parseInt(match[2], 10)];
+
+  let lastIndex = -1;
+  for (const key of Object.keys(attachments)) {
+    if (key.startsWith(baseComponentId)) {
+      const match = key.substring(baseComponentId.length).match(/^-(\d+)$/);
+      if (match) {
+        lastIndex = Math.max(lastIndex, parseInt(match[1], 10));
+      }
+    }
+  }
+
+  for (let laterIdx = index + 1; laterIdx <= lastIndex; laterIdx++) {
+    deleteGroupData(result, baseComponentId, laterIdx, false, true);
+  }
+
+  return result;
 }
 
 export const AsciiUnitSeparator = String.fromCharCode(31); // Used to separate units within a string.
