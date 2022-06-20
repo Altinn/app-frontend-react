@@ -193,14 +193,12 @@ export function* updateRepeatingGroupsSaga({ payload: {
           matching: (c) => isFileUploadComponent(c) || isFileUploadWithTagComponent(c),
           rootGroupId: splitLayoutElementId.baseComponentId,
         })
-        let updatedAttachments = { ...attachments.attachments };
-        for (const component of childFileUploaders) {
-          updatedAttachments = shiftAttachmentRowInRepeatingGroup(
-            updatedAttachments,
-            layout,
-            `${component.id}${splitLayoutElementId.stringDepthWithLeadingDash}-${index}`,
-          );
-        }
+        const updatedAttachments = shiftAttachmentRowInRepeatingGroup(
+          attachments.attachments,
+          childFileUploaders,
+          layoutElementId,
+          index,
+        );
 
         // Remove the form data associated with the group
         const updatedFormData = removeGroupData(formDataState.formData, index,

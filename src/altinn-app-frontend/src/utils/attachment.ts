@@ -2,8 +2,8 @@ import type { IData } from 'altinn-shared/types';
 import type { IAttachments } from '../shared/resources/attachments';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
 import { getKeyIndex, deleteGroupData } from "src/utils/databindings";
-import { ILayouts, ILayoutComponent, ILayoutGroup, ILayout } from "src/features/form/layout";
-import { isFileUploadComponent, isFileUploadWithTagComponent } from "src/utils/formLayout";
+import { ILayouts, ILayoutComponent, ILayoutGroup } from "src/features/form/layout";
+import { isFileUploadComponent, isFileUploadWithTagComponent, splitDashedKey } from "src/utils/formLayout";
 
 export function mapAttachmentListToAttachments(
   data: IData[],
@@ -115,30 +115,31 @@ export function removeFileEnding(filename: string): string {
 }
 
 /**
- * When removing a row in a repeating group, this function shifts attachments bound to later rows upwards.
+ * When removing a row in a repeating group, this function shifts attachments bound to later rows upwards. Pass in the
+ * groupId and index for the row being deleted.
  */
 export function shiftAttachmentRowInRepeatingGroup(
   attachments: IAttachments,
-  layout: ILayout,
-  componentId: string,
+  uploaderComponents:ILayoutComponent[],
+  groupId: string,
+  index: number,
 ):IAttachments {
   const result = { ...attachments };
-
-  const match = componentId.match(/^(.*)-(\d+)$/);
-  const [baseComponentId, index] = [match[1], parseInt(match[2], 10)];
+  const splitId = splitDashedKey(groupId);
+  const lookForComponents = new Set(uploaderComponents.map((c) => c.id));
 
   let lastIndex = -1;
   for (const key of Object.keys(attachments)) {
-    if (key.startsWith(baseComponentId)) {
-      const match = key.substring(baseComponentId.length).match(/^-(\d+)$/);
-      if (match) {
-        lastIndex = Math.max(lastIndex, parseInt(match[1], 10));
-      }
+    const thisSplitId = splitDashedKey(key);
+    if (lookForComponents.has(thisSplitId.baseComponentId)) {
+      lastIndex = Math.max(lastIndex, thisSplitId.depth[splitId.depth.length] || -1);
     }
   }
 
   for (let laterIdx = index + 1; laterIdx <= lastIndex; laterIdx++) {
-    deleteGroupData(result, baseComponentId, laterIdx, false, true);
+    for (const componentId of lookForComponents) {
+      deleteGroupData(result, componentId + splitId.stringDepthWithLeadingDash, laterIdx, false, true);
+    }
   }
 
   return result;
