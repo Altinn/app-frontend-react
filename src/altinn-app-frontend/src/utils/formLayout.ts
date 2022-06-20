@@ -370,6 +370,67 @@ export function hasRequiredFields(layout: ILayout) {
 }
 
 /**
+ * Find child components in layout (or inside some group) matching some criteria. Returns a list of just those
+ * components.
+ * @param layout Layout list
+ * @param options Optional options
+ * @param options.matching Function which should return true for every component to be included in the returned list.
+ *    If not provided, all components are returned.
+ * @param options.rootGroupId Component id for a group to use as root, instead of iterating the entire layout.
+ */
+export function findChildren(
+  layout: ILayout,
+  options?: {
+    matching?:(component:ILayoutComponent)=>boolean,
+    rootGroupId?:string
+  },
+):ILayoutComponent[] {
+  const out:ILayoutComponent[] = [];
+  const root:string = options?.rootGroupId || '';
+  const toConsider = new Set<string>();
+  const otherGroupComponents:{[groupId:string]:Set<string>} = {};
+
+  if (root) {
+    for (const item of layout) {
+      if (isGroupComponent(item)) {
+        for (const childId of item.children) {
+          const cleanId = item.edit?.multiPage ? childId.match(/^\d+:(.*)$/)[1] : childId;
+          if (item.id === root) {
+            toConsider.add(cleanId);
+          } else {
+            if (typeof otherGroupComponents[item.id] === 'undefined') {
+              otherGroupComponents[item.id] = new Set();
+            }
+            otherGroupComponents[item.id].add(cleanId);
+          }
+        }
+      }
+    }
+
+    // Go over other groups, catching child groups defined out-of-order
+    for (const otherGroupId in otherGroupComponents) {
+      if (toConsider.has(otherGroupId)) {
+        otherGroupComponents[otherGroupId].forEach((id) => toConsider.add(id));
+      }
+    }
+  }
+
+  for (const item of layout) {
+    if (isGroupComponent(item) || (root && !toConsider.has(item.id))) {
+      continue;
+    }
+    if (options && options.matching) {
+      options.matching(item) && out.push(item);
+    } else {
+      out.push(item);
+    }
+  }
+
+  return out;
+}
+
+
+/**
  * Type guards for inferring component types
  * @see https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
  */

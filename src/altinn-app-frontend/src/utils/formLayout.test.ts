@@ -12,7 +12,7 @@ import {
   getRepeatingGroups,
   hasRequiredFields,
   removeRepeatingGroupFromUIConfig,
-  setMappingForRepeatingGroupComponent,
+  setMappingForRepeatingGroupComponent, findChildren,
 } from './formLayout';
 
 describe('setMappingForRepeatingGroupComponent', () => {
@@ -33,53 +33,54 @@ describe('setMappingForRepeatingGroupComponent', () => {
 });
 
 describe('formLayout', () => {
+  const testLayout: ILayout = [
+    {
+      id: 'Group1',
+      type: 'group',
+      dataModelBindings: {
+        group: 'Group1',
+      },
+      children: ['field1', 'Group2'],
+      maxCount: 3,
+    } as ILayoutGroup,
+    {
+      id: 'Group2',
+      type: 'Group',
+      dataModelBindings: {
+        group: 'Group1.Group2',
+      },
+      maxCount: 4,
+      children: ['field2'],
+    } as ILayoutGroup,
+    {
+      id: 'field1',
+      type: 'Input',
+      dataModelBindings: {
+        simple: 'Group1.prop1',
+      },
+      textResourceBindings: {
+        title: 'Title',
+      },
+      readOnly: false,
+      required: false,
+      disabled: false,
+    } as ILayoutComponent,
+    {
+      id: 'field2',
+      type: 'Input',
+      dataModelBindings: {
+        simple: 'Group1.Group2.prop1',
+      },
+      textResourceBindings: {
+        title: 'Title',
+      },
+      readOnly: false,
+      required: false,
+      disabled: false,
+    } as ILayoutComponent,
+  ];
+
   it('getRepeatingGroups should handle nested groups', () => {
-    const testLayout: ILayout = [
-      {
-        id: 'Group1',
-        type: 'group',
-        dataModelBindings: {
-          group: 'Group1',
-        },
-        children: ['field1', 'Group2'],
-        maxCount: 3,
-      } as ILayoutGroup,
-      {
-        id: 'Group2',
-        type: 'Group',
-        dataModelBindings: {
-          group: 'Group1.Group2',
-        },
-        maxCount: 4,
-        children: ['field2'],
-      } as ILayoutGroup,
-      {
-        id: 'field1',
-        type: 'Input',
-        dataModelBindings: {
-          simple: 'Group1.prop1',
-        },
-        textResourceBindings: {
-          title: 'Title',
-        },
-        readOnly: false,
-        required: false,
-        disabled: false,
-      } as ILayoutComponent,
-      {
-        id: 'field2',
-        type: 'Input',
-        dataModelBindings: {
-          simple: 'Group1.Group2.prop1',
-        },
-        textResourceBindings: {
-          title: 'Title',
-        },
-        readOnly: false,
-        required: false,
-        disabled: false,
-      } as ILayoutComponent,
-    ];
     const formData = {
       'Group1[0].prop1': 'value-0-1',
       'Group1[0].Group2[0].group2prop': 'group2-0-0-value',
@@ -542,5 +543,114 @@ describe('formLayout', () => {
     ];
     const result = hasRequiredFields(layout);
     expect(result).toBeTruthy();
+  });
+
+  it('findChildren should work with simple layouts', () => {
+    const result1 = findChildren(testLayout);
+    expect(result1).toHaveLength(2);
+
+    const result2 = findChildren(testLayout, {rootGroupId: 'Group2'});
+    expect(result2).toHaveLength(1);
+    expect(result2[0].id).toEqual('field2');
+
+    const result3 = findChildren(testLayout, {matching: (c) => c.id === 'field1'});
+    expect(result3).toHaveLength(1);
+    expect(result3[0].id).toEqual('field1');
+
+    const result4 = findChildren(testLayout, {
+      matching: (c) => c.id === 'field1',
+      rootGroupId: 'Group2',
+    });
+    expect(result4).toHaveLength(0);
+  });
+
+  it('findChildren should work with multi-page groups', () => {
+    const layout:ILayout = [
+      {
+        id: 'field1',
+        type: 'Input',
+      } as ILayoutComponent,
+      {
+        id: 'group1',
+        type: 'Group',
+        children: ['0:field2', '1:field3:0'],
+        edit: {multiPage: true},
+      } as ILayoutGroup,
+      {
+        id: 'field2',
+        required: true,
+        type: 'Input',
+      } as ILayoutComponent,
+      {
+        id: 'field3:0',
+        required: false,
+        type: 'Input',
+      } as ILayoutComponent,
+    ];
+
+    const result1 = findChildren(layout, {
+      matching: (c) => c.required,
+      rootGroupId: 'group1',
+    });
+
+    expect(result1).toHaveLength(1);
+    expect(result1[0].id).toEqual('field2');
+
+    const result2 = findChildren(layout, {
+      rootGroupId: 'group1',
+    });
+
+    expect(result2).toHaveLength(2);
+    expect(result2.map(c => c.id)).toEqual(['field2', 'field3:0']);
+  });
+
+  it('findChildren should work with nested groups out-of-order', () => {
+    const layout:ILayout = [
+      {
+        id: 'field1',
+        type: 'Input',
+      } as ILayoutComponent,
+      {
+        id: 'group0',
+        type: 'Group',
+        children: ['field4'],
+        maxCount: 3,
+      } as ILayoutGroup,
+      {
+        id: 'group1',
+        type: 'Group',
+        children: ['field2', 'field3', 'group0'],
+        maxCount: 3,
+      } as ILayoutGroup,
+      {
+        id: 'field2',
+        required: true,
+        type: 'Input',
+      } as ILayoutComponent,
+      {
+        id: 'field3',
+        required: false,
+        type: 'Input',
+      } as ILayoutComponent,
+      {
+        id: 'field4',
+        required: true,
+        type: 'Input',
+      } as ILayoutComponent,
+    ];
+
+    const result1 = findChildren(layout, {
+      matching: (c) => c.required,
+    });
+
+    expect(result1).toHaveLength(2);
+    expect(result1.map(c => c.id)).toEqual(['field2', 'field4']);
+
+    const result2 = findChildren(layout, {
+      rootGroupId: 'group1',
+    });
+
+    expect(result2).toHaveLength(3);
+    expect(result2.map(c => c.id)).toEqual(['field2', 'field3', 'field4']);
   });
 });
