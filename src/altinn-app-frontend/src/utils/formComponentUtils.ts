@@ -246,6 +246,7 @@ export const getFormDataForComponentInRepeatingGroup = (
   options: IOptions,
 ) => {
   if (
+    !component.dataModelBindings ||
     component.type === 'Group' ||
     component.type === 'Header' ||
     component.type === 'Paragraph' ||

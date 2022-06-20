@@ -1,21 +1,21 @@
 /* eslint-disable max-len */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
-import { all, call, put, select, take, takeEvery, takeLatest, race } from 'redux-saga/effects';
-import type {
+import { actionChannel, all, call, put, select, take, takeEvery, takeLatest, race } from 'redux-saga/effects';
+import {
   IFileUploadersWithTag,
   IFormFileUploaderWithTagComponent,
   IRepeatingGroups,
   IRuntimeState,
   IValidationIssue,
-  IValidations
+  IValidations,
 } from 'src/types';
 import { Triggers } from 'src/types';
 import {
   mapFileUploadersWithTag,
+  findChildren, isFileUploadComponent, isFileUploadWithTagComponent, splitDashedKey,
   getRepeatingGroups,
   removeRepeatingGroupFromUIConfig,
-  findChildren, isFileUploadComponent, isFileUploadWithTagComponent, splitDashedKey
 } from 'src/utils/formLayout';
 import type { AxiosRequestConfig } from 'axios';
 import { get, post } from 'altinn-shared/utils';
@@ -75,11 +75,12 @@ import {
 import AttachmentActions from 'src/shared/resources/attachments/attachmentActions';
 import { shiftAttachmentRowInRepeatingGroup } from "src/utils/attachment";
 
-export const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
-export const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
-export const selectFormLayouts = (state: IRuntimeState): ILayouts => state.formLayout.layouts;
-export const selectAttachmentState = (state: IRuntimeState): IAttachmentState => state.attachments;
+const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
+const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
+const selectFormLayouts = (state: IRuntimeState): ILayouts => state.formLayout.layouts;
+const selectAttachmentState = (state: IRuntimeState): IAttachmentState => state.attachments;
 export const selectValidations = (state: IRuntimeState): IValidations => state.formValidations.validations;
+export const selectUnsavedChanges = (state: IRuntimeState): boolean => state.formData.unsavedChanges;
 
 function* updateFocus({ payload: { currentComponentId, step } }: PayloadAction<IUpdateFocus>): SagaIterator {
   try {
@@ -413,7 +414,16 @@ export function* watchInitialCalculagePageOrderAndMoveToNextPageSaga(): SagaIter
 }
 
 export function* watchUpdateCurrentViewSaga(): SagaIterator {
-  yield takeEvery(FormLayoutActions.updateCurrentView, updateCurrentViewSaga);
+  const requestChan = yield actionChannel(FormLayoutActions.updateCurrentView);
+  while (true) {
+    yield take(FormLayoutActions.updateCurrentView);
+    const hasUnsavedChanges = yield select(selectUnsavedChanges);
+    if (hasUnsavedChanges) {
+      yield take(FormDataActions.submitFormDataFulfilled);
+    }
+    const value = yield take(requestChan);
+    yield call(updateCurrentViewSaga, value);
+  }
 }
 
 export function* watchUpdateFocusSaga(): SagaIterator {

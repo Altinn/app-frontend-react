@@ -1508,7 +1508,9 @@ describe('utils > validation', () => {
           applicationMetadata: {
             dataTypes: [
               {
-                appLogic: {},
+                appLogic: {
+                  classRef: 'Altinn.App.Models.Skjema'
+                },
                 taskId: 'default',
                 maxCount: 0,
                 minCount: 0,
@@ -1589,7 +1591,9 @@ describe('utils > validation', () => {
           applicationMetadata: {
             dataTypes: [
               {
-                appLogic: {},
+                appLogic: {
+                  classRef: 'Altinn.App.Models.Skjema'
+                },
                 taskId: 'default',
                 maxCount: 0,
                 minCount: 0,
