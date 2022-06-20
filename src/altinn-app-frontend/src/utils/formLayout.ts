@@ -124,7 +124,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
               (_x: any, childGroupIndex: number) => {
                 const groupId = `${childGroup.id}-${childGroupIndex}`;
                 repeatingGroups[groupId] = {
-                  index: getIndexForRepeatingGroup(
+                  index: getIndexForNestedRepeatingGroup(
                     formData,
                     childGroup.dataModelBindings?.group,
                     groupElement.dataModelBindings.group,
@@ -174,13 +174,13 @@ export function mapFileUploadersWithTag(
   return fileUploaders;
 }
 
-function getIndexForRepeatingGroup(
+function getIndexForNestedRepeatingGroup(
   formData: any,
   groupBinding: string,
   parentGroupBinding: string,
   parentIndex: number,
 ): number {
-  const regex = new RegExp(/\[([0-9]+)](?!.*\[([0-9]+)])/);
+  const regex = new RegExp(/^.+?\[(\d+)].+?\[(\d+)]/);
   const indexedGroupBinding = groupBinding.replace(
     parentGroupBinding,
     `${parentGroupBinding}[${parentIndex}]`,
@@ -191,8 +191,8 @@ function getIndexForRepeatingGroup(
   if (groupFormData && groupFormData.length > 0) {
     const lastItem = groupFormData[groupFormData.length - 1];
     const match = lastItem.match(regex);
-    if (match && match[1]) {
-      return parseInt(match[1], 10);
+    if (match && match[2]) {
+      return parseInt(match[2], 10);
     }
   }
   return -1;
