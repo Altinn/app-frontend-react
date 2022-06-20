@@ -273,7 +273,7 @@ describe('utils/databindings.ts', () => {
     );
   });
 
-  describe.only('getFormDataFromFieldKey', () => {
+  describe('getFormDataFromFieldKey', () => {
     const formData = {
       'field1': 'value1',
       'group[0].field': 'someValue',
