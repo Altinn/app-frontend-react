@@ -9,11 +9,14 @@ import {
   IRuntimeState,
   IValidationIssue,
   IValidations,
+  Triggers,
 } from 'src/types';
-import { Triggers } from 'src/types';
 import {
   mapFileUploadersWithTag,
-  findChildren, isFileUploadComponent, isFileUploadWithTagComponent, splitDashedKey,
+  findChildren,
+  isFileUploadComponent,
+  isFileUploadWithTagComponent,
+  splitDashedKey,
   getRepeatingGroups,
   removeRepeatingGroupFromUIConfig,
 } from 'src/utils/formLayout';
@@ -75,10 +78,10 @@ import {
 import AttachmentActions from 'src/shared/resources/attachments/attachmentActions';
 import { shiftAttachmentRowInRepeatingGroup } from "src/utils/attachment";
 
-const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
-const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
-const selectFormLayouts = (state: IRuntimeState): ILayouts => state.formLayout.layouts;
-const selectAttachmentState = (state: IRuntimeState): IAttachmentState => state.attachments;
+export const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
+export const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
+export const selectFormLayouts = (state: IRuntimeState): ILayouts => state.formLayout.layouts;
+export const selectAttachmentState = (state: IRuntimeState): IAttachmentState => state.attachments;
 export const selectValidations = (state: IRuntimeState): IValidations => state.formValidations.validations;
 export const selectUnsavedChanges = (state: IRuntimeState): boolean => state.formData.unsavedChanges;
 
