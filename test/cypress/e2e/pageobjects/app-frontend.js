@@ -103,6 +103,7 @@ export default class AppFrontend {
     };
 
     const makeUploaderSelectors = (id, row, tablePreviewColumn) => ({
+      stateKey: `${id}-${row}`,
       dropZoneContainer: `#altinn-drop-zone-${id}-${row}`,
       dropZone: `#altinn-drop-zone-${id}-${row} input[type=file]`,
       attachments: [...Array(5)].map((_, idx) => ({

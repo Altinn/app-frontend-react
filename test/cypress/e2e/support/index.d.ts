@@ -84,5 +84,11 @@ declare namespace Cypress {
      * @example cy.startStateFullFromStateless()
      */
     startStateFullFromStateless(): Chainable<Element>;
+
+    /**
+     * Get the current redux state
+     * @example cy.getReduxState((state) => state.formData).should('have.length', 3)
+     */
+    getReduxState(selector?:(state:any)=>any):any;
   }
 }

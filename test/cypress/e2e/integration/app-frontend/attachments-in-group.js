@@ -61,6 +61,26 @@ describe('Repeating group attachments', () => {
     }
   };
 
+  const getState = (selector) => {
+    return cy.getReduxState((fullState) => {
+      const keys = Object.keys(fullState.attachments.attachments);
+      const out = {};
+
+      for (const key of keys) {
+        if (!key.startsWith('mainUploader') && !key.startsWith('nestedUploader')) {
+          continue;
+        }
+
+        out[key] = [];
+        for (const attachment of fullState.attachments.attachments[key]) {
+          out[key].push(attachment.name);
+        }
+      }
+
+      return selector ? selector(out) : out;
+    });
+  };
+
   it('Works when uploading attachments to repeating groups, supports deleting attachments and entire rows', () => {
     const filenames = [
       {
@@ -83,6 +103,10 @@ describe('Repeating group attachments', () => {
     ];
 
     uploadFile(appFrontend.group.rows[0].uploadSingle, 0, filenames[0].single, true);
+    getState().should('deep.equal', {
+      [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
+    });
+
     filenames[0].multi.forEach((fileName, idx) => {
       uploadFile(appFrontend.group.rows[0].uploadMulti, idx, fileName, true);
       if (idx !== filenames[0].multi.length - 1) {
@@ -102,6 +126,13 @@ describe('Repeating group attachments', () => {
       }
     });
     cy.get(appFrontend.group.saveMainGroup).click();
+
+    getState().should('deep.equal', {
+      [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
+      [appFrontend.group.rows[0].uploadMulti.stateKey]: filenames[0].multi,
+      [appFrontend.group.rows[1].uploadSingle.stateKey]: [filenames[1].single],
+      [appFrontend.group.rows[1].uploadMulti.stateKey]: filenames[1].multi,
+    });
 
     const deletedAttachmentNames = [];
     const verifyPreview = () => {
@@ -133,7 +164,15 @@ describe('Repeating group attachments', () => {
 
     verifyPreview();
 
-    // TODO: Verify that the now deleted attachment is gone (deleted via request)
+    getState().should('deep.equal', {
+      [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
+      [appFrontend.group.rows[0].uploadMulti.stateKey]: [
+        filenames[0].multi[0],
+        filenames[0].multi[2],
+      ],
+      [appFrontend.group.rows[1].uploadSingle.stateKey]: [filenames[1].single],
+      [appFrontend.group.rows[1].uploadMulti.stateKey]: filenames[1].multi,
+    });
 
     // TODO: Intercept the formData and verify that the attachment references are set correctly in the data model
     // TODO: Reload the page and verify that attachments are mapped correctly

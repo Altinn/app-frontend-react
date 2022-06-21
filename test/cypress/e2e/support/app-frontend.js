@@ -113,3 +113,13 @@ Cypress.Commands.add('startStateFullFromStateless', () => {
   cy.wait('@createInstance').its('response.statusCode').should('eq', 201);
   cy.wait('@getLayoutSettings');
 });
+
+Cypress.Commands.add('getReduxState', (selector) => {
+  return cy.window().its('reduxStore').invoke('getState').then((state) => {
+    if (selector) {
+      return selector(state);
+    }
+
+    return state;
+  });
+});

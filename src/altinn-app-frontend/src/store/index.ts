@@ -25,6 +25,11 @@ export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
 
 export const store = setupStore();
 
+// Expose store when running in Cypress
+if ((window as any).Cypress) {
+  (window as any).reduxStore = store;
+}
+
 export type RootState = ReturnType<typeof reducers>;
 export type AppStore = ReturnType<typeof setupStore>;
 export type AppDispatch = AppStore['dispatch'];
