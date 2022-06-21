@@ -39,6 +39,14 @@ export interface IComponentBindingValidation {
     | string
     | ReactNode
   )[];
+  info?: (
+    | string
+    | ReactNode
+  )[];
+  success?: (
+    | string
+    | ReactNode
+  )[];
   fixed?: (
     | string
     | ReactNode
@@ -107,6 +115,7 @@ export interface IPagesSettings {
   order: string[];
   triggers?: Triggers[];
   hideCloseButton?: boolean;
+  showLanguageSelector?: boolean;
 }
 
 export interface ILayoutNavigation {
@@ -238,6 +247,7 @@ export interface IUiConfig {
   layoutOrder: string[];
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
+  showLanguageSelector?: boolean;
 }
 
 export interface IValidationResult {
@@ -289,6 +299,7 @@ export enum Severity {
   Warning = 2,
   Informational = 3,
   Fixed = 4,
+  Success = 5,
 }
 
 export enum Triggers {

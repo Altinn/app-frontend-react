@@ -35,20 +35,15 @@ export const componentValidationsHandledByGenericComponent = (
   );
 };
 
-export const componentHasValidationMessages = (componentValidations) => {
+export const componentHasValidationMessages = (componentValidations: IComponentValidations) => {
   if (!componentValidations) {
     return false;
   }
-  let hasMessages = false;
-  Object.keys(componentValidations).forEach((key: string) => {
-    if (
-      componentValidations[key].errors.length > 0 ||
-      componentValidations[key].warnings.length > 0
-    ) {
-      hasMessages = true;
-    }
+  return Object.keys(componentValidations).some((key: string) => {
+    return Object.keys(componentValidations[key]).some(validationKey => {
+      return componentValidations[key][validationKey]?.length > 0;
+    });
   });
-  return hasMessages;
 };
 
 export const getComponentValidations = (
@@ -217,6 +212,7 @@ export const getFormDataForComponentInRepeatingGroup = (
   options: IOptions,
 ) => {
   if (
+    !component.dataModelBindings ||
     component.type === 'Group' ||
     component.type === 'Header' ||
     component.type === 'Paragraph' ||
@@ -251,7 +247,7 @@ export const isComponentValid = (
   let isValid = true;
 
   Object.keys(validations).forEach((key: string) => {
-    if (validations[key].errors.length > 0) {
+    if (validations[key].errors?.length > 0) {
       isValid = false;
     }
   });
@@ -361,7 +357,7 @@ export function getFileUploadWithTagComponentValidations(
   }
   if (
     validationMessages.simpleBinding !== undefined &&
-    validationMessages.simpleBinding.errors.length > 0
+    validationMessages.simpleBinding.errors?.length > 0
   ) {
     parseFileUploadComponentWithTagValidationObject(
       validationMessages.simpleBinding.errors as string[],

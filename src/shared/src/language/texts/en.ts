@@ -76,6 +76,11 @@ export function en() {
       summary_item_change: 'Change',
       summary_go_to_correct_page: 'Go to the correct page in the form',
     },
+    navigation: {
+      main: 'App navigation',
+      form: 'Form navigation',
+      to_main_content: 'Go to main content'
+    },
     general: {
       action: 'Action',
       add_connection: 'Add connection',
@@ -219,5 +224,20 @@ export function en() {
       required: 'Field is required',
       enum: 'Only the values {0} are permitted',
     },
+    language: {
+      full_name: {
+        nb: 'Norwegian bokmål',
+        en: "English",
+        nn: "Norwegian nynorsk"
+      },
+      selector: {
+        label: 'Language'
+      }
+    },
+    soft_validation: {
+      info_title: 'Information',
+      warning_title: 'Note',
+      success_title: 'How great!'
+    }
   };
 }

@@ -76,6 +76,11 @@ export function nb() {
       summary_item_change: 'Endre',
       summary_go_to_correct_page: 'Gå til riktig side i skjema',
     },
+    navigation: {
+      main: 'Appnavigasjon',
+      form: 'Skjemanavigasjon',
+      to_main_content: 'Hopp til hovedinnholdet'
+    },
     general: {
       action: 'Handling',
       add_connection: 'Legg til tilkobling',
@@ -152,6 +157,16 @@ export function nb() {
       authorization_error_instantiate_validation_info_customer_service: 'Om du står fast kontakt oss på brukerservice {0}.',
       starting: 'Hold deg fast, nå starter vi!',
     },
+    language: {
+      full_name: {
+        nb: 'Norsk bokmål',
+        en: "Engelsk",
+        nn: "Nynorsk"
+      },
+      selector: {
+        label: 'Språk'
+      }
+    },
     party_selection: {
       error_caption_prefix: 'Feil',
       invalid_selection_first_part: 'Du har startet tjenesten som',
@@ -219,5 +234,10 @@ export function nb() {
       required: 'Feltet er påkrevd',
       enum: 'Kun verdiene {0} er tillatt',
     },
+    soft_validation: {
+      info_title: 'Lurt å tenke på',
+      warning_title: 'OBS',
+      success_title: 'Så flott!'
+    }
   };
 }

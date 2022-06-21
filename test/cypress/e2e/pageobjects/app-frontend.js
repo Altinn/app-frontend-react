@@ -50,7 +50,9 @@ export default class AppFrontend {
 
     //field is a placeholder which has to be replaced with the selector value of the field
     this.fieldValidationError = '[id^="error_field"]';
-    this.fieldValidationWarning = '[id^="message_field"]';
+    this.fieldValidationWarning = '[id^="warning_field"]';
+    this.fieldValidationInfo = '[id^="info_field"]';
+    this.fieldValidationSuccess = '[id^="success_field"]';
 
     //selectors for ttd/frontend-test app
     //message - task_1
@@ -106,6 +108,7 @@ export default class AppFrontend {
       mainGroup: '#group-mainGroup',
       subGroup: '[id^="group-subGroup"]',
       currentValue: 'input[id^="currentValue"]',
+      navigationBarButton: '#form-content-nav2 > div > nav > button',
       newValue: 'input[id^="newValue"]',
       newValueLabel: 'label[for^="newValue"]',
       addNewItem: 'div[class*="addButton"]',
@@ -128,6 +131,7 @@ export default class AppFrontend {
       number: '#number',
       idnumber: '#idnummer',
       idnummer2: '#idnummer2',
+      dropdown: '#options',
     };
 
     this.reporteeSelection = {
