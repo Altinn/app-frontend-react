@@ -214,16 +214,21 @@ describe('Repeating group attachments', () => {
     });
 
     const deletedAttachmentNames = [];
-    const verifyPreview = () => {
-      verifyTableRowPreview(appFrontend.group.rows[0].uploadSingle, filenames[0].single, deletedAttachmentNames);
-      verifyTableRowPreview(appFrontend.group.rows[1].uploadSingle, filenames[1].single, deletedAttachmentNames);
-      verifyTableRowPreview(appFrontend.group.rows[0].uploadMulti, filenames[0].multi[0], deletedAttachmentNames);
-      verifyTableRowPreview(appFrontend.group.rows[0].uploadMulti, filenames[0].multi[1], deletedAttachmentNames);
-      verifyTableRowPreview(appFrontend.group.rows[0].uploadMulti, filenames[0].multi[2], deletedAttachmentNames);
-      verifyTableRowPreview(appFrontend.group.rows[1].uploadMulti, filenames[1].multi[0], deletedAttachmentNames);
-      verifyTableRowPreview(appFrontend.group.rows[1].uploadMulti, filenames[1].multi[1], deletedAttachmentNames);
-      verifyTableRowPreview(appFrontend.group.rows[1].uploadMulti, filenames[1].multi[2], deletedAttachmentNames);
-      verifyTableRowPreview(appFrontend.group.rows[1].uploadMulti, filenames[1].multi[3], deletedAttachmentNames);
+    const verifyPreview = (firstRowDeleted) => {
+      let idx = 0;
+      if (!firstRowDeleted) {
+        verifyTableRowPreview(appFrontend.group.rows[idx].uploadSingle, filenames[0].single, deletedAttachmentNames);
+        verifyTableRowPreview(appFrontend.group.rows[idx].uploadMulti, filenames[0].multi[0], deletedAttachmentNames);
+        verifyTableRowPreview(appFrontend.group.rows[idx].uploadMulti, filenames[0].multi[1], deletedAttachmentNames);
+        verifyTableRowPreview(appFrontend.group.rows[idx].uploadMulti, filenames[0].multi[2], deletedAttachmentNames);
+        idx++;
+      }
+
+      verifyTableRowPreview(appFrontend.group.rows[idx].uploadSingle, filenames[1].single, deletedAttachmentNames);
+      verifyTableRowPreview(appFrontend.group.rows[idx].uploadMulti, filenames[1].multi[0], deletedAttachmentNames);
+      verifyTableRowPreview(appFrontend.group.rows[idx].uploadMulti, filenames[1].multi[1], deletedAttachmentNames);
+      verifyTableRowPreview(appFrontend.group.rows[idx].uploadMulti, filenames[1].multi[2], deletedAttachmentNames);
+      verifyTableRowPreview(appFrontend.group.rows[idx].uploadMulti, filenames[1].multi[3], deletedAttachmentNames);
     };
 
     verifyPreview();
@@ -315,10 +320,47 @@ describe('Repeating group attachments', () => {
     cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormData);
     getState().should('deep.equal', expectedAttachmentState);
 
-    // TODO: Test deleting an entire row, and that attachments are shifted upwards
-    // TODO: Test that deleting an entire first-level row also deletes nested attachments
-    // TODO: Test adding a new row after deleting a row and verify that there are now attachments in the new row
-    // TODO: Test that there are no nested attachments in a new row after deleting a row
-    // TODO: Reload the page again and verify that attachments are mapped correctly
+    // Delete the entire first row. This should cascade down and delete all attachments inside that row, and inside
+    // nested rows.
+    cy.get(appFrontend.group.rows[0].editBtn).click();
+    cy.get(appFrontend.group.delete).click();
+    verifyPreview(true);
+
+    const expectedAttachmentStateAfterDeletingFirstRow = {
+      [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[1].single],
+      [appFrontend.group.rows[0].uploadMulti.stateKey]: filenames[1].multi,
+      [appFrontend.group.rows[0].nestedGroup.rows[0].uploadTagMulti.stateKey]: filenames[1].nested[0],
+      [appFrontend.group.rows[0].nestedGroup.rows[1].uploadTagMulti.stateKey]: [
+        filenames[1].nested[1][0],
+        filenames[1].nested[1][2],
+      ],
+    };
+
+    const expectedFormDataAfterDeletingFirstRow = [
+      ['[0].fileUpload', filenames[1].single],
+      ['[0].fileUploadList[0]', filenames[1].multi[0]],
+      ['[0].fileUploadList[1]', filenames[1].multi[1]],
+      ['[0].fileUploadList[2]', filenames[1].multi[2]],
+      ['[0].fileUploadList[3]', filenames[1].multi[3]],
+
+      ['[0].nested-grp-1234[0].fileUploadList[0]', filenames[1].nested[0][0]],
+      ['[0].nested-grp-1234[0].fileUploadList[1]', filenames[1].nested[0][1]],
+      ['[0].nested-grp-1234[0].fileUploadList[2]', filenames[1].nested[0][2]],
+
+      ['[0].nested-grp-1234[1].fileUploadList[0]', filenames[1].nested[1][0]],
+      ['[0].nested-grp-1234[1].fileUploadList[1]', filenames[1].nested[1][2]],
+    ].sort();
+
+    getState().should('deep.equal', expectedAttachmentStateAfterDeletingFirstRow);
+    cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormDataAfterDeletingFirstRow);
+
+    // Reload the page again to verify that form data still maps attachments correctly after deleting the first row
+    cy.reload();
+    cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
+
+    getState().should('deep.equal', expectedAttachmentStateAfterDeletingFirstRow);
+    cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormDataAfterDeletingFirstRow);
+
+    // TODO: Test deleting an entire row inside the first nested group, and that attachments are shifted upwards
   });
 });
