@@ -81,6 +81,32 @@ describe('Repeating group attachments', () => {
     });
   };
 
+  const simplifyFormData = (s) => {
+    // Find all attachment IDs and add them to a mapping so we can replace them in formData with their file names,
+    // since all our file names are unique anyway, and the UUIDs will change every time.
+    const idToNameMapping = {};
+    for (const attachmentList of Object.values(s.attachments.attachments)) {
+      for (const attachment of attachmentList) {
+        if (attachment.id && attachment.name) {
+          idToNameMapping[attachment.id] = attachment.name;
+        }
+      }
+    }
+
+    const expectedPrefix = 'Endringsmelding-grp-9786.OversiktOverEndringene-grp-9788';
+    return Object.keys(s.formData.formData)
+      .filter((key) => key.startsWith(expectedPrefix))
+      .map((key) => {
+        const uuid = s.formData.formData[key];
+        if (idToNameMapping[uuid]) {
+          return [key.replace(expectedPrefix, ''), idToNameMapping[uuid]];
+        }
+
+        return [key.replace(expectedPrefix, ''), uuid];
+      })
+      .sort();
+  };
+
   it('Works when uploading attachments to repeating groups, supports deleting attachments and entire rows', () => {
     const filenames = [
       {
@@ -174,7 +200,18 @@ describe('Repeating group attachments', () => {
       [appFrontend.group.rows[1].uploadMulti.stateKey]: filenames[1].multi,
     });
 
-    // TODO: Intercept the formData and verify that the attachment references are set correctly in the data model
+    cy.getReduxState(simplifyFormData).should('deep.equal', [
+      ['[0].fileUpload', filenames[0].single],
+      ['[0].fileUploadList[0]', filenames[0].multi[0]],
+      ['[0].fileUploadList[1]', filenames[0].multi[2]],
+
+      ['[1].fileUpload', filenames[1].single],
+      ['[1].fileUploadList[0]', filenames[1].multi[0]],
+      ['[1].fileUploadList[1]', filenames[1].multi[1]],
+      ['[1].fileUploadList[2]', filenames[1].multi[2]],
+      ['[1].fileUploadList[3]', filenames[1].multi[3]],
+    ].sort());
+
     // TODO: Reload the page and verify that attachments are mapped correctly
     // TODO: Test uploading in nested groups
     // TODO: Test deleting an entire row, and that attachments are shifted upwards
