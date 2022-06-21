@@ -92,7 +92,7 @@ describe('UI Components', () => {
           .and('have.css', 'background-color', 'rgb(2, 47, 81)');
         cy.get(navButtons).last().should('have.css', 'background-color', 'rgba(0, 0, 0, 0)').click();
       });
-    cy.get(appFrontend.navMenu).find('li > button').first().should('not.have.attr', 'aria-current', 'page');
+    cy.get(`${appFrontend.navMenu} li:first-child > button`).should('not.have.attr', 'aria-current', 'page');
     cy.get(appFrontend.navMenu)
       .find('li > button')
       .then((navButtons) => {
