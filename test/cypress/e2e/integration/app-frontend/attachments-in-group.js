@@ -95,7 +95,7 @@ describe('Repeating group attachments', () => {
 
     const expectedPrefix = 'Endringsmelding-grp-9786.OversiktOverEndringene-grp-9788';
     return Object.keys(s.formData.formData)
-      .filter((key) => key.startsWith(expectedPrefix))
+      .filter((key) => key.startsWith(expectedPrefix) && key.includes('fileUpload'))
       .map((key) => {
         const uuid = s.formData.formData[key];
         if (idToNameMapping[uuid]) {
@@ -190,7 +190,7 @@ describe('Repeating group attachments', () => {
 
     verifyPreview();
 
-    getState().should('deep.equal', {
+    const expectedAttachmentState = {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
       [appFrontend.group.rows[0].uploadMulti.stateKey]: [
         filenames[0].multi[0],
@@ -198,9 +198,10 @@ describe('Repeating group attachments', () => {
       ],
       [appFrontend.group.rows[1].uploadSingle.stateKey]: [filenames[1].single],
       [appFrontend.group.rows[1].uploadMulti.stateKey]: filenames[1].multi,
-    });
+    };
+    getState().should('deep.equal', expectedAttachmentState);
 
-    cy.getReduxState(simplifyFormData).should('deep.equal', [
+    const expectedFormData = [
       ['[0].fileUpload', filenames[0].single],
       ['[0].fileUploadList[0]', filenames[0].multi[0]],
       ['[0].fileUploadList[1]', filenames[0].multi[2]],
@@ -210,13 +211,23 @@ describe('Repeating group attachments', () => {
       ['[1].fileUploadList[1]', filenames[1].multi[1]],
       ['[1].fileUploadList[2]', filenames[1].multi[2]],
       ['[1].fileUploadList[3]', filenames[1].multi[3]],
-    ].sort());
+    ].sort();
 
-    // TODO: Reload the page and verify that attachments are mapped correctly
+    cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormData);
+
+    // Reload tha page at this point to verify that attachments are mapped correctly from formData back to the
+    // correct attachment state.
+    cy.reload();
+    cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
+
+    cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormData);
+    getState().should('deep.equal', expectedAttachmentState);
+
     // TODO: Test uploading in nested groups
     // TODO: Test deleting an entire row, and that attachments are shifted upwards
     // TODO: Test that deleting an entire first-level row also deletes nested attachments
     // TODO: Test adding a new row after deleting a row and verify that there are now attachments in the new row
     // TODO: Test that there are no nested attachments in a new row after deleting a row
+    // TODO: Reload the page again and verify that attachments are mapped correctly
   });
 });
