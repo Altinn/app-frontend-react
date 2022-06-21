@@ -133,12 +133,12 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
             <div className='a-modal-content-target'>
               <div className='a-page a-current-page'>
                 <div className='modalPage'>
-                  <div className='modal-content'>
+                  <section className='modal-content' id='main-content'>
                     <Header {...props} />
                     <div className='modal-body a-modal-body'>
                       {props.children}
                     </div>
-                  </div>
+                  </section>
                 </div>
               </div>
             </div>
