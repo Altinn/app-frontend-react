@@ -115,6 +115,8 @@ export interface IPagesSettings {
   order: string[];
   triggers?: Triggers[];
   hideCloseButton?: boolean;
+  showProgress?: boolean;
+  showLanguageSelector?: boolean;
 }
 
 export interface ILayoutNavigation {
@@ -246,6 +248,8 @@ export interface IUiConfig {
   layoutOrder: string[];
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
+  showLanguageSelector?: boolean;
+  showProgress?: boolean;
 }
 
 export interface IValidationResult {

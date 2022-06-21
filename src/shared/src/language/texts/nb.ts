@@ -115,6 +115,7 @@ export function nb() {
       no_options: 'Ingen alternativer tilgjenglig',
       optional: 'Valgfri',
       print_button_text: 'Print / Lagre PDF',
+      progress: 'Side {0} av {1}',
       required: 'Obligatorisk',
       save: 'Lagre',
       search: 'Søk',
@@ -157,6 +158,16 @@ export function nb() {
       authorization_error_info_customer_service: 'Du kan også kontakte oss på brukerservice {0}.',
       authorization_error_instantiate_validation_info_customer_service: 'Om du står fast kontakt oss på brukerservice {0}.',
       starting: 'Hold deg fast, nå starter vi!',
+    },
+    language: {
+      full_name: {
+        nb: 'Norsk bokmål',
+        en: "Engelsk",
+        nn: "Nynorsk"
+      },
+      selector: {
+        label: 'Språk'
+      }
     },
     party_selection: {
       error_caption_prefix: 'Feil',
