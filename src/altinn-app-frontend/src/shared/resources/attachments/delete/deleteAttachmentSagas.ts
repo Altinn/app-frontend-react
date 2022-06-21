@@ -20,7 +20,6 @@ export function* deleteAttachmentSaga({
   attachmentType,
   componentId,
   dataModelBindings,
-  index,
 }: deleteActions.IDeleteAttachmentAction): SagaIterator {
   const language = yield select((s:IRuntimeState) => s.language.language);
   const currentView:string = yield select((s:IRuntimeState) => s.formLayout.uiConfig.currentView);
@@ -38,8 +37,8 @@ export function* deleteAttachmentSaga({
     if (response.status === 200) {
       if (dataModelBindings && (dataModelBindings.simpleBinding || dataModelBindings.list)) {
         yield put(FormDataActions.deleteAttachmentReference({
+          attachmentId: attachment.id,
           componentId,
-          index,
           dataModelBindings,
         }));
       }

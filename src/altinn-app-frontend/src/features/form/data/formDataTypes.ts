@@ -31,7 +31,7 @@ export interface IUpdateFormDataFulfilled {
 }
 
 export interface IDeleteAttachmentReference {
-  index: number;
+  attachmentId: string;
   componentId: string;
   dataModelBindings: IDataModelBindings;
 }

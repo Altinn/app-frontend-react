@@ -156,7 +156,6 @@ export function FileUploadComponent({
       fileType,
       id,
       dataModelBindings,
-      index,
     );
   };
 

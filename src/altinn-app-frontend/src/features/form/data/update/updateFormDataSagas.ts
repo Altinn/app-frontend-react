@@ -118,20 +118,24 @@ export function* watchUpdateFormDataSaga(): SagaIterator {
 }
 
 function* deleteAttachmentReferenceSaga({ payload: {
-  index,
+  attachmentId,
   componentId,
   dataModelBindings
 } }: PayloadAction<IDeleteAttachmentReference>): SagaIterator {
-  const formData: IFormData = yield select((s: IRuntimeState) => s.formData.formData);
-  const layouts: ILayouts = yield select((s: IRuntimeState) => s.formLayout.layouts);
-  const attachments: IAttachments = yield select((s: IRuntimeState) => s.attachments.attachments);
-  const currentView:string = yield select((s: IRuntimeState) => s.formLayout.uiConfig.currentView);
-  const layout = layouts[currentView];
+  try {
+    const formData: IFormData = yield select((s: IRuntimeState) => s.formData.formData);
+    const layouts: ILayouts = yield select((s: IRuntimeState) => s.formLayout.layouts);
+    const attachments: IAttachments = yield select((s: IRuntimeState) => s.attachments.attachments);
+    const currentView:string = yield select((s: IRuntimeState) => s.formLayout.uiConfig.currentView);
+    const layout = layouts[currentView];
 
-  const updatedFormData = removeAttachmentReference(formData, index, layout, attachments, dataModelBindings, componentId);
+    const updatedFormData = removeAttachmentReference(formData, attachmentId, layout, attachments, dataModelBindings, componentId);
 
-  yield put(FormDataActions.setFormDataFulfilled({ formData: updatedFormData }));
-  yield put(FormDataActions.saveFormData());
+    yield put(FormDataActions.setFormDataFulfilled({ formData: updatedFormData }));
+    yield put(FormDataActions.saveFormData());
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 export function* watchDeleteAttachmentReferenceSaga(): SagaIterator {

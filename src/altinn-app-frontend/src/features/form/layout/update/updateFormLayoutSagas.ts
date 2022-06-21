@@ -159,30 +159,28 @@ export function* updateRepeatingGroupsSaga({ payload: {
       // Find uploaded attachments inside group and delete them
       const childAttachments = findChildAttachments(formDataState.formData, attachments.attachments,
         layout, layoutElementId, repeatingGroup, index);
-      const idsExpectedToBeDeleted = new Set(childAttachments.map((c) => c.attachment.id));
-
-      for (const {attachment, component, componentId, index} of childAttachments) {
-        yield put(deleteAttachment(attachment, component.id, componentId, component.dataModelBindings, index));
-      }
 
       let attachmentRemovalSuccessful = true;
-      while (idsExpectedToBeDeleted.size) {
-        const completion: {
-          fulfilled?: IDeleteAttachmentActionFulfilled,
-          rejected?: IDeleteAttachmentActionRejected
-        } = yield race({
-          fulfilled: take(DELETE_ATTACHMENT_FULFILLED),
-          rejected: take(DELETE_ATTACHMENT_REJECTED),
-        });
-        const attachmentId = completion.fulfilled?.attachmentId || completion.rejected.attachment.id;
-        if (!idsExpectedToBeDeleted.has(attachmentId)) {
-          // Some other attachment elsewhere had its event complete, we'll ignore it
-          continue;
-        }
+      for (const {attachment, component, componentId} of childAttachments) {
+        yield put(deleteAttachment(attachment, component.id, componentId, component.dataModelBindings));
 
-        idsExpectedToBeDeleted.delete(attachmentId);
-        if (completion.rejected) {
-          attachmentRemovalSuccessful = false;
+        while (true) {
+          const completion: {
+            fulfilled?: IDeleteAttachmentActionFulfilled,
+            rejected?: IDeleteAttachmentActionRejected
+          } = yield race({
+            fulfilled: take(DELETE_ATTACHMENT_FULFILLED),
+            rejected: take(DELETE_ATTACHMENT_REJECTED),
+          });
+          const attachmentId = completion.fulfilled?.attachmentId || completion.rejected.attachment.id;
+          if (attachmentId !== attachment.id) {
+            // Some other attachment elsewhere had its event complete, we'll ignore it
+            continue;
+          }
+          if (completion.rejected) {
+            attachmentRemovalSuccessful = false;
+          }
+          break;
         }
       }
 

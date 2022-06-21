@@ -141,7 +141,7 @@ export function removeGroupData(
 
 export function removeAttachmentReference(
   formData: IFormData,
-  index: number,
+  attachmentId: string,
   layout: ILayout,
   attachments: IAttachments,
   dataModelBindings: IDataModelBindings,
@@ -156,6 +156,21 @@ export function removeAttachmentReference(
   if (dataModelBindings.simpleBinding && typeof result[dataModelBindings.simpleBinding] === 'string') {
     delete result[dataModelBindings.simpleBinding];
   } else if (dataModelBindings.list) {
+    let index = -1;
+    const dataModelWithoutIndex = getKeyWithoutIndex(dataModelBindings.list);
+    for (const key in result) {
+      if (getKeyWithoutIndex(key).startsWith(dataModelWithoutIndex) && result[key] === attachmentId) {
+        index = getKeyIndex(key).pop();
+        break;
+      }
+    }
+
+    if (index === -1) {
+      throw new Error(
+        `Unable to find attachment ID "${attachmentId}" in a key starting with "${dataModelWithoutIndex}" in form data: ${JSON.stringify(result)}`
+      );
+    }
+
     deleteGroupData(result, dataModelBindings.list, index, true);
 
     for (let laterIdx = index + 1; laterIdx <= attachments[componentId].length - 1; laterIdx++) {

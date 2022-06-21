@@ -8,7 +8,6 @@ export interface IDeleteAttachmentAction extends Action {
   attachmentType: string;
   componentId: string;
   dataModelBindings: IDataModelBindings;
-  index: number,
 }
 
 export interface IDeleteAttachmentActionFulfilled extends Action {
@@ -28,7 +27,6 @@ export function deleteAttachment(
   attachmentType: string,
   componentId: string,
   dataModelBindings: IDataModelBindings,
-  index: number,
 ): IDeleteAttachmentAction {
   return {
     type: ActionTypes.DELETE_ATTACHMENT,
@@ -36,7 +34,6 @@ export function deleteAttachment(
     attachmentType,
     componentId,
     dataModelBindings,
-    index,
   };
 }
 

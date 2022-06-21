@@ -119,7 +119,6 @@ describe('updateLayoutSagas', () => {
             'uploader',
             'uploader-0',
             dataModelBinding,
-            0,
           ),
         )
         .dispatch(

@@ -270,7 +270,6 @@ export function FileList(props: FileListProps): JSX.Element {
                   >
                     <EditWindowComponent
                         id={props.id}
-                        index={index}
                         dataModelBindings={props.dataModelBindings}
                         attachment={props.attachments[index]}
                         attachmentValidations={props.attachmentValidations}
