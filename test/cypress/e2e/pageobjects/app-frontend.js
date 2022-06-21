@@ -123,6 +123,24 @@ export default class AppFrontend {
       back: 'button[aria-label="Tilbake"]',
       mainGroupSummary: '[id^="mainGroup-"][id$="-summary"]',
       options: '#reduxOptions',
+      uploadSingle: {
+        firstRow: {
+          dropZoneContainer: '#altinn-drop-zone-mainUploaderSingle-0',
+          dropZone: '#altinn-drop-zone-mainUploaderSingle-0 input[type=file]',
+          uploadedName: '#altinn-fileuploader-mainUploaderSingle-0 .file-upload-table > tbody > tr > td:nth-child(1)',
+          uploadStatus: '#altinn-fileuploader-mainUploaderSingle-0 .file-upload-table > tbody > tr > td:nth-child(3)',
+          deleteBtn: '#altinn-fileuploader-mainUploaderSingle-0 .file-upload-table div[role=button]',
+          tableRowPreview: '#group-mainGroup-table-body > tr > td:nth-child(3)',
+        },
+        secondRow: {
+          dropZoneContainer: '#altinn-drop-zone-mainUploaderSingle-1',
+          dropZone: '#altinn-drop-zone-mainUploaderSingle-1 input[type=file]',
+          uploadedName: '#altinn-fileuploader-mainUploaderSingle-1 .file-upload-table > tbody > tr > td:nth-child(1)',
+          uploadStatus: '#altinn-fileuploader-mainUploaderSingle-1 .file-upload-table > tbody > tr > td:nth-child(3)',
+          deleteBtn: '#altinn-fileuploader-mainUploaderSingle-1 .file-upload-table div[role=button]',
+          tableRowPreview: '#group-mainGroup-table-body > tr:nth-child(2) > td:nth-child(3)'
+        },
+      },
     };
 
     //Stateless-app
