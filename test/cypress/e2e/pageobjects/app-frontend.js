@@ -102,6 +102,18 @@ export default class AppFrontend {
       uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
     };
 
+    const makeUploaderSelectors = (id, row, tablePreviewColumn) => ({
+      dropZoneContainer: `#altinn-drop-zone-${id}-${row}`,
+      dropZone: `#altinn-drop-zone-${id}-${row} input[type=file]`,
+      attachments: [...Array(5)].map((_, idx) => ({
+        name: `#altinn-fileuploader-${id}-${row} .file-upload-table > tbody > tr:nth-child(${idx + 1}) > td:nth-child(1)`,
+        status: `#altinn-fileuploader-${id}-${row} .file-upload-table > tbody > tr:nth-child(${idx + 1}) > td:nth-child(3)`,
+        deleteBtn: `#altinn-fileuploader-${id}-${row} .file-upload-table tr:nth-child(${idx + 1}) div[role=button]`,
+      })),
+      addMoreBtn: `#altinn-fileuploader-${id}-${row} > button`,
+      tableRowPreview: `#group-mainGroup-table-body > tr:nth-child(${row + 1}) > td:nth-child(${tablePreviewColumn})`
+    });
+
     //group - task 3
     this.group = {
       showGroupToContinue: '#showGroupToContinue',
@@ -123,24 +135,11 @@ export default class AppFrontend {
       back: 'button[aria-label="Tilbake"]',
       mainGroupSummary: '[id^="mainGroup-"][id$="-summary"]',
       options: '#reduxOptions',
-      uploadSingle: {
-        firstRow: {
-          dropZoneContainer: '#altinn-drop-zone-mainUploaderSingle-0',
-          dropZone: '#altinn-drop-zone-mainUploaderSingle-0 input[type=file]',
-          uploadedName: '#altinn-fileuploader-mainUploaderSingle-0 .file-upload-table > tbody > tr > td:nth-child(1)',
-          uploadStatus: '#altinn-fileuploader-mainUploaderSingle-0 .file-upload-table > tbody > tr > td:nth-child(3)',
-          deleteBtn: '#altinn-fileuploader-mainUploaderSingle-0 .file-upload-table div[role=button]',
-          tableRowPreview: '#group-mainGroup-table-body > tr > td:nth-child(3)',
-        },
-        secondRow: {
-          dropZoneContainer: '#altinn-drop-zone-mainUploaderSingle-1',
-          dropZone: '#altinn-drop-zone-mainUploaderSingle-1 input[type=file]',
-          uploadedName: '#altinn-fileuploader-mainUploaderSingle-1 .file-upload-table > tbody > tr > td:nth-child(1)',
-          uploadStatus: '#altinn-fileuploader-mainUploaderSingle-1 .file-upload-table > tbody > tr > td:nth-child(3)',
-          deleteBtn: '#altinn-fileuploader-mainUploaderSingle-1 .file-upload-table div[role=button]',
-          tableRowPreview: '#group-mainGroup-table-body > tr:nth-child(2) > td:nth-child(3)'
-        },
-      },
+      rows: [0, 1].map((idx) => ({
+        uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3),
+        uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4),
+        editBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) > td:last-of-type > button`,
+      })),
     };
 
     //Stateless-app
