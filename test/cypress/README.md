@@ -67,7 +67,7 @@ Other remote environments could also be used (see `e2e/config/*.json`).
     yarn run before:appfrontend
 ```
 
-4. Start the tests for a given app from a new terminal tab:
+4. Start the tests for a given app from a new terminal:
 
 ```cmd
     yarn run test:frontend -e environment=local
