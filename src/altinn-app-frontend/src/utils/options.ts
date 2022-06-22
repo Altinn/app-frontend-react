@@ -63,4 +63,4 @@ export function setupSourceOptions({
     options.push(option);
   }
   return options;
-};
+}

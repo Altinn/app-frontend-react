@@ -147,7 +147,7 @@ export const getDisplayFormData = (
           (option: IOption) => option.value === formDataValue,
         )?.label;
       } else if (selectionComponent.source) {
-        const options = setupSourceOptions({
+        const reduxOptions = setupSourceOptions({
           source: selectionComponent.source,
           relevantTextResource: textResources.find((e) => e.id === selectionComponent.source.label),
           relevantFormData: getRelevantFormDataForOptionSource(formData, selectionComponent.source),
@@ -156,7 +156,7 @@ export const getDisplayFormData = (
             dataModel: formData,
           },
         });
-        label = options.find(option => option.value === formDataValue)?.label;
+        label = reduxOptions.find(option => option.value === formDataValue)?.label;
       }
 
       return getTextResourceByKey(label, textResources) || formDataValue;
@@ -243,6 +243,11 @@ export const getFormDataForComponentInRepeatingGroup = (
     component.type === 'AddressComponent'
       ? component.dataModelBindings?.address
       : component.dataModelBindings?.simpleBinding;
+
+  if (!dataModelBinding) {
+    return '';
+  }
+
   const replaced = dataModelBinding.replace(
     groupDataModelBinding,
     `${groupDataModelBinding}[${index}]`,
