@@ -189,6 +189,7 @@ describe('Repeating group attachments', () => {
     });
 
     cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     addNewRow();
     gotoSecondPage();
 
@@ -200,6 +201,7 @@ describe('Repeating group attachments', () => {
       }
     });
     cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.saveMainGroup).should('not.exist');
 
     [0, 1].forEach((row) => {
       cy.get(appFrontend.group.rows[row].editBtn).click();
@@ -209,6 +211,7 @@ describe('Repeating group attachments', () => {
           uploadFile(appFrontend.group.rows[row].nestedGroup.rows[nestedRowIdx].uploadTagMulti, idx, fileName, true, true);
         });
         cy.get(appFrontend.group.rows[row].nestedGroup.saveBtn).click();
+        cy.get(appFrontend.group.rows[row].nestedGroup.saveBtn).should('not.exist');
         if (nestedRowIdx === 0) {
           cy.get(appFrontend.group.rows[row].nestedGroup.groupContainer)
             .parent()
@@ -217,6 +220,7 @@ describe('Repeating group attachments', () => {
         }
       });
       cy.get(appFrontend.group.saveMainGroup).click();
+      cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     });
 
     getState().should('deep.equal', {
@@ -270,6 +274,7 @@ describe('Repeating group attachments', () => {
 
     // Let's also delete one of the nested attachments to verify the same thing happens there.
     cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     cy.get(appFrontend.group.rows[1].editBtn).click();
     gotoSecondPage();
     cy.get(appFrontend.group.rows[1].nestedGroup.rows[1].editBtn).click();
@@ -344,6 +349,7 @@ describe('Repeating group attachments', () => {
       getState().should('deep.equal', expectedAttachmentState);
     } else {
       cy.get(appFrontend.group.saveMainGroup).click();
+      cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     }
 
     // Delete the first row of the nested repeating group. This should make the second row in that nested group shift
@@ -410,12 +416,13 @@ describe('Repeating group attachments', () => {
     // Delete the entire first row. This should cascade down and delete all attachments inside that row, and inside
     // nested rows.
     cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     cy.get(appFrontend.group.rows[0].editBtn).click();
 
     interceptFormDataSave();
     cy.get(appFrontend.group.delete).click();
-    waitForFormDataSave();
     verifyPreview(true);
+    waitForFormDataSave();
 
     const expectedAttachmentStateAfterDeletingFirstRow = {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[1].single],
@@ -448,7 +455,7 @@ describe('Repeating group attachments', () => {
     if (runReloadTests) {
       // Reload the page again to verify that form data still maps attachments correctly after deleting the first row
       cy.reload();
-      cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
+      verifyPreview(true);
 
       getState().should('deep.equal', expectedAttachmentStateAfterDeletingFirstRow);
       cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormDataAfterDeletingFirstRow);
