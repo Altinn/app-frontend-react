@@ -160,9 +160,9 @@ export default class AppFrontend {
         nestedGroup: {
           rows: [0, 1].map((subIdx) => ({
             uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, true),
+            editBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:last-of-type > button`
           })),
           groupContainer: `#group-subGroup-${idx}`,
-          editBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${idx + 1}) > td:last-of-type > button`,
           saveBtn: `#add-button-grp-subGroup-${idx}`,
         }
       })),

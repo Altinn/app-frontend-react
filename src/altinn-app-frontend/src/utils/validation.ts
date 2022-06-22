@@ -346,7 +346,13 @@ export function getParentGroup(groupId: string, layout: ILayout): ILayoutGroup {
       (element.type === 'Group' || element.type === 'group')
     ) {
       const parentGroupCandidate = element as ILayoutGroup;
-      if (parentGroupCandidate.children?.indexOf(groupId) > -1) {
+      const childrenWithoutMultiPage = parentGroupCandidate.children?.map(
+        (childId) =>
+          parentGroupCandidate.edit?.multiPage
+            ? childId.split(':')[1]
+            : childId,
+      );
+      if (childrenWithoutMultiPage.indexOf(groupId) > -1) {
         return true;
       }
     }

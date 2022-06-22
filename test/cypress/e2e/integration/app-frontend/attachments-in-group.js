@@ -7,6 +7,11 @@ import * as texts from '../../fixtures/texts.json';
 const appFrontend = new AppFrontend();
 
 describe('Repeating group attachments', () => {
+  // Allows you to toggle reload() tests off. These have the effects of testing mapAttachments() to make sure state is
+  // the same even after reloading the instance data, but you can toggle them off to save some time when developing
+  // the test.
+  const runReloadTests = true;
+
   const addNewRow = () => {
     cy.get(appFrontend.group.addNewItem).should('be.visible').click();
   };
@@ -112,6 +117,18 @@ describe('Repeating group attachments', () => {
         return [key.replace(expectedPrefix, ''), uuid];
       })
       .sort();
+  };
+
+  const interceptFormDataSave = () => {
+    cy.url().then((url) => {
+      const instanceId = url.split('/').slice(-2).join('/');
+      cy.intercept('PUT', `**/instances/${instanceId}/data/**`).as('saveInstanceData');
+    });
+
+  };
+
+  const waitForFormDataSave = () => {
+    cy.wait('@saveInstanceData').its('response.statusCode').should('eq', 201);
   };
 
   it('Works when uploading attachments to repeating groups, supports deleting attachments and entire rows', () => {
@@ -238,8 +255,10 @@ describe('Repeating group attachments', () => {
 
     // Now that all attachments described above have been uploaded and verified, start deleting the middle attachment
     // of the first-row multi-uploader to verify that the next attachment is shifted upwards.
+    interceptFormDataSave();
     cy.get(appFrontend.group.rows[0].uploadMulti.attachments[1].deleteBtn).click();
     deletedAttachmentNames.push(filenames[0].multi[1]);
+    waitForFormDataSave();
 
     // The next attachment filename should now replace the deleted one:
     cy.get(appFrontend.group.rows[0].uploadMulti.attachments[1].name)
@@ -253,10 +272,13 @@ describe('Repeating group attachments', () => {
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.rows[1].editBtn).click();
     gotoSecondPage();
-    cy.get(appFrontend.group.rows[1].nestedGroup.editBtn).click();
+    cy.get(appFrontend.group.rows[1].nestedGroup.rows[1].editBtn).click();
     cy.get(appFrontend.group.rows[1].nestedGroup.rows[1].uploadTagMulti.attachments[1].editBtn).click();
+
+    interceptFormDataSave();
     cy.get(appFrontend.group.rows[1].nestedGroup.rows[1].uploadTagMulti.attachments[1].deleteBtn).click();
     deletedAttachmentNames.push(filenames[1].nested[1][1]);
+    waitForFormDataSave();
 
     // The next filename should have replaced it:
     cy.get(appFrontend.group.rows[1].nestedGroup.rows[1].uploadTagMulti.attachments[1].name)
@@ -281,7 +303,6 @@ describe('Repeating group attachments', () => {
         filenames[1].nested[1][2],
       ],
     };
-    getState().should('deep.equal', expectedAttachmentState);
 
     const expectedFormData = [
       ['[0].fileUpload', filenames[0].single],
@@ -310,20 +331,90 @@ describe('Repeating group attachments', () => {
       ['[1].nested-grp-1234[1].fileUploadList[1]', filenames[1].nested[1][2]],
     ].sort();
 
-    cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormData);
-
-    // Reload tha page at this point to verify that attachments are mapped correctly from formData back to the
-    // correct attachment state.
-    cy.reload();
-    cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
-
-    cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormData);
     getState().should('deep.equal', expectedAttachmentState);
+    cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormData);
+
+    if (runReloadTests) {
+      // Reload tha page at this point to verify that attachments are mapped correctly from formData back to the
+      // correct attachment state.
+      cy.reload();
+      cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
+
+      cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormData);
+      getState().should('deep.equal', expectedAttachmentState);
+    } else {
+      cy.get(appFrontend.group.saveMainGroup).click();
+    }
+
+    // Delete the first row of the nested repeating group. This should make the second row in that nested group shift
+    // the attachments upwards.
+    cy.get(appFrontend.group.rows[0].editBtn).click();
+    gotoSecondPage();
+    cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].editBtn).click();
+
+    interceptFormDataSave();
+    cy.get(appFrontend.group.rows[0].nestedGroup.groupContainer)
+      .parent()
+      .find(appFrontend.group.editContainer)
+      .find(appFrontend.group.delete)
+      .click();
+    waitForFormDataSave();
+
+    const expectedAttachmentStateAfterDeletingFirstNestedRow = {
+      [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
+      [appFrontend.group.rows[0].uploadMulti.stateKey]: [
+        filenames[0].multi[0],
+        filenames[0].multi[2],
+      ],
+      [appFrontend.group.rows[1].uploadSingle.stateKey]: [filenames[1].single],
+      [appFrontend.group.rows[1].uploadMulti.stateKey]: filenames[1].multi,
+      [appFrontend.group.rows[0].nestedGroup.rows[0].uploadTagMulti.stateKey]: filenames[0].nested[1],
+      [appFrontend.group.rows[1].nestedGroup.rows[0].uploadTagMulti.stateKey]: filenames[1].nested[0],
+      [appFrontend.group.rows[1].nestedGroup.rows[1].uploadTagMulti.stateKey]: [
+        filenames[1].nested[1][0],
+        filenames[1].nested[1][2],
+      ],
+    };
+
+    const expectedFormDataAfterDeletingFirstNestedRow = [
+      ['[0].fileUpload', filenames[0].single],
+      ['[0].fileUploadList[0]', filenames[0].multi[0]],
+      ['[0].fileUploadList[1]', filenames[0].multi[2]],
+
+      ['[0].nested-grp-1234[0].fileUploadList[0]', filenames[0].nested[1][0]],
+      ['[0].nested-grp-1234[0].fileUploadList[1]', filenames[0].nested[1][1]],
+      ['[0].nested-grp-1234[0].fileUploadList[2]', filenames[0].nested[1][2]],
+
+      ['[1].fileUpload', filenames[1].single],
+      ['[1].fileUploadList[0]', filenames[1].multi[0]],
+      ['[1].fileUploadList[1]', filenames[1].multi[1]],
+      ['[1].fileUploadList[2]', filenames[1].multi[2]],
+      ['[1].fileUploadList[3]', filenames[1].multi[3]],
+
+      ['[1].nested-grp-1234[0].fileUploadList[0]', filenames[1].nested[0][0]],
+      ['[1].nested-grp-1234[0].fileUploadList[1]', filenames[1].nested[0][1]],
+      ['[1].nested-grp-1234[0].fileUploadList[2]', filenames[1].nested[0][2]],
+
+      ['[1].nested-grp-1234[1].fileUploadList[0]', filenames[1].nested[1][0]],
+      ['[1].nested-grp-1234[1].fileUploadList[1]', filenames[1].nested[1][2]],
+    ].sort();
+
+    // Verify that one of the attachments in the next nested row is visible in the table header. This is also a trick
+    // to ensure we wait until the deletion is done before we fetch the redux state.
+    cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].uploadTagMulti.tableRowPreview)
+      .should('contain.text', filenames[0].nested[1][2]);
+
+    cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormDataAfterDeletingFirstNestedRow);
+    getState().should('deep.equal', expectedAttachmentStateAfterDeletingFirstNestedRow);
 
     // Delete the entire first row. This should cascade down and delete all attachments inside that row, and inside
     // nested rows.
+    cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.rows[0].editBtn).click();
+
+    interceptFormDataSave();
     cy.get(appFrontend.group.delete).click();
+    waitForFormDataSave();
     verifyPreview(true);
 
     const expectedAttachmentStateAfterDeletingFirstRow = {
@@ -354,13 +445,13 @@ describe('Repeating group attachments', () => {
     getState().should('deep.equal', expectedAttachmentStateAfterDeletingFirstRow);
     cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormDataAfterDeletingFirstRow);
 
-    // Reload the page again to verify that form data still maps attachments correctly after deleting the first row
-    cy.reload();
-    cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
+    if (runReloadTests) {
+      // Reload the page again to verify that form data still maps attachments correctly after deleting the first row
+      cy.reload();
+      cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
 
-    getState().should('deep.equal', expectedAttachmentStateAfterDeletingFirstRow);
-    cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormDataAfterDeletingFirstRow);
-
-    // TODO: Test deleting an entire row inside the first nested group, and that attachments are shifted upwards
+      getState().should('deep.equal', expectedAttachmentStateAfterDeletingFirstRow);
+      cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormDataAfterDeletingFirstRow);
+    }
   });
 });
