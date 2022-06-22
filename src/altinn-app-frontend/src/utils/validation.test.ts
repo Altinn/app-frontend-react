@@ -737,12 +737,12 @@ describe('utils > validation', () => {
         const mockResult = {
           FormLayout: {
             componentId_3: {
-              simpleBinding: { errors: ['Du må fylle ut component_3.'], warnings: [] },
+              simpleBinding: { errors: ['Du må fylle ut component_3'], warnings: [] },
             },
             componentId_6: {
-              address: { errors: ['Du må fylle ut Gateadresse.'], warnings: [] },
-              postPlace: { errors: ['Du må fylle ut Poststed.'], warnings: [] },
-              zipCode: { errors: ['Du må fylle ut Postnummer.'], warnings: [] },
+              address: { errors: ['Du må fylle ut Gateadresse'], warnings: [] },
+              postPlace: { errors: ['Du må fylle ut Poststed'], warnings: [] },
+              zipCode: { errors: ['Du må fylle ut Postnummer'], warnings: [] },
             },
             required_in_group_simple: { simpleBinding: {
               errors: ['Du må fylle ut dette feltet'],
