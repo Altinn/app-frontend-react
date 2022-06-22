@@ -14,4 +14,3 @@ jobs:
         with:
           project-url: https://github.com/orgs/altinn/projects/3
           github-token: ${{ secrets.ASSIGN_PROJECT_TOKEN }}
-          
