@@ -52,9 +52,9 @@ declare namespace Cypress {
 
     /**
      * navigate to task 3 and complete task 3 form
-     * @example cy.compelteTask3Form()
+     * @example cy.completeTask3Form()
      */
-    compelteTask3Form(): Chainable<Element>;
+    completeTask3Form(): Chainable<Element>;
 
     /**
      * Add an item to group component with an item in nested group

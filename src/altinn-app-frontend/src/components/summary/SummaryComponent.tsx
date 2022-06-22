@@ -17,6 +17,7 @@ import { makeGetHidden } from 'src/selectors/getLayoutData';
 import ErrorPaper from '../message/ErrorPaper';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
+import { isGroupComponent, isFileUploadComponent, isFileUploadWithTagComponent } from "src/utils/formLayout";
 
 export interface ISummaryComponent {
   id: string;
@@ -91,12 +92,16 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
     );
   });
   const formData = useAppSelector((state) => {
-    if (
-      formComponent.type.toLowerCase() === 'group' ||
-      formComponent.type.toLowerCase() === 'fileupload' ||
-      formComponent.type.toLowerCase() === 'fileuploadwithtag'
-    )
+    if (isGroupComponent(formComponent)) {
       return undefined;
+    }
+    if (
+      (isFileUploadComponent(formComponent) ||
+        isFileUploadWithTagComponent(formComponent)) &&
+      Object.keys(formComponent.dataModelBindings || {}).length === 0
+    ) {
+      return undefined;
+    }
     return (
       summaryProps.formData ||
       getDisplayFormDataForComponent(

@@ -93,9 +93,9 @@ export const getDisplayFormDataForComponent = (
   options: IOptions,
   multiChoice?: boolean,
 ) => {
-  if (component.dataModelBindings.simpleBinding) {
+  if (component.dataModelBindings?.simpleBinding || component.dataModelBindings?.list) {
     return getDisplayFormData(
-      component.dataModelBindings.simpleBinding,
+      component.dataModelBindings?.simpleBinding || component.dataModelBindings?.list,
       component,
       component.id,
       attachments,

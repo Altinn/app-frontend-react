@@ -8,7 +8,7 @@ const appFrontend = new AppFrontend();
 
 describe('Confirm', () => {
   it('Confirm page displays texts and attachments', () => {
-    cy.compelteTask3Form();
+    cy.completeTask3Form();
     cy.get(appFrontend.backButton).should('be.visible');
     cy.get(appFrontend.sendinButton).should('be.visible').click();
     cy.get(appFrontend.confirm.container).should('be.visible');
