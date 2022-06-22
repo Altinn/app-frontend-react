@@ -215,7 +215,7 @@ export const getDisplayFormData = (
       return label;
     }
     if (isFileUploadComponent(component) || isFileUploadWithTagComponent(component)) {
-      if (!formDataValue || (Array.isArray(formDataValue) && !formDataValue.length)) {
+      if (Array.isArray(formDataValue) && !formDataValue.length) {
         return '';
       }
       const attachmentNamesList = (Array.isArray(formDataValue) ? formDataValue : [formDataValue]).map((uuid) => {
