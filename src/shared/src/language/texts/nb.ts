@@ -41,7 +41,7 @@ export function nb() {
       back_to_summary: 'Tilbake til oppsummering',
       error_report_header: 'Det er feil i skjema',
       error_report_description: 'Skjemaet inneholder feil eller mangler som hindrer oss fra å sende det inn. Når du har rettet feilene, kan du sende inn skjemaet på nytt.',
-      error_required: 'Du må fylle ut {0}.',
+      error_required: 'Du må fylle ut {0}',
       file_upload_valid_file_format_all: 'alle',
       file_uploader_add_attachment: 'Legg til flere vedlegg',
       file_uploader_drag: 'Dra og slipp eller',

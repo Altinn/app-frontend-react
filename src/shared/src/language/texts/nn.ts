@@ -40,7 +40,7 @@ export function nn() {
       back_to_summary: 'Attende til samandrag',
       error_report_header: 'Det er feil i skjema',
       error_report_description: 'Skjemaet inneheld feil eller manglar som hindrar oss frå å sende det inn. Når du har retta feila, kan du sende inn skjemaet på nytt.',
-      error_required: 'Du må fylle ut {0}.',
+      error_required: 'Du må fylle ut {0}',
       file_upload_valid_file_format_all: 'alle',
       file_uploader_add_attachment: 'Legg til fleire vedlegg',
       file_uploader_drag: 'Dra og slepp eller',
