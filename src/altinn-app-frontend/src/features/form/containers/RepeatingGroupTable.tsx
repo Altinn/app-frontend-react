@@ -155,6 +155,7 @@ export function RepeatingGroupTable({
       container.dataModelBindings.group,
       textResources,
       options,
+      repeatingGroups,
     );
   };
 

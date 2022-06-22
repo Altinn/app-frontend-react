@@ -103,6 +103,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
         formComponent as ILayoutComponent,
         state.textResources.resources,
         state.optionState.options,
+        state.formLayout.uiConfig.repeatingGroups,
         true,
       )
     );

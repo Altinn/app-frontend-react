@@ -20,9 +20,10 @@ import {
   IOption,
   IOptions,
   IValidations,
+  IRepeatingGroups,
 } from 'src/types';
 import { AsciiUnitSeparator } from './attachment';
-import { getOptionLookupKey } from './options';
+import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from './options';
 
 export const componentValidationsHandledByGenericComponent = (
   dataModelBindings: any,
@@ -93,6 +94,7 @@ export const getDisplayFormDataForComponent = (
   component: ILayoutComponent,
   textResources: ITextResource[],
   options: IOptions,
+  repeatingGroups: IRepeatingGroups,
   multiChoice?: boolean,
 ) => {
   if (component.dataModelBindings.simpleBinding) {
@@ -102,6 +104,7 @@ export const getDisplayFormDataForComponent = (
       formData,
       options,
       textResources,
+      repeatingGroups,
       multiChoice,
     );
   }
@@ -115,6 +118,7 @@ export const getDisplayFormDataForComponent = (
       formData,
       options,
       textResources,
+      repeatingGroups
     );
   });
   return formDataObj;
@@ -126,6 +130,7 @@ export const getDisplayFormData = (
   formData: any,
   options: IOptions,
   textResources: ITextResource[],
+  repeatingGroups: IRepeatingGroups,
   asObject?: boolean,
 ) => {
   const formDataValue = formData[dataModelBinding] || '';
@@ -146,8 +151,20 @@ export const getDisplayFormData = (
         ].options?.find(
           (option: IOption) => option.value === formDataValue,
         )?.label;
+      } else if (selectionComponent.source) {
+        const options = setupSourceOptions({
+          source: selectionComponent.source,
+          relevantTextResource: textResources.find((e) => e.id === selectionComponent.source.label),
+          relevantFormData: getRelevantFormDataForOptionSource(formData, selectionComponent.source),
+          repeatingGroups,
+          dataSources: {
+            dataModel: formData,
+          },
+        });
+        label = options.find(option => option.value === formDataValue)?.label;
       }
-      return getTextResourceByKey(label, textResources) || '';
+
+      return getTextResourceByKey(label, textResources) || formDataValue;
     }
     if (component.type === 'Checkboxes') {
       const selectionComponent = component as ISelectionComponentProps;
@@ -170,7 +187,7 @@ export const getDisplayFormData = (
               (option: IOption) => option.value === value,
             )?.label || '';
           displayFormData[value] =
-            getTextResourceByKey(textKey, textResources) || '';
+            getTextResourceByKey(textKey, textResources) || formDataValue;
         });
 
         return displayFormData;
@@ -215,6 +232,7 @@ export const getFormDataForComponentInRepeatingGroup = (
   groupDataModelBinding: string,
   textResources: ITextResource[],
   options: IOptions,
+  repeatingGroups: IRepeatingGroups,
 ) => {
   if (
     component.type === 'Group' ||
@@ -239,6 +257,7 @@ export const getFormDataForComponentInRepeatingGroup = (
     formData,
     options,
     textResources,
+    repeatingGroups
   );
 };
 
