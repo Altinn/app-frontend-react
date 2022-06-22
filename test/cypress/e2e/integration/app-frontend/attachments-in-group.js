@@ -421,7 +421,6 @@ describe('Repeating group attachments', () => {
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     cy.get(appFrontend.group.rows[0].editBtn).click();
 
-    // TODO: Observe that delete button is disabled
     cy.get(appFrontend.group.delete).click();
     verifyPreview(true);
     waitForFormDataSave();
