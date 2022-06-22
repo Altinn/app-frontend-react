@@ -127,10 +127,8 @@ describe('Repeating group attachments', () => {
 
   };
 
-  const waitForFormDataSave = (numRequests) => {
-    for (const req of Array(numRequests || 1)) {
-      cy.wait('@saveInstanceData').its('response.statusCode').should('eq', 201);
-    }
+  const waitForFormDataSave = () => {
+    cy.wait('@saveInstanceData').its('response.statusCode').should('eq', 201);
   };
 
   it('Works when uploading attachments to repeating groups, supports deleting attachments and entire rows', () => {
@@ -265,7 +263,7 @@ describe('Repeating group attachments', () => {
     // of the first-row multi-uploader to verify that the next attachment is shifted upwards.
     cy.get(appFrontend.group.rows[0].uploadMulti.attachments[1].deleteBtn).click();
     deletedAttachmentNames.push(filenames[0].multi[1]);
-    waitForFormDataSave(1);
+    waitForFormDataSave();
 
     // The next attachment filename should now replace the deleted one:
     cy.get(appFrontend.group.rows[0].uploadMulti.attachments[1].name)
@@ -285,7 +283,7 @@ describe('Repeating group attachments', () => {
 
     cy.get(appFrontend.group.rows[1].nestedGroup.rows[1].uploadTagMulti.attachments[1].deleteBtn).click();
     deletedAttachmentNames.push(filenames[1].nested[1][1]);
-    waitForFormDataSave(1);
+    waitForFormDataSave();
 
     // The next filename should have replaced it:
     cy.get(appFrontend.group.rows[1].nestedGroup.rows[1].uploadTagMulti.attachments[1].name)
@@ -368,7 +366,7 @@ describe('Repeating group attachments', () => {
       .find(appFrontend.group.editContainer)
       .find(appFrontend.group.delete)
       .click();
-    waitForFormDataSave(4);
+    waitForFormDataSave();
 
     const expectedAttachmentStateAfterDeletingFirstNestedRow = {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
@@ -423,9 +421,10 @@ describe('Repeating group attachments', () => {
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     cy.get(appFrontend.group.rows[0].editBtn).click();
 
+    // TODO: Observe that delete button is disabled
     cy.get(appFrontend.group.delete).click();
     verifyPreview(true);
-    waitForFormDataSave(7);
+    waitForFormDataSave();
 
     const expectedAttachmentStateAfterDeletingFirstRow = {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[1].single],

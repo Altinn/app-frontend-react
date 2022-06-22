@@ -162,7 +162,10 @@ export function* updateRepeatingGroupsSaga({ payload: {
 
       let attachmentRemovalSuccessful = true;
       for (const {attachment, component, componentId} of childAttachments) {
-        yield put(deleteAttachment(attachment, component.id, componentId, component.dataModelBindings));
+        // Deleting attachment, but deliberately avoiding passing the dataModelBindings to avoid removing the formData
+        // references. We're doing that ourselves here later, and having other sagas compete for it will cause race
+        // conditions and lots of useless requests.
+        yield put(deleteAttachment(attachment, component.id, componentId, {}));
 
         while (true) {
           const completion: {
