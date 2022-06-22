@@ -36,20 +36,15 @@ export const componentValidationsHandledByGenericComponent = (
   );
 };
 
-export const componentHasValidationMessages = (componentValidations) => {
+export const componentHasValidationMessages = (componentValidations: IComponentValidations) => {
   if (!componentValidations) {
     return false;
   }
-  let hasMessages = false;
-  Object.keys(componentValidations).forEach((key: string) => {
-    if (
-      componentValidations[key].errors.length > 0 ||
-      componentValidations[key].warnings.length > 0
-    ) {
-      hasMessages = true;
-    }
+  return Object.keys(componentValidations).some((key: string) => {
+    return Object.keys(componentValidations[key]).some(validationKey => {
+      return componentValidations[key][validationKey]?.length > 0;
+    });
   });
-  return hasMessages;
 };
 
 export const getComponentValidations = (
@@ -135,20 +130,20 @@ export const getDisplayFormData = (
 ) => {
   const formDataValue = formData[dataModelBinding] || '';
   if (formDataValue) {
-    if (component.type === 'Dropdown' || component.type === 'RadioButtons') {
+    if (component.type === 'Dropdown' || component.type === 'RadioButtons' || component.type === 'Likert') {
       const selectionComponent = component as ISelectionComponentProps;
       let label: string;
-      if (selectionComponent?.options) {
-        label = selectionComponent.options.find(
-          (option: IOption) => option.value === formDataValue,
-        )?.label;
-      } else if (selectionComponent.optionsId) {
+      if (selectionComponent.optionsId) {
         label = options[
           getOptionLookupKey(
-            selectionComponent?.optionsId,
+            selectionComponent.optionsId,
             selectionComponent.mapping,
           )
         ].options?.find(
+          (option: IOption) => option.value === formDataValue,
+        )?.label;
+      } else if (selectionComponent.options) {
+        label = selectionComponent.options.find(
           (option: IOption) => option.value === formDataValue,
         )?.label;
       } else if (selectionComponent.source) {
@@ -176,11 +171,11 @@ export const getDisplayFormData = (
         split?.forEach((value: string) => {
           const optionsForComponent = selectionComponent?.optionsId
             ? options[
-                getOptionLookupKey(
-                  selectionComponent.optionsId,
-                  selectionComponent.mapping,
-                )
-              ].options
+              getOptionLookupKey(
+                selectionComponent.optionsId,
+                selectionComponent.mapping,
+              )
+            ].options
             : selectionComponent.options;
           const textKey =
             optionsForComponent?.find(
@@ -235,6 +230,7 @@ export const getFormDataForComponentInRepeatingGroup = (
   repeatingGroups: IRepeatingGroups,
 ) => {
   if (
+    !component.dataModelBindings ||
     component.type === 'Group' ||
     component.type === 'Header' ||
     component.type === 'Paragraph' ||
@@ -270,7 +266,7 @@ export const isComponentValid = (
   let isValid = true;
 
   Object.keys(validations).forEach((key: string) => {
-    if (validations[key].errors.length > 0) {
+    if (validations[key].errors?.length > 0) {
       isValid = false;
     }
   });
@@ -346,11 +342,11 @@ export function getFileUploadComponentValidations(
       componentValidations.simpleBinding.errors.push(
         // If validation has attachmentId, add to start of message and seperate using ASCII Universal Seperator
         attachmentId +
-          AsciiUnitSeparator +
-          getLanguageFromKey(
-            'form_filler.file_uploader_validation_error_update',
-            language,
-          ),
+        AsciiUnitSeparator +
+        getLanguageFromKey(
+          'form_filler.file_uploader_validation_error_update',
+          language,
+        ),
       );
     }
   } else if (validationError === 'delete') {

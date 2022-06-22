@@ -1,6 +1,6 @@
 import parseHtmlToReact from 'html-react-parser';
 
-import type { IOptions, IRepeatingGroups, ITextResource } from 'src/types';
+import type { IComponentBindingValidation, IComponentValidations, IOptions, ITextResource, IRepeatingGroups } from 'src/types';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
 import type {
   ILayoutComponent,
@@ -19,6 +19,7 @@ import {
   isNotAttachmentError,
   isComponentValid,
   componentValidationsHandledByGenericComponent,
+  componentHasValidationMessages,
 } from './formComponentUtils';
 
 describe('formComponentUtils', () => {
@@ -32,10 +33,11 @@ describe('formComponentUtils', () => {
     mockBindingDropdownWithMapping: 'mockOptionsWithMapping1',
     mockBindingRadioButtons: 'optionValue1',
     mockBindingRadioButtonsWithMapping: 'mockOptionsWithMapping1',
+    mockBindingLikert: 'optionValue1',
+    mockBindingLikertWithMapping: 'mockOptionsWithMapping1',
     mockBindingDropdownWithReduxOptions: 'mockReduxOptionValue',
     'someGroup[0].fieldUsedAsValue': 'mockReduxOptionValue',
     'someGroup[0].fieldUsedAsLabel': 'mockReduxOptionLabel',
-
   };
   const mockTextResources: ITextResource[] = [
     {
@@ -87,14 +89,14 @@ describe('formComponentUtils', () => {
       ],
     },
     '{"id":"mockOptionsWithMapping","mapping":{"someDataField":"someUrlParam"}}':
-      {
-        id: 'mockOptionsWithMapping',
-        mapping: { someDataField: 'someUrlParam' },
-        options: [
-          { value: 'mockOptionsWithMapping1', label: 'Value Mapping 1' },
-          { value: 'mockOptionsWithMapping2', label: 'Value Mapping 2' },
-        ],
-      },
+    {
+      id: 'mockOptionsWithMapping',
+      mapping: { someDataField: 'someUrlParam' },
+      options: [
+        { value: 'mockOptionsWithMapping1', label: 'Value Mapping 1' },
+        { value: 'mockOptionsWithMapping2', label: 'Value Mapping 2' },
+      ],
+    },
   };
   const mockAttachments: IAttachment[] = [
     {
@@ -227,38 +229,38 @@ describe('formComponentUtils', () => {
       expect(result).toEqual(expected);
     });
 
-    it('should return text resource for dropdown component', () => {
-      const dropdownComponent = {
-        type: 'Dropdown',
+    it.each(["Likert", "Dropdown", "RadioButtons"])("should return text resource for %s component", (type)=>{
+      const component = {
+        type,
         optionsId: 'mockOption',
       } as ISelectionComponentProps;
       const result = getDisplayFormData(
-        'mockBindingDropdown',
-        dropdownComponent,
+        `mockBinding${type}`,
+        component,
         mockFormData,
         mockOptions,
         mockTextResources,
         mockRepeatingGroups,
       );
       expect(result).toEqual('Value1');
-    });
+    })
 
-    it('should return text resource for dropdown component with mapping', () => {
-      const checkboxComponent = {
-        type: 'Dropdown',
+    it.each(["Likert", "Dropdown", "RadioButtons"])("should return text resource for %s component with mapping", (type)=>{
+      const component = {
+        type,
         optionsId: 'mockOptionsWithMapping',
         mapping: { someDataField: 'someUrlParam' },
       } as unknown as ISelectionComponentProps;
       const result = getDisplayFormData(
-        'mockBindingDropdownWithMapping',
-        checkboxComponent,
+        `mockBinding${type}WithMapping`,
+        component,
         mockFormData,
         mockOptions,
         mockTextResources,
         mockRepeatingGroups,
       );
       expect(result).toEqual('Value Mapping 1');
-    });
+    })
 
     it('should return text resource for radio button component', () => {
       const radioButtonComponent = {
@@ -518,5 +520,18 @@ describe('formComponentUtils', () => {
       const result = atleastOneTagExists(mockAttachmentsWithoutTag);
       expect(result).toEqual(false);
     });
+  });
+
+  describe('componentHasValidationMessages', () => {
+    it.each(['errors', 'warnings', 'success', 'info'])
+      ('should return true if validation message exists in %p array', (type: keyof IComponentBindingValidation) => {
+        const validations: IComponentValidations = {
+          simpleBinding: {
+            [type]: ['some message'],
+          },
+        };
+        const result = componentHasValidationMessages(validations);
+        expect(result).toEqual(true);
+      });
   });
 });

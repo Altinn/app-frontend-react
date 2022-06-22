@@ -114,6 +114,8 @@ export function en() {
       next: 'Next',
       no_options: 'No options available',
       optional: 'Optional',
+      print_button_text: 'Print / Save as PDF',
+      progress: 'Page {0} of {1}',
       required: 'Required',
       save: 'Save',
       search: 'Search',
@@ -224,5 +226,20 @@ export function en() {
       required: 'Field is required',
       enum: 'Only the values {0} are permitted',
     },
+    language: {
+      full_name: {
+        nb: 'Norwegian bokmål',
+        en: "English",
+        nn: "Norwegian nynorsk"
+      },
+      selector: {
+        label: 'Language'
+      }
+    },
+    soft_validation: {
+      info_title: 'Information',
+      warning_title: 'Note',
+      success_title: 'How great!'
+    }
   };
 }

@@ -111,6 +111,8 @@ export function nn() {
       next: 'Neste',
       no_options: 'Ingen alternativ tilgjengleg',
       optional: 'Valfri',
+      print_button_text: 'Print / Lagre PDF',
+      progress: 'Side {0} av {1}',
       required: 'Obligatorisk',
       save: 'Lagre',
       search: 'Søk',
@@ -153,6 +155,16 @@ export function nn() {
       authorization_error_info_customer_service: 'Du kan også kontakte oss på brukarservice {0}.',
       authorization_error_instantiate_validation_info_customer_service: 'Om du står fast kontakt oss på brukarservice {0}.',
       starting: 'Hald på hatten, no startar vi!',
+    },
+    language: {
+      full_name: {
+        nb: 'Norsk bokmål',
+        en: "Engelsk",
+        nn: "Nynorsk"
+      },
+      selector: {
+        label: 'Språk'
+      }
     },
     party_selection: {
       error_caption_prefix: 'Feil',
@@ -221,5 +233,10 @@ export function nn() {
       required: 'Feltet er påkravd',
       enum: 'Kun verdiane {0} er tillatne',
     },
+    soft_validation: {
+      info_title: 'Lurt å tenke på',
+      warning_title: 'OBS',
+      success_title: 'Så flott!'
+    }
   };
 }
