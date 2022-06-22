@@ -487,7 +487,7 @@ describe('formComponentUtils', () => {
     ];
     const mockLanguage = {
       form_filler: {
-        error_required: 'Du må fylle ut {0}.',
+        error_required: 'Du må fylle ut {0}',
         address: 'Gateadresse',
         postPlace: 'Poststed',
         zipCode: 'Postnummer',

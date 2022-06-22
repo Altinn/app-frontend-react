@@ -47,7 +47,7 @@ describe('utils > validation', () => {
     mockLanguage = {
       language: {
         form_filler: {
-          error_required: 'Du må fylle ut {0}.',
+          error_required: 'Du må fylle ut {0}',
           file_uploader_validation_error_file_number_1:
             'For å fortsette må du laste opp',
           file_uploader_validation_error_file_number_2: 'vedlegg',
@@ -697,18 +697,18 @@ describe('utils > validation', () => {
         const mockResult = {
           FormLayout: {
             componentId_3: {
-              simpleBinding: { errors: ['Du må fylle ut component_3.'], warnings: [] },
+              simpleBinding: { errors: ['Du må fylle ut component_3'], warnings: [] },
             },
             'componentId_4-0': {
-              simpleBinding: { errors: ['Du må fylle ut component_4.'], warnings: [] },
+              simpleBinding: { errors: ['Du må fylle ut component_4'], warnings: [] },
             },
             componentId_6: {
-              address: { errors: ['Du må fylle ut Gateadresse.'], warnings: [] },
-              postPlace: { errors: ['Du må fylle ut Poststed.'], warnings: [] },
-              zipCode: { errors: ['Du må fylle ut Postnummer.'], warnings: [] },
+              address: { errors: ['Du må fylle ut Gateadresse'], warnings: [] },
+              postPlace: { errors: ['Du må fylle ut Poststed'], warnings: [] },
+              zipCode: { errors: ['Du må fylle ut Postnummer'], warnings: [] },
             },
             required_in_group_simple: { simpleBinding: {
-                errors: ['Du må fylle ut dette feltet.'],
+                errors: ['Du må fylle ut dette feltet'],
                 warnings: [],
             }},
           },
@@ -745,7 +745,7 @@ describe('utils > validation', () => {
               zipCode: { errors: ['Du må fylle ut Postnummer.'], warnings: [] },
             },
             required_in_group_simple: { simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             }}
           },
@@ -789,7 +789,7 @@ describe('utils > validation', () => {
 
         const mockResult = {
           componentId_3: {
-            simpleBinding: { errors: ['Du må fylle ut component_3.'], warnings: [] },
+            simpleBinding: { errors: ['Du må fylle ut component_3'], warnings: [] },
           },
         };
 
@@ -811,9 +811,9 @@ describe('utils > validation', () => {
 
         const mockResult = {
           componentId_6: {
-            address: { errors: ['Du må fylle ut Gateadresse.'], warnings: [] },
-              postPlace: { errors: ['Du må fylle ut Poststed.'], warnings: [] },
-              zipCode: { errors: ['Du må fylle ut Postnummer.'], warnings: [] },
+            address: { errors: ['Du må fylle ut Gateadresse'], warnings: [] },
+              postPlace: { errors: ['Du må fylle ut Poststed'], warnings: [] },
+              zipCode: { errors: ['Du må fylle ut Postnummer'], warnings: [] },
           },
         };
 
@@ -841,7 +841,7 @@ describe('utils > validation', () => {
       const fieldName = name || 'dette feltet';
       return {
         simpleBinding: {
-          errors: [`Du må fylle ut ${fieldName}.`],
+          errors: [`Du må fylle ut ${fieldName}`],
           warnings: [],
         },
       };
@@ -1606,7 +1606,7 @@ describe('utils > validation', () => {
           'componentId_4-0': {
             simpleBinding: {
               errors: [
-                'Du må fylle ut component_4.',
+                'Du må fylle ut component_4',
                 getParsedLanguageFromKey(
                   `validation_errors.pattern`,
                   state.language.language,
@@ -1712,19 +1712,19 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group1-1': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'componentId_4-1': {
             simpleBinding: {
-              errors: ['Du må fylle ut component_4.'],
+              errors: ['Du må fylle ut component_4'],
               warnings: [],
             },
           },
@@ -1747,7 +1747,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1761,13 +1761,13 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group1-1': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1802,7 +1802,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1828,13 +1828,13 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group2-0-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1873,7 +1873,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1899,13 +1899,13 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group2-0-1': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1951,19 +1951,19 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group2-0-1': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'componentId_5-0-1': {
             simpleBinding: {
-              errors: ['Du må fylle ut dette feltet.'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -2259,7 +2259,7 @@ describe('utils > validation', () => {
       const validations: ILayoutValidations = {
         field: {
           'simple_binding': {
-            errors: ['Some random error', 'Du må fylle ut dette feltet.'],
+            errors: ['Some random error', 'Du må fylle ut dette feltet'],
             warnings: [],
           }
         }
