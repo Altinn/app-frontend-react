@@ -34,7 +34,7 @@ export default class AppFrontend {
       container: '#ReceiptContainer',
       linkToArchive: 'a[href$="/ui/messagebox/archive"]',
       pdf: '#attachment-list-pdf',
-      uploadedAttachments: '#attachment-list',
+      uploadedAttachments: '[data-testid=attachment-list]',
     };
 
     // Confirmation
