@@ -1,10 +1,10 @@
-import { mount } from 'enzyme';
 import React from 'react';
-import * as renderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
 import Header from './altinnAppHeader';
+import { IProfile } from 'altinn-shared/types';
 
-describe('features/altinnAppHeader.tsx', () => {
+describe('AltinnAppHeader', () => {
   let mockLanguage: any;
   let mockProfile: any;
   beforeEach(() => {
@@ -34,20 +34,21 @@ describe('features/altinnAppHeader.tsx', () => {
   });
 
   it('should match snapshot', () => {
-    const rendered = renderer.create(
+    const { container } = render(
       <Header
         type='partyChoice'
         language={mockLanguage}
-        profile={mockProfile.profile}
+        profile={mockProfile.profile as IProfile}
       />,
     );
-    expect(rendered).toMatchSnapshot();
+    expect(container.firstChild).toMatchSnapshot();
   });
 
   it('should not render linklist if no type', () => {
-    const mountedHeader = mount(
+    const { container } = render(
       <Header language={mockLanguage} profile={mockProfile} />,
     );
-    expect(mountedHeader.exists('ul')).toEqual(false);
+
+    expect(container.querySelector('ul')).not.toBeInTheDocument();
   });
 });

@@ -1,42 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`features/altinnAppHeader.tsx should match snapshot 1`] = `
+exports[`AltinnAppHeader should match snapshot 1`] = `
 <div
-  className="AltinnAppHeader-appBarWrapper-1"
+  class="AltinnAppHeader-appBarWrapper-1"
 >
   <nav
-    className="makeStyles-jumpNav-14"
+    class="makeStyles-jumpNav-14"
   >
     <button
-      className="makeStyles-button-13 makeStyles-srOnly-15"
-      onClick={[Function]}
+      class="makeStyles-button-13 makeStyles-srOnly-15"
       role="link"
     >
       navigation.to_main_content
     </button>
   </nav>
   <header
-    className="MuiPaper-root MuiAppBar-root MuiAppBar-positionStatic MuiAppBar-colorPrimary AltinnAppHeader-default-4 MuiPaper-elevation4"
+    class="MuiPaper-root MuiAppBar-root MuiAppBar-positionStatic MuiAppBar-colorPrimary AltinnAppHeader-default-4 MuiPaper-elevation4"
   >
     <div
-      className="MuiToolbar-root MuiToolbar-regular container AltinnAppHeader-toolbarContainer-12 MuiToolbar-gutters"
+      class="MuiToolbar-root MuiToolbar-regular container AltinnAppHeader-toolbarContainer-12 MuiToolbar-gutters"
     >
       <div
-        className="MuiGrid-root AltinnAppHeader-logo-9 MuiGrid-item"
-        style={Object {}}
+        class="MuiGrid-root AltinnAppHeader-logo-9 MuiGrid-item"
       >
         <img
           alt="Altinn logo"
-          className="logo"
+          class="logo"
           id="logo"
           src="https://altinncdn.no/img/Altinn-logo-blue.svg"
         />
       </div>
       <ul
-        className="AltinnAppHeader-headerLinkList-6"
+        class="AltinnAppHeader-headerLinkList-6"
       >
         <li
-          className="AltinnAppHeader-headerLink-5"
+          class="AltinnAppHeader-headerLink-5"
         >
           <a
             href="/ui/Reportee/ChangeReporteeAndRedirect?goTo=/ui/messagebox&R=123456"
@@ -45,7 +43,7 @@ exports[`features/altinnAppHeader.tsx should match snapshot 1`] = `
           </a>
         </li>
         <li
-          className="AltinnAppHeader-headerLink-5"
+          class="AltinnAppHeader-headerLink-5"
         >
           <a
             href="/skjemaoversikt"
@@ -54,7 +52,7 @@ exports[`features/altinnAppHeader.tsx should match snapshot 1`] = `
           </a>
         </li>
         <li
-          className="AltinnAppHeader-headerLink-5"
+          class="AltinnAppHeader-headerLink-5"
         >
           <a
             href="/ui/Reportee/ChangeReporteeAndRedirect?goTo=/ui/profile&R=123456"
@@ -64,24 +62,20 @@ exports[`features/altinnAppHeader.tsx should match snapshot 1`] = `
         </li>
       </ul>
       <div
-        className="a-personSwitcher"
+        class="a-personSwitcher"
         title="OLA PRIVATPERSON"
       >
         <span
-          className="a-personSwitcher-name"
-          style={
-            Object {
-              "marginBottom": "10px",
-            }
-          }
+          class="a-personSwitcher-name"
+          style="margin-bottom: 10px;"
         >
           <span
-            className="d-block"
+            class="d-block"
           />
         </span>
         <i
           aria-hidden="true"
-          className="fa fa-private-circle-big AltinnAppHeader-partyIcon-11 AltinnAppHeader-blueDark-2"
+          class="fa fa-private-circle-big AltinnAppHeader-partyIcon-11 AltinnAppHeader-blueDark-2"
         />
       </div>
     </div>
