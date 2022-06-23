@@ -43,7 +43,7 @@ export default class AppFrontend {
       body: '#body-text',
       sendIn: '#confirm-button',
       receiptPdf: '#attachment-list-pdf',
-      uploadedAttachments: '#attachment-list',
+      uploadedAttachments: '[data-testid=attachment-list]',
     };
 
     this.feedback = '#FeedbackContainer';
