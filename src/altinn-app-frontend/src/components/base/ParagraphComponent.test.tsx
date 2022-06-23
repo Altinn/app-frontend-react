@@ -40,7 +40,6 @@ describe('ParagraphComponent', () => {
       />,
     );
     expect(screen.getByText('some other text')).toBeInTheDocument();
-    screen.debug();
   });
 
   it('should render help text if help text is supplied', () => {
