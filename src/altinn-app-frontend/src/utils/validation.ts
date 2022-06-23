@@ -33,7 +33,7 @@ import {
   isFileUploadComponent,
   isFileUploadWithTagComponent,
   isDatePickerComponent,
-  isGroupComponent,
+  isGroupComponent, splitDashedKey,
 } from './formLayout';
 import { getDataTaskDataTypeId } from './appMetadata';
 import { getFlagBasedDate } from './dateHelpers';
@@ -241,9 +241,8 @@ export function* iterateFieldsInLayout(
             (key) => key.startsWith(group.id),
           );
           for (const childGroupId of allGroupIds) {
-            const splitId = childGroupId.split('-');
-            const parentIndexString = splitId[splitId.length - 1];
-            const parentIndex = Number.parseInt(parentIndexString, 10);
+            const splitId = splitDashedKey(childGroupId);
+            const parentIndex = splitId.depth[splitId.depth.length - 1];
             const parentDataBinding = parentGroup.dataModelBindings?.group;
             const indexedParentDataBinding = `${parentDataBinding}[${parentIndex}]`;
             const indexedGroupDataBinding =
