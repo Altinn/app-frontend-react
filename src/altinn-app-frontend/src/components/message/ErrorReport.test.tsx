@@ -1,24 +1,18 @@
 import * as React from 'react';
-import { mount } from 'enzyme';
-import configureStore from 'redux-mock-store';
-import { Provider } from 'react-redux';
 
 import { getInitialStateMock } from '../../../__mocks__/mocks';
 import type { IRuntimeState } from 'src/types';
 import type { IValidationState } from 'src/features/form/validation/validationSlice';
 
-import { getParsedLanguageFromText } from '../../../../shared/src';
+import { getParsedLanguageFromText } from 'altinn-shared/utils';
 import ErrorReport from './ErrorReport';
+import { renderWithProviders } from '../../../testUtils';
+import { screen } from '@testing-library/react';
+
 
 describe('components > ErrorReport.tsx', () => {
-  const mountComponent = (state: IRuntimeState) => {
-    const createStore = configureStore();
-    const mockStore = createStore(state);
-    return mount(
-      <Provider store={mockStore}>
-        <ErrorReport />
-      </Provider>,
-    );
+  const render = (preloadedState: IRuntimeState) => {
+    return renderWithProviders(<ErrorReport />, { preloadedState });
   };
 
   it('should render generic error message by default', () => {
@@ -39,10 +33,10 @@ describe('components > ErrorReport.tsx', () => {
     const initialState = getInitialStateMock({
       formValidations: mockValidationState,
     });
-    const component = mountComponent(initialState);
+    render(initialState);
     const genericErrorText =
       initialState.language.language.form_filler['error_report_description'];
-    expect(component.text().includes(genericErrorText)).toBeTruthy();
+    expect(screen.getByText(genericErrorText)).toBeInTheDocument();
   });
 
   it('should list unmapped errors if present and hide generic error message', () => {
@@ -66,10 +60,10 @@ describe('components > ErrorReport.tsx', () => {
     const initialState = getInitialStateMock({
       formValidations: mockValidationState,
     });
-    const component = mountComponent(initialState);
+    render(initialState);
     const genericErrorText =
       initialState.language.language.form_filler['error_report_description'];
-    expect(component.text().includes(genericErrorText)).toBeFalsy();
-    expect(component.text().includes('some unmapped error')).toBeTruthy();
+    expect(screen.queryByText(genericErrorText)).toBeNull();
+    expect(screen.getByText('some unmapped error')).toBeInTheDocument();
   });
 });
