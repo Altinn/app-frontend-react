@@ -2,13 +2,13 @@
 
 exports[`ParagraphComponent should match snapshot 1`] = `
 <div
-  className="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
+  class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
 >
   <div
-    className="MuiGrid-root MuiGrid-item"
+    class="MuiGrid-root MuiGrid-item"
   >
     <p
-      className="MuiTypography-root makeStyles-spacing-1 makeStyles-typography-2 MuiTypography-body1"
+      class="MuiTypography-root makeStyles-spacing-1 makeStyles-typography-2 MuiTypography-body1"
       id="mock-id"
     >
       Here goes a paragraph

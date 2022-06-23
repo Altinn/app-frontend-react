@@ -1,7 +1,5 @@
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import * as renderer from 'react-test-renderer';
-
+import { render, screen } from '@testing-library/react';
 import type { ITextResourceBindings } from 'src/features/form/layout';
 import type { IComponentProps } from 'src/components';
 
@@ -17,7 +15,7 @@ describe('ParagraphComponent', () => {
   };
 
   it('should match snapshot', () => {
-    const rendered = renderer.create(
+    const { container } = render(
       <ParagraphComponent
         id={mockId}
         text={mockText}
@@ -27,10 +25,11 @@ describe('ParagraphComponent', () => {
         {...({} as IComponentProps)}
       />,
     );
-    expect(rendered).toMatchSnapshot();
+    expect(container.firstChild).toMatchSnapshot();
   });
+
   it('should have correct text', () => {
-    const shallowParagraphComponent = shallow(
+    render(
       <ParagraphComponent
         id={mockId}
         text={'some other text'}
@@ -40,12 +39,12 @@ describe('ParagraphComponent', () => {
         {...({} as IComponentProps)}
       />,
     );
-
-    expect(shallowParagraphComponent.text()).toEqual('some other text');
+    expect(screen.getByText('some other text')).toBeInTheDocument();
+    screen.debug();
   });
 
   it('should render help text if help text is supplied', () => {
-    const shallowParagraphComponent = shallow(
+    render(
       <ParagraphComponent
         id={mockId}
         text={mockText}
@@ -55,7 +54,10 @@ describe('ParagraphComponent', () => {
         {...({} as IComponentProps)}
       />,
     );
-
-    expect(shallowParagraphComponent.find('HelpTextContainer')).toHaveLength(1);
+    expect(
+      screen.getByRole('button', {
+        name: /popover\.popover_button_helptext/i,
+      }),
+    ).toBeInTheDocument();
   });
 });
