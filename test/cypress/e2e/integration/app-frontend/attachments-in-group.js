@@ -340,9 +340,6 @@ describe('Repeating group attachments', () => {
     cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormData);
 
     if (runReloadTests) {
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(1000);
-
       // Reload tha page at this point to verify that attachments are mapped correctly from formData back to the
       // correct attachment state.
       cy.reload();
