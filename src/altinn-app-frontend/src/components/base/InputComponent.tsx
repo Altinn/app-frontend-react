@@ -5,6 +5,7 @@ import { Input, makeStyles } from '@material-ui/core';
 
 import '../../styles/shared.css';
 import { IComponentProps } from '..';
+import { useDelayedSavedState } from "src/components/hooks/useDelayedSavedState";
 
 export interface IInputBaseProps {
   id: string;
@@ -82,7 +83,7 @@ export function InputComponent({
   textResourceBindings
 }: IInputProps) {
   const classes = useStyles();
-  const [value, setValue] = React.useState(formData?.simpleBinding ?? '');
+  const [value, setValue] = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '');
 
   React.useEffect(() => {
     setValue(formData?.simpleBinding ?? '');
@@ -92,15 +93,10 @@ export function InputComponent({
     setValue(e.target.value);
   };
 
-  const onDataChangeSubmit = () => {
-    handleDataChange(value);
-  };
-
   return (
     <Input
       key={`input_${id}`}
       id={id}
-      onBlur={onDataChangeSubmit}
       onChange={onDataChanged}
       readOnly={readOnly}
       required={required}
