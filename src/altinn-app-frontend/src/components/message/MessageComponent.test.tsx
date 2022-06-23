@@ -1,22 +1,19 @@
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
 import { MessageComponent, MessageType } from './MessageComponent';
 
-describe('components/message/MessageComponent.tsx', () => {
-  let mockId: string;
+describe('MessageComponent', () => {
+  const mockId = 'mockId';
   let mockMessageType: MessageType;
   let mockMessages: string[];
 
   beforeEach(() => {
-    mockId = 'mockId';
     mockMessageType = 'message';
     mockMessages = ['this is a message'];
   });
-
   it('should match snapshot', () => {
-    const rendered = renderer.create(
+    const { container } = render(
       <MessageComponent
         messageType={mockMessageType}
         style={{ display: 'block', width: 'fit-content' }}
@@ -30,12 +27,11 @@ describe('components/message/MessageComponent.tsx', () => {
         </ol>
       </MessageComponent>,
     );
-    expect(rendered).toMatchSnapshot();
+    expect(container.firstChild).toMatchSnapshot();
   });
-
   it('should have class a-message-info when into type', () => {
     mockMessageType = 'info';
-    const shallowMessageComponent = shallow(
+    const { container } = render(
       <MessageComponent
         messageType={mockMessageType}
         style={{ display: 'block', width: 'fit-content' }}
@@ -49,14 +45,13 @@ describe('components/message/MessageComponent.tsx', () => {
         </ol>
       </MessageComponent>,
     );
-    expect(shallowMessageComponent.find('div').hasClass('a-message-info')).toBe(
-      true,
-    );
+    expect(
+      container.querySelector('#mockId.a-message-info'),
+    ).toBeInTheDocument();
   });
-
   it('should have class a-message-error when error type', () => {
     mockMessageType = 'error';
-    const shallowMessageComponent = shallow(
+    const { container } = render(
       <MessageComponent
         messageType={mockMessageType}
         style={{ display: 'block', width: 'fit-content' }}
@@ -71,13 +66,12 @@ describe('components/message/MessageComponent.tsx', () => {
       </MessageComponent>,
     );
     expect(
-      shallowMessageComponent.find('div').hasClass('a-message-error'),
-    ).toBe(true);
+      container.querySelector('#mockId.a-message-error'),
+    ).toBeInTheDocument();
   });
-
   it('should have class a-message-success when success type', () => {
     mockMessageType = 'success';
-    const shallowMessageComponent = shallow(
+    const { container } = render(
       <MessageComponent
         messageType={mockMessageType}
         style={{ display: 'block', width: 'fit-content' }}
@@ -92,7 +86,7 @@ describe('components/message/MessageComponent.tsx', () => {
       </MessageComponent>,
     );
     expect(
-      shallowMessageComponent.find('div').hasClass('a-message-success'),
-    ).toBe(true);
+      container.querySelector('#mockId.a-message-success'),
+    ).toBeInTheDocument();
   });
 });
