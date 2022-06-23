@@ -24,7 +24,7 @@ import { ILayouts, ILayoutComponent, ILayoutGroup, ILayout, } from '../features/
 import { IValidationIssue, Severity, DateFlags } from '../types';
 import { getFieldName, getFormDataForComponent } from './formComponentUtils';
 import { getParsedTextResourceByKey } from './textResource';
-import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex, getKeyIndex } from './databindings';
+import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex } from './databindings';
 // eslint-disable-next-line import/no-cycle
 import { matchLayoutComponent, setupGroupComponents } from './layout';
 import {

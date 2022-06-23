@@ -285,12 +285,29 @@ export function getFormDataFromFieldKey(
   groupDataBinding?: string,
   index?: number,
 ) {
-    let dataModelBindingKey = dataModelBindings[fieldKey];
-    if (groupDataBinding) {
-      dataModelBindingKey = dataModelBindingKey.replace(
-        groupDataBinding,
-        `${groupDataBinding}[${index}]`,
-      );
+  let dataModelBindingKey = dataModelBindings[fieldKey];
+  if (groupDataBinding) {
+    dataModelBindingKey = dataModelBindingKey.replace(
+      groupDataBinding,
+      `${groupDataBinding}[${index}]`,
+    );
+  }
+  let value = formData[dataModelBindingKey];
+  if (fieldKey === 'list') {
+    value = [];
+    for (const key of Object.keys(formData)) {
+      if (
+        key.startsWith(dataModelBindingKey) &&
+        key.substring(dataModelBindingKey.length).match(/^\[\d+]$/)
+      ) {
+        const indexes = getKeyIndex(key);
+        value[indexes.pop()] = formData[key];
+      }
     }
-    return formData[dataModelBindingKey];
+    if (!value.length) {
+      value = undefined;
+    }
+  }
+
+  return value;
 }
