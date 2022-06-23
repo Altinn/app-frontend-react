@@ -117,16 +117,21 @@ export function* watchUpdateFormDataSaga(): SagaIterator {
   }
 }
 
-function* deleteAttachmentReferenceSaga({ payload: {
+export const SelectFormData = (s: IRuntimeState) => s.formData.formData;
+export const SelectLayouts = (s: IRuntimeState) => s.formLayout.layouts;
+export const SelectAttachments = (s: IRuntimeState) => s.attachments.attachments;
+export const SelectCurrentView = (s: IRuntimeState) => s.formLayout.uiConfig.currentView;
+
+export function* deleteAttachmentReferenceSaga({ payload: {
   attachmentId,
   componentId,
   dataModelBindings
 } }: PayloadAction<IDeleteAttachmentReference>): SagaIterator {
   try {
-    const formData: IFormData = yield select((s: IRuntimeState) => s.formData.formData);
-    const layouts: ILayouts = yield select((s: IRuntimeState) => s.formLayout.layouts);
-    const attachments: IAttachments = yield select((s: IRuntimeState) => s.attachments.attachments);
-    const currentView:string = yield select((s: IRuntimeState) => s.formLayout.uiConfig.currentView);
+    const formData: IFormData = yield select(SelectFormData);
+    const layouts: ILayouts = yield select(SelectLayouts);
+    const attachments: IAttachments = yield select(SelectAttachments);
+    const currentView:string = yield select(SelectCurrentView);
     const layout = layouts[currentView];
 
     const updatedFormData = removeAttachmentReference(formData, attachmentId, layout, attachments, dataModelBindings, componentId);
