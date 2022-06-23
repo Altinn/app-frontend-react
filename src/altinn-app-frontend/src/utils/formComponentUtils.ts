@@ -23,6 +23,7 @@ import type {
 } from 'src/types';
 import { AsciiUnitSeparator } from './attachment';
 import { getOptionLookupKey } from './options';
+import { getTextFromAppOrDefault } from './textResource';
 import { isFileUploadComponent, isFileUploadWithTagComponent } from "src/utils/formLayout";
 
 export const componentValidationsHandledByGenericComponent = (
@@ -457,3 +458,25 @@ export const atleastOneTagExists = (attachments: IAttachment[]): boolean => {
 
   return totalTagCount !== undefined && totalTagCount >= 1;
 };
+
+export function getFieldName(
+  textResourceBindings: ITextResourceBindings,
+  textResources: ITextResource[],
+  language: ILanguage,
+  fieldKey?: string,
+): string {
+  if (fieldKey)
+  {
+    return getTextFromAppOrDefault(`form_filler.${fieldKey}`, textResources, language, null, true);
+  }
+
+  if (textResourceBindings.shortName) {
+    return getTextResourceByKey(textResourceBindings.shortName, textResources);
+  }
+
+  if (textResourceBindings.title) {
+    return getTextResourceByKey(textResourceBindings.title, textResources);
+  }
+
+  return getLanguageFromKey('validation.generic_field', language);
+}

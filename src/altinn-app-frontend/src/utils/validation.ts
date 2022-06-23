@@ -18,12 +18,13 @@ import {
   ILayoutValidations,
   IDataModelBindings,
   IRuntimeState,
+  ITextResourceBindings,
 } from 'src/types';
 import { ILayouts, ILayoutComponent, ILayoutGroup, ILayout, } from '../features/form/layout';
 import { IValidationIssue, Severity, DateFlags } from '../types';
-import { getFormDataForComponent } from './formComponentUtils';
+import { getFieldName, getFormDataForComponent } from './formComponentUtils';
 import { getParsedTextResourceByKey } from './textResource';
-import { convertDataBindingToModel, getKeyWithoutIndex, getKeyIndex } from './databindings';
+import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex, getKeyIndex } from './databindings';
 // eslint-disable-next-line import/no-cycle
 import { matchLayoutComponent, setupGroupComponents } from './layout';
 import {
@@ -172,6 +173,7 @@ export function validateEmptyFields(
   language: ILanguage,
   hiddenFields: string[],
   repeatingGroups: IRepeatingGroups,
+  textResources: ITextResource[],
 ) {
   const validations = {};
   Object.keys(layouts).forEach((id) => {
@@ -182,6 +184,7 @@ export function validateEmptyFields(
         language,
         hiddenFields,
         repeatingGroups,
+        textResources,
       );
     }
   });
@@ -311,6 +314,7 @@ export function validateEmptyFieldsForLayout(
   language: ILanguage,
   hiddenFields: string[],
   repeatingGroups: IRepeatingGroups,
+  textResources: ITextResource[],
 ): ILayoutValidations {
   const validations: any = {};
   const generator = iterateFieldsInLayout(formLayout, repeatingGroups, hiddenFields, (component) => component.required);
@@ -324,6 +328,8 @@ export function validateEmptyFieldsForLayout(
     const result = validateEmptyField(
       formData,
       component.dataModelBindings,
+      component.textResourceBindings,
+      textResources,
       language,
       groupDataModelBinding,
       index
@@ -375,6 +381,8 @@ export function getGroupChildren(
 export function validateEmptyField(
   formData: any,
   dataModelBindings: IDataModelBindings,
+  textResourceBindings: ITextResourceBindings,
+  textResources: ITextResource[],
   language: ILanguage,
   groupDataBinding?: string,
   index?: number,
@@ -385,34 +393,32 @@ export function validateEmptyField(
   const fieldKeys = Object.keys(dataModelBindings) as (keyof IDataModelBindings)[];
   const componentValidations: IComponentValidations = {};
   fieldKeys.forEach((fieldKey) => {
-    let dataModelBindingKey = dataModelBindings[fieldKey];
-    if (groupDataBinding) {
-      dataModelBindingKey = dataModelBindingKey.replace(
-        groupDataBinding,
-        `${groupDataBinding}[${index}]`,
-      );
-    }
-    let value = formData[dataModelBindingKey];
-    if (fieldKey === 'list') {
-      value = [];
-      for (const key of Object.keys(formData)) {
-        if (key.startsWith(dataModelBindingKey) && key.substring(dataModelBindingKey.length).match(/^\[\d+]$/)) {
-          const indexes = getKeyIndex(key);
-          value[indexes.pop()] = formData[key];
-        }
-      }
-      if (!value.length) {
-        value = undefined;
-      }
-    }
-
+    const value = getFormDataFromFieldKey(
+      fieldKey,
+      dataModelBindings,
+      formData,
+      groupDataBinding,
+      index,
+    );
     if (!value && fieldKey) {
       componentValidations[fieldKey] = {
         errors: [],
         warnings: [],
       };
+
+      const fieldName = getFieldName(
+        textResourceBindings,
+        textResources,
+        language,
+        fieldKey !== 'simpleBinding' ? fieldKey : undefined,
+      );
       componentValidations[fieldKey].errors.push(
-        getLanguageFromKey('form_filler.error_required', language),
+        getParsedLanguageFromKey(
+          'form_filler.error_required',
+          language,
+          [fieldName],
+          true,
+        ),
       );
     }
   });
@@ -693,10 +699,21 @@ export function validateComponentFormData(
   }
   if (component.required) {
     if (!formData || formData === '') {
+      const fieldName = getFieldName(
+        component.textResourceBindings,
+        textResources,
+        language,
+        fieldKey !== 'simpleBinding' ? fieldKey : undefined,
+      );
       validationResult.validations[layoutId][
         componentIdWithIndex || component.id
       ][fieldKey].errors.push(
-        getLanguageFromKey('form_filler.error_required', language),
+        getParsedLanguageFromKey(
+          'form_filler.error_required',
+          language,
+          [fieldName],
+          true,
+        ),
       );
     }
   }
@@ -1575,6 +1592,7 @@ export function validateGroup(
       language,
       hiddenFields,
       repeatingGroups,
+      textResources,
     );
   const componentValidations: ILayoutValidations =
     validateFormComponentsForLayout(
@@ -1760,10 +1778,12 @@ export function missingFieldsInLayoutValidations(
   language: ILanguage,
 ): boolean {
   let result = false;
-  const requiredMessage = getLanguageFromKey(
+  let requiredMessage: string = getLanguageFromKey(
     'form_filler.error_required',
     language,
   );
+  // Strip away parametrized part of error message, as this will vary with each component.
+  requiredMessage = requiredMessage.substring(0, requiredMessage.indexOf('{0}'));
   const lookForRequiredMsg = (e: any) => {
     if (typeof e === 'string') {
       return e.includes(requiredMessage);

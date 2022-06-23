@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { object } from 'dot-object';
 import type { ILayout, ILayoutGroup, ILayoutComponent } from 'src/features/form/layout';
-import type { IMapping, IRepeatingGroup, IDataModelBindings , IFormFileUploaderComponent } from 'src/types';
+import type { IMapping, IRepeatingGroup, IDataModelBindings, IFormFileUploaderComponent } from 'src/types';
 import { getParentGroup } from './validation';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
 import type {
@@ -276,4 +276,21 @@ export function mapFormData(formData: IFormData, mapping: IMapping) {
     mappedFormData[target] = formData[source];
   });
   return mappedFormData;
+}
+
+export function getFormDataFromFieldKey(
+  fieldKey: string,
+  dataModelBindings: IDataModelBindings,
+  formData: any,
+  groupDataBinding?: string,
+  index?: number,
+) {
+    let dataModelBindingKey = dataModelBindings[fieldKey];
+    if (groupDataBinding) {
+      dataModelBindingKey = dataModelBindingKey.replace(
+        groupDataBinding,
+        `${groupDataBinding}[${index}]`,
+      );
+    }
+    return formData[dataModelBindingKey];
 }

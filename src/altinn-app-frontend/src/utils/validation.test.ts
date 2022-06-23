@@ -13,6 +13,7 @@ import type {
   IComponentBindingValidation,
   IComponentValidations,
   ILayoutValidations,
+  ITextResource,
 } from 'src/types';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 
@@ -40,15 +41,22 @@ describe('utils > validation', () => {
   let mockLanguage: any;
   let mockFormAttachments: any;
   let mockDataElementValidations: IValidationIssue[];
+  let mockTextResources: ITextResource[];
 
   beforeEach(() => {
     mockLanguage = {
       language: {
         form_filler: {
-          error_required: 'Feltet er påkrevd',
+          error_required: 'Du må fylle ut {0}',
           file_uploader_validation_error_file_number_1:
             'For å fortsette må du laste opp',
           file_uploader_validation_error_file_number_2: 'vedlegg',
+          address: 'Gateadresse',
+          postPlace: 'Poststed',
+          zipCode: 'Postnummer',
+        },
+        validation: {
+          generic_field: 'dette feltet',
         },
         validation_errors: {
           minLength: 'length must be bigger than {0}',
@@ -58,6 +66,33 @@ describe('utils > validation', () => {
       },
     };
 
+    mockTextResources = [
+      {
+        id: 'c1Title',
+        value: 'component_1'
+      },
+      {
+        id: 'c2Title',
+        value: 'component_2'
+      },
+      {
+        id: 'c3Title',
+        value: 'component_3'
+      },
+      {
+        id: 'c4Title',
+        value: 'component_4'
+      },
+      {
+        id: 'c5Title',
+        value: 'component_5'
+      },
+      {
+        id: 'c6Title',
+        value: 'component_6'
+      },
+    ];
+
     mockComponent4 = {
       type: 'Input',
       id: 'componentId_4',
@@ -66,7 +101,9 @@ describe('utils > validation', () => {
       },
       required: true,
       readOnly: false,
-      textResourceBindings: {},
+      textResourceBindings: {
+        title: 'c4Title',
+      },
     };
 
     mockComponent5 = {
@@ -77,7 +114,9 @@ describe('utils > validation', () => {
       },
       required: false,
       readOnly: false,
-      textResourceBindings: {},
+      textResourceBindings: {
+        title: 'c5Title',
+      },
     };
 
     mockGroup2 = {
@@ -125,7 +164,9 @@ describe('utils > validation', () => {
           },
           required: true,
           readOnly: false,
-          textResourceBindings: {},
+          textResourceBindings: {
+            title: 'c1Title',
+          },
         },
         {
           type: 'Input',
@@ -135,7 +176,9 @@ describe('utils > validation', () => {
           },
           required: true,
           readOnly: false,
-          textResourceBindings: {},
+          textResourceBindings: {
+            title: 'c2Title',
+          },
         },
         {
           type: 'TextArea',
@@ -145,7 +188,9 @@ describe('utils > validation', () => {
           },
           required: true,
           readOnly: false,
-          textResourceBindings: {},
+          textResourceBindings: {
+            title: 'c3Title',
+          },
         },
         mockGroup1,
         mockGroup2,
@@ -168,7 +213,9 @@ describe('utils > validation', () => {
           },
           required: true,
           readOnly: false,
-          textResourceBindings: {},
+          textResourceBindings: {
+            title: 'c6Title',
+          },
         },
         {
           type: 'Input',
@@ -649,23 +696,24 @@ describe('utils > validation', () => {
           mockLanguage.language,
           [],
           repeatingGroups,
+          mockTextResources,
         );
 
         const mockResult = {
           FormLayout: {
             componentId_3: {
-              simpleBinding: { errors: ['Feltet er påkrevd'], warnings: [] },
+              simpleBinding: { errors: ['Du må fylle ut component_3'], warnings: [] },
             },
             'componentId_4-0': {
-              simpleBinding: { errors: ['Feltet er påkrevd'], warnings: [] },
+              simpleBinding: { errors: ['Du må fylle ut component_4'], warnings: [] },
             },
             componentId_6: {
-              address: { errors: ['Feltet er påkrevd'], warnings: [] },
-              postPlace: { errors: ['Feltet er påkrevd'], warnings: [] },
-              zipCode: { errors: ['Feltet er påkrevd'], warnings: [] },
+              address: { errors: ['Du må fylle ut Gateadresse'], warnings: [] },
+              postPlace: { errors: ['Du må fylle ut Poststed'], warnings: [] },
+              zipCode: { errors: ['Du må fylle ut Postnummer'], warnings: [] },
             },
             required_in_group_simple: { simpleBinding: {
-                errors: ['Feltet er påkrevd'],
+                errors: ['Du må fylle ut dette feltet'],
                 warnings: [],
             }},
           },
@@ -688,20 +736,21 @@ describe('utils > validation', () => {
           mockLanguage.language,
           ['componentId_4-0'],
           repeatingGroups,
+          mockTextResources,
         );
 
         const mockResult = {
           FormLayout: {
             componentId_3: {
-              simpleBinding: { errors: ['Feltet er påkrevd'], warnings: [] },
+              simpleBinding: { errors: ['Du må fylle ut component_3'], warnings: [] },
             },
             componentId_6: {
-              address: { errors: ['Feltet er påkrevd'], warnings: [] },
-              postPlace: { errors: ['Feltet er påkrevd'], warnings: [] },
-              zipCode: { errors: ['Feltet er påkrevd'], warnings: [] },
+              address: { errors: ['Du må fylle ut Gateadresse'], warnings: [] },
+              postPlace: { errors: ['Du må fylle ut Poststed'], warnings: [] },
+              zipCode: { errors: ['Du må fylle ut Postnummer'], warnings: [] },
             },
             required_in_group_simple: { simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             }}
           },
@@ -724,6 +773,7 @@ describe('utils > validation', () => {
           mockLanguage.language,
           [],
           repeatingGroups,
+          mockTextResources,
         );
 
         expect(componentSpesificValidations).toEqual({});
@@ -737,12 +787,14 @@ describe('utils > validation', () => {
         validations[component.id] = validation.validateEmptyField(
           mockFormData,
           component.dataModelBindings,
+          component.textResourceBindings,
+          mockTextResources,
           mockLanguage.language,
         );
 
         const mockResult = {
           componentId_3: {
-            simpleBinding: { errors: ['Feltet er påkrevd'], warnings: [] },
+            simpleBinding: { errors: ['Du må fylle ut component_3'], warnings: [] },
           },
         };
 
@@ -757,14 +809,16 @@ describe('utils > validation', () => {
         validations[component.id] = validation.validateEmptyField(
           mockFormData,
           component.dataModelBindings,
+          component.textResourceBindings,
+          mockTextResources,
           mockLanguage.language,
         );
 
         const mockResult = {
           componentId_6: {
-            address: { errors: ['Feltet er påkrevd'], warnings: [] },
-            postPlace: { errors: ['Feltet er påkrevd'], warnings: [] },
-            zipCode: { errors: ['Feltet er påkrevd'], warnings: [] },
+            address: { errors: ['Du må fylle ut Gateadresse'], warnings: [] },
+              postPlace: { errors: ['Du må fylle ut Poststed'], warnings: [] },
+              zipCode: { errors: ['Du må fylle ut Postnummer'], warnings: [] },
           },
         };
 
@@ -784,12 +838,19 @@ describe('utils > validation', () => {
       mockLanguage.language,
       hiddenFields,
       repeatingGroups,
+      mockTextResources,
     );
 
     const requiredFieldInSimpleGroup = 'required_in_group_simple';
-    const requiredError = {
-      simpleBinding: { errors: ['Feltet er påkrevd'], warnings: [] },
-    };
+    const requiredError = (name?: string) => {
+      const fieldName = name || 'dette feltet';
+      return {
+        simpleBinding: {
+          errors: [`Du må fylle ut ${fieldName}`],
+          warnings: [],
+        },
+      };
+    }
 
     it('should pass validation on required field in hidden group', () => {
       expect(_with({hiddenFields: ['group_simple']})[requiredFieldInSimpleGroup]).toBeUndefined();
@@ -798,7 +859,7 @@ describe('utils > validation', () => {
       expect(_with({hiddenFields: [requiredFieldInSimpleGroup]})[requiredFieldInSimpleGroup]).toBeUndefined();
     });
     it('should mark as required with required field in visible group', () => {
-      expect(_with({hiddenFields: []})[requiredFieldInSimpleGroup]).toEqual(requiredError);
+      expect(_with({hiddenFields: []})[requiredFieldInSimpleGroup]).toEqual(requiredError());
     });
 
     it('should validate successfully with no instances of repeating groups', () => {
@@ -828,12 +889,12 @@ describe('utils > validation', () => {
           // Group2 has no instances inside the third instance of group1
         },
       })).toEqual({
-        'componentId_4-0': requiredError,
-        'componentId_4-1': requiredError,
-        'componentId_4-2': requiredError,
-        'componentId_5-0-0': requiredError,
-        'componentId_5-0-1': requiredError,
-        'componentId_5-1-0': requiredError,
+        'componentId_4-0': requiredError('component_4'),
+        'componentId_4-1': requiredError('component_4'),
+        'componentId_4-2': requiredError('component_4'),
+        'componentId_5-0-0': requiredError('component_5'),
+        'componentId_5-0-1': requiredError('component_5'),
+        'componentId_5-1-0': requiredError('component_5'),
       });
     });
 
@@ -844,8 +905,8 @@ describe('utils > validation', () => {
           group1: { index: 1 }, // Group1 has 2 instances
         },
       })).toEqual({
-        'componentId_4-0': requiredError,
-        'componentId_4-1': requiredError,
+        'componentId_4-0': requiredError('component_4'),
+        'componentId_4-1': requiredError('component_4'),
       });
     });
 
@@ -860,8 +921,8 @@ describe('utils > validation', () => {
           group3: { index: 1 },
         },
       })).toEqual({
-        'componentId_4-0': requiredError,
-        'componentId_4-1': requiredError,
+        'componentId_4-0': requiredError('component_4'),
+        'componentId_4-1': requiredError('component_4'),
       });
     });
 
@@ -880,9 +941,9 @@ describe('utils > validation', () => {
           'group2-0': { index: 0 },
         },
       })).toEqual({
-        'componentId_4-0': requiredError,
-        'componentId_4-1': requiredError,
-        'componentId_5-0-0': requiredError,
+        'componentId_4-0': requiredError('component_4'),
+        'componentId_4-1': requiredError('component_4'),
+        'componentId_5-0-0': requiredError('component_5'),
       });
     });
   });
@@ -1538,6 +1599,11 @@ describe('utils > validation', () => {
         formData: {
           formData: mockFormData,
         } as any,
+        textResources: {
+          error: null,
+          language: 'nb',
+          resources: mockTextResources,
+        }
       });
       const result: IValidations = validation.validateGroup('group1', state);
       expect(result).toEqual({
@@ -1545,7 +1611,7 @@ describe('utils > validation', () => {
           'componentId_4-0': {
             simpleBinding: {
               errors: [
-                'Feltet er påkrevd',
+                'Du må fylle ut component_4',
                 getParsedLanguageFromKey(
                   `validation_errors.pattern`,
                   state.language.language,
@@ -1651,19 +1717,19 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group1-1': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'componentId_4-1': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut component_4'],
               warnings: [],
             },
           },
@@ -1686,7 +1752,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1700,13 +1766,13 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group1-1': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1741,7 +1807,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1767,13 +1833,13 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group2-0-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1812,7 +1878,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -1838,25 +1904,25 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group2-0-1': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'componentId_5-0-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd 1'],
+              errors: ['Du må fylle ut  1'],
               warnings: [],
             },
           },
           'componentId_5-0-1': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd 2'],
+              errors: ['Du må fylle ut  2'],
               warnings: [],
             },
           },
@@ -1890,19 +1956,19 @@ describe('utils > validation', () => {
         FormLayout: {
           'group1-0': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'group2-0-1': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
           'componentId_5-0-1': {
             simpleBinding: {
-              errors: ['Feltet er påkrevd'],
+              errors: ['Du må fylle ut dette feltet'],
               warnings: [],
             },
           },
@@ -2198,7 +2264,7 @@ describe('utils > validation', () => {
       const validations: ILayoutValidations = {
         field: {
           'simple_binding': {
-            errors: ['Some random error', 'Feltet er påkrevd'],
+            errors: ['Some random error', 'Du må fylle ut dette feltet'],
             warnings: [],
           }
         }
@@ -2207,7 +2273,7 @@ describe('utils > validation', () => {
       expect(result).toBeTruthy();
     });
     it('should return true when validations contain messages (react element) for missing fields', () => {
-      const node = createElement('span', {}, 'Feltet er påkrevd');
+      const node = createElement('span', {}, 'Du må fylle ut ');
       const validations: ILayoutValidations = {
         field: {
           'simple_binding': {
@@ -2228,9 +2294,9 @@ describe('utils > validation', () => {
           }
         }
       });
-      const shallow = ['Første linje', "\n", 'Feltet er påkrevd'];
-      const deep = ['Dette er feil:', ['Første linje', "\n", 'Feltet er påkrevd']];
-      const withNode = ['Dette er feil:', ['Første linje', "\n", createElement('span', {}, 'Feltet er påkrevd')]];
+      const shallow = ['Første linje', "\n", 'Du må fylle ut '];
+      const deep = ['Dette er feil:', ['Første linje', "\n", 'Du må fylle ut ']];
+      const withNode = ['Dette er feil:', ['Første linje', "\n", createElement('span', {}, 'Du må fylle ut ')]];
       expect(validation.missingFieldsInLayoutValidations(validations(shallow), mockLanguage.language)).toBeTruthy();
       expect(validation.missingFieldsInLayoutValidations(validations(deep), mockLanguage.language)).toBeTruthy();
       expect(validation.missingFieldsInLayoutValidations(validations(withNode), mockLanguage.language)).toBeTruthy();
