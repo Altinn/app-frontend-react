@@ -1,6 +1,6 @@
 import parseHtmlToReact from 'html-react-parser';
 
-import type { IOptions, ITextResource } from 'src/types';
+import type { IComponentBindingValidation, IComponentValidations, IOptions, ITextResource } from 'src/types';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
 import type {
   ILayoutComponent,
@@ -19,6 +19,8 @@ import {
   isNotAttachmentError,
   isComponentValid,
   componentValidationsHandledByGenericComponent,
+  componentHasValidationMessages,
+  getFieldName,
 } from './formComponentUtils';
 
 describe('formComponentUtils', () => {
@@ -32,6 +34,8 @@ describe('formComponentUtils', () => {
     mockBindingDropdownWithMapping: 'mockOptionsWithMapping1',
     mockBindingRadioButtons: 'optionValue1',
     mockBindingRadioButtonsWithMapping: 'mockOptionsWithMapping1',
+    mockBindingLikert: 'optionValue1',
+    mockBindingLikertWithMapping: 'mockOptionsWithMapping1',
   };
   const mockTextResources: ITextResource[] = [
     {
@@ -72,14 +76,14 @@ describe('formComponentUtils', () => {
       ],
     },
     '{"id":"mockOptionsWithMapping","mapping":{"someDataField":"someUrlParam"}}':
-      {
-        id: 'mockOptionsWithMapping',
-        mapping: { someDataField: 'someUrlParam' },
-        options: [
-          { value: 'mockOptionsWithMapping1', label: 'Value Mapping 1' },
-          { value: 'mockOptionsWithMapping2', label: 'Value Mapping 2' },
-        ],
-      },
+    {
+      id: 'mockOptionsWithMapping',
+      mapping: { someDataField: 'someUrlParam' },
+      options: [
+        { value: 'mockOptionsWithMapping1', label: 'Value Mapping 1' },
+        { value: 'mockOptionsWithMapping2', label: 'Value Mapping 2' },
+      ],
+    },
   };
   const mockAttachments: IAttachment[] = [
     {
@@ -206,67 +210,38 @@ describe('formComponentUtils', () => {
       expect(result).toEqual(expected);
     });
 
-    it('should return text resource for dropdown component', () => {
-      const dropdownComponent = {
-        type: 'Dropdown',
+    it.each(["Likert", "Dropdown", "RadioButtons"])("should return text resource for %s component", (type)=>{
+      const component = {
+        type,
         optionsId: 'mockOption',
       } as ISelectionComponentProps;
       const result = getDisplayFormData(
-        'mockBindingDropdown',
-        dropdownComponent,
+        `mockBinding${type}`,
+        component,
         mockFormData,
         mockOptions,
         mockTextResources,
       );
       expect(result).toEqual('Value1');
-    });
+    })
 
-    it('should return text resource for dropdown component with mapping', () => {
-      const checkboxComponent = {
-        type: 'Dropdown',
+    it.each(["Likert", "Dropdown", "RadioButtons"])("should return text resource for %s component with mapping", (type)=>{
+      const component = {
+        type,
         optionsId: 'mockOptionsWithMapping',
         mapping: { someDataField: 'someUrlParam' },
       } as unknown as ISelectionComponentProps;
       const result = getDisplayFormData(
-        'mockBindingDropdownWithMapping',
-        checkboxComponent,
+        `mockBinding${type}WithMapping`,
+        component,
         mockFormData,
         mockOptions,
         mockTextResources,
       );
       expect(result).toEqual('Value Mapping 1');
-    });
+    })
 
-    it('should return text resource for radio button component', () => {
-      const radioButtonComponent = {
-        type: 'RadioButtons',
-        optionsId: 'mockOption',
-      } as ISelectionComponentProps;
-      const result = getDisplayFormData(
-        'mockBindingRadioButtons',
-        radioButtonComponent,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-      );
-      expect(result).toEqual('Value1');
-    });
 
-    it('should return text resource for radio button component with mapping', () => {
-      const radioButtonComponentWithMapping = {
-        type: 'RadioButtons',
-        optionsId: 'mockOptionsWithMapping',
-        mapping: { someDataField: 'someUrlParam' },
-      } as unknown as ISelectionComponentProps;
-      const result = getDisplayFormData(
-        'mockBindingRadioButtonsWithMapping',
-        radioButtonComponentWithMapping,
-        mockFormData,
-        mockOptions,
-        mockTextResources,
-      );
-      expect(result).toEqual('Value Mapping 1');
-    });
   });
 
   describe('getFormDataForComponentInRepeatingGroup', () => {
@@ -462,6 +437,74 @@ describe('formComponentUtils', () => {
     it('should return false if none of the attachments has a tag', () => {
       const result = atleastOneTagExists(mockAttachmentsWithoutTag);
       expect(result).toEqual(false);
+    });
+  });
+
+  describe('componentHasValidationMessages', () => {
+    it.each(['errors', 'warnings', 'success', 'info'])
+      ('should return true if validation message exists in %p array', (type: keyof IComponentBindingValidation) => {
+        const validations: IComponentValidations = {
+          simpleBinding: {
+            [type]: ['some message'],
+          },
+        };
+        const result = componentHasValidationMessages(validations);
+        expect(result).toEqual(true);
+      });
+  });
+
+  describe('getFieldName', () => {
+    const mockTextResources = [
+      { id: 'title', value: 'Component name'},
+      { id: 'short', value: 'name'},
+    ];
+    const mockLanguage = {
+      form_filler: {
+        error_required: 'Du må fylle ut {0}',
+        address: 'Gateadresse',
+        postPlace: 'Poststed',
+        zipCode: 'Postnummer',
+      },
+      validation: {
+        generic_field: 'dette feltet',
+      },
+    };
+
+    it('should return field text from languages when fieldKey is present', () => {
+      const result = getFieldName(
+        { title: 'title' },
+        mockTextResources,
+        mockLanguage,
+        'address'
+      );
+      expect(result).toEqual('Gateadresse');
+    });
+
+    it('should return component shortName (textResourceBindings) when no fieldKey is present', () => {
+      const result = getFieldName(
+        { title: 'title', shortName: 'short' },
+        mockTextResources,
+        mockLanguage,
+      );
+      expect(result).toEqual('name');
+    });
+
+    it('should return component title (textResourceBindings) when no shortName (textResourceBindings) and no fieldKey is present', () => {
+      const result = getFieldName(
+        { title: 'title' },
+        mockTextResources,
+        mockLanguage,
+      );
+      expect(result).toEqual('Component name');
+    });
+
+    it('should return generic field name when fieldKey, shortName and title are all not available', () => {
+      const result = getFieldName(
+        { something: 'someTextKey' },
+        mockTextResources,
+        mockLanguage,
+      );
+      expect(result).toEqual('dette feltet');
     });
   });
 });

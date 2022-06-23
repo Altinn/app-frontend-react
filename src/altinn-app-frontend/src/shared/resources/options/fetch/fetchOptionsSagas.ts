@@ -1,47 +1,37 @@
-import type { SagaIterator } from 'redux-saga';
+import { SagaIterator } from 'redux-saga';
 import { fork, call, select, takeLatest, takeEvery } from 'redux-saga/effects';
-import type {
-  IRuntimeState,
-  IOption,
-  IFetchSpecificOptionSaga,
-  IOptions,
-  IOptionsMetaData,
-} from 'src/types';
-import type {
-  ILayouts,
-  ISelectionComponentProps,
-} from 'src/features/form/layout';
+import type { IRuntimeState, IOption, IFetchSpecificOptionSaga, IOptions, IOptionsMetaData } from 'src/types';
+import type { ILayouts, ISelectionComponentProps } from 'src/features/form/layout';
 import { get } from 'altinn-shared/utils';
 import { getOptionsUrl } from 'src/utils/appUrlHelper';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import * as fetchOptionActionTypes from './fetchOptionsActionTypes';
 import OptionsActions from '../optionsActions';
 import FormDataActions from 'src/features/form/data/formDataActions';
-import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { IFormData } from 'src/features/form/data/formDataReducer';
+import { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
+import { PayloadAction } from '@reduxjs/toolkit';
+import { IFormData } from 'src/features/form/data/formDataReducer';
 import { getOptionLookupKey } from 'src/utils/options';
+import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
+import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 
 export const formLayoutSelector = (state: IRuntimeState): ILayouts =>
   state.formLayout.layouts;
-export const formDataSelector = (state: IRuntimeState) =>
-  state.formData.formData;
-export const userLanguageSelector = (state: IRuntimeState) =>
-  state.profile.profile.profileSettingPreference.language;
-export const optionsSelector = (state: IRuntimeState): IOptions =>
-  state.optionState.options;
-export const instanceIdSelector = (state: IRuntimeState): string =>
-  state.instanceData.instance?.id;
+export const formDataSelector = (state: IRuntimeState) => state.formData.formData;
+export const optionsSelector = (state: IRuntimeState): IOptions => state.optionState.options;
+export const instanceIdSelector = (state: IRuntimeState): string => state.instanceData.instance?.id;
 
 export function* fetchOptionsSaga(): SagaIterator {
   const layouts: ILayouts = yield select(formLayoutSelector);
   const fetchedOptions: string[] = [];
   for (const layoutId of Object.keys(layouts)) {
     for (const element of layouts[layoutId]) {
-      const { optionsId, mapping, secure } =
-        element as ISelectionComponentProps;
+      const { optionsId, mapping, secure }  = element as ISelectionComponentProps
       const lookupKey = getOptionLookupKey(optionsId, mapping);
-      if (optionsId && !fetchedOptions.includes(lookupKey)) {
+      if (
+        optionsId &&
+        !fetchedOptions.includes(lookupKey)
+      ) {
         yield fork(fetchSpecificOptionSaga, {
           optionsId,
           dataMapping: mapping,
@@ -56,7 +46,7 @@ export function* fetchOptionsSaga(): SagaIterator {
 export function* fetchSpecificOptionSaga({
   optionsId,
   dataMapping,
-  secure,
+  secure
 }: IFetchSpecificOptionSaga): SagaIterator {
   const optionKey = getOptionLookupKey(optionsId, dataMapping);
   const instanceId = yield select(instanceIdSelector);
@@ -68,15 +58,8 @@ export function* fetchSpecificOptionSaga({
     };
     yield call(OptionsActions.fetchingOptions, optionKey, optionMetaData);
     const formData: IFormData = yield select(formDataSelector);
-    const language: string = yield select(userLanguageSelector);
-    const url = getOptionsUrl({
-      optionsId,
-      formData,
-      language,
-      dataMapping,
-      secure,
-      instanceId,
-    });
+    const language = yield select(appLanguageStateSelector);
+    const url = getOptionsUrl({ optionsId, formData, language, dataMapping, secure, instanceId });
     const options: IOption[] = yield call(get, url);
     yield call(OptionsActions.fetchOptionsFulfilled, optionKey, options);
   } catch (error) {
@@ -85,7 +68,9 @@ export function* fetchSpecificOptionSaga({
 }
 
 export function* checkIfOptionsShouldRefetchSaga({
-  payload: { field },
+  payload: {
+    field
+  },
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
   const options: IOptions = yield select(optionsSelector);
 
@@ -104,13 +89,10 @@ export function* checkIfOptionsShouldRefetchSaga({
 }
 
 export function* watchCheckIfOptionsShouldRefetchSaga(): SagaIterator {
-  yield takeEvery(
-    [
-      FormDataActions.updateFormDataFulfilled,
-      FormDataActions.updateFormDataSkipAutosave,
-    ],
-    checkIfOptionsShouldRefetchSaga,
-  );
+  yield takeEvery([
+    FormDataActions.updateFormDataFulfilled,
+    FormDataActions.updateFormDataSkipAutosave
+  ], checkIfOptionsShouldRefetchSaga);
 }
 
 export function* watchInitialFetchOptionSaga(): SagaIterator {
@@ -122,4 +104,5 @@ export function* watchInitialFetchOptionSaga(): SagaIterator {
 
 export function* watchFetchOptionsSaga(): SagaIterator {
   yield takeLatest(fetchOptionActionTypes.FETCH_OPTIONS, fetchOptionsSaga);
+  yield takeLatest(LanguageActions.updateSelectedAppLanguage, fetchOptionsSaga);
 }

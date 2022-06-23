@@ -1,16 +1,19 @@
 import { expectSaga, testSaga } from 'redux-saga-test-plan';
-import { select } from 'redux-saga/effects';
+import { actionChannel, call, select } from 'redux-saga/effects';
 
 import FormDataActions from 'src/features/form/data/formDataActions';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import * as sharedUtils from 'altinn-shared/utils';
 import {
   calculatePageOrderAndMoveToNextPageSaga,
   initRepeatingGroupsSaga,
   watchInitRepeatingGroupsSaga,
+  watchUpdateCurrentViewSaga,
+  updateCurrentViewSaga,
+  selectUnsavedChanges
 } from './updateFormLayoutSagas';
-import type { IRuntimeState } from 'src/types';
+import { IRuntimeState } from 'src/types';
+import { FormLayoutActions } from '../formLayoutSlice';
 
 jest.mock('altinn-shared/utils');
 
@@ -37,6 +40,75 @@ describe('updateLayoutSagas', () => {
     });
   });
 
+  describe('watchUpdateCurrentViewSaga', () => {
+    it('should save unsaved changes before updating from layout', () => {
+      const fakeChannel = {
+        take() { /* Intentionally empty */ },
+        flush() { /* Intentionally empty */ },
+        close() { /* Intentionally empty */},
+      };
+
+      const mockAction = FormLayoutActions.updateCurrentView({
+        newView: 'test'
+      });
+
+      const mockSaga = function*() { /* intentially empty */};
+
+      return expectSaga(watchUpdateCurrentViewSaga)
+        .provide([
+          [actionChannel(FormLayoutActions.updateCurrentView), fakeChannel],
+          [select(selectUnsavedChanges), true],
+          {
+            take({ channel }, next) {
+              if (channel === fakeChannel) {
+                return mockAction;
+              }
+              return next();
+            },
+          },
+          [call(updateCurrentViewSaga, mockAction), mockSaga]
+        ])
+        .dispatch(FormLayoutActions.updateCurrentView)
+        .dispatch(FormDataActions.submitFormDataFulfilled)
+        .take(fakeChannel)
+        .call(updateCurrentViewSaga, mockAction)
+        .run();
+    });
+    it('should not save unsaved changes before updating form layout when no unsaved changes', () => {
+      const fakeChannel = {
+        take() { /* Intentionally empty */ },
+        flush() { /* Intentionally empty */ },
+        close() { /* Intentionally empty */},
+      };
+
+      const mockAction = FormLayoutActions.updateCurrentView({
+        newView: 'test'
+      });
+
+      const mockSaga = function*() { /* intentially empty */};
+
+      return expectSaga(watchUpdateCurrentViewSaga)
+        .provide([
+          [actionChannel(FormLayoutActions.updateCurrentView), fakeChannel],
+          [select(selectUnsavedChanges), false],
+          {
+            take({ channel }, next) {
+              if (channel === fakeChannel) {
+                return mockAction;
+              }
+              return next();
+            },
+          },
+          [call(updateCurrentViewSaga, mockAction), mockSaga]
+        ])
+        .dispatch(FormLayoutActions.updateCurrentView)
+        .not.take(FormDataActions.submitFormDataFulfilled)
+        .take(fakeChannel)
+        .call(updateCurrentViewSaga, mockAction)
+        .run();
+    });
+  });
+
   describe('calculatePageOrderAndMoveToNextPageSaga', () => {
     const state = getInitialStateMock();
     const orderResponse = ['page-1', 'FormLayout', 'page-3'];
@@ -45,30 +117,21 @@ describe('updateLayoutSagas', () => {
     it('should fetch pageOrder and update state accordingly', () => {
       const action = { type: 'test', payload: {} };
       return expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), state]])
-        .put(
-          FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
-            order: orderResponse,
-          }),
-        )
-        .put(
-          FormLayoutActions.updateCurrentView({
-            newView: 'page-3',
-            runValidations: undefined,
-          }),
-        )
+        .provide([
+          [select(), state],
+        ])
+        .put(FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({ order: orderResponse }))
+        .put(FormLayoutActions.updateCurrentView({ newView: 'page-3', runValidations: undefined }))
         .run();
     });
 
     it('should not update current view if skipMoveToNext is true', () => {
       const action = { type: 'test', payload: { skipMoveToNext: true } };
       return expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), state]])
-        .put(
-          FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
-            order: orderResponse,
-          }),
-        )
+        .provide([
+          [select(), state],
+        ])
+        .put(FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({ order: orderResponse }))
         .run();
     });
 
@@ -81,32 +144,23 @@ describe('updateLayoutSagas', () => {
           applicationMetadata: {
             ...state.applicationMetadata.applicationMetadata,
             onEntry: {
-              show: 'some-data-type',
-            },
+              show: 'some-data-type'
+            }
           },
         },
         formLayout: {
           ...state.formLayout,
           layoutsets: {
-            sets: [
-              { id: 'some-data-type', dataType: 'some-data-type', tasks: [] },
-            ],
-          },
-        },
+            sets: [{ id: 'some-data-type', dataType: 'some-data-type', tasks: [] }]
+          }
+        }
       };
       return expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), stateWithStatelessApp]])
-        .put(
-          FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
-            order: orderResponse,
-          }),
-        )
-        .put(
-          FormLayoutActions.updateCurrentView({
-            newView: 'page-3',
-            runValidations: undefined,
-          }),
-        )
+        .provide([
+          [select(), stateWithStatelessApp],
+        ])
+        .put(FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({ order: orderResponse }))
+        .put(FormLayoutActions.updateCurrentView({ newView: 'page-3', runValidations: undefined }))
         .run();
     });
 
@@ -118,23 +172,16 @@ describe('updateLayoutSagas', () => {
           ...state.formLayout,
           uiConfig: {
             ...state.formLayout.uiConfig,
-            returnToView: 'return-here',
-          },
-        },
-      };
+            returnToView: 'return-here'
+          }
+        }
+      }
       return expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), stateWithReturnToView]])
-        .put(
-          FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
-            order: orderResponse,
-          }),
-        )
-        .put(
-          FormLayoutActions.updateCurrentView({
-            newView: 'return-here',
-            runValidations: undefined,
-          }),
-        )
+        .provide([
+          [select(), stateWithReturnToView],
+        ])
+        .put(FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({ order: orderResponse }))
+        .put(FormLayoutActions.updateCurrentView({ newView: 'return-here', runValidations: undefined }))
         .run();
     });
 
@@ -143,12 +190,10 @@ describe('updateLayoutSagas', () => {
       const error = new Error('mock');
       (sharedUtils.post as jest.Mock).mockRejectedValue(error);
       return expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), state]])
-        .put(
-          FormLayoutActions.calculatePageOrderAndMoveToNextPageRejected({
-            error,
-          }),
-        )
+        .provide([
+          [select(), state],
+        ])
+        .put(FormLayoutActions.calculatePageOrderAndMoveToNextPageRejected({ error }))
         .run();
     });
   });

@@ -23,6 +23,7 @@ import {
 } from 'src/types';
 import { AsciiUnitSeparator } from './attachment';
 import { getOptionLookupKey } from './options';
+import { getTextFromAppOrDefault } from './textResource';
 
 export const componentValidationsHandledByGenericComponent = (
   dataModelBindings: any,
@@ -35,20 +36,15 @@ export const componentValidationsHandledByGenericComponent = (
   );
 };
 
-export const componentHasValidationMessages = (componentValidations) => {
+export const componentHasValidationMessages = (componentValidations: IComponentValidations) => {
   if (!componentValidations) {
     return false;
   }
-  let hasMessages = false;
-  Object.keys(componentValidations).forEach((key: string) => {
-    if (
-      componentValidations[key].errors.length > 0 ||
-      componentValidations[key].warnings.length > 0
-    ) {
-      hasMessages = true;
-    }
+  return Object.keys(componentValidations).some((key: string) => {
+    return Object.keys(componentValidations[key]).some(validationKey => {
+      return componentValidations[key][validationKey]?.length > 0;
+    });
   });
-  return hasMessages;
 };
 
 export const getComponentValidations = (
@@ -130,15 +126,20 @@ export const getDisplayFormData = (
 ) => {
   const formDataValue = formData[dataModelBinding] || '';
   if (formDataValue) {
-    if (component.type === 'Dropdown' || component.type === 'RadioButtons') {
+    if (component.type === 'Dropdown' || component.type === 'RadioButtons' || component.type === 'Likert') {
       const selectionComponent = component as ISelectionComponentProps;
       let label: string;
-      if (selectionComponent?.options) {
-        label = selectionComponent.options.find(
+      if (selectionComponent.optionsId) {
+        label = options[
+          getOptionLookupKey(
+            selectionComponent.optionsId,
+            selectionComponent.mapping,
+          )
+        ].options?.find(
           (option: IOption) => option.value === formDataValue,
         )?.label;
-      } else if (selectionComponent.optionsId) {
-        label = options[getOptionLookupKey(selectionComponent?.optionsId, selectionComponent.mapping)].options?.find(
+      } else if (selectionComponent.options) {
+        label = selectionComponent.options.find(
           (option: IOption) => option.value === formDataValue,
         )?.label;
       }
@@ -153,7 +154,12 @@ export const getDisplayFormData = (
         const displayFormData = {};
         split?.forEach((value: string) => {
           const optionsForComponent = selectionComponent?.optionsId
-            ? options[getOptionLookupKey(selectionComponent.optionsId, selectionComponent.mapping)].options
+            ? options[
+                getOptionLookupKey(
+                  selectionComponent.optionsId,
+                  selectionComponent.mapping,
+                )
+              ].options
             : selectionComponent.options;
           const textKey =
             optionsForComponent?.find(
@@ -178,9 +184,13 @@ export const getDisplayFormData = (
         } else if (selectionComponent.optionsId) {
           label +=
             getTextResourceByKey(
-              options[getOptionLookupKey(selectionComponent.optionsId, selectionComponent.mapping)]?.options.find(
-                (option: IOption) => option.value === value,
-              )?.label,
+              options[
+                getOptionLookupKey(
+                  selectionComponent.optionsId,
+                  selectionComponent.mapping,
+                )
+              ]?.options.find((option: IOption) => option.value === value)
+                ?.label,
               textResources,
             ) || '';
         }
@@ -203,6 +213,7 @@ export const getFormDataForComponentInRepeatingGroup = (
   options: IOptions,
 ) => {
   if (
+    !component.dataModelBindings ||
     component.type === 'Group' ||
     component.type === 'Header' ||
     component.type === 'Paragraph' ||
@@ -237,7 +248,7 @@ export const isComponentValid = (
   let isValid = true;
 
   Object.keys(validations).forEach((key: string) => {
-    if (validations[key].errors.length > 0) {
+    if (validations[key].errors?.length > 0) {
       isValid = false;
     }
   });
@@ -247,10 +258,18 @@ export const isComponentValid = (
 export const getTextResource = (
   resourceKey: string,
   textResources: ITextResource[],
+  tryNesting?: boolean, // used when using variables pointing to resources from data model
 ): React.ReactNode => {
-  const textResource = textResources.find(
+  let textResource = textResources.find(
     (resource: ITextResource) => resource.id === resourceKey,
   );
+  if (tryNesting && textResource) {
+    textResource =
+      textResources.find(
+        (resource: ITextResource) => resource.id === textResource.value,
+      ) || textResource;
+  }
+
   return textResource
     ? getParsedLanguageFromText(textResource.value)
     : resourceKey;
@@ -259,22 +278,26 @@ export const getTextResource = (
 export function selectComponentTexts(
   textResources: ITextResource[],
   textResourceBindings: ITextResourceBindings,
+  tryNesting?: boolean,
 ) {
   const result: { [textResourceKey: string]: React.ReactNode } = {};
 
   if (textResourceBindings) {
     Object.keys(textResourceBindings).forEach((key) => {
-      result[key] = getTextResource(textResourceBindings[key], textResources);
+      result[key] = getTextResource(
+        textResourceBindings[key],
+        textResources,
+        tryNesting,
+      );
     });
   }
-
   return result;
 }
 
 export function getFileUploadComponentValidations(
   validationError: string,
   language: ILanguage,
-  attachmentId: string = undefined
+  attachmentId: string = undefined,
 ): IComponentValidations {
   const componentValidations: any = {
     simpleBinding: {
@@ -292,11 +315,20 @@ export function getFileUploadComponentValidations(
   } else if (validationError === 'update') {
     if (attachmentId === undefined || attachmentId === '') {
       componentValidations.simpleBinding.errors.push(
-        getLanguageFromKey('form_filler.file_uploader_validation_error_update', language),
+        getLanguageFromKey(
+          'form_filler.file_uploader_validation_error_update',
+          language,
+        ),
       );
     } else {
-      componentValidations.simpleBinding.errors.push( // If validation has attachmentId, add to start of message and seperate using ASCII Universal Seperator
-        attachmentId + AsciiUnitSeparator + getLanguageFromKey('form_filler.file_uploader_validation_error_update', language),
+      componentValidations.simpleBinding.errors.push(
+        // If validation has attachmentId, add to start of message and seperate using ASCII Universal Seperator
+        attachmentId +
+          AsciiUnitSeparator +
+          getLanguageFromKey(
+            'form_filler.file_uploader_validation_error_update',
+            language,
+          ),
       );
     }
   } else if (validationError === 'delete') {
@@ -312,20 +344,25 @@ export function getFileUploadComponentValidations(
 
 export function getFileUploadWithTagComponentValidations(
   validationMessages: IComponentValidations,
-  validationState: Array<{ id: string, message: string }>
-) : Array<{ id: string, message: string }> {
-  const result: Array<{ id: string, message: string }> = [];
+  validationState: Array<{ id: string; message: string }>,
+): Array<{ id: string; message: string }> {
+  const result: Array<{ id: string; message: string }> = [];
   validationMessages = JSON.parse(JSON.stringify(validationMessages || {}));
   if (!validationMessages || !validationMessages.simpleBinding) {
     validationMessages = {
       simpleBinding: {
         errors: [],
         warnings: [],
-      }
+      },
     };
   }
-  if (validationMessages.simpleBinding !== undefined && validationMessages.simpleBinding.errors.length > 0) {
-    parseFileUploadComponentWithTagValidationObject(validationMessages.simpleBinding.errors as string[]).forEach((validation) => {
+  if (
+    validationMessages.simpleBinding !== undefined &&
+    validationMessages.simpleBinding.errors?.length > 0
+  ) {
+    parseFileUploadComponentWithTagValidationObject(
+      validationMessages.simpleBinding.errors as string[],
+    ).forEach((validation) => {
       result.push(validation);
     });
   }
@@ -335,11 +372,13 @@ export function getFileUploadWithTagComponentValidations(
   return result;
 }
 
-export const parseFileUploadComponentWithTagValidationObject = (validationArray: string[]): Array<{ id: string, message: string }> => {
+export const parseFileUploadComponentWithTagValidationObject = (
+  validationArray: string[],
+): Array<{ id: string; message: string }> => {
   if (validationArray === undefined || validationArray.length === 0) {
     return [];
   }
-  const obj: Array<{ id: string, message: string }> = [];
+  const obj: Array<{ id: string; message: string }> = [];
   validationArray.forEach((validation) => {
     const val = validation.toString().split(AsciiUnitSeparator);
     if (val.length === 2) {
@@ -351,20 +390,48 @@ export const parseFileUploadComponentWithTagValidationObject = (validationArray:
   return obj;
 };
 
-export const isAttachmentError = (error: { id: string, message: string }): boolean => {
-  return error.id ? true : false
+export const isAttachmentError = (error: {
+  id: string;
+  message: string;
+}): boolean => {
+  return error.id ? true : false;
 };
 
-export const isNotAttachmentError = (error: { id: string, message: string }): boolean => {
+export const isNotAttachmentError = (error: {
+  id: string;
+  message: string;
+}): boolean => {
   return !error.id;
 };
 
-export const atleastOneTagExists = (
-  attachments: IAttachment[]
-): boolean => {
+export const atleastOneTagExists = (attachments: IAttachment[]): boolean => {
   const totalTagCount: number = attachments
-    .map((attachment: IAttachment) => (attachment.tags?.length ? attachment.tags.length : 0))
+    .map((attachment: IAttachment) =>
+      attachment.tags?.length ? attachment.tags.length : 0,
+    )
     .reduce((total, current) => total + current, 0);
 
   return totalTagCount !== undefined && totalTagCount >= 1;
 };
+
+export function getFieldName(
+  textResourceBindings: ITextResourceBindings,
+  textResources: ITextResource[],
+  language: ILanguage,
+  fieldKey?: string,
+): string {
+  if (fieldKey)
+  {
+    return getTextFromAppOrDefault(`form_filler.${fieldKey}`, textResources, language, null, true);
+  }
+
+  if (textResourceBindings.shortName) {
+    return getTextResourceByKey(textResourceBindings.shortName, textResources);
+  }
+
+  if (textResourceBindings.title) {
+    return getTextResourceByKey(textResourceBindings.title, textResources);
+  }
+
+  return getLanguageFromKey('validation.generic_field', language);
+}

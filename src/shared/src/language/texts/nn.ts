@@ -40,7 +40,7 @@ export function nn() {
       back_to_summary: 'Attende til samandrag',
       error_report_header: 'Det er feil i skjema',
       error_report_description: 'Skjemaet inneheld feil eller manglar som hindrar oss frå å sende det inn. Når du har retta feila, kan du sende inn skjemaet på nytt.',
-      error_required: 'Feltet er påkravd',
+      error_required: 'Du må fylle ut {0}',
       file_upload_valid_file_format_all: 'alle',
       file_uploader_add_attachment: 'Legg til fleire vedlegg',
       file_uploader_drag: 'Dra og slepp eller',
@@ -74,6 +74,16 @@ export function nn() {
       required_label: '*',
       summary_item_change: 'Endre',
       summary_go_to_correct_page: 'Gå til riktig side i skjema',
+      address: 'Gateadresse',
+      careOf: 'C/O eller annan tilleggsadresse',
+      houseNumber: 'Bustadnummer',
+      postPlace: 'Poststed',
+      zipCode: 'Postnr',
+    },
+    navigation: {
+      main: 'Appnavigasjon',
+      form: 'Skjemanavigasjon',
+      to_main_content: 'Hopp til hovedinnholdet'
     },
     general: {
       action: 'Handling',
@@ -106,6 +116,8 @@ export function nn() {
       next: 'Neste',
       no_options: 'Ingen alternativ tilgjengleg',
       optional: 'Valfri',
+      print_button_text: 'Print / Lagre PDF',
+      progress: 'Side {0} av {1}',
       required: 'Obligatorisk',
       save: 'Lagre',
       search: 'Søk',
@@ -148,6 +160,16 @@ export function nn() {
       authorization_error_info_customer_service: 'Du kan også kontakte oss på brukarservice {0}.',
       authorization_error_instantiate_validation_info_customer_service: 'Om du står fast kontakt oss på brukarservice {0}.',
       starting: 'Hald på hatten, no startar vi!',
+    },
+    language: {
+      full_name: {
+        nb: 'Norsk bokmål',
+        en: "Engelsk",
+        nn: "Nynorsk"
+      },
+      selector: {
+        label: 'Språk'
+      }
     },
     party_selection: {
       error_caption_prefix: 'Feil',
@@ -205,6 +227,14 @@ export function nn() {
       sent_content: 'Følgjande er sendt inn:',
       log_out: 'Logg ut',
       profile_icon_aria_label: 'Profil ikon knapp',
+    },
+    soft_validation: {
+      info_title: 'Lurt å tenke på',
+      warning_title: 'OBS',
+      success_title: 'Så flott!'
+    },
+    validation: {
+      generic_field: 'dette feltet',
     },
     validation_errors: {
       min: 'Minste gyldige verdi er {0}',

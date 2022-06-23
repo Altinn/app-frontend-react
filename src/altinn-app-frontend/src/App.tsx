@@ -18,6 +18,7 @@ import { makeGetHasErrorsSelector } from './selectors/getErrors';
 import Entrypoint from './features/entrypoint/Entrypoint';
 import { useAppDispatch, useAppSelector } from './common/hooks';
 import { makeGetAllowAnonymousSelector } from './selectors/getAllowAnonymous';
+import { AppWrapper } from '@altinn/altinn-design-system';
 
 const theme = createTheme(AltinnAppTheme);
 
@@ -100,22 +101,24 @@ export const App = () => {
   }
 
   return (
-    <MuiThemeProvider theme={theme}>
-      <Switch>
-        <Route path='/' exact={true}>
-          <Entrypoint allowAnonymous={allowAnonymous} />
-        </Route>
-        <Route
-          path='/partyselection/:errorCode?'
-          exact={true}
-          component={PartySelection}
-        />
-        <Route
-          path='/instance/:partyId/:instanceGuid'
-          exact={true}
-          component={ProcessWrapper}
-        />
-      </Switch>
-    </MuiThemeProvider>
+    <AppWrapper>
+      <MuiThemeProvider theme={theme}>
+        <Switch>
+          <Route path='/' exact={true}>
+            <Entrypoint allowAnonymous={allowAnonymous} />
+          </Route>
+          <Route
+            path='/partyselection/:errorCode?'
+            exact={true}
+            component={PartySelection}
+          />
+          <Route
+            path='/instance/:partyId/:instanceGuid'
+            exact={true}
+            component={ProcessWrapper}
+          />
+        </Switch>
+      </MuiThemeProvider>
+    </AppWrapper>
   );
 };

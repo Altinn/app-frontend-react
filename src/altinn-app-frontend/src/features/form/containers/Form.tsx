@@ -87,7 +87,6 @@ export function Form() {
   }, [currentView, language, validations]);
 
   React.useEffect(() => {
-    let componentsToRender: any[] = layout;
     let renderedInGroup: string[] = [];
     if (layout) {
       const groupComponents = layout.filter((component) => component.type.toLowerCase() === 'group');
@@ -98,14 +97,9 @@ export function Form() {
         }
         renderedInGroup = renderedInGroup.concat(childList);
       });
+      const componentsToRender = layout.filter((component) => !renderedInGroup.includes(component.id));
+      setFilteredLayout(componentsToRender);
     }
-
-    if (layout) {
-      componentsToRender = layout.filter((component) => {
-        return !renderedInGroup.includes(component.id);
-      });
-    }
-    setFilteredLayout(componentsToRender);
   }, [layout]);
 
   return (

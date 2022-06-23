@@ -67,6 +67,7 @@ export function getInitialStateMock(
     },
     language: {
       language: getLanguageFromCode('nb'),
+      selectedAppLanguage: '',
       error: null,
     },
     organisationMetaData: {

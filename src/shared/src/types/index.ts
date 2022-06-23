@@ -31,7 +31,7 @@ export interface IAltinnOrgs {
 export interface IApplicationLogic {
   allowAnonymousOnStateless?: boolean;
   autoCreate?: boolean;
-  classRef: string;
+  classRef?: string;
   schemaRef?: string;
 }
 
@@ -121,9 +121,13 @@ export interface IInstanceState {
   isMarkedForHardDelete: boolean;
   isArchived: boolean;
 }
-
+// Language translations for altinn
 export interface ILanguage {
   [key: string]: string | ILanguage;
+}
+// Language for the rendered alltinn app
+export interface IAppLanguage {
+  language: string; // Language code
 }
 
 export interface IOrganisation {

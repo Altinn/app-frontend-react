@@ -8,12 +8,13 @@ import * as React from 'react';
 import { AltinnLogo } from 'altinn-shared/components';
 import { AltinnAppTheme } from 'altinn-shared/theme';
 import { getLanguageFromKey, returnUrlToMessagebox } from 'altinn-shared/utils';
-import type { ILanguage, IProfile } from 'altinn-shared/types';
+import { ILanguage, IProfile } from 'altinn-shared/types';
 import {
   returnUrlToAllSchemas,
   returnUrlToProfile,
 } from 'altinn-shared/utils/urlHelper';
 import { renderParty } from '../resources/utils/party';
+import { LandmarkShortcuts } from 'altinn-shared/components/LandmarkShortcuts';
 
 export interface IHeaderProps {
   classes: any;
@@ -107,11 +108,16 @@ const gridStyle = { flexGrow: 1 };
 
 const emptyObj = {};
 
-const AltinnAppHeader = (props: IHeaderProps) => {
-  const { classes, type } = props;
-  const party = props.profile ? props.profile.party : null;
+const AltinnAppHeader = ({
+  classes,
+  type,
+  profile,
+  language,
+}: IHeaderProps) => {
+  const party = profile ? profile.party : null;
   return (
     <div className={classes.appBarWrapper}>
+      <LandmarkShortcuts shortcuts={[{ id: 'main-content', text: getLanguageFromKey('navigation.to_main_content', language) }]} />
       <AppBar position='static' className={classes.default}>
         <Toolbar className={`container ${classes.toolbarContainer}`}>
           <Grid
@@ -136,12 +142,12 @@ const AltinnAppHeader = (props: IHeaderProps) => {
                     party?.partyId,
                   )}
                 >
-                  {getLanguageFromKey('instantiate.inbox', props.language)}
+                  {getLanguageFromKey('instantiate.inbox', language)}
                 </a>
               </li>
               <li className={classes.headerLink}>
                 <a href={returnUrlToAllSchemas(window.location.origin)}>
-                  {getLanguageFromKey('instantiate.all_forms', props.language)}
+                  {getLanguageFromKey('instantiate.all_forms', language)}
                 </a>
               </li>
               <li className={classes.headerLink}>
@@ -151,25 +157,21 @@ const AltinnAppHeader = (props: IHeaderProps) => {
                     party?.partyId,
                   )}
                 >
-                  {getLanguageFromKey('instantiate.profile', props.language)}
+                  {getLanguageFromKey('instantiate.profile', language)}
                 </a>
               </li>
             </ul>
           )}
-          {party && (
-            <div
-              className='a-personSwitcher'
-              title={renderParty(props.profile)}
-            >
+          {party &&
+            <div className='a-personSwitcher' title={renderParty(profile)}>
               <span className='a-personSwitcher-name' style={spanStyle}>
                 {!type && (
                   <>
                     <span
-                      className={`d-block ${
-                        type ? classes.blueDark : classes.blueDarker
-                      }`}
+                      className={`d-block ${type ? classes.blueDark : classes.blueDarker
+                        }`}
                     >
-                      {renderParty(props.profile)}
+                      {renderParty(profile)}
                     </span>
                     <span
                       className={type ? classes.blueDark : classes.blueDarker}
@@ -178,7 +180,7 @@ const AltinnAppHeader = (props: IHeaderProps) => {
                         party.organisation &&
                         `${getLanguageFromKey(
                           'general.for',
-                          props.language,
+                          language,
                         )} ${party.organisation.name.toUpperCase()}`}
                     </span>
                   </>
@@ -187,21 +189,19 @@ const AltinnAppHeader = (props: IHeaderProps) => {
               </span>
               {party && party.organisation ? (
                 <i
-                  className={`fa fa-corp-circle-big ${classes.partyIcon} ${
-                    type ? classes.blueDark : classes.blueDarker
-                  }`}
+                  className={`fa fa-corp-circle-big ${classes.partyIcon} ${type ? classes.blueDark : classes.blueDarker
+                    }`}
                   aria-hidden='true'
                 />
               ) : (
                 <i
-                  className={`fa fa-private-circle-big ${classes.partyIcon} ${
-                    type ? classes.blueDark : classes.blueDarker
-                  }`}
+                  className={`fa fa-private-circle-big ${classes.partyIcon} ${type ? classes.blueDark : classes.blueDarker
+                    }`}
                   aria-hidden='true'
                 />
               )}
             </div>
-          )}
+          }
         </Toolbar>
       </AppBar>
     </div>

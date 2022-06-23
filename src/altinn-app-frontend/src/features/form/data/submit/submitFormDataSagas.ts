@@ -95,6 +95,7 @@ function* submitFormSaga({
       state.language.language,
       state.formLayout.uiConfig.hiddenFields,
       state.formLayout.uiConfig.repeatingGroups,
+      state.textResources.resources,
     );
 
     validations = mergeValidationObjects(

@@ -1,4 +1,4 @@
-import { AddressComponent } from './advanced/AddressComponent';
+import { AddressComponent as Address} from './advanced/AddressComponent';
 import { AttachmentListComponent } from './base/AttachmentListComponent';
 import { ButtonComponent } from './base/ButtonComponent';
 import { CheckboxContainerComponent } from './base/CheckboxesContainerComponent';
@@ -9,16 +9,22 @@ import { FileUploadWithTagComponent } from './base/FileUpload/FileUploadWithTag/
 import { HeaderComponent } from './base/HeaderComponent';
 import { InputComponent } from './base/InputComponent';
 import { ParagraphComponent } from './base/ParagraphComponent';
-import { RadioButtonContainerComponent } from './base/RadioButtonsContainerComponent';
+import { RadioButtonContainerComponent } from './base/RadioButtons/RadioButtonsContainerComponent';
 import { TextAreaComponent } from './base/TextAreaComponent';
 import { ImageComponent } from './base/ImageComponent';
 import { NavigationButtons as NavigationButtonsComponent } from './presentation/NavigationButtons';
-import { NavigationBar } from './base/NavigationBar';
+import { NavigationBar as NavigationBarComponent} from './base/NavigationBar';
+import { PanelComponent } from './base/PanelComponent';
 import { InstantiationButtonComponent } from './base/InstantiationButtonComponent';
 import { IGenericComponentProps } from './GenericComponent';
 import { IComponentFormData } from 'src/utils/formComponentUtils';
 import { ILanguage } from 'altinn-shared/types';
 import type { ITextResourceBindings } from 'src/types';
+import type { IGrid } from 'src/features/form/layout';
+import { createContext } from 'react';
+import { LikertComponent } from 'src/components/base/LikertComponent';
+import { PrintButtonComponent } from './base/PrintButtonComponent';
+
 
 export interface IComponent {
   name: string;
@@ -48,6 +54,9 @@ export enum ComponentTypes {
   InstantiationButton,
   AttachmentList,
   NavigationBar,
+  Likert,
+  Panel,
+  PrintButton,
 }
 
 export const textComponents: IComponent[] = [
@@ -157,15 +166,30 @@ export const schemaComponents: IComponent[] = [
   },
   {
     name: 'NavigationBar',
-    Tag: NavigationBar,
+    Tag: NavigationBarComponent,
     Type: ComponentTypes.NavigationBar,
+  },
+  {
+    name: 'Likert',
+    Tag: LikertComponent,
+    Type: ComponentTypes.Likert,
+  },
+  {
+    name: 'Panel',
+    Tag: PanelComponent,
+    Type: ComponentTypes.Panel,
+  },
+  {
+    name: 'PrintButton',
+    Tag: PrintButtonComponent,
+    Type: ComponentTypes.PrintButton,
   },
 ];
 
 export const advancedComponents: IComponent[] = [
   {
     name: 'AddressComponent',
-    Tag: AddressComponent,
+    Tag: Address,
     Type: ComponentTypes.AddressComponent,
     customProperties: {
       simplified: true,
@@ -175,7 +199,11 @@ export const advancedComponents: IComponent[] = [
 ];
 
 export interface IComponentProps extends IGenericComponentProps {
-  handleDataChange: (value: string, key?: string, skipValidation?: boolean) => void;
+  handleDataChange: (
+    value: string,
+    key?: string,
+    skipValidation?: boolean,
+  ) => void;
   handleFocusUpdate: (componentId: string, step?: number) => void;
   getTextResource: (key: string) => React.ReactNode;
   getTextResourceAsString: (key: string) => string;
@@ -193,5 +221,15 @@ const components: IComponent[] = textComponents.concat(
   schemaComponents,
   advancedComponents,
 );
+
+export interface IFormComponentContext {
+  grid?: IGrid;
+  baseComponentId?: string;
+}
+
+export const FormComponentContext = createContext<IFormComponentContext>({
+  grid: undefined,
+  baseComponentId: undefined,
+});
 
 export default components;

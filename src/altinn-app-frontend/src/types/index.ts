@@ -1,26 +1,26 @@
-import type { IIsLoadingState } from 'src/shared/resources/isLoading/isLoadingSlice';
-import type { IOptionsState } from 'src/shared/resources/options/optionsReducer';
-import type { IFormRuleState } from 'src/features/form/rules/rulesReducer';
-import type { IDataModelState } from 'src/features/form/datamodel/datamodelSlice';
-import type { ReactNode } from 'react';
-import type Ajv from 'ajv/dist/core';
-import type { IFormDataState } from '../features/form/data/formDataReducer';
-import type { IFormDynamicState } from '../features/form/dynamics';
-import type { ILayoutState } from '../features/form/layout/formLayoutSlice';
-import type { IValidationState } from '../features/form/validation/validationSlice';
-import type { IInstantiationState } from '../features/instantiate/instantiation/reducer';
-import type { IApplicationMetadataState } from '../shared/resources/applicationMetadata/reducer';
-import type { IAttachmentState } from '../shared/resources/attachments/attachmentReducer';
-import type { IInstanceDataState } from '../shared/resources/instanceData/instanceDataReducers';
-import type { ILanguageState } from '../shared/resources/language/languageSlice';
-import type { IOrgsState } from '../shared/resources/orgs/orgsReducers';
-import type { IPartyState } from '../shared/resources/party/partyReducers';
-import type { IProcessState } from '../shared/resources/process/processReducer';
-import type { IProfileState } from '../shared/resources/profile/profileReducers';
-import type { IQueueState } from '../shared/resources/queue/queueSlice';
-import type { ITextResourcesState } from '../shared/resources/textResources/textResourcesReducer';
-import type { IApplicationSettingsState } from 'src/shared/resources/applicationSettings/applicationSettingsSlice';
-import type { IFormData } from 'src/features/form/data/formDataReducer';
+import { IIsLoadingState } from 'src/shared/resources/isLoading/isLoadingSlice';
+import { IOptionsState } from 'src/shared/resources/options/optionsReducer';
+import { IFormRuleState } from 'src/features/form/rules/rulesReducer';
+import { IDataModelState } from 'src/features/form/datamodel/datamodelSlice';
+import { ReactNode } from 'react';
+import Ajv from 'ajv/dist/core';
+import { IFormDataState } from '../features/form/data/formDataReducer';
+import { IFormDynamicState } from '../features/form/dynamics';
+import { ILayoutState } from '../features/form/layout/formLayoutSlice';
+import { IValidationState } from '../features/form/validation/validationSlice';
+import { IInstantiationState } from '../features/instantiate/instantiation/reducer';
+import { IApplicationMetadataState } from '../shared/resources/applicationMetadata/reducer';
+import { IAttachmentState } from '../shared/resources/attachments/attachmentReducer';
+import { IInstanceDataState } from '../shared/resources/instanceData/instanceDataReducers';
+import { ILanguageState } from '../shared/resources/language/languageSlice';
+import { IOrgsState } from '../shared/resources/orgs/orgsReducers';
+import { IPartyState } from '../shared/resources/party/partyReducers';
+import { IProcessState } from '../shared/resources/process/processReducer';
+import { IProfileState } from '../shared/resources/profile/profileReducers';
+import { IQueueState } from '../shared/resources/queue/queueSlice';
+import { ITextResourcesState } from '../shared/resources/textResources/textResourcesReducer';
+import { IApplicationSettingsState } from 'src/shared/resources/applicationSettings/applicationSettingsSlice';
+import { IFormData } from 'src/features/form/data/formDataReducer';
 
 export interface IAltinnWindow extends Window {
   app: string;
@@ -31,9 +31,26 @@ export interface IAltinnWindow extends Window {
 }
 
 export interface IComponentBindingValidation {
-  errors?: (string | ReactNode)[];
-  warnings?: (string | ReactNode)[];
-  fixed?: (string | ReactNode)[];
+  errors?: (
+    | string
+    | ReactNode
+  )[];
+  warnings?: (
+    | string
+    | ReactNode
+  )[];
+  info?: (
+    | string
+    | ReactNode
+  )[];
+  success?: (
+    | string
+    | ReactNode
+  )[];
+  fixed?: (
+    | string
+    | ReactNode
+  )[];
 }
 
 export interface IComponentValidations {
@@ -61,8 +78,7 @@ export interface IFormFileUploaderComponent extends IFormComponent {
   validFileEndings?: string;
 }
 
-export interface IFormFileUploaderWithTagComponent
-  extends IFormFileUploaderComponent {
+export interface IFormFileUploaderWithTagComponent extends IFormFileUploaderComponent {
   options: IOption[];
   optionsId: string;
   mapping?: IMapping;
@@ -99,6 +115,8 @@ export interface IPagesSettings {
   order: string[];
   triggers?: Triggers[];
   hideCloseButton?: boolean;
+  showProgress?: boolean;
+  showLanguageSelector?: boolean;
 }
 
 export interface ILayoutNavigation {
@@ -225,11 +243,13 @@ export interface IUiConfig {
   focus: string;
   hiddenFields: string[];
   repeatingGroups?: IRepeatingGroups;
-  fileUploadersWithTag?: IFileUploadersWithTag;
+  fileUploadersWithTag?: IFileUploadersWithTag
   navigationConfig?: INavigationConfig;
   layoutOrder: string[];
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
+  showLanguageSelector?: boolean;
+  showProgress?: boolean;
 }
 
 export interface IValidationResult {
@@ -269,9 +289,11 @@ export enum PresentationType {
 }
 
 export enum LayoutStyle {
-  Column = 'column',
-  Row = 'row',
+  Column = "column",
+  Row = "row",
+  Table = "table"
 }
+
 
 export enum Severity {
   Unspecified = 0,
@@ -279,6 +301,7 @@ export enum Severity {
   Warning = 2,
   Informational = 3,
   Fixed = 4,
+  Success = 5,
 }
 
 export enum Triggers {
@@ -309,3 +332,4 @@ export interface IFetchSpecificOptionSaga {
   secure?: boolean;
   instanceId?: string;
 }
+
