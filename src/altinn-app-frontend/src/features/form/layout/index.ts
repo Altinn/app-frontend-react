@@ -24,6 +24,8 @@ export interface ILayoutGroup extends ILayoutEntry {
 export interface IGroupPanel {
   variant?: 'info' | 'success' | 'warning';
   showIcon?: boolean;
+  iconUrl?: string;
+  iconAlt?: string;
 }
 
 export interface ILayoutComponent extends ILayoutEntry {

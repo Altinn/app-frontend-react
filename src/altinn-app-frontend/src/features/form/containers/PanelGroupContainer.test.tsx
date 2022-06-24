@@ -62,7 +62,7 @@ describe('PanelGroupContainer', () => {
     } as ILayoutState,
   };
 
-  it('should render panel with group children', async () => {
+  it('should display panel with group children', async () => {
     render(
       {
         container,
@@ -71,10 +71,8 @@ describe('PanelGroupContainer', () => {
       state,
     );
 
-    screen.debug();
-
-    const groupPanel = await screen.queryByTestId('panel-group-container');
-    expect(groupPanel).toBeInTheDocument();
+    const customIcon = await screen.queryByTestId('panel-group-container');
+    expect(customIcon).toBeInTheDocument();
 
     const firstInputTitle = await screen.queryByText('Title for first input');
     expect(firstInputTitle).toBeInTheDocument();
@@ -83,7 +81,7 @@ describe('PanelGroupContainer', () => {
     expect(secondInputTitle).toBeInTheDocument();
   });
 
-  it('should render nothing if group is hidden', async () => {
+  it('should display nothing if group is hidden', async () => {
     const stateWithHidden: PreloadedState<RootState> = {
       formLayout: {
         ...state.formLayout,
@@ -102,8 +100,34 @@ describe('PanelGroupContainer', () => {
       stateWithHidden,
     );
 
-    const groupPanel = await screen.queryByTestId('panel-group-container');
-    expect(groupPanel).not.toBeInTheDocument();
+    const customIcon = await screen.queryByTestId('panel-group-container');
+    expect(customIcon).not.toBeInTheDocument();
+  });
+
+  it('should display custom icon if supplied', async () => {
+    const containerWithCustomIcon = {
+      ...container,
+      panel: {
+        ...container.panel,
+        iconUrl: 'someIcon.svg',
+        iconAlt: 'some alt text',
+      },
+    };
+
+    render(
+      {
+        container: containerWithCustomIcon,
+        components: groupComponents
+      },
+      state,
+    );
+
+    const customIcon = await screen.queryByTestId('custom-icon');
+    expect(customIcon).toBeInTheDocument();
+
+    const altText = await screen.queryByAltText('some alt text');
+    expect(altText).toBeInTheDocument();
+
   });
 });
 

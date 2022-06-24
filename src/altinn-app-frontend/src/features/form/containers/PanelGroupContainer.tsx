@@ -18,12 +18,22 @@ export interface IPanelGroupContainerProps {
   components: (ILayoutComponent | ILayoutGroup)[];
 }
 
+function renderIcon(iconUrl: string, iconAlt: string) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <img src={iconUrl} alt={iconAlt} data-testid='custom-icon' />
+    </div>
+  )
+}
+
 export function PanelGroupContainer({ container, components }: IPanelGroupContainerProps) {
   const classes = useStyles();
   const GetHiddenSelector = makeGetHidden();
   const layout = useAppSelector(state => state.formLayout.layouts[state.formLayout.uiConfig.currentView]);
   const hidden = useAppSelector(state => GetHiddenSelector(state, { id: container.id }));
   const title = useAppSelector(state => getTextFromAppOrDefault(container.textResourceBindings?.title, state.textResources.resources, state.language.language, [], true));
+  const body = useAppSelector(state => getTextFromAppOrDefault(container.textResourceBindings?.body, state.textResources.resources, state.language.language, [], true));
+  const { iconUrl, iconAlt } = container.panel;
 
   if (hidden) {
     return null;
@@ -31,18 +41,28 @@ export function PanelGroupContainer({ container, components }: IPanelGroupContai
 
   return (
     <Grid
-      container={true}
       item={true}
-      className={classes.groupContainer}
-      spacing={3}
-      alignItems='flex-start'
-      data-testid='panel-group-container'
     >
-        <Panel title={title}>
+      <Panel
+        title={title}
+        renderIcon={iconUrl ? () => renderIcon(iconUrl, iconAlt) : undefined}
+      >
+        <Grid
+          container={true}
+          item={true}
+          className={classes.groupContainer}
+          spacing={3}
+          alignItems='flex-start'
+          data-testid='panel-group-container'
+        >
+          <Grid item xs={12}>
+            {body}
+          </Grid>
           {components.map((component) => {
             return renderLayoutComponent(component, layout);
           })}
-        </Panel >
+        </Grid>
+      </Panel >
     </Grid>
   );
 }
