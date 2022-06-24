@@ -73,6 +73,71 @@ describe('Form.tsx', () => {
     expect(screen.getByText('Third title')).toBeInTheDocument();
   });
 
+  it('should render DisplayGroupContainer and children if group is non repeating', () => {
+    const layoutWithNonRepGroup: ILayout = [
+      ...mockComponents,
+      {
+        id: 'non-rep-group-id',
+        type: 'group',
+        dataModelBindings: {
+          group: 'Group',
+        },
+        children: ['non-rep-child'],
+      },
+      {
+        id: 'non-rep-child',
+        type: 'Input',
+        dataModelBindings: {
+          simple: 'Group.prop3',
+        },
+        textResourceBindings: {
+          title: 'Title from non repeating child',
+        },
+        readOnly: false,
+        required: false,
+        disabled: false,
+      },
+    ];
+
+    renderForm(layoutWithNonRepGroup);
+    expect(screen.getByTestId('display-group-container')).toBeInTheDocument();
+    expect(screen.getByText('Title from non repeating child')).toBeInTheDocument();
+  });
+
+  it('should render PanelGroupContainer and children if group has panel prop', () => {
+    const layoutWithPanelGroup: ILayout = [
+      ...mockComponents,
+      {
+        id: 'panel-group-id',
+        type: 'group',
+        dataModelBindings: {
+          group: 'Group',
+        },
+        children: ['panel-group-child'],
+        panel: {
+          variant: 'info',
+        },
+      },
+      {
+        id: 'panel-group-child',
+        type: 'Input',
+        dataModelBindings: {
+          simple: 'Group.prop3',
+        },
+        textResourceBindings: {
+          title: 'Title from panel child',
+        },
+        readOnly: false,
+        required: false,
+        disabled: false,
+      },
+    ];
+
+    renderForm(layoutWithPanelGroup);
+    expect(screen.getByTestId('panel-group-container')).toBeInTheDocument();
+    expect(screen.getByText('Title from panel child')).toBeInTheDocument();
+  });
+
   it('should render navbar', () => {
     const layoutWithNavBar: ILayout = [
       ...mockComponents,

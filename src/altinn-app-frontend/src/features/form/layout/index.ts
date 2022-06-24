@@ -14,10 +14,16 @@ export interface ILayoutEntry {
 export interface ILayoutGroup extends ILayoutEntry {
   children: string[];
   dataModelBindings?: IDataModelBindings;
-  maxCount: number;
+  maxCount?: number;
   textResourceBindings?: ITextResourceBindings;
   tableHeaders?: string[];
   edit?: IGroupEditProperties;
+  panel?: IGroupPanel;
+}
+
+export interface IGroupPanel {
+  variant?: 'info' | 'success' | 'warning';
+  showIcon?: boolean;
 }
 
 export interface ILayoutComponent extends ILayoutEntry {
