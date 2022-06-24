@@ -3,7 +3,7 @@ import { ILayoutSets } from 'src/types';
 import { getLayoutsetForDataElement } from './layout';
 
 export function getDataTaskDataTypeId(taskId: string, dataTypes: IDataType[]): string {
-  if (!dataTypes || dataTypes.length === 0) {
+  if (!dataTypes?.length) {
     return null;
   }
 
