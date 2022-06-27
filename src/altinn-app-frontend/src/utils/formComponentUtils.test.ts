@@ -36,6 +36,9 @@ describe('formComponentUtils', () => {
     mockBindingRadioButtonsWithMapping: 'mockOptionsWithMapping1',
     mockBindingLikert: 'optionValue1',
     mockBindingLikertWithMapping: 'mockOptionsWithMapping1',
+    mockBindingAttachmentSingle: '12345',
+    'mockBindingAttachmentMulti[0]': '123457',
+    'mockBindingAttachmentMulti[1]': '123456',
   };
   const mockTextResources: ITextResource[] = [
     {
@@ -91,7 +94,7 @@ describe('formComponentUtils', () => {
         uploaded: true,
         updating: false,
         deleting: false,
-        name: 'mockName',
+        name: 'mockNameAttachment1',
         size: 12345,
         tags: ['mockTag'],
         id: '12345',
@@ -100,7 +103,7 @@ describe('formComponentUtils', () => {
         uploaded: true,
         updating: false,
         deleting: false,
-        name: 'mockName',
+        name: 'mockNameAttachment2',
         size: 12345,
         tags: [],
         id: '123456',
@@ -109,7 +112,7 @@ describe('formComponentUtils', () => {
         uploaded: true,
         updating: false,
         deleting: false,
-        name: 'mockName',
+        name: 'mockNameAttachment3',
         size: 12345,
         tags: null,
         id: '123457',
@@ -255,7 +258,45 @@ describe('formComponentUtils', () => {
       expect(result).toEqual('Value Mapping 1');
     })
 
+    it('should return a single attachment name for a FileUpload component', () => {
+      const component = {
+        id: 'upload',
+        type: 'FileUpload',
+        dataModelBindings: {
+          simpleBinding: 'mockBindingAttachmentSingle',
+        },
+      } as ISelectionComponentProps;
+      const result = getDisplayFormData(
+        component.dataModelBindings.simpleBinding,
+        component,
+        component.id,
+        mockAttachments,
+        mockFormData,
+        mockOptions,
+        mockTextResources,
+      );
+      expect(result).toEqual('mockNameAttachment1');
+    });
 
+    it('should return multiple attachment names for a FileUpload component', () => {
+      const component = {
+        id: 'upload',
+        type: 'FileUpload',
+        dataModelBindings: {
+          list: 'mockBindingAttachmentMulti',
+        },
+      } as ISelectionComponentProps;
+      const result = getDisplayFormData(
+        component.dataModelBindings.list,
+        component,
+        component.id,
+        mockAttachments,
+        mockFormData,
+        mockOptions,
+        mockTextResources,
+      );
+      expect(result).toEqual('mockNameAttachment3, mockNameAttachment2');
+    });
   });
 
   describe('getFormDataForComponentInRepeatingGroup', () => {
