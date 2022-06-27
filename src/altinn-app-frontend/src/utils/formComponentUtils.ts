@@ -1,18 +1,18 @@
-import { ILanguage } from 'altinn-shared/types';
+import type { ILanguage } from 'altinn-shared/types';
 import {
   getLanguageFromKey,
   getParsedLanguageFromText,
   getTextResourceByKey,
 } from 'altinn-shared/utils';
-import React from 'react';
-import { IFormData } from 'src/features/form/data/formDataReducer';
-import {
+import type React from 'react';
+import type { IFormData } from 'src/features/form/data/formDataReducer';
+import type {
   ILayoutComponent,
   ILayoutGroup,
   ISelectionComponentProps,
 } from 'src/features/form/layout';
-import { IAttachment } from 'src/shared/resources/attachments';
-import {
+import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
+import type {
   IDataModelBindings,
   IComponentValidations,
   ITextResource,
@@ -25,6 +25,7 @@ import {
 import { AsciiUnitSeparator } from './attachment';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from './options';
 import { getTextFromAppOrDefault } from './textResource';
+import { isFileUploadComponent, isFileUploadWithTagComponent } from "src/utils/formLayout";
 
 export const componentValidationsHandledByGenericComponent = (
   dataModelBindings: any,
@@ -32,8 +33,9 @@ export const componentValidationsHandledByGenericComponent = (
 ): boolean => {
   return (
     !!dataModelBindings?.simpleBinding &&
-    type !== 'FileUpload' &&
-    type !== 'Datepicker'
+    type.toLowerCase() !== 'fileupload' &&
+    type.toLowerCase() !== 'fileuploadwithtag' &&
+    type.toLowerCase() !== 'datepicker'
   );
 };
 
@@ -86,17 +88,20 @@ export const getFormDataForComponent = (
 };
 
 export const getDisplayFormDataForComponent = (
-  formData: any,
+  formData: IFormData,
+  attachments: IAttachments,
   component: ILayoutComponent,
   textResources: ITextResource[],
   options: IOptions,
   repeatingGroups: IRepeatingGroups,
   multiChoice?: boolean,
 ) => {
-  if (component.dataModelBindings.simpleBinding) {
+  if (component.dataModelBindings?.simpleBinding || component.dataModelBindings?.list) {
     return getDisplayFormData(
-      component.dataModelBindings.simpleBinding,
+      component.dataModelBindings?.simpleBinding || component.dataModelBindings?.list,
       component,
+      component.id,
+      attachments,
       formData,
       options,
       textResources,
@@ -111,6 +116,8 @@ export const getDisplayFormDataForComponent = (
     formDataObj[key] = getDisplayFormData(
       binding,
       component,
+      component.id,
+      attachments,
       formData,
       options,
       textResources,
@@ -123,13 +130,21 @@ export const getDisplayFormDataForComponent = (
 export const getDisplayFormData = (
   dataModelBinding: string,
   component: ILayoutComponent | ILayoutGroup,
+  componentId: string,
+  attachments: IAttachments,
   formData: any,
   options: IOptions,
   textResources: ITextResource[],
   repeatingGroups: IRepeatingGroups,
   asObject?: boolean,
 ) => {
-  const formDataValue = formData[dataModelBinding] || '';
+  let formDataValue = formData[dataModelBinding] || '';
+  if (component.dataModelBindings?.list) {
+    formDataValue = Object.keys(formData)
+      .filter((key) => key.startsWith(dataModelBinding))
+      .map((key) => formData[key]);
+  }
+
   if (formDataValue) {
     if (component.type === 'Dropdown' || component.type === 'RadioButtons' || component.type === 'Likert') {
       const selectionComponent = component as ISelectionComponentProps;
@@ -217,12 +232,31 @@ export const getDisplayFormData = (
       });
       return label;
     }
+    if (isFileUploadComponent(component) || isFileUploadWithTagComponent(component)) {
+      if (Array.isArray(formDataValue) && !formDataValue.length) {
+        return '';
+      }
+      const attachmentNamesList = (Array.isArray(formDataValue) ? formDataValue : [formDataValue]).map((uuid) => {
+        const attachmentsForComponent = attachments[componentId];
+        if (attachmentsForComponent) {
+          const foundAttachment = attachmentsForComponent.find((a) => a.id === uuid);
+          if (foundAttachment) {
+            return foundAttachment.name;
+          }
+        }
+
+        return '';
+      }).filter((name) => name !== '');
+
+      return attachmentNamesList.join(', ');
+    }
   }
   return formDataValue;
 };
 
 export const getFormDataForComponentInRepeatingGroup = (
-  formData: any,
+  formData: IFormData,
+  attachments: IAttachments,
   component: ILayoutComponent | ILayoutGroup,
   index: number,
   groupDataModelBinding: string,
@@ -240,18 +274,28 @@ export const getFormDataForComponentInRepeatingGroup = (
   ) {
     return '';
   }
-  const dataModelBinding =
-    component.type === 'AddressComponent'
+  let dataModelBinding = component.type === 'AddressComponent'
       ? component.dataModelBindings?.address
       : component.dataModelBindings?.simpleBinding;
+  if (
+    (isFileUploadComponent(component) ||
+      isFileUploadWithTagComponent(component)) &&
+    component.dataModelBindings?.list
+  ) {
+    dataModelBinding = component.dataModelBindings.list;
+  }
 
   const replaced = dataModelBinding.replace(
     groupDataModelBinding,
     `${groupDataModelBinding}[${index}]`,
   );
+  const componentId = `${component.id}-${index}`;
+
   return getDisplayFormData(
     replaced,
     component,
+    componentId,
+    attachments,
     formData,
     options,
     textResources,
@@ -315,7 +359,7 @@ export function selectComponentTexts(
 }
 
 export function getFileUploadComponentValidations(
-  validationError: string,
+  validationError: 'upload' | 'update' | 'delete' | null,
   language: ILanguage,
   attachmentId: string = undefined,
 ): IComponentValidations {
