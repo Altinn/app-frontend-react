@@ -93,7 +93,7 @@ jobs:
           git config --global user.name "${{ steps.prepare.outputs.AUTHOR_NAME }}"
           git add .
           echo "${{ steps.prepare.outputs.AUTHOR_FULL }} updated altinn-app-frontend to ${{ steps.prepare.outputs.APP_MAJOR }}.${{ steps.prepare.outputs.APP_MINOR }}.${{ steps.prepare.outputs.APP_PATCH }}" > ./../commit1.txt
-          echo "based on commit https://github.com/Altinn/altinn-studio/commit/${{ steps.prepare.outputs.COMMIT_ID }}" > ./../commit2.txt
+          echo "based on commit https://github.com/Altinn/app-frontend-react/commit/${{ steps.prepare.outputs.COMMIT_ID }}" > ./../commit2.txt
           cat ./../commit1.txt ./../commit2.txt ./../commitmsg.txt > ./../commit.txt
           cat ./../commit.txt
           git commit -F ./../commit.txt
