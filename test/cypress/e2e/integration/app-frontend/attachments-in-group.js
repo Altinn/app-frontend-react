@@ -52,21 +52,19 @@ describe('Repeating group attachments', () => {
     }
   };
 
-  const uploadFile = (item, attachmentIndex, fileName, verifyTableRow, isTaggedUploader) => {
+  const uploadFile = ({ item, idx, fileName, verifyTableRow, isTaggedUploader }) => {
     cy.get(item.dropZoneContainer).should('be.visible');
     cy.get(item.dropZone).selectFile(makeTestFile(fileName), { force: true });
 
     if (isTaggedUploader) {
-      cy.get(item.attachments[attachmentIndex].tagSelector).should('be.visible').select('altinn');
-      cy.get(item.attachments[attachmentIndex].tagSave).click();
+      cy.get(item.attachments[idx].tagSelector).should('be.visible').select('altinn');
+      cy.get(item.attachments[idx].tagSave).click();
     }
 
-    cy.get(item.attachments[attachmentIndex].status)
+    cy.get(item.attachments[idx].status)
       .should('be.visible')
       .should('contain.text', texts.finishedUploading);
-    cy.get(item.attachments[attachmentIndex].name)
-      .should('be.visible')
-      .should('contain.text', fileName);
+    cy.get(item.attachments[idx].name).should('be.visible').should('contain.text', fileName);
 
     if (verifyTableRow) {
       verifyTableRowPreview(item, fileName);
@@ -176,13 +174,18 @@ describe('Repeating group attachments', () => {
       }
     ];
 
-    uploadFile(appFrontend.group.rows[0].uploadSingle, 0, filenames[0].single, true);
+    uploadFile({
+      item: appFrontend.group.rows[0].uploadSingle,
+      idx: 0,
+      fileName: filenames[0].single,
+      verifyTableRow: true,
+    });
     getState().should('deep.equal', {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
     });
 
     filenames[0].multi.forEach((fileName, idx) => {
-      uploadFile(appFrontend.group.rows[0].uploadMulti, idx, fileName, true);
+      uploadFile({ item: appFrontend.group.rows[0].uploadMulti, idx, fileName, verifyTableRow: true });
       if (idx !== filenames[0].multi.length - 1) {
         cy.get(appFrontend.group.rows[0].uploadMulti.addMoreBtn).click();
       }
@@ -193,9 +196,19 @@ describe('Repeating group attachments', () => {
     addNewRow();
     gotoSecondPage();
 
-    uploadFile(appFrontend.group.rows[1].uploadSingle, 0, filenames[1].single, true);
+    uploadFile({
+      item: appFrontend.group.rows[1].uploadSingle,
+      idx: 0,
+      fileName: filenames[1].single,
+      verifyTableRow: true,
+    });
     filenames[1].multi.forEach((fileName, idx) => {
-      uploadFile(appFrontend.group.rows[1].uploadMulti, idx, fileName, true);
+      uploadFile({
+        item: appFrontend.group.rows[1].uploadMulti,
+        idx,
+        fileName,
+        verifyTableRow: true,
+      });
       if (idx !== filenames[1].multi.length - 1) {
         cy.get(appFrontend.group.rows[1].uploadMulti.addMoreBtn).click();
       }
@@ -208,7 +221,13 @@ describe('Repeating group attachments', () => {
       gotoSecondPage();
       filenames[row].nested.forEach((nestedRow, nestedRowIdx) => {
         nestedRow.forEach((fileName, idx) => {
-          uploadFile(appFrontend.group.rows[row].nestedGroup.rows[nestedRowIdx].uploadTagMulti, idx, fileName, true, true);
+          uploadFile({
+            item: appFrontend.group.rows[row].nestedGroup.rows[nestedRowIdx].uploadTagMulti,
+            idx,
+            fileName,
+            verifyTableRow: true,
+            isTaggedUploader: true,
+          });
         });
         cy.get(appFrontend.group.rows[row].nestedGroup.saveBtn).click();
         cy.get(appFrontend.group.rows[row].nestedGroup.saveBtn).should('not.exist');
