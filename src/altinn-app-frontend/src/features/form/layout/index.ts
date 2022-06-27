@@ -77,6 +77,8 @@ export interface IDataModelBindingsForAddress {
   address: string;
   zipCode: string;
   postPlace: string;
+  careOf?: string;
+  houseNumber?: string;
 }
 
 export type IDataModelBindings =

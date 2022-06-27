@@ -284,7 +284,7 @@ export function GenericComponent(props: IGenericComponentProps) {
   };
 
   const componentProps: IComponentProps = {
-    handleDataChange: handleDataChange,
+    handleDataChange,
     handleFocusUpdate,
     getTextResource: getTextResourceWrapper,
     getTextResourceAsString,

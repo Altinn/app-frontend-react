@@ -64,7 +64,7 @@ export function FileUploadWithTagComponent({
   const setEditIndex = (index: number) => {
     dataDispatch(FormLayoutActions.updateFileUploaderWithTagEditIndex({
       componentId: id,
-      baseComponentId: baseComponentId,
+      baseComponentId: baseComponentId || id,
       index
     }));
   };
