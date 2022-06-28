@@ -1,6 +1,10 @@
-import { SagaIterator } from 'redux-saga';
-import { fork } from 'redux-saga/effects';
-import { watchFetchFormLayoutSaga, watchFetchFormLayoutSettingsSaga, watchFetchFormLayoutSetsSaga } from './fetch/fetchFormLayoutSagas';
+import type { SagaIterator } from "redux-saga";
+import { fork } from "redux-saga/effects";
+import {
+  watchFetchFormLayoutSaga,
+  watchFetchFormLayoutSettingsSaga,
+  watchFetchFormLayoutSetsSaga,
+} from "./fetch/fetchFormLayoutSagas";
 import {
   watchUpdateFocusSaga,
   watchUpdateRepeatingGroupsSaga,
@@ -10,7 +14,7 @@ import {
   watchInitRepeatingGroupsSaga,
   watchUpdateFileUploaderWithTagEditIndexSaga,
   watchUpdateFileUploaderWithTagChosenOptionsSaga,
-} from './update/updateFormLayoutSagas';
+} from "./update/updateFormLayoutSagas";
 
 // eslint-disable-next-line func-names
 export default function* (): SagaIterator {

@@ -1,5 +1,10 @@
-import { ILayoutSettings, ILayoutSets, IOption, IFileUploadersWithTag } from 'src/types';
-import { ILayouts } from '.';
+import type {
+  ILayoutSettings,
+  ILayoutSets,
+  IOption,
+  IFileUploadersWithTag,
+} from "src/types";
+import type { ILayouts } from ".";
 
 export interface IFormLayoutActionRejected {
   error: Error;
@@ -27,13 +32,13 @@ export interface IUpdateAutoSave {
 
 export enum UpdateViewActions {
   Next,
-  Previous
+  Previous,
 }
 
 export interface IUpdateCurrentView {
   newView: string | UpdateViewActions;
   returnToView?: string;
-  runValidations?: 'allPages' | 'page';
+  runValidations?: "allPages" | "page";
   skipPageCaching?: boolean;
 }
 
@@ -112,12 +117,12 @@ export interface IUpdateFileUploaderWithTagChosenOptionsFulfilled {
 }
 
 export interface ICalculatePageOrderAndMoveToNextPage {
-  runValidations?: 'allPages' | 'page';
+  runValidations?: "allPages" | "page";
   skipMoveToNext?: boolean;
 }
 
 export interface ICalculatePageOrderAndMoveToNextPageFulfilled {
-    order: string[];
+  order: string[];
 }
 
 export interface IUpdateLayoutOrder {

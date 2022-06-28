@@ -1,5 +1,5 @@
 export interface ILayoutDynamicsFunctions {
-  [key: string]: (arg1:string, arg2:string) => boolean;
+  [key: string]: (arg1: string, arg2: string) => boolean;
 }
 
 export interface ILayoutDynamicsAliases {
@@ -22,7 +22,12 @@ export interface ILayoutDynamicsComponentArg {
   component: string;
 }
 
-export type ILayoutDynamicsArg = string | ILayoutDynamicsDataModelArg | ILayoutDynamicsComponentArg | ILayoutDynamicsInstanceContextArg | ILayoutDynamicsApplicationSettingsArg;
+export type ILayoutDynamicsArg =
+  | string
+  | ILayoutDynamicsDataModelArg
+  | ILayoutDynamicsComponentArg
+  | ILayoutDynamicsInstanceContextArg
+  | ILayoutDynamicsApplicationSettingsArg;
 
 export interface ILayoutDynamicsExpr {
   function: string;
