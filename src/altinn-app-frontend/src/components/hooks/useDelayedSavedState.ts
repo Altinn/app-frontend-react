@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { IComponentProps } from "src/components";
+import * as React from "react";
+import type { IComponentProps } from "src/components";
 
 export function useDelayedSavedState(
-  handleDataChange:IComponentProps['handleDataChange'],
-  initialValue?:string,
-  delayMsBeforeSaving=500
-):[string, (newValue:string)=>void] {
+  handleDataChange: IComponentProps["handleDataChange"],
+  initialValue?: string,
+  delayMsBeforeSaving = 500
+): [string, (newValue: string) => void] {
   const [immediateState, setImmediateState] = React.useState(initialValue);
 
   React.useEffect(() => {
