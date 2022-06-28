@@ -1,12 +1,12 @@
 import parseHtmlToReact from 'html-react-parser';
 
-import type { IComponentBindingValidation, IComponentValidations, IOptions, ITextResource } from 'src/types';
+import type { IComponentBindingValidation, IComponentValidations, IOptions, ITextResource, IRepeatingGroups } from 'src/types';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
 import type {
   ILayoutComponent,
   ISelectionComponentProps,
 } from 'src/features/form/layout';
-import type { IAttachment } from 'src/shared/resources/attachments';
+import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 
 import { parseOptions } from 'altinn-shared/utils/language';
 
@@ -20,6 +20,7 @@ import {
   isComponentValid,
   componentValidationsHandledByGenericComponent,
   componentHasValidationMessages,
+  getFieldName,
 } from './formComponentUtils';
 
 describe('formComponentUtils', () => {
@@ -33,6 +34,14 @@ describe('formComponentUtils', () => {
     mockBindingDropdownWithMapping: 'mockOptionsWithMapping1',
     mockBindingRadioButtons: 'optionValue1',
     mockBindingRadioButtonsWithMapping: 'mockOptionsWithMapping1',
+    mockBindingLikert: 'optionValue1',
+    mockBindingLikertWithMapping: 'mockOptionsWithMapping1',
+    mockBindingDropdownWithReduxOptions: 'mockReduxOptionValue',
+    'someGroup[0].fieldUsedAsValue': 'mockReduxOptionValue',
+    'someGroup[0].fieldUsedAsLabel': 'mockReduxOptionLabel',
+    mockBindingAttachmentSingle: '12345',
+    'mockBindingAttachmentMulti[0]': '123457',
+    'mockBindingAttachmentMulti[1]': '123456',
   };
   const mockTextResources: ITextResource[] = [
     {
@@ -55,6 +64,17 @@ describe('formComponentUtils', () => {
       id: 'repTextKey3',
       value: 'RepValue3',
     },
+    {
+      id: 'dropdown.label',
+      value: 'Label value: {0}',
+      unparsedValue: 'Label value: {0}',
+      variables: [
+        {
+          key: 'someGroup[{0}].fieldUsedAsLabel',
+          dataSource: 'dataModel.default'
+        },
+      ]
+    }
   ];
   const mockOptions: IOptions = {
     mockOption: {
@@ -82,35 +102,37 @@ describe('formComponentUtils', () => {
       ],
     },
   };
-  const mockAttachments: IAttachment[] = [
-    {
-      uploaded: true,
-      updating: false,
-      deleting: false,
-      name: 'mockName',
-      size: 12345,
-      tags: ['mockTag'],
-      id: '12345',
-    },
-    {
-      uploaded: true,
-      updating: false,
-      deleting: false,
-      name: 'mockName',
-      size: 12345,
-      tags: [],
-      id: '123456',
-    },
-    {
-      uploaded: true,
-      updating: false,
-      deleting: false,
-      name: 'mockName',
-      size: 12345,
-      tags: null,
-      id: '123457',
-    },
-  ];
+  const mockAttachments: IAttachments = {
+    upload: [
+      {
+        uploaded: true,
+        updating: false,
+        deleting: false,
+        name: 'mockNameAttachment1',
+        size: 12345,
+        tags: ['mockTag'],
+        id: '12345',
+      },
+      {
+        uploaded: true,
+        updating: false,
+        deleting: false,
+        name: 'mockNameAttachment2',
+        size: 12345,
+        tags: [],
+        id: '123456',
+      },
+      {
+        uploaded: true,
+        updating: false,
+        deleting: false,
+        name: 'mockNameAttachment3',
+        size: 12345,
+        tags: null,
+        id: '123457',
+      },
+    ],
+  };
   const mockAttachmentsWithoutTag: IAttachment[] = [
     {
       uploaded: true,
@@ -141,6 +163,8 @@ describe('formComponentUtils', () => {
     },
   ];
 
+  const mockRepeatingGroups: IRepeatingGroups = {};
+
   describe('getDisplayFormData', () => {
     it('should return form data for a component', () => {
       const inputComponent = {
@@ -149,9 +173,12 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingInput',
         inputComponent,
+        inputComponent.id,
+        {},
         mockFormData,
         mockOptions,
         mockTextResources,
+        mockRepeatingGroups,
       );
       expect(result).toEqual('test');
     });
@@ -164,9 +191,12 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingCheckbox',
         checkboxComponent,
+        checkboxComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
+        mockRepeatingGroups,
       );
       expect(result).toEqual('Value1, Value2');
     });
@@ -180,9 +210,12 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingCheckboxWithMapping',
         checkboxComponent,
+        checkboxComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
+        mockRepeatingGroups,
       );
       expect(result).toEqual('Value Mapping 1, Value Mapping 2');
     });
@@ -195,9 +228,12 @@ describe('formComponentUtils', () => {
       const result = getDisplayFormData(
         'mockBindingCheckbox',
         checkboxComponent,
+        checkboxComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
+        mockRepeatingGroups,
         true,
       );
       const expected = {
@@ -207,48 +243,58 @@ describe('formComponentUtils', () => {
       expect(result).toEqual(expected);
     });
 
-    it('should return text resource for dropdown component', () => {
-      const dropdownComponent = {
-        type: 'Dropdown',
+    it.each(["Likert", "Dropdown", "RadioButtons"])("should return text resource for %s component", (type)=>{
+      const component = {
+        type,
         optionsId: 'mockOption',
       } as ISelectionComponentProps;
       const result = getDisplayFormData(
-        'mockBindingDropdown',
-        dropdownComponent,
+        `mockBinding${type}`,
+        component,
+        component.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
+        mockRepeatingGroups,
       );
       expect(result).toEqual('Value1');
-    });
+    })
 
-    it('should return text resource for dropdown component with mapping', () => {
-      const checkboxComponent = {
-        type: 'Dropdown',
+    it.each(["Likert", "Dropdown", "RadioButtons"])("should return text resource for %s component with mapping", (type)=>{
+      const component = {
+        type,
         optionsId: 'mockOptionsWithMapping',
         mapping: { someDataField: 'someUrlParam' },
       } as unknown as ISelectionComponentProps;
       const result = getDisplayFormData(
-        'mockBindingDropdownWithMapping',
-        checkboxComponent,
+        `mockBinding${type}WithMapping`,
+        component,
+        component.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
+        mockRepeatingGroups,
       );
       expect(result).toEqual('Value Mapping 1');
-    });
+    })
 
     it('should return text resource for radio button component', () => {
       const radioButtonComponent = {
         type: 'RadioButtons',
         optionsId: 'mockOption',
+        id: 'some-id'
       } as ISelectionComponentProps;
       const result = getDisplayFormData(
         'mockBindingRadioButtons',
         radioButtonComponent,
+        radioButtonComponent.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
+        mockRepeatingGroups,
       );
       expect(result).toEqual('Value1');
     });
@@ -258,20 +304,98 @@ describe('formComponentUtils', () => {
         type: 'RadioButtons',
         optionsId: 'mockOptionsWithMapping',
         mapping: { someDataField: 'someUrlParam' },
+        id: 'some-id'
       } as unknown as ISelectionComponentProps;
       const result = getDisplayFormData(
         'mockBindingRadioButtonsWithMapping',
         radioButtonComponentWithMapping,
+        radioButtonComponentWithMapping.id,
+        mockAttachments,
         mockFormData,
         mockOptions,
         mockTextResources,
+        mockRepeatingGroups,
       );
       expect(result).toEqual('Value Mapping 1');
+    });
+
+    it('should return correct label for dropdown setup with options from redux', () => {
+      const dropdownComponentWithReduxOptions = {
+        type: 'RadioButtons',
+        id: 'some-id',
+        source: {
+          group: 'someGroup',
+          label: 'dropdown.label',
+          value: 'someGroup[{0}].fieldUsedAsValue'
+        }
+      } as unknown as ISelectionComponentProps;
+
+      const repGroups: IRepeatingGroups = {
+        group1: {
+          index: 0,
+          dataModelBinding: 'someGroup'
+        },
+      };
+
+      const result = getDisplayFormData(
+        'mockBindingDropdownWithReduxOptions',
+        dropdownComponentWithReduxOptions,
+        dropdownComponentWithReduxOptions.id,
+        mockAttachments,
+        mockFormData,
+        mockOptions,
+        mockTextResources,
+        repGroups,
+      );
+
+      expect(result).toEqual('Label value: mockReduxOptionLabel');
+    });
+    
+    it('should return a single attachment name for a FileUpload component', () => {
+      const component = {
+        id: 'upload',
+        type: 'FileUpload',
+        dataModelBindings: {
+          simpleBinding: 'mockBindingAttachmentSingle',
+        },
+      } as ISelectionComponentProps;
+      const result = getDisplayFormData(
+        component.dataModelBindings.simpleBinding,
+        component,
+        component.id,
+        mockAttachments,
+        mockFormData,
+        mockOptions,
+        mockTextResources,
+        mockRepeatingGroups,
+      );
+      expect(result).toEqual('mockNameAttachment1');
+    });
+
+    it('should return multiple attachment names for a FileUpload component', () => {
+      const component = {
+        id: 'upload',
+        type: 'FileUpload',
+        dataModelBindings: {
+          list: 'mockBindingAttachmentMulti',
+        },
+      } as ISelectionComponentProps;
+      const result = getDisplayFormData(
+        component.dataModelBindings.list,
+        component,
+        component.id,
+        mockAttachments,
+        mockFormData,
+        mockOptions,
+        mockTextResources,
+        mockRepeatingGroups,
+      );
+      expect(result).toEqual('mockNameAttachment3, mockNameAttachment2');
     });
   });
 
   describe('getFormDataForComponentInRepeatingGroup', () => {
-    it('should return comma separated string of text resources for checkboxes with mulitiple values', () => {
+    it('should return comma separated string of text resources for checkboxes with multiple values', () => {
       const checkboxComponent = {
         type: 'Checkboxes',
         optionsId: 'mockRepOption',
@@ -281,11 +405,13 @@ describe('formComponentUtils', () => {
       } as unknown as ISelectionComponentProps;
       const result = getFormDataForComponentInRepeatingGroup(
         mockFormData,
+        mockAttachments,
         checkboxComponent,
         0,
         'group',
         mockTextResources,
         mockOptions,
+        mockRepeatingGroups,
       );
       expect(result).toEqual('RepValue1, RepValue2, RepValue3');
     });
@@ -456,7 +582,7 @@ describe('formComponentUtils', () => {
 
   describe('atleastOneTagExists', () => {
     it('should return true if one or more attachments has a tag', () => {
-      const result = atleastOneTagExists(mockAttachments);
+      const result = atleastOneTagExists(mockAttachments['upload']);
       expect(result).toEqual(true);
     });
 
@@ -477,5 +603,60 @@ describe('formComponentUtils', () => {
         const result = componentHasValidationMessages(validations);
         expect(result).toEqual(true);
       });
+  });
+
+  describe('getFieldName', () => {
+    const mockTextResources = [
+      { id: 'title', value: 'Component name'},
+      { id: 'short', value: 'name'},
+    ];
+    const mockLanguage = {
+      form_filler: {
+        error_required: 'Du må fylle ut {0}',
+        address: 'Gateadresse',
+        postPlace: 'Poststed',
+        zipCode: 'Postnummer',
+      },
+      validation: {
+        generic_field: 'dette feltet',
+      },
+    };
+
+    it('should return field text from languages when fieldKey is present', () => {
+      const result = getFieldName(
+        { title: 'title' },
+        mockTextResources,
+        mockLanguage,
+        'address'
+      );
+      expect(result).toEqual('Gateadresse');
+    });
+
+    it('should return component shortName (textResourceBindings) when no fieldKey is present', () => {
+      const result = getFieldName(
+        { title: 'title', shortName: 'short' },
+        mockTextResources,
+        mockLanguage,
+      );
+      expect(result).toEqual('name');
+    });
+
+    it('should return component title (textResourceBindings) when no shortName (textResourceBindings) and no fieldKey is present', () => {
+      const result = getFieldName(
+        { title: 'title' },
+        mockTextResources,
+        mockLanguage,
+      );
+      expect(result).toEqual('Component name');
+    });
+
+    it('should return generic field name when fieldKey, shortName and title are all not available', () => {
+      const result = getFieldName(
+        { something: 'someTextKey' },
+        mockTextResources,
+        mockLanguage,
+      );
+      expect(result).toEqual('dette feltet');
+    });
   });
 });

@@ -1,4 +1,5 @@
 import { ILayoutState } from '../src/features/form/layout/formLayoutSlice';
+import { getUiConfigStateMock } from './uiConfigStateMock';
 
 export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): ILayoutState {
   const mockFormLayoutState: ILayoutState = {
@@ -8,7 +9,7 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
           id: 'field1',
           type: 'Input',
           dataModelBindings: {
-            simple: 'Group.prop1',
+            simpleBinding: 'Group.prop1',
           },
           textResourceBindings: {
             title: 'Title',
@@ -21,7 +22,7 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
           id: 'field2',
           type: 'Input',
           dataModelBindings: {
-            simple: 'Group.prop2',
+            simpleBinding: 'Group.prop2',
           },
           textResourceBindings: {
             title: 'Title',
@@ -34,7 +35,7 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
           id: 'field3',
           type: 'Input',
           dataModelBindings: {
-            simple: 'Group.prop3',
+            simpleBinding: 'Group.prop3',
           },
           textResourceBindings: {
             title: 'Title',
@@ -46,21 +47,7 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
       ],
     },
     error: null,
-    uiConfig: {
-      autoSave: true,
-      focus: null,
-      hiddenFields: [],
-      repeatingGroups: {
-        group: {
-          index: 1,
-          dataModelBinding: 'someGroup',
-        }
-      },
-      fileUploadersWithTag: null,
-      currentView: 'FormLayout',
-      navigationConfig: {},
-      layoutOrder: ['FormLayout'],
-    },
+    uiConfig: getUiConfigStateMock(),
     layoutsets: null,
   };
 

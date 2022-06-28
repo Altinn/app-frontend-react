@@ -160,8 +160,8 @@ export function GenericComponent(props: IGenericComponentProps) {
     return null;
   }
 
-  const handleDataUpdate = (
-    value: string,
+  const handleDataChange: IComponentProps['handleDataChange'] = (
+    value,
     key = 'simpleBinding',
     skipValidation = false,
   ) => {
@@ -302,7 +302,7 @@ export function GenericComponent(props: IGenericComponentProps) {
   const useFormData = Object.keys(formData).length > 0 ? formData : { simpleBinding: shadowFields };
 
   const componentProps: IComponentProps = {
-    handleDataChange: handleDataUpdate,
+    handleDataChange,
     handleFocusUpdate,
     getTextResource: getTextResourceWrapper,
     getTextResourceAsString,
@@ -331,6 +331,7 @@ export function GenericComponent(props: IGenericComponentProps) {
     'InstantiationButton',
     'NavigationBar',
     'Likert',
+    'Panel',
   ];
 
   const showValidationMessages =

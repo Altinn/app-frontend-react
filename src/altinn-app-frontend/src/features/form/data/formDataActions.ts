@@ -1,10 +1,12 @@
 import { createAction } from '@reduxjs/toolkit';
-import { IFetchFormData,
+import type { IFetchFormData,
   IFetchFormDataFulfilled,
   IFormDataRejected,
   ISubmitDataAction,
   IUpdateFormData,
-  IUpdateFormDataFulfilled } from './formDataTypes';
+  IUpdateFormDataFulfilled,
+  IDeleteAttachmentReference,
+} from './formDataTypes';
 
 const moduleName = 'formData';
 const FormDataActions = {
@@ -23,6 +25,7 @@ const FormDataActions = {
   updateFormDataSkipAutosave: createAction<IUpdateFormDataFulfilled>(`${moduleName}/updateSkipAutosave`),
   updateFormDataRejected: createAction<IFormDataRejected>(`${moduleName}/updateRejected`),
   updateShadowFieldsFulfilled: createAction<IUpdateFormDataFulfilled>(`${moduleName}/updateShadowFieldsFulfilled`),
+  deleteAttachmentReference: createAction<IDeleteAttachmentReference>(`${moduleName}/deleteAttachmentReference`),
 };
 
 export default FormDataActions;

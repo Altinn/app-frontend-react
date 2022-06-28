@@ -1,4 +1,4 @@
-import { AddressComponent } from './advanced/AddressComponent';
+import { AddressComponent as Address} from './advanced/AddressComponent';
 import { AttachmentListComponent } from './base/AttachmentListComponent';
 import { ButtonComponent } from './base/ButtonComponent';
 import { CheckboxContainerComponent } from './base/CheckboxesContainerComponent';
@@ -13,7 +13,8 @@ import { RadioButtonContainerComponent } from './base/RadioButtons/RadioButtonsC
 import { TextAreaComponent } from './base/TextAreaComponent';
 import { ImageComponent } from './base/ImageComponent';
 import { NavigationButtons as NavigationButtonsComponent } from './presentation/NavigationButtons';
-import { NavigationBar } from './base/NavigationBar';
+import { NavigationBar as NavigationBarComponent} from './base/NavigationBar';
+import { PanelComponent } from './base/PanelComponent';
 import { InstantiationButtonComponent } from './base/InstantiationButtonComponent';
 import { IGenericComponentProps } from './GenericComponent';
 import { IComponentFormData } from 'src/utils/formComponentUtils';
@@ -22,6 +23,8 @@ import type { ITextResourceBindings } from 'src/types';
 import type { IGrid } from 'src/features/form/layout';
 import { createContext } from 'react';
 import { LikertComponent } from 'src/components/base/LikertComponent';
+import { PrintButtonComponent } from './base/PrintButtonComponent';
+
 
 export interface IComponent {
   name: string;
@@ -52,6 +55,8 @@ export enum ComponentTypes {
   AttachmentList,
   NavigationBar,
   Likert,
+  Panel,
+  PrintButton,
 }
 
 export const textComponents: IComponent[] = [
@@ -161,7 +166,7 @@ export const schemaComponents: IComponent[] = [
   },
   {
     name: 'NavigationBar',
-    Tag: NavigationBar,
+    Tag: NavigationBarComponent,
     Type: ComponentTypes.NavigationBar,
   },
   {
@@ -169,12 +174,22 @@ export const schemaComponents: IComponent[] = [
     Tag: LikertComponent,
     Type: ComponentTypes.Likert,
   },
+  {
+    name: 'Panel',
+    Tag: PanelComponent,
+    Type: ComponentTypes.Panel,
+  },
+  {
+    name: 'PrintButton',
+    Tag: PrintButtonComponent,
+    Type: ComponentTypes.PrintButton,
+  },
 ];
 
 export const advancedComponents: IComponent[] = [
   {
     name: 'AddressComponent',
-    Tag: AddressComponent,
+    Tag: Address,
     Type: ComponentTypes.AddressComponent,
     customProperties: {
       simplified: true,
