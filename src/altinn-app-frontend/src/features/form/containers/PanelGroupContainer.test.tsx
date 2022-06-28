@@ -1,46 +1,47 @@
-import React from 'react';
-import { PreloadedState } from 'redux';
-import { renderWithProviders } from 'src/../testUtils';
-import { getInitialStateMock } from '__mocks__/initialStateMock';
-import { IPanelGroupContainerProps, PanelGroupContainer } from './PanelGroupContainer';
-import type { RootState } from 'src/store';
-import { ILayout, ILayoutGroup } from '../layout';
-import { ILayoutState } from '../layout/formLayoutSlice';
-import { screen } from '@testing-library/react';
-import { IUiConfig } from 'src/types';
+import React from "react";
+import type { PreloadedState } from "redux";
+import { renderWithProviders } from "src/../testUtils";
+import { getInitialStateMock } from "__mocks__/initialStateMock";
+import type { IPanelGroupContainerProps } from "./PanelGroupContainer";
+import { PanelGroupContainer } from "./PanelGroupContainer";
+import type { RootState } from "src/store";
+import type { ILayout, ILayoutGroup } from "../layout";
+import type { ILayoutState } from "../layout/formLayoutSlice";
+import { screen } from "@testing-library/react";
+import type { IUiConfig } from "src/types";
 
-describe('PanelGroupContainer', () => {
+describe("PanelGroupContainer", () => {
   const container: ILayoutGroup = {
-    id: 'group-id',
-    type: 'Group',
-    children: ['input-1', 'input-2'],
+    id: "group-id",
+    type: "Group",
+    children: ["input-1", "input-2"],
     panel: {
-      variant: 'info'
+      variant: "info",
     },
   };
 
   const groupComponents: ILayout = [
     {
-      id: 'input-1',
-      type: 'Input',
+      id: "input-1",
+      type: "Input",
       dataModelBindings: {
-        simpleBinding: 'something',
+        simpleBinding: "something",
       },
       textResourceBindings: {
-        title: 'Title for first input',
+        title: "Title for first input",
       },
       readOnly: false,
       required: false,
       disabled: false,
     },
     {
-      id: 'input-2',
-      type: 'Input',
+      id: "input-2",
+      type: "Input",
       dataModelBindings: {
-        simpleBinding: 'something.else',
+        simpleBinding: "something.else",
       },
       textResourceBindings: {
-        title: 'Title for second input',
+        title: "Title for second input",
       },
       readOnly: false,
       required: false,
@@ -55,85 +56,84 @@ describe('PanelGroupContainer', () => {
       },
       uiConfig: {
         hiddenFields: [],
-        currentView: 'FormLayout'
+        currentView: "FormLayout",
       } as IUiConfig,
       error: null,
-      layoutsets: null
+      layoutsets: null,
     } as ILayoutState,
   };
 
-  it('should display panel with group children', async () => {
+  it("should display panel with group children", async () => {
     render(
       {
         container,
-        components: groupComponents
+        components: groupComponents,
       },
-      state,
+      state
     );
 
-    const customIcon = await screen.queryByTestId('panel-group-container');
+    const customIcon = await screen.queryByTestId("panel-group-container");
     expect(customIcon).toBeInTheDocument();
 
-    const firstInputTitle = await screen.queryByText('Title for first input');
+    const firstInputTitle = await screen.queryByText("Title for first input");
     expect(firstInputTitle).toBeInTheDocument();
 
-    const secondInputTitle = await screen.queryByText('Title for second input');
+    const secondInputTitle = await screen.queryByText("Title for second input");
     expect(secondInputTitle).toBeInTheDocument();
   });
 
-  it('should display nothing if group is hidden', async () => {
+  it("should display nothing if group is hidden", async () => {
     const stateWithHidden: PreloadedState<RootState> = {
       formLayout: {
         ...state.formLayout,
         uiConfig: {
           ...state.formLayout.uiConfig,
-          hiddenFields: ['group-id']
+          hiddenFields: ["group-id"],
         } as IUiConfig,
-      }
+      },
     };
 
     render(
       {
         container,
-        components: groupComponents
+        components: groupComponents,
       },
-      stateWithHidden,
+      stateWithHidden
     );
 
-    const customIcon = await screen.queryByTestId('panel-group-container');
+    const customIcon = await screen.queryByTestId("panel-group-container");
     expect(customIcon).not.toBeInTheDocument();
   });
 
-  it('should display custom icon if supplied', async () => {
+  it("should display custom icon if supplied", async () => {
     const containerWithCustomIcon = {
       ...container,
       panel: {
         ...container.panel,
-        iconUrl: 'someIcon.svg',
-        iconAlt: 'some alt text',
+        iconUrl: "someIcon.svg",
+        iconAlt: "some alt text",
       },
     };
 
     render(
       {
         container: containerWithCustomIcon,
-        components: groupComponents
+        components: groupComponents,
       },
-      state,
+      state
     );
 
-    const customIcon = await screen.queryByTestId('custom-icon');
+    const customIcon = await screen.queryByTestId("custom-icon");
     expect(customIcon).toBeInTheDocument();
 
-    const altText = await screen.queryByAltText('some alt text');
+    const altText = await screen.queryByAltText("some alt text");
     expect(altText).toBeInTheDocument();
-
   });
 });
 
 const render = (
   props: Partial<IPanelGroupContainerProps> = {},
-  customState: PreloadedState<RootState> = {},
+  customState: PreloadedState<RootState> = {}
 ) => {
   const allProps: IPanelGroupContainerProps = {
     ...({} as IPanelGroupContainerProps),
@@ -145,10 +145,10 @@ const render = (
     {
       preloadedState: {
         ...getInitialStateMock(),
-        ...customState
+        ...customState,
       },
-    },
+    }
   );
 
   return container;
-}
+};
