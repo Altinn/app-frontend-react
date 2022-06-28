@@ -132,7 +132,7 @@ export function* deleteAttachmentReferenceSaga({ payload: {
     const currentView:string = yield select(SelectCurrentView);
     const layout = layouts[currentView];
 
-    const updatedFormData = removeAttachmentReference(formData, attachmentId, layout, attachments, dataModelBindings, componentId);
+    const updatedFormData = removeAttachmentReference(formData, attachmentId, layout.data.layout, attachments, dataModelBindings, componentId);
 
     yield put(FormDataActions.setFormDataFulfilled({ formData: updatedFormData }));
     yield put(FormDataActions.saveFormData());

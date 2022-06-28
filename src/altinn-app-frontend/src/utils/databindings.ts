@@ -36,19 +36,6 @@ export interface IData {
 }
 
 /**
- * Returns key indexes:
- *
- * MyForm.Group[0].SubGroup[1]
- *              ^           ^
- *
- * as an array => [0, 1]
- */
-export function getKeyIndex(keyWithIndex:string):number[] {
-  const match = keyWithIndex.match(/(?<=\[)\d+(?=])]/g) || [];
-  return match.map((n) => parseInt(n, 10));
-}
-
-/**
  * Converts JSON to the flat datamodel used in Redux data store
  * @param data The form data as JSON
  */

@@ -15,7 +15,6 @@ import type {
   ILayoutComponent,
   ILayoutGroup,
 } from '../features/form/layout';
-import { IFormFileUploaderComponent, IFormFileUploaderWithTagComponent } from "src/types";
 import { IDatePickerProps } from "src/components/base/DatepickerComponent";
 
 interface SplitKey {
@@ -431,23 +430,17 @@ export function findChildren(
  */
 
 export function isGroupComponent(component:any):component is ILayoutGroup {
-  return component.type.toLowerCase() === 'group';
+  return component && component.type && component.type.toLowerCase() === 'group';
 }
 
-export function isFileUploadComponent(
-  component:ILayoutComponent|ILayoutGroup
-):component is (IFormFileUploaderComponent & ILayoutComponent) {
-  return component.type.toLowerCase() === 'fileupload';
+export function isFileUploadComponent(component:any):component is (IFormFileUploaderComponent & ILayoutComponent) {
+  return component && component.type && component.type.toLowerCase() === 'fileupload';
 }
 
-export function isFileUploadWithTagComponent(
-  component:ILayoutComponent|ILayoutGroup
-):component is (IFormFileUploaderWithTagComponent & ILayoutComponent) {
-  return component.type.toLowerCase() === 'fileuploadwithtag';
+export function isFileUploadWithTagComponent(component:any):component is (IFormFileUploaderWithTagComponent & ILayoutComponent) {
+  return component && component.type && component.type.toLowerCase() === 'fileuploadwithtag';
 }
 
-export function isDatePickerComponent(
-  component:ILayoutComponent|ILayoutGroup
-):component is (IDatePickerProps & ILayoutComponent) {
-  return component.type.toLowerCase() === 'datepicker';
+export function isDatePickerComponent(component:any):component is (IDatePickerProps & ILayoutComponent) {
+  return component && component.type && component.type.toLowerCase() === 'datepicker';
 }

@@ -6,11 +6,9 @@ import {
   watchUpdateRepeatingGroupsSaga,
   watchUpdateCurrentViewSaga,
   watchCalculatePageOrderAndMoveToNextPageSaga,
-  watchInitialCalculagePageOrderAndMoveToNextPageSaga,
   watchUpdateRepeatingGroupsEditIndexSaga,
   watchInitRepeatingGroupsSaga,
   watchUpdateFileUploaderWithTagEditIndexSaga,
-  watchInitFileUploaderWithTagSaga,
   watchUpdateFileUploaderWithTagChosenOptionsSaga,
 } from './update/updateFormLayoutSagas';
 
@@ -23,10 +21,8 @@ export default function* (): SagaIterator {
   yield fork(watchUpdateFileUploaderWithTagEditIndexSaga);
   yield fork(watchUpdateFileUploaderWithTagChosenOptionsSaga);
   yield fork(watchInitRepeatingGroupsSaga);
-  yield fork(watchMapFileUploaderWithTagSaga);
   yield fork(watchFetchFormLayoutSettingsSaga);
   yield fork(watchUpdateCurrentViewSaga);
   yield fork(watchFetchFormLayoutSetsSaga);
   yield fork(watchCalculatePageOrderAndMoveToNextPageSaga);
-  yield fork(watchInitialCalculatePageOrderAndMoveToNextPageSaga);
 }

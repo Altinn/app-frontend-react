@@ -29,11 +29,10 @@ import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex 
 import { matchLayoutComponent, setupGroupComponents } from './layout';
 import {
   createRepeatingGroupComponents,
-  getRepeatingGroupStartStopIndex,
   isFileUploadComponent,
   isFileUploadWithTagComponent,
   isDatePickerComponent,
-  isGroupComponent, splitDashedKey,
+  isGroupComponent,
 } from './formLayout';
 import { getDataTaskDataTypeId } from './appMetadata';
 import { getFlagBasedDate } from './dateHelpers';
@@ -410,7 +409,10 @@ export function iterateFieldsInLayout(
 export function validateEmptyFieldsForLayout(
   formData: IFormData,
   formLayout: ILayout,
+  language: ILanguage,
+  hiddenFields: string[],
   repeatingGroups: IRepeatingGroups,
+  textResources: ITextResource[],
 ): ILayoutValidations {
   const validations: any = {};
   const list = iterateFieldsInLayout(formLayout, repeatingGroups);
@@ -428,6 +430,8 @@ export function validateEmptyFieldsForLayout(
     const result = validateEmptyField(
       formData,
       component.item.dataModelBindings,
+      component.item.textResourceBindings,
+      textResources,
       language,
     );
     if (result !== null) {
@@ -491,8 +495,6 @@ export function validateEmptyField(
       fieldKey,
       dataModelBindings,
       formData,
-      groupDataBinding,
-      index,
     );
     if (!value && fieldKey) {
       componentValidations[fieldKey] = {
@@ -536,7 +538,7 @@ export function validateFormComponents(
     if (layoutOrder.includes(id)) {
       validations[id] = validateFormComponentsForLayout(
         attachments,
-        layouts[id],
+        layouts[id].data.layout,
         formData,
         language,
         hiddenFields,
@@ -561,20 +563,20 @@ export function validateFormComponentsForLayout(
 ): ILayoutValidations {
   const validations: ILayoutValidations = {};
   const fieldKey:keyof IDataModelBindings = 'simpleBinding';
-  for (const {component} of iterateFieldsInLayout(formLayout, repeatingGroups, hiddenFields)) {
-    if (isFileUploadComponent(component)) {
+  for (const component of iterateFieldsInLayout(formLayout, repeatingGroups)) {
+    if (isFileUploadComponent(component.item)) {
       if (!attachmentsValid(attachments, component)) {
-        validations[component.id] = {
+        validations[component.item.id] = {
           [fieldKey]: {
             errors: [],
             warnings: [],
           },
         };
-        validations[component.id][fieldKey].errors.push(
+        validations[component.item.id][fieldKey].errors.push(
           `${getLanguageFromKey(
             'form_filler.file_uploader_validation_error_file_number_1',
             language,
-          )} ${component.minNumberOfAttachments} ${getLanguageFromKey(
+          )} ${component.item.minNumberOfAttachments} ${getLanguageFromKey(
             'form_filler.file_uploader_validation_error_file_number_2',
             language,
           )}`,

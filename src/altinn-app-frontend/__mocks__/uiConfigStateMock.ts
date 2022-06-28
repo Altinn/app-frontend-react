@@ -13,7 +13,6 @@ export const getUiConfigStateMock = (customStates?: Partial<IUiConfig>): IUiConf
     },
     fileUploadersWithTag: null,
     currentView: 'FormLayout',
-    navigationConfig: {},
     layoutOrder: ['FormLayout'],
     ...customStates
   }

@@ -94,13 +94,17 @@ describe('mapAttachments', () => {
     };
 
     state.formLayout.layouts = {
-      FormLayout: [
-        basicUploader,
-        basicUploaderWithBindings as ILayoutComponent,
-        repeatingGroup,
-        uploaderInRepeatingGroup,
-        multiUploaderInRepeatingGroup as ILayoutComponent,
-      ],
+      FormLayout: {
+        data: {
+          layout: [
+            basicUploader,
+            basicUploaderWithBindings as ILayoutComponent,
+            repeatingGroup,
+            uploaderInRepeatingGroup,
+            multiUploaderInRepeatingGroup as ILayoutComponent,
+          ],
+        },
+      },
     };
 
     const mockedAttachments = [0, 1, 2, 3, 4].map((i) => mockAttachment('attachment' + i));

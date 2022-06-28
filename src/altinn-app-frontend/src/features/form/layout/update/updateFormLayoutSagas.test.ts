@@ -51,7 +51,7 @@ describe('updateLayoutSagas', () => {
   describe('updateRepeatingGroupsSaga', () => {
     it('should remove attachment references from formData', () => {
       const state:IRuntimeState = getInitialStateMock();
-      state.formLayout.layouts.FormLayout.push({
+      state.formLayout.layouts.FormLayout.data.layout.push({
         id: 'repeating-group',
         type: 'Group',
         dataModelBindings: {
@@ -70,7 +70,7 @@ describe('updateLayoutSagas', () => {
       const dataModelBinding:IDataModelBindings = {
         simpleBinding: 'Group.attachmentRef',
       };
-      state.formLayout.layouts.FormLayout.push({
+      state.formLayout.layouts.FormLayout.data.layout.push({
         id: 'uploader',
         type: 'FileUpload',
         dataModelBindings: dataModelBinding,

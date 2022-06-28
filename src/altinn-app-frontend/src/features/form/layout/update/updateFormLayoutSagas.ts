@@ -77,6 +77,7 @@ import {
 } from "src/shared/resources/attachments/attachmentActionTypes";
 import AttachmentActions from 'src/shared/resources/attachments/attachmentActions';
 import { shiftAttachmentRowInRepeatingGroup } from "src/utils/attachment";
+import { UpdateViewActions } from "../formLayoutTypes";
 
 export const selectFormLayoutState = (state: IRuntimeState): ILayoutState => state.formLayout;
 export const selectFormData = (state: IRuntimeState): IFormDataState => state.formData;
