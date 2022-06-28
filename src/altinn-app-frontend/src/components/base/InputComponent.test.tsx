@@ -40,13 +40,15 @@ describe("InputComponent.tsx", () => {
     expect(inputComponent).toHaveValue("it");
   });
 
-  it("should call supplied dataChanged function after data change", () => {
+  it("should call supplied dataChanged function after data change", async () => {
     const handleDataChange = jest.fn();
     renderInputComponent({ handleDataChange });
     const inputComponent = screen.getByTestId(mockId);
 
-    fireEvent.blur(inputComponent, { target: { value: "it123" } });
+    fireEvent.change(inputComponent, { target: { value: "it123" } });
     expect(inputComponent).toHaveValue("it123");
+    expect(handleDataChange).not.toHaveBeenCalled();
+    await new Promise((r) => setTimeout(r, 500));
     expect(handleDataChange).toHaveBeenCalled();
   });
 
