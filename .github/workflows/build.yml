@@ -39,10 +39,23 @@ jobs:
         working-directory: src
         run: yarn test --coverage
 
+      # SonarCloud scan is run in a separate workflow when coming from a PR
       - name: Upload code coverage reports
+        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v2
         with:
+          if-no-files-found: error
           name: code-coverage
+          # need to keep * in paths to avoid paths being flattened to the common ancestor, ref https://github.com/actions/upload-artifact#upload-using-multiple-paths-and-exclusions
           path: |
-            src/altinn-app-frontend/coverage/lcov.info
-            src/shared/coverage/lcov.info
+            src*/altinn-app-frontend/coverage/lcov.info
+            src*/shared/coverage/lcov.info
+
+      - name: SonarCloud Scan
+        if: github.ref == 'refs/heads/main'
+        with:
+          projectBaseDir: app-frontend
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
