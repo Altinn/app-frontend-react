@@ -24,7 +24,7 @@ describe('PanelGroupContainer', () => {
       id: 'input-1',
       type: 'Input',
       dataModelBindings: {
-        simple: 'something',
+        simpleBinding: 'something',
       },
       textResourceBindings: {
         title: 'Title for first input',
@@ -37,7 +37,7 @@ describe('PanelGroupContainer', () => {
       id: 'input-2',
       type: 'Input',
       dataModelBindings: {
-        simple: 'something.else',
+        simpleBinding: 'something.else',
       },
       textResourceBindings: {
         title: 'Title for second input',
