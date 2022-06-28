@@ -25,11 +25,17 @@ describe('Receipt', () => {
       .should('have.length', 3)
       .first()
       .should('contain.text', `${Cypress.env('multiData2Stage')}.pdf`);
+
     cy.get(appFrontend.receipt.uploadedAttachments)
+      .last()
       .find('a')
-      .should('have.length', 1)
-      .first()
-      .should('contain.text', `test.pdf`);
+      .should('have.length', 5)
+      .should('contain.text', `test.pdf`)
+      .should('contain.text', `attachment-in-single.pdf`)
+      .should('contain.text', `attachment-in-multi1.pdf`)
+      .should('contain.text', `attachment-in-multi2.pdf`)
+      .should('contain.text', `attachment-in-nested.pdf`);
+
     cy.get('body').should('have.css', 'background-color', 'rgb(212, 249, 228)');
     cy.get(appFrontend.header).should('contain.text', texts.ttd);
   });
