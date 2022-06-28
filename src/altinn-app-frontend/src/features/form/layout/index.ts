@@ -7,6 +7,7 @@ export interface ILayouts {
 
 export interface ILayoutEntry {
   id: string;
+  baseComponentId?: string;
   type: GroupTypes | ComponentTypes;
   triggers?: Triggers[];
 }
