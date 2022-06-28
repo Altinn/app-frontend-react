@@ -24,6 +24,7 @@ import type { IGrid } from 'src/features/form/layout';
 import { createContext } from 'react';
 import { LikertComponent } from 'src/components/base/LikertComponent';
 import ThirdPartyComponent from './thirdParty/ThirdPartyComponent';
+import { PrintButtonComponent } from './base/PrintButtonComponent';
 
 export interface IComponent {
   name: string;
@@ -56,6 +57,7 @@ export enum ComponentTypes {
   Likert,
   Panel,
   ThirdParty,
+  PrintButton,
 }
 
 export const textComponents: IComponent[] = [
@@ -177,6 +179,11 @@ export const schemaComponents: IComponent[] = [
     name: 'Panel',
     Tag: PanelComponent,
     Type: ComponentTypes.Panel,
+  },
+  {
+    name: 'PrintButton',
+    Tag: PrintButtonComponent,
+    Type: ComponentTypes.PrintButton,
   },
 ];
 
