@@ -20,7 +20,7 @@ describe('Form.tsx', () => {
       id: 'field1',
       type: 'Input',
       dataModelBindings: {
-        simple: 'Group.prop1',
+        simpleBinding: 'Group.prop1',
       },
       textResourceBindings: {
         title: 'First title',
@@ -33,7 +33,7 @@ describe('Form.tsx', () => {
       id: 'field2',
       type: 'Input',
       dataModelBindings: {
-        simple: 'Group.prop2',
+        simpleBinding: 'Group.prop2',
       },
       textResourceBindings: {
         title: 'Second title',
@@ -46,7 +46,7 @@ describe('Form.tsx', () => {
       id: 'field3',
       type: 'Input',
       dataModelBindings: {
-        simple: 'Group.prop3',
+        simpleBinding: 'Group.prop3',
       },
       textResourceBindings: {
         title: 'Third title',
@@ -88,7 +88,7 @@ describe('Form.tsx', () => {
         id: 'non-rep-child',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.prop3',
+          simpleBinding: 'Group.prop3',
         },
         textResourceBindings: {
           title: 'Title from non repeating child',
@@ -122,7 +122,7 @@ describe('Form.tsx', () => {
         id: 'panel-group-child',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.prop3',
+          simpleBinding: 'Group.prop3',
         },
         textResourceBindings: {
           title: 'Title from panel child',
