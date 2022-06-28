@@ -20,6 +20,7 @@ import ErrorPaper from '../message/ErrorPaper';
 import { EditButton } from './EditButton';
 import { useAppSelector } from 'src/common/hooks';
 import cn from 'classnames';
+import { IRuntimeState } from "src/types";
 
 export interface ISummaryGroupComponent {
   pageRef?: string;
@@ -116,6 +117,7 @@ function SummaryGroupComponent({
   );
   const language = useAppSelector((state) => state.language.language);
   const options = useAppSelector((state) => state.optionState.options);
+  const attachments = useAppSelector((state:IRuntimeState) => state.attachments.attachments);
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
@@ -239,9 +241,11 @@ function SummaryGroupComponent({
 
           const formDataForComponent = getDisplayFormDataForComponent(
             formData,
+            attachments,
             componentDeepCopy,
             textResources,
             options,
+            repeatingGroups,
           );
 
           if (hiddenFields.find((field) => field === `${componentId}-${i}`)) {
@@ -306,11 +310,13 @@ function SummaryGroupComponent({
         if (!isGroupComponent) {
           formDataForComponent = getFormDataForComponentInRepeatingGroup(
             formData,
+            attachments,
             component as ILayoutComponent,
             i,
             groupComponent.dataModelBindings.group,
             textResources,
             options,
+            repeatingGroups,
           );
         }
         groupContainer.children.push(summaryId);

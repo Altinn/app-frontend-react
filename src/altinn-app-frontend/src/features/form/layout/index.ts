@@ -1,5 +1,5 @@
 import { GridSize } from '@material-ui/core';
-import { IMapping, IOption, Triggers } from '../../../types';
+import { IMapping, IOption, IOptionSource, Triggers } from '../../../types';
 import { ILayoutDynamicsExpr } from "src/features/form/dynamics/layoutDynamics/types";
 
 export interface ILayouts {
@@ -57,11 +57,38 @@ export type ComponentTypes =
   | 'Summary'
   | 'TextArea'
   | 'NavigationBar'
-  | 'Likert';
+  | 'Likert'
+  | 'Panel';
 
-export interface IDataModelBindings {
-  [id: string]: string;
+export interface IDataModelBindingsSimple {
+  simpleBinding: string;
 }
+
+export interface IDataModelBindingsForGroup {
+  group: string;
+}
+
+/**
+ * A middle ground between group and simple bindings, a list binding can be used to
+ * store a list of primitive values, like string[].
+ */
+export interface IDataModelBindingsList {
+  list: string;
+}
+
+export interface IDataModelBindingsForAddress {
+  address: string;
+  zipCode: string;
+  postPlace: string;
+  careOf?: string;
+  houseNumber?: string;
+}
+
+export type IDataModelBindings =
+  & Partial<IDataModelBindingsSimple>
+  & Partial<IDataModelBindingsList>
+  & Partial<IDataModelBindingsForGroup>
+  & Partial<IDataModelBindingsForAddress>;
 
 export interface ITextResourceBindings {
   [id: string]: string;
@@ -83,6 +110,7 @@ export interface ISelectionComponentProps extends ILayoutComponent {
   optionsId?: string;
   mapping?: IMapping;
   secure?: boolean;
+  source?: IOptionSource;
 }
 
 export interface IGrid extends IGridStyling {

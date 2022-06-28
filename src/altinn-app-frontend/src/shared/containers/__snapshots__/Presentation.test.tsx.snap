@@ -207,28 +207,33 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
         </div>
         <nav
           aria-label="Appnavigasjon"
-          className="a-modal-navbar"
+          className="MuiBox-root MuiBox-root-11 mt-3"
         >
-          <button
-            aria-label="Lukk skjema"
-            className="a-modal-close a-js-tabable-popover"
-            onClick={[Function]}
-            type="button"
+          <div />
+          <div
+            className="MuiBox-root MuiBox-root-12"
           >
-            <span
-              className="ai-stack"
+            <button
+              aria-label="Lukk skjema"
+              className="a-modal-close a-js-tabable-popover ml-1"
+              onClick={[Function]}
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                className="ai-stack-1x ai ai-exit  a-modal-close-icon"
-              />
-            </span>
-            <span
-              className="hidden-button-text"
-            >
-              Lukk skjema
-            </span>
-          </button>
+              <span
+                className="ai-stack"
+              >
+                <i
+                  aria-hidden="true"
+                  className="ai-stack-1x ai ai-exit  a-modal-close-icon"
+                />
+              </span>
+              <span
+                className="sr-only"
+              >
+                Lukk skjema
+              </span>
+            </button>
+          </div>
         </nav>
         <div
           className="a-modal-content-target"
@@ -239,8 +244,9 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
             <div
               className="modalPage"
             >
-              <div
+              <section
                 className="modal-content"
+                id="main-content"
               >
                 <header
                   className="modal-header a-modal-header"
@@ -249,26 +255,30 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
                     className="a-iconText a-iconText-background a-iconText-large"
                   >
                     <div
-                      className="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+                      className="MuiGrid-root MuiGrid-container MuiGrid-justify-content-xs-space-between"
                     >
                       <div
                         className="MuiGrid-root MuiGrid-item"
                       >
-                        <span />
-                      </div>
-                      <div
-                        className="MuiGrid-root MuiGrid-item"
-                      >
-                        <h1
-                          className="a-iconText-text mb-0"
+                        <div
+                          className="MuiGrid-root MuiGrid-item"
                         >
-                          <span
-                            className="a-iconText-text-large"
-                            data-testid="presentation-heading"
+                          <span />
+                        </div>
+                        <div
+                          className="MuiGrid-root MuiGrid-item"
+                        >
+                          <h1
+                            className="a-iconText-text mb-0"
                           >
-                            mock-service-name
-                          </span>
-                        </h1>
+                            <span
+                              className="a-iconText-text-large"
+                              data-testid="presentation-heading"
+                            >
+                              mock-service-name
+                            </span>
+                          </h1>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -276,7 +286,7 @@ exports[`containers/Presentation.tsx should match snapshot 1`] = `
                 <div
                   className="modal-body a-modal-body"
                 />
-              </div>
+              </section>
             </div>
           </div>
         </div>

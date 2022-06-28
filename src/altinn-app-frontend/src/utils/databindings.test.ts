@@ -4,6 +4,7 @@ import type { IMapping } from 'src/types';
 
 import {
   flattenObject,
+  getFormDataFromFieldKey,
   getKeyWithoutIndex,
   mapFormData,
   removeGroupData,
@@ -59,7 +60,7 @@ describe('utils/databindings.ts', () => {
         id: 'field1',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.prop1',
+          simpleBinding: 'Group.prop1',
         },
         textResourceBindings: {
           title: 'Title',
@@ -72,7 +73,7 @@ describe('utils/databindings.ts', () => {
         id: 'field2',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.prop2',
+          simpleBinding: 'Group.prop2',
         },
         textResourceBindings: {
           title: 'Title',
@@ -85,7 +86,7 @@ describe('utils/databindings.ts', () => {
         id: 'field3',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.prop3',
+          simpleBinding: 'Group.prop3',
         },
         textResourceBindings: {
           title: 'Title',
@@ -98,7 +99,7 @@ describe('utils/databindings.ts', () => {
         id: 'field4',
         type: 'Input',
         dataModelBindings: {
-          simple: 'Group.Group2.group2prop',
+          simpleBinding: 'Group.Group2.group2prop',
         },
         textResourceBindings: {
           title: 'Title',
@@ -198,6 +199,26 @@ describe('utils/databindings.ts', () => {
       const result = flattenObject(testObject);
       expect(result).toEqual(expected);
     });
+
+    it('should flatten arrays with primitive types as expected', () => {
+      const testObject = {
+        employees: [
+          {name: 'Jane Smith'},
+          {name: 'John Smith'},
+        ],
+        industries: ['Carpentry', 'Construction'],
+      };
+
+      const expected = {
+        'employees[0].name': 'Jane Smith',
+        'employees[1].name': 'John Smith',
+        'industries[0]': 'Carpentry',
+        'industries[1]': 'Construction',
+      };
+
+      const result = flattenObject(testObject);
+      expect(result).toEqual(expected);
+    });
   });
 
   describe('removeGroupData', () => {
@@ -270,5 +291,32 @@ describe('utils/databindings.ts', () => {
         expect(mapFormData(formData, mapping)).toEqual(formData);
       },
     );
+  });
+
+  describe('getFormDataFromFieldKey', () => {
+    const formData = {
+      'field1': 'value1',
+      'group[0].field': 'someValue',
+      'group[1].field': 'another value',
+    }
+    it('should return correct form data for a field not in a group', () => {
+      const result = getFormDataFromFieldKey(
+        'simpleBinding',
+        { simpleBinding: 'field1' },
+        formData,
+      );
+      expect(result).toEqual('value1');
+    });
+
+    it('should return correct form data for a field in a group', () => {
+      const result = getFormDataFromFieldKey(
+        'simpleBinding',
+        { simpleBinding: 'group.field' },
+        formData,
+        'group',
+        1,
+      );
+      expect(result).toEqual('another value');
+    });
   });
 });

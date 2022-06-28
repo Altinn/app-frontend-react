@@ -41,7 +41,7 @@ export function nb() {
       back_to_summary: 'Tilbake til oppsummering',
       error_report_header: 'Det er feil i skjema',
       error_report_description: 'Skjemaet inneholder feil eller mangler som hindrer oss fra å sende det inn. Når du har rettet feilene, kan du sende inn skjemaet på nytt.',
-      error_required: 'Feltet er påkrevd',
+      error_required: 'Du må fylle ut {0}',
       file_upload_valid_file_format_all: 'alle',
       file_uploader_add_attachment: 'Legg til flere vedlegg',
       file_uploader_drag: 'Dra og slipp eller',
@@ -75,6 +75,11 @@ export function nb() {
       required_label: '*',
       summary_item_change: 'Endre',
       summary_go_to_correct_page: 'Gå til riktig side i skjema',
+      address: 'Gateadresse',
+      careOf: 'C/O eller annen tilleggsadresse',
+      houseNumber: 'Bolignummer',
+      postPlace: 'Poststed',
+      zipCode: 'Postnr',
     },
     navigation: {
       main: 'Appnavigasjon',
@@ -114,6 +119,8 @@ export function nb() {
       next: 'Neste',
       no_options: 'Ingen alternativer tilgjenglig',
       optional: 'Valgfri',
+      print_button_text: 'Print / Lagre PDF',
+      progress: 'Side {0} av {1}',
       required: 'Obligatorisk',
       save: 'Lagre',
       search: 'Søk',
@@ -156,6 +163,16 @@ export function nb() {
       authorization_error_info_customer_service: 'Du kan også kontakte oss på brukerservice {0}.',
       authorization_error_instantiate_validation_info_customer_service: 'Om du står fast kontakt oss på brukerservice {0}.',
       starting: 'Hold deg fast, nå starter vi!',
+    },
+    language: {
+      full_name: {
+        nb: 'Norsk bokmål',
+        en: "Engelsk",
+        nn: "Nynorsk"
+      },
+      selector: {
+        label: 'Språk'
+      }
     },
     party_selection: {
       error_caption_prefix: 'Feil',
@@ -214,6 +231,14 @@ export function nb() {
       log_out: 'Logg ut',
       profile_icon_aria_label: 'Profil ikon knapp',
     },
+    soft_validation: {
+      info_title: 'Lurt å tenke på',
+      warning_title: 'OBS',
+      success_title: 'Så flott!'
+    },
+    validation: {
+      generic_field: 'dette feltet',
+    },
     validation_errors: {
       min: 'Minste gyldig verdi er {0}',
       max: 'Største gyldig verdi er {0}',
@@ -224,10 +249,5 @@ export function nb() {
       required: 'Feltet er påkrevd',
       enum: 'Kun verdiene {0} er tillatt',
     },
-    soft_validation: {
-      info_title: 'Lurt å tenke på',
-      warning_title: 'OBS',
-      success_title: 'Så flott!'
-    }
   };
 }
