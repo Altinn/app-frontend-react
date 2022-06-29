@@ -5,6 +5,7 @@ import type { IComponentProps } from "src/components";
 import type { IInputProps } from "./InputComponent";
 
 import { InputComponent } from "./InputComponent";
+import { mockDelayBeforeSaving } from "src/components/hooks/useDelayedSavedState";
 
 describe("InputComponent.tsx", () => {
   const mockId = "mock-id";
@@ -45,10 +46,22 @@ describe("InputComponent.tsx", () => {
     renderInputComponent({ handleDataChange });
     const inputComponent = screen.getByTestId(mockId);
 
+    mockDelayBeforeSaving(25);
     fireEvent.change(inputComponent, { target: { value: "it123" } });
     expect(inputComponent).toHaveValue("it123");
     expect(handleDataChange).not.toHaveBeenCalled();
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 25));
+    expect(handleDataChange).toHaveBeenCalled();
+    mockDelayBeforeSaving(undefined);
+  });
+
+  it("should call supplied dataChanged function immediately after onBlur", async () => {
+    const handleDataChange = jest.fn();
+    renderInputComponent({ handleDataChange });
+    const inputComponent = screen.getByTestId(mockId);
+
+    fireEvent.blur(inputComponent, { target: { value: "it123" } });
+    expect(inputComponent).toHaveValue("it123");
     expect(handleDataChange).toHaveBeenCalled();
   });
 
