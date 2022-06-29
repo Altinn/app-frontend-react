@@ -93,19 +93,11 @@ export function InputComponent({
     formData?.simpleBinding ?? ""
   );
 
-  React.useEffect(() => {
-    setValue(formData?.simpleBinding ?? "");
-  }, [formData?.simpleBinding]);
-
-  const onDataChanged = (e: any) => {
-    setValue(e.target.value);
-  };
-
   return (
     <Input
       key={`input_${id}`}
       id={id}
-      onChange={onDataChanged}
+      onChange={(e) => setValue(e.target.value)}
       readOnly={readOnly}
       required={required}
       fullWidth={true}

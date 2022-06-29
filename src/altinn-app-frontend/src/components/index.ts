@@ -201,7 +201,8 @@ export interface IComponentProps extends IGenericComponentProps {
   handleDataChange: (
     value: string,
     key?: string,
-    skipValidation?: boolean
+    skipValidation?: boolean,
+    checkIfRequired?: boolean
   ) => void;
   handleFocusUpdate: (componentId: string, step?: number) => void;
   getTextResource: (key: string) => React.ReactNode;

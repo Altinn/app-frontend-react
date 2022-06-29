@@ -158,7 +158,8 @@ export function GenericComponent(props: IGenericComponentProps) {
   const handleDataChange: IComponentProps["handleDataChange"] = (
     value,
     key = "simpleBinding",
-    skipValidation = false
+    skipValidation = false,
+    checkIfRequired = true
   ) => {
     if (!props.dataModelBindings || !props.dataModelBindings[key]) {
       return;
@@ -190,6 +191,7 @@ export function GenericComponent(props: IGenericComponentProps) {
         data: value,
         componentId: props.id,
         skipValidation,
+        checkIfRequired,
       })
     );
   };
