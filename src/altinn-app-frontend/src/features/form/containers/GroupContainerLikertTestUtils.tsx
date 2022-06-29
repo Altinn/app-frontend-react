@@ -48,6 +48,16 @@ export const mockOptions = [
   },
 ];
 
+export const questionsWithAnswers = ({ questions, selectedAnswers }) => {
+  const questionsCopy = [...questions];
+
+  selectedAnswers.forEach((answer) => {
+    questionsCopy[answer.questionIndex].Answer = answer.answerValue;
+  });
+
+  return questionsCopy;
+};
+
 const createLikertContainer = (props: Partial<ILayoutGroup>): ILayoutGroup => {
   return {
     id: 'likert-repeating-group-id',
@@ -270,6 +280,7 @@ export const validateTableLayout = (questions: IQuestion[]) => {
 
 export const validateRadioLayout = (questions: IQuestion[]) => {
   expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
+
   for (const question of questions) {
     const row = screen.getByRole('radiogroup', {
       name: question.Question,

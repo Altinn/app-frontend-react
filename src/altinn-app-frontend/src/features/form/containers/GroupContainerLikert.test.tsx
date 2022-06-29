@@ -6,6 +6,7 @@ import {
   render,
   validateRadioLayout,
   validateTableLayout,
+  questionsWithAnswers,
 } from 'src/features/form/containers/GroupContainerLikertTestUtils';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -23,31 +24,34 @@ describe('GroupContainer', () => {
     });
 
     it('should render table with one selected row', () => {
-      const mockQuestions = defaultMockQuestions.map((mock, index) => {
-        if (index === 1) {
-          // Set one answer to selected
-          return { ...mock, answer: '2' };
-        }
-        return mock;
+      const questions = questionsWithAnswers({
+        questions: defaultMockQuestions,
+        selectedAnswers: [{ questionIndex: 1, answerValue: '2' }],
       });
-      render({ mockQuestions });
-      validateTableLayout(mockQuestions);
+      render({ mockQuestions: questions });
+
+      validateTableLayout(questions);
     });
 
     it('should render table with two selected row', () => {
-      const mockQuestions = defaultMockQuestions.map((mock, index) => {
-        if (index === 1) {
-          // Set one answer to selected
-          return { ...mock, answer: '2' };
-        }
-        if (index === 2) {
-          // Set one answer to selected
-          return { ...mock, answer: '1' };
-        }
-        return mock;
+      const selectedAnswers = [
+        {
+          questionIndex: 1,
+          answerValue: '2',
+        },
+        {
+          questionIndex: 2,
+          answerValue: '1',
+        },
+      ];
+
+      const questions = questionsWithAnswers({
+        questions: defaultMockQuestions,
+        selectedAnswers,
       });
-      render({ mockQuestions });
-      validateTableLayout(mockQuestions);
+
+      render({ mockQuestions: questions });
+      validateTableLayout(questions);
     });
 
     it('should render table with start binding', () => {
@@ -227,19 +231,17 @@ describe('GroupContainer', () => {
     });
 
     it('should render mobile view with selected values', () => {
-      const mockQuestions = defaultMockQuestions.map((mock, index) => {
-        if (index === 2) {
-          // Set one answer to selected
-          return { ...mock, Answer: '2' };
-        }
-        return mock;
+      const questions = questionsWithAnswers({
+        questions: defaultMockQuestions,
+        selectedAnswers: [{ questionIndex: 2, answerValue: '2' }],
       });
-      render({ mockQuestions, mobileView: true });
-      validateRadioLayout(mockQuestions);
+
+      render({ mockQuestions: questions, mobileView: true });
+      validateRadioLayout(questions);
 
       // Validate that radio is selected
       const selectedRow = screen.getByRole('radiogroup', {
-        name: mockQuestions[2].Question,
+        name: questions[2].Question,
       });
 
       const selectedRadio = within(selectedRow).getByRole('radio', {
