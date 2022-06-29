@@ -21,7 +21,9 @@ export function useDelayedSavedState(
 
   React.useEffect(() => {
     const timeoutId = setTimeout(() => {
-      handleDataChange(immediateState, undefined, false, false);
+      if (immediateState !== formValue) {
+        handleDataChange(immediateState, undefined, false, false);
+      }
     }, getDelayBeforeSaving());
     return () => clearTimeout(timeoutId);
   }, [immediateState, handleDataChange]);
@@ -30,7 +32,7 @@ export function useDelayedSavedState(
     immediateState,
     (newValue, saveImmediately) => {
       setImmediateState(newValue);
-      if (saveImmediately) {
+      if (saveImmediately && newValue !== formValue) {
         handleDataChange(newValue, undefined, false, false);
       }
     },
