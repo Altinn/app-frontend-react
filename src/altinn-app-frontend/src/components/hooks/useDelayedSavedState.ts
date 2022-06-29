@@ -5,8 +5,9 @@ export function useDelayedSavedState(
   handleDataChange: IComponentProps["handleDataChange"],
   formValue?: string,
   delayMsBeforeSaving = 500
-): [string, (newValue: string) => void] {
+): [string, (newValue: string, saveImmediately?: boolean) => void] {
   const [immediateState, setImmediateState] = React.useState(formValue);
+  const [savedState, setSavedState] = React.useState(formValue);
 
   React.useEffect(() => {
     setImmediateState(formValue);
@@ -14,12 +15,22 @@ export function useDelayedSavedState(
 
   React.useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (immediateState !== formValue) {
+      if (immediateState !== savedState) {
         handleDataChange(immediateState, undefined, false, false);
+        setSavedState(immediateState);
       }
     }, delayMsBeforeSaving);
     return () => clearTimeout(timeoutId);
-  }, [immediateState]);
+  }, [immediateState, handleDataChange, delayMsBeforeSaving, savedState]);
 
-  return [immediateState, setImmediateState];
+  return [
+    immediateState,
+    (newValue, saveImmediately) => {
+      setImmediateState(newValue);
+      if (saveImmediately) {
+        handleDataChange(newValue, undefined, false, false);
+        setSavedState(newValue);
+      }
+    },
+  ];
 }

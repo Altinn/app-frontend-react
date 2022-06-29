@@ -97,6 +97,7 @@ export function InputComponent({
     <Input
       key={`input_${id}`}
       id={id}
+      onBlur={(e) => setValue(e.target.value, true)}
       onChange={(e) => setValue(e.target.value)}
       readOnly={readOnly}
       required={required}

@@ -2,6 +2,7 @@ import * as React from "react";
 import type { IComponentProps } from "..";
 
 import "../../styles/shared.css";
+import { useDelayedSavedState } from "src/components/hooks/useDelayedSavedState";
 
 export function TextAreaComponent({
   id,
@@ -12,27 +13,21 @@ export function TextAreaComponent({
   textResourceBindings,
 }: IComponentProps) {
   const suppliedValue = formData?.simpleBinding;
-
-  const [value, setValue] = React.useState(suppliedValue ?? "");
+  const [value, setValue] = useDelayedSavedState(
+    handleDataChange,
+    suppliedValue ?? ""
+  );
 
   React.useEffect(() => {
     setValue(suppliedValue);
   }, [suppliedValue]);
 
-  const onDataChanged = (e: any) => {
-    setValue(e.target.value);
-  };
-
-  const onDataChangeSubmit = () => {
-    handleDataChange(value);
-  };
-
   return (
     <div className="a-form-group-items input-group p-0">
       <textarea
         id={id}
-        onBlur={onDataChangeSubmit}
-        onChange={onDataChanged}
+        onBlur={(e) => setValue(e.target.value, true)}
+        onChange={(e) => setValue(e.target.value)}
         readOnly={readOnly}
         style={{ resize: "none" }} // This is prone to change soon, implemented inline until then. See issue #1116
         className={
