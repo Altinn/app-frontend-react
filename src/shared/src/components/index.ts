@@ -4,7 +4,6 @@ export { default as AltinnCollapsableList } from './AltinnCollapsableList';
 export { default as AltinnColumnLayout } from './AltinnColumnLayout';
 export { default as AltinnFilterChip } from './AltinnFilterChip';
 export { default as AltinnIcon } from './AltinnIcon';
-export { default as AltinnInformationCard } from './AltinnInformationCard';
 export { default as AltinnInput } from './AltinnInput';
 export { default as AltinnLink } from './AltinnLink';
 export { default as AltinnLogo } from './AltinnLogo';
