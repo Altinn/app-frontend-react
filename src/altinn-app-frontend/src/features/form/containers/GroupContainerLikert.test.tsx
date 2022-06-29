@@ -24,7 +24,7 @@ describe('GroupContainer', () => {
 
     it('should render table with one selected row', () => {
       const mockQuestions = defaultMockQuestions.map((mock, index) => {
-        if (index === 2) {
+        if (index === 1) {
           // Set one answer to selected
           return { ...mock, answer: '2' };
         }
@@ -36,11 +36,11 @@ describe('GroupContainer', () => {
 
     it('should render table with two selected row', () => {
       const mockQuestions = defaultMockQuestions.map((mock, index) => {
-        if (index === 2) {
+        if (index === 1) {
           // Set one answer to selected
           return { ...mock, answer: '2' };
         }
-        if (index === 4) {
+        if (index === 2) {
           // Set one answer to selected
           return { ...mock, answer: '1' };
         }
@@ -82,14 +82,14 @@ describe('GroupContainer', () => {
           edit: {
             mode: 'likert',
             filter: [
-              { key: 'start', value: '2' },
-              { key: 'stop', value: '4' },
+              { key: 'start', value: '1' },
+              { key: 'stop', value: '3' },
             ],
           },
         },
       });
 
-      validateTableLayout(defaultMockQuestions.slice(2, 4));
+      validateTableLayout(defaultMockQuestions.slice(1, 3));
     });
 
     it('should render table view and click radiobuttons', async () => {
@@ -263,14 +263,14 @@ describe('GroupContainer', () => {
           edit: {
             mode: 'likert',
             filter: [
-              { key: 'start', value: '2' },
-              { key: 'stop', value: '4' },
+              { key: 'start', value: '1' },
+              { key: 'stop', value: '3' },
             ],
           },
         },
       });
 
-      validateRadioLayout(defaultMockQuestions.slice(2, 4));
+      validateRadioLayout(defaultMockQuestions.slice(1, 3));
     });
   });
 });

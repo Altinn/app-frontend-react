@@ -15,9 +15,6 @@ export const defaultMockQuestions = [
   { Question: 'Hvordan trives du på skolen?', Answer: '' },
   { Question: 'Har du det bra?', Answer: '' },
   { Question: 'Hvor god er du i matte?', Answer: '' },
-  { Question: 'Hvor god er du i javascript?', Answer: '' },
-  { Question: 'Hvor god er du i css?', Answer: '' },
-  { Question: 'Hvordan trives du ute i skogen?', Answer: '' },
 ];
 
 const groupBinding = 'Questions';
