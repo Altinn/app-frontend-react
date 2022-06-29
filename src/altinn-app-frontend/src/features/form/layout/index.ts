@@ -60,7 +60,8 @@ export type ComponentTypes =
   | 'TextArea'
   | 'NavigationBar'
   | 'Likert'
-  | 'Panel';
+  | 'Panel'
+  | 'Map';
 
 export interface IDataModelBindingsSimple {
   simpleBinding: string;

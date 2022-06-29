@@ -25,6 +25,7 @@ import { createContext } from 'react';
 import { LikertComponent } from 'src/components/base/LikertComponent';
 import { PrintButtonComponent } from './base/PrintButtonComponent';
 import CustomComponent from './custom/CustomWebComponent';
+import { MapComponent } from './base/MapComponent';
 
 export interface IComponent {
   name: string;
@@ -50,6 +51,7 @@ export enum ComponentTypes {
   Button,
   Group,
   AddressComponent,
+  MapComponent,
   NavigationButtons,
   InstantiationButton,
   AttachmentList,
@@ -184,6 +186,11 @@ export const schemaComponents: IComponent[] = [
     name: 'PrintButton',
     Tag: PrintButtonComponent,
     Type: ComponentTypes.PrintButton,
+  },
+  {
+    name: 'Map',
+    Tag: MapComponent,
+    Type: ComponentTypes.MapComponent,
   },
 ];
 
