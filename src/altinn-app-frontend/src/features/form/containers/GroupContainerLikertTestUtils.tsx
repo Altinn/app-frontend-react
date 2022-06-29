@@ -262,9 +262,10 @@ export const validateTableLayout = (questions: IQuestion[]) => {
   screen.getByRole('table');
 
   for (const option of mockOptions) {
-    screen.getByRole('columnheader', {
+    const columnHeader = screen.getByRole('columnheader', {
       name: new RegExp(option.label),
     });
+    expect(columnHeader).toBeInTheDocument();
   }
 
   validateRadioLayout(questions);
@@ -276,12 +277,18 @@ export const validateRadioLayout = (questions: IQuestion[]) => {
     const row = screen.getByRole('radiogroup', {
       name: question.Question,
     });
+
     for (const option of mockOptions) {
-      const radio = within(row).getByRole('radio', {
-        name: new RegExp(option.label),
-      });
+      // Ideally we should use `getByRole` selector here, but the tests that use this function
+      // generates a DOM of several hundred nodes, and `getByRole` is quite slow since it has to traverse
+      // the entire tree. Doing that in a loop (within another loop) on hundreds of nodes is not a good idea.
+      // ref: https://github.com/testing-library/dom-testing-library/issues/698
+      const radio = within(row).getByDisplayValue(option.value);
+
       if (question.Answer && option.value === question.Answer) {
         expect(radio).toBeChecked();
+      } else {
+        expect(radio).not.toBeChecked();
       }
     }
   }
