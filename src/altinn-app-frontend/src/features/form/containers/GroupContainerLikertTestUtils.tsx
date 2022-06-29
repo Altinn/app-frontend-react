@@ -241,8 +241,8 @@ export const render = ({
   });
 
   const mockStore = setupStore(preloadedState);
-  const mockStorDispatch = jest.fn();
-  mockStore.dispatch = mockStorDispatch;
+  const mockStoreDispatch = jest.fn();
+  mockStore.dispatch = mockStoreDispatch;
   setScreenWidth(mobileView ? 600 : 1200);
   renderWithProviders(
     <GroupContainer
@@ -255,7 +255,7 @@ export const render = ({
     },
   );
 
-  return { mockStorDispatch };
+  return { mockStoreDispatch };
 };
 
 export const validateTableLayout = (questions: IQuestion[]) => {

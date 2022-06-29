@@ -21,6 +21,7 @@ describe('GroupContainer', () => {
       });
       validateTableLayout(defaultMockQuestions);
     });
+
     it('should render table with one selected row', () => {
       const mockQuestions = defaultMockQuestions.map((mock, index) => {
         if (index === 2) {
@@ -32,6 +33,7 @@ describe('GroupContainer', () => {
       render({ mockQuestions });
       validateTableLayout(mockQuestions);
     });
+
     it('should render table with two selected row', () => {
       const mockQuestions = defaultMockQuestions.map((mock, index) => {
         if (index === 2) {
@@ -47,6 +49,7 @@ describe('GroupContainer', () => {
       render({ mockQuestions });
       validateTableLayout(mockQuestions);
     });
+
     it('should render table with start binding', () => {
       render({
         likertContainerProps: {
@@ -59,6 +62,7 @@ describe('GroupContainer', () => {
 
       validateTableLayout(defaultMockQuestions.slice(2));
     });
+
     it('should render table with end binding', () => {
       render({
         likertContainerProps: {
@@ -71,6 +75,7 @@ describe('GroupContainer', () => {
 
       validateTableLayout(defaultMockQuestions.slice(0, 3));
     });
+
     it('should render table with start and end binding', () => {
       render({
         likertContainerProps: {
@@ -86,8 +91,9 @@ describe('GroupContainer', () => {
 
       validateTableLayout(defaultMockQuestions.slice(2, 4));
     });
+
     it('should render table view and click radiobuttons', async () => {
-      const { mockStorDispatch } = render();
+      const { mockStoreDispatch } = render();
       validateTableLayout(defaultMockQuestions);
 
       const rad1 = screen.getByRole('radiogroup', {
@@ -104,30 +110,31 @@ describe('GroupContainer', () => {
       const btn2 = within(rad2).getByRole('radio', {
         name: /Dårlig/i,
       });
-      mockStorDispatch.mockClear();
+      mockStoreDispatch.mockClear();
       expect(btn1).not.toBeChecked();
       await userEvent.click(btn1);
-      expect(mockStorDispatch).toHaveBeenCalledWith(
+      expect(mockStoreDispatch).toHaveBeenCalledWith(
         createFormDataUpdateAction(0, '1'),
       );
-      mockStorDispatch.mockClear();
+      mockStoreDispatch.mockClear();
       expect(btn2).not.toBeChecked();
       await userEvent.click(btn2);
 
-      expect(mockStorDispatch).toHaveBeenCalledWith(
+      expect(mockStoreDispatch).toHaveBeenCalledWith(
         createFormDataUpdateAction(1, '3'),
       );
     });
 
     it('should render standard view and use keyboard to navigate', async () => {
-      const { mockStorDispatch } = render();
+      const { mockStoreDispatch } = render();
       validateTableLayout(defaultMockQuestions);
       await userEvent.tab();
       await userEvent.keyboard('[Space]');
-      expect(mockStorDispatch).toHaveBeenCalledWith(
+      expect(mockStoreDispatch).toHaveBeenCalledWith(
         createFormDataUpdateAction(0, '1'),
       );
     });
+
     it('should support nested binding for question text in data model', async () => {
       const extraTextResources = defaultMockQuestions.map((question, i) => ({
         value: question.Question,
@@ -140,6 +147,7 @@ describe('GroupContainer', () => {
       render({ mockQuestions, extraTextResources });
       validateTableLayout(defaultMockQuestions);
     });
+
     it('should render error message', async () => {
       render({
         validations: createFormError(1),
@@ -147,6 +155,7 @@ describe('GroupContainer', () => {
       expect(screen.getByRole('alert')).toHaveTextContent('Feltet er påkrevd');
       screen.getByText(/En av radene er ikke fylt ut riktig/i);
     });
+
     it('should render 2 alerts', async () => {
       render({
         validations: { ...createFormError(1), ...createFormError(2) },
@@ -154,6 +163,7 @@ describe('GroupContainer', () => {
       expect(screen.getAllByRole('alert')).toHaveLength(2);
       screen.getByText(/En av radene er ikke fylt ut riktig/i);
     });
+
     it('should display title and description', async () => {
       render({
         likertContainerProps: {
@@ -183,8 +193,9 @@ describe('GroupContainer', () => {
         screen.getByRole('group', { name: /Likert test title/i }),
       ).toHaveAccessibleDescription('This is a test description');
     });
+
     it('should render mobile view and click radiobuttons', async () => {
-      const { mockStorDispatch } = render({ mobileView: true });
+      const { mockStoreDispatch } = render({ mobileView: true });
       validateRadioLayout(defaultMockQuestions);
       const rad1 = screen.getByRole('radiogroup', {
         name: /Hvordan trives du på skolen/i,
@@ -195,10 +206,10 @@ describe('GroupContainer', () => {
 
       expect(btn1).not.toBeChecked();
       await userEvent.click(btn1);
-      expect(mockStorDispatch).toHaveBeenCalledWith(
+      expect(mockStoreDispatch).toHaveBeenCalledWith(
         createFormDataUpdateAction(0, '1'),
       );
-      mockStorDispatch.mockClear();
+      mockStoreDispatch.mockClear();
 
       const rad2 = screen.getByRole('radiogroup', {
         name: /Har du det bra/i,
@@ -210,10 +221,11 @@ describe('GroupContainer', () => {
 
       expect(btn2).not.toBeChecked();
       await userEvent.click(btn2);
-      expect(mockStorDispatch).toHaveBeenCalledWith(
+      expect(mockStoreDispatch).toHaveBeenCalledWith(
         createFormDataUpdateAction(1, '3'),
       );
     });
+
     it('should render mobile view with selected values', () => {
       const mockQuestions = defaultMockQuestions.map((mock, index) => {
         if (index === 2) {
