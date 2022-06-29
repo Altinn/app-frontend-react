@@ -39,6 +39,12 @@ jobs:
         working-directory: src
         run: yarn test --coverage
 
+      - name: Save PR details
+        run: |
+          mkdir -p ./pr-details
+          echo ${{ github.event.number }} > ./pr-details/NR
+          echo -n ${{ github.event.pull_request.head.sha }} > ./pr-details/SHA
+
       # SonarCloud scan is run in a separate workflow when coming from a PR
       - name: Upload code coverage reports
         if: github.event_name == 'pull_request'
@@ -48,6 +54,7 @@ jobs:
           name: code-coverage
           # need to keep * in paths to avoid paths being flattened to the common ancestor, ref https://github.com/actions/upload-artifact#upload-using-multiple-paths-and-exclusions
           path: |
+            pr-details/
             src*/altinn-app-frontend/coverage/lcov.info
             src*/shared/coverage/lcov.info
 

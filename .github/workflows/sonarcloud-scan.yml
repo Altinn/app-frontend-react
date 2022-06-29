@@ -13,6 +13,8 @@ jobs:
     name: Sonar
     if: github.event.workflow_run.conclusion == 'success'
     steps:
+
+      # Instead of checking out the main branch, it should really check out the PR code for the code coverage and analysis to be correctly interpreted by SonarCloud
       - name: checkout
         uses: actions/checkout@v3
         with:
@@ -45,6 +47,38 @@ jobs:
             fs.writeFileSync('${{github.workspace}}/code-coverage.zip', Buffer.from(download.data));
       - run: unzip code-coverage.zip
 
+      - name: get pr-details
+        id: pr-details
+        run: |
+          echo "::set-output name=pr-number::$(cat ./pr-details/NR)"
+          echo "::set-output name=pr-sha::$(cat ./pr-details/SHA)"
+
+      # This can be used to add a check to the check list in the PR, to shorten the feedback loop, since the SonarCloud Scan will take some time
+      # Its not really polished, and needs some more work before it can be added. It also requires to add another task
+      # after SonarCloud Scan step has run, to set the status to `completed`
+      # - name: Advertise check in PR
+      #   id: initcheck
+      #   uses: actions/github-script@v6
+      #   with:
+      #     script: |
+
+      #       const args = {
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         head_sha: "${{ steps.pr-details.outputs.pr-sha }}",
+      #         name: 'SonarCloud analysis',
+      #         status: 'in_progress'
+      #       };
+      #       console.log("Arguments:", args);
+      #       let result = await github.rest.checks.create(args);
+      #       console.log("Result:", result);
+      #       return {
+      #         check_run_id: result.data.id
+      #       };
+
+      # The -Dsonar.pullrequest.branch and -Dsonar.pullrequest.base are incomplete - we cannot get the pull request details from the workflow, as
+      # this information is not present on fork PRs. These details could be added in a similar way as steps.pr-details.outputs.pr-sha, in the build.yml file
+      # So this example as it is now, will only work on internal PRs.
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -52,7 +86,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
-            -Dsonar.pullrequest.key=${{ github.event.workflow_run.pull_requests[0].number }}
+            -Dsonar.scm.revision=${{ steps.pr-details.outputs.pr-sha }}
+            -Dsonar.pullrequest.key=${{ steps.pr-details.outputs.pr-number }}
             -Dsonar.pullrequest.branch=${{ github.event.workflow_run.pull_requests[0].head.ref }}
             -Dsonar.pullrequest.base=${{ github.event.workflow_run.pull_requests[0].base.ref }}
