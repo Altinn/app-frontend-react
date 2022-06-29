@@ -194,7 +194,7 @@ describe("components > advanced > AddressComponent", () => {
     );
   });
 
-  it("should fire change event, with initial content, when readonly and field is blurred", async () => {
+  it("should not fire change event when readonly", async () => {
     const handleDataChange = jest.fn();
 
     render({
@@ -210,16 +210,7 @@ describe("components > advanced > AddressComponent", () => {
     await userEvent.type(address, "Slottsplassen 1");
     fireEvent.blur(address);
 
-    expect(handleDataChange).not.toHaveBeenCalledWith(
-      "Slottsplassen 1",
-      "address"
-    );
-    expect(handleDataChange).toHaveBeenCalledWith(
-      "initial address",
-      "address",
-      false,
-      false
-    );
+    expect(handleDataChange).not.toHaveBeenCalled();
   });
 
   it("should show error message on blur if zipcode is invalid, and not call handleDataChange", async () => {
