@@ -7,61 +7,52 @@ import type { IComponentProps } from 'src/components';
 import { ButtonComponent } from './ButtonComponent';
 import { getInitialStateMock } from '../../../__mocks__/mocks';
 
-describe('components/base/ButtonComponent.tsx', () => {
-  let mockText: string;
-  let formDataCount: number;
-  let mockHandleDataChange: (value: any) => void;
-  let mockDisabled: boolean;
-  let mockLanguage;
-  let globInitialState;
-  beforeAll(() => {
-    globInitialState = getInitialStateMock();
-    mockHandleDataChange = jest.fn();
-    mockDisabled = false;
-    mockText = 'Submit form';
-    formDataCount = 0;
-    mockLanguage = {};
-  });
+const submitBtnText = 'Submit form';
 
+describe('components/base/ButtonComponent.tsx', () => {
   it('should render button when isSubmitting is false', () => {
-    const preloadedState = {
-      ...globInitialState,
-    };
-    preloadedState.formData.isSubmitting = false;
-    preloadedState.formLayout.uiConfig.autoSave = true;
-    renderWithProviders(
-      <ButtonComponent
-        text={mockText}
-        handleDataChange={mockHandleDataChange}
-        disabled={mockDisabled}
-        formDataCount={formDataCount}
-        language={mockLanguage}
-        {...({} as IComponentProps)}
-      />,
-      { preloadedState },
-    );
-    const submitBtn = screen.getByRole('button');
-    expect(submitBtn.textContent).toEqual(mockText);
+    render({ isSubmitting: false });
+
+    expect(
+      screen.getByRole('button', { name: submitBtnText }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('general.loading')).not.toBeInTheDocument();
   });
 
   it('should render loader when isSubmitting is true', () => {
-    const preloadedState = {
-      ...globInitialState,
-    };
-    preloadedState.formData.isSubmitting = true;
-    preloadedState.formLayout.uiConfig.autoSave = true;
+    render({ isSubmitting: true });
 
-    renderWithProviders(
-      <ButtonComponent
-        text={mockText}
-        handleDataChange={mockHandleDataChange}
-        disabled={mockDisabled}
-        formDataCount={formDataCount}
-        language={mockLanguage}
-        {...({} as IComponentProps)}
-      />,
-      { preloadedState },
-    );
     expect(screen.getByText('general.loading')).toBeInTheDocument();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 });
+
+const render = ({ isSubmitting }: { isSubmitting: boolean }) => {
+  const initialState = getInitialStateMock();
+  const preloadedState = {
+    ...initialState,
+    formData: {
+      ...initialState.formData,
+      isSubmitting,
+    },
+    formLayout: {
+      ...initialState.formLayout,
+      uiConfig: {
+        ...initialState.formLayout.uiConfig,
+        autoSave: true,
+      },
+    },
+  };
+
+  renderWithProviders(
+    <ButtonComponent
+      text={submitBtnText}
+      handleDataChange={jest.fn()}
+      disabled={false}
+      formDataCount={0}
+      language={{}}
+      {...({} as IComponentProps)}
+    />,
+    { preloadedState },
+  );
+};
