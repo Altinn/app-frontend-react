@@ -41,12 +41,17 @@ export function useDelayedSavedState(
     value: immediateState,
     setValue: (newValue, saveImmediately) => {
       setImmediateState(newValue);
-      if (
-        (saveImmediately || saveNextChangeImmediately) &&
-        newValue !== formValue
-      ) {
-        handleDataChange(newValue, undefined, false, false);
-        setSaveNextChangeImmediately(false);
+      if (newValue !== formValue) {
+        if (saveImmediately) {
+          handleDataChange(newValue, undefined, false, false);
+        } else if (saveNextChangeImmediately) {
+          // Save immediately on the next change event after a paste
+          handleDataChange(newValue, undefined, false, false);
+          setSaveNextChangeImmediately(false);
+        } else if (!newValue && formValue) {
+          // Save immediately when the user clears the input field
+          handleDataChange(newValue, undefined, false, false);
+        }
       }
     },
     saveValue: () => {
