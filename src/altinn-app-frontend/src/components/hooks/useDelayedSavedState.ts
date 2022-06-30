@@ -7,7 +7,7 @@ export const mockDelayBeforeSaving = (newDelay: number) => {
   mockDelay = newDelay;
 };
 
-const getDelayBeforeSaving = () => mockDelay || 500;
+const getDelayBeforeSaving = () => mockDelay || 400;
 
 export interface DelayedSavedStateRetVal {
   value: string;
