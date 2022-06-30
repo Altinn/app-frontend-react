@@ -1,13 +1,13 @@
-import type { PayloadAction } from "@reduxjs/toolkit";
-import type { SagaIterator } from "redux-saga";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import type { IRuntimeState } from "../../../../types";
-import { checkIfRuleShouldRun } from "../../../../utils/rules";
-import FormDataActions from "../../data/formDataActions";
-import type { IFormDataState } from "../../data/formDataReducer";
-import type { IUpdateFormDataFulfilled } from "../../data/formDataTypes";
-import type { IRuleConnections } from "../../dynamics";
-import type { ILayoutState } from "../../layout/formLayoutSlice";
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { SagaIterator } from 'redux-saga';
+import { all, call, put, select, takeLatest } from 'redux-saga/effects';
+import type { IRuntimeState } from '../../../../types';
+import { checkIfRuleShouldRun } from '../../../../utils/rules';
+import FormDataActions from '../../data/formDataActions';
+import type { IFormDataState } from '../../data/formDataReducer';
+import type { IUpdateFormDataFulfilled } from '../../data/formDataTypes';
+import type { IRuleConnections } from '../../dynamics';
+import type { ILayoutState } from '../../layout/formLayoutSlice';
 
 const selectRuleConnection = (state: IRuntimeState): IRuleConnections =>
   state.formDynamics.ruleConnection;
@@ -28,20 +28,20 @@ function* checkIfRuleShouldRunSaga({
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
   try {
     const ruleConnectionState: IRuleConnections = yield select(
-      selectRuleConnection
+      selectRuleConnection,
     );
     const formDataState: IFormDataState = yield select(
-      selectFormDataConnection
+      selectFormDataConnection,
     );
     const formLayoutState: ILayoutState = yield select(
-      selectFormLayoutConnection
+      selectFormLayoutConnection,
     );
 
     const rules: IResponse[] = checkIfRuleShouldRun(
       ruleConnectionState,
       formDataState,
       formLayoutState.layouts,
-      field
+      field,
     );
 
     if (rules.length > 0) {
@@ -61,19 +61,19 @@ function* checkIfRuleShouldRunSaga({
               skipValidation,
               checkIfRequired,
               skipAutoSave,
-            })
+            }),
           );
-        })
+        }),
       );
     }
   } catch (err) {
-    yield call(console.error, "Oh noes", err);
+    yield call(console.error, 'Oh noes', err);
   }
 }
 
 export function* watchCheckIfRuleShouldRunSaga(): SagaIterator {
   yield takeLatest(
     FormDataActions.updateFormDataFulfilled,
-    checkIfRuleShouldRunSaga
+    checkIfRuleShouldRunSaga,
   );
 }
