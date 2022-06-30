@@ -13,7 +13,7 @@ export function TextAreaComponent({
   textResourceBindings,
 }: IComponentProps) {
   const suppliedValue = formData?.simpleBinding;
-  const [value, setValue] = useDelayedSavedState(
+  const { value, setValue, saveValue } = useDelayedSavedState(
     handleDataChange,
     suppliedValue ?? '',
   );
@@ -26,7 +26,7 @@ export function TextAreaComponent({
     <div className='a-form-group-items input-group p-0'>
       <textarea
         id={id}
-        onBlur={(e) => setValue(e.target.value, true)}
+        onBlur={() => saveValue()}
         onChange={(e) => setValue(e.target.value)}
         readOnly={readOnly}
         style={{ resize: 'none' }} // This is prone to change soon, implemented inline until then. See issue #1116

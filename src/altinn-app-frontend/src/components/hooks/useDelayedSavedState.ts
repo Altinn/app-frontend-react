@@ -9,10 +9,16 @@ export const mockDelayBeforeSaving = (newDelay: number) => {
 
 const getDelayBeforeSaving = () => mockDelay || 500;
 
+export interface DelayedSavedStateRetVal {
+  value: string;
+  setValue: (newValue: string, saveImmediately?: boolean) => void;
+  saveValue: () => void;
+}
+
 export function useDelayedSavedState(
   handleDataChange: IComponentProps['handleDataChange'],
   formValue?: string,
-): [string, (newValue: string, saveImmediately?: boolean) => void] {
+): DelayedSavedStateRetVal {
   const [immediateState, setImmediateState] = React.useState(formValue);
 
   React.useEffect(() => {
@@ -28,13 +34,18 @@ export function useDelayedSavedState(
     return () => clearTimeout(timeoutId);
   }, [immediateState, handleDataChange, formValue]);
 
-  return [
-    immediateState,
-    (newValue, saveImmediately) => {
+  return {
+    value: immediateState,
+    setValue: (newValue, saveImmediately) => {
       setImmediateState(newValue);
       if (saveImmediately && newValue !== formValue) {
         handleDataChange(newValue, undefined, false, false);
       }
     },
-  ];
+    saveValue: () => {
+      if (immediateState !== formValue) {
+        handleDataChange(immediateState, undefined, false, false);
+      }
+    },
+  };
 }

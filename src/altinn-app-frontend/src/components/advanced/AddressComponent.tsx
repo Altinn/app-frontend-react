@@ -50,23 +50,23 @@ export function AddressComponent({
     (value) =>
       onSaveField(key, value);
 
-  const [address, setAddress] = useDelayedSavedState(
+  const { value: address, setValue: setAddress } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.address),
     formData.address || '',
   );
-  const [zipCode, setZipCode] = useDelayedSavedState(
+  const { value: zipCode, setValue: setZipCode } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.zipCode),
     formData.zipCode || '',
   );
-  const [postPlace, setPostPlace] = useDelayedSavedState(
+  const { value: postPlace, setValue: setPostPlace } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.postPlace),
     formData.postPlace || '',
   );
-  const [careOf, setCareOf] = useDelayedSavedState(
+  const { value: careOf, setValue: setCareOf } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.careOf),
     formData.careOf || '',
   );
-  const [houseNumber, setHouseNumber] = useDelayedSavedState(
+  const { value: houseNumber, setValue: setHouseNumber } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.houseNumber),
     formData.houseNumber || '',
   );

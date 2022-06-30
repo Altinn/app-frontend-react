@@ -66,17 +66,30 @@ describe('InputComponent.tsx', () => {
   });
 
   it('should render input with formatted number when this is specified', () => {
+    const handleDataChange = jest.fn();
     renderInputComponent({
+      handleDataChange,
       formatting: {
         number: {
           thousandSeparator: true,
           prefix: '$',
         },
       },
-      formData: { simpleBinding: '1234' },
+      formData: { simpleBinding: '123456' },
     });
     const inputComponent = screen.getByTestId(`${mockId}-formatted-number`);
-    expect(inputComponent).toHaveValue();
+    expect(inputComponent).toHaveValue('$123,456');
+
+    fireEvent.change(inputComponent, { target: { value: '1234567' } });
+    fireEvent.blur(inputComponent);
+    expect(inputComponent).toHaveValue('$1,234,567');
+    expect(handleDataChange).toHaveBeenCalledTimes(1);
+    expect(handleDataChange).toHaveBeenCalledWith(
+      '1234567',
+      undefined,
+      false,
+      false,
+    );
   });
 
   it('should show aria-describedby if textResourceBindings.description is present', () => {

@@ -88,7 +88,7 @@ export function InputComponent({
   textResourceBindings,
 }: IInputProps) {
   const classes = useStyles();
-  const [value, setValue] = useDelayedSavedState(
+  const { value, setValue, saveValue } = useDelayedSavedState(
     handleDataChange,
     formData?.simpleBinding ?? '',
   );
@@ -97,7 +97,7 @@ export function InputComponent({
     <Input
       key={`input_${id}`}
       id={id}
-      onBlur={(e) => setValue(e.target.value, true)}
+      onBlur={() => saveValue()}
       onChange={(e) => setValue(e.target.value)}
       readOnly={readOnly}
       required={required}
