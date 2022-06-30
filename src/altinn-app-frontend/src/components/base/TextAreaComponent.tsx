@@ -19,11 +19,11 @@ export function TextAreaComponent({
     setValue(suppliedValue);
   }, [suppliedValue]);
 
-  const onDataChanged = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
   };
 
-  const onDataChangeSubmit = () => {
+  const handleBlur = () => {
     handleDataChange(value);
   };
 
@@ -31,8 +31,8 @@ export function TextAreaComponent({
     <div className='a-form-group-items input-group p-0'>
       <textarea
         id={id}
-        onBlur={onDataChangeSubmit}
-        onChange={onDataChanged}
+        onBlur={handleBlur}
+        onChange={handleChange}
         readOnly={readOnly}
         style={{ resize: 'none' }} // This is prone to change soon, implemented inline until then. See issue #1116
         className={
