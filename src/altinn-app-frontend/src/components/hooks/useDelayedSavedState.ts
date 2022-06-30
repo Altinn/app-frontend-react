@@ -1,5 +1,5 @@
-import * as React from "react";
-import type { IComponentProps } from "src/components";
+import * as React from 'react';
+import type { IComponentProps } from 'src/components';
 
 let mockDelay: number | undefined = undefined;
 
@@ -10,8 +10,8 @@ export const mockDelayBeforeSaving = (newDelay: number) => {
 const getDelayBeforeSaving = () => mockDelay || 500;
 
 export function useDelayedSavedState(
-  handleDataChange: IComponentProps["handleDataChange"],
-  formValue?: string
+  handleDataChange: IComponentProps['handleDataChange'],
+  formValue?: string,
 ): [string, (newValue: string, saveImmediately?: boolean) => void] {
   const [immediateState, setImmediateState] = React.useState(formValue);
 
@@ -26,7 +26,7 @@ export function useDelayedSavedState(
       }
     }, getDelayBeforeSaving());
     return () => clearTimeout(timeoutId);
-  }, [immediateState, handleDataChange]);
+  }, [immediateState, handleDataChange, formValue]);
 
   return [
     immediateState,
