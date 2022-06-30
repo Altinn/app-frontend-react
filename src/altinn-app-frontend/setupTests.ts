@@ -24,7 +24,6 @@ Object.defineProperty(window, 'matchMedia', {
 const altinnWindow = window as Window as IAltinnWindow;
 altinnWindow.org = 'ttd';
 altinnWindow.app = 'test';
-// Increase timeout for longer tests
 jest.setTimeout(10000);
 
 Enzyme.configure({
