@@ -48,9 +48,6 @@ export function useDelayedSavedState(
           // Save immediately on the next change event after a paste
           handleDataChange(newValue, undefined, false, false);
           setSaveNextChangeImmediately(false);
-        } else if (!newValue && formValue) {
-          // Save immediately when the user clears the input field
-          handleDataChange(newValue, undefined, false, false);
         }
       }
     },
