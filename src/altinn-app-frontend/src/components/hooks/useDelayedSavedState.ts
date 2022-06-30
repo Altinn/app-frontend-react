@@ -13,6 +13,7 @@ export interface DelayedSavedStateRetVal {
   value: string;
   setValue: (newValue: string, saveImmediately?: boolean) => void;
   saveValue: () => void;
+  onPaste: () => void;
 }
 
 export function useDelayedSavedState(
@@ -20,6 +21,8 @@ export function useDelayedSavedState(
   formValue?: string,
 ): DelayedSavedStateRetVal {
   const [immediateState, setImmediateState] = React.useState(formValue);
+  const [saveNextChangeImmediately, setSaveNextChangeImmediately] =
+    React.useState(false);
 
   React.useEffect(() => {
     setImmediateState(formValue);
@@ -38,14 +41,21 @@ export function useDelayedSavedState(
     value: immediateState,
     setValue: (newValue, saveImmediately) => {
       setImmediateState(newValue);
-      if (saveImmediately && newValue !== formValue) {
+      if (
+        (saveImmediately || saveNextChangeImmediately) &&
+        newValue !== formValue
+      ) {
         handleDataChange(newValue, undefined, false, false);
+        setSaveNextChangeImmediately(false);
       }
     },
     saveValue: () => {
       if (immediateState !== formValue) {
         handleDataChange(immediateState, undefined, false, false);
       }
+    },
+    onPaste: () => {
+      setSaveNextChangeImmediately(true);
     },
   };
 }

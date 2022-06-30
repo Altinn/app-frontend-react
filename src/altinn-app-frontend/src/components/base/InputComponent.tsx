@@ -88,7 +88,7 @@ export function InputComponent({
   textResourceBindings,
 }: IInputProps) {
   const classes = useStyles();
-  const { value, setValue, saveValue } = useDelayedSavedState(
+  const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
     handleDataChange,
     formData?.simpleBinding ?? '',
   );
@@ -99,6 +99,7 @@ export function InputComponent({
       id={id}
       onBlur={() => saveValue()}
       onChange={(e) => setValue(e.target.value)}
+      onPaste={() => onPaste()}
       readOnly={readOnly}
       required={required}
       fullWidth={true}

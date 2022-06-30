@@ -50,11 +50,19 @@ export function AddressComponent({
     (value) =>
       onSaveField(key, value);
 
-  const { value: address, setValue: setAddress } = useDelayedSavedState(
+  const {
+    value: address,
+    setValue: setAddress,
+    onPaste: onAddressPaste,
+  } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.address),
     formData.address || '',
   );
-  const { value: zipCode, setValue: setZipCode } = useDelayedSavedState(
+  const {
+    value: zipCode,
+    setValue: setZipCode,
+    onPaste: onZipCodePaste,
+  } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.zipCode),
     formData.zipCode || '',
   );
@@ -62,11 +70,19 @@ export function AddressComponent({
     handleDataChangeOverride(AddressKeys.postPlace),
     formData.postPlace || '',
   );
-  const { value: careOf, setValue: setCareOf } = useDelayedSavedState(
+  const {
+    value: careOf,
+    setValue: setCareOf,
+    onPaste: onCareOfPaste,
+  } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.careOf),
     formData.careOf || '',
   );
-  const { value: houseNumber, setValue: setHouseNumber } = useDelayedSavedState(
+  const {
+    value: houseNumber,
+    setValue: setHouseNumber,
+    onPaste: onHouseNumberPaste,
+  } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.houseNumber),
     formData.houseNumber || '',
   );
@@ -275,6 +291,7 @@ export function AddressComponent({
         value={address}
         onChange={updateField.bind(null, AddressKeys.address, false)}
         onBlur={updateField.bind(null, AddressKeys.address, true)}
+        onPaste={() => onAddressPaste()}
         readOnly={readOnly}
         required={required}
       />
@@ -303,6 +320,7 @@ export function AddressComponent({
             value={careOf}
             onChange={updateField.bind(null, AddressKeys.careOf, false)}
             onBlur={updateField.bind(null, AddressKeys.careOf, true)}
+            onPaste={() => onCareOfPaste()}
             readOnly={readOnly}
           />
           {allValidations?.[AddressKeys.careOf]
@@ -333,6 +351,7 @@ export function AddressComponent({
             value={zipCode}
             onChange={updateField.bind(null, AddressKeys.zipCode, false)}
             onBlur={updateField.bind(null, AddressKeys.zipCode, true)}
+            onPaste={() => onZipCodePaste()}
             readOnly={readOnly}
             required={required}
             inputMode='numeric'
@@ -396,6 +415,7 @@ export function AddressComponent({
             value={houseNumber}
             onChange={updateField.bind(null, AddressKeys.houseNumber, false)}
             onBlur={updateField.bind(null, AddressKeys.houseNumber, true)}
+            onPaste={() => onHouseNumberPaste()}
             readOnly={readOnly}
           />
           {allValidations?.[AddressKeys.houseNumber]

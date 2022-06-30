@@ -13,7 +13,7 @@ export function TextAreaComponent({
   textResourceBindings,
 }: IComponentProps) {
   const suppliedValue = formData?.simpleBinding;
-  const { value, setValue, saveValue } = useDelayedSavedState(
+  const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
     handleDataChange,
     suppliedValue ?? '',
   );
@@ -28,6 +28,7 @@ export function TextAreaComponent({
         id={id}
         onBlur={() => saveValue()}
         onChange={(e) => setValue(e.target.value)}
+        onPaste={() => onPaste()}
         readOnly={readOnly}
         style={{ resize: 'none' }} // This is prone to change soon, implemented inline until then. See issue #1116
         className={
