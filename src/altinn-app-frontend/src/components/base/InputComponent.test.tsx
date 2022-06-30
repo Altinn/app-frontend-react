@@ -60,9 +60,15 @@ describe('InputComponent.tsx', () => {
     renderInputComponent({ handleDataChange });
     const inputComponent = screen.getByTestId(mockId);
 
-    fireEvent.blur(inputComponent, { target: { value: 'it123' } });
+    fireEvent.change(inputComponent, { target: { value: 'it123' } });
+    fireEvent.blur(inputComponent);
     expect(inputComponent).toHaveValue('it123');
-    expect(handleDataChange).toHaveBeenCalled();
+    expect(handleDataChange).toHaveBeenCalledWith(
+      'it123',
+      undefined,
+      false,
+      false,
+    );
   });
 
   it('should render input with formatted number when this is specified', () => {
