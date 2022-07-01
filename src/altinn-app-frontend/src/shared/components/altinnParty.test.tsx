@@ -4,6 +4,7 @@ import type { IParty } from 'altinn-shared/types';
 import AltinnParty from './altinnParty';
 import { renderWithProviders } from '../../../testUtils';
 import userEvent from '@testing-library/user-event';
+import { partyMock } from '../../../__mocks__/partyMock';
 
 describe('altinnParty', () => {
   let mockParty: IParty;
@@ -11,17 +12,7 @@ describe('altinnParty', () => {
   let onSelectPartyMock: (party: IParty) => void;
 
   beforeEach(() => {
-    mockParty = {
-      childParties: [],
-      partyId: 'partyId',
-      partyTypeName: 1,
-      orgNumber: null,
-      ssn: 'ssn',
-      unitType: 'test',
-      name: 'Testing Testing',
-      isDeleted: false,
-      onlyHierarchyElementWithNoAccess: false,
-    };
+    mockParty = partyMock;
     selectedParty = null;
     onSelectPartyMock = (party: IParty) => (selectedParty = party);
   });

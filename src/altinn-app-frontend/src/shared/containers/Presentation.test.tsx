@@ -6,7 +6,7 @@ import { MemoryRouter } from 'react-router';
 import * as renderer from 'react-test-renderer';
 import configureStore from 'redux-mock-store';
 import { getInitialStateMock } from '../../../__mocks__/mocks';
-import { mockParty } from '../../../__mocks__/initialStateMock';
+import { partyMock } from '../../../__mocks__/partyMock';
 import type { IRuntimeState } from 'src/types';
 import { ProcessTaskType } from 'src/types';
 import NavBar from 'src/components/presentation/NavBar';
@@ -132,7 +132,7 @@ describe('containers/Presentation.tsx', () => {
     closeButton.simulate('click');
     await flushPromises();
     expect(window.location.href).toEqual(
-      returnUrlToMessagebox(origin, mockParty.partyId),
+      returnUrlToMessagebox(origin, partyMock.partyId),
     );
   });
 
@@ -160,7 +160,7 @@ describe('containers/Presentation.tsx', () => {
     const closeButton = wrapper.find(NavBar).find('.a-modal-close');
     closeButton.simulate('click');
     expect(window.location.href).toEqual(
-      returnUrlToMessagebox(origin, mockParty.partyId),
+      returnUrlToMessagebox(origin, partyMock.partyId),
     );
   });
 
