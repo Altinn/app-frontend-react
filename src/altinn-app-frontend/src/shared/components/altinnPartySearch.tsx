@@ -23,14 +23,8 @@ function AltinnPartySearch({
 }: IAltinnPartySearchProps) {
   const language = useAppSelector((state) => state.language.language);
 
-  const [searchString, setSearchString] = React.useState('');
-
-  React.useEffect(() => {
-    onSearchUpdated(searchString);
-  }, [onSearchUpdated, searchString]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchString(e.target.value);
+    onSearchUpdated(e.target.value);
   };
 
   return (

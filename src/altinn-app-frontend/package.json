@@ -126,9 +126,6 @@
       "!__tests__/**/*",
       "src/**/*.{ts,tsx}"
     ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
     "testEnvironmentOptions": {
       "url": "https://altinn3local.no/ttd/test"
     },
