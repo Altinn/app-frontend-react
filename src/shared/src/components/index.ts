@@ -1,10 +1,8 @@
 export { default as AltinnButton } from './AltinnButton';
 export { default as AltinnCheckBox } from './AltinnCheckBox';
 export { default as AltinnCollapsableList } from './AltinnCollapsableList';
-export { default as AltinnColumnLayout } from './AltinnColumnLayout';
 export { default as AltinnIcon } from './AltinnIcon';
 export { default as AltinnInput } from './AltinnInput';
-export { default as AltinnLink } from './AltinnLink';
 export { default as AltinnLogo } from './AltinnLogo';
 export { default as AltinnPopover } from './AltinnPopover';
 export { default as AltinnSpinner } from './AltinnSpinner';
