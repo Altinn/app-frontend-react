@@ -1,7 +1,6 @@
-import 'jest';
-import * as React from 'react';
+import React from 'react';
 import { AltinnAppHeader } from '..';
-import { IParty } from '../../types';
+import type { IParty } from '../../types';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -26,10 +25,6 @@ describe('organisms/AltinnAppHeader', () => {
     },
   };
 
-  /*
-  general.header_profile_icon_label
-  */
-
   const renderComponent = (party: IParty, user = partyPerson) =>
     render(
       <AltinnAppHeader
@@ -44,18 +39,21 @@ describe('organisms/AltinnAppHeader', () => {
   it('should render private icon when party is person', () => {
     renderComponent(partyPerson);
     const profileButton = screen.getByRole('button', {
-      name: /profilikon meny/i
+      name: /profilikon meny/i,
     });
-    expect(profileButton.firstChild.firstChild).toHaveClass('fa-private-circle-big');
+    expect(profileButton.firstChild.firstChild).toHaveClass(
+      'fa-private-circle-big',
+    );
   });
 
   it('should render org icon when party is org', () => {
     renderComponent(partyOrg);
     const profileButton = screen.getByRole('button', {
-      name: /profilikon meny/i
+      name: /profilikon meny/i,
     });
-    expect(profileButton.firstChild.firstChild).toHaveClass('fa-corp-circle-big');
-
+    expect(profileButton.firstChild.firstChild).toHaveClass(
+      'fa-corp-circle-big',
+    );
   });
 
   it('should render menu with logout option when clicking profile icon', async () => {
