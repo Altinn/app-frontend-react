@@ -1,27 +1,27 @@
 import { getTextResourceByKey } from 'altinn-shared/utils';
 import * as React from 'react';
 import { useAppSelector } from 'src/common/hooks';
-import { ITextResource, ITextResourceBindings } from 'src/types';
-import { IThirdPartyComponentProps } from './ThirdPartyComponent';
+import type { ITextResource, ITextResourceBindings } from 'src/types';
+import type { ICustomComponentProps } from './CustomComponent';
 
-export enum ThirdPartySupportedFrameworks {
+export enum CustomSupportedFrameworks {
   WebComponent = 'web-component',
   React = 'react',
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ThirdPartyWebComponent({
-  name,
+function CustomWebComponent({
+  tagName,
   formData,
   textResourceBindings,
   dataModelBindings,
   handleDataChange,
   ...passThroughProps
-}: IThirdPartyComponentProps) {
-
-  const Tag = name as any;
+}: ICustomComponentProps) {
+  const Tag = tagName as any;
   const wcRef = React.useRef(null);
-  const textResources = useAppSelector(state => state.textResources.resources);
+  const textResources = useAppSelector(
+    (state) => state.textResources.resources,
+  );
 
   React.useLayoutEffect(() => {
     const handleChange = (customEvent: CustomEvent) => {
@@ -30,14 +30,16 @@ function ThirdPartyWebComponent({
     };
 
     const { current } = wcRef;
-    current.addEventListener('onDataChanged', handleChange);
     current.addEventListener('dataChanged', handleChange);
-    current.texts = getTextsForComponent(textResourceBindings, textResources, false);
+    current.texts = getTextsForComponent(
+      textResourceBindings,
+      textResources,
+      false,
+    );
 
     return () => {
-      current.removeEventListener('onDataChanged', handleChange);
       current.removeEventListener('dataChanged', handleChange);
-    }
+    };
   }, [handleDataChange, wcRef, textResourceBindings, textResources]);
 
   React.useLayoutEffect(() => {
@@ -56,23 +58,26 @@ function ThirdPartyWebComponent({
         {...passThroughProps}
       />
     </div>
-
   );
 }
 
-function getTextsForComponent (
+function getTextsForComponent(
   textResourceBindings: ITextResourceBindings,
   textResources: ITextResource[],
-  stringify = true) {
+  stringify = true,
+) {
   const result: any = {};
   Object.keys(textResourceBindings).forEach((key) => {
-    result[key] = getTextResourceByKey(textResourceBindings[key], textResources);
+    result[key] = getTextResourceByKey(
+      textResourceBindings[key],
+      textResources,
+    );
   });
 
   if (stringify) {
-    return JSON.stringify(result)
+    return JSON.stringify(result);
   }
   return result;
 }
 
-export default ThirdPartyWebComponent;
+export default CustomWebComponent;

@@ -24,7 +24,7 @@ import type { IGrid } from 'src/features/form/layout';
 import { createContext } from 'react';
 import { LikertComponent } from 'src/components/base/LikertComponent';
 import { PrintButtonComponent } from './base/PrintButtonComponent';
-import ThirdPartyComponent from './thirdParty/ThirdPartyComponent';
+import CustomComponent from './custom/CustomComponent';
 
 export interface IComponent {
   name: string;
@@ -56,7 +56,7 @@ export enum ComponentTypes {
   NavigationBar,
   Likert,
   Panel,
-  ThirdParty,
+  Custom,
   PrintButton,
 }
 
@@ -198,9 +198,9 @@ export const advancedComponents: IComponent[] = [
     },
   },
   {
-    name: 'ThirdParty',
-    Tag: ThirdPartyComponent,
-    Type: ComponentTypes.ThirdParty,
+    name: 'Custom',
+    Tag: CustomComponent,
+    Type: ComponentTypes.Custom,
   },
 ];
 
