@@ -108,6 +108,7 @@ describe('Summary', () => {
         cy.get(item).eq(4).should('contain.text', 'attachment-in-multi2.pdf');
         cy.get(item).eq(5).should('contain.text', 'attachment-in-nested.pdf');
         cy.get(item).eq(5).should('contain.text', 'automation');
+        cy.get(item).eq(5).should('not.contain.text', 'Tilleggsopsjoner');
       });
   });
 });
