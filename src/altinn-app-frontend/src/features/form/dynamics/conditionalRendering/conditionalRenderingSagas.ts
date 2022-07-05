@@ -6,9 +6,9 @@ import FormDataActions from '../../data/formDataActions';
 import type { IFormData } from '../../data/formDataReducer';
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
 import { updateValidations } from '../../validation/validationSlice';
-import type { IConditionalRenderingRules } from '../types';
 import * as RulesActionTypes from '../../rules/rulesActionTypes';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
+import type { IConditionalRenderingRules } from 'src/features/form/dynamics';
 
 export const ConditionalRenderingSelector: (store: IRuntimeState) => any = (
   store: IRuntimeState,
@@ -35,7 +35,7 @@ function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
       uiConfig.repeatingGroups,
     );
 
-    if (shouldHidddenFieldsUpdate(uiConfig.hiddenFields, componentsToHide)) {
+    if (shouldHiddenFieldsUpdate(uiConfig.hiddenFields, componentsToHide)) {
       yield put(FormLayoutActions.updateHiddenComponents({ componentsToHide }));
       componentsToHide.forEach((componentId) => {
         if (formValidations[componentId]) {
@@ -69,7 +69,7 @@ export function* waitForAppSetupBeforeRunningConditionalRulesSaga(): SagaIterato
   }
 }
 
-function shouldHidddenFieldsUpdate(
+function shouldHiddenFieldsUpdate(
   currentList: string[],
   newList: string[],
 ): boolean {
@@ -81,9 +81,5 @@ function shouldHidddenFieldsUpdate(
     return true;
   }
 
-  if (currentList.find((element) => !newList.includes(element))) {
-    return true;
-  }
-
-  return false;
+  return !!currentList.find((element) => !newList.includes(element));
 }

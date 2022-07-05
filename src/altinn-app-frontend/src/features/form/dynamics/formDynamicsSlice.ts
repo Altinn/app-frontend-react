@@ -1,11 +1,11 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice, createAction } from '@reduxjs/toolkit';
-import type { IFormDynamicState } from 'src/features/form/dynamics/index';
-import type { ICheckIfConditionalRulesShouldRun } from 'src/features/form/dynamics/conditionalRendering/conditionalRenderingActions';
 import type {
+  IFormDynamicState,
   IFetchServiceConfigFulfilled,
   IFetchServiceConfigRejected,
-} from 'src/features/form/dynamics/fetch/fetchFormDynamicsActions';
+  ICheckIfConditionalRulesShouldRun,
+} from 'src/features/form/dynamics/index';
 
 const moduleName = 'formDynamics';
 

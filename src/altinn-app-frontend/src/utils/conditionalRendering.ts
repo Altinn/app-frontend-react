@@ -5,11 +5,11 @@ import type {
 } from 'src/types';
 import type { IFormData } from '../features/form/data/formDataReducer';
 import type {
-  IConditionalRenderingRule,
   IConditionalRenderingRules,
-  IParameters,
+  IConditionalRenderingRule,
   ISelectedFields,
-} from '../features/form/dynamics/types';
+  IParameters,
+} from 'src/features/form/dynamics';
 
 /*
  * Runs conditional rendering rules, returns array of affected layout elements
