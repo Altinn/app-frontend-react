@@ -13,7 +13,7 @@ const useStyles = makeStyles({
   },
   fullWidth: {
     width: '100%',
-  }
+  },
 });
 
 const optionStyle = {
@@ -63,7 +63,10 @@ const Select = ({
     >
       <option style={optionStyle} />
       {options.map((option, index) => (
-        <option key={index} value={option.value}>
+        <option
+          key={index}
+          value={option.value}
+        >
           {option.label}
         </option>
       ))}
