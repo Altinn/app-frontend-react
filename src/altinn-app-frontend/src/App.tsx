@@ -117,7 +117,6 @@ export const App = () => {
           />
           <Route
             path='/instance/:partyId/:instanceGuid'
-            exact={true}
             component={ProcessWrapper}
           />
         </Switch>

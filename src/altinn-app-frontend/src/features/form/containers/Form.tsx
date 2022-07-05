@@ -6,10 +6,12 @@ import type { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
 import { GroupContainer } from './GroupContainer';
 import { renderGenericComponent } from 'src/utils/layout';
 import { DisplayGroupContainer } from './DisplayGroupContainer';
-import { useAppSelector } from 'src/common/hooks';
+import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import MessageBanner from 'src/features/form/components/MessageBanner';
 import { hasRequiredFields } from 'src/utils/formLayout';
 import { missingFieldsInLayoutValidations } from 'src/utils/validation';
+import { Route, useHistory, useRouteMatch, withRouter } from 'react-router-dom';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -93,7 +95,9 @@ export function Form() {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
-
+  const dispatch = useAppDispatch();
+  const match = useRouteMatch<string>('/instance/:partyId/:instanceGuid');
+  const history = useHistory();
   React.useEffect(() => {
     setCurrentLayout(currentView);
   }, [currentView]);
@@ -129,29 +133,51 @@ export function Form() {
       setFilteredLayout(componentsToRender);
     }
   }, [layout]);
+  React.useEffect(() => {
+    const getPageId = () =>
+      history.location?.pathname.replace(`${match.url}/`, '');
+    const urlPageId = getPageId();
+    if (currentLayout) {
+      if (!urlPageId || urlPageId === match.url) {
+        history.replace(`${match.url}/${currentLayout}`);
+      } else if (`${currentLayout}` !== urlPageId) {
+        history.push(`${match.url}/${currentLayout}`);
+      }
+      return history.listen((location, action) => {
+        const pageId = getPageId();
+        if (action === 'POP') {
+          if (pageId && pageId !== currentLayout) {
+            dispatch(FormLayoutActions.updateCurrentView({ newView: pageId }));
+          }
+        }
+      });
+    }
+  }, [dispatch, currentLayout, match.url, history]);
 
   return (
-    <div>
-      {hasRequiredFields(layout) && (
-        <MessageBanner
-          language={language}
-          error={requiredFieldsMissing}
-          messageKey={'form_filler.required_description'}
-        />
-      )}
-      <Grid
-        container={true}
-        spacing={3}
-        alignItems='flex-start'
-      >
-        {currentView === currentLayout &&
-          filteredLayout &&
-          filteredLayout.map((component) => {
-            return renderLayoutComponent(component, layout);
-          })}
-      </Grid>
-    </div>
+    <Route path={currentLayout ? `${match.url}/${currentLayout}` : match.url}>
+      <div>
+        {hasRequiredFields(layout) && (
+          <MessageBanner
+            language={language}
+            error={requiredFieldsMissing}
+            messageKey={'form_filler.required_description'}
+          />
+        )}
+        <Grid
+          container={true}
+          spacing={3}
+          alignItems='flex-start'
+        >
+          {currentView === currentLayout &&
+            filteredLayout &&
+            filteredLayout.map((component) => {
+              return renderLayoutComponent(component, layout);
+            })}
+        </Grid>
+      </div>
+    </Route>
   );
 }
 
-export default Form;
+export default withRouter(Form);
