@@ -1,11 +1,12 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice, createAction } from '@reduxjs/toolkit';
+import { createAction } from '@reduxjs/toolkit';
 import type {
   IFormDynamicState,
   IFetchServiceConfigFulfilled,
   IFetchServiceConfigRejected,
   ICheckIfConditionalRulesShouldRun,
 } from 'src/features/form/dynamics/index';
+import { createSagaSlice } from 'src/features/form/dynamics/experiment';
 
 const initialState: IFormDynamicState = {
   ruleConnection: {},
@@ -15,24 +16,22 @@ const initialState: IFormDynamicState = {
 };
 
 const moduleName = 'formDynamics';
-const formDynamicsSlice = createSlice({
+const formDynamicsSlice = createSagaSlice({
   name: moduleName,
   initialState,
-  reducers: {
-    fetchFulfilled: (
-      state,
-      action: PayloadAction<IFetchServiceConfigFulfilled>,
-    ) => {
-      state.apis = action.payload.apis;
-      state.ruleConnection = action.payload.ruleConnection;
-      state.conditionalRendering = action.payload.conditionalRendering;
-      state.error = null;
+  actions: {
+    fetchFulfilled: {
+      reducer: (state, action: PayloadAction<IFetchServiceConfigFulfilled>) => {
+        state.apis = action.payload.apis;
+        state.ruleConnection = action.payload.ruleConnection;
+        state.conditionalRendering = action.payload.conditionalRendering;
+        state.error = null;
+      },
     },
-    fetchRejected: (
-      state,
-      action: PayloadAction<IFetchServiceConfigRejected>,
-    ) => {
-      state.error = action.payload.error;
+    fetchRejected: {
+      reducer: (state, action: PayloadAction<IFetchServiceConfigRejected>) => {
+        state.error = action.payload.error;
+      },
     },
   },
 });
