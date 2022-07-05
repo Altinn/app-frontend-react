@@ -147,7 +147,7 @@ export function Form() {
       } else if (`${currentLayout}` !== urlPageId) {
         history.push(`${matchUrl}/${currentLayout}`);
       }
-      return history.listen((location, action) => {
+      return history.listen((_location, action) => {
         if (action === 'POP') {
           const pageId = getPageId();
           if (pageId && pageId !== currentLayout) {
