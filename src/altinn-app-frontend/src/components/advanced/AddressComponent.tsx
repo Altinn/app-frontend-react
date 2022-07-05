@@ -5,13 +5,13 @@ import cn from 'classnames';
 import { getLanguageFromKey, get } from 'altinn-shared/utils';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 import { renderValidationMessagesForComponent } from '../../utils/render';
-import type { IComponentProps } from '..';
+import type { IAutoSavedComponentProps } from '..';
 import { AddressLabel } from './AddressLabel';
 
 import './AddressComponent.css';
 import '../../styles/shared.css';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-export interface IAddressComponentProps extends IComponentProps {
+export interface IAddressComponentProps extends IAutoSavedComponentProps {
   simplified: boolean;
   labelSettings?: ILabelSettings;
 }
@@ -41,6 +41,7 @@ export function AddressComponent({
   readOnly,
   labelSettings,
   simplified,
+  saveWhileTyping,
 }: IAddressComponentProps) {
   const cancelToken = axios.CancelToken;
   const source = cancelToken.source();
@@ -57,6 +58,7 @@ export function AddressComponent({
   } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.address),
     formData.address || '',
+    saveWhileTyping,
   );
   const {
     value: zipCode,
@@ -65,10 +67,12 @@ export function AddressComponent({
   } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.zipCode),
     formData.zipCode || '',
+    saveWhileTyping,
   );
   const { value: postPlace, setValue: setPostPlace } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.postPlace),
     formData.postPlace || '',
+    saveWhileTyping,
   );
   const {
     value: careOf,
@@ -77,6 +81,7 @@ export function AddressComponent({
   } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.careOf),
     formData.careOf || '',
+    saveWhileTyping,
   );
   const {
     value: houseNumber,
@@ -85,6 +90,7 @@ export function AddressComponent({
   } = useDelayedSavedState(
     handleDataChangeOverride(AddressKeys.houseNumber),
     formData.houseNumber || '',
+    saveWhileTyping,
   );
 
   const [validations, setValidations] = React.useState({} as any);

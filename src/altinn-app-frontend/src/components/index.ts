@@ -217,6 +217,10 @@ export interface IComponentProps extends IGenericComponentProps {
   textResourceBindings: ITextResourceBindings;
 }
 
+export interface IAutoSavedComponentProps extends IComponentProps {
+  saveWhileTyping?: number | boolean;
+}
+
 const components: IComponent[] = textComponents.concat(
   schemaComponents,
   advancedComponents,

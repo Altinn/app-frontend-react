@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { IComponentProps } from '..';
+import type { IAutoSavedComponentProps } from '..';
 
 import '../../styles/shared.css';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
@@ -11,16 +11,14 @@ export function TextAreaComponent({
   isValid,
   handleDataChange,
   textResourceBindings,
-}: IComponentProps) {
+  saveWhileTyping,
+}: IAutoSavedComponentProps) {
   const suppliedValue = formData?.simpleBinding;
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
     handleDataChange,
     suppliedValue ?? '',
+    saveWhileTyping,
   );
-
-  React.useEffect(() => {
-    setValue(suppliedValue);
-  }, [suppliedValue]);
 
   return (
     <div className='a-form-group-items input-group p-0'>

@@ -5,7 +5,7 @@ import NumberFormat from 'react-number-format';
 import { Input, makeStyles } from '@material-ui/core';
 
 import '../../styles/shared.css';
-import type { IComponentProps } from '..';
+import type { IAutoSavedComponentProps } from '..';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 
 export interface IInputBaseProps {
@@ -21,7 +21,7 @@ export interface IInputFormatting {
   align?: 'right' | 'center' | 'left';
 }
 
-export interface IInputProps extends IComponentProps {
+export interface IInputProps extends IAutoSavedComponentProps {
   formatting?: IInputFormatting;
 }
 
@@ -86,11 +86,13 @@ export function InputComponent({
   formatting,
   handleDataChange,
   textResourceBindings,
+  saveWhileTyping,
 }: IInputProps) {
   const classes = useStyles();
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
     handleDataChange,
     formData?.simpleBinding ?? '',
+    saveWhileTyping,
   );
 
   return (
