@@ -106,7 +106,7 @@ export const App = () => {
         <Switch>
           <Route
             path='/'
-            exact={true}
+            exact={!allowAnonymous}
           >
             <Entrypoint allowAnonymous={allowAnonymous} />
           </Route>

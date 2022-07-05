@@ -135,16 +135,17 @@ export function Form() {
   /** history in form **/
   const dispatch = useAppDispatch();
   const match = useRouteMatch<string>('/instance/:partyId/:instanceGuid');
+  const matchUrl = match?.url || '';
   const history = useHistory();
   React.useEffect(() => {
     const getPageId = () =>
-      history.location?.pathname.replace(`${match.url}/`, '');
+      history.location?.pathname.replace(`${matchUrl}/`, '');
     if (currentLayout) {
       const urlPageId = getPageId();
-      if (!urlPageId || urlPageId === match.url) {
-        history.replace(`${match.url}/${currentLayout}`);
+      if (!urlPageId || urlPageId === matchUrl) {
+        history.replace(`${matchUrl}/${currentLayout}`);
       } else if (`${currentLayout}` !== urlPageId) {
-        history.push(`${match.url}/${currentLayout}`);
+        history.push(`${matchUrl}/${currentLayout}`);
       }
       return history.listen((location, action) => {
         if (action === 'POP') {
@@ -155,10 +156,10 @@ export function Form() {
         }
       });
     }
-  }, [dispatch, currentLayout, match.url, history]);
+  }, [dispatch, currentLayout, matchUrl, history]);
 
   return (
-    <Route path={`${match.url}/:pageId`}>
+    <Route path={`${matchUrl}/:pageId`}>
       {hasRequiredFields(layout) && (
         <MessageBanner
           language={language}
