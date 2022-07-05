@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import MessageBanner from 'src/features/form/components/MessageBanner';
 import { hasRequiredFields } from 'src/utils/formLayout';
 import { missingFieldsInLayoutValidations } from 'src/utils/validation';
-import { Route, useHistory, useRouteMatch, withRouter } from 'react-router-dom';
+import { Route, useHistory, useRouteMatch } from 'react-router-dom';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 
 export function renderLayoutComponent(
@@ -180,4 +180,4 @@ export function Form() {
   );
 }
 
-export default withRouter(Form);
+export default Form;
