@@ -186,6 +186,10 @@ function getIndexForNestedRepeatingGroup(
   parentIndex: number,
 ): number {
   const regex = new RegExp(/^.+?\[(\d+)].+?\[(\d+)]/);
+
+  if (!groupBinding) {
+    return -1;
+  }
   const indexedGroupBinding = groupBinding.replace(
     parentGroupBinding,
     `${parentGroupBinding}[${parentIndex}]`,
@@ -277,50 +281,75 @@ export function createRepeatingGroupComponents(
     container.edit,
   );
   for (let i = startIndex; i <= stopIndex; i++) {
-    const childComponents = renderComponents.map(
-      (component: ILayoutComponent | ILayoutGroup) => {
-        const componentDeepCopy: ILayoutComponent | ILayoutGroup = JSON.parse(
-          JSON.stringify(component),
-        );
-        const dataModelBindings = { ...componentDeepCopy.dataModelBindings };
-        const groupDataModelBinding = container.dataModelBindings.group;
-        Object.keys(dataModelBindings).forEach((key) => {
-          // eslint-disable-next-line no-param-reassign
-          dataModelBindings[key] = dataModelBindings[key].replace(
-            groupDataModelBinding,
-            `${groupDataModelBinding}[${i}]`,
-          );
-        });
-        const deepCopyId = `${componentDeepCopy.id}-${i}`;
-        setVariableTextKeysForRepeatingGroupComponent(
-          textResources,
-          componentDeepCopy.textResourceBindings,
-          i,
-        );
-        const hidden = !!hiddenFields?.find(
-          (field) => field === `${deepCopyId}[${i}]`,
-        );
-        let mapping;
-        if (componentDeepCopy.type === 'InstantiationButton') {
-          mapping = setMappingForRepeatingGroupComponent(
-            (componentDeepCopy as IInstantiationButtonProps).mapping,
-            i,
-          );
-        }
-        return {
-          ...componentDeepCopy,
-          textResourceBindings: componentDeepCopy.textResourceBindings,
-          dataModelBindings,
-          id: deepCopyId,
-          baseComponentId: (componentDeepCopy as any).baseComponentId || componentDeepCopy.id,
-          hidden,
-          mapping,
-        };
-      },
-    );
-    componentArray.push(childComponents);
+    componentArray.push(createRepeatingGroupComponentsForIndex(
+      container,
+      renderComponents,
+      textResources,
+      i,
+      hiddenFields
+    ));
   }
   return componentArray;
+}
+
+export function createRepeatingGroupComponentsForIndex(
+  container: ILayoutGroup,
+  renderComponents: (ILayoutComponent | ILayoutGroup)[],
+  textResources: ITextResource[],
+  index: number,
+  hiddenFields?: string[],
+) {
+  return renderComponents.map(
+    (component: ILayoutComponent | ILayoutGroup) => {
+      if (isGroupComponent(component)) {
+        if (component.panel?.groupReference) {
+          // Do not treat as a regular group child as this is merely an option to add elements for another group from this group context
+          return {
+            ...component,
+            baseComponentId: component.id // used to indicate that it is a child group
+          };
+        }
+      }
+
+      const componentDeepCopy: ILayoutComponent | ILayoutGroup = JSON.parse(
+        JSON.stringify(component),
+      );
+      const dataModelBindings = { ...componentDeepCopy.dataModelBindings };
+      const groupDataModelBinding = container.dataModelBindings.group;
+      Object.keys(dataModelBindings).forEach((key) => {
+        // eslint-disable-next-line no-param-reassign
+        dataModelBindings[key] = dataModelBindings[key].replace(
+          groupDataModelBinding,
+          `${groupDataModelBinding}[${index}]`,
+        );
+      });
+      const deepCopyId = `${componentDeepCopy.id}-${index}`;
+      setVariableTextKeysForRepeatingGroupComponent(
+        textResources,
+        componentDeepCopy.textResourceBindings,
+        index,
+      );
+      const hidden = !!hiddenFields?.find(
+        (field) => field === `${deepCopyId}[${index}]`,
+      );
+      let mapping;
+      if (componentDeepCopy.type === 'InstantiationButton') {
+        mapping = setMappingForRepeatingGroupComponent(
+          (componentDeepCopy as IInstantiationButtonProps).mapping,
+          index,
+        );
+      }
+      return {
+        ...componentDeepCopy,
+        textResourceBindings: componentDeepCopy.textResourceBindings,
+        dataModelBindings,
+        id: deepCopyId,
+        baseComponentId: (componentDeepCopy as any).baseComponentId || componentDeepCopy.id,
+        hidden,
+        mapping,
+      };
+    },
+  );
 }
 
 export function setMappingForRepeatingGroupComponent(

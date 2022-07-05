@@ -6,6 +6,14 @@ export function getFormLayoutStateMock(customStates?: Partial<ILayoutState>): IL
     layouts: {
       FormLayout: [
         {
+          id: 'referencedGroup',
+          type: 'Group',
+          dataModelBindings: {
+            group: 'referencedGroup',
+          },
+          children: [],
+        },
+        {
           id: 'field1',
           type: 'Input',
           dataModelBindings: {

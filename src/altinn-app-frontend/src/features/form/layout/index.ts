@@ -23,10 +23,15 @@ export interface ILayoutGroup extends ILayoutEntry {
 }
 
 export interface IGroupPanel {
-  variant?: 'info' | 'success' | 'warning';
+  variant?: string;
   showIcon?: boolean;
   iconUrl?: string;
   iconAlt?: string;
+  groupReference?: IGroupReference;
+}
+
+export interface IGroupReference {
+  group: string;
 }
 
 export interface ILayoutComponent extends ILayoutEntry {

@@ -1355,6 +1355,10 @@ export function repeatingGroupHasValidations(
           return componentHasValidations(validations, currentView, element.id);
         }
         const childGroup = element as ILayoutGroup;
+
+        if (!childGroup.dataModelBindings?.group) {
+          return false;
+        }
         const childGroupIndex = repeatingGroups[childGroup.id]?.index;
         const childGroupComponents = layout.filter(
           (childElement) => childGroup.children?.indexOf(childElement.id) > -1,

@@ -1,19 +1,21 @@
 import { Panel } from '@altinn/altinn-design-system';
-import { Grid, makeStyles } from '@material-ui/core';
-import React from 'react';
-import { useAppSelector } from 'src/common/hooks';
+import { Grid } from '@material-ui/core';
+import { EditIconButton } from 'altinn-shared/components/EditIconButton';
+import { SuccessIconButton } from 'altinn-shared/components/SuccessIconButton';
+import { getLanguageFromKey } from 'altinn-shared/utils';
+import React, { useState } from 'react';
+import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import { getTextResource } from 'src/utils/formComponentUtils';
+import { createRepeatingGroupComponentsForIndex } from 'src/utils/formLayout';
+import { getLayoutComponentById } from 'src/utils/layout';
+import { FullWidthGroupWrapper } from '../components/FullWidthGroupWrapper';
 import { FullWidthWrapper } from '../components/FullWidthWrapper';
+import { getVariant } from '../components/Panel';
 import { ILayoutComponent, ILayoutGroup } from '../layout';
+import { FormLayoutActions } from '../layout/formLayoutSlice';
 import { renderLayoutComponent } from './Form';
-
-const useStyles = makeStyles({
-  groupContainer: {
-    paddingBottom: 38,
-  },
-});
 
 export interface IPanelGroupContainerProps {
   container: ILayoutGroup;
@@ -29,47 +31,96 @@ function customIcon(iconUrl: string, iconAlt: string) {
 }
 
 export function PanelGroupContainer({ container, components }: IPanelGroupContainerProps) {
-  const classes = useStyles();
+  const dispatch = useAppDispatch();
   const GetHiddenSelector = makeGetHidden();
+  const [open, setOpen] = useState<boolean>(!container.panel?.groupReference);
   const layout = useAppSelector(state => state.formLayout.layouts[state.formLayout.uiConfig.currentView]);
+  const layouts = useAppSelector(state => state.formLayout.layouts);
+  const language = useAppSelector(state => state.language.language);
+  const textResources = useAppSelector(state => state.textResources.resources);
+  const hiddenFields = useAppSelector(state => state.formLayout.uiConfig.hiddenFields);
   const hidden = useAppSelector(state => GetHiddenSelector(state, { id: container.id }));
-  const title = useAppSelector(state => getTextFromAppOrDefault(container.textResourceBindings?.title, state.textResources.resources, state.language.language, [], true));
-  const body = useAppSelector(state => getTextFromAppOrDefault(container.textResourceBindings?.body, state.textResources.resources, state.language.language, [], true));
+  const title = useAppSelector(state => getTextResource(container.textResourceBindings?.title, state.textResources.resources));
+  const body = useAppSelector(state => getTextResource(container.textResourceBindings?.body, state.textResources.resources));
+  const addLabel = useAppSelector(state => getTextResource(container.textResourceBindings?.add_label, state.textResources.resources));
+  const repeatingGroups = useAppSelector(state => state.formLayout.uiConfig.repeatingGroups);
   const { iconUrl, iconAlt } = container.panel;
   const fullWidth = !container.baseComponentId;
+  const repGroupReference = container.panel?.groupReference;
+  const referencedGroup: ILayoutGroup = repGroupReference ? getLayoutComponentById(repGroupReference.group, layouts) as ILayoutGroup : undefined;
+  const referencedGroupIndex = referencedGroup ? repeatingGroups[referencedGroup.id].index : -1;
+
+  console.log('layout', layout);
+  console.log('referencedGroup', referencedGroup);
+
+  const handleSave = () => {
+    setOpen(false);
+    dispatch(FormLayoutActions.updateRepeatingGroups({ layoutElementId: referencedGroup.id }));
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  }
 
   if (hidden) {
     return null;
   }
 
   return (
-    <Grid
-      item={true}
-    >
+    <Grid item>
       <ConditionalWrapper
         condition={fullWidth}
         wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
       >
-        <Panel
-          title={title}
-          renderIcon={iconUrl ? () => customIcon(iconUrl, iconAlt) : undefined}
+        <ConditionalWrapper
+          condition={!fullWidth && open}
+          wrapper={(child) => <FullWidthGroupWrapper>{child}</FullWidthGroupWrapper>}
         >
-          <Grid
-            container={true}
-            item={true}
-            className={classes.groupContainer}
-            spacing={3}
-            alignItems='flex-start'
-            data-testid='panel-group-container'
-          >
-            <Grid item xs={12}>
-              {body}
-            </Grid>
-            {components.map((component) => {
-              return renderLayoutComponent(component, layout);
-            })}
-          </Grid>
-        </Panel >
+          <>
+            {referencedGroup && !open &&
+              <Grid item>
+                <EditIconButton label={addLabel} onClick={handleOpen} />
+              </Grid>
+            }
+            {open &&
+              <Panel
+                title={title}
+                renderIcon={iconUrl ? () => customIcon(iconUrl, iconAlt) : undefined}
+                variant={getVariant({ variant: container.panel.variant })}
+                showPointer={!!repGroupReference}
+              >
+                <Grid
+                  container={true}
+                  item={true}
+                  spacing={3}
+                  alignItems='flex-start'
+                  data-testid='panel-group-container'
+                >
+                  <Grid item xs={12}>
+                    {body}
+                  </Grid>
+
+                  {referencedGroup && createRepeatingGroupComponentsForIndex(referencedGroup, components, textResources, referencedGroupIndex + 1, hiddenFields).map(component => {
+                    return renderLayoutComponent(component, layout);
+                  })}
+
+                  {!referencedGroup && components.map(component => {
+                    return renderLayoutComponent(component, layout);
+                  })}
+
+                  {referencedGroup &&
+                    <Grid item>
+                      <SuccessIconButton
+                        label={getLanguageFromKey('general.save', language)}
+                        onClick={handleSave}
+                      />
+                    </Grid>
+                  }
+                </Grid>
+              </Panel >
+            }
+          </>
+        </ConditionalWrapper>
       </ConditionalWrapper>
     </Grid>
   );

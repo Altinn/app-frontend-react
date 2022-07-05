@@ -9,6 +9,10 @@ export const getUiConfigStateMock = (customStates?: Partial<IUiConfig>): IUiConf
       group: {
         index: 1,
         dataModelBinding: 'someGroup',
+      },
+      referencedGroup: {
+        index: 1,
+        dataModelBinding: 'referencedGroup'
       }
     },
     fileUploadersWithTag: null,

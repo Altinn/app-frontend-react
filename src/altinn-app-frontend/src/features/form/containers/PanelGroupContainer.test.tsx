@@ -8,6 +8,7 @@ import { ILayout, ILayoutGroup } from '../layout';
 import { ILayoutState } from '../layout/formLayoutSlice';
 import { screen } from '@testing-library/react';
 import { IUiConfig } from 'src/types';
+import userEvent from '@testing-library/user-event';
 
 describe('PanelGroupContainer', () => {
   const container: ILayoutGroup = {
@@ -79,6 +80,52 @@ describe('PanelGroupContainer', () => {
 
     const secondInputTitle = await screen.queryByText('Title for second input');
     expect(secondInputTitle).toBeInTheDocument();
+  });
+
+  it('should display panel with group children when referencing another group with correct index reference', async () => {
+
+    const components: ILayout = [
+      {
+        id: 'input-1',
+        type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'referencedGroup.inputField',
+        },
+        textResourceBindings: {
+          title: 'group.input.title',
+        },
+        readOnly: false,
+        required: false,
+        disabled: false,
+      },
+    ];
+    const containerWithGroupReference: ILayoutGroup = {
+      ...container,
+      textResourceBindings: {
+        add_label: 'Add new item'
+      },
+      panel: {
+        ...container.panel,
+        groupReference: {
+          group: 'referencedGroup'
+        },
+      }
+    };
+
+    render(
+      {
+        container: containerWithGroupReference,
+        components,
+      },
+    );
+
+    const addNewButton = await screen.queryByText('Add new item');
+    await userEvent.click(addNewButton);
+
+    screen.debug();
+
+    const inputFieldTitle = await screen.queryByText('The value from the group is: Value from input field [2]');
+    expect(inputFieldTitle).toBeInTheDocument();
   });
 
   it('should display nothing if group is hidden', async () => {
