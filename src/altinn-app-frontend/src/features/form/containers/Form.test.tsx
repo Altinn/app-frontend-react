@@ -6,6 +6,7 @@ import { renderWithProviders, mockMediaQuery } from 'src/../testUtils';
 import type { ILayout, ILayoutComponent } from '../layout';
 import { getFormLayoutStateMock } from 'src/../__mocks__/formLayoutStateMock';
 import { screen } from '@testing-library/react';
+import { MemoryRouter, Route } from 'react-router-dom';
 
 const { setScreenWidth } = mockMediaQuery(992);
 
@@ -97,15 +98,27 @@ describe('Form.tsx', () => {
     layout = mockComponents,
     customState: PreloadedState<RootState> = {},
   ) {
-    renderWithProviders(<Form />, {
-      preloadedState: {
-        ...customState,
-        formLayout: getFormLayoutStateMock({
-          layouts: {
-            FormLayout: layout,
-          },
-        }),
+    renderWithProviders(
+      <MemoryRouter
+        initialEntries={[
+          '/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc',
+        ]}
+      >
+        <Route
+          path={'/instance/:partyId/:instanceGuid'}
+          component={Form}
+        />
+      </MemoryRouter>,
+      {
+        preloadedState: {
+          ...customState,
+          formLayout: getFormLayoutStateMock({
+            layouts: {
+              FormLayout: layout,
+            },
+          }),
+        },
       },
-    });
+    );
   }
 });
