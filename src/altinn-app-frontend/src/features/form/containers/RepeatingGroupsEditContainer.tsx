@@ -1,13 +1,13 @@
-import React from 'react';
-import { Grid, makeStyles, createTheme, IconButton } from '@material-ui/core';
-import { AltinnButton } from 'altinn-shared/components';
-import altinnAppTheme from 'altinn-shared/theme/altinnAppTheme';
-import { getLanguageFromKey, getTextResourceByKey } from 'altinn-shared/utils';
-import { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
-import { renderGenericComponent } from '../../../utils/layout';
-import { ITextResource } from 'src/types';
-import { ILanguage } from 'altinn-shared/types';
-import { SuccessIconButton } from 'altinn-shared/components/SuccessIconButton';
+import React from "react";
+import { Grid, makeStyles, createTheme, IconButton } from "@material-ui/core";
+import { AltinnButton } from "altinn-shared/components";
+import altinnAppTheme from "altinn-shared/theme/altinnAppTheme";
+import { getLanguageFromKey, getTextResourceByKey } from "altinn-shared/utils";
+import type { ILayout, ILayoutComponent, ILayoutGroup } from "../layout";
+import { renderGenericComponent } from "../../../utils/layout";
+import type { ITextResource } from "src/types";
+import type { ILanguage } from "altinn-shared/types";
+import { SuccessIconButton } from "altinn-shared/components/SuccessIconButton";
 
 export interface IRepeatingGroupsEditContainer {
   id: string;
@@ -30,54 +30,54 @@ const theme = createTheme(altinnAppTheme);
 
 const useStyles = makeStyles({
   editContainer: {
-    display: 'inline-block',
+    display: "inline-block",
     borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
     borderBottom: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-    padding: '24px',
-    paddingTop: '12px',
-    width: '100%',
-    marginBottom: '24px',
-    backgroundColor: 'rgba(227, 247, 255, 0.3)',
-    '@media (min-width:768px)': {
-      padding: '24px',
+    padding: "24px",
+    paddingTop: "12px",
+    width: "100%",
+    marginBottom: "24px",
+    backgroundColor: "rgba(227, 247, 255, 0.3)",
+    "@media (min-width:768px)": {
+      padding: "24px",
       border: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
     },
-    '@media (min-width:993px)': {
-      padding: '36px',
+    "@media (min-width:993px)": {
+      padding: "36px",
     },
-    '& &': {
-      padding: '24px',
+    "& &": {
+      padding: "24px",
       border: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
       backgroundColor: theme.altinnPalette.primary.blueLighter,
-    }
+    },
   },
   deleteItem: {
-    paddingBottom: '0px !important',
+    paddingBottom: "0px !important",
   },
   saveItem: {
-    paddingTop: '0px !important',
+    paddingTop: "0px !important",
   },
   deleteButton: {
     color: theme.altinnPalette.primary.red,
     fontWeight: 700,
-    padding: '8px 12px 6px 6px',
-    borderRadius: '0',
-    marginRight: '-12px',
-    '@media (min-width:768px)': {
-      margin: '0',
+    padding: "8px 12px 6px 6px",
+    borderRadius: "0",
+    marginRight: "-12px",
+    "@media (min-width:768px)": {
+      margin: "0",
     },
-    '&:hover': {
+    "&:hover": {
       background: theme.altinnPalette.primary.red,
       color: theme.altinnPalette.primary.white,
     },
-    '&:focus': {
+    "&:focus": {
       outlineColor: theme.altinnPalette.primary.red,
     },
-    '& .ai': {
-      fontSize: '2em',
-      marginTop: '-3px',
+    "& .ai": {
+      fontSize: "2em",
+      marginTop: "-3px",
     },
-  }
+  },
 });
 
 const style = {
@@ -118,13 +118,18 @@ export function RepeatingGroupsEditContainer({
 
   return (
     <div className={classes.editContainer}>
-      <Grid container={true} item={true} direction='row' spacing={3}>
+      <Grid
+        container={true}
+        item={true}
+        direction="row"
+        spacing={3}
+      >
         {!hideDeleteButton && (
           <Grid
             item={true}
             container={true}
-            direction='column'
-            alignItems='flex-end'
+            direction="column"
+            alignItems="flex-end"
             spacing={3}
             className={classes.deleteItem}
           >
@@ -134,13 +139,18 @@ export function RepeatingGroupsEditContainer({
                 disabled={deleting}
                 onClick={removeClicked}
               >
-                <i className='ai ai-trash' />
-                {getLanguageFromKey('general.delete', language)}
+                <i className="ai ai-trash" />
+                {getLanguageFromKey("general.delete", language)}
               </IconButton>
             </Grid>
           </Grid>
         )}
-        <Grid container={true} alignItems='flex-start' item={true} spacing={3}>
+        <Grid
+          container={true}
+          alignItems="flex-start"
+          item={true}
+          spacing={3}
+        >
           {repeatingGroupDeepCopyComponents[editIndex]?.map(
             (component: ILayoutComponent) => {
               if (
@@ -149,25 +159,28 @@ export function RepeatingGroupsEditContainer({
                 !container.children.includes(
                   `${multiPageIndex}:${component.id.substring(
                     0,
-                    component.id.lastIndexOf('-'),
-                  )}`,
+                    component.id.lastIndexOf("-")
+                  )}`
                 )
               ) {
                 return null;
               }
               return renderGenericComponent(component, layout, editIndex);
-            },
+            }
           )}
         </Grid>
-        <Grid item={true} className={classes.saveItem}>
+        <Grid
+          item={true}
+          className={classes.saveItem}
+        >
           {container.edit?.multiPage && (
             <div style={style}>
               {multiPageIndex > -1 &&
                 container.children.find((childId) =>
-                  childId.startsWith(`${multiPageIndex + 1}:`),
+                  childId.startsWith(`${multiPageIndex + 1}:`)
                 ) && (
                   <AltinnButton
-                    btnText={getLanguageFromKey('general.next', language)}
+                    btnText={getLanguageFromKey("general.next", language)}
                     secondaryButton={true}
                     onClickFunction={() =>
                       setMultiPageIndex(multiPageIndex + 1)
@@ -176,10 +189,10 @@ export function RepeatingGroupsEditContainer({
                 )}
               {multiPageIndex > 0 &&
                 container.children.find((childId) =>
-                  childId.startsWith(`${multiPageIndex - 1}:`),
+                  childId.startsWith(`${multiPageIndex - 1}:`)
                 ) && (
                   <AltinnButton
-                    btnText={getLanguageFromKey('general.back', language)}
+                    btnText={getLanguageFromKey("general.back", language)}
                     secondaryButton={true}
                     onClickFunction={() =>
                       setMultiPageIndex(multiPageIndex - 1)
@@ -192,9 +205,13 @@ export function RepeatingGroupsEditContainer({
             <SuccessIconButton
               id={`add-button-grp-${id}`}
               onClick={closeEditContainer}
-              label={container.textResourceBindings?.save_button ?
-                  getTextResourceByKey(container.textResourceBindings.save_button, textResources) :
-                  getLanguageFromKey('general.done', language)
+              label={
+                container.textResourceBindings?.save_button
+                  ? getTextResourceByKey(
+                      container.textResourceBindings.save_button,
+                      textResources
+                    )
+                  : getLanguageFromKey("general.done", language)
               }
             />
           )}

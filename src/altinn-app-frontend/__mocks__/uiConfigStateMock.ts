@@ -1,6 +1,8 @@
-import { IUiConfig } from 'src/types';
+import type { IUiConfig } from "src/types";
 
-export const getUiConfigStateMock = (customStates?: Partial<IUiConfig>): IUiConfig=>{
+export const getUiConfigStateMock = (
+  customStates?: Partial<IUiConfig>
+): IUiConfig => {
   return {
     autoSave: true,
     focus: null,
@@ -8,17 +10,17 @@ export const getUiConfigStateMock = (customStates?: Partial<IUiConfig>): IUiConf
     repeatingGroups: {
       group: {
         index: 1,
-        dataModelBinding: 'someGroup',
+        dataModelBinding: "someGroup",
       },
       referencedGroup: {
         index: 1,
-        dataModelBinding: 'referencedGroup'
-      }
+        dataModelBinding: "referencedGroup",
+      },
     },
     fileUploadersWithTag: null,
-    currentView: 'FormLayout',
+    currentView: "FormLayout",
     navigationConfig: {},
-    layoutOrder: ['FormLayout'],
-    ...customStates
-  }
-}
+    layoutOrder: ["FormLayout"],
+    ...customStates,
+  };
+};

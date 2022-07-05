@@ -1,15 +1,15 @@
-import * as React from 'react';
-import { Form } from './Form';
-import { PreloadedState } from '@reduxjs/toolkit';
-import { RootState } from 'src/store';
-import { renderWithProviders, mockMediaQuery } from 'src/../testUtils';
-import type { ILayout, ILayoutComponent } from '../layout';
-import { getFormLayoutStateMock } from 'src/../__mocks__/formLayoutStateMock';
-import { screen } from '@testing-library/react'
+import * as React from "react";
+import { Form } from "./Form";
+import type { PreloadedState } from "@reduxjs/toolkit";
+import type { RootState } from "src/store";
+import { renderWithProviders, mockMediaQuery } from "src/../testUtils";
+import type { ILayout, ILayoutComponent } from "../layout";
+import { getFormLayoutStateMock } from "src/../__mocks__/formLayoutStateMock";
+import { screen } from "@testing-library/react";
 
 const { setScreenWidth } = mockMediaQuery(992);
 
-describe('Form.tsx', () => {
+describe("Form.tsx", () => {
   beforeAll(() => {
     // Set screen size to desktop
     setScreenWidth(1200);
@@ -17,81 +17,81 @@ describe('Form.tsx', () => {
 
   const mockComponents: ILayout = [
     {
-      id: 'field1',
-      type: 'Input',
+      id: "field1",
+      type: "Input",
       dataModelBindings: {
-        simpleBinding: 'Group.prop1',
+        simpleBinding: "Group.prop1",
       },
       textResourceBindings: {
-        title: 'First title',
+        title: "First title",
       },
       readOnly: false,
       required: true,
       disabled: false,
     },
     {
-      id: 'field2',
-      type: 'Input',
+      id: "field2",
+      type: "Input",
       dataModelBindings: {
-        simpleBinding: 'Group.prop2',
+        simpleBinding: "Group.prop2",
       },
       textResourceBindings: {
-        title: 'Second title',
+        title: "Second title",
       },
       readOnly: false,
       required: false,
       disabled: false,
     },
     {
-      id: 'field3',
-      type: 'Input',
+      id: "field3",
+      type: "Input",
       dataModelBindings: {
-        simpleBinding: 'Group.prop3',
+        simpleBinding: "Group.prop3",
       },
       textResourceBindings: {
-        title: 'Third title',
+        title: "Third title",
       },
       readOnly: false,
       required: false,
       disabled: false,
     },
     {
-      id: 'testGroupId',
-      type: 'group',
+      id: "testGroupId",
+      type: "group",
       dataModelBindings: {
-        group: 'Group',
+        group: "Group",
       },
       maxCount: 3,
-      children: ['field1', 'field2', 'field3'],
-    }
+      children: ["field1", "field2", "field3"],
+    },
   ];
 
-  it('should render components and groups', () => {
+  it("should render components and groups", () => {
     renderForm();
-    expect(screen.getByText('First title')).toBeInTheDocument();
-    expect(screen.getByText('Second title')).toBeInTheDocument();
-    expect(screen.getByText('Third title')).toBeInTheDocument();
+    expect(screen.getByText("First title")).toBeInTheDocument();
+    expect(screen.getByText("Second title")).toBeInTheDocument();
+    expect(screen.getByText("Third title")).toBeInTheDocument();
   });
 
-  it('should render DisplayGroupContainer and children if group is non repeating', () => {
+  it("should render DisplayGroupContainer and children if group is non repeating", () => {
     const layoutWithNonRepGroup: ILayout = [
       ...mockComponents,
       {
-        id: 'non-rep-group-id',
-        type: 'group',
+        id: "non-rep-group-id",
+        type: "group",
         dataModelBindings: {
-          group: 'Group',
+          group: "Group",
         },
-        children: ['non-rep-child'],
+        children: ["non-rep-child"],
       },
       {
-        id: 'non-rep-child',
-        type: 'Input',
+        id: "non-rep-child",
+        type: "Input",
         dataModelBindings: {
-          simpleBinding: 'Group.prop3',
+          simpleBinding: "Group.prop3",
         },
         textResourceBindings: {
-          title: 'Title from non repeating child',
+          title: "Title from non repeating child",
         },
         readOnly: false,
         required: false,
@@ -100,32 +100,34 @@ describe('Form.tsx', () => {
     ];
 
     renderForm(layoutWithNonRepGroup);
-    expect(screen.getByTestId('display-group-container')).toBeInTheDocument();
-    expect(screen.getByText('Title from non repeating child')).toBeInTheDocument();
+    expect(screen.getByTestId("display-group-container")).toBeInTheDocument();
+    expect(
+      screen.getByText("Title from non repeating child")
+    ).toBeInTheDocument();
   });
 
-  it('should render PanelGroupContainer and children if group has panel prop', () => {
+  it("should render PanelGroupContainer and children if group has panel prop", () => {
     const layoutWithPanelGroup: ILayout = [
       ...mockComponents,
       {
-        id: 'panel-group-id',
-        type: 'group',
+        id: "panel-group-id",
+        type: "group",
         dataModelBindings: {
-          group: 'Group',
+          group: "Group",
         },
-        children: ['panel-group-child'],
+        children: ["panel-group-child"],
         panel: {
-          variant: 'info',
+          variant: "info",
         },
       },
       {
-        id: 'panel-group-child',
-        type: 'Input',
+        id: "panel-group-child",
+        type: "Input",
         dataModelBindings: {
-          simpleBinding: 'Group.prop3',
+          simpleBinding: "Group.prop3",
         },
         textResourceBindings: {
-          title: 'Title from panel child',
+          title: "Title from panel child",
         },
         readOnly: false,
         required: false,
@@ -134,37 +136,36 @@ describe('Form.tsx', () => {
     ];
 
     renderForm(layoutWithPanelGroup);
-    expect(screen.getByTestId('panel-group-container')).toBeInTheDocument();
-    expect(screen.getByText('Title from panel child')).toBeInTheDocument();
+    expect(screen.getByTestId("panel-group-container")).toBeInTheDocument();
+    expect(screen.getByText("Title from panel child")).toBeInTheDocument();
   });
 
-  it('should render navbar', () => {
+  it("should render navbar", () => {
     const layoutWithNavBar: ILayout = [
       ...mockComponents,
-    {
-        id: 'navBar',
-        type: 'NavigationBar',
-      } as ILayoutComponent
+      {
+        id: "navBar",
+        type: "NavigationBar",
+      } as ILayoutComponent,
     ];
     renderForm(layoutWithNavBar);
-    expect(screen.getByRole('navigation')).toBeInTheDocument();
-    expect(screen.getByText('1. FormLayout')).toBeInTheDocument();
+    expect(screen.getByRole("navigation")).toBeInTheDocument();
+    expect(screen.getByText("1. FormLayout")).toBeInTheDocument();
+  });
 
-  })
-
-  function renderForm(layout = mockComponents, customState: PreloadedState<RootState> = {}) {
-    renderWithProviders(
-      <Form />,
-      {
-        preloadedState: {
-          ...customState,
-          formLayout: getFormLayoutStateMock({
-            layouts: {
-              FormLayout: layout,
-            }
-          }),
-        },
-      }
-    );
-  };
+  function renderForm(
+    layout = mockComponents,
+    customState: PreloadedState<RootState> = {}
+  ) {
+    renderWithProviders(<Form />, {
+      preloadedState: {
+        ...customState,
+        formLayout: getFormLayoutStateMock({
+          layouts: {
+            FormLayout: layout,
+          },
+        }),
+      },
+    });
+  }
 });
