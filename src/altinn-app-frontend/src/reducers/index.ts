@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import OptionsReducer from '../shared/resources/options/optionsReducer';
 import FormDataReducer from '../features/form/data/formDataReducer';
 import DataModelReducer from '../features/form/datamodel/datamodelSlice';
-import FormDynamicsReducer from '../features/form/dynamics/formDynamicsReducer';
+import FormDynamicsReducer from '../features/form/dynamics/formDynamicsSlice';
 import FormLayoutReducer from '../features/form/layout/formLayoutSlice';
 import FormRuleReducer from '../features/form/rules/rulesReducer';
 import ValidationReducer from '../features/form/validation/validationSlice';

@@ -24,7 +24,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import * as AttachmentDeleteActions from 'src/shared/resources/attachments/delete/deleteAttachmentActions';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import { updateValidations } from 'src/features/form/validation/validationSlice';
-import ConditionalRenderingActions from 'src/features/form/dynamics/formDynamicsActions';
+import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 
 jest.mock('altinn-shared/utils');
 
@@ -111,11 +111,8 @@ describe('updateLayoutSagas', () => {
           [select(selectFormData), selectFormData(state)],
           [select(selectAttachmentState), selectAttachmentState(state)],
           [select(selectValidations), selectValidations(state)],
-          [
-            call(ConditionalRenderingActions.checkIfConditionalRulesShouldRun),
-            null,
-          ],
         ])
+        .put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}))
         .put(
           AttachmentDeleteActions.deleteAttachment(
             attachment,

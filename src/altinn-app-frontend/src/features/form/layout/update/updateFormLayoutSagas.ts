@@ -63,7 +63,7 @@ import type {
   ILayoutGroup,
   ILayouts,
 } from '..';
-import ConditionalRenderingActions from '../../dynamics/formDynamicsActions';
+import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type { ILayoutState } from '../formLayoutSlice';
 import { FormLayoutActions } from '../formLayoutSlice';
 import type {
@@ -308,7 +308,7 @@ export function* updateRepeatingGroupsSaga({
       );
     }
 
-    yield call(ConditionalRenderingActions.checkIfConditionalRulesShouldRun);
+    yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
   } catch (error) {
     yield put(FormLayoutActions.updateRepeatingGroupsRejected({ error }));
   }

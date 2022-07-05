@@ -35,7 +35,7 @@ import {
   updateValidations,
 } from '../../validation/validationSlice';
 import FormDataActions from '../formDataActions';
-import FormDynamicsActions from '../../dynamics/formDynamicsActions';
+import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type { ISubmitDataAction } from '../formDataTypes';
 import {
   getCurrentDataTypeForApplication,
@@ -273,7 +273,7 @@ export function* saveStatelessData(state: IRuntimeState, model: any) {
   );
   const formData = convertModelToDataBinding(response?.data);
   yield sagaPut(FormDataActions.fetchFormDataFulfilled({ formData }));
-  yield call(FormDynamicsActions.checkIfConditionalRulesShouldRun);
+  yield sagaPut(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
 }
 
 function* autoSaveSaga(): SagaIterator {

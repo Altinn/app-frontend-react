@@ -17,7 +17,7 @@ import {
   getValidator,
   validateComponentFormData,
 } from '../../../../utils/validation';
-import FormDynamicActions from '../../dynamics/formDynamicsActions';
+import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import { updateComponentValidations } from '../../validation/validationSlice';
 import FormDataActions from '../formDataActions';
 import type {
@@ -51,7 +51,7 @@ function* updateFormDataSaga({
     }
 
     if (state.formDynamics.conditionalRendering) {
-      yield call(FormDynamicActions.checkIfConditionalRulesShouldRun);
+      yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
     }
 
     if (focus && focus !== '' && componentId !== focus) {

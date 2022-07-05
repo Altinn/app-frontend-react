@@ -13,7 +13,7 @@ import type { IData } from '../../../../../../shared/src';
 
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import FormDataActions from '../formDataActions';
-import FormDynamicsActions from '../../dynamics/formDynamicsActions';
+import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import { put } from '../../../../../../shared/src/utils/networking';
 import { post } from 'src/utils/networking';
 import {
@@ -164,7 +164,7 @@ describe('submitFormDataSagas', () => {
           },
         }),
       )
-      .call(FormDynamicsActions.checkIfConditionalRulesShouldRun)
+      .put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}))
       .put(FormDataActions.submitFormDataFulfilled())
       .run();
   });
@@ -238,7 +238,7 @@ describe('submitFormDataSagas', () => {
           },
         }),
       )
-      .call(FormDynamicsActions.checkIfConditionalRulesShouldRun)
+      .put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}))
       .put(FormDataActions.submitFormDataFulfilled())
       .run();
   });

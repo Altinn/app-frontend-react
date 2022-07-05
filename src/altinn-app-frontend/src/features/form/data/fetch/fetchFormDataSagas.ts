@@ -14,7 +14,7 @@ import FormDataActions from '../formDataActions';
 import type { ILayoutSets, IRuntimeState } from '../../../../types';
 import type { IApplicationMetadata } from '../../../../shared/resources/applicationMetadata';
 import FormRulesActions from '../../rules/rulesActions';
-import FormDynamicsActions from '../../dynamics/formDynamicsActions';
+import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
 import { GET_INSTANCEDATA_FULFILLED } from '../../../../shared/resources/instanceData/get/getInstanceDataActionTypes';
 import type { IProcessState } from '../../../../shared/resources/process/processReducer';
@@ -89,7 +89,7 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
     const formData = convertModelToDataBinding(fetchedData);
     yield put(FormDataActions.fetchFormDataFulfilled({ formData }));
     yield call(FormRulesActions.fetchRuleModel);
-    yield call(FormDynamicsActions.fetchFormDynamics);
+    yield put(FormDynamicsActions.fetchFormDynamics());
   } catch (error) {
     yield put(FormDataActions.fetchFormDataRejected({ error }));
     yield call(dataTaskQueueError, error);
