@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import type { IComponentProps } from '..';
+import type { Location, MapLayer } from '@altinn/altinn-design-system';
 import { Map } from '@altinn/altinn-design-system';
 
 import './MapComponent.css';
@@ -9,13 +10,11 @@ import {
   getLanguageFromKey,
   getParsedLanguageFromKey,
 } from 'altinn-shared/utils';
+import { Typography } from '@material-ui/core';
 
 export interface IMapComponentProps extends IComponentProps {
-  layers?: {
-    url: string;
-    attribution: string;
-  }[];
-  center?: [number, number];
+  layers?: MapLayer[];
+  centerLocation?: Location;
   zoom?: number;
 }
 
@@ -25,51 +24,55 @@ export function MapComponent({
   language,
   readOnly,
   layers,
-  center,
+  centerLocation,
   zoom,
 }: IMapComponentProps) {
   const location = formData.simpleBinding
     ? parseLocation(formData.simpleBinding)
     : undefined;
-  center = location ? location : center;
-  zoom = location ? 16 : zoom;
-  readOnly = readOnly ? readOnly : false;
+
   const footerText = location
-    ? getParsedLanguageFromKey(
-        'map_component.selectedLocation',
-        language,
-        location,
-      )
+    ? getParsedLanguageFromKey('map_component.selectedLocation', language, [
+        location.latitude,
+        location.longitude,
+      ])
     : getLanguageFromKey('map_component.noSelectedLocation', language);
+
+  const handleMapClicked = (location: Location) => {
+    handleDataChange(`${location.latitude},${location.longitude}`);
+  };
 
   return (
     <>
       <Map
         layers={layers}
-        center={center}
-        zoom={zoom}
-        marker={location}
+        centerLocation={location || centerLocation}
+        zoom={location ? 16 : zoom}
+        markerLocation={location}
         readOnly={readOnly}
-        footerText={footerText}
-        mapClicked={function (lat: number, lon: number) {
-          handleDataChange(`${lat},${lon}`);
-        }}
+        onClick={handleMapClicked}
       />
+      <Typography>{footerText}</Typography>
     </>
   );
 }
 
-export function parseLocation(locationString: string): [number, number] {
+export function parseLocation(locationString: string): Location {
   const latLonArray = locationString.split(',');
   if (latLonArray.length != 2) {
-    throw Error(`Invalid location string: ${locationString}`);
+    console.error(`Invalid location string: ${locationString}`);
+    return undefined;
   }
   const latString = latLonArray[0];
   const lonString = latLonArray[1];
   const lat = parseFloat(latString);
   const lon = parseFloat(lonString);
   if (isNaN(lat) || isNaN(lon)) {
-    throw Error(`Invalid location string: ${locationString}`);
+    console.error(`Invalid location string: ${locationString}`);
+    return undefined;
   }
-  return [lat, lon];
+  return {
+    latitude: lat,
+    longitude: lon,
+  } as Location;
 }

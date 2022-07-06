@@ -7,6 +7,7 @@ import {
   getParsedLanguageFromKey,
 } from 'altinn-shared/utils';
 import { useAppSelector } from 'src/common/hooks';
+import { Typography } from '@material-ui/core';
 
 export interface IMapComponentSummary {
   component: IMapComponentProps;
@@ -16,31 +17,26 @@ export interface IMapComponentSummary {
 function MapComponentSummary({ component, formData }: IMapComponentSummary) {
   const layers = component.layers;
   const location = formData ? parseLocation(formData) : undefined;
-
-  const zoom = location ? 16 : 4;
-  const marker = location ? location : undefined;
   const language = useAppSelector((state) => state.language.language);
-
-  const locationString = location
-    ? getParsedLanguageFromKey(
-        'map_component.selectedLocation',
-        language,
-        location,
-      )
+  const footerText = location
+    ? getParsedLanguageFromKey('map_component.selectedLocation', language, [
+        location.latitude,
+        location.longitude,
+      ])
     : getLanguageFromKey('map_component.noSelectedLocation', language);
 
   return (
     <>
       {location && (
         <Map
-          layers={layers}
-          center={marker}
-          zoom={zoom}
-          marker={marker}
           readOnly={true}
-          footerText={locationString}
+          layers={layers}
+          centerLocation={location}
+          zoom={16}
+          markerLocation={location}
         />
       )}
+      <Typography>{footerText}</Typography>
     </>
   );
 }
