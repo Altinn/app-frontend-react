@@ -1,5 +1,5 @@
 import type { SagaIterator } from 'redux-saga';
-import { call, takeLatest, select, put } from 'redux-saga/effects';
+import { call, select, put } from 'redux-saga/effects';
 import type { IInstance } from 'altinn-shared/types';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import { getFetchFormDynamicsUrl } from 'src/utils/appUrlHelper';
@@ -15,7 +15,7 @@ const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
 const applicationMetadataSelector = (state: IRuntimeState) =>
   state.applicationMetadata.applicationMetadata;
 
-function* fetchDynamicsSaga(): SagaIterator {
+export function* fetchDynamicsSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
     const instance: IInstance = yield select(instanceSelector);
@@ -42,8 +42,4 @@ function* fetchDynamicsSaga(): SagaIterator {
     yield put(FormDynamicsActions.fetchRejected({ error }));
     yield put(dataTaskQueueError({ error }));
   }
-}
-
-export function* watchFetchDynamics(): SagaIterator {
-  yield takeLatest(FormDynamicsActions.fetch, fetchDynamicsSaga);
 }

@@ -3,7 +3,6 @@ import { fork } from 'redux-saga/effects';
 
 import FormDataSagas from '../features/form/data/formDataSagas';
 import FormDataModelSagas from '../features/form/datamodel/datamodelSagas';
-import FormDynamicsSagas from '../features/form/dynamics/formDynamicsSagas';
 import FormLayoutSagas from '../features/form/layout/formLayoutSagas';
 import FormRulesSagas from '../features/form/rules/rulesSagas';
 import FormValidationSagas from '../features/form/validation/validationSagas';
@@ -22,10 +21,10 @@ import IsLoadingSagas from '../shared/resources/isLoading/isLoadingSagas';
 import QueueSagas from '../shared/resources/queue/queueSagas';
 import OptionSagas from '../shared/resources/options/optionsSagas';
 import { sagaMiddleware } from 'src/store';
+import { rootSagas } from 'src/features/form/dynamics/experiment';
 
 function* root(): SagaIterator {
   yield fork(FormDataSagas);
-  yield fork(FormDynamicsSagas);
   yield fork(Attachments);
   yield fork(FormLayoutSagas);
   yield fork(FormRulesSagas);
@@ -44,6 +43,10 @@ function* root(): SagaIterator {
   yield fork(IsLoadingSagas);
   yield fork(QueueSagas);
   yield fork(OptionSagas);
+
+  for (const sliceSaga of rootSagas) {
+    yield fork(sliceSaga);
+  }
 }
 
 export const initSagas = () => sagaMiddleware.run(root);
