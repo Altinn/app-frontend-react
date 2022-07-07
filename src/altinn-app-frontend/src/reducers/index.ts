@@ -5,7 +5,7 @@ import FormDataReducer from '../features/form/data/formDataReducer';
 import FormRuleReducer from '../features/form/rules/rulesReducer';
 import InstantiationReducer from '../features/instantiate/instantiation/reducer';
 import ApplicationMetadataReducer from '../shared/resources/applicationMetadata/reducer';
-import AttachmentReducer from '../shared/resources/attachments/attachmentReducer';
+import attachmentSlice from 'src/shared/resources/attachments/attachmentSlice';
 import InstanceDataReducer from '../shared/resources/instanceData/instanceDataReducers';
 import OrgsReducer from '../shared/resources/orgs/orgsReducers';
 import PartyReducer from '../shared/resources/party/partyReducers';
@@ -24,7 +24,7 @@ import applicationSettingsSlice from '../shared/resources/applicationSettings/ap
 
 const reducers = {
   applicationMetadata: ApplicationMetadataReducer,
-  attachments: AttachmentReducer,
+  [attachmentSlice.name]: attachmentSlice.reducer,
   formData: FormDataReducer,
   [formDataModelSlice.name]: formDataModelSlice.reducer,
   [formDynamicsSlice.name]: formDynamicsSlice.reducer,

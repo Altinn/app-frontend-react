@@ -5,25 +5,19 @@ import { getFileUploadComponentValidations } from '../../../../utils/formCompone
 import type { IRuntimeState } from '../../../../types';
 import { httpDelete } from '../../../../utils/networking';
 import { dataElementUrl } from '../../../../utils/appUrlHelper';
-import AttachmentDispatcher from '../attachmentActions';
-import * as AttachmentActionsTypes from '../attachmentActionTypes';
-import type * as deleteActions from './deleteAttachmentActions';
 import FormDataActions from 'src/features/form/data/formDataActions';
 import type { AxiosResponse } from 'axios';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { IDeleteAttachmentAction } from 'src/shared/resources/attachments/delete/deleteAttachmentActions';
 
 export function* watchDeleteAttachmentSaga(): SagaIterator {
-  yield takeEvery(
-    AttachmentActionsTypes.DELETE_ATTACHMENT,
-    deleteAttachmentSaga,
-  );
+  yield takeEvery(AttachmentActions.deleteAttachment, deleteAttachmentSaga);
 }
 
 export function* deleteAttachmentSaga({
-  attachment,
-  attachmentType,
-  componentId,
-  dataModelBindings,
-}: deleteActions.IDeleteAttachmentAction): SagaIterator {
+  payload: { attachment, attachmentType, componentId, dataModelBindings },
+}: PayloadAction<IDeleteAttachmentAction>): SagaIterator {
   const language = yield select((s: IRuntimeState) => s.language.language);
   const currentView: string = yield select(
     (s: IRuntimeState) => s.formLayout.uiConfig.currentView,
@@ -57,11 +51,12 @@ export function* deleteAttachmentSaga({
           }),
         );
       }
-      yield call(
-        AttachmentDispatcher.deleteAttachmentFulfilled,
-        attachment.id,
-        attachmentType,
-        componentId,
+      yield put(
+        AttachmentActions.deleteAttachmentFulfilled({
+          attachmentId: attachment.id,
+          attachmentType,
+          componentId,
+        }),
       );
     } else {
       throw new Error(
@@ -77,11 +72,12 @@ export function* deleteAttachmentSaga({
         validations,
       }),
     );
-    yield call(
-      AttachmentDispatcher.deleteAttachmentRejected,
-      attachment,
-      attachmentType,
-      componentId,
+    yield put(
+      AttachmentActions.deleteAttachmentRejected({
+        attachment,
+        attachmentType,
+        componentId,
+      }),
     );
     console.error(err);
   }

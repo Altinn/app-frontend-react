@@ -7,6 +7,7 @@ import {
   startInitialDataTaskQueue,
   startInitialDataTaskQueueFulfilled,
 } from '../queueSlice';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 
 export function* startInitialDataTaskQueueSaga(): SagaIterator {
   yield put(FormDataActions.fetchFormDataInitial());
@@ -14,6 +15,7 @@ export function* startInitialDataTaskQueueSaga(): SagaIterator {
   yield put(FormLayoutActions.fetchLayoutSets());
   yield put(FormLayoutActions.fetchLayout());
   yield put(FormLayoutActions.fetchLayoutSettings());
+  yield put(AttachmentActions.mapAttachments());
   yield put(startInitialDataTaskQueueFulfilled());
 }
 

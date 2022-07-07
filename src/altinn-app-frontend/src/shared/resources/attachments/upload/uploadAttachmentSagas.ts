@@ -8,20 +8,22 @@ import { getFileUploadComponentValidations } from '../../../../utils/formCompone
 import type { IRuntimeState } from '../../../../types';
 import { post } from '../../../../utils/networking';
 import { fileUploadUrl } from '../../../../utils/appUrlHelper';
-import AttachmentDispatcher from '../attachmentActions';
-import * as AttachmentActionsTypes from '../attachmentActionTypes';
-import type * as uploadActions from './uploadAttachmentActions';
 import FormDataActions from 'src/features/form/data/formDataActions';
 import type { ILanguage } from 'altinn-shared/types';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { IUploadAttachmentAction } from 'src/shared/resources/attachments/upload/uploadAttachmentActions';
 
 export function* uploadAttachmentSaga({
-  file,
-  attachmentType,
-  tmpAttachmentId,
-  componentId,
-  dataModelBindings,
-  index,
-}: uploadActions.IUploadAttachmentAction): SagaIterator {
+  payload: {
+    file,
+    attachmentType,
+    tmpAttachmentId,
+    componentId,
+    dataModelBindings,
+    index,
+  },
+}: PayloadAction<IUploadAttachmentAction>): SagaIterator {
   const currentView: string = yield select(
     (s: IRuntimeState) => s.formLayout.uiConfig.currentView,
   );
@@ -72,12 +74,13 @@ export function* uploadAttachmentSaga({
         deleting: false,
         updating: false,
       };
-      yield call(
-        AttachmentDispatcher.uploadAttachmentFulfilled,
-        attachment,
-        attachmentType,
-        tmpAttachmentId,
-        componentId,
+      yield put(
+        AttachmentActions.uploadAttachmentFulfilled({
+          attachment,
+          attachmentType,
+          tmpAttachmentId,
+          componentId,
+        }),
       );
 
       if (
@@ -103,11 +106,12 @@ export function* uploadAttachmentSaga({
           validations,
         }),
       );
-      yield call(
-        AttachmentDispatcher.uploadAttachmentRejected,
-        tmpAttachmentId,
-        attachmentType,
-        componentId,
+      yield put(
+        AttachmentActions.uploadAttachmentRejected({
+          componentId,
+          attachmentId: tmpAttachmentId,
+          attachmentType,
+        }),
       );
     }
   } catch (err) {
@@ -119,18 +123,16 @@ export function* uploadAttachmentSaga({
         validations,
       }),
     );
-    yield call(
-      AttachmentDispatcher.uploadAttachmentRejected,
-      tmpAttachmentId,
-      attachmentType,
-      componentId,
+    yield put(
+      AttachmentActions.uploadAttachmentRejected({
+        componentId,
+        attachmentType,
+        attachmentId: tmpAttachmentId,
+      }),
     );
   }
 }
 
 export function* watchUploadAttachmentSaga(): SagaIterator {
-  yield takeEvery(
-    AttachmentActionsTypes.UPLOAD_ATTACHMENT,
-    uploadAttachmentSaga,
-  );
+  yield takeEvery(AttachmentActions.uploadAttachment, uploadAttachmentSaga);
 }

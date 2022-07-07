@@ -5,7 +5,7 @@ import { FormLayoutActions } from '../../../../features/form/layout/formLayoutSl
 import { FETCH_RULE_MODEL_FULFILLED } from '../../../../features/form/rules/rulesActionTypes';
 import { finishDataTaskIsLoading } from '../isLoadingSlice';
 import { startInitialDataTaskQueue } from '../../queue/queueSlice';
-import AttachmentActions from 'src/shared/resources/attachments/attachmentActions';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 
 export function* watcherFinishDataTaskIsloadingSaga(): SagaIterator {

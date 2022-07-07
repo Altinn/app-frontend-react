@@ -1,5 +1,5 @@
 import { expectSaga, testSaga } from 'redux-saga-test-plan';
-import { actionChannel, call, select } from 'redux-saga/effects';
+import { actionChannel, call, select, take } from 'redux-saga/effects';
 
 import FormDataActions from 'src/features/form/data/formDataActions';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
@@ -21,10 +21,10 @@ import { FormLayoutActions } from '../formLayoutSlice';
 import type { IRuntimeState, IDataModelBindings } from 'src/types';
 import type { IUpdateRepeatingGroups } from 'src/features/form/layout/formLayoutTypes';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import * as AttachmentDeleteActions from 'src/shared/resources/attachments/delete/deleteAttachmentActions';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import { updateValidations } from 'src/features/form/validation/validationSlice';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 
 jest.mock('altinn-shared/utils');
 
@@ -111,22 +111,23 @@ describe('updateLayoutSagas', () => {
           [select(selectFormData), selectFormData(state)],
           [select(selectAttachmentState), selectAttachmentState(state)],
           [select(selectValidations), selectValidations(state)],
+          [
+            take(AttachmentActions.deleteAttachmentFulfilled),
+            AttachmentActions.deleteAttachmentFulfilled({
+              componentId: 'uploader-0',
+              attachmentType: 'uploader',
+              attachmentId: 'abc123',
+            }),
+          ],
         ])
         .put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}))
         .put(
-          AttachmentDeleteActions.deleteAttachment(
+          AttachmentActions.deleteAttachment({
             attachment,
-            'uploader',
-            'uploader-0',
-            {},
-          ),
-        )
-        .dispatch(
-          AttachmentDeleteActions.deleteAttachmentFulfilled(
-            attachment.id,
-            'uploader',
-            'uploader-0',
-          ),
+            attachmentType: 'uploader',
+            componentId: 'uploader-0',
+            dataModelBindings: {},
+          }),
         )
         .put(updateValidations({ validations: {} }))
         .put(

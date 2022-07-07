@@ -1,11 +1,10 @@
 import type { SagaIterator } from 'redux-saga';
-import { call, select, take, all, takeLatest } from 'redux-saga/effects';
+import { call, put, select, take, all, takeLatest } from 'redux-saga/effects';
 import type { IData, IInstance } from 'altinn-shared/types';
 import type { IAttachments } from '..';
 import type { IRuntimeState } from 'src/types';
 import { mapAttachmentListToAttachments } from 'src/utils/attachment';
-import AttachmentDispatcher from '../attachmentActions';
-import * as AttachmentActionsTypes from '../attachmentActionTypes';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import type { IApplicationMetadata } from '../../applicationMetadata';
 import { getCurrentTaskData } from 'src/utils/appMetadata';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
@@ -24,8 +23,7 @@ export function* watchMapAttachmentsSaga(): SagaIterator {
     take(FETCH_APPLICATION_METADATA_FULFILLED),
   ]);
   yield call(mapAttachments);
-
-  yield takeLatest(AttachmentActionsTypes.MAP_ATTACHMENTS, mapAttachments);
+  yield takeLatest(AttachmentActions.mapAttachments, mapAttachments);
 }
 
 export const SelectInstanceData = (state: IRuntimeState): IData[] =>
@@ -57,8 +55,12 @@ export function* mapAttachments(): SagaIterator {
       layouts,
     );
 
-    yield call(AttachmentDispatcher.mapAttachmentsFulfilled, mappedAttachments);
-  } catch (err) {
-    yield call(AttachmentDispatcher.mapAttachmentsRejected, err);
+    yield put(
+      AttachmentActions.mapAttachmentsFulfilled({
+        attachments: mappedAttachments,
+      }),
+    );
+  } catch (error) {
+    yield put(AttachmentActions.mapAttachmentsRejected({ error }));
   }
 }

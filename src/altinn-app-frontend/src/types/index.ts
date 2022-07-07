@@ -10,7 +10,7 @@ import type { ILayoutState } from '../features/form/layout/formLayoutSlice';
 import type { IValidationState } from '../features/form/validation/validationSlice';
 import type { IInstantiationState } from '../features/instantiate/instantiation/reducer';
 import type { IApplicationMetadataState } from '../shared/resources/applicationMetadata/reducer';
-import type { IAttachmentState } from '../shared/resources/attachments/attachmentReducer';
+import type { IAttachmentState } from '../shared/resources/attachments';
 import type { IInstanceDataState } from '../shared/resources/instanceData/instanceDataReducers';
 import type { ILanguageState } from '../shared/resources/language/languageSlice';
 import type { IOrgsState } from '../shared/resources/orgs/orgsReducers';

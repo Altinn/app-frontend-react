@@ -56,7 +56,6 @@ import {
 import { getLayoutsetForDataElement } from 'src/utils/layout';
 import { startInitialDataTaskQueueFulfilled } from 'src/shared/resources/queue/queueSlice';
 import { updateValidations } from 'src/features/form/validation/validationSlice';
-import type { IAttachmentState } from 'src/shared/resources/attachments/attachmentReducer';
 import type {
   ILayoutComponent,
   ILayoutEntry,
@@ -87,14 +86,9 @@ import type {
   IDeleteAttachmentActionFulfilled,
   IDeleteAttachmentActionRejected,
 } from 'src/shared/resources/attachments/delete/deleteAttachmentActions';
-import { deleteAttachment } from 'src/shared/resources/attachments/delete/deleteAttachmentActions';
-import {
-  DELETE_ATTACHMENT_FULFILLED,
-  DELETE_ATTACHMENT_REJECTED,
-  MAP_ATTACHMENTS_FULFILLED,
-} from 'src/shared/resources/attachments/attachmentActionTypes';
-import AttachmentActions from 'src/shared/resources/attachments/attachmentActions';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { shiftAttachmentRowInRepeatingGroup } from 'src/utils/attachment';
+import type { IAttachmentState } from 'src/shared/resources/attachments';
 
 export const selectFormLayoutState = (state: IRuntimeState): ILayoutState =>
   state.formLayout;
@@ -210,22 +204,30 @@ export function* updateRepeatingGroupsSaga({
 
       let attachmentRemovalSuccessful = true;
       for (const { attachment, component, componentId } of childAttachments) {
-        // Deleting attachment, but deliberately avoiding passing the dataModelBindings to avoid removing the formData
-        // references. We're doing that ourselves here later, and having other sagas compete for it will cause race
-        // conditions and lots of useless requests.
-        yield put(deleteAttachment(attachment, component.id, componentId, {}));
+        yield put(
+          AttachmentActions.deleteAttachment({
+            attachment,
+            attachmentType: component.id,
+            componentId,
+
+            // Deleting attachment, but deliberately avoiding passing the dataModelBindings to avoid removing the formData
+            // references. We're doing that ourselves here later, and having other sagas compete for it will cause race
+            // conditions and lots of useless requests.
+            dataModelBindings: {},
+          }),
+        );
 
         while (true) {
           const completion: {
-            fulfilled?: IDeleteAttachmentActionFulfilled;
-            rejected?: IDeleteAttachmentActionRejected;
+            fulfilled?: PayloadAction<IDeleteAttachmentActionFulfilled>;
+            rejected?: PayloadAction<IDeleteAttachmentActionRejected>;
           } = yield race({
-            fulfilled: take(DELETE_ATTACHMENT_FULFILLED),
-            rejected: take(DELETE_ATTACHMENT_REJECTED),
+            fulfilled: take(AttachmentActions.deleteAttachmentFulfilled),
+            rejected: take(AttachmentActions.deleteAttachmentRejected),
           });
           const attachmentId =
-            completion.fulfilled?.attachmentId ||
-            completion.rejected.attachment.id;
+            completion.fulfilled?.payload.attachmentId ||
+            completion.rejected.payload.attachment.id;
           if (attachmentId !== attachment.id) {
             // Some other attachment elsewhere had its event complete, we'll ignore it
             continue;
@@ -288,7 +290,9 @@ export function* updateRepeatingGroupsSaga({
           FormDataActions.setFormDataFulfilled({ formData: updatedFormData }),
         );
         yield put(
-          AttachmentActions.mapAttachmentsFulfilled(updatedAttachments),
+          AttachmentActions.mapAttachmentsFulfilled({
+            attachments: updatedAttachments,
+          }),
         );
         yield put(FormDataActions.saveFormData());
       } else {
@@ -841,12 +845,15 @@ export function* mapFileUploaderWithTagSaga(): SagaIterator {
 export function* watchMapFileUploaderWithTagSaga(): SagaIterator {
   yield all([
     take(FormLayoutActions.fetchLayoutFulfilled),
-    take(MAP_ATTACHMENTS_FULFILLED),
+    take(AttachmentActions.mapAttachmentsFulfilled),
   ]);
   yield call(mapFileUploaderWithTagSaga);
 
   yield takeLatest(
-    [MAP_ATTACHMENTS_FULFILLED, FormLayoutActions.fetchLayoutFulfilled],
+    [
+      AttachmentActions.mapAttachmentsFulfilled,
+      FormLayoutActions.fetchLayoutFulfilled,
+    ],
     mapFileUploaderWithTagSaga,
   );
 }

@@ -6,17 +6,14 @@ import type { AxiosRequestConfig } from 'axios';
 import type { IAttachment } from '..';
 import { getFileUploadComponentValidations } from '../../../../utils/formComponentUtils';
 import type { IRuntimeState } from '../../../../types';
-import AttachmentDispatcher from '../attachmentActions';
-import * as AttachmentActionsTypes from '../attachmentActionTypes';
-import type * as updateActions from './updateAttachmentActions';
 import { fileTagUrl } from 'src/utils/appUrlHelper';
+import type { IUpdateAttachmentAction } from './updateAttachmentActions';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 export function* updateAttachmentSaga({
-  attachment,
-  componentId,
-  baseComponentId,
-  tag,
-}: updateActions.IUpdateAttachmentAction): SagaIterator {
+  payload: { attachment, componentId, baseComponentId, tag },
+}: PayloadAction<IUpdateAttachmentAction>): SagaIterator {
   const state: IRuntimeState = yield select();
   const currentView = state.formLayout.uiConfig.currentView;
   const language = state.language.language;
@@ -56,12 +53,13 @@ export function* updateAttachmentSaga({
             validations,
           }),
         );
-        yield call(
-          AttachmentDispatcher.updateAttachmentRejected,
-          attachment,
-          componentId,
-          baseComponentId,
-          attachment.tags[0],
+        yield put(
+          AttachmentActions.updateAttachmentRejected({
+            attachment,
+            componentId,
+            baseComponentId,
+            tag: attachment.tags[0],
+          }),
         );
         return;
       }
@@ -80,11 +78,12 @@ export function* updateAttachmentSaga({
         ...attachment,
         tags: response.data.tags,
       };
-      yield call(
-        AttachmentDispatcher.updateAttachmentFulfilled,
-        newAttachment,
-        componentId,
-        baseComponentId,
+      yield put(
+        AttachmentActions.updateAttachmentFulfilled({
+          attachment: newAttachment,
+          componentId: componentId,
+          baseComponentId,
+        }),
       );
     } else {
       const validations = getFileUploadComponentValidations(
@@ -99,12 +98,13 @@ export function* updateAttachmentSaga({
           validations,
         }),
       );
-      yield call(
-        AttachmentDispatcher.updateAttachmentRejected,
-        attachment,
-        componentId,
-        baseComponentId,
-        undefined,
+      yield put(
+        AttachmentActions.updateAttachmentRejected({
+          attachment,
+          componentId,
+          baseComponentId,
+          tag: undefined,
+        }),
       );
     }
   } catch (err) {
@@ -120,19 +120,17 @@ export function* updateAttachmentSaga({
         validations,
       }),
     );
-    yield call(
-      AttachmentDispatcher.updateAttachmentRejected,
-      attachment,
-      componentId,
-      baseComponentId,
-      undefined,
+    yield put(
+      AttachmentActions.updateAttachmentRejected({
+        attachment,
+        componentId,
+        baseComponentId,
+        tag: undefined,
+      }),
     );
   }
 }
 
 export function* watchUpdateAttachmentSaga(): SagaIterator {
-  yield takeEvery(
-    AttachmentActionsTypes.UPDATE_ATTACHMENT,
-    updateAttachmentSaga,
-  );
+  yield takeEvery(AttachmentActions.updateAttachment, updateAttachmentSaga);
 }
