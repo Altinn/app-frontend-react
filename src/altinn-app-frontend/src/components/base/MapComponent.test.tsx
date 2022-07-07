@@ -69,8 +69,8 @@ function getLink(name: string) {
   return screen.queryByRole('link', { name: name });
 }
 
-describe('components > advanced > MapComponent', () => {
-  it('should display link in layer attribution', () => {
+describe('components > base > MapComponent', () => {
+  it('should display attribution link', () => {
     render({
       layers: [
         {
