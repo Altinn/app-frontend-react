@@ -8,6 +8,8 @@ const appFrontend = new AppFrontend();
 
 describe('Message', () => {
   let instanceMetadata, instanceId;
+  const instanceIdExpr = /[0-9]+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}/i;
+
   before(() => {
     cy.intercept('POST', `**/instances?instanceOwnerPartyId*`).as('createdInstance');
     cy.intercept('**/active', []).as('noActiveInstances');
@@ -26,7 +28,7 @@ describe('Message', () => {
       });
       cy.intercept(
         'GET',
-        /[0-9]+\/*[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+        /[0-9]+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}$/i,
         instanceMetadata,
       );
     });
@@ -40,11 +42,11 @@ describe('Message', () => {
         cy.get(appFrontend.attachmentIcon).should('be.visible');
       });
     cy.url().then((url) => {
-      var instantiateUrl =
-        Cypress.env('environment') != 'local'
-          ? 'https://ttd.apps.tt02.altinn.no/ttd/frontend-test/'
-          : 'http://altinn3local.no/ttd/frontend-test';
-      var instanceId = url.split('/').slice(-2).join('/');
+      const instantiateUrl =
+        Cypress.env('environment') === 'local'
+          ? 'http://altinn3local.no/ttd/frontend-test'
+          : 'https://ttd.apps.tt02.altinn.no/ttd/frontend-test/';
+      const instanceId = instanceIdExpr.exec(url)[0];
       cy.get(appFrontend.startAgain).contains(instanceId).and('contain.text', Cypress.env('multiData2Stage'));
       cy.get(appFrontend.startAgain).find('a').should('have.attr', 'href', instantiateUrl);
     });

@@ -102,17 +102,18 @@ Cypress.Commands.add('completeTask3Form', () => {
   cy.get(appFrontend.group.summaryText).should('be.visible');
 });
 
+Cypress.Commands.add('sendAndWaitForConfirmation', ()=> {
+  cy.intercept('GET', /instances\/[0-9]+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}$/i).as('getInstance');
+  cy.intercept('GET', /instances\/[0-9]+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}\/data/i).as('getInstanceData');
+  cy.get(appFrontend.sendinButton).should('be.visible').click();
+  cy.wait('@getInstance');
+  cy.wait('@getInstanceData');
+  cy.get(appFrontend.confirm.container).should('be.visible');
+});
+
 Cypress.Commands.add('navigateToTask4', () => {
   cy.completeTask3Form();
-  cy.url().then((url) => {
-    var instanceId = url.split('/').slice(-2).join('/');
-    cy.intercept('GET', `**/instances/${instanceId}`).as('getInstance');
-    cy.intercept('GET', `**/instances/${instanceId}/data/**`).as('getInstanceData');
-    cy.get(appFrontend.sendinButton).should('be.visible').click();
-    cy.wait('@getInstance');
-    cy.wait('@getInstanceData');
-    cy.get(appFrontend.confirm.container).should('be.visible');
-  });
+  cy.sendAndWaitForConfirmation();
 });
 
 Cypress.Commands.add('addItemToGroup', (oldValue, newValue, comment) => {
