@@ -1,5 +1,5 @@
 import type { ILayoutState } from './formLayoutSlice';
-import reducer, { initialState, FormLayoutActions } from './formLayoutSlice';
+import slice, { initialState, FormLayoutActions } from './formLayoutSlice';
 
 describe('features > form > layout > layoutSlice.ts', () => {
   describe('fetchLayoutFulfilled', () => {
@@ -7,7 +7,7 @@ describe('features > form > layout > layoutSlice.ts', () => {
     const navigationConfig = {};
 
     it('should set layout state accordingly', () => {
-      const nextState = reducer(
+      const nextState = slice.reducer(
         initialState,
         FormLayoutActions.fetchLayoutFulfilled({
           layouts,
@@ -32,7 +32,7 @@ describe('features > form > layout > layoutSlice.ts', () => {
           },
         },
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         stateWithRepGroups,
         FormLayoutActions.fetchLayoutFulfilled({
           layouts,
@@ -48,7 +48,7 @@ describe('features > form > layout > layoutSlice.ts', () => {
         ...initialState,
         error: new Error('mock'),
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         stateWithError,
         FormLayoutActions.fetchLayoutFulfilled({
           layouts,
@@ -67,7 +67,7 @@ describe('features > form > layout > layoutSlice.ts', () => {
           order: ['page1', 'page2'],
         },
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         initialState,
         FormLayoutActions.fetchLayoutSettingsFulfilled({
           settings,
@@ -88,7 +88,7 @@ describe('features > form > layout > layoutSlice.ts', () => {
           order: ['page1', 'page2'],
         },
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         {
           ...initialState,
           uiConfig: {
@@ -115,7 +115,7 @@ describe('features > form > layout > layoutSlice.ts', () => {
           order: ['page1', 'page2'],
         },
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         {
           ...initialState,
           uiConfig: {

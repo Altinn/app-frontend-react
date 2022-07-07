@@ -50,4 +50,4 @@ export const FormDynamicsActions = {
   ...actions,
   ...formDynamicsSlice.actions,
 };
-export default formDynamicsSlice.reducer;
+export default formDynamicsSlice;

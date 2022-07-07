@@ -41,7 +41,7 @@ export const initialState: IValidationState = {
   currentSingleFieldValidation: {},
 };
 
-const moduleName = 'validation';
+const moduleName = 'formValidations';
 
 const validationSlice = createSlice({
   name: moduleName,
@@ -108,4 +108,4 @@ export const {
   updateValidations,
 } = validationSlice.actions;
 
-export default validationSlice.reducer;
+export default validationSlice;

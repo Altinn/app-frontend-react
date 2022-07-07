@@ -2,47 +2,47 @@
 import { combineReducers } from 'redux';
 import OptionsReducer from '../shared/resources/options/optionsReducer';
 import FormDataReducer from '../features/form/data/formDataReducer';
-import DataModelReducer from '../features/form/datamodel/datamodelSlice';
-import FormDynamicsReducer from '../features/form/dynamics/formDynamicsSlice';
-import FormLayoutReducer from '../features/form/layout/formLayoutSlice';
 import FormRuleReducer from '../features/form/rules/rulesReducer';
-import ValidationReducer from '../features/form/validation/validationSlice';
 import InstantiationReducer from '../features/instantiate/instantiation/reducer';
 import ApplicationMetadataReducer from '../shared/resources/applicationMetadata/reducer';
-import ApplicationSettingsReducer from '../shared/resources/applicationSettings/applicationSettingsSlice';
 import AttachmentReducer from '../shared/resources/attachments/attachmentReducer';
 import InstanceDataReducer from '../shared/resources/instanceData/instanceDataReducers';
-import LanguageReducer from '../shared/resources/language/languageSlice';
 import OrgsReducer from '../shared/resources/orgs/orgsReducers';
 import PartyReducer from '../shared/resources/party/partyReducers';
 import processReducer from '../shared/resources/process/processReducer';
 import ProfileReducer from '../shared/resources/profile/profileReducers';
 import TextResourcesReducer from '../shared/resources/textResources/textResourcesReducer';
-import IsLoadingReducer from '../shared/resources/isLoading/isLoadingSlice';
-import QueueReducer from '../shared/resources/queue/queueSlice';
 import { appApi } from 'src/services/AppApi';
+import formDynamicsSlice from '../features/form/dynamics/formDynamicsSlice';
+import formLayoutSlice from '../features/form/layout/formLayoutSlice';
+import formDataModelSlice from '../features/form/datamodel/datamodelSlice';
+import validationSlice from '../features/form/validation/validationSlice';
+import isLoadingSlice from '../shared/resources/isLoading/isLoadingSlice';
+import languageSlice from '../shared/resources/language/languageSlice';
+import queueSlice from '../shared/resources/queue/queueSlice';
+import applicationSettingsSlice from '../shared/resources/applicationSettings/applicationSettingsSlice';
 
 const reducers = {
   applicationMetadata: ApplicationMetadataReducer,
   attachments: AttachmentReducer,
   formData: FormDataReducer,
-  formDataModel: DataModelReducer,
-  formDynamics: FormDynamicsReducer,
-  formLayout: FormLayoutReducer,
+  [formDataModelSlice.name]: formDataModelSlice.reducer,
+  [formDynamicsSlice.name]: formDynamicsSlice.reducer,
+  [formLayoutSlice.name]: formLayoutSlice.reducer,
   formRules: FormRuleReducer,
-  formValidations: ValidationReducer,
+  [validationSlice.name]: validationSlice.reducer,
   instanceData: InstanceDataReducer,
   instantiation: InstantiationReducer,
-  isLoading: IsLoadingReducer,
-  language: LanguageReducer,
+  [isLoadingSlice.name]: isLoadingSlice.reducer,
+  [languageSlice.name]: languageSlice.reducer,
   organisationMetaData: OrgsReducer,
   party: PartyReducer,
   process: processReducer,
   profile: ProfileReducer,
-  queue: QueueReducer,
+  [queueSlice.name]: queueSlice.reducer,
   textResources: TextResourcesReducer,
   optionState: OptionsReducer,
-  applicationSettings: ApplicationSettingsReducer,
+  [applicationSettingsSlice.name]: applicationSettingsSlice.reducer,
   [appApi.reducerPath]: appApi.reducer,
 };
 

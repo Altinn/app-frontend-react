@@ -5,7 +5,7 @@ import type {
 } from '../../../types';
 
 import type { IValidationState } from './validationSlice';
-import reducer, {
+import slice, {
   initialState,
   runSingleFieldValidationFulfilled,
   runSingleFieldValidationRejected,
@@ -41,7 +41,7 @@ describe('validationSlice', () => {
   });
 
   it('handles runSingleFieldValidationFulfilled action', () => {
-    const nextState = reducer(
+    const nextState = slice.reducer(
       state,
       runSingleFieldValidationFulfilled({
         validations: mockValidations,
@@ -51,7 +51,7 @@ describe('validationSlice', () => {
   });
 
   it('handles runSingleFieldValidationRejected action', () => {
-    const nextState = reducer(
+    const nextState = slice.reducer(
       state,
       runSingleFieldValidationRejected({ error: mockError }),
     );
@@ -59,7 +59,7 @@ describe('validationSlice', () => {
   });
 
   it('handles setCurrentSingleFieldValidation action', () => {
-    const nextState = reducer(
+    const nextState = slice.reducer(
       state,
       setCurrentSingleFieldValidation({
         ...mockSingleFieldValidationField,
@@ -79,7 +79,7 @@ describe('validationSlice', () => {
     };
     const componentId = 'testComponent';
     const invalidDataTypes: string[] = [componentId];
-    const nextState = reducer(
+    const nextState = slice.reducer(
       {
         ...initialState,
         validations: mockValidations,
@@ -103,7 +103,7 @@ describe('validationSlice', () => {
   });
 
   it('handles updateValidations action', () => {
-    const nextState = reducer(
+    const nextState = slice.reducer(
       state,
       updateValidations({
         validations: mockValidations,

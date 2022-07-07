@@ -24,8 +24,8 @@ const initialState: IDataModelState = {
   error: null,
 };
 
-const moduleName = 'datamodel';
-const datamodelSlice = createSlice({
+const moduleName = 'formDataModel';
+const formDataModelSlice = createSlice({
   name: moduleName,
   initialState,
   reducers: {
@@ -49,6 +49,6 @@ const datamodelSlice = createSlice({
 export const fetchJsonSchema = createAction(`${moduleName}/fetchJsonSchema`);
 
 export const { fetchJsonSchemaFulfilled, fetchJsonSchemaRejected } =
-  datamodelSlice.actions;
+  formDataModelSlice.actions;
 
-export default datamodelSlice.reducer;
+export default formDataModelSlice;

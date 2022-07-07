@@ -307,4 +307,4 @@ export const FormLayoutActions = {
   ...formLayoutSlice.actions,
 };
 
-export default formLayoutSlice.reducer;
+export default formLayoutSlice;
