@@ -47,14 +47,7 @@ module.exports = {
       },
       {
         test: /\.png$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name:'assets/[name].[ext]'
-            },
-          },
-        ],
+        type: 'asset/resource'
       }
     ],
   },

@@ -4,7 +4,6 @@ import type { IComponentProps } from '..';
 import type { Location, MapLayer } from '@altinn/altinn-design-system';
 import { Map } from '@altinn/altinn-design-system';
 
-import '../../styles/shared.css';
 import {
   getLanguageFromKey,
   getParsedLanguageFromKey,
@@ -45,8 +44,8 @@ export function MapComponent({
       ])
     : getLanguageFromKey('map_component.noSelectedLocation', language);
 
-  const handleMapClicked = (location: Location) => {
-    handleDataChange(`${location.latitude},${location.longitude}`);
+  const handleMapClicked = ({ latitude, longitude }: Location) => {
+    handleDataChange(`${latitude},${longitude}`);
   };
 
   return (

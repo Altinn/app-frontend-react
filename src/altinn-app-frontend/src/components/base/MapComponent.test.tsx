@@ -1,36 +1,15 @@
 import * as React from 'react';
 import { render as rtlRender, screen } from '@testing-library/react';
-import configureStore from 'redux-mock-store';
-import { Provider } from 'react-redux';
 
 import type { IComponentProps } from 'src/components';
 import { MapComponent } from './MapComponent';
 import type { IMapComponentProps } from './MapComponent';
 
-import { setupServer, handlers } from '../../../testUtils';
-
-const server = setupServer(...handlers);
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
 const render = (props: Partial<IMapComponentProps> = {}) => {
-  const createStore = configureStore();
   const mockLanguage = {
-    ux_editor: {
-      modal_configure_address_component_address: 'Adresse',
-      modal_configure_address_component_title_text_binding:
-        'Søk etter ledetekst for Adresse-komponenten',
-      modal_configure_address_component_care_of:
-        'C/O eller annen tilleggsadresse',
-      modal_configure_address_component_house_number: 'Bolignummer',
-      modal_configure_address_component_house_number_helper:
-        'Om addressen er felles for flere boenhenter må du oppgi' +
-        ' bolignummer. Den består av en bokstav og fire tall og skal være ført opp ved/på inngangsdøren din.',
-      modal_configure_address_component_post_place: 'Poststed',
-      modal_configure_address_component_simplified: 'Enkel',
-      modal_configure_address_component_zip_code: 'Postnr',
+    map_component: {
+      selectedLocation: 'Selected location: {0},{1}',
+      noSelectedLocation: 'No selected location',
     },
   };
 
@@ -52,13 +31,7 @@ const render = (props: Partial<IMapComponentProps> = {}) => {
     ...props,
   };
 
-  const mockStore = createStore({ language: { language: mockLanguage } });
-
-  rtlRender(
-    <Provider store={mockStore}>
-      <MapComponent {...allProps} />
-    </Provider>,
-  );
+  rtlRender(<MapComponent {...allProps} />);
 };
 
 function getButton(name: string) {
@@ -69,7 +42,12 @@ function getLink(name: string) {
   return screen.queryByRole('link', { name: name });
 }
 
-describe('components > base > MapComponent', () => {
+function getFooterText() {
+  screen.getAllByRole('hepp');
+  return screen.queryByRole('link');
+}
+
+describe('MapComponent', () => {
   it('should display attribution link', () => {
     render({
       layers: [
@@ -100,5 +78,18 @@ describe('components > base > MapComponent', () => {
 
     expect(getButton('Zoom in')).not.toBeInTheDocument();
     expect(getButton('Zoom out')).not.toBeInTheDocument();
+  });
+
+  it('should show correct footer text when no location is selected', () => {
+    render();
+
+    expect(getFooterText()).toBe('No selected location');
+  });
+
+  // TODO: Fix this test when problems with jest and react-leaflet are solved
+  xit('should show correct footer text when location is selected', () => {
+    render();
+
+    expect(getFooterText()).toBe('Selected location x y');
   });
 });
