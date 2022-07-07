@@ -4,19 +4,25 @@ import type { IComponentProps } from '..';
 import type { Location, MapLayer } from '@altinn/altinn-design-system';
 import { Map } from '@altinn/altinn-design-system';
 
-import './MapComponent.css';
 import '../../styles/shared.css';
 import {
   getLanguageFromKey,
   getParsedLanguageFromKey,
 } from 'altinn-shared/utils';
-import { Typography } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 
 export interface IMapComponentProps extends IComponentProps {
   layers?: MapLayer[];
   centerLocation?: Location;
   zoom?: number;
 }
+
+export const useStyles = makeStyles((theme) => ({
+  footer: {
+    paddingTop: '12px',
+    color: theme.altinnPalette.primary.blueDark,
+  },
+}));
 
 export function MapComponent({
   formData,
@@ -27,6 +33,7 @@ export function MapComponent({
   centerLocation,
   zoom,
 }: IMapComponentProps) {
+  const classes = useStyles();
   const location = formData.simpleBinding
     ? parseLocation(formData.simpleBinding)
     : undefined;
@@ -52,7 +59,7 @@ export function MapComponent({
         readOnly={readOnly}
         onClick={handleMapClicked}
       />
-      <Typography>{footerText}</Typography>
+      <Typography className={classes.footer}>{footerText}</Typography>
     </>
   );
 }

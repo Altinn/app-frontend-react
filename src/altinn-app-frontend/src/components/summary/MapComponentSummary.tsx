@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Map } from '@altinn/altinn-design-system';
 import type { IMapComponentProps } from 'src/components/base/MapComponent';
-import { parseLocation } from 'src/components/base/MapComponent';
+import { parseLocation, useStyles } from 'src/components/base/MapComponent';
 import {
   getLanguageFromKey,
   getParsedLanguageFromKey,
@@ -15,6 +15,7 @@ export interface IMapComponentSummary {
 }
 
 function MapComponentSummary({ component, formData }: IMapComponentSummary) {
+  const classes = useStyles();
   const layers = component.layers;
   const location = formData ? parseLocation(formData) : undefined;
   const language = useAppSelector((state) => state.language.language);
@@ -36,7 +37,7 @@ function MapComponentSummary({ component, formData }: IMapComponentSummary) {
           markerLocation={location}
         />
       )}
-      <Typography>{footerText}</Typography>
+      <Typography className={classes.footer}>{footerText}</Typography>
     </>
   );
 }
