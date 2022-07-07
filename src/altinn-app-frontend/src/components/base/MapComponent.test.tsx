@@ -19,7 +19,7 @@ const render = (props: Partial<IMapComponentProps> = {}) => {
       simpleBinding: undefined,
     },
     handleDataChange: () => '',
-    getTextResource: () => 'test',
+    getTextResource: (key: string) => key,
     isValid: true,
     dataModelBindings: {},
     componentValidations: {},
@@ -40,11 +40,6 @@ function getButton(name: string) {
 
 function getLink(name: string) {
   return screen.queryByRole('link', { name: name });
-}
-
-function getFooterText() {
-  screen.getAllByRole('hepp');
-  return screen.queryByRole('link');
 }
 
 describe('MapComponent', () => {
@@ -83,13 +78,20 @@ describe('MapComponent', () => {
   it('should show correct footer text when no location is selected', () => {
     render();
 
-    expect(getFooterText()).toBe('No selected location');
+    expect(screen.queryByText('No selected location')).toBeInTheDocument();
+    expect(screen.queryByText('Selected location')).not.toBeInTheDocument();
   });
 
-  // TODO: Fix this test when problems with jest and react-leaflet are solved
-  xit('should show correct footer text when location is selected', () => {
-    render();
+  it('should show correct footer text when location is set', () => {
+    render({
+      formData: {
+        simpleBinding: '59.2641592,10.4036248',
+      },
+    });
 
-    expect(getFooterText()).toBe('Selected location x y');
+    expect(screen.queryByText('No selected location')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Selected location: 59.2641592,10.4036248'),
+    ).toBeInTheDocument();
   });
 });

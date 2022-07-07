@@ -99,7 +99,8 @@
   },
   "jest": {
     "transform": {
-      ".(ts|tsx)": "ts-jest"
+      ".(ts|tsx)": "ts-jest",
+      "\\.js$": "ts-jest"
     },
     "reporters": [
       "default",
@@ -134,6 +135,9 @@
     "testEnvironmentOptions": {
       "url": "https://altinn3local.no/ttd/test"
     },
-    "testEnvironment": "jsdom"
+    "testEnvironment": "jsdom",
+    "transformIgnorePatterns": [
+      "node_modules/(?!react-leaflet)/"
+    ]
   }
 }
