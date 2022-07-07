@@ -24,7 +24,7 @@ import type { IGrid } from 'src/features/form/layout';
 import { createContext } from 'react';
 import { LikertComponent } from 'src/components/base/LikertComponent';
 import { PrintButtonComponent } from './base/PrintButtonComponent';
-import CustomComponent from './custom/CustomComponent';
+import CustomComponent from './custom/CustomWebComponent';
 
 export interface IComponent {
   name: string;

@@ -2,11 +2,10 @@ import { getTextResourceByKey } from 'altinn-shared/utils';
 import * as React from 'react';
 import { useAppSelector } from 'src/common/hooks';
 import type { ITextResource, ITextResourceBindings } from 'src/types';
-import type { ICustomComponentProps } from './CustomComponent';
+import type { IComponentProps } from '..';
 
-export enum CustomSupportedFrameworks {
-  WebComponent = 'web-component',
-  React = 'react',
+export interface ICustomComponentProps extends IComponentProps {
+  tagName: string;
 }
 
 function CustomWebComponent({
@@ -54,7 +53,9 @@ function CustomWebComponent({
     current.componentValidations = componentValidations;
   }, [formData, componentValidations]);
 
-  if (!Tag || !textResources) return null;
+  if (!Tag || !textResources) {
+    return null;
+  }
 
   const propsAsAttributes: any = {};
   Object.keys(passThroughProps).forEach((key) => {
