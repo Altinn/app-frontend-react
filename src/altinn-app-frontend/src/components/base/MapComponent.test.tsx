@@ -34,47 +34,7 @@ const render = (props: Partial<IMapComponentProps> = {}) => {
   rtlRender(<MapComponent {...allProps} />);
 };
 
-function getButton(name: string) {
-  return screen.queryByRole('button', { name: name });
-}
-
-function getLink(name: string) {
-  return screen.queryByRole('link', { name: name });
-}
-
 describe('MapComponent', () => {
-  it('should display attribution link', () => {
-    render({
-      layers: [
-        {
-          url: 'dummy',
-          attribution:
-            'Data © <a href="http://www.kartverket.no/">Kartverket</a>',
-        },
-      ],
-    });
-
-    expect(getLink('Kartverket')).toBeInTheDocument();
-  });
-
-  it('should show map with zoom buttons when readonly is false', () => {
-    render({
-      readOnly: false,
-    });
-
-    expect(getButton('Zoom in')).toBeInTheDocument();
-    expect(getButton('Zoom out')).toBeInTheDocument();
-  });
-
-  it('should show map without zoom buttons when readonly is true', () => {
-    render({
-      readOnly: true,
-    });
-
-    expect(getButton('Zoom in')).not.toBeInTheDocument();
-    expect(getButton('Zoom out')).not.toBeInTheDocument();
-  });
-
   it('should show correct footer text when no location is selected', () => {
     render();
 
