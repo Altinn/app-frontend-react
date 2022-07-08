@@ -34,6 +34,12 @@ describe('components > custom > CustomWebComponent', () => {
     );
   });
 
+  it('should render nothing if the tag name is missing', async () => {
+    const screen = render({ tagName: undefined });
+    const element = await screen.queryByTestId('test-component');
+    expect(element).not.toBeInTheDocument();
+  });
+
   const render = (providedProps?: Partial<ICustomComponentProps>) => {
     const allProps: ICustomComponentProps = {
       id: 'test-component',

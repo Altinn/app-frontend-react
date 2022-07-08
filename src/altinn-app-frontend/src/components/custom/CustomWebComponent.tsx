@@ -25,32 +25,39 @@ function CustomWebComponent({
   );
 
   React.useLayoutEffect(() => {
-    const handleChange = (customEvent: CustomEvent) => {
-      const { value, field } = customEvent.detail;
-      handleDataChange(value, field);
-    };
     const { current } = wcRef;
-    current.addEventListener('dataChanged', handleChange);
-    return () => {
-      current.removeEventListener('dataChanged', handleChange);
-    };
+    if (current) {
+      const handleChange = (customEvent: CustomEvent) => {
+        const { value, field } = customEvent.detail;
+        handleDataChange(value, field);
+      };
+
+      current.addEventListener('dataChanged', handleChange);
+      return () => {
+        current.removeEventListener('dataChanged', handleChange);
+      };
+    }
   }, [handleDataChange, wcRef]);
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
-    current.texts = getTextsForComponent(
-      textResourceBindings,
-      textResources,
-      false,
-    );
-    current.dataModelBindings = dataModelBindings;
-    current.language = language;
+    if (current) {
+      current.texts = getTextsForComponent(
+        textResourceBindings,
+        textResources,
+        false,
+      );
+      current.dataModelBindings = dataModelBindings;
+      current.language = language;
+    }
   }, [wcRef, textResourceBindings, textResources, dataModelBindings, language]);
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
-    current.formData = formData;
-    current.componentValidations = componentValidations;
+    if (current) {
+      current.formData = formData;
+      current.componentValidations = componentValidations;
+    }
   }, [formData, componentValidations]);
 
   if (!Tag || !textResources) {
