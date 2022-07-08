@@ -16,10 +16,9 @@ export interface IMapComponentProps extends IComponentProps {
   zoom?: number;
 }
 
-export const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles(() => ({
   footer: {
     paddingTop: '12px',
-    color: theme.altinnPalette.primary.blueDark,
   },
 }));
 
