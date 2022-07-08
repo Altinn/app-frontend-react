@@ -110,7 +110,9 @@ export const App = () => {
         <Switch>
           <Route
             path='/'
-            exact={hasInstanceId}
+            exact={
+              hasInstanceId || location.pathname.includes('partyselection')
+            }
           >
             <Entrypoint allowAnonymous={allowAnonymous} />
           </Route>
