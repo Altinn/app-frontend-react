@@ -1,5 +1,5 @@
 import type { IIsLoadingState } from 'src/shared/resources/isLoading/isLoadingSlice';
-import type { IOptionsState } from 'src/shared/resources/options/optionsReducer';
+import type { IOptionsState } from 'src/shared/resources/options';
 import type { IFormRuleState } from 'src/features/form/rules';
 import type { IDataModelState } from 'src/features/form/datamodel/datamodelSlice';
 import type { ReactNode } from 'react';

@@ -1,6 +1,6 @@
 /* eslint-disable import/no-cycle */
 import { combineReducers } from 'redux';
-import OptionsReducer from '../shared/resources/options/optionsReducer';
+import optionsSlice from '../shared/resources/options/optionsSlice';
 import FormDataReducer from '../features/form/data/formDataReducer';
 import formRulesSlice from 'src/features/form/rules/rulesSlice';
 import instantiationSlice from 'src/features/instantiate/instantiation/instantiationSlice';
@@ -41,7 +41,7 @@ const reducers = {
   [profileSlice.name]: profileSlice.reducer,
   [queueSlice.name]: queueSlice.reducer,
   [textResourcesSlice.name]: textResourcesSlice.reducer,
-  optionState: OptionsReducer,
+  [optionsSlice.name]: optionsSlice.reducer,
   [applicationSettingsSlice.name]: applicationSettingsSlice.reducer,
   [appApi.reducerPath]: appApi.reducer,
 };
