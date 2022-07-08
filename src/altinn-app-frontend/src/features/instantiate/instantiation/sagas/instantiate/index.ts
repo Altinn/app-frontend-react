@@ -9,9 +9,8 @@ import {
   redirectToUpgrade,
   invalidateCookieUrl,
 } from '../../../../../utils/appUrlHelper';
-import InstantiationActions from '../../actions';
-import * as InstantiationActionTypes from '../../actions/types';
-import type { IInstantiationState } from '../../reducer';
+import type { IInstantiationState } from 'src/features/instantiate/instantiation';
+import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 const InstantiatingSelector = (state: IRuntimeState) => state.instantiation;
@@ -55,9 +54,10 @@ function* instantiationSaga(): SagaIterator {
           instanceData: instanceResponse.data,
         }),
       );
-      yield call(
-        InstantiationActions.instantiateFulfilled,
-        instanceResponse.data.id,
+      yield put(
+        InstantiationActions.instantiateFulfilled({
+          instanceId: instanceResponse.data.id,
+        }),
       );
     }
   } catch (err) {
@@ -66,5 +66,5 @@ function* instantiationSaga(): SagaIterator {
 }
 
 export function* watchInstantiationSaga(): SagaIterator {
-  yield takeLatest(InstantiationActionTypes.INSTANTIATE, instantiationSaga);
+  yield takeLatest(InstantiationActions.instantiate, instantiationSaga);
 }

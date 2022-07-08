@@ -13,7 +13,7 @@ import type { IRuntimeState } from 'src/types';
 import Instantiate from './index';
 import { HttpStatusCodes } from '../../../utils/networking';
 import { getInitialStateMock } from '../../../../__mocks__/initialStateMock';
-import InstantiationActions from '../instantiation/actions';
+import { InstantiationActions } from '../instantiation/instantiationSlice';
 
 const render = (initialState: Partial<IRuntimeState> = {}) => {
   const createStore = configureStore();
@@ -21,6 +21,8 @@ const render = (initialState: Partial<IRuntimeState> = {}) => {
   const mockStore = createStore(mockInitialState);
   mockStore.dispatch = jest.fn();
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   InstantiationActions.instantiate = jest.fn();
 
   renderRtl(

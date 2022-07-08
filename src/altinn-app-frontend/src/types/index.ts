@@ -8,7 +8,7 @@ import type { IFormDataState } from '../features/form/data/formDataReducer';
 import type { IFormDynamicState } from '../features/form/dynamics';
 import type { ILayoutState } from '../features/form/layout/formLayoutSlice';
 import type { IValidationState } from '../features/form/validation/validationSlice';
-import type { IInstantiationState } from '../features/instantiate/instantiation/reducer';
+import type { IInstantiationState } from '../features/instantiate/instantiation';
 import type { IApplicationMetadataState } from 'src/shared/resources/applicationMetadata';
 import type { IAttachmentState } from '../shared/resources/attachments';
 import type { IInstanceDataState } from '../shared/resources/instanceData';

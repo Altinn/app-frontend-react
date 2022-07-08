@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import OptionsReducer from '../shared/resources/options/optionsReducer';
 import FormDataReducer from '../features/form/data/formDataReducer';
 import formRulesSlice from 'src/features/form/rules/rulesSlice';
-import InstantiationReducer from '../features/instantiate/instantiation/reducer';
+import instantiationSlice from 'src/features/instantiate/instantiation/instantiationSlice';
 import applicationMetadataSlice from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import attachmentSlice from 'src/shared/resources/attachments/attachmentSlice';
 import instanceDataSlice from 'src/shared/resources/instanceData/instanceDataSlice';
@@ -32,7 +32,7 @@ const reducers = {
   [formRulesSlice.name]: formRulesSlice.reducer,
   [validationSlice.name]: validationSlice.reducer,
   [instanceDataSlice.name]: instanceDataSlice.reducer,
-  instantiation: InstantiationReducer,
+  [instantiationSlice.name]: instantiationSlice.reducer,
   [isLoadingSlice.name]: isLoadingSlice.reducer,
   [languageSlice.name]: languageSlice.reducer,
   organisationMetaData: OrgsReducer,

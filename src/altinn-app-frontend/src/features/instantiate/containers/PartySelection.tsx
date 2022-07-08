@@ -15,9 +15,9 @@ import { HttpStatusCodes } from '../../../utils/networking';
 import { capitalizeName } from '../../../utils/stringHelper';
 import InstantiationContainer from './InstantiationContainer';
 import NoValidPartiesError from './NoValidPartiesError';
-import InstantiationActions from '../instantiation/actions/index';
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector, useAppDispatch } from 'src/common/hooks';
 import { getLanguageFromKey } from 'altinn-shared/utils';
+import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 
 const styles = createStyles({
   partySelectionTitle: {
@@ -80,6 +80,7 @@ const PartySelectionWithRouter = withRouter((props: IPartySelectionProps) => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const { classes, match } = props;
 
+  const dispatch = useAppDispatch();
   const language = useAppSelector((state) => state.language.language);
   const parties = useAppSelector((state) => state.party.parties);
   const appMetadata = useAppSelector(
@@ -99,7 +100,7 @@ const PartySelectionWithRouter = withRouter((props: IPartySelectionProps) => {
   const onSelectParty = (party: IParty) => {
     PartyActions.selectParty(party, true);
     // Clear any previous instantiation errors.
-    InstantiationActions.instantiateRejected(null);
+    dispatch(InstantiationActions.instantiateRejected({ error: null }));
   };
 
   function renderParties() {

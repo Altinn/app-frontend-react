@@ -13,17 +13,18 @@ import type { IAltinnWindow } from '../../../types';
 import { ProcessTaskType } from '../../../types';
 import { changeBodyBackground } from '../../../utils/bodyStyling';
 import { HttpStatusCodes } from '../../../utils/networking';
-import InstantiationActions from '../instantiation/actions';
 import MissingRolesError from './MissingRolesError';
 import UnknownError from './UnknownError';
 import InstantiateValidationError from './InstantiateValidationError';
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector, useAppDispatch } from 'src/common/hooks';
+import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 
 const titleKey = 'instantiate.starting';
 
 const InstantiateContainer = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.greyLight);
 
+  const dispatch = useAppDispatch();
   const [instantiating, setInstantiating] = React.useState(false);
   const instantiation = useAppSelector((state) => state.instantiation);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
@@ -45,7 +46,7 @@ const InstantiateContainer = () => {
     if (shouldCreateInstance) {
       const { org, app } = window as Window as IAltinnWindow;
       setInstantiating(true);
-      InstantiationActions.instantiate(org, app);
+      dispatch(InstantiationActions.instantiate({ org, app }));
     }
   }, [instantiating, selectedParty, instantiation.instanceId]);
 

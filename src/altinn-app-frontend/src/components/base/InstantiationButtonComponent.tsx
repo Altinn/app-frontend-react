@@ -1,7 +1,7 @@
 import { AltinnLoader } from 'altinn-shared/components';
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from 'src/common/hooks';
-import InstantiationActions from 'src/features/instantiate/instantiation/actions';
+import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { useInstantiateWithPrefillMutation } from 'src/services/InstancesApi';
 import { mapFormData } from 'src/utils/databindings';
 import { Redirect } from 'react-router';
@@ -55,7 +55,9 @@ export function InstantiationButtonComponent(props: IInstantiationButtonProps) {
     if (isSuccess) {
       dispatch(InstanceDataActions.getFulfilled({ instanceData: data }));
       dispatch(AttachmentActions.mapAttachments());
-      InstantiationActions.instantiateFulfilled(data.id);
+      dispatch(
+        InstantiationActions.instantiateFulfilled({ instanceId: data.id }),
+      );
     }
   }, [isSuccess, data, dispatch]);
 
