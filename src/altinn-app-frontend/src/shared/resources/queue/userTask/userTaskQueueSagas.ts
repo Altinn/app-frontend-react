@@ -5,12 +5,12 @@ import {
   startInitialUserTaskQueueFulfilled,
 } from '../queueSlice';
 import ProfileActions from '../../profile/profileActions';
-import PartyActions from '../../party/partyActions';
+import { PartyActions } from 'src/shared/resources/party/partySlice';
 import { profileApiUrl } from 'src/utils/appUrlHelper';
 
 export function* startInitialUserTaskQueueSaga(): SagaIterator {
   yield call(ProfileActions.fetchProfile, profileApiUrl);
-  yield call(PartyActions.getCurrentParty);
+  yield put(PartyActions.getCurrentParty());
 
   yield put(startInitialUserTaskQueueFulfilled());
 }

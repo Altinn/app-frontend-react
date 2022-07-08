@@ -8,7 +8,7 @@ import applicationMetadataSlice from 'src/shared/resources/applicationMetadata/a
 import attachmentSlice from 'src/shared/resources/attachments/attachmentSlice';
 import instanceDataSlice from 'src/shared/resources/instanceData/instanceDataSlice';
 import orgsSlice from 'src/shared/resources/orgs/orgsSlice';
-import PartyReducer from '../shared/resources/party/partyReducers';
+import partySlice from '../shared/resources/party/partySlice';
 import processReducer from '../shared/resources/process/processReducer';
 import ProfileReducer from '../shared/resources/profile/profileReducers';
 import TextResourcesReducer from '../shared/resources/textResources/textResourcesReducer';
@@ -36,7 +36,7 @@ const reducers = {
   [isLoadingSlice.name]: isLoadingSlice.reducer,
   [languageSlice.name]: languageSlice.reducer,
   [orgsSlice.name]: orgsSlice.reducer,
-  party: PartyReducer,
+  [partySlice.name]: partySlice.reducer,
   process: processReducer,
   profile: ProfileReducer,
   [queueSlice.name]: queueSlice.reducer,

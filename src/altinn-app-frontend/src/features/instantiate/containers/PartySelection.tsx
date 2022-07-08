@@ -9,7 +9,7 @@ import { AltinnAppTheme } from 'altinn-shared/theme';
 import type { IParty } from 'altinn-shared/types';
 import AltinnParty from '../../../shared/components/altinnParty';
 import AltinnPartySearch from '../../../shared/components/altinnPartySearch';
-import PartyActions from '../../../shared/resources/party/partyActions';
+import { PartyActions } from 'src/shared/resources/party/partySlice';
 import { changeBodyBackground } from '../../../utils/bodyStyling';
 import { HttpStatusCodes } from '../../../utils/networking';
 import { capitalizeName } from '../../../utils/stringHelper';
@@ -94,11 +94,11 @@ const PartySelectionWithRouter = withRouter((props: IPartySelectionProps) => {
   const [showDeleted, setShowDeleted] = React.useState(false);
 
   React.useEffect(() => {
-    PartyActions.getParties();
+    dispatch(PartyActions.getParties());
   }, []);
 
   const onSelectParty = (party: IParty) => {
-    PartyActions.selectParty(party, true);
+    dispatch(PartyActions.selectParty({ party, redirect: true }));
     // Clear any previous instantiation errors.
     dispatch(InstantiationActions.instantiateRejected({ error: null }));
   };

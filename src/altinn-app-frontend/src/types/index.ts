@@ -14,7 +14,7 @@ import type { IAttachmentState } from '../shared/resources/attachments';
 import type { IInstanceDataState } from '../shared/resources/instanceData';
 import type { ILanguageState } from '../shared/resources/language/languageSlice';
 import type { IOrgsState } from '../shared/resources/orgs';
-import type { IPartyState } from '../shared/resources/party/partyReducers';
+import type { IPartyState } from '../shared/resources/party';
 import type { IProcessState } from '../shared/resources/process/processReducer';
 import type { IProfileState } from '../shared/resources/profile/profileReducers';
 import type { IQueueState } from '../shared/resources/queue/queueSlice';
