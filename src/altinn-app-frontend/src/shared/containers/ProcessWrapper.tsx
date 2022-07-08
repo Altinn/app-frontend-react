@@ -3,7 +3,6 @@ import {
   AltinnContentLoader,
   AltinnContentIconFormData,
 } from 'altinn-shared/components';
-import ProcessDispatcher from '../resources/process/processDispatcher';
 import type { IAltinnWindow } from '../../types';
 import { ProcessTaskType } from '../../types';
 import Presentation from './Presentation';
@@ -21,6 +20,7 @@ import { finishDataTaskIsLoading } from '../resources/isLoading/isLoadingSlice';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
 
 const style = {
   marginTop: '2.5rem',
@@ -60,7 +60,7 @@ const ProcessWrapper = (props) => {
     }
 
     if (!process || !process.taskType) {
-      ProcessDispatcher.getProcessState();
+      dispatch(ProcessActions.get());
     }
 
     switch (process.taskType) {

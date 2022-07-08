@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createReducer } from '@reduxjs/toolkit';
 import FormDataActions from './formDataActions';
 import { FormLayoutActions } from '../layout/formLayoutSlice';
-import * as ProcessActionTypes from '../../../shared/resources/process/processActionTypes';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import type {
   IFetchFormDataFulfilled,
   IFormDataRejected,
@@ -39,8 +39,8 @@ const initialState: IFormDataState = {
 
 const isProcessAction = (action: AnyAction) => {
   return (
-    action.type === ProcessActionTypes.COMPLETE_PROCESS_FULFILLED ||
-    action.type === ProcessActionTypes.COMPLETE_PROCESS_REJECTED
+    action.type === ProcessActions.completeFulfilled.type ||
+    action.type === ProcessActions.completeRejected.type
   );
 };
 

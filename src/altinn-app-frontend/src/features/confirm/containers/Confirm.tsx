@@ -16,7 +16,7 @@ import {
   getAttachmentGroupings,
   getInstancePdf,
 } from 'altinn-shared/utils/attachmentsUtils';
-import ProcessDispatcher from '../../../shared/resources/process/processDispatcher';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import type { IAltinnWindow } from '../../../types';
 import { get } from '../../../utils/networking';
 import { getValidationUrl } from '../../../utils/appUrlHelper';
@@ -223,7 +223,7 @@ const SubmitButton = () => {
         );
         dispatch(updateValidations({ validations: mappedValidations }));
         if (data.length === 0) {
-          ProcessDispatcher.completeProcess();
+          dispatch(ProcessActions.complete());
         } else {
           setIsSubmitting(false);
         }

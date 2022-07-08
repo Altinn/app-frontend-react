@@ -7,7 +7,6 @@ import { Severity } from 'src/types';
 import { isIE } from 'react-device-detect';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { post } from 'src/utils/networking';
-import ProcessDispatcher from '../../../../shared/resources/process/processDispatcher';
 import {
   convertDataBindingToModel,
   convertModelToDataBinding,
@@ -44,6 +43,7 @@ import {
   isStatelessApp,
 } from '../../../../utils/appMetadata';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (
   store: IRuntimeStore,
@@ -157,7 +157,7 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean) {
   }
 
   // data has no validation errors, we complete the current step
-  return yield call(ProcessDispatcher.completeProcess);
+  return yield sagaPut(ProcessActions.complete());
 }
 
 export function* putFormData(state: IRuntimeState, model: any) {

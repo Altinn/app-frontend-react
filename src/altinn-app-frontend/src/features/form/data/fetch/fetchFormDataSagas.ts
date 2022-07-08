@@ -15,7 +15,7 @@ import type { ILayoutSets, IRuntimeState } from '../../../../types';
 import type { IApplicationMetadata } from '../../../../shared/resources/applicationMetadata';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
-import type { IProcessState } from '../../../../shared/resources/process/processReducer';
+import type { IProcessState } from '../../../../shared/resources/process';
 import {
   getFetchFormDataUrl,
   getStatelessFormDataUrl,

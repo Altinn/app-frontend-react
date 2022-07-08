@@ -9,7 +9,7 @@ import attachmentSlice from 'src/shared/resources/attachments/attachmentSlice';
 import instanceDataSlice from 'src/shared/resources/instanceData/instanceDataSlice';
 import orgsSlice from 'src/shared/resources/orgs/orgsSlice';
 import partySlice from '../shared/resources/party/partySlice';
-import processReducer from '../shared/resources/process/processReducer';
+import processSlice from 'src/shared/resources/process/processSlice';
 import ProfileReducer from '../shared/resources/profile/profileReducers';
 import TextResourcesReducer from '../shared/resources/textResources/textResourcesReducer';
 import { appApi } from 'src/services/AppApi';
@@ -37,7 +37,7 @@ const reducers = {
   [languageSlice.name]: languageSlice.reducer,
   [orgsSlice.name]: orgsSlice.reducer,
   [partySlice.name]: partySlice.reducer,
-  process: processReducer,
+  [processSlice.name]: processSlice.reducer,
   profile: ProfileReducer,
   [queueSlice.name]: queueSlice.reducer,
   textResources: TextResourcesReducer,
