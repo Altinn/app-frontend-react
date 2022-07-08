@@ -28,7 +28,7 @@ export function useDelayedSavedState(
   }, [formValue]);
 
   React.useEffect(() => {
-    if (typeof saveAfter === 'boolean' && !saveAfter) {
+    if (saveAfter === false) {
       return;
     }
 
