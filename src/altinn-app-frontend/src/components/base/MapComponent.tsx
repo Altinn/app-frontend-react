@@ -26,6 +26,7 @@ export function MapComponent({
   formData,
   handleDataChange,
   language,
+  isValid,
   readOnly,
   layers,
   centerLocation,
@@ -48,7 +49,7 @@ export function MapComponent({
   };
 
   return (
-    <>
+    <div className={'map-component' + (isValid ? '' : ' validation-error')}>
       <Map
         layers={layers}
         centerLocation={location || centerLocation}
@@ -58,7 +59,7 @@ export function MapComponent({
         onClick={handleMapClicked}
       />
       <Typography className={classes.footer}>{footerText}</Typography>
-    </>
+    </div>
   );
 }
 

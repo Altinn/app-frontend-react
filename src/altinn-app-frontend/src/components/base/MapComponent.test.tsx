@@ -31,7 +31,7 @@ const render = (props: Partial<IMapComponentProps> = {}) => {
     ...props,
   };
 
-  rtlRender(<MapComponent {...allProps} />);
+  return rtlRender(<MapComponent {...allProps} />);
 };
 
 describe('MapComponent', () => {
@@ -53,5 +53,23 @@ describe('MapComponent', () => {
     expect(
       screen.queryByText('Selected location: 59.2641592,10.4036248'),
     ).toBeInTheDocument();
+  });
+
+  it('should mark map component with validation error when validation fails', () => {
+    const { container } = render({
+      isValid: false,
+    });
+
+    const mapComponent = container.getElementsByClassName('map-component')[0];
+    expect(mapComponent).toHaveClass('validation-error');
+  });
+
+  it('should not mark map component with validation error when validation succeeds', () => {
+    const { container } = render({
+      isValid: true,
+    });
+
+    const mapComponent = container.getElementsByClassName('map-component')[0];
+    expect(mapComponent).not.toHaveClass('validation-error');
   });
 });
