@@ -59,13 +59,18 @@ function CustomWebComponent({
 
   const propsAsAttributes: any = {};
   Object.keys(passThroughProps).forEach((key) => {
-    propsAsAttributes[key] = JSON.stringify(passThroughProps[key]);
+    let prop = passThroughProps[key];
+    if (['object', 'array'].includes(typeof prop)) {
+      prop = JSON.stringify(passThroughProps[key]);
+    }
+    propsAsAttributes[key] = prop;
   });
 
   return (
     <div>
       <Tag
         ref={wcRef}
+        data-testid={tagName}
         {...propsAsAttributes}
       />
     </div>
