@@ -2,7 +2,7 @@
 import { combineReducers } from 'redux';
 import OptionsReducer from '../shared/resources/options/optionsReducer';
 import FormDataReducer from '../features/form/data/formDataReducer';
-import FormRuleReducer from '../features/form/rules/rulesReducer';
+import formRulesSlice from 'src/features/form/rules/rulesSlice';
 import InstantiationReducer from '../features/instantiate/instantiation/reducer';
 import applicationMetadataSlice from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import attachmentSlice from 'src/shared/resources/attachments/attachmentSlice';
@@ -29,7 +29,7 @@ const reducers = {
   [formDataModelSlice.name]: formDataModelSlice.reducer,
   [formDynamicsSlice.name]: formDynamicsSlice.reducer,
   [formLayoutSlice.name]: formLayoutSlice.reducer,
-  formRules: FormRuleReducer,
+  [formRulesSlice.name]: formRulesSlice.reducer,
   [validationSlice.name]: validationSlice.reducer,
   instanceData: InstanceDataReducer,
   instantiation: InstantiationReducer,

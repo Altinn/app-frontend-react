@@ -13,7 +13,6 @@ import { convertModelToDataBinding } from '../../../../utils/databindings';
 import FormDataActions from '../formDataActions';
 import type { ILayoutSets, IRuntimeState } from '../../../../types';
 import type { IApplicationMetadata } from '../../../../shared/resources/applicationMetadata';
-import FormRulesActions from '../../rules/rulesActions';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
 import { GET_INSTANCEDATA_FULFILLED } from '../../../../shared/resources/instanceData/get/getInstanceDataActionTypes';
@@ -33,6 +32,7 @@ import {
   currentSelectedPartyIdSelector,
   layoutSetsSelector,
 } from 'src/selectors/simpleSelectors';
+import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
 
 export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
@@ -88,7 +88,7 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
 
     const formData = convertModelToDataBinding(fetchedData);
     yield put(FormDataActions.fetchFormDataFulfilled({ formData }));
-    yield call(FormRulesActions.fetchRuleModel);
+    yield put(FormRulesActions.fetch);
     yield put(FormDynamicsActions.fetchFormDynamics());
   } catch (error) {
     yield put(FormDataActions.fetchFormDataRejected({ error }));
