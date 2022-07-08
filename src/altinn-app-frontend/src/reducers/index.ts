@@ -7,7 +7,7 @@ import instantiationSlice from 'src/features/instantiate/instantiation/instantia
 import applicationMetadataSlice from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import attachmentSlice from 'src/shared/resources/attachments/attachmentSlice';
 import instanceDataSlice from 'src/shared/resources/instanceData/instanceDataSlice';
-import OrgsReducer from '../shared/resources/orgs/orgsReducers';
+import orgsSlice from 'src/shared/resources/orgs/orgsSlice';
 import PartyReducer from '../shared/resources/party/partyReducers';
 import processReducer from '../shared/resources/process/processReducer';
 import ProfileReducer from '../shared/resources/profile/profileReducers';
@@ -35,7 +35,7 @@ const reducers = {
   [instantiationSlice.name]: instantiationSlice.reducer,
   [isLoadingSlice.name]: isLoadingSlice.reducer,
   [languageSlice.name]: languageSlice.reducer,
-  organisationMetaData: OrgsReducer,
+  [orgsSlice.name]: orgsSlice.reducer,
   party: PartyReducer,
   process: processReducer,
   profile: ProfileReducer,
