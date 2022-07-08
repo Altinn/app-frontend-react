@@ -2,7 +2,7 @@ import { getInitialStateMock } from '../../__mocks__/initialStateMock';
 
 import type { IFormDynamicState } from 'src/features/form/dynamics';
 import type { IFormRuleState } from 'src/features/form/rules';
-import type { ITextResourcesState } from 'src/shared/resources/textResources/textResourcesReducer';
+import type { ITextResourcesState } from 'src/shared/resources/textResources';
 import type { IFormDataState } from '../features/form/data/formDataReducer';
 
 import { makeGetHasErrorsSelector } from './getErrors';

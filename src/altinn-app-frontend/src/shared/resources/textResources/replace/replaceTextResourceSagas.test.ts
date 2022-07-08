@@ -2,11 +2,11 @@ import { testSaga } from 'redux-saga-test-plan';
 import { take } from 'redux-saga/effects';
 import FormDataActions from 'src/features/form/data/formDataActions';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { FETCH_TEXT_RESOURCES_FULFILLED } from 'src/shared/resources/textResources/fetch/fetchTextResourcesActionTypes';
 import {
   replaceTextResourcesSaga,
   watchReplaceTextResourcesSaga,
 } from './replaceTextResourcesSagas';
+import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
 
 describe('watchReplaceTextResourcesSaga', () => {
   it('should wait for required data then take latest for relevant actions', () => {
@@ -14,7 +14,7 @@ describe('watchReplaceTextResourcesSaga', () => {
     saga
       .next()
       .all([
-        take(FETCH_TEXT_RESOURCES_FULFILLED),
+        take(TextResourcesActions.fetchFulfilled),
         take(FormDataActions.fetchFormDataFulfilled),
         take(FormLayoutActions.updateRepeatingGroupsFulfilled),
       ])
@@ -41,7 +41,7 @@ describe('watchReplaceTextResourcesSaga', () => {
         replaceTextResourcesSaga,
       )
       .next()
-      .takeLatest(FETCH_TEXT_RESOURCES_FULFILLED, replaceTextResourcesSaga)
+      .takeLatest(TextResourcesActions.fetchFulfilled, replaceTextResourcesSaga)
       .next()
       .isDone();
   });

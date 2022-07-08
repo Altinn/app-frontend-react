@@ -18,7 +18,7 @@ import type { IPartyState } from '../shared/resources/party';
 import type { IProcessState } from '../shared/resources/process';
 import type { IProfileState } from '../shared/resources/profile';
 import type { IQueueState } from '../shared/resources/queue/queueSlice';
-import type { ITextResourcesState } from '../shared/resources/textResources/textResourcesReducer';
+import type { ITextResourcesState } from '../shared/resources/textResources';
 import type { IApplicationSettingsState } from 'src/shared/resources/applicationSettings/applicationSettingsSlice';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
 

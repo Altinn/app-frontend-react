@@ -2,9 +2,8 @@ import type { SagaIterator } from 'redux-saga';
 import { all, call, put, select, take, takeLatest } from 'redux-saga/effects';
 import { get } from 'src/utils/networking';
 import { textResourcesUrl, oldTextResourcesUrl } from 'src/utils/appUrlHelper';
-import TextResourcesActions from '../textResourcesActions';
+import { TextResourcesActions } from '../textResourcesSlice';
 import { appTaskQueueError } from '../../queue/queueSlice';
-import { FETCH_TEXT_RESOURCES } from './fetchTextResourcesActionTypes';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
@@ -31,13 +30,14 @@ export function* fetchTextResources(): SagaIterator {
         res.unparsedValue = res.value;
       }
     });
-    yield call(
-      TextResourcesActions.fetchTextResourcesFulfilled,
-      resource.language,
-      resource.resources,
+    yield put(
+      TextResourcesActions.fetchFulfilled({
+        language: resource.language,
+        resources: resource.resources,
+      }),
     );
   } catch (error) {
-    yield call(TextResourcesActions.fetchTextResourcesRejected, error);
+    yield put(TextResourcesActions.fetchRejected({ error }));
     yield put(appTaskQueueError({ error }));
   }
 }
@@ -46,7 +46,7 @@ export function* watchFetchTextResourcesSaga(): SagaIterator {
   yield all([
     take(FormLayoutActions.fetchLayoutSetsFulfilled),
     take(ApplicationMetadataActions.getFulfilled),
-    take(FETCH_TEXT_RESOURCES),
+    take(TextResourcesActions.fetch),
   ]);
 
   const allowAnonymous = yield select(allowAnonymousSelector);
@@ -55,7 +55,7 @@ export function* watchFetchTextResourcesSaga(): SagaIterator {
     yield take(ProfileActions.fetchFulfilled);
   }
   yield call(fetchTextResources);
-  yield takeLatest(FETCH_TEXT_RESOURCES, fetchTextResources);
+  yield takeLatest(TextResourcesActions.fetch, fetchTextResources);
   yield takeLatest(
     LanguageActions.updateSelectedAppLanguage,
     fetchTextResources,

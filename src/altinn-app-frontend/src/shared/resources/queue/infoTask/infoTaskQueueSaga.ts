@@ -8,7 +8,7 @@ import {
   startInitialInfoTaskQueue,
   startInitialInfoTaskQueueFulfilled,
 } from '../queueSlice';
-import TextResourceActions from '../../textResources/textResourcesActions';
+import { TextResourcesActions } from '../../textResources/textResourcesSlice';
 import type { IApplicationMetadata } from '../../applicationMetadata';
 import { getFetchFormDataUrl } from '../../../../utils/appUrlHelper';
 import { convertModelToDataBinding } from '../../../../utils/databindings';
@@ -66,7 +66,7 @@ export function* startInitialInfoTaskQueueSaga(): SagaIterator {
     }
 
     yield put(FormDataActions.fetchFormDataFulfilled({ formData }));
-    yield call(TextResourceActions.replaceTextResources);
+    yield put(TextResourcesActions.replace());
   }
 
   yield put(startInitialInfoTaskQueueFulfilled());
@@ -76,7 +76,7 @@ export function* startInitialInfoTaskQueueSaga(): SagaIterator {
 export function* watchStartInitialInfoTaskQueueSaga(): SagaIterator {
   yield all([
     take(startInitialInfoTaskQueue),
-    take(TextResourceActions.fetchTextResourcesFulfilled),
+    take(TextResourcesActions.fetchFulfilled),
   ]);
   yield call(startInitialInfoTaskQueueSaga);
 }

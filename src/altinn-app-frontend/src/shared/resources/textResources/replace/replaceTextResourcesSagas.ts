@@ -1,5 +1,5 @@
 import type { SagaIterator } from 'redux-saga';
-import { all, take, takeLatest, select, call } from 'redux-saga/effects';
+import { all, take, takeLatest, select, call, put } from 'redux-saga/effects';
 import type { IFormData } from 'src/features/form/data/formDataReducer';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import { replaceTextResourceParams } from 'altinn-shared/utils/language';
@@ -12,11 +12,9 @@ import type {
 } from 'altinn-shared/types';
 import FormDataActions from '../../../../features/form/data/formDataActions';
 import { FormLayoutActions } from '../../../../features/form/layout/formLayoutSlice';
-import { FETCH_TEXT_RESOURCES_FULFILLED } from '../fetch/fetchTextResourcesActionTypes';
-import TextResourceActions from '../textResourcesActions';
-import type { ITextResourcesState } from '../textResourcesReducer';
-import { REPLACE_TEXT_RESOURCES } from './replaceTextResourcesActionTypes';
+import type { ITextResourcesState } from '../';
 import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
+import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
 
 export const InstanceSelector: (state: IRuntimeState) => IInstance = (state) =>
   state.instanceData?.instance;
@@ -63,20 +61,21 @@ export function* replaceTextResourcesSaga(): SagaIterator {
     if (
       JSON.stringify(textResources) !== JSON.stringify(updatedTextsResources)
     ) {
-      yield call(
-        TextResourceActions.replaceTextResourcesFulfilled,
-        textResources.language,
-        updatedTextsResources,
+      yield put(
+        TextResourcesActions.replaceFulfilled({
+          language: textResources.language,
+          resources: updatedTextsResources,
+        }),
       );
     }
   } catch (error) {
-    yield call(TextResourceActions.replaceTextResourcesRejected, error);
+    yield put(TextResourcesActions.replaceRejected({ error }));
   }
 }
 
 export function* watchReplaceTextResourcesSaga(): SagaIterator {
   yield all([
-    take(FETCH_TEXT_RESOURCES_FULFILLED),
+    take(TextResourcesActions.fetchFulfilled),
     take(FormDataActions.fetchFormDataFulfilled),
     take(FormLayoutActions.updateRepeatingGroupsFulfilled),
   ]);
@@ -97,11 +96,14 @@ export function* watchReplaceTextResourcesSaga(): SagaIterator {
     FormDataActions.setFormDataFulfilled,
     replaceTextResourcesSaga,
   );
-  yield takeLatest(FETCH_TEXT_RESOURCES_FULFILLED, replaceTextResourcesSaga);
+  yield takeLatest(
+    TextResourcesActions.fetchFulfilled,
+    replaceTextResourcesSaga,
+  );
 }
 
 export function* watchReplaceTextResourcesSagaDirect(): SagaIterator {
-  yield takeLatest(REPLACE_TEXT_RESOURCES, replaceTextResourcesSaga);
+  yield takeLatest(TextResourcesActions.replace, replaceTextResourcesSaga);
   yield takeLatest(
     FormLayoutActions.updateRepeatingGroupsFulfilled,
     replaceTextResourcesSaga,
