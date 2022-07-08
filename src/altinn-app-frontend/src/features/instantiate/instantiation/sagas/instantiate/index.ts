@@ -60,8 +60,8 @@ function* instantiationSaga(): SagaIterator {
         }),
       );
     }
-  } catch (err) {
-    yield call(InstantiationActions.instantiateRejected, err);
+  } catch (error) {
+    yield put(InstantiationActions.instantiateRejected({ error }));
   }
 }
 
