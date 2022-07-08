@@ -39,7 +39,7 @@ function* fetchDynamicsSaga(): SagaIterator {
       }),
     );
   } catch (error) {
-    yield call(FormDynamicsActions.fetchFormDynamicsRejected, error);
+    yield put(FormDynamicsActions.fetchFormDynamicsRejected({ error }));
     yield put(dataTaskQueueError({ error }));
   }
 }

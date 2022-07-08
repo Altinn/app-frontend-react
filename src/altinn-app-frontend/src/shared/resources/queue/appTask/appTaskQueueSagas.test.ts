@@ -13,7 +13,7 @@ describe('appTaskQueueSagas', () => {
   it('startInitialAppTaskQueueSaga, app queue is started', () => {
     expectSaga(startInitialUserTaskQueueSaga).run();
     return expectSaga(startInitialAppTaskQueueSaga)
-      .put(TextResourcesActions.fetch)
+      .put(TextResourcesActions.fetch())
       .put(LanguageActions.fetchLanguage())
       .put(ApplicationMetadataActions.get())
       .put(FormLayoutActions.fetchLayoutSets())

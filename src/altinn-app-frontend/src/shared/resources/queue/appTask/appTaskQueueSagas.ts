@@ -13,7 +13,7 @@ import { OrgsActions } from '../../orgs/orgsSlice';
 
 export function* startInitialAppTaskQueueSaga(): SagaIterator {
   yield put(ApplicationSettingsActions.fetchApplicationSettings());
-  yield put(TextResourcesActions.fetch);
+  yield put(TextResourcesActions.fetch());
   yield put(LanguageActions.fetchLanguage());
   yield put(ApplicationMetadataActions.get());
   yield put(FormLayoutActions.fetchLayoutSets());
