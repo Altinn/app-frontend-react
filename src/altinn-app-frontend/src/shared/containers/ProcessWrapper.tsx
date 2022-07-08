@@ -3,7 +3,6 @@ import {
   AltinnContentLoader,
   AltinnContentIconFormData,
 } from 'altinn-shared/components';
-import InstanceDataActions from '../resources/instanceData/instanceDataActions';
 import ProcessDispatcher from '../resources/process/processDispatcher';
 import type { IAltinnWindow } from '../../types';
 import { ProcessTaskType } from '../../types';
@@ -21,6 +20,7 @@ import Feedback from '../../features/feedback/Feedback';
 import { finishDataTaskIsLoading } from '../resources/isLoading/isLoadingSlice';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 const style = {
   marginTop: '2.5rem',
@@ -83,7 +83,12 @@ const ProcessWrapper = (props) => {
 
   React.useEffect(() => {
     if (!instantiating && !instanceId) {
-      InstanceDataActions.getInstanceData(partyId, instanceGuid);
+      dispatch(
+        InstanceDataActions.get({
+          instanceOwner: partyId,
+          instanceId: instanceGuid,
+        }),
+      );
     }
   }, [instantiating, instanceId, instanceGuid, partyId]);
 

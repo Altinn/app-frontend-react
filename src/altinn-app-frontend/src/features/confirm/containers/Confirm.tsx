@@ -22,10 +22,10 @@ import { get } from '../../../utils/networking';
 import { getValidationUrl } from '../../../utils/appUrlHelper';
 import { updateValidations } from '../../form/validation/validationSlice';
 import { mapDataElementValidationToRedux } from '../../../utils/validation';
-import InstanceDataActions from '../../../shared/resources/instanceData/instanceDataActions';
 import { getTextFromAppOrDefault } from '../../../utils/textResource';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { selectAppName } from 'src/selectors/language';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -89,6 +89,7 @@ interface IParams {
 }
 
 const Confirm = () => {
+  const dispatch = useAppDispatch();
   const applicationMetadata = useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata,
   );
@@ -105,7 +106,12 @@ const Confirm = () => {
   const isLoading = !instance || !parties;
 
   React.useEffect(() => {
-    InstanceDataActions.getInstanceData(partyId, instanceGuid);
+    dispatch(
+      InstanceDataActions.get({
+        instanceOwner: partyId,
+        instanceId: instanceGuid,
+      }),
+    );
   }, [partyId, instanceGuid]);
 
   const getInstanceMetaObject = () => {

@@ -11,7 +11,6 @@ import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlic
 import { get } from '../../../../utils/networking';
 import type { ILayoutSets, IRuntimeState } from '../../../../types';
 import type { IApplicationMetadata } from '../../../../shared/resources/applicationMetadata';
-import { GET_INSTANCEDATA_FULFILLED } from '../../../../shared/resources/instanceData/get/getInstanceDataActionTypes';
 import {
   fetchJsonSchema,
   fetchJsonSchemaFulfilled,
@@ -19,6 +18,7 @@ import {
 } from '../datamodelSlice';
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 const AppMetadataSelector: (state: IRuntimeState) => IApplicationMetadata = (
   state: IRuntimeState,
@@ -69,7 +69,10 @@ export function* watchFetchJsonSchemaSaga(): SagaIterator {
   } else {
     yield call(fetchJsonSchemaSaga);
     while (true) {
-      yield all([take(GET_INSTANCEDATA_FULFILLED), take(fetchJsonSchema)]);
+      yield all([
+        take(InstanceDataActions.getFulfilled),
+        take(fetchJsonSchema),
+      ]);
       yield call(fetchJsonSchemaSaga);
     }
   }

@@ -11,15 +11,15 @@ import type { IFormData } from 'src/features/form/data/formDataReducer';
 import FormDataActions from 'src/features/form/data/formDataActions';
 import type { ILayouts } from 'src/features/form/layout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { GET_INSTANCEDATA_FULFILLED } from 'src/shared/resources/instanceData/get/getInstanceDataActionTypes';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 export function* watchMapAttachmentsSaga(): SagaIterator {
   yield all([
     take(FormDataActions.fetchFormDataFulfilled),
     take(FormLayoutActions.fetchLayoutFulfilled),
     take(FormLayoutActions.updateCurrentViewFulfilled),
-    take(GET_INSTANCEDATA_FULFILLED),
+    take(InstanceDataActions.getFulfilled),
     take(ApplicationMetadataActions.getFulfilled),
   ]);
   yield call(mapAttachments);

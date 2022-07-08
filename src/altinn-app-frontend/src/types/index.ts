@@ -11,7 +11,7 @@ import type { IValidationState } from '../features/form/validation/validationSli
 import type { IInstantiationState } from '../features/instantiate/instantiation/reducer';
 import type { IApplicationMetadataState } from 'src/shared/resources/applicationMetadata';
 import type { IAttachmentState } from '../shared/resources/attachments';
-import type { IInstanceDataState } from '../shared/resources/instanceData/instanceDataReducers';
+import type { IInstanceDataState } from '../shared/resources/instanceData';
 import type { ILanguageState } from '../shared/resources/language/languageSlice';
 import type { IOrgsState } from '../shared/resources/orgs/orgsReducers';
 import type { IPartyState } from '../shared/resources/party/partyReducers';

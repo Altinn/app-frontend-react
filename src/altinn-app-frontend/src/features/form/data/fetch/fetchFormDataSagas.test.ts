@@ -24,10 +24,10 @@ import {
 import FormDataActions from '../formDataActions';
 import type { IApplication } from 'altinn-shared/types';
 import type { ILayoutSets } from 'src/types';
-import { GET_INSTANCEDATA_FULFILLED } from 'src/shared/resources/instanceData/get/getInstanceDataActionTypes';
 import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';
 import { dataTaskQueueError } from 'src/shared/resources/queue/queueSlice';
 import type { AxiosError } from 'axios';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 describe('fetchFormDataSagas', () => {
   let mockInitialState;
@@ -346,7 +346,7 @@ describe('fetchFormDataSagas', () => {
         [select(instanceDataSelector), instance],
         [select(processStateSelector), processState],
       ])
-      .take(GET_INSTANCEDATA_FULFILLED)
+      .take(InstanceDataActions.getFulfilled)
       .take(fetchJsonSchemaFulfilled)
       .call(fetchFormDataInitialSaga)
       .run();

@@ -3,12 +3,12 @@ import * as React from 'react';
 import { useAppSelector, useAppDispatch } from 'src/common/hooks';
 import InstantiationActions from 'src/features/instantiate/instantiation/actions';
 import { useInstantiateWithPrefillMutation } from 'src/services/InstancesApi';
-import InstanceDataActions from 'src/shared/resources/instanceData/instanceDataActions';
 import { mapFormData } from 'src/utils/databindings';
 import { Redirect } from 'react-router';
 import type { IMapping } from 'src/types';
 import type { IComponentProps } from '..';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 const buttonStyle = {
   marginBottom: '0',
@@ -53,7 +53,7 @@ export function InstantiationButtonComponent(props: IInstantiationButtonProps) {
 
   React.useEffect(() => {
     if (isSuccess) {
-      InstanceDataActions.getInstanceDataFulfilled(data);
+      dispatch(InstanceDataActions.getFulfilled({ instanceData: data }));
       dispatch(AttachmentActions.mapAttachments());
       InstantiationActions.instantiateFulfilled(data.id);
     }

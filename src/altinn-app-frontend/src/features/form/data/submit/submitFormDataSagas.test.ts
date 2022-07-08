@@ -8,7 +8,7 @@ import {
 } from '../../../../../__mocks__/mocks';
 
 import type { IRuntimeState } from 'src/types';
-import type { IInstanceDataState } from 'src/shared/resources/instanceData/instanceDataReducers';
+import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 import type { IData } from '../../../../../../shared/src';
 
 import { convertDataBindingToModel } from 'src/utils/databindings';

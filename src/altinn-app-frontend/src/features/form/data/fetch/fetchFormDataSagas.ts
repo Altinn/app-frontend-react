@@ -15,7 +15,6 @@ import type { ILayoutSets, IRuntimeState } from '../../../../types';
 import type { IApplicationMetadata } from '../../../../shared/resources/applicationMetadata';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
-import { GET_INSTANCEDATA_FULFILLED } from '../../../../shared/resources/instanceData/get/getInstanceDataActionTypes';
 import type { IProcessState } from '../../../../shared/resources/process/processReducer';
 import {
   getFetchFormDataUrl,
@@ -33,6 +32,7 @@ import {
   layoutSetsSelector,
 } from 'src/selectors/simpleSelectors';
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
@@ -171,7 +171,7 @@ export function* watchFetchFormDataInitialSaga(): SagaIterator {
       processState.taskId !== instance.process.currentTask.elementId
     ) {
       yield all([
-        take(GET_INSTANCEDATA_FULFILLED),
+        take(InstanceDataActions.getFulfilled),
         take(fetchJsonSchemaFulfilled),
       ]);
     }

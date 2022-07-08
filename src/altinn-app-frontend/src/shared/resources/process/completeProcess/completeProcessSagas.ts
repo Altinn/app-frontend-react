@@ -7,9 +7,9 @@ import { ProcessTaskType } from '../../../../types';
 import { getCompleteProcessUrl } from '../../../../utils/appUrlHelper';
 import * as ProcessStateActionTypes from '../processActionTypes';
 import ProcessDispatcher from '../processDispatcher';
-import InstanceDataActions from '../../instanceData/instanceDataActions';
-import type { IInstanceDataState } from '../../instanceData/instanceDataReducers';
 import { startDataTaskIsLoading } from '../../isLoading/isLoadingSlice';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
+import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 
 const instanceDataSelector = (state: IRuntimeState) => state.instanceData;
 
@@ -40,11 +40,7 @@ export function* completeProcessSaga(): SagaIterator {
           instanceDataSelector,
         );
         const [instanceOwner, instanceId] = instanceData.instance.id.split('/');
-        yield call(
-          InstanceDataActions.getInstanceData,
-          instanceOwner,
-          instanceId,
-        );
+        yield sagaPut(InstanceDataActions.get({ instanceOwner, instanceId }));
       }
     }
   } catch (err) {

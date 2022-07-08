@@ -6,7 +6,7 @@ import formRulesSlice from 'src/features/form/rules/rulesSlice';
 import InstantiationReducer from '../features/instantiate/instantiation/reducer';
 import applicationMetadataSlice from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import attachmentSlice from 'src/shared/resources/attachments/attachmentSlice';
-import InstanceDataReducer from '../shared/resources/instanceData/instanceDataReducers';
+import instanceDataSlice from 'src/shared/resources/instanceData/instanceDataSlice';
 import OrgsReducer from '../shared/resources/orgs/orgsReducers';
 import PartyReducer from '../shared/resources/party/partyReducers';
 import processReducer from '../shared/resources/process/processReducer';
@@ -31,7 +31,7 @@ const reducers = {
   [formLayoutSlice.name]: formLayoutSlice.reducer,
   [formRulesSlice.name]: formRulesSlice.reducer,
   [validationSlice.name]: validationSlice.reducer,
-  instanceData: InstanceDataReducer,
+  [instanceDataSlice.name]: instanceDataSlice.reducer,
   instantiation: InstantiationReducer,
   [isLoadingSlice.name]: isLoadingSlice.reducer,
   [languageSlice.name]: languageSlice.reducer,

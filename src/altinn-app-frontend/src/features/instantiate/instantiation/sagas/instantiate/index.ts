@@ -2,7 +2,6 @@ import type { SagaIterator } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import type { IParty } from 'altinn-shared/types';
 import type { AxiosResponse } from 'axios';
-import InstanceDataActions from '../../../../../shared/resources/instanceData/instanceDataActions';
 import type { IRuntimeState } from '../../../../../types';
 import { post, putWithoutConfig } from '../../../../../utils/networking';
 import {
@@ -13,6 +12,7 @@ import {
 import InstantiationActions from '../../actions';
 import * as InstantiationActionTypes from '../../actions/types';
 import type { IInstantiationState } from '../../reducer';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
 const InstantiatingSelector = (state: IRuntimeState) => state.instantiation;
 const SelectedPartySelector = (state: IRuntimeState) =>
@@ -50,9 +50,10 @@ function* instantiationSaga(): SagaIterator {
         throw error;
       }
 
-      yield call(
-        InstanceDataActions.getInstanceDataFulfilled,
-        instanceResponse.data,
+      yield put(
+        InstanceDataActions.getFulfilled({
+          instanceData: instanceResponse.data,
+        }),
       );
       yield call(
         InstantiationActions.instantiateFulfilled,
