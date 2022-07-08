@@ -10,7 +10,7 @@ import instanceDataSlice from 'src/shared/resources/instanceData/instanceDataSli
 import orgsSlice from 'src/shared/resources/orgs/orgsSlice';
 import partySlice from '../shared/resources/party/partySlice';
 import processSlice from 'src/shared/resources/process/processSlice';
-import ProfileReducer from '../shared/resources/profile/profileReducers';
+import profileSlice from 'src/shared/resources/profile/profileSlice';
 import TextResourcesReducer from '../shared/resources/textResources/textResourcesReducer';
 import { appApi } from 'src/services/AppApi';
 import formDynamicsSlice from '../features/form/dynamics/formDynamicsSlice';
@@ -38,7 +38,7 @@ const reducers = {
   [orgsSlice.name]: orgsSlice.reducer,
   [partySlice.name]: partySlice.reducer,
   [processSlice.name]: processSlice.reducer,
-  profile: ProfileReducer,
+  [profileSlice.name]: profileSlice.reducer,
   [queueSlice.name]: queueSlice.reducer,
   textResources: TextResourcesReducer,
   optionState: OptionsReducer,

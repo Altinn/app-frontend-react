@@ -8,7 +8,6 @@ import {
 } from './fetchTextResourcesSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FETCH_TEXT_RESOURCES } from './fetchTextResourcesActionTypes';
-import { FETCH_PROFILE_FULFILLED } from '../../profile/fetch/fetchProfileActionTypes';
 import { profileStateSelector } from 'src/selectors/simpleSelectors';
 import type { IProfile } from 'altinn-shared/types';
 import { get } from 'src/utils/networking';
@@ -17,6 +16,7 @@ import TextResourcesActions from '../textResourcesActions';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
+import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 
 describe('fetchTextResourcesSagas', () => {
   it('should dispatch action fetchTextResources', () => {
@@ -29,7 +29,7 @@ describe('fetchTextResourcesSagas', () => {
       ]),
     );
     expect(generator.next().value).toEqual(select(allowAnonymousSelector));
-    expect(generator.next().value).toEqual(take(FETCH_PROFILE_FULFILLED));
+    expect(generator.next().value).toEqual(take(ProfileActions.fetchFulfilled));
     expect(generator.next().value).toEqual(call(fetchTextResources));
     expect(generator.next().value).toEqual(
       takeLatest(FETCH_TEXT_RESOURCES, fetchTextResources),

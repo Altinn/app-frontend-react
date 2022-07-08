@@ -5,12 +5,12 @@ import { textResourcesUrl, oldTextResourcesUrl } from 'src/utils/appUrlHelper';
 import TextResourcesActions from '../textResourcesActions';
 import { appTaskQueueError } from '../../queue/queueSlice';
 import { FETCH_TEXT_RESOURCES } from './fetchTextResourcesActionTypes';
-import { FETCH_PROFILE_FULFILLED } from '../../profile/fetch/fetchProfileActionTypes';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
+import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 
 export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
@@ -52,7 +52,7 @@ export function* watchFetchTextResourcesSaga(): SagaIterator {
   const allowAnonymous = yield select(allowAnonymousSelector);
 
   if (!allowAnonymous) {
-    yield take(FETCH_PROFILE_FULFILLED);
+    yield take(ProfileActions.fetchFulfilled);
   }
   yield call(fetchTextResources);
   yield takeLatest(FETCH_TEXT_RESOURCES, fetchTextResources);
