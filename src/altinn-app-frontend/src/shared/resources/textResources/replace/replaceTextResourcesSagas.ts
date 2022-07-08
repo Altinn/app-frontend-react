@@ -1,6 +1,6 @@
 import type { SagaIterator } from 'redux-saga';
 import { all, take, takeLatest, select, call, put } from 'redux-saga/effects';
-import type { IFormData } from 'src/features/form/data/formDataReducer';
+import type { IFormData } from 'src/features/form/data';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import { replaceTextResourceParams } from 'altinn-shared/utils/language';
 import type {
@@ -10,7 +10,7 @@ import type {
   IInstance,
   IInstanceContext,
 } from 'altinn-shared/types';
-import FormDataActions from '../../../../features/form/data/formDataActions';
+import { FormDataActions } from '../../../../features/form/data/formDataSlice';
 import { FormLayoutActions } from '../../../../features/form/layout/formLayoutSlice';
 import type { ITextResourcesState } from '../';
 import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';

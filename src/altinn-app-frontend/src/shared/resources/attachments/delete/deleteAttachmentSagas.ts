@@ -5,7 +5,7 @@ import { getFileUploadComponentValidations } from '../../../../utils/formCompone
 import type { IRuntimeState } from '../../../../types';
 import { httpDelete } from '../../../../utils/networking';
 import { dataElementUrl } from '../../../../utils/appUrlHelper';
-import FormDataActions from 'src/features/form/data/formDataActions';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import type { AxiosResponse } from 'axios';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import type { PayloadAction } from '@reduxjs/toolkit';

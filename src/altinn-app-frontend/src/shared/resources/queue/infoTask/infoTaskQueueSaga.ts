@@ -3,7 +3,7 @@ import { all, call, put, select, take } from 'redux-saga/effects';
 import type { IRuntimeState, ITextResource } from 'src/types';
 import { get } from 'altinn-shared/utils';
 import type { IInstance } from 'altinn-shared/types';
-import FormDataActions from 'src/features/form/data/formDataActions';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import {
   startInitialInfoTaskQueue,
   startInitialInfoTaskQueueFulfilled,

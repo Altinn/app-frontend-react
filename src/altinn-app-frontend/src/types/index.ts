@@ -4,7 +4,7 @@ import type { IFormRuleState } from 'src/features/form/rules';
 import type { IDataModelState } from 'src/features/form/datamodel/datamodelSlice';
 import type { ReactNode } from 'react';
 import type Ajv from 'ajv/dist/core';
-import type { IFormDataState } from '../features/form/data/formDataReducer';
+import type { IFormDataState } from '../features/form/data';
 import type { IFormDynamicState } from '../features/form/dynamics';
 import type { ILayoutState } from '../features/form/layout/formLayoutSlice';
 import type { IValidationState } from '../features/form/validation/validationSlice';
@@ -20,7 +20,7 @@ import type { IProfileState } from '../shared/resources/profile';
 import type { IQueueState } from '../shared/resources/queue/queueSlice';
 import type { ITextResourcesState } from '../shared/resources/textResources';
 import type { IApplicationSettingsState } from 'src/shared/resources/applicationSettings/applicationSettingsSlice';
-import type { IFormData } from 'src/features/form/data/formDataReducer';
+import type { IFormData } from 'src/features/form/data';
 
 export interface IAltinnWindow extends Window {
   app: string;

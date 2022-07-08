@@ -1,6 +1,6 @@
 import type { SagaIterator } from '@redux-saga/types';
 import { put, takeLatest } from 'redux-saga/effects';
-import FormDataActions from 'src/features/form/data/formDataActions';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { fetchJsonSchema } from 'src/features/form/datamodel/datamodelSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { startStatelessIsLoading } from '../../isLoading/isLoadingSlice';

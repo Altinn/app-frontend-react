@@ -1,6 +1,6 @@
 import type { SagaIterator } from 'redux-saga';
 import { take, all, put } from 'redux-saga/effects';
-import FormDataActions from 'src/features/form/data/formDataActions';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { fetchJsonSchemaFulfilled } from 'src/features/form/datamodel/datamodelSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { startInitialStatelessQueue } from '../../queue/queueSlice';

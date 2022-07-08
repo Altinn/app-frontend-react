@@ -19,7 +19,7 @@ import {
 } from '../../../../utils/validation';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import { updateComponentValidations } from '../../validation/validationSlice';
-import FormDataActions from '../formDataActions';
+import { FormDataActions } from '../formDataSlice';
 import type {
   IUpdateFormData,
   IDeleteAttachmentReference,
@@ -27,7 +27,7 @@ import type {
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
 import { getCurrentDataTypeForApplication } from '../../../../utils/appMetadata';
 import { removeAttachmentReference } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/form/data/formDataReducer';
+import type { IFormData } from 'src/features/form/data';
 import type { ILayouts } from 'src/features/form/layout';
 import type { IAttachments } from 'src/shared/resources/attachments';
 

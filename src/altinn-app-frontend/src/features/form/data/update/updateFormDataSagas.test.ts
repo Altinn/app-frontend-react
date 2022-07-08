@@ -11,7 +11,7 @@ import type { IDeleteAttachmentReference } from 'src/features/form/data/formData
 import { select } from 'redux-saga/effects';
 import { getInitialStateMock } from '../../../../../__mocks__/mocks';
 import type { IRuntimeState, IDataModelBindings } from 'src/types';
-import FormDataActions from 'src/features/form/data/formDataActions';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import type {
   IAttachments,
   IAttachment,

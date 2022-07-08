@@ -3,7 +3,7 @@ import * as React from 'react';
 import { getLanguageFromKey } from 'altinn-shared/utils/language';
 import { AltinnLoader } from 'altinn-shared/components';
 import type { IAltinnWindow } from '../../types';
-import FormDataActions from '../../features/form/data/formDataActions';
+import { FormDataActions } from '../../features/form/data/formDataSlice';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import type { IComponentProps } from '..';
 

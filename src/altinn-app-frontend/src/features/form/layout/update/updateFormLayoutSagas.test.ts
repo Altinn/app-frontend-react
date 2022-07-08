@@ -1,7 +1,7 @@
 import { expectSaga, testSaga } from 'redux-saga-test-plan';
 import { actionChannel, call, select, take } from 'redux-saga/effects';
 
-import FormDataActions from 'src/features/form/data/formDataActions';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import * as sharedUtils from 'altinn-shared/utils';
 import {

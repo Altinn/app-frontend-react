@@ -12,7 +12,7 @@ import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 import type { IData } from '../../../../../../shared/src';
 
 import { convertDataBindingToModel } from 'src/utils/databindings';
-import FormDataActions from '../formDataActions';
+import { FormDataActions } from '../formDataSlice';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import { put } from '../../../../../../shared/src/utils/networking';
 import { post } from 'src/utils/networking';

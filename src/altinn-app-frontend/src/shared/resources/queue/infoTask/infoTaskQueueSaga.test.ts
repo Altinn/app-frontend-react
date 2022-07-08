@@ -13,7 +13,7 @@ import {
   startDataTaskIsLoading,
 } from '../../isLoading/isLoadingSlice';
 import { startInitialInfoTaskQueueFulfilled } from '../queueSlice';
-import FormDataActions from '../../../../features/form/data/formDataActions';
+import { FormDataActions } from '../../../../features/form/data/formDataSlice';
 import { TextResourcesActions } from '../../textResources/textResourcesSlice';
 import {
   startInitialInfoTaskQueueSaga,

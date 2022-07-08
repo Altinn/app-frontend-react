@@ -15,7 +15,7 @@ import type {
   ITextResourceBindings,
 } from '../features/form/layout';
 import { getTextResourceByKey } from 'altinn-shared/utils';
-import FormDataActions from '../features/form/data/formDataActions';
+import { FormDataActions } from '../features/form/data/formDataSlice';
 import { setCurrentSingleFieldValidation } from '../features/form/validation/validationSlice';
 import { makeGetFocus, makeGetHidden } from '../selectors/getLayoutData';
 import Label from '../features/form/components/Label';

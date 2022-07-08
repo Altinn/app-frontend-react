@@ -9,7 +9,7 @@ import {
 } from 'src/utils/appUrlHelper';
 import { get } from '../../../../utils/networking';
 import { FormLayoutActions as Actions } from '../formLayoutSlice';
-import FormDataActions from '../../data/formDataActions';
+import { FormDataActions } from '../../data/formDataSlice';
 import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
 import type {
   ILayoutSettings,

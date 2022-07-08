@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 import { combineReducers } from 'redux';
 import optionsSlice from '../shared/resources/options/optionsSlice';
-import FormDataReducer from '../features/form/data/formDataReducer';
+import formDataSlice from '../features/form/data/formDataSlice';
 import formRulesSlice from 'src/features/form/rules/rulesSlice';
 import instantiationSlice from 'src/features/instantiate/instantiation/instantiationSlice';
 import applicationMetadataSlice from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
@@ -25,7 +25,7 @@ import applicationSettingsSlice from '../shared/resources/applicationSettings/ap
 const reducers = {
   [applicationMetadataSlice.name]: applicationMetadataSlice.reducer,
   [attachmentSlice.name]: attachmentSlice.reducer,
-  formData: FormDataReducer,
+  [formDataSlice.name]: formDataSlice.reducer,
   [formDataModelSlice.name]: formDataModelSlice.reducer,
   [formDynamicsSlice.name]: formDynamicsSlice.reducer,
   [formLayoutSlice.name]: formLayoutSlice.reducer,

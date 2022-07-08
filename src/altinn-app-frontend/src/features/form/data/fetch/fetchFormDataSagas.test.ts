@@ -21,7 +21,7 @@ import {
   getCurrentTaskDataElementId,
   getDataTypeByLayoutSetId,
 } from 'src/utils/appMetadata';
-import FormDataActions from '../formDataActions';
+import { FormDataActions } from '../formDataSlice';
 import type { IApplication } from 'altinn-shared/types';
 import type { ILayoutSets } from 'src/types';
 import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';

@@ -1,6 +1,6 @@
 import type { SagaIterator } from 'redux-saga';
 import { all, put, take } from 'redux-saga/effects';
-import FormDataActions from '../../../../features/form/data/formDataActions';
+import { FormDataActions } from '../../../../features/form/data/formDataSlice';
 import { FormLayoutActions } from '../../../../features/form/layout/formLayoutSlice';
 import { finishDataTaskIsLoading } from '../isLoadingSlice';
 import { startInitialDataTaskQueue } from '../../queue/queueSlice';

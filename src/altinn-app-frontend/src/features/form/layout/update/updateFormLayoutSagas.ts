@@ -74,8 +74,8 @@ import type {
   IUpdateFileUploaderWithTagEditIndex,
   IUpdateFileUploaderWithTagChosenOptions,
 } from '../formLayoutTypes';
-import type { IFormDataState } from '../../data/formDataReducer';
-import FormDataActions from '../../data/formDataActions';
+import type { IFormDataState } from '../../data';
+import { FormDataActions } from '../../data/formDataSlice';
 import {
   convertDataBindingToModel,
   removeGroupData,

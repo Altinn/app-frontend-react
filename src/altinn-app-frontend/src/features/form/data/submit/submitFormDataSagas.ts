@@ -33,7 +33,7 @@ import {
   runSingleFieldValidation,
   updateValidations,
 } from '../../validation/validationSlice';
-import FormDataActions from '../formDataActions';
+import { FormDataActions } from '../formDataSlice';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type { ISubmitDataAction } from '../formDataTypes';
 import {

@@ -1,6 +1,6 @@
 import { expectSaga, testSaga } from 'redux-saga-test-plan';
 import { select } from 'redux-saga/effects';
-import FormDataActions from 'src/features/form/data/formDataActions';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import {
   checkIfOptionsShouldRefetchSaga,
   fetchOptionsSaga,

@@ -3,7 +3,7 @@ import type {
   IRepeatingGroup,
   IRepeatingGroups,
 } from 'src/types';
-import type { IFormData } from '../features/form/data/formDataReducer';
+import type { IFormData } from '../features/form/data';
 import type {
   IConditionalRenderingRules,
   IConditionalRenderingRule,

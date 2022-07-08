@@ -10,7 +10,7 @@ import {
 } from 'src/utils/appMetadata';
 import { putWithoutConfig } from 'src/utils/networking';
 import { convertModelToDataBinding } from '../../../../utils/databindings';
-import FormDataActions from '../formDataActions';
+import { FormDataActions } from '../formDataSlice';
 import type { ILayoutSets, IRuntimeState } from '../../../../types';
 import type { IApplicationMetadata } from '../../../../shared/resources/applicationMetadata';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';

@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/react';
 import { mockMediaQuery, renderWithProviders } from '../../../../testUtils';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
-import type { IFormDataState } from 'src/features/form/data/formDataReducer';
+import type { IFormDataState } from 'src/features/form/data';
 import type { ITextResourcesState } from 'src/shared/resources/textResources';
 import { getInitialStateMock } from '../../../../__mocks__/initialStateMock';
 import { setupStore } from 'src/store';
