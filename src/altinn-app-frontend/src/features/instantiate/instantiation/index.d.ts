@@ -4,11 +4,6 @@ export interface IInstantiationState {
   error: Error;
 }
 
-export interface IInstantiate {
-  org: string;
-  app: string;
-}
-
 export interface IInstantiateFulfilled {
   instanceId: string;
 }

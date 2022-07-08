@@ -9,57 +9,48 @@ import {
   redirectToUpgrade,
   invalidateCookieUrl,
 } from '../../../../../utils/appUrlHelper';
-import type { IInstantiationState } from 'src/features/instantiate/instantiation';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
-const InstantiatingSelector = (state: IRuntimeState) => state.instantiation;
 const SelectedPartySelector = (state: IRuntimeState) =>
   state.party.selectedParty;
 
 function* instantiationSaga(): SagaIterator {
   try {
-    const instantitationState: IInstantiationState = yield select(
-      InstantiatingSelector,
-    );
-    if (!instantitationState.instantiating) {
-      yield put(InstantiationActions.instantiateToggle());
+    const selectedParty: IParty = yield select(SelectedPartySelector);
 
-      const selectedParty: IParty = yield select(SelectedPartySelector);
-
-      // Creates a new instance
-      let instanceResponse: AxiosResponse;
-      try {
-        instanceResponse = yield call(
-          post,
-          getCreateInstancesUrl(selectedParty.partyId),
-        );
-      } catch (error) {
-        if (
-          error.response &&
-          error.response.status === 403 &&
-          error.response.data
-        ) {
-          const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;
-          if (reqAuthLevel) {
-            putWithoutConfig(invalidateCookieUrl);
-            yield call(redirectToUpgrade, reqAuthLevel);
-          }
+    // Creates a new instance
+    let instanceResponse: AxiosResponse;
+    try {
+      instanceResponse = yield call(
+        post,
+        getCreateInstancesUrl(selectedParty.partyId),
+      );
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.status === 403 &&
+        error.response.data
+      ) {
+        const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;
+        if (reqAuthLevel) {
+          yield call(putWithoutConfig, invalidateCookieUrl);
+          yield call(redirectToUpgrade, reqAuthLevel);
         }
-        throw error;
       }
-
-      yield put(
-        InstanceDataActions.getFulfilled({
-          instanceData: instanceResponse.data,
-        }),
-      );
-      yield put(
-        InstantiationActions.instantiateFulfilled({
-          instanceId: instanceResponse.data.id,
-        }),
-      );
+      throw error;
     }
+
+    yield put(
+      InstanceDataActions.getFulfilled({
+        instanceData: instanceResponse.data,
+      }),
+    );
+    yield put(
+      InstantiationActions.instantiateFulfilled({
+        instanceId: instanceResponse.data.id,
+      }),
+    );
   } catch (error) {
     yield put(InstantiationActions.instantiateRejected({ error }));
   }

@@ -1,15 +1,13 @@
 import * as React from 'react';
-import type { AxiosError } from 'axios';
 import {
   AltinnContentLoader,
   AltinnContentIconFormData,
 } from 'altinn-shared/components';
 import { Redirect } from 'react-router-dom';
 import { AltinnAppTheme } from 'altinn-shared/theme';
-import { checkIfAxiosError } from 'altinn-shared/utils';
+import { isAxiosError } from 'altinn-shared/utils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import Presentation from 'src/shared/containers/Presentation';
-import type { IAltinnWindow } from '../../../types';
 import { ProcessTaskType } from '../../../types';
 import { changeBodyBackground } from '../../../utils/bodyStyling';
 import { HttpStatusCodes } from '../../../utils/networking';
@@ -25,7 +23,6 @@ const InstantiateContainer = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.greyLight);
 
   const dispatch = useAppDispatch();
-  const [instantiating, setInstantiating] = React.useState(false);
   const instantiation = useAppSelector((state) => state.instantiation);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
   const titleText = useAppSelector((state) => {
@@ -41,19 +38,22 @@ const InstantiateContainer = () => {
 
   React.useEffect(() => {
     const shouldCreateInstance =
-      !instantiating && !instantiation.instanceId && selectedParty;
-
+      !instantiation.instantiating &&
+      !instantiation.instanceId &&
+      selectedParty;
     if (shouldCreateInstance) {
-      const { org, app } = window as Window as IAltinnWindow;
-      setInstantiating(true);
-      dispatch(InstantiationActions.instantiate({ org, app }));
+      dispatch(InstantiationActions.instantiate());
     }
-  }, [instantiating, selectedParty, instantiation.instanceId]);
+  }, [
+    selectedParty,
+    instantiation.instantiating,
+    instantiation.instanceId,
+    dispatch,
+  ]);
 
-  if (instantiation.error !== null && checkIfAxiosError(instantiation.error)) {
-    const axiosError = instantiation.error as AxiosError;
-    const message = (axiosError.response.data as any)?.message;
-    if (axiosError.response.status === HttpStatusCodes.Forbidden) {
+  if (isAxiosError(instantiation.error)) {
+    const message = (instantiation.error.response.data as any)?.message;
+    if (instantiation.error.response.status === HttpStatusCodes.Forbidden) {
       if (message) {
         return <InstantiateValidationError message={message} />;
       }

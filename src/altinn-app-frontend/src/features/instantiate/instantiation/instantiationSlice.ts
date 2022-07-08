@@ -1,10 +1,9 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice, createAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import type {
   IInstantiationState,
   IInstantiateFulfilled,
   IInstantiateRejected,
-  IInstantiate,
 } from '.';
 
 const initialState: IInstantiationState = {
@@ -18,11 +17,15 @@ const instantiationSlice = createSlice({
   name,
   initialState,
   reducers: {
+    instantiate: (state) => {
+      state.instantiating = true;
+    },
     instantiateFulfilled: (
       state,
       action: PayloadAction<IInstantiateFulfilled>,
     ) => {
       state.instanceId = action.payload.instanceId;
+      state.instantiating = false;
     },
     instantiateRejected: (
       state,
@@ -31,18 +34,8 @@ const instantiationSlice = createSlice({
       state.error = action.payload.error;
       state.instantiating = false;
     },
-    instantiateToggle: (state) => {
-      state.instantiating = !state.instantiating;
-    },
   },
 });
 
-const actions = {
-  instantiate: createAction<IInstantiate>(`${name}/instantiate`),
-};
-
-export const InstantiationActions = {
-  ...instantiationSlice.actions,
-  ...actions,
-};
+export const InstantiationActions = instantiationSlice.actions;
 export default instantiationSlice;
