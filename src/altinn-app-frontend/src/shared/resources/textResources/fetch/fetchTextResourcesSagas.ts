@@ -6,11 +6,11 @@ import TextResourcesActions from '../textResourcesActions';
 import { appTaskQueueError } from '../../queue/queueSlice';
 import { FETCH_TEXT_RESOURCES } from './fetchTextResourcesActionTypes';
 import { FETCH_PROFILE_FULFILLED } from '../../profile/fetch/fetchProfileActionTypes';
-import { FETCH_APPLICATION_METADATA_FULFILLED } from 'src/shared/resources/applicationMetadata/actions/types';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
+import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 
 export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
@@ -45,7 +45,7 @@ export function* fetchTextResources(): SagaIterator {
 export function* watchFetchTextResourcesSaga(): SagaIterator {
   yield all([
     take(FormLayoutActions.fetchLayoutSetsFulfilled),
-    take(FETCH_APPLICATION_METADATA_FULFILLED),
+    take(ApplicationMetadataActions.getFulfilled),
     take(FETCH_TEXT_RESOURCES),
   ]);
 

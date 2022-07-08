@@ -11,6 +11,7 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromCode } from 'altinn-shared/language';
 import * as language from 'altinn-shared/language';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
+import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 
 describe('languageActions', () => {
   it('should create an action with correct type: FETCH_LANGUAGE', () => {
@@ -50,7 +51,7 @@ describe('fetchLanguageSagas', () => {
     expect(generator.next().value).toEqual(
       all([
         take(FormLayoutActions.fetchLayoutSetsFulfilled),
-        take('APPLICATION_METADATA.FETCH_APPLICATION_METADATA_FULFILLED'),
+        take(ApplicationMetadataActions.getFulfilled),
         take(LanguageActions.fetchLanguage),
       ]),
     );

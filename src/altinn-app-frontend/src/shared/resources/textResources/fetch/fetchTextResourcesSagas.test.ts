@@ -8,7 +8,6 @@ import {
 } from './fetchTextResourcesSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FETCH_TEXT_RESOURCES } from './fetchTextResourcesActionTypes';
-import { FETCH_APPLICATION_METADATA_FULFILLED } from 'src/shared/resources/applicationMetadata/actions/types';
 import { FETCH_PROFILE_FULFILLED } from '../../profile/fetch/fetchProfileActionTypes';
 import { profileStateSelector } from 'src/selectors/simpleSelectors';
 import type { IProfile } from 'altinn-shared/types';
@@ -17,6 +16,7 @@ import { textResourcesUrl } from 'src/utils/appUrlHelper';
 import TextResourcesActions from '../textResourcesActions';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
+import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 
 describe('fetchTextResourcesSagas', () => {
   it('should dispatch action fetchTextResources', () => {
@@ -24,7 +24,7 @@ describe('fetchTextResourcesSagas', () => {
     expect(generator.next().value).toEqual(
       all([
         take(FormLayoutActions.fetchLayoutSetsFulfilled),
-        take(FETCH_APPLICATION_METADATA_FULFILLED),
+        take(ApplicationMetadataActions.getFulfilled),
         take(FETCH_TEXT_RESOURCES),
       ]),
     );

@@ -4,18 +4,18 @@ import {
   startInitialAppTaskQueue,
   startInitialAppTaskQueueFulfilled,
 } from '../queueSlice';
-import ApplicationMetadataActions from '../../applicationMetadata/actions';
 import { ApplicationSettingsActions } from '../../applicationSettings/applicationSettingsSlice';
 import OrgsActions from 'src/shared/resources/orgs/orgsActions';
 import TextResourcesActions from '../../textResources/textResourcesActions';
 import { LanguageActions } from '../../language/languageSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 
 export function* startInitialAppTaskQueueSaga(): SagaIterator {
   yield put(ApplicationSettingsActions.fetchApplicationSettings());
   yield call(TextResourcesActions.fetchTextResources);
   yield put(LanguageActions.fetchLanguage());
-  yield call(ApplicationMetadataActions.getApplicationMetadata);
+  yield put(ApplicationMetadataActions.get());
   yield put(FormLayoutActions.fetchLayoutSets());
   yield call(OrgsActions.fetchOrgs);
   yield put(startInitialAppTaskQueueFulfilled());

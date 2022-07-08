@@ -4,7 +4,7 @@ import OptionsReducer from '../shared/resources/options/optionsReducer';
 import FormDataReducer from '../features/form/data/formDataReducer';
 import FormRuleReducer from '../features/form/rules/rulesReducer';
 import InstantiationReducer from '../features/instantiate/instantiation/reducer';
-import ApplicationMetadataReducer from '../shared/resources/applicationMetadata/reducer';
+import applicationMetadataSlice from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import attachmentSlice from 'src/shared/resources/attachments/attachmentSlice';
 import InstanceDataReducer from '../shared/resources/instanceData/instanceDataReducers';
 import OrgsReducer from '../shared/resources/orgs/orgsReducers';
@@ -23,7 +23,7 @@ import queueSlice from '../shared/resources/queue/queueSlice';
 import applicationSettingsSlice from '../shared/resources/applicationSettings/applicationSettingsSlice';
 
 const reducers = {
-  applicationMetadata: ApplicationMetadataReducer,
+  [applicationMetadataSlice.name]: applicationMetadataSlice.reducer,
   [attachmentSlice.name]: attachmentSlice.reducer,
   formData: FormDataReducer,
   [formDataModelSlice.name]: formDataModelSlice.reducer,

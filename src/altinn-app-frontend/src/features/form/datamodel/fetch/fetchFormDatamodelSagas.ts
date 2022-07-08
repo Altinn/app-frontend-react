@@ -7,7 +7,6 @@ import {
   getCurrentDataTypeForApplication,
   isStatelessApp,
 } from 'src/utils/appMetadata';
-import { FETCH_APPLICATION_METADATA_FULFILLED } from 'src/shared/resources/applicationMetadata/actions/types';
 import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
 import { get } from '../../../../utils/networking';
 import type { ILayoutSets, IRuntimeState } from '../../../../types';
@@ -19,6 +18,7 @@ import {
   fetchJsonSchemaRejected,
 } from '../datamodelSlice';
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
+import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 
 const AppMetadataSelector: (state: IRuntimeState) => IApplicationMetadata = (
   state: IRuntimeState,
@@ -53,7 +53,7 @@ function* fetchJsonSchemaSaga(): SagaIterator {
 
 export function* watchFetchJsonSchemaSaga(): SagaIterator {
   yield all([
-    take(FETCH_APPLICATION_METADATA_FULFILLED),
+    take(ApplicationMetadataActions.getFulfilled),
     take(FormLayoutActions.fetchLayoutSetsFulfilled),
     take(fetchJsonSchema),
   ]);

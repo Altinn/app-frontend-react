@@ -12,7 +12,7 @@ import FormDataActions from 'src/features/form/data/formDataActions';
 import type { ILayouts } from 'src/features/form/layout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { GET_INSTANCEDATA_FULFILLED } from 'src/shared/resources/instanceData/get/getInstanceDataActionTypes';
-import { FETCH_APPLICATION_METADATA_FULFILLED } from 'src/shared/resources/applicationMetadata/actions/types';
+import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 
 export function* watchMapAttachmentsSaga(): SagaIterator {
   yield all([
@@ -20,7 +20,7 @@ export function* watchMapAttachmentsSaga(): SagaIterator {
     take(FormLayoutActions.fetchLayoutFulfilled),
     take(FormLayoutActions.updateCurrentViewFulfilled),
     take(GET_INSTANCEDATA_FULFILLED),
-    take(FETCH_APPLICATION_METADATA_FULFILLED),
+    take(ApplicationMetadataActions.getFulfilled),
   ]);
   yield call(mapAttachments);
   yield takeLatest(AttachmentActions.mapAttachments, mapAttachments);
