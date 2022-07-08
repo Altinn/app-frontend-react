@@ -54,7 +54,7 @@ function* checkIfRuleShouldRunSaga({
           }
 
           return put(
-            FormDataActions.updateFormData({
+            FormDataActions.update({
               componentId: rule.componentId,
               data: rule.result,
               field: rule.dataBindingName,

@@ -97,7 +97,7 @@ describe('updateLayoutSagas', () => {
       };
 
       const action: PayloadAction<IUpdateRepeatingGroups> = {
-        type: 'formLayout/updateRepeatingGroups',
+        type: FormLayoutActions.updateRepeatingGroups.type,
         payload: {
           layoutElementId: 'repeating-group',
           index: 0,

@@ -88,7 +88,7 @@ export function* uploadAttachmentSaga({
         (dataModelBindings.simpleBinding || dataModelBindings.list)
       ) {
         yield put(
-          FormDataActions.updateFormData({
+          FormDataActions.update({
             componentId: componentId,
             data: response.data.id,
             field: dataModelBindings.simpleBinding

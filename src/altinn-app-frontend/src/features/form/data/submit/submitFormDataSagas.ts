@@ -205,7 +205,7 @@ function* handleCalculationUpdate(changedFields) {
   // eslint-disable-next-line no-restricted-syntax
   for (const fieldKey of Object.keys(changedFields)) {
     yield sagaPut(
-      FormDataActions.updateFormData({
+      FormDataActions.update({
         data: changedFields[fieldKey]?.toString(),
         field: fieldKey,
         skipValidation: true,

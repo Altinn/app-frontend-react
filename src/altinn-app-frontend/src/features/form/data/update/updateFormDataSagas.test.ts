@@ -40,7 +40,7 @@ describe('updateFormDataSagas', () => {
       };
 
       const action: PayloadAction<IDeleteAttachmentReference> = {
-        type: 'formData/deleteAttachmentReference',
+        type: FormDataActions.deleteAttachmentReference.type,
         payload: {
           attachmentId: 'abc123',
           componentId: componentId,

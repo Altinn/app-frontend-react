@@ -187,7 +187,7 @@ export function GenericComponent(props: IGenericComponentProps) {
     }
 
     dispatch(
-      FormDataActions.updateFormData({
+      FormDataActions.update({
         field: dataModelBinding,
         data: value,
         componentId: props.id,

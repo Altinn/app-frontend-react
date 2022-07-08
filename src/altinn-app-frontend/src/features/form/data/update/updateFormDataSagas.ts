@@ -140,7 +140,7 @@ function shouldUpdateFormData(currentData: any, newData: any): boolean {
 }
 
 export function* watchUpdateFormDataSaga(): SagaIterator {
-  const requestChan = yield actionChannel(FormDataActions.updateFormData);
+  const requestChan = yield actionChannel(FormDataActions.update);
   while (true) {
     const value = yield take(requestChan);
     yield call(updateFormDataSaga, value);

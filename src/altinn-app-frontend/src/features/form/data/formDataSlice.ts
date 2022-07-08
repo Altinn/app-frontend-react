@@ -88,7 +88,7 @@ const formDataSlice = createSlice({
     // The _action parameter is unused, but these parameters are used by TypeScript to infer the payload type for
     // this action, so we need to keep it here even if we only read it in the saga.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    updateFormData: (state, _action: PayloadAction<IUpdateFormData>) => {
+    update: (state, _action: PayloadAction<IUpdateFormData>) => {
       state.hasSubmitted = false;
       state.ignoreWarnings = false;
     },

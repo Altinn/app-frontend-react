@@ -10,6 +10,7 @@ import { setupStore } from 'src/store';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import type { ILayoutValidations, ITextResource } from 'src/types';
 import type { IValidationState } from 'src/features/form/validation/validationSlice';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 
 export const defaultMockQuestions = [
   { Question: 'Hvordan trives du på skolen?', Answer: '' },
@@ -105,7 +106,7 @@ export const createFormDataUpdateAction = (
       field: `Questions[${index}].Answer`,
       skipValidation: false,
     },
-    type: 'formData/update',
+    type: FormDataActions.update.type,
   };
 };
 
