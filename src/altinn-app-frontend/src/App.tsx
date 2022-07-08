@@ -1,6 +1,6 @@
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import * as React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useLocation } from 'react-router-dom';
 import { AltinnAppTheme } from 'altinn-shared/theme';
 import ProcessWrapper from './shared/containers/ProcessWrapper';
 import UnknownError from './features/instantiate/containers/UnknownError';
@@ -38,6 +38,10 @@ export const App = () => {
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
 
   const [ready, setReady] = React.useState(false);
+  const location = useLocation();
+  const instanceIdExpr =
+    /instance\/[0-9]+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}/i;
+  const hasInstanceId = instanceIdExpr.test(location.pathname);
 
   React.useEffect(() => {
     function setUpEventListeners() {
@@ -106,7 +110,7 @@ export const App = () => {
         <Switch>
           <Route
             path='/'
-            exact={!allowAnonymous}
+            exact={hasInstanceId}
           >
             <Entrypoint allowAnonymous={allowAnonymous} />
           </Route>
