@@ -126,6 +126,33 @@ describe('PanelGroupContainer', () => {
     expect(inputFieldTitle).toBeInTheDocument();
   });
 
+  it('should display panel wieh referenced group children if no children is supplied', async () => {
+    const containerWithNoChildrenWithGroupReference: ILayoutGroup = {
+      ...container,
+      children: undefined,
+      textResourceBindings: {
+        add_label: 'Add new item',
+      },
+      panel: {
+        ...container.panel,
+        groupReference: {
+          group: 'referencedGroup',
+        },
+      },
+    };
+
+    render({
+      container: containerWithNoChildrenWithGroupReference,
+      components: undefined,
+    });
+
+    const addNewButton = await screen.queryByText('Add new item');
+    await userEvent.click(addNewButton);
+
+    const firstInputTitle = await screen.queryByText('Referenced Group Input');
+    expect(firstInputTitle).toBeInTheDocument();
+  });
+
   it('should display nothing if group is hidden', async () => {
     const stateWithHidden: PreloadedState<RootState> = {
       formLayout: {

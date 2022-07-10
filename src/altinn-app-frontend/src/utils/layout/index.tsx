@@ -85,7 +85,7 @@ export function renderLayoutGroup(
   layout: ILayout,
   index?: number,
 ) {
-  const groupComponents = layoutGroup.children.map((child) => {
+  const groupComponents = layoutGroup.children?.map((child) => {
     return layout.find((c) => c.id === child) as ILayoutComponent;
   });
 

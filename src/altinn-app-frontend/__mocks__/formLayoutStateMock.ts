@@ -13,7 +13,20 @@ export function getFormLayoutStateMock(
           dataModelBindings: {
             group: 'referencedGroup',
           },
-          children: [],
+          children: ['referenced-group-child'],
+        },
+        {
+          id: 'referenced-group-child',
+          type: 'Input',
+          dataModelBindings: {
+            simpleBinding: 'referencedGroup.field1',
+          },
+          textResourceBindings: {
+            title: 'Referenced Group Input',
+          },
+          readOnly: false,
+          required: false,
+          disabled: false,
         },
         {
           id: 'field1',

@@ -150,7 +150,10 @@ export function PanelGroupContainer({
                   {referencedGroup &&
                     createRepeatingGroupComponentsForIndex(
                       referencedGroup,
-                      components,
+                      components ||
+                        referencedGroup.children.map((id) =>
+                          getLayoutComponentById(id, layouts),
+                        ),
                       textResources,
                       referencedGroupIndex + 1,
                       hiddenFields,
