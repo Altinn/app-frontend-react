@@ -436,17 +436,19 @@ export function findChildren(
   if (root) {
     for (const item of layout) {
       if (isGroupComponent(item)) {
-        for (const childId of item.children) {
-          const cleanId = item.edit?.multiPage
-            ? childId.match(/^\d+:(.*)$/)[1]
-            : childId;
-          if (item.id === root) {
-            toConsider.add(cleanId);
-          } else {
-            if (typeof otherGroupComponents[item.id] === 'undefined') {
-              otherGroupComponents[item.id] = new Set();
+        if (item.children) {
+          for (const childId of item.children) {
+            const cleanId = item.edit?.multiPage
+              ? childId.match(/^\d+:(.*)$/)[1]
+              : childId;
+            if (item.id === root) {
+              toConsider.add(cleanId);
+            } else {
+              if (typeof otherGroupComponents[item.id] === 'undefined') {
+                otherGroupComponents[item.id] = new Set();
+              }
+              otherGroupComponents[item.id].add(cleanId);
             }
-            otherGroupComponents[item.id].add(cleanId);
           }
         }
       }

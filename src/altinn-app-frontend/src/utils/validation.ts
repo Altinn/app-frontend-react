@@ -385,7 +385,7 @@ export function getParentGroup(groupId: string, layout: ILayout): ILayoutGroup {
             ? childId.split(':')[1]
             : childId,
       );
-      if (childrenWithoutMultiPage.indexOf(groupId) > -1) {
+      if (childrenWithoutMultiPage?.indexOf(groupId) > -1) {
         return true;
       }
     }
