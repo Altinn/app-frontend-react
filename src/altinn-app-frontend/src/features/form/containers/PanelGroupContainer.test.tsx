@@ -153,6 +153,47 @@ describe('PanelGroupContainer', () => {
     expect(firstInputTitle).toBeInTheDocument();
   });
 
+  it('should open panel when clicking add and close when clicking save,', async () => {
+    const containerWithNoChildrenWithGroupReference: ILayoutGroup = {
+      ...container,
+      children: undefined,
+      textResourceBindings: {
+        add_label: 'Add new item',
+      },
+      panel: {
+        ...container.panel,
+        groupReference: {
+          group: 'referencedGroup',
+        },
+      },
+    };
+
+    render({
+      container: containerWithNoChildrenWithGroupReference,
+      components: undefined,
+    });
+
+    // save should not be present when panel is closed
+    let saveButton = await screen.queryByText('Lagre');
+    expect(saveButton).not.toBeInTheDocument();
+
+    let addNewButton = await screen.queryByText('Add new item');
+    await userEvent.click(addNewButton);
+
+    // save should appear and add should be hidden
+    saveButton = await screen.queryByText('Lagre');
+    expect(saveButton).toBeInTheDocument();
+
+    addNewButton = await screen.queryByText('Add new item');
+    expect(addNewButton).not.toBeInTheDocument();
+
+    // pressing save should close panel and show add button again
+    await userEvent.click(saveButton);
+
+    addNewButton = await screen.queryByText('Add new item');
+    expect(addNewButton).toBeInTheDocument();
+  });
+
   it('should display nothing if group is hidden', async () => {
     const stateWithHidden: PreloadedState<RootState> = {
       formLayout: {
