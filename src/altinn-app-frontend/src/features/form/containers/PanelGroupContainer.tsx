@@ -148,16 +148,17 @@ export function PanelGroupContainer({
                   </Grid>
 
                   {referencedGroup &&
-                    createRepeatingGroupComponentsForIndex(
-                      referencedGroup,
-                      components ||
+                    createRepeatingGroupComponentsForIndex({
+                      container: referencedGroup,
+                      renderComponents:
+                        components ||
                         referencedGroup.children.map((id) =>
                           getLayoutComponentById(id, layouts),
                         ),
                       textResources,
-                      referencedGroupIndex + 1,
+                      index: referencedGroupIndex + 1,
                       hiddenFields,
-                    ).map((component) => {
+                    }).map((component) => {
                       return renderLayoutComponent(component, layout);
                     })}
 

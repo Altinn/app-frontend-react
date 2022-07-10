@@ -288,27 +288,35 @@ export function createRepeatingGroupComponents(
     repeatingGroupIndex,
     container.edit,
   );
-  for (let i = startIndex; i <= stopIndex; i++) {
+  for (let index = startIndex; index <= stopIndex; index++) {
     componentArray.push(
-      createRepeatingGroupComponentsForIndex(
+      createRepeatingGroupComponentsForIndex({
         container,
         renderComponents,
         textResources,
-        i,
+        index,
         hiddenFields,
-      ),
+      }),
     );
   }
   return componentArray;
 }
 
-export function createRepeatingGroupComponentsForIndex(
-  container: ILayoutGroup,
-  renderComponents: (ILayoutComponent | ILayoutGroup)[],
-  textResources: ITextResource[],
-  index: number,
-  hiddenFields?: string[],
-) {
+interface ICreateRepeatingGroupCoomponentsForIndexProps {
+  container: ILayoutGroup;
+  renderComponents: (ILayoutComponent | ILayoutGroup)[];
+  textResources: ITextResource[];
+  index: number;
+  hiddenFields?: string[];
+}
+
+export function createRepeatingGroupComponentsForIndex({
+  container,
+  renderComponents,
+  textResources,
+  index,
+  hiddenFields,
+}: ICreateRepeatingGroupCoomponentsForIndexProps) {
   return renderComponents.map((component: ILayoutComponent | ILayoutGroup) => {
     if (isGroupComponent(component)) {
       if (component.panel?.groupReference) {
