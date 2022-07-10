@@ -51,7 +51,7 @@ export function getLayoutIdForComponent(id: string, layouts: ILayouts): string {
 /*
   Check if provided id matches component id.
   For repeating groups, component id from formLayout is postfixed with -{index}
-  when rendering, where index is the component"s index (number) in the repeating group list.
+  when rendering, where index is the component's index (number) in the repeating group list.
   This does not change the component definition in formLayout.
   Therefore, we must match on component id as well as a potential -{index} postfix
   when searching through formLayout for the component definition.
