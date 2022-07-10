@@ -132,16 +132,23 @@ export default class AppFrontend {
       };
     };
 
-    //group - task 3
+    //group - task 3 // button-add-reference-
     this.group = {
       showGroupToContinue: '#showGroupToContinue',
       mainGroup: '#group-mainGroup',
+      secondGroup: '#group-group-2',
+      secondGroup_newValue: 'input[id^="group2-endre-til"]',
+      secondGroup_currentValue: 'input[id^="group2-endre-fra"]',
+      secondGroup_add: '[id^="add-button-group-2"]',
+      secondGroup_add_to_reference_group: '[id^="add-reference-button-group-reference"]',
+      secondGroup_save: '[id^="save-reference-button-group-reference"]',
+      secondGroup_table: '[id^="group-group-2-table"]',
       subGroup: '[id^="group-subGroup"]',
       currentValue: 'input[id^="currentValue"]',
       navigationBarButton: '#form-content-nav2 > div > nav > button',
       newValue: 'input[id^="newValue"]',
       newValueLabel: 'label[for^="newValue"]',
-      addNewItem: 'div[class*="addButton"]',
+      addNewItem: '[id^="add-button-mainGroup"]',
       comments: 'input[id^="comments"]',
       delete: 'button[class*="makeStyles-deleteButton"]',
       saveSubGroup: 'button[id*="add-button-grp-subGroup"]',

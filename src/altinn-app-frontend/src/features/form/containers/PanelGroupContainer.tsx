@@ -119,6 +119,7 @@ export function PanelGroupContainer({
             {referencedGroup && !open && (
               <Grid item>
                 <EditIconButton
+                  id={'add-reference-button-' + container.id}
                   label={addLabel}
                   onClick={handleOpen}
                 />
@@ -170,6 +171,7 @@ export function PanelGroupContainer({
                   {referencedGroup && (
                     <Grid item>
                       <SuccessIconButton
+                        id={'save-reference-button-' + container.id}
                         label={getLanguageFromKey('general.save', language)}
                         onClick={handleSave}
                       />
