@@ -1,31 +1,46 @@
-import type {
-  Slice,
-  CaseReducer,
-  CaseReducerWithPrepare,
-  PayloadAction,
-  ValidateSliceCaseReducers,
-} from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import type { Slice, PayloadAction, CaseReducer } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
-import type { WritableDraft } from 'immer/dist/types/types-external';
+import { createSlice, createAction } from '@reduxjs/toolkit';
+import { takeLatest, takeEvery } from 'redux-saga/effects';
 
 type Saga = () => SagaIterator;
-export type SagaAction<T, State> = {
+type PayloadSaga<Payload> = (action: PayloadAction<Payload>) => SagaIterator;
+
+export interface SagaAction<Payload, State> {
   /**
    * Declare your action reducer here. If you don't have a reducer for a given action, omit this.
    */
-  reducer?: (state: WritableDraft<State>, action: PayloadAction<T>) => any;
+  reducer?: (state: State, action: PayloadAction<Payload>) => any;
 
   /**
-   * Declare any (or many) sagas tied to this action.
+   * Declare any (or many) sagas tied to this action. These sagas will be registered automatically.
    */
-  saga?: Saga | Saga[];
-};
+  saga?: (actionName: string) => Saga | Saga[];
 
-type ActionsToReducers<State, Actions extends SagaActions<State>> = {
-  [Type in keyof Actions]:
-    | CaseReducer<State, PayloadAction<any>>
-    | CaseReducerWithPrepare<State, PayloadAction<any, string, any, any>>;
+  /**
+   * Spawns a saga on each action dispatched to the Store.
+   */
+  takeEvery?: PayloadSaga<Payload>;
+
+  /**
+   * Forks a saga on each action dispatched to the Store, and automatically cancels
+   * any previous saga task started previously if it's still running.
+   */
+  takeLatest?: PayloadSaga<Payload>;
+}
+
+export type ExtractPayload<Action> = Action extends SagaAction<
+  infer Payload,
+  any
+>
+  ? Payload
+  : never;
+
+type TransformActions<State, Actions extends SagaActions<State>> = {
+  [ActionKey in keyof Actions]: CaseReducer<
+    State,
+    PayloadAction<ExtractPayload<Actions[ActionKey]>>
+  >;
 };
 
 export interface SagaActions<State> {
@@ -42,44 +57,68 @@ export const rootSagas: Saga[] = [];
  * the relevant saga for an action.
  */
 export function createSagaSlice<
-  State,
-  Actions extends SagaActions<State>,
+  State = any,
+  Actions extends SagaActions<State> = SagaActions<State>,
   Name extends string = string,
 >(
-  props: {
+  cb: (
+    mkAction: <
+      _State = void,
+      Payload = void,
+      Out extends SagaAction<Payload, _State> = SagaAction<Payload, _State>,
+    >(
+      action: Out,
+    ) => Out,
+  ) => {
     name: Name;
     initialState: State | (() => State);
+    actions: Actions;
   },
-  cb: (
-    mkAction: <ActionType, S = State>(
-      action: SagaAction<ActionType, S>,
-    ) => SagaAction<ActionType, S>,
-  ) => Actions,
-): Slice<State, ActionsToReducers<State, Actions>, Name> {
-  const actions = cb((action) => action);
+): Slice<State, TransformActions<State, Actions>, Name> {
+  const props = cb((action) => action);
 
-  const anyReducers: any = {};
-  for (const key of Object.keys(actions)) {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    anyReducers[key] = actions[key].reducer || (() => {});
+  const reducers: any = {};
+  const otherActions: any = {};
 
-    if (actions[key].saga) {
-      if (Array.isArray(actions[key].saga)) {
-        rootSagas.push(...(actions[key].saga as Saga[]));
-      } else {
-        rootSagas.push(actions[key].saga as Saga);
-      }
+  for (const key of Object.keys(props.actions)) {
+    const actionName = `${props.name}/${key}`;
+    const action = props.actions[key];
+
+    if ('reducer' in action) {
+      reducers[key] = action.reducer;
+    } else {
+      otherActions[key] = createAction(actionName);
+    }
+
+    if ('saga' in action) {
+      const saga = action.saga(actionName);
+      const sagas = Array.isArray(saga) ? saga : [saga];
+      rootSagas.push(...sagas);
+    }
+
+    if ('takeLatest' in action) {
+      rootSagas.push(function* (): SagaIterator {
+        yield takeLatest(actionName, action.takeLatest);
+      });
+    }
+
+    if ('takeEvery' in action) {
+      rootSagas.push(function* (): SagaIterator {
+        yield takeEvery(actionName, action.takeEvery);
+      });
     }
   }
 
-  const reducers: ValidateSliceCaseReducers<
-    State,
-    ActionsToReducers<State, Actions>
-  > = anyReducers;
-
-  return createSlice({
+  const slice = createSlice({
     name: props.name,
     initialState: props.initialState,
     reducers,
   });
+
+  slice.actions = {
+    ...slice.actions,
+    ...otherActions,
+  };
+
+  return slice;
 }

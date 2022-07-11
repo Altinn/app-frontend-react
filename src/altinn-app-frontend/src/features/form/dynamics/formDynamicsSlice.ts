@@ -5,7 +5,7 @@ import type {
   ICheckIfConditionalRulesShouldRun,
 } from 'src/features/form/dynamics/index';
 import { createSagaSlice } from 'src/features/form/dynamics/experiment';
-import { takeLatest, call, all, take } from 'redux-saga/effects';
+import { call, all, take } from 'redux-saga/effects';
 import { fetchDynamicsSaga } from 'src/features/form/dynamics/fetch/fetchFormDynamicsSagas';
 import { checkIfConditionalRulesShouldRunSaga } from 'src/features/form/dynamics/conditionalRendering/conditionalRenderingSagas';
 import { FormRulesActions } from '../rules/rulesSlice';
@@ -19,43 +19,32 @@ const initialState: IFormDynamicState = {
   error: null,
 };
 
-const slice = createSagaSlice(
-  {
-    name: 'formDynamics',
-    initialState,
-  },
-  (mkAction) => ({
-    checkIfConditionalRulesShouldRun:
-      mkAction<ICheckIfConditionalRulesShouldRun>({
-        saga: [
-          function* () {
-            yield takeLatest(
-              FormDynamicsActions.checkIfConditionalRulesShouldRun,
-              checkIfConditionalRulesShouldRunSaga,
-            );
-          },
-          function* () {
-            while (true) {
-              yield all([
-                take(FormLayoutActions.fetchFulfilled),
-                take(FormDataActions.fetchFulfilled),
-                take(FormDynamicsActions.fetchFulfilled),
-                take(FormRulesActions.fetchFulfilled),
-              ]);
-              yield call(checkIfConditionalRulesShouldRunSaga);
-            }
-          },
-        ],
-      }),
-    fetch: mkAction<IFetchServiceConfigFulfilled>({
-      saga: function* () {
-        yield takeLatest(
-          FormDynamicsActions.fetchFormDynamics,
-          fetchDynamicsSaga,
-        );
-      },
+const slice = createSagaSlice((mkAction) => ({
+  name: 'formDynamics',
+  initialState,
+  actions: {
+    checkIfConditionalRulesShouldRun: mkAction<
+      IFormDynamicState,
+      ICheckIfConditionalRulesShouldRun
+    >({
+      takeLatest: checkIfConditionalRulesShouldRunSaga,
+      saga: () =>
+        function* () {
+          while (true) {
+            yield all([
+              take(FormLayoutActions.fetchFulfilled),
+              take(FormDataActions.fetchFulfilled),
+              take(FormDynamicsActions.fetchFulfilled),
+              take(FormRulesActions.fetchFulfilled),
+            ]);
+            yield call(checkIfConditionalRulesShouldRunSaga);
+          }
+        },
     }),
-    fetchFulfilled: mkAction<IFetchServiceConfigFulfilled>({
+    fetch: mkAction<IFormDynamicState, IFetchServiceConfigFulfilled>({
+      takeLatest: fetchDynamicsSaga,
+    }),
+    fetchFulfilled: mkAction<IFormDynamicState, IFetchServiceConfigFulfilled>({
       reducer: (state, action) => {
         state.apis = action.payload.apis;
         state.ruleConnection = action.payload.ruleConnection;
@@ -63,13 +52,13 @@ const slice = createSagaSlice(
         state.error = null;
       },
     }),
-    fetchRejected: mkAction<IFetchServiceConfigRejected>({
+    fetchRejected: mkAction<IFormDynamicState, IFetchServiceConfigRejected>({
       reducer: (state, action) => {
         state.error = action.payload.error;
       },
     }),
-  }),
-);
+  },
+}));
 
 export const FormDynamicsActions = slice.actions;
 export default slice;
