@@ -3,7 +3,7 @@ import { Form } from './Form';
 import type { PreloadedState } from '@reduxjs/toolkit';
 import type { RootState } from 'src/store';
 import { renderWithProviders, mockMediaQuery } from 'src/../testUtils';
-import type { ILayout, ILayoutComponent } from '../layout';
+import type { ILayout, ILayoutComponent, ILayoutEntry } from '../layout';
 import { getFormLayoutStateMock } from 'src/../__mocks__/formLayoutStateMock';
 import { screen } from '@testing-library/react';
 import { MemoryRouter, Route } from 'react-router-dom';
@@ -92,6 +92,20 @@ describe('Form.tsx', () => {
     renderForm(layoutWithNavBar);
     expect(screen.getByRole('navigation')).toBeInTheDocument();
     expect(screen.getByText('1. FormLayout')).toBeInTheDocument();
+  });
+
+  it('should render a summary component', () => {
+    const summaryComponent: ILayoutEntry[] = [
+      ...mockComponents,
+      {
+        id: 'the-summary',
+        type: 'Summary',
+        pageRef: 'FormLayout',
+        componentRef: 'field1',
+      } as unknown as ILayoutEntry,
+    ];
+    renderForm(summaryComponent as ILayout);
+    expect(screen.getByTestId('summary-component')).toBeInTheDocument();
   });
 
   function renderForm(

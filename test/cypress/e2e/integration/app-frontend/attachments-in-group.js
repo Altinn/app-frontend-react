@@ -119,7 +119,7 @@ describe('Repeating group attachments', () => {
 
   const interceptFormDataSave = () => {
     cy.intercept('PUT',
-      /instances\/\d+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}\/data/i
+      /instances\/\d+\/*[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12}\/data/i
     ).as('saveInstanceData');
   };
 

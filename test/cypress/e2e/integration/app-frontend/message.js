@@ -8,7 +8,7 @@ const appFrontend = new AppFrontend();
 
 describe('Message', () => {
   let instanceMetadata, instanceId;
-  const instanceIdExpr = /\d+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}/i;
+  const instanceIdExpr = /\d+\/*[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12}/i;
 
   before(() => {
     cy.intercept('POST', `**/instances?instanceOwnerPartyId*`).as('createdInstance');
@@ -28,7 +28,7 @@ describe('Message', () => {
       });
       cy.intercept(
         'GET',
-        /\d+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}$/i,
+        /\d+\/*[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12}$/i,
         instanceMetadata,
       );
     });

@@ -32,7 +32,7 @@ export function renderLayoutComponent(
     }
     default: {
       return (
-        <RenderGenericComponent
+        <GenericComponent
           key={layoutComponent.id}
           {...(layoutComponent as ILayoutComponent)}
         />
@@ -41,7 +41,7 @@ export function renderLayoutComponent(
   }
 }
 
-function RenderGenericComponent(component: ILayoutComponent, layout: ILayout) {
+function GenericComponent(component: ILayoutComponent, layout: ILayout) {
   return renderGenericComponent(component, layout);
 }
 

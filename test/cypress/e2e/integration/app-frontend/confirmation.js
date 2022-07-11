@@ -31,7 +31,7 @@ describe('Confirm', () => {
 
     cy.get(appFrontend.confirm.sendIn).should('be.visible');
     cy.url().then((url) => {
-      const instanceIdExpr = /\d+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}/i;
+      const instanceIdExpr = /\d+\/*[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12}/i;
       const instanceId = instanceIdExpr.exec(url)[0];
       cy.get(appFrontend.confirm.body).contains(instanceId).and('contain.text', Cypress.env('multiData2Stage'));
     });
