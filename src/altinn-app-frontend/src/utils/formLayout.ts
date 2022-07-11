@@ -334,7 +334,6 @@ export function createRepeatingGroupComponentsForIndex({
     const dataModelBindings = { ...componentDeepCopy.dataModelBindings };
     const groupDataModelBinding = container.dataModelBindings.group;
     Object.keys(dataModelBindings).forEach((key) => {
-      // eslint-disable-next-line no-param-reassign
       dataModelBindings[key] = dataModelBindings[key].replace(
         groupDataModelBinding,
         `${groupDataModelBinding}[${index}]`,
