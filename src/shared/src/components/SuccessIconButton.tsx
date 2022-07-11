@@ -1,5 +1,6 @@
-import { makeStyles, IconButton } from "@material-ui/core"
-import React, { ReactNode } from "react";
+import { makeStyles, IconButton } from '@material-ui/core';
+import type { ReactNode } from 'react';
+import React from 'react';
 
 export interface ISuccessIconButtonProps {
   label: ReactNode;
@@ -26,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
       background: 'none',
       '& .successIconButton-label': {
         borderBottom: `2px solid ${theme.altinnPalette.primary.black}`,
-      }
+      },
     },
     '&:focus': {
       outlineColor: theme.altinnPalette.primary.green,
@@ -34,17 +35,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function SuccessIconButton({ label, onClick, id }: ISuccessIconButtonProps) {
+export function SuccessIconButton({
+  label,
+  onClick,
+  id,
+}: ISuccessIconButtonProps) {
   const classes = useStyles();
   return (
     <IconButton
       id={id}
       classes={{ root: classes.successIconButton }}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <i className='ai ai-check-circle' />
-      <span className="successIconButton-label">
-        {label}
-      </span>
+      <span className='successIconButton-label'>{label}</span>
     </IconButton>
   );
 }
