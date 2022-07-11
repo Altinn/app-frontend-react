@@ -126,7 +126,7 @@ describe('PanelGroupContainer', () => {
     expect(inputFieldTitle).toBeInTheDocument();
   });
 
-  it('should display panel wieh referenced group children if no children is supplied', async () => {
+  it('should display panel with referenced group children if no children is supplied', async () => {
     const containerWithNoChildrenWithGroupReference: ILayoutGroup = {
       ...container,
       children: undefined,
