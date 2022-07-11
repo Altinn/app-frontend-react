@@ -292,15 +292,13 @@ export function* updateRepeatingGroupsSaga({
             repeatingGroups: updatedRepeatingGroups,
           }),
         );
-        yield put(
-          FormDataActions.setFormDataFulfilled({ formData: updatedFormData }),
-        );
+        yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
         yield put(
           AttachmentActions.mapAttachmentsFulfilled({
             attachments: updatedAttachments,
           }),
         );
-        yield put(FormDataActions.saveFormData());
+        yield put(FormDataActions.save());
       } else {
         yield put(
           FormLayoutActions.updateRepeatingGroupsRemoveCancelled({
@@ -571,7 +569,7 @@ export function* watchUpdateCurrentViewSaga(): SagaIterator {
     yield take(FormLayoutActions.updateCurrentView);
     const hasUnsavedChanges = yield select(selectUnsavedChanges);
     if (hasUnsavedChanges) {
-      yield take(FormDataActions.submitFormDataFulfilled);
+      yield take(FormDataActions.submitFulfilled);
     }
     const value = yield take(requestChan);
     yield call(updateCurrentViewSaga, value);
@@ -729,7 +727,7 @@ export function* watchInitRepeatingGroupsSaga(): SagaIterator {
   yield call(initRepeatingGroupsSaga);
   yield takeLatest(
     [
-      FormDataActions.fetchFormDataFulfilled,
+      FormDataActions.fetchFulfilled,
       FormLayoutActions.initRepeatingGroups,
       FormLayoutActions.fetchLayoutFulfilled,
     ],

@@ -16,7 +16,7 @@ import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceD
 
 export function* watchMapAttachmentsSaga(): SagaIterator {
   yield all([
-    take(FormDataActions.fetchFormDataFulfilled),
+    take(FormDataActions.fetchFulfilled),
     take(FormLayoutActions.fetchLayoutFulfilled),
     take(FormLayoutActions.updateCurrentViewFulfilled),
     take(InstanceDataActions.getFulfilled),

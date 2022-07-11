@@ -12,7 +12,7 @@ export function* watcherFinishDataTaskIsloadingSaga(): SagaIterator {
   while (true) {
     yield take(startInitialDataTaskQueue);
     yield all([
-      take(FormDataActions.fetchFormDataFulfilled),
+      take(FormDataActions.fetchFulfilled),
       take(FormLayoutActions.fetchLayoutFulfilled),
       take(FormLayoutActions.fetchLayoutSettingsFulfilled),
       take(FormRulesActions.fetchFulfilled),

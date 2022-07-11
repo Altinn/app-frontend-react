@@ -84,7 +84,7 @@ export function ButtonComponent(props: IButtonProvidedProps) {
   };
 
   const saveFormData = () => {
-    dispatch(FormDataActions.submitFormData({}));
+    dispatch(FormDataActions.submit({}));
   };
 
   const renderLoader = () => {
@@ -99,7 +99,7 @@ export function ButtonComponent(props: IButtonProvidedProps) {
   const submitForm = () => {
     const { org, app, instanceId } = window as Window as IAltinnWindow;
     dispatch(
-      FormDataActions.submitFormData({
+      FormDataActions.submit({
         url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
         apiMode: 'Complete',
         stopWithWarnings: !ignoreWarnings,

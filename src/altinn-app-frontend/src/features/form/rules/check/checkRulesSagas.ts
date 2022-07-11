@@ -72,8 +72,5 @@ function* checkIfRuleShouldRunSaga({
 }
 
 export function* watchCheckIfRuleShouldRunSaga(): SagaIterator {
-  yield takeLatest(
-    FormDataActions.updateFormDataFulfilled,
-    checkIfRuleShouldRunSaga,
-  );
+  yield takeLatest(FormDataActions.updateFulfilled, checkIfRuleShouldRunSaga);
 }

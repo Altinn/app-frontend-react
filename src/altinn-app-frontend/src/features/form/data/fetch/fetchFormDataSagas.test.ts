@@ -65,9 +65,7 @@ describe('fetchFormDataSagas', () => {
         ],
         [call(networking.get, url), mockFormData],
       ])
-      .put(
-        FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }),
-      )
+      .put(FormDataActions.fetchFulfilled({ formData: flattenedFormData }))
       .run();
   });
 
@@ -100,7 +98,7 @@ describe('fetchFormDataSagas', () => {
         [select(appMetaDataSelector), appMetadata],
         [select(instanceDataSelector), instance],
       ])
-      .put(FormDataActions.fetchFormDataRejected({ error }))
+      .put(FormDataActions.fetchRejected({ error }))
       .run();
   });
 
@@ -122,9 +120,7 @@ describe('fetchFormDataSagas', () => {
         ],
         [call(networking.get, url), mockFormData],
       ])
-      .put(
-        FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }),
-      )
+      .put(FormDataActions.fetchFulfilled({ formData: flattenedFormData }))
       .run();
   });
 
@@ -157,7 +153,7 @@ describe('fetchFormDataSagas', () => {
         [select(appMetaDataSelector), { ...appMetadata }],
         [select(instanceDataSelector), { ...instance }],
       ])
-      .put(FormDataActions.fetchFormDataRejected({ error }))
+      .put(FormDataActions.fetchRejected({ error }))
       .call(dataTaskQueueError, error)
       .run();
   });
@@ -194,9 +190,7 @@ describe('fetchFormDataSagas', () => {
         [select(currentSelectedPartyIdSelector), '1234'],
         [call(networking.get, url, options), mockFormData],
       ])
-      .put(
-        FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }),
-      )
+      .put(FormDataActions.fetchFulfilled({ formData: flattenedFormData }))
       .run();
   });
 
@@ -228,9 +222,7 @@ describe('fetchFormDataSagas', () => {
         [select(allowAnonymousSelector), true],
         [call(networking.get, url, options), mockFormData],
       ])
-      .put(
-        FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }),
-      )
+      .put(FormDataActions.fetchFulfilled({ formData: flattenedFormData }))
       .run();
   });
 
@@ -278,7 +270,7 @@ describe('fetchFormDataSagas', () => {
         [select(layoutSetsSelector), mockLayoutSets],
         [select(allowAnonymousSelector), true],
       ])
-      .put(FormDataActions.fetchFormDataRejected({ error }))
+      .put(FormDataActions.fetchRejected({ error }))
       .call(dataTaskQueueError, error)
       .run();
   });

@@ -56,11 +56,11 @@ describe('updateFormDataSagas', () => {
           [select(SelectCurrentView), SelectCurrentView(state)],
         ])
         .put(
-          FormDataActions.setFormDataFulfilled({
+          FormDataActions.setFulfilled({
             formData: expectedUpdatedFormData,
           }),
         )
-        .put(FormDataActions.saveFormData())
+        .put(FormDataActions.save())
         .run();
     };
 

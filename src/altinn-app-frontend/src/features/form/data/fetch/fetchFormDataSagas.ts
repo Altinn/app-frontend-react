@@ -52,14 +52,14 @@ export function* fetchFormDataSaga(): SagaIterator {
       getFetchFormDataUrl(instance.id, currentTaskDataElementId),
     );
     const formData = convertModelToDataBinding(fetchedData);
-    yield put(FormDataActions.fetchFormDataFulfilled({ formData }));
+    yield put(FormDataActions.fetchFulfilled({ formData }));
   } catch (error) {
-    yield put(FormDataActions.fetchFormDataRejected({ error }));
+    yield put(FormDataActions.fetchRejected({ error }));
   }
 }
 
 export function* watchFormDataSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.fetchFormData, fetchFormDataSaga);
+  yield takeLatest(FormDataActions.fetch, fetchFormDataSaga);
 }
 
 export function* fetchFormDataInitialSaga(): SagaIterator {
@@ -87,11 +87,11 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
     }
 
     const formData = convertModelToDataBinding(fetchedData);
-    yield put(FormDataActions.fetchFormDataFulfilled({ formData }));
+    yield put(FormDataActions.fetchFulfilled({ formData }));
     yield put(FormRulesActions.fetch());
     yield put(FormDynamicsActions.fetchFormDynamics());
   } catch (error) {
-    yield put(FormDataActions.fetchFormDataRejected({ error }));
+    yield put(FormDataActions.fetchRejected({ error }));
     yield call(dataTaskQueueError, error);
   }
 }
@@ -151,7 +151,7 @@ function* waitFor(selector) {
 
 export function* watchFetchFormDataInitialSaga(): SagaIterator {
   while (true) {
-    yield take(FormDataActions.fetchFormDataInitial);
+    yield take(FormDataActions.fetchInitial);
     const processState: IProcessState = yield select(processStateSelector);
     const instance: IInstance = yield select(instanceDataSelector);
     const application: IApplicationMetadata = yield select(appMetaDataSelector);

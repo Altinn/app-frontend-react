@@ -37,41 +37,29 @@ const formDataSlice = createSlice({
   name,
   initialState,
   reducers: {
-    fetchFormDataFulfilled: (
-      state,
-      action: PayloadAction<IFetchFormDataFulfilled>,
-    ) => {
+    fetchFulfilled: (state, action: PayloadAction<IFetchFormDataFulfilled>) => {
       const { formData } = action.payload;
       state.formData = formData;
     },
-    setFormDataFulfilled: (
-      state,
-      action: PayloadAction<IFetchFormDataFulfilled>,
-    ) => {
+    setFulfilled: (state, action: PayloadAction<IFetchFormDataFulfilled>) => {
       const { formData } = action.payload;
       state.formData = formData;
     },
-    fetchFormDataRejected: (
-      state,
-      action: PayloadAction<IFormDataRejected>,
-    ) => {
+    fetchRejected: (state, action: PayloadAction<IFormDataRejected>) => {
       const { error } = action.payload;
       state.error = error;
     },
-    submitFormData: (state, action: PayloadAction<ISubmitDataAction>) => {
+    submit: (state, action: PayloadAction<ISubmitDataAction>) => {
       const { apiMode } = action.payload;
       state.isSaving = apiMode !== 'Complete';
       state.isSubmitting = apiMode === 'Complete';
       state.hasSubmitted = apiMode === 'Complete';
     },
-    submitFormDataFulfilled: (state) => {
+    submitFulfilled: (state) => {
       state.isSaving = false;
       state.unsavedChanges = false;
     },
-    submitFormDataRejected: (
-      state,
-      action: PayloadAction<IFormDataRejected>,
-    ) => {
+    submitRejected: (state, action: PayloadAction<IFormDataRejected>) => {
       const { error } = action.payload;
       state.error = error;
       state.isSubmitting = false;
@@ -85,7 +73,7 @@ const formDataSlice = createSlice({
       state.hasSubmitted = false;
       state.ignoreWarnings = false;
     },
-    updateFormDataFulfilled: (
+    updateFulfilled: (
       state,
       action: PayloadAction<IUpdateFormDataFulfilled>,
     ) => {
@@ -98,10 +86,7 @@ const formDataSlice = createSlice({
       }
       state.unsavedChanges = true;
     },
-    updateFormDataRejected: (
-      state,
-      action: PayloadAction<IFormDataRejected>,
-    ) => {
+    updateRejected: (state, action: PayloadAction<IFormDataRejected>) => {
       const { error } = action.payload;
       state.error = error;
     },
@@ -122,9 +107,9 @@ const formDataSlice = createSlice({
 });
 
 const actions = {
-  fetchFormData: createAction<IFetchFormData>(`${name}/fetch`),
-  fetchFormDataInitial: createAction(`${name}/fetchInitial`),
-  saveFormData: createAction(`${name}/save`),
+  fetch: createAction<IFetchFormData>(`${name}/fetch`),
+  fetchInitial: createAction(`${name}/fetchInitial`),
+  save: createAction(`${name}/save`),
   deleteAttachmentReference: createAction<IDeleteAttachmentReference>(
     `${name}/deleteAttachmentReference`,
   ),

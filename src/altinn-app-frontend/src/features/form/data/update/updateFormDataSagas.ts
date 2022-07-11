@@ -58,7 +58,7 @@ function* updateFormDataSaga({
 
     if (shouldUpdateFormData(state.formData.formData[field], data)) {
       yield put(
-        FormDataActions.updateFormDataFulfilled({
+        FormDataActions.updateFulfilled({
           field,
           data,
           skipValidation,
@@ -77,7 +77,7 @@ function* updateFormDataSaga({
     }
   } catch (error) {
     console.error(error);
-    yield put(FormDataActions.updateFormDataRejected({ error }));
+    yield put(FormDataActions.updateRejected({ error }));
   }
 }
 
@@ -90,7 +90,7 @@ function* runValidations(
 ) {
   if (!componentId) {
     yield put(
-      FormDataActions.updateFormDataRejected({
+      FormDataActions.updateRejected({
         error: new Error('Missing component ID!'),
       }),
     );
@@ -193,10 +193,8 @@ export function* deleteAttachmentReferenceSaga({
       componentId,
     );
 
-    yield put(
-      FormDataActions.setFormDataFulfilled({ formData: updatedFormData }),
-    );
-    yield put(FormDataActions.saveFormData());
+    yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
+    yield put(FormDataActions.save());
   } catch (err) {
     console.error(err);
   }

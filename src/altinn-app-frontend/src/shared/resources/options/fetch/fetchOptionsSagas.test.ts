@@ -26,7 +26,7 @@ describe('shared > resources > options > fetch > fetchOptionsSagas', () => {
       testSaga(watchCheckIfOptionsShouldRefetchSaga)
         .next()
         .takeEvery(
-          FormDataActions.updateFormDataFulfilled,
+          FormDataActions.updateFulfilled,
           checkIfOptionsShouldRefetchSaga,
         )
         .next()

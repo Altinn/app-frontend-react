@@ -10,7 +10,7 @@ import {
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 
 export function* startInitialDataTaskQueueSaga(): SagaIterator {
-  yield put(FormDataActions.fetchFormDataInitial());
+  yield put(FormDataActions.fetchInitial());
   yield put(fetchJsonSchema());
   yield put(FormLayoutActions.fetchLayoutSets());
   yield put(FormLayoutActions.fetchLayout());

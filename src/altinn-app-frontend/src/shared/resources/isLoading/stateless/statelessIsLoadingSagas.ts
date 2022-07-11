@@ -11,7 +11,7 @@ import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
 export function* watcherFinishStatelessIsLoadingSaga(): SagaIterator {
   yield take(startInitialStatelessQueue);
   yield all([
-    take(FormDataActions.fetchFormDataFulfilled),
+    take(FormDataActions.fetchFulfilled),
     take(FormLayoutActions.fetchLayoutFulfilled),
     take(FormLayoutActions.fetchLayoutSettingsFulfilled),
     take(fetchJsonSchemaFulfilled),

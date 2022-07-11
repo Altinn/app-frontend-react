@@ -33,8 +33,8 @@ import {
   runSingleFieldValidation,
   updateValidations,
 } from '../../validation/validationSlice';
-import FormDataActions from '../formDataSlice';
-import FormDynamicsActions from '../../dynamics/formDynamicsSlice';
+import { FormDataActions } from '../formDataSlice';
+import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type {
   ISubmitDataAction,
   IUpdateFormDataFulfilled,
@@ -113,19 +113,17 @@ function* submitFormSaga({
     validationResult.validations = validations;
     if (!canFormBeSaved(validationResult, apiMode)) {
       yield sagaPut(updateValidations({ validations }));
-      return yield sagaPut(
-        FormDataActions.submitFormDataRejected({ error: null }),
-      );
+      return yield sagaPut(FormDataActions.submitRejected({ error: null }));
     }
 
     yield call(putFormData, state, model);
     if (apiMode === 'Complete') {
       yield call(submitComplete, state, stopWithWarnings);
     }
-    yield sagaPut(FormDataActions.submitFormDataFulfilled());
+    yield sagaPut(FormDataActions.submitFulfilled());
   } catch (error) {
     console.error(error);
-    yield sagaPut(FormDataActions.submitFormDataRejected({ error }));
+    yield sagaPut(FormDataActions.submitRejected({ error }));
   }
 }
 
@@ -148,9 +146,7 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean) {
   );
   if (hasErrors || (stopWithWarnings && hasWarnings)) {
     // we have validation errors or warnings that should be shown, do not submit
-    return yield sagaPut(
-      FormDataActions.submitFormDataRejected({ error: null }),
-    );
+    return yield sagaPut(FormDataActions.submitRejected({ error: null }));
   }
 
   if (layoutState.uiConfig.currentViewCacheKey) {
@@ -175,7 +171,7 @@ export function* putFormData(state: IRuntimeState, model: any) {
     if (isIE) {
       // 303 is treated as en error in IE - we try to fetch.
       yield sagaPut(
-        FormDataActions.fetchFormData({
+        FormDataActions.fetch({
           url: dataElementUrl(defaultDataElementGuid),
         }),
       );
@@ -188,7 +184,7 @@ export function* putFormData(state: IRuntimeState, model: any) {
       if (!calculationUpdateHandled) {
         // No changedFields property returned, try to fetch
         yield sagaPut(
-          FormDataActions.fetchFormData({
+          FormDataActions.fetch({
             url: dataElementUrl(defaultDataElementGuid),
           }),
         );
@@ -244,10 +240,10 @@ export function* saveFormDataSaga(): SagaIterator {
       yield sagaPut(runSingleFieldValidation());
     }
 
-    yield sagaPut(FormDataActions.submitFormDataFulfilled());
+    yield sagaPut(FormDataActions.submitFulfilled());
   } catch (error) {
     console.error(error);
-    yield sagaPut(FormDataActions.submitFormDataRejected({ error }));
+    yield sagaPut(FormDataActions.submitRejected({ error }));
   }
 }
 
@@ -275,7 +271,7 @@ export function* saveStatelessData(state: IRuntimeState, model: any) {
     model,
   );
   const formData = convertModelToDataBinding(response?.data);
-  yield sagaPut(FormDataActions.fetchFormDataFulfilled({ formData }));
+  yield sagaPut(FormDataActions.fetchFulfilled({ formData }));
   yield sagaPut(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
 }
 
@@ -289,18 +285,18 @@ function* autoSaveSaga({
   const uiConfig: IUiConfig = yield select(UIConfigSelector);
   if (uiConfig.autoSave !== false) {
     // undefined should default to auto save
-    yield sagaPut(FormDataActions.saveFormData());
+    yield sagaPut(FormDataActions.save());
   }
 }
 
 export function* watchSubmitFormSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.submitFormData, submitFormSaga);
+  yield takeLatest(FormDataActions.submit, submitFormSaga);
 }
 
 export function* watchSaveFormDataSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.saveFormData, saveFormDataSaga);
+  yield takeLatest(FormDataActions.save, saveFormDataSaga);
 }
 
 export function* watchAutoSaveSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.updateFormDataFulfilled, autoSaveSaga);
+  yield takeLatest(FormDataActions.updateFulfilled, autoSaveSaga);
 }

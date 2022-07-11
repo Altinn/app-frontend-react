@@ -87,7 +87,7 @@ describe('submitFormDataSagas', () => {
         [call(put, dataElementUrl(defaultDataElementGuid), model), {}],
       ])
       .call(putFormData, state, model)
-      .put(FormDataActions.submitFormDataFulfilled())
+      .put(FormDataActions.submitFulfilled())
       .run();
   });
 
@@ -157,7 +157,7 @@ describe('submitFormDataSagas', () => {
       ])
       .call(saveStatelessData, state, model)
       .put(
-        FormDataActions.fetchFormDataFulfilled({
+        FormDataActions.fetchFulfilled({
           formData: {
             ...formData,
             'group.field1': 'value1',
@@ -165,7 +165,7 @@ describe('submitFormDataSagas', () => {
         }),
       )
       .put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}))
-      .put(FormDataActions.submitFormDataFulfilled())
+      .put(FormDataActions.submitFulfilled())
       .run();
   });
 
@@ -231,7 +231,7 @@ describe('submitFormDataSagas', () => {
       ])
       .call(saveStatelessData, state, model)
       .put(
-        FormDataActions.fetchFormDataFulfilled({
+        FormDataActions.fetchFulfilled({
           formData: {
             ...formData,
             'group.field1': 'value1',
@@ -239,7 +239,7 @@ describe('submitFormDataSagas', () => {
         }),
       )
       .put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}))
-      .put(FormDataActions.submitFormDataFulfilled())
+      .put(FormDataActions.submitFulfilled())
       .run();
   });
 });

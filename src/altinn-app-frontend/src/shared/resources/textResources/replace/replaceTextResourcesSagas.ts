@@ -76,22 +76,13 @@ export function* replaceTextResourcesSaga(): SagaIterator {
 export function* watchReplaceTextResourcesSaga(): SagaIterator {
   yield all([
     take(TextResourcesActions.fetchFulfilled),
-    take(FormDataActions.fetchFormDataFulfilled),
+    take(FormDataActions.fetchFulfilled),
     take(FormLayoutActions.updateRepeatingGroupsFulfilled),
   ]);
   yield call(replaceTextResourcesSaga);
-  yield takeLatest(
-    FormDataActions.fetchFormDataFulfilled,
-    replaceTextResourcesSaga,
-  );
-  yield takeLatest(
-    FormDataActions.updateFormDataFulfilled,
-    replaceTextResourcesSaga,
-  );
-  yield takeLatest(
-    FormDataActions.setFormDataFulfilled,
-    replaceTextResourcesSaga,
-  );
+  yield takeLatest(FormDataActions.fetchFulfilled, replaceTextResourcesSaga);
+  yield takeLatest(FormDataActions.updateFulfilled, replaceTextResourcesSaga);
+  yield takeLatest(FormDataActions.setFulfilled, replaceTextResourcesSaga);
   yield takeLatest(
     TextResourcesActions.fetchFulfilled,
     replaceTextResourcesSaga,

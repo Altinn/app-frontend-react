@@ -15,26 +15,17 @@ describe('watchReplaceTextResourcesSaga', () => {
       .next()
       .all([
         take(TextResourcesActions.fetchFulfilled),
-        take(FormDataActions.fetchFormDataFulfilled),
+        take(FormDataActions.fetchFulfilled),
         take(FormLayoutActions.updateRepeatingGroupsFulfilled),
       ])
       .next()
       .call(replaceTextResourcesSaga)
       .next()
-      .takeLatest(
-        FormDataActions.fetchFormDataFulfilled,
-        replaceTextResourcesSaga,
-      )
+      .takeLatest(FormDataActions.fetchFulfilled, replaceTextResourcesSaga)
       .next()
-      .takeLatest(
-        FormDataActions.updateFormDataFulfilled,
-        replaceTextResourcesSaga,
-      )
+      .takeLatest(FormDataActions.updateFulfilled, replaceTextResourcesSaga)
       .next()
-      .takeLatest(
-        FormDataActions.setFormDataFulfilled,
-        replaceTextResourcesSaga,
-      )
+      .takeLatest(FormDataActions.setFulfilled, replaceTextResourcesSaga)
       .next()
       .takeLatest(TextResourcesActions.fetchFulfilled, replaceTextResourcesSaga)
       .next()

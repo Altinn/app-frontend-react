@@ -13,7 +13,7 @@ import {
 export function* startInitialStatelessQueueSaga(): SagaIterator {
   try {
     yield put(startStatelessIsLoading());
-    yield put(FormDataActions.fetchFormDataInitial());
+    yield put(FormDataActions.fetchInitial());
     yield put(fetchJsonSchema());
     yield put(FormLayoutActions.fetchLayoutSets());
     yield put(FormLayoutActions.fetchLayout());

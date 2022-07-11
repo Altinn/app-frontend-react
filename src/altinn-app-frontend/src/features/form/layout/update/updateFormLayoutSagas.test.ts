@@ -40,7 +40,7 @@ describe('updateLayoutSagas', () => {
         .next()
         .takeLatest(
           [
-            FormDataActions.fetchFormDataFulfilled,
+            FormDataActions.fetchFulfilled,
             FormLayoutActions.initRepeatingGroups,
             FormLayoutActions.fetchLayoutFulfilled,
           ],
@@ -141,10 +141,8 @@ describe('updateLayoutSagas', () => {
             },
           }),
         )
-        .put(
-          FormDataActions.setFormDataFulfilled({ formData: initialFormData }),
-        )
-        .put(FormDataActions.saveFormData())
+        .put(FormDataActions.setFulfilled({ formData: initialFormData }))
+        .put(FormDataActions.save())
         .run();
     });
   });
@@ -186,7 +184,7 @@ describe('updateLayoutSagas', () => {
           [call(updateCurrentViewSaga, mockAction), mockSaga],
         ])
         .dispatch(FormLayoutActions.updateCurrentView)
-        .dispatch(FormDataActions.submitFormDataFulfilled)
+        .dispatch(FormDataActions.submitFulfilled)
         .take(fakeChannel)
         .call(updateCurrentViewSaga, mockAction)
         .run();
@@ -227,7 +225,7 @@ describe('updateLayoutSagas', () => {
           [call(updateCurrentViewSaga, mockAction), mockSaga],
         ])
         .dispatch(FormLayoutActions.updateCurrentView)
-        .not.take(FormDataActions.submitFormDataFulfilled)
+        .not.take(FormDataActions.submitFulfilled)
         .take(fakeChannel)
         .call(updateCurrentViewSaga, mockAction)
         .run();

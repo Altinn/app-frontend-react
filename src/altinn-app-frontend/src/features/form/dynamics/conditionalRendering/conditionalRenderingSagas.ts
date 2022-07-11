@@ -61,7 +61,7 @@ export function* waitForAppSetupBeforeRunningConditionalRulesSaga(): SagaIterato
   while (true) {
     yield all([
       take(FormLayoutActions.fetchLayoutFulfilled),
-      take(FormDataActions.fetchFormDataFulfilled),
+      take(FormDataActions.fetchFulfilled),
       take(FormDynamicsActions.fetchFormDynamicsFulfilled),
       take(FormRulesActions.fetchFulfilled),
     ]);

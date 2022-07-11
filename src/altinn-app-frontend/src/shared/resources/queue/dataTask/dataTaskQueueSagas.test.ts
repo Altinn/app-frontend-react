@@ -9,7 +9,7 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 describe('dataTaskQueueSagas', () => {
   it('startInitialAppTaskQueueSaga, app queue is started', () => {
     return expectSaga(startInitialDataTaskQueueSaga)
-      .put(FormDataActions.fetchFormDataInitial())
+      .put(FormDataActions.fetchInitial())
       .put(fetchJsonSchema())
       .put(FormLayoutActions.fetchLayoutSets())
       .put(FormLayoutActions.fetchLayout())

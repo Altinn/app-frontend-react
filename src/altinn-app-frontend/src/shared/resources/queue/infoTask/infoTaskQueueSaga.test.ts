@@ -82,7 +82,7 @@ describe('infoTaskQueueSaga', () => {
       ])
       .put(startDataTaskIsLoading())
       .put(startInitialInfoTaskQueueFulfilled())
-      .put(FormDataActions.fetchFormDataFulfilled({ formData: {} }))
+      .put(FormDataActions.fetchFulfilled({ formData: {} }))
       .put(TextResourcesActions.replace())
       .put(finishDataTaskIsLoading())
       .run();
