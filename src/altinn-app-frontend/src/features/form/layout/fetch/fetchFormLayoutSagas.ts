@@ -1,5 +1,5 @@
 import type { SagaIterator } from 'redux-saga';
-import { call, all, put, take, select, takeLatest } from 'redux-saga/effects';
+import { call, all, put, take, select } from 'redux-saga/effects';
 import type { IInstance } from 'altinn-shared/types';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import {
@@ -146,8 +146,4 @@ export function* fetchLayoutSetsSaga(): SagaIterator {
       yield put(FormLayoutActions.fetchSetsRejected({ error }));
     }
   }
-}
-
-export function* watchFetchFormLayoutSetsSaga(): SagaIterator {
-  yield takeLatest(FormLayoutActions.fetchSets, fetchLayoutSetsSaga);
 }

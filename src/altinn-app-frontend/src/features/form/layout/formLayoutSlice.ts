@@ -3,6 +3,15 @@ import type { ILayouts } from './index';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type * as LayoutTypes from './formLayoutTypes';
+import {
+  updateFocus,
+  updateRepeatingGroupsSaga,
+  updateRepeatingGroupEditIndexSaga,
+  updateFileUploaderWithTagEditIndexSaga,
+  updateFileUploaderWithTagChosenOptionsSaga,
+  calculatePageOrderAndMoveToNextPageSaga,
+} from 'src/features/form/layout/update/updateFormLayoutSagas';
+import { fetchLayoutSetsSaga } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
 
 export interface ILayoutState {
   layouts: ILayouts;
@@ -52,7 +61,9 @@ const formLayoutSlice = createSagaSlice(
           state.error = error;
         },
       }),
-      fetchSets: mkAction<void>({}),
+      fetchSets: mkAction<void>({
+        takeLatest: fetchLayoutSetsSaga,
+      }),
       fetchSetsFulfilled: mkAction<LayoutTypes.IFetchLayoutSetsFulfilled>({
         reducer: (state, action) => {
           const { layoutSets } = action.payload;
@@ -133,7 +144,9 @@ const formLayoutSlice = createSagaSlice(
             state.error = error;
           },
         }),
-      updateFocus: mkAction<LayoutTypes.IUpdateFocus>({}),
+      updateFocus: mkAction<LayoutTypes.IUpdateFocus>({
+        takeLatest: updateFocus,
+      }),
       updateFocusFulfilled: mkAction<LayoutTypes.IUpdateFocusFulfilled>({
         reducer: (state, action) => {
           const { focusComponentId } = action.payload;
@@ -153,6 +166,7 @@ const formLayoutSlice = createSagaSlice(
         },
       }),
       updateRepeatingGroups: mkAction<LayoutTypes.IUpdateRepeatingGroups>({
+        takeLatest: updateRepeatingGroupsSaga,
         reducer: (state, action) => {
           const { layoutElementId, remove, index } = action.payload;
           if (remove) {
@@ -190,7 +204,9 @@ const formLayoutSlice = createSagaSlice(
           },
         }),
       updateRepeatingGroupsEditIndex:
-        mkAction<LayoutTypes.IUpdateRepeatingGroupsEditIndex>({}),
+        mkAction<LayoutTypes.IUpdateRepeatingGroupsEditIndex>({
+          takeLatest: updateRepeatingGroupEditIndexSaga,
+        }),
       updateRepeatingGroupsEditIndexFulfilled:
         mkAction<LayoutTypes.IUpdateRepeatingGroupsEditIndexFulfilled>({
           reducer: (state, action) => {
@@ -220,7 +236,9 @@ const formLayoutSlice = createSagaSlice(
           },
         }),
       updateFileUploaderWithTagEditIndex:
-        mkAction<LayoutTypes.IUpdateFileUploaderWithTagEditIndex>({}),
+        mkAction<LayoutTypes.IUpdateFileUploaderWithTagEditIndex>({
+          takeLatest: updateFileUploaderWithTagEditIndexSaga,
+        }),
       updateFileUploaderWithTagEditIndexFulfilled:
         mkAction<LayoutTypes.IUpdateFileUploaderWithTagEditIndexFulfilled>({
           reducer: (state, action) => {
@@ -236,7 +254,9 @@ const formLayoutSlice = createSagaSlice(
           },
         }),
       updateFileUploaderWithTagChosenOptions:
-        mkAction<LayoutTypes.IUpdateFileUploaderWithTagChosenOptions>({}),
+        mkAction<LayoutTypes.IUpdateFileUploaderWithTagChosenOptions>({
+          takeLatest: updateFileUploaderWithTagChosenOptionsSaga,
+        }),
       updateFileUploaderWithTagChosenOptionsFulfilled:
         mkAction<LayoutTypes.IUpdateFileUploaderWithTagChosenOptionsFulfilled>({
           reducer: (state, action) => {
@@ -261,7 +281,9 @@ const formLayoutSlice = createSagaSlice(
           },
         }),
       calculatePageOrderAndMoveToNextPage:
-        mkAction<LayoutTypes.ICalculatePageOrderAndMoveToNextPage>({}),
+        mkAction<LayoutTypes.ICalculatePageOrderAndMoveToNextPage>({
+          takeEvery: calculatePageOrderAndMoveToNextPageSaga,
+        }),
       calculatePageOrderAndMoveToNextPageFulfilled:
         mkAction<LayoutTypes.ICalculatePageOrderAndMoveToNextPageFulfilled>({
           reducer: (state, action) => {

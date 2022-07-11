@@ -8,7 +8,6 @@ import {
   put,
   select,
   take,
-  takeEvery,
   takeLatest,
   race,
 } from 'redux-saga/effects';
@@ -103,7 +102,7 @@ export const selectValidations = (state: IRuntimeState): IValidations =>
 export const selectUnsavedChanges = (state: IRuntimeState): boolean =>
   state.formData.unsavedChanges;
 
-function* updateFocus({
+export function* updateFocus({
   payload: { currentComponentId, step },
 }: PayloadAction<IUpdateFocus>): SagaIterator {
   try {
@@ -132,7 +131,7 @@ function* updateFocus({
 
 export function* updateRepeatingGroupsSaga({
   payload: { layoutElementId, remove, index, leaveOpen },
-}: PayloadAction<IUpdateRepeatingGroups>) {
+}: PayloadAction<IUpdateRepeatingGroups>): SagaIterator {
   try {
     const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
     const currentIndex =
@@ -525,13 +524,6 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
   }
 }
 
-export function* watchCalculatePageOrderAndMoveToNextPageSaga(): SagaIterator {
-  yield takeEvery(
-    FormLayoutActions.calculatePageOrderAndMoveToNextPage,
-    calculatePageOrderAndMoveToNextPageSaga,
-  );
-}
-
 export function* watchInitialCalculagePageOrderAndMoveToNextPageSaga(): SagaIterator {
   while (true) {
     yield all([
@@ -578,17 +570,6 @@ export function* watchUpdateCurrentViewSaga(): SagaIterator {
     const value = yield take(requestChan);
     yield call(updateCurrentViewSaga, value);
   }
-}
-
-export function* watchUpdateFocusSaga(): SagaIterator {
-  yield takeLatest(FormLayoutActions.updateFocus, updateFocus);
-}
-
-export function* watchUpdateRepeatingGroupsSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateRepeatingGroups,
-    updateRepeatingGroupsSaga,
-  );
 }
 
 export function* updateRepeatingGroupEditIndexSaga({
@@ -667,13 +648,6 @@ export function* updateRepeatingGroupEditIndexSaga({
       FormLayoutActions.updateRepeatingGroupsEditIndexRejected({ error }),
     );
   }
-}
-
-export function* watchUpdateRepeatingGroupsEditIndexSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateRepeatingGroupsEditIndex,
-    updateRepeatingGroupEditIndexSaga,
-  );
 }
 
 export function* initRepeatingGroupsSaga(): SagaIterator {
@@ -782,13 +756,6 @@ export function* updateFileUploaderWithTagEditIndexSaga({
   }
 }
 
-export function* watchUpdateFileUploaderWithTagEditIndexSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateFileUploaderWithTagEditIndex,
-    updateFileUploaderWithTagEditIndexSaga,
-  );
-}
-
 export function* updateFileUploaderWithTagChosenOptionsSaga({
   payload: { componentId, baseComponentId, id, option },
 }: PayloadAction<IUpdateFileUploaderWithTagChosenOptions>): SagaIterator {
@@ -826,13 +793,6 @@ export function* updateFileUploaderWithTagChosenOptionsSaga({
       }),
     );
   }
-}
-
-export function* watchUpdateFileUploaderWithTagChosenOptionsSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateFileUploaderWithTagChosenOptions,
-    updateFileUploaderWithTagChosenOptionsSaga,
-  );
 }
 
 export function* mapFileUploaderWithTagSaga(): SagaIterator {
