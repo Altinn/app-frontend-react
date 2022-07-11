@@ -21,7 +21,7 @@ import IsLoadingSagas from '../shared/resources/isLoading/isLoadingSagas';
 import QueueSagas from '../shared/resources/queue/queueSagas';
 import OptionSagas from '../shared/resources/options/optionsSagas';
 import { sagaMiddleware } from 'src/store';
-import { rootSagas } from 'src/features/form/dynamics/experiment';
+import { rootSagas } from 'src/shared/resources/utils/sagaSlice';
 
 function* root(): SagaIterator {
   yield fork(FormDataSagas);

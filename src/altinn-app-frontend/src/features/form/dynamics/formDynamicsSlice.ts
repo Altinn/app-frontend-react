@@ -4,7 +4,7 @@ import type {
   IFetchServiceConfigRejected,
   ICheckIfConditionalRulesShouldRun,
 } from 'src/features/form/dynamics/index';
-import { createSagaSlice } from 'src/features/form/dynamics/experiment';
+import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import { call, all, take } from 'redux-saga/effects';
 import { fetchDynamicsSaga } from 'src/features/form/dynamics/fetch/fetchFormDynamicsSagas';
 import { checkIfConditionalRulesShouldRunSaga } from 'src/features/form/dynamics/conditionalRendering/conditionalRenderingSagas';
