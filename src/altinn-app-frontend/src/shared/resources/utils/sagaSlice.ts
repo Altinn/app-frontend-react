@@ -4,8 +4,10 @@ import type { WritableDraft } from 'immer/dist/types/types-external';
 import { createSlice, createAction } from '@reduxjs/toolkit';
 import { takeLatest, takeEvery } from 'redux-saga/effects';
 
-type Saga = () => SagaIterator;
-type PayloadSaga<Payload> = (action: PayloadAction<Payload>) => SagaIterator;
+type Saga = () => SagaIterator | any;
+type PayloadSaga<Payload> = (
+  action: PayloadAction<Payload>,
+) => SagaIterator | any;
 
 export interface SagaAction<Payload, State> {
   /**
