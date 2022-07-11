@@ -1,5 +1,6 @@
 import type { Slice, PayloadAction, CaseReducer } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
+import type { WritableDraft } from 'immer/dist/types/types-external';
 import { createSlice, createAction } from '@reduxjs/toolkit';
 import { takeLatest, takeEvery } from 'redux-saga/effects';
 
@@ -10,7 +11,10 @@ export interface SagaAction<Payload, State> {
   /**
    * Declare your action reducer here. If you don't have a reducer for a given action, omit this.
    */
-  reducer?: (state: State, action: PayloadAction<Payload>) => any;
+  reducer?: (
+    state: WritableDraft<State>,
+    action: PayloadAction<Payload>,
+  ) => any;
 
   /**
    * Declare any (or many) sagas tied to this action. These sagas will be registered automatically.
