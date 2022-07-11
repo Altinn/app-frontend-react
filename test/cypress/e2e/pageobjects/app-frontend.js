@@ -149,6 +149,7 @@ export default class AppFrontend {
       newValue: 'input[id^="newValue"]',
       newValueLabel: 'label[for^="newValue"]',
       addNewItem: '[id^="add-button-mainGroup"]',
+      addNewItemSubGroup: '[id*="add-button-subGroup"]',
       comments: 'input[id^="comments"]',
       delete: 'button[class*="makeStyles-deleteButton"]',
       saveSubGroup: 'button[id*="add-button-grp-subGroup"]',
