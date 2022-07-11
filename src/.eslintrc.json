@@ -54,6 +54,7 @@
       "error",
       { "ignoreRestSiblings": true }
     ],
-    "@typescript-eslint/consistent-type-imports": ["warn"]
+    "@typescript-eslint/consistent-type-imports": ["warn"],
+    "react-hooks/exhaustive-deps": ["error"]
   }
 }
