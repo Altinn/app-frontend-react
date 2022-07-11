@@ -16,7 +16,7 @@ export function* watcherFinishStatelessIsLoadingSaga(): SagaIterator {
     take(FormLayoutActions.fetchLayoutSettingsFulfilled),
     take(fetchJsonSchemaFulfilled),
     take(FormRulesActions.fetchFulfilled),
-    take(FormDynamicsActions.fetchFormDynamicsFulfilled),
+    take(FormDynamicsActions.fetchFulfilled),
   ]);
   yield put(finishStatelessIsLoading());
 }

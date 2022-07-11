@@ -32,18 +32,18 @@ function* fetchDynamicsSaga(): SagaIterator {
     const result: any = yield call(get, url);
     const data = result ? result.data : {};
     yield put(
-      FormDynamicsActions.fetchFormDynamicsFulfilled({
+      FormDynamicsActions.fetchFulfilled({
         apis: data.APIs,
         ruleConnection: data.ruleConnection,
         conditionalRendering: data.conditionalRendering,
       }),
     );
   } catch (error) {
-    yield put(FormDynamicsActions.fetchFormDynamicsRejected({ error }));
+    yield put(FormDynamicsActions.fetchRejected({ error }));
     yield put(dataTaskQueueError({ error }));
   }
 }
 
 export function* watchFetchDynamics(): SagaIterator {
-  yield takeLatest(FormDynamicsActions.fetchFormDynamics, fetchDynamicsSaga);
+  yield takeLatest(FormDynamicsActions.fetch, fetchDynamicsSaga);
 }

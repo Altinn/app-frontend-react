@@ -7,8 +7,6 @@ import type {
   ICheckIfConditionalRulesShouldRun,
 } from 'src/features/form/dynamics/index';
 
-const moduleName = 'formDynamics';
-
 const initialState: IFormDynamicState = {
   ruleConnection: {},
   conditionalRendering: {},
@@ -16,11 +14,12 @@ const initialState: IFormDynamicState = {
   error: null,
 };
 
+const moduleName = 'formDynamics';
 const formDynamicsSlice = createSlice({
   name: moduleName,
   initialState,
   reducers: {
-    fetchFormDynamicsFulfilled: (
+    fetchFulfilled: (
       state,
       action: PayloadAction<IFetchServiceConfigFulfilled>,
     ) => {
@@ -29,7 +28,7 @@ const formDynamicsSlice = createSlice({
       state.conditionalRendering = action.payload.conditionalRendering;
       state.error = null;
     },
-    fetchFormDynamicsRejected: (
+    fetchRejected: (
       state,
       action: PayloadAction<IFetchServiceConfigRejected>,
     ) => {
@@ -43,7 +42,7 @@ const actions = {
     createAction<ICheckIfConditionalRulesShouldRun>(
       `${moduleName}/checkIfConditionalRulesShouldRun`,
     ),
-  fetchFormDynamics: createAction(`${moduleName}/fetchFormDynamics`),
+  fetch: createAction(`${moduleName}/fetch`),
 };
 
 export const FormDynamicsActions = {
