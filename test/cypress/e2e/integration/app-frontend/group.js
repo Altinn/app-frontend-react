@@ -137,10 +137,9 @@ describe('Group', () => {
     cy.get(appFrontend.group.saveMainGroup).should('be.visible').click().should('not.exist');
   });
 
-  it.only('should supprt panel group adding item to referenced group', () => {
+  it('should supprt panel group adding item to referenced group', () => {
     init();
     cy.get(appFrontend.group.showGroupToContinue).find('input').check();
-    cy.get(appFrontend.group.addNewItem).should('exist');
     cy.get(appFrontend.group.secondGroup_add).should('exist').and('be.visible').focus().click();
     cy.get(appFrontend.group.secondGroup_add_to_reference_group).should('exist').and('be.visible').focus().click();
     cy.get(appFrontend.group.secondGroup_currentValue).should('be.visible').type('1').blur();
