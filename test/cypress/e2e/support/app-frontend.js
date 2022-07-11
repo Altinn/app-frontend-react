@@ -103,8 +103,8 @@ Cypress.Commands.add('completeTask3Form', () => {
 });
 
 Cypress.Commands.add('sendAndWaitForConfirmation', ()=> {
-  cy.intercept('GET', /instances\/[0-9]+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}$/i).as('getInstance');
-  cy.intercept('GET', /instances\/[0-9]+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}\/data/i).as('getInstanceData');
+  cy.intercept('GET', /instances\/\d+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}$/i).as('getInstance');
+  cy.intercept('GET', /instances\/\d+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}\/data/i).as('getInstanceData');
   cy.get(appFrontend.sendinButton).should('be.visible').click();
   cy.wait('@getInstance');
   cy.wait('@getInstanceData');

@@ -16,12 +16,12 @@ describe('Receipt', () => {
     cy.get(appFrontend.sendinButton).should('be.visible').click();
     cy.wait('@nextProcess').its('response.statusCode').should('eq', 200);
     cy.url().then((url) => {
-      const instanceId = /[0-9]+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}$/i.exec(url);
-      let requestUrl =
+      const instanceId = /\d+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}/i.exec(url)[0];
+      const baseUrl =
         Cypress.env('environment') === 'local'
-          ? `${Cypress.env('baseUrl')}`
+          ? (Cypress.env('baseUrl') || '')
           : `https://ttd.apps.${Cypress.config('baseUrl').slice(8)}`;
-      requestUrl += `/ttd/${Cypress.env('stateless')}/instances/${instanceId}/process/next`;
+      const requestUrl = `${baseUrl}/ttd/${Cypress.env('stateless')}/instances/${instanceId}/process/next`;
       cy.getCookie('XSRF-TOKEN').then((xsrfToken) => {
         cy.request({
           method: 'PUT',

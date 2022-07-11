@@ -40,7 +40,7 @@ export const App = () => {
   const [ready, setReady] = React.useState(false);
   const location = useLocation();
   const instanceIdExpr =
-    /instance\/[0-9]+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}/i;
+    /instance\/\d+\/*[0-f]{8}-[0-f]{4}-[1-5][0-f]{3}-[89ab][0-f]{3}-[0-f]{12}/i;
   const hasInstanceId = instanceIdExpr.test(location.pathname);
 
   React.useEffect(() => {

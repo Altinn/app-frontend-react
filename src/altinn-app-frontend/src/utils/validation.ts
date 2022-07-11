@@ -103,8 +103,8 @@ export function createValidator(schema: any): ISchemaValidator {
     rootElementPath = schema.properties[rootKey].$ref;
   }
   addFormats(ajv);
-  ajv.addFormat('year', /^[0-9]{4}$/);
-  ajv.addFormat('year-month', /^[0-9]{4}-(0[1-9]|1[0-2])$/);
+  ajv.addFormat('year', /^\d{4}$/);
+  ajv.addFormat('year-month', /^\d{4}-(0[1-9]|1[0-2])$/);
   ajv.addSchema(schema, 'schema');
   return {
     validator: ajv,
