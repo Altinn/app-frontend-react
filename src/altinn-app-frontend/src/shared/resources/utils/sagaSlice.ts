@@ -1,4 +1,9 @@
-import type { Slice, PayloadAction, CaseReducer } from '@reduxjs/toolkit';
+import type {
+  Slice,
+  PayloadAction,
+  CaseReducer,
+  CreateSliceOptions,
+} from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 import type { WritableDraft } from 'immer/dist/types/types-external';
 import { createSlice, createAction } from '@reduxjs/toolkit';
@@ -61,6 +66,11 @@ export type SagaSliceProps<
   name: Name;
   initialState: State | (() => State);
   actions: Actions;
+  extraReducers?: CreateSliceOptions<
+    State,
+    TransformActions<State, Actions>,
+    Name
+  >['extraReducers'];
 };
 
 export type MkActionType<State> = <
@@ -126,6 +136,7 @@ export function createSagaSlice<
     name: props.name,
     initialState: props.initialState,
     reducers,
+    extraReducers: props.extraReducers,
   });
 
   slice.actions = {

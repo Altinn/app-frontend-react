@@ -1,5 +1,5 @@
 import type { SagaIterator } from 'redux-saga';
-import { call, takeLatest, select, put } from 'redux-saga/effects';
+import { call, select, put } from 'redux-saga/effects';
 import type { IInstance } from 'altinn-shared/types';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import { getRulehandlerUrl } from 'src/utils/appUrlHelper';
@@ -19,7 +19,7 @@ const applicationMetadataSelector = (state: IRuntimeState) =>
 /**
  * Saga to retrive the rule configuration defining which rules to run for a given UI
  */
-function* fetchRuleModelSaga(): SagaIterator {
+export function* fetchRuleModelSaga(): SagaIterator {
   try {
     const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
     const instance: IInstance = yield select(instanceSelector);
@@ -43,8 +43,4 @@ function* fetchRuleModelSaga(): SagaIterator {
     yield put(FormRulesActions.fetchRejected({ error }));
     yield put(dataTaskQueueError({ error }));
   }
-}
-
-export function* watchFetchRuleModelSaga(): SagaIterator {
-  yield takeLatest(FormRulesActions.fetch, fetchRuleModelSaga);
 }
