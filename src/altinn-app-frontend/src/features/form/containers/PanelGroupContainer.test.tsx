@@ -117,8 +117,10 @@ describe('PanelGroupContainer', () => {
       components,
     });
 
+    const user = userEvent.setup();
+
     const addNewButton = await screen.queryByText('Add new item');
-    await userEvent.click(addNewButton);
+    await user.click(addNewButton);
 
     const inputFieldTitle = await screen.queryByText(
       'The value from the group is: Value from input field [2]',
@@ -146,8 +148,10 @@ describe('PanelGroupContainer', () => {
       components: undefined,
     });
 
+    const user = userEvent.setup();
+
     const addNewButton = await screen.queryByText('Add new item');
-    await userEvent.click(addNewButton);
+    await user.click(addNewButton);
 
     const firstInputTitle = await screen.queryByText('Referenced Group Input');
     expect(firstInputTitle).toBeInTheDocument();
@@ -173,12 +177,14 @@ describe('PanelGroupContainer', () => {
       components: undefined,
     });
 
+    const user = userEvent.setup();
+
     // save should not be present when panel is closed
     let saveButton = await screen.queryByText('Lagre');
     expect(saveButton).not.toBeInTheDocument();
 
     let addNewButton = await screen.queryByText('Add new item');
-    await userEvent.click(addNewButton);
+    await user.click(addNewButton);
 
     // save should appear and add should be hidden
     saveButton = await screen.queryByText('Lagre');
@@ -188,7 +194,7 @@ describe('PanelGroupContainer', () => {
     expect(addNewButton).not.toBeInTheDocument();
 
     // pressing save should close panel and show add button again
-    await userEvent.click(saveButton);
+    await user.click(saveButton);
 
     addNewButton = await screen.queryByText('Add new item');
     expect(addNewButton).toBeInTheDocument();
