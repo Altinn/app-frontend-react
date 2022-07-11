@@ -67,7 +67,7 @@ export function createSagaSlice<
 >(
   cb: (
     mkAction: <
-      _State = void,
+      _State extends State = State,
       Payload = void,
       Out extends SagaAction<Payload, _State> = SagaAction<Payload, _State>,
     >(

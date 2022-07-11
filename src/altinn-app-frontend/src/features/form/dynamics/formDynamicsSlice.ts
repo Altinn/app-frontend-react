@@ -11,6 +11,7 @@ import { checkIfConditionalRulesShouldRunSaga } from 'src/features/form/dynamics
 import { FormRulesActions } from '../rules/rulesSlice';
 import { FormDataActions } from '../data/formDataSlice';
 import { FormLayoutActions } from '../layout/formLayoutSlice';
+import type { SagaIterator } from 'redux-saga';
 
 const initialState: IFormDynamicState = {
   ruleConnection: {},
@@ -29,7 +30,7 @@ const slice = createSagaSlice((mkAction) => ({
     >({
       takeLatest: checkIfConditionalRulesShouldRunSaga,
       saga: () =>
-        function* () {
+        function* (): SagaIterator {
           while (true) {
             yield all([
               take(FormLayoutActions.fetchFulfilled),
