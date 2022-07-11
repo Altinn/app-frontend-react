@@ -1,7 +1,8 @@
 import * as React from 'react';
-import type { IComponentProps } from '..';
+import type { IAutoSavedComponentProps } from '..';
 
 import '../../styles/shared.css';
+import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 
 export function TextAreaComponent({
   id,
@@ -10,29 +11,22 @@ export function TextAreaComponent({
   isValid,
   handleDataChange,
   textResourceBindings,
-}: IComponentProps) {
+  saveWhileTyping,
+}: IAutoSavedComponentProps) {
   const suppliedValue = formData?.simpleBinding;
-
-  const [value, setValue] = React.useState(suppliedValue ?? '');
-
-  React.useEffect(() => {
-    setValue(suppliedValue);
-  }, [suppliedValue]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(e.target.value);
-  };
-
-  const handleBlur = () => {
-    handleDataChange(value);
-  };
+  const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
+    handleDataChange,
+    suppliedValue ?? '',
+    saveWhileTyping,
+  );
 
   return (
     <div className='a-form-group-items input-group p-0'>
       <textarea
         id={id}
-        onBlur={handleBlur}
-        onChange={handleChange}
+        onBlur={() => saveValue()}
+        onChange={(e) => setValue(e.target.value)}
+        onPaste={() => onPaste()}
         readOnly={readOnly}
         style={{ resize: 'none' }} // This is prone to change soon, implemented inline until then. See issue #1116
         className={

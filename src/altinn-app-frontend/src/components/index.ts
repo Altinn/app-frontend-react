@@ -24,6 +24,7 @@ import type { IGrid } from 'src/features/form/layout';
 import { createContext } from 'react';
 import { LikertComponent } from 'src/components/base/LikertComponent';
 import { PrintButtonComponent } from './base/PrintButtonComponent';
+import CustomComponent from './custom/CustomWebComponent';
 
 export interface IComponent {
   name: string;
@@ -55,6 +56,7 @@ export enum ComponentTypes {
   NavigationBar,
   Likert,
   Panel,
+  Custom,
   PrintButton,
 }
 
@@ -195,6 +197,11 @@ export const advancedComponents: IComponent[] = [
       readOnly: false,
     },
   },
+  {
+    name: 'Custom',
+    Tag: CustomComponent,
+    Type: ComponentTypes.Custom,
+  },
 ];
 
 export interface IComponentProps extends IGenericComponentProps {
@@ -202,6 +209,7 @@ export interface IComponentProps extends IGenericComponentProps {
     value: string,
     key?: string,
     skipValidation?: boolean,
+    checkIfRequired?: boolean,
   ) => void;
   handleFocusUpdate: (componentId: string, step?: number) => void;
   getTextResource: (key: string) => React.ReactNode;
@@ -214,6 +222,10 @@ export interface IComponentProps extends IGenericComponentProps {
   label: () => JSX.Element;
   legend: () => JSX.Element;
   textResourceBindings: ITextResourceBindings;
+}
+
+export interface IAutoSavedComponentProps extends IComponentProps {
+  saveWhileTyping?: number | boolean;
 }
 
 const components: IComponent[] = textComponents.concat(
