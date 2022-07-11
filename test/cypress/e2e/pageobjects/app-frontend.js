@@ -132,7 +132,7 @@ export default class AppFrontend {
       };
     };
 
-    //group - task 3 // button-add-reference-
+    //group - task 3
     this.group = {
       showGroupToContinue: '#showGroupToContinue',
       mainGroup: '#group-mainGroup',
