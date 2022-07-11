@@ -132,44 +132,41 @@ export function setupGroupComponents(
   groupDataModelBinding: string,
   index: number,
 ): (ILayoutGroup | ILayoutComponent)[] {
-  const childComponents = components.map(
-    (component: ILayoutComponent | ILayoutGroup) => {
-      if (isGroupComponent(component)) {
-        if (component.panel?.groupReference) {
-          // Do not treat as a regular group child as this is merely an option to add elements for another group from this group context
-          return component;
-        }
-      }
-
-      if (!groupDataModelBinding) {
+  return components.map((component: ILayoutComponent | ILayoutGroup) => {
+    if (isGroupComponent(component)) {
+      if (component.panel?.groupReference) {
+        // Do not treat as a regular group child as this is merely an option to add elements for another group from this group context
         return component;
       }
+    }
 
-      const componentDeepCopy: ILayoutComponent = JSON.parse(
-        JSON.stringify(component),
+    if (!groupDataModelBinding) {
+      return component;
+    }
+
+    const componentDeepCopy: ILayoutComponent = JSON.parse(
+      JSON.stringify(component),
+    );
+    const dataModelBindings = { ...componentDeepCopy.dataModelBindings };
+    Object.keys(dataModelBindings).forEach((key) => {
+      const originalGroupBinding = groupDataModelBinding.replace(
+        `[${index}]`,
+        '',
       );
-      const dataModelBindings = { ...componentDeepCopy.dataModelBindings };
-      Object.keys(dataModelBindings).forEach((key) => {
-        const originalGroupBinding = groupDataModelBinding.replace(
-          `[${index}]`,
-          '',
-        );
-        dataModelBindings[key] = dataModelBindings[key].replace(
-          originalGroupBinding,
-          groupDataModelBinding,
-        );
-      });
-      const deepCopyId = `${componentDeepCopy.id}-${index}`;
+      dataModelBindings[key] = dataModelBindings[key].replace(
+        originalGroupBinding,
+        groupDataModelBinding,
+      );
+    });
+    const deepCopyId = `${componentDeepCopy.id}-${index}`;
 
-      return {
-        ...componentDeepCopy,
-        dataModelBindings,
-        id: deepCopyId,
-        baseComponentId: componentDeepCopy.id,
-      };
-    },
-  );
-  return childComponents;
+    return {
+      ...componentDeepCopy,
+      dataModelBindings,
+      id: deepCopyId,
+      baseComponentId: componentDeepCopy.id,
+    };
+  });
 }
 
 export function getLayoutsetForDataElement(
