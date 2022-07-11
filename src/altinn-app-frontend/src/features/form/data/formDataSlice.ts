@@ -14,6 +14,21 @@ import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import { checkIfRuleShouldRunSaga } from 'src/features/form/rules/check/checkRulesSagas';
+import {
+  fetchFormDataSaga,
+  watchFetchFormDataInitialSaga,
+} from 'src/features/form/data/fetch/fetchFormDataSagas';
+import {
+  saveFormDataSaga,
+  submitFormSaga,
+  autoSaveSaga,
+} from 'src/features/form/data/submit/submitFormDataSagas';
+import {
+  deleteAttachmentReferenceSaga,
+  updateFormDataSaga,
+} from 'src/features/form/data/update/updateFormDataSagas';
+import type { SagaIterator } from 'redux-saga';
+import { actionChannel, take, call } from 'redux-saga/effects';
 
 const initialState: IFormDataState = {
   formData: {},
@@ -38,8 +53,12 @@ const formDataSlice = createSagaSlice(
     name: 'formData',
     initialState,
     actions: {
-      fetch: mkAction<IFetchFormData>({}),
-      fetchInitial: mkAction<void>({}),
+      fetch: mkAction<IFetchFormData>({
+        takeLatest: fetchFormDataSaga,
+      }),
+      fetchInitial: mkAction<void>({
+        saga: () => watchFetchFormDataInitialSaga,
+      }),
       fetchFulfilled: mkAction<IFetchFormDataFulfilled>({
         reducer: (state, action) => {
           const { formData } = action.payload;
@@ -59,6 +78,7 @@ const formDataSlice = createSagaSlice(
         },
       }),
       submit: mkAction<ISubmitDataAction>({
+        takeLatest: submitFormSaga,
         reducer: (state, action) => {
           const { apiMode } = action.payload;
           state.isSaving = apiMode !== 'Complete';
@@ -82,13 +102,21 @@ const formDataSlice = createSagaSlice(
         },
       }),
       update: mkAction<IUpdateFormData>({
+        saga: (name) =>
+          function* (): SagaIterator {
+            const requestChan = yield actionChannel(name);
+            while (true) {
+              const value = yield take(requestChan);
+              yield call(updateFormDataSaga, value);
+            }
+          },
         reducer: (state) => {
           state.hasSubmitted = false;
           state.ignoreWarnings = false;
         },
       }),
       updateFulfilled: mkAction<IUpdateFormDataFulfilled>({
-        takeLatest: checkIfRuleShouldRunSaga,
+        takeLatest: [checkIfRuleShouldRunSaga, autoSaveSaga],
         reducer: (state, action) => {
           const { field, data } = action.payload;
           // Remove if data is null, undefined or empty string
@@ -106,8 +134,12 @@ const formDataSlice = createSagaSlice(
           state.error = error;
         },
       }),
-      save: mkAction<void>({}),
-      deleteAttachmentReference: mkAction<IDeleteAttachmentReference>({}),
+      save: mkAction<void>({
+        takeLatest: saveFormDataSaga,
+      }),
+      deleteAttachmentReference: mkAction<IDeleteAttachmentReference>({
+        takeLatest: deleteAttachmentReferenceSaga,
+      }),
     },
     extraReducers: (builder) => {
       builder

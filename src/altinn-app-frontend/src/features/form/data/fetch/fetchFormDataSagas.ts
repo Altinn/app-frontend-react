@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import type { SagaIterator } from 'redux-saga';
-import { call, select, takeLatest, all, take, put } from 'redux-saga/effects';
+import { call, select, all, take, put } from 'redux-saga/effects';
 import { get } from 'altinn-shared/utils';
 import type { IInstance } from 'altinn-shared/types';
 import {
@@ -56,10 +56,6 @@ export function* fetchFormDataSaga(): SagaIterator {
   } catch (error) {
     yield put(FormDataActions.fetchRejected({ error }));
   }
-}
-
-export function* watchFormDataSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.fetch, fetchFormDataSaga);
 }
 
 export function* fetchFormDataInitialSaga(): SagaIterator {

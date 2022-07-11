@@ -1,7 +1,6 @@
 import type { SagaIterator } from 'redux-saga';
 import { fork } from 'redux-saga/effects';
 
-import FormDataSagas from '../features/form/data/formDataSagas';
 import FormDataModelSagas from '../features/form/datamodel/datamodelSagas';
 import FormLayoutSagas from '../features/form/layout/formLayoutSagas';
 import FormValidationSagas from '../features/form/validation/validationSagas';
@@ -23,7 +22,6 @@ import { sagaMiddleware } from 'src/store';
 import { rootSagas } from 'src/shared/resources/utils/sagaSlice';
 
 function* root(): SagaIterator {
-  yield fork(FormDataSagas);
   yield fork(Attachments);
   yield fork(FormLayoutSagas);
   yield fork(FormDataModelSagas);

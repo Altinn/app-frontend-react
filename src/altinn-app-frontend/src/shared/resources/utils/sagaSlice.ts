@@ -31,13 +31,13 @@ export interface SagaAction<Payload, State> {
   /**
    * Spawns a saga on each action dispatched to the Store.
    */
-  takeEvery?: PayloadSaga<Payload>;
+  takeEvery?: PayloadSaga<Payload> | PayloadSaga<Payload>[];
 
   /**
    * Forks a saga on each action dispatched to the Store, and automatically cancels
    * any previous saga task started previously if it's still running.
    */
-  takeLatest?: PayloadSaga<Payload>;
+  takeLatest?: PayloadSaga<Payload> | PayloadSaga<Payload>[];
 }
 
 export type ExtractPayload<Action> = Action extends SagaAction<
@@ -120,15 +120,25 @@ export function createSagaSlice<
     }
 
     if ('takeLatest' in action) {
-      rootSagas.push(function* (): SagaIterator {
-        yield takeLatest(actionName, action.takeLatest);
-      });
+      const targets = Array.isArray(action.takeLatest)
+        ? action.takeLatest
+        : [action.takeLatest];
+      for (const target of targets) {
+        rootSagas.push(function* (): SagaIterator {
+          yield takeLatest(actionName, target);
+        });
+      }
     }
 
     if ('takeEvery' in action) {
-      rootSagas.push(function* (): SagaIterator {
-        yield takeEvery(actionName, action.takeEvery);
-      });
+      const targets = Array.isArray(action.takeEvery)
+        ? action.takeEvery
+        : [action.takeEvery];
+      for (const target of targets) {
+        rootSagas.push(function* (): SagaIterator {
+          yield takeEvery(actionName, target);
+        });
+      }
     }
   }
 
