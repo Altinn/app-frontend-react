@@ -46,7 +46,7 @@ const ProcessWrapper = (props) => {
     (state) => state.applicationMetadata.applicationMetadata,
   );
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
-  const appName = useAppSelector((state) => selectAppName(state));
+  const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
   const process = useAppSelector((state) => state.process);
   const hasErrorSelector = makeGetHasErrorsSelector();
