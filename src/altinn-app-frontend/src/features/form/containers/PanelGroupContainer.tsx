@@ -22,13 +22,28 @@ export interface IPanelGroupContainerProps {
   components: (ILayoutComponent | ILayoutGroup)[];
 }
 
-function customIcon(iconUrl: string, iconAlt: string) {
+interface ICustomIconProps {
+  iconUrl: string;
+  iconAlt: string;
+  size?: string;
+}
+
+function CustomIcon({ iconUrl, iconAlt, size }: ICustomIconProps) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <img
         src={iconUrl}
         alt={iconAlt}
         data-testid='custom-icon'
+        style={{
+          width: size,
+          height: size,
+        }}
       />
     </div>
   );
@@ -129,7 +144,15 @@ export function PanelGroupContainer({
               <Panel
                 title={title}
                 renderIcon={
-                  iconUrl ? () => customIcon(iconUrl, iconAlt) : undefined
+                  iconUrl
+                    ? ({ size }) => (
+                        <CustomIcon
+                          iconUrl={iconUrl}
+                          iconAlt={iconAlt}
+                          size={size}
+                        />
+                      )
+                    : undefined
                 }
                 variant={getVariant({ variant: container.panel.variant })}
                 showPointer={!!repGroupReference}
