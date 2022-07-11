@@ -5,7 +5,7 @@ import type { RootState } from 'src/store';
 import { renderWithProviders, mockMediaQuery } from 'src/../testUtils';
 import type { ILayout, ILayoutComponent } from '../layout';
 import { getFormLayoutStateMock } from 'src/../__mocks__/formLayoutStateMock';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 
 const { setScreenWidth } = mockMediaQuery(992);
 
@@ -100,9 +100,10 @@ describe('Form.tsx', () => {
     ];
 
     renderForm(layoutWithNonRepGroup);
-    expect(screen.getByTestId('display-group-container')).toBeInTheDocument();
+    const container = screen.getByTestId('display-group-container');
+    expect(container).toBeInTheDocument();
     expect(
-      screen.getByText('Title from non repeating child'),
+      within(container).getByText('Title from non repeating child'),
     ).toBeInTheDocument();
   });
 
@@ -136,8 +137,11 @@ describe('Form.tsx', () => {
     ];
 
     renderForm(layoutWithPanelGroup);
-    expect(screen.getByTestId('panel-group-container')).toBeInTheDocument();
-    expect(screen.getByText('Title from panel child')).toBeInTheDocument();
+    const container = screen.getByTestId('panel-group-container');
+    expect(container).toBeInTheDocument();
+    expect(
+      within(container).getByText('Title from panel child'),
+    ).toBeInTheDocument();
   });
 
   it('should render navbar', () => {
