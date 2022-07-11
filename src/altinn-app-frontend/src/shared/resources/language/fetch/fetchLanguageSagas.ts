@@ -26,7 +26,7 @@ export function* fetchLanguageSaga(defaultLanguage = false): SagaIterator {
 
 export function* watchFetchLanguageSaga(): SagaIterator {
   yield all([
-    take(FormLayoutActions.fetchLayoutSetsFulfilled),
+    take(FormLayoutActions.fetchSetsFulfilled),
     take(ApplicationMetadataActions.getFulfilled),
     take(LanguageActions.fetchLanguage),
   ]);

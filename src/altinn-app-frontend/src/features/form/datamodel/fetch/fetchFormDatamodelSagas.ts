@@ -54,7 +54,7 @@ function* fetchJsonSchemaSaga(): SagaIterator {
 export function* watchFetchJsonSchemaSaga(): SagaIterator {
   yield all([
     take(ApplicationMetadataActions.getFulfilled),
-    take(FormLayoutActions.fetchLayoutSetsFulfilled),
+    take(FormLayoutActions.fetchSetsFulfilled),
     take(fetchJsonSchema),
   ]);
   const application: IApplicationMetadata = yield select(

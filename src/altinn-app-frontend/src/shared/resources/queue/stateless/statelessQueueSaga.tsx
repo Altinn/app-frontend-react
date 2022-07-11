@@ -15,9 +15,9 @@ export function* startInitialStatelessQueueSaga(): SagaIterator {
     yield put(startStatelessIsLoading());
     yield put(FormDataActions.fetchInitial());
     yield put(fetchJsonSchema());
-    yield put(FormLayoutActions.fetchLayoutSets());
-    yield put(FormLayoutActions.fetchLayout());
-    yield put(FormLayoutActions.fetchLayoutSettings());
+    yield put(FormLayoutActions.fetchSets());
+    yield put(FormLayoutActions.fetch());
+    yield put(FormLayoutActions.fetchSettings());
     yield put(startInitialStatelessQueueFulfilled());
   } catch (error) {
     yield put(statelessQueueError({ error }));

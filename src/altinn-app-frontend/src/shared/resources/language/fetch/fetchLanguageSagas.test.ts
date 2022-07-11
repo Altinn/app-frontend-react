@@ -51,7 +51,7 @@ describe('fetchLanguageSagas', () => {
     const generator = watchFetchLanguageSaga();
     expect(generator.next().value).toEqual(
       all([
-        take(FormLayoutActions.fetchLayoutSetsFulfilled),
+        take(FormLayoutActions.fetchSetsFulfilled),
         take(ApplicationMetadataActions.getFulfilled),
         take(LanguageActions.fetchLanguage),
       ]),

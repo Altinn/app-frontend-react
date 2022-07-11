@@ -11,9 +11,9 @@ describe('dataTaskQueueSagas', () => {
     return expectSaga(startInitialDataTaskQueueSaga)
       .put(FormDataActions.fetchInitial())
       .put(fetchJsonSchema())
-      .put(FormLayoutActions.fetchLayoutSets())
-      .put(FormLayoutActions.fetchLayout())
-      .put(FormLayoutActions.fetchLayoutSettings())
+      .put(FormLayoutActions.fetchSets())
+      .put(FormLayoutActions.fetch())
+      .put(FormLayoutActions.fetchSettings())
       .put(startInitialDataTaskQueueFulfilled())
       .run();
   });

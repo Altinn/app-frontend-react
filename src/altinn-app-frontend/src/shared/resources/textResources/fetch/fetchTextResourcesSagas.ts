@@ -44,7 +44,7 @@ export function* fetchTextResources(): SagaIterator {
 
 export function* watchFetchTextResourcesSaga(): SagaIterator {
   yield all([
-    take(FormLayoutActions.fetchLayoutSetsFulfilled),
+    take(FormLayoutActions.fetchSetsFulfilled),
     take(ApplicationMetadataActions.getFulfilled),
     take(TextResourcesActions.fetch),
   ]);

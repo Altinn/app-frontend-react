@@ -16,7 +16,7 @@ export function* startInitialAppTaskQueueSaga(): SagaIterator {
   yield put(TextResourcesActions.fetch());
   yield put(LanguageActions.fetchLanguage());
   yield put(ApplicationMetadataActions.get());
-  yield put(FormLayoutActions.fetchLayoutSets());
+  yield put(FormLayoutActions.fetchSets());
   yield put(OrgsActions.fetch());
   yield put(startInitialAppTaskQueueFulfilled());
 }

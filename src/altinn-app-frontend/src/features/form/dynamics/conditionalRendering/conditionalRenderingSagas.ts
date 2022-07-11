@@ -60,7 +60,7 @@ export function* watchCheckIfConditionalRulesShouldRunSaga(): SagaIterator {
 export function* waitForAppSetupBeforeRunningConditionalRulesSaga(): SagaIterator {
   while (true) {
     yield all([
-      take(FormLayoutActions.fetchLayoutFulfilled),
+      take(FormLayoutActions.fetchFulfilled),
       take(FormDataActions.fetchFulfilled),
       take(FormDynamicsActions.fetchFulfilled),
       take(FormRulesActions.fetchFulfilled),

@@ -532,8 +532,8 @@ export function* watchInitialCalculagePageOrderAndMoveToNextPageSaga(): SagaIter
   while (true) {
     yield all([
       take(startInitialDataTaskQueueFulfilled),
-      take(FormLayoutActions.fetchLayoutFulfilled),
-      take(FormLayoutActions.fetchLayoutSettingsFulfilled),
+      take(FormLayoutActions.fetchFulfilled),
+      take(FormLayoutActions.fetchSettingsFulfilled),
     ]);
     const state: IRuntimeState = yield select();
     const layouts = state.formLayout.layouts;
@@ -723,13 +723,13 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
 }
 
 export function* watchInitRepeatingGroupsSaga(): SagaIterator {
-  yield take(FormLayoutActions.fetchLayoutFulfilled);
+  yield take(FormLayoutActions.fetchFulfilled);
   yield call(initRepeatingGroupsSaga);
   yield takeLatest(
     [
       FormDataActions.fetchFulfilled,
       FormLayoutActions.initRepeatingGroups,
-      FormLayoutActions.fetchLayoutFulfilled,
+      FormLayoutActions.fetchFulfilled,
     ],
     initRepeatingGroupsSaga,
   );
@@ -848,7 +848,7 @@ export function* mapFileUploaderWithTagSaga(): SagaIterator {
 
 export function* watchMapFileUploaderWithTagSaga(): SagaIterator {
   yield all([
-    take(FormLayoutActions.fetchLayoutFulfilled),
+    take(FormLayoutActions.fetchFulfilled),
     take(AttachmentActions.mapAttachmentsFulfilled),
   ]);
   yield call(mapFileUploaderWithTagSaga);
@@ -856,7 +856,7 @@ export function* watchMapFileUploaderWithTagSaga(): SagaIterator {
   yield takeLatest(
     [
       AttachmentActions.mapAttachmentsFulfilled,
-      FormLayoutActions.fetchLayoutFulfilled,
+      FormLayoutActions.fetchFulfilled,
     ],
     mapFileUploaderWithTagSaga,
   );

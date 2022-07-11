@@ -16,7 +16,7 @@ describe('appTaskQueueSagas', () => {
       .put(TextResourcesActions.fetch())
       .put(LanguageActions.fetchLanguage())
       .put(ApplicationMetadataActions.get())
-      .put(FormLayoutActions.fetchLayoutSets())
+      .put(FormLayoutActions.fetchSets())
       .put(OrgsActions.fetch())
       .put(startInitialAppTaskQueueFulfilled())
       .run();

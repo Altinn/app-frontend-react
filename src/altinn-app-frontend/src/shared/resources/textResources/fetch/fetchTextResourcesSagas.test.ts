@@ -22,7 +22,7 @@ describe('fetchTextResourcesSagas', () => {
     const generator = watchFetchTextResourcesSaga();
     expect(generator.next().value).toEqual(
       all([
-        take(FormLayoutActions.fetchLayoutSetsFulfilled),
+        take(FormLayoutActions.fetchSetsFulfilled),
         take(ApplicationMetadataActions.getFulfilled),
         take(TextResourcesActions.fetch),
       ]),

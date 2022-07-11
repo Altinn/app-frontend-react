@@ -117,7 +117,7 @@ export function* watchCheckIfOptionsShouldRefetchSaga(): SagaIterator {
 }
 
 export function* watchInitialFetchOptionSaga(): SagaIterator {
-  yield takeLatest(FormLayoutActions.fetchLayoutFulfilled, fetchOptionsSaga);
+  yield takeLatest(FormLayoutActions.fetchFulfilled, fetchOptionsSaga);
 }
 
 export function* watchFetchOptionsSaga(): SagaIterator {

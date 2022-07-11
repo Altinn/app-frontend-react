@@ -13,8 +13,8 @@ export function* watcherFinishDataTaskIsloadingSaga(): SagaIterator {
     yield take(startInitialDataTaskQueue);
     yield all([
       take(FormDataActions.fetchFulfilled),
-      take(FormLayoutActions.fetchLayoutFulfilled),
-      take(FormLayoutActions.fetchLayoutSettingsFulfilled),
+      take(FormLayoutActions.fetchFulfilled),
+      take(FormLayoutActions.fetchSettingsFulfilled),
       take(FormRulesActions.fetchFulfilled),
       take(FormDynamicsActions.fetchFulfilled),
       take(AttachmentActions.mapAttachmentsFulfilled),

@@ -34,7 +34,7 @@ describe('updateLayoutSagas', () => {
       const saga = testSaga(watchInitRepeatingGroupsSaga);
       saga
         .next()
-        .take(FormLayoutActions.fetchLayoutFulfilled)
+        .take(FormLayoutActions.fetchFulfilled)
         .next()
         .call(initRepeatingGroupsSaga)
         .next()
@@ -42,7 +42,7 @@ describe('updateLayoutSagas', () => {
           [
             FormDataActions.fetchFulfilled,
             FormLayoutActions.initRepeatingGroups,
-            FormLayoutActions.fetchLayoutFulfilled,
+            FormLayoutActions.fetchFulfilled,
           ],
           initRepeatingGroupsSaga,
         )

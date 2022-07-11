@@ -12,9 +12,9 @@ import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSl
 export function* startInitialDataTaskQueueSaga(): SagaIterator {
   yield put(FormDataActions.fetchInitial());
   yield put(fetchJsonSchema());
-  yield put(FormLayoutActions.fetchLayoutSets());
-  yield put(FormLayoutActions.fetchLayout());
-  yield put(FormLayoutActions.fetchLayoutSettings());
+  yield put(FormLayoutActions.fetchSets());
+  yield put(FormLayoutActions.fetch());
+  yield put(FormLayoutActions.fetchSettings());
   yield put(AttachmentActions.mapAttachments());
   yield put(startInitialDataTaskQueueFulfilled());
 }
