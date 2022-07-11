@@ -24,7 +24,7 @@ import {
 import { FormDataActions } from '../formDataSlice';
 import type { IApplication } from 'altinn-shared/types';
 import type { ILayoutSets } from 'src/types';
-import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';
+import { DataModelActions } from '../../datamodel/datamodelSlice';
 import { dataTaskQueueError } from 'src/shared/resources/queue/queueSlice';
 import type { AxiosError } from 'axios';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
@@ -339,7 +339,7 @@ describe('fetchFormDataSagas', () => {
         [select(processStateSelector), processState],
       ])
       .take(InstanceDataActions.getFulfilled)
-      .take(fetchJsonSchemaFulfilled)
+      .take(DataModelActions.fetchJsonSchemaFulfilled)
       .call(fetchFormDataInitialSaga)
       .run();
   });
@@ -352,7 +352,7 @@ describe('fetchFormDataSagas', () => {
         [select(appMetaDataSelector), appMetadata],
         [select(allowAnonymousSelector), false],
       ])
-      .take(fetchJsonSchemaFulfilled)
+      .take(DataModelActions.fetchJsonSchemaFulfilled)
       .call(fetchFormDataInitialSaga)
       .run();
   });

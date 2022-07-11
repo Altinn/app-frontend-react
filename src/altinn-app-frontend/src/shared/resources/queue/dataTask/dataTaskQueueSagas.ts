@@ -1,6 +1,6 @@
 import type { SagaIterator } from 'redux-saga';
 import { put, takeEvery } from 'redux-saga/effects';
-import { fetchJsonSchema } from 'src/features/form/datamodel/datamodelSlice';
+import { DataModelActions } from 'src/features/form/datamodel/datamodelSlice';
 import { FormDataActions } from '../../../../features/form/data/formDataSlice';
 import { FormLayoutActions } from '../../../../features/form/layout/formLayoutSlice';
 import {
@@ -11,7 +11,7 @@ import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSl
 
 export function* startInitialDataTaskQueueSaga(): SagaIterator {
   yield put(FormDataActions.fetchInitial());
-  yield put(fetchJsonSchema());
+  yield put(DataModelActions.fetchJsonSchema());
   yield put(FormLayoutActions.fetchSets());
   yield put(FormLayoutActions.fetch());
   yield put(FormLayoutActions.fetchSettings());

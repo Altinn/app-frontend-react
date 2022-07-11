@@ -1,23 +1,10 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAction, createSlice } from '@reduxjs/toolkit';
-
-export interface IJsonSchemas {
-  [id: string]: object;
-}
-
-export interface IDataModelState {
-  schemas: IJsonSchemas;
-  error: Error;
-}
-
-export interface IFetchJsonSchemaFulfilled {
-  schema: object;
-  id: string;
-}
-
-export interface IFetchJsonSchemaRejected {
-  error: Error;
-}
+import type {
+  IDataModelState,
+  IFetchJsonSchemaFulfilled,
+  IFetchJsonSchemaRejected,
+} from 'src/features/form/datamodel/index';
 
 const initialState: IDataModelState = {
   schemas: {},
@@ -46,9 +33,13 @@ const formDataModelSlice = createSlice({
   },
 });
 
-export const fetchJsonSchema = createAction(`${moduleName}/fetchJsonSchema`);
+const actions = {
+  fetchJsonSchema: createAction(`${moduleName}/fetchJsonSchema`),
+};
 
-export const { fetchJsonSchemaFulfilled, fetchJsonSchemaRejected } =
-  formDataModelSlice.actions;
+export const DataModelActions = {
+  ...formDataModelSlice.actions,
+  ...actions,
+};
 
 export default formDataModelSlice;

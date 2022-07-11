@@ -11,11 +11,7 @@ import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlic
 import { get } from '../../../../utils/networking';
 import type { ILayoutSets, IRuntimeState } from '../../../../types';
 import type { IApplicationMetadata } from '../../../../shared/resources/applicationMetadata';
-import {
-  fetchJsonSchema,
-  fetchJsonSchemaFulfilled,
-  fetchJsonSchemaRejected,
-} from '../datamodelSlice';
+import { DataModelActions } from '../datamodelSlice';
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
@@ -43,10 +39,12 @@ function* fetchJsonSchemaSaga(): SagaIterator {
 
     if (dataTypeId) {
       const schema: any = yield call(get, url + dataTypeId);
-      yield put(fetchJsonSchemaFulfilled({ schema, id: dataTypeId }));
+      yield put(
+        DataModelActions.fetchJsonSchemaFulfilled({ schema, id: dataTypeId }),
+      );
     }
   } catch (error) {
-    yield put(fetchJsonSchemaRejected({ error }));
+    yield put(DataModelActions.fetchJsonSchemaRejected({ error }));
     yield put(dataTaskQueueError({ error }));
   }
 }
@@ -55,7 +53,7 @@ export function* watchFetchJsonSchemaSaga(): SagaIterator {
   yield all([
     take(ApplicationMetadataActions.getFulfilled),
     take(FormLayoutActions.fetchSetsFulfilled),
-    take(fetchJsonSchema),
+    take(DataModelActions.fetchJsonSchema),
   ]);
   const application: IApplicationMetadata = yield select(
     (state: IRuntimeState) => state.applicationMetadata.applicationMetadata,
@@ -63,7 +61,7 @@ export function* watchFetchJsonSchemaSaga(): SagaIterator {
   if (isStatelessApp(application)) {
     yield call(fetchJsonSchemaSaga);
     while (true) {
-      yield take(fetchJsonSchema);
+      yield take(DataModelActions.fetchJsonSchema);
       yield call(fetchJsonSchemaSaga);
     }
   } else {
@@ -71,7 +69,7 @@ export function* watchFetchJsonSchemaSaga(): SagaIterator {
     while (true) {
       yield all([
         take(InstanceDataActions.getFulfilled),
-        take(fetchJsonSchema),
+        take(DataModelActions.fetchJsonSchema),
       ]);
       yield call(fetchJsonSchemaSaga);
     }

@@ -1,7 +1,7 @@
 import type { IIsLoadingState } from 'src/shared/resources/isLoading/isLoadingSlice';
 import type { IOptionsState } from 'src/shared/resources/options';
 import type { IFormRuleState } from 'src/features/form/rules';
-import type { IDataModelState } from 'src/features/form/datamodel/datamodelSlice';
+import type { IDataModelState } from 'src/features/form/datamodel';
 import type { ReactNode } from 'react';
 import type Ajv from 'ajv/dist/core';
 import type { IFormDataState } from '../features/form/data';

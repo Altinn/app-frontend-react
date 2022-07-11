@@ -22,7 +22,7 @@ import {
   invalidateCookieUrl,
   redirectToUpgrade,
 } from '../../../../utils/appUrlHelper';
-import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';
+import { DataModelActions } from '../../datamodel/datamodelSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import {
   appMetaDataSelector,
@@ -156,7 +156,7 @@ export function* watchFetchFormDataInitialSaga(): SagaIterator {
     const instance: IInstance = yield select(instanceDataSelector);
     const application: IApplicationMetadata = yield select(appMetaDataSelector);
     if (isStatelessApp(application)) {
-      yield take(fetchJsonSchemaFulfilled);
+      yield take(DataModelActions.fetchJsonSchemaFulfilled);
       const allowAnonymous = yield select(allowAnonymousSelector);
       if (!allowAnonymous) {
         call(
@@ -172,7 +172,7 @@ export function* watchFetchFormDataInitialSaga(): SagaIterator {
     ) {
       yield all([
         take(InstanceDataActions.getFulfilled),
-        take(fetchJsonSchemaFulfilled),
+        take(DataModelActions.fetchJsonSchemaFulfilled),
       ]);
     }
     yield call(fetchFormDataInitialSaga);
