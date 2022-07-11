@@ -32,13 +32,6 @@ const isProcessAction = (action: AnyAction) => {
   );
 };
 
-const isUpdateDataFulfilled = (action: AnyAction) => {
-  return (
-    action.type === FormDataActions.updateFormDataFulfilled.type ||
-    action.type === FormDataActions.updateFormDataSkipAutosave.type
-  );
-};
-
 const name = 'formData';
 const formDataSlice = createSlice({
   name,
@@ -92,6 +85,19 @@ const formDataSlice = createSlice({
       state.hasSubmitted = false;
       state.ignoreWarnings = false;
     },
+    updateFormDataFulfilled: (
+      state,
+      action: PayloadAction<IUpdateFormDataFulfilled>,
+    ) => {
+      const { field, data } = action.payload;
+      // Remove if data is null, undefined or empty string
+      if (data === undefined || data === null || data === '') {
+        delete state.formData[field];
+      } else {
+        state.formData[field] = data;
+      }
+      state.unsavedChanges = true;
+    },
     updateFormDataRejected: (
       state,
       action: PayloadAction<IFormDataRejected>,
@@ -108,19 +114,6 @@ const formDataSlice = createSlice({
       .addCase(FormLayoutActions.updateCurrentViewFulfilled, (state) => {
         state.hasSubmitted = false;
       })
-      .addMatcher(
-        isUpdateDataFulfilled,
-        (state, action: PayloadAction<IUpdateFormDataFulfilled>) => {
-          const { field, data } = action.payload;
-          // Remove if data is null, undefined or empty string
-          if (data === undefined || data === null || data === '') {
-            delete state.formData[field];
-          } else {
-            state.formData[field] = data;
-          }
-          state.unsavedChanges = true;
-        },
-      )
       .addMatcher(isProcessAction, (state) => {
         state.isSubmitting = false;
       })
@@ -132,12 +125,6 @@ const actions = {
   fetchFormData: createAction<IFetchFormData>(`${name}/fetch`),
   fetchFormDataInitial: createAction(`${name}/fetchInitial`),
   saveFormData: createAction(`${name}/save`),
-  updateFormDataFulfilled: createAction<IUpdateFormDataFulfilled>(
-    `${name}/updateFulfilled`,
-  ),
-  updateFormDataSkipAutosave: createAction<IUpdateFormDataFulfilled>(
-    `${name}/updateSkipAutosave`,
-  ),
   deleteAttachmentReference: createAction<IDeleteAttachmentReference>(
     `${name}/deleteAttachmentReference`,
   ),
