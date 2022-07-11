@@ -4,6 +4,7 @@ import type {
   IFetchServiceConfigRejected,
   ICheckIfConditionalRulesShouldRun,
 } from 'src/features/form/dynamics/index';
+import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import { call, all, take } from 'redux-saga/effects';
 import { fetchDynamicsSaga } from 'src/features/form/dynamics/fetch/fetchFormDynamicsSagas';
@@ -20,32 +21,30 @@ const initialState: IFormDynamicState = {
   error: null,
 };
 
-const slice = createSagaSlice((mkAction) => ({
+const slice = createSagaSlice((mkAction: MkActionType<IFormDynamicState>) => ({
   name: 'formDynamics',
   initialState,
   actions: {
-    checkIfConditionalRulesShouldRun: mkAction<
-      IFormDynamicState,
-      ICheckIfConditionalRulesShouldRun
-    >({
-      takeLatest: checkIfConditionalRulesShouldRunSaga,
-      saga: () =>
-        function* (): SagaIterator {
-          while (true) {
-            yield all([
-              take(FormLayoutActions.fetchFulfilled),
-              take(FormDataActions.fetchFulfilled),
-              take(FormDynamicsActions.fetchFulfilled),
-              take(FormRulesActions.fetchFulfilled),
-            ]);
-            yield call(checkIfConditionalRulesShouldRunSaga);
-          }
-        },
-    }),
-    fetch: mkAction<IFormDynamicState, IFetchServiceConfigFulfilled>({
+    checkIfConditionalRulesShouldRun:
+      mkAction<ICheckIfConditionalRulesShouldRun>({
+        takeLatest: checkIfConditionalRulesShouldRunSaga,
+        saga: () =>
+          function* (): SagaIterator {
+            while (true) {
+              yield all([
+                take(FormLayoutActions.fetchFulfilled),
+                take(FormDataActions.fetchFulfilled),
+                take(FormDynamicsActions.fetchFulfilled),
+                take(FormRulesActions.fetchFulfilled),
+              ]);
+              yield call(checkIfConditionalRulesShouldRunSaga);
+            }
+          },
+      }),
+    fetch: mkAction<IFetchServiceConfigFulfilled>({
       takeLatest: fetchDynamicsSaga,
     }),
-    fetchFulfilled: mkAction<IFormDynamicState, IFetchServiceConfigFulfilled>({
+    fetchFulfilled: mkAction<IFetchServiceConfigFulfilled>({
       reducer: (state, action) => {
         state.apis = action.payload.apis;
         state.ruleConnection = action.payload.ruleConnection;
@@ -53,7 +52,7 @@ const slice = createSagaSlice((mkAction) => ({
         state.error = null;
       },
     }),
-    fetchRejected: mkAction<IFormDynamicState, IFetchServiceConfigRejected>({
+    fetchRejected: mkAction<IFetchServiceConfigRejected>({
       reducer: (state, action) => {
         state.error = action.payload.error;
       },

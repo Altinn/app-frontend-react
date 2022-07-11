@@ -51,6 +51,23 @@ export interface SagaActions<State> {
   [key: string]: SagaAction<any, State>;
 }
 
+export type SagaSliceProps<
+  State = any,
+  Actions extends SagaActions<State> = SagaActions<State>,
+  Name extends string = string,
+> = {
+  name: Name;
+  initialState: State | (() => State);
+  actions: Actions;
+};
+
+export type MkActionType<State> = <
+  Payload = void,
+  Out extends SagaAction<Payload, State> = SagaAction<Payload, State>,
+>(
+  action: Out,
+) => Out;
+
 export const rootSagas: Saga[] = [];
 
 /**
@@ -65,21 +82,11 @@ export function createSagaSlice<
   Actions extends SagaActions<State> = SagaActions<State>,
   Name extends string = string,
 >(
-  cb: (
-    mkAction: <
-      _State extends State = State,
-      Payload = void,
-      Out extends SagaAction<Payload, _State> = SagaAction<Payload, _State>,
-    >(
-      action: Out,
-    ) => Out,
-  ) => {
-    name: Name;
-    initialState: State | (() => State);
-    actions: Actions;
-  },
+  // It is expected that you specify the type of mkAction explicitly to MkActionType<YourStateType>
+  cb: (mkAction: never) => SagaSliceProps<State, Actions, Name>,
 ): Slice<State, TransformActions<State, Actions>, Name> {
-  const props = cb((action) => action);
+  const mkAction: MkActionType<State> = (action) => action;
+  const props = cb(mkAction as never);
 
   const reducers: any = {};
   const otherActions: any = {};
