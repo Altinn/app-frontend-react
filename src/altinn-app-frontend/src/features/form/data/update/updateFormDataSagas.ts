@@ -18,7 +18,7 @@ import {
   validateComponentFormData,
 } from '../../../../utils/validation';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
-import { updateComponentValidations } from '../../validation/validationSlice';
+import { ValidationActions } from '../../validation/validationSlice';
 import { FormDataActions } from '../formDataSlice';
 import type {
   IUpdateFormData,
@@ -138,7 +138,7 @@ function* runValidations(
   }
 
   yield put(
-    updateComponentValidations({
+    ValidationActions.updateComponentValidations({
       componentId,
       layoutId,
       validations: componentValidations,

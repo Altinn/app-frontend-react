@@ -20,7 +20,7 @@ import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import type { IAltinnWindow } from '../../../types';
 import { get } from '../../../utils/networking';
 import { getValidationUrl } from '../../../utils/appUrlHelper';
-import { updateValidations } from '../../form/validation/validationSlice';
+import { ValidationActions } from '../../form/validation/validationSlice';
 import { mapDataElementValidationToRedux } from '../../../utils/validation';
 import { getTextFromAppOrDefault } from '../../../utils/textResource';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
@@ -112,7 +112,7 @@ const Confirm = () => {
         instanceId: instanceGuid,
       }),
     );
-  }, [partyId, instanceGuid]);
+  }, [partyId, instanceGuid, dispatch]);
 
   const getInstanceMetaObject = () => {
     if (instance && instance.org && parties && applicationMetadata) {
@@ -221,7 +221,11 @@ const SubmitButton = () => {
           {},
           textResources,
         );
-        dispatch(updateValidations({ validations: mappedValidations }));
+        dispatch(
+          ValidationActions.updateValidations({
+            validations: mappedValidations,
+          }),
+        );
         if (data.length === 0) {
           dispatch(ProcessActions.complete());
         } else {

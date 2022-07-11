@@ -1,6 +1,6 @@
 import type { SagaIterator } from 'redux-saga';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { updateComponentValidations } from 'src/features/form/validation/validationSlice';
+import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { getFileUploadComponentValidations } from '../../../../utils/formComponentUtils';
 import type { IRuntimeState } from '../../../../types';
 import { httpDelete } from '../../../../utils/networking';
@@ -27,7 +27,7 @@ export function* deleteAttachmentSaga({
     // Sets validations to empty.
     const newValidations = getFileUploadComponentValidations(null, null);
     yield put(
-      updateComponentValidations({
+      ValidationActions.updateComponentValidations({
         componentId,
         layoutId: currentView,
         validations: newValidations,
@@ -66,7 +66,7 @@ export function* deleteAttachmentSaga({
   } catch (err) {
     const validations = getFileUploadComponentValidations('delete', language);
     yield put(
-      updateComponentValidations({
+      ValidationActions.updateComponentValidations({
         componentId,
         layoutId: currentView,
         validations,

@@ -22,7 +22,7 @@ import type { IRuntimeState, IDataModelBindings } from 'src/types';
 import type { IUpdateRepeatingGroups } from 'src/features/form/layout/formLayoutTypes';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { IAttachment } from 'src/shared/resources/attachments';
-import { updateValidations } from 'src/features/form/validation/validationSlice';
+import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 
@@ -129,7 +129,7 @@ describe('updateLayoutSagas', () => {
             dataModelBindings: {},
           }),
         )
-        .put(updateValidations({ validations: {} }))
+        .put(ValidationActions.updateValidations({ validations: {} }))
         .put(
           FormLayoutActions.updateRepeatingGroupsFulfilled({
             repeatingGroups: {

@@ -5,7 +5,7 @@ import { runConditionalRenderingRules } from '../../../../utils/conditionalRende
 import { FormDataActions } from '../../data/formDataSlice';
 import type { IFormData } from '../../data';
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
-import { updateValidations } from '../../validation/validationSlice';
+import { ValidationActions } from '../../validation/validationSlice';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import type { IConditionalRenderingRules } from 'src/features/form/dynamics';
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
@@ -41,7 +41,9 @@ function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
         if (formValidations[componentId]) {
           const newFormValidations = formValidations;
           delete formValidations[componentId];
-          updateValidations({ validations: newFormValidations });
+          ValidationActions.updateValidations({
+            validations: newFormValidations,
+          });
         }
       });
     }

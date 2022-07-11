@@ -29,10 +29,7 @@ import {
 } from '../../../../utils/validation';
 import type { ILayoutState } from '../../layout/formLayoutSlice';
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
-import {
-  runSingleFieldValidation,
-  updateValidations,
-} from '../../validation/validationSlice';
+import { ValidationActions } from '../../validation/validationSlice';
 import { FormDataActions } from '../formDataSlice';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type {
@@ -112,7 +109,7 @@ function* submitFormSaga({
     }
     validationResult.validations = validations;
     if (!canFormBeSaved(validationResult, apiMode)) {
-      yield sagaPut(updateValidations({ validations }));
+      yield sagaPut(ValidationActions.updateValidations({ validations }));
       return yield sagaPut(FormDataActions.submitRejected({ error: null }));
     }
 
@@ -138,7 +135,9 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean) {
     layoutState.layouts,
     state.textResources.resources,
   );
-  yield sagaPut(updateValidations({ validations: mappedValidations }));
+  yield sagaPut(
+    ValidationActions.updateValidations({ validations: mappedValidations }),
+  );
   const hasErrors = hasValidationsOfSeverity(mappedValidations, Severity.Error);
   const hasWarnings = hasValidationsOfSeverity(
     mappedValidations,
@@ -237,7 +236,7 @@ export function* saveFormDataSaga(): SagaIterator {
     }
 
     if (state.formValidations.currentSingleFieldValidation?.dataModelBinding) {
-      yield sagaPut(runSingleFieldValidation());
+      yield sagaPut(ValidationActions.runSingleFieldValidation());
     }
 
     yield sagaPut(FormDataActions.submitFulfilled());

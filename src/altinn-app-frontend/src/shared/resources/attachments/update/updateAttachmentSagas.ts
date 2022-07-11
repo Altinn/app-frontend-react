@@ -1,6 +1,6 @@
 import type { SagaIterator } from 'redux-saga';
 import { call, takeEvery, put, select } from 'redux-saga/effects';
-import { updateComponentValidations } from 'src/features/form/validation/validationSlice';
+import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { post, httpDelete } from 'src/utils/networking';
 import type { AxiosRequestConfig } from 'axios';
 import type { IAttachment } from '..';
@@ -22,7 +22,7 @@ export function* updateAttachmentSaga({
     // Sets validations to empty.
     const newValidations = getFileUploadComponentValidations(null, null);
     yield put(
-      updateComponentValidations({
+      ValidationActions.updateComponentValidations({
         componentId,
         layoutId: currentView,
         validations: newValidations,
@@ -47,7 +47,7 @@ export function* updateAttachmentSaga({
           attachment.id,
         );
         yield put(
-          updateComponentValidations({
+          ValidationActions.updateComponentValidations({
             componentId,
             layoutId: currentView,
             validations,
@@ -92,7 +92,7 @@ export function* updateAttachmentSaga({
         attachment.id,
       );
       yield put(
-        updateComponentValidations({
+        ValidationActions.updateComponentValidations({
           componentId,
           layoutId: currentView,
           validations,
@@ -114,7 +114,7 @@ export function* updateAttachmentSaga({
       attachment.id,
     );
     yield put(
-      updateComponentValidations({
+      ValidationActions.updateComponentValidations({
         componentId,
         layoutId: currentView,
         validations,

@@ -2,7 +2,7 @@ import type { SagaIterator } from 'redux-saga';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import type { AxiosRequestConfig } from 'axios';
 import { customEncodeURI } from 'altinn-shared/utils';
-import { updateComponentValidations } from 'src/features/form/validation/validationSlice';
+import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import type { IAttachment } from '..';
 import { getFileUploadComponentValidations } from '../../../../utils/formComponentUtils';
 import type { IRuntimeState } from '../../../../types';
@@ -35,7 +35,7 @@ export function* uploadAttachmentSaga({
     // Sets validations to empty.
     const newValidations = getFileUploadComponentValidations(null, null);
     yield put(
-      updateComponentValidations({
+      ValidationActions.updateComponentValidations({
         componentId,
         layoutId: currentView,
         validations: newValidations,
@@ -100,7 +100,7 @@ export function* uploadAttachmentSaga({
     } else {
       const validations = getFileUploadComponentValidations('upload', language);
       yield put(
-        updateComponentValidations({
+        ValidationActions.updateComponentValidations({
           componentId,
           layoutId: currentView,
           validations,
@@ -117,7 +117,7 @@ export function* uploadAttachmentSaga({
   } catch (err) {
     const validations = getFileUploadComponentValidations('upload', language);
     yield put(
-      updateComponentValidations({
+      ValidationActions.updateComponentValidations({
         componentId,
         layoutId: currentView,
         validations,

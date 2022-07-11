@@ -55,7 +55,7 @@ import {
 } from 'src/utils/validation';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
 import { startInitialDataTaskQueueFulfilled } from 'src/shared/resources/queue/queueSlice';
-import { updateValidations } from 'src/features/form/validation/validationSlice';
+import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import type {
   ILayoutComponent,
   ILayoutEntry,
@@ -274,7 +274,11 @@ export function* updateRepeatingGroupsSaga({
           formLayoutState.uiConfig.repeatingGroups,
           validations,
         );
-        yield put(updateValidations({ validations: updatedValidations }));
+        yield put(
+          ValidationActions.updateValidations({
+            validations: updatedValidations,
+          }),
+        );
 
         updatedRepeatingGroups[layoutElementId].deletingIndex =
           updatedRepeatingGroups[layoutElementId].deletingIndex?.filter(
@@ -415,7 +419,7 @@ export function* updateCurrentViewSaga({
         // only store validations for the specific page
         validations = { [currentView]: validations[currentView] };
       }
-      yield put(updateValidations({ validations }));
+      yield put(ValidationActions.updateValidations({ validations }));
       if (state.formLayout.uiConfig.returnToView) {
         if (!skipPageCaching) {
           localStorage.setItem(currentViewCacheKey, newView);
@@ -646,7 +650,9 @@ export function* updateRepeatingGroupEditIndexSaga({
             ...combinedValidations[currentView],
           },
         };
-        yield put(updateValidations({ validations: newValidations }));
+        yield put(
+          ValidationActions.updateValidations({ validations: newValidations }),
+        );
       }
     } else {
       yield put(
@@ -705,7 +711,7 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
         );
       }
     }
-    yield put(updateValidations({ validations }));
+    yield put(ValidationActions.updateValidations({ validations }));
   }
   // preserve current edit index if still valid
   currentGroupKeys
