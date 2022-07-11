@@ -111,10 +111,7 @@ export function* checkIfOptionsShouldRefetchSaga({
 
 export function* watchCheckIfOptionsShouldRefetchSaga(): SagaIterator {
   yield takeEvery(
-    [
-      FormDataActions.updateFormDataFulfilled,
-      FormDataActions.updateFormDataSkipAutosave,
-    ],
+    FormDataActions.updateFormDataFulfilled,
     checkIfOptionsShouldRefetchSaga,
   );
 }

@@ -11,6 +11,8 @@ import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import type { ILayoutValidations, ITextResource } from 'src/types';
 import type { IValidationState } from 'src/features/form/validation/validationSlice';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { IUpdateFormData } from 'src/features/form/data/formDataTypes';
 
 export const defaultMockQuestions = [
   { Question: 'Hvordan trives du på skolen?', Answer: '' },
@@ -98,13 +100,14 @@ const createRadioButton = (
 export const createFormDataUpdateAction = (
   index: number,
   optionValue: string,
-) => {
+): PayloadAction<IUpdateFormData> => {
   return {
     payload: {
       componentId: `field1-${index}`,
       data: optionValue,
       field: `Questions[${index}].Answer`,
       skipValidation: false,
+      checkIfRequired: true,
     },
     type: FormDataActions.update.type,
   };
