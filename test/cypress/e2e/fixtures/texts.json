@@ -15,6 +15,7 @@
   "missingRights": "Du mangler rettigheter for å se denne tjenesten",
   "next": "Neste",
   "requiredField": "Feltet er påkrevd",
+  "requiredFieldLastName": "Du må fylle ut Nytt etternavn",
   "requiredFieldDateFrom": "Du må fylle ut Dato for navneendring",
   "securityReasons": "Av sikkerhetshensyn vil verken innholdet i tjenesten eller denne meldingen være synlig i Altinn etter at du har forlatt denne siden",
   "selectNewReportee": "Velg ny aktør under",
@@ -26,5 +27,11 @@
   "uploadWithTag": "Last opp vedlegg og knytte den mot en tag",
   "uplodDocs": "Last opp eventuell dokumentasjon for ditt nye navn",
   "zeroIsNotValid": "0 er ikke en gyldig verdi",
-  "finishedUploading": "Ferdig lastet"
+  "finishedUploading": "Ferdig lastet",
+  "nestedOptionsToggle": "Vis tillegg",
+  "nestedOptions": "Tilleggsopsjoner",
+  "nestedOption1": "Opsjon 11",
+  "nestedOption2": "Opsjon 1",
+  "nestedOption3": "Opsjon 111",
+  "change": "Endre"
 }
