@@ -21,6 +21,7 @@ import {
   watchFetchFormLayoutSettingsSaga,
 } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
 import { replaceTextResourcesSaga } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
+import { fetchOptionsSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
 
 export interface ILayoutState {
   layouts: ILayouts;
@@ -59,6 +60,7 @@ const formLayoutSlice = createSagaSlice(
         saga: () => watchFetchFormLayoutSaga,
       }),
       fetchFulfilled: mkAction<LayoutTypes.IFetchLayoutFulfilled>({
+        takeLatest: fetchOptionsSaga,
         reducer: (state, action) => {
           const { layouts, navigationConfig } = action.payload;
           state.layouts = layouts;

@@ -29,6 +29,7 @@ import {
 } from 'src/features/form/data/update/updateFormDataSagas';
 import type { SagaIterator } from 'redux-saga';
 import { actionChannel, take, call } from 'redux-saga/effects';
+import { checkIfOptionsShouldRefetchSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
 
 const initialState: IFormDataState = {
   formData: {},
@@ -117,6 +118,7 @@ const formDataSlice = createSagaSlice(
       }),
       updateFulfilled: mkAction<IUpdateFormDataFulfilled>({
         takeLatest: [checkIfRuleShouldRunSaga, autoSaveSaga],
+        takeEvery: checkIfOptionsShouldRefetchSaga,
         reducer: (state, action) => {
           const { field, data } = action.payload;
           // Remove if data is null, undefined or empty string
