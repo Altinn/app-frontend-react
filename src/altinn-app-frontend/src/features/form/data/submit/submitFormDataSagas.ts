@@ -4,7 +4,6 @@ import { call, put as sagaPut, select, takeLatest } from 'redux-saga/effects';
 import { get, put } from 'altinn-shared/utils';
 import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
 import { Severity } from 'src/types';
-import { isIE } from 'react-device-detect';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { post } from 'src/utils/networking';
 import {
@@ -167,14 +166,7 @@ export function* putFormData(state: IRuntimeState, model: any) {
   try {
     yield call(put, dataElementUrl(defaultDataElementGuid), model);
   } catch (error) {
-    if (isIE) {
-      // 303 is treated as en error in IE - we try to fetch.
-      yield sagaPut(
-        FormDataActions.fetch({
-          url: dataElementUrl(defaultDataElementGuid),
-        }),
-      );
-    } else if (error.response && error.response.status === 303) {
+    if (error.response && error.response.status === 303) {
       // 303 means that data has been changed by calculation on server. Try to update from response.
       const calculationUpdateHandled = yield call(
         handleCalculationUpdate,
