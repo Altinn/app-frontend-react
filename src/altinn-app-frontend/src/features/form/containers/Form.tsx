@@ -12,6 +12,7 @@ import { hasRequiredFields } from 'src/utils/formLayout';
 import { missingFieldsInLayoutValidations } from 'src/utils/validation';
 import { Route, useHistory, useRouteMatch } from 'react-router-dom';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { PanelGroupContainer } from './PanelGroupContainer';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -56,25 +57,37 @@ function RenderLayoutGroup(
     }
     return layout.find((c) => c.id === childId) as ILayoutComponent;
   });
-  const repeating = layoutGroup.maxCount > 1;
-  if (!repeating) {
-    // If not repeating, treat as regular components
+
+  const isRepeatingGroup = layoutGroup.maxCount > 1;
+  if (isRepeatingGroup) {
     return (
-      <DisplayGroupContainer
-        key={layoutGroup.id}
+      <GroupContainer
         container={layoutGroup}
+        id={layoutGroup.id}
+        key={layoutGroup.id}
         components={groupComponents}
-        renderLayoutComponent={renderLayoutComponent}
       />
     );
   }
 
+  const isPanel = layoutGroup.panel;
+  if (isPanel) {
+    return (
+      <PanelGroupContainer
+        components={groupComponents}
+        container={layoutGroup}
+        key={layoutGroup.id}
+      />
+    );
+  }
+
+  //treat as regular components
   return (
-    <GroupContainer
-      container={layoutGroup}
-      id={layoutGroup.id}
+    <DisplayGroupContainer
       key={layoutGroup.id}
+      container={layoutGroup}
       components={groupComponents}
+      renderLayoutComponent={renderLayoutComponent}
     />
   );
 }
