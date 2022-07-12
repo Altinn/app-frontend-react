@@ -20,6 +20,7 @@ import {
   watchFetchFormLayoutSaga,
   watchFetchFormLayoutSettingsSaga,
 } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
+import { replaceTextResourcesSaga } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
 
 export interface ILayoutState {
   layouts: ILayouts;
@@ -197,6 +198,7 @@ const formLayoutSlice = createSagaSlice(
       }),
       updateRepeatingGroupsFulfilled:
         mkAction<LayoutTypes.IUpdateRepeatingGroupsFulfilled>({
+          takeLatest: replaceTextResourcesSaga,
           reducer: (state, action) => {
             const { repeatingGroups } = action.payload;
             state.uiConfig.repeatingGroups = repeatingGroups;
