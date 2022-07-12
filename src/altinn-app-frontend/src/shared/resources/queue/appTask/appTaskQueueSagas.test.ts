@@ -1,7 +1,7 @@
 import { expectSaga } from 'redux-saga-test-plan';
 
 import { startInitialAppTaskQueueSaga } from 'src/shared/resources/queue/appTask/appTaskQueueSagas';
-import { startInitialAppTaskQueueFulfilled } from 'src/shared/resources/queue/queueSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 import { OrgsActions } from 'src/shared/resources/orgs/orgsSlice';
@@ -18,7 +18,7 @@ describe('appTaskQueueSagas', () => {
       .put(ApplicationMetadataActions.get())
       .put(FormLayoutActions.fetchSets())
       .put(OrgsActions.fetch())
-      .put(startInitialAppTaskQueueFulfilled())
+      .put(QueueActions.startInitialAppTaskQueueFulfilled())
       .run();
   });
 });

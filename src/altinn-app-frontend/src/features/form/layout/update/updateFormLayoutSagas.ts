@@ -53,7 +53,7 @@ import {
   getValidator,
 } from 'src/utils/validation';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
-import { startInitialDataTaskQueueFulfilled } from 'src/shared/resources/queue/queueSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import type {
   ILayoutComponent,
@@ -527,7 +527,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
 export function* watchInitialCalculatePageOrderAndMoveToNextPageSaga(): SagaIterator {
   while (true) {
     yield all([
-      take(startInitialDataTaskQueueFulfilled),
+      take(QueueActions.startInitialDataTaskQueueFulfilled),
       take(FormLayoutActions.fetchFulfilled),
       take(FormLayoutActions.fetchSettingsFulfilled),
     ]);

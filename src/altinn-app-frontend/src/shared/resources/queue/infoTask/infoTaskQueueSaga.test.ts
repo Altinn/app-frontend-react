@@ -12,7 +12,7 @@ import {
   finishDataTaskIsLoading,
   startDataTaskIsLoading,
 } from '../../isLoading/isLoadingSlice';
-import { startInitialInfoTaskQueueFulfilled } from '../queueSlice';
+import { QueueActions } from '../queueSlice';
 import { FormDataActions } from '../../../../features/form/data/formDataSlice';
 import { TextResourcesActions } from '../../textResources/textResourcesSlice';
 import {
@@ -42,7 +42,7 @@ describe('infoTaskQueueSaga', () => {
         [select(InstanceDataSelector), getInstanceDataStateMock().instance],
       ])
       .put(startDataTaskIsLoading())
-      .put(startInitialInfoTaskQueueFulfilled())
+      .put(QueueActions.startInitialInfoTaskQueueFulfilled())
       .put(finishDataTaskIsLoading())
       .run();
   });
@@ -81,7 +81,7 @@ describe('infoTaskQueueSaga', () => {
         [select(InstanceDataSelector), instanceData],
       ])
       .put(startDataTaskIsLoading())
-      .put(startInitialInfoTaskQueueFulfilled())
+      .put(QueueActions.startInitialInfoTaskQueueFulfilled())
       .put(FormDataActions.fetchFulfilled({ formData: {} }))
       .put(TextResourcesActions.replace())
       .put(finishDataTaskIsLoading())

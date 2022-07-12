@@ -1,9 +1,6 @@
 import type { SagaIterator } from 'redux-saga';
 import { call, put, take } from 'redux-saga/effects';
-import {
-  startInitialAppTaskQueue,
-  startInitialAppTaskQueueFulfilled,
-} from '../queueSlice';
+import { QueueActions } from '../queueSlice';
 import { ApplicationSettingsActions } from '../../applicationSettings/applicationSettingsSlice';
 import { TextResourcesActions } from '../../textResources/textResourcesSlice';
 import { LanguageActions } from '../../language/languageSlice';
@@ -18,10 +15,10 @@ export function* startInitialAppTaskQueueSaga(): SagaIterator {
   yield put(ApplicationMetadataActions.get());
   yield put(FormLayoutActions.fetchSets());
   yield put(OrgsActions.fetch());
-  yield put(startInitialAppTaskQueueFulfilled());
+  yield put(QueueActions.startInitialAppTaskQueueFulfilled());
 }
 
 export function* watchStartInitialAppTaskQueueSaga(): SagaIterator {
-  yield take(startInitialAppTaskQueue);
+  yield take(QueueActions.startInitialAppTaskQueue);
   yield call(startInitialAppTaskQueueSaga);
 }

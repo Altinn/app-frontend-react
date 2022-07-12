@@ -3,7 +3,7 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 import { get } from '../../../../../utils/networking';
 import { applicationMetadataApiUrl } from '../../../../../utils/appUrlHelper';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
-import { appTaskQueueError } from '../../../queue/queueSlice';
+import { QueueActions } from '../../../queue/queueSlice';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 
 function* getApplicationMetadata(): SagaIterator {
@@ -13,7 +13,7 @@ function* getApplicationMetadata(): SagaIterator {
   } catch (error) {
     yield put(ApplicationMetadataActions.getRejected({ error }));
     yield put(LanguageActions.fetchDefaultLanguage()); // make sure default texts are fetched
-    yield put(appTaskQueueError({ error }));
+    yield put(QueueActions.appTaskQueueError({ error }));
   }
 }
 

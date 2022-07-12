@@ -4,10 +4,7 @@ import type { IRuntimeState, ITextResource } from 'src/types';
 import { get } from 'altinn-shared/utils';
 import type { IInstance } from 'altinn-shared/types';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import {
-  startInitialInfoTaskQueue,
-  startInitialInfoTaskQueueFulfilled,
-} from '../queueSlice';
+import { QueueActions } from '../queueSlice';
 import { TextResourcesActions } from '../../textResources/textResourcesSlice';
 import type { IApplicationMetadata } from '../../applicationMetadata';
 import { getFetchFormDataUrl } from '../../../../utils/appUrlHelper';
@@ -69,13 +66,13 @@ export function* startInitialInfoTaskQueueSaga(): SagaIterator {
     yield put(TextResourcesActions.replace());
   }
 
-  yield put(startInitialInfoTaskQueueFulfilled());
+  yield put(QueueActions.startInitialInfoTaskQueueFulfilled());
   yield put(finishDataTaskIsLoading());
 }
 
 export function* watchStartInitialInfoTaskQueueSaga(): SagaIterator {
   yield all([
-    take(startInitialInfoTaskQueue),
+    take(QueueActions.startInitialInfoTaskQueue),
     take(TextResourcesActions.fetchFulfilled),
   ]);
   yield call(startInitialInfoTaskQueueSaga);

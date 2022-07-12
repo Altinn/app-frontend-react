@@ -5,7 +5,7 @@ import type { IApplicationMetadata } from 'src/shared/resources/applicationMetad
 import { getRulehandlerUrl } from 'src/utils/appUrlHelper';
 import { get } from '../../../../utils/networking';
 import { getRuleModelFields } from '../../../../utils/rules';
-import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
+import { QueueActions } from '../../../../shared/resources/queue/queueSlice';
 import type { IRuntimeState, ILayoutSets } from '../../../../types';
 import { getLayoutSetIdForApplication } from '../../../../utils/appMetadata';
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
@@ -41,6 +41,6 @@ export function* fetchRuleModelSaga(): SagaIterator {
     yield put(FormRulesActions.fetchFulfilled({ ruleModel: ruleModelFields }));
   } catch (error) {
     yield put(FormRulesActions.fetchRejected({ error }));
-    yield put(dataTaskQueueError({ error }));
+    yield put(QueueActions.dataTaskQueueError({ error }));
   }
 }

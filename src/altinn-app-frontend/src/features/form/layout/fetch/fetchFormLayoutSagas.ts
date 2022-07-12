@@ -10,7 +10,7 @@ import {
 import { get } from '../../../../utils/networking';
 import { FormLayoutActions } from '../formLayoutSlice';
 import { FormDataActions } from '../../data/formDataSlice';
-import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
+import { QueueActions } from '../../../../shared/resources/queue/queueSlice';
 import type {
   ILayoutSettings,
   IRuntimeState,
@@ -80,7 +80,7 @@ export function* fetchLayoutSaga(): SagaIterator {
     );
   } catch (error) {
     yield put(FormLayoutActions.fetchRejected({ error }));
-    yield put(dataTaskQueueError({ error }));
+    yield put(QueueActions.dataTaskQueueError({ error }));
   }
 }
 

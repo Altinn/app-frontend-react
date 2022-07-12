@@ -4,11 +4,7 @@ import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { DataModelActions } from 'src/features/form/datamodel/datamodelSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { startStatelessIsLoading } from '../../isLoading/isLoadingSlice';
-import {
-  startInitialStatelessQueue,
-  startInitialStatelessQueueFulfilled,
-  statelessQueueError,
-} from '../queueSlice';
+import { QueueActions } from '../queueSlice';
 
 export function* startInitialStatelessQueueSaga(): SagaIterator {
   try {
@@ -18,12 +14,15 @@ export function* startInitialStatelessQueueSaga(): SagaIterator {
     yield put(FormLayoutActions.fetchSets());
     yield put(FormLayoutActions.fetch());
     yield put(FormLayoutActions.fetchSettings());
-    yield put(startInitialStatelessQueueFulfilled());
+    yield put(QueueActions.startInitialStatelessQueueFulfilled());
   } catch (error) {
-    yield put(statelessQueueError({ error }));
+    yield put(QueueActions.statelessQueueError({ error }));
   }
 }
 
 export function* watchStartInitialStatelessQueueSaga(): SagaIterator {
-  yield takeLatest(startInitialStatelessQueue, startInitialStatelessQueueSaga);
+  yield takeLatest(
+    QueueActions.startInitialStatelessQueue,
+    startInitialStatelessQueueSaga,
+  );
 }

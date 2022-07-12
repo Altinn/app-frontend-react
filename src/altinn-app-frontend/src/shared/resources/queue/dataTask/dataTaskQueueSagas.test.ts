@@ -1,7 +1,7 @@
 import { expectSaga } from 'redux-saga-test-plan';
 
 import { startInitialDataTaskQueueSaga } from './dataTaskQueueSagas';
-import { startInitialDataTaskQueueFulfilled } from '../queueSlice';
+import { QueueActions } from '../queueSlice';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { DataModelActions } from 'src/features/form/datamodel/datamodelSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
@@ -14,7 +14,7 @@ describe('dataTaskQueueSagas', () => {
       .put(FormLayoutActions.fetchSets())
       .put(FormLayoutActions.fetch())
       .put(FormLayoutActions.fetchSettings())
-      .put(startInitialDataTaskQueueFulfilled())
+      .put(QueueActions.startInitialDataTaskQueueFulfilled())
       .run();
   });
 });

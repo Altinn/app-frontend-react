@@ -10,10 +10,7 @@ import { Form } from '../../features/form/containers/Form';
 import ReceiptContainer from '../../features/receipt/containers/ReceiptContainer';
 import Confirm from '../../features/confirm/containers/Confirm';
 import UnknownError from '../../features/instantiate/containers/UnknownError';
-import {
-  startInitialDataTaskQueue,
-  startInitialInfoTaskQueue,
-} from '../resources/queue/queueSlice';
+import { QueueActions } from '../resources/queue/queueSlice';
 import { makeGetHasErrorsSelector } from '../../selectors/getErrors';
 import Feedback from '../../features/feedback/Feedback';
 import { finishDataTaskIsLoading } from '../resources/isLoading/isLoadingSlice';
@@ -65,12 +62,12 @@ const ProcessWrapper = (props) => {
 
     switch (process.taskType) {
       case ProcessTaskType.Data: {
-        dispatch(startInitialDataTaskQueue());
+        dispatch(QueueActions.startInitialDataTaskQueue());
         break;
       }
       case ProcessTaskType.Confirm:
       case ProcessTaskType.Feedback:
-        dispatch(startInitialInfoTaskQueue());
+        dispatch(QueueActions.startInitialInfoTaskQueue());
         break;
       case ProcessTaskType.Archived: {
         dispatch(finishDataTaskIsLoading());

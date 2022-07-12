@@ -1,22 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
-
-export interface IQueueState {
-  dataTask: IQueueTask;
-  appTask: IQueueTask;
-  userTask: IQueueTask;
-  infoTask: IQueueTask;
-  stateless: IQueueTask;
-}
-
-export interface IQueueTask {
-  isDone: boolean;
-  error: any;
-}
-
-export interface IQueueError {
-  error: any;
-}
+import type { IQueueError, IQueueState } from '.';
 
 const commonState = { isDone: null, error: null };
 export const initialState: IQueueState = {
@@ -27,96 +11,62 @@ export const initialState: IQueueState = {
   stateless: { ...commonState },
 };
 
-const moduleName = 'queue';
-
 const queueSlice = createSlice({
-  name: moduleName,
+  name: 'queue',
   initialState,
   reducers: {
-    appTaskQueueError: (
-      state: IQueueState,
-      action: PayloadAction<IQueueError>,
-    ) => {
+    appTaskQueueError: (state, action: PayloadAction<IQueueError>) => {
       const { error } = action.payload;
       state.appTask.error = error;
     },
-    userTaskQueueError: (
-      state: IQueueState,
-      action: PayloadAction<IQueueError>,
-    ) => {
+    userTaskQueueError: (state, action: PayloadAction<IQueueError>) => {
       const { error } = action.payload;
       state.userTask.error = error;
     },
-    dataTaskQueueError: (
-      state: IQueueState,
-      action: PayloadAction<IQueueError>,
-    ) => {
+    dataTaskQueueError: (state, action: PayloadAction<IQueueError>) => {
       const { error } = action.payload;
       state.dataTask.error = error;
     },
-    infoTaskQueueError: (
-      state: IQueueState,
-      action: PayloadAction<IQueueError>,
-    ) => {
+    infoTaskQueueError: (state, action: PayloadAction<IQueueError>) => {
       const { error } = action.payload;
       state.infoTask.error = error;
     },
-    statelessQueueError: (
-      state: IQueueState,
-      action: PayloadAction<IQueueError>,
-    ) => {
+    statelessQueueError: (state, action: PayloadAction<IQueueError>) => {
       const { error } = action.payload;
       state.stateless.error = error;
     },
-    startInitialAppTaskQueue: (state: IQueueState) => {
+    startInitialAppTaskQueue: (state) => {
       state.appTask.isDone = false;
     },
-    startInitialAppTaskQueueFulfilled: (state: IQueueState) => {
+    startInitialAppTaskQueueFulfilled: (state) => {
       state.appTask.isDone = true;
     },
-    startInitialUserTaskQueue: (state: IQueueState) => {
+    startInitialUserTaskQueue: (state) => {
       state.userTask.isDone = false;
     },
-    startInitialUserTaskQueueFulfilled: (state: IQueueState) => {
+    startInitialUserTaskQueueFulfilled: (state) => {
       state.userTask.isDone = true;
     },
-    startInitialDataTaskQueue: (state: IQueueState) => {
+    startInitialDataTaskQueue: (state) => {
       state.dataTask.isDone = false;
     },
-    startInitialDataTaskQueueFulfilled: (state: IQueueState) => {
+    startInitialDataTaskQueueFulfilled: (state) => {
       state.dataTask.isDone = true;
     },
-    startInitialInfoTaskQueue: (state: IQueueState) => {
+    startInitialInfoTaskQueue: (state) => {
       state.infoTask.isDone = false;
     },
-    startInitialInfoTaskQueueFulfilled: (state: IQueueState) => {
+    startInitialInfoTaskQueueFulfilled: (state) => {
       state.infoTask.isDone = true;
     },
-    startInitialStatelessQueue: (state: IQueueState) => {
+    startInitialStatelessQueue: (state) => {
       state.stateless.isDone = false;
     },
-    startInitialStatelessQueueFulfilled: (state: IQueueState) => {
+    startInitialStatelessQueueFulfilled: (state) => {
       state.stateless.isDone = true;
     },
   },
 });
 
-export const {
-  appTaskQueueError,
-  userTaskQueueError,
-  dataTaskQueueError,
-  infoTaskQueueError,
-  statelessQueueError,
-  startInitialAppTaskQueue,
-  startInitialAppTaskQueueFulfilled,
-  startInitialUserTaskQueue,
-  startInitialUserTaskQueueFulfilled,
-  startInitialDataTaskQueue,
-  startInitialDataTaskQueueFulfilled,
-  startInitialInfoTaskQueue,
-  startInitialInfoTaskQueueFulfilled,
-  startInitialStatelessQueue,
-  startInitialStatelessQueueFulfilled,
-} = queueSlice.actions;
-
+export const QueueActions = queueSlice.actions;
 export default queueSlice;

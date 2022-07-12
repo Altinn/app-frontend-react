@@ -3,7 +3,7 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 import type { IProfile } from 'altinn-shared/types';
 import { get } from '../../../../utils/networking';
 import type { IFetchProfile } from 'src/shared/resources/profile';
-import { userTaskQueueError } from '../../queue/queueSlice';
+import { QueueActions } from '../../queue/queueSlice';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { ProfileActions } from '../profileSlice';
 
@@ -15,7 +15,7 @@ function* fetchProfileSaga({
     yield put(ProfileActions.fetchFulfilled({ profile }));
   } catch (error) {
     yield put(ProfileActions.fetchRejected({ error }));
-    yield put(userTaskQueueError({ error }));
+    yield put(QueueActions.userTaskQueueError({ error }));
   }
 }
 

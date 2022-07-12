@@ -14,7 +14,7 @@ import { FormDataActions } from '../formDataSlice';
 import type { ILayoutSets, IRuntimeState } from '../../../../types';
 import type { IApplicationMetadata } from '../../../../shared/resources/applicationMetadata';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
-import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
+import { QueueActions } from '../../../../shared/resources/queue/queueSlice';
 import type { IProcessState } from '../../../../shared/resources/process';
 import {
   getFetchFormDataUrl,
@@ -86,7 +86,7 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
     yield put(FormDynamicsActions.fetch());
   } catch (error) {
     yield put(FormDataActions.fetchRejected({ error }));
-    yield put(dataTaskQueueError({ error }));
+    yield put(QueueActions.dataTaskQueueError({ error }));
   }
 }
 

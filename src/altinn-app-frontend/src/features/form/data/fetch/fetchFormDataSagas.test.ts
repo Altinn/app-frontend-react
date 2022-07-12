@@ -24,7 +24,7 @@ import { FormDataActions } from '../formDataSlice';
 import type { IApplication } from 'altinn-shared/types';
 import type { ILayoutSets } from 'src/types';
 import { DataModelActions } from '../../datamodel/datamodelSlice';
-import { dataTaskQueueError } from 'src/shared/resources/queue/queueSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import type { AxiosError } from 'axios';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
@@ -154,7 +154,7 @@ describe('fetchFormDataSagas', () => {
         [select(instanceDataSelector), { ...instance }],
       ])
       .put(FormDataActions.fetchRejected({ error }))
-      .put(dataTaskQueueError({ error }))
+      .put(QueueActions.dataTaskQueueError({ error }))
       .run();
   });
 
@@ -271,7 +271,7 @@ describe('fetchFormDataSagas', () => {
         [select(makeGetAllowAnonymousSelector()), true],
       ])
       .put(FormDataActions.fetchRejected({ error }))
-      .put(dataTaskQueueError({ error }))
+      .put(QueueActions.dataTaskQueueError({ error }))
       .run();
   });
 

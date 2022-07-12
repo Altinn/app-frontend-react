@@ -5,7 +5,7 @@ import type { IApplicationMetadata } from 'src/shared/resources/applicationMetad
 import { getFetchFormDynamicsUrl } from 'src/utils/appUrlHelper';
 import { get } from '../../../../utils/networking';
 import { FormDynamicsActions } from '../formDynamicsSlice';
-import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
+import { QueueActions } from '../../../../shared/resources/queue/queueSlice';
 import type { IRuntimeState, ILayoutSets } from '../../../../types';
 import { getLayoutSetIdForApplication } from '../../../../utils/appMetadata';
 
@@ -40,6 +40,6 @@ export function* fetchDynamicsSaga(): SagaIterator {
     );
   } catch (error) {
     yield put(FormDynamicsActions.fetchRejected({ error }));
-    yield put(dataTaskQueueError({ error }));
+    yield put(QueueActions.dataTaskQueueError({ error }));
   }
 }
