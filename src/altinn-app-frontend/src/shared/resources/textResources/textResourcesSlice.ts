@@ -19,10 +19,9 @@ const initialState: ITextResourcesState = {
   error: null,
 };
 
-const name = 'textResources';
 const textResourcesSlice = createSagaSlice(
   (mkAction: MkActionType<ITextResourcesState>) => ({
-    name,
+    name: 'textResources',
     initialState,
     actions: {
       fetch: mkAction<void>({

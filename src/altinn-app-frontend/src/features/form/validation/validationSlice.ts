@@ -42,11 +42,9 @@ export const initialState: IValidationState = {
   currentSingleFieldValidation: {},
 };
 
-const moduleName = 'formValidations';
-
 const validationSlice = createSagaSlice(
   (mkAction: MkActionType<IValidationState>) => ({
-    name: moduleName,
+    name: 'formValidations',
     initialState,
     actions: {
       runSingleFieldValidation: mkAction<void>({

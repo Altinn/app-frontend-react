@@ -14,10 +14,9 @@ const initialState: IFormRuleState = {
   error: null,
 };
 
-const name = 'formRules';
 const rulesSlice = createSagaSlice(
   (mkAction: MkActionType<IFormRuleState>) => ({
-    name,
+    name: 'formRules',
     initialState,
     actions: {
       fetch: mkAction<void>({

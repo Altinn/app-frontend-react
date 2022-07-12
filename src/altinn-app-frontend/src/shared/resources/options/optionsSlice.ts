@@ -13,10 +13,9 @@ const initialState: IOptionsState = {
   error: null,
 };
 
-const name = 'optionState';
 const optionsSlice = createSagaSlice(
   (mkAction: MkActionType<IOptionsState>) => ({
-    name,
+    name: 'optionState',
     initialState,
     actions: {
       fetch: mkAction<void>({
