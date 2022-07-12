@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import { combineReducers } from 'redux';
 import optionsSlice from '../shared/resources/options/optionsSlice';
 import formDataSlice from '../features/form/data/formDataSlice';
