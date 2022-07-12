@@ -92,7 +92,7 @@ export function* fetchFormDataInitialSaga(): SagaIterator {
     yield put(FormDynamicsActions.fetch());
   } catch (error) {
     yield put(FormDataActions.fetchRejected({ error }));
-    yield call(dataTaskQueueError, error);
+    yield put(dataTaskQueueError({ error }));
   }
 }
 

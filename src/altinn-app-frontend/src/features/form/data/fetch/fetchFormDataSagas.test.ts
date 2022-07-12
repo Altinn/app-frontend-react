@@ -154,7 +154,7 @@ describe('fetchFormDataSagas', () => {
         [select(instanceDataSelector), { ...instance }],
       ])
       .put(FormDataActions.fetchRejected({ error }))
-      .call(dataTaskQueueError, error)
+      .put(dataTaskQueueError({ error }))
       .run();
   });
 
@@ -271,7 +271,7 @@ describe('fetchFormDataSagas', () => {
         [select(allowAnonymousSelector), true],
       ])
       .put(FormDataActions.fetchRejected({ error }))
-      .call(dataTaskQueueError, error)
+      .put(dataTaskQueueError({ error }))
       .run();
   });
 
