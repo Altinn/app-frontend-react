@@ -1,8 +1,8 @@
 import type { IRuntimeState } from 'src/types';
-import { getInitialStateMock } from '../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 
 import { makeGetAllowAnonymousSelector } from './getAllowAnonymous';
-import { statelessAndAllowAnonymousMock } from '../../__mocks__/statelessAndAllowAnonymousMock';
+import { statelessAndAllowAnonymousMock } from '__mocks__/statelessAndAllowAnonymousMock';
 
 describe('selectors > getAllowAnonymous', () => {
   const initialState = getInitialStateMock();

@@ -3,7 +3,7 @@ import { expectSaga } from 'redux-saga-test-plan';
 import type { AxiosRequestConfig } from 'axios';
 import { throwError } from 'redux-saga-test-plan/providers';
 
-import { getInitialStateMock } from '../../../../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 
 import type { IRuntimeState, IValidationIssue, IValidations } from 'src/types';
 

@@ -12,7 +12,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import type { IRuntimeState } from 'src/types';
 import Instantiate from './index';
 import { HttpStatusCodes } from '../../../utils/networking';
-import { getInitialStateMock } from '../../../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import InstantiationActions from '../instantiation/actions';
 
 const render = (initialState: Partial<IRuntimeState> = {}) => {

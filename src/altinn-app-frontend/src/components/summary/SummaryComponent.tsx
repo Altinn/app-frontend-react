@@ -7,7 +7,7 @@ import {
 } from 'src/utils/formComponentUtils';
 import { shallowEqual } from 'react-redux';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { IGrid, ILayoutComponent } from 'src/features/form/layout';
+import type { IGrid } from 'src/features/form/layout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
@@ -110,7 +110,7 @@ export function SummaryComponent({
       getDisplayFormDataForComponent(
         state.formData.formData,
         attachments,
-        formComponent as ILayoutComponent,
+        formComponent,
         state.textResources.resources,
         state.optionState.options,
         state.formLayout.uiConfig.repeatingGroups,

@@ -7,7 +7,7 @@ import { renderWithProviders } from '../../../testUtils';
 
 import type { IComponentProps } from 'src/components';
 import type { ICheckboxContainerProps } from './CheckboxesContainerComponent';
-import { getInitialStateMock } from '../../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/mocks';
 import { CheckboxContainerComponent } from './CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/types';
 import type { RootState } from 'src/store';

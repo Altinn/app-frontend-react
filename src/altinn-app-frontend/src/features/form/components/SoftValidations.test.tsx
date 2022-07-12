@@ -6,7 +6,7 @@ import type {
 } from './SoftValidations';
 import { getPanelTitle, SoftValidations } from './SoftValidations';
 import { renderWithProviders } from 'src/../testUtils';
-import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { nb } from 'altinn-shared/language/texts/nb';
 import type { IRuntimeState, ITextResource } from 'src/types';
 import { FormComponentContext } from 'src/components';

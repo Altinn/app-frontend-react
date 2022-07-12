@@ -10,6 +10,7 @@ import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { RepeatingGroupTable } from './RepeatingGroupTable';
 import { renderWithProviders } from '../../../../testUtils';
 import type { IAttachments } from 'src/shared/resources/attachments';
+import { getFormLayoutGroupMock } from '__mocks__/mocks';
 
 describe('features > form > containers > RepeatingGroupTable.tsx', () => {
   let mockContainer: ILayoutGroup;
@@ -84,15 +85,7 @@ describe('features > form > containers > RepeatingGroupTable.tsx', () => {
       } as ISelectionComponentProps,
     ];
 
-    mockContainer = {
-      type: 'Group',
-      id: 'mock-container-id',
-      children: ['field1', 'field2', 'field3', 'field4'],
-      maxCount: 8,
-      dataModelBindings: {
-        group: 'some-group',
-      },
-    };
+    mockContainer = getFormLayoutGroupMock({});
 
     mockLayout = {
       layouts: {

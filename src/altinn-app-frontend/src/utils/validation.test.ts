@@ -1,9 +1,9 @@
 import { createElement } from 'react';
-import { getInitialStateMock } from '../../__mocks__/initialStateMock';
-import { getMockValidationState } from '../../__mocks__/validationStateMock';
-import * as oneOfOnRootSchema from '../../__mocks__/json-schema/one-of-on-root.json';
-import * as refOnRootSchema from '../../__mocks__/json-schema/ref-on-root.json';
-import * as complexSchema from '../../__mocks__/json-schema/complex.json';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
+import { getMockValidationState } from '__mocks__/validationStateMock';
+import * as oneOfOnRootSchema from '__mocks__/json-schema/one-of-on-root.json';
+import * as refOnRootSchema from '__mocks__/json-schema/ref-on-root.json';
+import * as complexSchema from '__mocks__/json-schema/complex.json';
 
 import type {
   IValidationIssue,

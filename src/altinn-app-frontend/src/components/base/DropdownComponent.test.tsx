@@ -8,7 +8,7 @@ import { renderWithProviders } from '../../../testUtils';
 import DropdownComponent from './DropdownComponent';
 import type { IComponentProps } from 'src/components';
 import type { IDropdownProps } from './DropdownComponent';
-import { getInitialStateMock } from '../../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import type { RootState } from 'src/store';
 
 const render = (

@@ -7,10 +7,10 @@ import {
   getInitialStateMock,
   getInstanceDataStateMock,
   applicationMetadataMock,
-} from '../../../__mocks__/mocks';
-import type { IApplicationMetadata } from '../../shared/resources/applicationMetadata';
-import type { IInstanceDataState } from '../../shared/resources/instanceData/instanceDataReducers';
-import type { IData } from '../../../../shared/src';
+} from '__mocks__/mocks';
+import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
+import type { IInstanceDataState } from 'src/shared/resources/instanceData/instanceDataReducers';
+import type { IData } from 'altinn-shared/types';
 import type { IAttachmentListProps } from './AttachmentListComponent';
 
 import { AttachmentListComponent } from './AttachmentListComponent';

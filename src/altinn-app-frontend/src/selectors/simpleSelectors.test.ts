@@ -7,9 +7,9 @@ import {
   profileStateSelector,
 } from './simpleSelectors';
 
-import { getInitialStateMock } from '../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { ProcessTaskType } from 'src/types';
-import { getFormLayoutStateMock } from '../../__mocks__/formLayoutStateMock';
+import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 
 describe('simpleSelectors', () => {
   const state = getInitialStateMock({

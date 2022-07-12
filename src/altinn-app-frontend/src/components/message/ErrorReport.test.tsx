@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 
-import { getInitialStateMock } from '../../../__mocks__/mocks';
+import { getInitialStateMock } from '__mocks__/mocks';
 import type { IRuntimeState } from 'src/types';
 import type { IValidationState } from 'src/features/form/validation/validationSlice';
 

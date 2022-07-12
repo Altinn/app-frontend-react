@@ -1,4 +1,4 @@
-import { getInitialStateMock } from '../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 
 import type { IFormDynamicState } from 'src/features/form/dynamics';
 import type { IFormRuleState } from 'src/features/form/rules/rulesReducer';

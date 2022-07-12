@@ -4,7 +4,7 @@ import type { PreloadedState } from '@reduxjs/toolkit';
 import type { RootState } from 'src/store';
 import { renderWithProviders, mockMediaQuery } from 'src/../testUtils';
 import type { ILayout, ILayoutComponent, ILayoutEntry } from '../layout';
-import { getFormLayoutStateMock } from 'src/../__mocks__/formLayoutStateMock';
+import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 import { screen, within } from '@testing-library/react';
 import { MemoryRouter, Route } from 'react-router-dom';
 

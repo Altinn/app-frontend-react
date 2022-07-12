@@ -9,7 +9,7 @@ import { RadioButtonContainerComponent } from './RadioButtonsContainerComponent'
 import type { IComponentProps } from 'src/components';
 import type { IRadioButtonsContainerProps } from './RadioButtonsContainerComponent';
 import { LayoutStyle } from 'src/types';
-import { getInitialStateMock } from '../../../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import type { RootState } from 'src/store';
 import type { IOptionsState } from 'src/shared/resources/options/optionsReducer';
 

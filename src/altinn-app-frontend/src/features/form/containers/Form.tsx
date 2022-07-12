@@ -13,6 +13,7 @@ import { missingFieldsInLayoutValidations } from 'src/utils/validation';
 import { Route, useHistory, useRouteMatch } from 'react-router-dom';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { PanelGroupContainer } from './PanelGroupContainer';
+import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -50,13 +51,7 @@ function RenderLayoutGroup(
   layoutGroup: ILayoutGroup,
   layout: ILayout,
 ): JSX.Element {
-  const groupComponents = layoutGroup.children.map((child) => {
-    let childId = child;
-    if (layoutGroup.edit?.multiPage) {
-      childId = child.split(':')[1] || child;
-    }
-    return layout.find((c) => c.id === childId) as ILayoutComponent;
-  });
+  const groupComponents = mapGroupComponents(layoutGroup, layout);
 
   const isRepeatingGroup = layoutGroup.maxCount > 1;
   if (isRepeatingGroup) {

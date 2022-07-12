@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
 
-import { getInitialStateMock } from '../../../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { renderWithProviders } from '../../../../testUtils';
 
 import Confirm, {

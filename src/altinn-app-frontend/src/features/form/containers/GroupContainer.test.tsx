@@ -1,7 +1,7 @@
 import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 
-import { getInitialStateMock } from '../../../../__mocks__/mocks';
+import { getFormLayoutGroupMock, getInitialStateMock } from '__mocks__/mocks';
 import type { ILayoutGroup } from '../layout';
 
 import { GroupContainer } from './GroupContainer';
@@ -9,15 +9,7 @@ import { Triggers } from 'src/types';
 import { mockMediaQuery, renderWithProviders } from '../../../../testUtils';
 import { setupStore } from 'src/store';
 
-const mockContainer: ILayoutGroup = {
-  id: 'container-closed-id',
-  type: 'Group',
-  children: ['field1', 'field2', 'field3', 'field4'],
-  maxCount: 8,
-  dataModelBindings: {
-    group: 'some-group',
-  },
-};
+const mockContainer = getFormLayoutGroupMock();
 
 interface IRender {
   container?: ILayoutGroup;
@@ -83,22 +75,17 @@ function render({ container = mockContainer }: IRender = {}) {
   const mockLayout = {
     layouts: {
       FormLayout: [
-        {
-          id: 'container-closed-id',
-          type: 'group',
+        getFormLayoutGroupMock({
           dataModelBindings: {
             group: 'Group',
           },
-          children: ['field1', 'field2', 'field3', 'field4'],
-        },
-        {
+        }),
+        getFormLayoutGroupMock({
           id: 'container-in-edit-mode-id',
-          type: 'group',
           dataModelBindings: {
             group: 'Group',
           },
-          children: ['field1', 'field2', 'field3', 'field4'],
-        },
+        }),
       ].concat(mockComponents),
     },
     uiConfig: {

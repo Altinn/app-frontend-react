@@ -7,7 +7,7 @@ import {
   getInitialStateMock,
   getFormDataStateMock,
   getFormLayoutStateMock,
-} from '../../../__mocks__/mocks';
+} from '__mocks__/mocks';
 import type { ISummaryGroupComponent } from './SummaryGroupComponent';
 
 import SummaryGroupComponent from './SummaryGroupComponent';

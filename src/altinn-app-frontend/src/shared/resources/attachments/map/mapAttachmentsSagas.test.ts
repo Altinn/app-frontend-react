@@ -9,7 +9,7 @@ import {
   SelectInstanceData,
 } from './mapAttachmentsSagas';
 import { selectFormLayouts } from 'src/features/form/layout/update/updateFormLayoutSagas';
-import { getInitialStateMock } from '../../../../../__mocks__/mocks';
+import { getInitialStateMock } from '__mocks__/mocks';
 import AttachmentDispatcher from 'src/shared/resources/attachments/attachmentActions';
 import type {
   IAttachments,

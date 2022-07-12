@@ -5,7 +5,7 @@ import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IFormDataState } from 'src/features/form/data/formDataReducer';
 import type { ITextResourcesState } from 'src/shared/resources/textResources/textResourcesReducer';
-import { getInitialStateMock } from '../../../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { setupStore } from 'src/store';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import type { ILayoutValidations, ITextResource } from 'src/types';

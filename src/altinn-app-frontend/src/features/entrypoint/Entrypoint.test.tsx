@@ -4,7 +4,7 @@ import type { AxiosError } from 'axios';
 import axios from 'axios';
 import { createStore } from 'redux';
 import { MemoryRouter } from 'react-router-dom';
-import { getInitialStateMock } from '../../../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import type { IRuntimeState } from 'src/types';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import Entrypoint from './Entrypoint';

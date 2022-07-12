@@ -5,8 +5,8 @@ import userEvent from '@testing-library/user-event';
 import { renderWithProviders, setupServer } from '../../../testUtils';
 import { rest } from 'msw';
 import { getLanguageFromCode } from 'altinn-shared/language';
-import { getUiConfigStateMock } from '../../../__mocks__/uiConfigStateMock';
-import { getFormLayoutStateMock } from '../../../__mocks__/formLayoutStateMock';
+import { getUiConfigStateMock } from '__mocks__/uiConfigStateMock';
+import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 import type { IAppLanguage } from 'altinn-shared/types';
 import type { ITextResource } from 'src/types';
 

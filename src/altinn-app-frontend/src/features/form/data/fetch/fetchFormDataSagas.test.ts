@@ -14,7 +14,7 @@ import {
   processStateSelector,
   currentSelectedPartyIdSelector,
 } from 'src/selectors/simpleSelectors';
-import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import * as appUrlHelper from 'src/utils/appUrlHelper';
 import * as networking from 'altinn-shared/utils/networking';
 import {

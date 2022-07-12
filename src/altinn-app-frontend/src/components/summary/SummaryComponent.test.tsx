@@ -8,7 +8,7 @@ import type { IValidations } from 'src/types';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import type { ILayoutComponent } from 'src/features/form/layout';
-import { getFormLayoutStateMock } from '../../../__mocks__/mocks';
+import { getFormLayoutStateMock } from '__mocks__/mocks';
 
 describe('SummaryComponent', () => {
   const defaultId = 'default';

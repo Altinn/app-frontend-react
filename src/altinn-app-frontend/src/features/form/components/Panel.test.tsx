@@ -5,7 +5,7 @@ import type { IPanelProps } from './Panel';
 import { renderWithProviders } from 'src/../testUtils';
 import { FormComponentContext } from 'src/components';
 import type { IFormComponentContext } from 'src/components';
-import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import type { IRuntimeState } from 'src/types';
 
 describe('Panel', () => {

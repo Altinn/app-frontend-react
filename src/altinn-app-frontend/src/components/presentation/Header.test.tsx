@@ -3,8 +3,7 @@ import { ProcessTaskType } from 'src/types';
 import Header from './Header';
 import { renderWithProviders } from '../../../testUtils';
 import { screen } from '@testing-library/react';
-import { getInitialStateMock } from '../../../__mocks__/initialStateMock';
-import { getFormLayoutStateMock } from '../../../__mocks__/formLayoutStateMock';
+import { getInitialStateMock, getFormLayoutStateMock } from '__mocks__/mocks';
 
 describe('components/presentation/Header.tsx', () => {
   it('should render as expected with header title', () => {

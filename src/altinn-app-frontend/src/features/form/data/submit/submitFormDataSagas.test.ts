@@ -5,16 +5,16 @@ import {
   getFormDataStateMock,
   getInitialStateMock,
   getInstanceDataStateMock,
-} from '../../../../../__mocks__/mocks';
+} from '__mocks__/mocks';
 
 import type { IRuntimeState } from 'src/types';
 import type { IInstanceDataState } from 'src/shared/resources/instanceData/instanceDataReducers';
-import type { IData } from '../../../../../../shared/src';
+import type { IData } from 'altinn-shared/types';
 
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import FormDataActions from '../formDataActions';
 import FormDynamicsActions from '../../dynamics/formDynamicsActions';
-import { put } from '../../../../../../shared/src/utils/networking';
+import { put } from 'altinn-shared/utils';
 import { post } from 'src/utils/networking';
 import {
   dataElementUrl,

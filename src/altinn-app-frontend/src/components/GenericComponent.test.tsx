@@ -5,10 +5,7 @@ import { renderWithProviders } from '../../testUtils';
 
 import { GenericComponent } from './GenericComponent';
 import type { IGenericComponentProps } from './GenericComponent';
-import {
-  getFormDataStateMock,
-  getFormLayoutStateMock,
-} from '../../__mocks__/mocks';
+import { getFormDataStateMock, getFormLayoutStateMock } from '__mocks__/mocks';
 
 const render = (props: Partial<IGenericComponentProps> = {}) => {
   const allProps: IGenericComponentProps = {

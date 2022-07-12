@@ -1,8 +1,8 @@
 import { select } from 'redux-saga/effects';
 import { expectSaga } from 'redux-saga-test-plan';
 
-import { applicationMetadataMock } from '../../../../../__mocks__/applicationMetadataMock';
-import { getInstanceDataStateMock } from '../../../../../__mocks__/instanceDataStateMock';
+import { applicationMetadataMock } from '__mocks__/applicationMetadataMock';
+import { getInstanceDataStateMock } from '__mocks__/instanceDataStateMock';
 
 import type { ITextResource } from 'src/types';
 import type { IInstance } from '../../../../../../shared/src/types';
