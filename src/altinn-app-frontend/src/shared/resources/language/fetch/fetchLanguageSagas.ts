@@ -42,8 +42,3 @@ export function* watchFetchLanguageSaga(): SagaIterator {
     fetchLanguageSaga,
   );
 }
-
-export function* watchFetchDefaultLanguageSaga(): SagaIterator {
-  yield take(LanguageActions.fetchDefaultLanguage);
-  yield call(fetchLanguageSaga, true);
-}
