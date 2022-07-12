@@ -12,10 +12,9 @@ const initialState: IDataModelState = {
   error: null,
 };
 
-const moduleName = 'formDataModel';
 const formDataModelSlice = createSagaSlice(
   (mkAction: MkActionType<IDataModelState>) => ({
-    name: moduleName,
+    name: 'formDataModel',
     initialState,
     actions: {
       fetchJsonSchema: mkAction<void>({

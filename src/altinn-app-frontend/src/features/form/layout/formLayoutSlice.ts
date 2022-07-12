@@ -10,8 +10,16 @@ import {
   updateFileUploaderWithTagEditIndexSaga,
   updateFileUploaderWithTagChosenOptionsSaga,
   calculatePageOrderAndMoveToNextPageSaga,
+  watchUpdateCurrentViewSaga,
+  watchInitRepeatingGroupsSaga,
+  watchMapFileUploaderWithTagSaga,
+  watchInitialCalculatePageOrderAndMoveToNextPageSaga,
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
-import { fetchLayoutSetsSaga } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
+import {
+  fetchLayoutSetsSaga,
+  watchFetchFormLayoutSaga,
+  watchFetchFormLayoutSettingsSaga,
+} from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
 
 export interface ILayoutState {
   layouts: ILayouts;
@@ -37,14 +45,18 @@ export const initialState: ILayoutState = {
   layoutsets: null,
 };
 
-const moduleName = 'formLayout';
-
 const formLayoutSlice = createSagaSlice(
   (mkAction: MkActionType<ILayoutState>) => ({
-    name: moduleName,
+    name: 'formLayout',
     initialState,
+    extraSagas: [
+      watchMapFileUploaderWithTagSaga,
+      watchInitialCalculatePageOrderAndMoveToNextPageSaga,
+    ],
     actions: {
-      fetch: mkAction<void>({}),
+      fetch: mkAction<void>({
+        saga: () => watchFetchFormLayoutSaga,
+      }),
       fetchFulfilled: mkAction<LayoutTypes.IFetchLayoutFulfilled>({
         reducer: (state, action) => {
           const { layouts, navigationConfig } = action.payload;
@@ -76,7 +88,9 @@ const formLayoutSlice = createSagaSlice(
           state.error = error;
         },
       }),
-      fetchSettings: mkAction<void>({}),
+      fetchSettings: mkAction<void>({
+        saga: () => watchFetchFormLayoutSettingsSaga,
+      }),
       fetchSettingsFulfilled:
         mkAction<LayoutTypes.IFetchLayoutSettingsFulfilled>({
           reducer: (state, action) => {
@@ -128,7 +142,9 @@ const formLayoutSlice = createSagaSlice(
           state.uiConfig.autoSave = autoSave;
         },
       }),
-      updateCurrentView: mkAction<LayoutTypes.IUpdateCurrentView>({}),
+      updateCurrentView: mkAction<LayoutTypes.IUpdateCurrentView>({
+        saga: () => watchUpdateCurrentViewSaga,
+      }),
       updateCurrentViewFulfilled:
         mkAction<LayoutTypes.IUpdateCurrentViewFulfilled>({
           reducer: (state, action) => {
@@ -298,7 +314,9 @@ const formLayoutSlice = createSagaSlice(
             state.error = error;
           },
         }),
-      initRepeatingGroups: mkAction<void>({}),
+      initRepeatingGroups: mkAction<void>({
+        saga: () => watchInitRepeatingGroupsSaga,
+      }),
     },
   }),
 );

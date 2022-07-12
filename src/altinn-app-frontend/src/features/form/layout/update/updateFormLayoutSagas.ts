@@ -524,7 +524,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
   }
 }
 
-export function* watchInitialCalculagePageOrderAndMoveToNextPageSaga(): SagaIterator {
+export function* watchInitialCalculatePageOrderAndMoveToNextPageSaga(): SagaIterator {
   while (true) {
     yield all([
       take(startInitialDataTaskQueueFulfilled),

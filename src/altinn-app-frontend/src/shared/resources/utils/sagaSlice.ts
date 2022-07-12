@@ -66,6 +66,7 @@ export type SagaSliceProps<
   name: Name;
   initialState: State | (() => State);
   actions: Actions;
+  extraSagas?: Saga[];
   extraReducers?: CreateSliceOptions<
     State,
     TransformActions<State, Actions>,
@@ -140,6 +141,10 @@ export function createSagaSlice<
         });
       }
     }
+  }
+
+  for (const extraSaga of props.extraSagas || []) {
+    rootSagas.push(extraSaga);
   }
 
   const slice = createSlice({
