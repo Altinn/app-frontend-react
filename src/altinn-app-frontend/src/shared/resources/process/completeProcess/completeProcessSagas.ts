@@ -5,7 +5,7 @@ import type { IProcess } from 'altinn-shared/types';
 import type { IRuntimeState } from '../../../../types';
 import { ProcessTaskType } from '../../../../types';
 import { getCompleteProcessUrl } from '../../../../utils/appUrlHelper';
-import { startDataTaskIsLoading } from '../../isLoading/isLoadingSlice';
+import { IsLoadingActions } from '../../isLoading/isLoadingSlice';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
@@ -36,7 +36,7 @@ export function* completeProcessSaga(): SagaIterator {
         (result.currentTask.altinnTaskType as ProcessTaskType) ===
         ProcessTaskType.Data
       ) {
-        yield sagaPut(startDataTaskIsLoading());
+        yield sagaPut(IsLoadingActions.startDataTaskIsLoading());
         const instanceData: IInstanceDataState = yield select(
           instanceDataSelector,
         );

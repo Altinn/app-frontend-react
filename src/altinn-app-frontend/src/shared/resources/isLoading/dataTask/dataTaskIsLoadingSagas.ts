@@ -2,7 +2,7 @@ import type { SagaIterator } from 'redux-saga';
 import { all, put, take } from 'redux-saga/effects';
 import { FormDataActions } from '../../../../features/form/data/formDataSlice';
 import { FormLayoutActions } from '../../../../features/form/layout/formLayoutSlice';
-import { finishDataTaskIsLoading } from '../isLoadingSlice';
+import { IsLoadingActions } from '../isLoadingSlice';
 import { QueueActions } from '../../queue/queueSlice';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
@@ -20,6 +20,6 @@ export function* watcherFinishDataTaskIsloadingSaga(): SagaIterator {
       take(AttachmentActions.mapAttachmentsFulfilled),
     ]);
 
-    yield put(finishDataTaskIsLoading());
+    yield put(IsLoadingActions.finishDataTaskIsLoading());
   }
 }

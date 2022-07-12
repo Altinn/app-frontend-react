@@ -4,7 +4,7 @@ import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { DataModelActions } from 'src/features/form/datamodel/datamodelSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { QueueActions } from '../../queue/queueSlice';
-import { finishStatelessIsLoading } from '../isLoadingSlice';
+import { IsLoadingActions } from '../isLoadingSlice';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
 
@@ -18,5 +18,5 @@ export function* watcherFinishStatelessIsLoadingSaga(): SagaIterator {
     take(FormRulesActions.fetchFulfilled),
     take(FormDynamicsActions.fetchFulfilled),
   ]);
-  yield put(finishStatelessIsLoading());
+  yield put(IsLoadingActions.finishStatelessIsLoading());
 }

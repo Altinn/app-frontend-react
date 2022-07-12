@@ -15,7 +15,7 @@ import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSl
 import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 import { profileApiUrl } from 'src/utils/appUrlHelper';
 import { PartyActions } from 'src/shared/resources/party/partySlice';
-import { startStatelessIsLoading } from 'src/shared/resources/isLoading/isLoadingSlice';
+import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
 import { watchStartInitialInfoTaskQueueSaga } from 'src/shared/resources/queue/infoTask/infoTaskQueueSaga';
 
 const commonState = { isDone: null, error: null };
@@ -131,7 +131,7 @@ const queueSlice = createSagaSlice((mkAction: MkActionType<IQueueState>) => ({
     }),
     startInitialStatelessQueue: mkAction<void>({
       takeLatest: function* (): SagaIterator {
-        yield put(startStatelessIsLoading());
+        yield put(IsLoadingActions.startStatelessIsLoading());
         yield put(FormDataActions.fetchInitial());
         yield put(DataModelActions.fetchJsonSchema());
         yield put(FormLayoutActions.fetchSets());

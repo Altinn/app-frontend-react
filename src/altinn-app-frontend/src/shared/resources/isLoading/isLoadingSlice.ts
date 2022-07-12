@@ -29,11 +29,5 @@ const isLoadingSlice = createSlice({
   },
 });
 
-export const {
-  startDataTaskIsLoading,
-  finishDataTaskIsLoading,
-  startStatelessIsLoading,
-  finishStatelessIsLoading,
-} = isLoadingSlice.actions;
-
+export const IsLoadingActions = isLoadingSlice.actions;
 export default isLoadingSlice;

@@ -9,10 +9,7 @@ import { TextResourcesActions } from '../../textResources/textResourcesSlice';
 import type { IApplicationMetadata } from '../../applicationMetadata';
 import { getFetchFormDataUrl } from '../../../../utils/appUrlHelper';
 import { convertModelToDataBinding } from '../../../../utils/databindings';
-import {
-  finishDataTaskIsLoading,
-  startDataTaskIsLoading,
-} from '../../isLoading/isLoadingSlice';
+import { IsLoadingActions } from '../../isLoading/isLoadingSlice';
 
 export const ApplicationMetadataSelector = (state: IRuntimeState) =>
   state.applicationMetadata.applicationMetadata;
@@ -28,7 +25,7 @@ export function* startInitialInfoTaskQueueSaga(): SagaIterator {
   const textResources: ITextResource[] = yield select(TextResourceSelector);
   const instance: IInstance = yield select(InstanceDataSelector);
 
-  yield put(startDataTaskIsLoading());
+  yield put(IsLoadingActions.startDataTaskIsLoading());
 
   const textResourcesWithVariables = textResources.filter((resource) => {
     return resource.variables && resource.variables.length > 0;
@@ -67,7 +64,7 @@ export function* startInitialInfoTaskQueueSaga(): SagaIterator {
   }
 
   yield put(QueueActions.startInitialInfoTaskQueueFulfilled());
-  yield put(finishDataTaskIsLoading());
+  yield put(IsLoadingActions.finishDataTaskIsLoading());
 }
 
 export function* watchStartInitialInfoTaskQueueSaga(): SagaIterator {

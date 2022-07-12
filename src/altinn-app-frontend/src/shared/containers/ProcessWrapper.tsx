@@ -13,7 +13,7 @@ import UnknownError from '../../features/instantiate/containers/UnknownError';
 import { QueueActions } from '../resources/queue/queueSlice';
 import { makeGetHasErrorsSelector } from '../../selectors/getErrors';
 import Feedback from '../../features/feedback/Feedback';
-import { finishDataTaskIsLoading } from '../resources/isLoading/isLoadingSlice';
+import { IsLoadingActions } from '../resources/isLoading/isLoadingSlice';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
@@ -70,7 +70,7 @@ const ProcessWrapper = (props) => {
         dispatch(QueueActions.startInitialInfoTaskQueue());
         break;
       case ProcessTaskType.Archived: {
-        dispatch(finishDataTaskIsLoading());
+        dispatch(IsLoadingActions.finishDataTaskIsLoading());
         break;
       }
       default:

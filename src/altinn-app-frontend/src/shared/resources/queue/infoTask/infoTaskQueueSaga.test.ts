@@ -8,10 +8,7 @@ import type { ITextResource } from 'src/types';
 import type { IInstance } from '../../../../../../shared/src/types';
 import type { IApplicationMetadata } from '../../applicationMetadata';
 
-import {
-  finishDataTaskIsLoading,
-  startDataTaskIsLoading,
-} from '../../isLoading/isLoadingSlice';
+import { IsLoadingActions } from '../../isLoading/isLoadingSlice';
 import { QueueActions } from '../queueSlice';
 import { FormDataActions } from '../../../../features/form/data/formDataSlice';
 import { TextResourcesActions } from '../../textResources/textResourcesSlice';
@@ -41,9 +38,9 @@ describe('infoTaskQueueSaga', () => {
         [select(TextResourceSelector), textResources],
         [select(InstanceDataSelector), getInstanceDataStateMock().instance],
       ])
-      .put(startDataTaskIsLoading())
+      .put(IsLoadingActions.startDataTaskIsLoading())
       .put(QueueActions.startInitialInfoTaskQueueFulfilled())
-      .put(finishDataTaskIsLoading())
+      .put(IsLoadingActions.finishDataTaskIsLoading())
       .run();
   });
 
@@ -80,11 +77,11 @@ describe('infoTaskQueueSaga', () => {
         [select(TextResourceSelector), textsWithVariables],
         [select(InstanceDataSelector), instanceData],
       ])
-      .put(startDataTaskIsLoading())
+      .put(IsLoadingActions.startDataTaskIsLoading())
       .put(QueueActions.startInitialInfoTaskQueueFulfilled())
       .put(FormDataActions.fetchFulfilled({ formData: {} }))
       .put(TextResourcesActions.replace())
-      .put(finishDataTaskIsLoading())
+      .put(IsLoadingActions.finishDataTaskIsLoading())
       .run();
   });
 });
