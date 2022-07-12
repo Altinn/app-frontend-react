@@ -2,7 +2,7 @@ import type { IQueueError, IQueueState } from '.';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type { SagaIterator } from 'redux-saga';
-import { take, put } from 'redux-saga/effects';
+import { put } from 'redux-saga/effects';
 import { ApplicationSettingsActions } from 'src/shared/resources/applicationSettings/applicationSettingsSlice';
 import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
@@ -62,17 +62,15 @@ const queueSlice = createSagaSlice((mkAction: MkActionType<IQueueState>) => ({
       },
     }),
     startInitialAppTaskQueue: mkAction<void>({
-      saga: (name) =>
-        function* (): SagaIterator {
-          yield take(name);
-          yield put(ApplicationSettingsActions.fetchApplicationSettings());
-          yield put(TextResourcesActions.fetch());
-          yield put(LanguageActions.fetchLanguage());
-          yield put(ApplicationMetadataActions.get());
-          yield put(FormLayoutActions.fetchSets());
-          yield put(OrgsActions.fetch());
-          yield put(QueueActions.startInitialAppTaskQueueFulfilled());
-        },
+      takeEvery: function* (): SagaIterator {
+        yield put(ApplicationSettingsActions.fetchApplicationSettings());
+        yield put(TextResourcesActions.fetch());
+        yield put(LanguageActions.fetchLanguage());
+        yield put(ApplicationMetadataActions.get());
+        yield put(FormLayoutActions.fetchSets());
+        yield put(OrgsActions.fetch());
+        yield put(QueueActions.startInitialAppTaskQueueFulfilled());
+      },
       reducer: (state) => {
         state.appTask.isDone = false;
       },
@@ -83,13 +81,11 @@ const queueSlice = createSagaSlice((mkAction: MkActionType<IQueueState>) => ({
       },
     }),
     startInitialUserTaskQueue: mkAction<void>({
-      saga: (name) =>
-        function* watchStartInitialUserTaskQueueSaga(): SagaIterator {
-          yield take(name);
-          yield put(ProfileActions.fetch({ url: profileApiUrl }));
-          yield put(PartyActions.getCurrentParty());
-          yield put(QueueActions.startInitialUserTaskQueueFulfilled());
-        },
+      takeEvery: function* (): SagaIterator {
+        yield put(ProfileActions.fetch({ url: profileApiUrl }));
+        yield put(PartyActions.getCurrentParty());
+        yield put(QueueActions.startInitialUserTaskQueueFulfilled());
+      },
       reducer: (state) => {
         state.userTask.isDone = false;
       },
