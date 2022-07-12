@@ -1,5 +1,5 @@
 import type { SagaIterator } from 'redux-saga';
-import { call, put as sagaPut, select, takeLatest } from 'redux-saga/effects';
+import { call, put as sagaPut, select } from 'redux-saga/effects';
 import { put } from 'altinn-shared/utils';
 import type { IProcess } from 'altinn-shared/types';
 import type { IRuntimeState } from '../../../../types';
@@ -47,8 +47,4 @@ export function* completeProcessSaga(): SagaIterator {
   } catch (error) {
     yield sagaPut(ProcessActions.completeRejected({ error }));
   }
-}
-
-export function* watchCompleteProcessSaga(): SagaIterator {
-  yield takeLatest(ProcessActions.complete, completeProcessSaga);
 }

@@ -7,7 +7,6 @@ import Attachments from '../shared/resources/attachments/attachmentSagas';
 import InstanceDataSagas from '../shared/resources/instanceData/instanceDataSagas';
 import OrgsSagas from '../shared/resources/orgs/orgsSagas';
 import PartySagas from '../shared/resources/party/partySagas';
-import { processSagas } from '../shared/resources/process/processSagas';
 import { sagaMiddleware } from 'src/store';
 import { rootSagas } from 'src/shared/resources/utils/sagaSlice';
 
@@ -18,7 +17,6 @@ function* root(): SagaIterator {
   yield fork(InstantiationSagas);
   yield fork(OrgsSagas);
   yield fork(InstanceDataSagas);
-  yield fork(processSagas);
 
   for (const sliceSaga of rootSagas) {
     yield fork(sliceSaga);
