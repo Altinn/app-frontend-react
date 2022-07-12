@@ -95,7 +95,7 @@ const PartySelectionWithRouter = withRouter((props: IPartySelectionProps) => {
 
   React.useEffect(() => {
     dispatch(PartyActions.getParties());
-  }, []);
+  }, [dispatch]);
 
   const onSelectParty = (party: IParty) => {
     dispatch(PartyActions.selectParty({ party, redirect: true }));

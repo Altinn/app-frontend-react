@@ -90,7 +90,7 @@ const ProcessWrapper = (props) => {
         }),
       );
     }
-  }, [instantiating, instanceId, instanceGuid, partyId]);
+  }, [instantiating, instanceId, instanceGuid, partyId, dispatch]);
 
   if (hasApiErrors) {
     return <UnknownError />;

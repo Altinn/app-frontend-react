@@ -105,7 +105,7 @@ const ReceiptContainer = () => {
         instanceId: instanceGuid,
       }),
     );
-  }, [partyId, instanceGuid]);
+  }, [partyId, instanceGuid, dispatch]);
 
   useEffect(() => {
     if (profile && profile.profileSettingPreference) {
