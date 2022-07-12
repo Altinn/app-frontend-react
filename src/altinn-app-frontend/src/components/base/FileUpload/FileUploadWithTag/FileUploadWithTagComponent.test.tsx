@@ -3,16 +3,9 @@ import { screen } from '@testing-library/react';
 
 import type { IComponentProps } from 'src/components';
 
-import {
-  AsciiUnitSeparator,
-  getFileEnding,
-  removeFileEnding,
-} from 'src/utils/attachment';
-import {
-  getFileUploadComponentValidations,
-  parseFileUploadComponentWithTagValidationObject,
-} from 'src/utils/formComponentUtils';
 import type { IFileUploadWithTagProps } from './FileUploadWithTagComponent';
+import type { IAttachment } from 'src/shared/resources/attachments';
+import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { FileUploadWithTagComponent } from './FileUploadWithTagComponent';
 
 import { renderWithProviders } from 'src/../testUtils';
@@ -29,7 +22,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].uploaded = false;
 
-      render({}, { attachments });
+      render({ initialState: { attachments } });
 
       expect(screen.getByText(/general\.loading/i)).toBeInTheDocument();
     });
@@ -38,7 +31,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].uploaded = true;
 
-      render({}, { attachments });
+      render({ initialState: attachments });
 
       expect(screen.queryByText(/general\.loading/i)).not.toBeInTheDocument();
     });
@@ -49,7 +42,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
-      render({}, { attachments, editIndex: 0 });
+      render({ initialState: { attachments, editIndex: 0 } });
 
       expect(screen.getByText(/general\.loading/i)).toBeInTheDocument();
     });
@@ -58,7 +51,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = false;
 
-      render({}, { attachments, editIndex: 0 });
+      render({ initialState: { attachments, editIndex: 0 } });
 
       expect(screen.queryByText(/general\.loading/i)).not.toBeInTheDocument();
     });
@@ -69,23 +62,29 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
-      render({}, { attachments, editIndex: 0 });
+      render({ initialState: { attachments, editIndex: 0 } });
 
       expect(screen.getByRole('combobox')).toBeDisabled();
     });
 
     it('should not disable dropdown in edit mode when not updating', () => {
-      const attachments = getAttachments({ count: 1 });
-
-      render({}, { attachments, editIndex: 0 });
+      render({
+        initialState: {
+          attachments: getAttachments({ count: 1 }),
+          editIndex: 0,
+        },
+      });
 
       expect(screen.getByRole('combobox')).not.toBeDisabled();
     });
 
     it('should not disable save button', () => {
-      const attachments = getAttachments({ count: 1 });
-
-      render({}, { attachments, editIndex: 0 });
+      render({
+        initialState: {
+          attachments: getAttachments({ count: 1 }),
+          editIndex: 0,
+        },
+      });
 
       expect(
         screen.getByRole('button', {
@@ -97,7 +96,10 @@ describe('FileUploadWithTagComponent', () => {
     it('should disable save button when readOnly=true', () => {
       const attachments = getAttachments({ count: 1 });
 
-      render({ readOnly: true }, { attachments, editIndex: 0 });
+      render({
+        props: { readOnly: true },
+        initialState: { attachments, editIndex: 0 },
+      });
 
       expect(
         screen.getByRole('button', {
@@ -110,7 +112,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].uploaded = false;
 
-      render({}, { attachments, editIndex: 0 });
+      render({ initialState: { attachments, editIndex: 0 } });
 
       expect(
         screen.getByRole('button', {
@@ -123,7 +125,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].updating = true;
 
-      render({}, { attachments, editIndex: 0 });
+      render({ initialState: { attachments, editIndex: 0 } });
 
       expect(
         screen.queryByRole('button', {
@@ -136,7 +138,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].tags = [];
 
-      render({}, { attachments });
+      render({ initialState: { attachments } });
 
       expect(
         screen.getByRole('button', {
@@ -149,7 +151,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].tags = ['tag1'];
 
-      render({}, { attachments });
+      render({ initialState: { attachments } });
 
       expect(
         screen.queryByRole('button', {
@@ -161,9 +163,10 @@ describe('FileUploadWithTagComponent', () => {
 
   describe('files', () => {
     it('should display drop area when max attachments is not reached', () => {
-      const attachments = getAttachments({ count: 2 });
-
-      render({ maxNumberOfAttachments: 3 }, { attachments });
+      render({
+        props: { maxNumberOfAttachments: 3 },
+        initialState: { attachments: getAttachments({ count: 2 }) },
+      });
 
       expect(
         screen.getByRole('button', {
@@ -176,9 +179,10 @@ describe('FileUploadWithTagComponent', () => {
     });
 
     it('should not display drop area when max attachments is reached', () => {
-      const attachments = getAttachments({ count: 3 });
-
-      render({ maxNumberOfAttachments: 3 }, { attachments });
+      render({
+        props: { maxNumberOfAttachments: 3 },
+        initialState: { attachments: getAttachments({ count: 3 }) },
+      });
 
       expect(
         screen.queryByRole('button', {
@@ -190,134 +194,20 @@ describe('FileUploadWithTagComponent', () => {
       ).not.toBeInTheDocument();
     });
   });
-
-  it('getFileUploadWithTagComponentValidations should return correct validation', () => {
-    const mockLanguage = {
-      language: {
-        form_filler: {
-          file_uploader_validation_error_delete:
-            'Noe gikk galt under slettingen av filen, prøv igjen senere.',
-          file_uploader_validation_error_upload:
-            'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
-          file_uploader_validation_error_update:
-            'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-        },
-      },
-    };
-
-    const uploadValidation = getFileUploadComponentValidations(
-      'upload',
-      mockLanguage.language,
-    );
-    expect(uploadValidation).toEqual({
-      simpleBinding: {
-        errors: [
-          'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
-        ],
-        warnings: [],
-      },
-    });
-
-    const updateValidation = getFileUploadComponentValidations(
-      'update',
-      mockLanguage.language,
-    );
-    expect(updateValidation).toEqual({
-      simpleBinding: {
-        errors: [
-          'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-        ],
-        warnings: [],
-      },
-    });
-
-    const updateValidationWithId = getFileUploadComponentValidations(
-      'update',
-      mockLanguage.language,
-      'mock-attachment-id',
-    );
-    expect(updateValidationWithId).toEqual({
-      simpleBinding: {
-        errors: [
-          'mock-attachment-id' +
-            AsciiUnitSeparator +
-            'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-        ],
-        warnings: [],
-      },
-    });
-
-    const deleteValidation = getFileUploadComponentValidations(
-      'delete',
-      mockLanguage.language,
-    );
-    expect(deleteValidation).toEqual({
-      simpleBinding: {
-        errors: ['Noe gikk galt under slettingen av filen, prøv igjen senere.'],
-        warnings: [],
-      },
-    });
-  });
-
-  it('parseFileUploadComponentWithTagValidationObject should return correct validation array', () => {
-    const mockValidations = [
-      'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
-      'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-      'mock-attachment-id' +
-        AsciiUnitSeparator +
-        'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-      'Noe gikk galt under slettingen av filen, prøv igjen senere.',
-    ];
-    const expectedResult = [
-      {
-        id: '',
-        message:
-          'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
-      },
-      {
-        id: '',
-        message:
-          'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-      },
-      {
-        id: 'mock-attachment-id',
-        message:
-          'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-      },
-      {
-        id: '',
-        message: 'Noe gikk galt under slettingen av filen, prøv igjen senere.',
-      },
-    ];
-
-    const validationArray =
-      parseFileUploadComponentWithTagValidationObject(mockValidations);
-    expect(validationArray).toEqual(expectedResult);
-  });
-
-  it('should get file ending correctly', () => {
-    expect(getFileEnding('test.jpg')).toEqual('.jpg');
-    expect(getFileEnding('navn.med.punktum.xml')).toEqual('.xml');
-    expect(getFileEnding('navnutenfilendelse')).toEqual('');
-    expect(getFileEnding(null)).toEqual('');
-  });
-
-  it('should remove file ending correctly', () => {
-    expect(removeFileEnding('test.jpg')).toEqual('test');
-    expect(removeFileEnding('navn.med.punktum.xml')).toEqual(
-      'navn.med.punktum',
-    );
-    expect(removeFileEnding('navnutenfilendelse')).toEqual(
-      'navnutenfilendelse',
-    );
-    expect(removeFileEnding(null)).toEqual('');
-  });
 });
 
-const render = (
-  props: Partial<IFileUploadWithTagProps> = {},
-  { attachments = getAttachments(), editIndex = -1 },
-) => {
+interface IRenderProps {
+  props?: Partial<IFileUploadWithTagProps>;
+  initialState?: {
+    attachments?: IAttachment[];
+    editIndex?: number;
+  };
+}
+
+const render = ({
+  props = {},
+  initialState: { attachments = getAttachments(), editIndex = -1 },
+}: IRenderProps = {}) => {
   const initialState = {
     ...getInitialStateMock(),
     attachments: {
