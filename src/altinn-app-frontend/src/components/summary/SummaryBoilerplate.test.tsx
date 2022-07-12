@@ -9,8 +9,6 @@ describe('SummaryBoilerplate', () => {
   it('should render the boilerplate with the default props', () => {
     render();
 
-    screen.debug();
-
     expect(screen.getByRole('heading')).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
