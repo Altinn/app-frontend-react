@@ -1,12 +1,12 @@
 import type { SagaIterator } from 'redux-saga';
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put } from 'redux-saga/effects';
 import { get } from '../../../../../utils/networking';
 import { applicationMetadataApiUrl } from '../../../../../utils/appUrlHelper';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import { QueueActions } from '../../../queue/queueSlice';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 
-function* getApplicationMetadata(): SagaIterator {
+export function* getApplicationMetadata(): SagaIterator {
   try {
     const applicationMetadata = yield call(get, applicationMetadataApiUrl);
     yield put(ApplicationMetadataActions.getFulfilled({ applicationMetadata }));
@@ -15,8 +15,4 @@ function* getApplicationMetadata(): SagaIterator {
     yield put(LanguageActions.fetchDefaultLanguage()); // make sure default texts are fetched
     yield put(QueueActions.appTaskQueueError({ error }));
   }
-}
-
-export function* watchGetApplicationMetadataSaga(): SagaIterator {
-  yield takeLatest(ApplicationMetadataActions.get, getApplicationMetadata);
 }
