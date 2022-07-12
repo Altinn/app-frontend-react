@@ -35,10 +35,15 @@ describe('TextAreaComponent.tsx', () => {
     await user.type(textarea, addedText);
     await user.keyboard('{Tab}');
 
-    expect(handleDataChange).toHaveBeenCalledWith(`${initialText}${addedText}`);
+    expect(handleDataChange).toHaveBeenCalledWith(
+      `${initialText}${addedText}`,
+      undefined,
+      false,
+      false,
+    );
   });
 
-  it('should not include updated text in handleDataChange when readOnly is true', async () => {
+  it('should not fire handleDataChange when readOnly is true', async () => {
     const initialText = 'initial text content';
     const addedText = ' + added content';
 
@@ -55,10 +60,7 @@ describe('TextAreaComponent.tsx', () => {
     await user.type(textarea, addedText);
     await user.keyboard('{Tab}');
 
-    expect(handleDataChange).not.toHaveBeenCalledWith(
-      `${initialText}${addedText}`,
-    );
-    expect(handleDataChange).toHaveBeenCalledWith(initialText);
+    expect(handleDataChange).not.toHaveBeenCalled();
   });
 
   it('should have aria-describedby attribute if textResourceBindings is present', () => {
