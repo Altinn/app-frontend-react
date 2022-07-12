@@ -3,12 +3,12 @@ import type { IAltinnWindow } from 'src/types';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type { SagaIterator } from 'redux-saga';
-import { take, call } from 'redux-saga/effects';
+import { take, call, put } from 'redux-saga/effects';
 import {
   fetchLanguageSaga,
   watchFetchLanguageSaga,
 } from 'src/shared/resources/language/fetch/fetchLanguageSagas';
-import { fetchOptionsSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
+import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
 
 export interface IFetchLanguageFulfilled {
   language: ILanguage;
@@ -65,7 +65,9 @@ const languageSlice = createSagaSlice(
         },
       }),
       updateSelectedAppLanguage: mkAction<IUpdateSelectedAppLanguage>({
-        takeLatest: fetchOptionsSaga,
+        takeLatest: function* () {
+          yield put(OptionsActions.fetch());
+        },
         reducer: (state, action) => {
           const { selected } = action.payload;
           localStorage.setItem(localStorageSlectedAppLanguageKey, selected);

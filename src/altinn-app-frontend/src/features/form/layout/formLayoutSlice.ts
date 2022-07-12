@@ -21,7 +21,8 @@ import {
   watchFetchFormLayoutSettingsSaga,
 } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
 import { replaceTextResourcesSaga } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
-import { fetchOptionsSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
+import { put } from 'redux-saga/effects';
+import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
 
 export interface ILayoutState {
   layouts: ILayouts;
@@ -60,7 +61,9 @@ const formLayoutSlice = createSagaSlice(
         saga: () => watchFetchFormLayoutSaga,
       }),
       fetchFulfilled: mkAction<LayoutTypes.IFetchLayoutFulfilled>({
-        takeLatest: fetchOptionsSaga,
+        takeLatest: function* () {
+          yield put(OptionsActions.fetch());
+        },
         reducer: (state, action) => {
           const { layouts, navigationConfig } = action.payload;
           state.layouts = layouts;
