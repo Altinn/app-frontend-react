@@ -10,7 +10,6 @@ import LanguageSagas from '../shared/resources/language/languageSagas';
 import OrgsSagas from '../shared/resources/orgs/orgsSagas';
 import PartySagas from '../shared/resources/party/partySagas';
 import { processSagas } from '../shared/resources/process/processSagas';
-import ProfileSagas from '../shared/resources/profile/profileSagas';
 import OptionSagas from '../shared/resources/options/optionsSagas';
 import { sagaMiddleware } from 'src/store';
 import { rootSagas } from 'src/shared/resources/utils/sagaSlice';
@@ -18,7 +17,6 @@ import { rootSagas } from 'src/shared/resources/utils/sagaSlice';
 function* root(): SagaIterator {
   yield fork(Attachments);
   yield fork(LanguageSagas);
-  yield fork(ProfileSagas);
   yield fork(PartySagas);
   yield fork(ApplicationMetadataSagas);
   yield fork(ApplicationSettingsSagas);
