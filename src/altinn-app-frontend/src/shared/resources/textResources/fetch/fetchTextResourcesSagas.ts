@@ -11,8 +11,6 @@ import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 
-export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
-
 export function* fetchTextResources(): SagaIterator {
   try {
     const appLanguage = yield select(appLanguageStateSelector);
@@ -49,7 +47,7 @@ export function* watchFetchTextResourcesSaga(): SagaIterator {
     take(TextResourcesActions.fetch),
   ]);
 
-  const allowAnonymous = yield select(allowAnonymousSelector);
+  const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
 
   if (!allowAnonymous) {
     yield take(ProfileActions.fetchFulfilled);
