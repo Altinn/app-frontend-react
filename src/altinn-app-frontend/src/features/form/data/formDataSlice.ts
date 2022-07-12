@@ -65,16 +65,16 @@ const formDataSlice = createSagaSlice(
           state.formData = formData;
         },
       }),
-      setFulfilled: mkAction<IFetchFormDataFulfilled>({
-        reducer: (state, action) => {
-          const { formData } = action.payload;
-          state.formData = formData;
-        },
-      }),
       fetchRejected: mkAction<IFormDataRejected>({
         reducer: (state, action) => {
           const { error } = action.payload;
           state.error = error;
+        },
+      }),
+      setFulfilled: mkAction<IFetchFormDataFulfilled>({
+        reducer: (state, action) => {
+          const { formData } = action.payload;
+          state.formData = formData;
         },
       }),
       submit: mkAction<ISubmitDataAction>({
