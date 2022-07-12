@@ -12,7 +12,6 @@ import PartySagas from '../shared/resources/party/partySagas';
 import { processSagas } from '../shared/resources/process/processSagas';
 import ProfileSagas from '../shared/resources/profile/profileSagas';
 import TextResourcesSagas from '../shared/resources/textResources/textResourcesSagas';
-import IsLoadingSagas from '../shared/resources/isLoading/isLoadingSagas';
 import OptionSagas from '../shared/resources/options/optionsSagas';
 import { sagaMiddleware } from 'src/store';
 import { rootSagas } from 'src/shared/resources/utils/sagaSlice';
@@ -29,7 +28,6 @@ function* root(): SagaIterator {
   yield fork(OrgsSagas);
   yield fork(InstanceDataSagas);
   yield fork(processSagas);
-  yield fork(IsLoadingSagas);
   yield fork(OptionSagas);
 
   for (const sliceSaga of rootSagas) {
