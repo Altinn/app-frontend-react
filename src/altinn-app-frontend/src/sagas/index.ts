@@ -1,7 +1,6 @@
 import type { SagaIterator } from 'redux-saga';
 import { fork } from 'redux-saga/effects';
 
-import FormValidationSagas from '../features/form/validation/validationSagas';
 import InstantiationSagas from '../features/instantiate/instantiation/sagas';
 import ApplicationMetadataSagas from '../shared/resources/applicationMetadata/sagas';
 import ApplicationSettingsSagas from '../shared/resources/applicationSettings/applicationSettingsSagas';
@@ -24,7 +23,6 @@ function* root(): SagaIterator {
   yield fork(LanguageSagas);
   yield fork(TextResourcesSagas);
   yield fork(ProfileSagas);
-  yield fork(FormValidationSagas);
   yield fork(PartySagas);
   yield fork(ApplicationMetadataSagas);
   yield fork(ApplicationSettingsSagas);
