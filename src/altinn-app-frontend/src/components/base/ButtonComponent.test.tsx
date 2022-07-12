@@ -9,7 +9,7 @@ import { getInitialStateMock } from '../../../__mocks__/mocks';
 
 const submitBtnText = 'Submit form';
 
-describe('components/base/ButtonComponent.tsx', () => {
+describe('ButtonComponent', () => {
   it('should render button when isSubmitting is false', () => {
     render({ isSubmitting: false });
 

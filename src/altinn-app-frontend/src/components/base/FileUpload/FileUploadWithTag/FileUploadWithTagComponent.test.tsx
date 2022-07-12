@@ -31,7 +31,7 @@ describe('FileUploadWithTagComponent', () => {
       const attachments = getAttachments({ count: 1 });
       attachments[0].uploaded = true;
 
-      render({ initialState: attachments });
+      render({ initialState: { attachments } });
 
       expect(screen.queryByText(/general\.loading/i)).not.toBeInTheDocument();
     });
