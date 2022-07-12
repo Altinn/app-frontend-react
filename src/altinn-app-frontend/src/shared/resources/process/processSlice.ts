@@ -17,10 +17,9 @@ const initialState: IProcessState = {
   taskId: undefined,
 };
 
-const name = 'process';
 const processSlice = createSagaSlice(
   (mkAction: MkActionType<IProcessState>) => ({
-    name,
+    name: 'process',
     initialState,
     actions: {
       get: mkAction<void>({
