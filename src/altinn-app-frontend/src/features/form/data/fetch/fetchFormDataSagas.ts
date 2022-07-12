@@ -34,8 +34,6 @@ import {
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 
-export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
-
 export function* fetchFormDataSaga(): SagaIterator {
   try {
     // This is a temporary solution for the "one task - one datamodel - process"
@@ -99,7 +97,7 @@ function* fetchFormDataStateless(applicationMetadata: IApplicationMetadata) {
     layoutSets,
   );
 
-  const allowAnonymous = yield select(allowAnonymousSelector);
+  const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
 
   let options = {};
 
@@ -153,7 +151,7 @@ export function* watchFetchFormDataInitialSaga(): SagaIterator {
     const application: IApplicationMetadata = yield select(appMetaDataSelector);
     if (isStatelessApp(application)) {
       yield take(DataModelActions.fetchJsonSchemaFulfilled);
-      const allowAnonymous = yield select(allowAnonymousSelector);
+      const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
       if (!allowAnonymous) {
         call(
           waitFor,

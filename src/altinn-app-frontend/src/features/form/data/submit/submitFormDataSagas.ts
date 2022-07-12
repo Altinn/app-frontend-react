@@ -50,7 +50,6 @@ const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (
 const UIConfigSelector: (store: IRuntimeStore) => IUiConfig = (
   store: IRuntimeStore,
 ) => store.formLayout.uiConfig;
-export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
 export function* submitFormSaga({
   payload: { apiMode, stopWithWarnings },
@@ -238,7 +237,7 @@ export function* saveFormDataSaga(): SagaIterator {
 }
 
 export function* saveStatelessData(state: IRuntimeState, model: any) {
-  const allowAnonymous = yield select(allowAnonymousSelector);
+  const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
   let options;
   if (!allowAnonymous) {
     const selectedPartyId = state.party.selectedParty.partyId;
