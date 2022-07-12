@@ -21,10 +21,6 @@ const render = (initialState: Partial<IRuntimeState> = {}) => {
   const mockStore = createStore(mockInitialState);
   mockStore.dispatch = jest.fn();
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  InstantiationActions.instantiate = jest.fn();
-
   renderRtl(
     <BrowserRouter>
       <Provider store={mockStore}>
@@ -33,14 +29,19 @@ const render = (initialState: Partial<IRuntimeState> = {}) => {
       <Route path='/instance/1'>Instance page</Route>
     </BrowserRouter>,
   );
+
+  return mockStore.dispatch;
 };
 
 describe('features/instantiate/index', () => {
   it('should show content loader on initial render and start instantiation if valid party', async () => {
-    render();
+    const mockDispatch = render();
 
     await waitFor(() => {
-      expect(InstantiationActions.instantiate).toHaveBeenCalledTimes(1);
+      expect(mockDispatch).toHaveBeenCalledWith(
+        InstantiationActions.instantiate(),
+      );
+      expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
     const contentLoader = await screen.findByText('Loading...');
@@ -55,7 +56,7 @@ describe('features/instantiate/index', () => {
   });
 
   it('should show header as "" when translations have not been initialized properly loader on initial render and start instantiation if valid party', async () => {
-    render({
+    const mockDispatch = render({
       language: {
         language: {
           instantiate: {
@@ -68,7 +69,10 @@ describe('features/instantiate/index', () => {
     });
 
     await waitFor(() => {
-      expect(InstantiationActions.instantiate).toHaveBeenCalledTimes(1);
+      expect(mockDispatch).toHaveBeenCalledWith(
+        InstantiationActions.instantiate(),
+      );
+      expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
     const contentLoader = await screen.findByText('Loading...');
@@ -82,7 +86,7 @@ describe('features/instantiate/index', () => {
   });
 
   it('should not call InstantiationActions.instantiate when no selected party', async () => {
-    render({
+    const mockDispatch = render({
       party: {
         parties: [],
         error: null,
@@ -91,7 +95,7 @@ describe('features/instantiate/index', () => {
     });
 
     await waitFor(() => {
-      expect(InstantiationActions.instantiate).toHaveBeenCalledTimes(0);
+      expect(mockDispatch).toHaveBeenCalledTimes(0);
     });
   });
 
