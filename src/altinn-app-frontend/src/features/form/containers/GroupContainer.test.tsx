@@ -8,6 +8,7 @@ import { GroupContainer } from './GroupContainer';
 import { Triggers } from 'src/types';
 import { mockMediaQuery, renderWithProviders } from '../../../../testUtils';
 import { setupStore } from 'src/store';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 
 const mockContainer = getFormLayoutGroupMock();
 
@@ -202,7 +203,7 @@ describe('GroupContainer', () => {
         index: -1,
         validate: true,
       },
-      type: 'formLayout/updateRepeatingGroupsEditIndex',
+      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
@@ -225,7 +226,7 @@ describe('GroupContainer', () => {
         index: -1,
         validate: false,
       },
-      type: 'formLayout/updateRepeatingGroupsEditIndex',
+      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
@@ -249,7 +250,7 @@ describe('GroupContainer', () => {
         index: -1,
         validate: true,
       },
-      type: 'formLayout/updateRepeatingGroupsEditIndex',
+      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
@@ -272,7 +273,7 @@ describe('GroupContainer', () => {
         index: -1,
         validate: false,
       },
-      type: 'formLayout/updateRepeatingGroupsEditIndex',
+      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);

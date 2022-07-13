@@ -9,7 +9,7 @@ import {
   applicationMetadataMock,
 } from '__mocks__/mocks';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
-import type { IInstanceDataState } from 'src/shared/resources/instanceData/instanceDataReducers';
+import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 import type { IData } from 'altinn-shared/types';
 import type { IAttachmentListProps } from './AttachmentListComponent';
 
