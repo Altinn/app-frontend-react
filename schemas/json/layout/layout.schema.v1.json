@@ -338,6 +338,11 @@
           "description": "Alternatives for edit view of repeating group",
           "$ref": "#/definitions/groupEditOptions"
         },
+        "panel": {
+          "title": "Panel",
+          "description": "Alternatives for panel view of repeating group",
+          "$ref": "#/definitions/groupPanelOptions"
+        },
         "maxCount": {
           "type": "integer",
           "title": "Maximum count",
@@ -391,6 +396,41 @@
           "title": "Add button",
           "description": "Boolean value indicating whether add new button should be shown or not under the table.",
           "type": "boolean"
+        }
+      }
+    },
+    "groupPanelOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "variant": {
+          "title": "Variant",
+          "description": "Variant of the panel",
+          "type": "string",
+          "enum": ["info", "success", "warning"]
+        },
+        "iconUrl": {
+          "title": "Icon url",
+          "description": "Url of the icon to be shown in panel. Can be relative if hosted by app or full if referencing a cdn or other hosting.",
+          "type": "string",
+          "examples": ["fancyIcon.svg", "https://cdn.example.com/fancyIcon.svg"]
+        },
+        "iconAlt": {
+          "title": "Icon alt",
+          "description": "Alternative text for the icon. Only applicable if iconUrl is provided. Can be plain text or a text resource reference.",
+          "type": "string"
+        },
+        "groupReference": {
+          "title": "Group reference",
+          "description": "Reference to the group that is being displayed in the panel. Used for referencing another repeating group context.",
+          "type": "object",
+          "properties": {
+            "group" : {
+              "type": "string",
+              "title": "Group",
+              "description": "Group reference. Can be either the group id or the group data model binding.",
+              "examples": ["the-group-id", "some.model.theGroup"]
+            }
+          }
         }
       }
     },
