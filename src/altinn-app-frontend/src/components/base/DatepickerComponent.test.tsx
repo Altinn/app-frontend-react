@@ -226,6 +226,7 @@ describe('DatepickerComponent', () => {
   });
 
   it('should show error message when typed date is on an invalid format and call handleDataChange with empty value if formdata is present', async () => {
+    jest.spyOn(console, 'warn').mockImplementation();
     const handleDataChange = jest.fn();
     render({ handleDataChange, formData: { simpleBinding: '12.12.2022' } });
 
@@ -241,6 +242,7 @@ describe('DatepickerComponent', () => {
     fireEvent.blur(inputField);
 
     expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(console.warn).toHaveBeenCalledTimes(1);
 
     expect(
       screen.getByText('date_picker.invalid_date_message'),
