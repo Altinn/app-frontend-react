@@ -87,6 +87,21 @@ function asArray<T>(input: T | T[]): T[] {
   return Array.isArray(input) ? input : [input];
 }
 
+function asTake<Payload>(
+  method: 'takeLatest' | 'takeEvery',
+  actionName: string,
+  saga: PayloadSaga<Payload> | PayloadSaga<Payload>[],
+) {
+  return asArray(saga).map(
+    (target) =>
+      function* (): SagaIterator {
+        yield method === 'takeLatest'
+          ? takeLatest(actionName, target)
+          : takeEvery(actionName, target);
+      },
+  );
+}
+
 /**
  * Wrapper for createSlice() that makes it possible to set not just
  * reducers, but also reference the action saga handler. This should
@@ -122,16 +137,12 @@ export function createSagaSlice<
       rootSagas.push(...asArray(action.saga(actionName)));
     }
 
-    for (const keyword of ['takeLatest', 'takeEvery']) {
-      if (keyword in action) {
-        for (const target of asArray(action[keyword])) {
-          rootSagas.push(function* (): SagaIterator {
-            yield keyword === 'takeLatest'
-              ? takeLatest(actionName, target)
-              : takeEvery(actionName, target);
-          });
-        }
-      }
+    if ('takeLatest' in action) {
+      rootSagas.push(...asTake('takeLatest', actionName, action.takeLatest));
+    }
+
+    if ('takeEvery' in action) {
+      rootSagas.push(...asTake('takeEvery', actionName, action.takeEvery));
     }
   }
 
