@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
-import { createTheme, MuiThemeProvider } from "@material-ui/core/styles";
-import * as React from "react";
+import { createTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import * as React from 'react';
 
-import altinnTheme from "../../shared/src/theme/altinnStudioTheme";
+import altinnTheme from '../../shared/src/theme/altinnStudioTheme';
 const theme = createTheme(altinnTheme);
 
 // import injectTapEventPlugin from 'react-tap-event-plugin';
