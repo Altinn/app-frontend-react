@@ -83,6 +83,10 @@ export type MkActionType<State> = <
 
 export const rootSagas: Saga[] = [];
 
+function asArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
 /**
  * Wrapper for createSlice() that makes it possible to set not just
  * reducers, but also reference the action saga handler. This should
@@ -115,30 +119,18 @@ export function createSagaSlice<
     }
 
     if ('saga' in action) {
-      const saga = action.saga(actionName);
-      const sagas = Array.isArray(saga) ? saga : [saga];
-      rootSagas.push(...sagas);
+      rootSagas.push(...asArray(action.saga(actionName)));
     }
 
-    if ('takeLatest' in action) {
-      const targets = Array.isArray(action.takeLatest)
-        ? action.takeLatest
-        : [action.takeLatest];
-      for (const target of targets) {
-        rootSagas.push(function* (): SagaIterator {
-          yield takeLatest(actionName, target);
-        });
-      }
-    }
-
-    if ('takeEvery' in action) {
-      const targets = Array.isArray(action.takeEvery)
-        ? action.takeEvery
-        : [action.takeEvery];
-      for (const target of targets) {
-        rootSagas.push(function* (): SagaIterator {
-          yield takeEvery(actionName, target);
-        });
+    for (const keyword of ['takeLatest', 'takeEvery']) {
+      if (keyword in action) {
+        for (const target of asArray(action[keyword])) {
+          rootSagas.push(function* (): SagaIterator {
+            yield keyword === 'takeLatest'
+              ? takeLatest(actionName, target)
+              : takeEvery(actionName, target);
+          });
+        }
       }
     }
   }
