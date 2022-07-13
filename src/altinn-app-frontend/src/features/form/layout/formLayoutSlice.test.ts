@@ -1,5 +1,5 @@
 import type { ILayoutState } from './formLayoutSlice';
-import reducer, { initialState, FormLayoutActions } from './formLayoutSlice';
+import slice, { initialState, FormLayoutActions } from './formLayoutSlice';
 
 describe('layoutSlice', () => {
   describe('fetchLayoutFulfilled', () => {
@@ -7,9 +7,9 @@ describe('layoutSlice', () => {
     const navigationConfig = {};
 
     it('should set layout state accordingly', () => {
-      const nextState = reducer(
+      const nextState = slice.reducer(
         initialState,
-        FormLayoutActions.fetchLayoutFulfilled({
+        FormLayoutActions.fetchFulfilled({
           layouts,
           navigationConfig,
         }),
@@ -32,9 +32,9 @@ describe('layoutSlice', () => {
           },
         },
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         stateWithRepGroups,
-        FormLayoutActions.fetchLayoutFulfilled({
+        FormLayoutActions.fetchFulfilled({
           layouts,
           navigationConfig,
         }),
@@ -48,9 +48,9 @@ describe('layoutSlice', () => {
         ...initialState,
         error: new Error('mock'),
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         stateWithError,
-        FormLayoutActions.fetchLayoutFulfilled({
+        FormLayoutActions.fetchFulfilled({
           layouts,
           navigationConfig,
         }),
@@ -67,9 +67,9 @@ describe('layoutSlice', () => {
           order: ['page1', 'page2'],
         },
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         initialState,
-        FormLayoutActions.fetchLayoutSettingsFulfilled({
+        FormLayoutActions.fetchSettingsFulfilled({
           settings,
         }),
       );
@@ -88,7 +88,7 @@ describe('layoutSlice', () => {
           order: ['page1', 'page2'],
         },
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         {
           ...initialState,
           uiConfig: {
@@ -96,7 +96,7 @@ describe('layoutSlice', () => {
             currentViewCacheKey: 'some-cache-key',
           },
         },
-        FormLayoutActions.fetchLayoutSettingsFulfilled({
+        FormLayoutActions.fetchSettingsFulfilled({
           settings,
         }),
       );
@@ -115,7 +115,7 @@ describe('layoutSlice', () => {
           order: ['page1', 'page2'],
         },
       };
-      const nextState = reducer(
+      const nextState = slice.reducer(
         {
           ...initialState,
           uiConfig: {
@@ -123,7 +123,7 @@ describe('layoutSlice', () => {
             currentViewCacheKey: 'some-cache-key',
           },
         },
-        FormLayoutActions.fetchLayoutSettingsFulfilled({
+        FormLayoutActions.fetchSettingsFulfilled({
           settings,
         }),
       );

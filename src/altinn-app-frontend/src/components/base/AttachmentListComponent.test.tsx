@@ -5,9 +5,9 @@ import {
   getInitialStateMock,
   getInstanceDataStateMock,
   applicationMetadataMock,
-} from '../../../__mocks__/mocks';
-import type { IInstanceDataState } from '../../shared/resources/instanceData/instanceDataReducers';
-import type { IData } from '../../../../shared/src';
+} from 'src/../__mocks__/mocks';
+import type { IInstanceDataState } from 'src/shared/resources/instanceData';
+import type { IData } from 'altinn-shared/types';
 import type { IAttachmentListProps } from './AttachmentListComponent';
 
 import { renderWithProviders } from 'src/../testUtils';
