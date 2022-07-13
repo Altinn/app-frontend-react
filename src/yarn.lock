@@ -4501,6 +4501,7 @@ __metadata:
     dot-object: ^2.1.4
     enzyme: ^3.11.0
     eslint: ^8.17.0
+    eslint-plugin-sonarjs: ^0.13.0
     fork-ts-checker-notifier-webpack-plugin: 6.0.0
     fork-ts-checker-webpack-plugin: ^7.2.11
     html-react-parser: ^1.4.14
@@ -7647,6 +7648,15 @@ __metadata:
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
   checksum: 729b7682a0fe6eab068171c159503ac57120ecc7b20067e76300b08879745c16a687e2033378ab45d9a3182da8844d06197a89081be83e1eb21fcceb76e79214
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-sonarjs@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "eslint-plugin-sonarjs@npm:0.13.0"
+  peerDependencies:
+    eslint: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+  checksum: f1cbb33b010c663150c3866e5fdbad2398658e279405d863f48da98edb0438b0ea68732e263f5c939d3d6f2d9a785f80c10234c1b229873b6ee44c24fd6e0cd1
   languageName: node
   linkType: hard
 
