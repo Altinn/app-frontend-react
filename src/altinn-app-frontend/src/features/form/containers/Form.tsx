@@ -146,9 +146,9 @@ export function Form() {
   const matchUrl = match?.url || '';
   const history = useHistory();
   React.useEffect(() => {
-    const getPageId = () =>
-      history.location?.pathname.replace(`${matchUrl}/`, '');
     if (currentLayout) {
+      const getPageId = () =>
+        history.location?.pathname.replace(`${matchUrl}/`, '');
       const urlPageId = getPageId();
       if (!urlPageId || urlPageId === matchUrl) {
         history.replace(`${matchUrl}/${currentLayout}`);
