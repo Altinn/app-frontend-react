@@ -21,12 +21,19 @@ describe('/utils/dateFlagParser.ts', () => {
   });
 
   describe('getISOString(...)', () => {
-    test.each(['', undefined, null, 'abcdef'])(
+    test.each(['', undefined, null])(
       'should return undefined if input date is %p',
       (date) => {
         expect(getISOString(date)).toBeUndefined();
       },
     );
+
+    it('should return undefined if input date is "abcdef"', () => {
+      jest.spyOn(console, 'warn').mockImplementation();
+
+      expect(getISOString('abcdef')).toBeUndefined();
+      expect(console.warn).toHaveBeenCalledTimes(1);
+    });
 
     it('should return ISO string if input date is valid ISO string', () => {
       const validISOString = '2020-12-13T12:00:00Z';
