@@ -10,11 +10,22 @@ import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import { getProcessStateSaga } from 'src/shared/resources/process/getProcessState/getProcessStateSagas';
 import { completeProcessSaga } from 'src/shared/resources/process/completeProcess/completeProcessSagas';
 import { checkProcessUpdated } from 'src/shared/resources/process/checkProcessUpdated/checkProcessUpdatedSagas';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { WritableDraft } from 'immer/dist/types/types-external';
 
 const initialState: IProcessState = {
   taskType: null,
   error: null,
   taskId: undefined,
+};
+
+const genericFulfilledReducer = (
+  state: WritableDraft<IProcessState>,
+  action: PayloadAction<IGetProcessStateFulfilled>,
+) => {
+  state.taskType = action.payload.processStep;
+  state.taskId = action.payload.taskId;
+  state.error = null;
 };
 
 const processSlice = createSagaSlice(
@@ -26,11 +37,7 @@ const processSlice = createSagaSlice(
         takeLatest: getProcessStateSaga,
       }),
       getFulfilled: mkAction<IGetProcessStateFulfilled>({
-        reducer: (state, action) => {
-          state.taskType = action.payload.processStep;
-          state.taskId = action.payload.taskId;
-          state.error = null;
-        },
+        reducer: genericFulfilledReducer,
       }),
       getRejected: mkAction<IGetProcessStateRejected>({
         reducer: (state, action) => {
@@ -41,11 +48,7 @@ const processSlice = createSagaSlice(
         takeLatest: completeProcessSaga,
       }),
       completeFulfilled: mkAction<ICompleteProcessFulfilled>({
-        reducer: (state, action) => {
-          state.taskType = action.payload.processStep;
-          state.taskId = action.payload.taskId;
-          state.error = null;
-        },
+        reducer: genericFulfilledReducer,
       }),
       completeRejected: mkAction<ICompleteProcessRejected>({
         reducer: (state, action) => {
