@@ -16,3 +16,25 @@ exports[`ParagraphComponent should match snapshot 1`] = `
   </div>
 </div>
 `;
+
+exports[`ParagraphComponent should render in a <div> instead of a <p> when a header text is supplied 1`] = `
+<WithStyles(ForwardRef(Grid))
+  alignItems="center"
+  container={true}
+  direction="row"
+>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="makeStyles-spacing-1 makeStyles-typography-2"
+      component="div"
+      id="mock-id"
+    >
+      <h3>
+        Hello world
+      </h3>
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;

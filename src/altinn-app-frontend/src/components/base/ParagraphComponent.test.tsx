@@ -58,4 +58,19 @@ describe('ParagraphComponent', () => {
 
     expect(shallowParagraphComponent.find('HelpTextContainer')).toHaveLength(1);
   });
+
+  it('should render in a <div> instead of a <p> when a header text is supplied', () => {
+    const shallowParagraphComponent = shallow(
+      <ParagraphComponent
+        id={mockId}
+        text={<h3>Hello world</h3>}
+        language={mockLanguage}
+        getTextResource={mockGetTextResource}
+        textResourceBindings={mockTextResourceBindings}
+        {...({} as IComponentProps)}
+      />,
+    );
+
+    expect(shallowParagraphComponent).toMatchSnapshot();
+  });
 });
