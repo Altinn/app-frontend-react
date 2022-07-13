@@ -33,6 +33,11 @@ describe('/utils/dateFlagParser.ts', () => {
 
       expect(getISOString('abcdef')).toBeUndefined();
       expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /Deprecation warning: value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date/,
+        ),
+      );
     });
 
     it('should return ISO string if input date is valid ISO string', () => {
