@@ -56,6 +56,7 @@
     ],
     "@typescript-eslint/consistent-type-imports": ["warn"],
     "react-hooks/exhaustive-deps": ["error"],
+    "prefer-template": ["warn"],
     "sonarjs/no-duplicate-string": ["off"],
     "sonarjs/cognitive-complexity": ["warn", 15],
     "sonarjs/no-collapsible-if": ["warn"],
