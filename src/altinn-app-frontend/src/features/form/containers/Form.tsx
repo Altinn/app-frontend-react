@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import Grid from '@material-ui/core/Grid';
 import * as React from 'react';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
@@ -6,12 +5,14 @@ import type { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
 import { GroupContainer } from './GroupContainer';
 import { renderGenericComponent } from 'src/utils/layout';
 import { DisplayGroupContainer } from './DisplayGroupContainer';
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import {
+  useAppSelector,
+  useFormLayoutHistoryAndMatchInstanceLocation,
+} from 'src/common/hooks';
 import MessageBanner from 'src/features/form/components/MessageBanner';
 import { hasRequiredFields } from 'src/utils/formLayout';
 import { missingFieldsInLayoutValidations } from 'src/utils/validation';
-import { Route, useHistory, useRouteMatch } from 'react-router-dom';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { Route } from 'react-router-dom';
 import { PanelGroupContainer } from './PanelGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 
@@ -140,32 +141,9 @@ export function Form() {
     }
   }, [layout]);
 
-  /** history in form **/
-  const dispatch = useAppDispatch();
-  const match = useRouteMatch<string>('/instance/:partyId/:instanceGuid');
-  const matchUrl = match?.url || '';
-  const history = useHistory();
-  React.useEffect(() => {
-    if (currentLayout) {
-      const getPageId = () =>
-        history.location?.pathname.replace(`${matchUrl}/`, '');
-      const urlPageId = getPageId();
-      if (!urlPageId || urlPageId === matchUrl) {
-        history.replace(`${matchUrl}/${currentLayout}`);
-      } else if (`${currentLayout}` !== urlPageId) {
-        history.push(`${matchUrl}/${currentLayout}`);
-      }
-      return history.listen((_location, action) => {
-        if (action === 'POP') {
-          const pageId = getPageId();
-          if (pageId && pageId !== currentLayout) {
-            dispatch(FormLayoutActions.updateCurrentView({ newView: pageId }));
-          }
-        }
-      });
-    }
-  }, [dispatch, currentLayout, matchUrl, history]);
-
+  const { matchUrl } = useFormLayoutHistoryAndMatchInstanceLocation({
+    activePageId: currentLayout,
+  });
   return (
     <Route path={`${matchUrl}/:pageId`}>
       {hasRequiredFields(layout) && (

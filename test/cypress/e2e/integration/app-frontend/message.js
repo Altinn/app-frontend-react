@@ -3,12 +3,13 @@
 
 import AppFrontend from '../../pageobjects/app-frontend';
 import * as texts from '../../fixtures/texts.json';
+import { instanceIdExp } from '../../support/util';
 
 const appFrontend = new AppFrontend();
 
 describe('Message', () => {
   let instanceMetadata, instanceId;
-  const instanceIdExpr = /\d+\/*[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12}/i;
+  const instanceIdExpr = instanceIdExp();
 
   before(() => {
     cy.intercept('POST', `**/instances?instanceOwnerPartyId*`).as('createdInstance');
@@ -26,11 +27,7 @@ describe('Message', () => {
         data.instanceGuid = instanceId;
         instanceMetadata.data.push(data);
       });
-      cy.intercept(
-        'GET',
-        /\d+\/*[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12}$/i,
-        instanceMetadata,
-      );
+      cy.intercept('GET', instanceIdExp({ postfix: '$' }), instanceMetadata);
     });
     cy.reload();
     cy.get(appFrontend.message['attachmentList'])
@@ -46,7 +43,7 @@ describe('Message', () => {
         Cypress.env('environment') === 'local'
           ? 'http://altinn3local.no/ttd/frontend-test'
           : 'https://ttd.apps.tt02.altinn.no/ttd/frontend-test/';
-      const instanceId = instanceIdExpr.exec(url)[0];
+      const instanceId = instanceIdExpr.exec(url)[1];
       cy.get(appFrontend.startAgain).contains(instanceId).and('contain.text', Cypress.env('multiData2Stage'));
       cy.get(appFrontend.startAgain).find('a').should('have.attr', 'href', instantiateUrl);
     });

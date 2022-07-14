@@ -2,6 +2,7 @@ import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import * as React from 'react';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { AltinnAppTheme } from 'altinn-shared/theme';
+import { getInstanceIdRegExp } from 'altinn-shared/utils';
 import ProcessWrapper from './shared/containers/ProcessWrapper';
 import UnknownError from './features/instantiate/containers/UnknownError';
 import PartySelection from './features/instantiate/containers/PartySelection';
@@ -39,10 +40,8 @@ export const App = () => {
 
   const [ready, setReady] = React.useState(false);
   const location = useLocation();
-  const instanceIdExpr =
-    /instance\/\d+\/*[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12}/i;
+  const instanceIdExpr = getInstanceIdRegExp({ prefix: 'instance' });
   const hasInstanceId = instanceIdExpr.test(location.pathname);
-
   React.useEffect(() => {
     function setUpEventListeners() {
       window.addEventListener('mousemove', refreshJwtToken);
@@ -102,7 +101,7 @@ export const App = () => {
 
   if (!ready) {
     if (hasInstanceId) {
-      return <div>Not ready, but got instanceId.</div>;
+      return <div data-testid={location.pathname.match(instanceIdExpr)[1]} />;
     }
     return null;
   }

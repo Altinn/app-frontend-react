@@ -3,6 +3,7 @@
 
 import AppFrontend from '../../pageobjects/app-frontend';
 import * as texts from '../../fixtures/texts.json';
+import {instanceIdExp} from "../../support/util";
 
 const appFrontend = new AppFrontend();
 
@@ -31,8 +32,7 @@ describe('Confirm', () => {
 
     cy.get(appFrontend.confirm.sendIn).should('be.visible');
     cy.url().then((url) => {
-      const instanceIdExpr = /\d+\/*[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12}/i;
-      const instanceId = instanceIdExpr.exec(url)[0];
+      const instanceId = instanceIdExp().exec(url)[1];
       cy.get(appFrontend.confirm.body).contains(instanceId).and('contain.text', Cypress.env('multiData2Stage'));
     });
   });

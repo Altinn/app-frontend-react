@@ -14,20 +14,19 @@ const render = ({ locationPath }: { locationPath: string }) => {
 };
 
 describe('App', () => {
-  it('should get instance id from route', () => {
+  const mockInstanceId = '123456/75154373-aed4-41f7-95b4-e5b5115c2edc';
+  it('should get instance id form route', () => {
     render({
-      locationPath:
-        'org/app/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc/some/function',
+      locationPath: `org/app/instance/${mockInstanceId}/some/function`,
     });
-    expect(
-      screen.getByText(/not ready, but got instanceid\./i),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(mockInstanceId)).toBeInTheDocument();
   });
-  it('should not get instance if from route if it is invalid', () => {
+
+  it('should not get instance id if form route if id is not formatted correctly', () => {
     render({
       locationPath:
         'org/app/instance/123456/75154373-aed4-41f7-95b4-e5b51INVALID/some/function',
     });
-    expect(screen.queryByText(/not ready, but got instanceid\./i)).toBeNull();
+    expect(screen.queryByTestId(mockInstanceId)).toBeNull();
   });
 });

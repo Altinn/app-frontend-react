@@ -3,6 +3,7 @@
 
 import AppFrontend from '../../pageobjects/app-frontend';
 import * as texts from '../../fixtures/texts.json';
+import { instanceIdExp } from '../../support/util';
 
 const appFrontend = new AppFrontend();
 
@@ -92,7 +93,7 @@ describe('Repeating group attachments', () => {
   };
 
   const simplifyFormData = (s) => {
-    // Find all attachment IDs and add them to a mapping so we can replace them in formData with their file names,
+    // Find all attachment IDs and add them to a mapping, so we can replace them in formData with their file names,
     // since all our file names are unique anyway, and the UUIDs will change every time.
     const idToNameMapping = {};
     for (const attachmentList of Object.values(s.attachments.attachments)) {
@@ -118,9 +119,7 @@ describe('Repeating group attachments', () => {
   };
 
   const interceptFormDataSave = () => {
-    cy.intercept('PUT',
-      /instances\/\d+\/*[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12}\/data/i
-    ).as('saveInstanceData');
+    cy.intercept('PUT', instanceIdExp({ prefix: 'instances', postfix: 'data' })).as('saveInstanceData');
   };
 
   const waitForFormDataSave = () => {
