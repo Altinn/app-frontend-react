@@ -4501,7 +4501,6 @@ __metadata:
     dot-object: ^2.1.4
     enzyme: ^3.11.0
     eslint: ^8.17.0
-    eslint-plugin-sonarjs: ^0.13.0
     fork-ts-checker-notifier-webpack-plugin: 6.0.0
     fork-ts-checker-webpack-plugin: ^7.2.11
     html-react-parser: ^1.4.14
@@ -4662,6 +4661,7 @@ __metadata:
     eslint-plugin-prettier: ^4.0.0
     eslint-plugin-react: ^7.30.0
     eslint-plugin-react-hooks: ^4.6.0
+    eslint-plugin-sonarjs: ^0.13.0
     husky: ^6
     lint-staged: ^10
     prettier: ^2.7.1
