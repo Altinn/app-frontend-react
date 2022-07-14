@@ -4658,9 +4658,12 @@ __metadata:
     eslint-import-resolver-typescript: ^2.7.1
     eslint-plugin-import: ^2.26.0
     eslint-plugin-jsx-a11y: ^6.5.1
+    eslint-plugin-no-relative-import-paths: ^1.3.4
+    eslint-plugin-preferred-import-path: ^1.1.0
     eslint-plugin-prettier: ^4.0.0
     eslint-plugin-react: ^7.30.0
     eslint-plugin-react-hooks: ^4.6.0
+    eslint-plugin-simple-import-sort: ^7.0.0
     husky: ^6
     lint-staged: ^10
     prettier: ^2.7.1
@@ -7602,6 +7605,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-no-relative-import-paths@npm:^1.3.4":
+  version: 1.3.4
+  resolution: "eslint-plugin-no-relative-import-paths@npm:1.3.4"
+  checksum: b1b2f6e13af1ed0c00f10b886ee1727a09f15f9c7fd765022f2c88906b8dbd7c9d6cdef8c4fe85b7da31ec2d6b2b0dd379e31ee60fff6a83da2590064869ebc2
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-preferred-import-path@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "eslint-plugin-preferred-import-path@npm:1.1.0"
+  checksum: e15bd32ea0dc2e00b7deb24e18630c72fedb3f9a1bf0fa60f22874de49abdeb804ae50b22807887952acb008297ab920359ce005f07800d5159e3e0a873d05cb
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-prettier@npm:^4.0.0":
   version: 4.0.0
   resolution: "eslint-plugin-prettier@npm:4.0.0"
@@ -7647,6 +7664,15 @@ __metadata:
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
   checksum: 729b7682a0fe6eab068171c159503ac57120ecc7b20067e76300b08879745c16a687e2033378ab45d9a3182da8844d06197a89081be83e1eb21fcceb76e79214
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-simple-import-sort@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "eslint-plugin-simple-import-sort@npm:7.0.0"
+  peerDependencies:
+    eslint: ">=5.0.0"
+  checksum: 6aacb7179c213cd2081950630368d1f3b1dcb4f5674d8b989fe7839e7b317ee521d74761676e8b1a7cab49f20405dbcc9aac05358ae804e6bcba6cbf1daccb3d
   languageName: node
   linkType: hard
 
