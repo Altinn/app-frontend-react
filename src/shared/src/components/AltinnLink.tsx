@@ -16,13 +16,13 @@ const theme = createTheme(altinnTheme);
 
 const styles = {
   link: {
-    borderBottom: '1px solid ' + theme.altinnPalette.primary.blueDark,
+    borderBottom: `1px solid ${theme.altinnPalette.primary.blueDark}`,
     color: theme.altinnPalette.primary.blueDarker,
     '&:hover': {
       fontWeight: 500,
       textDecoration: 'none',
       color: theme.altinnPalette.primary.blueDarker,
-      borderBottom: '1px solid' + theme.altinnPalette.primary.blueMedium,
+      borderBottom: `1px solid${theme.altinnPalette.primary.blueMedium}`,
     },
   },
 };

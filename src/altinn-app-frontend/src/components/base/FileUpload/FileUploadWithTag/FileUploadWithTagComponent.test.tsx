@@ -107,7 +107,7 @@ describe('FileUploadWithTagComponent', () => {
             simpleBinding: {
               errors: [
                 'mock error message',
-                'attachment-id-5' + AsciiUnitSeparator + 'mock error message',
+                `attachment-id-5${AsciiUnitSeparator}mock error message`,
               ],
             },
           },
@@ -349,9 +349,7 @@ describe('FileUploadWithTagComponent', () => {
     expect(validation).toEqual({
       simpleBinding: {
         errors: [
-          'mock-attachment-id' +
-            AsciiUnitSeparator +
-            'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
+          `mock-attachment-id${AsciiUnitSeparator}Noe gikk galt under oppdatering av filens merking, prøv igjen senere.`,
         ],
         warnings: [],
       },
@@ -373,9 +371,7 @@ describe('FileUploadWithTagComponent', () => {
     const mockValidations = [
       'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
       'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
-      'mock-attachment-id' +
-        AsciiUnitSeparator +
-        'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
+      `mock-attachment-id${AsciiUnitSeparator}Noe gikk galt under oppdatering av filens merking, prøv igjen senere.`,
       'Noe gikk galt under slettingen av filen, prøv igjen senere.',
     ];
     const expectedResult = [

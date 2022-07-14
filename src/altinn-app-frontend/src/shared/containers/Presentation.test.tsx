@@ -79,7 +79,7 @@ describe('containers/Presentation.tsx', () => {
     Object.defineProperty(window, 'location', {
       value: {
         ...window,
-        search: '?returnUrl=' + returnUrl,
+        search: `?returnUrl=${returnUrl}`,
       },
       writable: true,
     });
@@ -112,7 +112,7 @@ describe('containers/Presentation.tsx', () => {
       value: {
         ...window,
         origin,
-        search: '?returnUrl=' + returnUrl,
+        search: `?returnUrl=${returnUrl}`,
       },
       writable: true,
     });

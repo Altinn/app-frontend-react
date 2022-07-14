@@ -66,7 +66,7 @@ describe('components/base/ButtonComponent.tsx', () => {
         />
       </Provider>,
     );
-    const submitBtn = wrapper.find('button#' + mockId);
+    const submitBtn = wrapper.find(`button#${mockId}`);
     expect(submitBtn.text()).toEqual(mockText);
   });
 

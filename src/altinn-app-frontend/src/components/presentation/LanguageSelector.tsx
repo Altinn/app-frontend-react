@@ -48,7 +48,7 @@ export const LanguageSelector = () => {
             options={data.map((l) => ({
               value: l.language,
               label: getTextFromAppOrDefault(
-                'language.full_name.' + l.language,
+                `language.full_name.${l.language}`,
                 textResources,
                 language,
                 null,
