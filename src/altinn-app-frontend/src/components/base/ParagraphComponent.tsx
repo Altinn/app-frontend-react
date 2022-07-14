@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
 import type { IComponentProps } from '..';
@@ -34,6 +34,11 @@ const useStyles = makeStyles({
 
 export function ParagraphComponent(props: IComponentProps) {
   const classes = useStyles();
+  const isHeader =
+    typeof props.text === 'object' &&
+    typeof (props.text as any).type === 'string' &&
+    (props.text as any).type.match(/^h\d+$/);
+
   return (
     <Grid
       container={true}
@@ -42,7 +47,9 @@ export function ParagraphComponent(props: IComponentProps) {
     >
       <Grid item={true}>
         <Typography
+          component={isHeader ? 'div' : 'p'}
           id={props.id}
+          data-testid={`paragraph-component-${props.id}`}
           className={`${classes.spacing} ${classes.typography}`}
         >
           {props.text}

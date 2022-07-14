@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { render as rtlRender, screen } from '@testing-library/react';
 import type { IComponentProps } from 'src/components';
 
@@ -28,6 +28,33 @@ describe('ParagraphComponent', () => {
     render();
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('should render in a <div> when a header text is supplied', () => {
+    const id = 'mock-id';
+    render({ id, text: <h3>Hello world</h3> });
+
+    expect(screen.getByTestId(`paragraph-component-${id}`).tagName).toEqual(
+      'DIV',
+    );
+  });
+
+  it('should render in a <p> when regular text content is supplied', () => {
+    const id = 'mock-id';
+    render({
+      id,
+      text: (
+        <>
+          Hello world with line
+          <br />
+          break
+        </>
+      ),
+    });
+
+    expect(screen.queryByTestId(`paragraph-component-${id}`).tagName).toEqual(
+      'P',
+    );
   });
 });
 
