@@ -237,8 +237,7 @@ export function FileList(props: FileListProps): JSX.Element {
                                   }
                                 />
                               </div>
-                            ) : null}
-                            {!attachment.uploaded && (
+                            ) : (
                               <AltinnLoader
                                 id={`attachment-loader-upload-${props.attachments[index].id}`}
                                 style={{
@@ -283,7 +282,7 @@ export function FileList(props: FileListProps): JSX.Element {
                         key={`attachment-status-${index}`}
                         className={classes.textContainer}
                       >
-                        {attachment.uploaded && (
+                        {attachment.uploaded ? (
                           <div>
                             {getLanguageFromKey(
                               'form_filler.file_uploader_list_status_done',
@@ -297,8 +296,7 @@ export function FileList(props: FileListProps): JSX.Element {
                               )}
                             />
                           </div>
-                        )}
-                        {!attachment.uploaded && (
+                        ) : (
                           <AltinnLoader
                             id={`attachment-loader-upload-${attachment.id}`}
                             style={{
