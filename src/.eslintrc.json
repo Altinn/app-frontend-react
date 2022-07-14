@@ -52,7 +52,10 @@
     "import/no-unresolved": ["off"],
     "@typescript-eslint/no-unused-vars": [
       "error",
-      { "ignoreRestSiblings": true }
+      {
+        "argsIgnorePattern": "^_action$",
+        "ignoreRestSiblings": true
+      }
     ],
     "@typescript-eslint/consistent-type-imports": ["warn"],
     "react-hooks/exhaustive-deps": ["error"]
