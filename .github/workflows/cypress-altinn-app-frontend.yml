@@ -84,5 +84,5 @@ jobs:
       - name: Verify cypress and run tests
         run: |
           yarn run cy:verify
-          ./node_modules/.bin/start-server-and-test 'cd $GITHUB_WORKSPACE/src/altinn-app-frontend && yarn start --no-hot' http://localhost:8080/altinn-app-frontend.js 'yarn run test:all:headless --env environment=tt02,testUserName=testuserexternal,testUserPwd=r@h74Rz7XYQJ'
+          ./node_modules/.bin/start-server-and-test 'cd $GITHUB_WORKSPACE/src/altinn-app-frontend && yarn start --no-hot' http://localhost:8080/altinn-app-frontend.js 'yarn run test:all:headless --config watchForFileChanges=false --env environment=tt02,testUserName=testuserexternal,testUserPwd=r@h74Rz7XYQJ'
         working-directory: test/cypress
