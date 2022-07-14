@@ -1,66 +1,71 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable max-len */
-import {
-  getLanguageFromKey,
-  getParsedLanguageFromKey,
-} from 'altinn-shared/utils';
+import type { ReactNode } from 'react';
+
+import Ajv from 'ajv';
+import Ajv2020 from 'ajv/dist/2020';
+import addFormats from 'ajv-formats';
+import dot from 'dot-object';
+import JsonPointer from 'jsonpointer';
 import moment from 'moment';
 import type { Options } from 'ajv';
-import Ajv from 'ajv';
 import type * as AjvCore from 'ajv/dist/core';
-import Ajv2020 from 'ajv/dist/2020';
-import dot from 'dot-object';
-import addFormats from 'ajv-formats';
-import type {
-  IComponentValidations,
-  IValidations,
-  IComponentBindingValidation,
-  ITextResource,
-  IValidationResult,
-  ISchemaValidator,
-  IRepeatingGroups,
-  ILayoutValidations,
-  IDataModelBindings,
-  IRuntimeState,
-  ITextResourceBindings,
-} from 'src/types';
-import type {
-  ILayouts,
-  ILayoutComponent,
-  ILayoutGroup,
-  ILayout,
-} from '../features/form/layout';
-import type { IValidationIssue, DateFlags } from '../types';
-import { Severity } from '../types';
-import { getFieldName, getFormDataForComponent } from './formComponentUtils';
-import { getParsedTextResourceByKey } from './textResource';
+
+import { getDataTaskDataTypeId } from './appMetadata';
+import { AsciiUnitSeparator } from './attachment';
 import {
   convertDataBindingToModel,
   getFormDataFromFieldKey,
   getKeyWithoutIndex,
 } from './databindings';
-// eslint-disable-next-line import/no-cycle
-import { matchLayoutComponent, setupGroupComponents } from './layout';
+import { getFlagBasedDate } from './dateHelpers';
+import { getFieldName, getFormDataForComponent } from './formComponentUtils';
 import {
   createRepeatingGroupComponents,
   getRepeatingGroupStartStopIndex,
+  isDatePickerComponent,
   isFileUploadComponent,
   isFileUploadWithTagComponent,
-  isDatePickerComponent,
   isGroupComponent,
   splitDashedKey,
 } from './formLayout';
-import { getDataTaskDataTypeId } from './appMetadata';
-import { getFlagBasedDate } from './dateHelpers';
-import JsonPointer from 'jsonpointer';
+// eslint-disable-next-line import/no-cycle
+import { matchLayoutComponent, setupGroupComponents } from './layout';
+import { getParsedTextResourceByKey } from './textResource';
+
+import { Severity } from 'src/types';
+import type { IFormData } from 'src/features/form/data';
+import type {
+  ILayout,
+  ILayoutComponent,
+  ILayoutGroup,
+  ILayouts,
+} from 'src/features/form/layout';
 import type {
   IAttachment,
   IAttachments,
 } from 'src/shared/resources/attachments';
+import type {
+  DateFlags,
+  IComponentBindingValidation,
+  IComponentValidations,
+  IDataModelBindings,
+  ILayoutValidations,
+  IRepeatingGroups,
+  IRuntimeState,
+  ISchemaValidator,
+  ITextResource,
+  ITextResourceBindings,
+  IValidationIssue,
+  IValidationResult,
+  IValidations,
+} from 'src/types';
+
+import {
+  getLanguageFromKey,
+  getParsedLanguageFromKey,
+} from 'altinn-shared/utils';
 import type { ILanguage } from 'altinn-shared/types';
-import { AsciiUnitSeparator } from './attachment';
-import type { ReactNode } from 'react';
-import type { IFormData } from 'src/features/form/data';
 
 export interface ISchemaValidators {
   [id: string]: ISchemaValidator;
