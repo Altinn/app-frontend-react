@@ -33,6 +33,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Increase file watchers
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
