@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import type { SagaIterator } from 'redux-saga';
 import { call, put as sagaPut, select } from 'redux-saga/effects';
 import { get, put } from 'altinn-shared/utils';
@@ -190,7 +189,6 @@ function* handleCalculationUpdate(changedFields) {
   if (!changedFields) {
     return false;
   }
-  // eslint-disable-next-line no-restricted-syntax
   for (const fieldKey of Object.keys(changedFields)) {
     yield sagaPut(
       FormDataActions.update({
@@ -205,17 +203,16 @@ function* handleCalculationUpdate(changedFields) {
   return true;
 }
 
-// eslint-disable-next-line consistent-return
 export function* saveFormDataSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     // updates the default data element
     const application = state.applicationMetadata.applicationMetadata;
     const model = convertDataBindingToModel(
-      filterOutInvalidData(
-        state.formData.formData,
-        state.formValidations.invalidDataTypes || [],
-      ),
+      filterOutInvalidData({
+        data: state.formData.formData,
+        invalidKeys: state.formValidations.invalidDataTypes,
+      }),
     );
 
     if (isStatelessApp(application)) {

@@ -268,3 +268,8 @@ export interface IFetchSpecificOptionSaga {
   secure?: boolean;
   instanceId?: string;
 }
+
+export interface IPartyIdInterfaceGuidParams {
+  partyId: string;
+  instanceGuid: string;
+}

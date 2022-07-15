@@ -1,5 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable max-len */
 import {
   getLanguageFromKey,
   getParsedLanguageFromKey,
@@ -39,7 +37,6 @@ import {
   getFormDataFromFieldKey,
   getKeyWithoutIndex,
 } from './databindings';
-// eslint-disable-next-line import/no-cycle
 import { matchLayoutComponent, setupGroupComponents } from './layout';
 import {
   createRepeatingGroupComponents,
@@ -81,7 +78,17 @@ export function createValidator(schema: any): ISchemaValidator {
   const ajvOptions: Options = {
     allErrors: true,
     coerceTypes: true,
+
+    /**
+     * This option is deprecated in AJV, but continues to work for now. We have unit tests that will fail if the
+     * functionality is removed from AJV. The jsPropertySyntax (ex. 'Path.To.Array[0].Item') was replaced with JSON
+     * pointers in v7 (ex. '/Path/To/Array/0/Item'). If the option to keep the old syntax is removed at some point,
+     * we'll have to implement a translator ourselves, as we'll need this format to equal our data model bindings.
+     *
+     * @see https://github.com/ajv-validator/ajv/issues/1577#issuecomment-832216719
+     */
     jsPropertySyntax: true,
+
     strict: false,
     strictTypes: false,
     strictTuples: false,
@@ -799,8 +806,6 @@ export function getSchemaPart(schemaPath: string, jsonSchema: object): any {
   try {
     // want to transform path example format to to /properties/model/properties/person/properties/name
     const pointer = schemaPath.substr(1).split('/').slice(0, -1).join('/');
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore typings for JsonPointer are incorrect, this ignore can be removed when PR is merged/released https://github.com/janl/node-jsonpointer/pull/54
     return JsonPointer.compile(pointer).get(jsonSchema);
   } catch (error) {
     console.error(error);
@@ -966,7 +971,6 @@ export function mapToComponentValidations(
       ? `${layoutComponent.id}-${index}`
       : layoutComponent.id;
     if (!validations[layoutId]) {
-      // eslint-disable-next-line no-param-reassign
       validations[layoutId] = {};
     }
     if (validations[layoutId][componentId]) {
@@ -982,13 +986,11 @@ export function mapToComponentValidations(
           errorMessage,
         );
       } else {
-        // eslint-disable-next-line no-param-reassign
         validations[layoutId][componentId][dataModelFieldKey] = {
           errors: [errorMessage],
         };
       }
     } else {
-      // eslint-disable-next-line no-param-reassign
       validations[layoutId][componentId] = {
         [dataModelFieldKey]: {
           errors: [errorMessage],
@@ -1732,7 +1734,6 @@ export function removeGroupValidationsByIndex(
         const newKey = `${id}-${i - 1}`;
         delete result[currentLayout][key];
         result[currentLayout][newKey] = validations[currentLayout][key];
-        // eslint-disable-next-line no-loop-func
         children?.forEach((element) => {
           let childKey;
           let shiftKey;

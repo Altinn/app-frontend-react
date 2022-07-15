@@ -18,7 +18,7 @@ import type {
 } from 'src/features/form/layout';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 
-describe('shared > resources > options > fetch > fetchOptionsSagas', () => {
+describe('fetchOptionsSagas', () => {
   describe('checkIfOptionsShouldRefetchSaga', () => {
     const userLanguage = 'nb';
     const action = {
