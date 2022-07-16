@@ -3,10 +3,9 @@ import * as React from 'react';
 import { useAppSelector } from 'src/common/hooks';
 import type { ITextResource, ITextResourceBindings } from 'src/types';
 import type { IComponentProps } from '..';
+import type { ILayoutCompCustom } from 'src/features/form/layout';
 
-export interface ICustomComponentProps extends IComponentProps {
-  tagName: string;
-}
+export type ICustomComponentProps = IComponentProps & ILayoutCompCustom;
 
 function CustomWebComponent({
   tagName,

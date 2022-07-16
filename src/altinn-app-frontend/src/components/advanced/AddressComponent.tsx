@@ -5,15 +5,15 @@ import cn from 'classnames';
 import { getLanguageFromKey, get } from 'altinn-shared/utils';
 import type { IComponentValidations } from 'src/types';
 import { renderValidationMessagesForComponent } from '../../utils/render';
-import type { IAutoSavedComponentProps } from '..';
+import type { IComponentProps } from '..';
 import { AddressLabel } from './AddressLabel';
 
 import './AddressComponent.css';
 import '../../styles/shared.css';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-export interface IAddressComponentProps extends IAutoSavedComponentProps {
-  simplified: boolean;
-}
+import type { ILayoutCompAddress } from 'src/features/form/layout';
+
+export type IAddressComponentProps = IComponentProps & ILayoutCompAddress;
 
 interface IAddressValidationErrors {
   address?: string;

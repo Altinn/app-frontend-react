@@ -3,15 +3,15 @@ import { screen } from '@testing-library/react';
 
 import { renderWithProviders } from '../../testUtils';
 
+import type { IActualGenericComponentProps } from './GenericComponent';
 import { GenericComponent } from './GenericComponent';
-import type { IGenericComponentProps } from './GenericComponent';
 import {
   getFormDataStateMock,
   getFormLayoutStateMock,
 } from '../../__mocks__/mocks';
 
-const render = (props: Partial<IGenericComponentProps> = {}) => {
-  const allProps: IGenericComponentProps = {
+const render = (props: Partial<IActualGenericComponentProps> = {}) => {
+  const allProps: IActualGenericComponentProps = {
     id: 'mockId',
     type: 'Input',
     textResourceBindings: {},

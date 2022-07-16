@@ -37,6 +37,7 @@ const render = (props: Partial<IAddressComponentProps> = {}) => {
 
   const allProps: IAddressComponentProps = {
     id: 'id',
+    type: 'AddressComponent',
     formData: {
       address: 'adresse 1',
     },

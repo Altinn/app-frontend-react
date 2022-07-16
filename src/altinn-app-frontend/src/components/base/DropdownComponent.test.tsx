@@ -17,6 +17,7 @@ const render = (
 ) => {
   const allProps: IDropdownProps = {
     id: 'component-id',
+    type: 'Dropdown',
     optionsId: 'countries',
     formData: {},
     preselectedOptionIndex: 1,

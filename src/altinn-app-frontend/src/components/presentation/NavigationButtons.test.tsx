@@ -93,6 +93,7 @@ describe('NavigationButton', () => {
     render(
       <Provider store={mockStore}>
         <NavigationButtons
+          type={'NavigationButtons'}
           id='nav-button-1'
           showBackButton={false}
           textResourceBindings={null}
@@ -109,6 +110,7 @@ describe('NavigationButton', () => {
     render(
       <Provider store={mockStore}>
         <NavigationButtons
+          type={'NavigationButtons'}
           id='nav-button-1'
           showBackButton={true}
           textResourceBindings={null}
@@ -139,6 +141,7 @@ describe('NavigationButton', () => {
     render(
       <Provider store={store}>
         <NavigationButtons
+          type={'NavigationButtons'}
           id='nav-button-2'
           showBackButton={true}
           textResourceBindings={null}

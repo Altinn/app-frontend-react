@@ -264,8 +264,10 @@ const render = ({
     'attachment-tag-label-2': 'attachment-tag-value-2',
   };
 
-  const allProps = {
+  const allProps: IFileUploadWithTagProps = {
     id: testId,
+    type: 'FileUploadWithTag',
+    displayMode: 'simple',
     isValid: true,
     maxFileSizeInMB: 2,
     maxNumberOfAttachments: 7,

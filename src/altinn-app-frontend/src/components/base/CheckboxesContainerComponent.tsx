@@ -7,12 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import cn from 'classnames';
 
 import type { IComponentProps } from '..';
-import type {
-  IOption,
-  IComponentValidations,
-  IMapping,
-  IOptionSource,
-} from 'src/types';
+import type { IOption, IComponentValidations } from 'src/types';
 
 import { shouldUseRowLayout } from 'src/utils/layout';
 
@@ -21,12 +16,12 @@ import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
 import { getOptionLookupKey } from 'src/utils/options';
 import { AltinnSpinner } from 'altinn-shared/components';
 import { useGetOptions } from '../hooks';
+import type { ILayoutCompCheckboxes } from 'src/features/form/layout';
 
-export interface ICheckboxContainerProps extends IComponentProps {
+export interface ICheckboxContainerProps
+  extends IComponentProps,
+    ILayoutCompCheckboxes {
   validationMessages: IComponentValidations;
-  preselectedOptionIndex?: number;
-  mapping?: IMapping;
-  source?: IOptionSource;
 }
 
 interface IStyledCheckboxProps extends CheckboxProps {

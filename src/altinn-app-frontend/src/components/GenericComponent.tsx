@@ -28,12 +28,16 @@ import { FormLayoutActions } from '../features/form/layout/formLayoutSlice';
 import Description from '../features/form/components/Description';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 
-export interface IGenericComponentProps extends ILayoutCompBase {
+export interface IGenericComponentProps extends Omit<ILayoutCompBase, 'type'> {
   componentValidations?: IComponentValidations;
   labelSettings?: ILabelSettings;
   hidden?: boolean;
   layout?: LayoutStyle;
   groupContainerId?: string;
+}
+
+export interface IActualGenericComponentProps extends IGenericComponentProps {
+  type: ILayoutCompBase['type'];
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -82,7 +86,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function GenericComponent(props: IGenericComponentProps) {
+export function GenericComponent(props: IActualGenericComponentProps) {
   const { id, ...passThroughProps } = props;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);
@@ -213,14 +217,14 @@ export function GenericComponent(props: IGenericComponentProps) {
   }
 
   const RenderComponent = components.find(
-    (componentCandidate) => componentCandidate.name === props.type,
+    (componentCandidate) => componentCandidate.Type === props.type,
   );
   if (!RenderComponent) {
     return (
       <div>
         Unknown component type: {props.type}
         <br />
-        Valid component types: {components.map((c) => c.name).join(', ')}
+        Valid component types: {components.map((c) => c.Type).join(', ')}
       </div>
     );
   }

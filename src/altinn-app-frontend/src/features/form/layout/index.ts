@@ -134,7 +134,10 @@ export interface ILayoutCompInput
   formatting?: IInputFormatting;
 }
 
-export type ILayoutCompNavButtons = ILayoutCompBase<'NavigationButtons'>;
+export interface ILayoutCompNavButtons
+  extends ILayoutCompBase<'NavigationButtons'> {
+  showBackButton?: boolean;
+}
 
 export interface ILayoutCompInstantiationButton
   extends ILayoutCompBase<'InstantiationButton'> {
@@ -170,12 +173,16 @@ export type ILayoutCompTextArea = ILayoutCompBase<'TextArea'> &
 
 export type ILayoutCompNavBar = ILayoutCompBase<'NavigationBar'>;
 
+export type ILayoutCompPrintButton = ILayoutCompBase<'PrintButton'>;
+
 export interface ILayoutCompPanel extends ILayoutCompBase<'Panel'> {
   variant?: 'info' | 'warning' | 'success';
   showIcon?: boolean;
 }
 
-export type ILayoutCompCustom = ILayoutCompBase<'Custom'>;
+export interface ILayoutCompCustom extends ILayoutCompBase<'Custom'> {
+  tagName: string;
+}
 
 /**
  * This interface type defines all the possible components, along with their 'type' key and associated layout
@@ -203,6 +210,7 @@ interface Map {
   TextArea: ILayoutCompTextArea;
   NavigationBar: ILayoutCompNavBar;
   Likert: ILayoutCompLikert;
+  PrintButton: ILayoutCompPrintButton;
   Panel: ILayoutCompPanel;
   Custom: ILayoutCompCustom;
 }

@@ -25,7 +25,6 @@ import { PrintButtonComponent } from './base/PrintButtonComponent';
 import CustomComponent from './custom/CustomWebComponent';
 
 export interface IComponent {
-  name: string;
   Tag: (props: IComponentProps) => JSX.Element;
   Type: ComponentTypes;
   customProperties?: any;
@@ -38,7 +37,7 @@ export enum ComponentTypes {
   Paragraph = 'Paragraph',
   Image = 'Image',
   Input = 'Input',
-  Datepicker = 'Datepicker',
+  Datepicker = 'DatePicker',
   DropDown = 'Dropdown',
   CheckBox = 'Checkboxes',
   RadioButton = 'RadioButtons',
@@ -61,12 +60,10 @@ export enum ComponentTypes {
 
 export const textComponents: IComponent[] = [
   {
-    name: 'Header',
     Tag: HeaderComponent,
     Type: ComponentTypes.Header,
   },
   {
-    name: 'Paragraph',
     Tag: ParagraphComponent,
     Type: ComponentTypes.Paragraph,
   },
@@ -74,12 +71,10 @@ export const textComponents: IComponent[] = [
 
 export const schemaComponents: IComponent[] = [
   {
-    name: 'Image',
     Tag: ImageComponent,
     Type: ComponentTypes.Image,
   },
   {
-    name: 'Input',
     Tag: InputComponent,
     Type: ComponentTypes.Input,
     customProperties: {
@@ -88,7 +83,6 @@ export const schemaComponents: IComponent[] = [
     },
   },
   {
-    name: 'Datepicker',
     Tag: DatepickerComponent,
     Type: ComponentTypes.Datepicker,
     customProperties: {
@@ -98,7 +92,6 @@ export const schemaComponents: IComponent[] = [
     },
   },
   {
-    name: 'Dropdown',
     Tag: DropdownComponent,
     Type: ComponentTypes.DropDown,
     customProperties: {
@@ -106,7 +99,6 @@ export const schemaComponents: IComponent[] = [
     },
   },
   {
-    name: 'Checkboxes',
     Tag: CheckboxContainerComponent,
     Type: ComponentTypes.CheckBox,
     customProperties: {
@@ -116,7 +108,6 @@ export const schemaComponents: IComponent[] = [
     },
   },
   {
-    name: 'RadioButtons',
     Tag: RadioButtonContainerComponent,
     Type: ComponentTypes.RadioButton,
     customProperties: {
@@ -126,7 +117,6 @@ export const schemaComponents: IComponent[] = [
     },
   },
   {
-    name: 'TextArea',
     Tag: TextAreaComponent,
     Type: ComponentTypes.TextArea,
     customProperties: {
@@ -135,52 +125,42 @@ export const schemaComponents: IComponent[] = [
     },
   },
   {
-    name: 'FileUpload',
     Tag: FileUploadComponent,
     Type: ComponentTypes.FileUpload,
   },
   {
-    name: 'FileUploadWithTag',
     Tag: FileUploadWithTagComponent,
     Type: ComponentTypes.FileUploadWithTag,
   },
   {
-    name: 'Button',
     Tag: ButtonComponent,
     Type: ComponentTypes.Button,
   },
   {
-    name: 'NavigationButtons',
     Tag: NavigationButtonsComponent,
     Type: ComponentTypes.NavigationButtons,
   },
   {
-    name: 'InstantiationButton',
     Tag: InstantiationButtonComponent,
     Type: ComponentTypes.InstantiationButton,
   },
   {
-    name: 'AttachmentList',
     Tag: AttachmentListComponent,
     Type: ComponentTypes.AttachmentList,
   },
   {
-    name: 'NavigationBar',
     Tag: NavigationBarComponent,
     Type: ComponentTypes.NavigationBar,
   },
   {
-    name: 'Likert',
     Tag: LikertComponent,
     Type: ComponentTypes.Likert,
   },
   {
-    name: 'Panel',
     Tag: PanelComponent,
     Type: ComponentTypes.Panel,
   },
   {
-    name: 'PrintButton',
     Tag: PrintButtonComponent,
     Type: ComponentTypes.PrintButton,
   },
@@ -188,7 +168,6 @@ export const schemaComponents: IComponent[] = [
 
 export const advancedComponents: IComponent[] = [
   {
-    name: 'AddressComponent',
     Tag: Address,
     Type: ComponentTypes.AddressComponent,
     customProperties: {
@@ -197,7 +176,6 @@ export const advancedComponents: IComponent[] = [
     },
   },
   {
-    name: 'Custom',
     Tag: CustomComponent,
     Type: ComponentTypes.Custom,
   },
@@ -218,10 +196,6 @@ export interface IComponentProps extends IGenericComponentProps {
   text: React.ReactNode;
   label: () => JSX.Element;
   legend: () => JSX.Element;
-}
-
-export interface IAutoSavedComponentProps extends IComponentProps {
-  saveWhileTyping?: number | boolean;
 }
 
 const components: IComponent[] = textComponents.concat(
