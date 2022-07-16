@@ -8,17 +8,13 @@ import type {
   IFileUploadersWithTag,
   IOptionsChosen,
   IMapping,
-  IFormFileUploaderComponent,
 } from 'src/types';
 import type {
   IGroupEditProperties,
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
-  ILayoutCompFileUploadWithTag,
 } from '../features/form/layout';
-import type { IDatePickerProps } from 'src/components/base/DatepickerComponent';
-import type { ICheckboxContainerProps } from 'src/components/base/CheckboxesContainerComponent';
 
 interface SplitKey {
   baseComponentId: string;
@@ -318,7 +314,7 @@ export function createRepeatingGroupComponentsForIndex({
   hiddenFields,
 }: ICreateRepeatingGroupCoomponentsForIndexProps) {
   return renderComponents.map((component: ILayoutComponent | ILayoutGroup) => {
-    if (isGroupComponent(component)) {
+    if (component.type === 'Group') {
       if (component.panel?.groupReference) {
         // Do not treat as a regular group child as this is merely an option to add elements for another group from this group context
         return {
@@ -442,7 +438,7 @@ export function findChildren(
 
   if (root) {
     for (const item of layout) {
-      if (isGroupComponent(item)) {
+      if (item.type === 'Group') {
         if (item.children) {
           for (const childId of item.children) {
             const cleanId = item.edit?.multiPage
@@ -470,7 +466,7 @@ export function findChildren(
   }
 
   for (const item of layout) {
-    if (isGroupComponent(item) || (root && !toConsider.has(item.id))) {
+    if (item.type === 'Group' || (root && !toConsider.has(item.id))) {
       continue;
     }
     if (options && options.matching) {
@@ -481,41 +477,4 @@ export function findChildren(
   }
 
   return out;
-}
-
-/**
- * Type guards for inferring component types
- * @see https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
- */
-
-export function isGroupComponent(
-  component: ILayoutComponent | ILayoutGroup,
-): component is ILayoutGroup {
-  return component.type.toLowerCase() === 'group';
-}
-
-export function isFileUploadComponent(
-  component: ILayoutComponent | ILayoutGroup,
-): component is IFormFileUploaderComponent & ILayoutComponent {
-  return component.type.toLowerCase() === 'fileupload';
-}
-
-export function isFileUploadWithTagComponent(
-  component: ILayoutComponent | ILayoutGroup,
-): component is ILayoutCompFileUploadWithTag {
-  return component.type.toLowerCase() === 'fileuploadwithtag';
-}
-
-export function isDatePickerComponent(
-  component: ILayoutComponent | ILayoutGroup,
-): component is IDatePickerProps & ILayoutComponent {
-  return component.type.toLowerCase() === 'datepicker';
-}
-
-export function isCheckboxesComponent(
-  component: any,
-): component is ICheckboxContainerProps & ILayoutComponent {
-  return (
-    component && component.type && component.type.toLowerCase() === 'checkboxes'
-  );
 }

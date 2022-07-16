@@ -41,10 +41,6 @@ import { matchLayoutComponent, setupGroupComponents } from './layout';
 import {
   createRepeatingGroupComponents,
   getRepeatingGroupStartStopIndex,
-  isFileUploadComponent,
-  isFileUploadWithTagComponent,
-  isDatePickerComponent,
-  isGroupComponent,
   splitDashedKey,
 } from './formLayout';
 import { getDataTaskDataTypeId } from './appMetadata';
@@ -228,7 +224,9 @@ export function* iterateFieldsInLayout(
   hiddenFields?: string[],
   filter?: (component: ILayoutComponent) => boolean,
 ): Generator<IteratedComponent, void> {
-  const allGroups = formLayout.filter(isGroupComponent);
+  const allGroups = formLayout.filter(
+    (c) => c.type === 'Group',
+  ) as ILayoutGroup[];
   const childrenWithoutMultiPagePrefix = (group: ILayoutGroup) =>
     group.edit?.multiPage
       ? group.children.map((componentId) => componentId.replace(/^\d+:/g, ''))
@@ -240,7 +238,7 @@ export function* iterateFieldsInLayout(
   );
   const fieldsToCheck = formLayout.filter(
     (component) =>
-      !isGroupComponent(component) &&
+      component.type !== 'Group' &&
       !hiddenFields?.includes(component.id) &&
       (filter ? filter(component) : true) &&
       !fieldsInGroup.includes(component.id),
@@ -253,7 +251,7 @@ export function* iterateFieldsInLayout(
   for (const group of groupsToCheck) {
     const componentsToCheck = formLayout.filter(
       (component) =>
-        !isGroupComponent(component) &&
+        component.type !== 'Group' &&
         (filter ? filter(component) : true) &&
         childrenWithoutMultiPagePrefix(group).indexOf(component.id) > -1 &&
         !hiddenFields?.includes(component.id),
@@ -351,8 +349,8 @@ export function validateEmptyFieldsForLayout(
   );
   for (const { component, groupDataModelBinding, index } of generator) {
     if (
-      isFileUploadComponent(component) ||
-      isFileUploadWithTagComponent(component)
+      component.type === 'FileUpload' ||
+      component.type === 'FileUploadWithTag'
     ) {
       // These components have their own validation in validateFormComponents(). With data model bindings enabled for
       // attachments, the empty field validations would interfere.
@@ -505,7 +503,7 @@ export function validateFormComponentsForLayout(
     repeatingGroups,
     hiddenFields,
   )) {
-    if (isFileUploadComponent(component)) {
+    if (component.type === 'FileUpload') {
       if (!attachmentsValid(attachments, component)) {
         validations[component.id] = {
           [fieldKey]: {
@@ -523,7 +521,7 @@ export function validateFormComponentsForLayout(
           )}`,
         );
       }
-    } else if (isFileUploadWithTagComponent(component)) {
+    } else if (component.type === 'FileUploadWithTag') {
       validations[component.id] = {
         [fieldKey]: {
           errors: [],
@@ -568,7 +566,7 @@ export function validateFormComponentsForLayout(
     if (hiddenFields.includes(component.id)) {
       continue;
     }
-    if (isDatePickerComponent(component)) {
+    if (component.type === 'DatePicker') {
       let componentValidations: IComponentValidations = {};
       const date = getFormDataForComponent(
         formData,

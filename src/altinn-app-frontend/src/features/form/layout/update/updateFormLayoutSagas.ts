@@ -13,7 +13,6 @@ import {
 } from 'redux-saga/effects';
 import type {
   IFileUploadersWithTag,
-  IFormFileUploaderWithTagComponent,
   IRepeatingGroups,
   IRuntimeState,
   IValidationIssue,
@@ -23,8 +22,6 @@ import { Triggers } from 'src/types';
 import {
   mapFileUploadersWithTag,
   findChildren,
-  isFileUploadComponent,
-  isFileUploadWithTagComponent,
   splitDashedKey,
   getRepeatingGroups,
   removeRepeatingGroupFromUIConfig,
@@ -60,6 +57,7 @@ import type {
   ILayoutGroup,
   ILayouts,
   ILayoutComponentOrGroup,
+  ILayoutCompFileUploadWithTag,
 } from '..';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type { ILayoutState } from '../formLayoutSlice';
@@ -245,7 +243,7 @@ export function* updateRepeatingGroupsSaga({
         const splitLayoutElementId = splitDashedKey(layoutElementId);
         const childFileUploaders = findChildren(layout, {
           matching: (c) =>
-            isFileUploadComponent(c) || isFileUploadWithTagComponent(c),
+            c.type === 'FileUpload' || c.type === 'FileUploadWithTag',
           rootGroupId: splitLayoutElementId.baseComponentId,
         });
         const updatedAttachments = shiftAttachmentRowInRepeatingGroup(
@@ -797,7 +795,7 @@ export function* updateFileUploaderWithTagChosenOptionsSaga({
     const currentView = state.formLayout.uiConfig.currentView;
     const component = state.formLayout.layouts[currentView].find(
       (component: ILayoutComponent) => component.id === baseComponentId,
-    ) as unknown as IFormFileUploaderWithTagComponent;
+    ) as ILayoutCompFileUploadWithTag;
     const componentOptions =
       state.optionState.options[
         getOptionLookupKey(component.optionsId, component.mapping)

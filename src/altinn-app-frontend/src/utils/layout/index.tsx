@@ -11,7 +11,6 @@ import type {
 } from '../../features/form/layout';
 import type { ILayoutSets, ILayoutSet } from 'src/types';
 import { LayoutStyle } from 'src/types';
-import { isGroupComponent } from '../formLayout';
 import { PanelGroupContainer } from 'src/features/form/containers/PanelGroupContainer';
 
 export function getLayoutComponentById(
@@ -134,7 +133,7 @@ export function setupGroupComponents(
   index: number,
 ): (ILayoutGroup | ILayoutComponent)[] {
   return components.map((component: ILayoutComponent | ILayoutGroup) => {
-    if (isGroupComponent(component)) {
+    if (component.type === 'Group') {
       if (component.panel?.groupReference) {
         // Do not treat as a regular group child as this is merely an option to add elements for another group from this group context
         return component;

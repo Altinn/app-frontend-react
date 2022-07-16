@@ -235,11 +235,7 @@ export type ILayoutComponent<
   Type extends ComponentExceptGroup = ComponentExceptGroup,
 > = Extract<AllComponents, { type: Type }>;
 
-export type ILayoutComponentOrGroup<
-  Type extends ComponentTypes = ComponentTypes,
-> = Type extends 'Group'
-  ? ILayoutGroup
-  : Extract<AllComponents, { type: Type }>;
+export type ILayoutComponentOrGroup = ILayoutGroup | ILayoutComponent;
 
 export interface IDataModelBindingsSimple {
   simpleBinding: string;
