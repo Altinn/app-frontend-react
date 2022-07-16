@@ -13,7 +13,7 @@ import {
 const render = (props: Partial<IGenericComponentProps> = {}) => {
   const allProps: IGenericComponentProps = {
     id: 'mockId',
-    type: 'type',
+    type: 'Input',
     textResourceBindings: {},
     dataModelBindings: {},
     ...props,
@@ -68,7 +68,7 @@ const render = (props: Partial<IGenericComponentProps> = {}) => {
 
 describe('GenericComponent', () => {
   it('should render Unknown component when passing unknown type', () => {
-    render({ type: 'unknown-type' });
+    render({ type: 'unknown-type' } as any);
 
     expect(screen.getByText(/unknown component type/i)).toBeInTheDocument();
   });

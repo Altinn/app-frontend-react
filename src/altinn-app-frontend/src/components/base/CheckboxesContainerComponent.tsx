@@ -12,7 +12,6 @@ import type {
   IComponentValidations,
   IMapping,
   IOptionSource,
-  LayoutStyle,
 } from 'src/types';
 
 import { shouldUseRowLayout } from 'src/utils/layout';
@@ -25,12 +24,9 @@ import { useGetOptions } from '../hooks';
 
 export interface ICheckboxContainerProps extends IComponentProps {
   validationMessages: IComponentValidations;
-  options?: IOption[];
-  optionsId?: string;
   preselectedOptionIndex?: number;
   mapping?: IMapping;
   source?: IOptionSource;
-  layout?: LayoutStyle;
 }
 
 interface IStyledCheckboxProps extends CheckboxProps {

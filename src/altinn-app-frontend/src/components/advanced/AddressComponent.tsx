@@ -3,7 +3,7 @@ import * as React from 'react';
 import cn from 'classnames';
 
 import { getLanguageFromKey, get } from 'altinn-shared/utils';
-import type { IComponentValidations, ILabelSettings } from 'src/types';
+import type { IComponentValidations } from 'src/types';
 import { renderValidationMessagesForComponent } from '../../utils/render';
 import type { IAutoSavedComponentProps } from '..';
 import { AddressLabel } from './AddressLabel';
@@ -13,7 +13,6 @@ import '../../styles/shared.css';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 export interface IAddressComponentProps extends IAutoSavedComponentProps {
   simplified: boolean;
-  labelSettings?: ILabelSettings;
 }
 
 interface IAddressValidationErrors {

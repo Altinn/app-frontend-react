@@ -8,12 +8,7 @@ import type { IComponentProps, IFormComponentContext } from '.';
 import type { ILanguage } from 'altinn-shared/types';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 import { LayoutStyle, Triggers } from 'src/types';
-import type {
-  IDataModelBindings,
-  IGrid,
-  IGridStyling,
-  ITextResourceBindings,
-} from '../features/form/layout';
+import type { IGridStyling, ILayoutCompBase } from '../features/form/layout';
 import { getTextResourceByKey } from 'altinn-shared/utils';
 import { FormDataActions } from '../features/form/data/formDataSlice';
 import { ValidationActions } from '../features/form/validation/validationSlice';
@@ -33,21 +28,12 @@ import { FormLayoutActions } from '../features/form/layout/formLayoutSlice';
 import Description from '../features/form/components/Description';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 
-export interface IGenericComponentProps {
-  id: string;
-  type: string;
-  textResourceBindings: ITextResourceBindings;
-  dataModelBindings: IDataModelBindings;
+export interface IGenericComponentProps extends ILayoutCompBase {
   componentValidations?: IComponentValidations;
-  readOnly?: boolean;
-  required?: boolean;
   labelSettings?: ILabelSettings;
-  grid?: IGrid;
-  triggers?: Triggers[];
   hidden?: boolean;
   layout?: LayoutStyle;
   groupContainerId?: string;
-  baseComponentId?: string;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -210,7 +196,7 @@ export function GenericComponent(props: IGenericComponentProps) {
   const getValidationsForInternalHandling = () => {
     if (
       props.type === 'AddressComponent' ||
-      props.type === 'Datepicker' ||
+      props.type === 'DatePicker' ||
       props.type === 'FileUpload' ||
       props.type === 'FileUploadWithTag' ||
       (props.type === 'Likert' && props.layout === LayoutStyle.Table)

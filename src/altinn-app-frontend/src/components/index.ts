@@ -17,9 +17,7 @@ import { NavigationBar as NavigationBarComponent } from './base/NavigationBar';
 import { PanelComponent } from './base/PanelComponent';
 import { InstantiationButtonComponent } from './base/InstantiationButtonComponent';
 import type { IGenericComponentProps } from './GenericComponent';
-import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ILanguage } from 'altinn-shared/types';
-import type { ITextResourceBindings } from 'src/types';
 import type { IGrid } from 'src/features/form/layout';
 import { createContext } from 'react';
 import { LikertComponent } from 'src/components/base/LikertComponent';
@@ -215,14 +213,11 @@ export interface IComponentProps extends IGenericComponentProps {
   handleFocusUpdate: (componentId: string, step?: number) => void;
   getTextResource: (key: string) => React.ReactNode;
   getTextResourceAsString: (key: string) => string;
-  formData: IComponentFormData;
-  isValid: boolean;
   language: ILanguage;
   shouldFocus: boolean;
   text: React.ReactNode;
   label: () => JSX.Element;
   legend: () => JSX.Element;
-  textResourceBindings: ITextResourceBindings;
 }
 
 export interface IAutoSavedComponentProps extends IComponentProps {

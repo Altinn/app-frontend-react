@@ -4,21 +4,23 @@ import type {
   IOption,
   IOptionSource,
   Triggers,
+  LayoutStyle,
 } from '../../../types';
 import type { NumberFormatProps } from 'react-number-format';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
 export interface ILayouts {
   [id: string]: ILayout;
 }
 
-export interface ILayoutEntry<T extends ComponentTypes> {
+export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> {
   id: string;
   baseComponentId?: string;
   type: T;
   triggers?: Triggers[];
 }
 
-export interface ILayoutGroup extends IBaseComp<'Group'> {
+export interface ILayoutGroup extends ILayoutCompBase<'Group'> {
   children: string[];
   maxCount?: number;
   tableHeaders?: string[];
@@ -38,7 +40,8 @@ export interface IGroupReference {
   group: string;
 }
 
-interface IBaseComp<Type extends ComponentTypes> extends ILayoutEntry<Type> {
+export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes>
+  extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings;
   isValid?: boolean;
   readOnly?: boolean;
@@ -47,7 +50,7 @@ interface IBaseComp<Type extends ComponentTypes> extends ILayoutEntry<Type> {
   disabled?: boolean;
   required?: boolean;
   textResourceBindings?: ITextResourceBindings;
-  formData?: any;
+  formData?: IComponentFormData;
   grid?: IGrid;
 }
 interface ILayoutCompWillBeSavedWhileTyping {
@@ -55,16 +58,17 @@ interface ILayoutCompWillBeSavedWhileTyping {
 }
 
 export interface ILayoutCompAddress
-  extends IBaseComp<'AddressComponent'>,
+  extends ILayoutCompBase<'AddressComponent'>,
     ILayoutCompWillBeSavedWhileTyping {
   simplified?: boolean;
 }
 
-export interface ILayoutCompAttachmentList extends IBaseComp<'AttachmentList'> {
+export interface ILayoutCompAttachmentList
+  extends ILayoutCompBase<'AttachmentList'> {
   dataTypeIds?: string[];
 }
 
-export type ILayoutCompButton = IBaseComp<'Button'>;
+export type ILayoutCompButton = ILayoutCompBase<'Button'>;
 
 interface ISelectionComponent {
   options?: IOption[];
@@ -77,27 +81,28 @@ interface ISelectionComponent {
 
 export interface IComponentRadioOrCheckbox<
   T extends Extract<ComponentTypes, 'RadioButtons' | 'Checkboxes' | 'Likert'>,
-> extends IBaseComp<T>,
+> extends ILayoutCompBase<T>,
     ISelectionComponent {
-  layout?: 'column' | 'row' | 'table';
+  layout?: LayoutStyle;
 }
 
 export type ILayoutCompCheckboxes = IComponentRadioOrCheckbox<'Checkboxes'>;
 export type ILayoutCompRadioButtons = IComponentRadioOrCheckbox<'RadioButtons'>;
 export type ILayoutCompLikert = IComponentRadioOrCheckbox<'Likert'>;
 
-export interface ILayoutCompDatePicker extends IBaseComp<'DatePicker'> {
+export interface ILayoutCompDatePicker extends ILayoutCompBase<'DatePicker'> {
   minDate?: string | 'today';
   maxDate?: string | 'today';
   timeStamp?: boolean;
   format?: string;
 }
 
-export type ILayoutCompDropdown = IBaseComp<'Dropdown'> & ISelectionComponent;
+export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> &
+  ISelectionComponent;
 
 export interface ILayoutCompFileUploadBase<
   T extends Extract<ComponentTypes, 'FileUpload' | 'FileUploadWithTag'>,
-> extends IBaseComp<T> {
+> extends ILayoutCompBase<T> {
   maxFileSizeInMB: number;
   maxNumberOfAttachments: number;
   minNumberOfAttachments: number;
@@ -114,7 +119,7 @@ export interface ILayoutCompFileUploadWithTag
   mapping?: IMapping;
 }
 
-export interface ILayoutCompHeader extends IBaseComp<'Header'> {
+export interface ILayoutCompHeader extends ILayoutCompBase<'Header'> {
   size: 'L' | 'M' | 'S' | 'h2' | 'h3' | 'h4';
 }
 
@@ -124,19 +129,19 @@ export interface IInputFormatting {
 }
 
 export interface ILayoutCompInput
-  extends IBaseComp<'Input'>,
+  extends ILayoutCompBase<'Input'>,
     ILayoutCompWillBeSavedWhileTyping {
   formatting?: IInputFormatting;
 }
 
-export type ILayoutCompNavButtons = IBaseComp<'NavigationButtons'>;
+export type ILayoutCompNavButtons = ILayoutCompBase<'NavigationButtons'>;
 
 export interface ILayoutCompInstantiationButton
-  extends IBaseComp<'InstantiationButton'> {
+  extends ILayoutCompBase<'InstantiationButton'> {
   mapping?: IMapping;
 }
 
-export type ILayoutCompParagraph = IBaseComp<'Paragraph'>;
+export type ILayoutCompParagraph = ILayoutCompBase<'Paragraph'>;
 
 export interface IImage {
   src: IImageSrc;
@@ -151,24 +156,26 @@ export interface IImageSrc {
   [language: string]: string;
 }
 
-export interface ILayoutCompImage extends IBaseComp<'Image'> {
+export interface ILayoutCompImage extends ILayoutCompBase<'Image'> {
   image?: IImage;
 }
 
-export interface ILayoutCompSummary extends IBaseComp<'Summary'> {
+export interface ILayoutCompSummary extends ILayoutCompBase<'Summary'> {
   componentRef?: string;
   pageRef?: string;
 }
 
-export type ILayoutCompTextArea = IBaseComp<'TextArea'> &
+export type ILayoutCompTextArea = ILayoutCompBase<'TextArea'> &
   ILayoutCompWillBeSavedWhileTyping;
 
-export type ILayoutCompNavBar = IBaseComp<'NavigationBar'>;
+export type ILayoutCompNavBar = ILayoutCompBase<'NavigationBar'>;
 
-export interface ILayoutCompPanel extends IBaseComp<'Panel'> {
+export interface ILayoutCompPanel extends ILayoutCompBase<'Panel'> {
   variant?: 'info' | 'warning' | 'success';
   showIcon?: boolean;
 }
+
+export type ILayoutCompCustom = ILayoutCompBase<'Custom'>;
 
 /**
  * This interface type defines all the possible components, along with their 'type' key and associated layout
@@ -197,6 +204,7 @@ interface Map {
   NavigationBar: ILayoutCompNavBar;
   Likert: ILayoutCompLikert;
   Panel: ILayoutCompPanel;
+  Custom: ILayoutCompCustom;
 }
 
 type ComponentTypes = keyof Map;
