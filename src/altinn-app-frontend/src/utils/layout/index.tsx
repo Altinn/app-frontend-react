@@ -61,11 +61,11 @@ export function matchLayoutComponent(providedId: string, componentId: string) {
 }
 
 export function renderGenericComponent(
-  component: ILayoutComponent,
+  component: ILayoutComponentOrGroup,
   layout: ILayout,
   index = -1,
 ) {
-  if (component.type.toLowerCase() === 'group') {
+  if (component.type === 'Group') {
     return renderLayoutGroup(
       component as unknown as ILayoutGroup,
       layout,

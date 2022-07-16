@@ -272,8 +272,8 @@ export function findChildAttachments(
     layout,
   );
   const out: FoundAttachment[] = [];
-  const components = layout.filter((c) =>
-    ['fileupload', 'fileuploadwithtag'].includes(c.type.toLowerCase()),
+  const components = layout.filter(
+    (c) => c.type === 'FileUpload' || c.type === 'FileUploadWithTag',
   );
   const formDataKeys = Object.keys(formData).filter((key) =>
     key.startsWith(`${groupDataModelBinding}[${index}]`),

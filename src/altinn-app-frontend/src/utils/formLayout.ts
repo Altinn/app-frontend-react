@@ -70,7 +70,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   const regex = new RegExp(/\[([0-9]+)\]/);
 
   const groups = formLayout.filter(
-    (layoutElement) => layoutElement.type.toLowerCase() === 'group',
+    (layoutElement) => layoutElement.type === 'Group',
   );
 
   const childGroups: string[] = [];
@@ -78,7 +78,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
     group.children?.forEach((childId: string) => {
       formLayout
         .filter((element) => {
-          if (element.type.toLowerCase() !== 'group') return false;
+          if (element.type !== 'Group') return false;
           if (group.edit?.multiPage) {
             return childId.split(':')[1] === element.id;
           }
@@ -164,7 +164,7 @@ export function mapFileUploadersWithTag(
     const component = formLayout.find(
       (layoutElement) => layoutElement.id === baseComponentId,
     );
-    if (!component || component.type.toLowerCase() !== 'fileuploadwithtag') {
+    if (!component || component.type !== 'FileUploadWithTag') {
       continue;
     }
 

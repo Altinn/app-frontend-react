@@ -150,7 +150,7 @@ export function* updateRepeatingGroupsSaga({
     const childGroups: (ILayoutGroup | ILayoutComponent)[] =
       formLayoutState.layouts[formLayoutState.uiConfig.currentView].filter(
         (element) => {
-          if (element.type.toLowerCase() !== 'group') {
+          if (element.type !== 'Group') {
             return false;
           }
 

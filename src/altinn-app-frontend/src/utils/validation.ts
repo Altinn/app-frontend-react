@@ -1582,17 +1582,14 @@ export function validateGroup(
   const currentView = state.formLayout.uiConfig.currentView;
   const currentLayout = state.formLayout.layouts[currentView];
   const groups = currentLayout.filter(
-    (layoutElement) => layoutElement.type.toLowerCase() === 'group',
+    (layoutElement) => layoutElement.type === 'Group',
   );
 
   const childGroups: string[] = [];
   groups.forEach((groupCandidate: ILayoutGroup) => {
     groupCandidate?.children?.forEach((childId: string) => {
       currentLayout
-        .filter(
-          (element) =>
-            element.id === childId && element.type.toLowerCase() === 'group',
-        )
+        .filter((element) => element.id === childId && element.type === 'Group')
         .forEach((childGroup) => childGroups.push(childGroup.id));
     });
   });

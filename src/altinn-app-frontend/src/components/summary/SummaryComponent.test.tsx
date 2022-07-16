@@ -28,7 +28,7 @@ describe('SummaryComponent', () => {
             (t) =>
               ({
                 id: t,
-                type: t,
+                type: t === 'group' ? 'Group' : t,
                 dataModelBindings: {},
                 textResourceBindings: {},
                 children: [],

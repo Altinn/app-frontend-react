@@ -138,7 +138,7 @@ export function SummaryComponent({
   };
 
   React.useEffect(() => {
-    if (formComponent && formComponent.type.toLowerCase() !== 'group') {
+    if (formComponent && formComponent.type !== 'Group') {
       const componentId =
         index >= 0 ? `${componentRef}-${index}` : componentRef;
       const validations = getComponentValidations(

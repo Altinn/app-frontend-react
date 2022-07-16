@@ -123,7 +123,7 @@ export function Form() {
     let renderedInGroup: string[] = [];
     if (layout) {
       const groupComponents = layout.filter(
-        (component) => component.type.toLowerCase() === 'group',
+        (component) => component.type === 'Group',
       );
       groupComponents.forEach((component: ILayoutGroup) => {
         let childList = component.children;
