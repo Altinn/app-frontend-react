@@ -57,9 +57,9 @@ import { startInitialDataTaskQueueFulfilled } from 'src/shared/resources/queue/q
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import type {
   ILayoutComponent,
-  ILayoutEntry,
   ILayoutGroup,
   ILayouts,
+  ILayoutComponentOrGroup,
 } from '..';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type { ILayoutState } from '../formLayoutSlice';
@@ -544,7 +544,7 @@ export function* watchInitialCalculagePageOrderAndMoveToNextPageSaga(): SagaIter
     const appHasCalculateTrigger =
       pageTriggers?.includes(Triggers.CalculatePageOrder) ||
       Object.keys(layouts).some((layout) => {
-        return layouts[layout].some((element: ILayoutEntry) => {
+        return layouts[layout].some((element: ILayoutComponentOrGroup) => {
           if (element.type === 'NavigationButtons') {
             const layoutComponent = element as ILayoutComponent;
             if (

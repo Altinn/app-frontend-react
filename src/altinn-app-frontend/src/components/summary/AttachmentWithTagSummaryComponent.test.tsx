@@ -3,21 +3,20 @@ import { renderWithProviders } from '../../../testUtils';
 import { screen } from '@testing-library/react';
 
 import { AttachmentWithTagSummaryComponent } from './AttachmentWithTagSummaryComponent';
-import type { ISelectionComponentProps } from 'src/features/form/layout';
+import type { ILayoutCompFileUploadWithTag } from 'src/features/form/layout';
 import type { RootState } from 'src/store';
 
 describe('AttachmentWithTagSummaryComponent', () => {
-  const typeName = 'FileUploadWithTag';
   const attachmentName = 'attachment-name-1';
-  const formLayoutItem: ISelectionComponentProps = {
-    id: typeName,
-    type: typeName,
+  const formLayoutItem = {
+    id: 'FileUploadWithTag',
+    type: 'FileUploadWithTag',
     dataModelBindings: {},
     textResourceBindings: {},
     optionsId: 'a',
     mapping: { a: 'b' },
-  };
-  const mockState = (formLayoutItem: ISelectionComponentProps) => ({
+  } as unknown as ILayoutCompFileUploadWithTag;
+  const mockState = (formLayoutItem: ILayoutCompFileUploadWithTag) => ({
     formLayout: {
       layouts: {
         FormLayout: [formLayoutItem],
@@ -30,7 +29,7 @@ describe('AttachmentWithTagSummaryComponent', () => {
   const extendedState = {
     attachments: {
       attachments: {
-        [typeName]: [
+        FileUploadWithTag: [
           {
             name: attachmentName,
             id: 'attachment-id-1',
@@ -132,12 +131,12 @@ describe('AttachmentWithTagSummaryComponent', () => {
   });
 
   const renderHelper = (
-    options: ISelectionComponentProps,
+    options: ILayoutCompFileUploadWithTag,
     extendState?: Partial<RootState>,
   ) => {
     renderWithProviders(
       <AttachmentWithTagSummaryComponent
-        componentRef={typeName}
+        componentRef={'FileUploadWithTag'}
         component={options}
       />,
       {

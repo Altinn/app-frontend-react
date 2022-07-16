@@ -1,9 +1,5 @@
 import * as React from 'react';
-import type {
-  ILayoutComponent,
-  ILayoutGroup,
-  ISelectionComponentProps,
-} from 'src/features/form/layout';
+import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import SummaryGroupComponent from './SummaryGroupComponent';
 import SingleInputSummary from './SingleInputSummary';
 import { AttachmentSummaryComponent } from './AttachmentSummaryComponent';
@@ -74,7 +70,7 @@ export default function SummaryComponentSwitch({
         />
         <AttachmentWithTagSummaryComponent
           componentRef={componentRef}
-          component={formComponent as ISelectionComponentProps}
+          component={formComponent}
         />
       </>
     );

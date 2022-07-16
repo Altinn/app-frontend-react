@@ -16,7 +16,6 @@ export function renderLayoutComponent(
   layout: ILayout,
 ) {
   switch (layoutComponent.type) {
-    case 'group':
     case 'Group': {
       return RenderLayoutGroup(layoutComponent as ILayoutGroup, layout);
     }

@@ -381,10 +381,7 @@ export function getParentGroup(groupId: string, layout: ILayout): ILayoutGroup {
     return null;
   }
   return layout.find((element) => {
-    if (
-      element.id !== groupId &&
-      (element.type === 'Group' || element.type === 'group')
-    ) {
+    if (element.id !== groupId && element.type === 'Group') {
       const parentGroupCandidate = element as ILayoutGroup;
       const childrenWithoutMultiPage = parentGroupCandidate.children?.map(
         (childId) =>
@@ -1706,7 +1703,7 @@ export function removeGroupValidationsByIndex(
     } else {
       childKey = `${element.id}-${index}`;
     }
-    if (element.type !== 'group' && element.type !== 'Group') {
+    if (element.type !== 'Group') {
       // delete component directly
       delete result[currentLayout][childKey];
     } else {
@@ -1746,7 +1743,7 @@ export function removeGroupValidationsByIndex(
             childKey = `${element.id}-${i}`;
             shiftKey = `${element.id}-${i - 1}`;
           }
-          if (element.type !== 'group' && element.type !== 'Group') {
+          if (element.type !== 'Group') {
             delete result[currentLayout][childKey];
             result[currentLayout][shiftKey] =
               validations[currentLayout][childKey];

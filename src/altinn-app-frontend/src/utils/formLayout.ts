@@ -9,13 +9,13 @@ import type {
   IOptionsChosen,
   IMapping,
   IFormFileUploaderComponent,
-  IFormFileUploaderWithTagComponent,
 } from 'src/types';
 import type {
   IGroupEditProperties,
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
+  ILayoutCompFileUploadWithTag,
 } from '../features/form/layout';
 import type { IDatePickerProps } from 'src/components/base/DatepickerComponent';
 import type { ICheckboxContainerProps } from 'src/components/base/CheckboxesContainerComponent';
@@ -502,7 +502,7 @@ export function isFileUploadComponent(
 
 export function isFileUploadWithTagComponent(
   component: ILayoutComponent | ILayoutGroup,
-): component is IFormFileUploaderWithTagComponent & ILayoutComponent {
+): component is ILayoutCompFileUploadWithTag {
   return component.type.toLowerCase() === 'fileuploadwithtag';
 }
 

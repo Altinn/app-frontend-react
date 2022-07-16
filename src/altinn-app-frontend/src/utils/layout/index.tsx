@@ -7,6 +7,7 @@ import type {
   ILayoutComponent,
   ILayoutGroup,
   ILayout,
+  ILayoutComponentOrGroup,
 } from '../../features/form/layout';
 import type { ILayoutSets, ILayoutSet } from 'src/types';
 import { LayoutStyle } from 'src/types';
@@ -16,15 +17,15 @@ import { PanelGroupContainer } from 'src/features/form/containers/PanelGroupCont
 export function getLayoutComponentById(
   id: string,
   layouts: ILayouts,
-): ILayoutComponent {
-  let component: ILayoutComponent;
+): ILayoutComponentOrGroup {
+  let component: ILayoutComponentOrGroup;
   Object.keys(layouts).forEach((layoutId) => {
     if (!component) {
       component = layouts[layoutId].find((element) => {
         // Check against provided id, with potential -{index} postfix.
         const match = matchLayoutComponent(id, element.id);
         return match && match.length > 0;
-      }) as ILayoutComponent;
+      }) as ILayoutComponentOrGroup;
     }
   });
 

@@ -376,7 +376,7 @@ describe('formComponentUtils', () => {
         dataModelBindings: {
           simpleBinding: 'mockBindingAttachmentSingle',
         },
-      } as ISelectionComponentProps;
+      } as ILayoutComponent;
       const result = getDisplayFormData(
         component.dataModelBindings.simpleBinding,
         component,
@@ -397,7 +397,7 @@ describe('formComponentUtils', () => {
         dataModelBindings: {
           list: 'mockBindingAttachmentMulti',
         },
-      } as ISelectionComponentProps;
+      } as ILayoutComponent;
       const result = getDisplayFormData(
         component.dataModelBindings.list,
         component,
