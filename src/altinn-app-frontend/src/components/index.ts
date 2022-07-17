@@ -18,168 +18,82 @@ import { PanelComponent } from './base/PanelComponent';
 import { InstantiationButtonComponent } from './base/InstantiationButtonComponent';
 import type { IGenericComponentProps } from './GenericComponent';
 import type { ILanguage } from 'altinn-shared/types';
-import type { IGrid } from 'src/features/form/layout';
+import type {
+  IGrid,
+  ComponentExceptGroupAndSummary,
+} from 'src/features/form/layout';
 import { createContext } from 'react';
 import { LikertComponent } from 'src/components/base/LikertComponent';
 import { PrintButtonComponent } from './base/PrintButtonComponent';
 import CustomComponent from './custom/CustomWebComponent';
 
-export interface IComponent {
-  Tag: (props: IComponentProps) => JSX.Element;
-  Type: ComponentTypes;
-  customProperties?: any;
+export interface IComponent<Props> {
+  Tag: (props: Props) => JSX.Element;
+  customProperties?: Partial<Props>;
 }
 
-// The order here should be the same as
-// the exported 'components' list (drag and drop)
-export enum ComponentTypes {
-  Header = 'Header',
-  Paragraph = 'Paragraph',
-  Image = 'Image',
-  Input = 'Input',
-  Datepicker = 'DatePicker',
-  DropDown = 'Dropdown',
-  CheckBox = 'Checkboxes',
-  RadioButton = 'RadioButtons',
-  TextArea = 'TextArea',
-  FileUpload = 'FileUpload',
-  FileUploadWithTag = 'FileUploadWithTag',
-  Button = 'Button',
-  Group = 'Group',
-  AddressComponent = 'AddressComponent',
-  NavigationButtons = 'NavigationButtons',
-  InstantiationButton = 'InstantiationButton',
-  AttachmentList = 'AttachmentList',
-  NavigationBar = 'NavigationBar',
-  Likert = 'Likert',
-  Panel = 'Panel',
-  Custom = 'Custom',
-  PrintButton = 'PrintButton',
-  Summary = 'Summary',
+/**
+ * This function only returns the component definition, but by inferring the Props type, it will give you
+ * auto-completion for the customProperties argument.
+ */
+function using<Props>(
+  tag: IComponent<Props>['Tag'],
+  customProperties?: IComponent<Props>['customProperties'],
+): IComponent<Props> {
+  return {
+    Tag: tag,
+    customProperties: customProperties,
+  };
 }
 
-export const textComponents: IComponent[] = [
-  {
-    Tag: HeaderComponent,
-    Type: ComponentTypes.Header,
-  },
-  {
-    Tag: ParagraphComponent,
-    Type: ComponentTypes.Paragraph,
-  },
-];
-
-export const schemaComponents: IComponent[] = [
-  {
-    Tag: ImageComponent,
-    Type: ComponentTypes.Image,
-  },
-  {
-    Tag: InputComponent,
-    Type: ComponentTypes.Input,
-    customProperties: {
-      required: false,
-      readOnly: false,
-    },
-  },
-  {
-    Tag: DatepickerComponent,
-    Type: ComponentTypes.Datepicker,
-    customProperties: {
-      readOnly: false,
-      minDate: '1900-01-01T12:00:00.000Z',
-      maxDate: '2100-01-01T12:00:00.000Z',
-    },
-  },
-  {
-    Tag: DropdownComponent,
-    Type: ComponentTypes.DropDown,
-    customProperties: {
-      options: [],
-    },
-  },
-  {
-    Tag: CheckboxContainerComponent,
-    Type: ComponentTypes.CheckBox,
-    customProperties: {
-      options: [],
-      required: false,
-      readOnly: false,
-    },
-  },
-  {
-    Tag: RadioButtonContainerComponent,
-    Type: ComponentTypes.RadioButton,
-    customProperties: {
-      options: [],
-      required: false,
-      readOnly: false,
-    },
-  },
-  {
-    Tag: TextAreaComponent,
-    Type: ComponentTypes.TextArea,
-    customProperties: {
-      required: false,
-      readOnly: false,
-    },
-  },
-  {
-    Tag: FileUploadComponent,
-    Type: ComponentTypes.FileUpload,
-  },
-  {
-    Tag: FileUploadWithTagComponent,
-    Type: ComponentTypes.FileUploadWithTag,
-  },
-  {
-    Tag: ButtonComponent,
-    Type: ComponentTypes.Button,
-  },
-  {
-    Tag: NavigationButtonsComponent,
-    Type: ComponentTypes.NavigationButtons,
-  },
-  {
-    Tag: InstantiationButtonComponent,
-    Type: ComponentTypes.InstantiationButton,
-  },
-  {
-    Tag: AttachmentListComponent,
-    Type: ComponentTypes.AttachmentList,
-  },
-  {
-    Tag: NavigationBarComponent,
-    Type: ComponentTypes.NavigationBar,
-  },
-  {
-    Tag: LikertComponent,
-    Type: ComponentTypes.Likert,
-  },
-  {
-    Tag: PanelComponent,
-    Type: ComponentTypes.Panel,
-  },
-  {
-    Tag: PrintButtonComponent,
-    Type: ComponentTypes.PrintButton,
-  },
-];
-
-export const advancedComponents: IComponent[] = [
-  {
-    Tag: Address,
-    Type: ComponentTypes.AddressComponent,
-    customProperties: {
-      simplified: true,
-      readOnly: false,
-    },
-  },
-  {
-    Tag: CustomComponent,
-    Type: ComponentTypes.Custom,
-  },
-];
+const components: {
+  [Type in ComponentExceptGroupAndSummary]: IComponent<any>;
+} = {
+  Header: using(HeaderComponent),
+  Paragraph: using(ParagraphComponent),
+  Image: using(ImageComponent),
+  Input: using(InputComponent, {
+    required: false,
+    readOnly: false,
+  }),
+  DatePicker: using(DatepickerComponent, {
+    readOnly: false,
+    minDate: '1900-01-01T12:00:00.000Z',
+    maxDate: '2100-01-01T12:00:00.000Z',
+  }),
+  Dropdown: using(DropdownComponent, {
+    options: [],
+  }),
+  Checkboxes: using(CheckboxContainerComponent, {
+    options: [],
+    required: false,
+    readOnly: false,
+  }),
+  RadioButtons: using(RadioButtonContainerComponent, {
+    options: [],
+    required: false,
+    readOnly: false,
+  }),
+  TextArea: using(TextAreaComponent, {
+    required: false,
+    readOnly: false,
+  }),
+  FileUpload: using(FileUploadComponent),
+  FileUploadWithTag: using(FileUploadWithTagComponent),
+  Button: using(ButtonComponent),
+  NavigationButtons: using(NavigationButtonsComponent),
+  InstantiationButton: using(InstantiationButtonComponent),
+  AttachmentList: using(AttachmentListComponent),
+  NavigationBar: using(NavigationBarComponent),
+  Likert: using(LikertComponent),
+  Panel: using(PanelComponent),
+  PrintButton: using(PrintButtonComponent),
+  AddressComponent: using(Address, {
+    simplified: true,
+    readOnly: false,
+  }),
+  Custom: using(CustomComponent),
+};
 
 export interface IComponentProps extends IGenericComponentProps {
   handleDataChange: (
@@ -197,11 +111,6 @@ export interface IComponentProps extends IGenericComponentProps {
   label: () => JSX.Element;
   legend: () => JSX.Element;
 }
-
-const components: IComponent[] = textComponents.concat(
-  schemaComponents,
-  advancedComponents,
-);
 
 export interface IFormComponentContext {
   grid?: IGrid;

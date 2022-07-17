@@ -8,7 +8,13 @@ import type { IComponentProps, IFormComponentContext } from '.';
 import type { ILanguage } from 'altinn-shared/types';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 import { LayoutStyle, Triggers } from 'src/types';
-import type { IGridStyling, ILayoutCompBase } from '../features/form/layout';
+import type {
+  IGridStyling,
+  ILayoutCompBase,
+  ILayoutComponent,
+  ComponentExceptGroup,
+  ComponentTypes,
+} from '../features/form/layout';
 import { getTextResourceByKey } from 'altinn-shared/utils';
 import { FormDataActions } from '../features/form/data/formDataSlice';
 import { ValidationActions } from '../features/form/validation/validationSlice';
@@ -36,8 +42,9 @@ export interface IGenericComponentProps extends Omit<ILayoutCompBase, 'type'> {
   groupContainerId?: string;
 }
 
-export interface IActualGenericComponentProps extends IGenericComponentProps {
-  type: ILayoutCompBase['type'];
+export interface IActualGenericComponentProps<Type extends ComponentTypes>
+  extends IGenericComponentProps {
+  type: Type;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -86,7 +93,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function GenericComponent(props: IActualGenericComponentProps) {
+export function GenericComponent<Type extends ComponentExceptGroup>(
+  props: IActualGenericComponentProps<Type>,
+) {
   const { id, ...passThroughProps } = props;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);
@@ -216,15 +225,13 @@ export function GenericComponent(props: IActualGenericComponentProps) {
     passThroughProps.componentValidations = internalComponentValidations;
   }
 
-  const RenderComponent = components.find(
-    (componentCandidate) => componentCandidate.Type === props.type,
-  );
+  const RenderComponent = components[props.type as keyof typeof components];
   if (!RenderComponent) {
     return (
       <div>
         Unknown component type: {props.type}
         <br />
-        Valid component types: {components.map((c) => c.Type).join(', ')}
+        Valid component types: {Object.keys(components).join(', ')}
       </div>
     );
   }
@@ -277,7 +284,7 @@ export function GenericComponent(props: IActualGenericComponentProps) {
     return getTextResourceByKey(key, textResources);
   };
 
-  const componentProps: IComponentProps = {
+  const componentProps = {
     handleDataChange,
     handleFocusUpdate,
     getTextResource: getTextResourceWrapper,
@@ -291,7 +298,7 @@ export function GenericComponent(props: IActualGenericComponentProps) {
     label: RenderLabel,
     legend: RenderLegend,
     ...passThroughProps,
-  };
+  } as IComponentProps & ILayoutComponent<Type>;
 
   const noLabelComponents = [
     'Header',

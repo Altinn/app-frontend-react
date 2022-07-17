@@ -215,10 +215,14 @@ interface Map {
   Custom: ILayoutCompCustom;
 }
 
-type ComponentTypes = keyof Map;
+export type ComponentTypes = keyof Map;
 type AllComponents = Map[ComponentTypes];
 
 export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
+export type ComponentExceptGroupAndSummary = Exclude<
+  ComponentExceptGroup,
+  'Summary'
+>;
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify
@@ -228,8 +232,7 @@ export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
  *
  * Or a component of a specific known type (gives you more valid options):
  *
- *  const myImageComponent:ILayoutComponent<ComponentTypes.Image> = ...
- *
+ *  const myImageComponent:ILayoutComponent<'Image'> = ...
  */
 export type ILayoutComponent<
   Type extends ComponentExceptGroup = ComponentExceptGroup,

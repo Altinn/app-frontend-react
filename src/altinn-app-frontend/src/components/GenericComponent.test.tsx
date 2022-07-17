@@ -10,10 +10,10 @@ import {
   getFormLayoutStateMock,
 } from '../../__mocks__/mocks';
 
-const render = (props: Partial<IActualGenericComponentProps> = {}) => {
-  const allProps: IActualGenericComponentProps = {
+const render = (props: Partial<IActualGenericComponentProps<any>> = {}) => {
+  const allProps: IActualGenericComponentProps<'Input'> = {
     id: 'mockId',
-    type: 'Input',
+    type: 'Input' as any,
     textResourceBindings: {},
     dataModelBindings: {},
     ...props,
