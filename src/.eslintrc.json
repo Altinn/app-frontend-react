@@ -13,17 +13,17 @@
     "plugin:jsx-a11y/recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:sonarjs/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
     },
-    "sourceType": "module",
-    "project": "tsconfig.json"
+    "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "import"],
+  "plugins": ["@typescript-eslint", "import", "sonarjs"],
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
     "import/parsers": {
@@ -56,6 +56,28 @@
     ],
     "@typescript-eslint/consistent-type-imports": ["warn"],
     "react-hooks/exhaustive-deps": ["error"],
+    "prefer-template": ["warn"],
+    "sonarjs/no-duplicate-string": ["off"],
+    "sonarjs/cognitive-complexity": ["warn", 15],
+    "sonarjs/no-collapsible-if": ["warn"],
+    "sonarjs/prefer-single-boolean-return": ["warn"],
+    "sonarjs/no-identical-functions": ["warn"],
+    "sonarjs/no-small-switch": ["warn"],
+    "sonarjs/no-nested-template-literals": ["warn"],
     "react/prop-types": ["off"]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parserOptions": {
+        "project": "tsconfig.json"
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "rules": {
+        "@typescript-eslint/no-var-requires": ["off"]
+      }
+    }
+  ]
 }
