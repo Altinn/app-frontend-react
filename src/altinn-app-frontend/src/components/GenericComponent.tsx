@@ -324,7 +324,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     ) && hasValidationMessages;
 
   if (props.type === 'Likert' && props.layout === LayoutStyle.Table) {
-    return <RenderComponent.Tag {...componentProps} />;
+    return <RenderComponent {...componentProps} />;
   }
 
   return (
@@ -374,7 +374,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
           lg={props.grid?.innerGrid?.lg || false}
           xl={props.grid?.innerGrid?.xl || false}
         >
-          <RenderComponent.Tag {...componentProps} />
+          <RenderComponent {...componentProps} />
           {showValidationMessages &&
             renderValidationMessagesForComponent(
               componentValidations?.simpleBinding,

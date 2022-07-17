@@ -27,72 +27,30 @@ import { LikertComponent } from 'src/components/base/LikertComponent';
 import { PrintButtonComponent } from './base/PrintButtonComponent';
 import CustomComponent from './custom/CustomWebComponent';
 
-export interface IComponent<Props> {
-  Tag: (props: Props) => JSX.Element;
-  customProperties?: Partial<Props>;
-}
-
-/**
- * This function only returns the component definition, but by inferring the Props type, it will give you
- * auto-completion for the customProperties argument.
- */
-function using<Props>(
-  tag: IComponent<Props>['Tag'],
-  customProperties?: IComponent<Props>['customProperties'],
-): IComponent<Props> {
-  return {
-    Tag: tag,
-    customProperties: customProperties,
-  };
-}
-
 const components: {
-  [Type in ComponentExceptGroupAndSummary]: IComponent<any>;
+  [Type in ComponentExceptGroupAndSummary]: (props: any) => JSX.Element;
 } = {
-  Header: using(HeaderComponent),
-  Paragraph: using(ParagraphComponent),
-  Image: using(ImageComponent),
-  Input: using(InputComponent, {
-    required: false,
-    readOnly: false,
-  }),
-  DatePicker: using(DatepickerComponent, {
-    readOnly: false,
-    minDate: '1900-01-01T12:00:00.000Z',
-    maxDate: '2100-01-01T12:00:00.000Z',
-  }),
-  Dropdown: using(DropdownComponent, {
-    options: [],
-  }),
-  Checkboxes: using(CheckboxContainerComponent, {
-    options: [],
-    required: false,
-    readOnly: false,
-  }),
-  RadioButtons: using(RadioButtonContainerComponent, {
-    options: [],
-    required: false,
-    readOnly: false,
-  }),
-  TextArea: using(TextAreaComponent, {
-    required: false,
-    readOnly: false,
-  }),
-  FileUpload: using(FileUploadComponent),
-  FileUploadWithTag: using(FileUploadWithTagComponent),
-  Button: using(ButtonComponent),
-  NavigationButtons: using(NavigationButtonsComponent),
-  InstantiationButton: using(InstantiationButtonComponent),
-  AttachmentList: using(AttachmentListComponent),
-  NavigationBar: using(NavigationBarComponent),
-  Likert: using(LikertComponent),
-  Panel: using(PanelComponent),
-  PrintButton: using(PrintButtonComponent),
-  AddressComponent: using(Address, {
-    simplified: true,
-    readOnly: false,
-  }),
-  Custom: using(CustomComponent),
+  Header: HeaderComponent,
+  Paragraph: ParagraphComponent,
+  Image: ImageComponent,
+  Input: InputComponent,
+  DatePicker: DatepickerComponent,
+  Dropdown: DropdownComponent,
+  Checkboxes: CheckboxContainerComponent,
+  RadioButtons: RadioButtonContainerComponent,
+  TextArea: TextAreaComponent,
+  FileUpload: FileUploadComponent,
+  FileUploadWithTag: FileUploadWithTagComponent,
+  Button: ButtonComponent,
+  NavigationButtons: NavigationButtonsComponent,
+  InstantiationButton: InstantiationButtonComponent,
+  AttachmentList: AttachmentListComponent,
+  NavigationBar: NavigationBarComponent,
+  Likert: LikertComponent,
+  Panel: PanelComponent,
+  PrintButton: PrintButtonComponent,
+  AddressComponent: Address,
+  Custom: CustomComponent,
 };
 
 export interface IComponentProps extends IGenericComponentProps {
