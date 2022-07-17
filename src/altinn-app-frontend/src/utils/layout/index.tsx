@@ -24,7 +24,7 @@ export function getLayoutComponentById(
         // Check against provided id, with potential -{index} postfix.
         const match = matchLayoutComponent(id, element.id);
         return match && match.length > 0;
-      }) as ILayoutComponentOrGroup;
+      });
     }
   });
 

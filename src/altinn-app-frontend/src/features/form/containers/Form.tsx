@@ -17,13 +17,13 @@ export function renderLayoutComponent(
 ) {
   switch (layoutComponent.type) {
     case 'Group': {
-      return RenderLayoutGroup(layoutComponent as ILayoutGroup, layout);
+      return RenderLayoutGroup(layoutComponent, layout);
     }
     case 'Summary': {
       return (
         <SummaryComponent
           key={layoutComponent.id}
-          {...(layoutComponent as ILayoutComponent)}
+          {...layoutComponent}
         />
       );
     }
@@ -31,7 +31,7 @@ export function renderLayoutComponent(
       return (
         <RenderGenericComponent
           key={layoutComponent.id}
-          {...(layoutComponent as ILayoutComponent)}
+          {...layoutComponent}
         />
       );
     }

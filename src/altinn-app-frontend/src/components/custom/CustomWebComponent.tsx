@@ -17,7 +17,7 @@ function CustomWebComponent({
   handleDataChange,
   ...passThroughProps
 }: ICustomComponentProps) {
-  const Tag = tagName as any;
+  const Tag = tagName;
   const wcRef = React.useRef(null);
   const textResources = useAppSelector(
     (state) => state.textResources.resources,

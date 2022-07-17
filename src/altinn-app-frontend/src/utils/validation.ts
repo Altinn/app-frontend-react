@@ -380,12 +380,8 @@ export function getParentGroup(groupId: string, layout: ILayout): ILayoutGroup {
   }
   return layout.find((element) => {
     if (element.id !== groupId && element.type === 'Group') {
-      const parentGroupCandidate = element as ILayoutGroup;
-      const childrenWithoutMultiPage = parentGroupCandidate.children?.map(
-        (childId) =>
-          parentGroupCandidate.edit?.multiPage
-            ? childId.split(':')[1]
-            : childId,
+      const childrenWithoutMultiPage = element.children?.map((childId) =>
+        element.edit?.multiPage ? childId.split(':')[1] : childId,
       );
       if (childrenWithoutMultiPage?.indexOf(groupId) > -1) {
         return true;
@@ -1376,29 +1372,28 @@ export function repeatingGroupHasValidations(
         if (element.type !== 'Group') {
           return componentHasValidations(validations, currentView, element.id);
         }
-        const childGroup = element as ILayoutGroup;
 
-        if (!childGroup.dataModelBindings?.group) {
+        if (!element.dataModelBindings?.group) {
           return false;
         }
-        const childGroupIndex = repeatingGroups[childGroup.id]?.index;
+        const childGroupIndex = repeatingGroups[element.id]?.index;
         const childGroupComponents = layout.filter(
-          (childElement) => childGroup.children?.indexOf(childElement.id) > -1,
+          (childElement) => element.children?.indexOf(childElement.id) > -1,
         );
         const renderComponents = setupGroupComponents(
           childGroupComponents,
-          childGroup.dataModelBindings?.group,
+          element.dataModelBindings?.group,
           index,
         );
         const deepCopyComponents = createRepeatingGroupComponents(
-          childGroup,
+          element,
           renderComponents,
           childGroupIndex,
           [],
           hiddenFields,
         );
         return repeatingGroupHasValidations(
-          childGroup,
+          element,
           deepCopyComponents,
           validations,
           currentView,
@@ -1737,7 +1732,7 @@ export function removeGroupValidationsByIndex(
               validations[currentLayout][childKey];
           } else {
             result = shiftChildGroupValidation(
-              element as ILayoutGroup,
+              element,
               i,
               result,
               repeatingGroups,
