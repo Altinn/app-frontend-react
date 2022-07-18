@@ -7,10 +7,11 @@ import type { ILayoutCompFileUploadWithTag } from 'src/features/form/layout';
 import type { RootState } from 'src/store';
 
 describe('AttachmentWithTagSummaryComponent', () => {
+  const typeName = 'FileUploadWithTag';
   const attachmentName = 'attachment-name-1';
   const formLayoutItem = {
-    id: 'FileUploadWithTag',
-    type: 'FileUploadWithTag',
+    id: typeName,
+    type: typeName,
     dataModelBindings: {},
     textResourceBindings: {},
     optionsId: 'a',
@@ -29,7 +30,7 @@ describe('AttachmentWithTagSummaryComponent', () => {
   const extendedState = {
     attachments: {
       attachments: {
-        FileUploadWithTag: [
+        [typeName]: [
           {
             name: attachmentName,
             id: 'attachment-id-1',
@@ -136,7 +137,7 @@ describe('AttachmentWithTagSummaryComponent', () => {
   ) => {
     renderWithProviders(
       <AttachmentWithTagSummaryComponent
-        componentRef={'FileUploadWithTag'}
+        componentRef={typeName}
         component={options}
       />,
       {
