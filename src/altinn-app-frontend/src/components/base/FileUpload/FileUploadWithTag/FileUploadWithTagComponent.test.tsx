@@ -266,7 +266,6 @@ const render = ({
 
   const allProps: IFileUploadWithTagProps = {
     id: testId,
-    type: 'FileUploadWithTag',
     displayMode: 'simple',
     isValid: true,
     maxFileSizeInMB: 2,

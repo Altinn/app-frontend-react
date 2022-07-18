@@ -6,7 +6,7 @@ import { useAppSelector } from 'src/common/hooks';
 import type { IComponentProps } from '..';
 import type { ILayoutCompImage } from 'src/features/form/layout';
 
-export type IImageProps = IComponentProps & ILayoutCompImage;
+export type IImageProps = IComponentProps & Omit<ILayoutCompImage, 'type'>;
 
 const useStyles = makeStyles({
   spacing: {

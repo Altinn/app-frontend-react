@@ -4,7 +4,8 @@ import { HelpTextContainer } from 'src/features/form/components/HelpTextContaine
 import type { IComponentProps } from '..';
 import type { ILayoutCompParagraph } from 'src/features/form/layout';
 
-export type IParagraphProps = IComponentProps & ILayoutCompParagraph;
+export type IParagraphProps = IComponentProps &
+  Omit<ILayoutCompParagraph, 'type'>;
 
 const useStyles = makeStyles({
   spacing: {

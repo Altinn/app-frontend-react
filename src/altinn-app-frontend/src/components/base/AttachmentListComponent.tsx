@@ -6,7 +6,8 @@ import { useAppSelector } from 'src/common/hooks';
 import type { IComponentProps } from '..';
 import type { ILayoutCompAttachmentList } from 'src/features/form/layout';
 
-export type IAttachmentListProps = IComponentProps & ILayoutCompAttachmentList;
+export type IAttachmentListProps = IComponentProps &
+  Omit<ILayoutCompAttachmentList, 'type'>;
 
 export function AttachmentListComponent(props: IAttachmentListProps) {
   const currentTaskId = useAppSelector(

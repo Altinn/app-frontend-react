@@ -19,7 +19,7 @@ export interface IInputBaseProps {
   inputRef?: ((el: HTMLInputElement) => void) | React.Ref<any>;
 }
 
-export type IInputProps = IComponentProps & ILayoutCompInput;
+export type IInputProps = IComponentProps & Omit<ILayoutCompInput, 'type'>;
 
 export interface IBasicInputProps extends IInputBaseProps {
   onDataChangeSubmit: () => void;

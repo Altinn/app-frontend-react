@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export type INavigationBar = IComponentProps & ILayoutCompNavBar;
+export type INavigationBar = IComponentProps & Omit<ILayoutCompNavBar, 'type'>;
 
 interface INavigationButton {
   onClick: () => void;

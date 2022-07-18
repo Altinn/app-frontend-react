@@ -6,7 +6,8 @@ import { AltinnSpinner, Select } from 'altinn-shared/components';
 import { useGetOptions } from '../hooks';
 import type { ILayoutCompDropdown } from 'src/features/form/layout';
 
-export type IDropdownProps = IComponentProps & ILayoutCompDropdown;
+export type IDropdownProps = IComponentProps &
+  Omit<ILayoutCompDropdown, 'type'>;
 
 function DropdownComponent({
   optionsId,

@@ -31,7 +31,7 @@ const altinnLoaderStyle = {
 };
 
 export type IInstantiationButtonProps = IComponentProps &
-  ILayoutCompInstantiationButton;
+  Omit<ILayoutCompInstantiationButton, 'type'>;
 
 export function InstantiationButtonComponent(props: IInstantiationButtonProps) {
   const dispatch = useAppDispatch();

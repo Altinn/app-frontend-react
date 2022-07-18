@@ -5,7 +5,8 @@ import type { ITextResource, ITextResourceBindings } from 'src/types';
 import type { IComponentProps } from '..';
 import type { ILayoutCompCustom } from 'src/features/form/layout';
 
-export type ICustomComponentProps = IComponentProps & ILayoutCompCustom;
+export type ICustomComponentProps = IComponentProps &
+  Omit<ILayoutCompCustom, 'type'>;
 
 function CustomWebComponent({
   tagName,

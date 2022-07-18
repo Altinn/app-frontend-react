@@ -13,7 +13,8 @@ import '../../styles/shared.css';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import type { ILayoutCompAddress } from 'src/features/form/layout';
 
-export type IAddressComponentProps = IComponentProps & ILayoutCompAddress;
+export type IAddressComponentProps = IComponentProps &
+  Omit<ILayoutCompAddress, 'type'>;
 
 interface IAddressValidationErrors {
   address?: string;

@@ -149,7 +149,6 @@ const render = ({
 
   const allProps: IFileUploadProps = {
     id: testId,
-    type: 'FileUpload',
     displayMode: 'simple',
     maxFileSizeInMB: 2,
     maxNumberOfAttachments: 4,

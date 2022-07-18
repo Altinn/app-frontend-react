@@ -17,7 +17,8 @@ import { DropzoneComponent } from './shared/DropzoneComponent';
 import type { IComponentProps } from 'src/components';
 import type { ILayoutCompFileUpload } from 'src/features/form/layout';
 
-export type IFileUploadProps = IComponentProps & ILayoutCompFileUpload;
+export type IFileUploadProps = IComponentProps &
+  Omit<ILayoutCompFileUpload, 'type'>;
 
 export const bytesInOneMB = 1048576;
 export const emptyArray = [];

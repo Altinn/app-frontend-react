@@ -12,7 +12,6 @@ import { HeaderComponent } from './HeaderComponent';
 const render = (props = {}) => {
   const allProps = {
     id: 'id',
-    type: 'Header',
     text: 'text',
     getTextResource: (key: string) => key,
     language: {},

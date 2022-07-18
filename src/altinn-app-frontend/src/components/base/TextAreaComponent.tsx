@@ -5,7 +5,8 @@ import '../../styles/shared.css';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import type { ILayoutCompTextArea } from 'src/features/form/layout';
 
-export type ITextAreaProps = IComponentProps & ILayoutCompTextArea;
+export type ITextAreaProps = IComponentProps &
+  Omit<ILayoutCompTextArea, 'type'>;
 
 export function TextAreaComponent({
   id,

@@ -24,7 +24,7 @@ import { getOptionLookupKey } from 'src/utils/options';
 import type { ILayoutCompFileUploadWithTag } from 'src/features/form/layout';
 
 export type IFileUploadWithTagProps = IComponentProps &
-  ILayoutCompFileUploadWithTag;
+  Omit<ILayoutCompFileUploadWithTag, 'type'>;
 
 export const bytesInOneMB = 1048576;
 export const emptyArray = [];

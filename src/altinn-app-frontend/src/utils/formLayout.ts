@@ -1,5 +1,4 @@
 import type { ITextResource } from 'altinn-shared/types';
-import type { IInstantiationButtonProps } from 'src/components/base/InstantiationButtonComponent';
 import type { IAttachmentState } from 'src/shared/resources/attachments';
 import type {
   IRepeatingGroups,
@@ -314,14 +313,12 @@ export function createRepeatingGroupComponentsForIndex({
   hiddenFields,
 }: ICreateRepeatingGroupCoomponentsForIndexProps) {
   return renderComponents.map((component: ILayoutComponent | ILayoutGroup) => {
-    if (component.type === 'Group') {
-      if (component.panel?.groupReference) {
-        // Do not treat as a regular group child as this is merely an option to add elements for another group from this group context
-        return {
-          ...component,
-          baseComponentId: component.id, // used to indicate that it is a child group
-        };
-      }
+    if (component.type === 'Group' && component.panel?.groupReference) {
+      // Do not treat as a regular group child as this is merely an option to add elements for another group from this group context
+      return {
+        ...component,
+        baseComponentId: component.id, // used to indicate that it is a child group
+      };
     }
 
     const componentDeepCopy: ILayoutComponent | ILayoutGroup = JSON.parse(
@@ -347,7 +344,7 @@ export function createRepeatingGroupComponentsForIndex({
     let mapping;
     if (componentDeepCopy.type === 'InstantiationButton') {
       mapping = setMappingForRepeatingGroupComponent(
-        (componentDeepCopy as IInstantiationButtonProps).mapping,
+        componentDeepCopy.mapping,
         index,
       );
     }
@@ -357,7 +354,7 @@ export function createRepeatingGroupComponentsForIndex({
       dataModelBindings,
       id: deepCopyId,
       baseComponentId:
-        (componentDeepCopy as any).baseComponentId || componentDeepCopy.id,
+        componentDeepCopy.baseComponentId || componentDeepCopy.id,
       hidden,
       mapping,
     };
@@ -438,20 +435,18 @@ export function findChildren(
 
   if (root) {
     for (const item of layout) {
-      if (item.type === 'Group') {
-        if (item.children) {
-          for (const childId of item.children) {
-            const cleanId = item.edit?.multiPage
-              ? childId.match(/^\d+:(.*)$/)[1]
-              : childId;
-            if (item.id === root) {
-              toConsider.add(cleanId);
-            } else {
-              if (typeof otherGroupComponents[item.id] === 'undefined') {
-                otherGroupComponents[item.id] = new Set();
-              }
-              otherGroupComponents[item.id].add(cleanId);
+      if (item.type === 'Group' && item.children) {
+        for (const childId of item.children) {
+          const cleanId = item.edit?.multiPage
+            ? childId.match(/^\d+:(.*)$/)[1]
+            : childId;
+          if (item.id === root) {
+            toConsider.add(cleanId);
+          } else {
+            if (typeof otherGroupComponents[item.id] === 'undefined') {
+              otherGroupComponents[item.id] = new Set();
             }
+            otherGroupComponents[item.id].add(cleanId);
           }
         }
       }

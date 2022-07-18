@@ -4,7 +4,7 @@ import { HelpTextContainer } from 'src/features/form/components/HelpTextContaine
 import type { IComponentProps } from '..';
 import type { ILayoutCompHeader } from 'src/features/form/layout';
 
-export type IHeaderProps = IComponentProps & ILayoutCompHeader;
+export type IHeaderProps = IComponentProps & Omit<ILayoutCompHeader, 'type'>;
 
 const marginStyling = {
   marginTop: '0',

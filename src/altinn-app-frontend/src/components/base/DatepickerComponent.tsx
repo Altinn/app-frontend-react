@@ -29,7 +29,8 @@ import './DatepickerComponent.css';
 import '../../styles/shared.css';
 import type { ILayoutCompDatePicker } from 'src/features/form/layout';
 
-export type IDatePickerProps = IComponentProps & ILayoutCompDatePicker;
+export type IDatePickerProps = IComponentProps &
+  Omit<ILayoutCompDatePicker, 'type'>;
 
 const iconSize = '30px';
 

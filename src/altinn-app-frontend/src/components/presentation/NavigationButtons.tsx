@@ -16,7 +16,8 @@ const useStyles = makeStyles({
   },
 });
 
-export type INavigationButtons = IComponentProps & ILayoutCompNavButtons;
+export type INavigationButtons = IComponentProps &
+  Omit<ILayoutCompNavButtons, 'type'>;
 
 export function NavigationButtons(props: INavigationButtons) {
   const classes = useStyles();
