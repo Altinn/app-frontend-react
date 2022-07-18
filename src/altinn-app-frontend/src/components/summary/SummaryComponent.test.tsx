@@ -19,7 +19,6 @@ describe('SummaryComponent', () => {
         [pageId]: [
           ...[
             defaultId,
-            'group',
             'Group',
             'FileUpload',
             'FileUploadWithTag',
@@ -28,7 +27,7 @@ describe('SummaryComponent', () => {
             (t) =>
               ({
                 id: t,
-                type: t === 'group' ? 'Group' : t,
+                type: t,
                 dataModelBindings: {},
                 textResourceBindings: {},
                 children: [],
@@ -38,11 +37,7 @@ describe('SummaryComponent', () => {
         ],
       },
     });
-  test('should render group', () => {
-    renderHelper({ componentRef: 'group' });
-    expect(screen.getByTestId('summary-group-component')).toBeInTheDocument();
-  });
-  test('should render Group (spelled differently)', () => {
+  test('should render Group', () => {
     renderHelper({ componentRef: 'Group' });
     expect(screen.getByTestId('summary-group-component')).toBeInTheDocument();
   });
