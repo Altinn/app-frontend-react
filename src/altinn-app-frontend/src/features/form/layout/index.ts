@@ -5,19 +5,29 @@ import type {
   IOptionSource,
   Triggers,
   LayoutStyle,
+  ILabelSettings,
 } from '../../../types';
 import type { NumberFormatProps } from 'react-number-format';
-import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
 export interface ILayouts {
   [id: string]: ILayout;
 }
 
-export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> {
-  id: string;
+/**
+ * These keys are not defined anywhere in the actual form layout files, but have been snuck in here for convenience at
+ * some point. They should instead be moved to IComponentProps or somewhere else, as they are computed values set in
+ * app-frontend at some point, and not something the server-side sends us. Leaving them here as typings break without
+ * them, but exposing them in a separate interface in order to make it clear these are on shaky ground.
+ */
+interface NotInLayout {
   baseComponentId?: string;
+  disabled?: boolean;
+}
+
+export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes>
+  extends NotInLayout {
+  id: string;
   type: T;
-  triggers?: Triggers[];
 }
 
 export interface ILayoutGroup extends ILayoutCompBase<'Group'> {
@@ -43,16 +53,14 @@ export interface IGroupReference {
 export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes>
   extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings;
-  isValid?: boolean;
   readOnly?: boolean;
-  optionsId?: string;
-  options?: IOption[];
-  disabled?: boolean;
   required?: boolean;
   textResourceBindings?: ITextResourceBindings;
-  formData?: IComponentFormData;
   grid?: IGrid;
+  triggers?: Triggers[];
+  labelSettings?: ILabelSettings;
 }
+
 interface ILayoutCompWillBeSavedWhileTyping {
   saveWhileTyping?: boolean | number;
 }
@@ -153,7 +161,7 @@ export interface IImage {
 }
 
 export interface IImageSrc {
-  nb: string;
+  nb?: string;
   nn?: string;
   en?: string;
   [language: string]: string;

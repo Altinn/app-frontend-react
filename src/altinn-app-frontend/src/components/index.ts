@@ -26,6 +26,7 @@ import { createContext } from 'react';
 import { LikertComponent } from 'src/components/base/LikertComponent';
 import { PrintButtonComponent } from './base/PrintButtonComponent';
 import CustomComponent from './custom/CustomWebComponent';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
 const components: {
   [Type in ComponentExceptGroupAndSummary]: (props: any) => JSX.Element;
@@ -68,6 +69,8 @@ export interface IComponentProps extends IGenericComponentProps {
   text: React.ReactNode;
   label: () => JSX.Element;
   legend: () => JSX.Element;
+  formData?: IComponentFormData;
+  isValid?: boolean;
 }
 
 export interface IFormComponentContext {
