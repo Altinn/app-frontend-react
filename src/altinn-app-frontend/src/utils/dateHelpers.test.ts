@@ -2,7 +2,7 @@ import moment from 'moment';
 import { getFlagBasedDate, getISOString } from './dateHelpers';
 import type { DateFlags } from 'src/types';
 
-describe('/utils/dateFlagParser.ts', () => {
+describe('dateHelpers', () => {
   describe('getFlagBasedDate(...)', () => {
     test.each(['', undefined, null, 'abcdef'])(
       'should return undefined if flag is %p',
@@ -20,13 +20,25 @@ describe('/utils/dateFlagParser.ts', () => {
     );
   });
 
-  describe('getISOString(...)', () => {
-    test.each(['', undefined, null, 'abcdef'])(
+  describe('getISOString', () => {
+    test.each(['', undefined, null])(
       'should return undefined if input date is %p',
       (date) => {
         expect(getISOString(date)).toBeUndefined();
       },
     );
+
+    it('should return undefined if input date is "abcdef"', () => {
+      jest.spyOn(console, 'warn').mockImplementation();
+
+      expect(getISOString('abcdef')).toBeUndefined();
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /Deprecation warning: value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date/,
+        ),
+      );
+    });
 
     it('should return ISO string if input date is valid ISO string', () => {
       const validISOString = '2020-12-13T12:00:00Z';

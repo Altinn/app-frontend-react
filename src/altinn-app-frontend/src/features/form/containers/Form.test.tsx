@@ -2,20 +2,13 @@ import * as React from 'react';
 import { Form } from './Form';
 import type { PreloadedState } from '@reduxjs/toolkit';
 import type { RootState } from 'src/store';
-import { renderWithProviders, mockMediaQuery } from 'src/../testUtils';
+import { renderWithProviders } from 'src/../testUtils';
 import type { ILayout, ILayoutComponent, ILayoutEntry } from '../layout';
 import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 import { screen, within } from '@testing-library/react';
 import { MemoryRouter, Route } from 'react-router-dom';
 
-const { setScreenWidth } = mockMediaQuery(992);
-
-describe('Form.tsx', () => {
-  beforeAll(() => {
-    // Set screen size to desktop
-    setScreenWidth(1200);
-  });
-
+describe('Form', () => {
   const mockComponents: ILayout = [
     {
       id: 'field1',

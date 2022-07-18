@@ -12,7 +12,7 @@ import { renderWithProviders } from '../../../../testUtils';
 import type { IAttachments } from 'src/shared/resources/attachments';
 import { getFormLayoutGroupMock } from '__mocks__/mocks';
 
-describe('features > form > containers > RepeatingGroupTable.tsx', () => {
+describe('RepeatingGroupTable', () => {
   let mockContainer: ILayoutGroup;
   let mockLanguage: any;
   let mockTextResources: ITextResource[];

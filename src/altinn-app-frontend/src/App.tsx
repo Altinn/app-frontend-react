@@ -6,10 +6,7 @@ import { getInstanceIdRegExp } from 'altinn-shared/utils';
 import ProcessWrapper from './shared/containers/ProcessWrapper';
 import UnknownError from './features/instantiate/containers/UnknownError';
 import PartySelection from './features/instantiate/containers/PartySelection';
-import {
-  startInitialAppTaskQueue,
-  startInitialUserTaskQueue,
-} from './shared/resources/queue/queueSlice';
+import { QueueActions } from './shared/resources/queue/queueSlice';
 import { get } from './utils/networking';
 import {
   getEnvironmentLoginUrl,
@@ -82,7 +79,7 @@ export const App = () => {
 
     if (allowAnonymous === false) {
       refreshJwtToken();
-      dispatch(startInitialUserTaskQueue());
+      dispatch(QueueActions.startInitialUserTaskQueue());
       setUpEventListeners();
 
       return () => {
@@ -92,7 +89,7 @@ export const App = () => {
   }, [allowAnonymous, dispatch, appOidcProvider]);
 
   React.useEffect(() => {
-    dispatch(startInitialAppTaskQueue());
+    dispatch(QueueActions.startInitialAppTaskQueue());
   }, [dispatch]);
 
   if (hasApiErrors) {

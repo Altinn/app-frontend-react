@@ -1,5 +1,5 @@
 import Grid from '@material-ui/core/Grid';
-import * as React from 'react';
+import React from 'react';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import type { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
 import { GroupContainer } from './GroupContainer';
