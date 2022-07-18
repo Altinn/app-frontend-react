@@ -18,7 +18,7 @@ import type {
 
 describe('fetchFormLayoutSagas', () => {
   describe('cleanLayout', () => {
-    it('should convert lower-case types to the correct case', () => {
+    it('should convert incorrectly cased types to the correct case', () => {
       expect(
         cleanLayout([
           { type: 'group' } as any as ILayoutGroup,
