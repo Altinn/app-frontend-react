@@ -3,20 +3,18 @@ import { useAppDispatch } from 'src/common/hooks/index';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 
-interface hookArgs {
-  activePageId: string;
-}
-
 /**
  *
- * @param activePageId the expected formLayout page id
+ * @param activePageId the formLayout page id that is currently active in the app
  *
  * @return matchUrl: Matches the location if there is an instance. If not, an empty string.
- *
  */
+
 export const useFormLayoutHistoryAndMatchInstanceLocation = ({
   activePageId,
-}: hookArgs) => {
+}: {
+  activePageId: string;
+}) => {
   const dispatch = useAppDispatch();
   const match = useRouteMatch<string>('/instance/:partyId/:instanceGuid');
   const matchUrl = match?.url || '';
@@ -32,6 +30,7 @@ export const useFormLayoutHistoryAndMatchInstanceLocation = ({
 
       if (isOnRootPage) {
         history.replace(`${matchUrl}/${activePageId}`);
+        return;
       } else if (activePageId !== pageIdFromLocation) {
         history.push(`${matchUrl}/${activePageId}`);
       }
@@ -41,7 +40,7 @@ export const useFormLayoutHistoryAndMatchInstanceLocation = ({
         if (isBrowserBackOrForwardPressed) {
           const newView = getPageIdFromLocation();
           if (newView && newView !== activePageId) {
-            dispatch(FormLayoutActions.updateCurrentView({ newView: newView }));
+            dispatch(FormLayoutActions.updateCurrentView({ newView }));
           }
         }
       });

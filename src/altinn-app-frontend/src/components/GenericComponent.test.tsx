@@ -3,8 +3,10 @@ import { screen } from '@testing-library/react';
 
 import { renderWithProviders } from '../../testUtils';
 
-import { GenericComponent } from './GenericComponent';
-import type { IGenericComponentProps } from './GenericComponent';
+import {
+  GenericComponent,
+  type IGenericComponentProps,
+} from './GenericComponent';
 import { getFormDataStateMock, getFormLayoutStateMock } from '__mocks__/mocks';
 
 const render = (props: Partial<IGenericComponentProps> = {}) => {

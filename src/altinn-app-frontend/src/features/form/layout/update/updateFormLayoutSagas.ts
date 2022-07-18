@@ -329,14 +329,12 @@ export function* updateCurrentViewSaga({
 }: PayloadAction<IUpdateCurrentView>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
-    let currentViewCacheKey: string =
-      state.formLayout.uiConfig.currentViewCacheKey;
-    if (!currentViewCacheKey) {
-      currentViewCacheKey = state.instanceData.instance.id;
-      yield put(
-        FormLayoutActions.setCurrentViewCacheKey({ key: currentViewCacheKey }),
-      );
+    const viewCacheKey = state.formLayout.uiConfig.currentViewCacheKey;
+    const instanceId = state.instanceData.instance.id;
+    if (!viewCacheKey) {
+      yield put(FormLayoutActions.setCurrentViewCacheKey({ key: instanceId }));
     }
+    const currentViewCacheKey = viewCacheKey || instanceId;
     if (!runValidations) {
       if (!skipPageCaching) {
         localStorage.setItem(currentViewCacheKey, newView);

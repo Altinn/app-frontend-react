@@ -15,6 +15,7 @@ import { missingFieldsInLayoutValidations } from 'src/utils/validation';
 import { Route } from 'react-router-dom';
 import { PanelGroupContainer } from './PanelGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
+import { AltinnContentLoader } from 'altinn-shared/components';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -104,6 +105,9 @@ export function Form() {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
+  const { matchUrl } = useFormLayoutHistoryAndMatchInstanceLocation({
+    activePageId: currentView,
+  });
 
   React.useEffect(() => {
     setCurrentLayout(currentView);
@@ -140,10 +144,10 @@ export function Form() {
       setFilteredLayout(componentsToRender);
     }
   }, [layout]);
+  if (!currentView) {
+    return <AltinnContentLoader />;
+  }
 
-  const { matchUrl } = useFormLayoutHistoryAndMatchInstanceLocation({
-    activePageId: currentLayout,
-  });
   return (
     <Route path={`${matchUrl}/:pageId`}>
       {hasRequiredFields(layout) && (

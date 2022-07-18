@@ -422,5 +422,3 @@ const gridToHiddenProps = (
     [classes.xl]: labelGrid.xl > 0 && labelGrid.xl < 12,
   };
 };
-
-export default GenericComponent;
