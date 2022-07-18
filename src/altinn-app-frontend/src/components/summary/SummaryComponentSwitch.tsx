@@ -15,7 +15,10 @@ import {
   isFileUploadWithTagComponent,
   isGroupComponent,
   isCheckboxesComponent,
+  isMapComponent,
 } from 'src/utils/formLayout';
+import MapComponentSummary from './MapComponentSummary';
+import type { IMapComponentProps } from 'src/components/base/MapComponent';
 
 export interface ISummaryComponentSwitch {
   change: {
@@ -99,6 +102,22 @@ export default function SummaryComponentSwitch({
         formData={formData}
         readOnlyComponent={(formComponent as ILayoutComponent).readOnly}
       />
+    );
+  }
+
+  if (isMapComponent(formComponent)) {
+    return (
+      <>
+        <SummaryBoilerplate
+          {...change}
+          label={label}
+          hasValidationMessages={hasValidationMessages}
+        />
+        <MapComponentSummary
+          component={formComponent as IMapComponentProps}
+          formData={formData}
+        />
+      </>
     );
   }
 

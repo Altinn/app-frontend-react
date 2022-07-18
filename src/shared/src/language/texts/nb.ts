@@ -276,5 +276,9 @@ export function nb() {
       required: 'Feltet er påkrevd',
       enum: 'Kun verdiene {0} er tillatt',
     },
+    map_component: {
+      selectedLocation: 'Valgt lokasjon: {0}° nord, {1}° øst',
+      noSelectedLocation: 'Ingen lokasjon valgt',
+    },
   };
 }
