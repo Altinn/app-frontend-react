@@ -119,7 +119,10 @@ export function PanelGroupContainer({
   }
 
   return (
-    <Grid item={true}>
+    <Grid
+      item={true}
+      xs={fullWidth ? 12 : undefined}
+    >
       <ConditionalWrapper
         condition={fullWidth}
         wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
