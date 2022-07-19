@@ -91,7 +91,7 @@
       "rules": {
         "no-relative-import-paths/no-relative-import-paths": [
           "warn",
-          { "allowSameFolder": true }
+          { "allowSameFolder": false }
         ],
         "preferred-import-path/preferred-import-path": [
           "warn",

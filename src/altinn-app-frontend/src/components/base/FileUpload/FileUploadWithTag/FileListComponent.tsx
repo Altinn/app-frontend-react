@@ -12,8 +12,7 @@ import {
   TableRow,
 } from '@material-ui/core';
 
-import { EditWindowComponent } from './EditWindowComponent';
-
+import { EditWindowComponent } from 'src/components/base/FileUpload/FileUploadWithTag/EditWindowComponent';
 import { FileName } from 'src/components/base/FileUpload/shared/render';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IComponentProps } from 'src/components';
