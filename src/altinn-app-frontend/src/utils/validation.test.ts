@@ -23,7 +23,7 @@ import type {
   IValidations,
 } from 'src/types';
 
-import { getParsedLanguageFromKey } from 'altinn-shared';
+import { getParsedLanguageFromKey } from 'altinn-shared/index';
 
 describe('utils > validation', () => {
   let mockLayout: any;

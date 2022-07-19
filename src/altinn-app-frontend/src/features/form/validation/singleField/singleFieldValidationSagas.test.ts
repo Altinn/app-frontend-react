@@ -11,7 +11,7 @@ import { getDataValidationUrl } from 'src/utils/appUrlHelper';
 import { get } from 'src/utils/networking';
 import type { IRuntimeState, IValidationIssue, IValidations } from 'src/types';
 
-import { getParsedLanguageFromText } from 'altinn-shared';
+import { getParsedLanguageFromText } from 'altinn-shared/index';
 
 describe('singleFieldValidationSagas', () => {
   let mockState: IRuntimeState;

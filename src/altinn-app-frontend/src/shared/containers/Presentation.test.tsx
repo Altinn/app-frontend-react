@@ -12,7 +12,7 @@ import { ProcessTaskType } from 'src/types';
 import { HttpStatusCodes } from 'src/utils/networking';
 import type { IPresentationProvidedProps } from 'src/shared/containers/Presentation';
 
-import { AltinnAppTheme, returnUrlToMessagebox } from 'altinn-shared';
+import { AltinnAppTheme, returnUrlToMessagebox } from 'altinn-shared/index';
 
 jest.mock('axios');
 

@@ -28,8 +28,7 @@ import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 import type { IRuntimeState } from 'src/types';
 
 import { put } from 'altinn-shared/utils/networking';
-
-import type { IData } from 'altinn-shared';
+import type { IData } from 'altinn-shared/index';
 
 describe('submitFormDataSagas', () => {
   let stateMock: IRuntimeState;
