@@ -1,7 +1,13 @@
 import Grid from '@material-ui/core/Grid';
 import React from 'react';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
-import type { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
+import type {
+  ILayout,
+  ILayoutComponent,
+  ILayoutGroup,
+  ILayoutComponentOrGroup,
+  ComponentTypes,
+} from '../layout';
 import { GroupContainer } from './GroupContainer';
 import { renderGenericComponent } from 'src/utils/layout';
 import { DisplayGroupContainer } from './DisplayGroupContainer';
@@ -10,6 +16,8 @@ import MessageBanner from 'src/features/form/components/MessageBanner';
 import { hasRequiredFields } from 'src/utils/formLayout';
 import { missingFieldsInLayoutValidations } from 'src/utils/validation';
 import { PanelGroupContainer } from './PanelGroupContainer';
+import { getFormHasErrors } from 'src/components/message/ErrorReport';
+import { getLanguageFromKey } from 'altinn-shared/utils';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -94,6 +102,10 @@ export function Form() {
   const [requiredFieldsMissing, setRequiredFieldsMissing] =
     React.useState(false);
 
+  const hasErrors = useAppSelector((state) =>
+    getFormHasErrors(state.formValidations.validations),
+  );
+
   const currentView = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
   );
@@ -120,26 +132,21 @@ export function Form() {
   }, [currentView, language, validations]);
 
   React.useEffect(() => {
-    let renderedInGroup: string[] = [];
     if (layout) {
-      const groupComponents = layout.filter(
-        (component) => component.type === 'Group',
+      const errTitle = getLanguageFromKey(
+        'form_filler.error_report_header',
+        language,
       );
-      groupComponents.forEach((component: ILayoutGroup) => {
-        let childList = component.children;
-        if (component.edit?.multiPage) {
-          childList = component.children.map(
-            (childId) => childId.split(':')[1] || childId,
-          );
-        }
-        renderedInGroup = renderedInGroup.concat(childList);
-      });
-      const componentsToRender = layout.filter(
-        (component) => !renderedInGroup.includes(component.id),
-      );
+
+      const componentsToRender = hasErrors
+        ? topLevelComponents(
+            injectErrorPanel(topLevelComponents(layout), errTitle),
+          )
+        : topLevelComponents(layout);
+
       setFilteredLayout(componentsToRender);
     }
-  }, [layout]);
+  }, [layout, hasErrors, language]);
 
   return (
     <div>
@@ -165,4 +172,51 @@ export function Form() {
   );
 }
 
-export default Form;
+function topLevelComponents(layout: ILayoutComponentOrGroup[]) {
+  const inGroup = new Set<string>();
+  layout.forEach((component) => {
+    if (component.type === 'Group') {
+      const childList = component.edit?.multiPage
+        ? component.children.map((childId) => childId.split(':')[1] || childId)
+        : component.children;
+      childList.forEach((childId) => inGroup.add(childId));
+    }
+  });
+  return layout.filter((component) => !inGroup.has(component.id));
+}
+
+function injectErrorPanel(
+  layout: ILayoutComponentOrGroup[],
+  errorTitle: string,
+) {
+  const consumeComponents = new Set<ComponentTypes>([
+    'NavigationButtons',
+    'Button',
+    'PrintButton',
+  ]);
+
+  const errorPanelGroup: ILayoutGroup = {
+    id: 'formErrorPanelGroup',
+    type: 'Group',
+    textResourceBindings: {
+      title: errorTitle,
+    },
+    panel: {
+      variant: 'warning',
+      showIcon: false,
+    },
+    children: [],
+  };
+
+  for (const component of [...layout].reverse()) {
+    if (consumeComponents.has(component.type)) {
+      errorPanelGroup.children.push(component.id);
+    } else {
+      break;
+    }
+  }
+
+  errorPanelGroup.children = errorPanelGroup.children.reverse();
+
+  return [...layout, errorPanelGroup];
+}

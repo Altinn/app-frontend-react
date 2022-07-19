@@ -108,7 +108,7 @@ const ErrorReport = () => {
   );
 };
 
-const getFormHasErrors = (validations: IValidations): boolean => {
+export const getFormHasErrors = (validations: IValidations): boolean => {
   for (const layout in validations) {
     for (const key in validations[layout]) {
       const validationObject = validations[layout][key];

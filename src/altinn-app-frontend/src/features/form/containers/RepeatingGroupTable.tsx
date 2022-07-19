@@ -143,12 +143,12 @@ export function RepeatingGroupTable({
   );
   const tableHeaderComponents =
     container.tableHeaders ||
-    components.map((c) => (c as any).baseComponentId || c.id) ||
+    components.map((c) => c.baseComponentId || c.id) ||
     [];
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
   const componentTitles: string[] = [];
-  renderComponents.forEach((component: ILayoutComponent) => {
-    const childId = (component as any).baseComponentId || component.id;
+  renderComponents.forEach((component) => {
+    const childId = component.baseComponentId || component.id;
     if (tableHeaderComponents.includes(childId)) {
       componentTitles.push(component.textResourceBindings?.title || '');
     }
