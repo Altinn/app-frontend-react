@@ -323,7 +323,13 @@ export function* updateRepeatingGroupsSaga({
 }
 
 export function* updateCurrentViewSaga({
-  payload: { newView, runValidations, returnToView, skipPageCaching },
+  payload: {
+    newView,
+    runValidations,
+    returnToView,
+    skipPageCaching,
+    keepScrollPos,
+  },
 }: PayloadAction<IUpdateCurrentView>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
@@ -430,7 +436,12 @@ export function* updateCurrentViewSaga({
           'Complete',
         )
       ) {
-        yield put(FormLayoutActions.updateCurrentViewRejected({ error: null }));
+        yield put(
+          FormLayoutActions.updateCurrentViewRejected({
+            error: null,
+            keepScrollPos,
+          }),
+        );
       } else {
         if (!skipPageCaching) {
           localStorage.setItem(currentViewCacheKey, newView);
@@ -449,7 +460,7 @@ export function* updateCurrentViewSaga({
 }
 
 export function* calculatePageOrderAndMoveToNextPageSaga({
-  payload: { runValidations, skipMoveToNext },
+  payload: { runValidations, skipMoveToNext, keepScrollPos },
 }: PayloadAction<ICalculatePageOrderAndMoveToNextPage>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
@@ -507,7 +518,13 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     const returnToView = state.formLayout.uiConfig.returnToView;
     const newView =
       returnToView || layoutOrder[layoutOrder.indexOf(currentView) + 1];
-    yield put(FormLayoutActions.updateCurrentView({ newView, runValidations }));
+    yield put(
+      FormLayoutActions.updateCurrentView({
+        newView,
+        runValidations,
+        keepScrollPos,
+      }),
+    );
   } catch (error) {
     if (error?.response?.status === 404) {
       // We accept that the app does noe have defined a calculate page order as this is not default for older apps

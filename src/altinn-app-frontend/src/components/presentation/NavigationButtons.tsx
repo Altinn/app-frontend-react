@@ -9,6 +9,7 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import type { IComponentProps } from '..';
 import type { ILayoutCompNavButtons } from 'src/features/form/layout';
+import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 
 const useStyles = makeStyles({
   backButton: {
@@ -22,6 +23,14 @@ export type INavigationButtons = IComponentProps &
 export function NavigationButtons(props: INavigationButtons) {
   const classes = useStyles();
   const dispatch = useAppDispatch();
+
+  const refPrev = React.useRef<HTMLButtonElement>();
+  const refNext = React.useRef<HTMLButtonElement>();
+
+  const keepScrollPos = useAppSelector(
+    (state) => state.formLayout.uiConfig.keepScrollPos,
+  );
+
   const [disableBack, setDisableBack] = React.useState<boolean>(false);
   const [disableNext, setDisableNext] = React.useState<boolean>(false);
   const currentView = useAppSelector(
@@ -70,6 +79,10 @@ export function NavigationButtons(props: INavigationButtons) {
     }
   };
 
+  const getScrollPosition = React.useCallback(() => {
+    return (refNext.current || refPrev.current)?.getClientRects().item(0)?.y;
+  }, []);
+
   const OnClickNext = () => {
     const runPageValidations =
       !returnToView && triggers?.includes(Triggers.ValidatePage);
@@ -79,10 +92,16 @@ export function NavigationButtons(props: INavigationButtons) {
       (runAllValidations && 'allPages') ||
       (runPageValidations && 'page') ||
       null;
+    const keepScrollPos: IKeepComponentScrollPos = {
+      componentId: props.id,
+      offsetTop: getScrollPosition(),
+    };
+
     if (triggers?.includes(Triggers.CalculatePageOrder)) {
       dispatch(
         FormLayoutActions.calculatePageOrderAndMoveToNextPage({
           runValidations,
+          keepScrollPos,
         }),
       );
     } else {
@@ -95,11 +114,30 @@ export function NavigationButtons(props: INavigationButtons) {
           FormLayoutActions.updateCurrentView({
             newView: goToView,
             runValidations,
+            keepScrollPos,
           }),
         );
       }
     }
   };
+
+  React.useLayoutEffect(() => {
+    if (
+      !keepScrollPos ||
+      typeof keepScrollPos.offsetTop !== 'number' ||
+      keepScrollPos.componentId !== props.id
+    ) {
+      return;
+    }
+
+    const currentPos = getScrollPosition();
+    if (typeof currentPos !== 'number') {
+      return;
+    }
+
+    window.scrollBy({ top: currentPos - keepScrollPos.offsetTop });
+    dispatch(FormLayoutActions.clearKeepScrollPos());
+  }, [keepScrollPos, dispatch, props.id, getScrollPosition]);
 
   return (
     <Grid
@@ -112,6 +150,7 @@ export function NavigationButtons(props: INavigationButtons) {
       >
         {!disableBack && props.showBackButton && (
           <AltinnButton
+            ref={refPrev}
             btnText={getTextFromAppOrDefault(
               backTextKey,
               textResources,
@@ -126,6 +165,7 @@ export function NavigationButtons(props: INavigationButtons) {
         )}
         {!disableNext && (
           <AltinnButton
+            ref={refNext}
             btnText={getTextFromAppOrDefault(
               nextTextKey,
               textResources,
