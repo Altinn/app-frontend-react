@@ -37,12 +37,18 @@ export interface IUpdateCurrentView {
   returnToView?: string;
   runValidations?: 'allPages' | 'page';
   skipPageCaching?: boolean;
+  keepScrollPos?: IKeepComponentScrollPos;
 }
 
 export interface IUpdateCurrentViewFulfilled {
   newView: string;
   returnToView?: string;
 }
+
+export interface IUpdateCurrentViewRejected extends IFormLayoutActionRejected {
+  keepScrollPos?: IKeepComponentScrollPos;
+}
+
 export interface IUpdateFocus {
   currentComponentId: string;
   step?: number;
@@ -114,9 +120,21 @@ export interface IUpdateFileUploaderWithTagChosenOptionsFulfilled {
   option: IOption;
 }
 
+/**
+ * Setting this keeps the component with the given componentId in the same viewport position after rendering
+ * new content above it. Support for this is implemented in the 'NavigationButtons' component, such that the
+ * component is visible on screen (in the same location) even if progressing to the next page fails, and
+ * validation messages are displayed above the navigation buttons.
+ */
+export interface IKeepComponentScrollPos {
+  componentId: string;
+  offsetTop: number;
+}
+
 export interface ICalculatePageOrderAndMoveToNextPage {
   runValidations?: 'allPages' | 'page';
   skipMoveToNext?: boolean;
+  keepScrollPos?: IKeepComponentScrollPos;
 }
 
 export interface ICalculatePageOrderAndMoveToNextPageFulfilled {
