@@ -115,8 +115,8 @@
               ],
               [
                 // All imports from external packages in node_modules (with type-only imports last)
-                "^@?(?!src|altinn-shared)\\w+[^\\u0000]*$",
-                "^@?(?!src|altinn-shared)\\w+.*\\u0000$"
+                "^@?(?!src|altinn-)\\w+[^\\u0000]*$",
+                "^@?(?!src|altinn-)\\w+.*\\u0000$"
               ],
               [
                 // Relative/sibling imports
@@ -127,6 +127,11 @@
                 // Our internal packages
                 "^src/[^\\u0000]+$",
                 "^src/.*\\u0000$"
+              ],
+              [
+                // Imports from altinn-app-frontend (mostly mocks and test utilities)
+                "^altinn-app-frontend/[^\\u0000]+$",
+                "^altinn-app-frontend/.*\\u0000$"
               ],
               [
                 // Imports from altinn-shared
