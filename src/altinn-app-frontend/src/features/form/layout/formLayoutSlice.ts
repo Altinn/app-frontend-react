@@ -45,6 +45,7 @@ export const initialState: ILayoutState = {
     layoutOrder: null,
     pageTriggers: [],
     keepScrollPos: undefined,
+    bottomPadding: true,
   },
   layoutsets: null,
 };
@@ -329,6 +330,16 @@ const formLayoutSlice = createSagaSlice(
       clearKeepScrollPos: mkAction<void>({
         reducer: (state) => {
           state.uiConfig.keepScrollPos = undefined;
+        },
+      }),
+      enableBottomPadding: mkAction<void>({
+        reducer: (state) => {
+          state.uiConfig.bottomPadding = true;
+        },
+      }),
+      disableBottomPadding: mkAction<void>({
+        reducer: (state) => {
+          state.uiConfig.bottomPadding = false;
         },
       }),
     },

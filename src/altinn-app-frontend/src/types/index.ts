@@ -165,6 +165,7 @@ export interface IUiConfig {
   showLanguageSelector?: boolean;
   showProgress?: boolean;
   keepScrollPos?: IKeepComponentScrollPos;
+  bottomPadding?: boolean;
 }
 
 export interface IValidationResult {

@@ -5,19 +5,19 @@ import type {
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
-  ILayoutComponentOrGroup,
   ComponentTypes,
 } from '../layout';
 import { GroupContainer } from './GroupContainer';
 import { renderGenericComponent } from 'src/utils/layout';
 import { DisplayGroupContainer } from './DisplayGroupContainer';
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector, useAppDispatch } from 'src/common/hooks';
 import MessageBanner from 'src/features/form/components/MessageBanner';
 import { hasRequiredFields } from 'src/utils/formLayout';
 import { missingFieldsInLayoutValidations } from 'src/utils/validation';
 import { PanelGroupContainer } from './PanelGroupContainer';
 import { getFormHasErrors } from 'src/components/message/ErrorReport';
 import { getLanguageFromKey } from 'altinn-shared/utils';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -97,6 +97,7 @@ function RenderLayoutGroup(
 }
 
 export function Form() {
+  const dispatch = useAppDispatch();
   const [filteredLayout, setFilteredLayout] = React.useState<any[]>([]);
   const [currentLayout, setCurrentLayout] = React.useState<string>();
   const [requiredFieldsMissing, setRequiredFieldsMissing] =
@@ -115,6 +116,9 @@ export function Form() {
   const language = useAppSelector((state) => state.language.language);
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
+  );
+  const bottomPadding = useAppSelector(
+    (state) => state.formLayout.uiConfig.bottomPadding,
   );
 
   React.useEffect(() => {
@@ -148,8 +152,27 @@ export function Form() {
     }
   }, [layout, hasErrors, language]);
 
+  React.useEffect(() => {
+    const endsWithPanel =
+      currentView === currentLayout &&
+      filteredLayout &&
+      layoutEndsWithPanel(filteredLayout);
+
+    if (endsWithPanel && bottomPadding) {
+      dispatch(FormLayoutActions.disableBottomPadding());
+    }
+
+    return () => {
+      if (!bottomPadding) {
+        // Enable bottom padding again as soon as this component unmounts, to avoid
+        // affecting any other pages or process stages
+        dispatch(FormLayoutActions.enableBottomPadding());
+      }
+    };
+  }, [bottomPadding, currentView, currentLayout, filteredLayout, dispatch]);
+
   return (
-    <div>
+    <>
       {hasRequiredFields(layout) && (
         <MessageBanner
           language={language}
@@ -168,11 +191,11 @@ export function Form() {
             return renderLayoutComponent(component, layout);
           })}
       </Grid>
-    </div>
+    </>
   );
 }
 
-function topLevelComponents(layout: ILayoutComponentOrGroup[]) {
+function topLevelComponents(layout: ILayout) {
   const inGroup = new Set<string>();
   layout.forEach((component) => {
     if (component.type === 'Group') {
@@ -185,10 +208,7 @@ function topLevelComponents(layout: ILayoutComponentOrGroup[]) {
   return layout.filter((component) => !inGroup.has(component.id));
 }
 
-function injectErrorPanel(
-  layout: ILayoutComponentOrGroup[],
-  errorTitle: string,
-) {
+function injectErrorPanel(layout: ILayout, errorTitle: string) {
   const consumeComponents = new Set<ComponentTypes>([
     'NavigationButtons',
     'Button',
@@ -219,4 +239,12 @@ function injectErrorPanel(
   errorPanelGroup.children = errorPanelGroup.children.reverse();
 
   return [...layout, errorPanelGroup];
+}
+
+function layoutEndsWithPanel(layout: ILayout) {
+  const lastComponent = layout[layout.length - 1];
+  return (
+    lastComponent.type === 'Panel' ||
+    (lastComponent.type === 'Group' && !!lastComponent.panel)
+  );
 }

@@ -52,6 +52,10 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
     (state) => state.formLayout.uiConfig.returnToView,
   );
 
+  const bottomPadding = useAppSelector(
+    (state) => state.formLayout.uiConfig.bottomPadding,
+  );
+
   const handleBackArrowButton = () => {
     if (returnToView) {
       dispatch(
@@ -141,7 +145,11 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
                     id='main-content'
                   >
                     <Header {...props} />
-                    <div className='modal-body a-modal-body'>
+                    <div
+                      className={`modal-body a-modal-body ${
+                        bottomPadding ? '' : 'a-no-bottom-padding'
+                      }`}
+                    >
                       {props.children}
                     </div>
                   </section>

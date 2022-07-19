@@ -98,7 +98,7 @@ const ProcessWrapper = () => {
       appOwner={appOwner}
       type={process.taskType}
     >
-      <div>
+      <>
         {isLoading === false ? (
           <>
             {process.taskType === ProcessTaskType.Data && <Form />}
@@ -128,7 +128,7 @@ const ProcessWrapper = () => {
             </AltinnContentLoader>
           </div>
         )}
-      </div>
+      </>
     </Presentation>
   );
 };
