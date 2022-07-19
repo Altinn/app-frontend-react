@@ -1,4 +1,4 @@
-import { getInitialStateMock } from '../../__mocks__/initialStateMock';
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
 
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 
