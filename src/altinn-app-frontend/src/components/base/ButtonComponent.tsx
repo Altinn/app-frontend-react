@@ -1,13 +1,15 @@
-/* eslint-disable react/prop-types */
-import * as React from 'react';
+import React from 'react';
 import { getLanguageFromKey } from 'altinn-shared/utils/language';
 import { AltinnLoader } from 'altinn-shared/components';
 import type { IAltinnWindow } from '../../types';
 import { FormDataActions } from '../../features/form/data/formDataSlice';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import type { IComponentProps } from '..';
+import type { ILayoutCompButton } from 'src/features/form/layout';
 
-export interface IButtonProvidedProps extends IComponentProps {
+export interface IButtonProvidedProps
+  extends IComponentProps,
+    ILayoutCompButton {
   disabled: boolean;
   formDataCount: number;
 }

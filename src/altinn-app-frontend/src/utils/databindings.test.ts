@@ -9,6 +9,7 @@ import {
   mapFormData,
   removeGroupData,
   getKeyIndex,
+  filterOutInvalidData,
 } from './databindings';
 
 describe('utils/databindings.ts', () => {
@@ -41,7 +42,7 @@ describe('utils/databindings.ts', () => {
     testLayout = [
       {
         id: testGroupId,
-        type: 'group',
+        type: 'Group',
         dataModelBindings: {
           group: 'Group',
         },
@@ -321,6 +322,46 @@ describe('utils/databindings.ts', () => {
         1,
       );
       expect(result).toEqual('another value');
+    });
+  });
+
+  describe('filterOutInvalidData', () => {
+    it('should remove keys listed in the invalidKeys object', () => {
+      const formData = {
+        field1: 'value1',
+        'group[0].field': 'someValue',
+        'group[1].field': 'another value',
+      };
+      const result = filterOutInvalidData({
+        data: formData,
+        invalidKeys: ['group[0].field'],
+      });
+
+      expect(result).toEqual({
+        field1: 'value1',
+        'group[1].field': 'another value',
+      });
+    });
+
+    [undefined, null].forEach((value) => {
+      it(`should not crash when invalidKeys is ${value}`, () => {
+        const formData = {
+          field1: 'value1',
+          'group[0].field': 'someValue',
+          'group[1].field': 'another value',
+        };
+
+        const result = filterOutInvalidData({
+          data: formData,
+          invalidKeys: value,
+        });
+
+        expect(result).toEqual({
+          field1: 'value1',
+          'group[0].field': 'someValue',
+          'group[1].field': 'another value',
+        });
+      });
     });
   });
 });

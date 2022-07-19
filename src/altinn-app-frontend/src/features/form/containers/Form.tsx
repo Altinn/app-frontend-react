@@ -1,6 +1,5 @@
-/* eslint-disable no-undef */
 import Grid from '@material-ui/core/Grid';
-import * as React from 'react';
+import React from 'react';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import type { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
 import { GroupContainer } from './GroupContainer';
@@ -17,15 +16,14 @@ export function renderLayoutComponent(
   layout: ILayout,
 ) {
   switch (layoutComponent.type) {
-    case 'group':
     case 'Group': {
-      return RenderLayoutGroup(layoutComponent as ILayoutGroup, layout);
+      return RenderLayoutGroup(layoutComponent, layout);
     }
     case 'Summary': {
       return (
         <SummaryComponent
           key={layoutComponent.id}
-          {...(layoutComponent as ILayoutComponent)}
+          {...layoutComponent}
         />
       );
     }
@@ -33,7 +31,7 @@ export function renderLayoutComponent(
       return (
         <RenderGenericComponent
           key={layoutComponent.id}
-          {...(layoutComponent as ILayoutComponent)}
+          {...layoutComponent}
         />
       );
     }
@@ -125,7 +123,7 @@ export function Form() {
     let renderedInGroup: string[] = [];
     if (layout) {
       const groupComponents = layout.filter(
-        (component) => component.type.toLowerCase() === 'group',
+        (component) => component.type === 'Group',
       );
       groupComponents.forEach((component: ILayoutGroup) => {
         let childList = component.children;

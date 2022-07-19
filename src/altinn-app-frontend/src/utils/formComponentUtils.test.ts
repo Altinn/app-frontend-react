@@ -18,6 +18,7 @@ import type {
 } from 'src/shared/resources/attachments';
 
 import { parseOptions } from 'altinn-shared/utils/language';
+import { AsciiUnitSeparator } from 'src/utils/attachment';
 
 import {
   atleastOneTagExists,
@@ -30,6 +31,8 @@ import {
   componentValidationsHandledByGenericComponent,
   componentHasValidationMessages,
   getFieldName,
+  getFileUploadComponentValidations,
+  parseFileUploadComponentWithTagValidationObject,
 } from './formComponentUtils';
 
 describe('formComponentUtils', () => {
@@ -373,7 +376,7 @@ describe('formComponentUtils', () => {
         dataModelBindings: {
           simpleBinding: 'mockBindingAttachmentSingle',
         },
-      } as ISelectionComponentProps;
+      } as ILayoutComponent;
       const result = getDisplayFormData(
         component.dataModelBindings.simpleBinding,
         component,
@@ -394,7 +397,7 @@ describe('formComponentUtils', () => {
         dataModelBindings: {
           list: 'mockBindingAttachmentMulti',
         },
-      } as ISelectionComponentProps;
+      } as ILayoutComponent;
       const result = getDisplayFormData(
         component.dataModelBindings.list,
         component,
@@ -434,40 +437,25 @@ describe('formComponentUtils', () => {
 
   describe('componentValidationsHandledByGenericComponent', () => {
     it(' should return false when dataModelBinding is undefined', () => {
-      const genericComponent = {
-        type: 'FileUpload',
-      };
       const result = componentValidationsHandledByGenericComponent(
         undefined,
-        genericComponent.type,
+        'FileUpload',
       );
       expect(result).toEqual(false);
     });
 
     it(' should return false when component type is Datepicker', () => {
-      const genericComponent = {
-        type: 'Datepicker',
-        dataModelBindings: {
-          simpleBinding: 'group.superdate',
-        },
-      };
       const result = componentValidationsHandledByGenericComponent(
-        genericComponent.dataModelBindings,
-        genericComponent.type,
+        { simpleBinding: 'group.superdate' },
+        'DatePicker',
       );
       expect(result).toEqual(false);
     });
 
     it(' should return true when component type is Input', () => {
-      const genericComponent = {
-        type: 'Input',
-        dataModelBindings: {
-          simpleBinding: 'group.secretnumber',
-        },
-      };
       const result = componentValidationsHandledByGenericComponent(
-        genericComponent.dataModelBindings,
-        genericComponent.type,
+        { simpleBinding: 'group.secretnumber' },
+        'Input',
       );
       expect(result).toEqual(true);
     });
@@ -623,7 +611,7 @@ describe('formComponentUtils', () => {
   });
 
   describe('getFieldName', () => {
-    const mockTextResources = [
+    const textResources = [
       { id: 'title', value: 'Component name' },
       { id: 'short', value: 'name' },
     ];
@@ -642,7 +630,7 @@ describe('formComponentUtils', () => {
     it('should return field text from languages when fieldKey is present', () => {
       const result = getFieldName(
         { title: 'title' },
-        mockTextResources,
+        textResources,
         mockLanguage,
         'address',
       );
@@ -652,7 +640,7 @@ describe('formComponentUtils', () => {
     it('should return component shortName (textResourceBindings) when no fieldKey is present', () => {
       const result = getFieldName(
         { title: 'title', shortName: 'short' },
-        mockTextResources,
+        textResources,
         mockLanguage,
       );
       expect(result).toEqual('name');
@@ -661,7 +649,7 @@ describe('formComponentUtils', () => {
     it('should return component title (textResourceBindings) when no shortName (textResourceBindings) and no fieldKey is present', () => {
       const result = getFieldName(
         { title: 'title' },
-        mockTextResources,
+        textResources,
         mockLanguage,
       );
       expect(result).toEqual('Component name');
@@ -670,10 +658,117 @@ describe('formComponentUtils', () => {
     it('should return generic field name when fieldKey, shortName and title are all not available', () => {
       const result = getFieldName(
         { something: 'someTextKey' },
-        mockTextResources,
+        textResources,
         mockLanguage,
       );
       expect(result).toEqual('dette feltet');
+    });
+  });
+
+  describe('getFileUploadWithTagComponentValidations', () => {
+    it('should return correct validation', () => {
+      const mockLanguage = {
+        language: {
+          form_filler: {
+            file_uploader_validation_error_delete:
+              'Noe gikk galt under slettingen av filen, prøv igjen senere.',
+            file_uploader_validation_error_upload:
+              'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
+            file_uploader_validation_error_update:
+              'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
+          },
+        },
+      };
+
+      const uploadValidation = getFileUploadComponentValidations(
+        'upload',
+        mockLanguage.language,
+      );
+      expect(uploadValidation).toEqual({
+        simpleBinding: {
+          errors: [
+            'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
+          ],
+          warnings: [],
+        },
+      });
+
+      const updateValidation = getFileUploadComponentValidations(
+        'update',
+        mockLanguage.language,
+      );
+      expect(updateValidation).toEqual({
+        simpleBinding: {
+          errors: [
+            'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
+          ],
+          warnings: [],
+        },
+      });
+
+      const updateValidationWithId = getFileUploadComponentValidations(
+        'update',
+        mockLanguage.language,
+        'mock-attachment-id',
+      );
+      expect(updateValidationWithId).toEqual({
+        simpleBinding: {
+          errors: [
+            `mock-attachment-id${AsciiUnitSeparator}Noe gikk galt under oppdatering av filens merking, prøv igjen senere.`,
+          ],
+          warnings: [],
+        },
+      });
+
+      const deleteValidation = getFileUploadComponentValidations(
+        'delete',
+        mockLanguage.language,
+      );
+      expect(deleteValidation).toEqual({
+        simpleBinding: {
+          errors: [
+            'Noe gikk galt under slettingen av filen, prøv igjen senere.',
+          ],
+          warnings: [],
+        },
+      });
+    });
+  });
+
+  describe('parseFileUploadComponentWithTagValidationObject', () => {
+    it('should return correct validation array', () => {
+      const mockValidations = [
+        'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
+        'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
+        `mock-attachment-id${AsciiUnitSeparator}Noe gikk galt under oppdatering av filens merking, prøv igjen senere.`,
+        'Noe gikk galt under slettingen av filen, prøv igjen senere.',
+      ];
+      const expectedResult = [
+        {
+          id: '',
+          message:
+            'Noe gikk galt under opplastingen av filen, prøv igjen senere.',
+        },
+        {
+          id: '',
+          message:
+            'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
+        },
+        {
+          id: 'mock-attachment-id',
+          message:
+            'Noe gikk galt under oppdatering av filens merking, prøv igjen senere.',
+        },
+        {
+          id: '',
+          message:
+            'Noe gikk galt under slettingen av filen, prøv igjen senere.',
+        },
+      ];
+
+      const validationArray =
+        parseFileUploadComponentWithTagValidationObject(mockValidations);
+      expect(validationArray).toEqual(expectedResult);
     });
   });
 });

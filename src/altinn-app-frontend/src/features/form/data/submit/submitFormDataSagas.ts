@@ -1,6 +1,5 @@
-/* eslint-disable max-len */
 import type { SagaIterator } from 'redux-saga';
-import { call, put as sagaPut, select, takeLatest } from 'redux-saga/effects';
+import { call, put as sagaPut, select } from 'redux-saga/effects';
 import { get, put } from 'altinn-shared/utils';
 import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
 import { Severity } from 'src/types';
@@ -50,10 +49,8 @@ const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (
 const UIConfigSelector: (store: IRuntimeStore) => IUiConfig = (
   store: IRuntimeStore,
 ) => store.formLayout.uiConfig;
-export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
-// eslint-disable-next-line consistent-return
-function* submitFormSaga({
+export function* submitFormSaga({
   payload: { apiMode, stopWithWarnings },
 }: PayloadAction<ISubmitDataAction>): SagaIterator {
   try {
@@ -192,7 +189,6 @@ function* handleCalculationUpdate(changedFields) {
   if (!changedFields) {
     return false;
   }
-  // eslint-disable-next-line no-restricted-syntax
   for (const fieldKey of Object.keys(changedFields)) {
     yield sagaPut(
       FormDataActions.update({
@@ -207,17 +203,16 @@ function* handleCalculationUpdate(changedFields) {
   return true;
 }
 
-// eslint-disable-next-line consistent-return
 export function* saveFormDataSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     // updates the default data element
     const application = state.applicationMetadata.applicationMetadata;
     const model = convertDataBindingToModel(
-      filterOutInvalidData(
-        state.formData.formData,
-        state.formValidations.invalidDataTypes || [],
-      ),
+      filterOutInvalidData({
+        data: state.formData.formData,
+        invalidKeys: state.formValidations.invalidDataTypes,
+      }),
     );
 
     if (isStatelessApp(application)) {
@@ -239,7 +234,7 @@ export function* saveFormDataSaga(): SagaIterator {
 }
 
 export function* saveStatelessData(state: IRuntimeState, model: any) {
-  const allowAnonymous = yield select(allowAnonymousSelector);
+  const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
   let options;
   if (!allowAnonymous) {
     const selectedPartyId = state.party.selectedParty.partyId;
@@ -266,7 +261,7 @@ export function* saveStatelessData(state: IRuntimeState, model: any) {
   yield sagaPut(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
 }
 
-function* autoSaveSaga({
+export function* autoSaveSaga({
   payload: { skipAutoSave },
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
   if (skipAutoSave) {
@@ -278,16 +273,4 @@ function* autoSaveSaga({
     // undefined should default to auto save
     yield sagaPut(FormDataActions.save());
   }
-}
-
-export function* watchSubmitFormSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.submit, submitFormSaga);
-}
-
-export function* watchSaveFormDataSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.save, saveFormDataSaga);
-}
-
-export function* watchAutoSaveSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.updateFulfilled, autoSaveSaga);
 }

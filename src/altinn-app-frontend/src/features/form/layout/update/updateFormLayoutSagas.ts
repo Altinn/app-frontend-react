@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 import {
@@ -8,13 +7,11 @@ import {
   put,
   select,
   take,
-  takeEvery,
   takeLatest,
   race,
 } from 'redux-saga/effects';
 import type {
   IFileUploadersWithTag,
-  IFormFileUploaderWithTagComponent,
   IRepeatingGroups,
   IRuntimeState,
   IValidationIssue,
@@ -24,8 +21,6 @@ import { Triggers } from 'src/types';
 import {
   mapFileUploadersWithTag,
   findChildren,
-  isFileUploadComponent,
-  isFileUploadWithTagComponent,
   splitDashedKey,
   getRepeatingGroups,
   removeRepeatingGroupFromUIConfig,
@@ -54,13 +49,14 @@ import {
   getValidator,
 } from 'src/utils/validation';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
-import { startInitialDataTaskQueueFulfilled } from 'src/shared/resources/queue/queueSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import type {
   ILayoutComponent,
-  ILayoutEntry,
   ILayoutGroup,
   ILayouts,
+  ILayoutComponentOrGroup,
+  ILayoutCompFileUploadWithTag,
 } from '..';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type { ILayoutState } from '../formLayoutSlice';
@@ -103,7 +99,7 @@ export const selectValidations = (state: IRuntimeState): IValidations =>
 export const selectUnsavedChanges = (state: IRuntimeState): boolean =>
   state.formData.unsavedChanges;
 
-function* updateFocus({
+export function* updateFocus({
   payload: { currentComponentId, step },
 }: PayloadAction<IUpdateFocus>): SagaIterator {
   try {
@@ -132,7 +128,7 @@ function* updateFocus({
 
 export function* updateRepeatingGroupsSaga({
   payload: { layoutElementId, remove, index, leaveOpen },
-}: PayloadAction<IUpdateRepeatingGroups>) {
+}: PayloadAction<IUpdateRepeatingGroups>): SagaIterator {
   try {
     const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
     const currentIndex =
@@ -153,7 +149,7 @@ export function* updateRepeatingGroupsSaga({
     const childGroups: (ILayoutGroup | ILayoutComponent)[] =
       formLayoutState.layouts[formLayoutState.uiConfig.currentView].filter(
         (element) => {
-          if (element.type.toLowerCase() !== 'group') {
+          if (element.type !== 'Group') {
             return false;
           }
 
@@ -246,7 +242,7 @@ export function* updateRepeatingGroupsSaga({
         const splitLayoutElementId = splitDashedKey(layoutElementId);
         const childFileUploaders = findChildren(layout, {
           matching: (c) =>
-            isFileUploadComponent(c) || isFileUploadWithTagComponent(c),
+            c.type === 'FileUpload' || c.type === 'FileUploadWithTag',
           rootGroupId: splitLayoutElementId.baseComponentId,
         });
         const updatedAttachments = shiftAttachmentRowInRepeatingGroup(
@@ -525,17 +521,10 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
   }
 }
 
-export function* watchCalculatePageOrderAndMoveToNextPageSaga(): SagaIterator {
-  yield takeEvery(
-    FormLayoutActions.calculatePageOrderAndMoveToNextPage,
-    calculatePageOrderAndMoveToNextPageSaga,
-  );
-}
-
-export function* watchInitialCalculagePageOrderAndMoveToNextPageSaga(): SagaIterator {
+export function* watchInitialCalculatePageOrderAndMoveToNextPageSaga(): SagaIterator {
   while (true) {
     yield all([
-      take(startInitialDataTaskQueueFulfilled),
+      take(QueueActions.startInitialDataTaskQueueFulfilled),
       take(FormLayoutActions.fetchFulfilled),
       take(FormLayoutActions.fetchSettingsFulfilled),
     ]);
@@ -545,7 +534,7 @@ export function* watchInitialCalculagePageOrderAndMoveToNextPageSaga(): SagaIter
     const appHasCalculateTrigger =
       pageTriggers?.includes(Triggers.CalculatePageOrder) ||
       Object.keys(layouts).some((layout) => {
-        return layouts[layout].some((element: ILayoutEntry) => {
+        return layouts[layout].some((element: ILayoutComponentOrGroup) => {
           if (element.type === 'NavigationButtons') {
             const layoutComponent = element as ILayoutComponent;
             if (
@@ -578,17 +567,6 @@ export function* watchUpdateCurrentViewSaga(): SagaIterator {
     const value = yield take(requestChan);
     yield call(updateCurrentViewSaga, value);
   }
-}
-
-export function* watchUpdateFocusSaga(): SagaIterator {
-  yield takeLatest(FormLayoutActions.updateFocus, updateFocus);
-}
-
-export function* watchUpdateRepeatingGroupsSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateRepeatingGroups,
-    updateRepeatingGroupsSaga,
-  );
 }
 
 export function* updateRepeatingGroupEditIndexSaga({
@@ -667,13 +645,6 @@ export function* updateRepeatingGroupEditIndexSaga({
       FormLayoutActions.updateRepeatingGroupsEditIndexRejected({ error }),
     );
   }
-}
-
-export function* watchUpdateRepeatingGroupsEditIndexSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateRepeatingGroupsEditIndex,
-    updateRepeatingGroupEditIndexSaga,
-  );
 }
 
 export function* initRepeatingGroupsSaga(): SagaIterator {
@@ -782,13 +753,6 @@ export function* updateFileUploaderWithTagEditIndexSaga({
   }
 }
 
-export function* watchUpdateFileUploaderWithTagEditIndexSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateFileUploaderWithTagEditIndex,
-    updateFileUploaderWithTagEditIndexSaga,
-  );
-}
-
 export function* updateFileUploaderWithTagChosenOptionsSaga({
   payload: { componentId, baseComponentId, id, option },
 }: PayloadAction<IUpdateFileUploaderWithTagChosenOptions>): SagaIterator {
@@ -798,7 +762,7 @@ export function* updateFileUploaderWithTagChosenOptionsSaga({
     const currentView = state.formLayout.uiConfig.currentView;
     const component = state.formLayout.layouts[currentView].find(
       (component: ILayoutComponent) => component.id === baseComponentId,
-    ) as unknown as IFormFileUploaderWithTagComponent;
+    ) as ILayoutCompFileUploadWithTag;
     const componentOptions =
       state.optionState.options[
         getOptionLookupKey(component.optionsId, component.mapping)
@@ -826,13 +790,6 @@ export function* updateFileUploaderWithTagChosenOptionsSaga({
       }),
     );
   }
-}
-
-export function* watchUpdateFileUploaderWithTagChosenOptionsSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateFileUploaderWithTagChosenOptions,
-    updateFileUploaderWithTagChosenOptionsSaga,
-  );
 }
 
 export function* mapFileUploaderWithTagSaga(): SagaIterator {

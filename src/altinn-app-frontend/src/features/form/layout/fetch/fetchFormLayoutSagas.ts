@@ -1,5 +1,5 @@
 import type { SagaIterator } from 'redux-saga';
-import { call, all, put, take, select, takeLatest } from 'redux-saga/effects';
+import { call, all, put, take, select } from 'redux-saga/effects';
 import type { IInstance } from 'altinn-shared/types';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import {
@@ -10,14 +10,15 @@ import {
 import { get } from '../../../../utils/networking';
 import { FormLayoutActions } from '../formLayoutSlice';
 import { FormDataActions } from '../../data/formDataSlice';
-import { dataTaskQueueError } from '../../../../shared/resources/queue/queueSlice';
+import { QueueActions } from '../../../../shared/resources/queue/queueSlice';
 import type {
   ILayoutSettings,
   IRuntimeState,
   ILayoutSets,
 } from '../../../../types';
-import type { ILayouts } from '../index';
+import type { ILayouts, ILayout, ComponentTypes } from '../index';
 import { getLayoutSetIdForApplication } from '../../../../utils/appMetadata';
+import components from 'src/components';
 
 export const layoutSetsSelector = (state: IRuntimeState) =>
   state.formLayout.layoutsets;
@@ -25,6 +26,30 @@ export const instanceSelector = (state: IRuntimeState) =>
   state.instanceData.instance;
 export const applicationMetadataSelector = (state: IRuntimeState) =>
   state.applicationMetadata.applicationMetadata;
+
+let componentTypeCaseMapping: { [key: string]: ComponentTypes } = undefined;
+function getCaseMapping(): typeof componentTypeCaseMapping {
+  if (!componentTypeCaseMapping) {
+    componentTypeCaseMapping = {
+      group: 'Group',
+      summary: 'Summary',
+    };
+
+    for (const type in components) {
+      componentTypeCaseMapping[type.toLowerCase()] = type as ComponentTypes;
+    }
+  }
+
+  return componentTypeCaseMapping;
+}
+
+export function cleanLayout(layout: ILayout): ILayout {
+  const mapping = getCaseMapping();
+  return layout.map((component) => ({
+    ...component,
+    type: mapping[component.type.toLowerCase()] || component.type,
+  })) as ILayout;
+}
 
 export function* fetchLayoutSaga(): SagaIterator {
   try {
@@ -64,7 +89,7 @@ export function* fetchLayoutSaga(): SagaIterator {
       }
 
       orderedLayoutKeys.forEach((key) => {
-        layouts[key] = layoutResponse[key].data.layout;
+        layouts[key] = cleanLayout(layoutResponse[key].data.layout);
         navigationConfig[key] = layoutResponse[key].data.navigation;
         autoSave = layoutResponse[key].data.autoSave;
       });
@@ -80,7 +105,7 @@ export function* fetchLayoutSaga(): SagaIterator {
     );
   } catch (error) {
     yield put(FormLayoutActions.fetchRejected({ error }));
-    yield put(dataTaskQueueError({ error }));
+    yield put(QueueActions.dataTaskQueueError({ error }));
   }
 }
 
@@ -146,8 +171,4 @@ export function* fetchLayoutSetsSaga(): SagaIterator {
       yield put(FormLayoutActions.fetchSetsRejected({ error }));
     }
   }
-}
-
-export function* watchFetchFormLayoutSetsSaga(): SagaIterator {
-  yield takeLatest(FormLayoutActions.fetchSets, fetchLayoutSetsSaga);
 }

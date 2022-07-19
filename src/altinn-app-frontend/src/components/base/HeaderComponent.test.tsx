@@ -6,8 +6,7 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 
-import type { IComponentProps } from 'src/components';
-
+import type { IHeaderProps } from './HeaderComponent';
 import { HeaderComponent } from './HeaderComponent';
 
 const render = (props = {}) => {
@@ -18,12 +17,12 @@ const render = (props = {}) => {
     language: {},
     textResourceBindings: {},
     ...props,
-  } as IComponentProps;
+  } as IHeaderProps;
 
   rtlRender(<HeaderComponent {...allProps} />);
 };
 
-describe('components/base/HeaderComponent.tsx --- Snapshot', () => {
+describe('HeaderComponent', () => {
   it('should render <h2> when size is "L"', () => {
     render({ size: 'L' });
 
