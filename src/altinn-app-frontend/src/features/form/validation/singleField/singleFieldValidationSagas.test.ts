@@ -1,4 +1,3 @@
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
 import { call, select } from 'redux-saga/effects';
 import { expectSaga } from 'redux-saga-test-plan';
 import { throwError } from 'redux-saga-test-plan/providers';
@@ -10,6 +9,8 @@ import { Severity } from 'src/types';
 import { getDataValidationUrl } from 'src/utils/appUrlHelper';
 import { get } from 'src/utils/networking';
 import type { IRuntimeState, IValidationIssue, IValidations } from 'src/types';
+
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
 
 import { getParsedLanguageFromText } from 'altinn-shared/index';
 

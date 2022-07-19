@@ -1,6 +1,3 @@
-import { getFormLayoutStateMock } from 'altinn-app-frontend/__mocks__/formLayoutStateMock';
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
-
 import {
   appMetaDataSelector,
   currentSelectedPartyIdSelector,
@@ -10,6 +7,9 @@ import {
   profileStateSelector,
 } from 'src/selectors/simpleSelectors';
 import { ProcessTaskType } from 'src/types';
+
+import { getFormLayoutStateMock } from 'altinn-app-frontend/__mocks__/formLayoutStateMock';
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
 
 describe('simpleSelectors', () => {
   const state = getInitialStateMock({

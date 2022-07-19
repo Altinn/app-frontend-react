@@ -1,11 +1,6 @@
 import React from 'react';
 
 import { screen, within } from '@testing-library/react';
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
-import {
-  mockMediaQuery,
-  renderWithProviders,
-} from 'altinn-app-frontend/testUtils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
@@ -22,6 +17,12 @@ import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IValidationState } from 'src/features/form/validation/validationSlice';
 import type { ITextResourcesState } from 'src/shared/resources/textResources';
 import type { ILayoutValidations, ITextResource } from 'src/types';
+
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
+import {
+  mockMediaQuery,
+  renderWithProviders,
+} from 'altinn-app-frontend/testUtils';
 
 export const defaultMockQuestions = [
   { Question: 'Hvordan trives du på skolen?', Answer: '' },

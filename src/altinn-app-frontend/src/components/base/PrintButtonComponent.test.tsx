@@ -1,10 +1,11 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
-import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 
 import { PrintButtonComponent } from 'src/components/base/PrintButtonComponent';
+
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
+import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 
 const render = (preloaded = {}) => {
   const preloadedState = {

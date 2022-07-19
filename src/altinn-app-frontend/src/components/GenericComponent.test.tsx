@@ -1,14 +1,15 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
+
+import { GenericComponent } from 'src/components/GenericComponent';
+import type { IActualGenericComponentProps } from 'src/components/GenericComponent';
+
 import {
   getFormDataStateMock,
   getFormLayoutStateMock,
 } from 'altinn-app-frontend/__mocks__/mocks';
 import { renderWithProviders } from 'altinn-app-frontend/testUtils';
-
-import { GenericComponent } from 'src/components/GenericComponent';
-import type { IActualGenericComponentProps } from 'src/components/GenericComponent';
 
 const render = (props: Partial<IActualGenericComponentProps<any>> = {}) => {
   const allProps: IActualGenericComponentProps<'Input'> = {

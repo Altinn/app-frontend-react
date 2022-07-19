@@ -1,17 +1,18 @@
 import React from 'react';
 
 import { fireEvent, screen } from '@testing-library/react';
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/mocks';
-import {
-  mockMediaQuery,
-  renderWithProviders,
-} from 'altinn-app-frontend/testUtils';
 
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { setupStore } from 'src/store';
 import { Triggers } from 'src/types';
 import type { ILayoutGroup } from 'src/features/form/layout';
+
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/mocks';
+import {
+  mockMediaQuery,
+  renderWithProviders,
+} from 'altinn-app-frontend/testUtils';
 
 const mockContainer: ILayoutGroup = {
   id: 'container-closed-id',

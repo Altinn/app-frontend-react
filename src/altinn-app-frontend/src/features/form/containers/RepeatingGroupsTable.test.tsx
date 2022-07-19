@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { renderWithProviders } from 'altinn-app-frontend/testUtils';
-
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import type {
@@ -12,6 +10,8 @@ import type {
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOption, ITextResource } from 'src/types';
+
+import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 
 describe('RepeatingGroupTable', () => {
   let mockContainer: ILayoutGroup;

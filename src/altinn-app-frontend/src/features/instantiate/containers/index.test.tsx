@@ -8,13 +8,14 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
 import configureStore from 'redux-mock-store';
 
 import Instantiate from 'src/features/instantiate/containers';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { HttpStatusCodes } from 'src/utils/networking';
 import type { IRuntimeState } from 'src/types';
+
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
 
 const render = (initialState: Partial<IRuntimeState> = {}) => {
   const createStore = configureStore();

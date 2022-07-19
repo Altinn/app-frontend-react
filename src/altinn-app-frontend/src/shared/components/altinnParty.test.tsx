@@ -2,11 +2,12 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { partyMock } from 'altinn-app-frontend/__mocks__/partyMock';
-import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 
 import AltinnParty from 'src/shared/components/altinnParty';
 import type { IAltinnPartyProps } from 'src/shared/components/altinnParty';
+
+import { partyMock } from 'altinn-app-frontend/__mocks__/partyMock';
+import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 
 const user = userEvent.setup();
 

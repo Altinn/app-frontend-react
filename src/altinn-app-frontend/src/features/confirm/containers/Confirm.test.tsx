@@ -3,12 +3,13 @@ import { MemoryRouter } from 'react-router-dom';
 
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
-import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 
 import Confirm, {
   returnConfirmSummaryObject,
 } from 'src/features/confirm/containers/Confirm';
+
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
+import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 
 import type { IParty } from 'altinn-shared/types';
 

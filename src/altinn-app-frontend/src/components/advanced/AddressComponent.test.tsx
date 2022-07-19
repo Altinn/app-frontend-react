@@ -3,12 +3,13 @@ import { Provider } from 'react-redux';
 
 import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { handlers, setupServer } from 'altinn-app-frontend/testUtils';
 import configureStore from 'redux-mock-store';
 
 import { AddressComponent } from 'src/components/advanced/AddressComponent';
 import type { IComponentProps } from 'src/components';
 import type { IAddressComponentProps } from 'src/components/advanced/AddressComponent';
+
+import { handlers, setupServer } from 'altinn-app-frontend/testUtils';
 
 const server = setupServer(...handlers);
 

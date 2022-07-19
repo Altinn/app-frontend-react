@@ -1,8 +1,3 @@
-import {
-  getFormDataStateMock,
-  getInitialStateMock,
-  getInstanceDataStateMock,
-} from 'altinn-app-frontend/__mocks__/mocks';
 import { call, select } from 'redux-saga/effects';
 import { expectSaga } from 'redux-saga-test-plan';
 
@@ -26,6 +21,12 @@ import { convertDataBindingToModel } from 'src/utils/databindings';
 import { post } from 'src/utils/networking';
 import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 import type { IRuntimeState } from 'src/types';
+
+import {
+  getFormDataStateMock,
+  getInitialStateMock,
+  getInstanceDataStateMock,
+} from 'altinn-app-frontend/__mocks__/mocks';
 
 import { put } from 'altinn-shared/utils/networking';
 import type { IData } from 'altinn-shared/index';

@@ -1,7 +1,7 @@
+import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
+
 import { getProfileStateMock } from 'altinn-app-frontend/__mocks__/profileStateMock';
 import { statelessAndAllowAnonymousMock } from 'altinn-app-frontend/__mocks__/statelessAndAllowAnonymousMock';
-
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 
 describe('appLanguageStateSelector', () => {
   interface ISetupProps {

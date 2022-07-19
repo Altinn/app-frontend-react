@@ -1,11 +1,5 @@
 import { createElement } from 'react';
 
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
-import * as complexSchema from 'altinn-app-frontend/__mocks__/json-schema/complex.json';
-import * as oneOfOnRootSchema from 'altinn-app-frontend/__mocks__/json-schema/one-of-on-root.json';
-import * as refOnRootSchema from 'altinn-app-frontend/__mocks__/json-schema/ref-on-root.json';
-import { getMockValidationState } from 'altinn-app-frontend/__mocks__/validationStateMock';
-
 import { Severity } from 'src/types';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { getParsedTextResourceByKey } from 'src/utils/textResource';
@@ -22,6 +16,12 @@ import type {
   IValidationIssue,
   IValidations,
 } from 'src/types';
+
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/initialStateMock';
+import * as complexSchema from 'altinn-app-frontend/__mocks__/json-schema/complex.json';
+import * as oneOfOnRootSchema from 'altinn-app-frontend/__mocks__/json-schema/one-of-on-root.json';
+import * as refOnRootSchema from 'altinn-app-frontend/__mocks__/json-schema/ref-on-root.json';
+import { getMockValidationState } from 'altinn-app-frontend/__mocks__/validationStateMock';
 
 import { getParsedLanguageFromKey } from 'altinn-shared/index';
 

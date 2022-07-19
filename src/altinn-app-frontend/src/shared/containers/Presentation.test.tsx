@@ -2,15 +2,16 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/mocks';
-import { partyMock } from 'altinn-app-frontend/__mocks__/partyMock';
-import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 import axios from 'axios';
 
 import Presentation from 'src/shared/containers/Presentation';
 import { ProcessTaskType } from 'src/types';
 import { HttpStatusCodes } from 'src/utils/networking';
 import type { IPresentationProvidedProps } from 'src/shared/containers/Presentation';
+
+import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/mocks';
+import { partyMock } from 'altinn-app-frontend/__mocks__/partyMock';
+import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 
 import { AltinnAppTheme, returnUrlToMessagebox } from 'altinn-shared/index';
 
