@@ -51,7 +51,7 @@ function RenderLayoutGroup(
     if (layoutGroup.edit?.multiPage) {
       childId = child.split(':')[1] || child;
     }
-    return layout.find((c) => c.id === childId) as ILayoutComponent;
+    return layout.find((c) => c.id === childId);
   });
 
   const repeating = layoutGroup.maxCount > 1;
@@ -89,11 +89,6 @@ function RenderLayoutGroup(
 }
 
 export function Form() {
-  const [filteredLayout, setFilteredLayout] = React.useState<any[]>([]);
-  const [currentLayout, setCurrentLayout] = React.useState<string>();
-  const [requiredFieldsMissing, setRequiredFieldsMissing] =
-    React.useState(false);
-
   const currentView = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
   );
@@ -105,40 +100,22 @@ export function Form() {
     (state) => state.formValidations.validations,
   );
 
-  React.useEffect(() => {
-    setCurrentLayout(currentView);
-  }, [currentView]);
-
-  React.useEffect(() => {
+  const requiredFieldsMissing = React.useMemo(() => {
     if (validations && validations[currentView]) {
-      const areRequiredFieldsMissing = missingFieldsInLayoutValidations(
+      return missingFieldsInLayoutValidations(
         validations[currentView],
         language,
       );
-      setRequiredFieldsMissing(areRequiredFieldsMissing);
     }
+
+    return false;
   }, [currentView, language, validations]);
 
-  React.useEffect(() => {
-    let renderedInGroup: string[] = [];
+  const filteredLayout = React.useMemo(() => {
     if (layout) {
-      const groupComponents = layout.filter(
-        (component) => component.type === 'Group',
-      );
-      groupComponents.forEach((component: ILayoutGroup) => {
-        let childList = component.children;
-        if (component.edit?.multiPage) {
-          childList = component.children.map(
-            (childId) => childId.split(':')[1] || childId,
-          );
-        }
-        renderedInGroup = renderedInGroup.concat(childList);
-      });
-      const componentsToRender = layout.filter(
-        (component) => !renderedInGroup.includes(component.id),
-      );
-      setFilteredLayout(componentsToRender);
+      return topLevelComponents(layout);
     }
+    return [];
   }, [layout]);
 
   return (
@@ -155,14 +132,23 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        {currentView === currentLayout &&
-          filteredLayout &&
-          filteredLayout.map((component) => {
-            return renderLayoutComponent(component, layout);
-          })}
+        {filteredLayout.map((component) =>
+          renderLayoutComponent(component, layout),
+        )}
       </Grid>
     </div>
   );
 }
 
-export default Form;
+function topLevelComponents(layout: ILayout) {
+  const inGroup = new Set<string>();
+  layout.forEach((component) => {
+    if (component.type === 'Group') {
+      const childList = component.edit?.multiPage
+        ? component.children.map((childId) => childId.split(':')[1] || childId)
+        : component.children;
+      childList.forEach((childId) => inGroup.add(childId));
+    }
+  });
+  return layout.filter((component) => !inGroup.has(component.id));
+}
