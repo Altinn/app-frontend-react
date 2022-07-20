@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
+
 import type Ajv from 'ajv/dist/core';
+
 import type { IFormData } from 'src/features/form/data';
-import type { RootState } from 'src/store';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
+import type { RootState } from 'src/store';
 
 export interface IAltinnWindow extends Window {
   app: string;
@@ -24,7 +26,7 @@ export interface IComponentValidations {
   [id: string]: IComponentBindingValidation;
 }
 
-export { IDataModelBindings } from '../features/form/layout/index';
+export { IDataModelBindings } from '../features/form/layout';
 
 export interface IFormFileUploaderWithTag {
   chosenOptions: IOptionsChosen;
