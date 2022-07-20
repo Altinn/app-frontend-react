@@ -29,14 +29,14 @@ import {
 } from 'altinn-shared/components';
 import type { IMobileTableItem } from 'altinn-shared/components/molecules/AltinnMobileTableItem';
 import type { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
-import { setupGroupComponents } from '../../../utils/layout';
+import { setupGroupComponents } from 'src/utils/layout';
 import type {
   ITextResource,
   IRepeatingGroups,
   IValidations,
   IOptions,
   ITextResourceBindings,
-} from '../../../types';
+} from 'src/types';
 import type { ILanguage } from 'altinn-shared/types';
 import type { IAttachments } from 'src/shared/resources/attachments';
 

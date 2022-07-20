@@ -5,11 +5,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import {
   getLayoutComponentById,
   getLayoutIdForComponent,
-} from '../../../../utils/layout';
-import {
-  getValidator,
-  validateComponentFormData,
-} from '../../../../utils/validation';
+} from 'src/utils/layout';
+import { getValidator, validateComponentFormData } from 'src/utils/validation';
 import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import { ValidationActions } from '../../validation/validationSlice';
 import { FormDataActions } from '../formDataSlice';
@@ -18,7 +15,7 @@ import type {
   IDeleteAttachmentReference,
 } from '../formDataTypes';
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
-import { getCurrentDataTypeForApplication } from '../../../../utils/appMetadata';
+import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { removeAttachmentReference } from 'src/utils/databindings';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayouts, ILayoutComponent } from 'src/features/form/layout';

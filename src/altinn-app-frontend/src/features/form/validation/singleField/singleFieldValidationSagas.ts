@@ -7,7 +7,7 @@ import { get } from 'src/utils/networking';
 import {
   mapDataElementValidationToRedux,
   mergeValidationObjects,
-} from '../../../../utils/validation';
+} from 'src/utils/validation';
 import { ValidationActions } from '../validationSlice';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 

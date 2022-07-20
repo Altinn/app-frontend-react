@@ -18,7 +18,7 @@ import type {
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 
 import { Severity } from 'src/types';
-import { getParsedLanguageFromKey } from '../../../shared/src';
+import { getParsedLanguageFromKey } from 'altinn-shared/utils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { getParsedTextResourceByKey } from 'src/utils/textResource';
 import * as validation from './validation';

@@ -14,15 +14,15 @@ import {
 import MomentUtils from '@date-io/moment';
 import { getLanguageFromKey } from 'altinn-shared/utils';
 import type { IComponentBindingValidation, DateFlags } from 'src/types';
-import { getFlagBasedDate, getISOString } from '../../utils/dateHelpers';
-import { renderValidationMessagesForComponent } from '../../utils/render';
+import { getFlagBasedDate, getISOString } from 'src/utils/dateHelpers';
+import { renderValidationMessagesForComponent } from 'src/utils/render';
 import {
   DatePickerFormatDefault,
   DatePickerMaxDateDefault,
   DatePickerMinDateDefault,
   DatePickerSaveFormatNoTimestamp,
   validateDatepickerFormData,
-} from '../../utils/validation';
+} from 'src/utils/validation';
 import type { IComponentProps } from '..';
 
 import './DatepickerComponent.css';

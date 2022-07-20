@@ -27,31 +27,31 @@ import type {
   ILayoutComponent,
   ILayoutGroup,
   ILayout,
-} from '../features/form/layout';
-import type { IValidationIssue, DateFlags } from '../types';
-import { Severity } from '../types';
-import { getFieldName, getFormDataForComponent } from './formComponentUtils';
-import { getParsedTextResourceByKey } from './textResource';
+} from '../../features/form/layout';
+import type { IValidationIssue, DateFlags } from '../../types';
+import { Severity } from '../../types';
+import { getFieldName, getFormDataForComponent } from '../formComponentUtils';
+import { getParsedTextResourceByKey } from '../textResource';
 import {
   convertDataBindingToModel,
   getFormDataFromFieldKey,
   getKeyWithoutIndex,
-} from './databindings';
-import { matchLayoutComponent, setupGroupComponents } from './layout';
+} from '../databindings';
+import { matchLayoutComponent, setupGroupComponents } from '../layout';
 import {
   createRepeatingGroupComponents,
   getRepeatingGroupStartStopIndex,
   splitDashedKey,
-} from './formLayout';
-import { getDataTaskDataTypeId } from './appMetadata';
-import { getFlagBasedDate } from './dateHelpers';
+} from '../formLayout';
+import { getDataTaskDataTypeId } from '../appMetadata';
+import { getFlagBasedDate } from '../dateHelpers';
 import JsonPointer from 'jsonpointer';
 import type {
   IAttachment,
   IAttachments,
 } from 'src/shared/resources/attachments';
 import type { ILanguage } from 'altinn-shared/types';
-import { AsciiUnitSeparator } from './attachment';
+import { AsciiUnitSeparator } from '../attachment';
 import type { ReactNode } from 'react';
 import type { IFormData } from 'src/features/form/data';
 
@@ -1407,14 +1407,17 @@ export function repeatingGroupHasValidations(
 }
 
 export function mergeValidationObjects(
-  ...sources: IValidations[]
+  ...sources: (IValidations | null)[]
 ): IValidations {
   const validations: IValidations = {};
   if (!sources || !sources.length) {
     return validations;
   }
 
-  sources.forEach((source: IValidations) => {
+  sources.forEach((source: IValidations | null) => {
+    if (source === null) {
+      return;
+    }
     Object.keys(source).forEach((layout: string) => {
       validations[layout] = mergeLayoutValidations(
         validations[layout] || {},

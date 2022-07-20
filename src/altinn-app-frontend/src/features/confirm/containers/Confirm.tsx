@@ -17,15 +17,12 @@ import {
   getInstancePdf,
 } from 'altinn-shared/utils/attachmentsUtils';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
-import type {
-  IAltinnWindow,
-  IPartyIdInterfaceGuidParams,
-} from '../../../types';
-import { get } from '../../../utils/networking';
-import { getValidationUrl } from '../../../utils/appUrlHelper';
+import type { IAltinnWindow, IPartyIdInterfaceGuidParams } from 'src/types';
+import { get } from 'src/utils/networking';
+import { getValidationUrl } from 'src/utils/appUrlHelper';
 import { ValidationActions } from '../../form/validation/validationSlice';
-import { mapDataElementValidationToRedux } from '../../../utils/validation';
-import { getTextFromAppOrDefault } from '../../../utils/textResource';
+import { mapDataElementValidationToRedux } from 'src/utils/validation';
+import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { selectAppName } from 'src/selectors/language';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
