@@ -1417,7 +1417,7 @@ export function mergeValidationObjects(
   ...sources: (IValidations | null)[]
 ): IValidations {
   const validations: IValidations = {};
-  if (!sources || !sources.length) {
+  if (!sources?.length) {
     return validations;
   }
 

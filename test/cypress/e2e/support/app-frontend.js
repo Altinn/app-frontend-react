@@ -2,7 +2,7 @@
 import AppFrontend from '../pageobjects/app-frontend';
 import Common from '../pageobjects/common';
 import * as texts from '../fixtures/texts.json';
-import {instanceIdExp} from "./util";
+import {instanceIdExp} from './util';
 
 const appFrontend = new AppFrontend();
 const mui = new Common();
