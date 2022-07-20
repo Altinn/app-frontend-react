@@ -3,7 +3,7 @@ import type { IValidations } from 'src/types';
 import { getUnmappedErrors } from 'src/utils/validation';
 import { useAppSelector } from 'src/common/hooks';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
-import { Grid } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { getLanguageFromKey } from 'altinn-shared/utils';
@@ -19,7 +19,25 @@ interface Error {
   message: string | React.ReactNode;
 }
 
+const ArrowForwardIcon =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" style="position: relative; top: 2px">' +
+  '<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>' +
+  '</svg>';
+
+const useStyles = makeStyles((theme) => ({
+  errorList: {
+    listStylePosition: 'inside',
+    listStyleImage: `url("data:image/svg+xml,${encodeURIComponent(
+      ArrowForwardIcon,
+    )}")`,
+    '& > li': {
+      marginBottom: theme.spacing(1),
+    },
+  },
+}));
+
 const ErrorReport = ({ components }: IErrorReportProps) => {
+  const classes = useStyles();
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
@@ -59,7 +77,7 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
               item
               xs={12}
             >
-              <ul style={{ listStylePosition: 'inside' }}>
+              <ul className={classes.errorList}>
                 {unmappedErrors.map((error: React.ReactNode, index: number) => {
                   return <li key={`unmapped-${index}`}>{error}</li>;
                 })}
