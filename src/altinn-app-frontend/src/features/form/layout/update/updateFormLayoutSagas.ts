@@ -329,6 +329,7 @@ export function* updateCurrentViewSaga({
     returnToView,
     skipPageCaching,
     keepScrollPos,
+    focusComponentId,
   },
 }: PayloadAction<IUpdateCurrentView>): SagaIterator {
   try {
@@ -346,7 +347,11 @@ export function* updateCurrentViewSaga({
         localStorage.setItem(currentViewCacheKey, newView);
       }
       yield put(
-        FormLayoutActions.updateCurrentViewFulfilled({ newView, returnToView }),
+        FormLayoutActions.updateCurrentViewFulfilled({
+          newView,
+          returnToView,
+          focusComponentId,
+        }),
       );
     } else {
       const currentDataTaskDataTypeId = getDataTaskDataTypeId(
@@ -426,7 +431,12 @@ export function* updateCurrentViewSaga({
         if (!skipPageCaching) {
           localStorage.setItem(currentViewCacheKey, newView);
         }
-        yield put(FormLayoutActions.updateCurrentViewFulfilled({ newView }));
+        yield put(
+          FormLayoutActions.updateCurrentViewFulfilled({
+            newView,
+            focusComponentId,
+          }),
+        );
       } else if (
         !canFormBeSaved(
           {
@@ -450,6 +460,7 @@ export function* updateCurrentViewSaga({
           FormLayoutActions.updateCurrentViewFulfilled({
             newView,
             returnToView,
+            focusComponentId,
           }),
         );
       }

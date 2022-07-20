@@ -155,10 +155,10 @@ const formLayoutSlice = createSagaSlice(
       updateCurrentViewFulfilled:
         mkAction<LayoutTypes.IUpdateCurrentViewFulfilled>({
           reducer: (state, action) => {
-            const { newView, returnToView } = action.payload;
-            state.uiConfig.currentView = newView;
-            state.uiConfig.returnToView = returnToView;
+            state.uiConfig.currentView = action.payload.newView;
+            state.uiConfig.returnToView = action.payload.returnToView;
             state.uiConfig.keepScrollPos = undefined;
+            state.uiConfig.focus = action.payload.focusComponentId;
           },
         }),
       updateCurrentViewRejected:

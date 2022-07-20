@@ -1,13 +1,14 @@
 import * as React from 'react';
 import type { IValidations } from 'src/types';
 import { getUnmappedErrors } from 'src/utils/validation';
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector, useAppDispatch } from 'src/common/hooks';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { Grid, makeStyles } from '@material-ui/core';
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { getLanguageFromKey } from 'altinn-shared/utils';
 import type { ILayout } from 'src/features/form/layout';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 
 export interface IErrorReportProps {
   components: ILayout;
@@ -34,10 +35,23 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: theme.spacing(1),
     },
   },
+  buttonAsInvisibleLink: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    display: 'inline',
+    margin: 0,
+    padding: 0,
+  },
 }));
 
 const ErrorReport = ({ components }: IErrorReportProps) => {
   const classes = useStyles();
+  const dispatch = useAppDispatch();
+  const currentView = useAppSelector(
+    (state) => state.formLayout.uiConfig.currentView,
+  );
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
@@ -52,6 +66,33 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
 
   const unmappedErrors = getUnmappedErrors(validations);
   const hasErrors = unmappedErrors.length > 0 || formErrors.length > 0;
+
+  const OnClickError =
+    (error: Error) => (ev: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        ev.type === 'keydown' &&
+        (ev as React.KeyboardEvent).key !== 'Enter'
+      ) {
+        return;
+      }
+      ev.preventDefault();
+      if (currentView === error.layout) {
+        dispatch(
+          FormLayoutActions.updateFocus({
+            currentComponentId: error.componentId,
+          }),
+        );
+      } else {
+        dispatch(
+          FormLayoutActions.updateCurrentView({
+            newView: error.layout,
+            runValidations: null,
+            returnToView: currentView,
+            focusComponentId: error.componentId,
+          }),
+        );
+      }
+    };
 
   return (
     <Grid
@@ -82,7 +123,18 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
                   return <li key={`unmapped-${index}`}>{error}</li>;
                 })}
                 {formErrors.map((error, index) => {
-                  return <li key={`mapped-${index}`}>{error.message}</li>;
+                  return (
+                    <li key={`mapped-${index}`}>
+                      <button
+                        className={classes.buttonAsInvisibleLink}
+                        tabIndex={0}
+                        onClick={OnClickError(error)}
+                        onKeyDown={OnClickError(error)}
+                      >
+                        {error.message}
+                      </button>
+                    </li>
+                  );
                 })}
               </ul>
               {!hasErrors && (

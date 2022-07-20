@@ -133,6 +133,7 @@ export function SummaryComponent({
         newView: pageRef,
         runValidations: null,
         returnToView: summaryPageName,
+        focusComponentId: componentRef,
       }),
     );
   };

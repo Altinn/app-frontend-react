@@ -99,6 +99,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   const { id, ...passThroughProps } = props;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);
+  const gridRef = React.useRef<HTMLDivElement>();
   const GetHiddenSelector = makeGetHidden();
   const GetFocusSelector = makeGetFocus();
   const [hasValidationMessages, setHasValidationMessages] =
@@ -151,6 +152,20 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
       componentHasValidationMessages(componentValidations),
     );
   }, [componentValidations]);
+
+  React.useLayoutEffect(() => {
+    if (!hidden && shouldFocus && gridRef.current) {
+      gridRef.current.scrollIntoView();
+
+      const maybeInput = gridRef.current.querySelector('input,textarea') as
+        | HTMLInputElement
+        | HTMLTextAreaElement;
+      if (maybeInput) {
+        maybeInput.focus();
+      }
+      dispatch(FormLayoutActions.updateFocus({ currentComponentId: null }));
+    }
+  }, [shouldFocus, hidden, dispatch]);
 
   if (hidden) {
     return null;
@@ -330,6 +345,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   return (
     <FormComponentContext.Provider value={formComponentContext}>
       <Grid
+        ref={gridRef}
         item={true}
         container={true}
         xs={props.grid?.xs || 12}

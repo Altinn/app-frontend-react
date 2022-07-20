@@ -37,12 +37,14 @@ export interface IUpdateCurrentView {
   returnToView?: string;
   runValidations?: 'allPages' | 'page';
   skipPageCaching?: boolean;
+  focusComponentId?: string;
   keepScrollPos?: IKeepComponentScrollPos;
 }
 
 export interface IUpdateCurrentViewFulfilled {
   newView: string;
   returnToView?: string;
+  focusComponentId?: string;
 }
 
 export interface IUpdateCurrentViewRejected extends IFormLayoutActionRejected {
