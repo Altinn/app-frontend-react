@@ -133,13 +133,16 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').clear().type('test').blur();
     cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check();
     cy.intercept('GET', '**/validate').as('validateData');
-    cy.get(mui.button).should('be.visible').click();
+    cy.get(mui.button).should('be.visible').scrollIntoView().click();
+    cy.get(mui.button).should('be.inViewport');
     cy.wait('@validateData');
     cy.get(appFrontend.errorReport)
       .should('exist')
       .should('be.visible')
-      .should('be.focused')
-      .should('contain.text', texts.errorReport);
+      .should('be.inViewport')
+      .should('contain.text', texts.errorReport)
+      .should('contain.text', texts.requiredFieldLastName)
+      .should('contain.text', texts.requiredFieldDateFrom);
   });
 
   it('Validation on uploaded attachment type', () => {
@@ -175,7 +178,6 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport)
       .should('exist')
       .should('be.visible')
-      .should('be.focused')
       .should('contain.text', 'task validation');
   });
 });
