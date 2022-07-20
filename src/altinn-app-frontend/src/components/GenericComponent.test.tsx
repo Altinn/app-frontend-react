@@ -1,12 +1,11 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
 
-import { renderWithProviders } from '../../testUtils';
-import {
-  type IActualGenericComponentProps,
-  GenericComponent,
-} from './GenericComponent';
 import { getFormDataStateMock, getFormLayoutStateMock } from '__mocks__/mocks';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
+
+import { GenericComponent } from 'src/components/GenericComponent';
+import type { IActualGenericComponentProps } from 'src/components/GenericComponent';
 
 const render = (props: Partial<IActualGenericComponentProps<any>> = {}) => {
   const allProps: IActualGenericComponentProps<'Input'> = {

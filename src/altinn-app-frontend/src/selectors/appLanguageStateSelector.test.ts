@@ -1,6 +1,7 @@
 import { getProfileStateMock } from '__mocks__/profileStateMock';
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { statelessAndAllowAnonymousMock } from '__mocks__/statelessAndAllowAnonymousMock';
+
+import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 
 describe('appLanguageStateSelector', () => {
   interface ISetupProps {

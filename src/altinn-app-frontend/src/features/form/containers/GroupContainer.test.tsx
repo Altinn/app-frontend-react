@@ -1,14 +1,15 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
 
 import { getFormLayoutGroupMock, getInitialStateMock } from '__mocks__/mocks';
-import type { ILayoutGroup } from '../layout';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { mockMediaQuery, renderWithProviders } from 'testUtils';
 
-import { GroupContainer } from './GroupContainer';
-import { Triggers } from 'src/types';
-import { mockMediaQuery, renderWithProviders } from '../../../../testUtils';
-import { setupStore } from 'src/store';
+import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { setupStore } from 'src/store';
+import { Triggers } from 'src/types';
+import type { ILayoutGroup } from 'src/features/form/layout';
 
 const mockContainer = getFormLayoutGroupMock();
 
@@ -185,17 +186,17 @@ describe('GroupContainer', () => {
     expect(item).toBeInTheDocument();
   });
 
-  it('should trigger validate when closing edit mode if validation trigger is present', () => {
+  it('should trigger validate when closing edit mode if validation trigger is present', async () => {
     const mockContainerInEditModeWithTrigger = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
       triggers: [Triggers.Validation],
     };
-
+    const user = userEvent.setup();
     const store = render({ container: mockContainerInEditModeWithTrigger });
 
     const editButton = screen.getAllByText('Rediger')[0].closest('button');
-    fireEvent.click(editButton);
+    await user.click(editButton);
 
     const mockDispatchedAction = {
       payload: {
@@ -216,9 +217,10 @@ describe('GroupContainer', () => {
       id: 'container-in-edit-mode-id',
     };
     const store = render({ container: mockContainerInEditMode });
+    const user = userEvent.setup();
 
     const editButton = screen.getAllByText('Rediger')[0].closest('button');
-    fireEvent.click(editButton);
+    user.click(editButton);
 
     const mockDispatchedAction = {
       payload: {
@@ -240,9 +242,10 @@ describe('GroupContainer', () => {
       triggers: [Triggers.Validation],
     };
     const store = render({ container: mockContainerInEditModeWithTrigger });
+    const user = userEvent.setup();
 
     const editButton = screen.getAllByText('Ferdig')[0].closest('button');
-    fireEvent.click(editButton);
+    user.click(editButton);
 
     const mockDispatchedAction = {
       payload: {
@@ -263,9 +266,10 @@ describe('GroupContainer', () => {
       id: 'container-in-edit-mode-id',
     };
     const store = render({ container: mockContainerInEditMode });
+    const user = userEvent.setup();
 
     const editButton = screen.getAllByText('Ferdig')[0].closest('button');
-    fireEvent.click(editButton);
+    user.click(editButton);
 
     const mockDispatchedAction = {
       payload: {

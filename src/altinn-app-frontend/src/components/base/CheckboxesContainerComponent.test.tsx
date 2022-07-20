@@ -1,17 +1,17 @@
 import React from 'react';
+
+import { getInitialStateMock } from '__mocks__/initialStateMock';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { screen, fireEvent } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
 import type { PreloadedState } from '@reduxjs/toolkit';
 
-import { renderWithProviders } from '../../../testUtils';
-
-import type { IComponentProps } from 'src/components';
-import type { ICheckboxContainerProps } from './CheckboxesContainerComponent';
-import { getInitialStateMock } from '__mocks__/mocks';
-import { CheckboxContainerComponent } from './CheckboxesContainerComponent';
+import { CheckboxContainerComponent } from 'src/components/base/CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/types';
-import type { RootState } from 'src/store';
+import type { IComponentProps } from 'src/components';
+import type { ICheckboxContainerProps } from 'src/components/base/CheckboxesContainerComponent';
 import type { IOptionsState } from 'src/shared/resources/options';
+import type { RootState } from 'src/store';
 
 const threeOptions = [
   {

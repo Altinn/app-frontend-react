@@ -1,14 +1,14 @@
 import React from 'react';
+
+import { getAttachments } from '__mocks__/attachmentsMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { screen } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
 
+import { FileUploadComponent } from 'src/components/base/FileUpload/FileUploadComponent';
 import type { IComponentProps } from 'src/components';
+import type { IFileUploadProps } from 'src/components/base/FileUpload/FileUploadComponent';
 import type { IAttachment } from 'src/shared/resources/attachments';
-import type { IFileUploadProps } from './FileUploadComponent';
-
-import { FileUploadComponent } from './FileUploadComponent';
-import { renderWithProviders } from 'src/../testUtils';
-import { getAttachments } from 'src/../__mocks__/attachmentsMock';
-import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
 
 const testId = 'mockId';
 

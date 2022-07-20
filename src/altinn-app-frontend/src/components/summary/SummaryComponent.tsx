@@ -1,19 +1,21 @@
 import * as React from 'react';
+import { shallowEqual } from 'react-redux';
+
 import { Grid, makeStyles } from '@material-ui/core';
+
+import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import ErrorPaper from 'src/components/message/ErrorPaper';
+import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { makeGetHidden } from 'src/selectors/getLayoutData';
 import {
   componentHasValidationMessages,
   getComponentValidations,
   getDisplayFormDataForComponent,
 } from 'src/utils/formComponentUtils';
-import { shallowEqual } from 'react-redux';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { IGrid } from 'src/features/form/layout';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import type { IGrid, ILayoutComponent } from 'src/features/form/layout';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
-import { makeGetHidden } from 'src/selectors/getLayoutData';
-import ErrorPaper from '../message/ErrorPaper';
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
 
 export interface ISummaryComponent {
   id: string;
@@ -105,7 +107,7 @@ export function SummaryComponent({
       getDisplayFormDataForComponent(
         state.formData.formData,
         attachments,
-        formComponent,
+        formComponent as ILayoutComponent,
         state.textResources.resources,
         state.optionState.options,
         state.formLayout.uiConfig.repeatingGroups,
@@ -166,7 +168,6 @@ export function SummaryComponent({
       md={grid?.md || false}
       lg={grid?.lg || false}
       xl={grid?.xl || false}
-      data-testid='summary-component'
     >
       <Grid
         container={true}

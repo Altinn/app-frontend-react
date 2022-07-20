@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
+
+import { getFormLayoutStateMock, getInitialStateMock } from '__mocks__/mocks';
 import { render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 
-import { getFormLayoutStateMock, getInitialStateMock } from '__mocks__/mocks';
-
+import { NavigationButtons } from 'src/components/presentation/NavigationButtons';
 import type { IComponentProps } from 'src/components';
-
-import { NavigationButtons } from './NavigationButtons';
 
 describe('NavigationButton', () => {
   let mockStore;

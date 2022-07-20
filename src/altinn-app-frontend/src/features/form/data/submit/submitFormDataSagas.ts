@@ -1,43 +1,45 @@
-import type { SagaIterator } from 'redux-saga';
 import { call, put as sagaPut, select } from 'redux-saga/effects';
-import { get, put } from 'altinn-shared/utils';
-import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
-import { Severity } from 'src/types';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { post } from 'src/utils/networking';
+import type { SagaIterator } from 'redux-saga';
+
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
+import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { ValidationActions } from 'src/features/form/validation/validationSlice';
+import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
+import { Severity } from 'src/types';
 import {
-  convertDataBindingToModel,
-  convertModelToDataBinding,
-  filterOutInvalidData,
-} from 'src/utils/databindings';
+  getCurrentDataTypeForApplication,
+  getCurrentTaskDataElementId,
+  isStatelessApp,
+} from 'src/utils/appMetadata';
 import {
   dataElementUrl,
   getStatelessFormDataUrl,
   getValidationUrl,
 } from 'src/utils/appUrlHelper';
 import {
+  convertDataBindingToModel,
+  convertModelToDataBinding,
+  filterOutInvalidData,
+} from 'src/utils/databindings';
+import { post } from 'src/utils/networking';
+import {
   canFormBeSaved,
   hasValidationsOfSeverity,
   mapDataElementValidationToRedux,
   mergeValidationObjects,
+  runClientSideValidation,
 } from 'src/utils/validation';
-import type { ILayoutState } from '../../layout/formLayoutSlice';
-import { FormLayoutActions } from '../../layout/formLayoutSlice';
-import { ValidationActions } from '../../validation/validationSlice';
-import { FormDataActions } from '../formDataSlice';
-import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type {
   ISubmitDataAction,
   IUpdateFormDataFulfilled,
-} from '../formDataTypes';
-import {
-  getCurrentDataTypeForApplication,
-  getCurrentTaskDataElementId,
-  isStatelessApp,
-} from 'src/utils/appMetadata';
-import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
-import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
+} from 'src/features/form/data/formDataTypes';
+import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
+
+import { get, put } from 'altinn-shared/utils';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (
   store: IRuntimeStore,

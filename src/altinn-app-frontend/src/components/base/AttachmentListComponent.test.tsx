@@ -1,18 +1,18 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
 
 import {
+  applicationMetadataMock,
   getInitialStateMock,
   getInstanceDataStateMock,
-  applicationMetadataMock,
 } from '__mocks__/mocks';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
+
+import { AttachmentListComponent } from 'src/components/base/AttachmentListComponent';
+import type { IAttachmentListProps } from 'src/components/base/AttachmentListComponent';
 import type { IInstanceDataState } from 'src/shared/resources/instanceData';
+
 import type { IData } from 'altinn-shared/types';
-import type { IAttachmentListProps } from './AttachmentListComponent';
-
-import { renderWithProviders } from 'src/../testUtils';
-
-import { AttachmentListComponent } from './AttachmentListComponent';
 
 describe('FileUploadComponent', () => {
   it('should render default AttachmentList component', () => {

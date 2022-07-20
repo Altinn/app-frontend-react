@@ -1,20 +1,27 @@
-import Grid from '@material-ui/core/Grid';
 import React from 'react';
-import { SummaryComponent } from 'src/components/summary/SummaryComponent';
-import type { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
-import { GroupContainer } from './GroupContainer';
-import { renderGenericComponent } from 'src/utils/layout';
-import { DisplayGroupContainer } from './DisplayGroupContainer';
+import { Route } from 'react-router-dom';
+
+import Grid from '@material-ui/core/Grid';
+
 import {
   useAppSelector,
   useFormLayoutHistoryAndMatchInstanceLocation,
 } from 'src/common/hooks';
+import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import MessageBanner from 'src/features/form/components/MessageBanner';
-import { hasRequiredFields } from 'src/utils/formLayout';
-import { missingFieldsInLayoutValidations } from 'src/utils/validation';
-import { Route } from 'react-router-dom';
-import { PanelGroupContainer } from './PanelGroupContainer';
+import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
+import { GroupContainer } from 'src/features/form/containers/GroupContainer';
+import { PanelGroupContainer } from 'src/features/form/containers/PanelGroupContainer';
+import { hasRequiredFields } from 'src/utils/formLayout';
+import { renderGenericComponent } from 'src/utils/layout';
+import { missingFieldsInLayoutValidations } from 'src/utils/validation';
+import type {
+  ILayout,
+  ILayoutComponent,
+  ILayoutGroup,
+} from 'src/features/form/layout';
+
 import { AltinnContentLoader } from 'altinn-shared/components';
 
 export function renderLayoutComponent(
@@ -93,6 +100,7 @@ export function Form() {
   const [currentLayout, setCurrentLayout] = React.useState<string>();
   const [requiredFieldsMissing, setRequiredFieldsMissing] =
     React.useState(false);
+
   const currentView = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
   );

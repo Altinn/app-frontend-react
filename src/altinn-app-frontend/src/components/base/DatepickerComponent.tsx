@@ -1,19 +1,19 @@
-import moment from 'moment';
 import * as React from 'react';
+
+import MomentUtils from '@date-io/moment';
 import {
   Grid,
-  useMediaQuery,
-  useTheme,
   Icon,
   makeStyles,
+  useMediaQuery,
+  useTheme,
 } from '@material-ui/core';
 import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
-import MomentUtils from '@date-io/moment';
-import { getLanguageFromKey } from 'altinn-shared/utils';
-import type { IComponentBindingValidation, DateFlags } from 'src/types';
+import moment from 'moment';
+
 import { getFlagBasedDate, getISOString } from 'src/utils/dateHelpers';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import {
@@ -23,11 +23,14 @@ import {
   DatePickerSaveFormatNoTimestamp,
   validateDatepickerFormData,
 } from 'src/utils/validation';
-import type { IComponentProps } from '..';
-
-import './DatepickerComponent.css';
-import '../../styles/shared.css';
+import type { IComponentProps } from 'src/components';
 import type { ILayoutCompDatePicker } from 'src/features/form/layout';
+import type { DateFlags, IComponentBindingValidation } from 'src/types';
+
+import { getLanguageFromKey } from 'altinn-shared/utils';
+
+import 'src/components/base/DatepickerComponent.css';
+import 'src/styles/shared.css';
 
 export type IDatePickerProps = IComponentProps &
   Omit<ILayoutCompDatePicker, 'type'>;

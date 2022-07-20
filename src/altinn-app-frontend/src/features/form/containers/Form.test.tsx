@@ -1,12 +1,18 @@
 import * as React from 'react';
-import { Form } from './Form';
-import type { PreloadedState } from '@reduxjs/toolkit';
-import type { RootState } from 'src/store';
-import { renderWithProviders } from 'src/../testUtils';
-import type { ILayout, ILayoutComponent, ILayoutEntry } from '../layout';
+import { MemoryRouter, Route } from 'react-router-dom';
+
 import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 import { screen, within } from '@testing-library/react';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { renderWithProviders } from 'testUtils';
+import type { PreloadedState } from '@reduxjs/toolkit';
+
+import { Form } from 'src/features/form/containers/Form';
+import type {
+  ILayout,
+  ILayoutComponent,
+  ILayoutEntry,
+} from 'src/features/form/layout';
+import type { RootState } from 'src/store';
 
 describe('Form', () => {
   const mockComponents: ILayout = [

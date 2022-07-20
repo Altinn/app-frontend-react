@@ -1,16 +1,22 @@
 import React from 'react';
+
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { screen } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
+
+import { FormComponentContext } from 'src/components';
+import {
+  getPanelTitle,
+  SoftValidations,
+} from 'src/features/form/components/SoftValidations';
+import type { IFormComponentContext } from 'src/components';
 import type {
   ISoftValidationProps,
   SoftValidationVariant,
-} from './SoftValidations';
-import { getPanelTitle, SoftValidations } from './SoftValidations';
-import { renderWithProviders } from 'src/../testUtils';
-import { getInitialStateMock } from '__mocks__/initialStateMock';
-import { nb } from 'altinn-shared/language/texts/nb';
+} from 'src/features/form/components/SoftValidations';
 import type { IRuntimeState, ITextResource } from 'src/types';
-import { FormComponentContext } from 'src/components';
-import type { IFormComponentContext } from 'src/components';
+
+import { nb } from 'altinn-shared/language/texts/nb';
 
 const render = (
   props: Partial<ISoftValidationProps> = {},

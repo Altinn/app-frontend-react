@@ -1,9 +1,12 @@
 import React from 'react';
-import { ProcessTaskType } from 'src/types';
-import Header from './Header';
-import { renderWithProviders } from '../../../testUtils';
+
+import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { screen } from '@testing-library/react';
-import { getInitialStateMock, getFormLayoutStateMock } from '__mocks__/mocks';
+import { renderWithProviders } from 'testUtils';
+
+import Header from 'src/components/presentation/Header';
+import { ProcessTaskType } from 'src/types';
 
 describe('Header', () => {
   it('should render as expected with header title', () => {

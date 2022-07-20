@@ -1,14 +1,14 @@
 import React from 'react';
+
+import { getInitialStateMock } from '__mocks__/initialStateMock';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { screen, fireEvent } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
 import type { PreloadedState } from '@reduxjs/toolkit';
 
-import { renderWithProviders } from '../../../testUtils';
-
-import DropdownComponent from './DropdownComponent';
+import DropdownComponent from 'src/components/base/DropdownComponent';
 import type { IComponentProps } from 'src/components';
-import type { IDropdownProps } from './DropdownComponent';
-import { getInitialStateMock } from '__mocks__/initialStateMock';
+import type { IDropdownProps } from 'src/components/base/DropdownComponent';
 import type { RootState } from 'src/store';
 
 const render = (
