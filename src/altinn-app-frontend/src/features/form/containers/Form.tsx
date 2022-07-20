@@ -15,9 +15,7 @@ import MessageBanner from 'src/features/form/components/MessageBanner';
 import { hasRequiredFields } from 'src/utils/formLayout';
 import { missingFieldsInLayoutValidations } from 'src/utils/validation';
 import { PanelGroupContainer } from './PanelGroupContainer';
-import ErrorReport, {
-  getFormHasErrors,
-} from 'src/components/message/ErrorReport';
+import ErrorReport, { getFormErrors } from 'src/components/message/ErrorReport';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -107,9 +105,10 @@ export function Form() {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
-  const hasErrors = useAppSelector((state) =>
-    getFormHasErrors(state.formValidations.validations),
+  const formErrors = useAppSelector((state) =>
+    getFormErrors(state.formValidations.validations),
   );
+  const hasErrors = formErrors.length > 0;
 
   const requiredFieldsMissing = React.useMemo(() => {
     if (validations && validations[currentView]) {

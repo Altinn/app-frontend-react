@@ -13,28 +13,27 @@ export interface IErrorReportProps {
   components: ILayout;
 }
 
+interface Error {
+  layout: string;
+  componentId: string;
+  message: string | React.ReactNode;
+}
+
 const ErrorReport = ({ components }: IErrorReportProps) => {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
-  const unmappedErrors = getUnmappedErrors(validations);
-  const hasUnmappedErrors = unmappedErrors.length > 0;
   const language = useAppSelector((state) => state.language.language);
-  const formHasErrors = useAppSelector((state) =>
-    getFormHasErrors(state.formValidations.validations),
+  const formErrors = useAppSelector((state) =>
+    getFormErrors(state.formValidations.validations),
   );
-  const hasSubmitted = useAppSelector((state) => state.formData.hasSubmitted);
-  const errorRef = React.useRef(null);
 
-  React.useEffect(() => {
-    if (hasSubmitted) {
-      errorRef?.current?.focus();
-    }
-  }, [hasSubmitted, unmappedErrors]);
-
-  if (!formHasErrors) {
+  if (formErrors.length === 0) {
     return null;
   }
+
+  const unmappedErrors = getUnmappedErrors(validations);
+  const hasErrors = unmappedErrors.length > 0 || formErrors.length > 0;
 
   return (
     <Grid
@@ -55,22 +54,20 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
             item={true}
             spacing={3}
             alignItems='flex-start'
-            data-testid='panel-group-container'
           >
             <Grid
               item
               xs={12}
             >
-              {hasUnmappedErrors && (
-                <ul style={{ listStylePosition: 'inside' }}>
-                  {unmappedErrors.map(
-                    (error: React.ReactNode, index: number) => {
-                      return <li key={index}>{error}</li>;
-                    },
-                  )}
-                </ul>
-              )}
-              {!hasUnmappedErrors && (
+              <ul style={{ listStylePosition: 'inside' }}>
+                {unmappedErrors.map((error: React.ReactNode, index: number) => {
+                  return <li key={`unmapped-${index}`}>{error}</li>;
+                })}
+                {formErrors.map((error, index) => {
+                  return <li key={`mapped-${index}`}>{error.message}</li>;
+                })}
+              </ul>
+              {!hasErrors && (
                 // No errors to list, show a generic error message
                 <h4
                   className='a-fontReg'
@@ -96,19 +93,25 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
   );
 };
 
-export const getFormHasErrors = (validations: IValidations): boolean => {
+export const getFormErrors = (validations: IValidations): Error[] => {
+  const errors: Error[] = [];
+
   for (const layout in validations) {
-    for (const key in validations[layout]) {
-      const validationObject = validations[layout][key];
+    for (const componentId in validations[layout]) {
+      const validationObject = validations[layout][componentId];
       for (const fieldKey in validationObject) {
-        const fieldValidationErrors = validationObject[fieldKey].errors;
-        if (fieldValidationErrors && fieldValidationErrors.length > 0) {
-          return true;
+        for (const message of validationObject[fieldKey].errors || []) {
+          errors.push({
+            layout,
+            componentId,
+            message,
+          });
         }
       }
     }
   }
-  return false;
+
+  return errors;
 };
 
 export default ErrorReport;
