@@ -2,6 +2,8 @@ import { getInstanceIdRegExp } from './instanceIdRegExp';
 
 describe('instanceIdRegExp', () => {
   const instanceIdExample = '123456/75154373-aed4-41f7-95b4-e5b5115c2edc';
+  const expr =
+    /(\d{1,6}\/[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12})/i;
   const matchTests = (exp: RegExp) => {
     expect(`pre/${instanceIdExample}/post`.match(exp)[1]).toBe(
       instanceIdExample,
@@ -9,48 +11,30 @@ describe('instanceIdRegExp', () => {
   };
   it('should return only the expression if no pre- or postfix is provided', () => {
     const exp = getInstanceIdRegExp();
-    expect(exp.source).toBe(
-      /(\d+\/[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12})/i
-        .source,
-    );
+    expect(exp.source).toBe(expr.source);
     expect(instanceIdExample.match(exp)[1]).toBe(instanceIdExample);
     expect(exp.flags).toBe('i');
     matchTests(exp);
   });
   it('should return expression with prefix', () => {
     const exp = getInstanceIdRegExp({ prefix: 'pre' });
-    expect(exp.source).toBe(
-      'pre\\/' +
-        /(\d+\/[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12})/i
-          .source,
-    );
+    expect(exp.source).toBe(`pre\\/${expr.source}`);
     expect(exp.flags).toBe('i');
     matchTests(exp);
   });
   it('should return expression with postfix', () => {
     const exp = getInstanceIdRegExp({ postfix: 'post' });
-    expect(exp.source).toBe(
-      /(\d+\/[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12})/i
-        .source + '\\/post',
-    );
+    expect(exp.source).toBe(`${expr.source}\\/post`);
     matchTests(exp);
   });
   it('should return expression with both pre and post fix', () => {
     const exp = getInstanceIdRegExp({ prefix: 'pre', postfix: 'post' });
-    expect(exp.source).toBe(
-      'pre\\/' +
-        /(\d+\/[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12})/i
-          .source +
-        '\\/post',
-    );
+    expect(exp.source).toBe(`pre\\/${expr.source}\\/post`);
     matchTests(exp);
   });
   it('should return expression that matches only strings ending with instanceId', () => {
     const exp = getInstanceIdRegExp({ postfix: '$' });
-    expect(exp.source).toBe(
-      /(\d+\/[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12})/i
-        .source + '$',
-    );
+    expect(exp.source).toBe(`${expr.source}$`);
     expect(`some/path/ending/with/${instanceIdExample}`.match(exp)[1]).toBe(
       instanceIdExample,
     );
