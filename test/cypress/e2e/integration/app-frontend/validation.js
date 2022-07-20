@@ -133,8 +133,9 @@ describe('Validation', () => {
     cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').clear().type('test').blur();
     cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check();
     cy.intercept('GET', '**/validate').as('validateData');
-    cy.get(mui.button).should('be.visible').scrollIntoView().click();
+    cy.get(mui.button).should('be.visible').scrollIntoView();
     cy.get(mui.button).should('be.inViewport');
+    cy.get(mui.button).click();
     cy.wait('@validateData');
     cy.get(appFrontend.errorReport)
       .should('exist')
