@@ -1,23 +1,20 @@
 import * as React from 'react';
-import type { IValidations } from 'src/types';
-import { getUnmappedErrors } from 'src/utils/validation';
-import { useAppSelector, useAppDispatch } from 'src/common/hooks';
-import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
-import { Grid, makeStyles } from '@material-ui/core';
+
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
+import { Grid, makeStyles } from '@material-ui/core';
+
+import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
-import { getLanguageFromKey } from 'altinn-shared/utils';
-import type { ILayout } from 'src/features/form/layout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation';
+import type { ILayout } from 'src/features/form/layout';
+import type { FlatError } from 'src/utils/validation';
+
+import { getLanguageFromKey } from 'altinn-shared/utils';
 
 export interface IErrorReportProps {
   components: ILayout;
-}
-
-interface Error {
-  layout: string;
-  componentId: string;
-  message: string | React.ReactNode;
 }
 
 const ArrowForwardIcon =
@@ -52,23 +49,19 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
   const currentView = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
   );
-  const validations = useAppSelector(
-    (state) => state.formValidations.validations,
-  );
+  const [errorsMapped, errorsUnmapped] = useAppSelector((state) => [
+    getMappedErrors(state.formValidations.validations),
+    getUnmappedErrors(state.formValidations.validations),
+  ]);
   const language = useAppSelector((state) => state.language.language);
-  const formErrors = useAppSelector((state) =>
-    getFormErrors(state.formValidations.validations),
-  );
+  const hasErrors = errorsUnmapped.length > 0 || errorsMapped.length > 0;
 
-  if (formErrors.length === 0) {
+  if (!hasErrors) {
     return null;
   }
 
-  const unmappedErrors = getUnmappedErrors(validations);
-  const hasErrors = unmappedErrors.length > 0 || formErrors.length > 0;
-
   const OnClickError =
-    (error: Error) => (ev: React.KeyboardEvent | React.MouseEvent) => {
+    (error: FlatError) => (ev: React.KeyboardEvent | React.MouseEvent) => {
       if (
         ev.type === 'keydown' &&
         (ev as React.KeyboardEvent).key !== 'Enter'
@@ -96,6 +89,7 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
 
   return (
     <Grid
+      data-testid='ErrorReport'
       item={true}
       xs={12}
     >
@@ -119,10 +113,10 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
               xs={12}
             >
               <ul className={classes.errorList}>
-                {unmappedErrors.map((error: React.ReactNode, index: number) => {
+                {errorsUnmapped.map((error: React.ReactNode, index: number) => {
                   return <li key={`unmapped-${index}`}>{error}</li>;
                 })}
-                {formErrors.map((error, index) => {
+                {errorsMapped.map((error, index) => {
                   return (
                     <li key={`mapped-${index}`}>
                       <button
@@ -137,22 +131,7 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
                   );
                 })}
               </ul>
-              {!hasErrors && (
-                // No errors to list, show a generic error message
-                <h4
-                  className='a-fontReg'
-                  style={{ marginBottom: '12px' }}
-                >
-                  <span>
-                    {getLanguageFromKey(
-                      'form_filler.error_report_description',
-                      language,
-                    )}
-                  </span>
-                </h4>
-              )}
             </Grid>
-
             {components.map((component) => {
               return renderLayoutComponent(component, []);
             })}
@@ -161,27 +140,6 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
       </FullWidthWrapper>
     </Grid>
   );
-};
-
-export const getFormErrors = (validations: IValidations): Error[] => {
-  const errors: Error[] = [];
-
-  for (const layout in validations) {
-    for (const componentId in validations[layout]) {
-      const validationObject = validations[layout][componentId];
-      for (const fieldKey in validationObject) {
-        for (const message of validationObject[fieldKey].errors || []) {
-          errors.push({
-            layout,
-            componentId,
-            message,
-          });
-        }
-      }
-    }
-  }
-
-  return errors;
 };
 
 export default ErrorReport;

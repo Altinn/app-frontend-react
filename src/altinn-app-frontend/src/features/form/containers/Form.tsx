@@ -1,21 +1,26 @@
-import Grid from '@material-ui/core/Grid';
 import React from 'react';
+
+import Grid from '@material-ui/core/Grid';
+
+import { useAppSelector } from 'src/common/hooks';
+import ErrorReport from 'src/components/message/ErrorReport';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
+import MessageBanner from 'src/features/form/components/MessageBanner';
+import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
+import { GroupContainer } from 'src/features/form/containers/GroupContainer';
+import { PanelGroupContainer } from 'src/features/form/containers/PanelGroupContainer';
+import { hasRequiredFields } from 'src/utils/formLayout';
+import { renderGenericComponent } from 'src/utils/layout';
+import {
+  getFormHasErrors,
+  missingFieldsInLayoutValidations,
+} from 'src/utils/validation';
 import type {
+  ComponentTypes,
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
-  ComponentTypes,
-} from '../layout';
-import { GroupContainer } from './GroupContainer';
-import { renderGenericComponent } from 'src/utils/layout';
-import { DisplayGroupContainer } from './DisplayGroupContainer';
-import { useAppSelector } from 'src/common/hooks';
-import MessageBanner from 'src/features/form/components/MessageBanner';
-import { hasRequiredFields } from 'src/utils/formLayout';
-import { missingFieldsInLayoutValidations } from 'src/utils/validation';
-import { PanelGroupContainer } from './PanelGroupContainer';
-import ErrorReport, { getFormErrors } from 'src/components/message/ErrorReport';
+} from 'src/features/form/layout';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -105,10 +110,9 @@ export function Form() {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
-  const formErrors = useAppSelector((state) =>
-    getFormErrors(state.formValidations.validations),
+  const hasErrors = useAppSelector((state) =>
+    getFormHasErrors(state.formValidations.validations),
   );
-  const hasErrors = formErrors.length > 0;
 
   const requiredFieldsMissing = React.useMemo(() => {
     if (validations && validations[currentView]) {
