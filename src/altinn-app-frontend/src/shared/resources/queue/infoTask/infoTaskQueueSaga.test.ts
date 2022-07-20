@@ -8,13 +8,10 @@ import type { ITextResource } from 'src/types';
 import type { IInstance } from '../../../../../../shared/src/types';
 import type { IApplicationMetadata } from '../../applicationMetadata';
 
-import {
-  finishDataTaskIsLoading,
-  startDataTaskIsLoading,
-} from '../../isLoading/isLoadingSlice';
-import { startInitialInfoTaskQueueFulfilled } from '../queueSlice';
-import FormDataActions from '../../../../features/form/data/formDataActions';
-import TextResourcesActions from '../../textResources/textResourcesActions';
+import { IsLoadingActions } from '../../isLoading/isLoadingSlice';
+import { QueueActions } from '../queueSlice';
+import { FormDataActions } from '../../../../features/form/data/formDataSlice';
+import { TextResourcesActions } from '../../textResources/textResourcesSlice';
 import {
   startInitialInfoTaskQueueSaga,
   ApplicationMetadataSelector,
@@ -41,9 +38,9 @@ describe('infoTaskQueueSaga', () => {
         [select(TextResourceSelector), textResources],
         [select(InstanceDataSelector), getInstanceDataStateMock().instance],
       ])
-      .put(startDataTaskIsLoading())
-      .put(startInitialInfoTaskQueueFulfilled())
-      .put(finishDataTaskIsLoading())
+      .put(IsLoadingActions.startDataTaskIsLoading())
+      .put(QueueActions.startInitialInfoTaskQueueFulfilled())
+      .put(IsLoadingActions.finishDataTaskIsLoading())
       .run();
   });
 
@@ -80,11 +77,11 @@ describe('infoTaskQueueSaga', () => {
         [select(TextResourceSelector), textsWithVariables],
         [select(InstanceDataSelector), instanceData],
       ])
-      .put(startDataTaskIsLoading())
-      .put(startInitialInfoTaskQueueFulfilled())
-      .put(FormDataActions.fetchFormDataFulfilled({ formData: {} }))
-      .call(TextResourcesActions.replaceTextResources)
-      .put(finishDataTaskIsLoading())
+      .put(IsLoadingActions.startDataTaskIsLoading())
+      .put(QueueActions.startInitialInfoTaskQueueFulfilled())
+      .put(FormDataActions.fetchFulfilled({ formData: {} }))
+      .put(TextResourcesActions.replace())
+      .put(IsLoadingActions.finishDataTaskIsLoading())
       .run();
   });
 });

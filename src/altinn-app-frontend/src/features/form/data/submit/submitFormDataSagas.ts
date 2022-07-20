@@ -1,13 +1,10 @@
-/* eslint-disable max-len */
 import type { SagaIterator } from 'redux-saga';
-import { call, put as sagaPut, select, takeLatest } from 'redux-saga/effects';
+import { call, put as sagaPut, select } from 'redux-saga/effects';
 import { get, put } from 'altinn-shared/utils';
 import type { IRuntimeState, IRuntimeStore, IUiConfig } from 'src/types';
 import { Severity } from 'src/types';
-import { isIE } from 'react-device-detect';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { post } from 'src/utils/networking';
-import ProcessDispatcher from '../../../../shared/resources/process/processDispatcher';
 import {
   convertDataBindingToModel,
   convertModelToDataBinding,
@@ -30,13 +27,13 @@ import {
 } from '../../../../utils/validation';
 import type { ILayoutState } from '../../layout/formLayoutSlice';
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
-import {
-  runSingleFieldValidation,
-  updateValidations,
-} from '../../validation/validationSlice';
-import FormDataActions from '../formDataActions';
-import FormDynamicsActions from '../../dynamics/formDynamicsActions';
-import type { ISubmitDataAction } from '../formDataTypes';
+import { ValidationActions } from '../../validation/validationSlice';
+import { FormDataActions } from '../formDataSlice';
+import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
+import type {
+  ISubmitDataAction,
+  IUpdateFormDataFulfilled,
+} from '../formDataTypes';
 import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,
@@ -44,6 +41,7 @@ import {
   isStatelessApp,
 } from '../../../../utils/appMetadata';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (
   store: IRuntimeStore,
@@ -51,10 +49,8 @@ const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (
 const UIConfigSelector: (store: IRuntimeStore) => IUiConfig = (
   store: IRuntimeStore,
 ) => store.formLayout.uiConfig;
-export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
 
-// eslint-disable-next-line consistent-return
-function* submitFormSaga({
+export function* submitFormSaga({
   payload: { apiMode, stopWithWarnings },
 }: PayloadAction<ISubmitDataAction>): SagaIterator {
   try {
@@ -109,20 +105,18 @@ function* submitFormSaga({
     }
     validationResult.validations = validations;
     if (!canFormBeSaved(validationResult, apiMode)) {
-      yield sagaPut(updateValidations({ validations }));
-      return yield sagaPut(
-        FormDataActions.submitFormDataRejected({ error: null }),
-      );
+      yield sagaPut(ValidationActions.updateValidations({ validations }));
+      return yield sagaPut(FormDataActions.submitRejected({ error: null }));
     }
 
     yield call(putFormData, state, model);
     if (apiMode === 'Complete') {
       yield call(submitComplete, state, stopWithWarnings);
     }
-    yield sagaPut(FormDataActions.submitFormDataFulfilled());
+    yield sagaPut(FormDataActions.submitFulfilled());
   } catch (error) {
     console.error(error);
-    yield sagaPut(FormDataActions.submitFormDataRejected({ error }));
+    yield sagaPut(FormDataActions.submitRejected({ error }));
   }
 }
 
@@ -137,7 +131,9 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean) {
     layoutState.layouts,
     state.textResources.resources,
   );
-  yield sagaPut(updateValidations({ validations: mappedValidations }));
+  yield sagaPut(
+    ValidationActions.updateValidations({ validations: mappedValidations }),
+  );
   const hasErrors = hasValidationsOfSeverity(mappedValidations, Severity.Error);
   const hasWarnings = hasValidationsOfSeverity(
     mappedValidations,
@@ -145,9 +141,7 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean) {
   );
   if (hasErrors || (stopWithWarnings && hasWarnings)) {
     // we have validation errors or warnings that should be shown, do not submit
-    return yield sagaPut(
-      FormDataActions.submitFormDataRejected({ error: null }),
-    );
+    return yield sagaPut(FormDataActions.submitRejected({ error: null }));
   }
 
   if (layoutState.uiConfig.currentViewCacheKey) {
@@ -157,7 +151,7 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean) {
   }
 
   // data has no validation errors, we complete the current step
-  return yield call(ProcessDispatcher.completeProcess);
+  return yield sagaPut(ProcessActions.complete());
 }
 
 export function* putFormData(state: IRuntimeState, model: any) {
@@ -169,14 +163,7 @@ export function* putFormData(state: IRuntimeState, model: any) {
   try {
     yield call(put, dataElementUrl(defaultDataElementGuid), model);
   } catch (error) {
-    if (isIE) {
-      // 303 is treated as en error in IE - we try to fetch.
-      yield sagaPut(
-        FormDataActions.fetchFormData({
-          url: dataElementUrl(defaultDataElementGuid),
-        }),
-      );
-    } else if (error.response && error.response.status === 303) {
+    if (error.response && error.response.status === 303) {
       // 303 means that data has been changed by calculation on server. Try to update from response.
       const calculationUpdateHandled = yield call(
         handleCalculationUpdate,
@@ -185,7 +172,7 @@ export function* putFormData(state: IRuntimeState, model: any) {
       if (!calculationUpdateHandled) {
         // No changedFields property returned, try to fetch
         yield sagaPut(
-          FormDataActions.fetchFormData({
+          FormDataActions.fetch({
             url: dataElementUrl(defaultDataElementGuid),
           }),
         );
@@ -202,10 +189,9 @@ function* handleCalculationUpdate(changedFields) {
   if (!changedFields) {
     return false;
   }
-  // eslint-disable-next-line no-restricted-syntax
   for (const fieldKey of Object.keys(changedFields)) {
     yield sagaPut(
-      FormDataActions.updateFormData({
+      FormDataActions.update({
         data: changedFields[fieldKey]?.toString(),
         field: fieldKey,
         skipValidation: true,
@@ -217,17 +203,16 @@ function* handleCalculationUpdate(changedFields) {
   return true;
 }
 
-// eslint-disable-next-line consistent-return
 export function* saveFormDataSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     // updates the default data element
     const application = state.applicationMetadata.applicationMetadata;
     const model = convertDataBindingToModel(
-      filterOutInvalidData(
-        state.formData.formData,
-        state.formValidations.invalidDataTypes || [],
-      ),
+      filterOutInvalidData({
+        data: state.formData.formData,
+        invalidKeys: state.formValidations.invalidDataTypes,
+      }),
     );
 
     if (isStatelessApp(application)) {
@@ -238,18 +223,18 @@ export function* saveFormDataSaga(): SagaIterator {
     }
 
     if (state.formValidations.currentSingleFieldValidation?.dataModelBinding) {
-      yield sagaPut(runSingleFieldValidation());
+      yield sagaPut(ValidationActions.runSingleFieldValidation());
     }
 
-    yield sagaPut(FormDataActions.submitFormDataFulfilled());
+    yield sagaPut(FormDataActions.submitFulfilled());
   } catch (error) {
     console.error(error);
-    yield sagaPut(FormDataActions.submitFormDataRejected({ error }));
+    yield sagaPut(FormDataActions.submitRejected({ error }));
   }
 }
 
 export function* saveStatelessData(state: IRuntimeState, model: any) {
-  const allowAnonymous = yield select(allowAnonymousSelector);
+  const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
   let options;
   if (!allowAnonymous) {
     const selectedPartyId = state.party.selectedParty.partyId;
@@ -272,26 +257,20 @@ export function* saveStatelessData(state: IRuntimeState, model: any) {
     model,
   );
   const formData = convertModelToDataBinding(response?.data);
-  yield sagaPut(FormDataActions.fetchFormDataFulfilled({ formData }));
-  yield call(FormDynamicsActions.checkIfConditionalRulesShouldRun);
+  yield sagaPut(FormDataActions.fetchFulfilled({ formData }));
+  yield sagaPut(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
 }
 
-function* autoSaveSaga(): SagaIterator {
+export function* autoSaveSaga({
+  payload: { skipAutoSave },
+}: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
+  if (skipAutoSave) {
+    return;
+  }
+
   const uiConfig: IUiConfig = yield select(UIConfigSelector);
   if (uiConfig.autoSave !== false) {
     // undefined should default to auto save
-    yield sagaPut(FormDataActions.saveFormData());
+    yield sagaPut(FormDataActions.save());
   }
-}
-
-export function* watchSubmitFormSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.submitFormData, submitFormSaga);
-}
-
-export function* watchSaveFormDataSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.saveFormData, saveFormDataSaga);
-}
-
-export function* watchAutoSaveSaga(): SagaIterator {
-  yield takeLatest(FormDataActions.updateFormDataFulfilled, autoSaveSaga);
 }

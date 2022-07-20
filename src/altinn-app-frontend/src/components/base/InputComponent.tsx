@@ -1,19 +1,19 @@
 import * as React from 'react';
 import { TextField } from '@altinn/altinn-design-system';
-import type { ReadOnlyVariant } from '@altinn/altinn-design-system';
-import type { NumberFormatProps } from 'react-number-format';
+
+import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import type { IComponentProps } from '..';
-import '../../styles/shared.css';
+import type { ILayoutCompInput } from 'src/features/form/layout';
 
-export interface IInputFormatting {
-  number?: NumberFormatProps;
-  align?: 'right' | 'center' | 'left';
+export interface IInputBaseProps {
+  id: string;
+  readOnly: boolean;
+  required: boolean;
+  handleDataChange: (value: any) => void;
+  inputRef?: ((el: HTMLInputElement) => void) | React.Ref<any>;
 }
 
-export interface IInputProps extends Omit<IComponentProps, 'readOnly'> {
-  formatting?: IInputFormatting;
-  readOnly?: boolean | ReadOnlyVariant;
-}
+export type IInputProps = IComponentProps & Omit<ILayoutCompInput, 'type'>;
 
 export function InputComponent({
   id,
@@ -24,27 +24,20 @@ export function InputComponent({
   formatting,
   handleDataChange,
   textResourceBindings,
+  saveWhileTyping,
 }: IInputProps) {
-  const [value, setValue] = React.useState(formData?.simpleBinding ?? '');
-
-  React.useEffect(() => {
-    setValue(formData?.simpleBinding ?? '');
-  }, [formData?.simpleBinding]);
-
-  const onDataChanged = (e: any) => {
-    setValue(e.target.value);
-  };
-
-  const onDataChangeSubmit = () => {
-    handleDataChange(value);
-  };
+  const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
+    handleDataChange,
+    formData?.simpleBinding ?? '',
+    saveWhileTyping,
+  );
 
   return (
     <TextField
-      key={`input_${id}`}
       id={id}
-      onBlur={onDataChangeSubmit}
-      onChange={onDataChanged}
+      onBlur={() => saveValue()}
+      onChange={(e) => setValue(e.target.value)}
+      onPaste={() => onPaste()}
       readOnly={readOnly}
       isValid={isValid}
       required={required}

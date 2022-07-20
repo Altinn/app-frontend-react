@@ -8,6 +8,7 @@ import { GroupContainer } from './GroupContainer';
 import { Triggers } from 'src/types';
 import { mockMediaQuery, renderWithProviders } from '../../../../testUtils';
 import { setupStore } from 'src/store';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 
 const mockContainer: ILayoutGroup = {
   id: 'container-closed-id',
@@ -85,7 +86,7 @@ function render({ container = mockContainer }: IRender = {}) {
       FormLayout: [
         {
           id: 'container-closed-id',
-          type: 'group',
+          type: 'Group',
           dataModelBindings: {
             group: 'Group',
           },
@@ -93,7 +94,7 @@ function render({ container = mockContainer }: IRender = {}) {
         },
         {
           id: 'container-in-edit-mode-id',
-          type: 'group',
+          type: 'Group',
           dataModelBindings: {
             group: 'Group',
           },
@@ -215,7 +216,7 @@ describe('GroupContainer', () => {
         index: -1,
         validate: true,
       },
-      type: 'formLayout/updateRepeatingGroupsEditIndex',
+      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
@@ -238,7 +239,7 @@ describe('GroupContainer', () => {
         index: -1,
         validate: false,
       },
-      type: 'formLayout/updateRepeatingGroupsEditIndex',
+      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
@@ -262,7 +263,7 @@ describe('GroupContainer', () => {
         index: -1,
         validate: true,
       },
-      type: 'formLayout/updateRepeatingGroupsEditIndex',
+      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
@@ -285,7 +286,7 @@ describe('GroupContainer', () => {
         index: -1,
         validate: false,
       },
-      type: 'formLayout/updateRepeatingGroupsEditIndex',
+      type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);

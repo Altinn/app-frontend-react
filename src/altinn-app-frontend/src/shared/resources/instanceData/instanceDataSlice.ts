@@ -1,0 +1,39 @@
+import type {
+  IInstanceDataState,
+  IGetInstanceData,
+  IGetInstanceDataFulfilled,
+  IGetInstanceDataRejected,
+} from '.';
+import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { getInstanceDataSaga } from 'src/shared/resources/instanceData/get/getInstanceDataSagas';
+
+const initialState: IInstanceDataState = {
+  instance: null,
+  error: null,
+};
+
+const instanceDataSlice = createSagaSlice(
+  (mkAction: MkActionType<IInstanceDataState>) => ({
+    name: 'instanceData',
+    initialState,
+    actions: {
+      get: mkAction<IGetInstanceData>({
+        takeLatest: getInstanceDataSaga,
+      }),
+      getFulfilled: mkAction<IGetInstanceDataFulfilled>({
+        reducer: (state, action) => {
+          state.instance = action.payload.instanceData;
+        },
+      }),
+      getRejected: mkAction<IGetInstanceDataRejected>({
+        reducer: (state, action) => {
+          state.error = action.payload.error;
+        },
+      }),
+    },
+  }),
+);
+
+export const InstanceDataActions = instanceDataSlice.actions;
+export default instanceDataSlice;

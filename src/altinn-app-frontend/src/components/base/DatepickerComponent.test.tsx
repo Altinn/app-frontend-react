@@ -45,11 +45,10 @@ const getOpenCalendarButton = () =>
     name: /date_picker\.aria_label_icon/i,
   });
 
-const getCalendarDayButton = (dayNumber) =>
-  screen.getByRole('button', {
-    name: dayNumber,
-    hidden: true,
-  });
+const getCalendarDayButton = (dayNumber) => {
+  // Getting by role would be better, but it is too slow, because of the big DOM that is generated
+  return screen.getByText(dayNumber);
+};
 
 const { setScreenWidth } = mockMediaQuery(600);
 
@@ -59,6 +58,7 @@ describe('DatepickerComponent', () => {
   });
 
   it('should not show calendar initially, and show calendar when clicking calendar button', async () => {
+    jest.spyOn(console, 'error').mockImplementation();
     render();
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
@@ -67,6 +67,12 @@ describe('DatepickerComponent', () => {
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /Material-UI: The `fade` color utility was renamed to `alpha` to better describe its functionality/,
+      ),
+    );
   });
 
   it('should not show calendar initially, and show calendar in a dialog when clicking calendar button, and screen size is mobile sized', async () => {
@@ -94,6 +100,9 @@ describe('DatepickerComponent', () => {
       expect.stringContaining(
         `${currentYearNumeric}-${currentMonthNumeric}-25T12:00:00.000+`,
       ),
+      undefined,
+      false,
+      false,
     );
   });
 
@@ -108,6 +117,9 @@ describe('DatepickerComponent', () => {
     expect(handleDataChange).toHaveBeenCalledWith(
       // Ignore TZ part of timestamp to avoid test failing when this changes
       expect.stringContaining('2022-12-26T12:00:00.000+'),
+      undefined,
+      false,
+      false,
     );
   });
 
@@ -122,6 +134,9 @@ describe('DatepickerComponent', () => {
     expect(handleDataChange).toHaveBeenCalledWith(
       // Ignore TZ part of timestamp to avoid test failing when this changes
       expect.stringContaining('2022-12-26T12:00:00.000+'),
+      undefined,
+      false,
+      false,
     );
   });
 
@@ -133,7 +148,12 @@ describe('DatepickerComponent', () => {
 
     await userEvent.type(inputField, '12.26.2022');
 
-    expect(handleDataChange).toHaveBeenCalledWith('2022-12-26');
+    expect(handleDataChange).toHaveBeenCalledWith(
+      '2022-12-26',
+      undefined,
+      false,
+      false,
+    );
   });
 
   it('should not call handleDataChange when field is changed with a invalid date', async () => {
@@ -212,6 +232,7 @@ describe('DatepickerComponent', () => {
   });
 
   it('should show error message when typed date is on an invalid format and call handleDataChange with empty value if formdata is present', async () => {
+    jest.spyOn(console, 'warn').mockImplementation();
     const handleDataChange = jest.fn();
     render({ handleDataChange, formData: { simpleBinding: '12.12.2022' } });
 
@@ -227,12 +248,18 @@ describe('DatepickerComponent', () => {
     fireEvent.blur(inputField);
 
     expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /Deprecation warning: value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date/,
+      ),
+    );
 
     expect(
       screen.getByText('date_picker.invalid_date_message'),
     ).toBeInTheDocument();
 
-    expect(handleDataChange).toHaveBeenCalledWith('');
+    expect(handleDataChange).toHaveBeenCalledWith('', undefined, false, false);
   });
 
   it('should have aria-describedby if textResourceBindings.description is present', () => {

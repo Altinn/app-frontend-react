@@ -1,12 +1,5 @@
 import type { SagaIterator } from 'redux-saga';
-import {
-  actionChannel,
-  call,
-  put,
-  select,
-  take,
-  takeLatest,
-} from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import type { IRuntimeState, IValidationResult } from 'src/types';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import {
@@ -17,9 +10,9 @@ import {
   getValidator,
   validateComponentFormData,
 } from '../../../../utils/validation';
-import FormDynamicActions from '../../dynamics/formDynamicsActions';
-import { updateComponentValidations } from '../../validation/validationSlice';
-import FormDataActions from '../formDataActions';
+import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
+import { ValidationActions } from '../../validation/validationSlice';
+import { FormDataActions } from '../formDataSlice';
 import type {
   IUpdateFormData,
   IDeleteAttachmentReference,
@@ -27,31 +20,49 @@ import type {
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
 import { getCurrentDataTypeForApplication } from '../../../../utils/appMetadata';
 import { removeAttachmentReference } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/form/data/formDataReducer';
-import type { ILayouts } from 'src/features/form/layout';
+import type { IFormData } from 'src/features/form/data';
+import type { ILayouts, ILayoutComponent } from 'src/features/form/layout';
 import type { IAttachments } from 'src/shared/resources/attachments';
 
-function* updateFormDataSaga({
-  payload: { field, data, componentId, skipValidation, skipAutoSave },
+export function* updateFormDataSaga({
+  payload: {
+    field,
+    data,
+    componentId,
+    skipValidation,
+    skipAutoSave,
+    checkIfRequired,
+  },
 }: PayloadAction<IUpdateFormData>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     const focus = state.formLayout.uiConfig.focus;
 
     if (!skipValidation) {
-      yield call(runValidations, field, data, componentId, state);
+      yield call(
+        runValidations,
+        field,
+        data,
+        componentId,
+        state,
+        checkIfRequired,
+      );
     }
 
     if (shouldUpdateFormData(state.formData.formData[field], data)) {
-      if (!skipAutoSave) {
-        yield put(FormDataActions.updateFormDataFulfilled({ field, data }));
-      } else {
-        yield put(FormDataActions.updateFormDataSkipAutosave({ field, data }));
-      }
+      yield put(
+        FormDataActions.updateFulfilled({
+          field,
+          data,
+          skipValidation,
+          skipAutoSave,
+          checkIfRequired,
+        }),
+      );
     }
 
     if (state.formDynamics.conditionalRendering) {
-      yield call(FormDynamicActions.checkIfConditionalRulesShouldRun);
+      yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
     }
 
     if (focus && focus !== '' && componentId !== focus) {
@@ -59,7 +70,7 @@ function* updateFormDataSaga({
     }
   } catch (error) {
     console.error(error);
-    yield put(FormDataActions.updateFormDataRejected({ error }));
+    yield put(FormDataActions.updateRejected({ error }));
   }
 }
 
@@ -68,10 +79,11 @@ function* runValidations(
   data: any,
   componentId: string,
   state: IRuntimeState,
+  checkIfRequired: boolean,
 ) {
   if (!componentId) {
     yield put(
-      FormDataActions.updateFormDataRejected({
+      FormDataActions.updateRejected({
         error: new Error('Missing component ID!'),
       }),
     );
@@ -89,7 +101,7 @@ function* runValidations(
   const component = getLayoutComponentById(
     componentId,
     state.formLayout.layouts,
-  );
+  ) as ILayoutComponent;
   const layoutId = getLayoutIdForComponent(
     componentId,
     state.formLayout.layouts,
@@ -105,6 +117,7 @@ function* runValidations(
     validator,
     state.formValidations.validations[componentId],
     componentId !== component.id ? componentId : null,
+    checkIfRequired,
   );
 
   const componentValidations =
@@ -118,7 +131,7 @@ function* runValidations(
   }
 
   yield put(
-    updateComponentValidations({
+    ValidationActions.updateComponentValidations({
       componentId,
       layoutId,
       validations: componentValidations,
@@ -137,14 +150,6 @@ function shouldUpdateFormData(currentData: any, newData: any): boolean {
   }
 
   return false;
-}
-
-export function* watchUpdateFormDataSaga(): SagaIterator {
-  const requestChan = yield actionChannel(FormDataActions.updateFormData);
-  while (true) {
-    const value = yield take(requestChan);
-    yield call(updateFormDataSaga, value);
-  }
 }
 
 export const SelectFormData = (s: IRuntimeState) => s.formData.formData;
@@ -173,18 +178,9 @@ export function* deleteAttachmentReferenceSaga({
       componentId,
     );
 
-    yield put(
-      FormDataActions.setFormDataFulfilled({ formData: updatedFormData }),
-    );
-    yield put(FormDataActions.saveFormData());
+    yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
+    yield put(FormDataActions.save());
   } catch (err) {
     console.error(err);
   }
-}
-
-export function* watchDeleteAttachmentReferenceSaga(): SagaIterator {
-  yield takeLatest(
-    FormDataActions.deleteAttachmentReference,
-    deleteAttachmentReferenceSaga,
-  );
 }

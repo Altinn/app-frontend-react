@@ -136,12 +136,20 @@ export default class AppFrontend {
     this.group = {
       showGroupToContinue: '#showGroupToContinue',
       mainGroup: '#group-mainGroup',
+      secondGroup: '#group-group-2',
+      secondGroup_newValue: 'input[id^="group2-endre-til"]',
+      secondGroup_currentValue: 'input[id^="group2-endre-fra"]',
+      secondGroup_add: '[id^="add-button-group-2"]',
+      secondGroup_add_to_reference_group: '[id^="add-reference-button-group-reference"]',
+      secondGroup_save: '[id^="save-reference-button-group-reference"]',
+      secondGroup_table: '[id^="group-group-2-table"]',
       subGroup: '[id^="group-subGroup"]',
       currentValue: 'input[id^="currentValue"]',
       navigationBarButton: '#form-content-nav2 > div > nav > button',
       newValue: 'input[id^="newValue"]',
       newValueLabel: 'label[for^="newValue"]',
-      addNewItem: 'div[class*="addButton"]',
+      addNewItem: '[id^="add-button-mainGroup"]',
+      addNewItemSubGroup: '[id*="add-button-subGroup"]',
       comments: 'input[id^="comments"]',
       delete: 'button[class*="makeStyles-deleteButton"]',
       saveSubGroup: 'button[id*="add-button-grp-subGroup"]',
@@ -160,6 +168,12 @@ export default class AppFrontend {
         nestedGroup: {
           rows: [0, 1].map((subIdx) => ({
             uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, true),
+            nestedDynamics: `#nestedDynamics-${idx}-${subIdx} input[type=checkbox]`,
+            nestedOptions: [
+              `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(0)`,
+              `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(1)`,
+              `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(2)`,
+            ],
             editBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:last-of-type > button`
           })),
           groupContainer: `#group-subGroup-${idx}`,

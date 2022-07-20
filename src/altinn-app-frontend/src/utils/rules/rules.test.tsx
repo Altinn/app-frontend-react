@@ -1,4 +1,4 @@
-import type { IFormDataState } from '../../features/form/data/formDataReducer';
+import type { IFormDataState } from '../../features/form/data';
 import { checkIfRuleShouldRun, getRuleModelFields } from '.';
 
 const ruleHandleFn = (obj) => {
@@ -8,7 +8,7 @@ const ruleHandleFn = (obj) => {
   return obj.a + obj.b + obj.c;
 };
 
-describe('features/rules checkIfRuleShouldRun', () => {
+describe('rules checkIfRuleShouldRun', () => {
   let mockRuleConnectionState: any;
   let mockFormDataState: Partial<IFormDataState>;
   let mockFormLayoutState: any;
@@ -240,7 +240,7 @@ describe('features/rules checkIfRuleShouldRun', () => {
   });
 });
 
-describe('features/rules getRuleModelFields', () => {
+describe('rules getRuleModelFields', () => {
   let mockRuleHandlerHelper: any;
   let mockConditionalRuleHandlerHelper: any;
   let mockConditionalRuleHandlerObject: any;

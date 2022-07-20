@@ -1,54 +1,40 @@
-import type { PayloadAction } from '@reduxjs/toolkit';
-import { createAction, createSlice } from '@reduxjs/toolkit';
-
-export interface IJsonSchemas {
-  [id: string]: object;
-}
-
-export interface IDataModelState {
-  schemas: IJsonSchemas;
-  error: Error;
-}
-
-export interface IFetchJsonSchemaFulfilled {
-  schema: object;
-  id: string;
-}
-
-export interface IFetchJsonSchemaRejected {
-  error: Error;
-}
+import type {
+  IDataModelState,
+  IFetchJsonSchemaFulfilled,
+  IFetchJsonSchemaRejected,
+} from 'src/features/form/datamodel/index';
+import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { watchFetchJsonSchemaSaga } from 'src/features/form/datamodel/fetch/fetchFormDatamodelSagas';
 
 const initialState: IDataModelState = {
   schemas: {},
   error: null,
 };
 
-const moduleName = 'datamodel';
-const datamodelSlice = createSlice({
-  name: moduleName,
-  initialState,
-  reducers: {
-    fetchJsonSchemaFulfilled: (
-      state,
-      action: PayloadAction<IFetchJsonSchemaFulfilled>,
-    ) => {
-      const { schema, id } = action.payload;
-      state.schemas[id] = schema;
+const formDataModelSlice = createSagaSlice(
+  (mkAction: MkActionType<IDataModelState>) => ({
+    name: 'formDataModel',
+    initialState,
+    actions: {
+      fetchJsonSchema: mkAction<void>({
+        saga: () => watchFetchJsonSchemaSaga,
+      }),
+      fetchJsonSchemaFulfilled: mkAction<IFetchJsonSchemaFulfilled>({
+        reducer: (state, action) => {
+          const { schema, id } = action.payload;
+          state.schemas[id] = schema;
+        },
+      }),
+      fetchJsonSchemaRejected: mkAction<IFetchJsonSchemaRejected>({
+        reducer: (state, action) => {
+          const { error } = action.payload;
+          state.error = error;
+        },
+      }),
     },
-    fetchJsonSchemaRejected: (
-      state,
-      action: PayloadAction<IFetchJsonSchemaRejected>,
-    ) => {
-      const { error } = action.payload;
-      state.error = error;
-    },
-  },
-});
+  }),
+);
 
-export const fetchJsonSchema = createAction(`${moduleName}/fetchJsonSchema`);
-
-export const { fetchJsonSchemaFulfilled, fetchJsonSchemaRejected } =
-  datamodelSlice.actions;
-
-export default datamodelSlice.reducer;
+export const DataModelActions = formDataModelSlice.actions;
+export default formDataModelSlice;

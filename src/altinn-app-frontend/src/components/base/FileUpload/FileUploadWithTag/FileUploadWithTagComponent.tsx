@@ -1,12 +1,12 @@
 import * as React from 'react';
 import type { FileRejection } from 'react-dropzone';
-import { useDispatch, useSelector } from 'react-redux';
 import { getLanguageFromKey } from 'altinn-shared/utils';
+import { useAppSelector, useAppDispatch } from 'src/common/hooks';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { isMobile } from 'react-device-detect';
 import type { IAttachment } from '../../../../shared/resources/attachments';
-import AttachmentDispatcher from '../../../../shared/resources/attachments/attachmentActions';
-import type { IMapping, IRuntimeState } from '../../../../types';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import type { IRuntimeState } from '../../../../types';
 import { renderValidationMessagesForComponent } from '../../../../utils/render';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,14 +19,12 @@ import {
 import { AttachmentsCounter } from '../shared/render';
 import { FileList } from './FileListComponent';
 import { DropzoneComponent } from '../shared/DropzoneComponent';
-import type { IFileUploadGenericProps } from '../shared/props';
 import type { IComponentProps } from 'src/components';
 import { getOptionLookupKey } from 'src/utils/options';
+import type { ILayoutCompFileUploadWithTag } from 'src/features/form/layout';
 
-export interface IFileUploadWithTagProps extends IFileUploadGenericProps {
-  optionsId: string;
-  mapping?: IMapping;
-}
+export type IFileUploadWithTagProps = IComponentProps &
+  Omit<ILayoutCompFileUploadWithTag, 'type'>;
 
 export const bytesInOneMB = 1048576;
 export const emptyArray = [];
@@ -49,26 +47,26 @@ export function FileUploadWithTagComponent({
   textResourceBindings,
   dataModelBindings,
 }: IFileUploadWithTagProps): JSX.Element {
-  const dataDispatch = useDispatch();
+  const dataDispatch = useAppDispatch();
   const [validations, setValidations] = React.useState<
     Array<{ id: string; message: string }>
   >([]);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
-  const options = useSelector(
+  const options = useAppSelector(
     (state: IRuntimeState) =>
       state.optionState.options[getOptionLookupKey(optionsId, mapping)]
         ?.options,
   );
-  const editIndex = useSelector(
+  const editIndex = useAppSelector(
     (state: IRuntimeState) =>
       state.formLayout.uiConfig.fileUploadersWithTag[id]?.editIndex ?? -1,
   );
-  const chosenOptions = useSelector(
+  const chosenOptions = useAppSelector(
     (state: IRuntimeState) =>
       state.formLayout.uiConfig.fileUploadersWithTag[id]?.chosenOptions ?? {},
   );
 
-  const attachments: IAttachment[] = useSelector(
+  const attachments: IAttachment[] = useAppSelector(
     (state: IRuntimeState) => state.attachments.attachments[id] || emptyArray,
   );
 
@@ -153,11 +151,13 @@ export function FileUploadWithTagComponent({
   const setAttachmentTag = (attachment: IAttachment, optionValue: string) => {
     const option = options?.find((o) => o.value === optionValue);
     if (option !== undefined) {
-      AttachmentDispatcher.updateAttachment(
-        attachment,
-        id,
-        baseComponentId,
-        option.value,
+      dataDispatch(
+        AttachmentActions.updateAttachment({
+          attachment,
+          componentId: id,
+          baseComponentId,
+          tag: option.value,
+        }),
       );
     } else {
       console.error(`Could not find option for ${optionValue}`);
@@ -203,13 +203,15 @@ export function FileUploadWithTagComponent({
             deleting: false,
             updating: false,
           });
-          AttachmentDispatcher.uploadAttachment(
-            file,
-            fileType,
-            tmpId,
-            id,
-            dataModelBindings,
-            attachments.length + index,
+          dataDispatch(
+            AttachmentActions.uploadAttachment({
+              file,
+              attachmentType: fileType,
+              tmpAttachmentId: tmpId,
+              componentId: id,
+              dataModelBindings,
+              index: attachments.length + index,
+            }),
           );
         }
       });

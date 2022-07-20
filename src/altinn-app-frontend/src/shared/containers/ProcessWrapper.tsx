@@ -1,39 +1,31 @@
-import * as React from 'react';
+import React from 'react';
+import { useParams } from 'react-router-dom';
 import {
   AltinnContentLoader,
   AltinnContentIconFormData,
 } from 'altinn-shared/components';
-import InstanceDataActions from '../resources/instanceData/instanceDataActions';
-import ProcessDispatcher from '../resources/process/processDispatcher';
-import type { IAltinnWindow } from '../../types';
+import type { IAltinnWindow, IPartyIdInterfaceGuidParams } from '../../types';
 import { ProcessTaskType } from '../../types';
 import Presentation from './Presentation';
 import { Form } from '../../features/form/containers/Form';
 import ReceiptContainer from '../../features/receipt/containers/ReceiptContainer';
 import Confirm from '../../features/confirm/containers/Confirm';
 import UnknownError from '../../features/instantiate/containers/UnknownError';
-import {
-  startInitialDataTaskQueue,
-  startInitialInfoTaskQueue,
-} from '../resources/queue/queueSlice';
+import { QueueActions } from '../resources/queue/queueSlice';
 import { makeGetHasErrorsSelector } from '../../selectors/getErrors';
 import Feedback from '../../features/feedback/Feedback';
-import { finishDataTaskIsLoading } from '../resources/isLoading/isLoadingSlice';
+import { IsLoadingActions } from '../resources/isLoading/isLoadingSlice';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
 
 const style = {
   marginTop: '2.5rem',
 };
 
-const ProcessWrapper = (props) => {
-  const {
-    // eslint-disable-next-line react/prop-types
-    match: {
-      // eslint-disable-next-line react/prop-types
-      params: { partyId, instanceGuid },
-    },
-  } = props;
+const ProcessWrapper = () => {
+  const { partyId, instanceGuid }: IPartyIdInterfaceGuidParams = useParams();
 
   const dispatch = useAppDispatch();
 
@@ -60,20 +52,20 @@ const ProcessWrapper = (props) => {
     }
 
     if (!process || !process.taskType) {
-      ProcessDispatcher.getProcessState();
+      dispatch(ProcessActions.get());
     }
 
     switch (process.taskType) {
       case ProcessTaskType.Data: {
-        dispatch(startInitialDataTaskQueue());
+        dispatch(QueueActions.startInitialDataTaskQueue());
         break;
       }
       case ProcessTaskType.Confirm:
       case ProcessTaskType.Feedback:
-        dispatch(startInitialInfoTaskQueue());
+        dispatch(QueueActions.startInitialInfoTaskQueue());
         break;
       case ProcessTaskType.Archived: {
-        dispatch(finishDataTaskIsLoading());
+        dispatch(IsLoadingActions.finishDataTaskIsLoading());
         break;
       }
       default:
@@ -83,9 +75,14 @@ const ProcessWrapper = (props) => {
 
   React.useEffect(() => {
     if (!instantiating && !instanceId) {
-      InstanceDataActions.getInstanceData(partyId, instanceGuid);
+      dispatch(
+        InstanceDataActions.get({
+          instanceOwner: partyId,
+          instanceId: instanceGuid,
+        }),
+      );
     }
-  }, [instantiating, instanceId, instanceGuid, partyId]);
+  }, [instantiating, instanceId, instanceGuid, partyId, dispatch]);
 
   if (hasApiErrors) {
     return <UnknownError />;

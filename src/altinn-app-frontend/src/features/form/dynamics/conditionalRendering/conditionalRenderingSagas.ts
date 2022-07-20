@@ -1,14 +1,11 @@
 import type { SagaIterator } from 'redux-saga';
-import { all, call, put, select, take, takeLatest } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import type { IRuntimeState, IValidations, IUiConfig } from 'src/types';
 import { runConditionalRenderingRules } from '../../../../utils/conditionalRendering';
-import FormDataActions from '../../data/formDataActions';
-import type { IFormData } from '../../data/formDataReducer';
+import type { IFormData } from '../../data';
 import { FormLayoutActions } from '../../layout/formLayoutSlice';
-import { updateValidations } from '../../validation/validationSlice';
-import * as FormDynamicsActionTypes from '../formDynamicsActionTypes';
-import type { IConditionalRenderingRules } from '../types';
-import * as RulesActionTypes from '../../rules/rulesActionTypes';
+import { ValidationActions } from '../../validation/validationSlice';
+import type { IConditionalRenderingRules } from 'src/features/form/dynamics';
 
 export const ConditionalRenderingSelector: (store: IRuntimeState) => any = (
   store: IRuntimeState,
@@ -21,7 +18,7 @@ export const FormValidationSelector: (store: IRuntimeState) => IValidations = (
   store,
 ) => store.formValidations.validations;
 
-function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
+export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
   try {
     const conditionalRenderingState: IConditionalRenderingRules = yield select(
       ConditionalRenderingSelector,
@@ -35,13 +32,15 @@ function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
       uiConfig.repeatingGroups,
     );
 
-    if (shouldHidddenFieldsUpdate(uiConfig.hiddenFields, componentsToHide)) {
+    if (shouldHiddenFieldsUpdate(uiConfig.hiddenFields, componentsToHide)) {
       yield put(FormLayoutActions.updateHiddenComponents({ componentsToHide }));
       componentsToHide.forEach((componentId) => {
         if (formValidations[componentId]) {
           const newFormValidations = formValidations;
           delete formValidations[componentId];
-          updateValidations({ validations: newFormValidations });
+          ValidationActions.updateValidations({
+            validations: newFormValidations,
+          });
         }
       });
     }
@@ -50,26 +49,7 @@ function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
   }
 }
 
-export function* watchCheckIfConditionalRulesShouldRunSaga(): SagaIterator {
-  yield takeLatest(
-    FormDynamicsActionTypes.CHECK_IF_CONDITIONAL_RULE_SHOULD_RUN,
-    checkIfConditionalRulesShouldRunSaga,
-  );
-}
-
-export function* waitForAppSetupBeforeRunningConditionalRulesSaga(): SagaIterator {
-  while (true) {
-    yield all([
-      take(FormLayoutActions.fetchLayoutFulfilled),
-      take(FormDataActions.fetchFormDataFulfilled),
-      take(FormDynamicsActionTypes.FETCH_SERVICE_CONFIG_FULFILLED),
-      take(RulesActionTypes.FETCH_RULE_MODEL_FULFILLED),
-    ]);
-    yield call(checkIfConditionalRulesShouldRunSaga);
-  }
-}
-
-function shouldHidddenFieldsUpdate(
+function shouldHiddenFieldsUpdate(
   currentList: string[],
   newList: string[],
 ): boolean {
@@ -81,9 +61,5 @@ function shouldHidddenFieldsUpdate(
     return true;
   }
 
-  if (currentList.find((element) => !newList.includes(element))) {
-    return true;
-  }
-
-  return false;
+  return !!currentList.find((element) => !newList.includes(element));
 }

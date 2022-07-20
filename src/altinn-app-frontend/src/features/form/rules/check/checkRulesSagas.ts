@@ -1,10 +1,10 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
-import { all, call, put, select, takeLatest } from 'redux-saga/effects';
+import { all, call, put, select } from 'redux-saga/effects';
 import type { IRuntimeState } from '../../../../types';
 import { checkIfRuleShouldRun } from '../../../../utils/rules';
-import FormDataActions from '../../data/formDataActions';
-import type { IFormDataState } from '../../data/formDataReducer';
+import { FormDataActions } from '../../data/formDataSlice';
+import type { IFormDataState } from '../../data';
 import type { IUpdateFormDataFulfilled } from '../../data/formDataTypes';
 import type { IRuleConnections } from '../../dynamics';
 import type { ILayoutState } from '../../layout/formLayoutSlice';
@@ -23,8 +23,8 @@ export interface IResponse {
   result: string;
 }
 
-function* checkIfRuleShouldRunSaga({
-  payload: { field },
+export function* checkIfRuleShouldRunSaga({
+  payload: { field, checkIfRequired, skipAutoSave, skipValidation },
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
   try {
     const ruleConnectionState: IRuleConnections = yield select(
@@ -54,10 +54,13 @@ function* checkIfRuleShouldRunSaga({
           }
 
           return put(
-            FormDataActions.updateFormData({
+            FormDataActions.update({
               componentId: rule.componentId,
               data: rule.result,
               field: rule.dataBindingName,
+              skipValidation,
+              checkIfRequired,
+              skipAutoSave,
             }),
           );
         }),
@@ -66,14 +69,4 @@ function* checkIfRuleShouldRunSaga({
   } catch (err) {
     yield call(console.error, 'Oh noes', err);
   }
-}
-
-export function* watchCheckIfRuleShouldRunSaga(): SagaIterator {
-  yield takeLatest(
-    [
-      FormDataActions.updateFormDataFulfilled,
-      FormDataActions.updateFormDataSkipAutosave,
-    ],
-    checkIfRuleShouldRunSaga,
-  );
 }

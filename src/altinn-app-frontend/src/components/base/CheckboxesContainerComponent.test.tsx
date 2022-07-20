@@ -11,7 +11,7 @@ import { getInitialStateMock } from '../../../__mocks__/initialStateMock';
 import { CheckboxContainerComponent } from './CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/types';
 import type { RootState } from 'src/store';
-import type { IOptionsState } from 'src/shared/resources/options/optionsReducer';
+import type { IOptionsState } from 'src/shared/resources/options';
 
 const threeOptions = [
   {
@@ -35,6 +35,7 @@ const render = (
   customState: PreloadedState<RootState> = {},
 ) => {
   const allProps: ICheckboxContainerProps = {
+    type: 'Checkboxes',
     options: [],
     optionsId: 'countries',
     preselectedOptionIndex: undefined,

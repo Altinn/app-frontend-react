@@ -1,17 +1,5 @@
-import type { IQueueState } from './queueSlice';
-import reducer, {
-  initialState,
-  startInitialAppTaskQueue,
-  startInitialAppTaskQueueFulfilled,
-  startInitialDataTaskQueue,
-  startInitialDataTaskQueueFulfilled,
-  startInitialInfoTaskQueue,
-  startInitialInfoTaskQueueFulfilled,
-  appTaskQueueError,
-  dataTaskQueueError,
-  infoTaskQueueError,
-  userTaskQueueError,
-} from './queueSlice';
+import type { IQueueState } from '.';
+import slice, { initialState, QueueActions } from './queueSlice';
 
 describe('queueSlice', () => {
   let state: IQueueState;
@@ -20,32 +8,47 @@ describe('queueSlice', () => {
   });
 
   it('handles startInitialAppTaskQueue action', () => {
-    let nextState = reducer(state, startInitialAppTaskQueue);
+    let nextState = slice.reducer(state, QueueActions.startInitialAppTaskQueue);
     expect(nextState.appTask.isDone).toBeFalsy();
-    nextState = reducer(nextState, startInitialAppTaskQueueFulfilled);
+    nextState = slice.reducer(
+      nextState,
+      QueueActions.startInitialAppTaskQueueFulfilled,
+    );
     expect(nextState.appTask.isDone).toBeTruthy();
     expect(nextState.appTask.error).toBeNull();
   });
 
   it('handles startInitialDataTaskQueue action', () => {
-    let nextState = reducer(state, startInitialDataTaskQueue);
+    let nextState = slice.reducer(
+      state,
+      QueueActions.startInitialDataTaskQueue,
+    );
     expect(nextState.dataTask.isDone).toBeFalsy();
-    nextState = reducer(nextState, startInitialDataTaskQueueFulfilled);
+    nextState = slice.reducer(
+      nextState,
+      QueueActions.startInitialDataTaskQueueFulfilled,
+    );
     expect(nextState.dataTask.isDone).toBeTruthy();
   });
 
   it('handles startInitialInfoTaskQueue action', () => {
-    let nextState = reducer(state, startInitialInfoTaskQueue);
+    let nextState = slice.reducer(
+      state,
+      QueueActions.startInitialInfoTaskQueue,
+    );
     expect(nextState.infoTask.isDone).toBeFalsy();
-    nextState = reducer(nextState, startInitialInfoTaskQueueFulfilled);
+    nextState = slice.reducer(
+      nextState,
+      QueueActions.startInitialInfoTaskQueueFulfilled,
+    );
     expect(nextState.infoTask.isDone).toBeTruthy();
   });
 
   it('handles error on app task queue', () => {
     const errorMessage = 'app task queue error';
-    const nextState = reducer(
+    const nextState = slice.reducer(
       state,
-      appTaskQueueError({ error: new Error(errorMessage) }),
+      QueueActions.appTaskQueueError({ error: new Error(errorMessage) }),
     );
     expect(nextState.appTask.error).toBeTruthy();
     expect(nextState.appTask.error.message).toEqual(errorMessage);
@@ -53,9 +56,9 @@ describe('queueSlice', () => {
 
   it('handles error on data task queue', () => {
     const errorMessage = 'data task queue error';
-    const nextState = reducer(
+    const nextState = slice.reducer(
       state,
-      dataTaskQueueError({ error: new Error(errorMessage) }),
+      QueueActions.dataTaskQueueError({ error: new Error(errorMessage) }),
     );
     expect(nextState.dataTask.error).toBeTruthy();
     expect(nextState.dataTask.error.message).toEqual(errorMessage);
@@ -63,9 +66,9 @@ describe('queueSlice', () => {
 
   it('handles error on info task queue', () => {
     const errorMessage = 'info task queue error';
-    const nextState = reducer(
+    const nextState = slice.reducer(
       state,
-      infoTaskQueueError({ error: new Error(errorMessage) }),
+      QueueActions.infoTaskQueueError({ error: new Error(errorMessage) }),
     );
     expect(nextState.infoTask.error).toBeTruthy();
     expect(nextState.infoTask.error.message).toEqual(errorMessage);
@@ -73,9 +76,9 @@ describe('queueSlice', () => {
 
   it('handles error on user task queue', () => {
     const errorMessage = 'user task queue error';
-    const nextState = reducer(
+    const nextState = slice.reducer(
       state,
-      userTaskQueueError({ error: new Error(errorMessage) }),
+      QueueActions.userTaskQueueError({ error: new Error(errorMessage) }),
     );
     expect(nextState.userTask.error).toBeTruthy();
     expect(nextState.userTask.error.message).toEqual(errorMessage);

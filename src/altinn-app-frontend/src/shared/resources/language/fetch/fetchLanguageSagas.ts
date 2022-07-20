@@ -3,14 +3,12 @@ import { call, put, all, take, select, takeLatest } from 'redux-saga/effects';
 
 import { getLanguageFromCode } from 'altinn-shared/language';
 import { LanguageActions } from '../languageSlice';
-import * as ProfileActionTypes from '../../profile/fetch/fetchProfileActionTypes';
-import { appTaskQueueError } from '../../queue/queueSlice';
+import { QueueActions } from '../../queue/queueSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { FETCH_APPLICATION_METADATA_FULFILLED } from '../../applicationMetadata/actions/types';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-
-export const allowAnonymousSelector = makeGetAllowAnonymousSelector();
+import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
+import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 
 export function* fetchLanguageSaga(defaultLanguage = false): SagaIterator {
   try {
@@ -20,20 +18,20 @@ export function* fetchLanguageSaga(defaultLanguage = false): SagaIterator {
     yield put(LanguageActions.fetchLanguageFulfilled({ language }));
   } catch (error) {
     yield put(LanguageActions.fetchLanguageRejected({ error }));
-    yield put(appTaskQueueError({ error }));
+    yield put(QueueActions.appTaskQueueError({ error }));
   }
 }
 
 export function* watchFetchLanguageSaga(): SagaIterator {
   yield all([
-    take(FormLayoutActions.fetchLayoutSetsFulfilled),
-    take(FETCH_APPLICATION_METADATA_FULFILLED),
+    take(FormLayoutActions.fetchSetsFulfilled),
+    take(ApplicationMetadataActions.getFulfilled),
     take(LanguageActions.fetchLanguage),
   ]);
 
-  const allowAnonymous = yield select(allowAnonymousSelector);
+  const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
   if (!allowAnonymous) {
-    yield take(ProfileActionTypes.FETCH_PROFILE_FULFILLED);
+    yield take(ProfileActions.fetchFulfilled);
   }
 
   yield call(fetchLanguageSaga);
@@ -41,9 +39,4 @@ export function* watchFetchLanguageSaga(): SagaIterator {
     LanguageActions.updateSelectedAppLanguage,
     fetchLanguageSaga,
   );
-}
-
-export function* watchFetchDefaultLanguageSaga(): SagaIterator {
-  yield take(LanguageActions.fetchDefaultLanguage);
-  yield call(fetchLanguageSaga, true);
 }

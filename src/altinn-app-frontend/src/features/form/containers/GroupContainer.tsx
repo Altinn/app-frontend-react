@@ -220,18 +220,9 @@ export function GroupContainer({
         layoutElementId: id,
         remove: true,
         index: groupIndex,
+        leaveOpen: container.edit?.openByDefault,
       }),
     );
-
-    if (
-      container.edit?.openByDefault &&
-      groupIndex === 0 &&
-      repeatingGroups[id].index === 0
-    ) {
-      dispatch(
-        FormLayoutActions.updateRepeatingGroups({ layoutElementId: id }),
-      );
-    }
   };
 
   const onClickSave = () => {
@@ -329,6 +320,7 @@ export function GroupContainer({
         editIndex < 0 &&
         repeatingGroupIndex + 1 < container.maxCount && (
           <RepeatingGroupAddButton
+            id={`add-button-${id}`}
             container={container}
             language={language}
             onClickAdd={onClickAdd}
@@ -391,6 +383,7 @@ export function GroupContainer({
         container.edit?.addButton !== false &&
         repeatingGroupIndex + 1 < container.maxCount && (
           <RepeatingGroupAddButton
+            id={`add-button-${id}`}
             container={container}
             language={language}
             onClickAdd={onClickAdd}

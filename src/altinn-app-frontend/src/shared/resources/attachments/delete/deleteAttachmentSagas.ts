@@ -1,29 +1,19 @@
 import type { SagaIterator } from 'redux-saga';
-import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { updateComponentValidations } from 'src/features/form/validation/validationSlice';
+import { call, put, select } from 'redux-saga/effects';
+import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { getFileUploadComponentValidations } from '../../../../utils/formComponentUtils';
 import type { IRuntimeState } from '../../../../types';
 import { httpDelete } from '../../../../utils/networking';
 import { dataElementUrl } from '../../../../utils/appUrlHelper';
-import AttachmentDispatcher from '../attachmentActions';
-import * as AttachmentActionsTypes from '../attachmentActionTypes';
-import type * as deleteActions from './deleteAttachmentActions';
-import FormDataActions from 'src/features/form/data/formDataActions';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import type { AxiosResponse } from 'axios';
-
-export function* watchDeleteAttachmentSaga(): SagaIterator {
-  yield takeEvery(
-    AttachmentActionsTypes.DELETE_ATTACHMENT,
-    deleteAttachmentSaga,
-  );
-}
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { IDeleteAttachmentAction } from 'src/shared/resources/attachments/delete/deleteAttachmentActions';
 
 export function* deleteAttachmentSaga({
-  attachment,
-  attachmentType,
-  componentId,
-  dataModelBindings,
-}: deleteActions.IDeleteAttachmentAction): SagaIterator {
+  payload: { attachment, attachmentType, componentId, dataModelBindings },
+}: PayloadAction<IDeleteAttachmentAction>): SagaIterator {
   const language = yield select((s: IRuntimeState) => s.language.language);
   const currentView: string = yield select(
     (s: IRuntimeState) => s.formLayout.uiConfig.currentView,
@@ -33,7 +23,7 @@ export function* deleteAttachmentSaga({
     // Sets validations to empty.
     const newValidations = getFileUploadComponentValidations(null, null);
     yield put(
-      updateComponentValidations({
+      ValidationActions.updateComponentValidations({
         componentId,
         layoutId: currentView,
         validations: newValidations,
@@ -57,11 +47,12 @@ export function* deleteAttachmentSaga({
           }),
         );
       }
-      yield call(
-        AttachmentDispatcher.deleteAttachmentFulfilled,
-        attachment.id,
-        attachmentType,
-        componentId,
+      yield put(
+        AttachmentActions.deleteAttachmentFulfilled({
+          attachmentId: attachment.id,
+          attachmentType,
+          componentId,
+        }),
       );
     } else {
       throw new Error(
@@ -71,17 +62,18 @@ export function* deleteAttachmentSaga({
   } catch (err) {
     const validations = getFileUploadComponentValidations('delete', language);
     yield put(
-      updateComponentValidations({
+      ValidationActions.updateComponentValidations({
         componentId,
         layoutId: currentView,
         validations,
       }),
     );
-    yield call(
-      AttachmentDispatcher.deleteAttachmentRejected,
-      attachment,
-      attachmentType,
-      componentId,
+    yield put(
+      AttachmentActions.deleteAttachmentRejected({
+        attachment,
+        attachmentType,
+        componentId,
+      }),
     );
     console.error(err);
   }

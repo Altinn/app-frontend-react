@@ -9,7 +9,7 @@ import { useAppSelector, useAppDispatch } from 'src/common/hooks';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import Presentation from 'src/shared/containers/Presentation';
 import type { ShowTypes } from 'src/shared/resources/applicationMetadata';
-import { startInitialStatelessQueue } from 'src/shared/resources/queue/queueSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import type { ISimpleInstance } from 'src/types';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
@@ -24,7 +24,7 @@ import {
   getPartyValidationUrl,
 } from 'src/utils/appUrlHelper';
 import { Form } from '../form/containers/Form';
-import { updateValidations } from '../form/validation/validationSlice';
+import { ValidationActions } from '../form/validation/validationSlice';
 import Instantiate from '../instantiate/containers';
 import InstanceSelection from '../instantiate/containers/InstanceSelection';
 import MissingRolesError from '../instantiate/containers/MissingRolesError';
@@ -90,7 +90,7 @@ export default function Entrypoint({ allowAnonymous }: any) {
 
   React.useEffect(() => {
     // If user comes back to entrypoint from an active instance we need to clear validation messages
-    dispatch(updateValidations({ validations: {} }));
+    dispatch(ValidationActions.updateValidations({ validations: {} }));
   }, [dispatch]);
 
   React.useEffect(() => {
@@ -154,7 +154,7 @@ export default function Entrypoint({ allowAnonymous }: any) {
     (allowAnonymous || partyValidation?.valid)
   ) {
     if (statelessLoading === null) {
-      dispatch(startInitialStatelessQueue());
+      dispatch(QueueActions.startInitialStatelessQueue());
     }
     if (statelessLoading === false) {
       return (

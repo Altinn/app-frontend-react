@@ -4,7 +4,6 @@ import { expectSaga } from 'redux-saga-test-plan';
 import {
   fetchFormDataSaga,
   fetchFormDataInitialSaga,
-  allowAnonymousSelector,
   watchFetchFormDataInitialSaga,
 } from './fetchFormDataSagas';
 import {
@@ -21,13 +20,14 @@ import {
   getCurrentTaskDataElementId,
   getDataTypeByLayoutSetId,
 } from 'src/utils/appMetadata';
-import FormDataActions from '../formDataActions';
+import { FormDataActions } from '../formDataSlice';
 import type { IApplication } from 'altinn-shared/types';
 import type { ILayoutSets } from 'src/types';
-import { GET_INSTANCEDATA_FULFILLED } from 'src/shared/resources/instanceData/get/getInstanceDataActionTypes';
-import { fetchJsonSchemaFulfilled } from '../../datamodel/datamodelSlice';
-import { dataTaskQueueError } from 'src/shared/resources/queue/queueSlice';
+import { DataModelActions } from '../../datamodel/datamodelSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import type { AxiosError } from 'axios';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
+import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 
 describe('fetchFormDataSagas', () => {
   let mockInitialState;
@@ -65,9 +65,7 @@ describe('fetchFormDataSagas', () => {
         ],
         [call(networking.get, url), mockFormData],
       ])
-      .put(
-        FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }),
-      )
+      .put(FormDataActions.fetchFulfilled({ formData: flattenedFormData }))
       .run();
   });
 
@@ -100,7 +98,7 @@ describe('fetchFormDataSagas', () => {
         [select(appMetaDataSelector), appMetadata],
         [select(instanceDataSelector), instance],
       ])
-      .put(FormDataActions.fetchFormDataRejected({ error }))
+      .put(FormDataActions.fetchRejected({ error }))
       .run();
   });
 
@@ -122,9 +120,7 @@ describe('fetchFormDataSagas', () => {
         ],
         [call(networking.get, url), mockFormData],
       ])
-      .put(
-        FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }),
-      )
+      .put(FormDataActions.fetchFulfilled({ formData: flattenedFormData }))
       .run();
   });
 
@@ -157,8 +153,8 @@ describe('fetchFormDataSagas', () => {
         [select(appMetaDataSelector), { ...appMetadata }],
         [select(instanceDataSelector), { ...instance }],
       ])
-      .put(FormDataActions.fetchFormDataRejected({ error }))
-      .call(dataTaskQueueError, error)
+      .put(FormDataActions.fetchRejected({ error }))
+      .put(QueueActions.dataTaskQueueError({ error }))
       .run();
   });
 
@@ -190,13 +186,11 @@ describe('fetchFormDataSagas', () => {
       .provide([
         [select(appMetaDataSelector), appMetadata],
         [select(layoutSetsSelector), mockLayoutSets],
-        [select(allowAnonymousSelector), false],
+        [select(makeGetAllowAnonymousSelector()), false],
         [select(currentSelectedPartyIdSelector), '1234'],
         [call(networking.get, url, options), mockFormData],
       ])
-      .put(
-        FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }),
-      )
+      .put(FormDataActions.fetchFulfilled({ formData: flattenedFormData }))
       .run();
   });
 
@@ -225,12 +219,10 @@ describe('fetchFormDataSagas', () => {
       .provide([
         [select(appMetaDataSelector), appMetadata],
         [select(layoutSetsSelector), mockLayoutSets],
-        [select(allowAnonymousSelector), true],
+        [select(makeGetAllowAnonymousSelector()), true],
         [call(networking.get, url, options), mockFormData],
       ])
-      .put(
-        FormDataActions.fetchFormDataFulfilled({ formData: flattenedFormData }),
-      )
+      .put(FormDataActions.fetchFulfilled({ formData: flattenedFormData }))
       .run();
   });
 
@@ -276,10 +268,10 @@ describe('fetchFormDataSagas', () => {
       .provide([
         [select(appMetaDataSelector), appMetadata],
         [select(layoutSetsSelector), mockLayoutSets],
-        [select(allowAnonymousSelector), true],
+        [select(makeGetAllowAnonymousSelector()), true],
       ])
-      .put(FormDataActions.fetchFormDataRejected({ error }))
-      .call(dataTaskQueueError, error)
+      .put(FormDataActions.fetchRejected({ error }))
+      .put(QueueActions.dataTaskQueueError({ error }))
       .run();
   });
 
@@ -329,7 +321,7 @@ describe('fetchFormDataSagas', () => {
       .provide([
         [select(appMetaDataSelector), appMetadata],
         [select(layoutSetsSelector), mockLayoutSets],
-        [select(allowAnonymousSelector), true],
+        [select(makeGetAllowAnonymousSelector()), true],
       ])
       .call(appUrlHelper.redirectToUpgrade, 2)
       .run();
@@ -346,8 +338,8 @@ describe('fetchFormDataSagas', () => {
         [select(instanceDataSelector), instance],
         [select(processStateSelector), processState],
       ])
-      .take(GET_INSTANCEDATA_FULFILLED)
-      .take(fetchJsonSchemaFulfilled)
+      .take(InstanceDataActions.getFulfilled)
+      .take(DataModelActions.fetchJsonSchemaFulfilled)
       .call(fetchFormDataInitialSaga)
       .run();
   });
@@ -358,9 +350,9 @@ describe('fetchFormDataSagas', () => {
     expectSaga(watchFetchFormDataInitialSaga)
       .provide([
         [select(appMetaDataSelector), appMetadata],
-        [select(allowAnonymousSelector), false],
+        [select(makeGetAllowAnonymousSelector()), false],
       ])
-      .take(fetchJsonSchemaFulfilled)
+      .take(DataModelActions.fetchJsonSchemaFulfilled)
       .call(fetchFormDataInitialSaga)
       .run();
   });

@@ -1,5 +1,5 @@
 import type { SagaIterator } from 'redux-saga';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import type { AxiosRequestConfig } from 'axios';
 import type { IRuntimeState, IValidationIssue } from 'src/types';
 import { getDataValidationUrl } from 'src/utils/appUrlHelper';
@@ -8,12 +8,7 @@ import {
   mapDataElementValidationToRedux,
   mergeValidationObjects,
 } from '../../../../utils/validation';
-import {
-  runSingleFieldValidation,
-  runSingleFieldValidationFulfilled,
-  runSingleFieldValidationRejected,
-  setCurrentSingleFieldValidation,
-} from '../validationSlice';
+import { ValidationActions } from '../validationSlice';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 
 export function* runSingleFieldValidationSaga(): SagaIterator {
@@ -40,7 +35,7 @@ export function* runSingleFieldValidationSaga(): SagaIterator {
 
     try {
       // Reset current single field validation for next potential validation
-      yield put(setCurrentSingleFieldValidation({}));
+      yield put(ValidationActions.setCurrentSingleFieldValidation({}));
 
       const serverValidation: IValidationIssue[] = yield call(
         get,
@@ -76,14 +71,12 @@ export function* runSingleFieldValidationSaga(): SagaIterator {
           mappedValidations[layoutId][componentId];
       }
 
-      yield put(runSingleFieldValidationFulfilled({ validations }));
+      yield put(
+        ValidationActions.runSingleFieldValidationFulfilled({ validations }),
+      );
     } catch (error) {
-      yield put(runSingleFieldValidationRejected({ error }));
-      yield put(setCurrentSingleFieldValidation({}));
+      yield put(ValidationActions.runSingleFieldValidationRejected({ error }));
+      yield put(ValidationActions.setCurrentSingleFieldValidation({}));
     }
   }
-}
-
-export function* watchRunSingleFieldValidationSaga(): SagaIterator {
-  yield takeLatest(runSingleFieldValidation, runSingleFieldValidationSaga);
 }

@@ -2,19 +2,12 @@ import * as React from 'react';
 import { Form } from './Form';
 import type { PreloadedState } from '@reduxjs/toolkit';
 import type { RootState } from 'src/store';
-import { renderWithProviders, mockMediaQuery } from 'src/../testUtils';
+import { renderWithProviders } from 'src/../testUtils';
 import type { ILayout, ILayoutComponent } from '../layout';
 import { getFormLayoutStateMock } from 'src/../__mocks__/formLayoutStateMock';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 
-const { setScreenWidth } = mockMediaQuery(992);
-
-describe('Form.tsx', () => {
-  beforeAll(() => {
-    // Set screen size to desktop
-    setScreenWidth(1200);
-  });
-
+describe('Form', () => {
   const mockComponents: ILayout = [
     {
       id: 'field1',
@@ -57,7 +50,7 @@ describe('Form.tsx', () => {
     },
     {
       id: 'testGroupId',
-      type: 'group',
+      type: 'Group',
       dataModelBindings: {
         group: 'Group',
       },
@@ -73,11 +66,75 @@ describe('Form.tsx', () => {
     expect(screen.getByText('Third title')).toBeInTheDocument();
   });
 
-  it('should render components and groups', () => {
-    renderForm();
-    expect(screen.getByText('First title')).toBeInTheDocument();
-    expect(screen.getByText('Second title')).toBeInTheDocument();
-    expect(screen.getByText('Third title')).toBeInTheDocument();
+  it('should render DisplayGroupContainer and children if group is non repeating', () => {
+    const layoutWithNonRepGroup: ILayout = [
+      ...mockComponents,
+      {
+        id: 'non-rep-group-id',
+        type: 'Group',
+        dataModelBindings: {
+          group: 'Group',
+        },
+        children: ['non-rep-child'],
+      },
+      {
+        id: 'non-rep-child',
+        type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'Group.prop3',
+        },
+        textResourceBindings: {
+          title: 'Title from non repeating child',
+        },
+        readOnly: false,
+        required: false,
+        disabled: false,
+      },
+    ];
+
+    renderForm(layoutWithNonRepGroup);
+    const container = screen.getByTestId('display-group-container');
+    expect(container).toBeInTheDocument();
+    expect(
+      within(container).getByText('Title from non repeating child'),
+    ).toBeInTheDocument();
+  });
+
+  it('should render PanelGroupContainer and children if group has panel prop', () => {
+    const layoutWithPanelGroup: ILayout = [
+      ...mockComponents,
+      {
+        id: 'panel-group-id',
+        type: 'Group',
+        dataModelBindings: {
+          group: 'Group',
+        },
+        children: ['panel-group-child'],
+        panel: {
+          variant: 'info',
+        },
+      },
+      {
+        id: 'panel-group-child',
+        type: 'Input',
+        dataModelBindings: {
+          simpleBinding: 'Group.prop3',
+        },
+        textResourceBindings: {
+          title: 'Title from panel child',
+        },
+        readOnly: false,
+        required: false,
+        disabled: false,
+      },
+    ];
+
+    renderForm(layoutWithPanelGroup);
+    const container = screen.getByTestId('panel-group-container');
+    expect(container).toBeInTheDocument();
+    expect(
+      within(container).getByText('Title from panel child'),
+    ).toBeInTheDocument();
   });
 
   it('should render navbar', () => {

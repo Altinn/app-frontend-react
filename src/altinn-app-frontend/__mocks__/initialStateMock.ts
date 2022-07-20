@@ -4,21 +4,9 @@ import { getFormLayoutStateMock } from './formLayoutStateMock';
 import { getFormDataStateMock } from './formDataStateMock';
 import { applicationMetadataMock } from './applicationMetadataMock';
 import { applicationSettingsMock } from './applicationSettingsMock';
-import type { IParty } from '../../shared/src';
 import { getInstanceDataStateMock } from './instanceDataStateMock';
+import { partyMock } from './partyMock';
 import { getProfileStateMock } from './profileStateMock';
-
-export const mockParty: IParty = {
-  partyId: '12345',
-  name: 'Ola Privatperson',
-  ssn: '01017512345',
-  partyTypeName: null,
-  orgNumber: null,
-  unitType: null,
-  isDeleted: false,
-  onlyHierarchyElementWithNoAccess: false,
-  childParties: null,
-};
 
 export function getInitialStateMock(
   customStates?: Partial<IRuntimeState>,
@@ -88,8 +76,8 @@ export function getInitialStateMock(
     },
     party: {
       error: null,
-      parties: [mockParty],
-      selectedParty: mockParty,
+      parties: [partyMock],
+      selectedParty: partyMock,
     },
     process: {
       error: null,
@@ -117,6 +105,28 @@ export function getInitialStateMock(
             },
           ],
         },
+        {
+          id: 'group.input.title',
+          value: 'The value from group is: {0}',
+          unparsedValue: 'The value from group is: {0}',
+          variables: [
+            {
+              dataSource: 'dataModel.skjema',
+              key: 'referencedGroup[{0}].inputField',
+            },
+          ],
+        },
+        {
+          id: 'group.input.title-2',
+          value: 'The value from the group is: Value from input field [2]',
+          unparsedValue: 'The value from group is: {0}',
+          variables: [
+            {
+              dataSource: 'dataModel.skjema',
+              key: 'referencedGroup[2].inputField',
+            },
+          ],
+        },
       ],
       error: null,
       language: 'nb',
@@ -129,6 +139,7 @@ export function getInitialStateMock(
       applicationSettings: applicationSettingsMock,
       error: null,
     },
+    appApi: {} as IRuntimeState['appApi'],
   };
 
   return {

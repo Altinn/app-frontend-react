@@ -1,6 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable max-len */
 import React from 'react';
 import { Grid, makeStyles, createTheme } from '@material-ui/core';
 import altinnAppTheme from 'altinn-shared/theme/altinnAppTheme';
@@ -15,6 +12,7 @@ export interface IRepeatingGroupAddButton {
   textResources: ITextResource[];
   onClickAdd: () => void;
   onKeypressAdd: (event: React.KeyboardEvent<HTMLDivElement>) => void;
+  id?: string;
 }
 
 const theme = createTheme(altinnAppTheme);
@@ -62,6 +60,7 @@ export function RepeatingGroupAddButton({
   textResources,
   onClickAdd,
   onKeypressAdd,
+  id,
 }: IRepeatingGroupAddButton): JSX.Element {
   const classes = useStyles();
 
@@ -83,6 +82,7 @@ export function RepeatingGroupAddButton({
         onKeyPress={(event) => onKeypressAdd(event)}
         justifyContent='center'
         alignItems='center'
+        id={id}
       >
         <Grid item={true}>
           <i className={`fa fa-exit ${classes.addIcon}`} />

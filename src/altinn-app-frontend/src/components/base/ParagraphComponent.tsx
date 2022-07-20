@@ -1,7 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
 import type { IComponentProps } from '..';
+import type { ILayoutCompParagraph } from 'src/features/form/layout';
+
+export type IParagraphProps = IComponentProps &
+  Omit<ILayoutCompParagraph, 'type'>;
 
 const useStyles = makeStyles({
   spacing: {
@@ -32,8 +36,13 @@ const useStyles = makeStyles({
   },
 });
 
-export function ParagraphComponent(props: IComponentProps) {
+export function ParagraphComponent(props: IParagraphProps) {
   const classes = useStyles();
+  const isHeader =
+    typeof props.text === 'object' &&
+    typeof (props.text as any).type === 'string' &&
+    (props.text as any).type.match(/^h\d+$/);
+
   return (
     <Grid
       container={true}
@@ -42,7 +51,9 @@ export function ParagraphComponent(props: IComponentProps) {
     >
       <Grid item={true}>
         <Typography
+          component={isHeader ? 'div' : 'p'}
           id={props.id}
+          data-testid={`paragraph-component-${props.id}`}
           className={`${classes.spacing} ${classes.typography}`}
         >
           {props.text}

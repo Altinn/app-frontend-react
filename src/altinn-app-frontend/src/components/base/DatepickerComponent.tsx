@@ -13,11 +13,7 @@ import {
 } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import { getLanguageFromKey } from 'altinn-shared/utils';
-import type {
-  IComponentBindingValidation,
-  ITextResourceBindings,
-  DateFlags,
-} from 'src/types';
+import type { IComponentBindingValidation, DateFlags } from 'src/types';
 import { getFlagBasedDate, getISOString } from '../../utils/dateHelpers';
 import { renderValidationMessagesForComponent } from '../../utils/render';
 import {
@@ -31,14 +27,10 @@ import type { IComponentProps } from '..';
 
 import './DatepickerComponent.css';
 import '../../styles/shared.css';
+import type { ILayoutCompDatePicker } from 'src/features/form/layout';
 
-export interface IDatePickerProps extends IComponentProps {
-  timeStamp?: boolean;
-  format: string;
-  minDate: string;
-  maxDate: string;
-  textResourceBindings: ITextResourceBindings;
-}
+export type IDatePickerProps = IComponentProps &
+  Omit<ILayoutCompDatePicker, 'type'>;
 
 const iconSize = '30px';
 
@@ -208,11 +200,11 @@ function DatepickerComponent({
           timeStamp === true
             ? dateValue?.toISOString(true)
             : dateValue.format(DatePickerSaveFormatNoTimestamp);
-        handleDataChange(dateString);
+        handleDataChange(dateString, undefined, false, false);
       }
     } else if (!dateValue) {
       setDate(null);
-      handleDataChange('');
+      handleDataChange('', undefined, false, false);
     } else if (
       dateValue.parsingFlags().charsLeftOver == 0 &&
       !dateValue.isValid()
@@ -247,10 +239,10 @@ function DatepickerComponent({
           ? date?.format(DatePickerSaveFormatNoTimestamp)
           : date?.toISOString(true);
       const saveDate = isDateEmpty() ? '' : dateString;
-      handleDataChange(saveDate);
+      handleDataChange(saveDate, undefined, false, false);
     } else {
       if (formData?.simpleBinding) {
-        handleDataChange('');
+        handleDataChange('', undefined, false, false);
       }
     }
   };

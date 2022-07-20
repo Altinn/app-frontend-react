@@ -1,26 +1,7 @@
-import type { IIsLoadingState } from 'src/shared/resources/isLoading/isLoadingSlice';
-import type { IOptionsState } from 'src/shared/resources/options/optionsReducer';
-import type { IFormRuleState } from 'src/features/form/rules/rulesReducer';
-import type { IDataModelState } from 'src/features/form/datamodel/datamodelSlice';
 import type { ReactNode } from 'react';
 import type Ajv from 'ajv/dist/core';
-import type { IFormDataState } from '../features/form/data/formDataReducer';
-import type { IFormDynamicState } from '../features/form/dynamics';
-import type { ILayoutState } from '../features/form/layout/formLayoutSlice';
-import type { IValidationState } from '../features/form/validation/validationSlice';
-import type { IInstantiationState } from '../features/instantiate/instantiation/reducer';
-import type { IApplicationMetadataState } from '../shared/resources/applicationMetadata/reducer';
-import type { IAttachmentState } from '../shared/resources/attachments/attachmentReducer';
-import type { IInstanceDataState } from '../shared/resources/instanceData/instanceDataReducers';
-import type { ILanguageState } from '../shared/resources/language/languageSlice';
-import type { IOrgsState } from '../shared/resources/orgs/orgsReducers';
-import type { IPartyState } from '../shared/resources/party/partyReducers';
-import type { IProcessState } from '../shared/resources/process/processReducer';
-import type { IProfileState } from '../shared/resources/profile/profileReducers';
-import type { IQueueState } from '../shared/resources/queue/queueSlice';
-import type { ITextResourcesState } from '../shared/resources/textResources/textResourcesReducer';
-import type { IApplicationSettingsState } from 'src/shared/resources/applicationSettings/applicationSettingsSlice';
-import type { IFormData } from 'src/features/form/data/formDataReducer';
+import type { IFormData } from 'src/features/form/data';
+import type { RootState } from 'src/store';
 
 export interface IAltinnWindow extends Window {
   app: string;
@@ -43,30 +24,6 @@ export interface IComponentValidations {
 }
 
 export { IDataModelBindings } from '../features/form/layout/index';
-
-export interface IFormComponent {
-  id: string;
-  disabled?: boolean;
-  required?: boolean;
-  readOnly?: boolean;
-}
-
-export interface IFormFileUploaderComponent extends IFormComponent {
-  description: string;
-  hasCustomFileEndings: boolean;
-  maxFileSizeInMB: number;
-  displayMode: string;
-  maxNumberOfAttachments: number;
-  minNumberOfAttachments: number;
-  validFileEndings?: string;
-}
-
-export interface IFormFileUploaderWithTagComponent
-  extends IFormFileUploaderComponent {
-  options: IOption[];
-  optionsId: string;
-  mapping?: IMapping;
-}
 
 export interface IFormFileUploaderWithTag {
   chosenOptions: IOptionsChosen;
@@ -156,37 +113,8 @@ export interface IRules {
   [id: string]: any;
 }
 
-export interface IRuntimeStore {
-  attachments: IAttachmentState;
-  formData: IFormDataState;
-  formDataModel: IDataModelState;
-  formDynamics: IFormDynamicState;
-  formLayout: ILayoutState;
-  language: ILanguageState;
-}
-
-export interface IRuntimeState {
-  applicationMetadata: IApplicationMetadataState;
-  applicationSettings: IApplicationSettingsState;
-  attachments: IAttachmentState;
-  formData: IFormDataState;
-  formDataModel: IDataModelState;
-  formDynamics: IFormDynamicState;
-  formLayout: ILayoutState;
-  formRules: IFormRuleState;
-  formValidations: IValidationState;
-  instanceData: IInstanceDataState;
-  instantiation: IInstantiationState;
-  isLoading: IIsLoadingState;
-  language: ILanguageState;
-  optionState: IOptionsState;
-  organisationMetaData: IOrgsState;
-  party: IPartyState;
-  process: IProcessState;
-  profile: IProfileState;
-  queue: IQueueState;
-  textResources: ITextResourcesState;
-}
+export type IRuntimeState = RootState;
+export type IRuntimeStore = IRuntimeState;
 
 export interface ISchemaValidator {
   rootElementPath: string;
@@ -315,4 +243,9 @@ export interface IFetchSpecificOptionSaga {
   dataMapping?: IMapping;
   secure?: boolean;
   instanceId?: string;
+}
+
+export interface IPartyIdInterfaceGuidParams {
+  partyId: string;
+  instanceGuid: string;
 }

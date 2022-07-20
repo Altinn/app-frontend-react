@@ -1,15 +1,22 @@
 import React from 'react';
 import { screen, within } from '@testing-library/react';
 import { mockMediaQuery, renderWithProviders } from '../../../../testUtils';
-import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type {
+  ILayoutComponent,
+  ILayoutGroup,
+  ILayoutCompLikert,
+} from 'src/features/form/layout';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
-import type { IFormDataState } from 'src/features/form/data/formDataReducer';
-import type { ITextResourcesState } from 'src/shared/resources/textResources/textResourcesReducer';
+import type { IFormDataState } from 'src/features/form/data';
+import type { ITextResourcesState } from 'src/shared/resources/textResources';
 import { getInitialStateMock } from '../../../../__mocks__/initialStateMock';
 import { setupStore } from 'src/store';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import type { ILayoutValidations, ITextResource } from 'src/types';
 import type { IValidationState } from 'src/features/form/validation/validationSlice';
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { IUpdateFormData } from 'src/features/form/data/formDataTypes';
 
 export const defaultMockQuestions = [
   { Question: 'Hvordan trives du på skolen?', Answer: '' },
@@ -75,8 +82,8 @@ const createLikertContainer = (props: Partial<ILayoutGroup>): ILayoutGroup => {
 };
 
 const createRadioButton = (
-  props: Partial<ILayoutComponent>,
-): ILayoutComponent => {
+  props: Partial<ILayoutCompLikert>,
+): ILayoutCompLikert => {
   return {
     id: 'field1',
     type: 'Likert',
@@ -97,15 +104,16 @@ const createRadioButton = (
 export const createFormDataUpdateAction = (
   index: number,
   optionValue: string,
-) => {
+): PayloadAction<IUpdateFormData> => {
   return {
     payload: {
       componentId: `field1-${index}`,
       data: optionValue,
       field: `Questions[${index}].Answer`,
       skipValidation: false,
+      checkIfRequired: true,
     },
-    type: 'formData/update',
+    type: FormDataActions.update.type,
   };
 };
 
@@ -198,7 +206,7 @@ interface IQuestion {
 interface IRenderProps {
   mobileView: boolean;
   mockQuestions: IQuestion[];
-  radioButtonProps: Partial<ILayoutComponent>;
+  radioButtonProps: Partial<ILayoutCompLikert>;
   likertContainerProps: Partial<ILayoutGroup>;
   extraTextResources: ITextResource[];
   validations: ILayoutValidations;

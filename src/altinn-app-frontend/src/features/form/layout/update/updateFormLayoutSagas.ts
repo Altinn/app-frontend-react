@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 import {
@@ -8,13 +7,11 @@ import {
   put,
   select,
   take,
-  takeEvery,
   takeLatest,
   race,
 } from 'redux-saga/effects';
 import type {
   IFileUploadersWithTag,
-  IFormFileUploaderWithTagComponent,
   IRepeatingGroups,
   IRuntimeState,
   IValidationIssue,
@@ -24,8 +21,6 @@ import { Triggers } from 'src/types';
 import {
   mapFileUploadersWithTag,
   findChildren,
-  isFileUploadComponent,
-  isFileUploadWithTagComponent,
   splitDashedKey,
   getRepeatingGroups,
   removeRepeatingGroupFromUIConfig,
@@ -54,16 +49,16 @@ import {
   getValidator,
 } from 'src/utils/validation';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
-import { startInitialDataTaskQueueFulfilled } from 'src/shared/resources/queue/queueSlice';
-import { updateValidations } from 'src/features/form/validation/validationSlice';
-import type { IAttachmentState } from 'src/shared/resources/attachments/attachmentReducer';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
+import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import type {
   ILayoutComponent,
-  ILayoutEntry,
   ILayoutGroup,
   ILayouts,
+  ILayoutComponentOrGroup,
+  ILayoutCompFileUploadWithTag,
 } from '..';
-import ConditionalRenderingActions from '../../dynamics/formDynamicsActions';
+import { FormDynamicsActions } from '../../dynamics/formDynamicsSlice';
 import type { ILayoutState } from '../formLayoutSlice';
 import { FormLayoutActions } from '../formLayoutSlice';
 import type {
@@ -75,8 +70,8 @@ import type {
   IUpdateFileUploaderWithTagEditIndex,
   IUpdateFileUploaderWithTagChosenOptions,
 } from '../formLayoutTypes';
-import type { IFormDataState } from '../../data/formDataReducer';
-import FormDataActions from '../../data/formDataActions';
+import type { IFormDataState } from '../../data';
+import { FormDataActions } from '../../data/formDataSlice';
 import {
   convertDataBindingToModel,
   removeGroupData,
@@ -87,14 +82,9 @@ import type {
   IDeleteAttachmentActionFulfilled,
   IDeleteAttachmentActionRejected,
 } from 'src/shared/resources/attachments/delete/deleteAttachmentActions';
-import { deleteAttachment } from 'src/shared/resources/attachments/delete/deleteAttachmentActions';
-import {
-  DELETE_ATTACHMENT_FULFILLED,
-  DELETE_ATTACHMENT_REJECTED,
-  MAP_ATTACHMENTS_FULFILLED,
-} from 'src/shared/resources/attachments/attachmentActionTypes';
-import AttachmentActions from 'src/shared/resources/attachments/attachmentActions';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { shiftAttachmentRowInRepeatingGroup } from 'src/utils/attachment';
+import type { IAttachmentState } from 'src/shared/resources/attachments';
 
 export const selectFormLayoutState = (state: IRuntimeState): ILayoutState =>
   state.formLayout;
@@ -109,7 +99,7 @@ export const selectValidations = (state: IRuntimeState): IValidations =>
 export const selectUnsavedChanges = (state: IRuntimeState): boolean =>
   state.formData.unsavedChanges;
 
-function* updateFocus({
+export function* updateFocus({
   payload: { currentComponentId, step },
 }: PayloadAction<IUpdateFocus>): SagaIterator {
   try {
@@ -137,8 +127,8 @@ function* updateFocus({
 }
 
 export function* updateRepeatingGroupsSaga({
-  payload: { layoutElementId, remove, index },
-}: PayloadAction<IUpdateRepeatingGroups>) {
+  payload: { layoutElementId, remove, index, leaveOpen },
+}: PayloadAction<IUpdateRepeatingGroups>): SagaIterator {
   try {
     const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
     const currentIndex =
@@ -159,7 +149,7 @@ export function* updateRepeatingGroupsSaga({
     const childGroups: (ILayoutGroup | ILayoutComponent)[] =
       formLayoutState.layouts[formLayoutState.uiConfig.currentView].filter(
         (element) => {
-          if (element.type.toLowerCase() !== 'group') {
+          if (element.type !== 'Group') {
             return false;
           }
 
@@ -210,22 +200,30 @@ export function* updateRepeatingGroupsSaga({
 
       let attachmentRemovalSuccessful = true;
       for (const { attachment, component, componentId } of childAttachments) {
-        // Deleting attachment, but deliberately avoiding passing the dataModelBindings to avoid removing the formData
-        // references. We're doing that ourselves here later, and having other sagas compete for it will cause race
-        // conditions and lots of useless requests.
-        yield put(deleteAttachment(attachment, component.id, componentId, {}));
+        yield put(
+          AttachmentActions.deleteAttachment({
+            attachment,
+            attachmentType: component.id,
+            componentId,
+
+            // Deleting attachment, but deliberately avoiding passing the dataModelBindings to avoid removing the formData
+            // references. We're doing that ourselves here later, and having other sagas compete for it will cause race
+            // conditions and lots of useless requests.
+            dataModelBindings: {},
+          }),
+        );
 
         while (true) {
           const completion: {
-            fulfilled?: IDeleteAttachmentActionFulfilled;
-            rejected?: IDeleteAttachmentActionRejected;
+            fulfilled?: PayloadAction<IDeleteAttachmentActionFulfilled>;
+            rejected?: PayloadAction<IDeleteAttachmentActionRejected>;
           } = yield race({
-            fulfilled: take(DELETE_ATTACHMENT_FULFILLED),
-            rejected: take(DELETE_ATTACHMENT_REJECTED),
+            fulfilled: take(AttachmentActions.deleteAttachmentFulfilled),
+            rejected: take(AttachmentActions.deleteAttachmentRejected),
           });
           const attachmentId =
-            completion.fulfilled?.attachmentId ||
-            completion.rejected.attachment.id;
+            completion.fulfilled?.payload.attachmentId ||
+            completion.rejected.payload.attachment.id;
           if (attachmentId !== attachment.id) {
             // Some other attachment elsewhere had its event complete, we'll ignore it
             continue;
@@ -244,7 +242,7 @@ export function* updateRepeatingGroupsSaga({
         const splitLayoutElementId = splitDashedKey(layoutElementId);
         const childFileUploaders = findChildren(layout, {
           matching: (c) =>
-            isFileUploadComponent(c) || isFileUploadWithTagComponent(c),
+            c.type === 'FileUpload' || c.type === 'FileUploadWithTag',
           rootGroupId: splitLayoutElementId.baseComponentId,
         });
         const updatedAttachments = shiftAttachmentRowInRepeatingGroup(
@@ -272,25 +270,35 @@ export function* updateRepeatingGroupsSaga({
           formLayoutState.uiConfig.repeatingGroups,
           validations,
         );
-        yield put(updateValidations({ validations: updatedValidations }));
+        yield put(
+          ValidationActions.updateValidations({
+            validations: updatedValidations,
+          }),
+        );
 
         updatedRepeatingGroups[layoutElementId].deletingIndex =
           updatedRepeatingGroups[layoutElementId].deletingIndex?.filter(
             (value) => value !== index,
           );
         updatedRepeatingGroups[layoutElementId].editIndex = -1;
+
+        if (leaveOpen && index === 0) {
+          updatedRepeatingGroups[layoutElementId].index = 0;
+          updatedRepeatingGroups[layoutElementId].editIndex = 0;
+        }
+
         yield put(
           FormLayoutActions.updateRepeatingGroupsFulfilled({
             repeatingGroups: updatedRepeatingGroups,
           }),
         );
+        yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
         yield put(
-          FormDataActions.setFormDataFulfilled({ formData: updatedFormData }),
+          AttachmentActions.mapAttachmentsFulfilled({
+            attachments: updatedAttachments,
+          }),
         );
-        yield put(
-          AttachmentActions.mapAttachmentsFulfilled(updatedAttachments),
-        );
-        yield put(FormDataActions.saveFormData());
+        yield put(FormDataActions.save());
       } else {
         yield put(
           FormLayoutActions.updateRepeatingGroupsRemoveCancelled({
@@ -308,7 +316,7 @@ export function* updateRepeatingGroupsSaga({
       );
     }
 
-    yield call(ConditionalRenderingActions.checkIfConditionalRulesShouldRun);
+    yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
   } catch (error) {
     yield put(FormLayoutActions.updateRepeatingGroupsRejected({ error }));
   }
@@ -407,7 +415,7 @@ export function* updateCurrentViewSaga({
         // only store validations for the specific page
         validations = { [currentView]: validations[currentView] };
       }
-      yield put(updateValidations({ validations }));
+      yield put(ValidationActions.updateValidations({ validations }));
       if (state.formLayout.uiConfig.returnToView) {
         if (!skipPageCaching) {
           localStorage.setItem(currentViewCacheKey, newView);
@@ -513,19 +521,12 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
   }
 }
 
-export function* watchCalculatePageOrderAndMoveToNextPageSaga(): SagaIterator {
-  yield takeEvery(
-    FormLayoutActions.calculatePageOrderAndMoveToNextPage,
-    calculatePageOrderAndMoveToNextPageSaga,
-  );
-}
-
-export function* watchInitialCalculagePageOrderAndMoveToNextPageSaga(): SagaIterator {
+export function* watchInitialCalculatePageOrderAndMoveToNextPageSaga(): SagaIterator {
   while (true) {
     yield all([
-      take(startInitialDataTaskQueueFulfilled),
-      take(FormLayoutActions.fetchLayoutFulfilled),
-      take(FormLayoutActions.fetchLayoutSettingsFulfilled),
+      take(QueueActions.startInitialDataTaskQueueFulfilled),
+      take(FormLayoutActions.fetchFulfilled),
+      take(FormLayoutActions.fetchSettingsFulfilled),
     ]);
     const state: IRuntimeState = yield select();
     const layouts = state.formLayout.layouts;
@@ -533,7 +534,7 @@ export function* watchInitialCalculagePageOrderAndMoveToNextPageSaga(): SagaIter
     const appHasCalculateTrigger =
       pageTriggers?.includes(Triggers.CalculatePageOrder) ||
       Object.keys(layouts).some((layout) => {
-        return layouts[layout].some((element: ILayoutEntry) => {
+        return layouts[layout].some((element: ILayoutComponentOrGroup) => {
           if (element.type === 'NavigationButtons') {
             const layoutComponent = element as ILayoutComponent;
             if (
@@ -561,22 +562,11 @@ export function* watchUpdateCurrentViewSaga(): SagaIterator {
     yield take(FormLayoutActions.updateCurrentView);
     const hasUnsavedChanges = yield select(selectUnsavedChanges);
     if (hasUnsavedChanges) {
-      yield take(FormDataActions.submitFormDataFulfilled);
+      yield take(FormDataActions.submitFulfilled);
     }
     const value = yield take(requestChan);
     yield call(updateCurrentViewSaga, value);
   }
-}
-
-export function* watchUpdateFocusSaga(): SagaIterator {
-  yield takeLatest(FormLayoutActions.updateFocus, updateFocus);
-}
-
-export function* watchUpdateRepeatingGroupsSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateRepeatingGroups,
-    updateRepeatingGroupsSaga,
-  );
 }
 
 export function* updateRepeatingGroupEditIndexSaga({
@@ -638,7 +628,9 @@ export function* updateRepeatingGroupEditIndexSaga({
             ...combinedValidations[currentView],
           },
         };
-        yield put(updateValidations({ validations: newValidations }));
+        yield put(
+          ValidationActions.updateValidations({ validations: newValidations }),
+        );
       }
     } else {
       yield put(
@@ -653,13 +645,6 @@ export function* updateRepeatingGroupEditIndexSaga({
       FormLayoutActions.updateRepeatingGroupsEditIndexRejected({ error }),
     );
   }
-}
-
-export function* watchUpdateRepeatingGroupsEditIndexSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateRepeatingGroupsEditIndex,
-    updateRepeatingGroupEditIndexSaga,
-  );
 }
 
 export function* initRepeatingGroupsSaga(): SagaIterator {
@@ -697,7 +682,7 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
         );
       }
     }
-    yield put(updateValidations({ validations }));
+    yield put(ValidationActions.updateValidations({ validations }));
   }
   // preserve current edit index if still valid
   currentGroupKeys
@@ -715,13 +700,13 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
 }
 
 export function* watchInitRepeatingGroupsSaga(): SagaIterator {
-  yield take(FormLayoutActions.fetchLayoutFulfilled);
+  yield take(FormLayoutActions.fetchFulfilled);
   yield call(initRepeatingGroupsSaga);
   yield takeLatest(
     [
-      FormDataActions.fetchFormDataFulfilled,
+      FormDataActions.fetchFulfilled,
       FormLayoutActions.initRepeatingGroups,
-      FormLayoutActions.fetchLayoutFulfilled,
+      FormLayoutActions.fetchFulfilled,
     ],
     initRepeatingGroupsSaga,
   );
@@ -768,13 +753,6 @@ export function* updateFileUploaderWithTagEditIndexSaga({
   }
 }
 
-export function* watchUpdateFileUploaderWithTagEditIndexSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateFileUploaderWithTagEditIndex,
-    updateFileUploaderWithTagEditIndexSaga,
-  );
-}
-
 export function* updateFileUploaderWithTagChosenOptionsSaga({
   payload: { componentId, baseComponentId, id, option },
 }: PayloadAction<IUpdateFileUploaderWithTagChosenOptions>): SagaIterator {
@@ -784,7 +762,7 @@ export function* updateFileUploaderWithTagChosenOptionsSaga({
     const currentView = state.formLayout.uiConfig.currentView;
     const component = state.formLayout.layouts[currentView].find(
       (component: ILayoutComponent) => component.id === baseComponentId,
-    ) as unknown as IFormFileUploaderWithTagComponent;
+    ) as ILayoutCompFileUploadWithTag;
     const componentOptions =
       state.optionState.options[
         getOptionLookupKey(component.optionsId, component.mapping)
@@ -814,13 +792,6 @@ export function* updateFileUploaderWithTagChosenOptionsSaga({
   }
 }
 
-export function* watchUpdateFileUploaderWithTagChosenOptionsSaga(): SagaIterator {
-  yield takeLatest(
-    FormLayoutActions.updateFileUploaderWithTagChosenOptions,
-    updateFileUploaderWithTagChosenOptionsSaga,
-  );
-}
-
 export function* mapFileUploaderWithTagSaga(): SagaIterator {
   const attachmentState: IAttachmentState = yield select(selectAttachmentState);
   const layouts = yield select(selectFormLayouts);
@@ -840,13 +811,16 @@ export function* mapFileUploaderWithTagSaga(): SagaIterator {
 
 export function* watchMapFileUploaderWithTagSaga(): SagaIterator {
   yield all([
-    take(FormLayoutActions.fetchLayoutFulfilled),
-    take(MAP_ATTACHMENTS_FULFILLED),
+    take(FormLayoutActions.fetchFulfilled),
+    take(AttachmentActions.mapAttachmentsFulfilled),
   ]);
   yield call(mapFileUploaderWithTagSaga);
 
   yield takeLatest(
-    [MAP_ATTACHMENTS_FULFILLED, FormLayoutActions.fetchLayoutFulfilled],
+    [
+      AttachmentActions.mapAttachmentsFulfilled,
+      FormLayoutActions.fetchFulfilled,
+    ],
     mapFileUploaderWithTagSaga,
   );
 }

@@ -1,18 +1,12 @@
-/* eslint-disable max-len */
 import { object } from 'dot-object';
 import type {
   ILayout,
   ILayoutGroup,
-  ILayoutComponent,
+  ILayoutCompFileUpload,
 } from 'src/features/form/layout';
-import type {
-  IMapping,
-  IRepeatingGroup,
-  IDataModelBindings,
-  IFormFileUploaderComponent,
-} from 'src/types';
+import type { IMapping, IRepeatingGroup, IDataModelBindings } from 'src/types';
 import { getParentGroup } from './validation';
-import type { IFormData } from 'src/features/form/data/formDataReducer';
+import type { IFormData } from 'src/features/form/data';
 import type {
   IAttachment,
   IAttachments,
@@ -28,11 +22,23 @@ export function convertDataBindingToModel(formData: any): any {
   return object({ ...formData });
 }
 
-export function filterOutInvalidData(data: any, invalidKeys: string[]) {
+export function filterOutInvalidData({
+  data,
+  invalidKeys = [],
+}: {
+  data: IFormData;
+  invalidKeys: string[];
+}) {
+  if (!invalidKeys) {
+    return data;
+  }
+
   const result = {};
   Object.keys(data).forEach((key) => {
-    // eslint-disable-next-line no-prototype-builtins
-    if (data.hasOwnProperty(key) && !invalidKeys.includes(key)) {
+    if (
+      Object.prototype.hasOwnProperty.call(data, key) &&
+      !invalidKeys.includes(key)
+    ) {
       result[key] = data[key];
     }
   });
@@ -228,7 +234,6 @@ export function deleteGroupData(
       ),
     )
     .forEach((key) => {
-      // eslint-disable-next-line no-param-reassign
       delete data[key];
       if (shiftData) {
         const newKey = key.replace(
@@ -237,7 +242,6 @@ export function deleteGroupData(
             ? `${keyStart}[${index - 1}]`
             : `${keyStart}-${index - 1}`,
         );
-        // eslint-disable-next-line no-param-reassign
         data[newKey] = prevData[key];
       }
     });
@@ -245,7 +249,7 @@ export function deleteGroupData(
 
 interface FoundAttachment {
   attachment: IAttachment;
-  component: IFormFileUploaderComponent & ILayoutComponent;
+  component: ILayoutCompFileUpload;
   componentId: string;
   index: number;
 }
@@ -268,8 +272,8 @@ export function findChildAttachments(
     layout,
   );
   const out: FoundAttachment[] = [];
-  const components = layout.filter((c) =>
-    ['fileupload', 'fileuploadwithtag'].includes(c.type.toLowerCase()),
+  const components = layout.filter(
+    (c) => c.type === 'FileUpload' || c.type === 'FileUploadWithTag',
   );
   const formDataKeys = Object.keys(formData).filter((key) =>
     key.startsWith(`${groupDataModelBinding}[${index}]`),
@@ -281,7 +285,7 @@ export function findChildAttachments(
       (c) =>
         c.dataModelBindings?.simpleBinding === dataBinding ||
         c.dataModelBindings?.list === dataBinding,
-    ) as unknown as IFormFileUploaderComponent & ILayoutComponent;
+    ) as unknown as ILayoutCompFileUpload;
 
     if (component) {
       const groupKeys = getKeyIndex(key);

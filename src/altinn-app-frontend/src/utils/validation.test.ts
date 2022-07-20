@@ -120,7 +120,7 @@ describe('utils > validation', () => {
     };
 
     mockGroup2 = {
-      type: 'group',
+      type: 'Group',
       id: 'group2',
       dataModelBindings: {
         group: 'group_1.group_2',
@@ -130,7 +130,7 @@ describe('utils > validation', () => {
     };
 
     mockGroup1 = {
-      type: 'group',
+      type: 'Group',
       id: 'group1',
       dataModelBindings: {
         group: 'group_1',
@@ -140,7 +140,7 @@ describe('utils > validation', () => {
     };
 
     mockGroup3 = {
-      type: 'group',
+      type: 'Group',
       id: 'group3',
       dataModelBindings: {
         group: 'group_3',
@@ -228,7 +228,7 @@ describe('utils > validation', () => {
           textResourceBindings: {},
         },
         {
-          type: 'group',
+          type: 'Group',
           id: 'group_simple',
           dataModelBindings: {
             group: 'group_simple',
@@ -515,6 +515,25 @@ describe('utils > validation', () => {
         code: '',
       },
     ];
+
+    /**
+     * Silences deprecation warning about jsPropertySyntax from Ajv, so we don't pollute our test runner output with
+     * these warnings. We already know about the deprecation of jsPropertySyntax, and our tests will fail if/when
+     * AJV decides to completely remove support for this syntax.
+     *
+     * @see createValidator
+     */
+    const oldConsoleWarn = console.warn;
+    console.warn = (...args: any[]) => {
+      if (
+        typeof args[0] === 'string' &&
+        args[0].match(/DEPRECATED: option jsPropertySyntax/)
+      ) {
+        return;
+      }
+
+      oldConsoleWarn(...args);
+    };
   });
 
   describe('getErrorCount', () => {
@@ -968,7 +987,7 @@ describe('utils > validation', () => {
         type: 'Input',
         required: true,
         dataModelBindings: {
-          simpleBinding: 'Group.' + id,
+          simpleBinding: `Group.${id}`,
         },
         textResourceBindings: {
           title: id,
