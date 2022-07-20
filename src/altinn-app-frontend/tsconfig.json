@@ -5,7 +5,8 @@
     "paths": {
       "altinn-shared/*": ["../shared/src/*"],
       "src/*": ["src/*"],
-      "__mocks__/*": ["__mocks__/*"]
+      "__mocks__/*": ["__mocks__/*"],
+      "testUtils": ["./testUtils.tsx"]
     }
   }
 }

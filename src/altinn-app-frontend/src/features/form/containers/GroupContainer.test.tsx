@@ -211,7 +211,7 @@ describe('GroupContainer', () => {
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
-  it('should NOT trigger validate when closing edit mode if validation trigger is NOT present', () => {
+  it('should NOT trigger validate when closing edit mode if validation trigger is NOT present', async () => {
     const mockContainerInEditMode = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
@@ -220,7 +220,7 @@ describe('GroupContainer', () => {
     const user = userEvent.setup();
 
     const editButton = screen.getAllByText('Rediger')[0].closest('button');
-    user.click(editButton);
+    await user.click(editButton);
 
     const mockDispatchedAction = {
       payload: {
@@ -235,7 +235,7 @@ describe('GroupContainer', () => {
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
-  it('should trigger validate when saving if validation trigger is present', () => {
+  it('should trigger validate when saving if validation trigger is present', async () => {
     const mockContainerInEditModeWithTrigger = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
@@ -245,7 +245,7 @@ describe('GroupContainer', () => {
     const user = userEvent.setup();
 
     const editButton = screen.getAllByText('Ferdig')[0].closest('button');
-    user.click(editButton);
+    await user.click(editButton);
 
     const mockDispatchedAction = {
       payload: {
@@ -260,7 +260,7 @@ describe('GroupContainer', () => {
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
-  it('should NOT trigger validate when saving if validation trigger is NOT present', () => {
+  it('should NOT trigger validate when saving if validation trigger is NOT present', async () => {
     const mockContainerInEditMode = {
       ...mockContainer,
       id: 'container-in-edit-mode-id',
@@ -269,7 +269,7 @@ describe('GroupContainer', () => {
     const user = userEvent.setup();
 
     const editButton = screen.getAllByText('Ferdig')[0].closest('button');
-    user.click(editButton);
+    await user.click(editButton);
 
     const mockDispatchedAction = {
       payload: {
