@@ -94,7 +94,6 @@ export function Form() {
   const [currentLayout, setCurrentLayout] = React.useState<string>();
   const [requiredFieldsMissing, setRequiredFieldsMissing] =
     React.useState(false);
-
   const currentView = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
   );
@@ -105,7 +104,7 @@ export function Form() {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
-  const { matchUrl } = useFormLayoutHistoryAndMatchInstanceLocation({
+  const { matchRootUrl } = useFormLayoutHistoryAndMatchInstanceLocation({
     activePageId: currentView,
   });
 
@@ -149,7 +148,7 @@ export function Form() {
   }
 
   return (
-    <Route path={`${matchUrl}/:pageId`}>
+    <Route path={`${matchRootUrl}/:pageId`}>
       {hasRequiredFields(layout) && (
         <MessageBanner
           language={language}

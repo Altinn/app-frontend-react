@@ -1,51 +1,60 @@
-import { useEffect } from 'react';
-import { useAppDispatch } from 'src/common/hooks/index';
+import { useEffect, useCallback } from 'react';
+import { useAppDispatch } from './useAppDispatch';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import type { IUpdateCurrentView } from 'src/features/form/layout/formLayoutTypes';
 
 /**
- *
  * @param activePageId the formLayout page id that is currently active in the app
- *
- * @return matchUrl: Matches the location if there is an instance. If not, an empty string.
+ * @return matchRootUrl: Matches the location pathname of the history root. If not, an empty string.
  */
-
 export const useFormLayoutHistoryAndMatchInstanceLocation = ({
   activePageId,
 }: {
   activePageId: string;
-}) => {
-  const dispatch = useAppDispatch();
-  const match = useRouteMatch<string>('/instance/:partyId/:instanceGuid');
-  const matchUrl = match?.url || '';
+}): { matchRootUrl: string } => {
+  const matchRoot = useRouteMatch<string>('/instance/:partyId/:instanceGuid');
+  const matchRootUrl = matchRoot?.url || '';
   const history = useHistory();
-
+  const dispatch = useAppDispatch();
+  const dispatchAction = FormLayoutActions.updateCurrentView;
+  const doDispatch = useCallback(
+    (payload: IUpdateCurrentView) => {
+      dispatch(dispatchAction(payload));
+    },
+    [dispatch, dispatchAction],
+  );
   useEffect(() => {
+    const pageIdFromLocation = history.location.pathname.replace(
+      `${matchRootUrl}/`,
+      '',
+    );
+    const locationIsRoot =
+      !pageIdFromLocation || pageIdFromLocation === matchRootUrl;
     if (activePageId) {
-      const getPageIdFromLocation = () =>
-        history.location?.pathname.replace(`${matchUrl}/`, '');
-      const pageIdFromLocation = getPageIdFromLocation();
-      const isOnRootPage =
-        !pageIdFromLocation || pageIdFromLocation === matchUrl;
-
-      if (isOnRootPage) {
-        history.replace(`${matchUrl}/${activePageId}`);
+      if (locationIsRoot) {
+        history.replace(`${matchRootUrl}/${activePageId}`);
         return;
       } else if (activePageId !== pageIdFromLocation) {
-        history.push(`${matchUrl}/${activePageId}`);
+        history.push(`${matchRootUrl}/${activePageId}`);
       }
-
       return history.listen((_location, action) => {
         const isBrowserBackOrForwardPressed = action === 'POP';
         if (isBrowserBackOrForwardPressed) {
-          const newView = getPageIdFromLocation();
+          // newView will not be the same as pageIdFromLocation as this happens in the listener
+          const newView = history.location.pathname.replace(
+            `${matchRootUrl}/`,
+            '',
+          );
           if (newView && newView !== activePageId) {
-            dispatch(FormLayoutActions.updateCurrentView({ newView }));
+            doDispatch({ newView });
           }
         }
       });
+    } else if (!locationIsRoot) {
+      doDispatch({ newView: pageIdFromLocation });
     }
-  }, [dispatch, activePageId, matchUrl, history]);
+  }, [activePageId, doDispatch, history, matchRootUrl]);
 
-  return { matchUrl };
+  return { matchRootUrl };
 };
