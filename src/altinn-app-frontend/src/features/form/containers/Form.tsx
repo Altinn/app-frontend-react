@@ -1,7 +1,12 @@
 import Grid from '@material-ui/core/Grid';
 import React from 'react';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
-import type { ILayout, ILayoutComponent, ILayoutGroup } from '../layout';
+import type {
+  ILayout,
+  ILayoutComponent,
+  ILayoutGroup,
+  ComponentTypes,
+} from '../layout';
 import { GroupContainer } from './GroupContainer';
 import { renderGenericComponent } from 'src/utils/layout';
 import { DisplayGroupContainer } from './DisplayGroupContainer';
@@ -10,6 +15,9 @@ import MessageBanner from 'src/features/form/components/MessageBanner';
 import { hasRequiredFields } from 'src/utils/formLayout';
 import { missingFieldsInLayoutValidations } from 'src/utils/validation';
 import { PanelGroupContainer } from './PanelGroupContainer';
+import ErrorReport, {
+  getFormHasErrors,
+} from 'src/components/message/ErrorReport';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -99,6 +107,9 @@ export function Form() {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
+  const hasErrors = useAppSelector((state) =>
+    getFormHasErrors(state.formValidations.validations),
+  );
 
   const requiredFieldsMissing = React.useMemo(() => {
     if (validations && validations[currentView]) {
@@ -111,15 +122,18 @@ export function Form() {
     return false;
   }, [currentView, language, validations]);
 
-  const filteredLayout = React.useMemo(() => {
-    if (layout) {
-      return topLevelComponents(layout);
+  const [mainComponents, errorReportComponents] = React.useMemo(() => {
+    if (layout && hasErrors) {
+      const topLevel = topLevelComponents(layout);
+      return extractBottomButtons(topLevel);
+    } else if (layout) {
+      return [topLevelComponents(layout), []];
     }
-    return [];
-  }, [layout]);
+    return [[], []];
+  }, [layout, hasErrors]);
 
   return (
-    <div>
+    <>
       {hasRequiredFields(layout) && (
         <MessageBanner
           language={language}
@@ -132,11 +146,12 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        {filteredLayout.map((component) =>
+        {mainComponents.map((component) =>
           renderLayoutComponent(component, layout),
         )}
+        <ErrorReport components={errorReportComponents} />
       </Grid>
-    </div>
+    </>
   );
 }
 
@@ -151,4 +166,24 @@ function topLevelComponents(layout: ILayout) {
     }
   });
   return layout.filter((component) => !inGroup.has(component.id));
+}
+
+function extractBottomButtons(layout: ILayout) {
+  const extract = new Set<ComponentTypes>([
+    'NavigationButtons',
+    'Button',
+    'PrintButton',
+  ]);
+
+  const toMainLayout: ILayout = [];
+  const toErrorReport: ILayout = [];
+  for (const component of [...layout].reverse()) {
+    if (extract.has(component.type) && toMainLayout.length === 0) {
+      toErrorReport.push(component);
+    } else {
+      toMainLayout.push(component);
+    }
+  }
+
+  return [toMainLayout.reverse(), toErrorReport.reverse()];
 }

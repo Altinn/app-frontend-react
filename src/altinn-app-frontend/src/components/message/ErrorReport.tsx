@@ -1,10 +1,19 @@
 import * as React from 'react';
-import { getLanguageFromKey } from 'altinn-shared/utils';
 import type { IValidations } from 'src/types';
 import { getUnmappedErrors } from 'src/utils/validation';
 import { useAppSelector } from 'src/common/hooks';
+import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
+import { Grid } from '@material-ui/core';
+import { Panel, PanelVariant } from '@altinn/altinn-design-system';
+import { renderLayoutComponent } from 'src/features/form/containers/Form';
+import { getLanguageFromKey } from 'altinn-shared/utils';
+import type { ILayout } from 'src/features/form/layout';
 
-const ErrorReport = () => {
+export interface IErrorReportProps {
+  components: ILayout;
+}
+
+const ErrorReport = ({ components }: IErrorReportProps) => {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
@@ -28,63 +37,38 @@ const ErrorReport = () => {
   }
 
   return (
-    <div
-      data-testid='ErrorReport'
-      id='errorReport'
-      className='a-modal-content-target'
-      style={{ marginTop: '55px' }}
-      ref={errorRef}
-      tabIndex={-1}
+    <Grid
+      item={true}
+      xs={12}
     >
-      <div className='a-page a-current-page'>
-        <div className='modalPage'>
-          <div className='modal-content'>
-            <div
-              className='modal-body'
-              style={{ paddingBottom: '0px' }}
-            >
-              <div
-                className='a-iconText'
-                style={{ minHeight: '60px' }}
-              >
-                <div className='a-iconText-icon'>
-                  <i
-                    className='ai ai-circle-exclamation a-icon'
-                    style={{
-                      color: '#E23B53',
-                      fontSize: '4em',
-                      marginLeft: '12px',
-                    }}
-                    aria-hidden='true'
-                  />
-                </div>
-                <h2
-                  className='a-fontReg'
-                  style={{ marginBottom: '0px', marginLeft: '12px' }}
-                >
-                  <span className='a-iconText-text-large'>
-                    {getLanguageFromKey(
-                      'form_filler.error_report_header',
-                      language,
-                    )}
-                  </span>
-                </h2>
-              </div>
-            </div>
-            <div
-              className='modal-body a-modal-body'
-              style={{ paddingTop: '0px', paddingBottom: '24px' }}
+      <FullWidthWrapper onBottom={true}>
+        <Panel
+          title={getLanguageFromKey(
+            'form_filler.error_report_header',
+            language,
+          )}
+          showIcon={false}
+          variant={PanelVariant.Warning}
+        >
+          <Grid
+            container={true}
+            item={true}
+            spacing={3}
+            alignItems='flex-start'
+            data-testid='panel-group-container'
+          >
+            <Grid
+              item
+              xs={12}
             >
               {hasUnmappedErrors && (
-                <div>
-                  <ul style={{ listStylePosition: 'inside' }}>
-                    {unmappedErrors.map(
-                      (error: React.ReactNode, index: number) => {
-                        return <li key={index}>{error}</li>;
-                      },
-                    )}
-                  </ul>
-                </div>
+                <ul style={{ listStylePosition: 'inside' }}>
+                  {unmappedErrors.map(
+                    (error: React.ReactNode, index: number) => {
+                      return <li key={index}>{error}</li>;
+                    },
+                  )}
+                </ul>
               )}
               {!hasUnmappedErrors && (
                 // No errors to list, show a generic error message
@@ -100,15 +84,19 @@ const ErrorReport = () => {
                   </span>
                 </h4>
               )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Grid>
+
+            {components.map((component) => {
+              return renderLayoutComponent(component, []);
+            })}
+          </Grid>
+        </Panel>
+      </FullWidthWrapper>
+    </Grid>
   );
 };
 
-const getFormHasErrors = (validations: IValidations): boolean => {
+export const getFormHasErrors = (validations: IValidations): boolean => {
   for (const layout in validations) {
     for (const key in validations[layout]) {
       const validationObject = validations[layout][key];

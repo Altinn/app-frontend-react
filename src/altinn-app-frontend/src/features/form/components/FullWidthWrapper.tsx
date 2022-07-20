@@ -3,6 +3,7 @@ import React from 'react';
 
 export interface IFullWidthWrapperProps {
   children?: React.ReactNode;
+  onBottom?: boolean;
 }
 
 const useStyles = makeStyles({
@@ -18,14 +19,25 @@ const useStyles = makeStyles({
       marginRight: '-96px',
     },
   },
+  consumeBottomPadding: {
+    marginBottom: '-24px',
+    '@media (min-width: 768px)': {
+      marginBottom: '-36px',
+    },
+  },
 });
 
-export function FullWidthWrapper({ children }: IFullWidthWrapperProps) {
+export function FullWidthWrapper({
+  children,
+  onBottom,
+}: IFullWidthWrapperProps) {
   const classes = useStyles();
 
   return (
     <div
-      className={classes.fullWidthWrapper}
+      className={`${classes.fullWidthWrapper} ${
+        onBottom ? classes.consumeBottomPadding : ''
+      }`}
       data-testid='fullWidthWrapper'
     >
       {children}

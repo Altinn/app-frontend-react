@@ -14,7 +14,6 @@ import { getNextView } from 'src/utils/formLayout';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { get } from 'src/utils/networking';
 import { getRedirectUrl } from 'src/utils/appUrlHelper';
-import ErrorReport from '../../components/message/ErrorReport';
 import Header from '../../components/presentation/Header';
 import NavBar from '../../components/presentation/NavBar';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
@@ -113,7 +112,6 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
       <main className='container'>
         <div className='row'>
           <div className='col-xl-12 a-p-static'>
-            <ErrorReport />
             {isProcessStepsArchived && instance?.status?.substatus && (
               <AltinnSubstatusPaper
                 label={getTextResourceByKey(
