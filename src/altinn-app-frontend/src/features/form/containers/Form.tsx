@@ -22,15 +22,14 @@ export function renderLayoutComponent(
   layout: ILayout,
 ) {
   switch (layoutComponent.type) {
-    case 'group':
     case 'Group': {
-      return RenderLayoutGroup(layoutComponent as ILayoutGroup, layout);
+      return RenderLayoutGroup(layoutComponent, layout);
     }
     case 'Summary': {
       return (
         <SummaryComponent
           key={layoutComponent.id}
-          {...(layoutComponent as ILayoutComponent)}
+          {...layoutComponent}
         />
       );
     }
@@ -38,7 +37,7 @@ export function renderLayoutComponent(
       return (
         <GenericComponent
           key={layoutComponent.id}
-          {...(layoutComponent as ILayoutComponent)}
+          {...layoutComponent}
         />
       );
     }
@@ -126,7 +125,7 @@ export function Form() {
     let renderedInGroup: string[] = [];
     if (layout) {
       const groupComponents = layout.filter(
-        (component) => component.type.toLowerCase() === 'group',
+        (component) => component.type === 'Group',
       );
       groupComponents.forEach((component: ILayoutGroup) => {
         let childList = component.children;

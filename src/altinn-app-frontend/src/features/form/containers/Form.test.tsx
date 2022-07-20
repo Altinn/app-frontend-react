@@ -51,7 +51,7 @@ describe('Form', () => {
     },
     {
       id: 'testGroupId',
-      type: 'group',
+      type: 'Group',
       dataModelBindings: {
         group: 'Group',
       },
@@ -72,7 +72,7 @@ describe('Form', () => {
       ...mockComponents,
       {
         id: 'non-rep-group-id',
-        type: 'group',
+        type: 'Group',
         dataModelBindings: {
           group: 'Group',
         },
@@ -106,7 +106,7 @@ describe('Form', () => {
       ...mockComponents,
       {
         id: 'panel-group-id',
-        type: 'group',
+        type: 'Group',
         dataModelBindings: {
           group: 'Group',
         },

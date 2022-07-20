@@ -21,7 +21,7 @@ export function getFormLayoutGroupMock(
 
 export function getMultiPageGroupMock(): ILayoutGroup {
   return {
-    type: 'group',
+    type: 'Group',
     id: 'multipageGroup',
     dataModelBindings: {
       group: 'multipageGroup',
