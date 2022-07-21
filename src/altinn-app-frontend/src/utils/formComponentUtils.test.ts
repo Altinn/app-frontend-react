@@ -14,7 +14,7 @@ import {
   isNotAttachmentError,
   parseFileUploadComponentWithTagValidationObject,
   selectComponentTexts,
-  smart_unucfirst,
+  smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
 import type { IFormData } from 'src/features/form/data';
 import type {
@@ -665,7 +665,7 @@ describe('formComponentUtils', () => {
     });
   });
 
-  describe('smart_unucfirst', () => {
+  describe('smartLowerCaseFirst', () => {
     it.each([
       { input: 'Fornavn', expected: 'fornavn' },
       { input: 'fornavn', expected: 'fornavn' },
@@ -689,7 +689,7 @@ describe('formComponentUtils', () => {
       { input: 'S.a.a.B', expected: 'S.a.a.B' },
       { input: '¿Cómo te llamas?', expected: '¿cómo te llamas?' },
     ])('Should convert $input to $expected', ({ input, expected }) => {
-      expect(smart_unucfirst(input)).toEqual(expected);
+      expect(smartLowerCaseFirst(input)).toEqual(expected);
     });
   });
 

@@ -521,7 +521,7 @@ export function getFieldName(
   fieldKey?: string,
 ): string {
   if (fieldKey) {
-    return smart_unucfirst(
+    return smartLowerCaseFirst(
       getTextFromAppOrDefault(
         `form_filler.${fieldKey}`,
         textResources,
@@ -537,7 +537,7 @@ export function getFieldName(
   }
 
   if (textResourceBindings.title) {
-    return smart_unucfirst(
+    return smartLowerCaseFirst(
       getTextResourceByKey(textResourceBindings.title, textResources),
     );
   }
@@ -548,7 +548,7 @@ export function getFieldName(
 /**
  * Un-uppercase the first letter of a string
  */
-export function unucfirst(text: string, firstLetterIndex = 0): string {
+export function lowerCaseFirst(text: string, firstLetterIndex = 0): string {
   if (firstLetterIndex > 0) {
     return (
       text.substring(0, firstLetterIndex) +
@@ -563,7 +563,7 @@ export function unucfirst(text: string, firstLetterIndex = 0): string {
  * Un-uppercase the first letter of a string, but be smart about it (avoiding it when the string is an
  * uppercase abbreviation, etc).
  */
-export function smart_unucfirst(text: string): string {
+export function smartLowerCaseFirst(text: string): string {
   const uc = text.toUpperCase();
   const lc = text.toLowerCase();
 
@@ -591,10 +591,10 @@ export function smart_unucfirst(text: string): string {
     }
 
     if (letters >= 5) {
-      // We've seen enough, looks like normal ucfirst text
-      return unucfirst(text, firstLetterIdx);
+      // We've seen enough, looks like normal text with an uppercase first letter
+      return lowerCaseFirst(text, firstLetterIdx);
     }
   }
 
-  return unucfirst(text, firstLetterIdx);
+  return lowerCaseFirst(text, firstLetterIdx);
 }
