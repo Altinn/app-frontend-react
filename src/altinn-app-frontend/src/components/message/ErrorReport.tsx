@@ -100,7 +100,7 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
             language,
           )}
           showIcon={false}
-          variant={PanelVariant.Warning}
+          variant={PanelVariant.Error}
         >
           <Grid
             container={true}
