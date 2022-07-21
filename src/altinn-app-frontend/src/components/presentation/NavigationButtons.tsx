@@ -96,7 +96,7 @@ export function NavigationButtons(props: INavigationButtons) {
       (runAllValidations && 'allPages') ||
       (runPageValidations && 'page') ||
       null;
-    const keepScrollPos: IKeepComponentScrollPos = {
+    const keepScrollPosAction: IKeepComponentScrollPos = {
       componentId: props.id,
       offsetTop: getScrollPosition(),
     };
@@ -105,7 +105,7 @@ export function NavigationButtons(props: INavigationButtons) {
       dispatch(
         FormLayoutActions.calculatePageOrderAndMoveToNextPage({
           runValidations,
-          keepScrollPos,
+          keepScrollPos: keepScrollPosAction,
         }),
       );
     } else {
@@ -118,7 +118,7 @@ export function NavigationButtons(props: INavigationButtons) {
           FormLayoutActions.updateCurrentView({
             newView: goToView,
             runValidations,
-            keepScrollPos,
+            keepScrollPos: keepScrollPosAction,
           }),
         );
       }
