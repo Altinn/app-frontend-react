@@ -535,8 +535,64 @@ export function getFieldName(
   }
 
   if (textResourceBindings.title) {
-    return getTextResourceByKey(textResourceBindings.title, textResources);
+    return smart_unucfirst(
+      getTextResourceByKey(textResourceBindings.title, textResources),
+    );
   }
 
   return getLanguageFromKey('validation.generic_field', language);
+}
+
+/**
+ * Un-uppercase the first letter of a string
+ */
+export function unucfirst(text: string, firstLetterIndex = 0): string {
+  if (firstLetterIndex > 0) {
+    return (
+      text.substring(0, firstLetterIndex) +
+      text[firstLetterIndex].toLowerCase() +
+      text.substring(firstLetterIndex + 1)
+    );
+  }
+  return text[firstLetterIndex].toLowerCase() + text.substring(1);
+}
+
+/**
+ * Un-uppercase the first letter of a string, but be smart about it (avoiding it when the string is an
+ * uppercase abbreviation, etc).
+ */
+export function smart_unucfirst(text: string): string {
+  const uc = text.toUpperCase();
+  const lc = text.toLowerCase();
+
+  let letters = 0;
+  let firstLetterIdx = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (uc[i] === lc[i]) {
+      // This is not a letter, or could not be case-converted, skip it
+      continue;
+    }
+    letters++;
+
+    if (letters === 1) {
+      if (text[i] === lc[i]) {
+        // First letter is lower case already, return early
+        return text;
+      }
+
+      firstLetterIdx = i;
+      continue;
+    }
+
+    if (text[i] !== lc[i]) {
+      return text;
+    }
+
+    if (letters >= 5) {
+      // We've seen enough, looks like normal ucfirst text
+      return unucfirst(text, firstLetterIdx);
+    }
+  }
+
+  return unucfirst(text, firstLetterIdx);
 }
