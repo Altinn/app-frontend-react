@@ -35,6 +35,12 @@ describe('Panel', () => {
     it('should return PanelVariant.Info when no variant is passed', () => {
       expect(getVariant()).toBe(PanelVariant.Info);
     });
+
+    it('should return PanelVariant.Info when the wrong variant is passed', () => {
+      expect(getVariant({ variant: 'invalid' as 'warning' })).toBe(
+        PanelVariant.Info,
+      );
+    });
   });
 
   describe('FullWidthWrapper', () => {

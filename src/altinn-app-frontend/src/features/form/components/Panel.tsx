@@ -12,10 +12,12 @@ import { assertUnreachable } from 'src/types';
 import type { ILayoutCompPanel } from 'src/features/form/layout';
 
 interface IGetVariantProps {
-  variant?: ILayoutCompPanel['variant'];
+  variant: ILayoutCompPanel['variant'];
 }
 
-const defaultObj = {};
+const defaultObj: IGetVariantProps = {
+  variant: 'info',
+};
 
 export const getVariant = ({ variant }: IGetVariantProps = defaultObj) => {
   switch (variant) {
@@ -29,7 +31,7 @@ export const getVariant = ({ variant }: IGetVariantProps = defaultObj) => {
       return PanelVariant.Warning;
   }
 
-  return assertUnreachable(variant);
+  return assertUnreachable(variant, () => PanelVariant.Info);
 };
 
 export interface IPanelProps {

@@ -258,6 +258,12 @@ export interface IPartyIdInterfaceGuidParams {
  * This function can be used to have TypeScript enforce that we never reach the code branch in question
  * @see https://stackoverflow.com/a/39419171
  */
-export function assertUnreachable(_x: never): never {
+export function assertUnreachable<Ret = never>(
+  _x: never,
+  execute?: () => Ret,
+): Ret {
+  if (execute) {
+    return execute();
+  }
   throw new Error('Reached unreachable code');
 }
