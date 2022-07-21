@@ -24,7 +24,6 @@ describe('useFormLayoutHistory', () => {
   beforeEach(() => {
     dispatchFunction = jest.fn(
       ({ payload: { newView } }: { payload: { newView: string } }) => {
-        // console.log('the new view', newView, setViewFunc);
         setViewFunc(newView);
       },
     );
