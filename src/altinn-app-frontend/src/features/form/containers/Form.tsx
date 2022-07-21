@@ -3,6 +3,7 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 
 import { useAppSelector } from 'src/common/hooks';
+import ErrorReport from 'src/components/message/ErrorReport';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import MessageBanner from 'src/features/form/components/MessageBanner';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
@@ -10,8 +11,12 @@ import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import { PanelGroupContainer } from 'src/features/form/containers/PanelGroupContainer';
 import { hasRequiredFields } from 'src/utils/formLayout';
 import { renderGenericComponent } from 'src/utils/layout';
-import { missingFieldsInLayoutValidations } from 'src/utils/validation';
+import {
+  getFormHasErrors,
+  missingFieldsInLayoutValidations,
+} from 'src/utils/validation';
 import type {
+  ComponentTypes,
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
@@ -57,7 +62,7 @@ function RenderLayoutGroup(
     if (layoutGroup.edit?.multiPage) {
       childId = child.split(':')[1] || child;
     }
-    return layout.find((c) => c.id === childId) as ILayoutComponent;
+    return layout.find((c) => c.id === childId);
   });
 
   const repeating = layoutGroup.maxCount > 1;
@@ -95,11 +100,6 @@ function RenderLayoutGroup(
 }
 
 export function Form() {
-  const [filteredLayout, setFilteredLayout] = React.useState<any[]>([]);
-  const [currentLayout, setCurrentLayout] = React.useState<string>();
-  const [requiredFieldsMissing, setRequiredFieldsMissing] =
-    React.useState(false);
-
   const currentView = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
   );
@@ -110,45 +110,33 @@ export function Form() {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
+  const hasErrors = useAppSelector((state) =>
+    getFormHasErrors(state.formValidations.validations),
+  );
 
-  React.useEffect(() => {
-    setCurrentLayout(currentView);
-  }, [currentView]);
-
-  React.useEffect(() => {
+  const requiredFieldsMissing = React.useMemo(() => {
     if (validations && validations[currentView]) {
-      const areRequiredFieldsMissing = missingFieldsInLayoutValidations(
+      return missingFieldsInLayoutValidations(
         validations[currentView],
         language,
       );
-      setRequiredFieldsMissing(areRequiredFieldsMissing);
     }
+
+    return false;
   }, [currentView, language, validations]);
 
-  React.useEffect(() => {
-    let renderedInGroup: string[] = [];
-    if (layout) {
-      const groupComponents = layout.filter(
-        (component) => component.type === 'Group',
-      );
-      groupComponents.forEach((component: ILayoutGroup) => {
-        let childList = component.children;
-        if (component.edit?.multiPage) {
-          childList = component.children.map(
-            (childId) => childId.split(':')[1] || childId,
-          );
-        }
-        renderedInGroup = renderedInGroup.concat(childList);
-      });
-      const componentsToRender = layout.filter(
-        (component) => !renderedInGroup.includes(component.id),
-      );
-      setFilteredLayout(componentsToRender);
+  const [mainComponents, errorReportComponents] = React.useMemo(() => {
+    if (layout && hasErrors) {
+      const topLevel = topLevelComponents(layout);
+      return extractBottomButtons(topLevel);
+    } else if (layout) {
+      return [topLevelComponents(layout), []];
     }
-  }, [layout]);
+    return [[], []];
+  }, [layout, hasErrors]);
 
   return (
-    <div>
+    <>
       {hasRequiredFields(layout) && (
         <MessageBanner
           language={language}
@@ -161,14 +149,44 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        {currentView === currentLayout &&
-          filteredLayout &&
-          filteredLayout.map((component) => {
-            return renderLayoutComponent(component, layout);
-          })}
+        {mainComponents.map((component) =>
+          renderLayoutComponent(component, layout),
+        )}
+        <ErrorReport components={errorReportComponents} />
       </Grid>
-    </div>
+    </>
   );
 }
 
-export default Form;
+function topLevelComponents(layout: ILayout) {
+  const inGroup = new Set<string>();
+  layout.forEach((component) => {
+    if (component.type === 'Group') {
+      const childList = component.edit?.multiPage
+        ? component.children.map((childId) => childId.split(':')[1] || childId)
+        : component.children;
+      childList.forEach((childId) => inGroup.add(childId));
+    }
+  });
+  return layout.filter((component) => !inGroup.has(component.id));
+}
+
+function extractBottomButtons(layout: ILayout) {
+  const extract = new Set<ComponentTypes>([
+    'NavigationButtons',
+    'Button',
+    'PrintButton',
+  ]);
+
+  const toMainLayout: ILayout = [];
+  const toErrorReport: ILayout = [];
+  for (const component of [...layout].reverse()) {
+    if (extract.has(component.type) && toMainLayout.length === 0) {
+      toErrorReport.push(component);
+    } else {
+      toMainLayout.push(component);
+    }
+  }
+
+  return [toMainLayout.reverse(), toErrorReport.reverse()];
+}

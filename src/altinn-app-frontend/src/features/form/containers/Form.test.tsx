@@ -152,6 +152,75 @@ describe('Form', () => {
     expect(screen.getByText('1. FormLayout')).toBeInTheDocument();
   });
 
+  it('should not render ErrorReport when there are no validation errors', () => {
+    renderForm(mockComponents);
+    expect(screen.queryByTestId('ErrorReport')).not.toBeInTheDocument();
+  });
+
+  it('should render ErrorReport when there are validation errors', () => {
+    renderForm(
+      mockComponents,
+      mockValidations({
+        component1: {
+          simpleBinding: {
+            errors: ['some error message'],
+          },
+        },
+      }),
+    );
+    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+  });
+
+  it('should render ErrorReport when there are unmapped validation errors', () => {
+    renderForm(
+      mockComponents,
+      mockValidations({
+        unmapped: {
+          simpleBinding: {
+            errors: ['some error message'],
+          },
+        },
+      }),
+    );
+    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+  });
+
+  it('should separate NavigationButtons and display them inside ErrorReport', () => {
+    renderForm(
+      [
+        ...mockComponents,
+        {
+          id: 'bottomNavButtons',
+          type: 'NavigationButtons',
+        },
+      ],
+      mockValidations({
+        component1: {
+          simpleBinding: {
+            errors: ['some error message'],
+          },
+        },
+      }),
+    );
+    const errorReport = screen.getByTestId('ErrorReport');
+    expect(errorReport).toBeInTheDocument();
+
+    // This also asserts the buttons are only found once
+    const navButtons = screen.getByTestId('NavigationButtons');
+    expect(navButtons).toBeInTheDocument();
+
+    const recurseUp = (el: HTMLElement) => {
+      if (!el.parentElement || el.parentElement === el) {
+        return el;
+      }
+      if (el.parentElement.dataset['testid'] === 'ErrorReport') {
+        return el.parentElement;
+      }
+      return recurseUp(el.parentElement);
+    };
+    expect(recurseUp(navButtons)).toEqual(errorReport);
+  });
+
   function renderForm(
     layout = mockComponents,
     customState: PreloadedState<RootState> = {},
@@ -166,5 +235,20 @@ describe('Form', () => {
         }),
       },
     });
+  }
+
+  function mockValidations(
+    validations: RootState['formValidations']['validations'][string],
+  ): Partial<RootState> {
+    return {
+      formValidations: {
+        error: null,
+        invalidDataTypes: [],
+        currentSingleFieldValidation: {},
+        validations: {
+          page1: validations,
+        },
+      },
+    };
   }
 });

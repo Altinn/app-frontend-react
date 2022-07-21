@@ -45,6 +45,7 @@ export const initialState: ILayoutState = {
     navigationConfig: {},
     layoutOrder: null,
     pageTriggers: [],
+    keepScrollPos: undefined,
   },
   layoutsets: null,
 };
@@ -155,16 +156,17 @@ const formLayoutSlice = createSagaSlice(
       updateCurrentViewFulfilled:
         mkAction<LayoutTypes.IUpdateCurrentViewFulfilled>({
           reducer: (state, action) => {
-            const { newView, returnToView } = action.payload;
-            state.uiConfig.currentView = newView;
-            state.uiConfig.returnToView = returnToView;
+            state.uiConfig.currentView = action.payload.newView;
+            state.uiConfig.returnToView = action.payload.returnToView;
+            state.uiConfig.keepScrollPos = undefined;
+            state.uiConfig.focus = action.payload.focusComponentId;
           },
         }),
       updateCurrentViewRejected:
-        mkAction<LayoutTypes.IFormLayoutActionRejected>({
+        mkAction<LayoutTypes.IUpdateCurrentViewRejected>({
           reducer: (state, action) => {
-            const { error } = action.payload;
-            state.error = error;
+            state.error = action.payload.error;
+            state.uiConfig.keepScrollPos = action.payload.keepScrollPos;
           },
         }),
       updateFocus: mkAction<LayoutTypes.IUpdateFocus>({
@@ -324,6 +326,11 @@ const formLayoutSlice = createSagaSlice(
         }),
       initRepeatingGroups: mkAction<void>({
         saga: () => watchInitRepeatingGroupsSaga,
+      }),
+      clearKeepScrollPos: mkAction<void>({
+        reducer: (state) => {
+          state.uiConfig.keepScrollPos = undefined;
+        },
       }),
     },
   }),

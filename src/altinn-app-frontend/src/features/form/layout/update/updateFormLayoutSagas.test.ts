@@ -22,7 +22,10 @@ import {
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import type { ILayoutCompFileUpload } from 'src/features/form/layout';
-import type { IUpdateRepeatingGroups } from 'src/features/form/layout/formLayoutTypes';
+import type {
+  ICalculatePageOrderAndMoveToNextPage,
+  IUpdateRepeatingGroups,
+} from 'src/features/form/layout/formLayoutTypes';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IDataModelBindings, IRuntimeState } from 'src/types';
 
@@ -252,6 +255,7 @@ describe('updateLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page-3',
             runValidations: undefined,
+            keepScrollPos: undefined,
           }),
         )
         .run();
@@ -270,7 +274,15 @@ describe('updateLayoutSagas', () => {
     });
 
     it('stateless: should fetch pageOrder and update state accordingly', () => {
-      const action = { type: 'test', payload: {} };
+      const action: PayloadAction<ICalculatePageOrderAndMoveToNextPage> = {
+        type: 'test',
+        payload: {
+          keepScrollPos: {
+            componentId: 'someComponent',
+            offsetTop: 123,
+          },
+        },
+      };
       const stateWithStatelessApp: IRuntimeState = {
         ...state,
         applicationMetadata: {
@@ -302,6 +314,10 @@ describe('updateLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page-3',
             runValidations: undefined,
+            keepScrollPos: {
+              componentId: 'someComponent',
+              offsetTop: 123,
+            },
           }),
         )
         .run();
@@ -330,6 +346,7 @@ describe('updateLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'return-here',
             runValidations: undefined,
+            keepScrollPos: undefined,
           }),
         )
         .run();
