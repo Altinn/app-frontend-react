@@ -1,6 +1,7 @@
-import { useEffect, useCallback } from 'react';
-import { useAppDispatch } from './useAppDispatch';
+import { useCallback, useEffect } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
+
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import type { IUpdateCurrentView } from 'src/features/form/layout/formLayoutTypes';
 

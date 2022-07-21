@@ -1,9 +1,10 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
-
-import { renderWithProviders } from '../testUtils';
-import { App } from 'src/App';
 import { MemoryRouter } from 'react-router-dom';
+
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
+
+import { App } from 'src/App';
 
 const render = ({ locationPath }: { locationPath: string }) => {
   renderWithProviders(

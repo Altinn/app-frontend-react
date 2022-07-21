@@ -1,7 +1,7 @@
 import type {
+  ILayout,
   ILayoutComponent,
   ILayoutGroup,
-  ILayout,
 } from 'src/features/form/layout';
 
 export const mapGroupComponents = (

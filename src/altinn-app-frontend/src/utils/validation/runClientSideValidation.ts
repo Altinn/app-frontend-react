@@ -1,12 +1,12 @@
 import { getDataTaskDataTypeId } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
-import type { IRuntimeState } from 'src/types';
 import {
   getValidator,
   validateEmptyFields,
   validateFormComponents,
   validateFormData,
-} from './validation';
+} from 'src/utils/validation/validation';
+import type { IRuntimeState } from 'src/types';
 
 /** Runs client side validations on state.
  * @param state

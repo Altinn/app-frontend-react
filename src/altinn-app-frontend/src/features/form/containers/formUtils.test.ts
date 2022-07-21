@@ -1,8 +1,9 @@
 import {
-  getFormLayoutStateMock,
   getFormLayoutGroupMock,
+  getFormLayoutStateMock,
   getMultiPageGroupMock,
 } from '__mocks__/mocks';
+
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import type { ILayoutGroup } from 'src/features/form/layout';
 
