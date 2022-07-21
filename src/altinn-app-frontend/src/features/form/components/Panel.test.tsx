@@ -66,7 +66,7 @@ const render = (
   const allProps = {
     title: 'Panel Title',
     children: 'Panel Content',
-    variant: 'info',
+    variant: 'info' as const,
     showIcon: false,
     showPointer: false,
     ...props,
