@@ -73,7 +73,7 @@ interface IRedirectParams {
   errorCode?: string;
 }
 
-const PartySelectionWithRouter = () => {
+const PartySelection = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const { errorCode } = useParams<IRedirectParams>();
@@ -378,4 +378,4 @@ const PartySelectionWithRouter = () => {
   );
 };
 
-export default PartySelectionWithRouter;
+export default PartySelection;
