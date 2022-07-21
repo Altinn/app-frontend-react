@@ -327,7 +327,7 @@ export function* updateCurrentViewSaga({
   try {
     const state: IRuntimeState = yield select();
     const viewCacheKey = state.formLayout.uiConfig.currentViewCacheKey;
-    const instanceId = state.instanceData.instance.id;
+    const instanceId = state.instanceData.instance?.id || 'NO-INSTANCE';
     if (!viewCacheKey) {
       yield put(FormLayoutActions.setCurrentViewCacheKey({ key: instanceId }));
     }

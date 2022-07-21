@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route, Switch, useLocation } from 'react-router-dom';
+import { Route, Switch, useRouteMatch } from 'react-router-dom';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
@@ -19,7 +19,6 @@ import {
 import { get } from 'src/utils/networking';
 
 import { AltinnAppTheme } from 'altinn-shared/theme';
-import { getInstanceIdRegExp } from 'altinn-shared/utils';
 
 const theme = createTheme(AltinnAppTheme);
 
@@ -39,9 +38,9 @@ export const App = () => {
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
 
   const [ready, setReady] = React.useState(false);
-  const location = useLocation();
-  const instanceIdExpr = getInstanceIdRegExp({ prefix: 'instance' });
-  const hasInstanceId = instanceIdExpr.test(location.pathname);
+  const instancePath = '/instance/:partyId/:instanceGuid';
+  const match = useRouteMatch<string>(instancePath);
+  const matchUrl = match?.url || '';
   React.useEffect(() => {
     function setUpEventListeners() {
       window.addEventListener('mousemove', refreshJwtToken);
@@ -100,31 +99,25 @@ export const App = () => {
   }
 
   if (!ready) {
-    if (hasInstanceId) {
-      return <div data-testid={location.pathname.match(instanceIdExpr)[1]} />;
-    }
     return null;
   }
-
   return (
     <AppWrapper>
       <MuiThemeProvider theme={theme}>
         <Switch>
           <Route
-            path='/'
-            exact={
-              hasInstanceId || location.pathname.includes('partyselection')
-            }
+            path={`/`}
+            exact={!!matchUrl || location.href.includes('/partyselection/')}
           >
             <Entrypoint allowAnonymous={allowAnonymous} />
           </Route>
           <Route
             path='/partyselection/:errorCode?'
-            exact={true}
+            exact
             component={PartySelection}
           />
           <Route
-            path='/instance/:partyId/:instanceGuid'
+            path={instancePath}
             component={ProcessWrapper}
           />
         </Switch>
