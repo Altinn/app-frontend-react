@@ -198,6 +198,7 @@ function AltinnParty({
       >
         {party.childParties.map((childParty: IParty, index: number) => (
           <Grid
+            data-testid='AltinnParty-SubUnitWrapper'
             key={index}
             container={true}
             direction='column'
@@ -246,6 +247,7 @@ function AltinnParty({
     >
       <Grid
         id={`party-${party.partyId}`}
+        data-testid='AltinnParty-PartyWrapper'
         container={true}
         direction='row'
         className={

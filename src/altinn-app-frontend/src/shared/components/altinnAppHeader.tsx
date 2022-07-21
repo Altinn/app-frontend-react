@@ -111,7 +111,10 @@ const AltinnAppHeader = ({ type, profile, language }: IHeaderProps) => {
   const blueClass = type ? classes.blueDark : classes.blueDarker;
 
   return (
-    <div className={classes.appBarWrapper}>
+    <div
+      className={classes.appBarWrapper}
+      data-testid='AltinnAppHeader'
+    >
       <LandmarkShortcuts
         shortcuts={[
           {

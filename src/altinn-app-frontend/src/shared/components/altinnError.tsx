@@ -59,6 +59,7 @@ const AltinnError = ({
 
   return (
     <Grid
+      data-testid='AltinnError'
       container={true}
       className={`${classes.gridContainer} ${styling ? styling.root : null}`}
     >
