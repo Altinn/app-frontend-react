@@ -634,7 +634,7 @@ describe('formComponentUtils', () => {
         mockLanguage,
         'address',
       );
-      expect(result).toEqual('Gateadresse');
+      expect(result).toEqual('gateadresse');
     });
 
     it('should return component shortName (textResourceBindings) when no fieldKey is present', () => {

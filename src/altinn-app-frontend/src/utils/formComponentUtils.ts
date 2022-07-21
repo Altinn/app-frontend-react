@@ -521,12 +521,14 @@ export function getFieldName(
   fieldKey?: string,
 ): string {
   if (fieldKey) {
-    return getTextFromAppOrDefault(
-      `form_filler.${fieldKey}`,
-      textResources,
-      language,
-      null,
-      true,
+    return smart_unucfirst(
+      getTextFromAppOrDefault(
+        `form_filler.${fieldKey}`,
+        textResources,
+        language,
+        null,
+        true,
+      ),
     );
   }
 
