@@ -144,6 +144,22 @@ describe('Validation', () => {
       .should('contain.text', texts.errorReport)
       .should('contain.text', texts.requiredFieldLastName)
       .should('contain.text', texts.requiredFieldDateFrom);
+
+    const lastNameError = appFrontend.fieldValidationError.replace(
+      'field',
+      appFrontend.changeOfName.newLastName.substring(1),
+    );
+    cy.get(lastNameError).should('exist').should('not.be.inViewport');
+    cy.get(appFrontend.changeOfName.newLastName).should('not.be.focused');
+
+    cy.get(appFrontend.errorReport)
+      .get(`button:contains("${texts.requiredFieldLastName}")`)
+      .should('be.inViewport')
+      .click();
+
+    // Observe that we scrolled to show the error message and have the field focussed
+    cy.get(lastNameError).should('be.inViewport');
+    cy.get(appFrontend.changeOfName.newLastName).should('be.focused');
   });
 
   it('Validation on uploaded attachment type', () => {
