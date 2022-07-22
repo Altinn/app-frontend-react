@@ -733,9 +733,9 @@ describe('utils > validation', () => {
             },
           },
           componentId_6: {
-            address: { errors: ['Du må fylle ut Gateadresse'], warnings: [] },
-            postPlace: { errors: ['Du må fylle ut Poststed'], warnings: [] },
-            zipCode: { errors: ['Du må fylle ut Postnummer'], warnings: [] },
+            address: { errors: ['Du må fylle ut gateadresse'], warnings: [] },
+            postPlace: { errors: ['Du må fylle ut poststed'], warnings: [] },
+            zipCode: { errors: ['Du må fylle ut postnummer'], warnings: [] },
           },
           required_in_group_simple: {
             simpleBinding: {
@@ -775,9 +775,9 @@ describe('utils > validation', () => {
             },
           },
           componentId_6: {
-            address: { errors: ['Du må fylle ut Gateadresse'], warnings: [] },
-            postPlace: { errors: ['Du må fylle ut Poststed'], warnings: [] },
-            zipCode: { errors: ['Du må fylle ut Postnummer'], warnings: [] },
+            address: { errors: ['Du må fylle ut gateadresse'], warnings: [] },
+            postPlace: { errors: ['Du må fylle ut poststed'], warnings: [] },
+            zipCode: { errors: ['Du må fylle ut postnummer'], warnings: [] },
           },
           required_in_group_simple: {
             simpleBinding: {
@@ -851,9 +851,9 @@ describe('utils > validation', () => {
 
       const mockResult = {
         componentId_6: {
-          address: { errors: ['Du må fylle ut Gateadresse'], warnings: [] },
-          postPlace: { errors: ['Du må fylle ut Poststed'], warnings: [] },
-          zipCode: { errors: ['Du må fylle ut Postnummer'], warnings: [] },
+          address: { errors: ['Du må fylle ut gateadresse'], warnings: [] },
+          postPlace: { errors: ['Du må fylle ut poststed'], warnings: [] },
+          zipCode: { errors: ['Du må fylle ut postnummer'], warnings: [] },
         },
       };
 
