@@ -1,7 +1,7 @@
-import * as React from 'react';
+import React from 'react';
 
+import { TextField } from '@altinn/altinn-design-system';
 import axios from 'axios';
-import cn from 'classnames';
 
 import { AddressLabel } from 'src/components/advanced/AddressLabel';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
@@ -297,12 +297,9 @@ export function AddressComponent({
         readOnly={readOnly}
         labelSettings={labelSettings}
       />
-      <input
+      <TextField
         id={`address_address_${id}`}
-        className={cn('form-control', {
-          'validation-error': allValidations.address.errors.length,
-          disabled: readOnly,
-        })}
+        isValid={allValidations.address.errors.length === 0}
         value={address}
         onChange={updateField.bind(null, AddressKeys.address, false)}
         onBlur={updateField.bind(null, AddressKeys.address, true)}
@@ -326,12 +323,9 @@ export function AddressComponent({
             readOnly={readOnly}
             labelSettings={labelSettings}
           />
-          <input
+          <TextField
             id={`address_care_of_${id}`}
-            className={cn('form-control', {
-              'validation-error': allValidations.careOf.errors.length,
-              disabled: readOnly,
-            })}
+            isValid={allValidations.careOf.errors.length === 0}
             value={careOf}
             onChange={updateField.bind(null, AddressKeys.careOf, false)}
             onBlur={updateField.bind(null, AddressKeys.careOf, true)}
@@ -357,12 +351,9 @@ export function AddressComponent({
             readOnly={readOnly}
             labelSettings={labelSettings}
           />
-          <input
+          <TextField
             id={`address_zip_code_${id}`}
-            className={cn('address-component-small-inputs', 'form-control', {
-              'validation-error': allValidations.zipCode.errors.length,
-              disabled: readOnly,
-            })}
+            isValid={allValidations.zipCode.errors.length === 0}
             value={zipCode}
             onChange={updateField.bind(null, AddressKeys.zipCode, false)}
             onBlur={updateField.bind(null, AddressKeys.zipCode, true)}
@@ -388,11 +379,9 @@ export function AddressComponent({
             readOnly={true}
             labelSettings={labelSettings}
           />
-          <input
+          <TextField
             id={`address_post_place_${id}`}
-            className={cn('form-control disabled', {
-              'validation-error': allValidations.postPlace.errors.length,
-            })}
+            isValid={allValidations.postPlace.errors.length === 0}
             value={postPlace}
             readOnly={true}
             required={required}
@@ -421,12 +410,9 @@ export function AddressComponent({
               language,
             )}
           </p>
-          <input
+          <TextField
             id={`address_house_number_${id}`}
-            className={cn('address-component-small-inputs', 'form-control', {
-              'validation-error': allValidations.houseNumber.errors.length,
-              disabled: readOnly,
-            })}
+            isValid={allValidations.houseNumber.errors.length === 0}
             value={houseNumber}
             onChange={updateField.bind(null, AddressKeys.houseNumber, false)}
             onBlur={updateField.bind(null, AddressKeys.houseNumber, true)}
