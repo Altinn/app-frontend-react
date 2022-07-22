@@ -1,9 +1,6 @@
 import * as React from 'react';
 import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
 
-import { AppWrapper } from '@altinn/altinn-design-system';
-import { createTheme, MuiThemeProvider } from '@material-ui/core';
-
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import Entrypoint from 'src/features/entrypoint/Entrypoint';
 import PartySelection from 'src/features/instantiate/containers/PartySelection';
@@ -17,10 +14,6 @@ import {
   refreshJwtTokenUrl,
 } from 'src/utils/appUrlHelper';
 import { get } from 'src/utils/networking';
-
-import { AltinnAppTheme } from 'altinn-shared/theme';
-
-const theme = createTheme(AltinnAppTheme);
 
 // 1 minute = 60.000ms
 const TEN_MINUTE_IN_MILLISECONDS: number = 60000 * 10;
@@ -102,26 +95,22 @@ export const App = () => {
     return null;
   }
   return (
-    <AppWrapper>
-      <MuiThemeProvider theme={theme}>
-        <Switch>
-          <Route
-            path={`/`}
-            exact={!!matchUrl || location.pathname.includes('/partyselection/')}
-          >
-            <Entrypoint allowAnonymous={allowAnonymous} />
-          </Route>
-          <Route
-            path='/partyselection/:errorCode?'
-            exact
-            component={PartySelection}
-          />
-          <Route
-            path={instancePath}
-            component={ProcessWrapper}
-          />
-        </Switch>
-      </MuiThemeProvider>
-    </AppWrapper>
+    <Switch>
+      <Route
+        path={`/`}
+        exact={!!matchUrl || location.pathname.includes('/partyselection/')}
+      >
+        <Entrypoint allowAnonymous={allowAnonymous} />
+      </Route>
+      <Route
+        path='/partyselection/:errorCode?'
+        exact
+        component={PartySelection}
+      />
+      <Route
+        path={instancePath}
+        component={ProcessWrapper}
+      />
+    </Switch>
   );
 };

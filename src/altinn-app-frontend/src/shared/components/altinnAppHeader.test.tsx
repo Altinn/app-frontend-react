@@ -2,7 +2,8 @@ import React from 'react';
 
 import { organisationMock } from '__mocks__/organisationMock';
 import { getProfileStateMock } from '__mocks__/profileStateMock';
-import { render as rtlRender, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
 
 import Header from 'src/shared/components/altinnAppHeader';
 import type { IHeaderProps } from 'src/shared/components/altinnAppHeader';
@@ -96,5 +97,5 @@ const render = (props: Partial<IHeaderProps> = {}) => {
     ...props,
   };
 
-  rtlRender(<Header {...allProps} />);
+  renderWithProviders(<Header {...allProps} />);
 };
