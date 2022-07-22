@@ -1,10 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import type { TypedUseSelectorHook } from 'react-redux';
-
-import type { RootState } from 'src/store';
-
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export const useHasChangedIgnoreUndefined = (val: any) => {
   const stringifiedVal = JSON.stringify(val);
@@ -22,5 +16,6 @@ export const usePrevious = (value: any) => {
   });
   return ref.current;
 };
+export { useAppSelector } from './useAppSelector';
 export { useAppDispatch } from './useAppDispatch';
 export { useFormLayoutHistoryAndMatchInstanceLocation } from './useFormLayoutHistory';

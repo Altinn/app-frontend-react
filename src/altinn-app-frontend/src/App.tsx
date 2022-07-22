@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route, Switch, useRouteMatch } from 'react-router-dom';
+import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
@@ -36,11 +36,11 @@ export const App = () => {
 
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
-
   const [ready, setReady] = React.useState(false);
   const instancePath = '/instance/:partyId/:instanceGuid';
   const match = useRouteMatch<string>(instancePath);
   const matchUrl = match?.url || '';
+  const location = useLocation();
   React.useEffect(() => {
     function setUpEventListeners() {
       window.addEventListener('mousemove', refreshJwtToken);
@@ -107,7 +107,7 @@ export const App = () => {
         <Switch>
           <Route
             path={`/`}
-            exact={!!matchUrl || location.href.includes('/partyselection/')}
+            exact={!!matchUrl || location.pathname.includes('/partyselection/')}
           >
             <Entrypoint allowAnonymous={allowAnonymous} />
           </Route>

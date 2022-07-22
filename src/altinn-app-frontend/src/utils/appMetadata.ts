@@ -1,6 +1,7 @@
 import { getLayoutsetForDataElement } from 'src/utils/layout';
 import type { ILayoutSets } from 'src/types';
 
+import { getInstanceIdRegExp } from 'altinn-shared/utils';
 import type { IApplication, IDataType, IInstance } from 'altinn-shared/types';
 
 export function getDataTaskDataTypeId(
@@ -94,7 +95,9 @@ export function getCurrentDataTypeForApplication({
 }
 
 export function isStatelessApp(application: IApplication) {
-  if (window.location.hash.includes('#/instance/')) {
+  if (
+    window.location.href.match(getInstanceIdRegExp({ prefix: '/instance/' }))
+  ) {
     // app can be setup as stateless but then go over to a statefull app
     return false;
   }
