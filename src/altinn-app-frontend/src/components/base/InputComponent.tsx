@@ -1,8 +1,10 @@
-import * as React from 'react';
+import React from 'react';
+
 import { TextField } from '@altinn/altinn-design-system';
 
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import type { IComponentProps } from '..';
+
+import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import type { ILayoutCompInput } from 'src/features/form/layout';
 
 export interface IInputBaseProps {
