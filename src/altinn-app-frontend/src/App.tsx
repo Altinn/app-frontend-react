@@ -1,5 +1,5 @@
-import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import * as React from 'react';
+import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import Entrypoint from 'src/features/entrypoint/Entrypoint';
@@ -29,9 +29,11 @@ export const App = () => {
 
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous = useAppSelector(allowAnonymousSelector);
-
   const [ready, setReady] = React.useState(false);
-
+  const instancePath = '/instance/:partyId/:instanceGuid';
+  const match = useRouteMatch<string>(instancePath);
+  const matchUrl = match?.url || '';
+  const location = useLocation();
   React.useEffect(() => {
     function setUpEventListeners() {
       window.addEventListener('mousemove', refreshJwtToken);
@@ -92,23 +94,21 @@ export const App = () => {
   if (!ready) {
     return null;
   }
-
   return (
     <Switch>
       <Route
-        path='/'
-        exact={true}
+        path={`/`}
+        exact={!!matchUrl || location.pathname.includes('/partyselection/')}
       >
         <Entrypoint allowAnonymous={allowAnonymous} />
       </Route>
       <Route
         path='/partyselection/:errorCode?'
-        exact={true}
+        exact
         component={PartySelection}
       />
       <Route
-        path='/instance/:partyId/:instanceGuid'
-        exact={true}
+        path={instancePath}
         component={ProcessWrapper}
       />
     </Switch>
