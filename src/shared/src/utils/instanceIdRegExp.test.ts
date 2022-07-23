@@ -3,7 +3,7 @@ import { getInstanceIdRegExp } from './instanceIdRegExp';
 describe('instanceIdRegExp', () => {
   const instanceIdExample = '123456/75154373-aed4-41f7-95b4-e5b5115c2edc';
   const expr =
-    /(\d{1,6}\/[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12})/i;
+    /(\d{1,10}\/[\d,a-f]{8}-[\d,a-f]{4}-[1-5][\d,a-f]{3}-[89ab][\d,a-f]{3}-[\d,a-f]{12})/i;
   const matchTests = (exp: RegExp) => {
     expect(`pre/${instanceIdExample}/post`.match(exp)[1]).toBe(
       instanceIdExample,
