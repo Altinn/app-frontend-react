@@ -59,7 +59,7 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
     return null;
   }
 
-  const OnClickError =
+  const handleErrorClick =
     (error: FlatError) => (ev: React.KeyboardEvent | React.MouseEvent) => {
       if (
         ev.type === 'keydown' &&
