@@ -93,7 +93,7 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
       item={true}
       xs={12}
     >
-      <FullWidthWrapper onBottom={true}>
+      <FullWidthWrapper isOnBottom={true}>
         <Panel
           title={getLanguageFromKey(
             'form_filler.error_report_header',
@@ -116,9 +116,9 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
                 {errorsUnmapped.map((error: React.ReactNode, index: number) => {
                   return <li key={`unmapped-${index}`}>{error}</li>;
                 })}
-                {errorsMapped.map((error, index) => {
+                {errorsMapped.map((error) => {
                   return (
-                    <li key={`mapped-${index}`}>
+                    <li key={`mapped-${error.componentId}`}>
                       <button
                         className={classes.buttonAsInvisibleLink}
                         tabIndex={0}
