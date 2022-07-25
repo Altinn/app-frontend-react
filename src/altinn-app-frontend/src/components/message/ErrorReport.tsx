@@ -120,7 +120,6 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
                     <li key={`mapped-${index}`}>
                       <button
                         className={classes.buttonAsInvisibleLink}
-                        tabIndex={0}
                         onClick={OnClickError(error)}
                         onKeyDown={OnClickError(error)}
                       >
