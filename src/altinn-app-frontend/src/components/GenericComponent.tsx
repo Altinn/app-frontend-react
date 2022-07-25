@@ -159,9 +159,9 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     if (!hidden && shouldFocus && gridRef.current) {
       gridRef.current.scrollIntoView();
 
-      const maybeInput = gridRef.current.querySelector('input,textarea') as
-        | HTMLInputElement
-        | HTMLTextAreaElement;
+      const maybeInput = gridRef.current.querySelector(
+        'input,textarea,select',
+      ) as HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement;
       if (maybeInput) {
         maybeInput.focus();
       }
