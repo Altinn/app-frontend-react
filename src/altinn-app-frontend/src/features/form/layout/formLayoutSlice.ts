@@ -9,7 +9,6 @@ import {
   calculatePageOrderAndMoveToNextPageSaga,
   updateFileUploaderWithTagChosenOptionsSaga,
   updateFileUploaderWithTagEditIndexSaga,
-  updateFocus,
   updateRepeatingGroupEditIndexSaga,
   updateRepeatingGroupsSaga,
   watchInitialCalculatePageOrderAndMoveToNextPageSaga,
@@ -170,18 +169,8 @@ const formLayoutSlice = createSagaSlice(
           },
         }),
       updateFocus: mkAction<LayoutTypes.IUpdateFocus>({
-        takeLatest: updateFocus,
-      }),
-      updateFocusFulfilled: mkAction<LayoutTypes.IUpdateFocusFulfilled>({
         reducer: (state, action) => {
-          const { focusComponentId } = action.payload;
-          state.uiConfig.focus = focusComponentId;
-        },
-      }),
-      updateFocusRejected: mkAction<LayoutTypes.IFormLayoutActionRejected>({
-        reducer: (state, action) => {
-          const { error } = action.payload;
-          state.error = error;
+          state.uiConfig.focus = action.payload.focusComponentId;
         },
       }),
       updateHiddenComponents: mkAction<LayoutTypes.IUpdateHiddenComponents>({

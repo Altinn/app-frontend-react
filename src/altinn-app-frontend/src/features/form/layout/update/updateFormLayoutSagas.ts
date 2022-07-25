@@ -69,7 +69,6 @@ import type {
   IUpdateCurrentView,
   IUpdateFileUploaderWithTagChosenOptions,
   IUpdateFileUploaderWithTagEditIndex,
-  IUpdateFocus,
   IUpdateRepeatingGroups,
   IUpdateRepeatingGroupsEditIndex,
 } from 'src/features/form/layout/formLayoutTypes';
@@ -100,33 +99,6 @@ export const selectValidations = (state: IRuntimeState): IValidations =>
   state.formValidations.validations;
 export const selectUnsavedChanges = (state: IRuntimeState): boolean =>
   state.formData.unsavedChanges;
-
-export function* updateFocus({
-  payload: { currentComponentId, step },
-}: PayloadAction<IUpdateFocus>): SagaIterator {
-  try {
-    const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
-    if (currentComponentId) {
-      const layout =
-        formLayoutState.layouts[formLayoutState.uiConfig.currentView];
-      const currentComponentIndex = layout.findIndex(
-        (component: ILayoutComponent) => component.id === currentComponentId,
-      );
-      const focusComponentIndex = step
-        ? currentComponentIndex + step
-        : currentComponentIndex;
-      const focusComponentId =
-        focusComponentIndex > 0 ? layout[focusComponentIndex].id : null;
-      yield put(FormLayoutActions.updateFocusFulfilled({ focusComponentId }));
-    } else {
-      yield put(
-        FormLayoutActions.updateFocusFulfilled({ focusComponentId: null }),
-      );
-    }
-  } catch (error) {
-    yield put(FormLayoutActions.updateFocusRejected({ error }));
-  }
-}
 
 export function* updateRepeatingGroupsSaga({
   payload: { layoutElementId, remove, index, leaveOpen },

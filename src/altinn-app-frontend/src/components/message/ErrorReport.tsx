@@ -71,7 +71,7 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
       if (currentView === error.layout) {
         dispatch(
           FormLayoutActions.updateFocus({
-            currentComponentId: error.componentId,
+            focusComponentId: error.componentId,
           }),
         );
       } else {
@@ -112,22 +112,20 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
               xs={12}
             >
               <ul className={classes.errorList}>
-                {errorsUnmapped.map((error: React.ReactNode, index: number) => {
-                  return <li key={`unmapped-${index}`}>{error}</li>;
-                })}
-                {errorsMapped.map((error) => {
-                  return (
-                    <li key={`mapped-${error.componentId}`}>
-                      <button
-                        className={classes.buttonAsInvisibleLink}
-                        onClick={handleErrorClick(error)}
-                        onKeyDown={handleErrorClick(error)}
-                      >
-                        {error.message}
-                      </button>
-                    </li>
-                  );
-                })}
+                {errorsUnmapped.map((error: React.ReactNode, index: number) => (
+                  <li key={`unmapped-${index}`}>{error}</li>
+                ))}
+                {errorsMapped.map((error) => (
+                  <li key={`mapped-${error.componentId}`}>
+                    <button
+                      className={classes.buttonAsInvisibleLink}
+                      onClick={handleErrorClick(error)}
+                      onKeyDown={handleErrorClick(error)}
+                    >
+                      {error.message}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </Grid>
             {components.map((component) => {

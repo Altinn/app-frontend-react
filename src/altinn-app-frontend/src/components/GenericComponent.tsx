@@ -165,7 +165,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
       if (maybeInput) {
         maybeInput.focus();
       }
-      dispatch(FormLayoutActions.updateFocus({ currentComponentId: null }));
+      dispatch(FormLayoutActions.updateFocus({ focusComponentId: null }));
     }
   }, [shouldFocus, hidden, dispatch]);
 
@@ -210,15 +210,6 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
         componentId: props.id,
         skipValidation,
         checkIfRequired,
-      }),
-    );
-  };
-
-  const handleFocusUpdate = (componentId: string, step?: number) => {
-    dispatch(
-      FormLayoutActions.updateFocus({
-        currentComponentId: componentId,
-        step: step || 0,
       }),
     );
   };
@@ -303,7 +294,6 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
 
   const componentProps = {
     handleDataChange,
-    handleFocusUpdate,
     getTextResource: getTextResourceWrapper,
     getTextResourceAsString,
     formData,

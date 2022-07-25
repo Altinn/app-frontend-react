@@ -52,11 +52,6 @@ export interface IUpdateCurrentViewRejected extends IFormLayoutActionRejected {
 }
 
 export interface IUpdateFocus {
-  currentComponentId: string;
-  step?: number;
-}
-
-export interface IUpdateFocusFulfilled {
   focusComponentId: string;
 }
 
