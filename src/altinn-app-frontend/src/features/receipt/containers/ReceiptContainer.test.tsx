@@ -1,5 +1,5 @@
 import React from 'react';
-import { MemoryRouter as Router, Route } from 'react-router-dom';
+import { MemoryRouter, Route } from 'react-router-dom';
 
 import { screen } from '@testing-library/react';
 import { renderWithProviders } from 'testUtils';
@@ -244,13 +244,13 @@ const render = ({
   } as any;
 
   renderWithProviders(
-    <Router initialEntries={[url]}>
+    <MemoryRouter initialEntries={[url]}>
       <Route
         exact
         path={pathMatch}
         component={ReceiptContainer}
       />
-    </Router>,
+    </MemoryRouter>,
     {
       preloadedState: populateStore ? mockState : {},
     },
