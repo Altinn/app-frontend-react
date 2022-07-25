@@ -56,7 +56,6 @@ describe('ErrorReport', () => {
     const errorNode = screen.getByText('some unmapped error');
     expect(errorNode).toBeInTheDocument();
     expect(errorNode.parentElement.tagName).toEqual('LI');
-    expect(errorNode.parentElement.getAttribute('tabIndex')).toBeNull();
   });
 
   it('should list mapped error as clickable', () => {
@@ -77,6 +76,5 @@ describe('ErrorReport', () => {
     expect(errorNode).toBeInTheDocument();
     expect(errorNode.parentElement.parentElement.tagName).toEqual('LI');
     expect(errorNode.parentElement.tagName).toEqual('BUTTON');
-    expect(errorNode.parentElement.getAttribute('tabIndex')).toEqual('0');
   });
 });
