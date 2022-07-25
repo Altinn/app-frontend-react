@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import { Grid, makeStyles } from '@material-ui/core';
@@ -56,6 +57,7 @@ const useStyles = makeStyles((theme) => ({
 
 const ErrorReport = ({ components }: IErrorReportProps) => {
   const classes = useStyles();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const currentView = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
@@ -87,14 +89,14 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
           }),
         );
       } else {
-        dispatch(
-          FormLayoutActions.updateCurrentView({
+        navigate(error.layout, {
+          state: {
             newView: error.layout,
             runValidations: null,
             returnToView: currentView,
             focusComponentId: error.componentId,
-          }),
-        );
+          },
+        });
       }
     };
 

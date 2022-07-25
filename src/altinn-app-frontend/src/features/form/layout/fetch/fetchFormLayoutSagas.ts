@@ -96,7 +96,6 @@ export function* fetchLayoutSaga(): SagaIterator {
         autoSave = layoutResponse[key].data.autoSave;
       });
     }
-
     yield put(FormLayoutActions.fetchFulfilled({ layouts, navigationConfig }));
     yield put(FormLayoutActions.updateAutoSave({ autoSave }));
     yield put(

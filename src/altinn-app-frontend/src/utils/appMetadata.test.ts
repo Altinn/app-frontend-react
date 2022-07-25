@@ -185,7 +185,7 @@ describe('utils/appmetadata.ts', () => {
 
     it('should return false if routed to an instance', () => {
       window.location.replace(
-        '#/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc',
+        '/ttd/test/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc',
       );
       const result = isStatelessApp(application);
       expect(result).toBeFalsy();

@@ -1,3 +1,5 @@
+import type { NavigateFunction } from 'react-router-dom';
+
 import type { ILayouts } from 'src/features/form/layout';
 import type {
   IFileUploadersWithTag,
@@ -34,6 +36,7 @@ export interface IUpdateAutoSave {
 
 export interface IUpdateCurrentView {
   newView: string;
+  currentView?: string;
   returnToView?: string;
   runValidations?: 'allPages' | 'page';
   skipPageCaching?: boolean;
@@ -128,11 +131,22 @@ export interface IKeepComponentScrollPos {
   offsetTop: number;
 }
 
-export interface ICalculatePageOrderAndMoveToNextPage {
+interface CalculatePageOrderAndMoveToNextPage {
   runValidations?: 'allPages' | 'page';
   skipMoveToNext?: boolean;
   keepScrollPos?: IKeepComponentScrollPos;
+  navigate?: NavigateFunction;
 }
+
+interface CalculatePageOrderAndMoveToNextPageWithNavigate
+  extends CalculatePageOrderAndMoveToNextPage {
+  navigate: NavigateFunction;
+  skipMoveToNext?: undefined | false;
+}
+
+export type ICalculatePageOrderAndMoveToNextPage =
+  | CalculatePageOrderAndMoveToNextPageWithNavigate
+  | CalculatePageOrderAndMoveToNextPage;
 
 export interface ICalculatePageOrderAndMoveToNextPageFulfilled {
   order: string[];

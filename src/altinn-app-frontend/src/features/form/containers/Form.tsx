@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorReport from 'src/components/message/ErrorReport';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import MessageBanner from 'src/features/form/components/MessageBanner';
@@ -10,13 +11,14 @@ import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroup
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import { PanelGroupContainer } from 'src/features/form/containers/PanelGroupContainer';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import {
   extractBottomButtons,
   hasRequiredFields,
   topLevelComponents,
 } from 'src/utils/formLayout';
-import { renderGenericComponent } from 'src/utils/layout';
+import { renderGenericComponent as RenderGenericComponent } from 'src/utils/layout';
 import {
   getFormHasErrors,
   missingFieldsInLayoutValidations,
@@ -26,6 +28,7 @@ import type {
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
+import type { IUpdateCurrentView } from 'src/features/form/layout/formLayoutTypes';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -45,17 +48,13 @@ export function renderLayoutComponent(
     }
     default: {
       return (
-        <GenericComponent
+        <RenderGenericComponent
           key={layoutComponent.id}
           {...layoutComponent}
         />
       );
     }
   }
-}
-
-function GenericComponent(component: ILayoutComponent, layout: ILayout) {
-  return renderGenericComponent(component, layout);
 }
 
 function RenderLayoutGroup(
@@ -99,11 +98,17 @@ function RenderLayoutGroup(
 }
 
 export function Form() {
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const viewState = location.state as IUpdateCurrentView;
+  const params = useParams();
+  const navigate = useNavigate();
+  const [pageId] = params['*']?.split('/') || [''];
   const currentView = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
   );
   const layout = useAppSelector(
-    (state) => state.formLayout.layouts[state.formLayout.uiConfig.currentView],
+    (state) => state.formLayout.layouts[currentView],
   );
   const language = useAppSelector((state) => state.language.language);
   const validations = useAppSelector(
@@ -131,27 +136,49 @@ export function Form() {
     const topLevel = topLevelComponents(layout);
     return hasErrors ? extractBottomButtons(topLevel) : [topLevel, []];
   }, [layout, hasErrors]);
-
+  // handle root page
+  useEffect(() => {
+    if (!pageId) {
+      if (currentView) {
+        navigate(currentView, { replace: true });
+      }
+    }
+    if (pageId !== currentView && hasErrors) {
+      navigate(-1);
+    }
+  });
+  if (viewState?.newView && viewState.newView !== currentView) {
+    if (currentView !== pageId) {
+      if (!hasErrors) {
+        dispatch(FormLayoutActions.updateCurrentView(viewState));
+      }
+    }
+  }
+  if (!layout) {
+    return <div>404</div>;
+  }
   return (
-    <>
-      {hasRequiredFields(layout) && (
-        <MessageBanner
-          language={language}
-          error={requiredFieldsMissing}
-          messageKey={'form_filler.required_description'}
-        />
-      )}
-      <Grid
-        container={true}
-        spacing={3}
-        alignItems='flex-start'
-      >
-        {mainComponents.map((component) =>
-          renderLayoutComponent(component, layout),
+    layout && (
+      <>
+        {hasRequiredFields(layout) && (
+          <MessageBanner
+            language={language}
+            error={requiredFieldsMissing}
+            messageKey={'form_filler.required_description'}
+          />
         )}
-        <ErrorReport components={errorReportComponents} />
-      </Grid>
-      <ReadyForPrint />
-    </>
+        <Grid
+          container={true}
+          spacing={3}
+          alignItems='flex-start'
+        >
+          {mainComponents.map((component) =>
+            renderLayoutComponent(component, layout),
+          )}
+          <ErrorReport components={errorReportComponents} />
+        </Grid>
+        <ReadyForPrint />
+      </>
+    )
   );
 }

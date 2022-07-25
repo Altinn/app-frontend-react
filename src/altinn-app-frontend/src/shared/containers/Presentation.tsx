@@ -1,9 +1,9 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks';
 import Header from 'src/components/presentation/Header';
 import NavBar from 'src/components/presentation/NavBar';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { getRedirectUrl } from 'src/utils/appUrlHelper';
 import { getNextView } from 'src/utils/formLayout';
@@ -32,11 +32,17 @@ const style = {
 };
 
 const PresentationComponent = (props: IPresentationProvidedProps) => {
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const party = useAppSelector((state) => state.party?.selectedParty);
   const language = useAppSelector((state) => state.language.language || {});
   const instance = useAppSelector((state) => state.instanceData?.instance);
   const userParty = useAppSelector((state) => state.profile.profile?.party);
+  const returnToView = useAppSelector(
+    (state) => state.formLayout.uiConfig.returnToView,
+  );
+  const currentView = useAppSelector(
+    (state) => state.formLayout.uiConfig.currentView,
+  );
   const textResources = useAppSelector(
     (state) => state.textResources.resources,
   );
@@ -50,28 +56,28 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
       true,
     ),
   );
-  const returnToView = useAppSelector(
-    (state) => state.formLayout.uiConfig.returnToView,
-  );
 
   const handleBackArrowButton = () => {
     if (returnToView) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({
+      navigate(returnToView, {
+        state: {
+          currentView,
           newView: returnToView,
           runValidations: 'allPages',
-        }),
-      );
+        },
+      });
     } else if (
       props.type === ProcessTaskType.Data ||
       props.type === PresentationType.Stateless
     ) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({ newView: previousFormPage }),
-      );
+      navigate(previousFormPage, {
+        state: {
+          currentView,
+          newView: previousFormPage,
+        },
+      });
     }
   };
-
   const handleModalCloseButton = () => {
     const queryParameterReturnUrl = returnUrlFromQueryParameter();
     const messageBoxUrl = returnUrlToMessagebox(

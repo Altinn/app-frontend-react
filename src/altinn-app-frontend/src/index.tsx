@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { HashRouter } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
@@ -10,6 +10,7 @@ import { App } from 'src/App';
 import ErrorBoundary from 'src/components/ErrorBoundary';
 import { initSagas } from 'src/sagas';
 import { store } from 'src/store';
+import { appPath } from 'src/utils/appUrlHelper';
 
 import { AltinnAppTheme } from 'altinn-shared/theme';
 
@@ -23,7 +24,7 @@ const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(
   <Provider store={store}>
-    <HashRouter>
+    <Router basename={appPath}>
       <AppWrapper>
         <MuiThemeProvider theme={theme}>
           <ErrorBoundary>
@@ -31,6 +32,6 @@ root.render(
           </ErrorBoundary>
         </MuiThemeProvider>
       </AppWrapper>
-    </HashRouter>
+    </Router>
   </Provider>,
 );

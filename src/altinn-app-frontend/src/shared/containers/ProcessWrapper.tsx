@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 import {
   useAppSelector,
@@ -41,6 +42,7 @@ const ProcessWrapper = () => {
       );
     }
   }, [instantiating, instanceId, dispatch, instanceIdFromUrl]);
+  const params = useParams();
   if (hasApiErrors) {
     return <UnknownError />;
   }
@@ -57,6 +59,7 @@ const ProcessWrapper = () => {
     >
       {isLoading === false ? (
         <>
+          {JSON.stringify(params)}
           {taskType === ProcessTaskType.Data && <Form />}
           {taskType === ProcessTaskType.Archived && <Receipt />}
           {taskType === ProcessTaskType.Confirm && <Confirm />}

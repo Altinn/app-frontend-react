@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
@@ -27,7 +28,7 @@ export type INavigationButtons = IComponentProps &
 export function NavigationButtons(props: INavigationButtons) {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-
+  const navigate = useNavigate();
   const refPrev = React.useRef<HTMLButtonElement>();
   const refNext = React.useRef<HTMLButtonElement>();
 
@@ -79,7 +80,9 @@ export function NavigationButtons(props: INavigationButtons) {
     const goToView =
       previous || orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) - 1];
     if (goToView) {
-      dispatch(FormLayoutActions.updateCurrentView({ newView: goToView }));
+      navigate(goToView, {
+        state: { newView: goToView },
+      });
     }
   };
 
@@ -114,13 +117,13 @@ export function NavigationButtons(props: INavigationButtons) {
         next ||
         orderedLayoutKeys[orderedLayoutKeys.indexOf(currentView) + 1];
       if (goToView) {
-        dispatch(
-          FormLayoutActions.updateCurrentView({
+        navigate(goToView, {
+          state: {
             newView: goToView,
             runValidations,
             keepScrollPos: keepScrollPosAction,
-          }),
-        );
+          },
+        });
       }
     }
   };

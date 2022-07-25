@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Grid, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useAppSelector } from 'src/common/hooks';
 import { Triggers } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
@@ -79,7 +79,6 @@ const NavigationButton = React.forwardRef(
     ref: any,
   ) => {
     const classes = useStyles();
-
     return (
       <button
         hidden={hidden}
@@ -102,7 +101,7 @@ NavigationButton.displayName = 'NavigationButton';
 
 export const NavigationBar = ({ triggers }: INavigationBar) => {
   const classes = useStyles();
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const pageIds = useAppSelector(
     (state) => state.formLayout.uiConfig.layoutOrder,
   );
@@ -139,10 +138,12 @@ export const NavigationBar = ({ triggers }: INavigationBar) => {
       (runAllValidations && 'allPages') ||
       (runPageValidations && 'page') ||
       null;
-
-    dispatch(
-      FormLayoutActions.updateCurrentView({ newView: pageId, runValidations }),
-    );
+    navigate(pageId, {
+      state: {
+        newView: pageId,
+        runValidations,
+      },
+    });
   };
 
   const shouldShowMenu = isMobile === false || showMenu;

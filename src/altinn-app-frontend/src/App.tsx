@@ -103,7 +103,7 @@ export const App = () => {
         element={<PartySelection />}
       />
       <Route
-        path='/instance/:partyId/:instanceGuid'
+        path='/instance/:partyId/:instanceGuid/*'
         element={<ProcessWrapper />}
       />
     </Routes>

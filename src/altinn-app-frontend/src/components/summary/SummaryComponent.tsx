@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { shallowEqual } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import { Grid, makeStyles } from '@material-ui/core';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import {
   componentHasValidationMessages,
@@ -51,7 +51,7 @@ export function SummaryComponent({
   const { componentRef, ...groupProps } = summaryProps;
   const { pageRef, index } = groupProps;
   const classes = useStyles();
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const GetHiddenSelector = makeGetHidden();
   const [componentValidations, setComponentValidations] =
     React.useState<IComponentValidations>({});
@@ -128,16 +128,15 @@ export function SummaryComponent({
     }
     return undefined;
   });
-
   const onChangeClick = () => {
-    dispatch(
-      FormLayoutActions.updateCurrentView({
+    navigate(pageRef, {
+      state: {
         newView: pageRef,
         runValidations: null,
         returnToView: summaryPageName,
         focusComponentId: componentRef,
-      }),
-    );
+      },
+    });
   };
 
   React.useEffect(() => {

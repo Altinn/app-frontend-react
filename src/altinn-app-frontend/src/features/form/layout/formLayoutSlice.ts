@@ -40,7 +40,7 @@ export const initialState: ILayoutState = {
     autoSave: null,
     repeatingGroups: {},
     fileUploadersWithTag: {},
-    currentView: 'FormLayout',
+    currentView: undefined,
     navigationConfig: {},
     layoutOrder: null,
     pageTriggers: [],
@@ -156,11 +156,14 @@ const formLayoutSlice = createSagaSlice(
       }),
       updateCurrentViewFulfilled:
         mkAction<LayoutTypes.IUpdateCurrentViewFulfilled>({
-          reducer: (state, action) => {
-            state.uiConfig.currentView = action.payload.newView;
-            state.uiConfig.returnToView = action.payload.returnToView;
-            state.uiConfig.keepScrollPos = undefined;
-            state.uiConfig.focus = action.payload.focusComponentId;
+          reducer: (state, { payload }) => {
+            state.uiConfig = {
+              ...state.uiConfig,
+              returnToView: payload.returnToView,
+              keepScrollPos: undefined,
+              focus: payload.focusComponentId,
+              currentView: payload.newView,
+            };
           },
         }),
       updateCurrentViewRejected:
