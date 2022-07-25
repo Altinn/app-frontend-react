@@ -1,8 +1,12 @@
 import React from 'react';
+import { Route } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 
-import { useAppSelector } from 'src/common/hooks';
+import {
+  useAppSelector,
+  useFormLayoutHistoryAndMatchInstanceLocation,
+} from 'src/common/hooks';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import MessageBanner from 'src/features/form/components/MessageBanner';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
@@ -17,6 +21,8 @@ import type {
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
+
+import { AltinnContentLoader } from 'altinn-shared/components';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
@@ -105,6 +111,9 @@ export function Form() {
   const validations = useAppSelector(
     (state) => state.formValidations.validations,
   );
+  const { matchRootUrl } = useFormLayoutHistoryAndMatchInstanceLocation({
+    activePageId: currentView,
+  });
 
   React.useEffect(() => {
     setCurrentLayout(currentView);
@@ -141,9 +150,12 @@ export function Form() {
       setFilteredLayout(componentsToRender);
     }
   }, [layout]);
+  if (!currentView) {
+    return <AltinnContentLoader />;
+  }
 
   return (
-    <div>
+    <Route path={`${matchRootUrl}/:pageId`}>
       {hasRequiredFields(layout) && (
         <MessageBanner
           language={language}
@@ -162,7 +174,7 @@ export function Form() {
             return renderLayoutComponent(component, layout);
           })}
       </Grid>
-    </div>
+    </Route>
   );
 }
 
