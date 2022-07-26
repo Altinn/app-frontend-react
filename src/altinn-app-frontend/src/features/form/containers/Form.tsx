@@ -9,14 +9,17 @@ import MessageBanner from 'src/features/form/components/MessageBanner';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import { PanelGroupContainer } from 'src/features/form/containers/PanelGroupContainer';
-import { hasRequiredFields } from 'src/utils/formLayout';
+import {
+  extractBottomButtons,
+  hasRequiredFields,
+  topLevelComponents,
+} from 'src/utils/formLayout';
 import { renderGenericComponent } from 'src/utils/layout';
 import {
   getFormHasErrors,
   missingFieldsInLayoutValidations,
 } from 'src/utils/validation';
 import type {
-  ComponentTypes,
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
@@ -156,37 +159,4 @@ export function Form() {
       </Grid>
     </>
   );
-}
-
-function topLevelComponents(layout: ILayout) {
-  const inGroup = new Set<string>();
-  layout.forEach((component) => {
-    if (component.type === 'Group') {
-      const childList = component.edit?.multiPage
-        ? component.children.map((childId) => childId.split(':')[1] || childId)
-        : component.children;
-      childList.forEach((childId) => inGroup.add(childId));
-    }
-  });
-  return layout.filter((component) => !inGroup.has(component.id));
-}
-
-function extractBottomButtons(layout: ILayout) {
-  const extract = new Set<ComponentTypes>([
-    'NavigationButtons',
-    'Button',
-    'PrintButton',
-  ]);
-
-  const toMainLayout: ILayout = [];
-  const toErrorReport: ILayout = [];
-  for (const component of [...layout].reverse()) {
-    if (extract.has(component.type) && toMainLayout.length === 0) {
-      toErrorReport.push(component);
-    } else {
-      toMainLayout.push(component);
-    }
-  }
-
-  return [toMainLayout.reverse(), toErrorReport.reverse()];
 }
