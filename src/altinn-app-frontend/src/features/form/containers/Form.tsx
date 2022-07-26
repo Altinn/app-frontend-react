@@ -129,13 +129,11 @@ export function Form() {
   }, [currentView, language, validations]);
 
   const [mainComponents, errorReportComponents] = React.useMemo(() => {
-    if (layout && hasErrors) {
-      const topLevel = topLevelComponents(layout);
-      return extractBottomButtons(topLevel);
-    } else if (layout) {
-      return [topLevelComponents(layout), []];
+    if (!layout) {
+      return [[], []];
     }
-    return [[], []];
+    const topLevel = topLevelComponents(layout);
+    return hasErrors ? extractBottomButtons(topLevel) : [topLevel, []];
   }, [layout, hasErrors]);
 
   return (
