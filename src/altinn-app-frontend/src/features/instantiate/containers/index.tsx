@@ -42,6 +42,7 @@ const InstantiateContainer = () => {
     const shouldCreateInstance =
       !instantiation.instantiating &&
       !instantiation.instanceId &&
+      !instantiation.error &&
       selectedParty;
     if (shouldCreateInstance) {
       dispatch(InstantiationActions.instantiate());
@@ -50,6 +51,7 @@ const InstantiateContainer = () => {
     selectedParty,
     instantiation.instantiating,
     instantiation.instanceId,
+    instantiation.error,
     dispatch,
   ]);
 
