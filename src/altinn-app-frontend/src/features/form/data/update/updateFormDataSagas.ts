@@ -143,11 +143,7 @@ function shouldUpdateFormData(currentData: any, newData: any): boolean {
     return true;
   }
 
-  if (currentData !== newData) {
-    return true;
-  }
-
-  return false;
+  return currentData !== newData;
 }
 
 export const SelectFormData = (s: IRuntimeState) => s.formData.formData;
