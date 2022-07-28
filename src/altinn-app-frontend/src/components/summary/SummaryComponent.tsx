@@ -169,6 +169,7 @@ export function SummaryComponent({
       md={grid?.md || false}
       lg={grid?.lg || false}
       xl={grid?.xl || false}
+      data-testid='summary-component'
     >
       <Grid
         container={true}

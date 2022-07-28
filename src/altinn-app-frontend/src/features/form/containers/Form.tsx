@@ -7,6 +7,7 @@ import ErrorReport from 'src/components/message/ErrorReport';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import MessageBanner from 'src/features/form/components/MessageBanner';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
+import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import { PanelGroupContainer } from 'src/features/form/containers/PanelGroupContainer';
 import {
@@ -43,7 +44,7 @@ export function renderLayoutComponent(
     }
     default: {
       return (
-        <RenderGenericComponent
+        <GenericComponent
           key={layoutComponent.id}
           {...layoutComponent}
         />
@@ -52,7 +53,7 @@ export function renderLayoutComponent(
   }
 }
 
-function RenderGenericComponent(component: ILayoutComponent, layout: ILayout) {
+function GenericComponent(component: ILayoutComponent, layout: ILayout) {
   return renderGenericComponent(component, layout);
 }
 
@@ -60,16 +61,10 @@ function RenderLayoutGroup(
   layoutGroup: ILayoutGroup,
   layout: ILayout,
 ): JSX.Element {
-  const groupComponents = layoutGroup.children.map((child) => {
-    let childId = child;
-    if (layoutGroup.edit?.multiPage) {
-      childId = child.split(':')[1] || child;
-    }
-    return layout.find((c) => c.id === childId);
-  });
+  const groupComponents = mapGroupComponents(layoutGroup, layout);
 
-  const repeating = layoutGroup.maxCount > 1;
-  if (repeating) {
+  const isRepeatingGroup = layoutGroup.maxCount > 1;
+  if (isRepeatingGroup) {
     return (
       <GroupContainer
         container={layoutGroup}
@@ -80,8 +75,8 @@ function RenderLayoutGroup(
     );
   }
 
-  const panel = layoutGroup.panel;
-  if (panel) {
+  const isPanel = layoutGroup.panel;
+  if (isPanel) {
     return (
       <PanelGroupContainer
         components={groupComponents}
