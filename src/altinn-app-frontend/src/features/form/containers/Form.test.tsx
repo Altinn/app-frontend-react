@@ -210,20 +210,11 @@ describe('Form', () => {
     const errorReport = screen.getByTestId('ErrorReport');
     expect(errorReport).toBeInTheDocument();
 
-    // This also asserts the buttons are only found once
-    const navButtons = screen.getByTestId('NavigationButtons');
-    expect(navButtons).toBeInTheDocument();
+    expect(screen.getByTestId('NavigationButtons')).toBeInTheDocument();
 
-    const recurseUp = (el: HTMLElement) => {
-      if (!el.parentElement || el.parentElement === el) {
-        return el;
-      }
-      if (el.parentElement.dataset['testid'] === 'ErrorReport') {
-        return el.parentElement;
-      }
-      return recurseUp(el.parentElement);
-    };
-    expect(recurseUp(navButtons)).toEqual(errorReport);
+    expect(
+      within(errorReport).getByTestId('NavigationButtons'),
+    ).toBeInTheDocument();
   });
 
   it('should render a summary component', () => {
