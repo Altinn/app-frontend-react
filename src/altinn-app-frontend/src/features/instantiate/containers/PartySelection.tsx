@@ -5,7 +5,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import InstantiationContainer from 'src/features/instantiate/containers/InstantiationContainer';
+import { InstantiationContainer } from 'src/features/instantiate/containers';
 import NoValidPartiesError from 'src/features/instantiate/containers/NoValidPartiesError';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import AltinnParty from 'src/shared/components/altinnParty';

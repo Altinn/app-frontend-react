@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import Entrypoint from 'src/features/entrypoint/Entrypoint';
@@ -94,23 +94,19 @@ export const App = () => {
   }
 
   return (
-    <Switch>
+    <Routes>
       <Route
         path='/'
-        exact={true}
-      >
-        <Entrypoint allowAnonymous={allowAnonymous} />
-      </Route>
+        element={<Entrypoint allowAnonymous={allowAnonymous} />}
+      />
       <Route
         path='/partyselection/:errorCode?'
-        exact={true}
-        component={PartySelection}
+        element={<PartySelection />}
       />
       <Route
         path='/instance/:partyId/:instanceGuid'
-        exact={true}
-        component={ProcessWrapper}
+        element={<ProcessWrapper />}
       />
-    </Switch>
+    </Routes>
   );
 };

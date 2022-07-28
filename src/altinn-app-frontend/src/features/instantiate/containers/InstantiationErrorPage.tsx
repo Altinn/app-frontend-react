@@ -3,7 +3,7 @@ import type { RouteProps } from 'react-router';
 
 import Grid from '@material-ui/core/Grid';
 
-import InstantiateContainer from 'src/features/instantiate/containers/InstantiationContainer';
+import { InstantiationContainer } from 'src/features/instantiate/containers';
 import AltinnError from 'src/shared/components/altinnError';
 
 export interface IInstantiationErrorPageProps extends RouteProps {
@@ -18,7 +18,7 @@ function InstantiationErrorPage({
   title,
 }: IInstantiationErrorPageProps) {
   return (
-    <InstantiateContainer type='partyChoice'>
+    <InstantiationContainer type='partyChoice'>
       <Grid
         container={true}
         direction='row'
@@ -29,7 +29,7 @@ function InstantiationErrorPage({
           statusCode={statusCode}
         />
       </Grid>
-    </InstantiateContainer>
+    </InstantiationContainer>
   );
 }
 
