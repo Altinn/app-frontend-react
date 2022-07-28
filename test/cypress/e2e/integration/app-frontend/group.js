@@ -11,6 +11,7 @@ const mui = new Common();
 describe('Group', () => {
   const init = () => {
     cy.navigateToTask3();
+    cy.contains(mui.button, texts.next).click();
     cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
   };
 
