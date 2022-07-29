@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RouteProps } from 'react-router';
+import type { RouteProps } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 

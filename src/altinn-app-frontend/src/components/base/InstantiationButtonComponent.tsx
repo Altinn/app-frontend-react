@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Navigate } from 'react-router';
+import { Navigate } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
