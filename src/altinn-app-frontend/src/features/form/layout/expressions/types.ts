@@ -41,3 +41,10 @@ export interface ILayoutExpression {
   function: keyof typeof layoutExpressionFunctions;
   args: [ILayoutExpressionArg, ILayoutExpressionArg];
 }
+
+export interface ILayoutExpressionRunnerDependencies {
+  dataModel: (path: string) => string;
+  component: (baseComponentId: string) => string;
+  instanceContext: (prop: string) => string;
+  applicationSettings: (prop: string) => string;
+}
