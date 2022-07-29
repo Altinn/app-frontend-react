@@ -3388,7 +3388,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-router-dom@npm:^5.3.3":
+"@types/react-router-dom@npm:^5.3.3, @types/react-router-dom@npm:latest":
   version: 5.3.3
   resolution: "@types/react-router-dom@npm:5.3.3"
   dependencies:
@@ -4253,7 +4253,7 @@ __metadata:
     "@types/react": 17.0.46
     "@types/react-dom": ^17.0.17
     "@types/react-redux": ^7.1.24
-    "@types/react-router-dom": ^5.3.3
+    "@types/react-router-dom": latest
     "@types/redux-mock-store": ^1.0.3
     "@types/uuid": 8.3.4
     ajv: ^8.11.0

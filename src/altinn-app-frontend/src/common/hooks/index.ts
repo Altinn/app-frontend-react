@@ -18,3 +18,4 @@ export const usePrevious = (value: any) => {
 };
 export { useAppSelector } from './useAppSelector';
 export { useAppDispatch } from './useAppDispatch';
+export { useInstanceIdParams } from './useInstanceIdParams';

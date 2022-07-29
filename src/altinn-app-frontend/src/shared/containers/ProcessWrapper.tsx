@@ -1,5 +1,4 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import Confirm from 'src/features/confirm/containers/Confirm';
@@ -15,7 +14,7 @@ import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice'
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { ProcessTaskType } from 'src/types';
-import type { IAltinnWindow, IPartyIdInterfaceGuidParams } from 'src/types';
+import type { IAltinnWindow } from 'src/types';
 
 import {
   AltinnContentIconFormData,
@@ -27,7 +26,7 @@ const style = {
 };
 
 const ProcessWrapper = () => {
-  const { partyId, instanceGuid }: IPartyIdInterfaceGuidParams = useParams();
+  //const { instanceId } = useInstanceIdParams();
 
   const dispatch = useAppDispatch();
 
@@ -46,7 +45,7 @@ const ProcessWrapper = () => {
   const hasErrorSelector = makeGetHasErrorsSelector();
   const hasApiErrors = useAppSelector(hasErrorSelector);
 
-  (window as Window as IAltinnWindow).instanceId = `${partyId}/${instanceGuid}`;
+  (window as Window as IAltinnWindow).instanceId = instanceId;
 
   React.useEffect(() => {
     if (!applicationMetadata || !instanceData) {
@@ -79,12 +78,11 @@ const ProcessWrapper = () => {
     if (!instantiating && !instanceId) {
       dispatch(
         InstanceDataActions.get({
-          instanceOwner: partyId,
-          instanceId: instanceGuid,
+          instanceId,
         }),
       );
     }
-  }, [instantiating, instanceId, instanceGuid, partyId, dispatch]);
+  }, [instantiating, instanceId, dispatch]);
 
   if (hasApiErrors) {
     return <UnknownError />;

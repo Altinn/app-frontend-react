@@ -1,7 +1,11 @@
 import * as React from 'react';
-import { Navigate, Outlet, useParams } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import {
+  useAppDispatch,
+  useAppSelector,
+  useInstanceIdParams,
+} from 'src/common/hooks';
 import InstantiateValidationError from 'src/features/instantiate/containers/InstantiateValidationError';
 import MissingRolesError from 'src/features/instantiate/containers/MissingRolesError';
 import UnknownError from 'src/features/instantiate/containers/UnknownError';
@@ -51,7 +55,7 @@ export const InstantiateContainer = () => {
     instantiation.instanceId,
     dispatch,
   ]);
-  const params = useParams();
+  const { instanceId } = useInstanceIdParams();
   if (isAxiosError(instantiation.error)) {
     const message = (instantiation.error.response.data as any)?.message;
     if (instantiation.error.response.status === HttpStatusCodes.Forbidden) {
@@ -64,7 +68,7 @@ export const InstantiateContainer = () => {
     return <UnknownError />;
   }
   if (instantiation.instanceId !== null) {
-    if (!params.instanceGuid) {
+    if (!instanceId) {
       return (
         <Navigate
           to={`instance/${instantiation.instanceId}`}

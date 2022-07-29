@@ -100,7 +100,7 @@ export const App = () => {
         element={<Entrypoint allowAnonymous={allowAnonymous} />}
       />
       <Route
-        path='/partyselection/:errorCode?'
+        path='/partyselection/*'
         element={<PartySelection />}
       />
       <Route
