@@ -5,13 +5,20 @@ import type {
   LayoutExpressionFunction,
 } from 'src/features/form/layout/expressions/types';
 
-let regex: RegExp;
+interface RegexObj {
+  func: RegExp;
+  argExpr: RegExp;
+  argConst: {
+    boolean: RegExp;
+    number: RegExp;
+  };
+}
+
+let regexes: RegexObj;
 let funcLookupTable: { [funcName: string]: LayoutExpressionFunction };
 
-function getRegex(): RegExp {
-  if (!regex) {
-    const argType = /(dataModel|component|applicationSettings|instanceContext)/;
-    const argExpr = /(\([^)]+\))/;
+function getRegexes(): RegexObj {
+  if (!regexes) {
     const funcNames = Object.keys(layoutExpressionAliases);
     for (const aliases of Object.values(layoutExpressionAliases)) {
       for (const aliasMap of aliases) {
@@ -20,16 +27,20 @@ function getRegex(): RegExp {
         }
       }
     }
-    const func = new RegExp(`(${funcNames.join('|')})`);
+    const func = new RegExp(`\\s+(${funcNames.join('|')})\\s+`);
 
-    regex = new RegExp(
-      [/^/, argType, argExpr, /\s+/, func, /\s+/, argType, argExpr, /$/]
-        .map((r) => r.source)
-        .join(''),
-    );
+    regexes = {
+      func,
+      argExpr:
+        /^(dataModel|component|applicationSettings|instanceContext)(\([^)]+\))$/,
+      argConst: {
+        boolean: /^(true|false)$/,
+        number: /^(\d+)$/,
+      },
+    };
   }
 
-  return regex;
+  return regexes;
 }
 
 function getFuncLookupTable(): {
@@ -58,6 +69,25 @@ function trimParens(input: string): string {
   return input.replace(/^\(/, '').replace(/\)$/, '');
 }
 
+function parseArg(arg: string, regexes: RegexObj): ILayoutExpressionArg {
+  if (arg.match(regexes.argConst.boolean)) {
+    return arg === 'true';
+  }
+  if (arg.match(regexes.argConst.number)) {
+    return parseInt(arg, 10);
+  }
+  const exprMatch = arg.match(regexes.argExpr);
+  if (exprMatch) {
+    const [, argType, argExpr] = exprMatch;
+    return {
+      [argType]: trimParens(argExpr),
+    } as unknown as ILayoutExpressionArg;
+  }
+
+  // Assumed to be string constant
+  return arg;
+}
+
 /**
  * Parses our DSL (domain-specific language) into an ILayoutExpression
  */
@@ -66,16 +96,14 @@ export function parseDsl(expression: string, debug = true): ILayoutExpression {
     return undefined;
   }
 
-  const match = expression.match(getRegex());
-  if (match) {
+  const regexes = getRegexes();
+  const split = expression.split(regexes.func);
+  if (split && split.filter((i) => i.trim()).length === 3) {
+    const [arg1, func, arg2] = split;
     const lookupTable = getFuncLookupTable();
-    const [, argType1, argExpr1, func, argType2, argExpr2] = match;
     return {
       function: lookupTable[func],
-      args: [
-        { [argType1]: trimParens(argExpr1) } as unknown as ILayoutExpressionArg,
-        { [argType2]: trimParens(argExpr2) } as unknown as ILayoutExpressionArg,
-      ],
+      args: [parseArg(arg1, regexes), parseArg(arg2, regexes)],
     };
   }
 
