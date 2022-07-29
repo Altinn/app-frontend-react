@@ -11,6 +11,8 @@ interface RegexObj {
   argConst: {
     boolean: RegExp;
     number: RegExp;
+    null: RegExp;
+    string: RegExp;
   };
 }
 
@@ -35,7 +37,9 @@ function getRegexes(): RegexObj {
         /^(dataModel|component|applicationSettings|instanceContext)(\([^)]+\))$/,
       argConst: {
         boolean: /^(true|false)$/,
-        number: /^(\d+)$/,
+        number: /^(-?\d+)$/,
+        null: /^(null)$/,
+        string: /^'(.*)'$/,
       },
     };
   }
@@ -76,6 +80,15 @@ function parseArg(arg: string, regexes: RegexObj): ILayoutExpressionArg {
   if (arg.match(regexes.argConst.number)) {
     return parseInt(arg, 10);
   }
+  if (arg.match(regexes.argConst.null)) {
+    return null;
+  }
+
+  const stringMatch = arg.match(regexes.argConst.string);
+  if (stringMatch) {
+    return stringMatch[1];
+  }
+
   const exprMatch = arg.match(regexes.argExpr);
   if (exprMatch) {
     const [, argType, argExpr] = exprMatch;
@@ -84,8 +97,7 @@ function parseArg(arg: string, regexes: RegexObj): ILayoutExpressionArg {
     } as unknown as ILayoutExpressionArg;
   }
 
-  // Assumed to be string constant
-  return arg;
+  return undefined;
 }
 
 /**
@@ -97,14 +109,22 @@ export function parseDsl(expression: string, debug = true): ILayoutExpression {
   }
 
   const regexes = getRegexes();
-  const split = expression.split(regexes.func);
+  const split = expression.trim().split(regexes.func);
   if (split && split.filter((i) => i.trim()).length === 3) {
     const [arg1, func, arg2] = split;
     const lookupTable = getFuncLookupTable();
-    return {
-      function: lookupTable[func],
-      args: [parseArg(arg1, regexes), parseArg(arg2, regexes)],
-    };
+    const parsedArg1 = parseArg(arg1, regexes);
+    const parsedArg2 = parseArg(arg2, regexes);
+
+    if (
+      typeof parsedArg1 !== 'undefined' &&
+      typeof parsedArg2 !== 'undefined'
+    ) {
+      return {
+        function: lookupTable[func],
+        args: [parsedArg1, parsedArg2],
+      };
+    }
   }
 
   if (debug) {

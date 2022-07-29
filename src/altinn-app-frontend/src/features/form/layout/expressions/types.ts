@@ -30,6 +30,8 @@ export type ILayoutExpressionArg =
   | string
   | boolean
   | number
+  | undefined
+  | null
   | ILayoutExpressionDataModelArg
   | ILayoutExpressionComponentArg
   | ILayoutExpressionInstanceContextArg
