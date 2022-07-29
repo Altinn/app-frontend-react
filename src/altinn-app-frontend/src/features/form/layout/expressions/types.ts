@@ -14,6 +14,14 @@ export interface ILayoutExpressionDataModelArg {
   dataModel: string;
 }
 
+export interface ILayoutExpressionInstanceContextArg {
+  instanceContext: string;
+}
+
+export interface ILayoutExpressionApplicationSettingsArg {
+  applicationSettings: string;
+}
+
 export interface ILayoutExpressionComponentArg {
   component: string;
 }
@@ -23,7 +31,9 @@ export type ILayoutExpressionArg =
   | boolean
   | number
   | ILayoutExpressionDataModelArg
-  | ILayoutExpressionComponentArg;
+  | ILayoutExpressionComponentArg
+  | ILayoutExpressionInstanceContextArg
+  | ILayoutExpressionApplicationSettingsArg;
 
 export interface ILayoutExpression {
   function: keyof typeof layoutExpressionFunctions;

@@ -10,7 +10,7 @@ let funcLookupTable: { [funcName: string]: LayoutExpressionFunction };
 
 function getRegex(): RegExp {
   if (!regex) {
-    const argType = /(dataModel|component)/;
+    const argType = /(dataModel|component|applicationSettings|instanceContext)/;
     const argExpr = /(\([^)]+\))/;
     const funcNames = Object.keys(layoutExpressionAliases);
     for (const aliases of Object.values(layoutExpressionAliases)) {
