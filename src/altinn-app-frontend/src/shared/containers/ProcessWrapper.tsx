@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import {
+  useAppDispatch,
+  useAppSelector,
+  useInstanceIdParams,
+} from 'src/common/hooks';
 import Confirm from 'src/features/confirm/containers/Confirm';
 import Feedback from 'src/features/feedback/Feedback';
 import { Form } from 'src/features/form/containers/Form';
@@ -14,7 +18,6 @@ import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice'
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { ProcessTaskType } from 'src/types';
-import type { IAltinnWindow } from 'src/types';
 
 import {
   AltinnContentIconFormData,
@@ -26,14 +29,16 @@ const style = {
 };
 
 const ProcessWrapper = () => {
-  //const { instanceId } = useInstanceIdParams();
-
   const dispatch = useAppDispatch();
 
   const instantiating = useAppSelector(
     (state) => state.instantiation.instantiating,
   );
-  const instanceId = useAppSelector((state) => state.instantiation.instanceId);
+  const instanceIdFromUrl = useInstanceIdParams()?.instanceId;
+  window['instanceId'] = instanceIdFromUrl;
+  const instanceId =
+    useAppSelector((state) => state.instantiation.instanceId) ||
+    instanceIdFromUrl;
   const instanceData = useAppSelector((state) => state.instanceData.instance);
   const applicationMetadata = useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata,
@@ -44,8 +49,6 @@ const ProcessWrapper = () => {
   const process = useAppSelector((state) => state.process);
   const hasErrorSelector = makeGetHasErrorsSelector();
   const hasApiErrors = useAppSelector(hasErrorSelector);
-
-  (window as Window as IAltinnWindow).instanceId = instanceId;
 
   React.useEffect(() => {
     if (!applicationMetadata || !instanceData) {
@@ -75,7 +78,7 @@ const ProcessWrapper = () => {
   }, [process, applicationMetadata, instanceData, dispatch]);
 
   React.useEffect(() => {
-    if (!instantiating && !instanceId) {
+    if (!instantiating && instanceId!) {
       dispatch(
         InstanceDataActions.get({
           instanceId,
@@ -88,7 +91,7 @@ const ProcessWrapper = () => {
     return <UnknownError />;
   }
 
-  if (!process || !process.taskType) {
+  if (!process?.taskType) {
     return null;
   }
 

@@ -92,7 +92,6 @@ export const App = () => {
   if (!ready) {
     return null;
   }
-
   return (
     <Routes>
       <Route
