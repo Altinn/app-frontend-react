@@ -78,7 +78,7 @@ const ProcessWrapper = () => {
   }, [process, applicationMetadata, instanceData, dispatch]);
 
   React.useEffect(() => {
-    if (!instantiating && instanceId!) {
+    if (!instantiating && !instanceId) {
       dispatch(
         InstanceDataActions.get({
           instanceId,
