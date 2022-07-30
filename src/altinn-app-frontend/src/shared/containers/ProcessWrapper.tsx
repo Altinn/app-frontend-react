@@ -34,11 +34,7 @@ const ProcessWrapper = () => {
   const instantiating = useAppSelector(
     (state) => state.instantiation.instantiating,
   );
-  const instanceIdFromUrl = useInstanceIdParams()?.instanceId;
-  window['instanceId'] = instanceIdFromUrl;
-  const instanceId =
-    useAppSelector((state) => state.instantiation.instanceId) ||
-    instanceIdFromUrl;
+  const instanceId = useAppSelector((state) => state.instantiation.instanceId);
   const instanceData = useAppSelector((state) => state.instanceData.instance);
   const applicationMetadata = useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata,
@@ -55,8 +51,9 @@ const ProcessWrapper = () => {
       return;
     }
 
-    if (!process || !process.taskType) {
+    if (!process?.taskType) {
       dispatch(ProcessActions.get());
+      return;
     }
 
     switch (process.taskType) {
@@ -76,16 +73,17 @@ const ProcessWrapper = () => {
         break;
     }
   }, [process, applicationMetadata, instanceData, dispatch]);
-
+  const instanceIdFromUrl = useInstanceIdParams()?.instanceId;
+  window['instanceId'] = instanceIdFromUrl;
   React.useEffect(() => {
     if (!instantiating && !instanceId) {
       dispatch(
         InstanceDataActions.get({
-          instanceId,
+          instanceId: instanceIdFromUrl,
         }),
       );
     }
-  }, [instantiating, instanceId, dispatch]);
+  }, [instantiating, instanceId, dispatch, instanceIdFromUrl]);
 
   if (hasApiErrors) {
     return <UnknownError />;
