@@ -1,22 +1,18 @@
 import React from 'react';
 
 import {
-  useAppDispatch,
   useAppSelector,
   useInstanceIdParams,
+  useProcess,
 } from 'src/common/hooks';
+import { useApiErrorCheck } from 'src/common/hooks/useApiErrorCheck';
 import Confirm from 'src/features/confirm/containers/Confirm';
 import Feedback from 'src/features/feedback/Feedback';
 import { Form } from 'src/features/form/containers/Form';
 import UnknownError from 'src/features/instantiate/containers/UnknownError';
-import ReceiptContainer from 'src/features/receipt/containers/ReceiptContainer';
-import { makeGetHasErrorsSelector } from 'src/selectors/getErrors';
-import { selectAppName, selectAppOwner } from 'src/selectors/language';
+import Receipt from 'src/features/receipt/containers/ReceiptContainer';
 import Presentation from 'src/shared/containers/Presentation';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
-import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
-import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { ProcessTaskType } from 'src/types';
 
 import {
@@ -24,57 +20,18 @@ import {
   AltinnContentLoader,
 } from 'altinn-shared/components';
 
-const style = {
-  marginTop: '2.5rem',
-};
-
 const ProcessWrapper = () => {
-  const dispatch = useAppDispatch();
-
   const instantiating = useAppSelector(
     (state) => state.instantiation.instantiating,
   );
-  const instanceId = useAppSelector((state) => state.instantiation.instanceId);
-  const instanceData = useAppSelector((state) => state.instanceData.instance);
-  const applicationMetadata = useAppSelector(
-    (state) => state.applicationMetadata.applicationMetadata,
-  );
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
-  const appName = useAppSelector(selectAppName);
-  const appOwner = useAppSelector(selectAppOwner);
-  const process = useAppSelector((state) => state.process);
-  const hasErrorSelector = makeGetHasErrorsSelector();
-  const hasApiErrors = useAppSelector(hasErrorSelector);
+  const { hasApiErrors } = useApiErrorCheck();
+  const { dispatch, process, appOwner, appName } = useProcess();
 
-  React.useEffect(() => {
-    if (!applicationMetadata || !instanceData) {
-      return;
-    }
-
-    if (!process?.taskType) {
-      dispatch(ProcessActions.get());
-      return;
-    }
-
-    switch (process.taskType) {
-      case ProcessTaskType.Data: {
-        dispatch(QueueActions.startInitialDataTaskQueue());
-        break;
-      }
-      case ProcessTaskType.Confirm:
-      case ProcessTaskType.Feedback:
-        dispatch(QueueActions.startInitialInfoTaskQueue());
-        break;
-      case ProcessTaskType.Archived: {
-        dispatch(IsLoadingActions.finishDataTaskIsLoading());
-        break;
-      }
-      default:
-        break;
-    }
-  }, [process, applicationMetadata, instanceData, dispatch]);
+  const instanceId = useAppSelector((state) => state.instantiation.instanceId);
   const instanceIdFromUrl = useInstanceIdParams()?.instanceId;
   window['instanceId'] = instanceIdFromUrl;
+
   React.useEffect(() => {
     if (!instantiating && !instanceId) {
       dispatch(
@@ -84,7 +41,6 @@ const ProcessWrapper = () => {
       );
     }
   }, [instantiating, instanceId, dispatch, instanceIdFromUrl]);
-
   if (hasApiErrors) {
     return <UnknownError />;
   }
@@ -92,44 +48,30 @@ const ProcessWrapper = () => {
   if (!process?.taskType) {
     return null;
   }
-
+  const { taskType } = process;
   return (
     <Presentation
       header={appName}
       appOwner={appOwner}
-      type={process.taskType}
+      type={taskType}
     >
-      <>
-        {isLoading === false ? (
-          <>
-            {process.taskType === ProcessTaskType.Data && <Form />}
-            {process.taskType === ProcessTaskType.Archived && (
-              <div id='ReceiptContainer'>
-                <ReceiptContainer />
-              </div>
-            )}
-            {process.taskType === ProcessTaskType.Confirm && (
-              <div id='ConfirmContainer'>
-                <Confirm />
-              </div>
-            )}
-            {process.taskType === ProcessTaskType.Feedback && (
-              <div id='FeedbackContainer'>
-                <Feedback />
-              </div>
-            )}
-          </>
-        ) : (
-          <div style={style}>
-            <AltinnContentLoader
-              width='100%'
-              height={700}
-            >
-              <AltinnContentIconFormData />
-            </AltinnContentLoader>
-          </div>
-        )}
-      </>
+      {isLoading === false ? (
+        <>
+          {taskType === ProcessTaskType.Data && <Form />}
+          {taskType === ProcessTaskType.Archived && <Receipt />}
+          {taskType === ProcessTaskType.Confirm && <Confirm />}
+          {taskType === ProcessTaskType.Feedback && <Feedback />}
+        </>
+      ) : (
+        <div style={{ marginTop: '2.5rem' }}>
+          <AltinnContentLoader
+            width='100%'
+            height={700}
+          >
+            <AltinnContentIconFormData />
+          </AltinnContentLoader>
+        </div>
+      )}
     </Presentation>
   );
 };

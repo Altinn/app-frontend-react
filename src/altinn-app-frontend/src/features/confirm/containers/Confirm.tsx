@@ -143,7 +143,7 @@ const Confirm = () => {
   };
 
   return (
-    <>
+    <div id='ConfirmContainer'>
       {isLoading ? (
         <AltinnContentLoader
           width={705}
@@ -193,7 +193,7 @@ const Confirm = () => {
           <SubmitButton />
         </>
       )}
-    </>
+    </div>
   );
 };
 

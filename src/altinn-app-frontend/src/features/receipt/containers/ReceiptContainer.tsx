@@ -158,7 +158,7 @@ const ReceiptContainer = () => {
   }, [instance, applicationMetadata]);
 
   return (
-    <>
+    <div id='ReceiptContainer'>
       {isLoading() ? (
         <AltinnContentLoader
           width={705}
@@ -211,7 +211,7 @@ const ReceiptContainer = () => {
           )}
         </>
       )}
-    </>
+    </div>
   );
 };
 
