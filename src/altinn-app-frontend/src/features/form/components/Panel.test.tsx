@@ -1,9 +1,9 @@
 import React from 'react';
 
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { screen } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
 
-import { getInitialStateMock } from 'src/../__mocks__/initialStateMock';
-import { renderWithProviders } from 'src/../testUtils';
 import { FormComponentContext } from 'src/components';
 import {
   getVariant,
@@ -34,6 +34,12 @@ describe('Panel', () => {
 
     it('should return PanelVariant.Info when no variant is passed', () => {
       expect(getVariant()).toBe(PanelVariant.Info);
+    });
+
+    it('should return PanelVariant.Info when the wrong variant is passed', () => {
+      expect(getVariant({ variant: 'invalid' as 'warning' })).toBe(
+        PanelVariant.Info,
+      );
     });
   });
 
@@ -66,7 +72,7 @@ const render = (
   const allProps = {
     title: 'Panel Title',
     children: 'Panel Content',
-    variant: 'info',
+    variant: 'info' as const,
     showIcon: false,
     showPointer: false,
     ...props,

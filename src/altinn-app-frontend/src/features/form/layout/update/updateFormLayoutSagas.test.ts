@@ -22,12 +22,16 @@ import {
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import type { ILayoutCompFileUpload } from 'src/features/form/layout';
-import type { IUpdateRepeatingGroups } from 'src/features/form/layout/formLayoutTypes';
+import type {
+  ICalculatePageOrderAndMoveToNextPage,
+  IUpdateRepeatingGroups,
+} from 'src/features/form/layout/formLayoutTypes';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IDataModelBindings, IRuntimeState } from 'src/types';
 
 import * as sharedUtils from 'altinn-shared/utils';
-
+import * as original from 'altinn-shared/utils/instanceIdRegExp';
+const originalInstanceIdRegExp = original.getInstanceIdRegExp;
 jest.mock('altinn-shared/utils');
 
 describe('updateLayoutSagas', () => {
@@ -252,6 +256,7 @@ describe('updateLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page-3',
             runValidations: undefined,
+            keepScrollPos: undefined,
           }),
         )
         .run();
@@ -270,7 +275,18 @@ describe('updateLayoutSagas', () => {
     });
 
     it('stateless: should fetch pageOrder and update state accordingly', () => {
-      const action = { type: 'test', payload: {} };
+      const action: PayloadAction<ICalculatePageOrderAndMoveToNextPage> = {
+        type: 'test',
+        payload: {
+          keepScrollPos: {
+            componentId: 'someComponent',
+            offsetTop: 123,
+          },
+        },
+      };
+      jest
+        .spyOn(sharedUtils, 'getInstanceIdRegExp')
+        .mockImplementation(originalInstanceIdRegExp);
       const stateWithStatelessApp: IRuntimeState = {
         ...state,
         applicationMetadata: {
@@ -302,6 +318,10 @@ describe('updateLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page-3',
             runValidations: undefined,
+            keepScrollPos: {
+              componentId: 'someComponent',
+              offsetTop: 123,
+            },
           }),
         )
         .run();
@@ -330,6 +350,7 @@ describe('updateLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'return-here',
             runValidations: undefined,
+            keepScrollPos: undefined,
           }),
         )
         .run();

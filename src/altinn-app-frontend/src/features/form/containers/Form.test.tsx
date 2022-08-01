@@ -1,12 +1,17 @@
 import * as React from 'react';
+import { MemoryRouter, Route } from 'react-router-dom';
 
+import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 import { screen, within } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
 import type { PreloadedState } from '@reduxjs/toolkit';
 
-import { getFormLayoutStateMock } from 'src/../__mocks__/formLayoutStateMock';
-import { renderWithProviders } from 'src/../testUtils';
 import { Form } from 'src/features/form/containers/Form';
-import type { ILayout, ILayoutComponent } from 'src/features/form/layout';
+import type {
+  ILayout,
+  ILayoutComponent,
+  ILayoutEntry,
+} from 'src/features/form/layout';
 import type { RootState } from 'src/store';
 
 describe('Form', () => {
@@ -152,19 +157,120 @@ describe('Form', () => {
     expect(screen.getByText('1. FormLayout')).toBeInTheDocument();
   });
 
+  it('should not render ErrorReport when there are no validation errors', () => {
+    renderForm(mockComponents);
+    expect(screen.queryByTestId('ErrorReport')).not.toBeInTheDocument();
+  });
+
+  it('should render ErrorReport when there are validation errors', () => {
+    renderForm(
+      mockComponents,
+      mockValidations({
+        component1: {
+          simpleBinding: {
+            errors: ['some error message'],
+          },
+        },
+      }),
+    );
+    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+  });
+
+  it('should render ErrorReport when there are unmapped validation errors', () => {
+    renderForm(
+      mockComponents,
+      mockValidations({
+        unmapped: {
+          simpleBinding: {
+            errors: ['some error message'],
+          },
+        },
+      }),
+    );
+    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+  });
+
+  it('should separate NavigationButtons and display them inside ErrorReport', () => {
+    renderForm(
+      [
+        ...mockComponents,
+        {
+          id: 'bottomNavButtons',
+          type: 'NavigationButtons',
+        },
+      ],
+      mockValidations({
+        component1: {
+          simpleBinding: {
+            errors: ['some error message'],
+          },
+        },
+      }),
+    );
+    const errorReport = screen.getByTestId('ErrorReport');
+    expect(errorReport).toBeInTheDocument();
+
+    expect(screen.getByTestId('NavigationButtons')).toBeInTheDocument();
+
+    expect(
+      within(errorReport).getByTestId('NavigationButtons'),
+    ).toBeInTheDocument();
+  });
+
+  it('should render a summary component', () => {
+    const summaryComponent: ILayoutEntry[] = [
+      ...mockComponents,
+      {
+        id: 'the-summary',
+        type: 'Summary',
+        pageRef: 'FormLayout',
+        componentRef: 'field1',
+      } as unknown as ILayoutEntry,
+    ];
+    renderForm(summaryComponent as ILayout);
+    expect(screen.getByTestId('summary-component')).toBeInTheDocument();
+  });
+
   function renderForm(
     layout = mockComponents,
     customState: PreloadedState<RootState> = {},
   ) {
-    renderWithProviders(<Form />, {
-      preloadedState: {
-        ...customState,
-        formLayout: getFormLayoutStateMock({
-          layouts: {
-            FormLayout: layout,
-          },
-        }),
+    renderWithProviders(
+      <MemoryRouter
+        initialEntries={[
+          '/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc',
+        ]}
+      >
+        <Route
+          path={'/instance/:partyId/:instanceGuid'}
+          component={Form}
+        />
+      </MemoryRouter>,
+      {
+        preloadedState: {
+          ...customState,
+          formLayout: getFormLayoutStateMock({
+            layouts: {
+              FormLayout: layout,
+            },
+          }),
+        },
       },
-    });
+    );
+  }
+
+  function mockValidations(
+    validations: RootState['formValidations']['validations'][string],
+  ): Partial<RootState> {
+    return {
+      formValidations: {
+        error: null,
+        invalidDataTypes: [],
+        currentSingleFieldValidation: {},
+        validations: {
+          page1: validations,
+        },
+      },
+    };
   }
 });

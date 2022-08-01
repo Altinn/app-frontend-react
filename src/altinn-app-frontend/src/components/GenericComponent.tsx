@@ -101,6 +101,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   const { id, ...passThroughProps } = props;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);
+  const gridRef = React.useRef<HTMLDivElement>();
   const GetHiddenSelector = makeGetHidden();
   const GetFocusSelector = makeGetFocus();
   const [hasValidationMessages, setHasValidationMessages] =
@@ -154,6 +155,20 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     );
   }, [componentValidations]);
 
+  React.useLayoutEffect(() => {
+    if (!hidden && shouldFocus && gridRef.current) {
+      gridRef.current.scrollIntoView();
+
+      const maybeInput = gridRef.current.querySelector(
+        'input,textarea,select',
+      ) as HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement;
+      if (maybeInput) {
+        maybeInput.focus();
+      }
+      dispatch(FormLayoutActions.updateFocus({ focusComponentId: null }));
+    }
+  }, [shouldFocus, hidden, dispatch]);
+
   if (hidden) {
     return null;
   }
@@ -195,15 +210,6 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
         componentId: props.id,
         skipValidation,
         checkIfRequired,
-      }),
-    );
-  };
-
-  const handleFocusUpdate = (componentId: string, step?: number) => {
-    dispatch(
-      FormLayoutActions.updateFocus({
-        currentComponentId: componentId,
-        step: step || 0,
       }),
     );
   };
@@ -288,7 +294,6 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
 
   const componentProps = {
     handleDataChange,
-    handleFocusUpdate,
     getTextResource: getTextResourceWrapper,
     getTextResourceAsString,
     formData,
@@ -332,13 +337,10 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   return (
     <FormComponentContext.Provider value={formComponentContext}>
       <Grid
+        ref={gridRef}
         item={true}
         container={true}
-        xs={props.grid?.xs || 12}
-        sm={props.grid?.sm || false}
-        md={props.grid?.md || false}
-        lg={props.grid?.lg || false}
-        xl={props.grid?.xl || false}
+        {...gridBreakpoints(props.grid)}
         key={`grid-${props.id}`}
         className={classNames(
           'form-group',
@@ -351,11 +353,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
         {!noLabelComponents.includes(props.type) && (
           <Grid
             item={true}
-            xs={props.grid?.labelGrid?.xs || 12}
-            sm={props.grid?.labelGrid?.sm || false}
-            md={props.grid?.labelGrid?.md || false}
-            lg={props.grid?.labelGrid?.lg || false}
-            xl={props.grid?.labelGrid?.xl || false}
+            {...gridBreakpoints(props.grid?.labelGrid)}
           >
             <RenderLabelScoped
               props={props}
@@ -370,11 +368,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
           key={`form-content-${props.id}`}
           item={true}
           id={`form-content-${props.id}`}
-          xs={props.grid?.innerGrid?.xs || 12}
-          sm={props.grid?.innerGrid?.sm || false}
-          md={props.grid?.innerGrid?.md || false}
-          lg={props.grid?.innerGrid?.lg || false}
-          xl={props.grid?.innerGrid?.xl || false}
+          {...gridBreakpoints(props.grid?.innerGrid)}
         >
           <RenderComponent {...componentProps} />
           {showValidationMessages &&
@@ -408,6 +402,16 @@ const RenderLabelScoped = (props: IRenderLabelProps) => {
   );
 };
 
+const gridBreakpoints = (grid?: IGridStyling) => {
+  const { xs, sm, md, lg, xl } = grid || {};
+  return {
+    xs: xs || 12,
+    ...(sm && { sm }),
+    ...(md && { md }),
+    ...(lg && { lg }),
+    ...(xl && { xl }),
+  };
+};
 const gridToHiddenProps = (
   labelGrid: IGridStyling,
   classes: ReturnType<typeof useStyles>,
@@ -421,5 +425,3 @@ const gridToHiddenProps = (
     [classes.xl]: labelGrid.xl > 0 && labelGrid.xl < 12,
   };
 };
-
-export default GenericComponent;

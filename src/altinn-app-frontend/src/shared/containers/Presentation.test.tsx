@@ -1,17 +1,16 @@
 import React from 'react';
 
+import { getInitialStateMock } from '__mocks__/mocks';
+import { partyMock } from '__mocks__/partyMock';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import { renderWithProviders } from 'testUtils';
 
 import Presentation from 'src/shared/containers/Presentation';
 import { ProcessTaskType } from 'src/types';
 import { HttpStatusCodes } from 'src/utils/networking';
 import type { IPresentationProvidedProps } from 'src/shared/containers/Presentation';
-
-import { getInitialStateMock } from 'altinn-app-frontend/__mocks__/mocks';
-import { partyMock } from 'altinn-app-frontend/__mocks__/partyMock';
-import { renderWithProviders } from 'altinn-app-frontend/testUtils';
 
 import { AltinnAppTheme, returnUrlToMessagebox } from 'altinn-shared/index';
 
@@ -161,18 +160,6 @@ describe('Presentation', () => {
     expect(appHeader).toHaveStyle(
       `background-color: ${AltinnAppTheme.altinnPalette.primary.greenLight}`,
     );
-  });
-
-  it('should map validations if there are any and create error report', () => {
-    render({ type: ProcessTaskType.Data }, stateWithErrorsAndWarnings);
-
-    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
-  });
-
-  it('should hide error report when there are no validation errors', () => {
-    render({ type: ProcessTaskType.Data });
-
-    expect(screen.queryByTestId('ErrorReport')).not.toBeInTheDocument();
   });
 });
 

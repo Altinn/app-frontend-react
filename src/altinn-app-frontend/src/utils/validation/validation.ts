@@ -113,8 +113,8 @@ export function createValidator(schema: any): ISchemaValidator {
     rootElementPath = schema.properties[rootKey].$ref;
   }
   addFormats(ajv);
-  ajv.addFormat('year', /^[0-9]{4}$/);
-  ajv.addFormat('year-month', /^[0-9]{4}-(0[1-9]|1[0-2])$/);
+  ajv.addFormat('year', /^\d{4}$/);
+  ajv.addFormat('year-month', /^\d{4}-(0[1-9]|1[0-2])$/);
   ajv.addSchema(schema, 'schema');
   return {
     validator: ajv,
@@ -1283,10 +1283,8 @@ function addValidation(
  * gets unmapped errors from validations as string array
  * @param validations the validations
  */
-export function getUnmappedErrors(
-  validations: IValidations,
-): React.ReactNode[] {
-  const messages: React.ReactNode[] = [];
+export function getUnmappedErrors(validations: IValidations): ReactNode[] {
+  const messages: ReactNode[] = [];
   if (!validations) {
     return messages;
   }
@@ -1299,6 +1297,59 @@ export function getUnmappedErrors(
   });
   return messages;
 }
+
+export interface FlatError {
+  layout: string;
+  componentId: string;
+  message: string | ReactNode;
+}
+
+/**
+ * Gets all mapped errors as flat array
+ */
+export const getMappedErrors = (validations: IValidations): FlatError[] => {
+  const errors: FlatError[] = [];
+
+  for (const layout in validations) {
+    for (const componentId in validations[layout]) {
+      if (componentId === 'unmapped') {
+        continue;
+      }
+
+      const validationObject = validations[layout][componentId];
+      for (const fieldKey in validationObject) {
+        for (const message of validationObject[fieldKey].errors || []) {
+          errors.push({
+            layout,
+            componentId,
+            message,
+          });
+        }
+      }
+    }
+  }
+
+  return errors;
+};
+
+/**
+ * Returns true if there are errors in the form at all (faster than getting all mapped/unmapped errors)
+ * When this returns true, ErrorReport.tsx should be displayed
+ */
+export const getFormHasErrors = (validations: IValidations): boolean => {
+  for (const layout in validations) {
+    for (const key in validations[layout]) {
+      const validationObject = validations[layout][key];
+      for (const fieldKey in validationObject) {
+        const fieldValidationErrors = validationObject[fieldKey].errors;
+        if (fieldValidationErrors && fieldValidationErrors.length > 0) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+};
 
 /**
  * checks if a validation contains any errors of a given severity.
@@ -1414,14 +1465,17 @@ export function repeatingGroupHasValidations(
 }
 
 export function mergeValidationObjects(
-  ...sources: IValidations[]
+  ...sources: (IValidations | null)[]
 ): IValidations {
   const validations: IValidations = {};
-  if (!sources || !sources.length) {
+  if (!sources?.length) {
     return validations;
   }
 
-  sources.forEach((source: IValidations) => {
+  sources.forEach((source: IValidations | null) => {
+    if (source === null) {
+      return;
+    }
     Object.keys(source).forEach((layout: string) => {
       validations[layout] = mergeLayoutValidations(
         validations[layout] || {},
