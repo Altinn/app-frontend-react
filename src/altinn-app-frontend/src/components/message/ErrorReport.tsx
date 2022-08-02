@@ -34,6 +34,10 @@ const useStyles = makeStyles((theme) => ({
     },
     '& > li > button': {
       textAlign: 'left',
+      borderBottom: theme.sharedStyles.noLinkBorderBottom,
+    },
+    '& > li > button:hover': {
+      borderBottom: theme.sharedStyles.linkBorderBottom,
     },
   },
   buttonAsInvisibleLink: {
