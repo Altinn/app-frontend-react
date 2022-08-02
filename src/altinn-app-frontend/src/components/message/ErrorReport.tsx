@@ -25,7 +25,7 @@ const ArrowForwardIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2
 const useStyles = makeStyles((theme) => ({
   errorList: {
     listStylePosition: 'outside',
-    marginLeft: `calc(${iconSize}px + ${theme.spacing(1)}px)`,
+    marginLeft: iconSize + theme.spacing(1),
     listStyleImage: `url("data:image/svg+xml,${encodeURIComponent(
       ArrowForwardIcon,
     )}")`,
