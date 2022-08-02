@@ -22,12 +22,9 @@ import {
   getFieldName,
   getFormDataForComponent,
 } from 'src/utils/formComponentUtils';
-import {
-  createRepeatingGroupComponents,
-  getRepeatingGroupStartStopIndex,
-  splitDashedKey,
-} from 'src/utils/formLayout';
+import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
+import { nodesInLayout } from 'src/utils/layout/hierarchy';
 import { getParsedTextResourceByKey } from 'src/utils/textResource';
 import type { IFormData } from 'src/features/form/data';
 import type {
@@ -219,123 +216,6 @@ export function validateEmptyFields(
   return validations;
 }
 
-interface IteratedComponent {
-  component: ILayoutComponent;
-  groupDataModelBinding?: string;
-  index?: number;
-}
-
-export function* iterateFieldsInLayout(
-  formLayout: ILayout,
-  repeatingGroups: IRepeatingGroups,
-  hiddenFields?: string[],
-  filter?: (component: ILayoutComponent) => boolean,
-): Generator<IteratedComponent, void> {
-  const allGroups = formLayout.filter(
-    (c) => c.type === 'Group',
-  ) as ILayoutGroup[];
-  const childrenWithoutMultiPagePrefix = (group: ILayoutGroup) =>
-    group.edit?.multiPage
-      ? group.children.map((componentId) => componentId.replace(/^\d+:/g, ''))
-      : group.children;
-
-  const fieldsInGroup = allGroups.map(childrenWithoutMultiPagePrefix).flat();
-  const groupsToCheck = allGroups.filter(
-    (group) => !hiddenFields?.includes(group.id),
-  );
-  const fieldsToCheck = formLayout.filter(
-    (component) =>
-      component.type !== 'Group' &&
-      !hiddenFields?.includes(component.id) &&
-      (filter ? filter(component) : true) &&
-      !fieldsInGroup.includes(component.id),
-  ) as ILayoutComponent[];
-
-  for (const component of fieldsToCheck) {
-    yield { component };
-  }
-
-  for (const group of groupsToCheck) {
-    const componentsToCheck = formLayout.filter(
-      (component) =>
-        component.type !== 'Group' &&
-        (filter ? filter(component) : true) &&
-        childrenWithoutMultiPagePrefix(group).indexOf(component.id) > -1 &&
-        !hiddenFields?.includes(component.id),
-    ) as ILayoutComponent[];
-
-    for (const component of componentsToCheck) {
-      if (group.maxCount > 1) {
-        const parentGroup = getParentGroup(group.id, formLayout);
-        if (parentGroup) {
-          // If we have a parent group there can exist several instances of the child group.
-          const allGroupIds = Object.keys(repeatingGroups).filter((key) =>
-            key.startsWith(group.id),
-          );
-          for (const childGroupId of allGroupIds) {
-            const splitId = splitDashedKey(childGroupId);
-            const parentIndex = splitId.depth[splitId.depth.length - 1];
-            const parentDataBinding = parentGroup.dataModelBindings?.group;
-            const indexedParentDataBinding = `${parentDataBinding}[${parentIndex}]`;
-            const indexedGroupDataBinding =
-              group.dataModelBindings?.group.replace(
-                parentDataBinding,
-                indexedParentDataBinding,
-              );
-            const dataModelBindings = {};
-            for (const key of Object.keys(component.dataModelBindings)) {
-              dataModelBindings[key] = component.dataModelBindings[key].replace(
-                parentDataBinding,
-                indexedParentDataBinding,
-              );
-            }
-
-            for (
-              let index = 0;
-              index <= repeatingGroups[childGroupId]?.index;
-              index++
-            ) {
-              const componentToCheck = {
-                ...component,
-                id: `${component.id}-${parentIndex}-${index}`,
-                dataModelBindings,
-              } as ILayoutComponent;
-              if (!hiddenFields?.includes(componentToCheck.id)) {
-                yield {
-                  component: componentToCheck,
-                  groupDataModelBinding: indexedGroupDataBinding,
-                  index: index,
-                };
-              }
-            }
-          }
-        } else {
-          const groupDataModelBinding = group.dataModelBindings.group;
-          const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
-            repeatingGroups[group.id]?.index,
-            group.edit,
-          );
-          for (let index = startIndex; index <= stopIndex; index++) {
-            const componentToCheck = {
-              ...component,
-              id: `${component.id}-${index}`,
-            } as ILayoutComponent;
-            if (!hiddenFields?.includes(componentToCheck.id)) {
-              yield {
-                component: componentToCheck,
-                groupDataModelBinding,
-                index,
-              };
-            }
-          }
-        }
-      } else {
-        yield { component };
-      }
-    }
-  }
-}
-
 /*
   Fetches validations for fields without data
 */
@@ -347,34 +227,31 @@ export function validateEmptyFieldsForLayout(
   repeatingGroups: IRepeatingGroups,
   textResources: ITextResource[],
 ): ILayoutValidations {
+  const hidden = new Set<string>(hiddenFields);
+
   const validations: any = {};
-  const generator = iterateFieldsInLayout(
-    formLayout,
-    repeatingGroups,
-    hiddenFields,
-    (component) => component.required,
-  );
-  for (const { component, groupDataModelBinding, index } of generator) {
+  const nodes = nodesInLayout(formLayout, repeatingGroups);
+  for (const node of nodes.flat(false)) {
     if (
-      component.type === 'FileUpload' ||
-      component.type === 'FileUploadWithTag'
-    ) {
       // These components have their own validation in validateFormComponents(). With data model bindings enabled for
       // attachments, the empty field validations would interfere.
+      node.item.type === 'FileUpload' ||
+      node.item.type === 'FileUploadWithTag' ||
+      !node.item.required ||
+      node.isHidden(hidden)
+    ) {
       continue;
     }
 
     const result = validateEmptyField(
       formData,
-      component.dataModelBindings,
-      component.textResourceBindings,
+      node.item.dataModelBindings,
+      node.item.textResourceBindings,
       textResources,
       language,
-      groupDataModelBinding,
-      index,
     );
     if (result !== null) {
-      validations[component.id] = result;
+      validations[node.item.id] = result;
     }
   }
 
@@ -416,8 +293,6 @@ export function validateEmptyField(
   textResourceBindings: ITextResourceBindings,
   textResources: ITextResource[],
   language: ILanguage,
-  groupDataBinding?: string,
-  index?: number,
 ): IComponentValidations {
   if (!dataModelBindings) {
     return null;
@@ -431,8 +306,6 @@ export function validateEmptyField(
       fieldKey,
       dataModelBindings,
       formData,
-      groupDataBinding,
-      index,
     );
     if (!value && fieldKey) {
       componentValidations[fieldKey] = {
@@ -501,45 +374,49 @@ export function validateFormComponentsForLayout(
 ): ILayoutValidations {
   const validations: ILayoutValidations = {};
   const fieldKey: keyof IDataModelBindings = 'simpleBinding';
-  for (const { component } of iterateFieldsInLayout(
-    formLayout,
-    repeatingGroups,
-    hiddenFields,
-  )) {
-    if (component.type === 'FileUpload') {
-      if (!attachmentsValid(attachments, component)) {
-        validations[component.id] = {
+  for (const node of nodesInLayout(formLayout, repeatingGroups).flat(false)) {
+    if (
+      hiddenFields.includes(node.item.id) ||
+      (node.item.baseComponentId &&
+        hiddenFields.includes(node.item.baseComponentId))
+    ) {
+      continue;
+    }
+
+    if (node.item.type === 'FileUpload') {
+      if (!attachmentsValid(attachments, node.item)) {
+        validations[node.item.id] = {
           [fieldKey]: {
             errors: [],
             warnings: [],
           },
         };
-        validations[component.id][fieldKey].errors.push(
+        validations[node.item.id][fieldKey].errors.push(
           `${getLanguageFromKey(
             'form_filler.file_uploader_validation_error_file_number_1',
             language,
-          )} ${component.minNumberOfAttachments} ${getLanguageFromKey(
+          )} ${node.item.minNumberOfAttachments} ${getLanguageFromKey(
             'form_filler.file_uploader_validation_error_file_number_2',
             language,
           )}`,
         );
       }
-    } else if (component.type === 'FileUploadWithTag') {
-      validations[component.id] = {
+    } else if (node.item.type === 'FileUploadWithTag') {
+      validations[node.item.id] = {
         [fieldKey]: {
           errors: [],
           warnings: [],
         },
       };
 
-      if (attachmentsValid(attachments, component)) {
-        const missingTagAttachments = attachments[component.id]
+      if (attachmentsValid(attachments, node.item)) {
+        const missingTagAttachments = attachments[node.item.id]
           ?.filter((attachment) => attachmentIsMissingTag(attachment))
           .map((attachment) => attachment.id);
 
         if (missingTagAttachments?.length > 0) {
           missingTagAttachments.forEach((missingId) => {
-            validations[component.id][fieldKey].errors.push(
+            validations[node.item.id][fieldKey].errors.push(
               `${
                 missingId +
                 AsciiUnitSeparator +
@@ -547,16 +424,16 @@ export function validateFormComponentsForLayout(
                   'form_filler.file_uploader_validation_error_no_chosen_tag',
                   language,
                 )
-              } ${component.textResourceBindings.tagTitle.toLowerCase()}.`,
+              } ${node.item.textResourceBindings.tagTitle.toLowerCase()}.`,
             );
           });
         }
       } else {
-        validations[component.id][fieldKey].errors.push(
+        validations[node.item.id][fieldKey].errors.push(
           `${getLanguageFromKey(
             'form_filler.file_uploader_validation_error_file_number_1',
             language,
-          )} ${component.minNumberOfAttachments} ${getLanguageFromKey(
+          )} ${node.item.minNumberOfAttachments} ${getLanguageFromKey(
             'form_filler.file_uploader_validation_error_file_number_2',
             language,
           )}`,

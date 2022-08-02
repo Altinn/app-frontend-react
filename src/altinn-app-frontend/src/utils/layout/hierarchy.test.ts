@@ -57,7 +57,17 @@ describe('Hierarchical layout tools', () => {
         simpleBinding: 'MyModel.Group2.Nested.Input',
       },
     },
-    group3: { id: 'group3', ...repGroup, edit: { multiPage: true } },
+    group3: {
+      id: 'group3',
+      ...repGroup,
+      edit: {
+        multiPage: true,
+        filter: [
+          { key: 'start', value: '1' },
+          { key: 'stop', value: '2' },
+        ],
+      },
+    } as Omit<ILayoutGroup, 'children'>,
     group3h: { id: 'group3_header', ...header },
     group3i: { id: 'group3_input', ...input },
     group3n: { id: 'group3nested', ...repGroup },
@@ -327,10 +337,29 @@ describe('Hierarchical layout tools', () => {
         index: 3,
         baseGroupId: components.group2n.id,
       },
+      [components.group3.id]: {
+        index: 4,
+      },
+      [`${components.group3n.id}-0`]: {
+        index: 4,
+        baseGroupId: components.group3n.id,
+      },
+      [`${components.group3n.id}-1`]: {
+        index: 4,
+        baseGroupId: components.group3n.id,
+      },
+      [`${components.group3n.id}-2`]: {
+        index: 4,
+        baseGroupId: components.group3n.id,
+      },
+      [`${components.group3n.id}-3`]: {
+        index: 4,
+        baseGroupId: components.group3n.id,
+      },
     };
     it('should enable traversal of layout', () => {
       const nodes = nodesInLayout(layout, manyRepeatingGroups);
-      const flat = nodes.flat();
+      const flat = nodes.flat(true);
       const deepComponent = flat.find(
         (node) => node.item.id === `${components.group2nh.id}-2-2`,
       );
@@ -363,6 +392,17 @@ describe('Hierarchical layout tools', () => {
         `${components.group2ni.id}-3-2`,
         `${components.group2ni.id}-3-3`,
       ]);
+
+      expect(
+        nodes.findAllById(components.group3ni.id).map((c) => c.item.id),
+      ).toEqual([
+        `${components.group3ni.id}-1-0`,
+        `${components.group3ni.id}-1-1`,
+        `${components.group3ni.id}-1-2`,
+        `${components.group3ni.id}-1-3`,
+        `${components.group3ni.id}-1-4`,
+      ]);
+
       expect(nodes.findById(components.group2ni.id).item.id).toEqual(
         `${components.group2ni.id}-0-0`,
       );

@@ -1,3 +1,4 @@
+import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import type {
   ComponentExceptGroup,
   IDataModelBindings,
@@ -171,7 +172,11 @@ export function layoutAsHierarchyWithRows(
   ) => {
     if (main.type === 'Group' && main.maxCount > 1) {
       const rows: IRepeatingGroupHierarchy['rows'] = [];
-      for (let index = 0; index <= repeatingGroups[main.id]?.index; index++) {
+      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
+        repeatingGroups[main.id]?.index,
+        main.edit,
+      );
+      for (let index = startIndex; index <= stopIndex; index++) {
         const row = main.childComponents.map((child) => {
           const suffix = parent ? `-${parent.index}-${index}` : `-${index}`;
           const newId = `${child.id}${suffix}`;
@@ -274,7 +279,9 @@ export class LayoutRootNode<
     return undefined;
   }
 
-  public flat(includeGroups = true): LayoutNode<Direct | All>[] {
+  public flat(includeGroups: true): LayoutNode<Direct | All>[];
+  public flat(includeGroups: false): LayoutNode<ILayoutComponent>[];
+  public flat(includeGroups: boolean): LayoutNode<any>[] {
     if (!includeGroups) {
       return this.allChildren.filter((c) => c.item.type !== 'Group');
     }
@@ -329,6 +336,28 @@ export class LayoutNode<T extends AnyLayoutNode> {
     return this.parent.closest(matching);
   }
 
+  private recurseParents(
+    callback: (item: LayoutNode<AnyLayoutParent> | LayoutRootNode) => void,
+  ) {
+    callback(this.parent);
+    if (!(this.parent instanceof LayoutRootNode)) {
+      this.parent.recurseParents(callback);
+    }
+  }
+
+  public parents(
+    matching?: (item: LayoutNode<AnyLayoutParent> | LayoutRootNode) => boolean,
+  ): (LayoutNode<AnyLayoutParent> | LayoutRootNode)[] {
+    const parents = [];
+    this.recurseParents((item) => parents.push(item));
+
+    if (matching) {
+      return parents.filter(matching);
+    }
+
+    return parents;
+  }
+
   /**
    * Looks for a matching component inside the children of this node (only makes sense for a group node). Beware that
    * matching inside a repeating group with multiple rows, you should provide a second argument to specify the row
@@ -359,6 +388,40 @@ export class LayoutNode<T extends AnyLayoutNode> {
     }
 
     return undefined;
+  }
+
+  /**
+   * Checks if this field should be hidden. This also takes into account the group this component is in, so the
+   * methods returns true if the component is inside a hidden group.
+   */
+  public isHidden(hiddenFieldIds: Set<string>): boolean {
+    if (hiddenFieldIds.has(this.item.id)) {
+      return true;
+    }
+    if (
+      this.item.baseComponentId &&
+      hiddenFieldIds.has(this.item.baseComponentId)
+    ) {
+      return true;
+    }
+
+    const parentGroups = this.parents(
+      (parent) => parent.item && parent.item.type === 'Group',
+    );
+
+    for (const parent of parentGroups) {
+      if (hiddenFieldIds.has(parent.item.id)) {
+        return true;
+      }
+      if (
+        parent.item.baseComponentId &&
+        hiddenFieldIds.has(parent.item.baseComponentId)
+      ) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 
