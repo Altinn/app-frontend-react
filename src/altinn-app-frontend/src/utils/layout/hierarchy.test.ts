@@ -343,8 +343,35 @@ describe('Hierarchical layout tools', () => {
         `${components.group2ni.id}-2-2`,
       );
 
-      const otherDeepComponent = flat.find(
-        (node) => node.item.id === `${components.group2nh.id}-3-3`,
+      expect(
+        nodes.findAllById(components.group2ni.id).map((c) => c.item.id),
+      ).toEqual([
+        `${components.group2ni.id}-0-0`,
+        `${components.group2ni.id}-0-1`,
+        `${components.group2ni.id}-0-2`,
+        `${components.group2ni.id}-0-3`,
+        `${components.group2ni.id}-1-0`,
+        `${components.group2ni.id}-1-1`,
+        `${components.group2ni.id}-1-2`,
+        `${components.group2ni.id}-1-3`,
+        `${components.group2ni.id}-2-0`,
+        `${components.group2ni.id}-2-1`,
+        `${components.group2ni.id}-2-2`,
+        `${components.group2ni.id}-2-3`,
+        `${components.group2ni.id}-3-0`,
+        `${components.group2ni.id}-3-1`,
+        `${components.group2ni.id}-3-2`,
+        `${components.group2ni.id}-3-3`,
+      ]);
+      expect(nodes.findById(components.group2ni.id).item.id).toEqual(
+        `${components.group2ni.id}-0-0`,
+      );
+      expect(nodes.findById(`${components.group2ni.id}-1-1`).item.id).toEqual(
+        `${components.group2ni.id}-1-1`,
+      );
+
+      const otherDeepComponent = nodes.findById(
+        `${components.group2nh.id}-3-3`,
       );
       expect(
         otherDeepComponent.closest((c) => c.type === 'Input').item.id,
@@ -361,9 +388,7 @@ describe('Hierarchical layout tools', () => {
         otherDeepComponent.closest((c) => c.id === components.top1.id).item.id,
       ).toEqual(components.top1.id);
 
-      const insideNonRepeatingGroup = flat.find(
-        (node) => node.item.id === components.group1i.id,
-      );
+      const insideNonRepeatingGroup = nodes.findById(components.group1i.id);
       expect(
         insideNonRepeatingGroup.closest((n) => n.id === components.group1h.id)
           .item.id,

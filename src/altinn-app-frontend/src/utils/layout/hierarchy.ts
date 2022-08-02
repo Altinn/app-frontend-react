@@ -227,7 +227,8 @@ export class LayoutRootNode<
   public parent: this;
 
   private directChildren: LayoutNode<Direct>[] = [];
-  private allChildren: LayoutNode<All>[] = [];
+  private allChildren: LayoutNode<Direct | All>[] = [];
+  private idMap: { [id: string]: number[] } = {};
 
   public _addChild(
     child: LayoutNode<All | Direct>,
@@ -236,7 +237,17 @@ export class LayoutRootNode<
     if (parent === this) {
       this.directChildren.push(child as LayoutNode<Direct>);
     }
-    this.allChildren.push(child as LayoutNode<All>);
+    const idx = this.allChildren.length;
+    this.allChildren.push(child);
+
+    this.idMap[child.item.id] = this.idMap[child.item.id] || [];
+    this.idMap[child.item.id].push(idx);
+
+    if (child.item.baseComponentId) {
+      this.idMap[child.item.baseComponentId] =
+        this.idMap[child.item.baseComponentId] || [];
+      this.idMap[child.item.baseComponentId].push(idx);
+    }
   }
 
   public closest(
@@ -263,12 +274,28 @@ export class LayoutRootNode<
     return undefined;
   }
 
-  public flat(includeGroups = true): LayoutNode<All>[] {
+  public flat(includeGroups = true): LayoutNode<Direct | All>[] {
     if (!includeGroups) {
       return this.allChildren.filter((c) => c.item.type !== 'Group');
     }
 
     return this.allChildren;
+  }
+
+  public findById(id: string): LayoutNode<Direct | All> {
+    if (this.idMap[id] && this.idMap[id].length) {
+      return this.allChildren[this.idMap[id][0]];
+    }
+
+    return undefined;
+  }
+
+  public findAllById(id: string): LayoutNode<Direct | All>[] {
+    if (this.idMap[id] && this.idMap[id].length) {
+      return this.idMap[id].map((idx) => this.allChildren[idx]);
+    }
+
+    return [];
   }
 }
 
