@@ -239,15 +239,17 @@ describe('Hierarchical layout tools', () => {
       const root = new LayoutRootNode();
       const top1 = new LayoutNode(components.top1, root);
       const top2 = new LayoutNode(components.top2, root);
+      root._addChild(top1, root);
+      root._addChild(top2, root);
 
-      expect(
-        nodesInLayout([components.top1, components.top2], {}, false),
-      ).toEqual([top1, top2]);
+      expect(nodesInLayout([components.top1, components.top2], {})).toEqual(
+        root,
+      );
     });
 
     it('should resolve a complex layout without groups', () => {
-      const nodes = nodesInLayout(layout, repeatingGroups, false);
-      expect(nodes.map((n) => n.item.id)).toEqual([
+      const nodes = nodesInLayout(layout, repeatingGroups);
+      expect(nodes.flat(false).map((n) => n.item.id)).toEqual([
         // Top-level nodes:
         components.top1.id,
         components.top2.id,
@@ -274,8 +276,8 @@ describe('Hierarchical layout tools', () => {
     });
 
     it('should resolve a complex layout with groups', () => {
-      const nodes = nodesInLayout(layout, repeatingGroups, true);
-      expect(nodes.map((n) => n.item.id)).toEqual([
+      const nodes = nodesInLayout(layout, repeatingGroups);
+      expect(nodes.flat(true).map((n) => n.item.id)).toEqual([
         // Top-level nodes:
         components.top1.id,
         components.top2.id,
@@ -327,8 +329,9 @@ describe('Hierarchical layout tools', () => {
       },
     };
     it('should enable traversal of layout', () => {
-      const nodes = nodesInLayout(layout, manyRepeatingGroups, true);
-      const deepComponent = nodes.find(
+      const nodes = nodesInLayout(layout, manyRepeatingGroups);
+      const flat = nodes.flat();
+      const deepComponent = flat.find(
         (node) => node.item.id === `${components.group2nh.id}-2-2`,
       );
       expect(deepComponent.item.id).toEqual(`${components.group2nh.id}-2-2`);
@@ -340,7 +343,7 @@ describe('Hierarchical layout tools', () => {
         `${components.group2ni.id}-2-2`,
       );
 
-      const otherDeepComponent = nodes.find(
+      const otherDeepComponent = flat.find(
         (node) => node.item.id === `${components.group2nh.id}-3-3`,
       );
       expect(
@@ -358,7 +361,7 @@ describe('Hierarchical layout tools', () => {
         otherDeepComponent.closest((c) => c.id === components.top1.id).item.id,
       ).toEqual(components.top1.id);
 
-      const insideNonRepeatingGroup = nodes.find(
+      const insideNonRepeatingGroup = flat.find(
         (node) => node.item.id === components.group1i.id,
       );
       expect(
@@ -366,9 +369,7 @@ describe('Hierarchical layout tools', () => {
           .item.id,
       ).toEqual(components.group1h.id);
 
-      const group2 = nodes.find(
-        (node) => node.item.id === components.group2.id,
-      );
+      const group2 = flat.find((node) => node.item.id === components.group2.id);
       expect(group2.children((n) => n.type === 'Input').item.id).toEqual(
         `${components.group2i.id}-0`,
       );

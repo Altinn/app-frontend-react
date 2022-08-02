@@ -213,32 +213,62 @@ export type AnyLayoutNode =
 
 export type AnyLayoutParent = IRepeatingGroupHierarchy | ILayoutGroupHierarchy;
 
-export class LayoutRootNode {
+export type AnyLayoutNodeTopLevel =
+  | ILayoutComponent
+  | IRepeatingGroupLayoutComponent
+  | IRepeatingGroupHierarchy
+  | ILayoutGroupHierarchy;
+
+export class LayoutRootNode<
+  Direct extends AnyLayoutNodeTopLevel = AnyLayoutNodeTopLevel,
+  All extends AnyLayoutNode = AnyLayoutNode,
+> {
   public item: AnyLayoutNode | undefined;
   public parent: this;
 
-  private _children: LayoutNode<AnyLayoutNode>[] = [];
+  private directChildren: LayoutNode<Direct>[] = [];
+  private allChildren: LayoutNode<All>[] = [];
 
-  public addChild(child: LayoutNode<AnyLayoutNode>) {
-    this._children.push(child);
+  public _addChild(
+    child: LayoutNode<All | Direct>,
+    parent: LayoutNode<All | Direct> | this,
+  ) {
+    if (parent === this) {
+      this.directChildren.push(child as LayoutNode<Direct>);
+    }
+    this.allChildren.push(child as LayoutNode<All>);
   }
 
   public closest(
-    matching: (item: AnyLayoutNode) => boolean,
-  ): LayoutNode<AnyLayoutNode> | undefined {
+    matching: (item: Direct) => boolean,
+  ): LayoutNode<Direct> | undefined {
     return this.children(matching);
   }
 
+  public children(): LayoutNode<Direct>[];
+  public children(matching: (item: Direct) => boolean): LayoutNode<Direct>;
   public children(
-    matching: (item: AnyLayoutNode) => boolean,
-  ): LayoutNode<AnyLayoutNode> | undefined {
-    for (const item of this._children) {
+    matching?: (item: Direct) => boolean,
+  ): LayoutNode<Direct> | LayoutNode<Direct>[] {
+    if (!matching) {
+      return this.directChildren;
+    }
+
+    for (const item of this.directChildren) {
       if (matching(item.item)) {
         return item;
       }
     }
 
     return undefined;
+  }
+
+  public flat(includeGroups = true): LayoutNode<All>[] {
+    if (!includeGroups) {
+      return this.allChildren.filter((c) => c.item.type !== 'Group');
+    }
+
+    return this.allChildren;
   }
 }
 
@@ -251,11 +281,7 @@ export class LayoutNode<T extends AnyLayoutNode> {
     public item: T,
     public parent: LayoutNode<AnyLayoutParent> | LayoutRootNode,
     protected rowIndex?: number,
-  ) {
-    if (parent instanceof LayoutRootNode) {
-      parent.addChild(this);
-    }
-  }
+  ) {}
 
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
@@ -270,7 +296,7 @@ export class LayoutNode<T extends AnyLayoutNode> {
 
     const sibling = this.parent.children(matching, this.rowIndex);
     if (sibling) {
-      return sibling;
+      return sibling as LayoutNode<AnyLayoutNode>;
     }
 
     return this.parent.closest(matching);
@@ -331,13 +357,7 @@ export class LayoutNode<T extends AnyLayoutNode> {
 export function nodesInLayout(
   formLayout: ILayout,
   repeatingGroups: IRepeatingGroups,
-  includeGroups = false,
-): LayoutNode<
-  | ILayoutComponent
-  | IRepeatingGroupLayoutComponent
-  | IRepeatingGroupHierarchy
-  | ILayoutGroupHierarchy
->[] {
+): LayoutRootNode {
   const root = new LayoutRootNode();
 
   const recurse = (
@@ -349,44 +369,33 @@ export function nodesInLayout(
     parent?: LayoutNode<AnyLayoutParent> | LayoutRootNode,
     rowIndex?: number,
   ) => {
-    const out: LayoutNode<
-      | ILayoutComponent
-      | IRepeatingGroupLayoutComponent
-      | IRepeatingGroupHierarchy
-      | ILayoutGroupHierarchy
-    >[] = [];
     for (const component of list) {
       if (component.type === 'Group' && 'rows' in component) {
-        const asParent: LayoutNode<AnyLayoutParent> = new LayoutNode(
+        const group: LayoutNode<AnyLayoutParent> = new LayoutNode(
           component,
           parent,
           rowIndex,
         );
-        out.push(
-          ...component.rows
-            .map((row, rowIndex) => recurse(row, asParent, rowIndex))
-            .flat(),
+        component.rows.forEach((row, rowIndex) =>
+          recurse(row, group, rowIndex),
         );
-        if (includeGroups) {
-          out.push(asParent);
-        }
+        root._addChild(group, parent);
       } else if (component.type === 'Group' && 'childComponents' in component) {
-        const asParent: LayoutNode<AnyLayoutParent> = new LayoutNode(
+        const group: LayoutNode<AnyLayoutParent> = new LayoutNode(
           component,
           parent,
           rowIndex,
         );
-        out.push(...recurse(component.childComponents, asParent));
-        if (includeGroups) {
-          out.push(asParent);
-        }
+        recurse(component.childComponents, group);
+        root._addChild(group, parent);
       } else {
-        out.push(new LayoutNode(component, parent, rowIndex));
+        const node = new LayoutNode(component, parent, rowIndex);
+        root._addChild(node, parent);
       }
     }
-
-    return out;
   };
 
-  return recurse(layoutAsHierarchyWithRows(formLayout, repeatingGroups), root);
+  recurse(layoutAsHierarchyWithRows(formLayout, repeatingGroups), root);
+
+  return root;
 }
