@@ -34,12 +34,14 @@ export function InputComponent({
     saveWhileTyping,
   );
 
+  const handleChange = (e) => setValue(e.target.value);
+
   return (
     <TextField
       id={id}
-      onBlur={() => saveValue()}
-      onChange={(e) => setValue(e.target.value)}
-      onPaste={() => onPaste()}
+      onBlur={saveValue}
+      onChange={handleChange}
+      onPaste={onPaste}
       readOnly={readOnly}
       isValid={isValid}
       required={required}
