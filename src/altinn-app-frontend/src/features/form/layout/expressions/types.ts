@@ -37,12 +37,20 @@ export type ILayoutExpressionArg =
   | ILayoutExpressionInstanceContextArg
   | ILayoutExpressionApplicationSettingsArg;
 
-export interface ILayoutExpression {
+export interface ILayoutExpressionDSL {
+  expr: string;
+}
+
+export interface ILayoutExpressionStructured {
   function: keyof typeof layoutExpressionFunctions;
   args: [ILayoutExpressionArg, ILayoutExpressionArg];
 }
 
-export interface ILayoutExpressionRunnerDependencies {
+export type ILayoutExpression =
+  | ILayoutExpressionDSL
+  | ILayoutExpressionStructured;
+
+export interface ILayoutExpressionRunnerLookups {
   dataModel: (path: string) => string;
   component: (baseComponentId: string) => string;
   instanceContext: (prop: string) => string;

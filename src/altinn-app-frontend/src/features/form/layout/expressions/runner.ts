@@ -1,12 +1,12 @@
 import { layoutExpressionFunctions } from 'src/features/form/layout/expressions/functions';
 import type {
-  ILayoutExpression,
-  ILayoutExpressionRunnerDependencies,
+  ILayoutExpressionRunnerLookups,
+  ILayoutExpressionStructured,
 } from 'src/features/form/layout/expressions/types';
 
 export function runExpr(
-  expr: ILayoutExpression,
-  deps: ILayoutExpressionRunnerDependencies,
+  expr: ILayoutExpressionStructured,
+  deps: ILayoutExpressionRunnerLookups,
 ): boolean {
   const computedArgs = expr.args.map((arg) => {
     if (typeof arg === 'object') {

@@ -1,5 +1,5 @@
 import { parseDsl } from 'src/features/form/layout/expressions/dsl';
-import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
+import type { ILayoutExpressionStructured } from 'src/features/form/layout/expressions/types';
 
 describe('Layout expression DSL', () => {
   it.each([
@@ -16,7 +16,10 @@ describe('Layout expression DSL', () => {
     expect(parseDsl(input, false)).toBeUndefined();
   });
 
-  const validExpressions: { expr: string; result: ILayoutExpression }[] = [
+  const validExpressions: {
+    expr: string;
+    result: ILayoutExpressionStructured;
+  }[] = [
     {
       expr: 'dataModel(MyModel.Group.Field) == component(my-input-field)',
       result: {

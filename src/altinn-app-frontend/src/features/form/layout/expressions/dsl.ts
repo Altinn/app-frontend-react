@@ -1,7 +1,7 @@
 import { layoutExpressionAliases } from 'src/features/form/layout/expressions/functions';
 import type {
-  ILayoutExpression,
   ILayoutExpressionArg,
+  ILayoutExpressionStructured,
   LayoutExpressionFunction,
 } from 'src/features/form/layout/expressions/types';
 
@@ -103,7 +103,10 @@ function parseArg(arg: string, regexes: RegexObj): ILayoutExpressionArg {
 /**
  * Parses our DSL (domain-specific language) into an ILayoutExpression
  */
-export function parseDsl(expression: string, debug = true): ILayoutExpression {
+export function parseDsl(
+  expression: string,
+  debug = true,
+): ILayoutExpressionStructured {
   if (typeof expression !== 'string') {
     return undefined;
   }

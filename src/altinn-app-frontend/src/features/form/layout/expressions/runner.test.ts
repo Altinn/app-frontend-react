@@ -1,6 +1,6 @@
 import { parseDsl } from 'src/features/form/layout/expressions/dsl';
 import { runExpr } from 'src/features/form/layout/expressions/runner';
-import type { ILayoutExpressionRunnerDependencies } from 'src/features/form/layout/expressions/types';
+import type { ILayoutExpressionRunnerLookups } from 'src/features/form/layout/expressions/types';
 
 describe('Layout expression runner', () => {
   const pretendDep = (input) => {
@@ -14,7 +14,7 @@ describe('Layout expression runner', () => {
     return value;
   };
 
-  const deps: ILayoutExpressionRunnerDependencies = {
+  const deps: ILayoutExpressionRunnerLookups = {
     dataModel: pretendDep,
     component: pretendDep,
     applicationSettings: pretendDep,
