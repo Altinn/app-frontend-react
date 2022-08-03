@@ -39,6 +39,12 @@ export type ILayoutExpressionArg =
 
 export interface ILayoutExpressionDSL {
   expr: string;
+  mapping?: ILayoutExpressionMapping;
+}
+
+export interface ILayoutExpressionMapping {
+  [key: string]: any;
+  __default__?: any;
 }
 
 type MapToArg<T extends any[]> = T extends [any, any]
@@ -52,6 +58,7 @@ export interface ILayoutExpressionStructured<
 > {
   function: F;
   args: MapToArg<Parameters<typeof layoutExpressionFunctions[F]>>;
+  mapping?: ILayoutExpressionMapping;
 }
 
 export type ILayoutExpression =

@@ -23,7 +23,37 @@ export function evalExpr(
     return arg;
   });
 
-  return layoutExpressionFunctions[expr.function].apply(null, computedArgs);
+  const result = layoutExpressionFunctions[expr.function].apply(
+    null,
+    computedArgs,
+  );
+
+  if (typeof expr.mapping === 'object') {
+    const resultType = typeof result;
+    const jsonTypes: typeof resultType[] = [
+      'boolean',
+      'number',
+      'undefined',
+      'object',
+    ];
+
+    const lookupInMapping = jsonTypes.includes(resultType)
+      ? JSON.stringify(result)
+      : result;
+
+    const lookupResult = expr.mapping[lookupInMapping];
+    if (typeof lookupResult !== 'undefined') {
+      return lookupResult;
+    }
+
+    if ('__default__' in expr.mapping) {
+      return expr.mapping['__default__'];
+    }
+
+    // Fall through and return the actual result
+  }
+
+  return result;
 }
 
 function validateArgument(obj: any): obj is ILayoutExpressionArg {
@@ -72,7 +102,12 @@ function asValidDsl(
     return;
   }
 
-  return parseDsl(obj.expr, debug);
+  const expr = parseDsl(obj.expr, debug);
+  if ('mapping' in obj) {
+    expr.mapping = obj.mapping;
+  }
+
+  return expr;
 }
 
 function asValidStructured(obj: any): ILayoutExpressionStructured | undefined {

@@ -4,6 +4,7 @@ import {
   evalExpr,
 } from 'src/features/form/layout/expressions/expressions';
 import type {
+  ILayoutExpressionMapping,
   ILayoutExpressionRunnerLookups,
   ILayoutExpressionStructured,
 } from 'src/features/form/layout/expressions/types';
@@ -20,7 +21,7 @@ describe('Layout expression', () => {
     return value;
   };
 
-  const deps: ILayoutExpressionRunnerLookups = {
+  const lookups: ILayoutExpressionRunnerLookups = {
     dataModel: pretendDep,
     component: pretendDep,
     applicationSettings: pretendDep,
@@ -105,7 +106,7 @@ describe('Layout expression', () => {
   it.each(cases)(
     'should return $result for expression $expr',
     ({ expr, result }) => {
-      expect(evalExpr(parseDsl(expr), deps)).toEqual(result);
+      expect(evalExpr(parseDsl(expr), lookups)).toEqual(result);
     },
   );
 
@@ -152,6 +153,120 @@ describe('Layout expression', () => {
     'should validate %p as an invalid expression',
     (maybeExpr) => {
       expect(asLayoutExpression(maybeExpr, false)).toBeUndefined();
+    },
+  );
+
+  it('should map output values if a mapping is given for a structured expression', () => {
+    expect(
+      evalExpr(
+        {
+          function: 'lookup',
+          args: [true],
+          mapping: { true: 'hello world' },
+        },
+        lookups,
+      ),
+    ).toEqual('hello world');
+  });
+
+  it('should map output values if a mapping is given for a DSL expression', () => {
+    expect(
+      evalExpr(
+        asLayoutExpression(
+          {
+            expr: 'dataModel(55)',
+            mapping: {
+              '55': 77,
+            },
+          },
+          false,
+        ),
+        lookups,
+      ),
+    ).toEqual(77);
+  });
+
+  it('should map null', () => {
+    expect(
+      evalExpr(
+        asLayoutExpression(
+          {
+            expr: 'dataModel(null)',
+            mapping: { null: 'hello world' },
+          },
+          false,
+        ),
+        lookups,
+      ),
+    ).toEqual('hello world');
+  });
+
+  const mappingCases: {
+    output: any;
+    mapping: ILayoutExpressionMapping;
+    expects: any;
+    useDsl: boolean;
+  }[] = [
+    {
+      output: 'true',
+      mapping: { true: 'hello' },
+      expects: 'hello',
+      useDsl: true,
+    },
+    {
+      output: 'true',
+      mapping: { true: 'hello' },
+      expects: 'hello',
+      useDsl: false,
+    },
+    {
+      output: true,
+      mapping: { true: 'hello' },
+      expects: 'hello',
+      useDsl: false,
+    },
+    {
+      output: '55',
+      mapping: { 55: 'hello' },
+      expects: 'hello',
+      useDsl: true,
+    },
+    {
+      output: '55',
+      mapping: { 59: 'hello' },
+      expects: 55,
+      useDsl: true,
+    },
+    {
+      output: 'null',
+      mapping: { null: 'hello' },
+      expects: 'hello',
+      useDsl: true,
+    },
+    {
+      output: null,
+      mapping: { null: 'hello' },
+      expects: 'hello',
+      useDsl: false,
+    },
+    {
+      output: 55,
+      mapping: { __default__: 'hello' },
+      expects: 'hello',
+      useDsl: false,
+    },
+  ];
+
+  it.each(mappingCases)(
+    'should map output for $output to $expects (using DSL = $useDsl)',
+    ({ output, mapping, expects, useDsl }) => {
+      const expr = useDsl
+        ? asLayoutExpression({ expr: output, mapping }, false)
+        : { function: 'lookup', args: [output], mapping };
+
+      expect(evalExpr(expr as ILayoutExpressionStructured, lookups)).toEqual(
+        expects,
+      );
     },
   );
 });
