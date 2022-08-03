@@ -361,13 +361,12 @@ export const getTextResource = (
   tryNesting?: boolean, // used when using variables pointing to resources from data model
 ): React.ReactNode => {
   let textResource = textResources.find(
-    (resource: ITextResource) => resource.id === resourceKey,
+    (resource) => resource.id === resourceKey,
   );
   if (tryNesting && textResource) {
     textResource =
-      textResources.find(
-        (resource: ITextResource) => resource.id === textResource.value,
-      ) || textResource;
+      textResources.find((resource) => resource.id === textResource.value) ||
+      textResource;
   }
 
   return textResource

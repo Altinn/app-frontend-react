@@ -113,13 +113,8 @@ export function GroupContainer({
   const textResources = useAppSelector(
     (state) => state.textResources.resources,
   );
-  const getRepeatingGroupIndex = (containerId: string) => {
-    if (repeatingGroups && repeatingGroups[containerId]) {
-      return repeatingGroups[containerId].index;
-    }
-    return -1;
-  };
-  const repeatingGroupIndex = getRepeatingGroupIndex(id);
+  const repeatingGroupIndex =
+    repeatingGroups && repeatingGroups[id] ? repeatingGroups[id].index : -1;
   const repeatingGroupDeepCopyComponents = useMemo(
     () =>
       createRepeatingGroupComponents(
