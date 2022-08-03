@@ -22,13 +22,15 @@ import {
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import type { ILayoutCompFileUpload } from 'src/features/form/layout';
-import type { IUpdateRepeatingGroups } from 'src/features/form/layout/formLayoutTypes';
+import type {
+  ICalculatePageOrderAndMoveToNextPage,
+  IUpdateRepeatingGroups,
+} from 'src/features/form/layout/formLayoutTypes';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IDataModelBindings, IRuntimeState } from 'src/types';
 
 import * as sharedUtils from 'altinn-shared/utils';
-import * as original from 'altinn-shared/utils/instanceIdRegExp';
-const originalInstanceIdRegExp = original.getInstanceIdRegExp;
+
 jest.mock('altinn-shared/utils');
 
 describe('updateLayoutSagas', () => {
@@ -151,39 +153,29 @@ describe('updateLayoutSagas', () => {
   });
 
   describe('watchUpdateCurrentViewSaga', () => {
+    const fakeChannel = {
+      take: jest.fn(),
+      flush: jest.fn(),
+      close: jest.fn(),
+    };
+    const mockSaga = jest.fn();
+    const mockAction = FormLayoutActions.updateCurrentView({
+      newView: 'test',
+    });
+    const takeChannel = {
+      take({ channel }, next) {
+        if (channel === fakeChannel) {
+          return mockAction;
+        }
+        return next();
+      },
+    };
     it('should save unsaved changes before updating from layout', () => {
-      const fakeChannel = {
-        take() {
-          /* Intentionally empty */
-        },
-        flush() {
-          /* Intentionally empty */
-        },
-        close() {
-          /* Intentionally empty */
-        },
-      };
-
-      const mockAction = FormLayoutActions.updateCurrentView({
-        newView: 'test',
-      });
-
-      const mockSaga = function* () {
-        /* intentially empty */
-      };
-
       return expectSaga(watchUpdateCurrentViewSaga)
         .provide([
           [actionChannel(FormLayoutActions.updateCurrentView), fakeChannel],
           [select(selectUnsavedChanges), true],
-          {
-            take({ channel }, next) {
-              if (channel === fakeChannel) {
-                return mockAction;
-              }
-              return next();
-            },
-          },
+          takeChannel,
           [call(updateCurrentViewSaga, mockAction), mockSaga],
         ])
         .dispatch(FormLayoutActions.updateCurrentView)
@@ -193,38 +185,11 @@ describe('updateLayoutSagas', () => {
         .run();
     });
     it('should not save unsaved changes before updating form layout when no unsaved changes', () => {
-      const fakeChannel = {
-        take() {
-          /* Intentionally empty */
-        },
-        flush() {
-          /* Intentionally empty */
-        },
-        close() {
-          /* Intentionally empty */
-        },
-      };
-
-      const mockAction = FormLayoutActions.updateCurrentView({
-        newView: 'test',
-      });
-
-      const mockSaga = function* () {
-        /* intentially empty */
-      };
-
       return expectSaga(watchUpdateCurrentViewSaga)
         .provide([
           [actionChannel(FormLayoutActions.updateCurrentView), fakeChannel],
           [select(selectUnsavedChanges), false],
-          {
-            take({ channel }, next) {
-              if (channel === fakeChannel) {
-                return mockAction;
-              }
-              return next();
-            },
-          },
+          takeChannel,
           [call(updateCurrentViewSaga, mockAction), mockSaga],
         ])
         .dispatch(FormLayoutActions.updateCurrentView)
@@ -253,6 +218,7 @@ describe('updateLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page-3',
             runValidations: undefined,
+            keepScrollPos: undefined,
           }),
         )
         .run();
@@ -271,10 +237,15 @@ describe('updateLayoutSagas', () => {
     });
 
     it('stateless: should fetch pageOrder and update state accordingly', () => {
-      const action = { type: 'test', payload: {} };
-      jest
-        .spyOn(sharedUtils, 'getInstanceIdRegExp')
-        .mockImplementation(originalInstanceIdRegExp);
+      const action: PayloadAction<ICalculatePageOrderAndMoveToNextPage> = {
+        type: 'test',
+        payload: {
+          keepScrollPos: {
+            componentId: 'someComponent',
+            offsetTop: 123,
+          },
+        },
+      };
       const stateWithStatelessApp: IRuntimeState = {
         ...state,
         applicationMetadata: {
@@ -306,6 +277,10 @@ describe('updateLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'page-3',
             runValidations: undefined,
+            keepScrollPos: {
+              componentId: 'someComponent',
+              offsetTop: 123,
+            },
           }),
         )
         .run();
@@ -334,6 +309,7 @@ describe('updateLayoutSagas', () => {
           FormLayoutActions.updateCurrentView({
             newView: 'return-here',
             runValidations: undefined,
+            keepScrollPos: undefined,
           }),
         )
         .run();

@@ -1,9 +1,12 @@
 import * as React from 'react';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 import { screen, within } from '@testing-library/react';
-import { renderWithProviders } from 'testUtils';
+import {
+  MemoryRouterWithRedirectingRoot,
+  renderWithProviders,
+} from 'testUtils';
 import type { PreloadedState } from '@reduxjs/toolkit';
 
 import { Form } from 'src/features/form/containers/Form';
@@ -157,6 +160,66 @@ describe('Form', () => {
     expect(screen.getByText('1. FormLayout')).toBeInTheDocument();
   });
 
+  it('should not render ErrorReport when there are no validation errors', () => {
+    renderForm(mockComponents);
+    expect(screen.queryByTestId('ErrorReport')).not.toBeInTheDocument();
+  });
+
+  it('should render ErrorReport when there are validation errors', () => {
+    renderForm(
+      mockComponents,
+      mockValidations({
+        component1: {
+          simpleBinding: {
+            errors: ['some error message'],
+          },
+        },
+      }),
+    );
+    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+  });
+
+  it('should render ErrorReport when there are unmapped validation errors', () => {
+    renderForm(
+      mockComponents,
+      mockValidations({
+        unmapped: {
+          simpleBinding: {
+            errors: ['some error message'],
+          },
+        },
+      }),
+    );
+    expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
+  });
+
+  it('should separate NavigationButtons and display them inside ErrorReport', () => {
+    renderForm(
+      [
+        ...mockComponents,
+        {
+          id: 'bottomNavButtons',
+          type: 'NavigationButtons',
+        },
+      ],
+      mockValidations({
+        component1: {
+          simpleBinding: {
+            errors: ['some error message'],
+          },
+        },
+      }),
+    );
+    const errorReport = screen.getByTestId('ErrorReport');
+    expect(errorReport).toBeInTheDocument();
+
+    expect(screen.getByTestId('NavigationButtons')).toBeInTheDocument();
+
+    expect(
+      within(errorReport).getByTestId('NavigationButtons'),
+    ).toBeInTheDocument();
+  });
+
   it('should render a summary component', () => {
     const summaryComponent: ILayoutEntry[] = [
       ...mockComponents,
@@ -176,16 +239,14 @@ describe('Form', () => {
     customState: PreloadedState<RootState> = {},
   ) {
     renderWithProviders(
-      <MemoryRouter
-        initialEntries={[
-          '/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc',
-        ]}
+      <MemoryRouterWithRedirectingRoot
+        to={'/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc'}
       >
         <Route
           path={'/instance/:partyId/:instanceGuid'}
-          component={Form}
+          element={<Form />}
         />
-      </MemoryRouter>,
+      </MemoryRouterWithRedirectingRoot>,
       {
         preloadedState: {
           ...customState,
@@ -197,5 +258,20 @@ describe('Form', () => {
         },
       },
     );
+  }
+
+  function mockValidations(
+    validations: RootState['formValidations']['validations'][string],
+  ): Partial<RootState> {
+    return {
+      formValidations: {
+        error: null,
+        invalidDataTypes: [],
+        currentSingleFieldValidation: {},
+        validations: {
+          page1: validations,
+        },
+      },
+    };
   }
 });
