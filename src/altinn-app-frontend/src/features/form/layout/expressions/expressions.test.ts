@@ -1,8 +1,14 @@
 import { parseDsl } from 'src/features/form/layout/expressions/dsl';
-import { runExpr } from 'src/features/form/layout/expressions/runner';
-import type { ILayoutExpressionRunnerLookups } from 'src/features/form/layout/expressions/types';
+import {
+  asLayoutExpression,
+  evalExpr,
+} from 'src/features/form/layout/expressions/expressions';
+import type {
+  ILayoutExpressionRunnerLookups,
+  ILayoutExpressionStructured,
+} from 'src/features/form/layout/expressions/types';
 
-describe('Layout expression runner', () => {
+describe('Layout expression', () => {
   const pretendDep = (input) => {
     const value = input.trim();
     if (value.match(/^(true|false)$/)) {
@@ -79,7 +85,53 @@ describe('Layout expression runner', () => {
   it.each(cases)(
     'should return $result for expression $expr',
     ({ expr, result }) => {
-      expect(runExpr(parseDsl(expr), deps)).toEqual(result);
+      expect(evalExpr(parseDsl(expr), deps)).toEqual(result);
+    },
+  );
+
+  const validStructuredObjects: ILayoutExpressionStructured[] = [
+    { function: 'equals', args: [5, 7] },
+  ];
+  const invalidObjects = [
+    '',
+    null,
+    false,
+    undefined,
+    5,
+    new Date(),
+    [],
+    [5, 6, 7],
+    {},
+    { hello: 'world' },
+    { expr: 'hello world' },
+    { expr: '5 == 5', and: 'other property' },
+  ];
+
+  it.each(validStructuredObjects)(
+    'should validate %p as a valid structured expression',
+    (maybeExpr) => {
+      expect(asLayoutExpression(maybeExpr, false)).toEqual(maybeExpr);
+    },
+  );
+
+  it.each(cases.map((c) => parseDsl(c.expr, false)))(
+    'should validate %p as a valid structured expression',
+    (maybeExpr) => {
+      expect(asLayoutExpression(maybeExpr, false)).toEqual(maybeExpr);
+    },
+  );
+
+  it.each(cases.map((c) => ({ expr: c.expr })))(
+    'should validate %p as a valid DSL expression',
+    (maybeExpr) => {
+      expect(asLayoutExpression(maybeExpr, false)).toBeTruthy();
+    },
+  );
+
+  it.each(invalidObjects)(
+    'should validate %p as an invalid expression',
+    (maybeExpr) => {
+      expect(asLayoutExpression(maybeExpr, false)).toBeUndefined();
     },
   );
 });

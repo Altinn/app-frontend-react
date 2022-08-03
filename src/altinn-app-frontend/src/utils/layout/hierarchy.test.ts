@@ -3,6 +3,7 @@ import {
   layoutAsHierarchyWithRows,
   LayoutNode,
   LayoutRootNode,
+  LayoutRootNodeCollection,
   nodesInLayout,
 } from 'src/utils/layout/hierarchy';
 import type {
@@ -445,6 +446,50 @@ describe('Hierarchical layout tools', () => {
       expect(
         otherDeepComponent.closest((c) => c.id === 'not-found'),
       ).toBeUndefined();
+    });
+  });
+
+  describe('LayoutRootNodeCollection', () => {
+    const layout1: ILayout = [components.top1, components.top2];
+
+    const layout2: ILayout = [
+      { ...components.top1, readOnly: true },
+      { ...components.top2, readOnly: true },
+    ];
+
+    const layouts = {
+      l1: nodesInLayout(layout1, {}),
+      l2: nodesInLayout(layout2, {}),
+    };
+
+    const collection1 = new LayoutRootNodeCollection('l1', layouts);
+    const collection2 = new LayoutRootNodeCollection('l2', layouts);
+
+    it('should find the component in the current layout first', () => {
+      expect(
+        collection1.findComponentById(components.top1.id).item.readOnly,
+      ).toBeUndefined();
+      expect(
+        collection2.findComponentById(components.top1.id).item.readOnly,
+      ).toEqual(true);
+    });
+
+    it('should find the current layout', () => {
+      expect(collection1.current()).toEqual(layouts['l1']);
+      expect(collection2.current()).toEqual(layouts['l2']);
+    });
+
+    it('should find a named layout', () => {
+      expect(collection1.findLayout('l1')).toEqual(layouts['l1']);
+      expect(collection1.findLayout('l2')).toEqual(layouts['l2']);
+    });
+
+    it('should find all components in multiple layouts', () => {
+      expect(
+        collection1
+          .findAllComponentsById(components.top1.id)
+          .map((c) => c.item.id),
+      ).toEqual([components.top1.id, components.top1.id]);
     });
   });
 });

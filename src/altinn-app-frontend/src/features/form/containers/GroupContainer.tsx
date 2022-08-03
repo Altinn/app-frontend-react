@@ -8,6 +8,7 @@ import { RepeatingGroupAddButton } from 'src/features/form/components/RepeatingG
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupsLikertContainer } from 'src/features/form/containers/RepeatingGroupsLikertContainer';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
+import { useLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
@@ -73,6 +74,8 @@ export function GroupContainer({
   const renderComponents: ILayoutComponent[] = JSON.parse(
     JSON.stringify(components),
   );
+
+  const edit = useLayoutExpression(container.edit, id);
 
   const editIndex = useAppSelector(
     (state: IRuntimeState) =>
@@ -154,15 +157,15 @@ export function GroupContainer({
   );
 
   React.useEffect(() => {
-    if (container.edit?.filter && container.edit.filter.length > 0) {
-      container.edit.filter.forEach((rule) => {
+    if (edit?.filter && edit.filter.length > 0) {
+      edit.filter.forEach((rule) => {
         const formDataKeys: string[] = Object.keys(formData).filter((key) => {
-          const keyWithoutIndex = key.replaceAll(/\[\d*\]/g, '');
+          const keyWithoutIndex = key.replaceAll(/\[\d*]/g, '');
           return keyWithoutIndex === rule.key && formData[key] === rule.value;
         });
         if (formDataKeys && formDataKeys.length > 0) {
           const filtered = formDataKeys.map((key) => {
-            const match = key.match(/\[(\d*)\]/g);
+            const match = key.match(/\[(\d*)]/g);
             const currentIndex = match[match.length - 1];
             return parseInt(
               currentIndex.substring(1, currentIndex.indexOf(']')),
@@ -173,11 +176,11 @@ export function GroupContainer({
         }
       });
     }
-  }, [formData, container]);
+  }, [formData, edit.filter]);
 
   const onClickAdd = useCallback(() => {
     dispatch(FormLayoutActions.updateRepeatingGroups({ layoutElementId: id }));
-    if (container.edit?.mode !== 'showAll') {
+    if (edit?.mode !== 'showAll') {
       dispatch(
         FormLayoutActions.updateRepeatingGroupsEditIndex({
           group: id,
@@ -185,7 +188,7 @@ export function GroupContainer({
         }),
       );
     }
-  }, [container.edit?.mode, dispatch, id, repeatingGroupIndex]);
+  }, [edit?.mode, dispatch, id, repeatingGroupIndex]);
 
   React.useEffect(() => {
     const { edit } = container;
@@ -218,7 +221,7 @@ export function GroupContainer({
         layoutElementId: id,
         remove: true,
         index: groupIndex,
-        leaveOpen: container.edit?.openByDefault,
+        leaveOpen: edit?.openByDefault,
       }),
     );
   };
@@ -253,7 +256,7 @@ export function GroupContainer({
     return null;
   }
 
-  if (container.edit?.mode === 'likert') {
+  if (edit?.mode === 'likert') {
     return (
       <>
         <RepeatingGroupsLikertContainer
@@ -285,9 +288,9 @@ export function GroupContainer({
       item={true}
       className={classes.minusMargin}
     >
-      {(!container.edit?.mode ||
-        container.edit?.mode === 'showTable' ||
-        (container.edit?.mode === 'hideTable' && editIndex < 0)) && (
+      {(!edit?.mode ||
+        edit?.mode === 'showTable' ||
+        (edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
           components={components}
           attachments={attachments}
@@ -313,8 +316,8 @@ export function GroupContainer({
         container={true}
         justifyContent='flex-end'
       />
-      {container.edit?.mode !== 'showAll' &&
-        container.edit?.addButton !== false &&
+      {edit?.mode !== 'showAll' &&
+        edit?.addButton !== false &&
         editIndex < 0 &&
         repeatingGroupIndex + 1 < container.maxCount && (
           <RepeatingGroupAddButton
@@ -338,13 +341,13 @@ export function GroupContainer({
           onClickRemove={onClickRemove}
           onClickSave={onClickSave}
           repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-          hideSaveButton={container.edit?.saveButton === false}
-          hideDeleteButton={container.edit?.deleteButton === false}
+          hideSaveButton={edit?.saveButton === false}
+          hideDeleteButton={edit?.deleteButton === false}
           multiPageIndex={multiPageIndex}
           setMultiPageIndex={setMultiPageIndex}
         />
       )}
-      {container.edit?.mode === 'showAll' &&
+      {edit?.mode === 'showAll' &&
         // Generate array of length repeatingGroupIndex and iterate over indexes
         Array(repeatingGroupIndex + 1)
           .fill(0)
@@ -373,12 +376,12 @@ export function GroupContainer({
                   repeatingGroupDeepCopyComponents
                 }
                 hideSaveButton={true}
-                hideDeleteButton={container.edit?.deleteButton === false}
+                hideDeleteButton={edit?.deleteButton === false}
               />
             );
           })}
-      {container.edit?.mode === 'showAll' &&
-        container.edit?.addButton !== false &&
+      {edit?.mode === 'showAll' &&
+        edit?.addButton !== false &&
         repeatingGroupIndex + 1 < container.maxCount && (
           <RepeatingGroupAddButton
             id={`add-button-${id}`}

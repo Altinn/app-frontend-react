@@ -310,7 +310,7 @@ export class LayoutRootNode<
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class LayoutNode<T extends AnyLayoutNode> {
+export class LayoutNode<T extends AnyLayoutNode = AnyLayoutNode> {
   public constructor(
     public item: T,
     public parent: LayoutNode<AnyLayoutParent> | LayoutRootNode,
@@ -488,4 +488,51 @@ export function nodesInLayout(
   recurse(layoutAsHierarchyWithRows(formLayout, repeatingGroups), root);
 
   return root;
+}
+
+/**
+ * A tool when you have more than one LayoutRootNode (i.e. a full layout set). It can help you look up components
+ * by ID, and if you have colliding component IDs in multiple layouts it will prefer the one in the current layout.
+ */
+export class LayoutRootNodeCollection<
+  T extends { [layoutKey: string]: LayoutRootNode },
+> {
+  public constructor(private currentView: keyof T, private objects: T) {}
+
+  public findComponentById(id: string): LayoutNode | undefined {
+    const inCurrent = this.current().findById(id);
+    if (inCurrent) {
+      return inCurrent;
+    }
+
+    for (const otherLayoutKey of Object.keys(this.objects)) {
+      if (otherLayoutKey === this.currentView) {
+        continue;
+      }
+      const inOther = this.objects[otherLayoutKey].findById(id);
+      if (inOther) {
+        return inOther;
+      }
+    }
+
+    return undefined;
+  }
+
+  public findAllComponentsById(id: string): LayoutNode[] {
+    const out: LayoutNode[] = [];
+
+    for (const key of Object.keys(this.objects)) {
+      out.push(...this.objects[key].findAllById(id));
+    }
+
+    return out;
+  }
+
+  public findLayout(key: keyof T): LayoutRootNode {
+    return this.objects[key];
+  }
+
+  public current(): LayoutRootNode {
+    return this.objects[this.currentView];
+  }
 }

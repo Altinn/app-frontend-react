@@ -2,6 +2,7 @@ import type { NumberFormatProps } from 'react-number-format';
 
 import type { GridJustification, GridSize } from '@material-ui/core';
 
+import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
 import type {
   ILabelSettings,
   IMapping,
@@ -307,9 +308,10 @@ export interface IGridStyling {
 export interface IGroupEditProperties {
   mode?: 'hideTable' | 'showTable' | 'showAll' | 'likert';
   filter?: IGroupFilter[];
-  addButton?: boolean;
-  saveButton?: boolean;
-  deleteButton?: boolean;
+  addButton?: boolean | ILayoutExpression;
+  saveButton?: boolean | ILayoutExpression;
+  deleteButton?: boolean | ILayoutExpression;
+  editButton?: boolean | ILayoutExpression;
   multiPage?: boolean;
   openByDefault?: boolean;
 }

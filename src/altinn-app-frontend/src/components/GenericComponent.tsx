@@ -145,9 +145,10 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   const formComponentContext = useMemo<IFormComponentContext>(() => {
     return {
       grid: props.grid,
+      id: props.id,
       baseComponentId: props.baseComponentId,
     };
-  }, [props.baseComponentId, props.grid]);
+  }, [props.baseComponentId, props.grid, props.id]);
 
   React.useEffect(() => {
     setHasValidationMessages(

@@ -76,11 +76,13 @@ export interface IComponentProps extends IGenericComponentProps {
 
 export interface IFormComponentContext {
   grid?: IGrid;
+  id?: string;
   baseComponentId?: string;
 }
 
 export const FormComponentContext = createContext<IFormComponentContext>({
   grid: undefined,
+  id: undefined,
   baseComponentId: undefined,
 });
 
