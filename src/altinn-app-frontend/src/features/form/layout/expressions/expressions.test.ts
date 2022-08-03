@@ -27,7 +27,7 @@ describe('Layout expression', () => {
     instanceContext: pretendDep,
   };
 
-  const cases: { expr: string; result: boolean }[] = [
+  const cases: { expr: string; result: any }[] = [
     {
       expr: 'component(true) == component(false)',
       result: false,
@@ -79,6 +79,26 @@ describe('Layout expression', () => {
     {
       expr: '5 != 7',
       result: true,
+    },
+    {
+      expr: '5',
+      result: 5,
+    },
+    {
+      expr: 'true',
+      result: true,
+    },
+    {
+      expr: 'null',
+      result: null,
+    },
+    {
+      expr: "'hello world'",
+      result: 'hello world',
+    },
+    {
+      expr: 'dataModel(testing)',
+      result: 'testing',
     },
   ];
 

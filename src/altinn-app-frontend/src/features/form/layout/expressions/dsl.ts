@@ -129,6 +129,13 @@ export function parseDsl(
       };
     }
   }
+  const asLookup = parseArg(expression.trim(), regexes);
+  if (typeof asLookup !== 'undefined') {
+    return {
+      function: 'lookup',
+      args: [asLookup],
+    };
+  }
 
   if (debug) {
     console.error('Failed to parse layout expression DSL:', expression);

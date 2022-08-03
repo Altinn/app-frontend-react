@@ -41,14 +41,22 @@ export interface ILayoutExpressionDSL {
   expr: string;
 }
 
-export interface ILayoutExpressionStructured {
-  function: keyof typeof layoutExpressionFunctions;
-  args: [ILayoutExpressionArg, ILayoutExpressionArg];
+type MapToArg<T extends any[]> = T extends [any, any]
+  ? [ILayoutExpressionArg, ILayoutExpressionArg]
+  : T extends [any]
+  ? [ILayoutExpressionArg]
+  : ILayoutExpressionArg[];
+
+export interface ILayoutExpressionStructured<
+  F extends LayoutExpressionFunction = LayoutExpressionFunction,
+> {
+  function: F;
+  args: MapToArg<Parameters<typeof layoutExpressionFunctions[F]>>;
 }
 
 export type ILayoutExpression =
   | ILayoutExpressionDSL
-  | ILayoutExpressionStructured;
+  | ILayoutExpressionStructured<any>;
 
 export interface ILayoutExpressionRunnerLookups {
   dataModel: (path: string) => string;

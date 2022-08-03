@@ -16,7 +16,7 @@ export function evalExpr(
   lookups: ILayoutExpressionRunnerLookups,
 ): boolean {
   const computedArgs = expr.args.map((arg) => {
-    if (typeof arg === 'object') {
+    if (typeof arg === 'object' && arg !== null) {
       const [key] = Object.keys(arg);
       return lookups[key](arg[key]);
     }
@@ -38,6 +38,10 @@ function validateArgument(obj: any): obj is ILayoutExpressionArg {
   if (validBasicTypes.includes(type)) {
     return true;
   }
+  if (obj === null) {
+    return true;
+  }
+
   // TODO: Possibly debug and report what's wrong when validating
   if (type === 'object' && Object.keys(obj).length === 1) {
     if ('dataModel' in obj) {
