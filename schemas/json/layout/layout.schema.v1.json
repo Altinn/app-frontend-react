@@ -194,8 +194,18 @@
         "validFileEndings": {
           "title": "Valid file endings",
           "description": "A separated string of valid file endings to upload. If not set all endings are accepted.",
-          "type": "string",
-          "examples": [".csv", ".doc", ".docx", ".gif", ".jpeg", ".pdf", ".txt"]
+          "examples": [".csv", ".doc", ".docx", ".gif", ".jpeg", ".pdf", ".txt"],
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
         }
       },
       "required": ["displayMode", "maxFileSizeInMB", "maxNumberOfAttachments", "minNumberOfAttachments" ]
@@ -209,6 +219,10 @@
           "type": "string",
           "title": "Options ID",
           "description": "Reference to connected options by id."
+        },
+        "mapping": {
+          "$ref": "#/definitions/mapping",
+          "description": "Optionally used to map options"
         }
       },
       "required": ["optionsId"]
@@ -232,6 +246,13 @@
           "title": "Time stamp",
           "description": "Boolean value indicating if the date time should be stored as a timeStamp. Defaults to true.",
           "default": true
+        },
+        "format": {
+          "type": "string",
+          "title": "Date format",
+          "description": "Long date format used when displaying the date to the user. The user date format from the locale will be prioritized over this setting.",
+          "examples": ["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"],
+          "default": "DD.MM.YYYY"
         }
       },
       "required": []
@@ -248,11 +269,8 @@
     "instantiationButtonComponent": {
       "properties": {
         "mapping": {
-          "type": "object",
-          "title": "Mapping",
-          "description": "Creates a new app instance with data collected from a stateless part of the app.",
-          "examples": [{"some.source.field": "key1", "some.other.source": "key2"}],
-          "additionalProperties": { "type": "string" }
+          "$ref": "#/definitions/mapping",
+          "description": "Creates a new app instance with data collected from a stateless part of the app."
         }
       }
     },
@@ -396,18 +414,20 @@
           "title": "Add button",
           "description": "Boolean value indicating whether add new button should be shown or not under the table.",
           "type": "boolean"
+        },
+        "openByDefault": {
+          "title": "Open by default",
+          "description": "Boolean value indicating if group should be opened to add a new item by default when no items exist.",
+          "type": "boolean"
         }
       }
     },
     "groupPanelOptions": {
       "additionalProperties": false,
+      "allOf": [{
+        "$ref": "#/definitions/panelComponent"
+      }],
       "properties": {
-        "variant": {
-          "title": "Variant",
-          "description": "Variant of the panel",
-          "type": "string",
-          "enum": ["info", "success", "warning"]
-        },
         "iconUrl": {
           "title": "Icon url",
           "description": "Url of the icon to be shown in panel. Can be relative if hosted by app or full if referencing a cdn or other hosting.",
@@ -523,6 +543,10 @@
             }
           },
           "required": ["group", "label", "value"]
+        },
+        "mapping": {
+          "$ref": "#/definitions/mapping",
+          "description": "Optionally used to map options"
         }
       }
     },
@@ -614,7 +638,8 @@
               "title": "Align image",
               "enum": ["flex-start", "center", "flex-end", "space-between", "space-around", "space-evenly"]
             }
-          }
+          },
+          "required": ["src", "width", "align"]
         }
       }
     },
@@ -657,6 +682,19 @@
           "description": "The alignment for Input field (eg. right aligning a series of numbers)",
           "enum": [ "left", "center", "right"]
         }
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "title": "Mapping",
+      "examples": [
+        {
+          "some.source.field": "key1",
+          "some.other.source": "key2"
+        }
+      ],
+      "additionalProperties": {
+        "type": "string"
       }
     }
   }
