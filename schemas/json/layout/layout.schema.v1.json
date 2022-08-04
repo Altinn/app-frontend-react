@@ -42,7 +42,7 @@
           "type": "string",
           "title": "Type",
           "description": "The component type.",
-          "enum": ["AddressComponent", "AttachmentList", "Button", "Checkboxes", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Group", "Header", "Image", "Input", "InstantiationButton", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
+          "enum": ["AddressComponent", "AttachmentList", "Button", "Checkboxes", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Group", "Header", "Image", "Input", "InstantiationButton", "Likert", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
         },
         "required": {
           "type": "boolean",
@@ -125,6 +125,7 @@
         { "if": {"properties": {"type": { "const": "Input"}}}, "then": { "$ref": "#/definitions/inputComponent"}},
         { "if": {"properties": {"type": { "const": "TextArea"}}}, "then": { "$ref": "#/definitions/textAreaComponent"}},
         { "if": {"properties": {"type": { "const": "InstantiationButton"}}}, "then": { "$ref": "#/definitions/instantiationButtonComponent"}},
+        { "if": {"properties": {"type": { "const": "Likert"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
         { "if": {"properties": {"type": { "const": "NavigationButtons"}}}, "then": { "$ref": "#/definitions/navigationButtonsComponent"}},
         { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
         { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}},
@@ -385,7 +386,7 @@
           "title": "Edit mode",
           "description": "Mode for how repeating group table is displayed in edit mode",
           "type": "string",
-          "enum": ["hideTable", "showAll", "showTable"]
+          "enum": ["hideTable", "likert", "showAll", "showTable"]
         },
         "filter": {
           "title": "Filter",
@@ -555,7 +556,7 @@
       "properties": {
         "layout": {
           "type": "string",
-          "enum": ["column", "row"],
+          "enum": ["column", "row", "table"],
           "title": "Layout",
           "description": "Define the layout style for the options"
         }
