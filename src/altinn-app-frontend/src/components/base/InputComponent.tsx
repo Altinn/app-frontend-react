@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { TextField } from '@altinn/altinn-design-system';
+import type { ReadOnlyVariant } from '@altinn/altinn-design-system';
 
 import type { IComponentProps } from '..';
 
@@ -9,7 +10,7 @@ import type { ILayoutCompInput } from 'src/features/form/layout';
 
 export interface IInputBaseProps {
   id: string;
-  readOnly: boolean;
+  readOnly: boolean | ReadOnlyVariant;
   required: boolean;
   handleDataChange: (value: any) => void;
   inputRef?: ((el: HTMLInputElement) => void) | React.Ref<any>;
@@ -46,7 +47,7 @@ export function InputComponent({
       isValid={isValid}
       required={required}
       value={value}
-      ariaDescribedBy={
+      aria-describedby={
         textResourceBindings?.description ? `description-${id}` : undefined
       }
       formatting={formatting}

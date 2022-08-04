@@ -5,17 +5,17 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@altinn/altinn-design-system@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "@altinn/altinn-design-system@npm:0.5.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Faltinn-design-system%2F0.5.0%2F8a4a9a0f225bfc51f09641efd373241c5b8b58d021c0825a70c6ed22fc373dd3"
+"@altinn/altinn-design-system@npm:^0.5.1":
+  version: 0.5.1
+  resolution: "@altinn/altinn-design-system@npm:0.5.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40altinn%2Faltinn-design-system%2F0.5.1%2F4a023a4d07d9ceee0595127005336be8ba00af34ce8214bd2f4fbd4ff2e7d877"
   dependencies:
     "@altinn/figma-design-tokens": ^0.3.0
     "@react-hookz/web": ^15.0.1
     react-number-format: ^4.9.3
   peerDependencies:
-    react: ^17.0.0 || ^18.0.0
-    react-dom: ^17.0.0 || ^18.0.0
-  checksum: d301107c4632526b6304ba211d44dfa6a27b5202f62226643a025374b91571c5ee9cd8e89dff93f54fda83c1fa6208924208a4cc33ad7ff0cd3a76724e14feca
+    react: ^18.0.0
+    react-dom: ^18.0.0
+  checksum: 7e35f83c2968db5c5180de4b479663ac8e0f55433c91e69e92aaf2fb46b2e2e0a30347c9564068ee24615e8d851df850cd249139c6ce6d3ba887c3530fc95b12
   languageName: node
   linkType: hard
 
@@ -3099,12 +3099,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^14.3.0":
-  version: 14.3.0
-  resolution: "@testing-library/user-event@npm:14.3.0"
+"@testing-library/user-event@npm:^14.4.1":
+  version: 14.4.1
+  resolution: "@testing-library/user-event@npm:14.4.1"
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: cbd5954460496519cb2ff3fa506ca598d7e4c2e3d2f2e129b21909758f5ec87573aad7d6c79aebffd4bd0ea843315b3064a2a76e545f196bd4c82489cb3afc1d
+  checksum: 01f2318097d64ab99c400a2825680b241451c7d87e69fbda9135b7c896d4205afff46b55b25fcfff47542732d38918c6ca49d2e937892931f6f93346ccbc1950
   languageName: node
   linkType: hard
 
@@ -4387,7 +4387,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "altinn-app-frontend@workspace:altinn-app-frontend"
   dependencies:
-    "@altinn/altinn-design-system": ^0.5.0
+    "@altinn/altinn-design-system": ^0.5.1
     "@babel/core": ^7.18.10
     "@babel/polyfill": ^7.12.1
     "@babel/preset-env": ^7.18.10
@@ -4400,7 +4400,7 @@ __metadata:
     "@reduxjs/toolkit": ^1.8.3
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^13.3.0
-    "@testing-library/user-event": ^14.3.0
+    "@testing-library/user-event": ^14.4.1
     "@types/dot-object": ^2.1.2
     "@types/jest": ^28.1.6
     "@types/react": 18.0.15
@@ -14393,7 +14393,7 @@ __metadata:
     "@material-ui/core": ^4.12.4
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^13.3.0
-    "@testing-library/user-event": ^14.3.0
+    "@testing-library/user-event": ^14.4.1
     "@types/dompurify": ^2.3.3
     "@types/jest": ^28.1.6
     "@types/marked": ^4.0.3
