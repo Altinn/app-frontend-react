@@ -11,14 +11,14 @@ export const sagaMiddleware: SagaMiddleware<any> = createSagaMiddleware();
 const middlewares = [sagaMiddleware, appApi.middleware];
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
+  const isDev = process.env.NODE_ENV !== 'production';
   const innerStore = configureStore({
     reducer: reducers,
-    devTools: process.env.NODE_ENV !== 'production',
+    devTools: isDev,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
-        // TODO: enable once we have cleaned up our store
-        serializableCheck: false,
-        immutableCheck: true,
+        serializableCheck: isDev,
+        immutableCheck: isDev,
       }).concat(middlewares),
     preloadedState,
   });
