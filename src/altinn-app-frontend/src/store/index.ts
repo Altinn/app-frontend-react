@@ -29,11 +29,26 @@ export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
 
 export const store = setupStore();
 
-// Expose store when running in Cypress. This allows for using cy.getReduxState() to run assertions against the redux
-// state at various points in the tests. Testing the state directly might expose problems not easily/visibly testable
-// in the app itself.
-if ((window as any).Cypress) {
+if (process.env.NODE_ENV === 'development') {
+  // Expose store when running in Cypress. This allows for using cy.getReduxState() to run assertions against the redux
+  // state at various points in the tests. Testing the state directly might expose problems not easily/visibly testable
+  // in the app itself.
   (window as any).reduxStore = store;
+
+  // Adds a function that does approximately what the export function from redux-devtools does:
+  // https://github.com/reduxjs/redux-devtools/blob/b82de745928211cd9b7daa7a61b197ad9e11ec36/extension/src/browser/extension/inject/pageScript.ts#L220-L226
+  (window as any).getRecordedStateHistory = () => {
+    const liftedState = (store as any).liftedStore.getState();
+    const actionsById = liftedState.actionsById;
+    const payload: any[] = [];
+    liftedState.stagedActionIds.slice(1).forEach((id) => {
+      payload.push(actionsById[id].action);
+    });
+    return {
+      payload: JSON.stringify(payload),
+      preloadedState: JSON.stringify(store.getState()),
+    };
+  };
 }
 
 export type RootState = ReturnType<typeof reducers>;
