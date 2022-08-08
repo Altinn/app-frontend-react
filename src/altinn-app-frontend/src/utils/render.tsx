@@ -1,12 +1,8 @@
 import * as React from 'react';
 
-import { MessageComponent } from 'src/components/message/MessageComponent';
-import { SoftValidations } from 'src/features/form/components/SoftValidations';
+import { ErrorMessage } from '@altinn/altinn-design-system';
 
-const messageComponentStyle = {
-  display: 'block',
-  width: 'fit-content',
-};
+import { SoftValidations } from 'src/features/form/components/SoftValidations';
 
 export function renderValidationMessagesForComponent(
   validationMessages: any,
@@ -71,14 +67,12 @@ export function renderValidationMessages(
   }
 
   return (
-    <MessageComponent
-      messageType='error'
-      style={messageComponentStyle}
-      key='error'
+    <ErrorMessage
       id={id}
+      key='error'
     >
       <ol>{messages.map(validationMessagesToList)}</ol>
-    </MessageComponent>
+    </ErrorMessage>
   );
 }
 
