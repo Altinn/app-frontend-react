@@ -56,7 +56,23 @@ export function evalExpr(
   return result;
 }
 
-function validateArgument(obj: any): obj is ILayoutExpressionArg {
+enum ValidationError {
+  PropCount = 'Failed to validate layout expression, unexpected property count:',
+  FuncType = 'Failed to validate layout expression, invalid function type:',
+  FuncNotImpl = 'Failed to validate layout expression, function is not implemented:',
+  ArgsNotArr = 'Failed to validate layout expression, arguments not an array:',
+  ArgsWrongNum = 'Failed to validate layout expression, wrong number of arguments:',
+  LookupArgNotString = 'Failed to validate layout expression, argument to lookup function is not a string',
+}
+
+function _debug(error: ValidationError, obj: any, debug: boolean) {
+  debug && console.error(error, obj);
+}
+
+function validateArgument(
+  obj: any,
+  debug: boolean,
+): obj is ILayoutExpressionArg {
   const type = typeof obj;
   const validBasicTypes: typeof type[] = [
     'boolean',
@@ -72,19 +88,22 @@ function validateArgument(obj: any): obj is ILayoutExpressionArg {
     return true;
   }
 
-  // TODO: Possibly debug and report what's wrong when validating
   if (type === 'object' && Object.keys(obj).length === 1) {
-    if ('dataModel' in obj) {
-      return typeof obj.dataModel === 'string';
-    }
-    if ('component' in obj) {
-      return typeof obj.component === 'string';
-    }
-    if ('instanceContext' in obj) {
-      return typeof obj.instanceContext === 'string';
-    }
-    if ('applicationSettings' in obj) {
-      return typeof obj.applicationSettings === 'string';
+    const validKeys = [
+      'dataModel',
+      'component',
+      'instanceContext',
+      'applicationSettings',
+    ];
+    for (const key of validKeys) {
+      if (key in obj) {
+        if (typeof obj[key] === 'string') {
+          return true;
+        } else {
+          _debug(ValidationError.LookupArgNotString, obj, debug);
+          return false;
+        }
+      }
     }
   }
 
@@ -96,9 +115,11 @@ function asValidDsl(
   debug: boolean,
 ): ILayoutExpressionStructured | undefined {
   if ('mapping' in obj && Object.keys(obj).length !== 2) {
+    _debug(ValidationError.PropCount, obj, debug);
     return;
   }
   if (!('mapping' in obj) && Object.keys(obj).length !== 1) {
+    _debug(ValidationError.PropCount, obj, debug);
     return;
   }
 
@@ -110,31 +131,39 @@ function asValidDsl(
   return expr;
 }
 
-function asValidStructured(obj: any): ILayoutExpressionStructured | undefined {
-  // TODO: Possibly debug and report what's wrong when validating
+function asValidStructured(
+  obj: any,
+  debug: boolean,
+): ILayoutExpressionStructured | undefined {
   if ('mapping' in obj && Object.keys(obj).length !== 3) {
+    _debug(ValidationError.PropCount, obj, debug);
     return;
   }
   if (!('mapping' in obj) && Object.keys(obj).length !== 2) {
+    _debug(ValidationError.PropCount, obj, debug);
     return;
   }
   if (typeof obj.function !== 'string') {
+    _debug(ValidationError.FuncType, obj, debug);
     return;
   }
   if (!layoutExpressionFunctions[obj.function]) {
+    _debug(ValidationError.FuncNotImpl, obj, debug);
     return;
   }
   if (!Array.isArray(obj.args)) {
+    _debug(ValidationError.ArgsNotArr, obj, debug);
     return;
   }
 
   const expectedArguments = obj.function === 'lookup' ? 1 : 2;
   if (obj.args.length !== expectedArguments) {
+    _debug(ValidationError.ArgsWrongNum, obj, debug);
     return;
   }
 
   const allArgumentsValid = (obj.args as Array<any>)
-    .map(validateArgument)
+    .map((arg) => validateArgument(arg, debug))
     .reduce((prev, current) => prev && current, true);
 
   if (!allArgumentsValid) {
@@ -166,6 +195,6 @@ export function asLayoutExpression(
   }
 
   if ('function' in obj && 'args' in obj) {
-    return asValidStructured(obj);
+    return asValidStructured(obj, debug);
   }
 }

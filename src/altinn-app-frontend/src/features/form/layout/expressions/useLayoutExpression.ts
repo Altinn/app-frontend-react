@@ -89,7 +89,7 @@ export function useLayoutExpression<T>(
     const lookups = getLookups(node);
 
     /**
-     * Recurses through an input, finds layout expressions and evaluates them
+     * Recurse through an input, finds layout expressions and evaluates them
      */
     const recurse = (obj: any) => {
       if (typeof obj !== 'object') {
