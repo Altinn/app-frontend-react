@@ -48,11 +48,6 @@ export function useDelayedSavedState(
   return {
     value: immediateState,
     setValue: (newValue, saveImmediately) => {
-      if (newValue === 'a') {
-        // TODO: Remove this, obviously
-        throw new Error('blergh');
-      }
-
       setImmediateState(newValue);
       if (newValue !== formValue) {
         if (saveImmediately) {
