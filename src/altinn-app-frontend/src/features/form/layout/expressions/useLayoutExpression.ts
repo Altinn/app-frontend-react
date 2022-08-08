@@ -11,6 +11,7 @@ import type {
   ILayoutExpression,
   ILayoutExpressionRunnerLookups,
 } from 'src/features/form/layout/expressions/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 type ResolveDistributive<T> = T extends any
   ? T extends object
@@ -46,27 +47,29 @@ export function useLayoutExpression<T>(
   const formData = useAppSelector((state) => state.formData.formData);
   const id = componentId || component.id;
 
-  const lookups: ILayoutExpressionRunnerLookups = useMemo(
-    () => ({
-      instanceContext: () => {
-        // TODO: Implement
-        return 'test';
-      },
-      applicationSettings: () => {
-        // TODO: Implement
-        return 'test';
-      },
-      component: () => {
-        // TODO: Implement
-        return 'test';
-      },
-      dataModel: (path) => {
-        // TODO: Resolve paths inside repeating groups
-        return formData[path] || null;
-      },
-    }),
-    [formData],
-  );
+  const getLookups: (context: LayoutNode) => ILayoutExpressionRunnerLookups =
+    useMemo(
+      () => (context: LayoutNode) => ({
+        instanceContext: () => {
+          // TODO: Implement
+          return 'test';
+        },
+        applicationSettings: () => {
+          // TODO: Implement
+          return 'test';
+        },
+        component: () => {
+          // TODO: Implement this. In order to implement this correctly. Some components may not always have a
+          // simpleBinding - how do we compare these? Or do we just support simpleBinding for now?
+          return 'test';
+        },
+        dataModel: (path) => {
+          const newPath = context.transposeDataModel(path);
+          return formData[newPath] || null;
+        },
+      }),
+      [formData],
+    );
 
   return useMemo(() => {
     if (!input) {
@@ -82,6 +85,8 @@ export function useLayoutExpression<T>(
       );
       return input;
     }
+
+    const lookups = getLookups(node);
 
     /**
      * Recurses through an input, finds layout expressions and evaluates them
@@ -108,5 +113,5 @@ export function useLayoutExpression<T>(
     };
 
     return recurse(input);
-  }, [input, nodes, id, lookups]) as ResolvedLayoutExpression<T>;
+  }, [input, nodes, id, getLookups]) as ResolvedLayoutExpression<T>;
 }

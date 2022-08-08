@@ -1,3 +1,4 @@
+import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import type {
   ComponentExceptGroup,
@@ -422,6 +423,59 @@ export class LayoutNode<T extends AnyLayoutNode = AnyLayoutNode> {
     }
 
     return false;
+  }
+
+  /**
+   * This takes a dataModel path (without indexes) and alters it to add indexes such that the data model path refers
+   * to an item in the same repeating group row (or nested repeating group row) as the data model for the current
+   * component.
+   *
+   * Example: Let's say this component is in the second row of the first repeating group, and inside the third row
+   * of a nested repeating group. Our data model binding is such:
+   *    simpleBinding: 'MyModel.Group[1].NestedGroup[2].FirstName'
+   *
+   * If you pass the argument 'MyModel.Group.NestedGroup.Age' to this function, you'll get the transposed binding
+   * back: 'MyModel.Group[1].NestedGroup[2].Age'.
+   */
+  public transposeDataModel(dataModel: string, rowIndex?: number): string {
+    const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
+    if (!firstBinding) {
+      if (this.parent instanceof LayoutNode) {
+        return this.parent.transposeDataModel(dataModel, this.rowIndex);
+      }
+
+      return dataModel;
+    }
+
+    const ourBindingParts =
+      this.item.dataModelBindings[firstBinding].split('.');
+    const theirBindingParts = dataModel.split('.');
+    const theirBindingPartsNoIndex = getKeyWithoutIndex(dataModel).split('.');
+
+    for (const idx in theirBindingParts) {
+      if (
+        ourBindingParts[idx] &&
+        ourBindingParts[idx].startsWith(theirBindingPartsNoIndex[idx]) &&
+        ourBindingParts[idx]
+          .substring(theirBindingPartsNoIndex[idx].length)
+          .match(/^(\[\d+])?$/)
+      ) {
+        theirBindingParts[idx] = ourBindingParts[idx];
+      } else {
+        break;
+      }
+    }
+
+    if (
+      typeof rowIndex === 'number' &&
+      this.item.type === 'Group' &&
+      theirBindingParts[ourBindingParts.length - 1] &&
+      !theirBindingParts[ourBindingParts.length - 1].match(/\[\d+]$/)
+    ) {
+      theirBindingParts[ourBindingParts.length - 1] += `[${rowIndex}]`;
+    }
+
+    return theirBindingParts.join('.');
   }
 }
 

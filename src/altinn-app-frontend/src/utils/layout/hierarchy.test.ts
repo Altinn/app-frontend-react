@@ -169,6 +169,48 @@ describe('Hierarchical layout tools', () => {
     },
   };
 
+  const manyRepeatingGroups: IRepeatingGroups = {
+    [components.group2.id]: {
+      index: 3,
+      baseGroupId: components.group2.id,
+    },
+    [`${components.group2n.id}-0`]: {
+      index: 3,
+      baseGroupId: components.group2n.id,
+    },
+    [`${components.group2n.id}-1`]: {
+      index: 3,
+      baseGroupId: components.group2n.id,
+    },
+    [`${components.group2n.id}-2`]: {
+      index: 3,
+      baseGroupId: components.group2n.id,
+    },
+    [`${components.group2n.id}-3`]: {
+      index: 3,
+      baseGroupId: components.group2n.id,
+    },
+    [components.group3.id]: {
+      index: 4,
+    },
+    [`${components.group3n.id}-0`]: {
+      index: 4,
+      baseGroupId: components.group3n.id,
+    },
+    [`${components.group3n.id}-1`]: {
+      index: 4,
+      baseGroupId: components.group3n.id,
+    },
+    [`${components.group3n.id}-2`]: {
+      index: 4,
+      baseGroupId: components.group3n.id,
+    },
+    [`${components.group3n.id}-3`]: {
+      index: 4,
+      baseGroupId: components.group3n.id,
+    },
+  };
+
   describe('layoutAsHierarchyWithRows', () => {
     it('should generate a hierarchy for a simple layout', () => {
       const commonComponents = (row: number) => [
@@ -317,47 +359,6 @@ describe('Hierarchical layout tools', () => {
       ]);
     });
 
-    const manyRepeatingGroups: IRepeatingGroups = {
-      [components.group2.id]: {
-        index: 3,
-        baseGroupId: components.group2.id,
-      },
-      [`${components.group2n.id}-0`]: {
-        index: 3,
-        baseGroupId: components.group2n.id,
-      },
-      [`${components.group2n.id}-1`]: {
-        index: 3,
-        baseGroupId: components.group2n.id,
-      },
-      [`${components.group2n.id}-2`]: {
-        index: 3,
-        baseGroupId: components.group2n.id,
-      },
-      [`${components.group2n.id}-3`]: {
-        index: 3,
-        baseGroupId: components.group2n.id,
-      },
-      [components.group3.id]: {
-        index: 4,
-      },
-      [`${components.group3n.id}-0`]: {
-        index: 4,
-        baseGroupId: components.group3n.id,
-      },
-      [`${components.group3n.id}-1`]: {
-        index: 4,
-        baseGroupId: components.group3n.id,
-      },
-      [`${components.group3n.id}-2`]: {
-        index: 4,
-        baseGroupId: components.group3n.id,
-      },
-      [`${components.group3n.id}-3`]: {
-        index: 4,
-        baseGroupId: components.group3n.id,
-      },
-    };
     it('should enable traversal of layout', () => {
       const nodes = nodesInLayout(layout, manyRepeatingGroups);
       const flat = nodes.flat(true);
@@ -491,5 +492,42 @@ describe('Hierarchical layout tools', () => {
           .map((c) => c.item.id),
       ).toEqual([components.top1.id, components.top1.id]);
     });
+  });
+
+  describe('transposeDataModel', () => {
+    const nodes = nodesInLayout(layout, manyRepeatingGroups);
+    const inputNode = nodes.findById(`${components.group2ni.id}-2-2`);
+
+    expect(inputNode.transposeDataModel('MyModel.Group2.Nested.Age')).toEqual(
+      'MyModel.Group2[2].Nested[2].Age',
+    );
+    expect(
+      inputNode.transposeDataModel('MyModel.Group2.Other.Parents'),
+    ).toEqual('MyModel.Group2[2].Other.Parents');
+
+    const headerNode = nodes.findById(`${components.group2nh.id}-2-2`);
+
+    // Header component does not have any data binding, but its parent does
+    expect(headerNode.transposeDataModel('MyModel.Group2.Nested.Age')).toEqual(
+      'MyModel.Group2[2].Nested[2].Age',
+    );
+
+    // Tricks to make sure we don't just compare using startsWith()
+    expect(
+      inputNode.transposeDataModel('MyModel.Group22.NestedOtherValue.Key'),
+    ).toEqual('MyModel.Group22.NestedOtherValue.Key');
+    expect(inputNode.transposeDataModel('MyModel.Gro.Nes[1].Key')).toEqual(
+      'MyModel.Gro.Nes[1].Key',
+    );
+    expect(inputNode.transposeDataModel('MyModel.Gro[0].Nes.Key')).toEqual(
+      'MyModel.Gro[0].Nes.Key',
+    );
+
+    // There are no data model bindings in group3, so this should not do anything
+    expect(
+      nodes
+        .findById(`${components.group3ni.id}-1-1`)
+        .transposeDataModel('Main.Parent[0].Child[1]'),
+    ).toEqual('Main.Parent[0].Child[1]');
   });
 });
