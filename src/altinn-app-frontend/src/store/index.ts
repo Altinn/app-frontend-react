@@ -9,9 +9,17 @@ import { appApi } from 'src/services/AppApi';
 
 export const sagaMiddleware: SagaMiddleware<any> = createSagaMiddleware();
 const middlewares = [sagaMiddleware, appApi.middleware];
+const actionLog = [];
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
   const isDev = process.env.NODE_ENV !== 'production';
+  if (isDev && (window as any).Cypress) {
+    middlewares.push(() => (next) => (action) => {
+      actionLog.push(action);
+      return next(action);
+    });
+  }
+
   const innerStore = configureStore({
     reducer: reducers,
     devTools: isDev,
@@ -35,20 +43,9 @@ if (process.env.NODE_ENV === 'development') {
   // in the app itself.
   (window as any).reduxStore = store;
 
-  // Adds a function that does approximately what the export function from redux-devtools does:
-  // https://github.com/reduxjs/redux-devtools/blob/b82de745928211cd9b7daa7a61b197ad9e11ec36/extension/src/browser/extension/inject/pageScript.ts#L220-L226
-  (window as any).getRecordedStateHistory = () => {
-    const liftedState = (store as any).liftedStore.getState();
-    const actionsById = liftedState.actionsById;
-    const payload: any[] = [];
-    liftedState.stagedActionIds.slice(1).forEach((id) => {
-      payload.push(actionsById[id].action);
-    });
-    return {
-      payload: JSON.stringify(payload),
-      preloadedState: JSON.stringify(store.getState()),
-    };
-  };
+  // Expose a log containing all dispatched actions. This is useful when Cypress tests fail, so that we can gather
+  // the logged actions to re-construct the redux state history using the redux devtools.
+  (window as any).reduxActionLog = actionLog;
 }
 
 export type RootState = ReturnType<typeof reducers>;
