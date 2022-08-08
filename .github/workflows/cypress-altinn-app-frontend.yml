@@ -60,6 +60,7 @@ jobs:
         working-directory: test/cypress
 
       - uses: actions/upload-artifact@v3
+        if: failure()
         with:
           name: redux-state-history
           path: test/cypress/redux-history/*.json
@@ -96,6 +97,7 @@ jobs:
         working-directory: test/cypress
 
       - uses: actions/upload-artifact@v3
+        if: failure()
         with:
           name: redux-state-history
           path: test/cypress/redux-history/*.json
