@@ -740,25 +740,23 @@ export function validateComponentFormData(
         );
       });
   }
-  if (checkIfRequired && component.required) {
-    if (!formData || formData === '') {
-      const fieldName = getFieldName(
-        component.textResourceBindings,
-        textResources,
+  if (checkIfRequired && component.required && (!formData || formData === '')) {
+    const fieldName = getFieldName(
+      component.textResourceBindings,
+      textResources,
+      language,
+      fieldKey !== 'simpleBinding' ? fieldKey : undefined,
+    );
+    validationResult.validations[layoutId][
+      componentIdWithIndex || component.id
+    ][fieldKey].errors.push(
+      getParsedLanguageFromKey(
+        'form_filler.error_required',
         language,
-        fieldKey !== 'simpleBinding' ? fieldKey : undefined,
-      );
-      validationResult.validations[layoutId][
-        componentIdWithIndex || component.id
-      ][fieldKey].errors.push(
-        getParsedLanguageFromKey(
-          'form_filler.error_required',
-          language,
-          [fieldName],
-          true,
-        ),
-      );
-    }
+        [fieldName],
+        true,
+      ),
+    );
   }
 
   if (
@@ -1180,11 +1178,10 @@ export function mapDataElementValidationToRedux(
           validationResult[layoutId][componentId] = componentValidations;
         } else {
           const currentValidations = validationResult[layoutId][componentId];
-          const mergedValidations = mergeComponentValidations(
+          validationResult[layoutId][componentId] = mergeComponentValidations(
             currentValidations,
             componentValidations,
           );
-          validationResult[layoutId][componentId] = mergedValidations;
         }
       } else {
         // unmapped error
@@ -1379,13 +1376,10 @@ export function hasValidationsOfSeverity(
           ) {
             return true;
           }
-          if (
+          return (
             severity === Severity.Warning &&
             validations[layout][componentKey][bindingKey].warnings?.length > 0
-          ) {
-            return true;
-          }
-          return false;
+          );
         },
       );
     });
@@ -1766,44 +1760,43 @@ export function removeGroupValidationsByIndex(
     }
   });
 
-  if (shift) {
-    // Shift validations if necessary
-    if (index < repeatingGroup.index + 1) {
-      for (let i = index + 1; i <= repeatingGroup.index + 1; i++) {
-        const key = `${id}-${i}`;
-        const newKey = `${id}-${i - 1}`;
-        delete result[currentLayout][key];
-        result[currentLayout][newKey] = validations[currentLayout][key];
-        children?.forEach((element) => {
-          let childKey;
-          let shiftKey;
-          if (parentGroup) {
-            const splitId = id.split('-');
-            const parentIndex = splitId[splitId.length - 1];
-            childKey = `${element.id}-${parentIndex}-${i}`;
-            shiftKey = `${element.id}-${parentIndex}-${i - 1}`;
-          } else {
-            childKey = `${element.id}-${i}`;
-            shiftKey = `${element.id}-${i - 1}`;
-          }
-          if (element.type !== 'Group') {
-            delete result[currentLayout][childKey];
-            result[currentLayout][shiftKey] =
-              validations[currentLayout][childKey];
-          } else {
-            result = shiftChildGroupValidation(
-              element,
-              i,
-              result,
-              repeatingGroups,
-              layout[currentLayout],
-              currentLayout,
-            );
-          }
-        });
-      }
+  // Shift validations if necessary
+  if (shift && index < repeatingGroup.index + 1) {
+    for (let i = index + 1; i <= repeatingGroup.index + 1; i++) {
+      const key = `${id}-${i}`;
+      const newKey = `${id}-${i - 1}`;
+      delete result[currentLayout][key];
+      result[currentLayout][newKey] = validations[currentLayout][key];
+      children?.forEach((element) => {
+        let childKey;
+        let shiftKey;
+        if (parentGroup) {
+          const splitId = id.split('-');
+          const parentIndex = splitId[splitId.length - 1];
+          childKey = `${element.id}-${parentIndex}-${i}`;
+          shiftKey = `${element.id}-${parentIndex}-${i - 1}`;
+        } else {
+          childKey = `${element.id}-${i}`;
+          shiftKey = `${element.id}-${i - 1}`;
+        }
+        if (element.type !== 'Group') {
+          delete result[currentLayout][childKey];
+          result[currentLayout][shiftKey] =
+            validations[currentLayout][childKey];
+        } else {
+          result = shiftChildGroupValidation(
+            element,
+            i,
+            result,
+            repeatingGroups,
+            layout[currentLayout],
+            currentLayout,
+          );
+        }
+      });
     }
   }
+
   return result;
 }
 
