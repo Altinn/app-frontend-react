@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react';
-
 import Ajv from 'ajv';
 import Ajv2020 from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
@@ -1290,8 +1288,8 @@ function addValidation(
  * gets unmapped errors from validations as string array
  * @param validations the validations
  */
-export function getUnmappedErrors(validations: IValidations): ReactNode[] {
-  const messages: ReactNode[] = [];
+export function getUnmappedErrors(validations: IValidations): string[] {
+  const messages: string[] = [];
   if (!validations) {
     return messages;
   }
@@ -1308,7 +1306,7 @@ export function getUnmappedErrors(validations: IValidations): ReactNode[] {
 export interface FlatError {
   layout: string;
   componentId: string;
-  message: string | ReactNode;
+  message: string;
 }
 
 /**
