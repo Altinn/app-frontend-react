@@ -1645,12 +1645,23 @@ export function validateGroup(
       filteredLayout.push(element);
       const childGroup = element as ILayoutGroup;
       childGroup.children?.forEach((childId) => {
+        let actualChildId = childId;
+        if (childGroup.edit?.multiPage) {
+          actualChildId = childId.split(':')[1];
+        }
         filteredLayout.push(
-          currentLayout.find((childComponent) => childComponent.id === childId),
+          currentLayout.find(
+            (childComponent) => childComponent.id === actualChildId,
+          ),
         );
       });
     }
-    if (group?.children?.includes(element.id) || element.id === groupId) {
+    const plainChildIds =
+      group?.children?.map((childId) =>
+        group.edit?.multiPage ? childId.split(':')[1] || childId : childId,
+      ) || [];
+
+    if (plainChildIds.includes(element.id) || element.id === groupId) {
       filteredLayout.push(element);
     }
   });
