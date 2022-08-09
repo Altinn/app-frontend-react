@@ -157,7 +157,7 @@ export function GroupContainer({
   );
 
   React.useEffect(() => {
-    if (edit?.filter && edit.filter.length > 0) {
+    if (edit && edit.filter && edit.filter.length > 0) {
       edit.filter.forEach((rule) => {
         const formDataKeys: string[] = Object.keys(formData).filter((key) => {
           const keyWithoutIndex = key.replaceAll(/\[\d*]/g, '');
@@ -176,7 +176,7 @@ export function GroupContainer({
         }
       });
     }
-  }, [formData, edit.filter]);
+  }, [formData, edit]);
 
   const onClickAdd = useCallback(() => {
     dispatch(FormLayoutActions.updateRepeatingGroups({ layoutElementId: id }));
