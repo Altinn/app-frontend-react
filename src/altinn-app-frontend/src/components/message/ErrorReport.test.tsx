@@ -52,7 +52,7 @@ describe('ErrorReport', () => {
     // Unmapped errors should not be clickable
     const errorNode = screen.getByText('some unmapped error');
     expect(errorNode).toBeInTheDocument();
-    expect(errorNode.tagName).toEqual('LI');
+    expect(errorNode.parentElement.tagName).toEqual('LI');
   });
 
   it('should list mapped error as clickable', () => {
@@ -71,7 +71,7 @@ describe('ErrorReport', () => {
 
     const errorNode = screen.getByText('some mapped error');
     expect(errorNode).toBeInTheDocument();
-    expect(errorNode.parentElement.tagName).toEqual('LI');
-    expect(errorNode.tagName).toEqual('BUTTON');
+    expect(errorNode.parentElement.parentElement.tagName).toEqual('LI');
+    expect(errorNode.parentElement.tagName).toEqual('BUTTON');
   });
 });
