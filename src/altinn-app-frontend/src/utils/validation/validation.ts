@@ -28,7 +28,7 @@ import {
   splitDashedKey,
 } from 'src/utils/formLayout';
 import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
-import { getParsedTextResourceByKey } from 'src/utils/textResource';
+import { getTextResourceByKey } from 'src/utils/textResource';
 import type { IFormData } from 'src/features/form/data';
 import type {
   ILayout,
@@ -632,9 +632,12 @@ export function validateDatepickerFormData(
   if (formData === null) {
     // is only set to NULL if the format is malformed. Is otherwise undefined or empty string
     validations.errors.push(
-      getParsedLanguageFromKey('date_picker.invalid_date_message', language, [
-        format,
-      ]),
+      getParsedLanguageFromKey(
+        'date_picker.invalid_date_message',
+        language,
+        [format],
+        true,
+      ),
     );
   }
 
@@ -714,9 +717,9 @@ export function validateComponentFormData(
         const fieldSchema = rootElementPath
           ? getSchemaPartOldGenerator(error.schemaPath, schema, rootElementPath)
           : getSchemaPart(error.schemaPath, schema);
-        let errorMessage;
+        let errorMessage: string;
         if (fieldSchema?.errorMessage) {
-          errorMessage = getParsedTextResourceByKey(
+          errorMessage = getTextResourceByKey(
             fieldSchema.errorMessage,
             textResources,
           );
@@ -725,6 +728,7 @@ export function validateComponentFormData(
             `validation_errors.${errorMessageKeys[error.keyword].textKey}`,
             language,
             [errorParams],
+            true,
           );
         }
 
@@ -887,7 +891,7 @@ export function validateFormDataForLayout(
       : getSchemaPart(error.schemaPath, schema);
     let errorMessage;
     if (fieldSchema?.errorMessage) {
-      errorMessage = getParsedTextResourceByKey(
+      errorMessage = getTextResourceByKey(
         fieldSchema.errorMessage,
         textResources,
       );
@@ -896,6 +900,7 @@ export function validateFormDataForLayout(
         `validation_errors.${errorMessageKeys[error.keyword].textKey}`,
         language,
         [errorParams],
+        true,
       );
     }
 
@@ -1240,31 +1245,31 @@ function addValidation(
   switch (validation.severity) {
     case Severity.Error: {
       updatedValidations.errors.push(
-        getParsedTextResourceByKey(validation.description, textResources),
+        getTextResourceByKey(validation.description, textResources),
       );
       break;
     }
     case Severity.Warning: {
       updatedValidations.warnings.push(
-        getParsedTextResourceByKey(validation.description, textResources),
+        getTextResourceByKey(validation.description, textResources),
       );
       break;
     }
     case Severity.Fixed: {
       updatedValidations.fixed.push(
-        getParsedTextResourceByKey(validation.description, textResources),
+        getTextResourceByKey(validation.description, textResources),
       );
       break;
     }
     case Severity.Success: {
       updatedValidations.success.push(
-        getParsedTextResourceByKey(validation.description, textResources),
+        getTextResourceByKey(validation.description, textResources),
       );
       break;
     }
     case Severity.Informational: {
       updatedValidations.info.push(
-        getParsedTextResourceByKey(validation.description, textResources),
+        getTextResourceByKey(validation.description, textResources),
       );
       break;
     }
@@ -1575,8 +1580,8 @@ export function mergeComponentBindingValidations(
 }
 
 export function getUniqueNewElements(
-  originalArray: ReactNode[],
-  newArray?: ReactNode[],
+  originalArray: string[],
+  newArray?: string[],
 ) {
   if (!newArray || newArray.length === 0) {
     return [];
@@ -1586,30 +1591,24 @@ export function getUniqueNewElements(
     return newArray;
   }
 
-  return newArray.filter((element) => {
-    return (
-      originalArray.findIndex((existingElement) => {
-        return JSON.stringify(existingElement) === JSON.stringify(element);
-      }) < 0
-    );
-  });
+  return newArray.filter(
+    (element) =>
+      originalArray.findIndex(
+        (existingElement) => existingElement === element,
+      ) < 0,
+  );
 }
 
 function removeFixedValidations(
-  validations?: ReactNode[],
-  fixed?: ReactNode[],
-): ReactNode[] {
+  validations?: string[],
+  fixed?: string[],
+): string[] {
   if (!fixed || fixed.length === 0) {
     return validations;
   }
 
   return validations.filter((element) => {
-    return (
-      fixed.findIndex(
-        (fixedElement) =>
-          JSON.stringify(fixedElement) === JSON.stringify(element),
-      ) < 0
-    );
+    return fixed.findIndex((fixedElement) => fixedElement === element) < 0;
   });
 }
 
