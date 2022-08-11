@@ -4,10 +4,37 @@ import AppFrontend from '../pageobjects/app-frontend';
 const appFrontend = new AppFrontend();
 
 Cypress.Commands.add('startAppInstance', (appName, anonymous=false) => {
-  cy.visit('/');
+  const visitOptions = {
+    onBeforeLoad: (win) => {
+      cy.spy(win.console, 'log').as('console.log');
+      cy.spy(win.console, 'warn').as('console.warn');
+      cy.spy(win.console, 'error').as('console.error');
+    },
+  };
+
+  if (Cypress.env('responseFuzzing') === 'on') {
+    const [min, max] = [10, 1000];
+    cy.log(`Response fuzzing on, will delay responses randomly between ${min}ms and ${max}ms`);
+
+    const rand = () => {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+
+    const randomDelays = (req) => {
+      req.on('response', (res) => {
+        res.setDelay(rand());
+      });
+    };
+    cy.intercept('**/api/**', randomDelays);
+    cy.intercept('**/instances/**', randomDelays);
+  } else {
+    cy.log(`Response fuzzing off, enable with --env responseFuzzing=on`);
+  }
+
+  cy.visit('/', visitOptions);
   if (Cypress.env('environment') === 'local') {
     if (anonymous) {
-      cy.visit(`${Cypress.config('baseUrl')}/ttd/${appName}`);
+      cy.visit(`${Cypress.config('baseUrl')}/ttd/${appName}`, visitOptions);
     } else {
       cy.get(appFrontend.appSelection).select(appName);
       cy.get(appFrontend.startButton).click();
@@ -17,7 +44,7 @@ Cypress.Commands.add('startAppInstance', (appName, anonymous=false) => {
     {
       authenticateAltinnII(Cypress.env('testUserName'), Cypress.env('testUserPwd'));
     }
-    cy.visit(`https://ttd.apps.${Cypress.config('baseUrl').slice(8)}/ttd/${appName}/`);
+    cy.visit(`https://ttd.apps.${Cypress.config('baseUrl').slice(8)}/ttd/${appName}/`, visitOptions);
   }
 });
 
