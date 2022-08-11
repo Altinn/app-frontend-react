@@ -37,11 +37,6 @@ export type ILayoutExpressionArg =
   | ILayoutExpressionInstanceContextArg
   | ILayoutExpressionApplicationSettingsArg;
 
-export interface ILayoutExpressionMapping {
-  [key: string]: any;
-  __default__?: any;
-}
-
 type MapToArg<T extends any[]> = T extends [any, any]
   ? [ILayoutExpressionArg, ILayoutExpressionArg]
   : T extends [any]
@@ -53,7 +48,6 @@ export interface ILayoutExpression<
 > {
   function: F;
   args: MapToArg<Parameters<typeof layoutExpressionFunctions[F]>>;
-  mapping?: ILayoutExpressionMapping;
 }
 
 export interface ILayoutExpressionRunnerLookups {

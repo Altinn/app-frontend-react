@@ -22,37 +22,7 @@ export function evalExpr(
     return arg;
   });
 
-  const result = layoutExpressionFunctions[expr.function].apply(
-    null,
-    computedArgs,
-  );
-
-  if (typeof expr.mapping === 'object') {
-    const resultType = typeof result;
-    const jsonTypes: typeof resultType[] = [
-      'boolean',
-      'number',
-      'undefined',
-      'object',
-    ];
-
-    const lookupInMapping = jsonTypes.includes(resultType)
-      ? JSON.stringify(result)
-      : result;
-
-    const lookupResult = expr.mapping[lookupInMapping];
-    if (typeof lookupResult !== 'undefined') {
-      return lookupResult;
-    }
-
-    if ('__default__' in expr.mapping) {
-      return expr.mapping['__default__'];
-    }
-
-    // Fall through and return the actual result
-  }
-
-  return result;
+  return layoutExpressionFunctions[expr.function].apply(null, computedArgs);
 }
 
 enum ValidationError {
@@ -113,11 +83,7 @@ function asValidStructured(
   obj: any,
   debug: boolean,
 ): ILayoutExpression | undefined {
-  if ('mapping' in obj && Object.keys(obj).length !== 3) {
-    _debug(ValidationError.PropCount, obj, debug);
-    return;
-  }
-  if (!('mapping' in obj) && Object.keys(obj).length !== 2) {
+  if (Object.keys(obj).length !== 2) {
     _debug(ValidationError.PropCount, obj, debug);
     return;
   }
