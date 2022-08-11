@@ -1,12 +1,11 @@
-import { parseDsl } from 'src/features/form/layout/expressions/dsl';
 import {
   asLayoutExpression,
   evalExpr,
 } from 'src/features/form/layout/expressions/expressions';
 import type {
+  ILayoutExpression,
   ILayoutExpressionMapping,
   ILayoutExpressionRunnerLookups,
-  ILayoutExpressionStructured,
 } from 'src/features/form/layout/expressions/types';
 
 describe('Layout expression', () => {
@@ -28,89 +27,108 @@ describe('Layout expression', () => {
     instanceContext: pretendDep,
   };
 
-  const cases: { expr: string; result: any }[] = [
+  const cases: { expr: ILayoutExpression; result: any }[] = [
     {
-      expr: 'component(true) == component(false)',
+      expr: {
+        function: 'equals',
+        args: [{ component: 'true' }, { component: 'false' }],
+      },
       result: false,
     },
     {
-      expr: 'component(true) != component(false)',
+      expr: {
+        function: 'notEquals',
+        args: [{ component: 'true' }, { component: 'false' }],
+      },
       result: true,
     },
     {
-      expr: 'component(true) == component(true)',
+      expr: {
+        function: 'equals',
+        args: [{ component: 'true' }, { component: 'true' }],
+      },
       result: true,
     },
     {
-      expr: 'component(true) == true',
+      expr: {
+        function: 'equals',
+        args: [{ component: 'true' }, true],
+      },
       result: true,
     },
     {
-      expr: 'true == component(true)',
+      expr: {
+        function: 'equals',
+        args: [true, { component: 'true' }],
+      },
       result: true,
     },
     {
-      expr: 'true == true',
+      expr: {
+        function: 'equals',
+        args: [true, true],
+      },
       result: true,
     },
     {
-      expr: '5 > 3',
+      expr: {
+        function: 'greaterThan',
+        args: [5, 3],
+      },
       result: true,
     },
     {
-      expr: '5 < 7',
+      expr: {
+        function: 'lessThan',
+        args: [5, 7],
+      },
       result: true,
     },
     {
-      expr: '5 > 7',
+      expr: {
+        function: 'greaterThan',
+        args: [5, 7],
+      },
       result: false,
     },
     {
-      expr: '5 >= 5',
+      expr: {
+        function: 'greaterThanEq',
+        args: [5, 5],
+      },
       result: true,
     },
     {
-      expr: '5 <= component(5)',
+      expr: {
+        function: 'lessThanEq',
+        args: [5, { component: '5' }],
+      },
       result: true,
     },
     {
-      expr: "'hello world' == component(hello world)",
+      expr: {
+        function: 'equals',
+        args: ['hello world', { component: 'hello world' }],
+      },
       result: true,
     },
     {
-      expr: '5 != 7',
+      expr: {
+        function: 'notEquals',
+        args: [5, 7],
+      },
       result: true,
-    },
-    {
-      expr: '5',
-      result: 5,
-    },
-    {
-      expr: 'true',
-      result: true,
-    },
-    {
-      expr: 'null',
-      result: null,
-    },
-    {
-      expr: "'hello world'",
-      result: 'hello world',
-    },
-    {
-      expr: 'dataModel(testing)',
-      result: 'testing',
     },
   ];
 
   it.each(cases)(
     'should return $result for expression $expr',
     ({ expr, result }) => {
-      expect(evalExpr(parseDsl(expr), lookups)).toEqual(result);
+      expect(evalExpr(expr, lookups)).toEqual(result);
     },
   );
 
-  const validStructuredObjects: ILayoutExpressionStructured[] = [
+  const validStructuredObjects: ILayoutExpression[] = [
     { function: 'equals', args: [5, 7] },
   ];
   const invalidObjects = [
@@ -135,17 +153,10 @@ describe('Layout expression', () => {
     },
   );
 
-  it.each(cases.map((c) => parseDsl(c.expr, false)))(
+  it.each(cases.map((c) => c.expr))(
     'should validate %p as a valid structured expression',
     (maybeExpr) => {
       expect(asLayoutExpression(maybeExpr, false)).toEqual(maybeExpr);
-    },
-  );
-
-  it.each(cases.map((c) => ({ expr: c.expr })))(
-    'should validate %p as a valid DSL expression',
-    (maybeExpr) => {
-      expect(asLayoutExpression(maybeExpr, false)).toBeTruthy();
     },
   );
 
@@ -167,23 +178,6 @@ describe('Layout expression', () => {
         lookups,
       ),
     ).toEqual('hello world');
-  });
-
-  it('should map output values if a mapping is given for a DSL expression', () => {
-    expect(
-      evalExpr(
-        asLayoutExpression(
-          {
-            expr: 'dataModel(55)',
-            mapping: {
-              '55': 77,
-            },
-          },
-          false,
-        ),
-        lookups,
-      ),
-    ).toEqual(77);
   });
 
   it('should map null', () => {
@@ -264,9 +258,7 @@ describe('Layout expression', () => {
         ? asLayoutExpression({ expr: output, mapping }, false)
         : { function: 'lookup', args: [output], mapping };
 
-      expect(evalExpr(expr as ILayoutExpressionStructured, lookups)).toEqual(
-        expects,
-      );
+      expect(evalExpr(expr as ILayoutExpression, lookups)).toEqual(expects);
     },
   );
 });

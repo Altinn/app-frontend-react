@@ -1,9 +1,8 @@
-import { parseDsl } from 'src/features/form/layout/expressions/dsl';
 import { layoutExpressionFunctions } from 'src/features/form/layout/expressions/functions';
 import type {
+  ILayoutExpression,
   ILayoutExpressionArg,
   ILayoutExpressionRunnerLookups,
-  ILayoutExpressionStructured,
 } from 'src/features/form/layout/expressions/types';
 
 /**
@@ -12,7 +11,7 @@ import type {
  * @see useLayoutExpression
  */
 export function evalExpr(
-  expr: ILayoutExpressionStructured,
+  expr: ILayoutExpression,
   lookups: ILayoutExpressionRunnerLookups,
 ): boolean {
   const computedArgs = expr.args.map((arg) => {
@@ -110,31 +109,10 @@ function validateArgument(
   return false;
 }
 
-function asValidDsl(
-  obj: any,
-  debug: boolean,
-): ILayoutExpressionStructured | undefined {
-  if ('mapping' in obj && Object.keys(obj).length !== 2) {
-    _debug(ValidationError.PropCount, obj, debug);
-    return;
-  }
-  if (!('mapping' in obj) && Object.keys(obj).length !== 1) {
-    _debug(ValidationError.PropCount, obj, debug);
-    return;
-  }
-
-  const expr = parseDsl(obj.expr, debug);
-  if ('mapping' in obj) {
-    expr.mapping = obj.mapping;
-  }
-
-  return expr;
-}
-
 function asValidStructured(
   obj: any,
   debug: boolean,
-): ILayoutExpressionStructured | undefined {
+): ILayoutExpression | undefined {
   if ('mapping' in obj && Object.keys(obj).length !== 3) {
     _debug(ValidationError.PropCount, obj, debug);
     return;
@@ -170,7 +148,7 @@ function asValidStructured(
     return;
   }
 
-  return obj as ILayoutExpressionStructured;
+  return obj as ILayoutExpression;
 }
 
 /**
@@ -185,13 +163,9 @@ function asValidStructured(
 export function asLayoutExpression(
   obj: any,
   debug = true,
-): ILayoutExpressionStructured | undefined {
+): ILayoutExpression | undefined {
   if (typeof obj !== 'object' || obj === null) {
     return;
-  }
-
-  if ('expr' in obj) {
-    return asValidDsl(obj, debug);
   }
 
   if ('function' in obj && 'args' in obj) {
