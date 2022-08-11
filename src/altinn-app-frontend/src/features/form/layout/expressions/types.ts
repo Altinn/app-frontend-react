@@ -2,14 +2,6 @@ import type { layoutExpressionFunctions } from 'src/features/form/layout/express
 
 export type LayoutExpressionFunction = keyof typeof layoutExpressionFunctions;
 
-export interface ILayoutExpressionAlias {
-  [key: string]: RegExp;
-}
-
-export type ILayoutExpressionAliases = {
-  [key in LayoutExpressionFunction]: ILayoutExpressionAlias[];
-};
-
 export interface ILayoutExpressionDataModelArg {
   dataModel: string;
 }
@@ -37,17 +29,11 @@ export type ILayoutExpressionArg =
   | ILayoutExpressionInstanceContextArg
   | ILayoutExpressionApplicationSettingsArg;
 
-type MapToArg<T extends any[]> = T extends [any, any]
-  ? [ILayoutExpressionArg, ILayoutExpressionArg]
-  : T extends [any]
-  ? [ILayoutExpressionArg]
-  : ILayoutExpressionArg[];
-
 export interface ILayoutExpression<
   F extends LayoutExpressionFunction = LayoutExpressionFunction,
 > {
   function: F;
-  args: MapToArg<Parameters<typeof layoutExpressionFunctions[F]>>;
+  args: [ILayoutExpressionArg, ILayoutExpressionArg];
 }
 
 export interface ILayoutExpressionRunnerLookups {
