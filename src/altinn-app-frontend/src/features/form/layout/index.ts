@@ -59,8 +59,9 @@ export interface IGroupReference {
 export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes>
   extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings;
-  readOnly?: boolean;
-  required?: boolean;
+  readOnly?: boolean | ILayoutExpression;
+  required?: boolean | ILayoutExpression;
+  hidden?: boolean | ILayoutExpression;
   textResourceBindings?: ITextResourceBindings;
   grid?: IGrid;
   triggers?: Triggers[];

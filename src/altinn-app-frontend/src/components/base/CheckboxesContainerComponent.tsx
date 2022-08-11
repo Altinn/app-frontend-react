@@ -12,15 +12,13 @@ import { useGetOptions } from 'src/components/hooks';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { getOptionLookupKey } from 'src/utils/options';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompCheckboxes } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 import type { IComponentValidations, IOption } from 'src/types';
 
 import { AltinnSpinner } from 'altinn-shared/components';
 
 export interface ICheckboxContainerProps
-  extends IComponentProps,
-    ILayoutCompCheckboxes {
+  extends PropsFromGenericComponent<'Checkboxes'> {
   validationMessages: IComponentValidations;
 }
 

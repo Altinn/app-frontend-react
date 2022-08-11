@@ -23,9 +23,12 @@ import CustomComponent from 'src/components/custom/CustomWebComponent';
 import { NavigationButtons as NavigationButtonsComponent } from 'src/components/presentation/NavigationButtons';
 import type { IGenericComponentProps } from 'src/components/GenericComponent';
 import type {
+  ComponentExceptGroup,
   ComponentExceptGroupAndSummary,
   IGrid,
+  ILayoutComponent,
 } from 'src/features/form/layout';
+import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
 import type { ILanguage } from 'altinn-shared/types';
@@ -73,6 +76,9 @@ export interface IComponentProps extends IGenericComponentProps {
   formData?: IComponentFormData;
   isValid?: boolean;
 }
+
+export type PropsFromGenericComponent<T extends ComponentExceptGroup> =
+  IComponentProps & ResolvedLayoutExpression<Omit<ILayoutComponent<T>, 'type'>>;
 
 export interface IFormComponentContext {
   grid?: IGrid;

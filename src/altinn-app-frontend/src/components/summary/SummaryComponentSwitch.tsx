@@ -7,13 +7,14 @@ import SingleInputSummary from 'src/components/summary/SingleInputSummary';
 import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
 import SummaryGroupComponent from 'src/components/summary/SummaryGroupComponent';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
 
 export interface ISummaryComponentSwitch {
   change: {
     onChangeClick: () => void;
     changeText: string;
   };
-  formComponent: ILayoutComponent | ILayoutGroup;
+  formComponent: ResolvedLayoutExpression<ILayoutComponent | ILayoutGroup>;
   hasValidationMessages?: boolean;
   label?: any;
   formData?: any;
@@ -88,7 +89,7 @@ export default function SummaryComponentSwitch({
         label={label}
         hasValidationMessages={hasValidationMessages}
         formData={formData}
-        readOnlyComponent={(formComponent as ILayoutComponent).readOnly}
+        readOnlyComponent={formComponent.readOnly}
       />
     );
   }
@@ -99,7 +100,7 @@ export default function SummaryComponentSwitch({
       label={label}
       hasValidationMessages={hasValidationMessages}
       formData={formData}
-      readOnlyComponent={(formComponent as ILayoutComponent).readOnly}
+      readOnlyComponent={formComponent.readOnly}
     />
   );
 }

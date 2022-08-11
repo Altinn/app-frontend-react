@@ -10,6 +10,7 @@ import Description from 'src/features/form/components/Description';
 import Label from 'src/features/form/components/Label';
 import Legend from 'src/features/form/components/Legend';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
+import { useLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { makeGetFocus, makeGetHidden } from 'src/selectors/getLayoutData';
@@ -23,13 +24,16 @@ import {
   selectComponentTexts,
 } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { IComponentProps, IFormComponentContext } from 'src/components';
+import type {
+  IComponentProps,
+  IFormComponentContext,
+  PropsFromGenericComponent,
+} from 'src/components';
 import type {
   ComponentExceptGroup,
   ComponentTypes,
   IGridStyling,
   ILayoutCompBase,
-  ILayoutComponent,
 } from 'src/features/form/layout';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 
@@ -39,7 +43,6 @@ import type { ILanguage } from 'altinn-shared/types';
 export interface IGenericComponentProps extends Omit<ILayoutCompBase, 'type'> {
   componentValidations?: IComponentValidations;
   labelSettings?: ILabelSettings;
-  hidden?: boolean;
   layout?: LayoutStyle;
   groupContainerId?: string;
 }
@@ -96,8 +99,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function GenericComponent<Type extends ComponentExceptGroup>(
-  props: IActualGenericComponentProps<Type>,
+  _props: IActualGenericComponentProps<Type>,
 ) {
+  const props = useLayoutExpression(_props, _props.id);
   const { id, ...passThroughProps } = props;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);
@@ -306,7 +310,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     label: RenderLabel,
     legend: RenderLegend,
     ...passThroughProps,
-  } as IComponentProps & ILayoutComponent<Type>;
+  } as unknown as PropsFromGenericComponent<Type>;
 
   const noLabelComponents = [
     'Header',

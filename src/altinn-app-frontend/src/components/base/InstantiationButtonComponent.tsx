@@ -7,8 +7,7 @@ import { useInstantiateWithPrefillMutation } from 'src/services/InstancesApi';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { mapFormData } from 'src/utils/databindings';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompInstantiationButton } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 
 import { AltinnLoader } from 'altinn-shared/components';
 
@@ -32,8 +31,8 @@ const altinnLoaderStyle = {
   height: '45px',
 };
 
-export type IInstantiationButtonProps = IComponentProps &
-  Omit<ILayoutCompInstantiationButton, 'type'>;
+export type IInstantiationButtonProps =
+  PropsFromGenericComponent<'InstantiationButton'>;
 
 export function InstantiationButtonComponent(props: IInstantiationButtonProps) {
   const dispatch = useAppDispatch();

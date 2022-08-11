@@ -2,16 +2,14 @@ import React from 'react';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompButton } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 import type { IAltinnWindow } from 'src/types';
 
 import { AltinnLoader } from 'altinn-shared/components';
 import { getLanguageFromKey } from 'altinn-shared/utils/language';
 
 export interface IButtonProvidedProps
-  extends IComponentProps,
-    ILayoutCompButton {
+  extends PropsFromGenericComponent<'Button'> {
   disabled: boolean;
   formDataCount: number;
 }

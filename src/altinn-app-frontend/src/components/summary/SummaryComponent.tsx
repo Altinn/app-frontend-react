@@ -6,6 +6,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
+import { useLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import {
@@ -79,9 +80,11 @@ export function SummaryComponent({
   const attachments = useAppSelector(
     (state: IRuntimeState) => state.attachments.attachments,
   );
-  const formComponent = useAppSelector((state) => {
+  const _formComponent = useAppSelector((state) => {
     return state.formLayout.layouts[pageRef].find((c) => c.id === componentRef);
   });
+  const formComponent = useLayoutExpression(_formComponent, componentRef);
+
   const goToCorrectPageLinkText = useAppSelector((state) => {
     return getTextFromAppOrDefault(
       'form_filler.summary_go_to_correct_page',
