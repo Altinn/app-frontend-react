@@ -13,6 +13,8 @@ import type {
 } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
+import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
+
 type ResolveDistributive<T> = T extends any
   ? T extends object
     ? ResolvedLayoutExpression<T>
@@ -44,31 +46,47 @@ export function useLayoutExpression<T>(
 ): ResolvedLayoutExpression<T> {
   const component = useContext(FormComponentContext);
   const nodes = useLayoutsAsNodes();
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = useAppSelector((state) => state.formData?.formData);
+  const applicationSettings = useAppSelector(
+    (state) => state.applicationSettings?.applicationSettings,
+  );
+  const instance = useAppSelector((state) => state.instanceData?.instance);
+  const instanceContext = buildInstanceContext(instance);
   const id = componentId || component.id;
 
   const getLookups: (context: LayoutNode) => ILayoutExpressionRunnerLookups =
     useMemo(
       () => (context: LayoutNode) => ({
-        instanceContext: () => {
-          // TODO: Implement
-          return 'test';
+        instanceContext: (key) => {
+          return instanceContext[key];
         },
-        applicationSettings: () => {
-          // TODO: Implement
-          return 'test';
+        applicationSettings: (key) => {
+          return applicationSettings[key];
         },
-        component: () => {
-          // TODO: Implement this. In order to implement this correctly. Some components may not always have a
-          // simpleBinding - how do we compare these? Or do we just support simpleBinding for now?
-          return 'test';
+        component: (id) => {
+          const component = context.closest(
+            (c) => c.id === id || c.baseComponentId === id,
+          );
+          if (
+            component &&
+            component.item.dataModelBindings &&
+            component.item.dataModelBindings.simpleBinding
+          ) {
+            return formData[component.item.dataModelBindings.simpleBinding];
+          }
+          console.error(
+            `Component with id`,
+            id,
+            `not found, or it does not have a simpleBinding`,
+          );
+          return undefined;
         },
         dataModel: (path) => {
           const newPath = context.transposeDataModel(path);
           return formData[newPath] || null;
         },
       }),
-      [formData],
+      [formData, instanceContext, applicationSettings],
     );
 
   return useMemo(() => {
