@@ -2,10 +2,8 @@ import { useContext, useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
-import {
-  asLayoutExpression,
-  evalExpr,
-} from 'src/features/form/layout/expressions/expressions';
+import { evalExpr } from 'src/features/form/layout/expressions/expressions';
+import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type {
   ILayoutExpression,
