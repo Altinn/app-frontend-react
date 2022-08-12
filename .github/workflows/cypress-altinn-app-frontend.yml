@@ -51,12 +51,21 @@ jobs:
         working-directory: test/cypress
 
       - name: Verify cypress and run tests
-        run: |
-          yarn run cy:verify
-          export CYPRESS_PROJECT_ID=y2jhp6
-          export CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}
-          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          ./node_modules/.bin/start-server-and-test 'cd $GITHUB_WORKSPACE/src/altinn-app-frontend && yarn start --no-hot' http://localhost:8080/altinn-app-frontend.js 'yarn run test:all:headless --env environment=tt02,testUserName=tt02testuser,testUserPwd=${{ secrets.CYPRESS_ALTINN_USERPWD }} --record --parallel --tag "altinn-app-frontend" --group altinn-app-frontend --ci-build-id $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT'
+        run: "yarn run cy:verify\n
+          export CYPRESS_PROJECT_ID=y2jhp6\n
+          export CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}\n
+          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}\n
+          ./node_modules/.bin/start-server-and-test
+            'cd $GITHUB_WORKSPACE/src/altinn-app-frontend && yarn start --no-hot'
+            http://localhost:8080/altinn-app-frontend.js
+            'yarn run test:all:headless
+              --env environment=tt02,testUserName=tt02testuser,testUserPwd=${{ secrets.CYPRESS_ALTINN_USERPWD }}
+              --record
+              --parallel
+              --tag \"altinn-app-frontend\"
+              --group altinn-app-frontend
+              --ci-build-id $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT'
+        "
         working-directory: test/cypress
 
       - uses: actions/upload-artifact@v3
@@ -91,9 +100,15 @@ jobs:
         working-directory: test/cypress
 
       - name: Verify cypress and run tests
-        run: |
-          yarn run cy:verify
-          ./node_modules/.bin/start-server-and-test 'cd $GITHUB_WORKSPACE/src/altinn-app-frontend && yarn start --no-hot' http://localhost:8080/altinn-app-frontend.js 'yarn run test:all:headless --config watchForFileChanges=false --env environment=tt02,testUserName=testuserexternal,testUserPwd=r@h74Rz7XYQJ'
+        run: "
+          yarn run cy:verify\n
+          ./node_modules/.bin/start-server-and-test
+            'cd $GITHUB_WORKSPACE/src/altinn-app-frontend && yarn start --no-hot'
+            http://localhost:8080/altinn-app-frontend.js
+            'yarn run test:all:headless
+              --config watchForFileChanges=false
+              --env environment=tt02,testUserName=testuserexternal,testUserPwd=r@h74Rz7XYQJ'
+        "
         working-directory: test/cypress
 
       - uses: actions/upload-artifact@v3
