@@ -2,14 +2,11 @@ import { useContext, useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
+import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
 import { evalExpr } from 'src/features/form/layout/expressions/expressions';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
-import type {
-  ILayoutExpression,
-  ILayoutExpressionRunnerLookups,
-} from 'src/features/form/layout/expressions/types';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
 
 import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
 
@@ -52,41 +49,6 @@ export function useLayoutExpression<T>(
   const instanceContext = buildInstanceContext(instance);
   const id = componentId || component.id;
 
-  const getLookups: (context: LayoutNode) => ILayoutExpressionRunnerLookups =
-    useMemo(
-      () => (context: LayoutNode) => ({
-        instanceContext: (key) => {
-          return instanceContext[key];
-        },
-        applicationSettings: (key) => {
-          return applicationSettings[key];
-        },
-        component: (id) => {
-          const component = context.closest(
-            (c) => c.id === id || c.baseComponentId === id,
-          );
-          if (
-            component &&
-            component.item.dataModelBindings &&
-            component.item.dataModelBindings.simpleBinding
-          ) {
-            return formData[component.item.dataModelBindings.simpleBinding];
-          }
-          console.error(
-            `Component with id`,
-            id,
-            `not found, or it does not have a simpleBinding`,
-          );
-          return undefined;
-        },
-        dataModel: (path) => {
-          const newPath = context.transposeDataModel(path);
-          return formData[newPath] || null;
-        },
-      }),
-      [formData, instanceContext, applicationSettings],
-    );
-
   return useMemo(() => {
     if (!input) {
       return input;
@@ -102,7 +64,11 @@ export function useLayoutExpression<T>(
       return input;
     }
 
-    const lookups = getLookups(node);
+    const context = new ExpressionContext(node, {
+      instanceContext,
+      applicationSettings,
+      formData,
+    });
 
     /**
      * Recurse through an input, finds layout expressions and evaluates them
@@ -117,7 +83,7 @@ export function useLayoutExpression<T>(
 
       const expression = asLayoutExpression(obj);
       if (expression) {
-        return evalExpr(expression, lookups);
+        return evalExpr(expression, context);
       }
 
       const out = {};
@@ -129,5 +95,12 @@ export function useLayoutExpression<T>(
     };
 
     return recurse(input);
-  }, [input, nodes, id, getLookups]) as ResolvedLayoutExpression<T>;
+  }, [
+    input,
+    nodes,
+    id,
+    instanceContext,
+    applicationSettings,
+    formData,
+  ]) as ResolvedLayoutExpression<T>;
 }
