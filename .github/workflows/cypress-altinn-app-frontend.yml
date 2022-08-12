@@ -51,7 +51,8 @@ jobs:
         working-directory: test/cypress
 
       - name: Verify cypress and run tests
-        run: "yarn run cy:verify\n
+        run: "
+          yarn run cy:verify\n
           export CYPRESS_PROJECT_ID=y2jhp6\n
           export CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}\n
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}\n
@@ -84,6 +85,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Increase file watchers
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
       - uses: actions/setup-node@v2
         with:
