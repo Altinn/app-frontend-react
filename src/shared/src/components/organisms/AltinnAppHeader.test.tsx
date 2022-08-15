@@ -61,7 +61,7 @@ describe('organisms/AltinnAppHeader', () => {
     );
   });
 
-  it('should render fallback to private icon', () => {
+  it('should render private icon for user without ssn or org number', () => {
     renderComponent(anonymousUser);
     const profileButton = screen.getByRole('button', {
       name: /profilikon meny/i,
