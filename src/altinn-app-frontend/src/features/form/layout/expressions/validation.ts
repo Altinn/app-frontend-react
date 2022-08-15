@@ -1,119 +1,213 @@
-import { layoutExpressionFunctions } from 'src/features/form/layout/expressions/functions';
+import { layoutExpressionFunctions } from 'src/features/form/layout/expressions';
 import type {
+  BaseValue,
   ILayoutExpression,
-  ILayoutExpressionArg,
+  ILayoutExpressionLookupFunctions,
 } from 'src/features/form/layout/expressions/types';
 
-enum ValidationError {
-  PropCount = 'Failed to validate layout expression, unexpected property count:',
-  FuncType = 'Failed to validate layout expression, invalid function type:',
-  FuncNotImpl = 'Failed to validate layout expression, function is not implemented:',
-  ArgsNotArr = 'Failed to validate layout expression, arguments not an array:',
-  ArgsWrongNum = 'Failed to validate layout expression, wrong number of arguments:',
-  LookupArgNotString = 'Failed to validate layout expression, argument to lookup function is not a string',
+enum ValidationErrorMessage {
+  UnknownProperty = 'Unexpected property',
+  InvalidType = 'Invalid type "%s"',
+  FuncNotImpl = 'Function "%s" not implemented',
+  ArgsNotArr = 'Arguments not an array',
+  ArgsWrong = 'Expected arguments to be %s, got %s',
+  FuncMissing = 'Missing "function" key',
 }
 
-function _debug(error: ValidationError, obj: any, debug: boolean) {
-  debug && console.error(error, obj);
+interface ValidationContext {
+  errors: {
+    [key: string]: string;
+  };
+  errorList: string[];
+}
+
+const validLookupFunctions: {
+  [funcName in keyof ILayoutExpressionLookupFunctions]: true;
+} = {
+  dataModel: true,
+  applicationSettings: true,
+  component: true,
+  instanceContext: true,
+};
+
+const validBasicTypes: { [key: string]: BaseValue } = {
+  boolean: 'boolean',
+  string: 'string',
+  bigint: 'number',
+  number: 'number',
+};
+
+function addError(
+  ctx: ValidationContext,
+  path: string[],
+  message: ValidationErrorMessage,
+  ..._params: string[]
+) {
+  const errIdx = ctx.errorList.length;
+  const msg = message.replaceAll('%s', () => {
+    return 'hello world';
+  });
+  const msgRef = `[~errMsgRef-${errIdx}~]`;
+
+  ctx.errorList.push(msg);
+  ctx.errors[path.join('.')] = msgRef;
+}
+
+function validateFunctionArgs(
+  expected: (BaseValue | undefined)[],
+  actual: (BaseValue | undefined)[],
+  ctx: ValidationContext,
+  path: string[],
+) {
+  if (expected !== actual) {
+    addError(
+      ctx,
+      path,
+      ValidationErrorMessage.ArgsWrong,
+      JSON.stringify(expected),
+      JSON.stringify(actual),
+    );
+  }
+}
+
+function validateFunction(
+  funcName: any,
+  argTypes: (BaseValue | undefined)[],
+  ctx: ValidationContext,
+  path: string[],
+): BaseValue | undefined {
+  if (typeof funcName !== 'string') {
+    addError(ctx, path, ValidationErrorMessage.InvalidType, typeof funcName);
+    return;
+  }
+
+  if (funcName in layoutExpressionFunctions) {
+    const key = funcName as keyof typeof layoutExpressionFunctions;
+    validateFunctionArgs(
+      layoutExpressionFunctions[key].args,
+      argTypes,
+      ctx,
+      path,
+    );
+    return layoutExpressionFunctions[key].returns;
+  }
+
+  if (funcName in validLookupFunctions) {
+    validateFunctionArgs(['string'], argTypes, ctx, path);
+    return 'string';
+  }
+
+  addError(ctx, path, ValidationErrorMessage.FuncNotImpl, funcName);
 }
 
 function validateArgument(
-  obj: any,
-  debug: boolean,
-): obj is ILayoutExpressionArg {
-  const type = typeof obj;
-  const validBasicTypes: typeof type[] = [
-    'boolean',
-    'string',
-    'undefined',
-    'bigint',
-    'number',
-  ];
-  if (validBasicTypes.includes(type)) {
-    return true;
+  expr: any,
+  ctx: ValidationContext,
+  path: string[],
+): BaseValue | undefined {
+  const type = typeof expr;
+  if (validBasicTypes[type]) {
+    return validBasicTypes[type];
   }
-  if (obj === null) {
-    return true;
+  if (typeof expr === 'undefined' || expr === null) {
+    return;
   }
 
-  if (type === 'object' && Object.keys(obj).length === 1) {
-    const validKeys = [
-      'dataModel',
-      'component',
-      'instanceContext',
-      'applicationSettings',
-    ];
-    for (const key of validKeys) {
-      if (key in obj) {
-        if (typeof obj[key] === 'string') {
-          return true;
-        } else {
-          _debug(ValidationError.LookupArgNotString, obj, debug);
-          return false;
-        }
-      }
-    }
+  if (typeof expr === 'object') {
+    return validateRecursively(expr, ctx, path);
   }
 
-  return false;
+  addError(ctx, path, ValidationErrorMessage.InvalidType, type);
 }
 
-function asValidStructured(
-  obj: any,
-  debug: boolean,
-): ILayoutExpression | undefined {
-  if (Object.keys(obj).length !== 2) {
-    _debug(ValidationError.PropCount, obj, debug);
-    return;
+function validateRecursively(
+  expr: any,
+  ctx: ValidationContext,
+  path: string[],
+): BaseValue | undefined {
+  if (validBasicTypes[typeof expr]) {
+    return validBasicTypes[typeof expr];
   }
-  if (typeof obj.function !== 'string') {
-    _debug(ValidationError.FuncType, obj, debug);
-    return;
-  }
-  if (!layoutExpressionFunctions[obj.function]) {
-    _debug(ValidationError.FuncNotImpl, obj, debug);
-    return;
-  }
-  if (!Array.isArray(obj.args)) {
-    _debug(ValidationError.ArgsNotArr, obj, debug);
+
+  if (typeof expr === 'undefined' || expr === 'null') {
     return;
   }
 
-  const expectedArguments = obj.function === 'lookup' ? 1 : 2;
-  if (obj.args.length !== expectedArguments) {
-    _debug(ValidationError.ArgsWrongNum, obj, debug);
-    return;
+  if (typeof expr === 'object') {
+    const args: (BaseValue | undefined)[] = [];
+    let returnVal: BaseValue | undefined;
+    if ('args' in expr) {
+      if (Array.isArray(expr.args)) {
+        for (const argIdx in expr.args) {
+          args.push(
+            validateArgument(expr.args[argIdx], ctx, [
+              ...path,
+              `args[${argIdx}]`,
+            ]),
+          );
+        }
+      } else {
+        addError(ctx, [...path, 'args'], ValidationErrorMessage.ArgsNotArr);
+      }
+    } else {
+      addError(ctx, path, ValidationErrorMessage.ArgsNotArr);
+    }
+
+    if ('function' in expr) {
+      returnVal = validateFunction(expr.function, args, ctx, [
+        ...path,
+        'function',
+      ]);
+    } else {
+      addError(ctx, path, ValidationErrorMessage.FuncMissing);
+    }
+
+    const otherKeys = Object.keys(expr).filter(
+      (key) => key === 'function' || key === 'args',
+    );
+    for (const otherKey of otherKeys) {
+      addError(
+        ctx,
+        [...path, otherKey],
+        ValidationErrorMessage.UnknownProperty,
+      );
+    }
+
+    return returnVal;
   }
 
-  const allArgumentsValid = (obj.args as Array<any>)
-    .map((arg) => validateArgument(arg, debug))
-    .reduce((prev, current) => prev && current, true);
+  addError(ctx, path, ValidationErrorMessage.InvalidType, typeof expr);
+}
 
-  if (!allArgumentsValid) {
-    return;
+function validate(expr: any) {
+  const ctx: ValidationContext = {
+    errors: {},
+    errorList: [],
+  };
+
+  // TODO: Iterate errors and splice them in to produce nice error messages
+
+  if (ctx.errorList.length) {
+    // TODO: Throw exception instead
+    return undefined;
   }
 
-  return obj as ILayoutExpression;
+  return expr;
 }
 
 /**
  * Takes the input object, validates it to make sure it is a valid layout expression, returns either a fully
- * parsed structured expression (ready to pass to evalExpr()), or undefined (if not a valid expression).
+ * parsed verbose expression (ready to pass to evalExpr()), or undefined (if not a valid expression).
  *
  * @param obj Input, can be anything
- * @param debug If set to true (default) this will log an error message to the console if we found something that
- *  kind-of looks like a layout expression, but failed to validate as a proper expression. This will inform application
- *  developers of common mistakes.
  */
-export function asLayoutExpression(
-  obj: any,
-  debug = true,
-): ILayoutExpression | undefined {
-  if (typeof obj !== 'object' || obj === null) {
-    return;
-  }
-
-  if ('function' in obj && 'args' in obj) {
-    return asValidStructured(obj, debug);
+export function asLayoutExpression(obj: any): ILayoutExpression | undefined {
+  if (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'function' in obj &&
+    'args' in obj
+  ) {
+    return validate(obj);
   }
 }

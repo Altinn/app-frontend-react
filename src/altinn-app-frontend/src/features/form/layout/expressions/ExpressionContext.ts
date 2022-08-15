@@ -1,5 +1,6 @@
+import { LookupNotFound } from 'src/features/form/layout/expressions/index';
 import type { IFormData } from 'src/features/form/data';
-import type { ILayoutExpressionRunnerLookups } from 'src/features/form/layout/expressions/types';
+import type { ILayoutExpressionLookupFunctions } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 import type {
@@ -14,7 +15,7 @@ export interface ContextDataSources {
 }
 
 export class ExpressionContext {
-  public lookup: ILayoutExpressionRunnerLookups;
+  public lookup: ILayoutExpressionLookupFunctions;
 
   public constructor(
     public node: LayoutNode,
@@ -26,7 +27,7 @@ export class ExpressionContext {
   /**
    * A common implementation for the functions used by evalExpr() to look up data
    */
-  private getLookups(): ILayoutExpressionRunnerLookups {
+  private getLookups(): ILayoutExpressionLookupFunctions {
     return {
       instanceContext: (key) => {
         return this.dataSources.instanceContext[key];
@@ -47,12 +48,12 @@ export class ExpressionContext {
             component.item.dataModelBindings.simpleBinding
           ];
         }
-        console.error(
-          `Component with id`,
+
+        throw new LookupNotFound(
+          'component',
           id,
-          `not found, or it does not have a simpleBinding`,
+          'or it does not have a simpleBinding',
         );
-        return undefined;
       },
       dataModel: (path) => {
         const newPath = this.node.transposeDataModel(path);

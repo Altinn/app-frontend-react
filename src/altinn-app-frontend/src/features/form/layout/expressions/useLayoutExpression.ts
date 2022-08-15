@@ -3,7 +3,7 @@ import { useContext, useMemo } from 'react';
 import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
 import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
-import { evalExpr } from 'src/features/form/layout/expressions/expressions';
+import { evalExpr } from 'src/features/form/layout/expressions/index';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
@@ -11,7 +11,9 @@ import type { ILayoutExpression } from 'src/features/form/layout/expressions/typ
 import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
 
 type ResolveDistributive<T> = T extends any
-  ? T extends object
+  ? T extends ILayoutExpression
+    ? never
+    : T extends object
     ? ResolvedLayoutExpression<T>
     : T
   : never;
