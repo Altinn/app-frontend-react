@@ -312,12 +312,12 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     ...passThroughProps,
   } as unknown as PropsFromGenericComponent<Type>;
 
-  const noLabelComponents = [
+  const noLabelComponents: ComponentTypes[] = [
     'Header',
     'Paragraph',
     'Image',
-    'Submit',
-    'ThirdParty',
+    'NavigationButtons',
+    'Custom',
     'AddressComponent',
     'Button',
     'Checkboxes',
