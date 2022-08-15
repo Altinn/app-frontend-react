@@ -102,10 +102,14 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
         })
         .sort();
       if (groupFormData && groupFormData.length > 0) {
-        const lastItem = groupFormData[groupFormData.length - 1];
-        const match = lastItem.match(regex);
-        if (match && match[1]) {
-          const index = parseInt(match[1], 10);
+        const maxIndex = Math.max(
+          ...groupFormData.map((formDataKey) => {
+            const match = formDataKey.match(regex);
+            return parseInt(match[1], 10);
+          }),
+        );
+        if (maxIndex) {
+          const index = maxIndex;
           repeatingGroups[groupElement.id] = {
             index,
             dataModelBinding: groupElement.dataModelBindings?.group,

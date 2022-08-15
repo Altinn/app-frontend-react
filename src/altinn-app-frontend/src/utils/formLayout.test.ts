@@ -234,6 +234,51 @@ describe('getRepeatingGroups', () => {
     const result = getRepeatingGroups(testLayout, formData);
     expect(result).toEqual(expected);
   });
+  it('should return correct index from unordered formdata', () => {
+    const testLayout: ILayout = [
+      {
+        id: 'Group1',
+        type: 'Group',
+        dataModelBindings: {
+          group: 'Group1',
+        },
+        children: ['field1'],
+        maxCount: 99,
+      } as ILayoutGroup,
+      {
+        id: 'field1',
+        type: 'Input',
+        textResourceBindings: {
+          title: 'Title',
+        },
+        readOnly: false,
+        required: false,
+        disabled: false,
+      } as ILayoutComponent,
+    ];
+    const formData = {
+      'Group1[0].prop': 'value-0',
+      'Group1[1].prop': 'value-1',
+      'Group1[12].prop': 'value-1',
+      'Group1[2].prop': 'value-2',
+      'Group1[3].prop': 'value-3',
+      'Group1[4].prop': 'value-0',
+      'Group1[5].prop': 'value-1',
+      'Group1[6].prop': 'value-2',
+      'Group1[7].prop': 'value-3',
+      'Group1[8].prop': 'value-3',
+      'Group1[9].prop': 'value-3',
+    };
+    const expected = {
+      Group1: {
+        index: 12,
+        dataModelBinding: 'Group1',
+        editIndex: -1,
+      },
+    };
+    const result = getRepeatingGroups(testLayout, formData);
+    expect(result).toEqual(expected);
+  });
 });
 
 describe('removeRepeatingGroupFromUIConfig', () => {
