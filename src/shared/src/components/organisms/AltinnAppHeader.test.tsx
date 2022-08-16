@@ -17,7 +17,7 @@ describe('organisms/AltinnAppHeader', () => {
     name: 'Bedrift',
   } as IParty;
 
-  const anonymousUser = {
+  const selfIdentifiedUser = {
     childParties: null,
     isDeleted: false,
     name: 'uidp_brxzt8pt992',
@@ -62,7 +62,7 @@ describe('organisms/AltinnAppHeader', () => {
   });
 
   it('should render private icon for user without ssn or org number', () => {
-    renderComponent(anonymousUser);
+    renderComponent(selfIdentifiedUser);
     const profileButton = screen.getByRole('button', {
       name: /profilikon meny/i,
     });
