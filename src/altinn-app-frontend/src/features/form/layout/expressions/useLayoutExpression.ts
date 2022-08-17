@@ -2,10 +2,10 @@ import { useContext, useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
-import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
 import { evalExpr } from 'src/features/form/layout/expressions/index';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
 import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
 
 import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
@@ -66,37 +66,42 @@ export function useLayoutExpression<T>(
       return input;
     }
 
-    const context = new ExpressionContext(node, {
+    const dataSources: ContextDataSources = {
       instanceContext,
       applicationSettings,
       formData,
-    });
+    };
 
     /**
      * Recurse through an input, finds layout expressions and evaluates them
      */
-    const recurse = (obj: any) => {
+    const recurse = (obj: any, path: string[]) => {
       if (typeof obj !== 'object') {
         return obj;
       }
       if (Array.isArray(obj)) {
-        return obj.map(recurse);
+        const newPath = [...path];
+        const lastLeg = newPath.pop() || '';
+        return obj.map((item, idx) =>
+          recurse(item, [...newPath, `${lastLeg}[${idx}]`]),
+        );
       }
 
       const expression = asLayoutExpression(obj);
       if (expression) {
-        return evalExpr(expression, context);
+        // TODO: Get a possible default value based on the current path
+        return evalExpr(expression, node, dataSources);
       }
 
       const out = {};
       for (const key of Object.keys(obj)) {
-        out[key] = recurse(obj[key]);
+        out[key] = recurse(obj[key], [...path, key]);
       }
 
       return out;
     };
 
-    return recurse(input);
+    return recurse(input, []);
   }, [
     input,
     nodes,

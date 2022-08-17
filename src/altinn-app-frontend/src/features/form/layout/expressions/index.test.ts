@@ -1,6 +1,5 @@
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 
-import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
 import { evalExpr } from 'src/features/form/layout/expressions/index';
 import { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
 import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
@@ -154,22 +153,26 @@ describe('Layout expression', () => {
   layoutRoot._addChild(nodeFalse, layoutRoot);
 
   const initialState = getInitialStateMock();
-  const ctx = new ExpressionContext(nodeTrue, {
-    applicationSettings: initialState.applicationSettings.applicationSettings,
-    instanceContext: buildInstanceContext(initialState.instanceData.instance),
-    formData: {
-      true: 'true',
-      false: 'false',
-      5: '5',
-      helloWorld: 'hello world',
-      test: 'test',
-    },
-  });
 
   it.each(expressionTestCases)(
     'should return %j for expression %j',
     (result, expr) => {
-      expect(evalExpr(expr, ctx)).toEqual(result);
+      expect(
+        evalExpr(expr, nodeTrue, {
+          applicationSettings:
+            initialState.applicationSettings.applicationSettings,
+          instanceContext: buildInstanceContext(
+            initialState.instanceData.instance,
+          ),
+          formData: {
+            true: 'true',
+            false: 'false',
+            5: '5',
+            helloWorld: 'hello world',
+            test: 'test',
+          },
+        }),
+      ).toEqual(result);
     },
   );
 });

@@ -1,4 +1,5 @@
-import type { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
+import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
 import type {
   BaseToActual,
   BaseValue,
@@ -6,17 +7,38 @@ import type {
   ILayoutExpression,
   ILayoutExpressionLookupFunctions,
 } from 'src/features/form/layout/expressions/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 /**
- * Run/evaluate a layout expression. You have to provide your own functions for looking up external values. If you
- * need a more concrete implementation:
+ * Run/evaluate a layout expression. You have to provide your own context containing functions for looking up external
+ * values. If you need a more concrete implementation:
  * @see useLayoutExpression
  */
 export function evalExpr(
   expr: ILayoutExpression,
-  context: ExpressionContext,
-): boolean {
-  // TODO: When expression evaluation fails in runtime, report errors (with detailed description of why it went wrong)
+  node: LayoutNode,
+  dataSources: ContextDataSources,
+  defaultValue: any = -3571284,
+) {
+  const ctx = ExpressionContext.withBlankPath(expr, node, dataSources);
+
+  try {
+    return innerEvalExpr(ctx);
+  } catch (err) {
+    if (defaultValue === -3571284) {
+      // We cannot possibly know the expected default value here, so there are no safe ways to fail here except
+      // throwing the exception to let everyone know we failed.
+      throw err;
+    } else {
+      // When we know of a default value, we can safely print it as an error to the console and safely recover
+      (err.context || ctx).trace(err, defaultValue);
+      return defaultValue;
+    }
+  }
+}
+
+function innerEvalExpr(context: ExpressionContext) {
+  const expr = context.getExpr();
 
   const argTypes =
     expr.function in context.lookup
@@ -28,10 +50,15 @@ export function evalExpr(
       : layoutExpressionFunctions[expr.function].returns;
 
   const computedArgs = expr.args.map((arg, idx) => {
-    const out =
-      typeof arg === 'object' && arg !== null ? evalExpr(arg, context) : arg;
+    const argContext = ExpressionContext.withPath(context, [
+      ...context.path,
+      `args[${idx}]`,
+    ]);
 
-    return layoutExpressionCastToType[argTypes[idx]](out);
+    const argValue =
+      typeof arg === 'object' && arg !== null ? innerEvalExpr(argContext) : arg;
+
+    return castValue(argValue, argTypes[idx], argContext);
   });
 
   const actualFunc: (...args: any) => any =
@@ -39,18 +66,37 @@ export function evalExpr(
       ? context.lookup[expr.function]
       : layoutExpressionFunctions[expr.function].impl;
 
-  return layoutExpressionCastToType[returnType](actualFunc(...computedArgs));
+  const returnValue = actualFunc.apply(context, computedArgs);
+  return castValue(returnValue, returnType, context);
 }
 
-export class ExpressionRuntimeError extends Error {}
+function castValue<T extends BaseValue>(
+  value: any,
+  toType: T,
+  context: ExpressionContext,
+): BaseToActual<T> {
+  if (!(toType in layoutExpressionCastToType)) {
+    throw new Error(`Cannot cast to type: ${JSON.stringify(toType)}`);
+  }
+
+  return layoutExpressionCastToType[toType].apply(context, [value]);
+}
+
+export class ExpressionRuntimeError extends Error {
+  public constructor(public context: ExpressionContext, message: string) {
+    super(message);
+  }
+}
 
 export class LookupNotFound extends ExpressionRuntimeError {
   public constructor(
+    context: ExpressionContext,
     lookup: keyof ILayoutExpressionLookupFunctions,
     key: string,
     extra?: string,
   ) {
     super(
+      context,
       `Unable to find ${lookup} with identifier ${key}${
         extra ? ` ${extra}` : ''
       }`,
@@ -59,8 +105,12 @@ export class LookupNotFound extends ExpressionRuntimeError {
 }
 
 export class UnexpectedType extends ExpressionRuntimeError {
-  public constructor(expected: string, actual: any) {
-    super(`Expected ${expected}, got value ${JSON.stringify(actual)}`);
+  public constructor(
+    context: ExpressionContext,
+    expected: string,
+    actual: any,
+  ) {
+    super(context, `Expected ${expected}, got value ${JSON.stringify(actual)}`);
   }
 }
 
@@ -104,9 +154,12 @@ export const layoutExpressionFunctions = {
 };
 
 export const layoutExpressionCastToType: {
-  [Type in BaseValue]: (arg: any) => BaseToActual<Type>;
+  [Type in BaseValue]: (
+    this: ExpressionContext,
+    arg: any,
+  ) => BaseToActual<Type>;
 } = {
-  boolean: (arg) => {
+  boolean: function (arg) {
     if (typeof arg === 'boolean') {
       return arg;
     }
@@ -120,9 +173,9 @@ export const layoutExpressionCastToType: {
       if (arg === 1) return true;
       if (arg === 0) return false;
     }
-    throw new UnexpectedType('boolean', arg);
+    throw new UnexpectedType(this, 'boolean', arg);
   },
-  string: (arg) => {
+  string: function (arg) {
     if (typeof arg === 'boolean' || typeof arg === 'number') {
       return JSON.stringify(arg);
     }
@@ -132,7 +185,7 @@ export const layoutExpressionCastToType: {
 
     return arg;
   },
-  number: (arg) => {
+  number: function (arg) {
     if (typeof arg === 'number' || typeof arg === 'bigint') {
       return arg as number;
     }
@@ -145,6 +198,6 @@ export const layoutExpressionCastToType: {
       }
     }
 
-    throw new UnexpectedType('number', arg);
+    throw new UnexpectedType(this, 'number', arg);
   },
 };

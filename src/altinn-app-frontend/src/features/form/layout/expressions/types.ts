@@ -1,4 +1,5 @@
 import type { layoutExpressionFunctions } from 'src/features/form/layout/expressions';
+import type { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
 
 type RealFunctions = typeof layoutExpressionFunctions;
 export type LayoutExpressionFunction =
@@ -6,10 +7,10 @@ export type LayoutExpressionFunction =
   | keyof ILayoutExpressionLookupFunctions;
 
 export interface ILayoutExpressionLookupFunctions {
-  dataModel: (path: string) => string;
-  component: (baseComponentId: string) => string;
-  instanceContext: (prop: string) => string;
-  applicationSettings: (prop: string) => string;
+  dataModel: (this: ExpressionContext, path: string) => string;
+  component: (this: ExpressionContext, baseComponentId: string) => string;
+  instanceContext: (this: ExpressionContext, prop: string) => string;
+  applicationSettings: (this: ExpressionContext, prop: string) => string;
 }
 
 export type BaseValue = 'string' | 'number' | 'boolean';
@@ -26,7 +27,10 @@ type ArgsToActual<T extends BaseValue[]> = {
 };
 
 export interface FuncDef<Args extends BaseValue[], Ret extends BaseValue> {
-  impl: (...params: ArgsToActual<Args>) => BaseToActual<Ret>;
+  impl: (
+    this: ExpressionContext,
+    ...params: ArgsToActual<Args>
+  ) => BaseToActual<Ret>;
   args: Args;
   returns: Ret;
 }
