@@ -28,7 +28,7 @@ export function evalExpr(
     if (defaultValue === -3571284) {
       // We cannot possibly know the expected default value here, so there are no safe ways to fail here except
       // throwing the exception to let everyone know we failed.
-      throw err;
+      throw new Error((err.context || ctx).prettyError(err));
     } else {
       // When we know of a default value, we can safely print it as an error to the console and safely recover
       (err.context || ctx).trace(err, defaultValue);

@@ -120,25 +120,34 @@ export class ExpressionContext {
    * Create a string representation of the full expression, using the path pointer to point out where the expression
    * failed (with a message).
    */
-  public trace(err: Error, defaultValue: any): string {
+  public trace(err: Error, defaultValue: any) {
     if (!(err instanceof ExpressionRuntimeError)) {
       console.error(err);
       return;
     }
 
-    const prettyPrinted = prettyErrors(
-      this.expr,
-      { [this.path.join('.')]: [err.message] },
-      2,
+    // eslint-disable-next-line no-console
+    console.log(
+      this.prettyError(err, [
+        'Using default value instead:',
+        `  ${defaultValue}`,
+      ]),
     );
+  }
 
-    const out = [
-      'Evaluated expression:',
-      `    ${prettyPrinted}`,
-      'Defaulting to value:',
-      `    ${defaultValue}`,
-    ];
+  public prettyError(err: Error, extra: string[] = []): string {
+    if (err instanceof ExpressionRuntimeError) {
+      const prettyPrinted = prettyErrors(
+        this.expr,
+        { [this.path.join('.')]: [err.message] },
+        1,
+      );
 
-    console.log(out.join('\n'));
+      const out = ['Evaluated expression:', `  ${prettyPrinted}`, ...extra];
+
+      return out.join('\n');
+    }
+
+    return err.message;
   }
 }
