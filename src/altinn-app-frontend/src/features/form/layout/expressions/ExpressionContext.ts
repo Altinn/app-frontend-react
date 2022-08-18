@@ -4,7 +4,10 @@ import {
   ExpressionRuntimeError,
   LookupNotFound,
 } from 'src/features/form/layout/expressions/index';
-import { prettyErrors } from 'src/features/form/layout/expressions/prettyErrors';
+import {
+  prettyErrors,
+  prettyErrorsToConsole,
+} from 'src/features/form/layout/expressions/prettyErrors';
 import type { IFormData } from 'src/features/form/data';
 import type {
   ILayoutExpression,
@@ -132,10 +135,10 @@ export class ExpressionContext {
     }
 
     // eslint-disable-next-line no-console
-    console.log(...this.prettyError(err, options));
+    console.log(...this.prettyErrorConsole(err, options));
   }
 
-  public prettyError(err: Error, options?: PrettyErrorsOptions): string[] {
+  public prettyError(err: Error, options?: PrettyErrorsOptions): string {
     if (err instanceof ExpressionRuntimeError) {
       const prettyPrinted = prettyErrors({
         input: this.expr,
@@ -148,7 +151,37 @@ export class ExpressionContext {
           ? ['Using default value instead:', `  ${options.defaultValue}`]
           : [];
 
-      return ['Evaluated expression:', `  ${prettyPrinted}`, ...extra];
+      return ['Evaluated expression:', `  ${prettyPrinted}`, ...extra].join(
+        '\n',
+      );
+    }
+
+    return err.message;
+  }
+
+  public prettyErrorConsole(
+    err: Error,
+    options?: PrettyErrorsOptions,
+  ): string[] {
+    if (err instanceof ExpressionRuntimeError) {
+      const prettyPrinted = prettyErrorsToConsole({
+        input: this.expr,
+        errors: { [this.path.join('.')]: [err.message] },
+        indentation: 1,
+        defaultStyle: 'color: white',
+      });
+
+      const extra =
+        options && 'defaultValue' in options
+          ? ['Using default value instead:', `  ${options.defaultValue}`]
+          : [];
+
+      return [
+        `Evaluated expression:\n${prettyPrinted.lines}`,
+        ...prettyPrinted.css,
+        '\n',
+        ...extra.join('\n'),
+      ];
     }
 
     return [err.message];

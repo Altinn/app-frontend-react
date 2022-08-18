@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export type ErrorList = { [path: string]: string[] };
 
 export interface PrettyErrorsOptions {
@@ -6,11 +8,15 @@ export interface PrettyErrorsOptions {
   indentation?: number;
 }
 
+export interface PrettyErrorsOptionsStyling {
+  defaultStyle?: string;
+}
+
 interface In {
   obj: any;
   errors: ErrorList;
   path: string[];
-  css: string[] | undefined;
+  css: { [unique: string]: { original: string; style: string } } | undefined;
 }
 
 type RecursiveLines = (string | RecursiveLines)[];
@@ -34,10 +40,30 @@ function trimLastTrailingComma(lines: RecursiveLines) {
   }
 }
 
-function errorLines({ path, errors }: In): string[] {
-  const stringPath = path.join('.');
-  if (errors[stringPath] && errors[stringPath].length) {
-    return errors[stringPath].map((err) => `→ ${err}`);
+const cssRegex = /(\{css:[a-f0-9]+})/g;
+
+function style(text: string, style: string, input: In): string {
+  if (input.css !== undefined) {
+    const uuid = `{css:${uuidv4().replaceAll('-', '')}}`;
+    input.css[uuid] = {
+      original: text,
+      style,
+    };
+    return uuid;
+  }
+
+  return text;
+}
+
+function errorLines(input: In): string[] {
+  const stringPath = input.path.join('.');
+  if (input.errors[stringPath] && input.errors[stringPath].length) {
+    return input.errors[stringPath].map((err) =>
+      [
+        style('→', 'color: orange; font-weight: bold;', input),
+        style(err, 'color: orange; font-style: italic;', input),
+      ].join(' '),
+    );
   }
 
   return [];
@@ -74,7 +100,11 @@ function inline(out: Out): RecursiveLines {
   return newLines;
 }
 
-function appendErrors(out: Out, lineLength?: number): RecursiveLines {
+function appendErrors(
+  input: In,
+  out: Out,
+  lineLength?: number,
+): RecursiveLines {
   const lines: RecursiveLines = [];
   if (out.errors.length) {
     let lastLineLength = lineLength || 1;
@@ -89,7 +119,10 @@ function appendErrors(out: Out, lineLength?: number): RecursiveLines {
         (out.inline ? out.start.length : 0);
     }
 
-    lines.push('^'.repeat(lastLineLength), ...out.errors);
+    lines.push(
+      style('^'.repeat(lastLineLength), 'color: red;', input),
+      ...out.errors,
+    );
   }
 
   return lines;
@@ -116,7 +149,7 @@ function postProcessObjectLike(
     if (parseInt(idx) === results.length - 1) {
       trimLastTrailingComma(newLines);
     }
-    newLines.push(...appendErrors(result, fixedErrorLength));
+    newLines.push(...appendErrors(input, result, fixedErrorLength));
   }
 
   const errors = errorLines(input);
@@ -203,14 +236,19 @@ function indent(lines: RecursiveLines, level: number): string[] {
   return returnVal;
 }
 
-function postProcessOuterObject(out: Out, level: number): string[] {
+function postProcessOuterObject(input: In, out: Out, level: number): string[] {
   trimLastTrailingComma(out.lines);
 
   const lines = out.inline
-    ? [...inline(out), ...appendErrors(out)]
+    ? [...inline(out), ...appendErrors(input, out)]
     : out.start
-    ? [out.start, out.lines, trimTrailingComma(out.end), ...appendErrors(out)]
-    : [...out.lines, ...appendErrors(out)];
+    ? [
+        out.start,
+        out.lines,
+        trimTrailingComma(out.end),
+        ...appendErrors(input, out),
+      ]
+    : [...out.lines, ...appendErrors(input, out)];
 
   return indent(lines, level);
 }
@@ -223,14 +261,14 @@ export function prettyErrors({
   errors,
   indentation,
 }: PrettyErrorsOptions): string {
-  const out = prettyErrorsRecursive({
+  const i: In = {
     obj: input,
     errors: errors || {},
     path: [],
     css: undefined,
-  });
-
-  return postProcessOuterObject(out, indentation || 0).join('\n');
+  };
+  const out = prettyErrorsRecursive(i);
+  return postProcessOuterObject(i, out, indentation || 0).join('\n');
 }
 
 /**
@@ -240,18 +278,27 @@ export function prettyErrorsToConsole({
   input,
   errors,
   indentation,
-}: PrettyErrorsOptions): { lines: string[]; css: string[] } {
-  const css = [];
-  const out = prettyErrorsRecursive({
+  defaultStyle,
+}: PrettyErrorsOptions & PrettyErrorsOptionsStyling): {
+  lines: string;
+  css: string[];
+} {
+  const css: In['css'] = {};
+  const i: In = {
     obj: input,
     errors: errors || {},
     path: [],
     css,
-  });
-
-  // TODO: Implement CSS support
-  return {
-    lines: postProcessOuterObject(out, indentation || 0),
-    css,
   };
+  const cssList = [defaultStyle || ''];
+  const out = prettyErrorsRecursive(i);
+  const lines = postProcessOuterObject(i, out, indentation || 0)
+    .join('\n')
+    .replaceAll(cssRegex, (match) => {
+      cssList.push(css[match].style);
+      cssList.push(defaultStyle || '');
+      return `%c${css[match].original}%c`;
+    });
+
+  return { lines: `%c${lines}`, css: cssList };
 }
