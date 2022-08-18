@@ -308,7 +308,10 @@ export function GroupContainer({
           repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
           repeatingGroupIndex={repeatingGroupIndex}
           repeatingGroups={repeatingGroups}
+          deleting={deletingIndexes.includes(repeatingGroupIndex)}
           setEditIndex={setEditIndex}
+          onClickRemove={onClickRemove}
+          setMultiPageIndex={setMultiPageIndex}
           textResources={textResources}
           validations={validations}
           filteredIndexes={filteredIndexList}

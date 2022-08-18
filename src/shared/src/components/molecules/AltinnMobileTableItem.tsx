@@ -21,8 +21,10 @@ export interface IMobileTableItem {
 export interface IAltinnMobileTableItemProps {
   items: IMobileTableItem[];
   valid?: boolean;
-  onClick: () => void;
-  iconNode: React.ReactNode;
+  onEditClick: () => void;
+  onDeleteClick?: () => void;
+  deleteIconNode?: React.ReactNode;
+  editIconNode: React.ReactNode;
 }
 
 const useStyles = makeStyles({
@@ -69,6 +71,27 @@ const useStyles = makeStyles({
       outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
     },
   },
+  deleteButton: {
+    color: theme.altinnPalette.primary.red,
+    fontWeight: 700,
+    padding: '8px 12px 6px 6px',
+    borderRadius: '0',
+    marginRight: '-12px',
+    '@media (min-width:768px)': {
+      margin: '0',
+    },
+    '&:hover': {
+      background: theme.altinnPalette.primary.red,
+      color: theme.altinnPalette.primary.white,
+    },
+    '&:focus': {
+      outlineColor: theme.altinnPalette.primary.red,
+    },
+    '& .ai': {
+      fontSize: '2em',
+      marginTop: '-3px',
+    },
+  },
   textContainer: {
     width: '100%',
     display: 'block',
@@ -81,8 +104,10 @@ const useStyles = makeStyles({
 export default function AltinnMobileTableItem({
   items,
   valid = true,
-  onClick,
-  iconNode,
+  onEditClick,
+  onDeleteClick,
+  editIconNode,
+  deleteIconNode,
 }: IAltinnMobileTableItemProps) {
   const classes = useStyles();
 
@@ -121,13 +146,20 @@ export default function AltinnMobileTableItem({
             );
           })}
           <TableRow>
-            <TableCell width='40%' />
             <TableCell>
               <IconButton
                 className={classes.tableEditButton}
-                onClick={onClick}
+                onClick={onEditClick}
               >
-                {iconNode}
+                {editIconNode}
+              </IconButton>
+            </TableCell>
+            <TableCell>
+              <IconButton
+                className={classes.deleteButton}
+                onClick={onDeleteClick}
+              >
+                {deleteIconNode}
               </IconButton>
             </TableCell>
           </TableRow>

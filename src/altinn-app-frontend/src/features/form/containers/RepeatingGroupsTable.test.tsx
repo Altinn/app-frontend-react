@@ -145,6 +145,8 @@ describe('RepeatingGroupTable', () => {
         repeatingGroupDeepCopyComponents={mockRepeatingGroupDeepCopyComponents}
         repeatingGroupIndex={repeatingGroupIndex}
         repeatingGroups={mockLayout.uiConfig.repeatingGroups}
+        deleting={false}
+        onClickRemove={jest.fn()}
         setEditIndex={jest.fn()}
         validations={{}}
       />,

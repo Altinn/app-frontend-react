@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import {
   createTheme,
@@ -65,6 +65,9 @@ export interface IRepeatingGroupTableProps {
   validations: IValidations;
   editIndex: number;
   setEditIndex: (index: number) => void;
+  onClickRemove: (groupIndex: number) => void;
+  setMultiPageIndex?: (index: number) => void;
+  deleting: boolean;
   filteredIndexes?: number[];
 }
 
@@ -99,6 +102,27 @@ const useStyles = makeStyles({
     '&:focus': {
       background: theme.altinnPalette.primary.blueLighter,
       outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
+    },
+  },
+  deleteButton: {
+    color: theme.altinnPalette.primary.red,
+    fontWeight: 700,
+    padding: '8px 12px 6px 6px',
+    borderRadius: '0',
+    marginRight: '-12px',
+    '@media (min-width:768px)': {
+      margin: '0',
+    },
+    '&:hover': {
+      background: theme.altinnPalette.primary.red,
+      color: theme.altinnPalette.primary.white,
+    },
+    '&:focus': {
+      outlineColor: theme.altinnPalette.primary.red,
+    },
+    '& .ai': {
+      fontSize: '2em',
+      marginTop: '-3px',
     },
   },
 });
@@ -142,6 +166,8 @@ export function RepeatingGroupTable({
   repeatingGroups,
   validations,
   setEditIndex,
+  onClickRemove,
+  deleting,
   filteredIndexes,
 }: IRepeatingGroupTableProps): JSX.Element {
   const classes = useStyles();
@@ -222,6 +248,15 @@ export function RepeatingGroupTable({
       hiddenFields,
     );
   };
+
+  const removeClicked = useCallback(
+    (index: number) => {
+      return async () => {
+        onClickRemove(index);
+      };
+    },
+    [onClickRemove],
+  );
 
   return (
     <Grid
@@ -305,6 +340,19 @@ export function RepeatingGroupTable({
                               )}
                         </IconButton>
                       </TableCell>
+                      <TableCell
+                        align='right'
+                        key={`delete-${index}`}
+                      >
+                        <IconButton
+                          className={classes.deleteButton}
+                          disabled={deleting}
+                          onClick={removeClicked(index)}
+                        >
+                          <i className='ai ai-trash' />
+                          {getLanguageFromKey('general.delete', language)}
+                        </IconButton>
+                      </TableCell>
                     </AltinnTableRow>
                   );
                 },
@@ -342,8 +390,9 @@ export function RepeatingGroupTable({
                     key={index}
                     items={items}
                     valid={!rowHasErrors}
-                    onClick={() => onClickEdit(index)}
-                    iconNode={
+                    onEditClick={() => onClickEdit(index)}
+                    onDeleteClick={() => onClickRemove(index)}
+                    editIconNode={
                       <>
                         <i
                           className={
@@ -363,6 +412,12 @@ export function RepeatingGroupTable({
                               textResources,
                               container.textResourceBindings,
                             )}
+                      </>
+                    }
+                    deleteIconNode={
+                      <>
+                        <i className={'ai ai-trash'} />
+                        {getLanguageFromKey('general.delete', language)}
                       </>
                     }
                   />
