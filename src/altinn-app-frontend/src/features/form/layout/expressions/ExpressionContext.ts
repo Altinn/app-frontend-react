@@ -23,6 +23,11 @@ export interface ContextDataSources {
   formData: IFormData;
 }
 
+export interface PrettyErrorsOptions {
+  defaultValue?: any;
+  colors?: boolean;
+}
+
 export class ExpressionContext {
   public lookup: ILayoutExpressionLookupFunctions;
   public path: string[] = [];
@@ -120,34 +125,32 @@ export class ExpressionContext {
    * Create a string representation of the full expression, using the path pointer to point out where the expression
    * failed (with a message).
    */
-  public trace(err: Error, defaultValue: any) {
+  public trace(err: Error, options?: PrettyErrorsOptions) {
     if (!(err instanceof ExpressionRuntimeError)) {
       console.error(err);
       return;
     }
 
     // eslint-disable-next-line no-console
-    console.log(
-      this.prettyError(err, [
-        'Using default value instead:',
-        `  ${defaultValue}`,
-      ]),
-    );
+    console.log(...this.prettyError(err, options));
   }
 
-  public prettyError(err: Error, extra: string[] = []): string {
+  public prettyError(err: Error, options?: PrettyErrorsOptions): string[] {
     if (err instanceof ExpressionRuntimeError) {
-      const prettyPrinted = prettyErrors(
-        this.expr,
-        { [this.path.join('.')]: [err.message] },
-        1,
-      );
+      const prettyPrinted = prettyErrors({
+        input: this.expr,
+        errors: { [this.path.join('.')]: [err.message] },
+        indentation: 1,
+      });
 
-      const out = ['Evaluated expression:', `  ${prettyPrinted}`, ...extra];
+      const extra =
+        options && 'defaultValue' in options
+          ? ['Using default value instead:', `  ${options.defaultValue}`]
+          : [];
 
-      return out.join('\n');
+      return ['Evaluated expression:', `  ${prettyPrinted}`, ...extra];
     }
 
-    return err.message;
+    return [err.message];
   }
 }

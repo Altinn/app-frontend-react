@@ -2,14 +2,22 @@ import { prettyErrors } from 'src/features/form/layout/expressions/prettyErrors'
 
 describe('prettyErrors', () => {
   it('should pretty-print errors for simple values', () => {
-    expect(prettyErrors('hello world', { '': ['Some error message'] })).toEqual(
+    expect(
+      prettyErrors({
+        input: 'hello world',
+        errors: { '': ['Some error message'] },
+      }),
+    ).toEqual(
       ['"hello world"', '^^^^^^^^^^^^^', '→ Some error message'].join('\n'),
     );
   });
   it('should pretty-print multiple errors', () => {
     expect(
-      prettyErrors('hello world', {
-        '': ['Some error message', 'some other message'],
+      prettyErrors({
+        input: 'hello world',
+        errors: {
+          '': ['Some error message', 'some other message'],
+        },
       }),
     ).toEqual(
       [
@@ -22,9 +30,12 @@ describe('prettyErrors', () => {
   });
   it('should pretty-print errors inside a simple array', () => {
     expect(
-      prettyErrors(['hello', 'world'], {
-        '[0]': ['Hello is not valid', 'some other message'],
-        '[1]': ['World is not valid'],
+      prettyErrors({
+        input: ['hello', 'world'],
+        errors: {
+          '[0]': ['Hello is not valid', 'some other message'],
+          '[1]': ['World is not valid'],
+        },
       }),
     ).toEqual(
       [
@@ -33,7 +44,7 @@ describe('prettyErrors', () => {
         '  ^^^^^^^',
         '  → Hello is not valid',
         '  → some other message',
-        '  "world",',
+        '  "world"',
         '  ^^^^^^^',
         '  → World is not valid',
         ']',
@@ -42,8 +53,8 @@ describe('prettyErrors', () => {
   });
   it('should pretty-print errors inside a complex object', () => {
     expect(
-      prettyErrors(
-        {
+      prettyErrors({
+        input: {
           key1: ['hello', 'world'],
           key2: ['hello', 'world'],
           key3: {
@@ -55,7 +66,7 @@ describe('prettyErrors', () => {
             bool1: true,
           },
         },
-        {
+        errors: {
           key1: ['this array is fine'],
           'key2[1]': ['world found here'],
           'key3.arr2[1]': ['world found here as well', 'some other line'],
@@ -63,7 +74,7 @@ describe('prettyErrors', () => {
           'key3.string1': ['foo found here'],
           key3: ['this whole object is wrong'],
         },
-      ),
+      }),
     ).toEqual(
       [
         '{',
@@ -72,7 +83,7 @@ describe('prettyErrors', () => {
         '  → this array is fine',
         '  key2: [',
         '    "hello",',
-        '    "world",',
+        '    "world"',
         '    ^^^^^^^',
         '    → world found here',
         '  ],',
@@ -80,7 +91,7 @@ describe('prettyErrors', () => {
         '    arr1: ["hello", "world"],',
         '    arr2: [',
         '      "hello",',
-        '      "world",',
+        '      "world"',
         '      ^^^^^^^',
         '      → world found here as well',
         '      → some other line',
@@ -92,8 +103,8 @@ describe('prettyErrors', () => {
         '    → foo found here',
         '    number1: 5,',
         '    null1: null,',
-        '    bool1: true,',
-        '  },',
+        '    bool1: true',
+        '  }',
         '  ^',
         '  → this whole object is wrong',
         '}',
@@ -103,17 +114,19 @@ describe('prettyErrors', () => {
   it('should pretty-print a complex object without errors', () => {
     expect(
       prettyErrors({
-        arr1: ['hello', 'world'],
-        arr2: ['hello', 'world'],
-        obj3: { key: 'value' },
-        obj4: {
+        input: {
           arr1: ['hello', 'world'],
           arr2: ['hello', 'world'],
-          arr3: ['hello', 'world', 'and', 'many', 'other', 'items'],
-          string1: 'foo',
-          number1: 5,
-          null1: null,
-          bool1: true,
+          obj3: { key: 'value' },
+          obj4: {
+            arr1: ['hello', 'world'],
+            arr2: ['hello', 'world'],
+            arr3: ['hello', 'world', 'and', 'many', 'other', 'items'],
+            string1: 'foo',
+            number1: 5,
+            null1: null,
+            bool1: true,
+          },
         },
       }),
     ).toEqual(
@@ -131,26 +144,26 @@ describe('prettyErrors', () => {
         '      "and",',
         '      "many",',
         '      "other",',
-        '      "items",',
+        '      "items"',
         '    ],',
         '    string1: "foo",',
         '    number1: 5,',
         '    null1: null,',
-        '    bool1: true,',
-        '  },',
+        '    bool1: true',
+        '  }',
         '}',
       ].join('\n'),
     );
   });
   it('should render an expression error message', () => {
     expect(
-      prettyErrors(
-        {
+      prettyErrors({
+        input: {
           function: 'greaterThanEq',
           args: [{ function: 'component', args: ['alder'] }, 18],
         },
-        { 'args[0]': ['some error message about this expression'] },
-      ),
+        errors: { 'args[0]': ['some error message about this expression'] },
+      }),
     ).toEqual(
       [
         '{',
@@ -159,31 +172,31 @@ describe('prettyErrors', () => {
         '    {function: "component", args: ["alder"]},',
         '    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^',
         '    → some error message about this expression',
-        '    18,',
-        '  ],',
+        '    18',
+        '  ]',
         '}',
       ].join('\n'),
     );
   });
   it('should render another expression error message', () => {
     expect(
-      prettyErrors(
-        {
+      prettyErrors({
+        input: {
           function: 'greaterThanEq',
           args: [{ function: 'component', args: ['alder'] }, 18],
         },
-        { 'args[1]': ['some error message about 18'] },
-      ),
+        errors: { 'args[1]': ['some error message about 18'] },
+      }),
     ).toEqual(
       [
         '{',
         '  function: "greaterThanEq",',
         '  args: [',
         '    {function: "component", args: ["alder"]},',
-        '    18,',
+        '    18',
         '    ^^',
         '    → some error message about 18',
-        '  ],',
+        '  ]',
         '}',
       ].join('\n'),
     );
