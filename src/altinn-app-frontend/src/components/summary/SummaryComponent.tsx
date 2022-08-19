@@ -90,7 +90,6 @@ export function SummaryComponent({
       required: false,
       readOnly: false,
       edit: {
-        editButton: true,
         addButton: true,
         deleteButton: true,
         saveButton: true,

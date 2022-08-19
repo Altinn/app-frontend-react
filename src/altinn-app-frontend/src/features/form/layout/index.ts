@@ -320,7 +320,6 @@ export interface IGroupEditProperties {
   addButton?: ILayoutExpressionOr<'boolean'>;
   saveButton?: ILayoutExpressionOr<'boolean'>;
   deleteButton?: ILayoutExpressionOr<'boolean'>;
-  editButton?: ILayoutExpressionOr<'boolean'>; // TODO: Implement this
   multiPage?: boolean;
   openByDefault?: boolean;
 }

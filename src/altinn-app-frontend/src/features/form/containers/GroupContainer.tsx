@@ -78,7 +78,6 @@ export function GroupContainer({
   const edit = useLayoutExpression(container.edit, {
     forComponentId: id,
     defaults: {
-      editButton: true,
       deleteButton: true,
       saveButton: true,
       addButton: true,
