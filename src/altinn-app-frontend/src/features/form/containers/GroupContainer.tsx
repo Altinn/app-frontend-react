@@ -75,7 +75,15 @@ export function GroupContainer({
     JSON.stringify(components),
   );
 
-  const edit = useLayoutExpression(container.edit, id);
+  const edit = useLayoutExpression(container.edit, {
+    forComponentId: id,
+    defaults: {
+      editButton: true,
+      deleteButton: true,
+      saveButton: true,
+      addButton: true,
+    },
+  });
 
   const editIndex = useAppSelector(
     (state: IRuntimeState) =>

@@ -83,7 +83,20 @@ export function SummaryComponent({
   const _formComponent = useAppSelector((state) => {
     return state.formLayout.layouts[pageRef].find((c) => c.id === componentRef);
   });
-  const formComponent = useLayoutExpression(_formComponent, componentRef);
+  const formComponent = useLayoutExpression(_formComponent, {
+    forComponentId: componentRef,
+    defaults: {
+      hidden: false,
+      required: false,
+      readOnly: false,
+      edit: {
+        editButton: true,
+        addButton: true,
+        deleteButton: true,
+        saveButton: true,
+      },
+    },
+  });
 
   const goToCorrectPageLinkText = useAppSelector((state) => {
     return getTextFromAppOrDefault(

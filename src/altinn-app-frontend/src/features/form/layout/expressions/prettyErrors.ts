@@ -60,8 +60,8 @@ function errorLines(input: In): string[] {
   if (input.errors[stringPath] && input.errors[stringPath].length) {
     return input.errors[stringPath].map((err) =>
       [
-        style('→', 'color: orange; font-weight: bold;', input),
-        style(err, 'color: orange; font-style: italic;', input),
+        style('→', 'color: red; font-weight: bold;', input),
+        style(err, 'color: red; font-style: italic;', input),
       ].join(' '),
     );
   }
@@ -120,7 +120,7 @@ function appendErrors(
     }
 
     lines.push(
-      style('^'.repeat(lastLineLength), 'color: red;', input),
+      style('~'.repeat(lastLineLength), 'color: red;', input),
       ...out.errors,
     );
   }

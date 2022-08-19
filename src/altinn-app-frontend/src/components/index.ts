@@ -29,7 +29,7 @@ import type {
   IGrid,
   ILayoutComponent,
 } from 'src/features/form/layout';
-import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
+import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
 import type { ILanguage } from 'altinn-shared/types';

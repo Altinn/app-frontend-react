@@ -8,7 +8,7 @@ import SingleInputSummary from 'src/components/summary/SingleInputSummary';
 import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
 import SummaryGroupComponent from 'src/components/summary/SummaryGroupComponent';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
-import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
+import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/types';
 
 export interface ISummaryComponentSwitch {
   change: {

@@ -1,31 +1,36 @@
 import { useContext, useMemo } from 'react';
 
+import dot from 'dot-object';
+
 import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
 import { evalExpr } from 'src/features/form/layout/expressions/index';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
-import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
+import type { EvalExprOptions } from 'src/features/form/layout/expressions/index';
+import type {
+  LayoutExpressionDefaultValues,
+  ResolvedLayoutExpression,
+} from 'src/features/form/layout/expressions/types';
 
 import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
 
-type ResolveDistributive<T> = T extends any
-  ? T extends ILayoutExpression
-    ? never
-    : T extends object
-    ? ResolvedLayoutExpression<T>
-    : T
-  : never;
+export interface UseLayoutExpressionOptions<T> {
+  /**
+   * The component ID for the current component context. Usually optional, as it will be fetched from
+   * the FormComponentContext if not given.
+   */
+  forComponentId?: string;
 
-/**
- * This magic type removes all layout expressions from the input type
- * @see https://stackoverflow.com/a/54487392
- */
-export type ResolvedLayoutExpression<T> = Exclude<
-  { [P in keyof T]: ResolveDistributive<T[P]> },
-  ILayoutExpression
->;
+  /**
+   * Default values in case the expression evaluation fails. If this is not given, a failing expression will throw
+   * an exception and fail hard. If you provide default values for your expressions, a failing expression will instead
+   * print out a pretty error message to the console explaining what went wrong - and continue by using the default
+   * value instead.
+   */
+  defaults?: LayoutExpressionDefaultValues<T, 1>; // <-- Recursion depth limited by the second generic param
+}
 
 /**
  * React hook used to resolve layout expressions from a component layout definitions. This
@@ -34,12 +39,11 @@ export type ResolvedLayoutExpression<T> = Exclude<
  * @param input Any input, object, value from the layout definitions, possibly containing layout expressions somewhere.
  *  This hook will look through the input (and recurse through objects), looking for layout expressions and resolve
  *  them to provide you with the base out value for the current component context.
- * @param componentId The component ID for the current component context. Usually optional, as it will be fetched from
- *  the FormComponentContext if not given.
+ * @param options Optional options (see their own docs)
  */
 export function useLayoutExpression<T>(
   input: T,
-  componentId?: string,
+  options?: UseLayoutExpressionOptions<T>,
 ): ResolvedLayoutExpression<T> {
   const component = useContext(FormComponentContext);
   const nodes = useLayoutsAsNodes();
@@ -49,7 +53,7 @@ export function useLayoutExpression<T>(
   );
   const instance = useAppSelector((state) => state.instanceData?.instance);
   const instanceContext = buildInstanceContext(instance);
-  const id = componentId || component.id;
+  const id = (options && options.forComponentId) || component.id;
 
   return useMemo(() => {
     if (!input) {
@@ -89,8 +93,17 @@ export function useLayoutExpression<T>(
 
       const expression = asLayoutExpression(obj);
       if (expression) {
-        // TODO: Get a possible default value based on the current path
-        return evalExpr(expression, node, dataSources);
+        const pathString = path.join('.');
+        const exprOptions: EvalExprOptions = {
+          errorIntroText: `Evaluated expression for '${pathString}' in component '${id}'`,
+        };
+        if (options && options.defaults) {
+          const defaultValue = dot.pick(pathString, options.defaults);
+          if (typeof defaultValue !== 'undefined') {
+            exprOptions.defaultValue = defaultValue;
+          }
+        }
+        return evalExpr(expression, node, dataSources, exprOptions);
       }
 
       const out = {};
@@ -109,5 +122,6 @@ export function useLayoutExpression<T>(
     instanceContext,
     applicationSettings,
     formData,
+    options,
   ]) as ResolvedLayoutExpression<T>;
 }

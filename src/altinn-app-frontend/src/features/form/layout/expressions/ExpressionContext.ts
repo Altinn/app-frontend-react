@@ -28,7 +28,7 @@ export interface ContextDataSources {
 
 export interface PrettyErrorsOptions {
   defaultValue?: any;
-  colors?: boolean;
+  introText?: string;
 }
 
 export class ExpressionContext {
@@ -146,14 +146,17 @@ export class ExpressionContext {
         indentation: 1,
       });
 
+      const introText =
+        options && 'introText' in options
+          ? options.introText
+          : 'Evaluated expression:';
+
       const extra =
         options && 'defaultValue' in options
           ? ['Using default value instead:', `  ${options.defaultValue}`]
           : [];
 
-      return ['Evaluated expression:', `  ${prettyPrinted}`, ...extra].join(
-        '\n',
-      );
+      return [`${introText}:`, `  ${prettyPrinted}`, ...extra].join('\n');
     }
 
     return err.message;
@@ -168,19 +171,25 @@ export class ExpressionContext {
         input: this.expr,
         errors: { [this.path.join('.')]: [err.message] },
         indentation: 1,
-        defaultStyle: 'color: white',
+        defaultStyle: '',
       });
+
+      const introText =
+        options && 'introText' in options
+          ? options.introText
+          : 'Evaluated expression:';
 
       const extra =
         options && 'defaultValue' in options
-          ? ['Using default value instead:', `  ${options.defaultValue}`]
-          : [];
+          ? `\n%cUsing default value instead:\n  %c${options.defaultValue}%c`
+          : '';
+      const extraCss =
+        options && 'defaultValue' in options ? ['', 'color: red;', ''] : [];
 
       return [
-        `Evaluated expression:\n${prettyPrinted.lines}`,
+        `${introText}:\n${prettyPrinted.lines}${extra}`,
         ...prettyPrinted.css,
-        '\n',
-        ...extra.join('\n'),
+        ...extraCss,
       ];
     }
 

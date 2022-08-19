@@ -9,6 +9,11 @@ import type {
 } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
+export interface EvalExprOptions {
+  defaultValue?: any;
+  errorIntroText?: string;
+}
+
 /**
  * Run/evaluate a layout expression. You have to provide your own context containing functions for looking up external
  * values. If you need a more concrete implementation:
@@ -18,21 +23,26 @@ export function evalExpr(
   expr: ILayoutExpression,
   node: LayoutNode,
   dataSources: ContextDataSources,
-  defaultValue: any = -3571284,
+  options?: EvalExprOptions,
 ) {
   const ctx = ExpressionContext.withBlankPath(expr, node, dataSources);
 
   try {
     return innerEvalExpr(ctx);
   } catch (err) {
-    if (defaultValue === -3571284) {
+    if (options && 'defaultValue' in options) {
+      // When we know of a default value, we can safely print it as an error to the console and safely recover
+      (err.context || ctx).trace(err, {
+        defaultValue: options.defaultValue,
+        ...(options.errorIntroText
+          ? { introText: options.errorIntroText }
+          : {}),
+      });
+      return options.defaultValue;
+    } else {
       // We cannot possibly know the expected default value here, so there are no safe ways to fail here except
       // throwing the exception to let everyone know we failed.
       throw new Error((err.context || ctx).prettyError(err));
-    } else {
-      // When we know of a default value, we can safely print it as an error to the console and safely recover
-      (err.context || ctx).trace(err, defaultValue);
-      return defaultValue;
     }
   }
 }

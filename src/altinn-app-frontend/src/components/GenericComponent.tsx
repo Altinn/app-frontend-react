@@ -34,7 +34,9 @@ import type {
   ComponentTypes,
   IGridStyling,
   ILayoutCompBase,
+  ILayoutComponent,
 } from 'src/features/form/layout';
+import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/types';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 
 import { getTextResourceByKey } from 'altinn-shared/utils';
@@ -101,7 +103,17 @@ const useStyles = makeStyles((theme) => ({
 export function GenericComponent<Type extends ComponentExceptGroup>(
   _props: IActualGenericComponentProps<Type>,
 ) {
-  const props = useLayoutExpression(_props, _props.id);
+  const props = useLayoutExpression(_props as ILayoutComponent, {
+    forComponentId: _props.id,
+    defaults: {
+      readOnly: false,
+      required: false,
+      hidden: false,
+    },
+  }) as ResolvedLayoutExpression<IActualGenericComponentProps<Type>> & {
+    type: Type;
+  };
+
   const { id, ...passThroughProps } = props;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);
