@@ -66,6 +66,7 @@ export interface IRepeatingGroupTableProps {
   editIndex: number;
   setEditIndex: (index: number) => void;
   onClickRemove: (groupIndex: number) => void;
+  hideDeleteButton?: boolean;
   setMultiPageIndex?: (index: number) => void;
   deleting: boolean;
   filteredIndexes?: number[];
@@ -167,6 +168,7 @@ export function RepeatingGroupTable({
   validations,
   setEditIndex,
   onClickRemove,
+  hideDeleteButton,
   deleting,
   filteredIndexes,
 }: IRepeatingGroupTableProps): JSX.Element {
@@ -340,19 +342,21 @@ export function RepeatingGroupTable({
                               )}
                         </IconButton>
                       </TableCell>
-                      <TableCell
-                        align='right'
-                        key={`delete-${index}`}
-                      >
-                        <IconButton
-                          className={classes.deleteButton}
-                          disabled={deleting}
-                          onClick={removeClicked(index)}
+                      {!hideDeleteButton && (
+                        <TableCell
+                          align='right'
+                          key={`delete-${index}`}
                         >
-                          <i className='ai ai-trash' />
-                          {getLanguageFromKey('general.delete', language)}
-                        </IconButton>
-                      </TableCell>
+                          <IconButton
+                            className={classes.deleteButton}
+                            disabled={deleting}
+                            onClick={removeClicked(index)}
+                          >
+                            <i className='ai ai-trash' />
+                            {getLanguageFromKey('general.delete', language)}
+                          </IconButton>
+                        </TableCell>
+                      )}
                     </AltinnTableRow>
                   );
                 },
@@ -415,10 +419,12 @@ export function RepeatingGroupTable({
                       </>
                     }
                     deleteIconNode={
-                      <>
-                        <i className={'ai ai-trash'} />
-                        {getLanguageFromKey('general.delete', language)}
-                      </>
+                      !hideDeleteButton && (
+                        <>
+                          <i className={'ai ai-trash'} />
+                          {getLanguageFromKey('general.delete', language)}
+                        </>
+                      )
                     }
                   />
                 );

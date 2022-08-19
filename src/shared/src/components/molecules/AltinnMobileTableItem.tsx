@@ -154,14 +154,16 @@ export default function AltinnMobileTableItem({
                 {editIconNode}
               </IconButton>
             </TableCell>
-            <TableCell>
-              <IconButton
-                className={classes.deleteButton}
-                onClick={onDeleteClick}
-              >
-                {deleteIconNode}
-              </IconButton>
-            </TableCell>
+            {deleteIconNode && (
+              <TableCell>
+                <IconButton
+                  className={classes.deleteButton}
+                  onClick={onDeleteClick}
+                >
+                  {deleteIconNode}
+                </IconButton>
+              </TableCell>
+            )}
           </TableRow>
         </TableBody>
       </Table>
