@@ -292,7 +292,10 @@ export function RepeatingGroupTable({
                 align='left'
               >
                 <i
-                  style={{ paddingLeft: '14px' }}
+                  style={{
+                    color: theme.altinnPalette.primary.blueDark,
+                    paddingLeft: '14px',
+                  }}
                   className={`fa fa-edit ${classes.editIcon}`}
                 />
               </TableCell>
@@ -302,7 +305,11 @@ export function RepeatingGroupTable({
                   align='left'
                 >
                   <i
-                    style={{ paddingLeft: '9px', paddingBottom: '5px' }}
+                    style={{
+                      color: theme.altinnPalette.primary.red,
+                      paddingLeft: '9px',
+                      paddingBottom: '5px',
+                    }}
                     className={'ai ai-trash'}
                   />
                 </TableCell>
