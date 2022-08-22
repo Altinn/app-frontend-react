@@ -374,7 +374,7 @@ export function RepeatingGroupTable({
                         <TableCell
                           align='left'
                           style={{ padding: 0 }}
-                          key={`edit-${index}`}
+                          key={`delete-${index}`}
                         >
                           <IconButton
                             className={classes.deleteButton}
