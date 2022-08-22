@@ -70,12 +70,14 @@ export function renderValidationMessages(
   }
 
   return (
-    <ErrorMessage
-      id={id}
-      key='error'
-    >
-      <ol>{messages.map(validationMessagesToList)}</ol>
-    </ErrorMessage>
+    <div style={{ paddingTop: '0.375rem' }}>
+      <ErrorMessage
+        id={id}
+        key='error'
+      >
+        <ol>{messages.map(validationMessagesToList)}</ol>
+      </ErrorMessage>
+    </div>
   );
 }
 
