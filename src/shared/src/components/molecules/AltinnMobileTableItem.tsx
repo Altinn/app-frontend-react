@@ -62,6 +62,14 @@ const useStyles = makeStyles({
     borderRadius: '5px',
     padding: '6px 12px',
     margin: '8px 2px 8px -12px',
+    '@media (max-width: 768px)': {
+      fontSize: '2.5rem',
+      height: '3rem',
+      width: '3rem',
+      margin: '0',
+      padding: '0',
+      borderRadius: '50%',
+    },
     '&:hover': {
       background: 'none',
       outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
@@ -77,8 +85,22 @@ const useStyles = makeStyles({
     padding: '8px 12px 6px 6px',
     borderRadius: '0',
     marginRight: '-12px',
-    '@media (min-width:768px)': {
+    '& .ai': {
+      fontSize: '2em',
+      marginTop: '-3px',
+    },
+    '@media (max-width: 768px)': {
+      height: '3rem',
+      justifySelf: 'right',
+      width: '3rem',
       margin: '0',
+      marginRight: '2rem',
+      padding: '0',
+      borderRadius: '50%',
+      '& .ai': {
+        fontSize: '2.7rem',
+        marginTop: '0',
+      },
     },
     '&:hover': {
       background: theme.altinnPalette.primary.red,
@@ -86,10 +108,6 @@ const useStyles = makeStyles({
     },
     '&:focus': {
       outlineColor: theme.altinnPalette.primary.red,
-    },
-    '& .ai': {
-      fontSize: '2em',
-      marginTop: '-3px',
     },
   },
   textContainer: {
@@ -120,7 +138,7 @@ export default function AltinnMobileTableItem({
     >
       <Table className={classes.table}>
         <TableBody>
-          {items.map((item) => {
+          {items.map((item, index) => {
             return (
               <TableRow key={item.key}>
                 <TableCell
@@ -142,29 +160,35 @@ export default function AltinnMobileTableItem({
                     {item.value}
                   </Typography>
                 </TableCell>
+                {index == 0 && (
+                  <TableCell
+                    style={{ width: '15%', padding: 0 }}
+                    align='right'
+                  >
+                    <IconButton
+                      className={classes.tableEditButton}
+                      onClick={onEditClick}
+                    >
+                      {editIconNode}
+                    </IconButton>
+                  </TableCell>
+                )}
+                {index == 0 && deleteIconNode && (
+                  <TableCell
+                    style={{ width: '12%', padding: 0 }}
+                    align='right'
+                  >
+                    <IconButton
+                      className={classes.deleteButton}
+                      onClick={onDeleteClick}
+                    >
+                      {deleteIconNode}
+                    </IconButton>
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}
-          <TableRow>
-            <TableCell>
-              <IconButton
-                className={classes.tableEditButton}
-                onClick={onEditClick}
-              >
-                {editIconNode}
-              </IconButton>
-            </TableCell>
-            {deleteIconNode && (
-              <TableCell>
-                <IconButton
-                  className={classes.deleteButton}
-                  onClick={onDeleteClick}
-                >
-                  {deleteIconNode}
-                </IconButton>
-              </TableCell>
-            )}
-          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>
