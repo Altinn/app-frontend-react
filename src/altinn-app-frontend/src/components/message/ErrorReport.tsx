@@ -11,7 +11,10 @@ import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation';
 import type { ILayout } from 'src/features/form/layout';
 import type { FlatError } from 'src/utils/validation';
 
-import { getLanguageFromKey } from 'altinn-shared/utils';
+import {
+  getLanguageFromKey,
+  getParsedLanguageFromText,
+} from 'altinn-shared/utils';
 
 export interface IErrorReportProps {
   components: ILayout;
@@ -34,10 +37,10 @@ const useStyles = makeStyles((theme) => ({
     },
     '& > li > button': {
       textAlign: 'left',
-      borderBottom: theme.sharedStyles.noLinkBorderBottom,
+      borderBottom: '2px solid transparent',
     },
     '& > li > button:hover': {
-      borderBottom: theme.sharedStyles.linkBorderBottom,
+      borderBottom: `2px solid black`,
     },
   },
   buttonAsInvisibleLink: {
@@ -121,8 +124,12 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
               xs={12}
             >
               <ul className={classes.errorList}>
-                {errorsUnmapped.map((error: React.ReactNode, index: number) => (
-                  <li key={`unmapped-${index}`}>{error}</li>
+                {errorsUnmapped.map((error: string, index: number) => (
+                  <li key={`unmapped-${index}`}>
+                    {getParsedLanguageFromText(error, {
+                      disallowedTags: ['a'],
+                    })}
+                  </li>
                 ))}
                 {errorsMapped.map((error) => (
                   <li key={`mapped-${error.componentId}`}>
@@ -131,7 +138,9 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
                       onClick={handleErrorClick(error)}
                       onKeyDown={handleErrorClick(error)}
                     >
-                      {error.message}
+                      {getParsedLanguageFromText(error.message, {
+                        disallowedTags: ['a'],
+                      })}
                     </button>
                   </li>
                 ))}

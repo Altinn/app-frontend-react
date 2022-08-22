@@ -3,9 +3,12 @@ import * as React from 'react';
 import { ErrorMessage } from '@altinn/altinn-design-system';
 
 import { SoftValidations } from 'src/features/form/components/SoftValidations';
+import type { IComponentBindingValidation } from 'src/types';
+
+import { getParsedLanguageFromText } from 'altinn-shared/utils';
 
 export function renderValidationMessagesForComponent(
-  validationMessages: any,
+  validationMessages: IComponentBindingValidation,
   id: string,
 ): JSX.Element[] {
   if (!validationMessages) {
@@ -54,7 +57,7 @@ export function renderValidationMessagesForComponent(
 }
 
 export function renderValidationMessages(
-  messages: React.ReactNode[],
+  messages: string[],
   id: string,
   variant: 'error' | 'warning' | 'info' | 'success',
 ) {
@@ -76,13 +79,11 @@ export function renderValidationMessages(
   );
 }
 
-const validationMessagesToList = (message: React.ReactNode, index: number) => {
-  return (
-    <li
-      role='alert'
-      key={`validationMessage-${index}`}
-    >
-      {message}
-    </li>
-  );
-};
+const validationMessagesToList = (message: string, index: number) => (
+  <li
+    role='alert'
+    key={`validationMessage-${index}`}
+  >
+    {getParsedLanguageFromText(message)}
+  </li>
+);
