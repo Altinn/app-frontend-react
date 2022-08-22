@@ -288,7 +288,7 @@ export function RepeatingGroupTable({
                 </TableCell>
               ))}
               <TableCell
-                style={{ width: '11%', padding: 0 }}
+                style={{ width: '110px', padding: 0 }}
                 align='left'
               >
                 <i
@@ -298,7 +298,7 @@ export function RepeatingGroupTable({
               </TableCell>
               {!hideDeleteButton && (
                 <TableCell
-                  style={{ width: '10%', padding: 0 }}
+                  style={{ width: '80px', padding: 0 }}
                   align='left'
                 >
                   <i

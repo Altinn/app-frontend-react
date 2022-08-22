@@ -110,6 +110,20 @@ const useStyles = makeStyles({
       outlineColor: theme.altinnPalette.primary.red,
     },
   },
+  editButtonCell: {
+    width: '120px',
+    padding: '0 !important',
+    '@media (max-width: 768px)': {
+      width: '50px',
+    },
+  },
+  deleteButtonCell: {
+    width: '100px',
+    padding: '0 !important',
+    '@media (max-width: 768px)': {
+      width: '50px',
+    },
+  },
   textContainer: {
     width: '100%',
     display: 'block',
@@ -162,7 +176,7 @@ export default function AltinnMobileTableItem({
                 </TableCell>
                 {index == 0 && (
                   <TableCell
-                    style={{ width: '15%', padding: 0 }}
+                    className={classes.editButtonCell}
                     align='right'
                   >
                     <IconButton
@@ -175,8 +189,8 @@ export default function AltinnMobileTableItem({
                 )}
                 {index == 0 && deleteIconNode && (
                   <TableCell
-                    style={{ width: '12%', padding: 0 }}
-                    align='right'
+                    className={classes.deleteButtonCell}
+                    align='center'
                   >
                     <IconButton
                       className={classes.deleteButton}
