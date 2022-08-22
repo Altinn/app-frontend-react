@@ -12,11 +12,11 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
       id="group-container-closed-id-table-container"
     >
       <table
-        class="MuiTable-root makeStyles-table-4 makeStyles-table-5"
+        class="MuiTable-root makeStyles-table-6 makeStyles-table-7"
         id="group-container-closed-id-table"
       >
         <thead
-          class="MuiTableHead-root makeStyles-tableHeader-6 makeStyles-tableHeader-7"
+          class="MuiTableHead-root makeStyles-tableHeader-8 makeStyles-tableHeader-9"
           id="group-container-closed-id-table-header"
         >
           <tr
@@ -47,13 +47,29 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
               Title4
             </th>
             <th
-              class="MuiTableCell-root MuiTableCell-head"
+              class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft"
               scope="col"
-            />
+              style="width: 11%; padding: 0px;"
+            >
+              <i
+                class="fa fa-edit makeStyles-editIcon-2"
+                style="padding-left: 14px;"
+              />
+            </th>
+            <th
+              class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft"
+              scope="col"
+              style="width: 10%; padding: 0px;"
+            >
+              <i
+                class="ai ai-trash"
+                style="padding-left: 9px; padding-bottom: 5px;"
+              />
+            </th>
           </tr>
         </thead>
         <tbody
-          class="MuiTableBody-root makeStyles-tableBody-8 makeStyles-tableBody-9"
+          class="MuiTableBody-root makeStyles-tableBody-10 makeStyles-tableBody-11"
           id="group-container-closed-id-table-body"
         >
           <tr
@@ -72,7 +88,8 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
               class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+              style="padding: 0px;"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root makeStyles-tableEditButton-3"
@@ -86,6 +103,25 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
                     class="fa fa-edit makeStyles-editIcon-2"
                   />
                   general.edit_alt
+                </span>
+              </button>
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+              style="padding: 0px;"
+            >
+              <button
+                class="MuiButtonBase-root MuiIconButton-root makeStyles-deleteButton-4"
+                tabindex="0"
+                type="button"
+              >
+                <span
+                  class="MuiIconButton-label"
+                >
+                  <i
+                    class="ai ai-trash"
+                  />
+                  general.delete
                 </span>
               </button>
             </td>
@@ -106,7 +142,8 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
               class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+              style="padding: 0px;"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root makeStyles-tableEditButton-3"
@@ -120,6 +157,25 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
                     class="fa fa-edit makeStyles-editIcon-2"
                   />
                   general.edit_alt
+                </span>
+              </button>
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+              style="padding: 0px;"
+            >
+              <button
+                class="MuiButtonBase-root MuiIconButton-root makeStyles-deleteButton-4"
+                tabindex="0"
+                type="button"
+              >
+                <span
+                  class="MuiIconButton-label"
+                >
+                  <i
+                    class="ai ai-trash"
+                  />
+                  general.delete
                 </span>
               </button>
             </td>
@@ -140,7 +196,8 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
               class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+              style="padding: 0px;"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root makeStyles-tableEditButton-3"
@@ -154,6 +211,25 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
                     class="fa fa-edit makeStyles-editIcon-2"
                   />
                   general.edit_alt
+                </span>
+              </button>
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+              style="padding: 0px;"
+            >
+              <button
+                class="MuiButtonBase-root MuiIconButton-root makeStyles-deleteButton-4"
+                tabindex="0"
+                type="button"
+              >
+                <span
+                  class="MuiIconButton-label"
+                >
+                  <i
+                    class="ai ai-trash"
+                  />
+                  general.delete
                 </span>
               </button>
             </td>
@@ -174,7 +250,8 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
               class="MuiTableCell-root MuiTableCell-body"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+              style="padding: 0px;"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root makeStyles-tableEditButton-3"
@@ -188,6 +265,25 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
                     class="fa fa-edit makeStyles-editIcon-2"
                   />
                   general.edit_alt
+                </span>
+              </button>
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+              style="padding: 0px;"
+            >
+              <button
+                class="MuiButtonBase-root MuiIconButton-root makeStyles-deleteButton-4"
+                tabindex="0"
+                type="button"
+              >
+                <span
+                  class="MuiIconButton-label"
+                >
+                  <i
+                    class="ai ai-trash"
+                  />
+                  general.delete
                 </span>
               </button>
             </td>
