@@ -3,6 +3,7 @@ import dot from 'dot-object';
 import {
   ExpressionRuntimeError,
   LookupNotFound,
+  NodeNotFound,
 } from 'src/features/form/layout/expressions/index';
 import {
   prettyErrors,
@@ -31,14 +32,48 @@ export interface PrettyErrorsOptions {
   introText?: string;
 }
 
+const lookups: ILayoutExpressionLookupFunctions = {
+  instanceContext: function (key) {
+    return this.dataSources.instanceContext[key];
+  },
+  applicationSettings: function (key) {
+    return this.dataSources.applicationSettings[key];
+  },
+  component: function (id) {
+    const component = this.failWithoutNode().closest(
+      (c) => c.id === id || c.baseComponentId === id,
+    );
+    if (
+      component &&
+      component.item.dataModelBindings &&
+      component.item.dataModelBindings.simpleBinding
+    ) {
+      return this.dataSources.formData[
+        component.item.dataModelBindings.simpleBinding
+      ];
+    }
+
+    throw new LookupNotFound(
+      this,
+      'component',
+      id,
+      'or it does not have a simpleBinding',
+    );
+  },
+  dataModel: function (path) {
+    const newPath = this.failWithoutNode().transposeDataModel(path);
+    return this.dataSources.formData[newPath] || null;
+  },
+};
+
 export class ExpressionContext {
-  public lookup: ILayoutExpressionLookupFunctions;
+  public lookup = lookups;
   public path: string[] = [];
 
   private constructor(
     public expr: ILayoutExpression,
-    public node: LayoutNode,
-    private dataSources: ContextDataSources,
+    public node: LayoutNode | string,
+    public dataSources: ContextDataSources,
   ) {}
 
   /**
@@ -46,13 +81,10 @@ export class ExpressionContext {
    */
   public static withBlankPath(
     expr: ILayoutExpression,
-    node: LayoutNode,
+    node: LayoutNode | string,
     dataSources: ContextDataSources,
   ): ExpressionContext {
-    const instance = new ExpressionContext(expr, node, dataSources);
-    instance.lookup = instance.getLookups();
-
-    return instance;
+    return new ExpressionContext(expr, node, dataSources);
   }
 
   /**
@@ -72,44 +104,13 @@ export class ExpressionContext {
   }
 
   /**
-   * A common implementation for the functions used by evalExpr() to look up data
+   * Utility function used to get the LayoutNode for this context, or fail if the node was not found
    */
-  private getLookups(): ILayoutExpressionLookupFunctions {
-    const dataSources = this.dataSources;
-    const node = this.node;
-    return {
-      instanceContext: function (key) {
-        return dataSources.instanceContext[key];
-      },
-      applicationSettings: function (key) {
-        return dataSources.applicationSettings[key];
-      },
-      component: function (id) {
-        const component = node.closest(
-          (c) => c.id === id || c.baseComponentId === id,
-        );
-        if (
-          component &&
-          component.item.dataModelBindings &&
-          component.item.dataModelBindings.simpleBinding
-        ) {
-          return dataSources.formData[
-            component.item.dataModelBindings.simpleBinding
-          ];
-        }
-
-        throw new LookupNotFound(
-          this,
-          'component',
-          id,
-          'or it does not have a simpleBinding',
-        );
-      },
-      dataModel: function (path) {
-        const newPath = node.transposeDataModel(path);
-        return dataSources.formData[newPath] || null;
-      },
-    };
+  public failWithoutNode(): LayoutNode {
+    if (typeof this.node === 'string') {
+      throw new NodeNotFound(this, this.node);
+    }
+    return this.node;
   }
 
   /**
@@ -149,14 +150,14 @@ export class ExpressionContext {
       const introText =
         options && 'introText' in options
           ? options.introText
-          : 'Evaluated expression:';
+          : 'Evaluated expression';
 
       const extra =
         options && 'defaultValue' in options
           ? ['Using default value instead:', `  ${options.defaultValue}`]
           : [];
 
-      return [`${introText}:`, `  ${prettyPrinted}`, ...extra].join('\n');
+      return [`${introText}:`, prettyPrinted, ...extra].join('\n');
     }
 
     return err.message;

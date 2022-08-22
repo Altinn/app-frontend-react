@@ -21,18 +21,20 @@ export interface EvalExprOptions {
  */
 export function evalExpr(
   expr: ILayoutExpression,
-  node: LayoutNode,
+  node: LayoutNode | string,
   dataSources: ContextDataSources,
   options?: EvalExprOptions,
 ) {
-  const ctx = ExpressionContext.withBlankPath(expr, node, dataSources);
-
+  let ctx = ExpressionContext.withBlankPath(expr, node, dataSources);
   try {
     return innerEvalExpr(ctx);
   } catch (err) {
+    if (err instanceof ExpressionRuntimeError) {
+      ctx = err.context;
+    }
     if (options && 'defaultValue' in options) {
       // When we know of a default value, we can safely print it as an error to the console and safely recover
-      (err.context || ctx).trace(err, {
+      ctx.trace(err, {
         defaultValue: options.defaultValue,
         ...(options.errorIntroText
           ? { introText: options.errorIntroText }
@@ -42,7 +44,7 @@ export function evalExpr(
     } else {
       // We cannot possibly know the expected default value here, so there are no safe ways to fail here except
       // throwing the exception to let everyone know we failed.
-      throw new Error((err.context || ctx).prettyError(err));
+      throw new Error(ctx.prettyError(err));
     }
   }
 }
@@ -121,6 +123,17 @@ export class UnexpectedType extends ExpressionRuntimeError {
     actual: any,
   ) {
     super(context, `Expected ${expected}, got value ${JSON.stringify(actual)}`);
+  }
+}
+
+export class NodeNotFound extends ExpressionRuntimeError {
+  public constructor(context: ExpressionContext, nodeId: string) {
+    super(
+      context,
+      `Unable to evaluate layout expressions in context of the ${JSON.stringify(
+        nodeId,
+      )} component (it could not be found)`,
+    );
   }
 }
 
