@@ -1,3 +1,7 @@
+import {
+  ExpressionRuntimeError,
+  UnexpectedType,
+} from 'src/features/form/layout/expressions/errors';
 import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
 import type {
@@ -5,7 +9,6 @@ import type {
   BaseValue,
   FuncDef,
   ILayoutExpression,
-  ILayoutExpressionLookupFunctions,
 } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
@@ -92,49 +95,6 @@ function castValue<T extends BaseValue>(
   }
 
   return layoutExpressionCastToType[toType].apply(context, [value]);
-}
-
-export class ExpressionRuntimeError extends Error {
-  public constructor(public context: ExpressionContext, message: string) {
-    super(message);
-  }
-}
-
-export class LookupNotFound extends ExpressionRuntimeError {
-  public constructor(
-    context: ExpressionContext,
-    lookup: keyof ILayoutExpressionLookupFunctions,
-    key: string,
-    extra?: string,
-  ) {
-    super(
-      context,
-      `Unable to find ${lookup} with identifier ${key}${
-        extra ? ` ${extra}` : ''
-      }`,
-    );
-  }
-}
-
-export class UnexpectedType extends ExpressionRuntimeError {
-  public constructor(
-    context: ExpressionContext,
-    expected: string,
-    actual: any,
-  ) {
-    super(context, `Expected ${expected}, got value ${JSON.stringify(actual)}`);
-  }
-}
-
-export class NodeNotFound extends ExpressionRuntimeError {
-  public constructor(context: ExpressionContext, nodeId: string) {
-    super(
-      context,
-      `Unable to evaluate layout expressions in context of the ${JSON.stringify(
-        nodeId,
-      )} component (it could not be found)`,
-    );
-  }
 }
 
 function defineFunc<Args extends BaseValue[], Ret extends BaseValue>(

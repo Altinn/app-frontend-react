@@ -4,7 +4,7 @@ import {
   ExpressionRuntimeError,
   LookupNotFound,
   NodeNotFound,
-} from 'src/features/form/layout/expressions/index';
+} from 'src/features/form/layout/expressions/errors';
 import {
   prettyErrors,
   prettyErrorsToConsole,
