@@ -133,11 +133,9 @@ const thingWithoutExpressions = (
   result2: boolean,
 ): ExampleThingWithExpressions => thingWithExpressions(result1, result2);
 
-const render = (
-  thing: ExampleThingWithExpressions,
-  options: UseLayoutExpressionOptions<ExampleThingWithExpressions>,
-  state = getState(),
-) => {
+function render<
+  T extends ExampleThingWithExpressions | ExampleThingWithExpressions[],
+>(thing: T, options: UseLayoutExpressionOptions<T>, state = getState()) {
   let error: Error = undefined;
   const store = setupStore(state);
   const rendered = renderHook(() => useLayoutExpression(thing, options), {
@@ -173,7 +171,7 @@ const render = (
     store,
     error,
   };
-};
+}
 
 describe('useLayoutExpressions', () => {
   const consoleRef: {
@@ -203,6 +201,16 @@ describe('useLayoutExpressions', () => {
     expect(result.current.hidden).toEqual(true);
     expect(result.current.innerObject.readOnly).toEqual(false);
     expect(result.current).toEqual(obj);
+    expect(consoleRef.error).toBeCalledTimes(0);
+    expect(consoleRef.log).toBeCalledTimes(0);
+  });
+
+  it('should skip evaluating null value', () => {
+    const { result } = render(null as ExampleThingWithExpressions, {
+      forComponentId: components.topLayer.id,
+    });
+
+    expect(result.current).toBeNull();
     expect(consoleRef.error).toBeCalledTimes(0);
     expect(consoleRef.log).toBeCalledTimes(0);
   });
@@ -367,9 +375,22 @@ describe('useLayoutExpressions', () => {
     expect(consoleRef.log).toBeCalledTimes(0);
   });
 
-  // TODO: Test various errors:
-  //    - Data model not found (is that an error, or is it just null?)
-  //    - Data type mismatches
-  // TODO: Test a big recursive expression
-  // TODO: Test expressions inside arrays (only relevant for coverage, really)
+  it('should evaluate expressions inside arrays', () => {
+    const { result } = render(
+      [
+        thingWithExpressions(),
+        thingWithoutExpressions(false, true),
+        thingWithExpressions(),
+      ],
+      {
+        forComponentId: components.topLayer.id,
+      },
+    );
+
+    expect(result.current[0]).toEqual(thingWithoutExpressions(true, false));
+    expect(result.current[1]).toEqual(thingWithoutExpressions(false, true));
+    expect(result.current[2]).toEqual(thingWithoutExpressions(true, false));
+    expect(consoleRef.error).toBeCalledTimes(0);
+    expect(consoleRef.log).toBeCalledTimes(0);
+  });
 });
