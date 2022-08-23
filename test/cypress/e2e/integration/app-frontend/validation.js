@@ -74,9 +74,7 @@ describe('Validation', () => {
     cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newLastName.substring(1)))
       .should('exist')
       .should('be.visible')
-      .should('have.text', texts.requiredFieldLastName)
-      .find(appFrontend.errorExclamation)
-      .should('be.visible');
+      .should('have.text', texts.requiredFieldLastName);
   });
 
   it('Custom field validation - error', () => {
