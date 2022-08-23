@@ -23,7 +23,7 @@ describe('Validation', () => {
       .focus()
       .clear()
       .blur()
-      .find(appFrontend.errorExclamation)
+      .parent().find(appFrontend.errorExclamation)
       .should('be.visible');
     cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newFirstName.substring(1)))
       .should('exist')
@@ -85,7 +85,7 @@ describe('Validation', () => {
     cy.navigateToChangeName();
     cy.intercept('GET', '**/validate').as('validateData');
     cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').type('test').blur()
-      .find(appFrontend.errorExclamation)
+      .parent().find(appFrontend.errorExclamation)
       .should('be.visible');
     cy.wait('@validateData');
     cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newFirstName.substring(1)))
