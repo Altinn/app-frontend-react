@@ -1,10 +1,13 @@
+import dot from 'dot-object';
+
 import {
   ExpressionRuntimeError,
   LookupNotFound,
+  NodeNotFoundWithoutContext,
   UnexpectedType,
 } from 'src/features/form/layout/expressions/errors';
 import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
-import type { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
+import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
 import type {
   BaseToActual,
@@ -12,6 +15,8 @@ import type {
   FuncDef,
   ILayoutExpression,
   ILayoutExpressionLookupFunctions,
+  LayoutExpressionDefaultValues,
+  ResolvedLayoutExpression,
 } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
@@ -20,9 +25,96 @@ export interface EvalExprOptions {
   errorIntroText?: string;
 }
 
+export interface EvalExprInObjArgs<T> {
+  input: T;
+  node: LayoutNode | NodeNotFoundWithoutContext;
+  dataSources: ContextDataSources;
+  defaults?: LayoutExpressionDefaultValues<T, 1>;
+}
+
+/**
+ * This function is the brains behind the useLayoutExpression() hook, as it will find any expressions inside a deep
+ * object and resolve them.
+ * @see useLayoutExpression
+ */
+export function evalExprInObj<T>(
+  args: EvalExprInObjArgs<T>,
+): ResolvedLayoutExpression<T> {
+  if (!args.input) {
+    return args.input as ResolvedLayoutExpression<T>;
+  }
+
+  return evalExprInObjectRecursive(
+    args.input,
+    args as Omit<EvalExprInObjArgs<T>, 'input'>,
+    [],
+  );
+}
+
+/**
+ * Recurse through an input object/array/any, finds layout expressions and evaluates them
+ */
+function evalExprInObjectRecursive<T>(
+  input: any,
+  args: Omit<EvalExprInObjArgs<T>, 'input'>,
+  path: string[],
+) {
+  if (typeof input !== 'object') {
+    return input;
+  }
+  if (Array.isArray(input)) {
+    const newPath = [...path];
+    const lastLeg = newPath.pop() || '';
+    return input.map((item, idx) =>
+      evalExprInObjectRecursive(item, args, [...newPath, `${lastLeg}[${idx}]`]),
+    );
+  }
+
+  const expression = asLayoutExpression(input);
+  if (expression) {
+    return evalExprInObjectCaller(expression, args, path);
+  }
+
+  const out = {};
+  for (const key of Object.keys(input)) {
+    out[key] = evalExprInObjectRecursive(input[key], args, [...path, key]);
+  }
+
+  return out;
+}
+
+/**
+ * Extracted function for evaluating expressions in the context of a larger object
+ */
+function evalExprInObjectCaller<T>(
+  expr: ILayoutExpression,
+  args: Omit<EvalExprInObjArgs<T>, 'input'>,
+  path: string[],
+) {
+  const pathString = path.join('.');
+  const nodeId =
+    args.node instanceof NodeNotFoundWithoutContext
+      ? args.node.nodeId
+      : args.node.item.id;
+
+  const exprOptions: EvalExprOptions = {
+    errorIntroText: `Evaluated expression for '${pathString}' in component '${nodeId}'`,
+  };
+
+  if (args.defaults) {
+    const defaultValue = dot.pick(pathString, args.defaults);
+    if (typeof defaultValue !== 'undefined') {
+      exprOptions.defaultValue = defaultValue;
+    }
+  }
+
+  return evalExpr(expr, args.node, args.dataSources, exprOptions);
+}
+
 /**
  * Run/evaluate a layout expression. You have to provide your own context containing functions for looking up external
  * values. If you need a more concrete implementation:
+ * @see evalExprInObj
  * @see useLayoutExpression
  */
 export function evalExpr(

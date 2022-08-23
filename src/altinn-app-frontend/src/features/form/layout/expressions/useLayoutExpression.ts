@@ -1,17 +1,13 @@
-import { useCallback, useContext, useMemo } from 'react';
-
-import dot from 'dot-object';
+import { useContext, useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
 import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
-import { evalExpr } from 'src/features/form/layout/expressions/index';
-import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
+import { evalExprInObj } from 'src/features/form/layout/expressions/index';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
-import type { EvalExprOptions } from 'src/features/form/layout/expressions/index';
+import type { EvalExprInObjArgs } from 'src/features/form/layout/expressions/index';
 import type {
-  ILayoutExpression,
   LayoutExpressionDefaultValues,
   ResolvedLayoutExpression,
 } from 'src/features/form/layout/expressions/types';
@@ -65,6 +61,7 @@ export function useLayoutExpression<T>(
 
     return new NodeNotFoundWithoutContext(id);
   }, [nodes, id]);
+
   const dataSources = useMemo(
     (): ContextDataSources => ({
       instanceContext,
@@ -74,60 +71,10 @@ export function useLayoutExpression<T>(
     [instanceContext, applicationSettings, formData],
   );
 
-  const doEvalExpression = useCallback(
-    (
-      expression: ILayoutExpression,
-      path: string[],
-    ): Parameters<typeof evalExpr> => {
-      const pathString = path.join('.');
-      const exprOptions: EvalExprOptions = {
-        errorIntroText: `Evaluated expression for '${pathString}' in component '${id}'`,
-      };
-      if (options && options.defaults) {
-        const defaultValue = dot.pick(pathString, options.defaults);
-        if (typeof defaultValue !== 'undefined') {
-          exprOptions.defaultValue = defaultValue;
-        }
-      }
-
-      return evalExpr(expression, node, dataSources, exprOptions);
-    },
-    [options, id, node, dataSources],
-  );
-
-  return useMemo(() => {
-    if (!input) {
-      return input;
-    }
-
-    /**
-     * Recurse through an input, finds layout expressions and evaluates them
-     */
-    const recurse = (obj: any, path: string[]) => {
-      if (typeof obj !== 'object') {
-        return obj;
-      }
-      if (Array.isArray(obj)) {
-        const newPath = [...path];
-        const lastLeg = newPath.pop() || '';
-        return obj.map((item, idx) =>
-          recurse(item, [...newPath, `${lastLeg}[${idx}]`]),
-        );
-      }
-
-      const expression = asLayoutExpression(obj);
-      if (expression) {
-        return doEvalExpression(expression, path);
-      }
-
-      const out = {};
-      for (const key of Object.keys(obj)) {
-        out[key] = recurse(obj[key], [...path, key]);
-      }
-
-      return out;
-    };
-
-    return recurse(input, []);
-  }, [input, doEvalExpression]) as ResolvedLayoutExpression<T>;
+  return evalExprInObj({
+    ...(options as Pick<UseLayoutExpressionOptions<T>, 'defaults'>),
+    input,
+    node,
+    dataSources,
+  } as EvalExprInObjArgs<T>) as ResolvedLayoutExpression<T>;
 }
