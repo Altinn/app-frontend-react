@@ -23,8 +23,6 @@ describe('Validation', () => {
       .focus()
       .clear()
       .blur()
-      .parent().find(appFrontend.errorExclamation)
-      .should('be.visible');
     cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newFirstName.substring(1)))
       .should('exist')
       .should('be.visible')
@@ -84,9 +82,7 @@ describe('Validation', () => {
   it('Custom field validation - error', () => {
     cy.navigateToChangeName();
     cy.intercept('GET', '**/validate').as('validateData');
-    cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').type('test').blur()
-      .parent().find(appFrontend.errorExclamation)
-      .should('be.visible');
+    cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').type('test').blur();
     cy.wait('@validateData');
     cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newFirstName.substring(1)))
       .should('exist')
