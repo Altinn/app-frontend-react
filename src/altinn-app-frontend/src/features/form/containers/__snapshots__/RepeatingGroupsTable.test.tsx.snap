@@ -49,21 +49,21 @@ exports[`RepeatingGroupTable should match snapshot 1`] = `
             <th
               class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft"
               scope="col"
-              style="width: 11%; padding: 0px;"
+              style="width: 110px; padding: 0px;"
             >
               <i
                 class="fa fa-edit makeStyles-editIcon-2"
-                style="padding-left: 14px;"
+                style="color: rgb(0, 98, 186); padding-left: 14px;"
               />
             </th>
             <th
               class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft"
               scope="col"
-              style="width: 10%; padding: 0px;"
+              style="width: 80px; padding: 0px;"
             >
               <i
                 class="ai ai-trash"
-                style="padding-left: 9px; padding-bottom: 5px;"
+                style="color: rgb(226, 59, 83); padding-left: 9px; padding-bottom: 5px;"
               />
             </th>
           </tr>
