@@ -247,6 +247,8 @@ export function* updateRepeatingGroupsSaga({
           }),
         );
 
+        // TODO: remove
+
         updatedRepeatingGroups[layoutElementId].deletingIndex =
           updatedRepeatingGroups[layoutElementId].deletingIndex?.filter(
             (value) => value !== index,
@@ -727,7 +729,10 @@ export function* updateFileUploaderWithTagChosenOptionsSaga({
     ) as ILayoutCompFileUploadWithTag;
     const componentOptions =
       state.optionState.options[
-        getOptionLookupKey(component.optionsId, component.mapping)
+        getOptionLookupKey({
+          id: component.optionsId,
+          mapping: component.mapping,
+        })
       ]?.options;
     if (componentOptions.find((op) => op.value === option.value)) {
       yield put(

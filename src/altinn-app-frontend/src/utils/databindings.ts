@@ -51,6 +51,9 @@ export interface IData {
   [key: string]: any;
 }
 
+export const INDEX_KEY_INDICATOR_REGEX = /\[{\d+\}]/;
+export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+\}]/g;
+
 /**
  * Converts JSON to the flat datamodel used in Redux data store
  * @param data The form data as JSON
@@ -60,7 +63,7 @@ export function convertModelToDataBinding(data: any): any {
 }
 
 export function getKeyWithoutIndex(keyWithIndex: string): string {
-  if (keyWithIndex.indexOf('[') === -1) {
+  if (keyWithIndex?.indexOf('[') === -1) {
     return keyWithIndex;
   }
 
@@ -68,6 +71,111 @@ export function getKeyWithoutIndex(keyWithIndex: string): string {
     keyWithIndex.substring(0, keyWithIndex.indexOf('[')) +
       keyWithIndex.substring(keyWithIndex.indexOf(']') + 1),
   );
+}
+
+export function getKeyWithoutIndexIndicators(
+  keyWithIndexIndicators: string,
+): string {
+  return keyWithIndexIndicators.replaceAll(
+    GLOBAL_INDEX_KEY_INDICATOR_REGEX,
+    '',
+  );
+}
+
+export function keyHasIndexIndicators(key: string): boolean {
+  console.log('checking key', key);
+  console.log(key.match(GLOBAL_INDEX_KEY_INDICATOR_REGEX)?.length > 0);
+  return key.match(GLOBAL_INDEX_KEY_INDICATOR_REGEX)?.length > 0;
+}
+
+/** Replaces index indicators with indexes
+ * @param keyWithIndexIndicators The key with index indicators
+ * @param index The indexes to replace the index indicators with
+ * Example input:
+ *  keyWithIndexIndicators: SomeField.Group[{0}].SubGroup[{1}].Field
+ *  index: [0, 1]
+ * Example output:
+ *  SomeField.Group[0].SubGroup[1].Field
+ */
+export function replaceIndexIndicatorsWithIndexes(
+  key: string,
+  indexes: number[] = [],
+) {
+  return indexes.reduce((acc, index) => {
+    return acc.replace(INDEX_KEY_INDICATOR_REGEX, `[${index}]`);
+  }, key);
+}
+
+/** Get indexed data bindings from key with index indicator
+ * @param keyWithIndexIndicators The key with index indicators
+ * @param index The indexes to replace the index indicators with
+ * Returns a list of databindings for each index
+ * Example input:
+ * keyWithIndexIndicators: SomeField.Group[{0}].SubGroup[{1}].Field
+ * index: [2, 1]
+ * Example output:
+ *  [
+ *    'SomeField.Group[0].SubGroup[0].Field',
+ *    'SomeField.Group[0].SubGroup[1].Field',
+ *    'SomeField.Group[1].SubGroup[0].Field',
+ *    'SomeField.Group[1].SubGroup[1].Field',
+ *    'SomeField.Group[2].SubGroup[0].Field',
+ *    'SomeField.Group[2].SubGroup[1].Field',
+ *  ]
+ */
+export function getIndexedDataBindings(
+  key: string,
+  indexes: number[],
+): string[] {
+  if (!indexes.length) {
+    return [key];
+  }
+
+  const indexesToReplace = getIndexes(indexes);
+
+  return indexesToReplace?.map<string>((x) => {
+    return replaceIndexIndicatorsWithIndexes(key, x);
+  });
+}
+
+/*
+ * Create list of arrays from a set of indexes
+ * Example input: [2, 2]
+ * Example output: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
+ */
+export function getIndexes(indexes: number[]): number[][] {
+  if (indexes.length === 1) {
+    return Array.from(Array(indexes[0] + 1).keys()).map((x) => [x]);
+  }
+
+  return cartesian(
+    ...indexes.map((x) => {
+      return Array.from(Array(x + 1).keys());
+    }),
+  );
+}
+
+function cartesian(...a) {
+  return a.reduce((a, b) => a.flatMap((d) => b.map((e) => [d, e].flat())));
+}
+
+/**
+ * Returns base group data bindings
+ * SomeField.Group[{0}].SubGroup[{1}].Field
+ *                  ^             ^
+ * Will return ["SomeField.Group", "SomeField.Group.SubGroup"]
+ */
+export function getBaseGroupDataModelBindingFromKeyWithIndexIndicators(
+  key: string,
+): string[] {
+  const baseGroups: string[] = [];
+  const matches = key.match(GLOBAL_INDEX_KEY_INDICATOR_REGEX);
+  matches?.forEach((match) =>
+    baseGroups.push(
+      getKeyWithoutIndexIndicators(key.substring(0, key.indexOf(match))),
+    ),
+  );
+  return baseGroups;
 }
 
 /**

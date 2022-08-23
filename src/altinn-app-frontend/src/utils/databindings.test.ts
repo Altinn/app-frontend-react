@@ -1,7 +1,10 @@
 import {
   filterOutInvalidData,
   flattenObject,
+  getBaseGroupDataModelBindingFromKeyWithIndexIndicators,
   getFormDataFromFieldKey,
+  getIndexedDataBindings,
+  getIndexes,
   getKeyIndex,
   getKeyWithoutIndex,
   mapFormData,
@@ -361,6 +364,72 @@ describe('utils/databindings.ts', () => {
           'group[1].field': 'another value',
         });
       });
+    });
+  });
+
+  describe('getBaseGroupDataModelBindingFromKeyWithIndexIndicators', () => {
+    it('should return base group databindings', () => {
+      const result = getBaseGroupDataModelBindingFromKeyWithIndexIndicators(
+        'someBaseProp.someGroup[{0}].someOtherGroup[{1}].someProp',
+      );
+      expect(result).toEqual([
+        'someBaseProp.someGroup',
+        'someBaseProp.someGroup.someOtherGroup',
+      ]);
+    });
+
+    it('should return an empty array if no groups are present', () => {
+      const result =
+        getBaseGroupDataModelBindingFromKeyWithIndexIndicators(
+          'someField.someProp',
+        );
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getIndexedDataBindings', () => {
+    it('should return indexed data bindings', () => {
+      const dataBinding =
+        'someBaseProp.someGroup[{0}].someOtherGroup[{1}].someProp';
+      const indexes: number[] = [2, 2];
+
+      const result = getIndexedDataBindings(dataBinding, indexes);
+      const expected = [
+        'someBaseProp.someGroup[0].someOtherGroup[0].someProp',
+        'someBaseProp.someGroup[0].someOtherGroup[1].someProp',
+        'someBaseProp.someGroup[0].someOtherGroup[2].someProp',
+        'someBaseProp.someGroup[1].someOtherGroup[0].someProp',
+        'someBaseProp.someGroup[1].someOtherGroup[1].someProp',
+        'someBaseProp.someGroup[1].someOtherGroup[2].someProp',
+        'someBaseProp.someGroup[2].someOtherGroup[0].someProp',
+        'someBaseProp.someGroup[2].someOtherGroup[1].someProp',
+        'someBaseProp.someGroup[2].someOtherGroup[2].someProp',
+      ];
+
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe('getIndexes', () => {
+    it('should return mapped two dimensional array', () => {
+      const indexes: number[] = [1, 2];
+      const expected: number[][] = [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [1, 0],
+        [1, 1],
+        [1, 2],
+      ];
+      const result = getIndexes(indexes);
+      expect(result).toEqual(expected);
+    });
+
+    it('should return correct for zero indexed arrays', () => {
+      const indexes: number[] = [0, 0];
+      const expected: number[][] = [[0, 0]];
+      const result = getIndexes(indexes);
+      expect(result).toEqual(expected);
     });
   });
 });

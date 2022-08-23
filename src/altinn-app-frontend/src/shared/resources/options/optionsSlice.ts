@@ -1,15 +1,17 @@
-import { fetchOptionsSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
+import { watchFetchOptionsSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type {
   IFetchingOptionsAction,
   IFetchOptionsFulfilledAction,
   IFetchOptionsRejectedAction,
   IOptionsState,
+  ISetOptionsWithIndexIndicators,
 } from 'src/shared/resources/options';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 
 const initialState: IOptionsState = {
   options: {},
+  optionsWithIndexIndicators: [],
   error: null,
 };
 
@@ -19,7 +21,7 @@ const optionsSlice = createSagaSlice(
     initialState,
     actions: {
       fetch: mkAction<void>({
-        takeLatest: fetchOptionsSaga,
+        saga: () => watchFetchOptionsSaga,
       }),
       fetchFulfilled: mkAction<IFetchOptionsFulfilledAction>({
         reducer: (state, action) => {
@@ -43,6 +45,12 @@ const optionsSlice = createSagaSlice(
             ...metaData,
             loading: true,
           };
+        },
+      }),
+      setOptionsWithIndexIndicators: mkAction<ISetOptionsWithIndexIndicators>({
+        reducer: (state, action) => {
+          const { optionsWithIndexIndicators } = action.payload;
+          state.optionsWithIndexIndicators = optionsWithIndexIndicators;
         },
       }),
     },

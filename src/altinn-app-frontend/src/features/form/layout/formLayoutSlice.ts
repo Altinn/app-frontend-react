@@ -1,5 +1,3 @@
-import { put } from 'redux-saga/effects';
-
 import {
   fetchLayoutSetsSaga,
   watchFetchFormLayoutSaga,
@@ -16,7 +14,6 @@ import {
   watchMapFileUploaderWithTagSaga,
   watchUpdateCurrentViewSaga,
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
-import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
 import { replaceTextResourcesSaga } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type { ILayouts } from 'src/features/form/layout';
@@ -62,9 +59,6 @@ const formLayoutSlice = createSagaSlice(
         saga: () => watchFetchFormLayoutSaga,
       }),
       fetchFulfilled: mkAction<LayoutTypes.IFetchLayoutFulfilled>({
-        takeLatest: function* () {
-          yield put(OptionsActions.fetch());
-        },
         reducer: (state, action) => {
           const { layouts, navigationConfig } = action.payload;
           state.layouts = layouts;
