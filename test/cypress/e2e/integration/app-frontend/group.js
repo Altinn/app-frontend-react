@@ -51,12 +51,10 @@ describe('Group', () => {
         .then((table) => {
           cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', 'automation');
           cy.get(table).find(mui.tableElement).find(mui.buttonIcon).first().should('be.visible').click();
+          cy.get(table).find(mui.tableElement).find(appFrontend.group.delete)
+            .should('be.visible')
+            .click();
         });
-      cy.get(appFrontend.group.subGroup)
-        .siblings(appFrontend.group.editContainer)
-        .find(appFrontend.group.delete)
-        .should('be.visible')
-        .click();
 
       if (openByDefault) {
         cy.get(appFrontend.group.subGroup).find(mui.tableElement).eq(0).should('not.contain.text', 'automation');
