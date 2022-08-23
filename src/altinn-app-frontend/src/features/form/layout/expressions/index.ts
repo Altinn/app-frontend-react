@@ -145,12 +145,12 @@ function defineFunc<Args extends BaseValue[], Ret extends BaseValue>(
 
 export const layoutExpressionFunctions = {
   equals: defineFunc({
-    impl: (arg1, arg2) => arg1 == arg2,
+    impl: (arg1, arg2) => arg1 === arg2,
     args: ['string', 'string'],
     returns: 'boolean',
   }),
   notEquals: defineFunc({
-    impl: (arg1, arg2) => arg1 != arg2,
+    impl: (arg1, arg2) => arg1 !== arg2,
     args: ['string', 'string'],
     returns: 'boolean',
   }),
@@ -176,6 +176,10 @@ export const layoutExpressionFunctions = {
   }),
 };
 
+function isLikeNull(arg: any) {
+  return arg === 'null' || arg === null || typeof arg === 'undefined';
+}
+
 export const layoutExpressionCastToType: {
   [Type in BaseValue]: (
     this: ExpressionContext,
@@ -196,14 +200,17 @@ export const layoutExpressionCastToType: {
       if (arg === 1) return true;
       if (arg === 0) return false;
     }
+    if (isLikeNull(arg)) {
+      return null;
+    }
     throw new UnexpectedType(this, 'boolean', arg);
   },
   string: function (arg) {
     if (typeof arg === 'boolean' || typeof arg === 'number') {
       return JSON.stringify(arg);
     }
-    if (arg === null || typeof arg === 'undefined') {
-      return 'null';
+    if (isLikeNull(arg)) {
+      return null;
     }
 
     return arg;
@@ -219,6 +226,9 @@ export const layoutExpressionCastToType: {
       if (arg.match(/^[\d.]+$/)) {
         return parseFloat(arg);
       }
+    }
+    if (isLikeNull(arg)) {
+      return null;
     }
 
     throw new UnexpectedType(this, 'number', arg);
