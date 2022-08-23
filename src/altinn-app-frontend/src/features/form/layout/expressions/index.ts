@@ -4,6 +4,7 @@ import {
   UnexpectedType,
 } from 'src/features/form/layout/expressions/errors';
 import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
+import type { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
 import type {
   BaseToActual,
@@ -26,7 +27,7 @@ export interface EvalExprOptions {
  */
 export function evalExpr(
   expr: ILayoutExpression,
-  node: LayoutNode | string,
+  node: LayoutNode | NodeNotFoundWithoutContext,
   dataSources: ContextDataSources,
   options?: EvalExprOptions,
 ) {

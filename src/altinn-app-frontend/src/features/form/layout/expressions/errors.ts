@@ -34,12 +34,19 @@ export class UnexpectedType extends ExpressionRuntimeError {
 }
 
 export class NodeNotFound extends ExpressionRuntimeError {
-  public constructor(context: ExpressionContext, nodeId: string) {
+  public constructor(
+    context: ExpressionContext,
+    original: NodeNotFoundWithoutContext,
+  ) {
     super(
       context,
       `Unable to evaluate layout expressions in context of the ${JSON.stringify(
-        nodeId,
+        original.nodeId,
       )} component (it could not be found)`,
     );
   }
+}
+
+export class NodeNotFoundWithoutContext {
+  public constructor(public nodeId: string) {}
 }

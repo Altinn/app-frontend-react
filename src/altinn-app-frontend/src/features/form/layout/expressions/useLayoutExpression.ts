@@ -4,6 +4,7 @@ import dot from 'dot-object';
 
 import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
+import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
 import { evalExpr } from 'src/features/form/layout/expressions/index';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
@@ -56,7 +57,14 @@ export function useLayoutExpression<T>(
   const instanceContext = buildInstanceContext(instance);
   const id = (options && options.forComponentId) || component.id;
 
-  const node = useMemo(() => nodes.findComponentById(id) || id, [nodes, id]);
+  const node = useMemo(() => {
+    const foundNode = nodes.findComponentById(id);
+    if (foundNode) {
+      return foundNode;
+    }
+
+    return new NodeNotFoundWithoutContext(id);
+  }, [nodes, id]);
   const dataSources = useMemo(
     (): ContextDataSources => ({
       instanceContext,

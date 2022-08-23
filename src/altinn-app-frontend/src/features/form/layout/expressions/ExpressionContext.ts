@@ -3,6 +3,7 @@ import dot from 'dot-object';
 import {
   ExpressionRuntimeError,
   NodeNotFound,
+  NodeNotFoundWithoutContext,
 } from 'src/features/form/layout/expressions/errors';
 import { layoutExpressionLookupFunctions } from 'src/features/form/layout/expressions/index';
 import {
@@ -35,7 +36,7 @@ export class ExpressionContext {
 
   private constructor(
     public expr: ILayoutExpression,
-    public node: LayoutNode | string,
+    public node: LayoutNode | NodeNotFoundWithoutContext,
     public dataSources: ContextDataSources,
   ) {}
 
@@ -44,7 +45,7 @@ export class ExpressionContext {
    */
   public static withBlankPath(
     expr: ILayoutExpression,
-    node: LayoutNode | string,
+    node: LayoutNode | NodeNotFoundWithoutContext,
     dataSources: ContextDataSources,
   ): ExpressionContext {
     return new ExpressionContext(expr, node, dataSources);
@@ -70,7 +71,7 @@ export class ExpressionContext {
    * Utility function used to get the LayoutNode for this context, or fail if the node was not found
    */
   public failWithoutNode(): LayoutNode {
-    if (typeof this.node === 'string') {
+    if (this.node instanceof NodeNotFoundWithoutContext) {
       throw new NodeNotFound(this, this.node);
     }
     return this.node;
