@@ -211,7 +211,7 @@ describe('Group', () => {
       .siblings(appFrontend.group.tableErrors)
       .should('have.text', texts.errorInGroup);
 
-    cy.get(appFrontend.group.mainGroup).find(tableBody).then((table) => {
+    cy.get(appFrontend.group.mainGroup).find(mui.tableBody).then((table) => {
       cy.get(table)
         .find(appFrontend.group.delete)
         .should('be.visible')
