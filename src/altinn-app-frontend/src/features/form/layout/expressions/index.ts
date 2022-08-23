@@ -1,5 +1,6 @@
 import {
   ExpressionRuntimeError,
+  LookupNotFound,
   UnexpectedType,
 } from 'src/features/form/layout/expressions/errors';
 import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
@@ -9,6 +10,7 @@ import type {
   BaseValue,
   FuncDef,
   ILayoutExpression,
+  ILayoutExpressionLookupFunctions,
 } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
@@ -135,6 +137,41 @@ export const layoutExpressionFunctions = {
     returns: 'boolean',
   }),
 };
+
+export const layoutExpressionLookupFunctions: ILayoutExpressionLookupFunctions =
+  {
+    instanceContext: function (key) {
+      return this.dataSources.instanceContext[key];
+    },
+    applicationSettings: function (key) {
+      return this.dataSources.applicationSettings[key];
+    },
+    component: function (id) {
+      const component = this.failWithoutNode().closest(
+        (c) => c.id === id || c.baseComponentId === id,
+      );
+      if (
+        component &&
+        component.item.dataModelBindings &&
+        component.item.dataModelBindings.simpleBinding
+      ) {
+        return this.dataSources.formData[
+          component.item.dataModelBindings.simpleBinding
+        ];
+      }
+
+      throw new LookupNotFound(
+        this,
+        'component',
+        id,
+        'or it does not have a simpleBinding',
+      );
+    },
+    dataModel: function (path) {
+      const newPath = this.failWithoutNode().transposeDataModel(path);
+      return this.dataSources.formData[newPath] || null;
+    },
+  };
 
 function isLikeNull(arg: any) {
   return arg === 'null' || arg === null || typeof arg === 'undefined';
