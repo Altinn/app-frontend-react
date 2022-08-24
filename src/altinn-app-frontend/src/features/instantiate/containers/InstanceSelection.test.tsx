@@ -105,7 +105,7 @@ describe('InstanceSelection', () => {
     expect(mockStartNewInstance).toBeCalledTimes(1);
   });
 
-  it('should trigger setEditIndex on editButton click', async () => {
+  it('should trigger openInstance on editButton click', async () => {
     renderInstanceSelection(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,

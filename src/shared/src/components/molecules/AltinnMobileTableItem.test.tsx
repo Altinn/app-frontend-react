@@ -5,6 +5,9 @@ import type {
   IMobileTableItem,
 } from './AltinnMobileTableItem';
 import AltinnMobileTableItem from './AltinnMobileTableItem';
+import userEvent from '@testing-library/user-event';
+
+const user = userEvent.setup();
 
 describe('AltinnMobileTableItem', () => {
   it('renders delete icon-button when deleteIconNode is given as property', () => {
@@ -25,6 +28,31 @@ describe('AltinnMobileTableItem', () => {
         name: /delete/i,
       }),
     ).not.toBeInTheDocument();
+  });
+  it('triggers onEditClick when editbutton is present and clicked', async () => {
+    const onEditClick = jest.fn();
+    render({ deleteIconNode: 'Delete', onEditClick: onEditClick });
+
+    await user.click(
+      screen.queryByRole('button', {
+        name: /edit/i,
+      }),
+    );
+
+    expect(onEditClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers onDeleteClick when delete-button is present and clicked', async () => {
+    const onDeleteClick = jest.fn();
+    render({ deleteIconNode: 'Delete', onDeleteClick: onDeleteClick });
+
+    await user.click(
+      screen.queryByRole('button', {
+        name: /delete/i,
+      }),
+    );
+
+    expect(onDeleteClick).toHaveBeenCalledTimes(1);
   });
 });
 
