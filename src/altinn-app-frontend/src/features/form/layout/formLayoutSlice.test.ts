@@ -3,6 +3,7 @@ import slice, {
   initialState,
 } from 'src/features/form/layout/formLayoutSlice';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { ILayoutSettings } from 'src/types';
 
 describe('layoutSlice', () => {
   describe('fetchLayoutFulfilled', () => {
@@ -64,6 +65,75 @@ describe('layoutSlice', () => {
   });
 
   describe('fetchFormLayoutSettingsFulfilled', () => {
+    it('should hide CloseButton, Progress and LanguageSelector before fetch', () => {
+      expect(initialState.uiConfig.hideCloseButton).toEqual(true);
+      expect(initialState.uiConfig.showProgress).toEqual(false);
+      expect(initialState.uiConfig.showLanguageSelector).toEqual(false);
+    });
+
+    it('should set hideCloseButton, showProgress and showLanguageSelector when set to true', () => {
+      const settings: ILayoutSettings = {
+        pages: {
+          order: [],
+          hideCloseButton: true,
+          showProgress: true,
+          showLanguageSelector: true,
+        },
+      };
+
+      const nextState = slice.reducer(
+        initialState,
+        FormLayoutActions.fetchSettingsFulfilled({
+          settings,
+        }),
+      );
+
+      expect(nextState.uiConfig.hideCloseButton).toEqual(true);
+      expect(nextState.uiConfig.showProgress).toEqual(true);
+      expect(nextState.uiConfig.showLanguageSelector).toEqual(true);
+    });
+
+    it('should set hideCloseButton, showProgress and showLanguageSelector when set to false', () => {
+      const settings: ILayoutSettings = {
+        pages: {
+          order: [],
+          hideCloseButton: false,
+          showProgress: false,
+          showLanguageSelector: false,
+        },
+      };
+
+      const nextState = slice.reducer(
+        initialState,
+        FormLayoutActions.fetchSettingsFulfilled({
+          settings,
+        }),
+      );
+
+      expect(nextState.uiConfig.hideCloseButton).toEqual(false);
+      expect(nextState.uiConfig.showProgress).toEqual(false);
+      expect(nextState.uiConfig.showLanguageSelector).toEqual(false);
+    });
+
+    it('should set hideCloseButton, showProgress and showLanguageSelector when not set', () => {
+      const settings: ILayoutSettings = {
+        pages: {
+          order: [],
+        },
+      };
+
+      const nextState = slice.reducer(
+        initialState,
+        FormLayoutActions.fetchSettingsFulfilled({
+          settings,
+        }),
+      );
+
+      expect(nextState.uiConfig.hideCloseButton).toEqual(false);
+      expect(nextState.uiConfig.showProgress).toEqual(false);
+      expect(nextState.uiConfig.showLanguageSelector).toEqual(false);
+    });
+
     it('should set currentView to first page in settings.pages.order if no key is cached in localStorage', () => {
       const settings = {
         pages: {

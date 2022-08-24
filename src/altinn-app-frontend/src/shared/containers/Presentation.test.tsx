@@ -57,12 +57,12 @@ describe('Presentation', () => {
       writable: true,
     });
 
-    render({ type: ProcessTaskType.Data });
+    render({ type: ProcessTaskType.Data }, getInitialStateMock());
 
     expect(window.location.href).not.toEqual(returnUrl);
 
     const closeButton = screen.getByRole('button', {
-      name: /general\.close_schema/i,
+      name: /lukk skjema/i,
     });
     await user.click(closeButton);
 

@@ -45,6 +45,9 @@ export const initialState: ILayoutState = {
     layoutOrder: null,
     pageTriggers: [],
     keepScrollPos: undefined,
+    hideCloseButton: true,
+    showProgress: false,
+    showLanguageSelector: false,
   },
   layoutsets: null,
 };
@@ -103,29 +106,34 @@ const formLayoutSlice = createSagaSlice(
           reducer: (state, action) => {
             const { settings } = action.payload;
             if (settings && settings.pages) {
-              state.uiConfig.hideCloseButton = settings?.pages?.hideCloseButton;
-              state.uiConfig.showProgress = settings.pages.showProgress;
-              state.uiConfig.showLanguageSelector =
-                settings?.pages?.showLanguageSelector;
-              state.uiConfig.pageTriggers = settings.pages.triggers;
-              if (settings.pages.order) {
-                state.uiConfig.layoutOrder = settings.pages.order;
+              const {
+                hideCloseButton = false,
+                showProgress = false,
+                showLanguageSelector = false,
+                triggers,
+                order,
+              } = settings.pages;
+
+              state.uiConfig.hideCloseButton = hideCloseButton;
+              state.uiConfig.showProgress = showProgress;
+              state.uiConfig.showLanguageSelector = showLanguageSelector;
+              state.uiConfig.pageTriggers = triggers;
+
+              if (order) {
+                state.uiConfig.layoutOrder = order;
                 if (state.uiConfig.currentViewCacheKey) {
                   let currentView: string;
                   const lastVisitedPage = localStorage.getItem(
                     state.uiConfig.currentViewCacheKey,
                   );
-                  if (
-                    lastVisitedPage &&
-                    settings.pages.order.includes(lastVisitedPage)
-                  ) {
+                  if (lastVisitedPage && order.includes(lastVisitedPage)) {
                     currentView = lastVisitedPage;
                   } else {
-                    currentView = settings.pages.order[0];
+                    currentView = order[0];
                   }
                   state.uiConfig.currentView = currentView;
                 } else {
-                  state.uiConfig.currentView = settings.pages.order[0];
+                  state.uiConfig.currentView = order[0];
                 }
               }
             }
