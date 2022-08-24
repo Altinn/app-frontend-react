@@ -173,16 +173,19 @@ describe('getRepeatingGroups', () => {
       'Group2-0': {
         index: 0,
         baseGroupId: 'Group2',
+        dataModelBinding: 'Group1.Group2',
         editIndex: -1,
       },
       'Group2-1': {
         index: 10,
         baseGroupId: 'Group2',
+        dataModelBinding: 'Group1.Group2',
         editIndex: -1,
       },
       'Group2-2': {
         index: 1,
         baseGroupId: 'Group2',
+        dataModelBinding: 'Group1.Group2',
         editIndex: -1,
       },
     };
