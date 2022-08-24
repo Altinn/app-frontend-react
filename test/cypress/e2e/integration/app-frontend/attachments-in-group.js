@@ -375,13 +375,8 @@ describe('Repeating group attachments', () => {
     // the attachments upwards.
     cy.get(appFrontend.group.rows[0].editBtn).click();
     gotoSecondPage();
-    cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].editBtn).click();
+    cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].deleteBtn).click();
 
-    cy.get(appFrontend.group.rows[0].nestedGroup.groupContainer)
-      .parent()
-      .find(appFrontend.group.editContainer)
-      .find(appFrontend.group.delete)
-      .click();
     waitForFormDataSave();
 
     const expectedAttachmentStateAfterDeletingFirstNestedRow = {
