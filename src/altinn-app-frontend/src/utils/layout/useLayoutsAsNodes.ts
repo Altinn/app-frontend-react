@@ -9,7 +9,7 @@ import {
 /**
  * React hook used for getting a memoized LayoutRootNodeCollection where you can look up components
  */
-export function useLayoutsAsNodes(): LayoutRootNodeCollection<any> {
+export function useLayoutsAsNodes(): LayoutRootNodeCollection {
   const repeatingGroups = useAppSelector(
     (state) => state.formLayout.uiConfig.repeatingGroups,
   );

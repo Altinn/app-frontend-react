@@ -1,17 +1,26 @@
 import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import type {
-  ComponentExceptGroup,
-  IDataModelBindings,
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
 import type { IRepeatingGroups } from 'src/types';
-
-export interface ILayoutGroupHierarchy extends Omit<ILayoutGroup, 'children'> {
-  childComponents: (ILayoutComponent | ILayoutGroupHierarchy)[];
-}
+import type {
+  AnyChildNode,
+  AnyItem,
+  AnyNode,
+  AnyParentNode,
+  AnyTopLevelItem,
+  AnyTopLevelNode,
+  ComponentOf,
+  HierarchyWithRows,
+  LayoutGroupHierarchy,
+  NodeType,
+  RepeatingGroupExtensions,
+  RepeatingGroupHierarchy,
+  RepeatingGroupLayoutComponent,
+} from 'src/utils/layout/hierarchy.types';
 
 export const childrenWithoutMultiPagePrefix = (group: ILayoutGroup) =>
   group.edit?.multiPage
@@ -21,7 +30,7 @@ export const childrenWithoutMultiPagePrefix = (group: ILayoutGroup) =>
 function componentsAndGroupsInGroup(
   layout: ILayout,
   filter: (component: ILayoutComponent | ILayoutGroup) => boolean,
-): (ILayoutComponent | ILayoutGroupHierarchy)[] {
+): (ILayoutComponent | LayoutGroupHierarchy)[] {
   const all = layout.filter(filter);
   const groups = all.filter(
     (component) => component.type === 'Group',
@@ -33,7 +42,7 @@ function componentsAndGroupsInGroup(
   return [
     ...components,
     ...groups.map((group) => {
-      const out: ILayoutGroupHierarchy = {
+      const out: LayoutGroupHierarchy = {
         ...group,
         childComponents: componentsAndGroupsInGroup(layout, (component) =>
           childrenWithoutMultiPagePrefix(group).includes(component.id),
@@ -67,7 +76,7 @@ function componentsAndGroupsInGroup(
  */
 export function layoutAsHierarchy(
   layout: ILayout,
-): (ILayoutComponent | ILayoutGroupHierarchy)[] {
+): (ILayoutComponent | LayoutGroupHierarchy)[] {
   const allGroups = layout.filter((value) => value.type === 'Group');
   const inGroups = allGroups.map(childrenWithoutMultiPagePrefix).flat();
   const topLevelFields = layout
@@ -87,33 +96,6 @@ export function layoutAsHierarchy(
       topLevelGroups.includes(component.id),
   );
 }
-
-export interface IRepeatingGroupExtensions {
-  baseDataModelBindings?: IDataModelBindings;
-}
-
-export type IRepeatingGroupLayoutComponent<
-  T extends ComponentExceptGroup = ComponentExceptGroup,
-> = IRepeatingGroupExtensions & ILayoutComponent<T>;
-
-export interface IRepeatingGroupHierarchy
-  extends Omit<ILayoutGroupHierarchy, 'childComponents' | 'children'>,
-    IRepeatingGroupExtensions {
-  rows: HierarchyWithRowsChildren[][];
-}
-
-// Types of possible components on the top level of a repeating group hierarchy with rows
-export type HierarchyWithRows =
-  | ILayoutComponent
-  | ILayoutGroupHierarchy // Non-repeating groups
-  | IRepeatingGroupHierarchy;
-
-// Types of possible components inside rows. Note that no plain 'iLayoutComponent' is valid here,
-// as all components inside repeating group rows needs to have a baseComponentId, etc.
-export type HierarchyWithRowsChildren =
-  | IRepeatingGroupLayoutComponent
-  | ILayoutGroupHierarchy // Non-repeating groups
-  | IRepeatingGroupHierarchy;
 
 interface HierarchyParent {
   index: number;
@@ -143,14 +125,14 @@ export function layoutAsHierarchyWithRows(
   repeatingGroups: IRepeatingGroups,
 ): HierarchyWithRows[] {
   const rewriteBindings = (
-    main: ILayoutGroupHierarchy,
-    child: ILayoutGroupHierarchy | ILayoutComponent,
-    newChild: IRepeatingGroupLayoutComponent,
+    main: LayoutGroupHierarchy,
+    child: LayoutGroupHierarchy | ILayoutComponent,
+    newChild: RepeatingGroupLayoutComponent,
     parent: HierarchyParent,
     index: number,
   ) => {
     const baseGroupBinding =
-      (main as IRepeatingGroupExtensions).baseDataModelBindings?.group ||
+      (main as RepeatingGroupExtensions).baseDataModelBindings?.group ||
       main.dataModelBindings?.group;
 
     let binding = main.dataModelBindings?.group;
@@ -168,11 +150,11 @@ export function layoutAsHierarchyWithRows(
   };
 
   const recurse = (
-    main: ILayoutComponent | ILayoutGroupHierarchy,
+    main: ILayoutComponent | LayoutGroupHierarchy,
     parent?: HierarchyParent,
   ) => {
     if (main.type === 'Group' && main.maxCount > 1) {
-      const rows: IRepeatingGroupHierarchy['rows'] = [];
+      const rows: RepeatingGroupHierarchy['rows'] = [];
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
         repeatingGroups[main.id]?.index,
         main.edit,
@@ -181,7 +163,7 @@ export function layoutAsHierarchyWithRows(
         const row = main.childComponents.map((child) => {
           const suffix = parent ? `-${parent.index}-${index}` : `-${index}`;
           const newId = `${child.id}${suffix}`;
-          const newChild: IRepeatingGroupLayoutComponent = {
+          const newChild: RepeatingGroupLayoutComponent = {
             ...JSON.parse(JSON.stringify(child)),
             id: newId,
             baseComponentId: child.id,
@@ -199,49 +181,28 @@ export function layoutAsHierarchyWithRows(
         rows.push(row);
       }
 
-      const out: IRepeatingGroupHierarchy = { ...main, rows };
+      const out: RepeatingGroupHierarchy = { ...main, rows };
       delete out['childComponents'];
       return out;
     }
 
-    return main as IRepeatingGroupLayoutComponent;
+    return main as RepeatingGroupLayoutComponent;
   };
 
   return layoutAsHierarchy(formLayout).map((child) => recurse(child));
 }
 
-export type AnyLayoutNode =
-  | ILayoutComponent
-  | ILayoutGroup
-  | IRepeatingGroupLayoutComponent
-  | ILayoutGroupHierarchy
-  | IRepeatingGroupHierarchy;
-
-export type AnyLayoutParent = IRepeatingGroupHierarchy | ILayoutGroupHierarchy;
-
-export type AnyLayoutNodeTopLevel =
-  | ILayoutComponent
-  | IRepeatingGroupLayoutComponent
-  | IRepeatingGroupHierarchy
-  | ILayoutGroupHierarchy;
-
-export class LayoutRootNode<
-  Direct extends AnyLayoutNodeTopLevel = AnyLayoutNodeTopLevel,
-  All extends AnyLayoutNode = AnyLayoutNode,
-> {
-  public item: AnyLayoutNode | undefined;
+export class LayoutRootNode<NT extends NodeType = 'plain'> {
+  public item: AnyItem<NT> | undefined;
   public parent: this;
 
-  private directChildren: LayoutNode<Direct>[] = [];
-  private allChildren: LayoutNode<Direct | All>[] = [];
+  private directChildren: AnyTopLevelNode<NT>[] = [];
+  private allChildren: AnyChildNode<NT>[] = [];
   private idMap: { [id: string]: number[] } = {};
 
-  public _addChild(
-    child: LayoutNode<All | Direct>,
-    parent: LayoutNode<All | Direct> | this,
-  ) {
+  public _addChild(child: AnyChildNode<NT>, parent: AnyChildNode<NT> | this) {
     if (parent === this) {
-      this.directChildren.push(child as LayoutNode<Direct>);
+      this.directChildren.push(child as AnyTopLevelNode<NT>);
     }
     const idx = this.allChildren.length;
     this.allChildren.push(child);
@@ -257,16 +218,18 @@ export class LayoutRootNode<
   }
 
   public closest(
-    matching: (item: Direct) => boolean,
-  ): LayoutNode<Direct> | undefined {
+    matching: (item: AnyTopLevelItem<NT>) => boolean,
+  ): AnyTopLevelNode<NT> | undefined {
     return this.children(matching);
   }
 
-  public children(): LayoutNode<Direct>[];
-  public children(matching: (item: Direct) => boolean): LayoutNode<Direct>;
+  public children(): AnyTopLevelNode<NT>[];
   public children(
-    matching?: (item: Direct) => boolean,
-  ): LayoutNode<Direct> | LayoutNode<Direct>[] {
+    matching: (item: AnyTopLevelItem<NT>) => boolean,
+  ): AnyTopLevelNode<NT>;
+  public children(
+    matching?: (item: AnyTopLevelItem<NT>) => boolean,
+  ): AnyTopLevelNode<NT> | AnyTopLevelNode<NT>[] {
     if (!matching) {
       return this.directChildren;
     }
@@ -280,9 +243,9 @@ export class LayoutRootNode<
     return undefined;
   }
 
-  public flat(includeGroups: true): LayoutNode<Direct | All>[];
-  public flat(includeGroups: false): LayoutNode<ILayoutComponent>[];
-  public flat(includeGroups: boolean): LayoutNode<any>[] {
+  public flat(includeGroups: true): AnyChildNode<NT>[];
+  public flat(includeGroups: false): LayoutNode<NT, ComponentOf<NT>>[];
+  public flat(includeGroups: boolean): AnyChildNode<NT>[] {
     if (!includeGroups) {
       return this.allChildren.filter((c) => c.item.type !== 'Group');
     }
@@ -290,7 +253,7 @@ export class LayoutRootNode<
     return this.allChildren;
   }
 
-  public findById(id: string): LayoutNode<Direct | All> {
+  public findById(id: string): AnyChildNode<NT> {
     if (this.idMap[id] && this.idMap[id].length) {
       return this.allChildren[this.idMap[id][0]];
     }
@@ -298,7 +261,7 @@ export class LayoutRootNode<
     return undefined;
   }
 
-  public findAllById(id: string): LayoutNode<Direct | All>[] {
+  public findAllById(id: string): AnyChildNode<NT>[] {
     if (this.idMap[id] && this.idMap[id].length) {
       return this.idMap[id].map((idx) => this.allChildren[idx]);
     }
@@ -311,10 +274,13 @@ export class LayoutRootNode<
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class LayoutNode<T extends AnyLayoutNode = AnyLayoutNode> {
+export class LayoutNode<
+  NT extends NodeType = 'plain',
+  Item extends AnyItem<NT> = AnyItem<NT>,
+> {
   public constructor(
-    public item: T,
-    public parent: LayoutNode<AnyLayoutParent> | LayoutRootNode,
+    public item: Item,
+    public parent: AnyParentNode<NT>,
     protected rowIndex?: number,
   ) {}
 
@@ -323,23 +289,21 @@ export class LayoutNode<T extends AnyLayoutNode = AnyLayoutNode> {
    * none can be found).
    */
   public closest(
-    matching: (item: AnyLayoutNode) => boolean,
-  ): LayoutNode<AnyLayoutNode> | undefined {
+    matching: (item: AnyItem<NT>) => boolean,
+  ): this | AnyNode<NT> | undefined {
     if (matching(this.item)) {
       return this;
     }
 
     const sibling = this.parent.children(matching, this.rowIndex);
     if (sibling) {
-      return sibling as LayoutNode<AnyLayoutNode>;
+      return sibling as AnyNode<NT>;
     }
 
     return this.parent.closest(matching);
   }
 
-  private recurseParents(
-    callback: (item: LayoutNode<AnyLayoutParent> | LayoutRootNode) => void,
-  ) {
+  private recurseParents(callback: (item: AnyParentNode<NT>) => void) {
     callback(this.parent);
     if (!(this.parent instanceof LayoutRootNode)) {
       this.parent.recurseParents(callback);
@@ -347,8 +311,8 @@ export class LayoutNode<T extends AnyLayoutNode = AnyLayoutNode> {
   }
 
   public parents(
-    matching?: (item: LayoutNode<AnyLayoutParent> | LayoutRootNode) => boolean,
-  ): (LayoutNode<AnyLayoutParent> | LayoutRootNode)[] {
+    matching?: (item: AnyParentNode<NT>) => boolean,
+  ): AnyParentNode<NT>[] {
     const parents = [];
     this.recurseParents((item) => parents.push(item));
 
@@ -365,10 +329,10 @@ export class LayoutNode<T extends AnyLayoutNode = AnyLayoutNode> {
    * number, otherwise you'll most likely just find a component on the first row.
    */
   public children(
-    matching: (item: AnyLayoutNode) => boolean,
+    matching: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
-  ): LayoutNode<AnyLayoutNode> | undefined {
-    let list: AnyLayoutNode[];
+  ): AnyNode<NT> | undefined {
+    let list: AnyItem<NT>[];
     if (this.item.type === 'Group' && 'rows' in this.item) {
       if (typeof onlyInRowIndex === 'number') {
         list = this.item.rows[onlyInRowIndex];
@@ -383,7 +347,7 @@ export class LayoutNode<T extends AnyLayoutNode = AnyLayoutNode> {
     if (typeof list !== 'undefined') {
       for (const item of list) {
         if (matching(item)) {
-          return new LayoutNode(item, this as LayoutNode<AnyLayoutParent>);
+          return new LayoutNode(item, this);
         }
       }
     }
@@ -505,17 +469,13 @@ export function nodesInLayout(
   const root = new LayoutRootNode();
 
   const recurse = (
-    list: (
-      | ILayoutComponent
-      | ILayoutGroupHierarchy
-      | IRepeatingGroupHierarchy
-    )[],
-    parent?: LayoutNode<AnyLayoutParent> | LayoutRootNode,
+    list: (ILayoutComponent | LayoutGroupHierarchy | RepeatingGroupHierarchy)[],
+    parent?: AnyParentNode,
     rowIndex?: number,
   ) => {
     for (const component of list) {
       if (component.type === 'Group' && 'rows' in component) {
-        const group: LayoutNode<AnyLayoutParent> = new LayoutNode(
+        const group: AnyParentNode = new LayoutNode(
           component,
           parent,
           rowIndex,
@@ -525,11 +485,7 @@ export function nodesInLayout(
         );
         root._addChild(group, parent);
       } else if (component.type === 'Group' && 'childComponents' in component) {
-        const group: LayoutNode<AnyLayoutParent> = new LayoutNode(
-          component,
-          parent,
-          rowIndex,
-        );
+        const group = new LayoutNode(component, parent, rowIndex);
         recurse(component.childComponents, group);
         root._addChild(group, parent);
       } else {
@@ -549,11 +505,17 @@ export function nodesInLayout(
  * by ID, and if you have colliding component IDs in multiple layouts it will prefer the one in the current layout.
  */
 export class LayoutRootNodeCollection<
-  T extends { [layoutKey: string]: LayoutRootNode },
+  NT extends NodeType = 'plain',
+  Collection extends { [layoutKey: string]: LayoutRootNode<NT> } = {
+    [layoutKey: string]: LayoutRootNode<NT>;
+  },
 > {
-  public constructor(private currentView: keyof T, private objects: T) {}
+  public constructor(
+    private currentView: keyof Collection,
+    private objects: Collection,
+  ) {}
 
-  public findComponentById(id: string): LayoutNode | undefined {
+  public findComponentById(id: string): LayoutNode<NT> | undefined {
     const inCurrent = this.current().findById(id);
     if (inCurrent) {
       return inCurrent;
@@ -572,8 +534,8 @@ export class LayoutRootNodeCollection<
     return undefined;
   }
 
-  public findAllComponentsById(id: string): LayoutNode[] {
-    const out: LayoutNode[] = [];
+  public findAllComponentsById(id: string): LayoutNode<NT>[] {
+    const out: LayoutNode<NT>[] = [];
 
     for (const key of Object.keys(this.objects)) {
       out.push(...this.objects[key].findAllById(id));
@@ -582,11 +544,11 @@ export class LayoutRootNodeCollection<
     return out;
   }
 
-  public findLayout(key: keyof T): LayoutRootNode {
+  public findLayout(key: keyof Collection): LayoutRootNode<NT> {
     return this.objects[key];
   }
 
-  public current(): LayoutRootNode {
+  public current(): LayoutRootNode<NT> {
     return this.objects[this.currentView];
   }
 }
