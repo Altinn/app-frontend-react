@@ -114,9 +114,40 @@ describe('InstanceSelection', () => {
       name: /10\/05\/2021 navn navnesen fortsett her/i,
     });
     expect(window.location.href).toBe('https://altinn3local.no/ttd/test');
-    await user.click(within(row).getByText(/fortsett her/i));
+
+    const button = within(row).getByRole('button', {
+      name: /fortsett her/i,
+    });
+
+    await user.click(button);
     expect(window.location.href).toBe(
       'https://altinn3local.no/ttd/test#/instance/some-id',
+    );
+  });
+
+  it('should trigger openInstance on editButton click during mobile view', async () => {
+    // Set screen size to mobile
+    setScreenWidth(600);
+    renderInstanceSelection(mockStore, {
+      instances: mockActiveInstances,
+      onNewInstance: mockStartNewInstance,
+    });
+    screen.debug();
+
+    const row = screen.getByRole('row', {
+      name: /sist endret 05\/13\/2021 fortsett her/i,
+    });
+    expect(window.location.href).toBe(
+      'https://altinn3local.no/ttd/test#/instance/some-id',
+    );
+
+    const button = within(row).getByRole('button', {
+      name: /fortsett her/i,
+    });
+
+    await user.click(button);
+    expect(window.location.href).toBe(
+      'https://altinn3local.no/ttd/test#/instance/some-other-id',
     );
   });
 });
