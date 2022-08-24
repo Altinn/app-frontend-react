@@ -66,9 +66,9 @@ export interface IRepeatingGroupTableProps {
   editIndex: number;
   setEditIndex: (index: number) => void;
   onClickRemove: (groupIndex: number) => void;
-  hideDeleteButton?: boolean;
   setMultiPageIndex?: (index: number) => void;
   deleting: boolean;
+  hideDeleteButton?: boolean;
   filteredIndexes?: number[];
 }
 

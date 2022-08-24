@@ -283,6 +283,7 @@ export function GroupContainer({
       </>
     );
   }
+
   return (
     <Grid
       container={true}
