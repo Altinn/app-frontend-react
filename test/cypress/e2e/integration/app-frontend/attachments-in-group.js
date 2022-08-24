@@ -430,9 +430,8 @@ describe('Repeating group attachments', () => {
     // nested rows.
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
-    cy.get(appFrontend.group.rows[0].editBtn).click();
-
-    cy.get(appFrontend.group.delete).click();
+    cy.get(appFrontend.group.rows[0].deleteBtn).click();
+    
     verifyPreview(true);
     waitForFormDataSave();
 
