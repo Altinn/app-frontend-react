@@ -1,13 +1,17 @@
 import {
   getBaseGroupDataModelBindingFromKeyWithIndexIndicators,
+  getGroupDataModelBinding,
   getIndexes,
   keyHasIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
 import type { IFormData } from 'src/features/form/data';
+import type { ILayout } from 'src/features/form/layout';
 import type {
   IMapping,
   IOption,
+  IOptions,
+  IOptionsMetaData,
   IOptionSource,
   IRepeatingGroups,
   ITextResource,
@@ -16,13 +20,7 @@ import type {
 import { replaceTextResourceParams } from 'altinn-shared/utils';
 import type { IDataSources } from 'altinn-shared/types';
 
-interface IOptionObject {
-  id: string;
-  mapping?: IMapping;
-  secure?: boolean;
-}
-
-export function getOptionLookupKey({ id, mapping }: IOptionObject) {
+export function getOptionLookupKey({ id, mapping }: IOptionsMetaData) {
   if (!mapping) {
     return id;
   }
@@ -30,13 +28,13 @@ export function getOptionLookupKey({ id, mapping }: IOptionObject) {
   return JSON.stringify({ id, mapping });
 }
 
-interface IGetOptionLookupKeysParam extends IOptionObject {
+interface IGetOptionLookupKeysParam extends IOptionsMetaData {
   repeatingGroups: IRepeatingGroups;
 }
 
 interface IOptionLookupKeys {
-  keys: IOptionObject[];
-  keyWithIndexIndicator?: IOptionObject;
+  keys: IOptionsMetaData[];
+  keyWithIndexIndicator?: IOptionsMetaData;
 }
 
 export function getOptionLookupKeys({
@@ -45,7 +43,7 @@ export function getOptionLookupKeys({
   secure,
   repeatingGroups,
 }: IGetOptionLookupKeysParam): IOptionLookupKeys {
-  const lookupKeys: IOptionObject[] = [];
+  const lookupKeys: IOptionsMetaData[] = [];
 
   const mappingsWithIndexIndicators = Object.keys(mapping || {}).filter((key) =>
     keyHasIndexIndicators(key),
@@ -152,4 +150,79 @@ export function setupSourceOptions({
     options.push(option);
   }
   return options;
+}
+
+interface IRemoveGroupOptionsByIndexParams {
+  groupId: string;
+  index: number;
+  repeatingGroups: IRepeatingGroups;
+  options: IOptions;
+  layout: ILayout;
+}
+export function removeGroupOptionsByIndex({
+  groupId,
+  index,
+  repeatingGroups,
+  options,
+  layout,
+}: IRemoveGroupOptionsByIndexParams) {
+  const newOptions: IOptions = {};
+  const repeatingGroup = repeatingGroups[groupId];
+  const groupDataBinding = getGroupDataModelBinding(
+    repeatingGroup,
+    groupId,
+    layout,
+  );
+
+  Object.keys(options || {}).forEach((optionKey) => {
+    const { mapping, id } = options[optionKey];
+    if (!mapping) {
+      newOptions[optionKey] = options[optionKey];
+      return;
+    }
+    const shouldBeDeleted = Object.keys(mapping || {}).some((mappingKey) => {
+      return mappingKey.startsWith(`${groupDataBinding}[${index}]`);
+    });
+
+    if (shouldBeDeleted) {
+      return;
+    }
+
+    let newMapping;
+    if (index <= repeatingGroup.index) {
+      newMapping = {
+        ...mapping,
+      };
+      // the indexed to be deleted is lower than total indexes, shift all above
+      for (
+        let shiftIndex = index + 1;
+        shiftIndex <= repeatingGroup.index + 1;
+        shiftIndex++
+      ) {
+        const shouldBeShifted = Object.keys(mapping || {}).filter(
+          (mappingKey) => {
+            return mappingKey.startsWith(`${groupDataBinding}[${shiftIndex}]`);
+          },
+        );
+
+        shouldBeShifted?.forEach((key) => {
+          const newKey = key.replace(
+            `${groupDataBinding}[${shiftIndex}]`,
+            `${groupDataBinding}[${shiftIndex - 1}]`,
+          );
+          delete newMapping[key];
+          newMapping[newKey] = mapping[key];
+        });
+      }
+    }
+
+    const newOptionsKey = getOptionLookupKey({ id, mapping: newMapping });
+
+    newOptions[newOptionsKey] = {
+      ...options[optionKey],
+      mapping: newMapping,
+    };
+  });
+
+  return newOptions;
 }

@@ -2,11 +2,7 @@ import { object } from 'dot-object';
 
 import { getParentGroup } from 'src/utils/validation';
 import type { IFormData } from 'src/features/form/data';
-import type {
-  ILayout,
-  ILayoutCompFileUpload,
-  ILayoutGroup,
-} from 'src/features/form/layout';
+import type { ILayout, ILayoutCompFileUpload } from 'src/features/form/layout';
 import type {
   IAttachment,
   IAttachments,
@@ -83,8 +79,6 @@ export function getKeyWithoutIndexIndicators(
 }
 
 export function keyHasIndexIndicators(key: string): boolean {
-  console.log('checking key', key);
-  console.log(key.match(GLOBAL_INDEX_KEY_INDICATOR_REGEX)?.length > 0);
   return key.match(GLOBAL_INDEX_KEY_INDICATOR_REGEX)?.length > 0;
 }
 
@@ -222,28 +216,27 @@ export function flattenObject(data: any, index = false): any {
   return toReturn;
 }
 
-function getGroupDataModelBinding(
+export function getGroupDataModelBinding(
   repeatingGroup: IRepeatingGroup,
   groupId: string,
   layout: ILayout,
 ) {
-  const groupElementId = repeatingGroup.baseGroupId || groupId;
-  const groupElement = layout.find((element) => {
-    return element.id === groupElementId;
-  }) as ILayoutGroup;
-  const parentGroup = getParentGroup(groupElement.id, layout);
+  const parentGroup = getParentGroup(
+    repeatingGroup.baseGroupId || groupId,
+    layout,
+  );
   if (parentGroup) {
     const splitId = groupId.split('-');
     const parentIndex = Number.parseInt(splitId[splitId.length - 1], 10);
     const parentDataBinding = parentGroup.dataModelBindings?.group;
     const indexedParentDataBinding = `${parentDataBinding}[${parentIndex}]`;
-    return groupElement.dataModelBindings?.group.replace(
+    return repeatingGroup.dataModelBinding.replace(
       parentDataBinding,
       indexedParentDataBinding,
     );
   }
 
-  return groupElement.dataModelBindings.group;
+  return repeatingGroup.dataModelBinding;
 }
 
 export function removeGroupData(

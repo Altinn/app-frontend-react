@@ -1,10 +1,17 @@
 import {
   getOptionLookupKey,
   getOptionLookupKeys,
+  removeGroupOptionsByIndex,
   setupSourceOptions,
 } from 'src/utils/options';
 import type { IFormData } from 'src/features/form/data';
-import type { IMapping, IOptionSource, IRepeatingGroups } from 'src/types';
+import type { ILayout } from 'src/features/form/layout';
+import type {
+  IMapping,
+  IOptions,
+  IOptionSource,
+  IRepeatingGroups,
+} from 'src/types';
 
 import type { IDataSources, ITextResource } from 'altinn-shared/types';
 
@@ -286,6 +293,223 @@ describe('utils > options', () => {
 
       expect(options[2].label).toBe('Label 3');
       expect(options[2].value).toBe('Value 3');
+    });
+  });
+
+  describe('removeGroupOptionsByIndex', () => {
+    it('should delete a given index if options with mapping exists', () => {
+      const repeatingGroups: IRepeatingGroups = {
+        someGroup: {
+          index: 0,
+          dataModelBinding: 'someGroup',
+        },
+      };
+      const options: IOptions = {
+        '{"id":"other","mapping":{"someGroup[0].someField":"someParam"}}': {
+          mapping: {
+            'someGroup[0].someField': 'someParam',
+          },
+          id: 'some',
+          options: [],
+        },
+        '{"id":"other","mapping":{"someOtherGroup[0].someField":"someParam"}}':
+          {
+            mapping: {
+              'someOtherGroup[0].someField': 'someParam',
+            },
+            id: 'other',
+            options: [],
+          },
+      };
+
+      const expected: IOptions = {
+        '{"id":"other","mapping":{"someOtherGroup[0].someField":"someParam"}}':
+          {
+            mapping: {
+              'someOtherGroup[0].someField': 'someParam',
+            },
+            id: 'other',
+            options: [],
+          },
+      };
+
+      const result = removeGroupOptionsByIndex({
+        groupId: 'someGroup',
+        index: 0,
+        repeatingGroups,
+        options,
+        layout: [],
+      });
+
+      expect(result).toEqual(expected);
+    });
+
+    it('should shift mappings if group length is greater than index deleted', () => {
+      const repeatingGroups: IRepeatingGroups = {
+        someGroup: {
+          index: 1,
+          dataModelBinding: 'someGroup',
+        },
+      };
+      const options: IOptions = {
+        '{"id":"some","mapping":{"someGroup[0].someField":"someParam"}}': {
+          mapping: {
+            'someGroup[0].someField': 'someParam',
+          },
+          id: 'some',
+          options: [{ label: 'deleted label', value: 'deleted value' }],
+        },
+        '{"id":"some","mapping":{"someGroup[1].someField":"someParam"}}': {
+          mapping: {
+            'someGroup[1].someField': 'someParam',
+          },
+          id: 'some',
+          options: [{ label: 'shifted label', value: 'shifted value' }],
+        },
+        '{"id":"other","mapping":{"someOtherGroup[0].someField":"someParam"}}':
+          {
+            mapping: {
+              'someOtherGroup[0].someField': 'someParam',
+            },
+            id: 'other',
+            options: [],
+          },
+      };
+
+      const expected: IOptions = {
+        '{"id":"some","mapping":{"someGroup[0].someField":"someParam"}}': {
+          mapping: {
+            'someGroup[0].someField': 'someParam',
+          },
+          id: 'some',
+          options: [{ label: 'shifted label', value: 'shifted value' }],
+        },
+        '{"id":"other","mapping":{"someOtherGroup[0].someField":"someParam"}}':
+          {
+            mapping: {
+              'someOtherGroup[0].someField': 'someParam',
+            },
+            id: 'other',
+            options: [],
+          },
+      };
+
+      const result = removeGroupOptionsByIndex({
+        groupId: 'someGroup',
+        index: 0,
+        repeatingGroups,
+        options,
+        layout: [],
+      });
+
+      expect(result).toEqual(expected);
+    });
+
+    it('should shift mappings for nested groups if group length is greater than index deleted', () => {
+      const layout: ILayout = [
+        {
+          type: 'Group',
+          id: 'someGroup',
+          dataModelBindings: {
+            group: 'someGroup',
+          },
+          children: ['someSubGroup'],
+        },
+      ];
+      const repeatingGroups: IRepeatingGroups = {
+        someGroup: {
+          index: 0,
+          dataModelBinding: 'someGroup',
+        },
+        'someSubGroup-0': {
+          index: 1,
+          dataModelBinding: 'someGroup.someSubGroup',
+          baseGroupId: 'someSubGroup',
+        },
+      };
+      const options: IOptions = {
+        '{"id":"some","mapping":{"someGroup[0].someSubGroup[0].someField":"someParam"}}':
+          {
+            mapping: {
+              'someGroup[0].someSubGroup[0].someField': 'someParam',
+            },
+            id: 'some',
+            options: [{ label: 'deleted label', value: 'deleted value' }],
+          },
+        '{"id":"some","mapping":{"someGroup[0].someSubGroup[1].someField":"someParam"}}':
+          {
+            mapping: {
+              'someGroup[0].someSubGroup[1].someField': 'someParam',
+            },
+            id: 'some',
+            options: [{ label: 'shifted label', value: 'shifted value' }],
+          },
+        '{"id":"other","mapping":{"someOtherGroup[0].someField":"someParam"}}':
+          {
+            mapping: {
+              'someOtherGroup[0].someField': 'someParam',
+            },
+            id: 'other',
+            options: [],
+          },
+      };
+
+      const expected: IOptions = {
+        '{"id":"some","mapping":{"someGroup[0].someSubGroup[0].someField":"someParam"}}':
+          {
+            mapping: {
+              'someGroup[0].someSubGroup[0].someField': 'someParam',
+            },
+            id: 'some',
+            options: [{ label: 'shifted label', value: 'shifted value' }],
+          },
+        '{"id":"other","mapping":{"someOtherGroup[0].someField":"someParam"}}':
+          {
+            mapping: {
+              'someOtherGroup[0].someField': 'someParam',
+            },
+            id: 'other',
+            options: [],
+          },
+      };
+
+      const result = removeGroupOptionsByIndex({
+        groupId: 'someSubGroup-0',
+        index: 0,
+        repeatingGroups,
+        options,
+        layout,
+      });
+
+      expect(result).toEqual(expected);
+    });
+
+    it('should leave options that does not have mappings untouched', () => {
+      const repeatingGroups: IRepeatingGroups = {
+        someGroup: {
+          index: 0,
+          dataModelBinding: 'someGroup',
+        },
+      };
+      const options: IOptions = {
+        someOption: {
+          id: 'some',
+          options: [],
+        },
+        someOtherOption: {
+          id: 'other',
+          options: [{ label: 'dummy', value: 'value' }],
+        },
+      };
+      const result = removeGroupOptionsByIndex({
+        groupId: 'someGroup',
+        index: 0,
+        repeatingGroups,
+        options,
+        layout: [],
+      });
+
+      expect(result).toEqual(options);
     });
   });
 });

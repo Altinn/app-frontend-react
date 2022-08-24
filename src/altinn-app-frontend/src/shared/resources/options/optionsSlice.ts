@@ -5,6 +5,7 @@ import type {
   IFetchOptionsFulfilledAction,
   IFetchOptionsRejectedAction,
   IOptionsState,
+  ISetOptions,
   ISetOptionsWithIndexIndicators,
 } from 'src/shared/resources/options';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
@@ -51,6 +52,12 @@ const optionsSlice = createSagaSlice(
         reducer: (state, action) => {
           const { optionsWithIndexIndicators } = action.payload;
           state.optionsWithIndexIndicators = optionsWithIndexIndicators;
+        },
+      }),
+      setOptions: mkAction<ISetOptions>({
+        reducer: (state, action) => {
+          const { options } = action.payload;
+          state.options = options;
         },
       }),
     },

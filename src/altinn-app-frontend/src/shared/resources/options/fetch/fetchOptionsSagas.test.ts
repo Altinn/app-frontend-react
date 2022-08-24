@@ -10,6 +10,7 @@ import {
   formLayoutSelector,
   instanceIdSelector,
   optionsSelector,
+  optionsWithIndexIndicatorsSelector,
   repeatingGroupsSelector,
 } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
 import type {
@@ -51,6 +52,7 @@ describe('fetchOptionsSagas', () => {
           [select(formDataSelector), formData],
           [select(appLanguageStateSelector), userLanguage],
           [select(optionsSelector), optionsWithField],
+          [select(optionsWithIndexIndicatorsSelector), []],
           [select(instanceIdSelector), 'someId'],
         ])
         .fork(fetchSpecificOptionSaga, {
@@ -78,6 +80,7 @@ describe('fetchOptionsSagas', () => {
           [select(formDataSelector), formData],
           [select(appLanguageStateSelector), userLanguage],
           [select(optionsSelector), optionsWithoutField],
+          [select(optionsWithIndexIndicatorsSelector), []],
         ])
         .run();
     });

@@ -106,10 +106,7 @@ export function* fetchOptionsSaga(): SagaIterator {
 export function* watchFetchOptionsSaga(): SagaIterator {
   yield all([take(FormLayoutActions.updateRepeatingGroupsFulfilled)]);
   yield call(fetchOptionsSaga);
-  yield takeLatest(
-    [OptionsActions.fetch, FormLayoutActions.updateRepeatingGroupsFulfilled],
-    fetchOptionsSaga,
-  );
+  yield takeLatest([OptionsActions.fetch], fetchOptionsSaga);
 }
 
 export function* fetchSpecificOptionSaga({
@@ -158,7 +155,6 @@ export function* checkIfOptionsShouldRefetchSaga({
     const optionsId = options[optionsKey].id;
     const secure = options[optionsKey].secure;
     if (dataMapping && Object.keys(dataMapping).includes(field)) {
-      console.log('includes the field, forking');
       return yield fork(fetchSpecificOptionSaga, {
         optionsId,
         dataMapping,

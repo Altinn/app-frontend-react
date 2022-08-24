@@ -232,6 +232,7 @@ describe('utils/databindings.ts', () => {
     it('should remove form data with the specified index, for the specified group id', () => {
       const result = removeGroupData(testFormData, 1, testLayout, testGroupId, {
         index: 2,
+        dataModelBinding: 'Group',
       });
       const expected = {
         'Group[0].prop1': 'value-0-1',
