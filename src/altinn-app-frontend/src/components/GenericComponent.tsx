@@ -10,7 +10,7 @@ import Description from 'src/features/form/components/Description';
 import Label from 'src/features/form/components/Label';
 import Legend from 'src/features/form/components/Legend';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { useLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
+import { useLayoutExpressionForComponent } from 'src/features/form/layout/expressions/useLayoutExpression';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { makeGetFocus, makeGetHidden } from 'src/selectors/getLayoutData';
@@ -103,13 +103,8 @@ const useStyles = makeStyles((theme) => ({
 export function GenericComponent<Type extends ComponentExceptGroup>(
   _props: IActualGenericComponentProps<Type>,
 ) {
-  const props = useLayoutExpression(_props as ILayoutComponent, {
+  const props = useLayoutExpressionForComponent(_props as ILayoutComponent, {
     forComponentId: _props.id,
-    defaults: {
-      readOnly: false,
-      required: false,
-      hidden: false,
-    },
   }) as ResolvedLayoutExpression<IActualGenericComponentProps<Type>> & {
     type: Type;
   };

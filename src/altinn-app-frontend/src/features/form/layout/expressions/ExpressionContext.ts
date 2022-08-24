@@ -36,7 +36,7 @@ export class ExpressionContext {
 
   private constructor(
     public expr: ILayoutExpression,
-    public node: LayoutNode | NodeNotFoundWithoutContext,
+    public node: LayoutNode<any> | NodeNotFoundWithoutContext,
     public dataSources: ContextDataSources,
   ) {}
 
@@ -45,7 +45,7 @@ export class ExpressionContext {
    */
   public static withBlankPath(
     expr: ILayoutExpression,
-    node: LayoutNode | NodeNotFoundWithoutContext,
+    node: LayoutNode<any> | NodeNotFoundWithoutContext,
     dataSources: ContextDataSources,
   ): ExpressionContext {
     return new ExpressionContext(expr, node, dataSources);
@@ -70,7 +70,7 @@ export class ExpressionContext {
   /**
    * Utility function used to get the LayoutNode for this context, or fail if the node was not found
    */
-  public failWithoutNode(): LayoutNode {
+  public failWithoutNode(): LayoutNode<any> {
     if (this.node instanceof NodeNotFoundWithoutContext) {
       throw new NodeNotFound(this, this.node);
     }

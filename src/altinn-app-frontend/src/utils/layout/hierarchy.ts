@@ -1,3 +1,8 @@
+import {
+  evalExprInObj,
+  ExprDefaultsForComponent,
+  ExprDefaultsForGroup,
+} from 'src/features/form/layout/expressions';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import type {
@@ -5,6 +10,7 @@ import type {
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
 import type { IRepeatingGroups } from 'src/types';
 import type {
   AnyChildNode,
@@ -441,6 +447,24 @@ export class LayoutNode<
 
     return theirBindingParts.join('.');
   }
+
+  /**
+   * Resolves layout expressions inside the node. This turns a LayoutNode<'plain'> into a LayoutNode<'resolved'>, so
+   * you should not call this directly, but instead use a wrapper function that changes the output type for you.
+   * @see resolvedNodesInLayout
+   */
+  resolveExpressions(dataSources: ContextDataSources) {
+    this.item = evalExprInObj({
+      input: this.item as AnyItem,
+      node: this as LayoutNode<any>,
+      dataSources,
+      defaults: {
+        ...ExprDefaultsForComponent,
+        ...ExprDefaultsForGroup,
+      },
+      skipPaths: new Set(['children', 'rows', 'childComponents']),
+    }) as Item; // <-- This is wrong, but we cannot change it without changing our own type to LayoutNode<'resolved'>
+  }
 }
 
 /**
@@ -461,6 +485,9 @@ export class LayoutNode<
  *
  * Note: This strips away multiPage functionality and treats every component of a multiPage group
  * as if every component is on the same page.
+ *
+ * @see resolvedNodesInLayout
+ *  An alternative that also resolves layout expressions for all nodes in the layout
  */
 export function nodesInLayout(
   formLayout: ILayout,
@@ -498,6 +525,26 @@ export function nodesInLayout(
   recurse(layoutAsHierarchyWithRows(formLayout, repeatingGroups), root);
 
   return root;
+}
+
+/**
+ * This is the same tool as the one above, but additionally it will iterate each component/group in the layout
+ * and resolve all layout expressions for it.
+ *
+ * @see nodesInLayout
+ */
+export function resolvedNodesInLayout(
+  formLayout: ILayout,
+  repeatingGroups: IRepeatingGroups,
+  dataSources: ContextDataSources,
+): LayoutRootNode<'resolved'> {
+  const unresolved = nodesInLayout(formLayout, repeatingGroups);
+
+  for (const node of unresolved.flat(true)) {
+    node.resolveExpressions(dataSources);
+  }
+
+  return unresolved as unknown as LayoutRootNode<'resolved'>;
 }
 
 /**

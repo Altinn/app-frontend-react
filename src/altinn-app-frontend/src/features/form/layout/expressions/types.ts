@@ -162,7 +162,7 @@ type ReplaceDistributive<T, Iterations extends Prev[number]> = [T] extends [
  */
 export type LayoutExpressionDefaultValues<
   T,
-  Iterations extends Prev[number],
+  Iterations extends Prev[number] = 1, // <-- Recursion depth limited to 2 levels by default
 > = [Iterations] extends [never]
   ? never
   : Required<

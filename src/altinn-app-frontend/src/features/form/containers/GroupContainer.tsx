@@ -8,6 +8,7 @@ import { RepeatingGroupAddButton } from 'src/features/form/components/RepeatingG
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupsLikertContainer } from 'src/features/form/containers/RepeatingGroupsLikertContainer';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
+import { ExprDefaultsForGroup } from 'src/features/form/layout/expressions';
 import { useLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
@@ -77,11 +78,7 @@ export function GroupContainer({
 
   const edit = useLayoutExpression(container.edit, {
     forComponentId: id,
-    defaults: {
-      deleteButton: true,
-      saveButton: true,
-      addButton: true,
-    },
+    defaults: ExprDefaultsForGroup.edit,
   });
 
   const editIndex = useAppSelector(

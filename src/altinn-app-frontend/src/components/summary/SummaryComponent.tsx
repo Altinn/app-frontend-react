@@ -6,7 +6,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
-import { useLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
+import { useLayoutExpressionForComponent } from 'src/features/form/layout/expressions/useLayoutExpression';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import {
@@ -83,18 +83,8 @@ export function SummaryComponent({
   const _formComponent = useAppSelector((state) => {
     return state.formLayout.layouts[pageRef].find((c) => c.id === componentRef);
   });
-  const formComponent = useLayoutExpression(_formComponent, {
+  const formComponent = useLayoutExpressionForComponent(_formComponent, {
     forComponentId: componentRef,
-    defaults: {
-      hidden: false,
-      required: false,
-      readOnly: false,
-      edit: {
-        addButton: true,
-        deleteButton: true,
-        saveButton: true,
-      },
-    },
   });
 
   const goToCorrectPageLinkText = useAppSelector((state) => {

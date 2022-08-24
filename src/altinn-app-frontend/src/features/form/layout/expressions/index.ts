@@ -8,6 +8,7 @@ import {
 } from 'src/features/form/layout/expressions/errors';
 import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
+import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
 import type {
   BaseToActual,
@@ -27,9 +28,10 @@ export interface EvalExprOptions {
 
 export interface EvalExprInObjArgs<T> {
   input: T;
-  node: LayoutNode | NodeNotFoundWithoutContext;
+  node: LayoutNode<any> | NodeNotFoundWithoutContext;
   dataSources: ContextDataSources;
-  defaults?: LayoutExpressionDefaultValues<T, 1>;
+  defaults?: LayoutExpressionDefaultValues<T>;
+  skipPaths?: Set<string | keyof T>;
 }
 
 /**
@@ -62,6 +64,11 @@ function evalExprInObjectRecursive<T>(
   if (typeof input !== 'object') {
     return input;
   }
+  const pathString = path.join('.');
+  if (args.skipPaths && args.skipPaths.has(pathString)) {
+    return input;
+  }
+
   if (Array.isArray(input)) {
     const newPath = [...path];
     const lastLeg = newPath.pop() || '';
@@ -119,7 +126,7 @@ function evalExprInObjectCaller<T>(
  */
 export function evalExpr(
   expr: ILayoutExpression,
-  node: LayoutNode | NodeNotFoundWithoutContext,
+  node: LayoutNode<any> | NodeNotFoundWithoutContext,
   dataSources: ContextDataSources,
   options?: EvalExprOptions,
 ) {
@@ -324,3 +331,20 @@ export const layoutExpressionCastToType: {
     throw new UnexpectedType(this, 'number', arg);
   },
 };
+
+export const ExprDefaultsForComponent: LayoutExpressionDefaultValues<ILayoutComponent> =
+  {
+    readOnly: false,
+    required: false,
+    hidden: false,
+  };
+
+export const ExprDefaultsForGroup: LayoutExpressionDefaultValues<ILayoutGroup> =
+  {
+    ...ExprDefaultsForComponent,
+    edit: {
+      addButton: true,
+      deleteButton: true,
+      saveButton: true,
+    },
+  };

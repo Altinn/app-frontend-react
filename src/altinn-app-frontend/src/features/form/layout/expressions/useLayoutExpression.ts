@@ -3,8 +3,13 @@ import { useContext, useMemo } from 'react';
 import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
 import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
-import { evalExprInObj } from 'src/features/form/layout/expressions/index';
+import {
+  evalExprInObj,
+  ExprDefaultsForComponent,
+  ExprDefaultsForGroup,
+} from 'src/features/form/layout/expressions/index';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
+import type { ILayoutComponentOrGroup } from 'src/features/form/layout';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
 import type { EvalExprInObjArgs } from 'src/features/form/layout/expressions/index';
 import type {
@@ -27,7 +32,7 @@ export interface UseLayoutExpressionOptions<T> {
    * print out a pretty error message to the console explaining what went wrong - and continue by using the default
    * value instead.
    */
-  defaults?: LayoutExpressionDefaultValues<T, 1>; // <-- Recursion depth limited by the second generic param
+  defaults?: LayoutExpressionDefaultValues<T>;
 }
 
 /**
@@ -77,4 +82,20 @@ export function useLayoutExpression<T>(
     node,
     dataSources,
   } as EvalExprInObjArgs<T>) as ResolvedLayoutExpression<T>;
+}
+
+// TODO: Implement a simple test for this
+export function useLayoutExpressionForComponent<
+  T extends ILayoutComponentOrGroup,
+>(
+  input: T,
+  options?: Omit<UseLayoutExpressionOptions<T>, 'defaults'>,
+): ResolvedLayoutExpression<T> {
+  return useLayoutExpression(input, {
+    ...options,
+    defaults: {
+      ...ExprDefaultsForComponent,
+      ...ExprDefaultsForGroup,
+    } as any, // Casting to any to avoid expensive type-checking already done in the source types
+  });
 }
