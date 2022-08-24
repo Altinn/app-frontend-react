@@ -180,7 +180,7 @@ export function removeGroupOptionsByIndex({
       newOptions[optionKey] = options[optionKey];
       return;
     }
-    const shouldBeDeleted = Object.keys(mapping || {}).some((mappingKey) => {
+    const shouldBeDeleted = Object.keys(mapping).some((mappingKey) => {
       return mappingKey.startsWith(`${groupDataBinding}[${index}]`);
     });
 
@@ -199,11 +199,9 @@ export function removeGroupOptionsByIndex({
         shiftIndex <= repeatingGroup.index + 1;
         shiftIndex++
       ) {
-        const shouldBeShifted = Object.keys(mapping || {}).filter(
-          (mappingKey) => {
-            return mappingKey.startsWith(`${groupDataBinding}[${shiftIndex}]`);
-          },
-        );
+        const shouldBeShifted = Object.keys(mapping).filter((mappingKey) => {
+          return mappingKey.startsWith(`${groupDataBinding}[${shiftIndex}]`);
+        });
 
         shouldBeShifted?.forEach((key) => {
           const newKey = key.replace(
