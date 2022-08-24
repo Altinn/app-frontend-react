@@ -62,10 +62,10 @@ export function getOptionLookupKeys({
         })
         .filter((index) => index !== undefined);
       const possibleCombinations = getIndexes(groupIndexes);
-      for (let index = 0; index < possibleCombinations.length; index++) {
+      for (const possibleCombination of possibleCombinations) {
         const newMappingKey = replaceIndexIndicatorsWithIndexes(
           mappingKey,
-          possibleCombinations[index],
+          possibleCombination,
         );
         const newMapping: IMapping = {
           ...mapping,

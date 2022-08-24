@@ -134,7 +134,6 @@ export function* fetchSpecificOptionSaga({
       instanceId,
     });
 
-    // TODO: look for url in existing options, otherwise fetch
     const options: IOption[] = yield call(get, url);
     yield put(OptionsActions.fetchFulfilled({ key, options }));
   } catch (error) {
