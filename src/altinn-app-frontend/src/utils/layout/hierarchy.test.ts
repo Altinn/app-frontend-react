@@ -121,7 +121,8 @@ describe('Hierarchical layout tools', () => {
 
   describe('layoutAsHierarchy', () => {
     it('should turn a layout into a hierarchy', () => {
-      expect(layoutAsHierarchy(layout)).toEqual([
+      const result = layoutAsHierarchy(layout);
+      expect(result).toEqual([
         components.top1,
         components.top2,
         {
@@ -247,7 +248,8 @@ describe('Hierarchical layout tools', () => {
         },
       ];
 
-      expect(layoutAsHierarchyWithRows(layout, repeatingGroups)).toEqual([
+      const result = layoutAsHierarchyWithRows(layout, repeatingGroups);
+      expect(result).toEqual([
         components.top1,
         components.top2,
         {
@@ -295,14 +297,14 @@ describe('Hierarchical layout tools', () => {
       root._addChild(top1, root);
       root._addChild(top2, root);
 
-      expect(nodesInLayout([components.top1, components.top2], {})).toEqual(
-        root,
-      );
+      const result = nodesInLayout([components.top1, components.top2], {});
+      expect(result).toEqual(root);
     });
 
     it('should resolve a complex layout without groups', () => {
       const nodes = nodesInLayout(layout, repeatingGroups);
-      expect(nodes.flat(false).map((n) => n.item.id)).toEqual([
+      const flatNoGroups = nodes.flat(false);
+      expect(flatNoGroups.map((n) => n.item.id)).toEqual([
         // Top-level nodes:
         components.top1.id,
         components.top2.id,
@@ -330,7 +332,8 @@ describe('Hierarchical layout tools', () => {
 
     it('should resolve a complex layout with groups', () => {
       const nodes = nodesInLayout(layout, repeatingGroups);
-      expect(nodes.flat(true).map((n) => n.item.id)).toEqual([
+      const flatWithGroups = nodes.flat(true);
+      expect(flatWithGroups.map((n) => n.item.id)).toEqual([
         // Top-level nodes:
         components.top1.id,
         components.top2.id,
@@ -361,8 +364,8 @@ describe('Hierarchical layout tools', () => {
 
     it('should enable traversal of layout', () => {
       const nodes = nodesInLayout(layout, manyRepeatingGroups);
-      const flat = nodes.flat(true);
-      const deepComponent = flat.find(
+      const flatWithGroups = nodes.flat(true);
+      const deepComponent = flatWithGroups.find(
         (node) => node.item.id === `${components.group2nh.id}-2-2`,
       );
       expect(deepComponent.item.id).toEqual(`${components.group2nh.id}-2-2`);
@@ -436,7 +439,9 @@ describe('Hierarchical layout tools', () => {
           .item.id,
       ).toEqual(components.group1h.id);
 
-      const group2 = flat.find((node) => node.item.id === components.group2.id);
+      const group2 = flatWithGroups.find(
+        (node) => node.item.id === components.group2.id,
+      );
       expect(group2.children((n) => n.type === 'Input').item.id).toEqual(
         `${components.group2i.id}-0`,
       );
