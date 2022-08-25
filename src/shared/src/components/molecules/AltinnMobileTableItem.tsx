@@ -182,6 +182,7 @@ export default function AltinnMobileTableItem({
                     <IconButton
                       className={classes.tableEditButton}
                       onClick={onEditClick}
+                      data-testid='edit-button'
                     >
                       {editIconNode}
                     </IconButton>
@@ -195,6 +196,7 @@ export default function AltinnMobileTableItem({
                     <IconButton
                       className={classes.deleteButton}
                       onClick={onDeleteClick}
+                      data-testid='delete-button'
                     >
                       {deleteIconNode}
                     </IconButton>

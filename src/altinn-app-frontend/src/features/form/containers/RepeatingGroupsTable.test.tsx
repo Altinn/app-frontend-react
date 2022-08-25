@@ -3,10 +3,11 @@ import * as React from 'react';
 import { getFormLayoutGroupMock } from '__mocks__/mocks';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from 'testUtils';
+import { mockMediaQuery, renderWithProviders } from 'testUtils';
 
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
+import type { IRepeatingGroupTableProps } from 'src/features/form/containers/RepeatingGroupTable';
 import type {
   ILayoutComponent,
   ILayoutGroup,
@@ -16,23 +17,25 @@ import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOption, ITextResource } from 'src/types';
 
+import type { ILanguage } from 'altinn-shared/types';
+
 const user = userEvent.setup();
 
-describe('RepeatingGroupTable', () => {
-  let mockContainer: ILayoutGroup;
-  let mockLanguage: any;
-  let mockTextResources: ITextResource[];
-  let mockAttachments: IAttachments;
-  let mockComponents: ILayoutComponent[];
-  let mockLayout: ILayoutState;
-  let mockCurrentView: string;
-  let mockData: any;
-  let mockOptions: IOption[];
-  let repeatingGroupIndex: number;
-  let mockRepeatingGroupDeepCopyComponents: Array<
-    Array<ILayoutComponent | ILayoutGroup>
-  >;
+let mockContainer: ILayoutGroup;
+let mockLanguage: ILanguage;
+let mockTextResources: ITextResource[];
+let mockAttachments: IAttachments;
+let mockComponents: ILayoutComponent[];
+let mockTestLayout: ILayoutState;
+let mockTestCurrentView: string;
+let mockData: any;
+let mockOptions: IOption[];
+let repeatingGroupIndex: number;
+let mockRepeatingGroupDeepCopyComponents: Array<
+  Array<ILayoutComponent | ILayoutGroup>
+>;
 
+describe('RepeatingGroupTable', () => {
   beforeEach(() => {
     mockOptions = [{ value: 'option.value', label: 'option.label' }];
     mockComponents = [
@@ -93,7 +96,14 @@ describe('RepeatingGroupTable', () => {
 
     mockContainer = getFormLayoutGroupMock({});
 
-    mockLayout = {
+    mockLanguage = {
+      general: {
+        delete: 'Delete',
+        edit_alt: 'Edit',
+      },
+    };
+
+    mockTestLayout = {
       layouts: {
         FormLayout: [].concat(mockContainer).concat(mockComponents),
       },
@@ -119,9 +129,13 @@ describe('RepeatingGroupTable', () => {
       },
     };
 
-    mockTextResources = [{ id: 'option.label', value: 'Value to be shown' }];
+    mockTextResources = [
+      { id: 'option.label', value: 'Value to be shown' },
+      { id: 'edit_button_open', value: 'Edit' },
+      { id: 'edit_button_close', value: 'Edit' },
+    ];
 
-    mockCurrentView = 'FormLayout';
+    mockTestCurrentView = 'FormLayout';
     repeatingGroupIndex = 3;
     mockRepeatingGroupDeepCopyComponents = createRepeatingGroupComponents(
       mockContainer,
@@ -131,92 +145,99 @@ describe('RepeatingGroupTable', () => {
     );
   });
 
-  it('should match snapshot', () => {
-    const { asFragment } = renderWithProviders(
-      <RepeatingGroupTable
-        container={mockContainer}
-        attachments={mockAttachments}
-        language={mockLanguage}
-        textResources={mockTextResources}
-        components={mockComponents}
-        currentView={mockCurrentView}
-        editIndex={-1}
-        formData={mockData}
-        hiddenFields={[]}
-        id={mockContainer.id}
-        layout={mockLayout.layouts[mockCurrentView]}
-        options={{}}
-        repeatingGroupDeepCopyComponents={mockRepeatingGroupDeepCopyComponents}
-        repeatingGroupIndex={repeatingGroupIndex}
-        repeatingGroups={mockLayout.uiConfig.repeatingGroups}
-        deleting={false}
-        onClickRemove={jest.fn()}
-        setEditIndex={jest.fn()}
-        validations={{}}
-      />,
-    );
-    expect(asFragment()).toMatchSnapshot();
+  describe('desktop view', () => {
+    const { setScreenWidth } = mockMediaQuery(992);
+    beforeEach(() => {
+      setScreenWidth(1337);
+    });
+
+    it('should match snapshot', () => {
+      const { asFragment } = render();
+      expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('should trigger onClickRemove on delete-button click', async () => {
+      const onClickRemove = jest.fn();
+      render({ onClickRemove: onClickRemove });
+
+      await user.click(screen.getAllByRole('button', { name: /delete/i })[0]);
+
+      expect(onClickRemove).toBeCalledTimes(1);
+    });
+
+    it('should trigger setEditIndex on edit-button click', async () => {
+      const setEditIndex = jest.fn();
+      render({ setEditIndex: setEditIndex });
+
+      await user.click(screen.getAllByRole('button', { name: /edit/i })[0]);
+
+      expect(setEditIndex).toBeCalledTimes(1);
+    });
   });
 
-  it('should trigger onClickRemove on delete-button click', async () => {
-    const onClickRemove = jest.fn();
-    renderWithProviders(
-      <RepeatingGroupTable
-        container={mockContainer}
-        attachments={mockAttachments}
-        language={mockLanguage}
-        textResources={mockTextResources}
-        components={mockComponents}
-        currentView={mockCurrentView}
-        editIndex={-1}
-        formData={mockData}
-        hiddenFields={[]}
-        id={mockContainer.id}
-        layout={mockLayout.layouts[mockCurrentView]}
-        options={{}}
-        repeatingGroupDeepCopyComponents={mockRepeatingGroupDeepCopyComponents}
-        repeatingGroupIndex={repeatingGroupIndex}
-        repeatingGroups={mockLayout.uiConfig.repeatingGroups}
-        deleting={false}
-        onClickRemove={onClickRemove}
-        setEditIndex={jest.fn()}
-        validations={{}}
-      />,
-    );
-    await user.click(
-      screen.getAllByRole('button', { name: /general\.delete/i })[0],
-    );
-    expect(onClickRemove).toBeCalledTimes(1);
+  describe('tablet view', () => {
+    const { setScreenWidth } = mockMediaQuery(992);
+    beforeEach(() => {
+      setScreenWidth(992);
+    });
+
+    it('should render as mobile-version for small screens', () => {
+      render();
+
+      const altinnMobileTable = screen.queryByTestId(/altinn-mobile-table/i);
+
+      expect(altinnMobileTable).toBeInTheDocument();
+    });
   });
 
-  it('should trigger setEditIndex on edit-button click', async () => {
-    const setEditIndex = jest.fn();
-    renderWithProviders(
-      <RepeatingGroupTable
-        container={mockContainer}
-        attachments={mockAttachments}
-        language={mockLanguage}
-        textResources={mockTextResources}
-        components={mockComponents}
-        currentView={mockCurrentView}
-        editIndex={-1}
-        formData={mockData}
-        hiddenFields={[]}
-        id={mockContainer.id}
-        layout={mockLayout.layouts[mockCurrentView]}
-        options={{}}
-        repeatingGroupDeepCopyComponents={mockRepeatingGroupDeepCopyComponents}
-        repeatingGroupIndex={repeatingGroupIndex}
-        repeatingGroups={mockLayout.uiConfig.repeatingGroups}
-        deleting={false}
-        onClickRemove={jest.fn()}
-        setEditIndex={setEditIndex}
-        validations={{}}
-      />,
-    );
-    await user.click(
-      screen.getAllByRole('button', { name: /general\.edit_alt/i })[0],
-    );
-    expect(setEditIndex).toBeCalledTimes(1);
+  describe('mobile view', () => {
+    const { setScreenWidth } = mockMediaQuery(768);
+    beforeEach(() => {
+      setScreenWidth(768);
+    });
+
+    it('should render edit and delete buttons as icons for screens smaller thnn 786px', () => {
+      const onClickRemove = jest.fn();
+      render({ onClickRemove: onClickRemove });
+
+      const iconButtonsDelete = screen.getAllByTestId(/delete-button/i);
+      const iconButtonsEdit = screen.getAllByTestId(/edit-button/i);
+
+      expect(iconButtonsDelete).toHaveLength(4);
+      expect(iconButtonsDelete[0]).toContainHTML(
+        `<span class="MuiIconButton-label"><i class="ai ai-trash" /></span>`,
+      );
+      expect(iconButtonsEdit).toHaveLength(4);
+      expect(iconButtonsEdit[0]).toContainHTML(
+        `<span class="MuiIconButton-label"><i class="fa fa-edit makeStyles-editIcon-60" /></span>`,
+      );
+    });
   });
 });
+
+const render = (props: Partial<IRepeatingGroupTableProps> = {}) => {
+  const allProps = {
+    container: mockContainer,
+    attachments: mockAttachments,
+    language: mockLanguage,
+    textResources: mockTextResources,
+    components: mockComponents,
+    currentView: mockTestCurrentView,
+    editIndex: -1,
+    formData: mockData,
+    hiddenFields: [],
+    id: mockContainer.id,
+    layout: mockTestLayout.layouts[mockTestCurrentView],
+    options: {},
+    repeatingGroupDeepCopyComponents: mockRepeatingGroupDeepCopyComponents,
+    repeatingGroupIndex: repeatingGroupIndex,
+    repeatingGroups: mockTestLayout.uiConfig.repeatingGroups,
+    deleting: false,
+    onClickRemove: jest.fn(),
+    setEditIndex: jest.fn(),
+    validations: {},
+    ...props,
+  } as IRepeatingGroupTableProps;
+
+  return renderWithProviders(<RepeatingGroupTable {...allProps} />);
+};
