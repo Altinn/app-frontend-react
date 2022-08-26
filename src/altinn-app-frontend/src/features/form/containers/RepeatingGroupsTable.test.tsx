@@ -132,6 +132,16 @@ describe('RepeatingGroupTable', () => {
     expect(tableHeader).toBeInTheDocument();
   });
 
+  it('should not render table header when table has no entries', () => {
+    const container = render({
+      repeatingGroupIndex: -1,
+    });
+    const tableHeader = container.querySelector(
+      `#group-${group.id}-table-header`,
+    );
+    expect(tableHeader).not.toBeInTheDocument();
+  });
+
   describe('desktop view', () => {
     const { setScreenWidth } = mockMediaQuery(992);
     beforeEach(() => {
