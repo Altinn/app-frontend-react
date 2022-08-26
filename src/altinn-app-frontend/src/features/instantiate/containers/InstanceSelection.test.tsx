@@ -132,7 +132,6 @@ describe('InstanceSelection', () => {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });
-    screen.debug();
 
     const row = screen.getByRole('row', {
       name: /sist endret 05\/13\/2021 fortsett her/i,

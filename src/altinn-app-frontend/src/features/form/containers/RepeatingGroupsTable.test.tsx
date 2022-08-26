@@ -197,8 +197,7 @@ describe('RepeatingGroupTable', () => {
     });
 
     it('should render edit and delete buttons as icons for screens smaller thnn 786px', () => {
-      const onClickRemove = jest.fn();
-      render({ onClickRemove: onClickRemove });
+      render();
 
       const iconButtonsDelete = screen.getAllByTestId(/delete-button/i);
       const iconButtonsEdit = screen.getAllByTestId(/edit-button/i);
