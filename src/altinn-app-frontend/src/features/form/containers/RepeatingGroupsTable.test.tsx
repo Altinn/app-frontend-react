@@ -185,13 +185,13 @@ describe('RepeatingGroupTable', () => {
       const iconButtonsEdit = screen.getAllByTestId(/edit-button/i);
 
       expect(iconButtonsDelete).toHaveLength(4);
-      expect(iconButtonsDelete[0]).toContainHTML(
-        `<span class="MuiIconButton-label"><i class="ai ai-trash" /></span>`,
-      );
       expect(iconButtonsEdit).toHaveLength(4);
-      expect(iconButtonsEdit[0]).toContainHTML(
-        `<span class="MuiIconButton-label"><i class="fa fa-edit makeStyles-editIcon-60" /></span>`,
-      );
+
+      const iconButtonsDeleteWithText = screen.queryAllByText(/delete/i);
+      const iconButtonsEditWithText = screen.queryAllByText(/edit/i);
+
+      expect(iconButtonsDeleteWithText).toHaveLength(0);
+      expect(iconButtonsEditWithText).toHaveLength(0);
     });
   });
 
