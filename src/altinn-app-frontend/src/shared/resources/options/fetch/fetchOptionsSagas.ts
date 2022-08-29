@@ -150,7 +150,7 @@ export function* checkIfOptionsShouldRefetchSaga({
     const optionsId = options[optionsKey].id;
     const secure = options[optionsKey].secure;
     if (dataMapping && Object.keys(dataMapping).includes(field)) {
-      return yield fork(fetchSpecificOptionSaga, {
+      yield fork(fetchSpecificOptionSaga, {
         optionsId,
         dataMapping,
         secure,
