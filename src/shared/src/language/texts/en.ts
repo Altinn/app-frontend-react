@@ -110,8 +110,6 @@ export function en() {
       close: 'Close',
       contains: 'Contains{0}',
       control_submit: 'Control and submit',
-      column_header_edit: 'Header icon for edit column',
-      column_header_delete: 'Header icon for delete column',
       create_new: 'Create new',
       create: 'Create',
       customer_service_phone_number: '+47 75 00 60 00',
@@ -148,6 +146,8 @@ export function en() {
       version: 'Version',
     },
     group: {
+      column_header_edit: 'Header icon for edit column',
+      column_header_delete: 'Header icon for delete column',
       row_error:
         'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',
     },

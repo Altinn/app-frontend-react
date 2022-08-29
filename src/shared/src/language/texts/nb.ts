@@ -110,8 +110,6 @@ export function nb() {
       close: 'Lukk',
       contains: 'Inneholder',
       control_submit: 'Kontroller og send inn',
-      column_header_edit: 'Header ikon for redigerings-knapp kolonne',
-      column_header_delete: 'Header ikon for slette-knapp kolonne',
       create_new: 'Opprett ny',
       create: 'Opprett',
       customer_service_phone_number: '+47 75 00 60 00',
@@ -148,6 +146,8 @@ export function nb() {
       version: 'Versjon',
     },
     group: {
+      column_header_edit: 'Header ikon for redigerings-knapp kolonne',
+      column_header_delete: 'Header ikon for slette-knapp kolonne',
       row_error:
         'En av radene er ikke fylt ut riktig, dette må fikses før skjema kan sendes inn',
     },
