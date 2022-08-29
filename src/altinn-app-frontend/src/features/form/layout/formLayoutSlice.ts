@@ -1,3 +1,5 @@
+import { put } from 'redux-saga/effects';
+
 import {
   fetchLayoutSetsSaga,
   watchFetchFormLayoutSaga,
@@ -14,6 +16,7 @@ import {
   watchMapFileUploaderWithTagSaga,
   watchUpdateCurrentViewSaga,
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
+import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
 import { replaceTextResourcesSaga } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type { ILayouts } from 'src/features/form/layout';
@@ -66,6 +69,9 @@ const formLayoutSlice = createSagaSlice(
           state.uiConfig.layoutOrder = Object.keys(layouts);
           state.error = null;
           state.uiConfig.repeatingGroups = {};
+        },
+        takeLatest: function* () {
+          yield put(OptionsActions.fetch());
         },
       }),
       fetchRejected: mkAction<LayoutTypes.IFormLayoutActionRejected>({

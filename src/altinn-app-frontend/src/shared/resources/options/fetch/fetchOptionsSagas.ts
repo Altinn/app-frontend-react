@@ -1,12 +1,4 @@
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeLatest,
-} from 'redux-saga/effects';
+import { all, call, fork, put, select, take } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
@@ -104,9 +96,13 @@ export function* fetchOptionsSaga(): SagaIterator {
 }
 
 export function* watchFetchOptionsSaga(): SagaIterator {
-  yield all([take(FormLayoutActions.updateRepeatingGroupsFulfilled)]);
-  yield call(fetchOptionsSaga);
-  yield takeLatest([OptionsActions.fetch], fetchOptionsSaga);
+  while (true) {
+    yield all([
+      take(FormLayoutActions.updateRepeatingGroupsFulfilled),
+      take(OptionsActions.fetch),
+    ]);
+    yield call(fetchOptionsSaga);
+  }
 }
 
 export function* fetchSpecificOptionSaga({
