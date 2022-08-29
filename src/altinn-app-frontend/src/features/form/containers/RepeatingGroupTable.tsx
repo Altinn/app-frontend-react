@@ -301,7 +301,7 @@ export function RepeatingGroupTable({
                     }}
                     className={`fa fa-edit ${classes.editIcon}`}
                     aria-label={getLanguageFromKey(
-                      'general.column_header_edit',
+                      'group.column_header_edit',
                       language,
                     )}
                   />
@@ -319,7 +319,7 @@ export function RepeatingGroupTable({
                       }}
                       className={'ai ai-trash'}
                       aria-label={getLanguageFromKey(
-                        'general.column_header_delete',
+                        'group.column_header_delete',
                         language,
                       )}
                     />
