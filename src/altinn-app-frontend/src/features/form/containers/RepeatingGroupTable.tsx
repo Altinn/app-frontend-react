@@ -300,6 +300,10 @@ export function RepeatingGroupTable({
                       paddingLeft: '14px',
                     }}
                     className={`fa fa-edit ${classes.editIcon}`}
+                    aria-label={getLanguageFromKey(
+                      'general.column_header_edit',
+                      language,
+                    )}
                   />
                 </TableCell>
                 {!hideDeleteButton && (
@@ -314,6 +318,10 @@ export function RepeatingGroupTable({
                         paddingBottom: '5px',
                       }}
                       className={'ai ai-trash'}
+                      aria-label={getLanguageFromKey(
+                        'general.column_header_delete',
+                        language,
+                      )}
                     />
                   </TableCell>
                 )}
