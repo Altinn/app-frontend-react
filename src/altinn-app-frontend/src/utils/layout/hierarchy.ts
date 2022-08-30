@@ -563,9 +563,12 @@ export class LayoutRootNodeCollection<
   ) {}
 
   public findComponentById(id: string): LayoutNode<NT> | undefined {
-    const inCurrent = this.current().findById(id);
-    if (inCurrent) {
-      return inCurrent;
+    const current = this.current();
+    if (current) {
+      const inCurrent = this.current().findById(id);
+      if (inCurrent) {
+        return inCurrent;
+      }
     }
 
     for (const otherLayoutKey of Object.keys(this.objects)) {

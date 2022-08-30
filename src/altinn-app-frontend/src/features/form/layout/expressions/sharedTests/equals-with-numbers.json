@@ -1,0 +1,8 @@
+{
+  "name": "Equals should work with numbers",
+  "expression": {
+    "function": "equals",
+    "args": [1, 2]
+  },
+  "expects": false
+}
