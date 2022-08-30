@@ -21,7 +21,7 @@ interface TestDescription {
   name: string;
   expression: ILayoutExpression;
   expects?: any;
-  expectsFailure?: boolean;
+  expectsFailure?: string;
   context?: {
     component?: string;
     rowIndices?: number[];
@@ -90,7 +90,9 @@ describe('Layout expressions shared tests', () => {
           new NodeNotFoundWithoutContext(componentId);
 
         if (expectsFailure) {
-          expect(() => evalExpr(expression, component, dataSources)).toThrow();
+          expect(() => evalExpr(expression, component, dataSources)).toThrow(
+            expectsFailure,
+          );
         } else {
           expect(evalExpr(expression, component, dataSources)).toEqual(expects);
         }

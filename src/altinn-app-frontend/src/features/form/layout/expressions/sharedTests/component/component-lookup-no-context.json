@@ -4,7 +4,7 @@
     "function": "component",
     "args": ["my-component"]
   },
-  "expectsFailure": true,
+  "expectsFailure": "Unable to evaluate layout expressions in context of the \"no-component\" component (it could not be found)",
   "layouts": {
     "Page1": [
       {
