@@ -1,0 +1,8 @@
+{
+  "name": "Should work with booleans (false)",
+  "expression": {
+    "function": "notEquals",
+    "args": [false, false]
+  },
+  "expects": false
+}

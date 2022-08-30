@@ -1,0 +1,8 @@
+{
+  "name": "Should work with null",
+  "expression": {
+    "function": "notEquals",
+    "args": [null, null]
+  },
+  "expects": false
+}
