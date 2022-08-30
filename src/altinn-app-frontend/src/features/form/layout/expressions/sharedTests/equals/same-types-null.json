@@ -1,0 +1,8 @@
+{
+  "name": "Should work with null",
+  "expression": {
+    "function": "equals",
+    "args": [null, null]
+  },
+  "expects": true
+}

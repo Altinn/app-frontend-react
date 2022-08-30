@@ -1,0 +1,22 @@
+{
+  "name": "Component lookup without context should fail",
+  "expression": {
+    "function": "component",
+    "args": ["my-component"]
+  },
+  "expectsFailure": true,
+  "layouts": {
+    "Page1": [
+      {
+        "id": "my-component",
+        "type": "Input",
+        "dataModelBindings": {
+          "simpleBinding": "ComponentContent"
+        }
+      }
+    ]
+  },
+  "dataModel": {
+    "ComponentContent": "hello world"
+  }
+}

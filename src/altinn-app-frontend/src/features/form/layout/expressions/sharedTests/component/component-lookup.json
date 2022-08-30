@@ -1,0 +1,30 @@
+{
+  "name": "Component lookup",
+  "expression": {
+    "function": "component",
+    "args": ["my-component"]
+  },
+  "expects": "hello world",
+  "layouts": {
+    "Page1": [
+      {
+        "id": "my-component",
+        "type": "Input",
+        "dataModelBindings": {
+          "simpleBinding": "ComponentContent"
+        }
+      },
+      {
+        "id": "current-component",
+        "type": "Paragraph"
+      }
+    ]
+  },
+  "dataModel": {
+    "ComponentContent": "hello world"
+  },
+  "context": {
+    "component": "current-component",
+    "currentLayout": "Page1"
+  }
+}

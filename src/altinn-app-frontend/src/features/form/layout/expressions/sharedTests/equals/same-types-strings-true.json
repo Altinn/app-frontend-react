@@ -1,8 +1,8 @@
 {
-  "name": "Equals should work with numbers",
+  "name": "Should work with strings (true)",
   "expression": {
     "function": "equals",
-    "args": [1, 2]
+    "args": ["foo", "bar"]
   },
   "expects": false
 }

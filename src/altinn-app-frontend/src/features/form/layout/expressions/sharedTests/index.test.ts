@@ -1,8 +1,8 @@
 import dot from 'dot-object';
+import fs from 'node:fs';
 
 import { evalExpr } from 'src/features/form/layout/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
-import sharedTests from 'src/features/form/layout/expressions/sharedTests/index';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import {
   LayoutRootNodeCollection,
@@ -20,7 +20,8 @@ import type {
 interface TestDescription {
   name: string;
   expression: ILayoutExpression;
-  expects: any;
+  expects?: any;
+  expectsFailure?: boolean;
   context?: {
     component?: string;
     rowIndices?: number[];
@@ -40,46 +41,60 @@ function toComponentId({ component, rowIndices }: TestDescription['context']) {
 }
 
 describe('Layout expressions shared tests', () => {
-  it.each(sharedTests)('$name', (_input) => {
-    const {
-      expression,
-      expects,
-      context,
-      layouts,
-      dataModel,
-      instanceContext,
-      appSettings,
-    } = _input as TestDescription;
+  const sharedTestFolders = fs
+    .readdirSync(__dirname)
+    .filter((name) => name !== 'index.test.ts');
 
-    const dataSources: ContextDataSources = {
-      formData: dataModel ? dot.dot(dataModel) : {},
-      instanceContext: instanceContext || ({} as IInstanceContext),
-      applicationSettings: appSettings || ({} as IApplicationSettings),
-    };
+  describe.each(sharedTestFolders)('Function: %s', (folder) => {
+    const sharedTests = fs
+      .readdirSync(`${__dirname}/${folder}`)
+      .filter((f) => f.endsWith('.json'))
+      .map((f) => fs.readFileSync(`${__dirname}/${folder}/${f}`))
+      .map((testJson) => JSON.parse(testJson.toString()) as TestDescription);
 
-    const asNodes = {};
-    for (const key of Object.keys(layouts || {})) {
-      const repeatingGroups = getRepeatingGroups(
-        layouts[key],
-        dataSources.formData,
-      );
-      asNodes[key] = nodesInLayout(layouts[key], repeatingGroups);
-    }
-
-    const currentLayout = (context && context.currentLayout) || '';
-    const rootCollection = new LayoutRootNodeCollection(
-      currentLayout as keyof typeof asNodes,
-      asNodes,
-    );
-    const componentId = context ? toComponentId(context) : 'no-component';
-    const component = rootCollection.findComponentById(componentId);
-
-    expect(
-      evalExpr(
+    it.each(sharedTests)(
+      '$name',
+      ({
         expression,
-        component || new NodeNotFoundWithoutContext(componentId),
-        dataSources,
-      ),
-    ).toEqual(expects);
+        expects,
+        expectsFailure,
+        context,
+        layouts,
+        dataModel,
+        instanceContext,
+        appSettings,
+      }) => {
+        const dataSources: ContextDataSources = {
+          formData: dataModel ? dot.dot(dataModel) : {},
+          instanceContext: instanceContext || ({} as IInstanceContext),
+          applicationSettings: appSettings || ({} as IApplicationSettings),
+        };
+
+        const asNodes = {};
+        for (const key of Object.keys(layouts || {})) {
+          const repeatingGroups = getRepeatingGroups(
+            layouts[key],
+            dataSources.formData,
+          );
+          asNodes[key] = nodesInLayout(layouts[key], repeatingGroups);
+        }
+
+        const currentLayout = (context && context.currentLayout) || '';
+        const rootCollection = new LayoutRootNodeCollection(
+          currentLayout as keyof typeof asNodes,
+          asNodes,
+        );
+        const componentId = context ? toComponentId(context) : 'no-component';
+        const component =
+          rootCollection.findComponentById(componentId) ||
+          new NodeNotFoundWithoutContext(componentId);
+
+        if (expectsFailure) {
+          expect(() => evalExpr(expression, component, dataSources)).toThrow();
+        } else {
+          expect(evalExpr(expression, component, dataSources)).toEqual(expects);
+        }
+      },
+    );
   });
 });

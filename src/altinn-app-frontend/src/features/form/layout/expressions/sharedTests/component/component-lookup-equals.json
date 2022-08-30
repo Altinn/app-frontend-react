@@ -1,0 +1,47 @@
+{
+  "name": "Component lookup equals other component lookup",
+  "expression": {
+    "function": "equals",
+    "args": [
+      {
+        "function": "component",
+        "args": ["my-component"]
+      },
+      {
+        "function": "component",
+        "args": ["my-other-component"]
+      }
+    ]
+  },
+  "expects": true,
+  "layouts": {
+    "Page1": [
+      {
+        "id": "my-component",
+        "type": "Input",
+        "dataModelBindings": {
+          "simpleBinding": "ComponentContent"
+        }
+      },
+      {
+        "id": "my-other-component",
+        "type": "Input",
+        "dataModelBindings": {
+          "simpleBinding": "OtherComponentContent"
+        }
+      },
+      {
+        "id": "current-component",
+        "type": "Paragraph"
+      }
+    ]
+  },
+  "dataModel": {
+    "ComponentContent": "hello world",
+    "OtherComponentContent": "hello world"
+  },
+  "context": {
+    "component": "current-component",
+    "currentLayout": "Page1"
+  }
+}
