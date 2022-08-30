@@ -110,6 +110,10 @@ const useStyles = makeStyles({
       outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
     },
   },
+  editButtonActivated: {
+    background: theme.altinnPalette.primary.blueLighter,
+    outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
+  },
   deleteButton: {
     color: theme.altinnPalette.primary.red,
     fontWeight: 700,
@@ -358,7 +362,11 @@ export function RepeatingGroupTable({
                         key={`edit-${index}`}
                       >
                         <IconButton
-                          className={classes.tableEditButton}
+                          className={`${classes.tableEditButton} ${
+                            editIndex === index
+                              ? classes.editButtonActivated
+                              : ''
+                          }`}
                           onClick={() => onClickEdit(index)}
                         >
                           <i
@@ -434,6 +442,7 @@ export function RepeatingGroupTable({
                     key={index}
                     items={items}
                     valid={!rowHasErrors}
+                    editIndex={editIndex}
                     onEditClick={() => onClickEdit(index)}
                     onDeleteClick={() => onClickRemove(index)}
                     editIconNode={
