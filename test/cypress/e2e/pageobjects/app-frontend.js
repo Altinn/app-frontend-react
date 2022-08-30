@@ -13,7 +13,6 @@ export default class AppFrontend {
     this.attachmentIcon = '.reg-attachment';
     this.sendinButton = '#sendInButton';
     this.instantiationButton = '#instantiation-button';
-    this.errorExclamation = '.fa-circle-exclamation';
     this.errorReport = '[data-testid="ErrorReport"]';
     this.altinnError = '[data-testid="AltinnError"]';
     this.profileIconButton = '#profile-icon-button';
@@ -179,7 +178,8 @@ export default class AppFrontend {
       rows: [0, 1].map((idx) => ({
         uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3),
         uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4),
-        editBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) > td:last-of-type > button`,
+        editBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) > td:nth-last-of-type(2n) > button`,
+        deleteBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) > td:last-of-type > button`,
         nestedGroup: {
           rows: [0, 1].map((subIdx) => ({
             uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, true),
@@ -189,7 +189,8 @@ export default class AppFrontend {
               `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(1)`,
               `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(2)`,
             ],
-            editBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:last-of-type > button`,
+            editBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:nth-last-of-type(2n) > button`,
+            deleteBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:last-of-type > button`,
           })),
           groupContainer: `#group-subGroup-${idx}`,
           saveBtn: `#add-button-grp-subGroup-${idx}`,
