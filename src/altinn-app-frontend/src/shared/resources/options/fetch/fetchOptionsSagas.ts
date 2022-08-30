@@ -145,17 +145,24 @@ export function* checkIfOptionsShouldRefetchSaga({
     optionsWithIndexIndicatorsSelector,
   );
 
+  let foundInExistingOptions = false;
   for (const optionsKey of Object.keys(options)) {
     const dataMapping = options[optionsKey].mapping;
     const optionsId = options[optionsKey].id;
     const secure = options[optionsKey].secure;
     if (dataMapping && Object.keys(dataMapping).includes(field)) {
+      foundInExistingOptions = true;
       yield fork(fetchSpecificOptionSaga, {
         optionsId,
         dataMapping,
         secure,
       });
     }
+  }
+
+  if (foundInExistingOptions) {
+    // the field is found in existing options, no need to new up a new index for groups
+    return;
   }
 
   for (const option of optionsWithIndexIndicators) {

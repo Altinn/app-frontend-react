@@ -7,7 +7,12 @@ import type {
   IAttachment,
   IAttachments,
 } from 'src/shared/resources/attachments';
-import type { IDataModelBindings, IMapping, IRepeatingGroup } from 'src/types';
+import type {
+  IDataModelBindings,
+  IMapping,
+  IRepeatingGroup,
+  IRepeatingGroups,
+} from 'src/types';
 
 /**
  * Converts the formdata in store (that is flat) to a JSON
@@ -100,57 +105,70 @@ export function replaceIndexIndicatorsWithIndexes(
   }, key);
 }
 
-/** Get indexed data bindings from key with index indicator
- * @param keyWithIndexIndicators The key with index indicators
- * @param index The indexes to replace the index indicators with
- * Returns a list of databindings for each index
- * Example input:
- * keyWithIndexIndicators: SomeField.Group[{0}].SubGroup[{1}].Field
- * index: [2, 1]
- * Example output:
- *  [
- *    'SomeField.Group[0].SubGroup[0].Field',
- *    'SomeField.Group[0].SubGroup[1].Field',
- *    'SomeField.Group[1].SubGroup[0].Field',
- *    'SomeField.Group[1].SubGroup[1].Field',
- *    'SomeField.Group[2].SubGroup[0].Field',
- *    'SomeField.Group[2].SubGroup[1].Field',
- *  ]
- */
-export function getIndexedDataBindings(
-  key: string,
-  indexes: number[],
-): string[] {
-  if (!indexes.length) {
-    return [key];
-  }
-
-  const indexesToReplace = getIndexes(indexes);
-
-  return indexesToReplace?.map<string>((x) => {
-    return replaceIndexIndicatorsWithIndexes(key, x);
-  });
-}
-
 /*
- * Create list of arrays from a set of indexes
- * Example input: [2, 2]
- * Example output: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
- */
-export function getIndexes(indexes: number[]): number[][] {
-  if (indexes.length === 1) {
-    return Array.from(Array(indexes[0] + 1).keys()).map((x) => [x]);
+  Gets possible combinations of repeating group or nested groups
+  Example input ["group", "group.subGroup"] (note that sub groups should)
+  For the group setup
+  {
+    group: {
+      index: 2
+    },
+    subGroup-0: {
+      index: 2
+    },
+    subGroup-1: {
+      index: 1
+    }
+  }
+  Would produce the following output: [[0, 0], [0, 1], [0, 2], [1, 0]]
+*/
+export function getIndexCombinations(
+  baseGroupBindings: string[],
+  repeatingGroups: IRepeatingGroups,
+): number[][] {
+  const combinations: number[][] = [];
+
+  if (!baseGroupBindings?.length || !repeatingGroups) {
+    return combinations;
   }
 
-  return cartesian(
-    ...indexes.map((x) => {
-      return Array.from(Array(x + 1).keys());
-    }),
-  );
-}
+  const repeatingGroupValues = Object.values(repeatingGroups);
+  const mainGroupMaxIndex = repeatingGroupValues.find(
+    (group) => group.dataModelBinding === baseGroupBindings[0],
+  ).index;
 
-function cartesian(...a) {
-  return a.reduce((a, b) => a.flatMap((d) => b.map((e) => [d, e].flat())));
+  if (baseGroupBindings.length === 1) {
+    return Array.from(Array(mainGroupMaxIndex + 1).keys()).map((x) => [x]);
+  } else {
+    const subGroupBinding = baseGroupBindings[1];
+    for (
+      let mainGroupIndex = 0;
+      mainGroupIndex <= mainGroupMaxIndex;
+      mainGroupIndex++
+    ) {
+      const subGroupKey = Object.keys(repeatingGroups).filter(
+        (key) =>
+          repeatingGroups[key].dataModelBinding === subGroupBinding &&
+          mainGroupIndex === Number(key.split('-').pop()),
+      )[0];
+      const subGroupMaxIndex = repeatingGroups[subGroupKey]?.index;
+
+      if (subGroupMaxIndex < 0) {
+        combinations.push([mainGroupIndex]);
+        continue;
+      }
+
+      for (
+        let subGroupIndex = 0;
+        subGroupIndex <= subGroupMaxIndex;
+        subGroupIndex++
+      ) {
+        combinations.push([mainGroupIndex, subGroupIndex]);
+      }
+    }
+  }
+
+  return combinations;
 }
 
 /**

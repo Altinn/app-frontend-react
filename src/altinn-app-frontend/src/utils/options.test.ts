@@ -91,7 +91,7 @@ describe('utils > options', () => {
       expect(result).toEqual(expected);
     });
 
-    it('should return stringified objects where repeating groups are initialized with correct indexes for nested rep groups', () => {
+    it('should return objects where repeating groups are initialized with correct indexes for nested rep groups', () => {
       const mapping: IMapping = {
         someTotallyOtherField: 'someOtherUrlParam',
         'someGroup[{0}].someOtherGroup[{1}].someField': 'someUrlParam',
@@ -102,7 +102,7 @@ describe('utils > options', () => {
           dataModelBinding: 'someGroup',
           editIndex: -1,
         },
-        someOtherGroup: {
+        'someOtherGroup-0': {
           index: 2,
           dataModelBinding: 'someGroup.someOtherGroup',
           editIndex: -1,
@@ -130,48 +130,6 @@ describe('utils > options', () => {
             mapping: {
               someTotallyOtherField: 'someOtherUrlParam',
               'someGroup[0].someOtherGroup[2].someField': 'someUrlParam',
-            },
-          },
-          {
-            id: 'mockId',
-            mapping: {
-              someTotallyOtherField: 'someOtherUrlParam',
-              'someGroup[1].someOtherGroup[0].someField': 'someUrlParam',
-            },
-          },
-          {
-            id: 'mockId',
-            mapping: {
-              someTotallyOtherField: 'someOtherUrlParam',
-              'someGroup[1].someOtherGroup[1].someField': 'someUrlParam',
-            },
-          },
-          {
-            id: 'mockId',
-            mapping: {
-              someTotallyOtherField: 'someOtherUrlParam',
-              'someGroup[1].someOtherGroup[2].someField': 'someUrlParam',
-            },
-          },
-          {
-            id: 'mockId',
-            mapping: {
-              someTotallyOtherField: 'someOtherUrlParam',
-              'someGroup[2].someOtherGroup[0].someField': 'someUrlParam',
-            },
-          },
-          {
-            id: 'mockId',
-            mapping: {
-              someTotallyOtherField: 'someOtherUrlParam',
-              'someGroup[2].someOtherGroup[1].someField': 'someUrlParam',
-            },
-          },
-          {
-            id: 'mockId',
-            mapping: {
-              someTotallyOtherField: 'someOtherUrlParam',
-              'someGroup[2].someOtherGroup[2].someField': 'someUrlParam',
             },
           },
         ],
@@ -203,7 +161,7 @@ describe('utils > options', () => {
           dataModelBinding: 'someGroup',
           editIndex: -1,
         },
-        someOtherGroup: {
+        'someOtherGroup-0': {
           index: 0,
           dataModelBinding: 'someGroup.someOtherGroup',
           editIndex: -1,

@@ -3,8 +3,7 @@ import {
   flattenObject,
   getBaseGroupDataModelBindingFromKeyWithIndexIndicators,
   getFormDataFromFieldKey,
-  getIndexedDataBindings,
-  getIndexes,
+  getIndexCombinations,
   getKeyIndex,
   getKeyWithoutIndex,
   mapFormData,
@@ -12,7 +11,7 @@ import {
 } from 'src/utils/databindings';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayout, ILayoutComponent } from 'src/features/form/layout';
-import type { IMapping } from 'src/types';
+import type { IMapping, IRepeatingGroups } from 'src/types';
 
 describe('utils/databindings.ts', () => {
   let testObj: any;
@@ -388,48 +387,61 @@ describe('utils/databindings.ts', () => {
     });
   });
 
-  describe('getIndexedDataBindings', () => {
-    it('should return indexed data bindings', () => {
-      const dataBinding =
-        'someBaseProp.someGroup[{0}].someOtherGroup[{1}].someProp';
-      const indexes: number[] = [2, 2];
+  describe('getIndexCombinations', () => {
+    it('should return correct combinations for a repeating group', () => {
+      const repeatingGroups: IRepeatingGroups = {
+        group: {
+          index: 2,
+          dataModelBinding: 'Gruppe',
+          editIndex: -1,
+        },
+      };
 
-      const result = getIndexedDataBindings(dataBinding, indexes);
-      const expected = [
-        'someBaseProp.someGroup[0].someOtherGroup[0].someProp',
-        'someBaseProp.someGroup[0].someOtherGroup[1].someProp',
-        'someBaseProp.someGroup[0].someOtherGroup[2].someProp',
-        'someBaseProp.someGroup[1].someOtherGroup[0].someProp',
-        'someBaseProp.someGroup[1].someOtherGroup[1].someProp',
-        'someBaseProp.someGroup[1].someOtherGroup[2].someProp',
-        'someBaseProp.someGroup[2].someOtherGroup[0].someProp',
-        'someBaseProp.someGroup[2].someOtherGroup[1].someProp',
-        'someBaseProp.someGroup[2].someOtherGroup[2].someProp',
-      ];
+      const expected = [[0], [1], [2]];
+      const result = getIndexCombinations(['Gruppe'], repeatingGroups);
 
       expect(result).toEqual(expected);
     });
-  });
 
-  describe('getIndexes', () => {
-    it('should return mapped two dimensional array', () => {
-      const indexes: number[] = [1, 2];
-      const expected: number[][] = [
-        [0, 0],
-        [0, 1],
-        [0, 2],
-        [1, 0],
-        [1, 1],
-        [1, 2],
-      ];
-      const result = getIndexes(indexes);
+    it('should return correct combinations for nested repeating groups', () => {
+      const repeatingGroups: IRepeatingGroups = {
+        group: {
+          index: 2,
+          dataModelBinding: 'Gruppe',
+          editIndex: -1,
+        },
+        'underGruppe-0': {
+          index: -1,
+          baseGroupId: 'underGruppe',
+          editIndex: -1,
+          dataModelBinding: 'Gruppe.UnderGruppe',
+        },
+        'underGruppe-1': {
+          index: 1,
+          baseGroupId: 'underGruppe',
+          editIndex: -1,
+          dataModelBinding: 'Gruppe.UnderGruppe',
+        },
+        'underGruppe-2': {
+          index: 2,
+          baseGroupId: 'underGruppe',
+          editIndex: -1,
+          dataModelBinding: 'Gruppe.UnderGruppe',
+        },
+      };
+
+      const expected = [[0], [1, 0], [1, 1], [2, 0], [2, 1], [2, 2]];
+      const result = getIndexCombinations(
+        ['Gruppe', 'Gruppe.UnderGruppe'],
+        repeatingGroups,
+      );
       expect(result).toEqual(expected);
     });
 
-    it('should return correct for zero indexed arrays', () => {
-      const indexes: number[] = [0, 0];
-      const expected: number[][] = [[0, 0]];
-      const result = getIndexes(indexes);
+    it('should return an empty array when no groups exist', () => {
+      const expected = [];
+      const result = getIndexCombinations([], {});
+
       expect(result).toEqual(expected);
     });
   });

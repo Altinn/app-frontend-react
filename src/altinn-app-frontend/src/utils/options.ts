@@ -1,7 +1,7 @@
 import {
   getBaseGroupDataModelBindingFromKeyWithIndexIndicators,
   getGroupDataModelBinding,
-  getIndexes,
+  getIndexCombinations,
   keyHasIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
@@ -54,14 +54,10 @@ export function getOptionLookupKeys({
     mappingsWithIndexIndicators.forEach((mappingKey) => {
       const baseGroupBindings =
         getBaseGroupDataModelBindingFromKeyWithIndexIndicators(mappingKey);
-      const groupIndexes = baseGroupBindings
-        .map<number>((binding) => {
-          return Object.values(repeatingGroups || {}).find(
-            (group) => group.dataModelBinding === binding,
-          )?.index;
-        })
-        .filter((index) => index !== undefined);
-      const possibleCombinations = getIndexes(groupIndexes);
+      const possibleCombinations = getIndexCombinations(
+        baseGroupBindings,
+        repeatingGroups,
+      );
       for (const possibleCombination of possibleCombinations) {
         const newMappingKey = replaceIndexIndicatorsWithIndexes(
           mappingKey,
