@@ -310,7 +310,7 @@ export const layoutExpressionCastToType: {
       return null;
     }
 
-    return arg;
+    return `${arg}`;
   },
   number: function (arg) {
     if (typeof arg === 'number' || typeof arg === 'bigint') {
