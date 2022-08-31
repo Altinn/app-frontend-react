@@ -217,22 +217,46 @@ export const layoutExpressionFunctions = {
     returns: 'boolean',
   }),
   greaterThan: defineFunc({
-    impl: (arg1, arg2) => arg1 > arg2,
+    impl: (arg1, arg2) => {
+      if (arg1 === null || arg2 === null) {
+        return false;
+      }
+
+      return arg1 > arg2;
+    },
     args: ['number', 'number'],
     returns: 'boolean',
   }),
   greaterThanEq: defineFunc({
-    impl: (arg1, arg2) => arg1 >= arg2,
+    impl: (arg1, arg2) => {
+      if (arg1 === null || arg2 === null) {
+        return false;
+      }
+
+      return arg1 >= arg2;
+    },
     args: ['number', 'number'],
     returns: 'boolean',
   }),
   lessThan: defineFunc({
-    impl: (arg1, arg2) => arg1 < arg2,
+    impl: (arg1, arg2) => {
+      if (arg1 === null || arg2 === null) {
+        return false;
+      }
+
+      return arg1 < arg2;
+    },
     args: ['number', 'number'],
     returns: 'boolean',
   }),
   lessThanEq: defineFunc({
-    impl: (arg1, arg2) => arg1 <= arg2,
+    impl: (arg1, arg2) => {
+      if (arg1 === null || arg2 === null) {
+        return false;
+      }
+
+      return arg1 <= arg2;
+    },
     args: ['number', 'number'],
     returns: 'boolean',
   }),
