@@ -1,0 +1,21 @@
+{
+  "name": "Simple lookup equals other lookup",
+  "expression": {
+    "function": "equals",
+    "args": [
+      {
+        "function": "applicationSettings",
+        "args": ["mySetting1"]
+      },
+      {
+        "function": "applicationSettings",
+        "args": ["mySetting2"]
+      }
+    ]
+  },
+  "expects": true,
+  "appSettings": {
+    "mySetting1": "foo",
+    "mySetting2": "foo"
+  }
+}

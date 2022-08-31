@@ -1,0 +1,22 @@
+{
+  "name": "Simple lookup equals other lookup",
+  "expression": {
+    "function": "equals",
+    "args": [
+      {
+        "function": "instanceContext",
+        "args": ["instanceOwnerPartyId"]
+      },
+      {
+        "function": "instanceContext",
+        "args": ["appId"]
+      }
+    ]
+  },
+  "expects": false,
+  "instanceContext": {
+    "instanceId": "d00ce51c-800b-416a-a906-ccab55f597e9",
+    "appId": "org/app-name",
+    "instanceOwnerPartyId": "12345"
+  }
+}

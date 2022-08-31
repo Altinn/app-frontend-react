@@ -1,0 +1,12 @@
+{
+  "name": "Simple lookup",
+  "expression": {
+    "function": "applicationSettings",
+    "args": ["mySetting1"]
+  },
+  "expects": "foo",
+  "appSettings": {
+    "mySetting1": "foo",
+    "mySetting2": "bar"
+  }
+}

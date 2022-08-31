@@ -1,0 +1,18 @@
+{
+  "name": "Simple lookup for non-existing key equals null",
+  "expression": {
+    "function": "equals",
+    "args": [
+      {
+        "function": "applicationSettings",
+        "args": ["doesNotExist"]
+      },
+      null
+    ]
+  },
+  "expects": true,
+  "appSettings": {
+    "mySetting1": "foo",
+    "mySetting2": "bar"
+  }
+}

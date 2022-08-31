@@ -1,0 +1,19 @@
+{
+  "name": "Only works on one level (as a dictionary)",
+  "expression": {
+    "function": "equals",
+    "args": [
+      {
+        "function": "instanceContext",
+        "args": ["deep.key"]
+      },
+      null
+    ]
+  },
+  "expects": true,
+  "instanceContext": {
+    "deep": {
+      "key": "should not be found"
+    }
+  }
+}
