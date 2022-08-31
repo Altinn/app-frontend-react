@@ -1,0 +1,8 @@
+{
+  "name": "Should work with [-string, float] (2)",
+  "expression": {
+    "function": "greaterThan",
+    "args": ["-55.5", -55.7]
+  },
+  "expects": true
+}

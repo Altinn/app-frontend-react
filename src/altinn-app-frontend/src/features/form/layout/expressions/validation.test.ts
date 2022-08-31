@@ -6,20 +6,6 @@ describe('Layout expression validation', () => {
   const validObjects: ILayoutExpression[] = [
     { function: 'equals', args: [5, 7] },
   ];
-  const invalidObjects = [
-    '',
-    null,
-    false,
-    undefined,
-    5,
-    new Date(),
-    [],
-    [5, 6, 7],
-    {},
-    { hello: 'world' },
-    { expr: 'hello world' },
-    { expr: '5 == 5', and: 'other property' },
-  ];
 
   it.each(validObjects)(
     'should validate %p as a valid expression',
@@ -38,10 +24,39 @@ describe('Layout expression validation', () => {
     },
   );
 
-  it.each(invalidObjects)(
-    'should validate %p as an invalid expression',
+  it.each([
+    '',
+    null,
+    false,
+    undefined,
+    5,
+    new Date(),
+    [],
+    [5, 6, 7],
+    {},
+    { hello: 'world' },
+    { expr: 'hello world' },
+    { expr: '5 == 5', and: 'other property' },
+  ])(
+    'should validate %p as an invalid expression (non-throwing)',
     (maybeExpr) => {
       expect(asLayoutExpression(maybeExpr)).toBeUndefined();
+    },
+  );
+
+  // TODO: Add more test-cases and verify the error message
+  it.each([
+    { function: 'testNonExisting', args: [] },
+    {
+      function: 'equals',
+      args: [{ function: 'testNonExisting', args: ['hello'] }, 'world'],
+    },
+    { function: 'equals', args: [] },
+    { function: 'equals', args: [1, 2, 3] },
+  ])(
+    'should validate %j as an invalid expression (throwing exception)',
+    (maybeExpr) => {
+      expect(() => asLayoutExpression(maybeExpr)).toThrow();
     },
   );
 });

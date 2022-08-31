@@ -5,6 +5,8 @@ import {
   LookupNotFound,
   NodeNotFoundWithoutContext,
   UnexpectedType,
+  UnknownSourceType,
+  UnknownTargetType,
 } from 'src/features/form/layout/expressions/errors';
 import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
@@ -17,6 +19,7 @@ import type {
   ILayoutExpression,
   ILayoutExpressionLookupFunctions,
   LayoutExpressionDefaultValues,
+  LayoutExpressionFunction,
   ResolvedLayoutExpression,
 } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
@@ -154,23 +157,38 @@ export function evalExpr(
   }
 }
 
+export function argTypeAt(
+  func: LayoutExpressionFunction,
+  argIndex: number,
+): BaseValue | undefined {
+  if (func in layoutExpressionLookupFunctions) {
+    if (argIndex === 0) {
+      return 'string';
+    }
+    return undefined;
+  }
+
+  const funcDef = layoutExpressionFunctions[func];
+  const possibleArgs = funcDef.args;
+  const maybeReturn = possibleArgs[argIndex];
+  if (maybeReturn) {
+    return maybeReturn;
+  }
+
+  if (funcDef.lastArgSpreads) {
+    return possibleArgs[possibleArgs.length - 1];
+  }
+
+  return undefined;
+}
+
 function innerEvalExpr(context: ExpressionContext) {
   const expr = context.getExpr();
 
-  const argTypes =
-    expr.function in context.lookup
-      ? ['string']
-      : layoutExpressionFunctions[expr.function].args;
   const returnType =
     expr.function in context.lookup
       ? 'string'
       : layoutExpressionFunctions[expr.function].returns;
-  const spreadAs =
-    expr.function in context.lookup
-      ? null
-      : layoutExpressionFunctions[expr.function].lastArgSpreads === true
-      ? argTypes[argTypes.length - 1]
-      : null;
 
   const computedArgs = expr.args.map((arg, idx) => {
     const argContext = ExpressionContext.withPath(context, [
@@ -181,8 +199,7 @@ function innerEvalExpr(context: ExpressionContext) {
     const argValue =
       typeof arg === 'object' && arg !== null ? innerEvalExpr(argContext) : arg;
 
-    const argType = idx > argTypes.length - 1 ? spreadAs : argTypes[idx];
-
+    const argType = argTypeAt(expr.function, idx);
     return castValue(argValue, argType, argContext);
   });
 
@@ -195,16 +212,38 @@ function innerEvalExpr(context: ExpressionContext) {
   return castValue(returnValue, returnType, context);
 }
 
+function valueToBaseValueType(value: any): BaseValue | string {
+  if (typeof value === 'number' || typeof value === 'bigint') {
+    return 'number';
+  }
+  return typeof value;
+}
+
 function castValue<T extends BaseValue>(
   value: any,
   toType: T,
   context: ExpressionContext,
 ): BaseToActual<T> {
   if (!(toType in layoutExpressionCastToType)) {
-    throw new Error(`Cannot cast to type: ${JSON.stringify(toType)}`);
+    throw new UnknownTargetType(this, toType);
   }
 
-  return layoutExpressionCastToType[toType].apply(context, [value]);
+  const typeObj = layoutExpressionCastToType[toType];
+
+  if (typeObj.nullable && isLikeNull(value)) {
+    return null;
+  }
+
+  const valueBaseType = valueToBaseValueType(value) as BaseValue;
+  if (!typeObj.accepts.includes(valueBaseType)) {
+    const supported = [
+      ...typeObj.accepts,
+      ...(typeObj.nullable ? ['null'] : []),
+    ].join(', ');
+    throw new UnknownSourceType(this, typeof value, supported);
+  }
+
+  return typeObj.impl.apply(context, [value]);
 }
 
 function defineFunc<Args extends BaseValue[], Ret extends BaseValue>(
@@ -316,57 +355,58 @@ function isLikeNull(arg: any) {
 }
 
 export const layoutExpressionCastToType: {
-  [Type in BaseValue]: (
-    this: ExpressionContext,
-    arg: any,
-  ) => BaseToActual<Type>;
+  [Type in BaseValue]: {
+    nullable: boolean;
+    accepts: BaseValue[];
+    impl: (this: ExpressionContext, arg: any) => BaseToActual<Type>;
+  };
 } = {
-  boolean: function (arg) {
-    if (typeof arg === 'boolean') {
-      return arg;
-    }
-    if (typeof arg === 'string') {
+  boolean: {
+    nullable: true,
+    accepts: ['boolean', 'string', 'number'],
+    impl: function (arg) {
+      if (typeof arg === 'boolean') {
+        return arg;
+      }
       if (arg === 'true') return true;
       if (arg === 'false') return false;
       if (arg === '1') return true;
       if (arg === '0') return false;
-    }
-    if (typeof arg === 'number') {
       if (arg === 1) return true;
       if (arg === 0) return false;
-    }
-    if (isLikeNull(arg)) {
-      return null;
-    }
-    throw new UnexpectedType(this, 'boolean', arg);
-  },
-  string: function (arg) {
-    if (typeof arg === 'boolean' || typeof arg === 'number') {
-      return JSON.stringify(arg);
-    }
-    if (isLikeNull(arg)) {
-      return null;
-    }
 
-    return `${arg}`;
+      throw new UnexpectedType(this, 'boolean', arg);
+    },
   },
-  number: function (arg) {
-    if (typeof arg === 'number' || typeof arg === 'bigint') {
-      return arg as number;
-    }
-    if (typeof arg === 'string') {
-      if (arg.match(/^\d+$/)) {
-        return parseInt(arg, 10);
+  string: {
+    nullable: true,
+    accepts: ['boolean', 'string', 'number'],
+    impl: function (arg) {
+      if (['number', 'bigint', 'boolean'].includes(typeof arg)) {
+        return JSON.stringify(arg);
       }
-      if (arg.match(/^[\d.]+$/)) {
-        return parseFloat(arg);
-      }
-    }
-    if (isLikeNull(arg)) {
-      return null;
-    }
 
-    throw new UnexpectedType(this, 'number', arg);
+      return `${arg}`;
+    },
+  },
+  number: {
+    nullable: true,
+    accepts: ['boolean', 'string', 'number'],
+    impl: function (arg) {
+      if (typeof arg === 'number' || typeof arg === 'bigint') {
+        return arg as number;
+      }
+      if (typeof arg === 'string') {
+        if (arg.match(/^-?\d+$/)) {
+          return parseInt(arg, 10);
+        }
+        if (arg.match(/^-?\d+\.\d+$/)) {
+          return parseFloat(arg);
+        }
+      }
+
+      throw new UnexpectedType(this, 'number', arg);
+    },
   },
 };
 

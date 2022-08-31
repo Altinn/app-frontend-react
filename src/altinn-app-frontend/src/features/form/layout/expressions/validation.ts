@@ -1,8 +1,14 @@
-import { layoutExpressionFunctions } from 'src/features/form/layout/expressions';
+import {
+  argTypeAt,
+  layoutExpressionCastToType,
+  layoutExpressionFunctions,
+} from 'src/features/form/layout/expressions';
+import { prettyErrors } from 'src/features/form/layout/expressions/prettyErrors';
 import type {
   BaseValue,
   ILayoutExpression,
   ILayoutExpressionLookupFunctions,
+  LayoutExpressionFunction,
 } from 'src/features/form/layout/expressions/types';
 
 enum ValidationErrorMessage {
@@ -10,15 +16,16 @@ enum ValidationErrorMessage {
   InvalidType = 'Invalid type "%s"',
   FuncNotImpl = 'Function "%s" not implemented',
   ArgsNotArr = 'Arguments not an array',
-  ArgsWrong = 'Expected arguments to be %s, got %s',
+  ArgUnexpected = 'Unexpected argument',
+  ArgWrongType = 'Expected argument to be %s, got %s',
+  ArgsWrongNum = 'Expected %s arguments, got %s',
   FuncMissing = 'Missing "function" key',
 }
 
 interface ValidationContext {
   errors: {
-    [key: string]: string;
+    [key: string]: string[];
   };
-  errorList: string[];
 }
 
 const validLookupFunctions: {
@@ -37,35 +44,88 @@ const validBasicTypes: { [key: string]: BaseValue } = {
   number: 'number',
 };
 
+export class InvalidExpression extends Error {}
+
 function addError(
   ctx: ValidationContext,
   path: string[],
   message: ValidationErrorMessage,
-  ..._params: string[]
+  ...params: string[]
 ) {
-  const errIdx = ctx.errorList.length;
-  const msg = message.replaceAll('%s', () => {
-    return 'hello world';
-  });
-  const msgRef = `[~errMsgRef-${errIdx}~]`;
-
-  ctx.errorList.push(msg);
-  ctx.errors[path.join('.')] = msgRef;
+  let paramIdx = 0;
+  const newMessage = message.replaceAll('%s', () => params[paramIdx++]);
+  const stringPath = path.join('.');
+  if (ctx.errors[stringPath]) {
+    ctx.errors[stringPath].push(newMessage);
+  } else {
+    ctx.errors[stringPath] = [newMessage];
+  }
 }
 
 function validateFunctionArgs(
-  expected: (BaseValue | undefined)[],
+  func: LayoutExpressionFunction,
   actual: (BaseValue | undefined)[],
   ctx: ValidationContext,
   path: string[],
 ) {
-  if (expected !== actual) {
+  const expected =
+    func in validLookupFunctions
+      ? ['string']
+      : layoutExpressionFunctions[func].args;
+  const canSpread =
+    func in validLookupFunctions
+      ? false
+      : layoutExpressionFunctions[func].lastArgSpreads;
+
+  const maxIdx = Math.max(expected.length, actual.length);
+  for (let idx = 0; idx < maxIdx; idx++) {
+    const expectedType = argTypeAt(func, idx);
+    const actualType = actual[idx];
+    if (expectedType === undefined) {
+      addError(
+        ctx,
+        [...path, `args[${idx}]`],
+        ValidationErrorMessage.ArgUnexpected,
+      );
+    } else {
+      const targetType = layoutExpressionCastToType[expectedType];
+
+      if (actualType === undefined) {
+        if (targetType.nullable) {
+          continue;
+        }
+        addError(
+          ctx,
+          [...path, `args[${idx}]`],
+          ValidationErrorMessage.ArgWrongType,
+          expectedType,
+          'null',
+        );
+      }
+
+      if (!targetType.accepts.includes(actualType)) {
+        addError(
+          ctx,
+          [...path, `args[${idx}]`],
+          ValidationErrorMessage.ArgWrongType,
+          expectedType,
+          'null',
+        );
+      }
+    }
+  }
+
+  if (canSpread && actual.length > expected.length) {
+    return;
+  }
+
+  if (actual.length !== expected.length) {
     addError(
       ctx,
-      path,
-      ValidationErrorMessage.ArgsWrong,
-      JSON.stringify(expected),
-      JSON.stringify(actual),
+      [...path, `args`],
+      ValidationErrorMessage.ArgsWrongNum,
+      `${expected.length}`,
+      `${actual.length}`,
     );
   }
 }
@@ -81,20 +141,24 @@ function validateFunction(
     return;
   }
 
-  if (funcName in layoutExpressionFunctions) {
-    const key = funcName as keyof typeof layoutExpressionFunctions;
+  const pathArgs = [...path.slice(0, path.length - 1)];
+
+  if (
+    funcName in validLookupFunctions ||
+    funcName in layoutExpressionFunctions
+  ) {
     validateFunctionArgs(
-      layoutExpressionFunctions[key].args,
+      funcName as LayoutExpressionFunction,
       argTypes,
       ctx,
-      path,
+      pathArgs,
     );
-    return layoutExpressionFunctions[key].returns;
-  }
-
-  if (funcName in validLookupFunctions) {
-    validateFunctionArgs(['string'], argTypes, ctx, path);
-    return 'string';
+    if (funcName in validLookupFunctions) {
+      return 'string';
+    }
+    return layoutExpressionFunctions[
+      funcName as keyof typeof layoutExpressionFunctions
+    ].returns;
   }
 
   addError(ctx, path, ValidationErrorMessage.FuncNotImpl, funcName);
@@ -129,7 +193,7 @@ function validateRecursively(
     return validBasicTypes[typeof expr];
   }
 
-  if (typeof expr === 'undefined' || expr === 'null') {
+  if (typeof expr === 'undefined' || expr === null) {
     return;
   }
 
@@ -163,7 +227,7 @@ function validateRecursively(
     }
 
     const otherKeys = Object.keys(expr).filter(
-      (key) => key === 'function' || key === 'args',
+      (key) => key !== 'function' && key !== 'args',
     );
     for (const otherKey of otherKeys) {
       addError(
@@ -182,14 +246,18 @@ function validateRecursively(
 function validate(expr: any) {
   const ctx: ValidationContext = {
     errors: {},
-    errorList: [],
   };
 
-  // TODO: Iterate errors and splice them in to produce nice error messages
+  validateRecursively(expr, ctx, []);
 
-  if (ctx.errorList.length) {
-    // TODO: Throw exception instead
-    return undefined;
+  if (Object.keys(ctx.errors).length) {
+    throw new InvalidExpression(
+      `Invalid layout expression:\n${prettyErrors({
+        input: expr,
+        errors: ctx.errors,
+        indentation: 1,
+      })}`,
+    );
   }
 
   return expr;

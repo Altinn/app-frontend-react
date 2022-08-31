@@ -23,6 +23,25 @@ export class LookupNotFound extends ExpressionRuntimeError {
   }
 }
 
+export class UnknownTargetType extends ExpressionRuntimeError {
+  public constructor(context: ExpressionContext, type: string) {
+    super(context, `Cannot cast to unknown type '${type}'`);
+  }
+}
+
+export class UnknownSourceType extends ExpressionRuntimeError {
+  public constructor(
+    context: ExpressionContext,
+    type: string,
+    supported: string,
+  ) {
+    super(
+      context,
+      `Received unsupported type '${type}, only ${supported} are supported'`,
+    );
+  }
+}
+
 export class UnexpectedType extends ExpressionRuntimeError {
   public constructor(
     context: ExpressionContext,
