@@ -1,0 +1,13 @@
+{
+  "name": "Simple lookup should fail without context",
+  "expression": {
+    "function": "dataModel",
+    "args": ["a.value"]
+  },
+  "expectsFailure": "Unable to evaluate layout expressions in context of the \"no-component\" component (it could not be found)",
+  "dataModel": {
+    "a": {
+      "value": "ABC"
+    }
+  }
+}

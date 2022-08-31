@@ -1,10 +1,10 @@
 {
-  "name": "Component lookup",
+  "name": "Simple lookup without context should fail",
   "expression": {
     "function": "component",
     "args": ["my-component"]
   },
-  "expects": "hello world",
+  "expectsFailure": "Unable to evaluate layout expressions in context of the \"no-component\" component (it could not be found)",
   "layouts": {
     "Page1": [
       {
@@ -13,18 +13,10 @@
         "dataModelBindings": {
           "simpleBinding": "ComponentContent"
         }
-      },
-      {
-        "id": "current-component",
-        "type": "Paragraph"
       }
     ]
   },
   "dataModel": {
     "ComponentContent": "hello world"
-  },
-  "context": {
-    "component": "current-component",
-    "currentLayout": "Page1"
   }
 }

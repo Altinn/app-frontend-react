@@ -1,0 +1,25 @@
+{
+  "name": "Simple lookup",
+  "expression": {
+    "function": "dataModel",
+    "args": ["a.value"]
+  },
+  "expects": "ABC",
+  "dataModel": {
+    "a": {
+      "value": "ABC"
+    }
+  },
+  "layouts": {
+    "Page1": [
+      {
+        "id": "current-component",
+        "type": "Paragraph"
+      }
+    ]
+  },
+  "context": {
+    "component": "current-component",
+    "currentLayout": "Page1"
+  }
+}

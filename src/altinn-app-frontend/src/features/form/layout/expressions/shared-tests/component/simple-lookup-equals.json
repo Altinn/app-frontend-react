@@ -1,5 +1,5 @@
 {
-  "name": "Component lookup equals other component lookup",
+  "name": "Simple lookup equals other lookup",
   "expression": {
     "function": "equals",
     "args": [
