@@ -1,62 +1,26 @@
 import dot from 'dot-object';
-import fs from 'node:fs';
 
 import { evalExpr } from 'src/features/form/layout/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
+import { getSharedTests } from 'src/features/form/layout/expressions/shared-tests/index';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import {
   LayoutRootNodeCollection,
   nodesInLayout,
 } from 'src/utils/layout/hierarchy';
-import type { ILayouts } from 'src/features/form/layout';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
-import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
+import type { TestDescription } from 'src/features/form/layout/expressions/shared-tests/index';
 
 import type {
   IApplicationSettings,
   IInstanceContext,
 } from 'altinn-shared/types';
 
-interface TestDescription {
-  name: string;
-  expression: ILayoutExpression;
-  expects?: any;
-  expectsFailure?: string;
-  context?: {
-    component?: string;
-    rowIndices?: number[];
-    currentLayout?: string;
-  };
-  layouts?: ILayouts;
-  dataModel?: any;
-  instanceContext?: IInstanceContext;
-  appSettings?: IApplicationSettings;
-}
-
 function toComponentId({ component, rowIndices }: TestDescription['context']) {
   return (
     (component || 'no-component') +
     (rowIndices ? `-${rowIndices.join('-')}` : '')
   );
-}
-
-export function getSharedTests(): { [folder: string]: TestDescription[] } {
-  const ignoredFiles = ['index.test.ts', 'README.md', 'generate.mjs'];
-  const folders = fs
-    .readdirSync(__dirname)
-    .filter((name) => !ignoredFiles.includes(name));
-
-  const out = {};
-
-  for (const folder of folders) {
-    out[folder] = fs
-      .readdirSync(`${__dirname}/${folder}`)
-      .filter((f) => f.endsWith('.json'))
-      .map((f) => fs.readFileSync(`${__dirname}/${folder}/${f}`))
-      .map((testJson) => JSON.parse(testJson.toString()) as TestDescription);
-  }
-
-  return out;
 }
 
 describe('Layout expressions shared tests', () => {

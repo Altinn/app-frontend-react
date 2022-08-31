@@ -51,6 +51,11 @@ export interface FuncDef<Args extends BaseValue[], Ret extends BaseValue> {
   ) => BaseToActual<Ret>;
   args: Args;
   returns: Ret;
+
+  // Optional: Set this to true if the last argument type is considered a '...spread' argument, meaning
+  // all the rest of the arguments should be cast to the last type (and that the function allows any
+  // amount  of parameters).
+  lastArgSpreads?: true;
 }
 
 type ArgsFor<F extends LayoutExpressionFunction> =

@@ -1,4 +1,4 @@
-import { getSharedTests } from 'src/features/form/layout/expressions/shared-tests/index.test';
+import { getSharedTests } from 'src/features/form/layout/expressions/shared-tests';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
 

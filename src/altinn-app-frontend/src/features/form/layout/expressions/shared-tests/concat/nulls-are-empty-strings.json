@@ -1,0 +1,8 @@
+{
+  "name": "Nulls are represented as empty strings",
+  "expression": {
+    "function": "concat",
+    "args": ["foo", null, "bar"]
+  },
+  "expects": "foobar"
+}

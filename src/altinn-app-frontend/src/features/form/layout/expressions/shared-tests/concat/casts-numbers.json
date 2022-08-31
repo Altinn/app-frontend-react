@@ -1,0 +1,8 @@
+{
+  "name": "Casts numbers to strings",
+  "expression": {
+    "function": "concat",
+    "args": [1.0, " + ", 2.5, " = ", 3]
+  },
+  "expects": "1 + 2.5 = 3"
+}

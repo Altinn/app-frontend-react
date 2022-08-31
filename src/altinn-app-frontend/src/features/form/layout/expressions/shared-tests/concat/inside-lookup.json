@@ -1,0 +1,45 @@
+{
+  "name": "Inside a lookup argument",
+  "expression": {
+    "function": "dataModel",
+    "args": [
+      {
+        "function": "concat",
+        "args": [
+          "FirstPart",
+          ".",
+          { "function": "dataModel", "args": ["Middle"] },
+          ".Last",
+          { "function": "applicationSettings", "args": ["suffix"] }
+        ]
+      }
+    ]
+  },
+  "expects": "foo bar",
+  "dataModel": {
+    "Middle": "MiddlePart",
+    "FirstPart": {
+      "MiddlePart": {
+        "LastPart": "foo bar"
+      }
+    },
+    "b": {
+      "value": "C"
+    }
+  },
+  "appSettings": {
+    "suffix": "Part"
+  },
+  "layouts": {
+    "Page1": [
+      {
+        "id": "current-component",
+        "type": "Paragraph"
+      }
+    ]
+  },
+  "context": {
+    "component": "current-component",
+    "currentLayout": "Page1"
+  }
+}

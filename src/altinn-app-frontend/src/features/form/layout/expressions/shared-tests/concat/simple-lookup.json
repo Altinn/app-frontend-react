@@ -1,0 +1,31 @@
+{
+  "name": "Simple lookup",
+  "expression": {
+    "function": "concat",
+    "args": [
+      { "function": "dataModel", "args": ["a.value"] },
+      { "function": "dataModel", "args": ["b.value"] }
+    ]
+  },
+  "expects": "ABC",
+  "dataModel": {
+    "a": {
+      "value": "AB"
+    },
+    "b": {
+      "value": "C"
+    }
+  },
+  "layouts": {
+    "Page1": [
+      {
+        "id": "current-component",
+        "type": "Paragraph"
+      }
+    ]
+  },
+  "context": {
+    "component": "current-component",
+    "currentLayout": "Page1"
+  }
+}

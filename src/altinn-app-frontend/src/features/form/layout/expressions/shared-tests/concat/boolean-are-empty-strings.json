@@ -1,0 +1,8 @@
+{
+  "name": "Booleans encode as literal strings",
+  "expression": {
+    "function": "concat",
+    "args": ["foo", false, "bar", true]
+  },
+  "expects": "foofalsebartrue"
+}

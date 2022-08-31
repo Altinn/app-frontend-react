@@ -165,6 +165,12 @@ function innerEvalExpr(context: ExpressionContext) {
     expr.function in context.lookup
       ? 'string'
       : layoutExpressionFunctions[expr.function].returns;
+  const spreadAs =
+    expr.function in context.lookup
+      ? null
+      : layoutExpressionFunctions[expr.function].lastArgSpreads === true
+      ? argTypes[argTypes.length - 1]
+      : null;
 
   const computedArgs = expr.args.map((arg, idx) => {
     const argContext = ExpressionContext.withPath(context, [
@@ -175,7 +181,9 @@ function innerEvalExpr(context: ExpressionContext) {
     const argValue =
       typeof arg === 'object' && arg !== null ? innerEvalExpr(argContext) : arg;
 
-    return castValue(argValue, argTypes[idx], argContext);
+    const argType = idx > argTypes.length - 1 ? spreadAs : argTypes[idx];
+
+    return castValue(argValue, argType, argContext);
   });
 
   const actualFunc: (...args: any) => any =
@@ -259,6 +267,12 @@ export const layoutExpressionFunctions = {
     },
     args: ['number', 'number'],
     returns: 'boolean',
+  }),
+  concat: defineFunc({
+    impl: (...args) => args.join(''),
+    args: ['string'],
+    returns: 'string',
+    lastArgSpreads: true,
   }),
 };
 
