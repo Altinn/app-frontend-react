@@ -41,7 +41,7 @@ function toComponentId({ component, rowIndices }: TestDescription['context']) {
 }
 
 describe('Layout expressions shared tests', () => {
-  const ignoredFiles = ['index.test.ts', 'README.md'];
+  const ignoredFiles = ['index.test.ts', 'README.md', 'generate.mjs'];
   const sharedTestFolders = fs
     .readdirSync(__dirname)
     .filter((name) => !ignoredFiles.includes(name));
