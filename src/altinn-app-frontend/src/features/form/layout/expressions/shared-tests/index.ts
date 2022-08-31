@@ -25,12 +25,7 @@ export interface TestDescription {
 }
 
 export function getSharedTests(): { [folder: string]: TestDescription[] } {
-  const ignoredFiles = [
-    'index.test.ts',
-    'README.md',
-    'generate.mjs',
-    'index.ts',
-  ];
+  const ignoredFiles = ['index.test.ts', 'README.md', 'index.ts'];
   const folders = fs
     .readdirSync(__dirname)
     .filter((name) => !ignoredFiles.includes(name));
