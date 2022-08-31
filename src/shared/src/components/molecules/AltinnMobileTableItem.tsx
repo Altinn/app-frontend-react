@@ -11,6 +11,7 @@ import {
 } from '@material-ui/core';
 import React from 'react';
 import theme from '../../theme/altinnStudioTheme';
+import cn from 'classnames';
 
 export interface IMobileTableItem {
   key: React.Key;
@@ -199,10 +200,9 @@ export default function AltinnMobileTableItem({
                     align='right'
                   >
                     <IconButton
-                      className={`${classes.tableEditButton}
-                      ${
-                        editIndex === index ? classes.editButtonActivated : ''
-                      }`}
+                      className={cn(classes.tableEditButton, {
+                        [classes.editButtonActivated]: editIndex === index,
+                      })}
                       onClick={onEditClick}
                       data-testid='edit-button'
                     >

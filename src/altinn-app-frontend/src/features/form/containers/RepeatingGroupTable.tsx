@@ -9,6 +9,7 @@ import {
   TableRow,
   useMediaQuery,
 } from '@material-ui/core';
+import cn from 'classnames';
 
 import {
   getFormDataForComponentInRepeatingGroup,
@@ -362,11 +363,9 @@ export function RepeatingGroupTable({
                         key={`edit-${index}`}
                       >
                         <IconButton
-                          className={`${classes.tableEditButton} ${
-                            editIndex === index
-                              ? classes.editButtonActivated
-                              : ''
-                          }`}
+                          className={cn(classes.tableEditButton, {
+                            [classes.editButtonActivated]: editIndex === index,
+                          })}
                           onClick={() => onClickEdit(index)}
                         >
                           <i
