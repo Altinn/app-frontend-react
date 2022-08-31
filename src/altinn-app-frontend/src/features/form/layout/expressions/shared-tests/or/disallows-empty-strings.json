@@ -1,0 +1,8 @@
+{
+  "name": "Disallows empty strings",
+  "expression": {
+    "function": "or",
+    "args": [true, ""]
+  },
+  "expectsFailure": "Expected boolean, got value \"\""
+}

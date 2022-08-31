@@ -1,0 +1,8 @@
+{
+  "name": "Null is false",
+  "expression": {
+    "function": "or",
+    "args": [null]
+  },
+  "expects": false
+}

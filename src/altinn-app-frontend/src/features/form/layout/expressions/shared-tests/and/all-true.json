@@ -1,0 +1,8 @@
+{
+  "name": "All true inputs",
+  "expression": {
+    "function": "and",
+    "args": [true, true, true]
+  },
+  "expects": true
+}

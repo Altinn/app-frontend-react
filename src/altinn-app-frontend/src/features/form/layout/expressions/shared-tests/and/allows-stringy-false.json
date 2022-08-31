@@ -1,0 +1,8 @@
+{
+  "name": "Allows 'false' as false",
+  "expression": {
+    "function": "and",
+    "args": ["false"]
+  },
+  "expects": false
+}

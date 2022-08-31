@@ -1,0 +1,8 @@
+{
+  "name": "Disallows 2 as true",
+  "expression": {
+    "function": "or",
+    "args": [2, true]
+  },
+  "expectsFailure": "Expected boolean, got value 2"
+}

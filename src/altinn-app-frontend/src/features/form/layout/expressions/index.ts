@@ -313,6 +313,18 @@ export const layoutExpressionFunctions = {
     returns: 'string',
     lastArgSpreads: true,
   }),
+  and: defineFunc({
+    impl: (...args) => args.reduce((prev, cur) => !!prev && !!cur, true),
+    args: ['boolean'],
+    returns: 'boolean',
+    lastArgSpreads: true,
+  }),
+  or: defineFunc({
+    impl: (...args) => args.reduce((prev, cur) => !!prev || !!cur, false),
+    args: ['boolean'],
+    returns: 'boolean',
+    lastArgSpreads: true,
+  }),
 };
 
 export const layoutExpressionLookupFunctions: ILayoutExpressionLookupFunctions =
@@ -354,6 +366,17 @@ function isLikeNull(arg: any) {
   return arg === 'null' || arg === null || typeof arg === 'undefined';
 }
 
+function asNumber(arg: string) {
+  if (arg.match(/^-?\d+$/)) {
+    return parseInt(arg, 10);
+  }
+  if (arg.match(/^-?\d+\.\d+$/)) {
+    return parseFloat(arg);
+  }
+
+  return undefined;
+}
+
 export const layoutExpressionCastToType: {
   [Type in BaseValue]: {
     nullable: boolean;
@@ -370,10 +393,18 @@ export const layoutExpressionCastToType: {
       }
       if (arg === 'true') return true;
       if (arg === 'false') return false;
-      if (arg === '1') return true;
-      if (arg === '0') return false;
-      if (arg === 1) return true;
-      if (arg === 0) return false;
+
+      if (
+        typeof arg === 'string' ||
+        typeof arg === 'number' ||
+        typeof arg === 'bigint'
+      ) {
+        const num = typeof arg === 'string' ? asNumber(arg) : arg;
+        if (num !== undefined) {
+          if (num === 1) return true;
+          if (num === 0) return false;
+        }
+      }
 
       throw new UnexpectedType(this, 'boolean', arg);
     },
@@ -397,11 +428,9 @@ export const layoutExpressionCastToType: {
         return arg as number;
       }
       if (typeof arg === 'string') {
-        if (arg.match(/^-?\d+$/)) {
-          return parseInt(arg, 10);
-        }
-        if (arg.match(/^-?\d+\.\d+$/)) {
-          return parseFloat(arg);
+        const num = asNumber(arg);
+        if (num !== undefined) {
+          return num;
         }
       }
 

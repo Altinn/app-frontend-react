@@ -1,0 +1,8 @@
+{
+  "name": "Last input false",
+  "expression": {
+    "function": "or",
+    "args": [true, true, false]
+  },
+  "expects": true
+}

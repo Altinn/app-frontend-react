@@ -1,0 +1,8 @@
+{
+  "name": "Null is false",
+  "expression": {
+    "function": "and",
+    "args": [true, null]
+  },
+  "expects": false
+}

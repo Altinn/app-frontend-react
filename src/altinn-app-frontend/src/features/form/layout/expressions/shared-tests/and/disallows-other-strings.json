@@ -1,0 +1,8 @@
+{
+  "name": "Disallows other strings",
+  "expression": {
+    "function": "and",
+    "args": [true, "yes"]
+  },
+  "expectsFailure": "Expected boolean, got value \"yes\""
+}
