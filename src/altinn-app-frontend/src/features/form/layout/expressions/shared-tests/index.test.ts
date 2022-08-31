@@ -40,20 +40,30 @@ function toComponentId({ component, rowIndices }: TestDescription['context']) {
   );
 }
 
-describe('Layout expressions shared tests', () => {
+export function getSharedTests(): { [folder: string]: TestDescription[] } {
   const ignoredFiles = ['index.test.ts', 'README.md', 'generate.mjs'];
-  const sharedTestFolders = fs
+  const folders = fs
     .readdirSync(__dirname)
     .filter((name) => !ignoredFiles.includes(name));
 
-  describe.each(sharedTestFolders)('Function: %s', (folder) => {
-    const sharedTests = fs
+  const out = {};
+
+  for (const folder of folders) {
+    out[folder] = fs
       .readdirSync(`${__dirname}/${folder}`)
       .filter((f) => f.endsWith('.json'))
       .map((f) => fs.readFileSync(`${__dirname}/${folder}/${f}`))
       .map((testJson) => JSON.parse(testJson.toString()) as TestDescription);
+  }
 
-    it.each(sharedTests)(
+  return out;
+}
+
+describe('Layout expressions shared tests', () => {
+  const sharedTests = getSharedTests();
+
+  describe.each(Object.keys(sharedTests))('Function: %s', (folder) => {
+    it.each(sharedTests[folder])(
       '$name',
       ({
         expression,

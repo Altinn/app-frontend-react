@@ -1,4 +1,4 @@
-import { expressionTestCases } from 'src/features/form/layout/expressions/index.test';
+import { getSharedTests } from 'src/features/form/layout/expressions/shared-tests/index.test';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
 
@@ -28,7 +28,10 @@ describe('Layout expression validation', () => {
     },
   );
 
-  it.each(expressionTestCases.map((testCase) => testCase[1]))(
+  const sharedTests = getSharedTests();
+  const sharedTestsFlat = Object.values(sharedTests).flat();
+
+  it.each(sharedTestsFlat.map((testCase) => testCase.expression))(
     'should validate %j as a valid expression',
     (maybeExpr) => {
       expect(asLayoutExpression(maybeExpr)).toEqual(maybeExpr);
