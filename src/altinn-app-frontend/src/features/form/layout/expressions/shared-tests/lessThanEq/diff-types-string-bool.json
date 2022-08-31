@@ -1,0 +1,8 @@
+{
+  "name": "Should fail with [string, boolean]",
+  "expression": {
+    "function": "lessThanEq",
+    "args": ["1", true]
+  },
+  "expectsFailure": "Expected number, got value true"
+}

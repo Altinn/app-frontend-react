@@ -1,0 +1,8 @@
+{
+  "name": "Should fail with [string, null]",
+  "expression": {
+    "function": "greaterThanEq",
+    "args": ["hello world", null]
+  },
+  "expectsFailure": "Expected number, got value \"hello world\""
+}

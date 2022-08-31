@@ -1,0 +1,8 @@
+{
+  "name": "Should work with strings (true)",
+  "expression": {
+    "function": "lessThan",
+    "args": ["1.001", "1.1"]
+  },
+  "expects": true
+}
