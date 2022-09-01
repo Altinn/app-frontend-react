@@ -22,7 +22,7 @@ import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type { ILayouts } from 'src/features/form/layout';
 import type * as LayoutTypes from 'src/features/form/layout/formLayoutTypes';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
-import type { ILayoutSets, IUiConfig } from 'src/types';
+import type { ILayoutSets, IPagesSettings, IUiConfig } from 'src/types';
 
 export interface ILayoutState {
   layouts: ILayouts;
@@ -45,9 +45,6 @@ export const initialState: ILayoutState = {
     layoutOrder: null,
     pageTriggers: [],
     keepScrollPos: undefined,
-    hideCloseButton: true,
-    showProgress: false,
-    showLanguageSelector: false,
   },
   layoutsets: null,
 };
@@ -89,7 +86,12 @@ const formLayoutSlice = createSagaSlice(
       fetchSetsFulfilled: mkAction<LayoutTypes.IFetchLayoutSetsFulfilled>({
         reducer: (state, action) => {
           const { layoutSets } = action.payload;
-          state.layoutsets = layoutSets;
+          if (layoutSets.sets) {
+            state.layoutsets = { sets: layoutSets.sets };
+          }
+          if (layoutSets.uiSettings) {
+            updateCommonPageSettings(state, layoutSets.uiSettings);
+          }
         },
       }),
       fetchSetsRejected: mkAction<LayoutTypes.IFormLayoutActionRejected>({
@@ -106,19 +108,8 @@ const formLayoutSlice = createSagaSlice(
           reducer: (state, action) => {
             const { settings } = action.payload;
             if (settings && settings.pages) {
-              const {
-                hideCloseButton = false,
-                showProgress = false,
-                showLanguageSelector = false,
-                triggers,
-                order,
-              } = settings.pages;
-
-              state.uiConfig.hideCloseButton = hideCloseButton;
-              state.uiConfig.showProgress = showProgress;
-              state.uiConfig.showLanguageSelector = showLanguageSelector;
-              state.uiConfig.pageTriggers = triggers;
-
+              updateCommonPageSettings(state, settings.pages);
+              const order = settings.pages.order;
               if (order) {
                 state.uiConfig.layoutOrder = order;
                 if (state.uiConfig.currentViewCacheKey) {
@@ -332,6 +323,26 @@ const formLayoutSlice = createSagaSlice(
     },
   }),
 );
+
+const updateCommonPageSettings = (
+  state: ILayoutState,
+  page: Pick<
+    IPagesSettings,
+    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers'
+  >,
+) => {
+  const {
+    hideCloseButton = state.uiConfig.hideCloseButton,
+    showLanguageSelector = state.uiConfig.showLanguageSelector,
+    showProgress = state.uiConfig.showProgress,
+    triggers = state.uiConfig.pageTriggers,
+  } = page;
+
+  state.uiConfig.hideCloseButton = hideCloseButton;
+  state.uiConfig.showProgress = showProgress;
+  state.uiConfig.showLanguageSelector = showLanguageSelector;
+  state.uiConfig.pageTriggers = triggers;
+};
 
 export const FormLayoutActions = formLayoutSlice.actions;
 export default formLayoutSlice;
