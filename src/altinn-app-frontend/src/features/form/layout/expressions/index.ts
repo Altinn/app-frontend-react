@@ -327,6 +327,7 @@ export const layoutExpressionFunctions = {
   concat: defineFunc({
     impl: (...args) => args.join(''),
     args: ['string'],
+    minArguments: 0,
     returns: 'string',
     lastArgSpreads: true,
   }),

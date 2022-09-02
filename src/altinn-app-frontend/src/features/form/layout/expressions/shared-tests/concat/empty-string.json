@@ -1,0 +1,8 @@
+{
+  "name": "No arguments results in empty string",
+  "expression": {
+    "function": "concat",
+    "args": []
+  },
+  "expects": ""
+}

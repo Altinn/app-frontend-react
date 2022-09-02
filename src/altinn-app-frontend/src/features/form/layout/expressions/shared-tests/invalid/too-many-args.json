@@ -10,5 +10,5 @@
       }
     ]
   },
-  "expectsFailure": "Expected 2 arguments, got 3"
+  "expectsFailure": "Expected 2 argument(s), got 3"
 }

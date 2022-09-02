@@ -50,6 +50,7 @@ export interface FuncDef<Args extends BaseValue[], Ret extends BaseValue> {
     ...params: ArgsToActual<Args>
   ) => BaseToActual<Ret>;
   args: Args;
+  minArguments?: number;
   returns: Ret;
 
   // Optional: Set this to true if the last argument type is considered a '...spread' argument, meaning

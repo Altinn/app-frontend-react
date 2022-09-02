@@ -18,7 +18,7 @@ enum ValidationErrorMessage {
   ArgsNotArr = 'Arguments not an array',
   ArgUnexpected = 'Unexpected argument',
   ArgWrongType = 'Expected argument to be %s, got %s',
-  ArgsWrongNum = 'Expected %s arguments, got %s',
+  ArgsWrongNum = 'Expected %s argument(s), got %s',
   FuncMissing = 'Missing "function" property',
 }
 
@@ -72,6 +72,12 @@ function validateFunctionArgs(
     func in validLookupFunctions
       ? ['string']
       : layoutExpressionFunctions[func].args;
+
+  let minExpected = layoutExpressionFunctions[func]?.minArguments;
+  if (minExpected === undefined) {
+    minExpected = expected.length;
+  }
+
   const canSpread =
     func in validLookupFunctions
       ? false
@@ -115,16 +121,16 @@ function validateFunctionArgs(
     }
   }
 
-  if (canSpread && actual.length > expected.length) {
+  if (canSpread && actual.length >= minExpected) {
     return;
   }
 
-  if (actual.length !== expected.length) {
+  if (actual.length !== minExpected) {
     addError(
       ctx,
       [...path, `args`],
       ValidationErrorMessage.ArgsWrongNum,
-      `${expected.length}`,
+      `${minExpected}${canSpread ? '+' : ''}`,
       `${actual.length}`,
     );
   }

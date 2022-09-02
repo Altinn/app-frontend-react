@@ -1,0 +1,8 @@
+{
+  "name": "Empty input produces an error",
+  "expression": {
+    "function": "or",
+    "args": []
+  },
+  "expectsFailure": "Expected 1+ argument(s), got 0"
+}
