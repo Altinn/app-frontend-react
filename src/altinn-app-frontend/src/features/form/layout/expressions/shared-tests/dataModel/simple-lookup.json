@@ -11,12 +11,17 @@
     }
   },
   "layouts": {
-    "Page1": [
-      {
-        "id": "current-component",
-        "type": "Paragraph"
+    "Page1": {
+      "$schema": "https://altinncdn.no/schemas/json/layout/layout.schema.v1.json",
+      "data": {
+        "layout": [
+          {
+            "id": "current-component",
+            "type": "Paragraph"
+          }
+        ]
       }
-    ]
+    }
   },
   "context": {
     "component": "current-component",
