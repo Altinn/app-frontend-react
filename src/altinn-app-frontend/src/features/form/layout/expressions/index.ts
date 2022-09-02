@@ -204,6 +204,10 @@ function valueToBaseValueType(value: any): BaseValue | string {
   return typeof value;
 }
 
+function isLikeNull(arg: any) {
+  return arg === 'null' || arg === null || typeof arg === 'undefined';
+}
+
 function castValue<T extends BaseValue>(
   value: any,
   toType: T,
@@ -236,32 +240,14 @@ function defineFunc<Args extends BaseValue[], Ret extends BaseValue>(
 ): FuncDef<Args, Ret> {
   return def;
 }
-
-function someLowerCase(arg: string): string {
-  if (arg === null) {
-    return arg;
-  }
-  if (arg.toLowerCase() === 'null') {
-    return null;
-  }
-  if (arg.toLowerCase() === 'false') {
-    return 'false';
-  }
-  if (arg.toLowerCase() === 'true') {
-    return 'true';
-  }
-
-  return arg;
-}
-
 export const funcImpl = {
   equals: defineFunc({
-    impl: (arg1, arg2) => someLowerCase(arg1) === someLowerCase(arg2),
+    impl: (arg1, arg2) => arg1 === arg2,
     args: ['string', 'string'],
     returns: 'boolean',
   }),
   notEquals: defineFunc({
-    impl: (arg1, arg2) => someLowerCase(arg1) !== someLowerCase(arg2),
+    impl: (arg1, arg2) => arg1 !== arg2,
     args: ['string', 'string'],
     returns: 'boolean',
   }),
@@ -377,10 +363,6 @@ export const funcImpl = {
   }),
 };
 
-function isLikeNull(arg: any) {
-  return arg === 'null' || arg === null || typeof arg === 'undefined';
-}
-
 function asNumber(arg: string) {
   if (arg.match(/^-?\d+$/)) {
     return parseInt(arg, 10);
@@ -431,6 +413,11 @@ export const layoutExpressionCastToType: {
       if (['number', 'bigint', 'boolean'].includes(typeof arg)) {
         return JSON.stringify(arg);
       }
+
+      // Always lowercase these values, to make comparisons case-insensitive
+      if (arg.toLowerCase() === 'null') return null;
+      if (arg.toLowerCase() === 'false') return 'false';
+      if (arg.toLowerCase() === 'true') return 'true';
 
       return `${arg}`;
     },
