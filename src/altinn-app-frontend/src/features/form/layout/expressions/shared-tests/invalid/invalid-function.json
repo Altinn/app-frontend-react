@@ -1,0 +1,14 @@
+{
+  "name": "Invalid function gives an error",
+  "expression": {
+    "function": "equals",
+    "args": [
+      true,
+      {
+        "function": "functionThatDoesNotExist",
+        "args": []
+      }
+    ]
+  },
+  "expectsFailure": "Function \"functionThatDoesNotExist\" not implemented"
+}

@@ -15,6 +15,8 @@ describe('Layout expression validation', () => {
   );
 
   const sharedTests = getSharedTests();
+  const invalidSharedTests = sharedTests['invalid'];
+  delete sharedTests['invalid'];
   const sharedTestsFlat = Object.values(sharedTests).flat();
 
   it.each(sharedTestsFlat.map((testCase) => testCase.expression))(
@@ -23,6 +25,14 @@ describe('Layout expression validation', () => {
       expect(asLayoutExpression(maybeExpr)).toEqual(maybeExpr);
     },
   );
+
+  describe('Shared tests for invalid expressions', () => {
+    it.each(invalidSharedTests)('$name', (invalid) => {
+      expect(() => asLayoutExpression(invalid.expression)).toThrow(
+        invalid.expectsFailure,
+      );
+    });
+  });
 
   it.each([
     '',

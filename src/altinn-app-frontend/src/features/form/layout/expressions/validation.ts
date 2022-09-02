@@ -19,7 +19,7 @@ enum ValidationErrorMessage {
   ArgUnexpected = 'Unexpected argument',
   ArgWrongType = 'Expected argument to be %s, got %s',
   ArgsWrongNum = 'Expected %s arguments, got %s',
-  FuncMissing = 'Missing "function" key',
+  FuncMissing = 'Missing "function" property',
 }
 
 interface ValidationContext {

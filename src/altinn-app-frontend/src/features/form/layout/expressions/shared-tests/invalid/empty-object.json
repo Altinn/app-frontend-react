@@ -1,0 +1,8 @@
+{
+  "name": "Empty object inside expression parsed as other expression",
+  "expression": {
+    "function": "equals",
+    "args": [true, {}]
+  },
+  "expectsFailure": "Missing \"function\" property"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Too many arguments give an error",
+  "expression": {
+    "function": "equals",
+    "args": [
+      true,
+      {
+        "function": "equals",
+        "args": [true, false, true]
+      }
+    ]
+  },
+  "expectsFailure": "Expected 2 arguments, got 3"
+}

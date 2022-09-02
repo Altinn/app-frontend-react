@@ -1,0 +1,8 @@
+{
+  "name": "Missing arguments produces an error",
+  "expression": {
+    "function": "equals",
+    "args": [true, { "function": "notEquals" }]
+  },
+  "expectsFailure": "Arguments not an array"
+}

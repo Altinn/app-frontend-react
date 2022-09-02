@@ -26,6 +26,10 @@ function toComponentId({ component, rowIndices }: TestDescription['context']) {
 describe('Layout expressions shared tests', () => {
   const sharedTests = getSharedTests();
 
+  // These tests are invalid and should be stopped by the parser, so they would never be evaluated.
+  // See validation.test.ts instead
+  delete sharedTests['invalid'];
+
   describe.each(Object.keys(sharedTests))('Function: %s', (folder) => {
     it.each(sharedTests[folder])(
       '$name',

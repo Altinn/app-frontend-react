@@ -1,0 +1,8 @@
+{
+  "name": "Empty array inside expression gives error (TODO: Parse lisp-like expressions instead)",
+  "expression": {
+    "function": "equals",
+    "args": [true, []]
+  },
+  "expectsFailure": "Missing \"function\" property"
+}
