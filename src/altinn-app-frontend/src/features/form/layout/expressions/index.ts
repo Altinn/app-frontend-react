@@ -252,14 +252,31 @@ function defineFunc<Args extends BaseValue[], Ret extends BaseValue>(
   return def;
 }
 
+function someLowerCase(arg: string): string {
+  if (arg === null) {
+    return arg;
+  }
+  if (arg.toLowerCase() === 'null') {
+    return null;
+  }
+  if (arg.toLowerCase() === 'false') {
+    return 'false';
+  }
+  if (arg.toLowerCase() === 'true') {
+    return 'true';
+  }
+
+  return arg;
+}
+
 export const layoutExpressionFunctions = {
   equals: defineFunc({
-    impl: (arg1, arg2) => arg1 === arg2,
+    impl: (arg1, arg2) => someLowerCase(arg1) === someLowerCase(arg2),
     args: ['string', 'string'],
     returns: 'boolean',
   }),
   notEquals: defineFunc({
-    impl: (arg1, arg2) => arg1 !== arg2,
+    impl: (arg1, arg2) => someLowerCase(arg1) !== someLowerCase(arg2),
     args: ['string', 'string'],
     returns: 'boolean',
   }),
