@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-import type { ILayouts } from 'src/features/form/layout';
+import type { ILayout } from 'src/features/form/layout';
 import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
 
 import type {
@@ -18,7 +18,14 @@ export interface TestDescription {
     rowIndices?: number[];
     currentLayout?: string;
   };
-  layouts?: ILayouts;
+  layouts?: {
+    [key: string]: {
+      $schema: string;
+      data: {
+        layout: ILayout;
+      };
+    };
+  };
   dataModel?: any;
   instanceContext?: IInstanceContext;
   appSettings?: IApplicationSettings;

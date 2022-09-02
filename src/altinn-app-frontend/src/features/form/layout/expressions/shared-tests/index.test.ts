@@ -52,10 +52,13 @@ describe('Layout expressions shared tests', () => {
         const asNodes = {};
         for (const key of Object.keys(layouts || {})) {
           const repeatingGroups = getRepeatingGroups(
-            layouts[key],
+            layouts[key].data.layout,
             dataSources.formData,
           );
-          asNodes[key] = nodesInLayout(layouts[key], repeatingGroups);
+          asNodes[key] = nodesInLayout(
+            layouts[key].data.layout,
+            repeatingGroups,
+          );
         }
 
         const currentLayout = (context && context.currentLayout) || '';
