@@ -60,9 +60,11 @@ jobs:
           cd ..
           echo Copy Major Version
           mkdir -p ./cdn/toolkits/altinn-app-frontend/${{ steps.prepare.outputs.APP_MAJOR }}
+          git rm ./cdn/toolkits/altinn-app-frontend/${{ steps.prepare.outputs.APP_MAJOR }}/*
           cp -fr ./app-frontend/src/altinn-app-frontend/dist/* ./cdn/toolkits/altinn-app-frontend/${{ steps.prepare.outputs.APP_MAJOR }}/
           echo Copy Minor Version
           mkdir -p ./cdn/toolkits/altinn-app-frontend/${{ steps.prepare.outputs.APP_MAJOR_MINOR }}
+          git rm ./cdn/toolkits/altinn-app-frontend/${{ steps.prepare.outputs.APP_MAJOR_MINOR }}/*
           cp -fr ./app-frontend/src/altinn-app-frontend/dist/* ./cdn/toolkits/altinn-app-frontend/${{ steps.prepare.outputs.APP_MAJOR_MINOR }}/
           echo Copy Patch
           mkdir -p ./cdn/toolkits/altinn-app-frontend/${{ steps.prepare.outputs.APP_FULL }}
