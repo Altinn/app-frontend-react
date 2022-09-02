@@ -5,7 +5,6 @@ import {
   NodeNotFound,
   NodeNotFoundWithoutContext,
 } from 'src/features/form/layout/expressions/errors';
-import { layoutExpressionLookupFunctions } from 'src/features/form/layout/expressions/index';
 import {
   prettyErrors,
   prettyErrorsToConsole,
@@ -31,7 +30,6 @@ export interface PrettyErrorsOptions {
 }
 
 export class ExpressionContext {
-  public lookup = layoutExpressionLookupFunctions;
   public path: string[] = [];
 
   private constructor(
@@ -61,7 +59,6 @@ export class ExpressionContext {
       prevInstance.node,
       prevInstance.dataSources,
     );
-    newInstance.lookup = prevInstance.lookup;
     newInstance.path = newPath;
 
     return newInstance;

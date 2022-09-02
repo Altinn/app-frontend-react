@@ -17,7 +17,6 @@ import type {
   BaseValue,
   FuncDef,
   ILayoutExpression,
-  ILayoutExpressionLookupFunctions,
   LayoutExpressionDefaultValues,
   LayoutExpressionFunction,
   ResolvedLayoutExpression,
@@ -161,14 +160,7 @@ export function argTypeAt(
   func: LayoutExpressionFunction,
   argIndex: number,
 ): BaseValue | undefined {
-  if (func in layoutExpressionLookupFunctions) {
-    if (argIndex === 0) {
-      return 'string';
-    }
-    return undefined;
-  }
-
-  const funcDef = layoutExpressionFunctions[func];
+  const funcDef = funcImpl[func];
   const possibleArgs = funcDef.args;
   const maybeReturn = possibleArgs[argIndex];
   if (maybeReturn) {
@@ -185,10 +177,7 @@ export function argTypeAt(
 function innerEvalExpr(context: ExpressionContext) {
   const expr = context.getExpr();
 
-  const returnType =
-    expr.function in context.lookup
-      ? 'string'
-      : layoutExpressionFunctions[expr.function].returns;
+  const returnType = funcImpl[expr.function].returns;
 
   const computedArgs = expr.args.map((arg, idx) => {
     const argContext = ExpressionContext.withPath(context, [
@@ -203,11 +192,7 @@ function innerEvalExpr(context: ExpressionContext) {
     return castValue(argValue, argType, argContext);
   });
 
-  const actualFunc: (...args: any) => any =
-    expr.function in context.lookup
-      ? context.lookup[expr.function]
-      : layoutExpressionFunctions[expr.function].impl;
-
+  const actualFunc: (...args: any) => any = funcImpl[expr.function].impl;
   const returnValue = actualFunc.apply(context, computedArgs);
   return castValue(returnValue, returnType, context);
 }
@@ -269,7 +254,7 @@ function someLowerCase(arg: string): string {
   return arg;
 }
 
-export const layoutExpressionFunctions = {
+export const funcImpl = {
   equals: defineFunc({
     impl: (arg1, arg2) => someLowerCase(arg1) === someLowerCase(arg2),
     args: ['string', 'string'],
@@ -343,17 +328,22 @@ export const layoutExpressionFunctions = {
     returns: 'boolean',
     lastArgSpreads: true,
   }),
-};
-
-export const layoutExpressionLookupFunctions: ILayoutExpressionLookupFunctions =
-  {
-    instanceContext: function (key) {
+  instanceContext: defineFunc({
+    impl: function (key) {
       return this.dataSources.instanceContext[key];
     },
-    applicationSettings: function (key) {
+    args: ['string'],
+    returns: 'string',
+  }),
+  applicationSettings: defineFunc({
+    impl: function (key) {
       return this.dataSources.applicationSettings[key];
     },
-    component: function (id) {
+    args: ['string'],
+    returns: 'string',
+  }),
+  component: defineFunc({
+    impl: function (id): string {
       const component = this.failWithoutNode().closest(
         (c) => c.id === id || c.baseComponentId === id,
       );
@@ -374,11 +364,18 @@ export const layoutExpressionLookupFunctions: ILayoutExpressionLookupFunctions =
         'or it does not have a simpleBinding',
       );
     },
-    dataModel: function (path) {
+    args: ['string'],
+    returns: 'string',
+  }),
+  dataModel: defineFunc({
+    impl: function (path): string {
       const newPath = this.failWithoutNode().transposeDataModel(path);
       return this.dataSources.formData[newPath] || null;
     },
-  };
+    args: ['string'],
+    returns: 'string',
+  }),
+};
 
 function isLikeNull(arg: any) {
   return arg === 'null' || arg === null || typeof arg === 'undefined';

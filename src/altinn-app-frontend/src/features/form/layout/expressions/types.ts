@@ -1,19 +1,10 @@
 import type { PickByValue } from 'utility-types';
 
-import type { layoutExpressionFunctions } from 'src/features/form/layout/expressions';
+import type { funcImpl } from 'src/features/form/layout/expressions';
 import type { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
 
-type RealFunctions = typeof layoutExpressionFunctions;
-export type LayoutExpressionFunction =
-  | keyof RealFunctions
-  | keyof ILayoutExpressionLookupFunctions;
-
-export interface ILayoutExpressionLookupFunctions {
-  dataModel: (this: ExpressionContext, path: string) => string;
-  component: (this: ExpressionContext, baseComponentId: string) => string;
-  instanceContext: (this: ExpressionContext, prop: string) => string;
-  applicationSettings: (this: ExpressionContext, prop: string) => string;
-}
+type RealFunctions = typeof funcImpl;
+export type LayoutExpressionFunction = keyof RealFunctions;
 
 export type BaseValue = 'string' | 'number' | 'boolean';
 export type BaseToActual<T extends BaseValue> = T extends 'string'
@@ -60,22 +51,16 @@ export interface FuncDef<Args extends BaseValue[], Ret extends BaseValue> {
 }
 
 type ArgsFor<F extends LayoutExpressionFunction> =
-  F extends keyof ILayoutExpressionLookupFunctions
-    ? ['string']
-    : F extends keyof RealFunctions
-    ? RealFunctions[F]['args']
-    : never;
+  F extends LayoutExpressionFunction ? RealFunctions[F]['args'] : never;
 
 type RealFunctionsReturning<T extends BaseValue> = keyof PickByValue<
   RealFunctions,
   { returns: T }
 >;
 
-type ExpressionReturning<T extends BaseValue> = T extends 'string'
-  ? ILayoutExpression<
-      keyof ILayoutExpressionLookupFunctions | RealFunctionsReturning<'string'>
-    >
-  : ILayoutExpression<RealFunctionsReturning<T>>;
+type ExpressionReturning<T extends BaseValue> = ILayoutExpression<
+  RealFunctionsReturning<T>
+>;
 
 type MaybeRecursive<Args extends BaseValue[]> = {
   [Index in keyof Args]:
@@ -98,9 +83,7 @@ export type ILayoutExpressionOr<T extends BaseValue> =
  * Type that lets you convert a layout expression function name to its return value type
  */
 export type ReturnValueFor<Func extends LayoutExpressionFunction> =
-  Func extends keyof ILayoutExpressionLookupFunctions
-    ? string
-    : Func extends keyof RealFunctions
+  Func extends keyof RealFunctions
     ? BaseToActual<RealFunctions[Func]['returns']>
     : never;
 

@@ -1,5 +1,5 @@
 import type { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
-import type { ILayoutExpressionLookupFunctions } from 'src/features/form/layout/expressions/types';
+import type { LayoutExpressionFunction } from 'src/features/form/layout/expressions/types';
 
 export class ExpressionRuntimeError extends Error {
   public constructor(public context: ExpressionContext, message: string) {
@@ -10,13 +10,13 @@ export class ExpressionRuntimeError extends Error {
 export class LookupNotFound extends ExpressionRuntimeError {
   public constructor(
     context: ExpressionContext,
-    lookup: keyof ILayoutExpressionLookupFunctions,
+    func: LayoutExpressionFunction,
     key: string,
     extra?: string,
   ) {
     super(
       context,
-      `Unable to find ${lookup} with identifier ${key}${
+      `Unable to find ${func} with identifier ${key}${
         extra ? ` ${extra}` : ''
       }`,
     );

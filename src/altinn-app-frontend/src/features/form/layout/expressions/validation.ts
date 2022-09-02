@@ -1,13 +1,12 @@
 import {
   argTypeAt,
+  funcImpl,
   layoutExpressionCastToType,
-  layoutExpressionFunctions,
 } from 'src/features/form/layout/expressions';
 import { prettyErrors } from 'src/features/form/layout/expressions/prettyErrors';
 import type {
   BaseValue,
   ILayoutExpression,
-  ILayoutExpressionLookupFunctions,
   LayoutExpressionFunction,
 } from 'src/features/form/layout/expressions/types';
 
@@ -27,15 +26,6 @@ interface ValidationContext {
     [key: string]: string[];
   };
 }
-
-const validLookupFunctions: {
-  [funcName in keyof ILayoutExpressionLookupFunctions]: true;
-} = {
-  dataModel: true,
-  applicationSettings: true,
-  component: true,
-  instanceContext: true,
-};
 
 const validBasicTypes: { [key: string]: BaseValue } = {
   boolean: 'boolean',
@@ -68,20 +58,13 @@ function validateFunctionArgs(
   ctx: ValidationContext,
   path: string[],
 ) {
-  const expected =
-    func in validLookupFunctions
-      ? ['string']
-      : layoutExpressionFunctions[func].args;
+  const expected = funcImpl[func].args;
 
-  let minExpected = layoutExpressionFunctions[func]?.minArguments;
+  let minExpected = funcImpl[func]?.minArguments;
   if (minExpected === undefined) {
     minExpected = expected.length;
   }
-
-  const canSpread =
-    func in validLookupFunctions
-      ? false
-      : layoutExpressionFunctions[func].lastArgSpreads;
+  const canSpread = funcImpl[func].lastArgSpreads;
 
   const maxIdx = Math.max(expected.length, actual.length);
   for (let idx = 0; idx < maxIdx; idx++) {
@@ -149,22 +132,14 @@ function validateFunction(
 
   const pathArgs = [...path.slice(0, path.length - 1)];
 
-  if (
-    funcName in validLookupFunctions ||
-    funcName in layoutExpressionFunctions
-  ) {
+  if (funcName in funcImpl) {
     validateFunctionArgs(
       funcName as LayoutExpressionFunction,
       argTypes,
       ctx,
       pathArgs,
     );
-    if (funcName in validLookupFunctions) {
-      return 'string';
-    }
-    return layoutExpressionFunctions[
-      funcName as keyof typeof layoutExpressionFunctions
-    ].returns;
+    return funcImpl[funcName].returns;
   }
 
   addError(ctx, path, ValidationErrorMessage.FuncNotImpl, funcName);
