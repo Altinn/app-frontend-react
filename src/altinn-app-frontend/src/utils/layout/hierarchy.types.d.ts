@@ -3,7 +3,7 @@ import type {
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
-import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/types';
+import type { LEResolved } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 export type NodeType =
@@ -14,11 +14,11 @@ export type NodeType =
 
 export type ComponentOf<NT extends NodeType> = NT extends 'plain'
   ? ILayoutComponent
-  : ResolvedLayoutExpression<ILayoutComponent>;
+  : LEResolved<ILayoutComponent>;
 
 export type GroupOf<NT extends NodeType> = NT extends 'plain'
   ? ILayoutGroup
-  : ResolvedLayoutExpression<ILayoutGroup>;
+  : LEResolved<ILayoutGroup>;
 
 export type LayoutGroupHierarchy<NT extends NodeType = 'plain'> = Omit<
   GroupOf<NT>,

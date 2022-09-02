@@ -1,16 +1,16 @@
-import type { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
-import type { LayoutExpressionFunction } from 'src/features/form/layout/expressions/types';
+import type { LEContext } from 'src/features/form/layout/expressions/LEContext';
+import type { LEFunction } from 'src/features/form/layout/expressions/types';
 
-export class ExpressionRuntimeError extends Error {
-  public constructor(public context: ExpressionContext, message: string) {
+export class LERuntimeError extends Error {
+  public constructor(public context: LEContext, message: string) {
     super(message);
   }
 }
 
-export class LookupNotFound extends ExpressionRuntimeError {
+export class LookupNotFound extends LERuntimeError {
   public constructor(
-    context: ExpressionContext,
-    func: LayoutExpressionFunction,
+    context: LEContext,
+    func: LEFunction,
     key: string,
     extra?: string,
   ) {
@@ -23,18 +23,14 @@ export class LookupNotFound extends ExpressionRuntimeError {
   }
 }
 
-export class UnknownTargetType extends ExpressionRuntimeError {
-  public constructor(context: ExpressionContext, type: string) {
+export class UnknownTargetType extends LERuntimeError {
+  public constructor(context: LEContext, type: string) {
     super(context, `Cannot cast to unknown type '${type}'`);
   }
 }
 
-export class UnknownSourceType extends ExpressionRuntimeError {
-  public constructor(
-    context: ExpressionContext,
-    type: string,
-    supported: string,
-  ) {
+export class UnknownSourceType extends LERuntimeError {
+  public constructor(context: LEContext, type: string, supported: string) {
     super(
       context,
       `Received unsupported type '${type}, only ${supported} are supported'`,
@@ -42,21 +38,14 @@ export class UnknownSourceType extends ExpressionRuntimeError {
   }
 }
 
-export class UnexpectedType extends ExpressionRuntimeError {
-  public constructor(
-    context: ExpressionContext,
-    expected: string,
-    actual: any,
-  ) {
+export class UnexpectedType extends LERuntimeError {
+  public constructor(context: LEContext, expected: string, actual: any) {
     super(context, `Expected ${expected}, got value ${JSON.stringify(actual)}`);
   }
 }
 
-export class NodeNotFound extends ExpressionRuntimeError {
-  public constructor(
-    context: ExpressionContext,
-    original: NodeNotFoundWithoutContext,
-  ) {
+export class NodeNotFound extends LERuntimeError {
+  public constructor(context: LEContext, original: NodeNotFoundWithoutContext) {
     super(
       context,
       `Unable to evaluate layout expressions in context of the ${JSON.stringify(

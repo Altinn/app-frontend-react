@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 import type { ILayout } from 'src/features/form/layout';
-import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
+import type { LayoutExpression } from 'src/features/form/layout/expressions/types';
 
 import type {
   IApplicationSettings,
@@ -10,7 +10,7 @@ import type {
 
 export interface TestDescription {
   name: string;
-  expression: ILayoutExpression;
+  expression: LayoutExpression;
   expects?: any;
   expectsFailure?: string;
   context?: {

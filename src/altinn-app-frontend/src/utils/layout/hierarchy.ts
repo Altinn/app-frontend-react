@@ -1,7 +1,7 @@
 import {
   evalExprInObj,
-  ExprDefaultsForComponent,
-  ExprDefaultsForGroup,
+  LEDefaultsForComponent,
+  LEDefaultsForGroup,
 } from 'src/features/form/layout/expressions';
 import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
@@ -10,7 +10,7 @@ import type {
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 import type { IRepeatingGroups } from 'src/types';
 import type {
   AnyChildNode,
@@ -459,8 +459,8 @@ export class LayoutNode<
       node: this as LayoutNode<any>,
       dataSources,
       defaults: {
-        ...ExprDefaultsForComponent,
-        ...ExprDefaultsForGroup,
+        ...LEDefaultsForComponent,
+        ...LEDefaultsForGroup,
       },
       skipPaths: new Set(['children', 'rows', 'childComponents']),
     }) as Item; // <-- This is wrong, but we cannot change it without changing our own type to LayoutNode<'resolved'>

@@ -29,7 +29,7 @@ import type {
   IGrid,
   ILayoutComponent,
 } from 'src/features/form/layout';
-import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/types';
+import type { LEResolved } from 'src/features/form/layout/expressions/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
 import type { ILanguage } from 'altinn-shared/types';
@@ -80,7 +80,7 @@ export interface IComponentProps extends IGenericComponentProps {
 }
 
 export type PropsFromGenericComponent<T extends ComponentExceptGroup> =
-  IComponentProps & ResolvedLayoutExpression<Omit<ILayoutComponent<T>, 'type'>>;
+  IComponentProps & LEResolved<Omit<ILayoutComponent<T>, 'type'>>;
 
 export interface IFormComponentContext {
   grid?: IGrid;

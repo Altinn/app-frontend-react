@@ -1,9 +1,9 @@
 import { getSharedTests } from 'src/features/form/layout/expressions/shared-tests';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
-import type { ILayoutExpression } from 'src/features/form/layout/expressions/types';
+import type { LayoutExpression } from 'src/features/form/layout/expressions/types';
 
 describe('Layout expression validation', () => {
-  const validObjects: ILayoutExpression[] = [
+  const validObjects: LayoutExpression[] = [
     { function: 'equals', args: [5, 7] },
   ];
 

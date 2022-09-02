@@ -8,7 +8,7 @@ import {
   LayoutRootNodeCollection,
   nodesInLayout,
 } from 'src/utils/layout/hierarchy';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 import type { TestDescription } from 'src/features/form/layout/expressions/shared-tests/index';
 
 import type {

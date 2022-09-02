@@ -14,16 +14,16 @@ import type {
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
-import type { ILayoutExpressionOr } from 'src/features/form/layout/expressions/types';
+import type { LayoutExpressionOr } from 'src/features/form/layout/expressions/types';
 import type { UseLayoutExpressionOptions } from 'src/features/form/layout/expressions/useLayoutExpression';
 import type { IRuntimeState } from 'src/types';
 
 interface ExampleThingWithExpressions {
   notAnExpr: boolean;
-  hidden: ILayoutExpressionOr<'boolean'>;
+  hidden: LayoutExpressionOr<'boolean'>;
   innerObject: {
     label: string;
-    readOnly: ILayoutExpressionOr<'boolean'>;
+    readOnly: LayoutExpressionOr<'boolean'>;
   };
 }
 
@@ -105,14 +105,14 @@ const getState = (formData: IFormData = {}): IRuntimeState => {
 };
 
 const thingWithExpressions = (
-  expr1: ILayoutExpressionOr<'boolean'> = {
+  expr1: LayoutExpressionOr<'boolean'> = {
     function: 'equals',
     args: [
       { function: 'component', args: [components.topLayer.id] },
       'hello world',
     ],
   },
-  expr2: ILayoutExpressionOr<'boolean'> = {
+  expr2: LayoutExpressionOr<'boolean'> = {
     function: 'equals',
     args: [
       { function: 'component', args: [components.topLayer.id] },
@@ -242,7 +242,7 @@ describe('useLayoutExpressions', () => {
     expect(consoleRef.log).toBeCalledTimes(0);
   });
 
-  const failingExpr: ILayoutExpressionOr<'boolean'> = {
+  const failingExpr: LayoutExpressionOr<'boolean'> = {
     function: 'greaterThanEq',
     args: [{ function: 'component', args: [components.topLayer.id] }, '55'],
   };

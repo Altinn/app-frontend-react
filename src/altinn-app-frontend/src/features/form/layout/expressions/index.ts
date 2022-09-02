@@ -1,25 +1,25 @@
 import dot from 'dot-object';
 
 import {
-  ExpressionRuntimeError,
+  LERuntimeError,
   LookupNotFound,
   NodeNotFoundWithoutContext,
   UnexpectedType,
   UnknownSourceType,
   UnknownTargetType,
 } from 'src/features/form/layout/expressions/errors';
-import { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
+import { LEContext } from 'src/features/form/layout/expressions/LEContext';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 import type {
   BaseToActual,
   BaseValue,
   FuncDef,
-  ILayoutExpression,
-  LayoutExpressionDefaultValues,
-  LayoutExpressionFunction,
-  ResolvedLayoutExpression,
+  LayoutExpression,
+  LEDefaultValues,
+  LEFunction,
+  LEResolved,
 } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
@@ -32,7 +32,7 @@ export interface EvalExprInObjArgs<T> {
   input: T;
   node: LayoutNode<any> | NodeNotFoundWithoutContext;
   dataSources: ContextDataSources;
-  defaults?: LayoutExpressionDefaultValues<T>;
+  defaults?: LEDefaultValues<T>;
   skipPaths?: Set<string | keyof T>;
 }
 
@@ -41,11 +41,9 @@ export interface EvalExprInObjArgs<T> {
  * object and resolve them.
  * @see useLayoutExpression
  */
-export function evalExprInObj<T>(
-  args: EvalExprInObjArgs<T>,
-): ResolvedLayoutExpression<T> {
+export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): LEResolved<T> {
   if (!args.input) {
-    return args.input as ResolvedLayoutExpression<T>;
+    return args.input as LEResolved<T>;
   }
 
   return evalExprInObjectRecursive(
@@ -96,7 +94,7 @@ function evalExprInObjectRecursive<T>(
  * Extracted function for evaluating expressions in the context of a larger object
  */
 function evalExprInObjectCaller<T>(
-  expr: ILayoutExpression,
+  expr: LayoutExpression,
   args: Omit<EvalExprInObjArgs<T>, 'input'>,
   path: string[],
 ) {
@@ -127,16 +125,16 @@ function evalExprInObjectCaller<T>(
  * @see useLayoutExpression
  */
 export function evalExpr(
-  expr: ILayoutExpression,
+  expr: LayoutExpression,
   node: LayoutNode<any> | NodeNotFoundWithoutContext,
   dataSources: ContextDataSources,
   options?: EvalExprOptions,
 ) {
-  let ctx = ExpressionContext.withBlankPath(expr, node, dataSources);
+  let ctx = LEContext.withBlankPath(expr, node, dataSources);
   try {
     return innerEvalExpr(ctx);
   } catch (err) {
-    if (err instanceof ExpressionRuntimeError) {
+    if (err instanceof LERuntimeError) {
       ctx = err.context;
     }
     if (options && 'defaultValue' in options) {
@@ -157,10 +155,10 @@ export function evalExpr(
 }
 
 export function argTypeAt(
-  func: LayoutExpressionFunction,
+  func: LEFunction,
   argIndex: number,
 ): BaseValue | undefined {
-  const funcDef = funcImpl[func];
+  const funcDef = LEFunctions[func];
   const possibleArgs = funcDef.args;
   const maybeReturn = possibleArgs[argIndex];
   if (maybeReturn) {
@@ -174,13 +172,13 @@ export function argTypeAt(
   return undefined;
 }
 
-function innerEvalExpr(context: ExpressionContext) {
+function innerEvalExpr(context: LEContext) {
   const expr = context.getExpr();
 
-  const returnType = funcImpl[expr.function].returns;
+  const returnType = LEFunctions[expr.function].returns;
 
   const computedArgs = expr.args.map((arg, idx) => {
-    const argContext = ExpressionContext.withPath(context, [
+    const argContext = LEContext.withPath(context, [
       ...context.path,
       `args[${idx}]`,
     ]);
@@ -192,7 +190,7 @@ function innerEvalExpr(context: ExpressionContext) {
     return castValue(argValue, argType, argContext);
   });
 
-  const actualFunc: (...args: any) => any = funcImpl[expr.function].impl;
+  const actualFunc: (...args: any) => any = LEFunctions[expr.function].impl;
   const returnValue = actualFunc.apply(context, computedArgs);
   return castValue(returnValue, returnType, context);
 }
@@ -208,16 +206,20 @@ function isLikeNull(arg: any) {
   return arg === 'null' || arg === null || typeof arg === 'undefined';
 }
 
+/**
+ * This function is used to cast any value to a target type before/after it is passed
+ * through a function call.
+ */
 function castValue<T extends BaseValue>(
   value: any,
   toType: T,
-  context: ExpressionContext,
+  context: LEContext,
 ): BaseToActual<T> {
-  if (!(toType in layoutExpressionCastToType)) {
+  if (!(toType in LETypes)) {
     throw new UnknownTargetType(this, toType);
   }
 
-  const typeObj = layoutExpressionCastToType[toType];
+  const typeObj = LETypes[toType];
 
   if (typeObj.nullable && isLikeNull(value)) {
     return null;
@@ -240,7 +242,11 @@ function defineFunc<Args extends BaseValue[], Ret extends BaseValue>(
 ): FuncDef<Args, Ret> {
   return def;
 }
-export const funcImpl = {
+
+/**
+ * All the functions available to execute inside layout expressions
+ */
+export const LEFunctions = {
   equals: defineFunc({
     impl: (arg1, arg2) => arg1 === arg2,
     args: ['string', 'string'],
@@ -374,11 +380,15 @@ function asNumber(arg: string) {
   return undefined;
 }
 
-export const layoutExpressionCastToType: {
+/**
+ * All the types available in layout expressions, along with functions to cast possible values to them
+ * @see castValue
+ */
+export const LETypes: {
   [Type in BaseValue]: {
     nullable: boolean;
     accepts: BaseValue[];
-    impl: (this: ExpressionContext, arg: any) => BaseToActual<Type>;
+    impl: (this: LEContext, arg: any) => BaseToActual<Type>;
   };
 } = {
   boolean: {
@@ -441,19 +451,17 @@ export const layoutExpressionCastToType: {
   },
 };
 
-export const ExprDefaultsForComponent: LayoutExpressionDefaultValues<ILayoutComponent> =
-  {
-    readOnly: false,
-    required: false,
-    hidden: false,
-  };
+export const LEDefaultsForComponent: LEDefaultValues<ILayoutComponent> = {
+  readOnly: false,
+  required: false,
+  hidden: false,
+};
 
-export const ExprDefaultsForGroup: LayoutExpressionDefaultValues<ILayoutGroup> =
-  {
-    ...ExprDefaultsForComponent,
-    edit: {
-      addButton: true,
-      deleteButton: true,
-      saveButton: true,
-    },
-  };
+export const LEDefaultsForGroup: LEDefaultValues<ILayoutGroup> = {
+  ...LEDefaultsForComponent,
+  edit: {
+    addButton: true,
+    deleteButton: true,
+    saveButton: true,
+  },
+};

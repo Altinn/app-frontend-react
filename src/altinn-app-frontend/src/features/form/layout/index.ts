@@ -3,7 +3,7 @@ import type { NumberFormatProps } from 'react-number-format';
 import type { Location, MapLayer } from '@altinn/altinn-design-system';
 import type { GridJustification, GridSize } from '@material-ui/core';
 
-import type { ILayoutExpressionOr } from 'src/features/form/layout/expressions/types';
+import type { LayoutExpressionOr } from 'src/features/form/layout/expressions/types';
 import type {
   ILabelSettings,
   IMapping,
@@ -60,9 +60,9 @@ export interface IGroupReference {
 export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes>
   extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings;
-  readOnly?: ILayoutExpressionOr<'boolean'>;
-  required?: ILayoutExpressionOr<'boolean'>;
-  hidden?: ILayoutExpressionOr<'boolean'>;
+  readOnly?: LayoutExpressionOr<'boolean'>;
+  required?: LayoutExpressionOr<'boolean'>;
+  hidden?: LayoutExpressionOr<'boolean'>;
   textResourceBindings?: ITextResourceBindings;
   grid?: IGrid;
   triggers?: Triggers[];
@@ -317,9 +317,9 @@ export interface IGridStyling {
 export interface IGroupEditProperties {
   mode?: 'hideTable' | 'showTable' | 'showAll' | 'likert';
   filter?: IGroupFilter[];
-  addButton?: ILayoutExpressionOr<'boolean'>;
-  saveButton?: ILayoutExpressionOr<'boolean'>;
-  deleteButton?: ILayoutExpressionOr<'boolean'>;
+  addButton?: LayoutExpressionOr<'boolean'>;
+  saveButton?: LayoutExpressionOr<'boolean'>;
+  deleteButton?: LayoutExpressionOr<'boolean'>;
   multiPage?: boolean;
   openByDefault?: boolean;
 }

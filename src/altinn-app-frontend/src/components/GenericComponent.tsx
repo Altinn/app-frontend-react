@@ -36,7 +36,7 @@ import type {
   ILayoutCompBase,
   ILayoutComponent,
 } from 'src/features/form/layout';
-import type { ResolvedLayoutExpression } from 'src/features/form/layout/expressions/types';
+import type { LEResolved } from 'src/features/form/layout/expressions/types';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 
 import { getTextResourceByKey } from 'altinn-shared/utils';
@@ -105,7 +105,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
 ) {
   const props = useLayoutExpressionForComponent(_props as ILayoutComponent, {
     forComponentId: _props.id,
-  }) as ResolvedLayoutExpression<IActualGenericComponentProps<Type>> & {
+  }) as LEResolved<IActualGenericComponentProps<Type>> & {
     type: Type;
   };
 

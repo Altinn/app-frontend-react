@@ -6,7 +6,7 @@ import {
   nodesInLayout,
   resolvedNodesInLayout,
 } from 'src/utils/layout/hierarchy';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 
 // TODO: Implement a test for this hook (and verify that it can resolve expressions)
 

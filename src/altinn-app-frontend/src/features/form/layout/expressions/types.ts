@@ -1,10 +1,14 @@
 import type { PickByValue } from 'utility-types';
 
-import type { funcImpl } from 'src/features/form/layout/expressions';
-import type { ExpressionContext } from 'src/features/form/layout/expressions/ExpressionContext';
+import type { LEFunctions } from 'src/features/form/layout/expressions';
+import type { LEContext } from 'src/features/form/layout/expressions/LEContext';
 
-type RealFunctions = typeof funcImpl;
-export type LayoutExpressionFunction = keyof RealFunctions;
+type Functions = typeof LEFunctions;
+
+/**
+ * This union type includes all possible functions usable in layout expressions
+ */
+export type LEFunction = keyof Functions;
 
 export type BaseValue = 'string' | 'number' | 'boolean';
 export type BaseToActual<T extends BaseValue> = T extends 'string'
@@ -36,10 +40,7 @@ type ArgsToActual<T extends BaseValue[]> = {
 };
 
 export interface FuncDef<Args extends BaseValue[], Ret extends BaseValue> {
-  impl: (
-    this: ExpressionContext,
-    ...params: ArgsToActual<Args>
-  ) => BaseToActual<Ret>;
+  impl: (this: LEContext, ...params: ArgsToActual<Args>) => BaseToActual<Ret>;
   args: Args;
   minArguments?: number;
   returns: Ret;
@@ -50,45 +51,49 @@ export interface FuncDef<Args extends BaseValue[], Ret extends BaseValue> {
   lastArgSpreads?: true;
 }
 
-type ArgsFor<F extends LayoutExpressionFunction> =
-  F extends LayoutExpressionFunction ? RealFunctions[F]['args'] : never;
+type ArgsFor<F extends LEFunction> = F extends LEFunction
+  ? Functions[F]['args']
+  : never;
 
 type RealFunctionsReturning<T extends BaseValue> = keyof PickByValue<
-  RealFunctions,
+  Functions,
   { returns: T }
 >;
 
-type ExpressionReturning<T extends BaseValue> = ILayoutExpression<
+type LEReturning<T extends BaseValue> = LayoutExpression<
   RealFunctionsReturning<T>
 >;
 
 type MaybeRecursive<Args extends BaseValue[]> = {
-  [Index in keyof Args]:
-    | BaseToActual<Args[Index]>
-    | ExpressionReturning<Args[Index]>;
+  [Index in keyof Args]: BaseToActual<Args[Index]> | LEReturning<Args[Index]>;
 };
 
-export interface ILayoutExpression<
-  F extends LayoutExpressionFunction = LayoutExpressionFunction,
-> {
+/**
+ * The base type that represents any valid layout expression function call. When used as a type
+ * inside a layout definition, you probably want something like LayoutExpressionOr<'boolean'>
+ *
+ * @see LayoutExpressionOr
+ */
+export interface LayoutExpression<F extends LEFunction = LEFunction> {
   function: F;
   args: MaybeRecursive<ArgsFor<F>>;
 }
 
-export type ILayoutExpressionOr<T extends BaseValue> =
-  | ExpressionReturning<T>
+/**
+ * This type represents a layout expression for a function that returns
+ * the T type, or just the T type itself.
+ */
+export type LayoutExpressionOr<T extends BaseValue> =
+  | LEReturning<T>
   | BaseToActual<T>;
 
 /**
  * Type that lets you convert a layout expression function name to its return value type
  */
-export type ReturnValueFor<Func extends LayoutExpressionFunction> =
-  Func extends keyof RealFunctions
-    ? BaseToActual<RealFunctions[Func]['returns']>
+export type ReturnValueFor<Func extends LEFunction> =
+  Func extends keyof Functions
+    ? BaseToActual<Functions[Func]['returns']>
     : never;
-
-export type ReturnValueForExpr<Expr extends ILayoutExpression> =
-  Expr extends ILayoutExpression<infer Func> ? ReturnValueFor<Func> : never;
 
 /**
  * This is the heavy lifter for ResolvedLayoutExpression that will recursively work through objects and remove
@@ -97,13 +102,13 @@ export type ReturnValueForExpr<Expr extends ILayoutExpression> =
  * @see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
  */
 type ResolveDistributive<T> = [T] extends [any]
-  ? [T] extends [ILayoutExpression<infer Func>]
+  ? [T] extends [LayoutExpression<infer Func>]
     ? ReturnValueFor<Func>
-    : T extends ILayoutExpression
+    : T extends LayoutExpression
     ? // When using ILayoutExpressionOr<...>, it creates a union type. Removing the ILayoutExpression from this union
       never
     : T extends object
-    ? Exclude<ResolvedLayoutExpression<T>, ILayoutExpression>
+    ? Exclude<LEResolved<T>, LayoutExpression>
     : T
   : never;
 
@@ -113,7 +118,7 @@ type ResolveDistributive<T> = [T] extends [any]
  *
  * @see https://stackoverflow.com/a/54487392
  */
-export type ResolvedLayoutExpression<T> = {
+export type LEResolved<T> = {
   [P in keyof T]: ResolveDistributive<T[P]>;
 };
 
@@ -138,18 +143,18 @@ type OmitNeverArrays<T> = T extends never[] ? never : T;
  * This is the heavy lifter used by LayoutExpressionDefaultValues to recursively iterate types
  */
 type ReplaceDistributive<T, Iterations extends Prev[number]> = [T] extends [
-  ILayoutExpressionOr<infer BT>,
+  LayoutExpressionOr<infer BT>,
 ]
   ? BaseToActualStrict<BT>
   : [T] extends [object]
-  ? OmitEmptyObjects<LayoutExpressionDefaultValues<T, Prev[Iterations]>>
+  ? OmitEmptyObjects<LEDefaultValues<T, Prev[Iterations]>>
   : never;
 
 /**
  * This type looks through an object recursively, finds any layout expressions, and requires you to provide a default
  * value for them (i.e. a fallback value should the layout expression evaluation fail).
  */
-export type LayoutExpressionDefaultValues<
+export type LEDefaultValues<
   T,
   Iterations extends Prev[number] = 1, // <-- Recursion depth limited to 2 levels by default
 > = [Iterations] extends [never]

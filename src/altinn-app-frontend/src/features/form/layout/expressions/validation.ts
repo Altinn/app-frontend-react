@@ -1,13 +1,13 @@
 import {
   argTypeAt,
-  funcImpl,
-  layoutExpressionCastToType,
+  LEFunctions,
+  LETypes,
 } from 'src/features/form/layout/expressions';
 import { prettyErrors } from 'src/features/form/layout/expressions/prettyErrors';
 import type {
   BaseValue,
-  ILayoutExpression,
-  LayoutExpressionFunction,
+  LayoutExpression,
+  LEFunction,
 } from 'src/features/form/layout/expressions/types';
 
 enum ValidationErrorMessage {
@@ -53,18 +53,18 @@ function addError(
 }
 
 function validateFunctionArgs(
-  func: LayoutExpressionFunction,
+  func: LEFunction,
   actual: (BaseValue | undefined)[],
   ctx: ValidationContext,
   path: string[],
 ) {
-  const expected = funcImpl[func].args;
+  const expected = LEFunctions[func].args;
 
-  let minExpected = funcImpl[func]?.minArguments;
+  let minExpected = LEFunctions[func]?.minArguments;
   if (minExpected === undefined) {
     minExpected = expected.length;
   }
-  const canSpread = funcImpl[func].lastArgSpreads;
+  const canSpread = LEFunctions[func].lastArgSpreads;
 
   const maxIdx = Math.max(expected.length, actual.length);
   for (let idx = 0; idx < maxIdx; idx++) {
@@ -77,7 +77,7 @@ function validateFunctionArgs(
         ValidationErrorMessage.ArgUnexpected,
       );
     } else {
-      const targetType = layoutExpressionCastToType[expectedType];
+      const targetType = LETypes[expectedType];
 
       if (actualType === undefined) {
         if (targetType.nullable) {
@@ -132,14 +132,9 @@ function validateFunction(
 
   const pathArgs = [...path.slice(0, path.length - 1)];
 
-  if (funcName in funcImpl) {
-    validateFunctionArgs(
-      funcName as LayoutExpressionFunction,
-      argTypes,
-      ctx,
-      pathArgs,
-    );
-    return funcImpl[funcName].returns;
+  if (funcName in LEFunctions) {
+    validateFunctionArgs(funcName as LEFunction, argTypes, ctx, pathArgs);
+    return LEFunctions[funcName].returns;
   }
 
   addError(ctx, path, ValidationErrorMessage.FuncNotImpl, funcName);
@@ -250,7 +245,7 @@ function validate(expr: any) {
  *
  * @param obj Input, can be anything
  */
-export function asLayoutExpression(obj: any): ILayoutExpression | undefined {
+export function asLayoutExpression(obj: any): LayoutExpression | undefined {
   if (
     typeof obj === 'object' &&
     obj !== null &&

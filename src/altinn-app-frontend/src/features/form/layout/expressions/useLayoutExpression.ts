@@ -5,16 +5,16 @@ import { FormComponentContext } from 'src/components';
 import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
 import {
   evalExprInObj,
-  ExprDefaultsForComponent,
-  ExprDefaultsForGroup,
+  LEDefaultsForComponent,
+  LEDefaultsForGroup,
 } from 'src/features/form/layout/expressions/index';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type { ILayoutComponentOrGroup } from 'src/features/form/layout';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/ExpressionContext';
 import type { EvalExprInObjArgs } from 'src/features/form/layout/expressions/index';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 import type {
-  LayoutExpressionDefaultValues,
-  ResolvedLayoutExpression,
+  LEDefaultValues,
+  LEResolved,
 } from 'src/features/form/layout/expressions/types';
 
 import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
@@ -32,7 +32,7 @@ export interface UseLayoutExpressionOptions<T> {
    * print out a pretty error message to the console explaining what went wrong - and continue by using the default
    * value instead.
    */
-  defaults?: LayoutExpressionDefaultValues<T>;
+  defaults?: LEDefaultValues<T>;
 }
 
 /**
@@ -47,7 +47,7 @@ export interface UseLayoutExpressionOptions<T> {
 export function useLayoutExpression<T>(
   input: T,
   options?: UseLayoutExpressionOptions<T>,
-): ResolvedLayoutExpression<T> {
+): LEResolved<T> {
   const component = useContext(FormComponentContext);
   const nodes = useLayoutsAsNodes();
   const formData = useAppSelector((state) => state.formData?.formData);
@@ -81,7 +81,7 @@ export function useLayoutExpression<T>(
     input,
     node,
     dataSources,
-  } as EvalExprInObjArgs<T>) as ResolvedLayoutExpression<T>;
+  } as EvalExprInObjArgs<T>) as LEResolved<T>;
 }
 
 // TODO: Implement a simple test for this
@@ -90,12 +90,12 @@ export function useLayoutExpressionForComponent<
 >(
   input: T,
   options?: Omit<UseLayoutExpressionOptions<T>, 'defaults'>,
-): ResolvedLayoutExpression<T> {
+): LEResolved<T> {
   return useLayoutExpression(input, {
     ...options,
     defaults: {
-      ...ExprDefaultsForComponent,
-      ...ExprDefaultsForGroup,
+      ...LEDefaultsForComponent,
+      ...LEDefaultsForGroup,
     } as any, // Casting to any to avoid expensive type-checking already done in the source types
   });
 }
