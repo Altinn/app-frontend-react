@@ -361,7 +361,7 @@ export const LEFunctions = {
   }),
   dataModel: defineFunc({
     impl: function (path): string {
-      const newPath = this.failWithoutNode().transposeDataModel(path);
+      const newPath = this.failWithoutNode().transposeDataModel(path, false);
       return this.dataSources.formData[newPath] || null;
     },
     args: ['string'],

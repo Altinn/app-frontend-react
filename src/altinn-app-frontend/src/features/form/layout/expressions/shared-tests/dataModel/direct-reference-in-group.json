@@ -2,7 +2,7 @@
   "name": "Direct lookup inside repeating group (not respecting the group)",
   "expression": {
     "function": "greaterThanEq",
-    "args": [{ "function": "dataModel", "args": ["Mennesker[0].alder"] }, 18]
+    "args": [{ "function": "dataModel", "args": ["Mennesker[0].Alder"] }, 18]
   },
   "context": {
     "component": "myndig",

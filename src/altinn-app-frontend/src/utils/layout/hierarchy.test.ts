@@ -517,6 +517,31 @@ describe('Hierarchical layout tools', () => {
       'MyModel.Group2[2].Nested[2].Age',
     );
 
+    // Existing indexes are removed:
+    expect(
+      headerNode.transposeDataModel('MyModel.Group2[1].Nested[1].Age'),
+    ).toEqual('MyModel.Group2[2].Nested[2].Age');
+
+    // Unless you specify for them not to:
+    expect(
+      headerNode.transposeDataModel('MyModel.Group2[1].Nested[1].Age', false),
+    ).toEqual('MyModel.Group2[1].Nested[1].Age');
+    expect(
+      headerNode.transposeDataModel('MyModel.Group2.Nested[1].Age', false),
+    ).toEqual('MyModel.Group2[2].Nested[1].Age');
+
+    // This is a broken reference: We cannot know exactly which row in the nested
+    // group you want to refer to, as you never specified:
+    expect(
+      headerNode.transposeDataModel('MyModel.Group2[3].Nested.Age', false),
+    ).toEqual('MyModel.Group2[3].Nested.Age');
+
+    // This still makes sense, but at least we're on the same row, so we can safely give
+    // you the row you're looking for:
+    expect(
+      headerNode.transposeDataModel('MyModel.Group2[2].Nested.Age', false),
+    ).toEqual('MyModel.Group2[2].Nested[2].Age');
+
     // Tricks to make sure we don't just compare using startsWith()
     expect(
       inputNode.transposeDataModel('MyModel.Group22.NestedOtherValue.Key'),

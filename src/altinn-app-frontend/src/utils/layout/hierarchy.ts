@@ -404,14 +404,25 @@ export class LayoutNode<
    * of a nested repeating group. Our data model binding is such:
    *    simpleBinding: 'MyModel.Group[1].NestedGroup[2].FirstName'
    *
-   * If you pass the argument 'MyModel.Group.NestedGroup.Age' to this function, you'll get the transposed binding
-   * back: 'MyModel.Group[1].NestedGroup[2].Age'.
+   * If you pass the argument 'MyModel.Group.NestedGroup.Age' to this function, you'll get the
+   * transposed binding back: 'MyModel.Group[1].NestedGroup[2].Age'.
+   *
+   * If you pass the argument 'MyModel.Group[2].NestedGroup[3].Age' to this function, it will still be transposed to
+   * the current row indexes: 'MyModel.Group[1].NestedGroup[2].Age' unless you pass overwriteOtherIndices = false.
    */
-  public transposeDataModel(dataModel: string, rowIndex?: number): string {
+  public transposeDataModel(
+    dataModel: string,
+    overwriteOtherIndices = true,
+    rowIndex?: number,
+  ): string {
     const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
     if (!firstBinding) {
       if (this.parent instanceof LayoutNode) {
-        return this.parent.transposeDataModel(dataModel, this.rowIndex);
+        return this.parent.transposeDataModel(
+          dataModel,
+          overwriteOtherIndices,
+          this.rowIndex,
+        );
       }
 
       return dataModel;
@@ -423,26 +434,50 @@ export class LayoutNode<
     const theirBindingPartsNoIndex = getKeyWithoutIndex(dataModel).split('.');
 
     for (const idx in theirBindingParts) {
-      if (
-        ourBindingParts[idx] &&
-        ourBindingParts[idx].startsWith(theirBindingPartsNoIndex[idx]) &&
-        ourBindingParts[idx]
-          .substring(theirBindingPartsNoIndex[idx].length)
-          .match(/^(\[\d+])?$/)
-      ) {
-        theirBindingParts[idx] = ourBindingParts[idx];
+      const ours = ourBindingParts[idx];
+      const theirs = theirBindingParts[idx];
+      const theirsNoIdx = theirBindingPartsNoIndex[idx];
+
+      if (ours && ours.startsWith(theirsNoIdx)) {
+        const remaining = ours.substring(theirsNoIdx.length);
+        const remainingIsIndex = remaining.match(/^(\[\d+])?$/);
+        const theirsHaveIndex = theirsNoIdx !== theirs;
+        if (remaining && !remainingIsIndex) {
+          break;
+        }
+        if (
+          remaining &&
+          remainingIsIndex &&
+          (overwriteOtherIndices || !theirsHaveIndex)
+        ) {
+          theirBindingParts[idx] = ours;
+        } else if (
+          remaining &&
+          remainingIsIndex &&
+          !overwriteOtherIndices &&
+          ours !== theirs
+        ) {
+          // Stop early. We cannot add our row index here, because it makes no sense when an earlier group
+          // index changed.
+          return theirBindingParts.join('.');
+        }
       } else {
         break;
       }
     }
 
+    const lastIdx = ourBindingParts.length - 1;
     if (
       typeof rowIndex === 'number' &&
       this.item.type === 'Group' &&
-      theirBindingParts[ourBindingParts.length - 1] &&
-      !theirBindingParts[ourBindingParts.length - 1].match(/\[\d+]$/)
+      theirBindingParts[lastIdx]
     ) {
-      theirBindingParts[ourBindingParts.length - 1] += `[${rowIndex}]`;
+      const idxMatch = theirBindingParts[lastIdx].match(/^(.*?)\[\d+]$/);
+      if (overwriteOtherIndices && idxMatch) {
+        theirBindingParts[lastIdx] = `${idxMatch[1]}[${rowIndex}]`;
+      } else if (!idxMatch) {
+        theirBindingParts[lastIdx] += `[${rowIndex}]`;
+      }
     }
 
     return theirBindingParts.join('.');
