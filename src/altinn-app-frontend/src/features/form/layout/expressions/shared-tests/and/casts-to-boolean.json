@@ -1,0 +1,8 @@
+{
+  "name": "Casts 1 to a boolean",
+  "expression": {
+    "function": "and",
+    "args": [1]
+  },
+  "expects": true
+}

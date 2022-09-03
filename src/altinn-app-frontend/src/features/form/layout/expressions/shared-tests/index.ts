@@ -32,10 +32,9 @@ export interface TestDescription {
 }
 
 export function getSharedTests(): { [folder: string]: TestDescription[] } {
-  const ignoredFiles = ['index.test.ts', 'README.md', 'index.ts'];
   const folders = fs
     .readdirSync(__dirname)
-    .filter((name) => !ignoredFiles.includes(name));
+    .filter((name) => fs.statSync(`${__dirname}/${name}`).isDirectory());
 
   const out = {};
 
@@ -43,8 +42,13 @@ export function getSharedTests(): { [folder: string]: TestDescription[] } {
     out[folder] = fs
       .readdirSync(`${__dirname}/${folder}`)
       .filter((f) => f.endsWith('.json'))
-      .map((f) => fs.readFileSync(`${__dirname}/${folder}/${f}`))
-      .map((testJson) => JSON.parse(testJson.toString()) as TestDescription);
+      .map((f) => {
+        const testJson = fs.readFileSync(`${__dirname}/${folder}/${f}`);
+        const test = JSON.parse(testJson.toString()) as TestDescription;
+        test.name += ` (${f})`;
+
+        return test;
+      });
   }
 
   return out;
