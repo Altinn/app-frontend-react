@@ -294,8 +294,8 @@ describe('Hierarchical layout tools', () => {
       const root = new LayoutRootNode();
       const top1 = new LayoutNode(components.top1, root);
       const top2 = new LayoutNode(components.top2, root);
-      root._addChild(top1, root);
-      root._addChild(top2, root);
+      root._addChild(top1);
+      root._addChild(top2);
 
       const result = nodesInLayout([components.top1, components.top2], {});
       expect(result).toEqual(root);

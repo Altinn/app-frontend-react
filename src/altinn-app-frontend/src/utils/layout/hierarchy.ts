@@ -198,7 +198,7 @@ export function layoutAsHierarchyWithRows(
   return layoutAsHierarchy(formLayout).map((child) => recurse(child));
 }
 
-export class LayoutRootNode<NT extends NodeType = 'plain'> {
+export class LayoutRootNode<NT extends NodeType = 'unresolved'> {
   public item: AnyItem<NT> | undefined;
   public parent: this;
 
@@ -206,8 +206,11 @@ export class LayoutRootNode<NT extends NodeType = 'plain'> {
   private allChildren: AnyChildNode<NT>[] = [];
   private idMap: { [id: string]: number[] } = {};
 
-  public _addChild(child: AnyChildNode<NT>, parent: AnyChildNode<NT> | this) {
-    if (parent === this) {
+  /**
+   * Adds a child to the collection. For internal use only.
+   */
+  public _addChild(child: AnyChildNode<NT>) {
+    if (child.parent === this) {
       this.directChildren.push(child as AnyTopLevelNode<NT>);
     }
     const idx = this.allChildren.length;
@@ -223,12 +226,20 @@ export class LayoutRootNode<NT extends NodeType = 'plain'> {
     }
   }
 
+  /**
+   * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
+   * none can be found). Implemented here for parity with LayoutNode
+   */
   public closest(
     matching: (item: AnyTopLevelItem<NT>) => boolean,
   ): AnyTopLevelNode<NT> | undefined {
     return this.children(matching);
   }
 
+  /**
+   * Returns a list of direct children, or finds the first node matching a given criteria. Implemented
+   * here for parity with LayoutNode.
+   */
   public children(): AnyTopLevelNode<NT>[];
   public children(
     matching: (item: AnyTopLevelItem<NT>) => boolean,
@@ -249,6 +260,12 @@ export class LayoutRootNode<NT extends NodeType = 'plain'> {
     return undefined;
   }
 
+  /**
+   * This returns all the child nodes (including duplicate components for repeating groups) as a flat list of
+   * LayoutNode objects.
+   *
+   * @param includeGroups If true, also includes the group nodes
+   */
   public flat(includeGroups: true): AnyChildNode<NT>[];
   public flat(includeGroups: false): LayoutNode<NT, ComponentOf<NT>>[];
   public flat(includeGroups: boolean): AnyChildNode<NT>[] {
@@ -281,7 +298,7 @@ export class LayoutRootNode<NT extends NodeType = 'plain'> {
  * instance of a component inside a repeating group), finding other components near it.
  */
 export class LayoutNode<
-  NT extends NodeType = 'plain',
+  NT extends NodeType = 'unresolved',
   Item extends AnyItem<NT> = AnyItem<NT>,
 > {
   public constructor(
@@ -316,6 +333,9 @@ export class LayoutNode<
     }
   }
 
+  /**
+   * Like children(), but will only match upwards along the tree towards the top (LayoutRootNode)
+   */
   public parents(
     matching?: (item: AnyParentNode<NT>) => boolean,
   ): AnyParentNode<NT>[] {
@@ -484,21 +504,28 @@ export class LayoutNode<
   }
 
   /**
-   * Resolves layout expressions inside the node. This turns a LayoutNode<'plain'> into a LayoutNode<'resolved'>, so
-   * you should not call this directly, but instead use a wrapper function that changes the output type for you.
+   * Resolves layout expressions inside the node. This returns a new LayoutNode<'resolved'>. It only resolves the
+   * current node, so if you want to resolve all nodes in the layout use resolvedNodesInLayout() instead.
    * @see resolvedNodesInLayout
    */
-  resolveExpressions(dataSources: ContextDataSources) {
-    this.item = evalExprInObj({
-      input: this.item as AnyItem,
-      node: this as LayoutNode<any>,
-      dataSources,
-      defaults: {
-        ...LEDefaultsForComponent,
-        ...LEDefaultsForGroup,
-      },
-      skipPaths: new Set(['children', 'rows', 'childComponents']),
-    }) as Item; // <-- This is wrong, but we cannot change it without changing our own type to LayoutNode<'resolved'>
+  public resolveExpressions(
+    dataSources: ContextDataSources,
+  ): LayoutNode<'resolved'> {
+    // This includes a lot of 'as any' to avoid expensive type-checking
+    return new LayoutNode(
+      evalExprInObj({
+        input: this.item as any,
+        node: this as any,
+        dataSources,
+        defaults: {
+          ...LEDefaultsForComponent,
+          ...LEDefaultsForGroup,
+        } as any,
+        skipPaths: new Set(['children', 'rows', 'childComponents']),
+      }) as any,
+      this.parent,
+      this.rowIndex,
+    ) as any;
   }
 }
 
@@ -545,14 +572,14 @@ export function nodesInLayout(
         component.rows.forEach((row, rowIndex) =>
           recurse(row, group, rowIndex),
         );
-        root._addChild(group, parent);
+        root._addChild(group);
       } else if (component.type === 'Group' && 'childComponents' in component) {
         const group = new LayoutNode(component, parent, rowIndex);
         recurse(component.childComponents, group);
-        root._addChild(group, parent);
+        root._addChild(group);
       } else {
         const node = new LayoutNode(component, parent, rowIndex);
-        root._addChild(node, parent);
+        root._addChild(node);
       }
     }
   };
@@ -573,13 +600,15 @@ export function resolvedNodesInLayout(
   repeatingGroups: IRepeatingGroups,
   dataSources: ContextDataSources,
 ): LayoutRootNode<'resolved'> {
+  const resolved = new LayoutRootNode<'resolved'>();
   const unresolved = nodesInLayout(formLayout, repeatingGroups);
 
   for (const node of unresolved.flat(true)) {
-    node.resolveExpressions(dataSources);
+    const newNode = node.resolveExpressions(dataSources);
+    resolved._addChild(newNode);
   }
 
-  return unresolved as unknown as LayoutRootNode<'resolved'>;
+  return resolved;
 }
 
 /**
@@ -587,7 +616,7 @@ export function resolvedNodesInLayout(
  * by ID, and if you have colliding component IDs in multiple layouts it will prefer the one in the current layout.
  */
 export class LayoutRootNodeCollection<
-  NT extends NodeType = 'plain',
+  NT extends NodeType = 'unresolved',
   Collection extends { [layoutKey: string]: LayoutRootNode<NT> } = {
     [layoutKey: string]: LayoutRootNode<NT>;
   },

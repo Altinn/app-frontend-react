@@ -7,20 +7,20 @@ import type { LEResolved } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 export type NodeType =
-  // Plain nodes include layout expressions
-  | 'plain'
-  // Resolved nodes have their layout expressions resolved
+  // Plain/unresolved nodes include (unresolved) layout expressions
+  | 'unresolved'
+  // Resolved nodes have their layout expressions resolved, leaving only the results
   | 'resolved';
 
-export type ComponentOf<NT extends NodeType> = NT extends 'plain'
+export type ComponentOf<NT extends NodeType> = NT extends 'unresolved'
   ? ILayoutComponent
   : LEResolved<ILayoutComponent>;
 
-export type GroupOf<NT extends NodeType> = NT extends 'plain'
+export type GroupOf<NT extends NodeType> = NT extends 'unresolved'
   ? ILayoutGroup
   : LEResolved<ILayoutGroup>;
 
-export type LayoutGroupHierarchy<NT extends NodeType = 'plain'> = Omit<
+export type LayoutGroupHierarchy<NT extends NodeType = 'unresolved'> = Omit<
   GroupOf<NT>,
   'children'
 > & {
@@ -31,10 +31,10 @@ export interface RepeatingGroupExtensions {
   baseDataModelBindings?: IDataModelBindings;
 }
 
-export type RepeatingGroupLayoutComponent<NT extends NodeType = 'plain'> =
+export type RepeatingGroupLayoutComponent<NT extends NodeType = 'unresolved'> =
   RepeatingGroupExtensions & ComponentOf<NT>;
 
-export type RepeatingGroupHierarchy<NT extends NodeType = 'plain'> = Omit<
+export type RepeatingGroupHierarchy<NT extends NodeType = 'unresolved'> = Omit<
   LayoutGroupHierarchy<NT>,
   'childComponents' | 'children'
 > &
@@ -45,38 +45,38 @@ export type RepeatingGroupHierarchy<NT extends NodeType = 'plain'> = Omit<
 /**
  * Types of possible components on the top level of a repeating group hierarchy with rows
  */
-export type HierarchyWithRows<NT extends NodeType = 'plain'> =
+export type HierarchyWithRows<NT extends NodeType = 'unresolved'> =
   | ComponentOf<NT>
   | LayoutGroupHierarchy<NT> // Non-repeating groups
   | RepeatingGroupHierarchy<NT>;
 
 /**
- * Types of possible components inside rows. Note that no plain 'ILayoutComponent' is valid here,
+ * Types of possible components inside rows. Note that no unresolved 'ILayoutComponent' is valid here,
  * as all components inside repeating group rows needs to have a baseComponentId, etc.
  */
-export type HierarchyWithRowsChildren<NT extends NodeType = 'plain'> =
+export type HierarchyWithRowsChildren<NT extends NodeType = 'unresolved'> =
   | RepeatingGroupLayoutComponent<NT>
   | LayoutGroupHierarchy<NT> // Non-repeating groups
   | RepeatingGroupHierarchy<NT>;
 
-export type AnyItem<NT extends NodeType = 'plain'> =
+export type AnyItem<NT extends NodeType = 'unresolved'> =
   | ComponentOf<NT>
   | GroupOf<NT>
   | RepeatingGroupLayoutComponent<NT>
   | LayoutGroupHierarchy<NT>
   | RepeatingGroupHierarchy<NT>;
 
-export type AnyNode<NT extends NodeType = 'plain'> = LayoutNode<
+export type AnyNode<NT extends NodeType = 'unresolved'> = LayoutNode<
   NT,
   AnyItem<NT>
 >;
 
-export type AnyParentItem<NT extends NodeType = 'plain'> = Exclude<
+export type AnyParentItem<NT extends NodeType = 'unresolved'> = Exclude<
   AnyItem<NT>,
   ComponentOf<NT> | GroupOf<NT> | RepeatingGroupLayoutComponent<NT>
 >;
 
-export type AnyParentNode<NT extends NodeType = 'plain'> =
+export type AnyParentNode<NT extends NodeType = 'unresolved'> =
   | LayoutNode<NT>
   | LayoutRootNode<NT>;
 
