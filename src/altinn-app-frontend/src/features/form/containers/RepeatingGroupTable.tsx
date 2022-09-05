@@ -134,6 +134,18 @@ const useStyles = makeStyles({
   editButtonCell: {
     padding: '0',
   },
+  visuallyHidden: {
+    border: 0,
+    padding: 0,
+    margin: 0,
+    position: 'absolute',
+    height: '1px',
+    width: '1px',
+    overflow: 'hidden',
+    clip: 'rect(1px 1px 1px 1px)',
+    clipPath: 'inset(50%)',
+    whiteSpace: 'nowrap',
+  },
 });
 
 function getEditButtonText(
@@ -289,39 +301,16 @@ export function RepeatingGroupTable({
                     {getTextResource(title, textResources)}
                   </TableCell>
                 ))}
-                <TableCell
-                  style={{ width: '110px', padding: 0 }}
-                  align='left'
-                >
-                  <i
-                    style={{
-                      color: theme.altinnPalette.primary.blueDark,
-                      paddingLeft: '14px',
-                    }}
-                    className={`fa fa-edit ${classes.editIcon}`}
-                    aria-label={getLanguageFromKey(
-                      'group.column_header_edit',
-                      language,
-                    )}
-                  />
+                <TableCell style={{ width: '110px', padding: 0 }}>
+                  <span className={classes.visuallyHidden}>
+                    {getLanguageFromKey('general.edit', language)}
+                  </span>
                 </TableCell>
                 {!hideDeleteButton && (
-                  <TableCell
-                    style={{ width: '80px', padding: 0 }}
-                    align='left'
-                  >
-                    <i
-                      style={{
-                        color: theme.altinnPalette.primary.red,
-                        paddingLeft: '9px',
-                        paddingBottom: '5px',
-                      }}
-                      className={'ai ai-trash'}
-                      aria-label={getLanguageFromKey(
-                        'group.column_header_delete',
-                        language,
-                      )}
-                    />
+                  <TableCell style={{ width: '80px', padding: 0 }}>
+                    <span className={classes.visuallyHidden}>
+                      {getLanguageFromKey('general.delete', language)}
+                    </span>
                   </TableCell>
                 )}
               </TableRow>
