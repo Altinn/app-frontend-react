@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import React from 'react';
 import theme from '../../theme/altinnStudioTheme';
+import cn from 'classnames';
 
 export interface IMobileTableItem {
   key: React.Key;
@@ -22,6 +23,7 @@ export interface IMobileTableItem {
 export interface IAltinnMobileTableItemProps {
   items: IMobileTableItem[];
   valid?: boolean;
+  editIndex?: number;
   onEditClick: () => void;
   onDeleteClick?: () => void;
   editButtonText?: string;
@@ -72,14 +74,31 @@ const useStyles = makeStyles({
       margin: '0',
       padding: '0',
       borderRadius: '50%',
+      outlineOffset: '-2px',
     },
     '&:hover': {
       background: 'none',
-      outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
+      outline: `1px dotted ${theme.altinnPalette.primary.blueDark}`,
     },
     '&:focus': {
       background: theme.altinnPalette.primary.blueLighter,
       outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
+    },
+  },
+  editButtonActivated: {
+    background: theme.altinnPalette.primary.blueLighter,
+    outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
+    '@media (max-width: 768px)': {
+      fontSize: '2.5rem',
+      height: '3rem',
+      width: '3rem',
+      margin: '0',
+      padding: '0',
+      borderRadius: '50%',
+    },
+    '&:hover': {
+      background: 'none',
+      outline: `1px dotted ${theme.altinnPalette.primary.blueDark}`,
     },
   },
   deleteButton: {
@@ -139,6 +158,7 @@ const useStyles = makeStyles({
 export default function AltinnMobileTableItem({
   items,
   valid = true,
+  editIndex,
   onEditClick,
   onDeleteClick,
   editButtonText,
@@ -186,7 +206,9 @@ export default function AltinnMobileTableItem({
                     align='right'
                   >
                     <IconButton
-                      className={classes.tableEditButton}
+                      className={cn(classes.tableEditButton, {
+                        [classes.editButtonActivated]: editIndex === index,
+                      })}
                       onClick={onEditClick}
                       data-testid='edit-button'
                       aria-label={`${editButtonText}-${item.value}`}

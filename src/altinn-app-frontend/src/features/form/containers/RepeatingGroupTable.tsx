@@ -9,6 +9,7 @@ import {
   TableRow,
   useMediaQuery,
 } from '@material-ui/core';
+import cn from 'classnames';
 
 import {
   getFormDataForComponentInRepeatingGroup,
@@ -109,6 +110,10 @@ const useStyles = makeStyles({
       background: theme.altinnPalette.primary.blueLighter,
       outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
     },
+  },
+  editButtonActivated: {
+    background: theme.altinnPalette.primary.blueLighter,
+    outline: `2px dotted ${theme.altinnPalette.primary.blueDark}`,
   },
   deleteButton: {
     color: '#D5203B',
@@ -373,7 +378,9 @@ export function RepeatingGroupTable({
                         key={`edit-${index}`}
                       >
                         <IconButton
-                          className={classes.tableEditButton}
+                          className={cn(classes.tableEditButton, {
+                            [classes.editButtonActivated]: editIndex === index,
+                          })}
                           onClick={() => onClickEdit(index)}
                           aria-label={`${editButtonText}-${firstCellData}`}
                         >
@@ -412,7 +419,10 @@ export function RepeatingGroupTable({
         </AltinnTable>
       )}
       {mobileView && (
-        <AltinnMobileTable id={`group-${id}-table`}>
+        <AltinnMobileTable
+          id={`group-${id}-table`}
+          showBorder={showTableHeader}
+        >
           {repeatingGroupIndex >= 0 &&
             [...Array(repeatingGroupIndex + 1)].map(
               (_x: any, index: number) => {
@@ -441,6 +451,7 @@ export function RepeatingGroupTable({
                     key={index}
                     items={items}
                     valid={!rowHasErrors}
+                    editIndex={editIndex}
                     onEditClick={() => onClickEdit(index)}
                     onDeleteClick={() => onClickRemove(index)}
                     editButtonText={
