@@ -146,8 +146,6 @@ export function en() {
       version: 'Version',
     },
     group: {
-      column_header_edit: 'Header icon for edit column',
-      column_header_delete: 'Header icon for delete column',
       row_error:
         'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',
     },

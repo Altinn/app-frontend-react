@@ -144,8 +144,6 @@ export function nn() {
       version: 'Versjon',
     },
     group: {
-      column_header_edit: 'Header ikon for redigerings-knapp kolonne',
-      column_header_delete: 'Header ikon for slette-knapp kolonne',
       row_error:
         'Ei av radene er ikkje fylt ut riktig. Dette må bli retta før skjema kan sendast inn.',
     },
