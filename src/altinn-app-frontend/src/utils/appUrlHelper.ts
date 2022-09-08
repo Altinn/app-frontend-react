@@ -6,8 +6,8 @@ const altinnWindow = window as Window as IAltinnWindow;
 const { org, app } = altinnWindow;
 const origin = window.location.origin;
 
-export const appPath = `${org}/${app}`;
-export const fullAppPath = `${origin}/${appPath}`;
+export const appPath = `/${org}/${app}`;
+export const fullAppPath = `${origin}${appPath}`;
 export const profileApiUrl = `${fullAppPath}/api/v1/profile/user`;
 export const oldTextResourcesUrl = `${origin}/${org}/${app}/api/textresources`;
 export const applicationMetadataApiUrl = `${fullAppPath}/api/v1/applicationmetadata`;
@@ -67,37 +67,28 @@ export function getRedirectUrl(returnUrl: string) {
 }
 
 export function getUpgradeAuthLevelUrl(reqAuthLevel: string) {
+  const hostname = getHostname();
   const redirect: string =
-    `https://platform.${getHostname()}` +
+    `https://platform.${hostname}` +
     `/authentication/api/v1/authentication?goto=${fullAppPath}`;
-  return `https://${getHostname()}/ui/authentication/upgrade?goTo=${encodeURIComponent(
+  return `https://${hostname}/ui/authentication/upgrade?goTo=${encodeURIComponent(
     redirect,
   )}&reqAuthLevel=${reqAuthLevel}`;
 }
 
 export const getEnvironmentLoginUrl = (oidcprovider: string) => {
-  // First split away the protocol 'https://' and take the last part. Then split on dots.
-  const domainSplitted: string[] = window.location.host.split('.');
   const encodedGoToUrl = encodeURIComponent(window.location.href);
   let issParam = '';
   if (oidcprovider != null && oidcprovider != '') {
     issParam = `&iss=${oidcprovider}`;
   }
-
-  if (domainSplitted.length === 5) {
+  const hostname = getHostname();
+  if (!hostname.startsWith('altinn3')) {
     return (
-      `https://platform.${domainSplitted[2]}.${domainSplitted[3]}.${domainSplitted[4]}` +
+      `https://platform.${hostname}` +
       `/authentication/api/v1/authentication?goto=${encodedGoToUrl}${issParam}`
     );
   }
-
-  if (domainSplitted.length === 4) {
-    return (
-      `https://platform.${domainSplitted[2]}.${domainSplitted[3]}` +
-      `/authentication/api/v1/authentication?goto=${encodedGoToUrl}${issParam}`
-    );
-  }
-
   // TODO: what if altinn3?
   throw new Error('Unknown domain');
 };
@@ -185,8 +176,8 @@ export function getActiveInstancesUrl(partyId: string) {
   return `${fullAppPath}/instances/${partyId}/active`;
 }
 
-export function getInstanceUiUrl(instanceId: string) {
-  return `${fullAppPath}/instance/${instanceId}`;
+export function getInstancePath(instanceId: string) {
+  return `instance/${instanceId}`;
 }
 
 export interface IGetOptionsUrlParams {
