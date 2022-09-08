@@ -24,7 +24,9 @@ const ProcessWrapper = () => {
   const instantiating = useAppSelector(
     (state) => state.instantiation.instantiating,
   );
-  const isLoading = useAppSelector((state) => state.isLoading.dataTask);
+  const isLoading = useAppSelector(
+    (state) => state.isLoading.dataTask || state.isLoading.appTask,
+  );
   const { hasApiErrors } = useApiErrorCheck();
   const { dispatch, process, appOwner, appName } = useProcess();
 

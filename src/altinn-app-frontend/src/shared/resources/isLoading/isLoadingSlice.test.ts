@@ -20,7 +20,7 @@ describe('isLoadingSlice', () => {
 
   it('handles finishDataTaskIsLoading action', () => {
     const nextState = slice.reducer(
-      { dataTask: true, stateless: true },
+      { appTask: true, dataTask: true, stateless: true },
       IsLoadingActions.finishDataTaskIsLoading,
     );
     expect(nextState.dataTask).toBeFalsy();

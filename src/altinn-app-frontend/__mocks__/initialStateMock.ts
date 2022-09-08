@@ -50,6 +50,7 @@ export function getInitialStateMock(
       instantiating: null,
     },
     isLoading: {
+      appTask: null,
       dataTask: false,
       stateless: null,
     },

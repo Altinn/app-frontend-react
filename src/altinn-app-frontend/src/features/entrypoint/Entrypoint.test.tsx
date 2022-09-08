@@ -33,6 +33,7 @@ describe('Entrypoint', () => {
         return {
           ...state,
           isLoading: {
+            appTask: null,
             stateless: false,
             dataTask: null,
           },
