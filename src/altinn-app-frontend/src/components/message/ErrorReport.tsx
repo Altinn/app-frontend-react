@@ -126,8 +126,8 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
               xs={12}
             >
               <ul className={classes.errorList}>
-                {errorsUnmapped.map((error: string, index: number) => (
-                  <li key={`unmapped-${index}`}>
+                {errorsUnmapped.map((error: string) => (
+                  <li key={`unmapped-${error}`}>
                     {getParsedLanguageFromText(error, {
                       disallowedTags: ['a'],
                     })}

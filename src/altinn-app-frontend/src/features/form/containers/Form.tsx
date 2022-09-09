@@ -100,10 +100,10 @@ function RenderLayoutGroup(
 export function Form() {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const viewState = location.state as IUpdateCurrentView;
-  const params = useParams();
   const navigate = useNavigate();
-  const [pageId] = params['*']?.split('/') || [''];
+  const params = useParams();
+
+  const [pageId] = params['*']?.split('/') || ['']; // params are not named because of current routing setup
   const currentView = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
   );
@@ -136,49 +136,45 @@ export function Form() {
     const topLevel = topLevelComponents(layout);
     return hasErrors ? extractBottomButtons(topLevel) : [topLevel, []];
   }, [layout, hasErrors]);
-  // handle root page
+
+  const viewState = location.state as IUpdateCurrentView;
+  const expectedView = pageId;
   useEffect(() => {
-    if (!pageId) {
-      if (currentView) {
-        navigate(currentView, { replace: true });
-      }
+    if (!expectedView && currentView) {
+      navigate(currentView, { replace: true });
     }
-    if (pageId !== currentView && hasErrors) {
-      navigate(-1);
+    if (expectedView !== currentView && hasErrors && viewState) {
+      navigate(viewState.newView, { replace: true });
     }
   });
-  if (viewState?.newView && viewState.newView !== currentView) {
-    if (currentView !== pageId) {
-      if (!hasErrors) {
-        dispatch(FormLayoutActions.updateCurrentView(viewState));
-      }
-    }
+
+  if (expectedView && expectedView !== currentView) {
+    const renderState = { ...viewState, newView: pageId };
+    dispatch(FormLayoutActions.updateCurrentView(renderState));
   }
   if (!layout) {
     return <div>404</div>;
   }
   return (
-    layout && (
-      <>
-        {hasRequiredFields(layout) && (
-          <MessageBanner
-            language={language}
-            error={requiredFieldsMissing}
-            messageKey={'form_filler.required_description'}
-          />
+    <>
+      {hasRequiredFields(layout) && (
+        <MessageBanner
+          language={language}
+          error={requiredFieldsMissing}
+          messageKey={'form_filler.required_description'}
+        />
+      )}
+      <Grid
+        container={true}
+        spacing={3}
+        alignItems='flex-start'
+      >
+        {mainComponents.map((component) =>
+          renderLayoutComponent(component, layout),
         )}
-        <Grid
-          container={true}
-          spacing={3}
-          alignItems='flex-start'
-        >
-          {mainComponents.map((component) =>
-            renderLayoutComponent(component, layout),
-          )}
-          <ErrorReport components={errorReportComponents} />
-        </Grid>
-        <ReadyForPrint />
-      </>
-    )
+        <ErrorReport components={errorReportComponents} />
+      </Grid>
+      <ReadyForPrint />
+    </>
   );
 }

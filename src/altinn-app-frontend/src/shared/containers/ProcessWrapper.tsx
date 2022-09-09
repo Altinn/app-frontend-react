@@ -1,5 +1,4 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 
 import {
   useAppSelector,
@@ -7,14 +6,10 @@ import {
   useProcess,
 } from 'src/common/hooks';
 import { useApiErrorCheck } from 'src/common/hooks/useApiErrorCheck';
-import Confirm from 'src/features/confirm/containers/Confirm';
-import Feedback from 'src/features/feedback/Feedback';
-import { Form } from 'src/features/form/containers/Form';
 import UnknownError from 'src/features/instantiate/containers/UnknownError';
-import Receipt from 'src/features/receipt/containers/ReceiptContainer';
+import { ProcessComponent } from 'src/shared/components/ProcessComponent';
 import Presentation from 'src/shared/containers/Presentation';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
-import { ProcessTaskType } from 'src/types';
 
 import {
   AltinnContentIconFormData,
@@ -28,6 +23,7 @@ const ProcessWrapper = () => {
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const { hasApiErrors } = useApiErrorCheck();
   const { dispatch, process, appOwner, appName } = useProcess();
+  const { taskType } = process;
 
   const instanceId = useAppSelector((state) => state.instantiation.instanceId);
   const instanceIdFromUrl = useInstanceIdParams()?.instanceId;
@@ -42,7 +38,6 @@ const ProcessWrapper = () => {
       );
     }
   }, [instantiating, instanceId, dispatch, instanceIdFromUrl]);
-  const params = useParams();
   if (hasApiErrors) {
     return <UnknownError />;
   }
@@ -50,22 +45,17 @@ const ProcessWrapper = () => {
   if (!process?.taskType) {
     return null;
   }
-  const { taskType } = process;
   return (
     <Presentation
       header={appName}
       appOwner={appOwner}
       type={taskType}
     >
-      {isLoading === false ? (
-        <>
-          {JSON.stringify(params)}
-          {taskType === ProcessTaskType.Data && <Form />}
-          {taskType === ProcessTaskType.Archived && <Receipt />}
-          {taskType === ProcessTaskType.Confirm && <Confirm />}
-          {taskType === ProcessTaskType.Feedback && <Feedback />}
-        </>
-      ) : (
+      <ProcessComponent
+        taskType={taskType}
+        loading={isLoading}
+      />
+      {isLoading && (
         <div style={{ marginTop: '2.5rem' }}>
           <AltinnContentLoader
             width='100%'

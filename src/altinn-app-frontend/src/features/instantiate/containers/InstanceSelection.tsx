@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Grid,
@@ -10,7 +11,7 @@ import {
 
 import { useAppSelector } from 'src/common/hooks';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
-import { getInstanceUiUrl } from 'src/utils/appUrlHelper';
+import { getInstancePath } from 'src/utils/appUrlHelper';
 import type { ISimpleInstance } from 'src/types';
 
 import {
@@ -69,9 +70,9 @@ export default function InstanceSelection({
 }: IInstanceSelectionProps) {
   const language = useAppSelector((state) => state.language.language);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
-
+  const navigate = useNavigate();
   const openInstance = (instanceId: string) => {
-    window.location.href = getInstanceUiUrl(instanceId);
+    navigate(getInstancePath(instanceId));
   };
 
   const renderMobileTable = () => {

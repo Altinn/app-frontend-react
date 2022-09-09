@@ -1311,26 +1311,35 @@ export interface FlatError {
  */
 export const getMappedErrors = (validations: IValidations): FlatError[] => {
   const errors: FlatError[] = [];
-
+  const errorObjects = {};
   for (const layout in validations) {
     for (const componentId in validations[layout]) {
       if (componentId === 'unmapped') {
         continue;
       }
-
+      let messages = [];
       const validationObject = validations[layout][componentId];
       for (const fieldKey in validationObject) {
-        for (const message of validationObject[fieldKey].errors || []) {
-          errors.push({
-            layout,
-            componentId,
-            message,
-          });
+        if (validationObject[fieldKey].errors) {
+          messages = [...messages, ...validationObject[fieldKey].errors];
         }
+      }
+      if (messages.length) {
+        errorObjects[`${componentId}`] = {
+          layout,
+          message: messages.join(' '),
+        };
       }
     }
   }
-
+  for (const componentId in errorObjects) {
+    const { layout, message } = errorObjects[componentId];
+    errors.push({
+      layout,
+      componentId,
+      message,
+    });
+  }
   return errors;
 };
 

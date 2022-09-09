@@ -10,8 +10,8 @@ import { App } from 'src/App';
 import ErrorBoundary from 'src/components/ErrorBoundary';
 import { initSagas } from 'src/sagas';
 import { store } from 'src/store';
-import { appPath } from 'src/utils/appUrlHelper';
 
+// import { appPath } from 'src/utils/appUrlHelper'; // appPath should be added to basename if browser-router is used
 import { AltinnAppTheme } from 'altinn-shared/theme';
 
 import 'src/index.css';
@@ -24,7 +24,7 @@ const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(
   <Provider store={store}>
-    <Router basename={appPath}>
+    <Router>
       <AppWrapper>
         <MuiThemeProvider theme={theme}>
           <ErrorBoundary>

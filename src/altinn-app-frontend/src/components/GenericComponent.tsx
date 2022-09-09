@@ -98,7 +98,6 @@ const useStyles = makeStyles((theme) => ({
 export function GenericComponent<Type extends ComponentExceptGroup>(
   props: IActualGenericComponentProps<Type>,
 ) {
-  const { id, ...passThroughProps } = props;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);
   const gridRef = React.useRef<HTMLDivElement>();
@@ -229,10 +228,6 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
 
   // some components handle their validations internally (i.e merge with internal validation state)
   const internalComponentValidations = getValidationsForInternalHandling();
-  if (internalComponentValidations !== null) {
-    passThroughProps.componentValidations = internalComponentValidations;
-  }
-
   const RenderComponent = components[props.type as keyof typeof components];
   if (!RenderComponent) {
     return (
@@ -244,11 +239,15 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     );
   }
 
+  const modifiedProps = {
+    ...props,
+    componentValidations:
+      internalComponentValidations || props.componentValidations,
+  };
   const RenderLabel = () => {
     return (
       <RenderLabelScoped
-        props={props}
-        passThroughProps={passThroughProps}
+        passedProps={modifiedProps}
         language={language}
         texts={texts}
       />
@@ -262,10 +261,9 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
 
     return (
       <Description
+        {...modifiedProps}
         key={`description-${props.id}`}
         description={texts.description}
-        id={id}
-        {...passThroughProps}
       />
     );
   };
@@ -273,13 +271,12 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   const RenderLegend = () => {
     return (
       <Legend
+        {...modifiedProps}
         key={`legend-${props.id}`}
         labelText={texts.title}
         descriptionText={texts.description}
         helpText={texts.help}
         language={language}
-        {...props}
-        {...passThroughProps}
       />
     );
   };
@@ -293,18 +290,17 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   };
 
   const componentProps = {
+    ...modifiedProps,
     handleDataChange,
     getTextResource: getTextResourceWrapper,
     getTextResourceAsString,
     formData,
     isValid,
     language,
-    id,
     shouldFocus,
     text: texts.title,
     label: RenderLabel,
     legend: RenderLegend,
-    ...passThroughProps,
   } as IComponentProps & ILayoutComponent<Type>;
 
   const noLabelComponents: ComponentTypes[] = [
@@ -331,17 +327,24 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     ) && hasValidationMessages;
 
   if (props.type === 'Likert' && props.layout === LayoutStyle.Table) {
-    return <RenderComponent {...componentProps} />;
+    return (
+      <RenderComponent
+        {...componentProps}
+        key={`likert-${componentProps.id}`}
+      />
+    );
   }
 
   return (
-    <FormComponentContext.Provider value={formComponentContext}>
+    <FormComponentContext.Provider
+      key={`content-provider-${props.id}`}
+      value={formComponentContext}
+    >
       <Grid
         ref={gridRef}
         item={true}
         container={true}
         {...gridBreakpoints(props.grid)}
-        key={`grid-${props.id}`}
         className={classNames(
           'form-group',
           'a-form-group',
@@ -349,6 +352,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
           gridToHiddenProps(props.grid?.labelGrid, classes),
         )}
         alignItems='baseline'
+        key={`grid-${props.id}`}
       >
         {!noLabelComponents.includes(props.type) && (
           <Grid
@@ -356,8 +360,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
             {...gridBreakpoints(props.grid?.labelGrid)}
           >
             <RenderLabelScoped
-              props={props}
-              passThroughProps={passThroughProps}
+              passedProps={modifiedProps}
               language={language}
               texts={texts}
             />
@@ -365,10 +368,10 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
           </Grid>
         )}
         <Grid
-          key={`form-content-${props.id}`}
           item={true}
           id={`form-content-${props.id}`}
           {...gridBreakpoints(props.grid?.innerGrid)}
+          key={`form-content-${props.id}`}
         >
           <RenderComponent {...componentProps} />
           {showValidationMessages &&
@@ -385,19 +388,21 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
 interface IRenderLabelProps {
   texts: any;
   language: ILanguage;
-  props: any;
-  passThroughProps: any;
+  passedProps: any;
 }
 
-const RenderLabelScoped = (props: IRenderLabelProps) => {
+const RenderLabelScoped = ({
+  language,
+  passedProps,
+  texts,
+}: IRenderLabelProps) => {
   return (
     <Label
-      key={`label-${props.props.id}`}
-      labelText={props.texts.title}
-      helpText={props.texts.help}
-      language={props.language}
-      {...props.props}
-      {...props.passThroughProps}
+      {...passedProps}
+      key={`label-${passedProps.id}`}
+      labelText={texts.title}
+      helpText={texts.help}
+      language={language}
     />
   );
 };

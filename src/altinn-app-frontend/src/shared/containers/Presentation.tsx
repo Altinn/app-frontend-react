@@ -24,7 +24,7 @@ export interface IPresentationProvidedProps {
   header: string;
   appOwner?: string;
   type: ProcessTaskType | PresentationType;
-  children?: JSX.Element;
+  children?: React.ReactNode;
 }
 
 const style = {

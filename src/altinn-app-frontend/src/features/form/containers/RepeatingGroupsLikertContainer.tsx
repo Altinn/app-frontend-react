@@ -96,8 +96,8 @@ export const RepeatingGroupsLikertContainer = ({
           {repeatingGroupDeepCopyComponents.map((comp) => {
             return (
               <GenericComponent
-                key={comp.id}
                 {...comp}
+                key={`generic-comp${comp.id}`}
               />
             );
           })}
@@ -125,11 +125,11 @@ export const RepeatingGroupsLikertContainer = ({
           >
             <AltinnTableRow>
               <TableCell />
-              {calculatedOptions.map((option, index) => {
-                const colLabelId = `${id}-likert-columnheader-${index}`;
+              {calculatedOptions.map((option, colIndex) => {
+                const colLabelId = `${id}-likert-columnheader-${colIndex}`;
                 return (
                   <TableCell
-                    key={option.value}
+                    key={`${option.label}-${option.value}`}
                     id={colLabelId}
                     align='center'
                   >
@@ -146,10 +146,10 @@ export const RepeatingGroupsLikertContainer = ({
             {repeatingGroupDeepCopyComponents.map((comp) => {
               return (
                 <GenericComponent
-                  key={comp.id}
                   {...comp}
                   layout={LayoutStyle.Table}
                   groupContainerId={id}
+                  key={`${id}-${comp.id}`}
                 />
               );
             })}
