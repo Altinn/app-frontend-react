@@ -102,7 +102,7 @@ const useStyles = makeStyles({
     },
   },
   deleteButton: {
-    color: '#D5203B',
+    color: theme.altinnPalette.primary.red,
     fontWeight: 700,
     padding: '8px 12px 6px 6px',
     borderRadius: '0',
@@ -125,11 +125,11 @@ const useStyles = makeStyles({
       },
     },
     '&:hover': {
-      background: '#D5203B',
+      background: theme.altinnPalette.primary.red,
       color: theme.altinnPalette.primary.white,
     },
     '&:focus': {
-      outlineColor: '#D5203B',
+      outlineColor: theme.altinnPalette.primary.red,
     },
   },
   editButtonCell: {
