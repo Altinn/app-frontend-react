@@ -8,16 +8,8 @@ import type {
   IInstanceContext,
 } from 'altinn-shared/types';
 
-export interface TestDescription {
+export interface SharedTest {
   name: string;
-  expression: LayoutExpression;
-  expects?: any;
-  expectsFailure?: string;
-  context?: {
-    component?: string;
-    rowIndices?: number[];
-    currentLayout?: string;
-  };
   layouts?: {
     [key: string]: {
       $schema: string;
@@ -31,15 +23,32 @@ export interface TestDescription {
   frontendSettings?: IApplicationSettings;
 }
 
+export interface SharedTestContext {
+  component?: string;
+  rowIndices?: number[];
+  currentLayout?: string;
+}
+
+export interface ContextTest extends SharedTest {
+  expectedContexts: SharedTestContext[];
+}
+
+export interface FunctionTest extends SharedTest {
+  expression: LayoutExpression;
+  expects?: any;
+  expectsFailure?: string;
+  context?: SharedTestContext;
+}
+
 interface TestFolder<T> {
   folderName: string;
   content: T[];
 }
 
 interface TestFolders {
-  'context-lists': TestFolder<TestFolder<TestDescription>>;
-  functions: TestFolder<TestFolder<TestDescription>>;
-  invalid: TestFolder<TestDescription>;
+  'context-lists': TestFolder<TestFolder<ContextTest>>;
+  functions: TestFolder<TestFolder<FunctionTest>>;
+  invalid: TestFolder<FunctionTest>;
 }
 
 export function getSharedTests<Folder extends keyof TestFolders>(

@@ -11,7 +11,8 @@
           {
             "id": "group1",
             "type": "Group",
-            "children": ["comp3", "comp4"]
+            "children": ["comp3", "comp4"],
+            "maxCount": 99
           },
           {
             "id": "comp3",

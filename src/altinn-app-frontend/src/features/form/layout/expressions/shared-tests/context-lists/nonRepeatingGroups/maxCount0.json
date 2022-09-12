@@ -1,5 +1,5 @@
 {
-  "name": "Recursive group Layout with no data",
+  "name": "Non-repeating group with maxCount = 0",
   "layouts": {
     "Page1": {
       "data": {
@@ -9,35 +9,23 @@
             "type": "Heading"
           },
           {
-            "id": "group0",
-            "type": "Group",
-            "children": ["group1"],
-            "maxCount": 99,
-            "dataModelBindings": {
-              "group": "group"
-            }
-          },
-          {
             "id": "group1",
             "type": "Group",
             "children": ["comp3", "comp4"],
-            "maxCount": 99,
-            "dataModelBindings": {
-              "group": "group.subgroup"
-            }
+            "maxCount": 0
           },
           {
             "id": "comp3",
             "type": "Input",
             "dataModelBindings": {
-              "simpleBinding": "group.subgroup.asdf"
+              "simpleBinding": "asdf"
             }
           },
           {
             "id": "comp4",
             "type": "Input",
             "dataModelBindings": {
-              "simpleBinding": "group.subgroup.asdf"
+              "simpleBinding": "asdf"
             }
           }
         ]
@@ -70,7 +58,15 @@
       "currentLayout": "Page1"
     },
     {
-      "component": "group0",
+      "component": "group1",
+      "currentLayout": "Page1"
+    },
+    {
+      "component": "comp3",
+      "currentLayout": "Page1"
+    },
+    {
+      "component": "comp4",
       "currentLayout": "Page1"
     },
     {
