@@ -14,9 +14,9 @@ describe('Layout expression validation', () => {
     },
   );
 
-  const sharedTests = getSharedTests('functions', true);
-  const invalidSharedTests = getSharedTests('invalid', false);
-  const sharedTestsFlat = Object.values(sharedTests).flat();
+  const sharedTests = getSharedTests('functions');
+  const invalidSharedTests = getSharedTests('invalid');
+  const sharedTestsFlat = sharedTests.content.map((td) => td.content).flat();
 
   it.each(sharedTestsFlat.map((testCase) => testCase.expression))(
     'should validate %j as a valid expression',
@@ -26,7 +26,7 @@ describe('Layout expression validation', () => {
   );
 
   describe('Shared tests for invalid expressions', () => {
-    it.each(invalidSharedTests)('$name', (invalid) => {
+    it.each(invalidSharedTests.content)('$name', (invalid) => {
       expect(() => asLayoutExpression(invalid.expression)).toThrow(
         invalid.expectsFailure,
       );

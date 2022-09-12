@@ -23,11 +23,11 @@ function toComponentId({ component, rowIndices }: TestDescription['context']) {
   );
 }
 
-describe('Layout expressions shared tests', () => {
-  const sharedTests = getSharedTests('functions', true);
+describe('Layout expressions shared function tests', () => {
+  const sharedTests = getSharedTests('functions');
 
-  describe.each(Object.keys(sharedTests))('Function: %s', (folder) => {
-    it.each(sharedTests[folder])(
+  describe.each(sharedTests.content)('Function: $folderName', (folder) => {
+    it.each(folder.content)(
       '$name',
       ({
         expression,
@@ -76,5 +76,16 @@ describe('Layout expressions shared tests', () => {
         }
       },
     );
+  });
+});
+
+describe('Layout expressions shared context tests', () => {
+  const sharedTests = getSharedTests('context-lists');
+
+  describe.each(sharedTests.content)('$folderName', (folder) => {
+    it.each(folder.content)('$name', () => {
+      // TODO: Implement test runner
+      expect(true).toEqual(true);
+    });
   });
 });

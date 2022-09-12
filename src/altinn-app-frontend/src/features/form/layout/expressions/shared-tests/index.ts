@@ -31,47 +31,40 @@ export interface TestDescription {
   frontendSettings?: IApplicationSettings;
 }
 
-type TestFolderMap = {
-  [folder: string]: TestDescription[];
-};
-
-export function getSharedTests(
-  category: string,
-  subFolders: true,
-): TestFolderMap;
-export function getSharedTests(
-  category: string,
-  subFolders: false,
-): TestDescription[];
-export function getSharedTests(category: string, subFolders: boolean): any {
-  if (!subFolders) {
-    return loadTestsIn(category);
-  }
-
-  const content = fs
-    .readdirSync(`${__dirname}/${category}`)
-    .filter((name) =>
-      fs.statSync(`${__dirname}/${category}/${name}`).isDirectory(),
-    );
-
-  const out = {};
-
-  for (const folder of content) {
-    out[folder] = loadTestsIn(`${category}/${folder}`);
-  }
-
-  return out;
+interface TestFolder<T> {
+  folderName: string;
+  content: T[];
 }
 
-function loadTestsIn(folder: string): TestDescription[] {
-  return fs
-    .readdirSync(`${__dirname}/${folder}`)
-    .filter((f) => f.endsWith('.json'))
-    .map((f) => {
-      const testJson = fs.readFileSync(`${__dirname}/${folder}/${f}`);
-      const test = JSON.parse(testJson.toString()) as TestDescription;
-      test.name += ` (${f})`;
+interface TestFolders {
+  'context-lists': TestFolder<TestFolder<TestDescription>>;
+  functions: TestFolder<TestFolder<TestDescription>>;
+  invalid: TestFolder<TestDescription>;
+}
 
-      return test;
-    });
+export function getSharedTests<Folder extends keyof TestFolders>(
+  subPath: Folder,
+  parentPath = '',
+): TestFolders[Folder] {
+  const out: TestFolder<any> = {
+    folderName: subPath,
+    content: [],
+  };
+  const fullPath = `${__dirname}/${parentPath}/${subPath}`;
+
+  fs.readdirSync(fullPath).forEach((name) => {
+    const isDir = fs.statSync(`${fullPath}/${name}`).isDirectory();
+    if (isDir) {
+      out.content.push(
+        getSharedTests(name as keyof TestFolders, `${parentPath}/${subPath}`),
+      );
+    } else if (name.endsWith('.json')) {
+      const testJson = fs.readFileSync(`${fullPath}/${name}`);
+      const test = JSON.parse(testJson.toString());
+      test.name += ` (${name})`;
+      out.content.push(test);
+    }
+  });
+
+  return out;
 }
