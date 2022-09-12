@@ -419,7 +419,7 @@ export function RepeatingGroupTable({
                   }
 
                   return (
-                    <>
+                    <React.Fragment key={index}>
                       <AltinnTableRow
                         valid={!rowHasErrors}
                         key={`repeating-group-row-${index}`}
@@ -497,7 +497,7 @@ export function RepeatingGroupTable({
                       </AltinnTableRow>
                       {editIndex === index &&
                         renderRepeatingGroupsEditContainer(index)}
-                    </>
+                    </React.Fragment>
                   );
                 },
               )}
@@ -533,7 +533,7 @@ export function RepeatingGroupTable({
                   }
                 });
                 return (
-                  <>
+                  <React.Fragment key={index}>
                     <AltinnMobileTableItem
                       key={`mobile-table-item-${index}`}
                       tableItemIndex={index}
@@ -577,7 +577,7 @@ export function RepeatingGroupTable({
                     />
                     {editIndex === index &&
                       renderRepeatingGroupsEditContainer(index)}
-                  </>
+                  </React.Fragment>
                 );
               },
             )}
