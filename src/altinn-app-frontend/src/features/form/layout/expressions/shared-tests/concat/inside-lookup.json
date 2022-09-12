@@ -10,7 +10,7 @@
           ".",
           { "function": "dataModel", "args": ["Middle"] },
           ".Last",
-          { "function": "applicationSettings", "args": ["suffix"] }
+          { "function": "frontendSettings", "args": ["suffix"] }
         ]
       }
     ]
@@ -27,7 +27,7 @@
       "value": "C"
     }
   },
-  "appSettings": {
+  "frontendSettings": {
     "suffix": "Part"
   },
   "layouts": {

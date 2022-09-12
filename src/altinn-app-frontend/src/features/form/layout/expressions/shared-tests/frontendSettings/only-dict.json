@@ -4,14 +4,14 @@
     "function": "equals",
     "args": [
       {
-        "function": "applicationSettings",
+        "function": "frontendSettings",
         "args": ["deep.key"]
       },
       null
     ]
   },
   "expects": true,
-  "appSettings": {
+  "frontendSettings": {
     "deep": {
       "key": "should not be found"
     }

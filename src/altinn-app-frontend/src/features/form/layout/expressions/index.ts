@@ -342,7 +342,7 @@ export const LEFunctions = {
     args: ['string'],
     returns: 'string',
   }),
-  applicationSettings: defineFunc({
+  frontendSettings: defineFunc({
     impl: function (key) {
       return this.dataSources.applicationSettings[key];
     },

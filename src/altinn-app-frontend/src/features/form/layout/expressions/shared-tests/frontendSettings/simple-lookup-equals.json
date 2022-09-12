@@ -4,17 +4,17 @@
     "function": "equals",
     "args": [
       {
-        "function": "applicationSettings",
+        "function": "frontendSettings",
         "args": ["mySetting1"]
       },
       {
-        "function": "applicationSettings",
+        "function": "frontendSettings",
         "args": ["mySetting2"]
       }
     ]
   },
   "expects": true,
-  "appSettings": {
+  "frontendSettings": {
     "mySetting1": "foo",
     "mySetting2": "foo"
   }

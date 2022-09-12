@@ -28,7 +28,7 @@ export interface TestDescription {
   };
   dataModel?: any;
   instanceContext?: IInstanceContext;
-  appSettings?: IApplicationSettings;
+  frontendSettings?: IApplicationSettings;
 }
 
 export function getSharedTests(): { [folder: string]: TestDescription[] } {

@@ -4,14 +4,14 @@
     "function": "equals",
     "args": [
       {
-        "function": "applicationSettings",
+        "function": "frontendSettings",
         "args": ["doesNotExist"]
       },
       null
     ]
   },
   "expects": true,
-  "appSettings": {
+  "frontendSettings": {
     "mySetting1": "foo",
     "mySetting2": "bar"
   }

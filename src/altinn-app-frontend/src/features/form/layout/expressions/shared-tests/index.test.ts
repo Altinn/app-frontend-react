@@ -41,12 +41,12 @@ describe('Layout expressions shared tests', () => {
         layouts,
         dataModel,
         instanceContext,
-        appSettings,
+        frontendSettings,
       }) => {
         const dataSources: ContextDataSources = {
           formData: dataModel ? dot.dot(dataModel) : {},
           instanceContext: instanceContext || ({} as IInstanceContext),
-          applicationSettings: appSettings || ({} as IApplicationSettings),
+          applicationSettings: frontendSettings || ({} as IApplicationSettings),
         };
 
         const asNodes = {};
