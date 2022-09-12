@@ -14,9 +14,8 @@ describe('Layout expression validation', () => {
     },
   );
 
-  const sharedTests = getSharedTests();
-  const invalidSharedTests = sharedTests['invalid'];
-  delete sharedTests['invalid'];
+  const sharedTests = getSharedTests('functions', true);
+  const invalidSharedTests = getSharedTests('invalid', false);
   const sharedTestsFlat = Object.values(sharedTests).flat();
 
   it.each(sharedTestsFlat.map((testCase) => testCase.expression))(
