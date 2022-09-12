@@ -23,6 +23,8 @@ import type {
 } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
+import type { IInstanceContext } from 'altinn-shared/types';
+
 export interface EvalExprOptions {
   defaultValue?: any;
   errorIntroText?: string;
@@ -243,6 +245,12 @@ function defineFunc<Args extends BaseValue[], Ret extends BaseValue>(
   return def;
 }
 
+const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
+  instanceId: true,
+  appId: true,
+  instanceOwnerPartyId: true,
+};
+
 /**
  * All the functions available to execute inside layout expressions
  */
@@ -322,6 +330,13 @@ export const LEFunctions = {
   }),
   instanceContext: defineFunc({
     impl: function (key) {
+      if (instanceContextKeys[key] !== true) {
+        throw new LookupNotFound(
+          this,
+          `Unknown Instance context property ${key}`,
+        );
+      }
+
       return this.dataSources.instanceContext[key];
     },
     args: ['string'],
@@ -351,9 +366,7 @@ export const LEFunctions = {
 
       throw new LookupNotFound(
         this,
-        'component',
-        id,
-        'or it does not have a simpleBinding',
+        `Unable to find component with identifier ${id} or it does not have a simpleBinding`,
       );
     },
     args: ['string'],

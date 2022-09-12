@@ -10,7 +10,7 @@
       null
     ]
   },
-  "expects": true,
+  "expectsFailure": "Unknown Instance context property deep.key",
   "instanceContext": {
     "deep": {
       "key": "should not be found"

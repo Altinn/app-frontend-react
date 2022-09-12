@@ -9,4 +9,4 @@ For this reason, it is very important to sync any changes in these tests with th
 corresponding test collection on the backend (and port any changes from there
 over here).
 
-These tests are duplicated in [TODO: INSERT LINK TO OTHER REPO](https://github.com/Altinn).
+These tests are duplicated in [app-lib-dotnet](https://github.com/Altinn/app-lib-dotnet) and [app-frontend-react](https://github.com/Altinn/app-frontend-react).

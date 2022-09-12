@@ -1,5 +1,4 @@
 import type { LEContext } from 'src/features/form/layout/expressions/LEContext';
-import type { LEFunction } from 'src/features/form/layout/expressions/types';
 
 export class LERuntimeError extends Error {
   public constructor(public context: LEContext, message: string) {
@@ -8,18 +7,8 @@ export class LERuntimeError extends Error {
 }
 
 export class LookupNotFound extends LERuntimeError {
-  public constructor(
-    context: LEContext,
-    func: LEFunction,
-    key: string,
-    extra?: string,
-  ) {
-    super(
-      context,
-      `Unable to find ${func} with identifier ${key}${
-        extra ? ` ${extra}` : ''
-      }`,
-    );
+  public constructor(context: LEContext, message: string) {
+    super(context, message);
   }
 }
 
