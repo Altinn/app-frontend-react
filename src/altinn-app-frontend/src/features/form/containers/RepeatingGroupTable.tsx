@@ -167,7 +167,7 @@ const useStyles = makeStyles({
   },
   aboveEditingRow: {
     '& td': {
-      borderBottom: 0,
+      borderColor: 'transparent',
     },
   },
 });
