@@ -320,29 +320,33 @@ export function RepeatingGroupTable({
     [onClickRemove],
   );
 
-  const renderRepeatingGroupsEditContainer = () => {
+  const renderRepeatingGroupsEditContainer = (index: number) => {
     return (
-      <TableCell
-        style={{ padding: 0, borderBottom: 0 }}
-        colSpan={components.length + 2}
-      >
-        {editIndex >= 0 && (
-          <RepeatingGroupsEditContainer
-            className={classes.editContainerInTable}
-            container={container}
-            editIndex={editIndex}
-            id={id}
-            language={language}
-            textResources={textResources}
-            layout={layout}
-            onClickSave={onClickSave}
-            repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-            hideSaveButton={container.edit?.saveButton === false}
-            multiPageIndex={multiPageIndex}
-            setMultiPageIndex={setMultiPageIndex}
-          />
-        )}
-      </TableCell>
+      <TableRow key={`edit-container-${index}`}>
+        <TableCell
+          style={{ padding: 0, borderBottom: 0 }}
+          colSpan={components.length + 2}
+        >
+          {editIndex >= 0 && (
+            <RepeatingGroupsEditContainer
+              className={classes.editContainerInTable}
+              container={container}
+              editIndex={editIndex}
+              id={id}
+              language={language}
+              textResources={textResources}
+              layout={layout}
+              onClickSave={onClickSave}
+              repeatingGroupDeepCopyComponents={
+                repeatingGroupDeepCopyComponents
+              }
+              hideSaveButton={container.edit?.saveButton === false}
+              multiPageIndex={multiPageIndex}
+              setMultiPageIndex={setMultiPageIndex}
+            />
+          )}
+        </TableCell>
+      </TableRow>
     );
   };
 
@@ -418,7 +422,7 @@ export function RepeatingGroupTable({
                     <>
                       <AltinnTableRow
                         valid={!rowHasErrors}
-                        key={index}
+                        key={`repeating-group-row-${index}`}
                         className={cn(
                           {
                             [classes.editingRow]: index === editIndex,
@@ -435,7 +439,7 @@ export function RepeatingGroupTable({
                             return null;
                           }
                           return (
-                            <TableCell key={`${component.id} ${index}`}>
+                            <TableCell key={`${component.id}-${index}`}>
                               <span>
                                 {getFormDataForComponent(component, index)}
                               </span>
@@ -492,7 +496,7 @@ export function RepeatingGroupTable({
                         )}
                       </AltinnTableRow>
                       {editIndex === index &&
-                        renderRepeatingGroupsEditContainer()}
+                        renderRepeatingGroupsEditContainer(index)}
                     </>
                   );
                 },
@@ -531,7 +535,7 @@ export function RepeatingGroupTable({
                 return (
                   <>
                     <AltinnMobileTableItem
-                      key={index}
+                      key={`mobile-table-item-${index}`}
                       tableItemIndex={index}
                       items={items}
                       valid={!rowHasErrors}
@@ -572,7 +576,7 @@ export function RepeatingGroupTable({
                       }
                     />
                     {editIndex === index &&
-                      renderRepeatingGroupsEditContainer()}
+                      renderRepeatingGroupsEditContainer(index)}
                   </>
                 );
               },

@@ -130,7 +130,7 @@ export function RepeatingGroupsEditContainer({
         direction='row'
         spacing={3}
       >
-        {!hideDeleteButton && container.edit.mode === 'showAll' && (
+        {!hideDeleteButton && container.edit?.mode === 'showAll' && (
           <Grid
             item={true}
             container={true}
