@@ -21,7 +21,7 @@ describe('Repeating group attachments', () => {
 
   const gotoSecondPage = () => {
     cy.get(appFrontend.group.mainGroup)
-      .siblings(appFrontend.group.editContainer)
+      .find(appFrontend.group.editContainer)
       .find(appFrontend.group.next)
       .should('be.visible')
       .click();
@@ -431,7 +431,7 @@ describe('Repeating group attachments', () => {
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     cy.get(appFrontend.group.rows[0].deleteBtn).click();
-    
+
     verifyPreview(true);
     waitForFormDataSave();
 
