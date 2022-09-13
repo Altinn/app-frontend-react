@@ -3,12 +3,24 @@ import * as complexSchema from '__mocks__/json-schema/complex.json';
 import * as oneOfOnRootSchema from '__mocks__/json-schema/one-of-on-root.json';
 import * as refOnRootSchema from '__mocks__/json-schema/ref-on-root.json';
 import { getMockValidationState } from '__mocks__/validationStateMock';
+import dot from 'dot-object';
 
 import { Severity } from 'src/types';
-import { createRepeatingGroupComponents } from 'src/utils/formLayout';
+import {
+  createRepeatingGroupComponents,
+  getRepeatingGroups,
+} from 'src/utils/formLayout';
+import {
+  LayoutRootNodeCollection,
+  nodesInLayout,
+} from 'src/utils/layout/hierarchy';
 import { getTextResourceByKey } from 'src/utils/textResource';
 import * as validation from 'src/utils/validation/validation';
-import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type {
+  ILayoutComponent,
+  ILayoutGroup,
+  ILayouts,
+} from 'src/features/form/layout';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -19,8 +31,40 @@ import type {
   IValidationIssue,
   IValidations,
 } from 'src/types';
+import type { LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 import { getParsedLanguageFromKey } from 'altinn-shared/index';
+
+function toCollection(
+  mockLayout: ILayouts,
+  repeatingGroups: IRepeatingGroups = {},
+) {
+  const asNodes = {};
+  for (const key of Object.keys(mockLayout)) {
+    asNodes[key] = nodesInLayout(
+      mockLayout[key],
+      repeatingGroups,
+    ) as unknown as LayoutRootNode<'resolved'>;
+  }
+  return new LayoutRootNodeCollection<'resolved'>(
+    Object.keys(mockLayout)[0] as keyof typeof asNodes,
+    asNodes,
+  );
+}
+
+function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {
+  const formData = dot.dot(formDataAsObject);
+  let repeatingGroups = {};
+
+  for (const layout of Object.values(mockLayout)) {
+    repeatingGroups = {
+      ...repeatingGroups,
+      ...getRepeatingGroups(layout, formData),
+    };
+  }
+
+  return toCollection(mockLayout, repeatingGroups);
+}
 
 describe('utils > validation', () => {
   let mockLayout: any;
@@ -567,14 +611,13 @@ describe('utils > validation', () => {
 
   describe('validateFormComponents', () => {
     it('should return error on fileUpload if its not enough files', () => {
-      const componentSpesificValidations = validation.validateFormComponents(
+      const componentSpecificValidations = validation.validateFormComponents(
         mockFormAttachments.attachments,
-        mockLayoutState.layouts,
+        toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
         mockFormData,
         mockLanguage.language,
         [],
-        {},
       );
 
       const mockResult = {
@@ -588,21 +631,20 @@ describe('utils > validation', () => {
         },
       };
 
-      expect(componentSpesificValidations).toEqual(mockResult);
+      expect(componentSpecificValidations).toEqual(mockResult);
     });
 
     it('should return error on fileUpload if its no file', () => {
       mockFormAttachments = {
         attachments: null,
       };
-      const componentSpesificValidations = validation.validateFormComponents(
+      const componentSpecificValidations = validation.validateFormComponents(
         mockFormAttachments.attachments,
-        mockLayoutState.layouts,
+        toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
         mockFormData,
         mockLanguage.language,
         [],
-        {},
       );
 
       const mockResult = {
@@ -616,7 +658,7 @@ describe('utils > validation', () => {
         },
       };
 
-      expect(componentSpesificValidations).toEqual(mockResult);
+      expect(componentSpecificValidations).toEqual(mockResult);
     });
 
     it('should not return error on fileUpload if its enough files', () => {
@@ -631,21 +673,20 @@ describe('utils > validation', () => {
           },
         ],
       };
-      const componentSpesificValidations = validation.validateFormComponents(
+      const componentSpecificValidations = validation.validateFormComponents(
         mockFormAttachments.attachments,
-        mockLayout,
+        toCollection(mockLayout),
         Object.keys(mockLayout),
         mockFormData,
         mockLanguage.language,
         [],
-        {},
       );
 
       const mockResult = {
         FormLayout: {},
       };
 
-      expect(componentSpesificValidations).toEqual(mockResult);
+      expect(componentSpecificValidations).toEqual(mockResult);
     });
 
     it('should not return error if element is hidden', () => {
@@ -660,21 +701,20 @@ describe('utils > validation', () => {
           },
         ],
       };
-      const componentSpesificValidations = validation.validateFormComponents(
+      const componentSpecificValidations = validation.validateFormComponents(
         mockFormAttachments.attachments,
-        mockLayout,
+        toCollection(mockLayout),
         Object.keys(mockLayout),
         mockFormData,
         mockLanguage.language,
         ['componentId_4'],
-        {},
       );
 
       const mockResult = {
         FormLayout: {},
       };
 
-      expect(componentSpesificValidations).toEqual(mockResult);
+      expect(componentSpecificValidations).toEqual(mockResult);
     });
 
     it('should not return error if element is part of layout not present in layoutOrder (sporvalg)', () => {
@@ -689,35 +729,34 @@ describe('utils > validation', () => {
           },
         ],
       };
-      const componentSpesificValidations = validation.validateFormComponents(
+      const componentSpecificValidations = validation.validateFormComponents(
         mockFormAttachments.attachments,
-        mockLayout,
+        toCollection(mockLayout),
         [],
         mockFormData,
         mockLanguage.language,
         [],
-        {},
       );
 
-      expect(componentSpesificValidations).toEqual({});
+      expect(componentSpecificValidations).toEqual({});
     });
   });
 
   describe('validateEmptyFields', () => {
+    const repeatingGroups = {
+      group1: {
+        index: 0,
+        editIndex: -1,
+      },
+    };
+
     it('should return error if empty fields are required', () => {
-      const repeatingGroups = {
-        group1: {
-          index: 0,
-          editIndex: -1,
-        },
-      };
-      const componentSpesificValidations = validation.validateEmptyFields(
+      const componentSpecificValidations = validation.validateEmptyFields(
         mockFormData,
-        mockLayout,
+        toCollection(mockLayout, repeatingGroups),
         Object.keys(mockLayout),
         mockLanguage.language,
         [],
-        repeatingGroups,
         mockTextResources,
       );
 
@@ -749,23 +788,16 @@ describe('utils > validation', () => {
         },
       };
 
-      expect(componentSpesificValidations).toEqual(mockResult);
+      expect(componentSpecificValidations).toEqual(mockResult);
     });
 
     it('should not return error for repeating group if child is hidden', () => {
-      const repeatingGroups = {
-        group1: {
-          index: 0,
-          editIndex: -1,
-        },
-      };
-      const componentSpesificValidations = validation.validateEmptyFields(
+      const componentSpecificValidations = validation.validateEmptyFields(
         mockFormData,
-        mockLayout,
+        toCollection(mockLayout, repeatingGroups),
         Object.keys(mockLayout),
         mockLanguage.language,
         ['componentId_4-0'],
-        repeatingGroups,
         mockTextResources,
       );
 
@@ -791,27 +823,20 @@ describe('utils > validation', () => {
         },
       };
 
-      expect(componentSpesificValidations).toEqual(mockResult);
+      expect(componentSpecificValidations).toEqual(mockResult);
     });
 
     it('should not return error if component is not part of layout order (sporvalg)', () => {
-      const repeatingGroups = {
-        group1: {
-          index: 0,
-          editIndex: -1,
-        },
-      };
-      const componentSpesificValidations = validation.validateEmptyFields(
+      const componentSpecificValidations = validation.validateEmptyFields(
         mockFormData,
-        mockLayout,
+        toCollection(mockLayout, repeatingGroups),
         [],
         mockLanguage.language,
         [],
-        repeatingGroups,
         mockTextResources,
       );
 
-      expect(componentSpesificValidations).toEqual({});
+      expect(componentSpecificValidations).toEqual({});
     });
 
     it('should add error to validations if supplied field is required', () => {
@@ -864,19 +889,18 @@ describe('utils > validation', () => {
     });
   });
 
-  describe('validateEmptyFieldsForLayout', () => {
+  describe('validateEmptyFieldsForNodes', () => {
     const _with = ({
       formData = {},
       formLayout = mockLayout.FormLayout,
       hiddenFields = [],
       repeatingGroups = {},
     }) =>
-      validation.validateEmptyFieldsForLayout(
+      validation.validateEmptyFieldsForNodes(
         formData,
-        formLayout,
+        toCollection({ FormLayout: formLayout }, repeatingGroups).current(),
         mockLanguage.language,
         hiddenFields,
-        repeatingGroups,
         mockTextResources,
       );
 
@@ -1148,7 +1172,7 @@ describe('utils > validation', () => {
       const mockValidator = validation.createValidator(mockJsonSchema);
       const mockResult = validation.validateFormData(
         mockFormData,
-        mockLayoutState.layouts,
+        toCollectionFromData(mockLayout, mockFormData),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
         mockLanguage.language,
@@ -1161,7 +1185,7 @@ describe('utils > validation', () => {
       const mockValidator = validation.createValidator(mockJsonSchema);
       const mockResult = validation.validateFormData(
         mockValidFormData,
-        mockLayoutState.layouts,
+        toCollectionFromData(mockLayout, mockValidFormData),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
         mockLanguage,
@@ -1182,7 +1206,7 @@ describe('utils > validation', () => {
 
       const mockResult = validation.validateFormData(
         formData,
-        mockLayoutState.layouts,
+        toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
         mockLanguage,
@@ -1206,7 +1230,7 @@ describe('utils > validation', () => {
       const mockValidator = validation.createValidator(mockJsonSchema);
       const mockResult = validation.validateFormData(
         data,
-        mockLayoutState.layouts,
+        toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
         mockLanguage,
@@ -1219,7 +1243,7 @@ describe('utils > validation', () => {
       const mockValidator = validation.createValidator(mockJsonSchema);
       const mockResult = validation.validateFormData(
         mockFormData,
-        mockLayoutState.layouts,
+        toCollection(mockLayout),
         [],
         mockValidator,
         mockLanguage.language,
@@ -1494,9 +1518,9 @@ describe('utils > validation', () => {
   describe('validation.mapToComponentValidations', () => {
     it('should map validation to correct component', () => {
       const validations = {};
-      validation.mapToComponentValidations(
+      validation.mapToComponentValidationsGivenNode(
         'FormLayout',
-        mockLayout.FormLayout,
+        toCollection(mockLayout).current(),
         'dataModelField_2',
         'some error',
         validations,
@@ -1515,9 +1539,14 @@ describe('utils > validation', () => {
 
     it('should map validation to correct component for component in a repeating group', () => {
       const validations = {};
-      validation.mapToComponentValidations(
+      validation.mapToComponentValidationsGivenNode(
         'FormLayout',
-        mockLayout.FormLayout,
+        toCollection(mockLayout, {
+          group1: {
+            index: 0,
+            editIndex: -1,
+          },
+        }).current(),
         'group_1[0].dataModelField_4',
         'some error',
         validations,
@@ -1536,9 +1565,18 @@ describe('utils > validation', () => {
 
     it('should map validation to correct component for component in a nested repeating group', () => {
       const validations = {};
-      validation.mapToComponentValidations(
+      validation.mapToComponentValidationsGivenNode(
         'FormLayout',
-        mockLayout.FormLayout,
+        toCollection(mockLayout, {
+          group1: {
+            index: 0,
+            editIndex: -1,
+          },
+          'group2-0': {
+            index: 0,
+            editIndex: -1,
+          },
+        }).current(),
         'group_1[0].group_2[0].dataModelField_5',
         'some error',
         validations,
@@ -1647,6 +1685,9 @@ describe('utils > validation', () => {
         },
         instanceData: {
           instance: {
+            instanceOwner: {
+              partyId: 12345,
+            },
             process: {
               currentTask: {
                 elementId: 'default',
@@ -1681,6 +1722,10 @@ describe('utils > validation', () => {
             repeatingGroups: {
               group1: {
                 index: 0,
+                editIndex: -1,
+              },
+              'group2-0': {
+                index: 1,
                 editIndex: -1,
               },
             },
@@ -1737,6 +1782,9 @@ describe('utils > validation', () => {
         },
         instanceData: {
           instance: {
+            instanceOwner: {
+              partyId: 12345,
+            },
             process: {
               currentTask: {
                 elementId: 'default',
@@ -1773,8 +1821,8 @@ describe('utils > validation', () => {
                 index: 0,
                 editIndex: -1,
               },
-              group2: {
-                index: 0,
+              'group2-0': {
+                index: 1,
                 editIndex: -1,
               },
             },

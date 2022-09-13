@@ -11,7 +11,7 @@ import type {
   ILayoutGroup,
 } from 'src/features/form/layout';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
-import type { IRepeatingGroups } from 'src/types';
+import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import type {
   AnyChildNode,
   AnyItem,
@@ -27,6 +27,8 @@ import type {
   RepeatingGroupHierarchy,
   RepeatingGroupLayoutComponent,
 } from 'src/utils/layout/hierarchy.types';
+
+import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
 
 export const childrenWithoutMultiPagePrefix = (group: ILayoutGroup) =>
   group.edit?.multiPage
@@ -198,7 +200,46 @@ export function layoutAsHierarchyWithRows(
   return layoutAsHierarchy(formLayout).map((child) => recurse(child));
 }
 
-export class LayoutRootNode<NT extends NodeType = 'unresolved'> {
+/**
+ * A layout object describes functionality implemented for both a LayoutRootNode (aka a page, or layout) and a
+ * LayoutNode (aka an instance of a component inside a layout, or possibly inside a repeating group).
+ */
+export interface LayoutObject<
+  NT extends NodeType = 'unresolved',
+  Item extends AnyItem<NT> = AnyItem<NT>,
+  Child extends AnyNode<NT> = AnyNode<NT>,
+> {
+  /**
+   * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
+   * none can be found)
+   */
+  closest(matching: (item: Item) => boolean): Child | undefined;
+
+  /**
+   * Returns a list of direct children, or finds the first node matching a given criteria
+   */
+  children(): Child[];
+  children(matching: (item: Item) => boolean): Child | undefined;
+  children(matching?: (item: Item) => boolean): any;
+
+  /**
+   * This returns all the child nodes (including duplicate components for repeating groups) as a flat list of
+   * LayoutNode objects.
+   *
+   * @param includeGroups If true, also includes the group nodes
+   */
+  flat(includeGroups: true): AnyChildNode<NT>[];
+  flat(includeGroups: false): LayoutNode<NT, ComponentOf<NT>>[];
+  flat(includeGroups: boolean): AnyChildNode<NT>[];
+}
+
+/**
+ * The layout root node is a class containing an entire page/form layout, with all components/nodes within it. It
+ * allows for fast/indexed searching, i.e. looking up an exact node in constant time.
+ */
+export class LayoutRootNode<NT extends NodeType = 'unresolved'>
+  implements LayoutObject<NT, AnyTopLevelItem<NT>, AnyTopLevelNode<NT>>
+{
   public item: AnyItem<NT> | undefined;
   public parent: this;
 
@@ -243,10 +284,8 @@ export class LayoutRootNode<NT extends NodeType = 'unresolved'> {
   public children(): AnyTopLevelNode<NT>[];
   public children(
     matching: (item: AnyTopLevelItem<NT>) => boolean,
-  ): AnyTopLevelNode<NT>;
-  public children(
-    matching?: (item: AnyTopLevelItem<NT>) => boolean,
-  ): AnyTopLevelNode<NT> | AnyTopLevelNode<NT>[] {
+  ): AnyTopLevelNode<NT> | undefined;
+  public children(matching?: (item: AnyTopLevelItem<NT>) => boolean): any {
     if (!matching) {
       return this.directChildren;
     }
@@ -300,7 +339,8 @@ export class LayoutRootNode<NT extends NodeType = 'unresolved'> {
 export class LayoutNode<
   NT extends NodeType = 'unresolved',
   Item extends AnyItem<NT> = AnyItem<NT>,
-> {
+> implements LayoutObject<NT, AnyItem<NT>, AnyNode<NT>>
+{
   public constructor(
     public item: Item,
     public parent: AnyParentNode<NT>,
@@ -354,10 +394,15 @@ export class LayoutNode<
    * matching inside a repeating group with multiple rows, you should provide a second argument to specify the row
    * number, otherwise you'll most likely just find a component on the first row.
    */
+  public children(): AnyNode<NT>[];
   public children(
     matching: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
-  ): AnyNode<NT> | undefined {
+  ): AnyNode<NT> | undefined;
+  public children(
+    matching?: (item: AnyItem<NT>) => boolean,
+    onlyInRowIndex?: number,
+  ): any {
     let list: AnyItem<NT>[];
     if (this.item.type === 'Group' && 'rows' in this.item) {
       if (typeof onlyInRowIndex === 'number') {
@@ -368,6 +413,13 @@ export class LayoutNode<
       }
     } else if (this.item.type === 'Group' && 'childComponents' in this.item) {
       list = this.item.childComponents;
+    }
+
+    if (!matching) {
+      if (!list) {
+        return [];
+      }
+      return list.map((item) => new LayoutNode(item, this));
     }
 
     if (typeof list !== 'undefined') {
@@ -382,11 +434,34 @@ export class LayoutNode<
   }
 
   /**
+   * This returns all the child nodes (including duplicate components for repeating groups) as a flat list of
+   * LayoutNode objects. Implemented here for parity with LayoutRootNode.
+   *
+   * @param includeGroups If true, also includes the group nodes (which also includes self, when this node is a group)
+   */
+  public flat(includeGroups: true): AnyChildNode<NT>[];
+  public flat(includeGroups: false): LayoutNode<NT, ComponentOf<NT>>[];
+  public flat(includeGroups: boolean): AnyChildNode<NT>[] {
+    const out: AnyChildNode<NT>[] = [];
+    const recurse = (item: AnyChildNode<NT>) => {
+      if (includeGroups || item.item.type !== 'Group') {
+        out.push(item);
+      }
+      for (const child of item.children()) {
+        recurse(child);
+      }
+    };
+
+    recurse(this);
+    return out;
+  }
+
+  /**
    * Checks if this field should be hidden. This also takes into account the group this component is in, so the
    * methods returns true if the component is inside a hidden group.
    */
   public isHidden(hiddenFieldIds: Set<string>): boolean {
-    if (hiddenFieldIds.has(this.item.id)) {
+    if (this.item.hidden === true || hiddenFieldIds.has(this.item.id)) {
       return true;
     }
     if (
@@ -401,7 +476,7 @@ export class LayoutNode<
     );
 
     for (const parent of parentGroups) {
-      if (hiddenFieldIds.has(parent.item.id)) {
+      if (parent.item.hidden === true || hiddenFieldIds.has(parent.item.id)) {
         return true;
       }
       if (
@@ -665,4 +740,31 @@ export class LayoutRootNodeCollection<
   public current(): LayoutRootNode<NT> {
     return this.objects[this.currentView];
   }
+
+  public all(): Collection {
+    return this.objects;
+  }
+}
+
+export function resolvedLayoutsFromState(
+  state: IRuntimeState,
+): LayoutRootNodeCollection<'resolved'> {
+  const layoutsAsNodes = {};
+  const dataSources: ContextDataSources = {
+    formData: state.formData.formData,
+    applicationSettings: state.applicationSettings.applicationSettings,
+    instanceContext: buildInstanceContext(state.instanceData?.instance),
+  };
+  for (const key of Object.keys(state.formLayout.layouts)) {
+    layoutsAsNodes[key] = resolvedNodesInLayout(
+      state.formLayout.layouts[key],
+      state.formLayout.uiConfig.repeatingGroups,
+      dataSources,
+    );
+  }
+
+  return new LayoutRootNodeCollection(
+    state.formLayout.uiConfig.currentView as keyof typeof layoutsAsNodes,
+    layoutsAsNodes,
+  );
 }
