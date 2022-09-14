@@ -35,7 +35,6 @@ export interface EvalExprInObjArgs<T> {
   node: LayoutNode<any> | NodeNotFoundWithoutContext;
   dataSources: ContextDataSources;
   defaults?: LEDefaultValues<T>;
-  skipPaths?: Set<string | keyof T>;
 }
 
 /**
@@ -64,10 +63,6 @@ function evalExprInObjectRecursive<T>(
   path: string[],
 ) {
   if (typeof input !== 'object') {
-    return input;
-  }
-  const pathString = path.join('.');
-  if (args.skipPaths && args.skipPaths.has(pathString)) {
     return input;
   }
 

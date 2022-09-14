@@ -577,31 +577,6 @@ export class LayoutNode<
 
     return theirBindingParts.join('.');
   }
-
-  /**
-   * Resolves layout expressions inside the node. This returns a new LayoutNode<'resolved'>. It only resolves the
-   * current node, so if you want to resolve all nodes in the layout use resolvedNodesInLayout() instead.
-   * @see resolvedNodesInLayout
-   */
-  public resolveExpressions(
-    dataSources: ContextDataSources,
-  ): LayoutNode<'resolved'> {
-    // This includes a lot of 'as any' to avoid expensive type-checking
-    return new LayoutNode(
-      evalExprInObj({
-        input: this.item as any,
-        node: this as any,
-        dataSources,
-        defaults: {
-          ...LEDefaultsForComponent,
-          ...LEDefaultsForGroup,
-        } as any,
-        skipPaths: new Set(['children', 'rows', 'childComponents']),
-      }) as any,
-      this.parent,
-      this.rowIndex,
-    ) as any;
-  }
 }
 
 /**
@@ -675,15 +650,32 @@ export function resolvedNodesInLayout(
   repeatingGroups: IRepeatingGroups,
   dataSources: ContextDataSources,
 ): LayoutRootNode<'resolved'> {
-  const resolved = new LayoutRootNode<'resolved'>();
   const unresolved = nodesInLayout(formLayout, repeatingGroups);
 
   for (const node of unresolved.flat(true)) {
-    const newNode = node.resolveExpressions(dataSources);
-    resolved._addChild(newNode);
+    const input = { ...node.item };
+    delete input['children'];
+    delete input['rows'];
+    delete input['childComponents'];
+
+    const resolvedItem = evalExprInObj({
+      input,
+      node,
+      dataSources,
+      defaults: {
+        ...LEDefaultsForComponent,
+        ...LEDefaultsForGroup,
+      } as any,
+    }) as unknown as AnyItem<'resolved'>;
+
+    for (const key of Object.keys(resolvedItem)) {
+      // Mutates node.item directly - this also mutates references to it and makes sure
+      // we resolve layout expressions deep inside recursive structures.
+      node.item[key] = resolvedItem[key];
+    }
   }
 
-  return resolved;
+  return unresolved as unknown as LayoutRootNode<'resolved'>;
 }
 
 /**

@@ -5,6 +5,7 @@ import {
   LayoutRootNode,
   LayoutRootNodeCollection,
   nodesInLayout,
+  resolvedNodesInLayout,
 } from 'src/utils/layout/hierarchy';
 import type {
   ILayout,
@@ -12,15 +13,39 @@ import type {
   ILayoutCompInput,
   ILayoutGroup,
 } from 'src/features/form/layout';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 import type { IRepeatingGroups } from 'src/types';
+import type { AnyNode } from 'src/utils/layout/hierarchy.types';
 
 describe('Hierarchical layout tools', () => {
   const header: Omit<ILayoutCompHeader, 'id'> = { type: 'Header', size: 'L' };
-  const input: Omit<ILayoutCompInput, 'id'> = { type: 'Input' };
+  const input: Omit<ILayoutCompInput, 'id'> = {
+    type: 'Input',
+    hidden: {
+      function: 'equals',
+      args: [
+        {
+          function: 'dataModel',
+          args: ['Model.ShouldBeTrue'],
+        },
+        'true',
+      ],
+    },
+  };
   const group: Omit<ILayoutGroup, 'id' | 'children'> = { type: 'Group' };
   const repGroup: Omit<ILayoutGroup, 'id' | 'children'> = {
     type: 'Group',
     maxCount: 3,
+    hidden: {
+      function: 'equals',
+      args: [
+        {
+          function: 'dataModel',
+          args: ['Model.ShouldBeFalse'],
+        },
+        'false',
+      ],
+    },
   };
   const components = {
     top1: { id: 'top1', ...header },
@@ -453,6 +478,61 @@ describe('Hierarchical layout tools', () => {
         otherDeepComponent.closest((c) => c.id === 'not-found'),
       ).toBeUndefined();
     });
+  });
+
+  describe('resolvedNodesInLayout', () => {
+    const dataSources: ContextDataSources = {
+      formData: {
+        'Model.ShouldBeTrue': 'true',
+        'Model.ShouldBeFalse': 'false',
+      },
+      instanceContext: {
+        instanceId: 'test',
+        instanceOwnerPartyId: 'test',
+        appId: 'test',
+      },
+      applicationSettings: {},
+    };
+
+    const nodes = resolvedNodesInLayout(layout, repeatingGroups, dataSources);
+
+    const topInput = nodes.findById(components.top2.id);
+    const group2 = nodes.findById(components.group2.id);
+    const group2i = nodes.findById(`${components.group2i.id}-0`);
+    const group2ni = nodes.findById(`${components.group2ni.id}-0-1`);
+
+    function uniqueHidden(nodes: AnyNode<any>[]): any[] {
+      return [...new Set(nodes.map((n) => n.item.hidden))].sort();
+    }
+    const plain = [true, undefined];
+
+    // Tests to make sure all children also have their layout expressions resolved
+    expect(topInput.item.hidden).toEqual(true);
+    expect(group2i.item.hidden).toEqual(true);
+    expect(group2ni.item.hidden).toEqual(true);
+    expect(group2i.parent.item.hidden).toEqual(true);
+    expect(group2ni.parent.parent.item.hidden).toEqual(true);
+    expect(uniqueHidden(group2.children())).toEqual(plain);
+    expect(uniqueHidden(group2i.parent.children())).toEqual(plain);
+    expect(uniqueHidden(group2ni.parent.children())).toEqual(plain);
+    expect(uniqueHidden(group2ni.parent.parent.children())).toEqual(plain);
+    expect(uniqueHidden(group2.flat(true))).toEqual(plain);
+    expect(uniqueHidden(group2.flat(false))).toEqual(plain);
+    expect(uniqueHidden(nodes.flat(true))).toEqual(plain);
+    expect(uniqueHidden(nodes.children())).toEqual(plain);
+
+    if (group2.item.type === 'Group' && 'rows' in group2.item) {
+      expect(group2.item.rows[0][1].hidden).toEqual(true);
+      expect(group2.item.rows[0][2].hidden).toEqual(true);
+      const group2n = group2.item.rows[0][2];
+      if (group2n.type === 'Group' && 'rows' in group2n) {
+        expect(group2n.rows[0][1].hidden).toEqual(true);
+      } else {
+        expect(false).toEqual(true);
+      }
+    } else {
+      expect(false).toEqual(true);
+    }
   });
 
   describe('LayoutRootNodeCollection', () => {
