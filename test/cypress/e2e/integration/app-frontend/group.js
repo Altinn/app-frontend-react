@@ -137,6 +137,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.secondGroup_currentValue).should('be.visible').type('1').blur();
     cy.get(appFrontend.group.secondGroup_newValue).should('be.visible').type('2').blur();
     cy.get(appFrontend.group.secondGroup_save).focus().should('be.visible').click();
+    cy.get(appFrontend.group.secondGroup_save_and_close).focus().should('be.visible').click();
     cy.get(appFrontend.group.secondGroup_table).find('tbody').find('tr').its('length').should('eq', 1);
   });
 
