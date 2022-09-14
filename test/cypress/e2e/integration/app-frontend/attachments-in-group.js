@@ -290,9 +290,11 @@ describe('Repeating group attachments', () => {
       .should('contain.text', filenames[0].multi[2]);
 
     // This verifies that the deleted filename is no longer part of the table header preview:
+    cy.get(appFrontend.group.rows[0].editBtn).click();
     verifyPreview();
 
     // Let's also delete one of the nested attachments to verify the same thing happens there.
+    cy.get(appFrontend.group.rows[0].editBtn).click();
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     cy.get(appFrontend.group.rows[1].editBtn).click();
@@ -309,7 +311,9 @@ describe('Repeating group attachments', () => {
       .should('be.visible')
       .should('contain.text', filenames[1].nested[1][2]);
 
+    cy.get(appFrontend.group.rows[1].editBtn).click();
     verifyPreview();
+    cy.get(appFrontend.group.rows[1].editBtn).click();
 
     const expectedAttachmentState = {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
