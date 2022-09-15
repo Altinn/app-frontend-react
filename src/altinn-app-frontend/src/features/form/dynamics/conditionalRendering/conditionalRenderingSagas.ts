@@ -27,23 +27,33 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
     const formData: IFormData = yield select(FormDataSelector);
     const formValidations: IValidations = yield select(FormValidationSelector);
     const uiConfig: IUiConfig = yield select(UiConfigSelector);
-    const componentsToHide: string[] = runConditionalRenderingRules(
+    const present = new Set(uiConfig.hiddenFields);
+    const future = runConditionalRenderingRules(
       conditionalRenderingState,
       formData,
       uiConfig.repeatingGroups,
     );
 
-    if (shouldHiddenFieldsUpdate(uiConfig.hiddenFields, componentsToHide)) {
-      yield put(FormLayoutActions.updateHiddenComponents({ componentsToHide }));
-      componentsToHide.forEach((componentId) => {
-        if (formValidations[componentId]) {
-          const newFormValidations = formValidations;
-          delete formValidations[componentId];
-          ValidationActions.updateValidations({
-            validations: newFormValidations,
-          });
+    if (shouldHiddenFieldsUpdate(present, future)) {
+      yield put(
+        FormLayoutActions.updateHiddenComponents({
+          componentsToHide: [...future.values()],
+        }),
+      );
+
+      const newFormValidations = { ...formValidations };
+      let validationsChanged = false;
+      future.forEach((componentId) => {
+        if (newFormValidations[componentId]) {
+          delete newFormValidations[componentId];
+          validationsChanged = true;
         }
       });
+      if (validationsChanged) {
+        ValidationActions.updateValidations({
+          validations: newFormValidations,
+        });
+      }
     }
   } catch (err) {
     yield call(console.error, err);
@@ -51,16 +61,15 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
 }
 
 function shouldHiddenFieldsUpdate(
-  currentList: string[],
-  newList: string[],
+  currentList: Set<string>,
+  newList: Set<string>,
 ): boolean {
-  if (!currentList || currentList.length !== newList.length) {
+  if (currentList.size !== newList.size) {
     return true;
   }
 
-  if (!currentList && newList && newList.length > 0) {
-    return true;
-  }
+  const present = [...currentList.values()].sort();
+  const future = [...newList.values()].sort();
 
-  return !!currentList.find((element) => !newList.includes(element));
+  return JSON.stringify(present) !== JSON.stringify(future);
 }
