@@ -145,6 +145,11 @@ const useStyles = makeStyles({
     borderTop: `1px solid ${theme.altinnPalette.primary.blueLight}`,
     marginBottom: 0,
   },
+  editContainerRow: {
+    '&:hover': {
+      background: 'unset !important',
+    },
+  },
   editingRow: {
     backgroundColor: 'rgba(227, 247, 255, 0.5)',
     '& td': {
@@ -493,7 +498,10 @@ export function RepeatingGroupTable({
                         )}
                       </AltinnTableRow>
                       {editIndex === index && (
-                        <TableRow key={`edit-container-${index}`}>
+                        <TableRow
+                          key={`edit-container-${index}`}
+                          className={cn([classes.editContainerRow])}
+                        >
                           <TableCell
                             style={{ padding: 0, borderBottom: 0 }}
                             colSpan={componentTitles.length + 2}
