@@ -496,7 +496,7 @@ export function RepeatingGroupTable({
                         <TableRow key={`edit-container-${index}`}>
                           <TableCell
                             style={{ padding: 0, borderBottom: 0 }}
-                            colSpan={components.length + 2}
+                            colSpan={componentTitles.length + 2}
                           >
                             {renderRepeatingGroupsEditContainer()}
                           </TableCell>
