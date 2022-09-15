@@ -447,6 +447,7 @@ export function hasRequiredFields(layout: ILayout) {
  * @param options.matching Function which should return true for every component to be included in the returned list.
  *    If not provided, all components are returned.
  * @param options.rootGroupId Component id for a group to use as root, instead of iterating the entire layout.
+ * @deprecated Use nodesInLayout() instead. TODO: Rewrite usages
  */
 export function findChildren(
   layout: ILayout,
