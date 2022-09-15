@@ -389,6 +389,22 @@ export class LayoutNode<
     return parents;
   }
 
+  private childrenAsList(onlyInRowIndex?: number) {
+    let list: AnyItem<NT>[];
+    if (this.item.type === 'Group' && 'rows' in this.item) {
+      if (typeof onlyInRowIndex === 'number') {
+        list = this.item.rows[onlyInRowIndex];
+      } else {
+        // Beware: In most cases this will just match the first row.
+        list = this.item.rows.flat();
+      }
+    } else if (this.item.type === 'Group' && 'childComponents' in this.item) {
+      list = this.item.childComponents;
+    }
+
+    return list;
+  }
+
   /**
    * Looks for a matching component inside the children of this node (only makes sense for a group node). Beware that
    * matching inside a repeating group with multiple rows, you should provide a second argument to specify the row
@@ -403,17 +419,7 @@ export class LayoutNode<
     matching?: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
   ): any {
-    let list: AnyItem<NT>[];
-    if (this.item.type === 'Group' && 'rows' in this.item) {
-      if (typeof onlyInRowIndex === 'number') {
-        list = this.item.rows[onlyInRowIndex];
-      } else {
-        // Beware: In most cases this will just match the first row.
-        list = this.item.rows.flat();
-      }
-    } else if (this.item.type === 'Group' && 'childComponents' in this.item) {
-      list = this.item.childComponents;
-    }
+    const list = this.childrenAsList(onlyInRowIndex);
 
     if (!matching) {
       if (!list) {

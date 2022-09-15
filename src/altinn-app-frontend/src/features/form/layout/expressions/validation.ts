@@ -52,6 +52,49 @@ function addError(
   }
 }
 
+function validateFunctionArg(
+  func: LEFunction,
+  idx: number,
+  actual: (BaseValue | undefined)[],
+  ctx: ValidationContext,
+  path: string[],
+) {
+  const expectedType = argTypeAt(func, idx);
+  const actualType = actual[idx];
+  if (expectedType === undefined) {
+    addError(
+      ctx,
+      [...path, `args[${idx}]`],
+      ValidationErrorMessage.ArgUnexpected,
+    );
+  } else {
+    const targetType = LETypes[expectedType];
+
+    if (actualType === undefined) {
+      if (targetType.nullable) {
+        return;
+      }
+      addError(
+        ctx,
+        [...path, `args[${idx}]`],
+        ValidationErrorMessage.ArgWrongType,
+        expectedType,
+        'null',
+      );
+    }
+
+    if (!targetType.accepts.includes(actualType)) {
+      addError(
+        ctx,
+        [...path, `args[${idx}]`],
+        ValidationErrorMessage.ArgWrongType,
+        expectedType,
+        'null',
+      );
+    }
+  }
+}
+
 function validateFunctionArgs(
   func: LEFunction,
   actual: (BaseValue | undefined)[],
@@ -68,40 +111,7 @@ function validateFunctionArgs(
 
   const maxIdx = Math.max(expected.length, actual.length);
   for (let idx = 0; idx < maxIdx; idx++) {
-    const expectedType = argTypeAt(func, idx);
-    const actualType = actual[idx];
-    if (expectedType === undefined) {
-      addError(
-        ctx,
-        [...path, `args[${idx}]`],
-        ValidationErrorMessage.ArgUnexpected,
-      );
-    } else {
-      const targetType = LETypes[expectedType];
-
-      if (actualType === undefined) {
-        if (targetType.nullable) {
-          continue;
-        }
-        addError(
-          ctx,
-          [...path, `args[${idx}]`],
-          ValidationErrorMessage.ArgWrongType,
-          expectedType,
-          'null',
-        );
-      }
-
-      if (!targetType.accepts.includes(actualType)) {
-        addError(
-          ctx,
-          [...path, `args[${idx}]`],
-          ValidationErrorMessage.ArgWrongType,
-          expectedType,
-          'null',
-        );
-      }
-    }
+    validateFunctionArg(func, idx, actual, ctx, path);
   }
 
   if (canSpread && actual.length >= minExpected) {
@@ -160,6 +170,45 @@ function validateArgument(
   addError(ctx, path, ValidationErrorMessage.InvalidType, type);
 }
 
+function validateObject(expr: any, ctx: ValidationContext, path: string[]) {
+  const args: (BaseValue | undefined)[] = [];
+  let returnVal: BaseValue | undefined;
+  if ('args' in expr) {
+    if (Array.isArray(expr.args)) {
+      for (const argIdx in expr.args) {
+        args.push(
+          validateArgument(expr.args[argIdx], ctx, [
+            ...path,
+            `args[${argIdx}]`,
+          ]),
+        );
+      }
+    } else {
+      addError(ctx, [...path, 'args'], ValidationErrorMessage.ArgsNotArr);
+    }
+  } else {
+    addError(ctx, path, ValidationErrorMessage.ArgsNotArr);
+  }
+
+  if ('function' in expr) {
+    returnVal = validateFunction(expr.function, args, ctx, [
+      ...path,
+      'function',
+    ]);
+  } else {
+    addError(ctx, path, ValidationErrorMessage.FuncMissing);
+  }
+
+  const otherKeys = Object.keys(expr).filter(
+    (key) => key !== 'function' && key !== 'args',
+  );
+  for (const otherKey of otherKeys) {
+    addError(ctx, [...path, otherKey], ValidationErrorMessage.UnknownProperty);
+  }
+
+  return returnVal;
+}
+
 function validateRecursively(
   expr: any,
   ctx: ValidationContext,
@@ -174,56 +223,14 @@ function validateRecursively(
   }
 
   if (typeof expr === 'object') {
-    const args: (BaseValue | undefined)[] = [];
-    let returnVal: BaseValue | undefined;
-    if ('args' in expr) {
-      if (Array.isArray(expr.args)) {
-        for (const argIdx in expr.args) {
-          args.push(
-            validateArgument(expr.args[argIdx], ctx, [
-              ...path,
-              `args[${argIdx}]`,
-            ]),
-          );
-        }
-      } else {
-        addError(ctx, [...path, 'args'], ValidationErrorMessage.ArgsNotArr);
-      }
-    } else {
-      addError(ctx, path, ValidationErrorMessage.ArgsNotArr);
-    }
-
-    if ('function' in expr) {
-      returnVal = validateFunction(expr.function, args, ctx, [
-        ...path,
-        'function',
-      ]);
-    } else {
-      addError(ctx, path, ValidationErrorMessage.FuncMissing);
-    }
-
-    const otherKeys = Object.keys(expr).filter(
-      (key) => key !== 'function' && key !== 'args',
-    );
-    for (const otherKey of otherKeys) {
-      addError(
-        ctx,
-        [...path, otherKey],
-        ValidationErrorMessage.UnknownProperty,
-      );
-    }
-
-    return returnVal;
+    return validateObject(expr, ctx, path);
   }
 
   addError(ctx, path, ValidationErrorMessage.InvalidType, typeof expr);
 }
 
 function validate(expr: any) {
-  const ctx: ValidationContext = {
-    errors: {},
-  };
-
+  const ctx: ValidationContext = { errors: {} };
   validateRecursively(expr, ctx, []);
 
   if (Object.keys(ctx.errors).length) {
