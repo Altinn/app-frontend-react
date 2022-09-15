@@ -19,6 +19,9 @@ const NavBar = (props: INavBarProps) => {
     (state) => state.formLayout.uiConfig.hideCloseButton,
   );
   const language = useAppSelector((state) => state.language.language || {});
+  const rtlLanguageDirection = useAppSelector(
+    (state) => state.textResources.rtlLanguageDirection,
+  );
 
   const showLanguageSelector = useAppSelector(
     (state) => state.formLayout.uiConfig.showLanguageSelector,
@@ -44,7 +47,9 @@ const NavBar = (props: INavBarProps) => {
           >
             <span className='ai-stack'>
               <i
-                className='ai-stack-1x ai ai-back'
+                className={`ai-stack-1x ai ${
+                  rtlLanguageDirection ? 'ai-arrowright' : 'ai-back'
+                }`}
                 aria-hidden='true'
               />
             </span>

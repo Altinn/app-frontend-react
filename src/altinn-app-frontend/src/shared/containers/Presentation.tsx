@@ -1,5 +1,10 @@
 import * as React from 'react';
 
+import { createTheme, ThemeProvider } from '@material-ui/core';
+import { jssPreset, StylesProvider } from '@material-ui/styles';
+import { create } from 'jss';
+import rtl from 'jss-rtl';
+
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import Header from 'src/components/presentation/Header';
 import NavBar from 'src/components/presentation/NavBar';
@@ -31,15 +36,19 @@ const style = {
   marginBottom: '1rem',
 };
 
+// Configure JSS
+// https://v4.mui.com/guides/right-to-left/#right-to-left
+const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
+
 const PresentationComponent = (props: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const party = useAppSelector((state) => state.party?.selectedParty);
   const language = useAppSelector((state) => state.language.language || {});
   const instance = useAppSelector((state) => state.instanceData?.instance);
   const userParty = useAppSelector((state) => state.profile.profile?.party);
-  const textResources = useAppSelector(
-    (state) => state.textResources.resources,
-  );
+  const textResources = useAppSelector((state) => state.textResources);
+  const isRtl = textResources.rtlLanguageDirection;
+  const direction = isRtl ? 'rtl' : 'ltr';
   const previousFormPage: string = useAppSelector((state) =>
     getNextView(
       state.formLayout.uiConfig.navigationConfig[
@@ -111,48 +120,61 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
         headerBackgroundColor={backgroundColor}
         language={language}
       />
-      <main className='container'>
-        <div className='row'>
-          <div className='col-xl-12 a-p-static'>
-            {isProcessStepsArchived && instance?.status?.substatus && (
-              <AltinnSubstatusPaper
-                label={getTextResourceByKey(
-                  instance.status.substatus.label,
-                  textResources,
+      <ThemeProvider
+        theme={createTheme({
+          ...AltinnAppTheme,
+          direction,
+        })}
+      >
+        <StylesProvider jss={jss}>
+          <main
+            className={`container ${isRtl ? 'language-dir-rtl' : ''}`}
+            dir={direction}
+            lang={textResources.language}
+          >
+            <div className='row'>
+              <div className='col-xl-12 a-p-static'>
+                {isProcessStepsArchived && instance?.status?.substatus && (
+                  <AltinnSubstatusPaper
+                    label={getTextResourceByKey(
+                      instance.status.substatus.label,
+                      textResources.resources,
+                    )}
+                    description={getTextResourceByKey(
+                      instance.status.substatus.description,
+                      textResources.resources,
+                    )}
+                  />
                 )}
-                description={getTextResourceByKey(
-                  instance.status.substatus.description,
-                  textResources,
-                )}
-              />
-            )}
-            <NavBar
-              handleClose={handleModalCloseButton}
-              handleBack={handleBackArrowButton}
-              showBackArrow={
-                !!previousFormPage &&
-                (props.type === ProcessTaskType.Data ||
-                  props.type === PresentationType.Stateless)
-              }
-            />
-            <div className='a-modal-content-target'>
-              <div className='a-page a-current-page'>
-                <div className='modalPage'>
-                  <section
-                    className='modal-content'
-                    id='main-content'
-                  >
-                    <Header {...props} />
-                    <div className='modal-body a-modal-body'>
-                      {props.children}
+                <NavBar
+                  handleClose={handleModalCloseButton}
+                  handleBack={handleBackArrowButton}
+                  showBackArrow={
+                    !!previousFormPage &&
+                    (props.type === ProcessTaskType.Data ||
+                      props.type === PresentationType.Stateless)
+                  }
+                />
+                <div className='a-modal-content-target'>
+                  <div className='a-page a-current-page'>
+                    <div className='modalPage'>
+                      <section
+                        className='modal-content'
+                        id='main-content'
+                      >
+                        <Header {...props} />
+                        <div className='modal-body a-modal-body'>
+                          {props.children}
+                        </div>
+                      </section>
                     </div>
-                  </section>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </main>
+          </main>
+        </StylesProvider>
+      </ThemeProvider>
     </div>
   );
 };

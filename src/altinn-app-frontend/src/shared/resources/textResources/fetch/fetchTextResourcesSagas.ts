@@ -32,6 +32,7 @@ export function* fetchTextResources(): SagaIterator {
     yield put(
       TextResourcesActions.fetchFulfilled({
         language: resource.language,
+        languageDirection: resource.languageDirection,
         resources: resource.resources,
       }),
     );

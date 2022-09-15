@@ -15,6 +15,7 @@ import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 
 const initialState: ITextResourcesState = {
   language: null,
+  rtlLanguageDirection: false,
   resources: [],
   error: null,
 };
@@ -30,6 +31,8 @@ const textResourcesSlice = createSagaSlice(
       fetchFulfilled: mkAction<IFetchTextResourcesFulfilled>({
         reducer: (state, action) => {
           state.language = action.payload.language;
+          state.rtlLanguageDirection =
+            action.payload.languageDirection === 'rtl';
           state.resources = action.payload.resources;
         },
       }),

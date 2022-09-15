@@ -60,6 +60,7 @@ describe('fetchTextResourcesSagas', () => {
       .put(
         TextResourcesActions.fetchFulfilled({
           language: 'nb',
+          languageDirection: undefined,
           resources: mockTextResource.resources,
         }),
       )
@@ -83,6 +84,7 @@ describe('fetchTextResourcesSagas', () => {
       .put(
         TextResourcesActions.fetchFulfilled({
           language: 'en',
+          languageDirection: undefined,
           resources: mockTextResource.resources,
         }),
       )
@@ -120,6 +122,33 @@ describe('fetchTextResourcesSagas', () => {
       .put(
         TextResourcesActions.fetchFulfilled({
           language: 'en',
+          languageDirection: undefined,
+          resources: mockTextResource.resources,
+        }),
+      )
+      .run();
+  });
+  it('should run provide languageDirection', () => {
+    const mockTextResource = {
+      language: 'ar',
+      languageDirection: 'rtl',
+      resources: [
+        {
+          id: 'id1',
+          value: 'This is a text',
+        },
+      ],
+    };
+    return expectSaga(fetchTextResources)
+      .provide([
+        [select(appLanguageStateSelector), 'ar'],
+        [select(makeGetAllowAnonymousSelector()), false],
+        [call(get, textResourcesUrl('ar')), mockTextResource],
+      ])
+      .put(
+        TextResourcesActions.fetchFulfilled({
+          language: 'ar',
+          languageDirection: 'rtl',
           resources: mockTextResource.resources,
         }),
       )
