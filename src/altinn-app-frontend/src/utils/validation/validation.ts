@@ -201,7 +201,7 @@ export function validateEmptyFields(
   layouts: LayoutRootNodeCollection<'resolved'>,
   layoutOrder: string[],
   language: ILanguage,
-  hiddenFields: string[],
+  hiddenFields: Set<string>,
   textResources: ITextResource[],
 ) {
   const validations = {};
@@ -224,11 +224,9 @@ export function validateEmptyFieldsForNodes(
   formData: IFormData,
   nodes: LayoutRootNode<'resolved'> | LayoutNode<'resolved'>,
   language: ILanguage,
-  hiddenFields: string[],
+  hiddenFields: Set<string>,
   textResources: ITextResource[],
 ): ILayoutValidations {
-  const hidden = new Set<string>(hiddenFields);
-
   const validations: any = {};
   for (const node of nodes.flat(false)) {
     if (
@@ -237,7 +235,7 @@ export function validateEmptyFieldsForNodes(
       node.item.type === 'FileUpload' ||
       node.item.type === 'FileUploadWithTag' ||
       node.item.required === false ||
-      node.isHidden(hidden)
+      node.isHidden(hiddenFields)
     ) {
       continue;
     }
@@ -340,7 +338,7 @@ export function validateFormComponents(
   layoutOrder: string[],
   formData: IFormData,
   language: ILanguage,
-  hiddenFields: string[],
+  hiddenFields: Set<string>,
 ) {
   const validations: any = {};
   const layouts = nodeLayout.all();
@@ -367,15 +365,14 @@ function validateFormComponentsForNodes(
   nodes: LayoutRootNode<'resolved'> | LayoutNode<'resolved'>,
   formData: IFormData,
   language: ILanguage,
-  hiddenFields: string[],
+  hiddenFields: Set<string>,
 ): ILayoutValidations {
   const validations: ILayoutValidations = {};
   const fieldKey: keyof IDataModelBindings = 'simpleBinding';
   const flatNodes = nodes.flat(false);
-  const hiddenSet = new Set<string>(hiddenFields);
 
   for (const node of flatNodes) {
-    if (node.isHidden(hiddenSet)) {
+    if (node.isHidden(hiddenFields)) {
       continue;
     }
 
@@ -1487,7 +1484,7 @@ export function validateGroup(
 ): IValidations {
   const language = state.language.language;
   const textResources = state.textResources.resources;
-  const hiddenFields = state.formLayout.uiConfig.hiddenFields;
+  const hiddenFields = new Set<string>(state.formLayout.uiConfig.hiddenFields);
   const attachments = state.attachments.attachments;
   const repeatingGroups = state.formLayout.uiConfig.repeatingGroups;
   const formData = state.formData.formData;

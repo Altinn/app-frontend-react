@@ -24,6 +24,8 @@ export function runClientSideValidation(state: IRuntimeState) {
     state.formDataModel.schemas,
   );
 
+  const hiddenFields = new Set(state.formLayout.uiConfig.hiddenFields);
+
   const layouts = resolvedLayoutsFromState(state);
   const validationResult = validateFormData(
     model,
@@ -39,14 +41,14 @@ export function runClientSideValidation(state: IRuntimeState) {
     state.formLayout.uiConfig.layoutOrder,
     state.formData.formData,
     state.language.language,
-    state.formLayout.uiConfig.hiddenFields,
+    hiddenFields,
   );
   const emptyFieldsValidations = validateEmptyFields(
     state.formData.formData,
     layouts,
     state.formLayout.uiConfig.layoutOrder,
     state.language.language,
-    state.formLayout.uiConfig.hiddenFields,
+    hiddenFields,
     state.textResources.resources,
   );
   return {

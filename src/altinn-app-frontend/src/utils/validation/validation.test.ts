@@ -617,7 +617,7 @@ describe('utils > validation', () => {
         Object.keys(mockLayoutState.layouts),
         mockFormData,
         mockLanguage.language,
-        [],
+        new Set(),
       );
 
       const mockResult = {
@@ -644,7 +644,7 @@ describe('utils > validation', () => {
         Object.keys(mockLayoutState.layouts),
         mockFormData,
         mockLanguage.language,
-        [],
+        new Set(),
       );
 
       const mockResult = {
@@ -679,7 +679,7 @@ describe('utils > validation', () => {
         Object.keys(mockLayout),
         mockFormData,
         mockLanguage.language,
-        [],
+        new Set(),
       );
 
       const mockResult = {
@@ -707,7 +707,7 @@ describe('utils > validation', () => {
         Object.keys(mockLayout),
         mockFormData,
         mockLanguage.language,
-        ['componentId_4'],
+        new Set(['componentId_4']),
       );
 
       const mockResult = {
@@ -735,7 +735,7 @@ describe('utils > validation', () => {
         [],
         mockFormData,
         mockLanguage.language,
-        [],
+        new Set(),
       );
 
       expect(componentSpecificValidations).toEqual({});
@@ -756,7 +756,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout, repeatingGroups),
         Object.keys(mockLayout),
         mockLanguage.language,
-        [],
+        new Set(),
         mockTextResources,
       );
 
@@ -797,7 +797,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout, repeatingGroups),
         Object.keys(mockLayout),
         mockLanguage.language,
-        ['componentId_4-0'],
+        new Set(['componentId_4-0']),
         mockTextResources,
       );
 
@@ -832,7 +832,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout, repeatingGroups),
         [],
         mockLanguage.language,
-        [],
+        new Set(),
         mockTextResources,
       );
 
@@ -900,7 +900,7 @@ describe('utils > validation', () => {
         formData,
         toCollection({ FormLayout: formLayout }, repeatingGroups).current(),
         mockLanguage.language,
-        hiddenFields,
+        new Set(hiddenFields),
         mockTextResources,
       );
 
