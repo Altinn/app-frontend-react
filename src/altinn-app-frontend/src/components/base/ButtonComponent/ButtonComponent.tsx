@@ -1,30 +1,19 @@
 import React from 'react';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { SaveButton } from 'src/components/base/ButtonComponent/SaveButton';
+import { SubmitButton } from 'src/components/base/ButtonComponent/SubmitButton';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import type { IComponentProps } from 'src/components';
 import type { ILayoutCompButton } from 'src/features/form/layout';
 import type { IAltinnWindow } from 'src/types';
 
-import { AltinnLoader } from 'altinn-shared/components';
-import { getLanguageFromKey } from 'altinn-shared/utils/language';
-
 export interface IButtonProvidedProps
   extends IComponentProps,
     ILayoutCompButton {
+  id: string;
   disabled: boolean;
 }
-
-const buttonStyle = {
-  marginBottom: '0',
-  width: '100%',
-};
-
-const altinnLoaderStyle = {
-  marginLeft: '40px',
-  marginTop: '2px',
-  height: '45px', // same height as button
-};
 
 const btnGroupStyle = {
   marginTop: '3.6rem',
@@ -46,57 +35,8 @@ export function ButtonComponent({ id, text, language }: IButtonProvidedProps) {
     (state) => state.formData.ignoreWarnings,
   );
 
-  const renderSubmitButton = () => {
-    return (
-      <div className='pl-0 a-btn-sm-fullwidth'>
-        {isSubmitting ? (
-          renderLoader()
-        ) : (
-          <button
-            type='submit'
-            className='a-btn a-btn-success'
-            onClick={submitForm}
-            id={id}
-            style={buttonStyle}
-          >
-            {text}
-          </button>
-        )}
-      </div>
-    );
-  };
-
-  const renderSaveButton = () => {
-    return (
-      <div className='col-2 pl-0 a-btn-sm-fullwidth'>
-        {isSaving ? (
-          renderLoader()
-        ) : (
-          <button
-            type='submit'
-            className='a-btn a-btn-success'
-            onClick={saveFormData}
-            id='saveBtn'
-            style={buttonStyle}
-          >
-            Lagre
-          </button>
-        )}
-      </div>
-    );
-  };
-
   const saveFormData = () => {
     dispatch(FormDataActions.submit({}));
-  };
-
-  const renderLoader = () => {
-    return (
-      <AltinnLoader
-        srContent={getLanguageFromKey('general.loading', language)}
-        style={altinnLoaderStyle}
-      />
-    );
   };
 
   const submitForm = () => {
@@ -109,7 +49,7 @@ export function ButtonComponent({ id, text, language }: IButtonProvidedProps) {
       }),
     );
   };
-
+  const busyWithId = (isSaving && 'saveBtn') || (isSubmitting && id) || '';
   return (
     <div className='container pl-0'>
       <div
@@ -120,8 +60,24 @@ export function ButtonComponent({ id, text, language }: IButtonProvidedProps) {
           className='row'
           style={rowStyle}
         >
-          {autoSave === false && renderSaveButton()}
-          {renderSubmitButton()}
+          {autoSave === false && ( // can this be removed from the component?
+            <SaveButton
+              onClick={saveFormData}
+              id='saveBtn'
+              busyWithId={busyWithId}
+              language={language}
+            >
+              Lagre
+            </SaveButton>
+          )}
+          <SubmitButton
+            onClick={submitForm}
+            id={id}
+            language={language}
+            busyWithId={busyWithId}
+          >
+            {text}
+          </SubmitButton>
         </div>
       </div>
     </div>

@@ -4,8 +4,8 @@ import { getInitialStateMock } from '__mocks__/mocks';
 import { screen } from '@testing-library/react';
 import { renderWithProviders } from 'testUtils';
 
-import { ButtonComponent } from 'src/components/base/ButtonComponent';
-import type { IButtonProvidedProps } from 'src/components/base/ButtonComponent';
+import { ButtonComponent } from 'src/components/base/ButtonComponent/ButtonComponent';
+import type { IButtonProvidedProps } from 'src/components/base/ButtonComponent/ButtonComponent';
 
 const submitBtnText = 'Submit form';
 
@@ -22,8 +22,8 @@ describe('ButtonComponent', () => {
   it('should render loader when isSubmitting is true', () => {
     render({ isSubmitting: true });
 
+    expect(screen.queryByRole('button')).toBeInTheDocument();
     expect(screen.getByText('general.loading')).toBeInTheDocument();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 });
 
@@ -46,6 +46,7 @@ const render = ({ isSubmitting }: { isSubmitting: boolean }) => {
 
   renderWithProviders(
     <ButtonComponent
+      id={'some-id'}
       text={submitBtnText}
       handleDataChange={jest.fn()}
       disabled={false}
