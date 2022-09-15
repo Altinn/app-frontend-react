@@ -194,30 +194,29 @@ select.disabled {
   background-color: #fff;
   color: #000;
   border-bottom: 1px solid #eee;
-  padding-left: 24px;
 }
 
-[direction='rtl'] .a-iconText.a-iconText-background {
+[dir='ltr'] .a-iconText.a-iconText-background {
   padding-left: 24px;
 }
-[direction='rtl'] .a-iconText.a-iconText-background {
+[dir='rtl'] .a-iconText.a-iconText-background {
   padding-right: 24px;
 }
 
 @media only screen and (min-width: 768px) {
-  .a-iconText.a-iconText-background {
+  [dir='ltr'] .a-iconText.a-iconText-background {
     padding-left: 84px;
   }
-  .a-iconText.a-iconText-background {
+  [dir='rtl'] .a-iconText.a-iconText-background {
     padding-right: 84px;
   }
 }
 
 @media only screen and (min-width: 992px) {
-  [direction='rtl'] .a-iconText.a-iconText-background {
+  [dir='ltr'] .a-iconText.a-iconText-background {
     padding-left: 96px;
   }
-  [direction='rtl'] .a-iconText.a-iconText-background {
+  [dir='rtl'] .a-iconText.a-iconText-background {
     padding-right: 96px;
   }
 }
