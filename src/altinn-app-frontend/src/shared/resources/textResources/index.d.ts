@@ -8,7 +8,6 @@ export interface ITextResourcesState {
 }
 
 export interface IFetchTextResourcesFulfilled {
-  languageDirection?: string;
   language: string;
   resources: ITextResource[];
 }

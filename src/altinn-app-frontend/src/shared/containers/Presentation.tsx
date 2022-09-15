@@ -36,6 +36,12 @@ const style = {
   marginBottom: '1rem',
 };
 
+// Configure JSS
+// https://v4.mui.com/guides/right-to-left/#right-to-left
+const jss = create({
+  plugins: [...jssPreset().plugins, rtl()],
+});
+
 const PresentationComponent = (props: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const party = useAppSelector((state) => state.party?.selectedParty);
@@ -45,11 +51,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
   const textResources = useAppSelector((state) => state.textResources);
   const isRtl = textResources.rtlLanguageDirection;
   const direction = isRtl ? 'rtl' : 'ltr';
-  // Configure JSS
-  // https://v4.mui.com/guides/right-to-left/#right-to-left
-  const jss = create({
-    plugins: [...jssPreset().plugins, rtl({ enabled: isRtl })],
-  });
+
   const previousFormPage: string = useAppSelector((state) =>
     getNextView(
       state.formLayout.uiConfig.navigationConfig[

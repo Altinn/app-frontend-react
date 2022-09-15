@@ -6,11 +6,13 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { renderWithProviders } from 'testUtils';
+import type { PreloadedState } from '@reduxjs/toolkit';
 
 import Presentation from 'src/shared/containers/Presentation';
 import { ProcessTaskType } from 'src/types';
 import { HttpStatusCodes } from 'src/utils/networking';
 import type { IPresentationProvidedProps } from 'src/shared/containers/Presentation';
+import type { RootState } from 'src/store';
 
 import { AltinnAppTheme, returnUrlToMessagebox } from 'altinn-shared/index';
 
@@ -161,11 +163,48 @@ describe('Presentation', () => {
       `background-color: ${AltinnAppTheme.altinnPalette.primary.greenLight}`,
     );
   });
+
+  it('should change language and direction of main when rtl language', () => {
+    render(
+      {
+        type: ProcessTaskType.Data,
+      },
+      {
+        textResources: {
+          rtlLanguageDirection: true,
+          language: 'ar',
+          resources: [],
+          error: null,
+        },
+      },
+    );
+    const main = screen.getByRole('main');
+    expect(main).toHaveAttribute('dir', 'rtl');
+    expect(main).toHaveAttribute('lang', 'ar');
+  });
+  it('should change not language and direction of main when ltr language', () => {
+    render(
+      {
+        type: ProcessTaskType.Data,
+      },
+      {
+        textResources: {
+          rtlLanguageDirection: false,
+          language: 'no',
+          resources: [],
+          error: null,
+        },
+      },
+    );
+    const main = screen.getByRole('main');
+    expect(main).toHaveAttribute('dir', 'ltr');
+    expect(main).toHaveAttribute('lang', 'no');
+  });
 });
 
 const render = (
   props: Partial<IPresentationProvidedProps> = {},
-  preloadedState = undefined,
+  preloadedState?: PreloadedState<RootState>,
 ) => {
   const allProps = {
     header: 'Header text',
