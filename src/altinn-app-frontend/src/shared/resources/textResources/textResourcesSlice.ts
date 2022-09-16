@@ -13,11 +13,8 @@ import type {
 } from 'src/shared/resources/textResources';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 
-import { rightToLeftISOLanguageCodes } from 'altinn-shared/language/languages';
-
-export const initialState: ITextResourcesState = {
+const initialState: ITextResourcesState = {
   language: null,
-  rtlLanguageDirection: false,
   resources: [],
   error: null,
 };
@@ -33,9 +30,6 @@ const textResourcesSlice = createSagaSlice(
       fetchFulfilled: mkAction<IFetchTextResourcesFulfilled>({
         reducer: (state, action) => {
           state.language = action.payload.language;
-          state.rtlLanguageDirection = rightToLeftISOLanguageCodes.includes(
-            action.payload.language,
-          );
           state.resources = action.payload.resources;
         },
       }),

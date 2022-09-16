@@ -2,7 +2,6 @@ import type { ITextResource } from 'src/types';
 
 export interface ITextResourcesState {
   language: string;
-  rtlLanguageDirection?: boolean;
   resources: ITextResource[];
   error: Error;
 }

@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { createTheme, ThemeProvider } from '@material-ui/core';
-
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import Header from 'src/components/presentation/Header';
 import NavBar from 'src/components/presentation/NavBar';
@@ -39,10 +37,9 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
   const language = useAppSelector((state) => state.language.language || {});
   const instance = useAppSelector((state) => state.instanceData?.instance);
   const userParty = useAppSelector((state) => state.profile.profile?.party);
-  const textResources = useAppSelector((state) => state.textResources);
-  const isRtl = textResources.rtlLanguageDirection;
-  const direction = isRtl ? 'rtl' : 'ltr';
-
+  const textResources = useAppSelector(
+    (state) => state.textResources.resources,
+  );
   const previousFormPage: string = useAppSelector((state) =>
     getNextView(
       state.formLayout.uiConfig.navigationConfig[
@@ -114,59 +111,48 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
         headerBackgroundColor={backgroundColor}
         language={language}
       />
-      <ThemeProvider
-        theme={createTheme({
-          ...AltinnAppTheme,
-          direction,
-        })}
-      >
-        <main
-          className={`container ${isRtl ? 'language-dir-rtl' : ''}`}
-          dir={direction}
-          lang={textResources.language}
-        >
-          <div className='row'>
-            <div className='col-xl-12 a-p-static'>
-              {isProcessStepsArchived && instance?.status?.substatus && (
-                <AltinnSubstatusPaper
-                  label={getTextResourceByKey(
-                    instance.status.substatus.label,
-                    textResources.resources,
-                  )}
-                  description={getTextResourceByKey(
-                    instance.status.substatus.description,
-                    textResources.resources,
-                  )}
-                />
-              )}
-              <NavBar
-                handleClose={handleModalCloseButton}
-                handleBack={handleBackArrowButton}
-                showBackArrow={
-                  !!previousFormPage &&
-                  (props.type === ProcessTaskType.Data ||
-                    props.type === PresentationType.Stateless)
-                }
+      <main className='container'>
+        <div className='row'>
+          <div className='col-xl-12 a-p-static'>
+            {isProcessStepsArchived && instance?.status?.substatus && (
+              <AltinnSubstatusPaper
+                label={getTextResourceByKey(
+                  instance.status.substatus.label,
+                  textResources,
+                )}
+                description={getTextResourceByKey(
+                  instance.status.substatus.description,
+                  textResources,
+                )}
               />
-              <div className='a-modal-content-target'>
-                <div className='a-page a-current-page'>
-                  <div className='modalPage'>
-                    <section
-                      className='modal-content'
-                      id='main-content'
-                    >
-                      <Header {...props} />
-                      <div className='modal-body a-modal-body'>
-                        {props.children}
-                      </div>
-                    </section>
-                  </div>
+            )}
+            <NavBar
+              handleClose={handleModalCloseButton}
+              handleBack={handleBackArrowButton}
+              showBackArrow={
+                !!previousFormPage &&
+                (props.type === ProcessTaskType.Data ||
+                  props.type === PresentationType.Stateless)
+              }
+            />
+            <div className='a-modal-content-target'>
+              <div className='a-page a-current-page'>
+                <div className='modalPage'>
+                  <section
+                    className='modal-content'
+                    id='main-content'
+                  >
+                    <Header {...props} />
+                    <div className='modal-body a-modal-body'>
+                      {props.children}
+                    </div>
+                  </section>
                 </div>
               </div>
             </div>
           </div>
-        </main>
-      </ThemeProvider>
+        </div>
+      </main>
     </div>
   );
 };

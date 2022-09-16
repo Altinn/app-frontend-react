@@ -199,6 +199,7 @@ select.disabled {
 [dir='ltr'] .a-iconText.a-iconText-background {
   padding-left: 24px;
 }
+
 [dir='rtl'] .a-iconText.a-iconText-background {
   padding-right: 24px;
 }
@@ -207,6 +208,7 @@ select.disabled {
   [dir='ltr'] .a-iconText.a-iconText-background {
     padding-left: 84px;
   }
+
   [dir='rtl'] .a-iconText.a-iconText-background {
     padding-right: 84px;
   }
@@ -216,6 +218,7 @@ select.disabled {
   [dir='ltr'] .a-iconText.a-iconText-background {
     padding-left: 96px;
   }
+
   [dir='rtl'] .a-iconText.a-iconText-background {
     padding-right: 96px;
   }
@@ -283,7 +286,8 @@ select.disabled {
   direction: rtl;
   text-align: right;
 }
-// Align text in table when right to left languages
+
+/* Align text in table when right to left languages*/
 [dir='rtl'] td {
   text-align: right;
 }
@@ -311,6 +315,7 @@ select.disabled {
 .a-modal-navbar {
   margin-top: 12px;
 }
+
 @media only screen and (min-width: 977px) {
   .a-modal-navbar {
     margin-top: 36px;
