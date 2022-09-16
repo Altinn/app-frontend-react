@@ -271,7 +271,7 @@ export function RepeatingGroupTable({
     );
   };
 
-  const onClickEdit = (groupIndex: number) => {
+  const handleEditClick = (groupIndex: number) => {
     if (groupIndex === editIndex) {
       setEditIndex(-1);
     } else {
@@ -279,7 +279,7 @@ export function RepeatingGroupTable({
     }
   };
 
-  const onClickSave = () => {
+  const handleSaveClick = () => {
     const validate = !!container.triggers?.includes(Triggers.Validation);
     dispatch(
       FormLayoutActions.updateRepeatingGroupsEditIndex({
@@ -348,7 +348,7 @@ export function RepeatingGroupTable({
           language={language}
           textResources={textResources}
           layout={layout}
-          onClickSave={onClickSave}
+          onClickSave={handleSaveClick}
           repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
           hideSaveButton={container.edit?.saveButton === false}
           multiPageIndex={multiPageIndex}
@@ -469,7 +469,7 @@ export function RepeatingGroupTable({
                               [classes.editButtonActivated]:
                                 editIndex === index,
                             })}
-                            onClick={() => onClickEdit(index)}
+                            onClick={() => handleEditClick(index)}
                             aria-label={`${editButtonText}-${firstCellData}`}
                           >
                             <i
@@ -484,7 +484,7 @@ export function RepeatingGroupTable({
                         </TableCell>
                         {!hideDeleteButton && (
                           <TableCell
-                            align='right'
+                            align='center'
                             style={{ width: '80px', padding: 0 }}
                             key={`delete-${index}`}
                           >
@@ -556,7 +556,7 @@ export function RepeatingGroupTable({
                       items={items}
                       valid={!rowHasErrors}
                       editIndex={editIndex}
-                      onEditClick={() => onClickEdit(index)}
+                      onEditClick={() => handleEditClick(index)}
                       onDeleteClick={() => onClickRemove(index)}
                       editButtonText={
                         rowHasErrors
