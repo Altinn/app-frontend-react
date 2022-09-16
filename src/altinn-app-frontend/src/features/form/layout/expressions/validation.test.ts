@@ -92,20 +92,4 @@ describe('Layout expression validation', () => {
       },
     );
   });
-
-  // TODO: Add more test-cases and verify the error message, or move these to shared tests
-  it.each([
-    { function: 'testNonExisting', args: [] },
-    {
-      function: 'equals',
-      args: [{ function: 'testNonExisting', args: ['hello'] }, 'world'],
-    },
-    { function: 'equals', args: [] },
-    { function: 'equals', args: [1, 2, 3] },
-  ])(
-    'should validate %j as an invalid expression (throwing exception)',
-    (maybeExpr) => {
-      expect(() => asLayoutExpression(maybeExpr)).toThrow();
-    },
-  );
 });
