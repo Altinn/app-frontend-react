@@ -138,11 +138,11 @@ export function NavigationButtons(props: INavigationButtons) {
   return (
     <Grid
       data-testid='NavigationButtons'
-      container={true}
+      container
       spacing={1}
     >
       {!disableBack && props.showBackButton && (
-        <Grid item={true}>
+        <Grid item>
           <AltinnButton
             ref={refPrev}
             btnText={getTextFromAppOrDefault(
@@ -158,7 +158,7 @@ export function NavigationButtons(props: INavigationButtons) {
         </Grid>
       )}
       {!disableNext && (
-        <Grid item={true}>
+        <Grid item>
           <AltinnButton
             ref={refNext}
             btnText={getTextFromAppOrDefault(
