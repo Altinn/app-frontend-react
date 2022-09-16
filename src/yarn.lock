@@ -1983,21 +1983,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.13.10":
-  version: 7.19.0
-  resolution: "@babel/runtime@npm:7.19.0"
-  dependencies:
-    regenerator-runtime: ^0.13.4
-  checksum: fa69c351bb05e1db3ceb9a02fdcf620c234180af68cdda02152d3561015f6d55277265d3109815992f96d910f3db709458cae4f8df1c3def66f32e0867d82294
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.4.4, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.0, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.3, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
   version: 7.16.3
   resolution: "@babel/runtime@npm:7.16.3"
   dependencies:
     regenerator-runtime: ^0.13.4
   checksum: ab8ac887096d76185ddbf291d28fb976cd32473696dc497ad4905b784acbd5aa462533ad83a5c5104e10ead28c2e0e119840ee28ed8eff90dcdde9d57f916eda
+  languageName: node
+  linkType: hard
+
+"@babel/runtime@npm:^7.13.10":
+  version: 7.19.0
+  resolution: "@babel/runtime@npm:7.19.0"
+  dependencies:
+    regenerator-runtime: ^0.13.4
+  checksum: fa69c351bb05e1db3ceb9a02fdcf620c234180af68cdda02152d3561015f6d55277265d3109815992f96d910f3db709458cae4f8df1c3def66f32e0867d82294
   languageName: node
   linkType: hard
 
@@ -4731,7 +4731,6 @@ __metadata:
     jest-environment-jsdom: 29.0.2
     jest-junit: 14.0.1
     jsonpointer: 5.0.1
-    jss-rtl: 0.3.0
     mini-css-extract-plugin: 2.6.1
     moment: 2.29.4
     msw: 0.47.0
@@ -10137,17 +10136,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jss-rtl@npm:0.3.0":
-  version: 0.3.0
-  resolution: "jss-rtl@npm:0.3.0"
-  dependencies:
-    rtl-css-js: ^1.13.1
-  peerDependencies:
-    jss: ^10.0.0
-  checksum: 53905c44fa649a02d37a052de85d515b74401ae7bdbb065faa3e733be4da352e3c76bde727b54c557b1980337b71f2b289a51b89b47ee5e383cb0a1dedbbb48b
-  languageName: node
-  linkType: hard
-
 "jss@npm:10.9.0, jss@npm:^10.5.1":
   version: 10.9.0
   resolution: "jss@npm:10.9.0"
@@ -13022,15 +13010,6 @@ __metadata:
   bin:
     rimraf: ./bin.js
   checksum: cdc7f6eacb17927f2a075117a823e1c5951792c6498ebcce81ca8203454a811d4cf8900314154d3259bb8f0b42ab17f67396a8694a54cae3283326e57ad250cd
-  languageName: node
-  linkType: hard
-
-"rtl-css-js@npm:^1.13.1":
-  version: 1.16.0
-  resolution: "rtl-css-js@npm:1.16.0"
-  dependencies:
-    "@babel/runtime": ^7.1.2
-  checksum: 51756329f691cacd3e1b48f0f9d04a69338a90013f2d2942ca1ae3b069c952f70055f5fd76c66921e9a5cb956276252376a847c3294bd0ee54be9ceb32ea868c
   languageName: node
   linkType: hard
 

@@ -283,6 +283,10 @@ select.disabled {
   direction: rtl;
   text-align: right;
 }
+// Align text in table when right to left languages
+[dir='rtl'] td {
+  text-align: right;
+}
 
 @media only screen and (min-width: 576px) {
   .container {

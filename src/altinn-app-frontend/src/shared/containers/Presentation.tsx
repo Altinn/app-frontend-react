@@ -1,9 +1,6 @@
 import * as React from 'react';
 
 import { createTheme, ThemeProvider } from '@material-ui/core';
-import { jssPreset, StylesProvider } from '@material-ui/styles';
-import { create } from 'jss';
-import rtl from 'jss-rtl';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import Header from 'src/components/presentation/Header';
@@ -38,9 +35,9 @@ const style = {
 
 // Configure JSS
 // https://v4.mui.com/guides/right-to-left/#right-to-left
-const jss = create({
-  plugins: [...jssPreset().plugins, rtl()],
-});
+// const jss = create({
+//   plugins: [...jssPreset().plugins, rtl()],
+// });
 
 const PresentationComponent = (props: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
@@ -129,54 +126,52 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
           direction,
         })}
       >
-        <StylesProvider jss={jss}>
-          <main
-            className={`container ${isRtl ? 'language-dir-rtl' : ''}`}
-            dir={direction}
-            lang={textResources.language}
-          >
-            <div className='row'>
-              <div className='col-xl-12 a-p-static'>
-                {isProcessStepsArchived && instance?.status?.substatus && (
-                  <AltinnSubstatusPaper
-                    label={getTextResourceByKey(
-                      instance.status.substatus.label,
-                      textResources.resources,
-                    )}
-                    description={getTextResourceByKey(
-                      instance.status.substatus.description,
-                      textResources.resources,
-                    )}
-                  />
-                )}
-                <NavBar
-                  handleClose={handleModalCloseButton}
-                  handleBack={handleBackArrowButton}
-                  showBackArrow={
-                    !!previousFormPage &&
-                    (props.type === ProcessTaskType.Data ||
-                      props.type === PresentationType.Stateless)
-                  }
+        <main
+          className={`container ${isRtl ? 'language-dir-rtl' : ''}`}
+          dir={direction}
+          lang={textResources.language}
+        >
+          <div className='row'>
+            <div className='col-xl-12 a-p-static'>
+              {isProcessStepsArchived && instance?.status?.substatus && (
+                <AltinnSubstatusPaper
+                  label={getTextResourceByKey(
+                    instance.status.substatus.label,
+                    textResources.resources,
+                  )}
+                  description={getTextResourceByKey(
+                    instance.status.substatus.description,
+                    textResources.resources,
+                  )}
                 />
-                <div className='a-modal-content-target'>
-                  <div className='a-page a-current-page'>
-                    <div className='modalPage'>
-                      <section
-                        className='modal-content'
-                        id='main-content'
-                      >
-                        <Header {...props} />
-                        <div className='modal-body a-modal-body'>
-                          {props.children}
-                        </div>
-                      </section>
-                    </div>
+              )}
+              <NavBar
+                handleClose={handleModalCloseButton}
+                handleBack={handleBackArrowButton}
+                showBackArrow={
+                  !!previousFormPage &&
+                  (props.type === ProcessTaskType.Data ||
+                    props.type === PresentationType.Stateless)
+                }
+              />
+              <div className='a-modal-content-target'>
+                <div className='a-page a-current-page'>
+                  <div className='modalPage'>
+                    <section
+                      className='modal-content'
+                      id='main-content'
+                    >
+                      <Header {...props} />
+                      <div className='modal-body a-modal-body'>
+                        {props.children}
+                      </div>
+                    </section>
                   </div>
                 </div>
               </div>
             </div>
-          </main>
-        </StylesProvider>
+          </div>
+        </main>
       </ThemeProvider>
     </div>
   );
