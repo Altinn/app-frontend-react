@@ -1,0 +1,65 @@
+{
+  "name": "Large recursive lisp-like expression",
+  "expression": [
+    "and",
+    ["equals", 1, 2],
+    ["greaterThan", 5, 7],
+    [
+      "concat",
+      ["dataModel", "some.path"],
+      ".",
+      ["component", "some_component"]
+    ],
+    ["concat"],
+    ["or", ["frontendSettings", "someVar"], ["notEquals", 5, 7]],
+    ["or", true]
+  ],
+  "expects": {
+    "function": "and",
+    "args": [
+      {
+        "function": "equals",
+        "args": [1, 2]
+      },
+      {
+        "function": "greaterThan",
+        "args": [5, 7]
+      },
+      {
+        "function": "concat",
+        "args": [
+          {
+            "function": "dataModel",
+            "args": ["some.path"]
+          },
+          ".",
+          {
+            "function": "component",
+            "args": ["some_component"]
+          }
+        ]
+      },
+      {
+        "function": "concat",
+        "args": []
+      },
+      {
+        "function": "or",
+        "args": [
+          {
+            "function": "frontendSettings",
+            "args": ["someVar"]
+          },
+          {
+            "function": "notEquals",
+            "args": [5, 7]
+          }
+        ]
+      },
+      {
+        "function": "or",
+        "args": [true]
+      }
+    ]
+  }
+}

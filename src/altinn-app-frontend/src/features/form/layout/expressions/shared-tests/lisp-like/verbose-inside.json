@@ -1,0 +1,24 @@
+{
+  "name": "Verbose expression inside lisp-like expression",
+  "expression": [
+    "and",
+    ["equals", 1, 1],
+    {
+      "function": "notEquals",
+      "args": [5, 7]
+    }
+  ],
+  "expects": {
+    "function": "and",
+    "args": [
+      {
+        "function": "equals",
+        "args": [1, 1]
+      },
+      {
+        "function": "notEquals",
+        "args": [5, 7]
+      }
+    ]
+  }
+}

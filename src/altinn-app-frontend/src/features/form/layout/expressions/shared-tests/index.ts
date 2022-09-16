@@ -8,16 +8,18 @@ import type {
   IInstanceContext,
 } from 'altinn-shared/types';
 
-export interface SharedTest {
-  name: string;
-  layouts?: {
-    [key: string]: {
-      $schema: string;
-      data: {
-        layout: ILayout;
-      };
+export interface Layouts {
+  [key: string]: {
+    $schema: string;
+    data: {
+      layout: ILayout;
     };
   };
+}
+
+export interface SharedTest {
+  name: string;
+  layouts?: Layouts;
   dataModel?: any;
   instanceContext?: IInstanceContext;
   frontendSettings?: IApplicationSettings;
@@ -40,6 +42,20 @@ export interface FunctionTest extends SharedTest {
   context?: SharedTestContext;
 }
 
+export interface LispLikeTest {
+  name: string;
+  expression: any;
+  expects?: LayoutExpression;
+  expectsFailure?: string;
+}
+
+export interface LayoutPreprocessorTest {
+  name: string;
+  layouts: Layouts;
+  expects: Layouts;
+  expectsWarnings?: string[];
+}
+
 interface TestFolder<T> {
   folderName: string;
   content: T[];
@@ -49,6 +65,8 @@ interface TestFolders {
   'context-lists': TestFolder<TestFolder<ContextTest>>;
   functions: TestFolder<TestFolder<FunctionTest>>;
   invalid: TestFolder<FunctionTest>;
+  'layout-preprocessor': TestFolder<LayoutPreprocessorTest>;
+  'lisp-like': TestFolder<LispLikeTest>;
 }
 
 export function getSharedTests<Folder extends keyof TestFolders>(

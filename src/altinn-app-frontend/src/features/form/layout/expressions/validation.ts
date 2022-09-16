@@ -1,9 +1,17 @@
+import dot from 'dot-object';
+
 import {
   argTypeAt,
+  LEDefaultsForComponent,
+  LEDefaultsForGroup,
   LEFunctions,
   LETypes,
 } from 'src/features/form/layout/expressions';
-import { prettyErrors } from 'src/features/form/layout/expressions/prettyErrors';
+import {
+  prettyErrors,
+  prettyErrorsToConsole,
+} from 'src/features/form/layout/expressions/prettyErrors';
+import type { ILayout } from 'src/features/form/layout';
 import type {
   BaseValue,
   LayoutExpression,
@@ -229,21 +237,62 @@ function validateRecursively(
   addError(ctx, path, ValidationErrorMessage.InvalidType, typeof expr);
 }
 
-function validate(expr: any) {
-  const ctx: ValidationContext = { errors: {} };
-  validateRecursively(expr, ctx, []);
+function canBeLispLike(expr: any): expr is [] {
+  return Array.isArray(expr) && expr.length >= 1 && typeof expr[0] === 'string';
+}
 
-  if (Object.keys(ctx.errors).length) {
-    throw new InvalidExpression(
-      `Invalid layout expression:\n${prettyErrors({
-        input: expr,
-        errors: ctx.errors,
-        indentation: 1,
-      })}`,
-    );
+function canBeVerboseExpr(
+  expr: any,
+): expr is { function: string; args: any[] } {
+  return (
+    typeof expr === 'object' &&
+    expr !== null &&
+    'function' in expr &&
+    'args' in expr
+  );
+}
+
+function unrollRecursively(
+  maybeExpr: any,
+  path: string[],
+  ctx: ValidationContext,
+): any {
+  if (canBeLispLike(maybeExpr)) {
+    return unrollArray(maybeExpr, path, ctx);
   }
 
-  return expr;
+  if (
+    typeof maybeExpr === 'object' &&
+    maybeExpr !== null &&
+    'function' in maybeExpr &&
+    'args' in maybeExpr &&
+    Array.isArray(maybeExpr.args)
+  ) {
+    for (const idx in maybeExpr.args) {
+      maybeExpr.args[idx] = unrollRecursively(
+        maybeExpr.args[idx],
+        [...path, `args[${idx}]`],
+        ctx,
+      );
+    }
+  }
+
+  return maybeExpr;
+}
+
+/**
+ * Takes an array and parses it as a lisp-like minimal layout expression, using the format:
+ *  ['function name', 'arg1', 'arg2', 'arg3', ...]
+ */
+function unrollArray(expr: any[], path: string[], ctx: ValidationContext): any {
+  const [func, ...args] = expr;
+
+  return {
+    function: func,
+    args: args.map((arg, idx) =>
+      unrollRecursively(arg, [...path, idx.toString()], ctx),
+    ),
+  };
 }
 
 /**
@@ -251,14 +300,112 @@ function validate(expr: any) {
  * parsed verbose expression (ready to pass to evalExpr()), or undefined (if not a valid expression).
  *
  * @param obj Input, can be anything
+ * @param defaultValue Default value (returned if the expression fails to validate)
+ * @param errorText Error intro text used when printing to console or throwing an error
  */
-export function asLayoutExpression(obj: any): LayoutExpression | undefined {
-  if (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'function' in obj &&
-    'args' in obj
-  ) {
-    return validate(obj);
+export function asLayoutExpression(
+  obj: any,
+  defaultValue: any = undefined,
+  errorText = 'Invalid layout expression',
+): LayoutExpression | undefined {
+  if (typeof obj !== 'object' || obj === null) {
+    return undefined;
+  }
+
+  let expr = obj;
+  const ctx: ValidationContext = { errors: {} };
+
+  if (canBeLispLike(expr)) {
+    expr = unrollArray(expr, [], ctx);
+  }
+
+  if ('function' in expr && 'args' in expr) {
+    validateRecursively(expr, ctx, []);
+  }
+
+  if (Object.keys(ctx.errors).length) {
+    if (typeof defaultValue !== 'undefined') {
+      const prettyPrinted = prettyErrorsToConsole({
+        input: expr,
+        errors: ctx.errors,
+        indentation: 1,
+        defaultStyle: '',
+      });
+
+      // eslint-disable-next-line no-console
+      console.log(
+        [
+          `${errorText}:`,
+          prettyPrinted.lines,
+          '%cUsing default value instead:',
+          `  %c${defaultValue.toString()}%c`,
+        ].join('\n'),
+        ...prettyPrinted.css,
+        ...['', 'color: red;', ''],
+      );
+
+      return defaultValue;
+    }
+
+    throw new InvalidExpression(
+      `${errorText}:\n${prettyErrors({
+        input: expr,
+        errors: ctx.errors,
+        indentation: 1,
+      })}`,
+    );
+  } else if (canBeVerboseExpr(expr)) {
+    return expr as LayoutExpression;
+  }
+}
+
+function preProcessComponent(
+  input: any,
+  defaults: Record<string, any>,
+  componentPath: string[],
+  componentId: string,
+): any {
+  const pathStr = componentPath.join('.');
+  if (pathStr in defaults) {
+    if (typeof input === 'object' && input !== null) {
+      const errText = `Invalid layout expression when parsing ${pathStr} for "${componentId}"`;
+      return asLayoutExpression(input, defaults[pathStr], errText);
+    }
+
+    return input;
+  }
+
+  if (typeof input === 'object' && !Array.isArray(input) && input !== null) {
+    for (const property of Object.keys(input)) {
+      input[property] = preProcessComponent(
+        input[property],
+        defaults,
+        [...componentPath, property],
+        componentId,
+      );
+    }
+  }
+
+  return input;
+}
+
+/**
+ * Pre-process a layout array. This iterates all components and makes sure to rewrite lisp-like expressions to full
+ * expressions, and make sure to validate expressions (making sure they are valid according to the LayoutExpression
+ * TypeScript type, ready to pass to evalExpr()).
+ *
+ * If/when expressions inside components does not validate correctly, a warning is printed to the console, and the
+ * expression is substituted with the appropriate default value.
+ *
+ * Please note: This mutates the layout array passed to the function, and returns nothing.
+ */
+export function preProcessLayout(layout: ILayout) {
+  const defaults = dot.dot({
+    ...LEDefaultsForComponent,
+    ...LEDefaultsForGroup,
+  });
+
+  for (const comp of layout) {
+    preProcessComponent(comp, defaults, [], comp.id);
   }
 }

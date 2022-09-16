@@ -3,6 +3,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import components from 'src/components';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
+import { preProcessLayout } from 'src/features/form/layout/expressions/validation';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
@@ -47,10 +48,14 @@ function getCaseMapping(): typeof componentTypeCaseMapping {
 
 export function cleanLayout(layout: ILayout): ILayout {
   const mapping = getCaseMapping();
-  return layout.map((component) => ({
+  const newLayout = layout.map((component) => ({
     ...component,
     type: mapping[component.type.toLowerCase()] || component.type,
   })) as ILayout;
+
+  preProcessLayout(newLayout);
+
+  return newLayout;
 }
 
 export function* fetchLayoutSaga(): SagaIterator {

@@ -1,0 +1,30 @@
+{
+  "name": "Mixed recursive expression notations",
+  "expression": [
+    "and",
+    ["equals", 1, 1],
+    {
+      "function": "notEquals",
+      "args": [5, ["dataModel", "some.path"]]
+    }
+  ],
+  "expects": {
+    "function": "and",
+    "args": [
+      {
+        "function": "equals",
+        "args": [1, 1]
+      },
+      {
+        "function": "notEquals",
+        "args": [
+          5,
+          {
+            "function": "dataModel",
+            "args": ["some.path"]
+          }
+        ]
+      }
+    ]
+  }
+}
