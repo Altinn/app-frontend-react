@@ -451,7 +451,9 @@ export function RepeatingGroupTable({
                           return (
                             <TableCell key={`${component.id}-${index}`}>
                               <span>
-                                {getFormDataForComponent(component, index)}
+                                {index !== editIndex
+                                  ? getFormDataForComponent(component, index)
+                                  : ' '}
                               </span>
                             </TableCell>
                           );
