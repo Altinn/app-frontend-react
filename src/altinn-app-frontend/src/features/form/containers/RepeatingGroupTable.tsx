@@ -252,7 +252,8 @@ export function RepeatingGroupTable({
       componentTitles.push(component.textResourceBindings?.title || '');
     }
   });
-  const showTableHeader = repeatingGroupIndex > -1;
+  const showTableHeader =
+    repeatingGroupIndex > -1 && !(repeatingGroupIndex == 0 && editIndex == 0);
 
   const getFormDataForComponent = (
     component: ILayoutComponent | ILayoutGroup,
@@ -453,14 +454,14 @@ export function RepeatingGroupTable({
                               <span>
                                 {index !== editIndex
                                   ? getFormDataForComponent(component, index)
-                                  : ' '}
+                                  : null}
                               </span>
                             </TableCell>
                           );
                         })}
                         <TableCell
                           align='left'
-                          style={{ padding: 0 }}
+                          style={{ width: '110px', padding: 0 }}
                           key={`edit-${index}`}
                         >
                           <IconButton
@@ -483,8 +484,8 @@ export function RepeatingGroupTable({
                         </TableCell>
                         {!hideDeleteButton && (
                           <TableCell
-                            align='left'
-                            style={{ padding: 0 }}
+                            align='right'
+                            style={{ width: '80px', padding: 0 }}
                             key={`delete-${index}`}
                           >
                             <IconButton
