@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import createSagaMiddleware from 'redux-saga';
-import type { PreloadedState } from '@reduxjs/toolkit';
+import type { PreloadedState } from 'redux';
 import type { SagaMiddleware } from 'redux-saga';
 
 import reducers from 'src/reducers';
@@ -22,7 +22,7 @@ export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
 
   const innerStore = configureStore({
     reducer: reducers,
-    devTools: isDev,
+    devTools: true,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: isDev,
