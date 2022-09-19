@@ -114,16 +114,12 @@ export function* fetchLayoutSaga(): SagaIterator {
     }
 
     for (const key of Object.keys(hiddenLayoutsExpressions)) {
-      if (typeof hiddenLayoutsExpressions[key] === 'undefined') {
-        delete hiddenLayoutsExpressions[key];
-      } else {
-        hiddenLayoutsExpressions[key] = preProcessItem(
-          hiddenLayoutsExpressions[key],
-          { hidden: false },
-          ['hidden'],
-          key,
-        );
-      }
+      hiddenLayoutsExpressions[key] = preProcessItem(
+        hiddenLayoutsExpressions[key],
+        { hidden: false },
+        ['hidden'],
+        key,
+      );
     }
 
     yield put(

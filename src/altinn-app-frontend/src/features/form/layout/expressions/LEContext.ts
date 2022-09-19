@@ -11,7 +11,7 @@ import {
 } from 'src/features/form/layout/expressions/prettyErrors';
 import type { IFormData } from 'src/features/form/data';
 import type { LayoutExpression } from 'src/features/form/layout/expressions/types';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 import type {
   IApplicationSettings,
@@ -38,7 +38,10 @@ export class LEContext {
 
   private constructor(
     public expr: LayoutExpression,
-    public node: LayoutNode<any> | NodeNotFoundWithoutContext,
+    public node:
+      | LayoutNode<any>
+      | LayoutRootNode<any>
+      | NodeNotFoundWithoutContext,
     public dataSources: ContextDataSources,
   ) {}
 
@@ -47,7 +50,7 @@ export class LEContext {
    */
   public static withBlankPath(
     expr: LayoutExpression,
-    node: LayoutNode<any> | NodeNotFoundWithoutContext,
+    node: LayoutNode<any> | LayoutRootNode<any> | NodeNotFoundWithoutContext,
     dataSources: ContextDataSources,
   ): LEContext {
     return new LEContext(expr, node, dataSources);
@@ -71,7 +74,7 @@ export class LEContext {
   /**
    * Utility function used to get the LayoutNode for this context, or fail if the node was not found
    */
-  public failWithoutNode(): LayoutNode<any> {
+  public failWithoutNode(): LayoutNode<any> | LayoutRootNode<any> {
     if (this.node instanceof NodeNotFoundWithoutContext) {
       throw new NodeNotFound(this, this.node);
     }

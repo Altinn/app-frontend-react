@@ -177,6 +177,7 @@ describe('fetchFormLayoutSagas', () => {
             navigationConfig: { page1: undefined, page2: undefined },
             hiddenLayoutsExpressions: {
               ...hiddenExprPage1,
+              page2: undefined,
             },
           }),
         )

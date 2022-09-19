@@ -744,15 +744,19 @@ export class LayoutRootNodeCollection<
   }
 }
 
-export function resolvedLayoutsFromState(
-  state: IRuntimeState,
-): LayoutRootNodeCollection<'resolved'> {
-  const layoutsAsNodes = {};
-  const dataSources: ContextDataSources = {
+export function dataSourcesFromState(state: IRuntimeState): ContextDataSources {
+  return {
     formData: state.formData.formData,
     applicationSettings: state.applicationSettings.applicationSettings,
     instanceContext: buildInstanceContext(state.instanceData?.instance),
   };
+}
+
+export function resolvedLayoutsFromState(
+  state: IRuntimeState,
+): LayoutRootNodeCollection<'resolved'> {
+  const layoutsAsNodes = {};
+  const dataSources = dataSourcesFromState(state);
   for (const key of Object.keys(state.formLayout.layouts)) {
     layoutsAsNodes[key] = resolvedNodesInLayout(
       state.formLayout.layouts[key],

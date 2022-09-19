@@ -1,13 +1,23 @@
 import { call, put, select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
+import { evalExpr } from 'src/features/form/layout/expressions';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import {
+  dataSourcesFromState,
+  resolvedLayoutsFromState,
+} from 'src/utils/layout/hierarchy';
 import type { IFormData } from 'src/features/form/data';
 import type { IConditionalRenderingRules } from 'src/features/form/dynamics';
-import type { IRuntimeState, IUiConfig, IValidations } from 'src/types';
+import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
+import type {
+  IHiddenLayoutsExpressions,
+  IRuntimeState,
+  IUiConfig,
+  IValidations,
+} from 'src/types';
 import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
 
 export const ConditionalRenderingSelector = (store: IRuntimeState) =>
@@ -20,6 +30,8 @@ export const FormValidationSelector = (state: IRuntimeState) =>
   state.formValidations.validations;
 export const ResolvedNodesSelector = (state: IRuntimeState) =>
   resolvedLayoutsFromState(state);
+export const DataSourcesSelector = (state: IRuntimeState) =>
+  dataSourcesFromState(state);
 
 export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
   try {
@@ -32,6 +44,7 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
     const resolvedNodes: LayoutRootNodeCollection<'resolved'> = yield select(
       ResolvedNodesSelector,
     );
+    const dataSources = yield select(DataSourcesSelector);
 
     const present = new Set(uiConfig.hiddenFields);
     const future = runConditionalRenderingRules(
@@ -41,6 +54,11 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
     );
 
     runLayoutExpressionRules(resolvedNodes, present, future);
+    const newLayoutOrder = runLayoutExpressionsForLayouts(
+      resolvedNodes,
+      uiConfig.hiddenLayoutsExpr,
+      dataSources,
+    );
 
     if (shouldHiddenFieldsUpdate(present, future)) {
       yield put(
@@ -63,6 +81,14 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
         });
       }
     }
+
+    if (shouldLayoutOrderUpdate(uiConfig.layoutOrder, newLayoutOrder)) {
+      yield put(
+        FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
+          order: newLayoutOrder,
+        }),
+      );
+    }
   } catch (err) {
     yield call(console.error, err);
   }
@@ -82,6 +108,27 @@ function runLayoutExpressionRules(
   }
 }
 
+function runLayoutExpressionsForLayouts(
+  nodes: LayoutRootNodeCollection<'resolved'>,
+  hiddenLayoutsExpr: IHiddenLayoutsExpressions,
+  dataSources: ContextDataSources,
+): string[] {
+  const newOrder: string[] = [];
+  for (const key of Object.keys(hiddenLayoutsExpr)) {
+    let isHidden = hiddenLayoutsExpr[key];
+    if (typeof isHidden === 'object' && isHidden !== null) {
+      isHidden = evalExpr(isHidden, nodes.findLayout(key), dataSources, {
+        defaultValue: false,
+      });
+    }
+    if (isHidden !== true) {
+      newOrder.push(key);
+    }
+  }
+
+  return newOrder;
+}
+
 function shouldHiddenFieldsUpdate(
   currentList: Set<string>,
   newList: Set<string>,
@@ -94,4 +141,15 @@ function shouldHiddenFieldsUpdate(
   const future = [...newList.values()].sort();
 
   return JSON.stringify(present) !== JSON.stringify(future);
+}
+
+function shouldLayoutOrderUpdate(
+  currentList: string[],
+  newList: string[],
+): boolean {
+  if (currentList.length !== newList.length) {
+    return true;
+  }
+
+  return JSON.stringify(currentList.sort()) !== JSON.stringify(newList.sort());
 }

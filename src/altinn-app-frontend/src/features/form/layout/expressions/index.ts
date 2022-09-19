@@ -10,6 +10,7 @@ import {
 } from 'src/features/form/layout/expressions/errors';
 import { LEContext } from 'src/features/form/layout/expressions/LEContext';
 import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
+import { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 import type {
@@ -21,7 +22,7 @@ import type {
   LEFunction,
   LEResolved,
 } from 'src/features/form/layout/expressions/types';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 import type { IInstanceContext } from 'altinn-shared/types';
 
@@ -123,7 +124,7 @@ function evalExprInObjectCaller<T>(
  */
 export function evalExpr(
   expr: LayoutExpression,
-  node: LayoutNode<any> | NodeNotFoundWithoutContext,
+  node: LayoutNode<any> | LayoutRootNode<any> | NodeNotFoundWithoutContext,
   dataSources: ContextDataSources,
   options?: EvalExprOptions,
 ) {
@@ -369,8 +370,15 @@ export const LEFunctions = {
   }),
   dataModel: defineFunc({
     impl: function (path): string {
-      const newPath = this.failWithoutNode().transposeDataModel(path, false);
-      return this.dataSources.formData[newPath] || null;
+      const maybeNode = this.failWithoutNode();
+      if (maybeNode instanceof LayoutNode) {
+        const newPath = maybeNode.transposeDataModel(path, false);
+        return this.dataSources.formData[newPath] || null;
+      }
+
+      // No need to transpose the data model according to the location inside a repeating group when the context is
+      // a LayoutRootNode (i.e., when we're resolving an expression directly on the layout definition).
+      return this.dataSources.formData[path] || null;
     },
     args: ['string'],
     returns: 'string',
