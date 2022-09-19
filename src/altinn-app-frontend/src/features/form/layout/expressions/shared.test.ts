@@ -2,7 +2,7 @@ import dot from 'dot-object';
 
 import { evalExpr } from 'src/features/form/layout/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
-import { getSharedTests } from 'src/features/form/layout/expressions/shared-tests/index';
+import { getSharedTests } from 'src/features/form/layout/expressions/shared';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
 import {
   LayoutRootNodeCollection,
@@ -12,7 +12,7 @@ import type { ContextDataSources } from 'src/features/form/layout/expressions/LE
 import type {
   FunctionTest,
   SharedTestContext,
-} from 'src/features/form/layout/expressions/shared-tests/index';
+} from 'src/features/form/layout/expressions/shared';
 
 import type {
   IApplicationSettings,

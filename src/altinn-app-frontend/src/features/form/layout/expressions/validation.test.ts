@@ -1,4 +1,4 @@
-import { getSharedTests } from 'src/features/form/layout/expressions/shared-tests';
+import { getSharedTests } from 'src/features/form/layout/expressions/shared';
 import {
   asLayoutExpression,
   preProcessLayout,

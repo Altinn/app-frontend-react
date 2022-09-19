@@ -77,7 +77,7 @@ export function getSharedTests<Folder extends keyof TestFolders>(
     folderName: subPath,
     content: [],
   };
-  const fullPath = `${__dirname}/${parentPath}/${subPath}`;
+  const fullPath = `${__dirname}/shared-tests/${parentPath}/${subPath}`;
 
   fs.readdirSync(fullPath).forEach((name) => {
     const isDir = fs.statSync(`${fullPath}/${name}`).isDirectory();
