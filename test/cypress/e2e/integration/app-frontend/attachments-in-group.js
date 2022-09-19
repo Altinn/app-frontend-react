@@ -430,8 +430,11 @@ describe('Repeating group attachments', () => {
 
     // Verify that one of the attachments in the next nested row is visible in the table header. This is also a trick
     // to ensure we wait until the deletion is done before we fetch the redux state.
+    cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].editBtn).click();
     cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].uploadTagMulti.tableRowPreview)
       .should('contain.text', filenames[0].nested[1][2]);
+    cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].editBtn).click();
+
 
     cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormDataAfterDeletingFirstNestedRow);
     getState().should('deep.equal', expectedAttachmentStateAfterDeletingFirstNestedRow);
