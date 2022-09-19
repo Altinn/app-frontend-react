@@ -359,7 +359,7 @@ export function asLayoutExpression(
   }
 }
 
-function preProcessComponent(
+export function preProcessItem(
   input: any,
   defaults: Record<string, any>,
   componentPath: string[],
@@ -377,7 +377,7 @@ function preProcessComponent(
 
   if (typeof input === 'object' && !Array.isArray(input) && input !== null) {
     for (const property of Object.keys(input)) {
-      input[property] = preProcessComponent(
+      input[property] = preProcessItem(
         input[property],
         defaults,
         [...componentPath, property],
@@ -406,6 +406,6 @@ export function preProcessLayout(layout: ILayout) {
   });
 
   for (const comp of layout) {
-    preProcessComponent(comp, defaults, [], comp.id);
+    preProcessItem(comp, defaults, [], comp.id);
   }
 }

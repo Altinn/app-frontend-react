@@ -105,6 +105,7 @@ describe('RepeatingGroupTable', () => {
       currentView: 'FormLayout',
       focus: undefined,
       layoutOrder: ['FormLayout'],
+      hiddenLayoutsExpr: {},
     },
     error: null,
     layoutsets: null,

@@ -145,6 +145,7 @@ const createLayout = (
       navigationConfig: {},
       layoutOrder: null,
       pageTriggers: [],
+      hiddenLayoutsExpr: {},
     },
   };
 };

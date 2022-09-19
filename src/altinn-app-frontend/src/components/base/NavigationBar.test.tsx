@@ -27,6 +27,7 @@ const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
         autoSave: false,
         focus: 'focus',
         hiddenFields: [],
+        hiddenLayoutsExpr: {},
       },
       layouts: {
         page1: [

@@ -73,6 +73,7 @@ describe('NavigationButton', () => {
             previous: 'layout1',
           },
         },
+        hiddenLayoutsExpr: {},
       },
     });
   });

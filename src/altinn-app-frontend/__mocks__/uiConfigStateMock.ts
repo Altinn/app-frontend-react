@@ -25,6 +25,7 @@ export const getUiConfigStateMock = (
     currentView: 'FormLayout',
     navigationConfig: {},
     layoutOrder: ['FormLayout'],
+    hiddenLayoutsExpr: {},
     ...customStates,
   };
 };

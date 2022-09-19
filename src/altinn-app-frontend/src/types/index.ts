@@ -1,6 +1,7 @@
 import type Ajv from 'ajv/dist/core';
 
 import type { IFormData } from 'src/features/form/data';
+import type { LayoutExpressionOr } from 'src/features/form/layout/expressions/types';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { RootState } from 'src/store';
 
@@ -150,6 +151,10 @@ export interface IValidationIssue {
   targetId: string;
 }
 
+export interface IHiddenLayoutsExpressions {
+  [layoutKey: string]: LayoutExpressionOr<'boolean'>;
+}
+
 export interface IUiConfig {
   autoSave: boolean;
   currentView: string;
@@ -161,6 +166,7 @@ export interface IUiConfig {
   fileUploadersWithTag?: IFileUploadersWithTag;
   navigationConfig?: INavigationConfig;
   layoutOrder: string[];
+  hiddenLayoutsExpr: IHiddenLayoutsExpressions;
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
   showLanguageSelector?: boolean;

@@ -3,7 +3,10 @@ import type { SagaIterator } from 'redux-saga';
 
 import components from 'src/components';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { preProcessLayout } from 'src/features/form/layout/expressions/validation';
+import {
+  preProcessItem,
+  preProcessLayout,
+} from 'src/features/form/layout/expressions/validation';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
@@ -19,7 +22,12 @@ import type {
   ILayouts,
 } from 'src/features/form/layout';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
-import type { ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
+import type {
+  IHiddenLayoutsExpressions,
+  ILayoutSets,
+  ILayoutSettings,
+  IRuntimeState,
+} from 'src/types';
 
 import type { IInstance } from 'altinn-shared/types';
 
@@ -73,10 +81,12 @@ export function* fetchLayoutSaga(): SagaIterator {
     const layoutResponse: any = yield call(get, getLayoutsUrl(layoutSetId));
     const layouts: ILayouts = {};
     const navigationConfig: any = {};
+    const hiddenLayoutsExpressions: IHiddenLayoutsExpressions = {};
     let autoSave: boolean;
     let firstLayoutKey: string;
     if (layoutResponse.data?.layout) {
       layouts.FormLayout = layoutResponse.data.layout;
+      hiddenLayoutsExpressions.FormLayout = layoutResponse.data.hidden;
       firstLayoutKey = 'FormLayout';
       autoSave = layoutResponse.data.autoSave;
     } else {
@@ -97,12 +107,32 @@ export function* fetchLayoutSaga(): SagaIterator {
 
       orderedLayoutKeys.forEach((key) => {
         layouts[key] = cleanLayout(layoutResponse[key].data.layout);
+        hiddenLayoutsExpressions[key] = layoutResponse[key].data.hidden;
         navigationConfig[key] = layoutResponse[key].data.navigation;
         autoSave = layoutResponse[key].data.autoSave;
       });
     }
 
-    yield put(FormLayoutActions.fetchFulfilled({ layouts, navigationConfig }));
+    for (const key of Object.keys(hiddenLayoutsExpressions)) {
+      if (typeof hiddenLayoutsExpressions[key] === 'undefined') {
+        delete hiddenLayoutsExpressions[key];
+      } else {
+        hiddenLayoutsExpressions[key] = preProcessItem(
+          hiddenLayoutsExpressions[key],
+          { hidden: false },
+          ['hidden'],
+          key,
+        );
+      }
+    }
+
+    yield put(
+      FormLayoutActions.fetchFulfilled({
+        layouts,
+        navigationConfig,
+        hiddenLayoutsExpressions,
+      }),
+    );
     yield put(FormLayoutActions.updateAutoSave({ autoSave }));
     yield put(
       FormLayoutActions.updateCurrentView({
