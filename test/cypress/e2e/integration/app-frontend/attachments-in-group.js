@@ -56,7 +56,7 @@ describe('Repeating group attachments', () => {
     }
   };
 
-  const uploadFile = ({ item, idx, fileName, verifyTableRow, isTaggedUploader }) => {
+  const uploadFile = ({ item, idx, fileName, verifyTableRow, rowIndex, isTaggedUploader }) => {
     cy.get(item.dropZoneContainer).should('be.visible');
     cy.get(item.dropZone).selectFile(makeTestFile(fileName), { force: true });
 
@@ -71,7 +71,9 @@ describe('Repeating group attachments', () => {
     cy.get(item.attachments[idx].name).should('be.visible').should('contain.text', fileName);
 
     if (verifyTableRow) {
+      cy.get(appFrontend.group.rows[rowIndex].editBtn).click();
       verifyTableRowPreview(item, fileName);
+      cy.get(appFrontend.group.rows[rowIndex].editBtn).click();
     }
   };
 
@@ -179,13 +181,14 @@ describe('Repeating group attachments', () => {
       idx: 0,
       fileName: filenames[0].single,
       verifyTableRow: true,
+      rowIndex: 0,
     });
     getState().should('deep.equal', {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
     });
 
     filenames[0].multi.forEach((fileName, idx) => {
-      uploadFile({ item: appFrontend.group.rows[0].uploadMulti, idx, fileName, verifyTableRow: true });
+      uploadFile({ item: appFrontend.group.rows[0].uploadMulti, idx, fileName, verifyTableRow: true, rowIndex: 0, });
       if (idx !== filenames[0].multi.length - 1) {
         cy.get(appFrontend.group.rows[0].uploadMulti.addMoreBtn).click();
       }
@@ -201,6 +204,7 @@ describe('Repeating group attachments', () => {
       idx: 0,
       fileName: filenames[1].single,
       verifyTableRow: true,
+      rowIndex: 1,
     });
     filenames[1].multi.forEach((fileName, idx) => {
       uploadFile({
@@ -208,6 +212,7 @@ describe('Repeating group attachments', () => {
         idx,
         fileName,
         verifyTableRow: true,
+        rowIndex: 1,
       });
       if (idx !== filenames[1].multi.length - 1) {
         cy.get(appFrontend.group.rows[1].uploadMulti.addMoreBtn).click();
@@ -227,6 +232,7 @@ describe('Repeating group attachments', () => {
             fileName,
             verifyTableRow: true,
             isTaggedUploader: true,
+            rowIndex: row,
           });
         });
         cy.get(appFrontend.group.rows[row].nestedGroup.saveBtn).click();
