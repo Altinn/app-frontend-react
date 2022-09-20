@@ -14,7 +14,10 @@ import {
   getDisplayFormDataForComponent,
   getFormDataForComponentInRepeatingGroup,
 } from 'src/utils/formComponentUtils';
-import { setMappingForRepeatingGroupComponent } from 'src/utils/formLayout';
+import {
+  getVariableTextKeysForRepeatingGroupComponent,
+  setMappingForRepeatingGroupComponent,
+} from 'src/utils/formLayout';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type {
   ILayout,
@@ -252,12 +255,19 @@ function SummaryGroupComponent({
             repeatingGroups,
           );
 
+          const textResourceBindings =
+            getVariableTextKeysForRepeatingGroupComponent(
+              textResources,
+              component.textResourceBindings,
+              i,
+            );
+
           return (
             <GroupInputSummary
               key={componentId}
               formData={formDataForComponent}
               label={getTextFromAppOrDefault(
-                component.textResourceBindings?.title,
+                textResourceBindings?.title,
                 textResources,
                 null,
                 [],

@@ -346,11 +346,12 @@ export function createRepeatingGroupComponentsForIndex({
       );
     });
     const deepCopyId = `${componentDeepCopy.id}-${index}`;
-    setVariableTextKeysForRepeatingGroupComponent(
-      textResources,
-      componentDeepCopy.textResourceBindings,
-      index,
-    );
+    componentDeepCopy.textResourceBindings =
+      getVariableTextKeysForRepeatingGroupComponent(
+        textResources,
+        componentDeepCopy.textResourceBindings,
+        index,
+      );
     const hidden = !!hiddenFields?.find(
       (field) => field === `${deepCopyId}[${index}]`,
     );
@@ -400,16 +401,17 @@ export function setMappingForRepeatingGroupComponent(
   }
 }
 
-export function setVariableTextKeysForRepeatingGroupComponent(
+export function getVariableTextKeysForRepeatingGroupComponent(
   textResources: ITextResource[],
   textResourceBindings: ITextResourceBindings,
   index: number,
 ) {
+  const copyTextResourceBindings = { ...textResourceBindings };
   if (textResources && textResourceBindings) {
     const bindingsWithVariablesForRepeatingGroups = Object.keys(
-      textResourceBindings,
+      copyTextResourceBindings,
     ).filter((key) => {
-      const textKey = textResourceBindings[key];
+      const textKey = copyTextResourceBindings[key];
       const textResource = textResources.find((text) => text.id === textKey);
       return (
         textResource &&
@@ -419,9 +421,12 @@ export function setVariableTextKeysForRepeatingGroupComponent(
     });
 
     bindingsWithVariablesForRepeatingGroups.forEach((key) => {
-      textResourceBindings[key] = `${textResourceBindings[key]}-${index}`;
+      copyTextResourceBindings[
+        key
+      ] = `${copyTextResourceBindings[key]}-${index}`;
     });
   }
+  return copyTextResourceBindings;
 }
 
 export function hasRequiredFields(layout: ILayout) {
