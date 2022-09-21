@@ -26,9 +26,6 @@ const ProcessWrapper = () => {
     (state) => state.instantiation.instantiating,
   );
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
-  const taskId = useAppSelector(
-    (state) => state.instanceData.instance?.process.currentTask.elementId,
-  );
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const { hasApiErrors } = useApiErrorCheck();
   const { dispatch, process, appOwner, appName } = useProcess();
@@ -65,7 +62,11 @@ const ProcessWrapper = () => {
           {taskType === ProcessTaskType.Data && <Form />}
           {taskType === ProcessTaskType.Archived && <Receipt />}
           {taskType === ProcessTaskType.Confirm &&
-            (behavesLikeDataTask(taskId, layoutSets) ? <Form /> : <Confirm />)}
+            (behavesLikeDataTask(process.taskId, layoutSets) ? (
+              <Form />
+            ) : (
+              <Confirm />
+            ))}
           {taskType === ProcessTaskType.Feedback && <Feedback />}
         </>
       ) : (
