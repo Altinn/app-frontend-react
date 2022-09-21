@@ -20,7 +20,7 @@
     "start:frontend": "node ./scripts/startAppFrontend.mjs",
     "before:appfrontend": "concurrently --kill-others --names localtest,app,app-frontend \"yarn start:localtest\" \"yarn start:app\" \"yarn start:frontend\"",
     "test:anonymous-stateless": "yarn run delete:reports && cypress run -b chrome -s 'e2e/integration/app-anonymous-stateless/*.js'",
-    "test:frontend": "yarn run delete:reports && cypress run -b edge -s 'e2e/integration/app-frontend/*.js'",
+    "test:frontend": "yarn run delete:reports && cypress run -b chrome -s 'e2e/integration/app-frontend/*.js'",
     "test:stateless": "yarn run delete:reports && cypress run -b chrome -s 'e2e/integration/app-stateless/*.js'",
     "test:stateless-anonymous": "yarn run delete:reports && cypress run -b chrome -s 'e2e/integration/app-stateless-anonymous/*.js'",
     "test:all": "yarn run delete:reports && cypress run -b chrome -s 'e2e/integration/*/*.js'",
