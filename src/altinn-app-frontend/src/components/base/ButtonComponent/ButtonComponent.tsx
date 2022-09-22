@@ -1,30 +1,28 @@
 import React from 'react';
 
+import cn from 'classnames';
+
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import css from 'src/components/base/ButtonComponent/ButtonComponent.module.css';
+import { getComponentFromMode } from 'src/components/base/ButtonComponent/getComponentFromMode';
 import { SaveButton } from 'src/components/base/ButtonComponent/SaveButton';
 import { SubmitButton } from 'src/components/base/ButtonComponent/SubmitButton';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import type { IComponentProps } from 'src/components';
+import type { ButtonMode } from 'src/components/base/ButtonComponent/getComponentFromMode';
 import type { ILayoutCompButton } from 'src/features/form/layout';
 import type { IAltinnWindow } from 'src/types';
 
 export interface IButtonProvidedProps
   extends IComponentProps,
     ILayoutCompButton {
-  id: string;
   disabled: boolean;
+  id: string;
+  mode?: ButtonMode;
+  taskId?: string;
 }
 
-const btnGroupStyle = {
-  marginTop: '3.6rem',
-  marginBottom: '0',
-};
-
-const rowStyle = {
-  marginLeft: '0',
-};
-
-export function ButtonComponent({ id, text, language }: IButtonProvidedProps) {
+export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
   const dispatch = useAppDispatch();
   const autoSave = useAppSelector(
     (state) => state.formLayout.uiConfig.autoSave,
@@ -34,52 +32,59 @@ export function ButtonComponent({ id, text, language }: IButtonProvidedProps) {
   const ignoreWarnings = useAppSelector(
     (state) => state.formData.ignoreWarnings,
   );
+  if (mode && !(mode === 'save' || mode === 'submit')) {
+    const GenericButton = getComponentFromMode(mode);
+    return (
+      <div className='container pl-0'>
+        <div className={css['button-group']}>
+          <div className={cn('row', css['button-row'])}>
+            <GenericButton {...props}>{props.text}</GenericButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const saveFormData = () => {
-    dispatch(FormDataActions.submit({}));
+    dispatch(FormDataActions.submit({ componentId: 'saveBtn' }));
   };
 
-  const submitForm = () => {
+  const submitForm = ({ componentId }: { componentId: string }) => {
     const { org, app, instanceId } = window as Window as IAltinnWindow;
     dispatch(
       FormDataActions.submit({
         url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
         apiMode: 'Complete',
         stopWithWarnings: !ignoreWarnings,
+        componentId,
       }),
     );
   };
-  const busyWithId = (isSaving && 'saveBtn') || (isSubmitting && id) || '';
+  const busyWithId = isSaving || isSubmitting || '';
   return (
     <div className='container pl-0'>
-      <div
-        className='a-btn-group'
-        style={btnGroupStyle}
-      >
-        <div
-          className='row'
-          style={rowStyle}
-        >
+      <div className={css['button-group']}>
+        <div className={cn('row', css['button-row'])}>
           {autoSave === false && ( // can this be removed from the component?
             <SaveButton
               onClick={saveFormData}
               id='saveBtn'
               busyWithId={busyWithId}
-              language={language}
+              language={props.language}
             >
               Lagre
             </SaveButton>
           )}
           <SubmitButton
-            onClick={submitForm}
-            id={id}
-            language={language}
+            onClick={() => submitForm({ componentId: props.id })}
+            id={props.id}
+            language={props.language}
             busyWithId={busyWithId}
           >
-            {text}
+            {props.text}
           </SubmitButton>
         </div>
       </div>
     </div>
   );
-}
+};

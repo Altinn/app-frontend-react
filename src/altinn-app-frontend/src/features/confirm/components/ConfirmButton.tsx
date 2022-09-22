@@ -4,10 +4,10 @@ import { useAppSelector } from 'src/common/hooks';
 import { SubmitButton } from 'src/components/base/ButtonComponent';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { buttonLoaderProps } from 'src/components/base/ButtonComponent/ButtonLoader';
-import type { baseButtonProps } from 'src/components/base/ButtonComponent/WrappedButton';
+import type { BaseButtonProps } from 'src/components/base/ButtonComponent/WrappedButton';
 
 export const ConfirmButton = (
-  props: baseButtonProps & buttonLoaderProps & { id: string },
+  props: BaseButtonProps & buttonLoaderProps & { id: string },
 ) => {
   const textResources = useAppSelector(
     (state) => state.textResources.resources,

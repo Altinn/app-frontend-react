@@ -6,7 +6,7 @@ import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceD
 import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';
-import { getCompleteProcessUrl } from 'src/utils/appUrlHelper';
+import { getProcessNextUrl } from 'src/utils/appUrlHelper';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 import type { IRuntimeState } from 'src/types';
@@ -18,7 +18,7 @@ const instanceDataSelector = (state: IRuntimeState) => state.instanceData;
 
 export function* completeProcessSaga(): SagaIterator {
   try {
-    const result: IProcess = yield call(put, getCompleteProcessUrl(), null);
+    const result: IProcess = yield call(put, getProcessNextUrl(), null);
     if (!result) {
       throw new Error('Error: no process returned.');
     }

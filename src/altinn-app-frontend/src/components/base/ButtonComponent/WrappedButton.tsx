@@ -7,17 +7,19 @@ import { ButtonLoader } from 'src/components/base/ButtonComponent/ButtonLoader';
 import css from 'src/components/base/ButtonComponent/WrappedButton.module.css';
 import type { buttonLoaderProps } from 'src/components/base/ButtonComponent/ButtonLoader';
 
-export interface baseButtonProps {
+export interface BaseButtonProps {
   onClick: (...args) => void;
   busyWithId?: string;
+  setBusyWithId?: (string) => void;
+  disabled?: boolean;
 }
 
-export interface buttonProps extends buttonLoaderProps, baseButtonProps {
+export interface ButtonProps extends buttonLoaderProps, BaseButtonProps {
   id: string;
   children: React.ReactNode;
 }
 
-interface props extends buttonProps {
+interface Props extends ButtonProps {
   variant?: ButtonVariant;
 }
 
@@ -27,13 +29,21 @@ export const WrappedButton = ({
   id,
   children,
   busyWithId,
+  setBusyWithId,
   language,
-}: props) => {
+  disabled,
+}: Props) => {
   const somethingIsLoading = !!busyWithId;
   const thisIsLoading = busyWithId === id;
-  const handleClick = (...args) => {
+  const handleClick = async (...args) => {
     if (!thisIsLoading) {
-      onClick(args);
+      if (setBusyWithId) {
+        setBusyWithId(id);
+      }
+      await onClick(args);
+      if (setBusyWithId) {
+        setBusyWithId('');
+      }
     }
   };
   return (
@@ -48,9 +58,10 @@ export const WrappedButton = ({
         variant={variant}
         onClick={handleClick}
         id={id}
+        disabled={disabled}
       >
-        { children }
-        { thisIsLoading && <ButtonLoader language={language} />}
+        {children}
+        {thisIsLoading && <ButtonLoader language={language} />}
       </Button>
     </span>
   );

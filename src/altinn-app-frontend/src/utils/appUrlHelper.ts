@@ -56,7 +56,12 @@ export function getDataValidationUrl(instanceId: string, dataGuid: string) {
   return `${appPath}/instances/${instanceId}/data/${dataGuid}/validate`;
 }
 
-export function getCompleteProcessUrl() {
+export function getProcessNextUrl(taskId?: string) {
+  if (taskId) {
+    return `${appPath}/instances/${
+      altinnWindow.instanceId
+    }/process/next?elementId=${encodeURIComponent(taskId)}`;
+  }
   return `${appPath}/instances/${altinnWindow.instanceId}/process/next`;
 }
 

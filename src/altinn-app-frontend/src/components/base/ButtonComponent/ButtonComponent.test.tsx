@@ -11,7 +11,7 @@ const submitBtnText = 'Submit form';
 
 describe('ButtonComponent', () => {
   it('should render button when isSubmitting is false', () => {
-    render({ isSubmitting: false });
+    render({ isSubmitting: '' });
 
     expect(
       screen.getByRole('button', { name: submitBtnText }),
@@ -20,14 +20,14 @@ describe('ButtonComponent', () => {
   });
 
   it('should render loader when isSubmitting is true', () => {
-    render({ isSubmitting: true });
+    render({ isSubmitting: 'some-id' });
 
     expect(screen.queryByRole('button')).toBeInTheDocument();
     expect(screen.getByText('general.loading')).toBeInTheDocument();
   });
 });
 
-const render = ({ isSubmitting }: { isSubmitting: boolean }) => {
+const render = ({ isSubmitting }: { isSubmitting: string }) => {
   const initialState = getInitialStateMock();
   const preloadedState = {
     ...initialState,
