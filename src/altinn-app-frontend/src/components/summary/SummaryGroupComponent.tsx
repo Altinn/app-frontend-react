@@ -15,6 +15,7 @@ import {
   getFormDataForComponentInRepeatingGroup,
 } from 'src/utils/formComponentUtils';
 import {
+  getRepeatingGroupStartStopIndex,
   getVariableTextKeysForRepeatingGroupComponent,
   setMappingForRepeatingGroupComponent,
 } from 'src/utils/formLayout';
@@ -150,20 +151,15 @@ function SummaryGroupComponent({
     return undefined;
   };
 
-  const getRepeatingGroupMaxIndex = (containerId: string) => {
-    const repeatingGroup = getRepeatingGroup(containerId);
-    if (repeatingGroup && repeatingGroup.index >= 0) {
-      return repeatingGroup.index;
-    }
-    return -1;
-  };
-
-  const repeatingGroupMaxIndex = getRepeatingGroupMaxIndex(componentRef);
+  const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
+    getRepeatingGroup(componentRef).index,
+    groupComponent.edit,
+  );
 
   React.useEffect(() => {
     let groupErrors = false;
     if (!largeGroup) {
-      for (let i = 0; i <= repeatingGroupMaxIndex; i++) {
+      for (let i = startIndex; i <= stopIndex; i++) {
         if (groupErrors) {
           break;
         }
@@ -191,14 +187,15 @@ function SummaryGroupComponent({
     largeGroup,
     pageRef,
     groupChildComponents,
-    repeatingGroupMaxIndex,
     layout,
     index,
+    stopIndex,
+    startIndex,
   ]);
 
   const createRepeatingGroupSummaryComponents = () => {
     const componentArray = [];
-    for (let i = 0; i <= repeatingGroupMaxIndex; ++i) {
+    for (let i = startIndex; i <= stopIndex; ++i) {
       const childSummaryComponents = groupChildComponents.map(
         (componentId: string) => {
           const componentIdSuffix = `${index >= 0 ? `-${index}` : ''}-${i}`;
@@ -209,9 +206,9 @@ function SummaryGroupComponent({
             return null;
           }
 
-          const component: ILayoutComponent = layout.find(
+          const component = layout.find(
             (c: ILayoutComponent) => c.id === componentId,
-          ) as ILayoutComponent;
+          );
           const componentDeepCopy = JSON.parse(JSON.stringify(component));
           componentDeepCopy.id = `${componentDeepCopy.id}${componentIdSuffix}`;
 
@@ -292,7 +289,7 @@ function SummaryGroupComponent({
 
   const createRepeatingGroupSummaryForLargeGroups = () => {
     const componentArray = [];
-    for (let i = 0; i <= repeatingGroupMaxIndex; i++) {
+    for (let i = startIndex; i <= stopIndex; i++) {
       const groupContainer: ILayoutGroup = {
         id: `${groupComponent.id}-${i}-summary`,
         type: 'Group',
