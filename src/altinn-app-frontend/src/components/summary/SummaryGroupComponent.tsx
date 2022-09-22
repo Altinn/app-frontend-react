@@ -152,7 +152,7 @@ function SummaryGroupComponent({
   };
 
   const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
-    getRepeatingGroup(componentRef).index,
+    getRepeatingGroup(componentRef)?.index ?? -1,
     groupComponent.edit,
   );
 
