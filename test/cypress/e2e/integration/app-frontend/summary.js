@@ -94,9 +94,11 @@ describe('Summary', () => {
   it('is possible to view summary of repeating group', () => {
     cy.completeTask3Form();
     cy.get(appFrontend.group.mainGroupSummary)
-      .should('be.visible').and('have.length', 1)
+      .should('be.visible')
+      .and('have.length', 1)
       .first()
-      .children(mui.gridItem).should('have.length', 6)
+      .children(mui.gridItem)
+      .should('have.length', 6)
       .then((item) => {
         cy.get(item).find(mui.buttonIcon).should('have.length', 5);
         cy.get(item)
@@ -128,9 +130,11 @@ describe('Summary', () => {
     cy.contains(mui.button, texts.backToSummary).click();
 
     cy.get(appFrontend.group.mainGroupSummary)
-      .should('be.visible').and('have.length', 1)
+      .should('be.visible')
+      .and('have.length', 1)
       .first()
-      .children(mui.gridItem).should('have.length', 6)
+      .children(mui.gridItem)
+      .should('have.length', 6)
       .then((item) => {
         cy.get(item).eq(5).should('contain.text', texts.nestedOptionsToggle);
         cy.get(item).eq(5).should('contain.text', texts.nestedOptions);
