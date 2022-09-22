@@ -1,8 +1,8 @@
 {
-  "name": "Empty array inside expression gives error (TODO: Parse lisp-like expressions instead)",
+  "name": "Empty array inside expression gives error",
   "expression": {
     "function": "equals",
     "args": [true, []]
   },
-  "expectsFailure": "Missing \"function\" property"
+  "expectsFailure": "First list item in a layout Expression must be a string"
 }

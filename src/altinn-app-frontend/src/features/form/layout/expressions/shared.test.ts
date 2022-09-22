@@ -3,6 +3,7 @@ import dot from 'dot-object';
 import { evalExpr } from 'src/features/form/layout/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
 import { getSharedTests } from 'src/features/form/layout/expressions/shared';
+import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
 import {
   LayoutRootNodeCollection,
@@ -73,9 +74,10 @@ describe('Layout expressions shared function tests', () => {
           new NodeNotFoundWithoutContext(componentId);
 
         if (expectsFailure) {
-          expect(() => evalExpr(expression, component, dataSources)).toThrow(
-            expectsFailure,
-          );
+          expect(() => {
+            const expr = asLayoutExpression(expression);
+            return evalExpr(expr, component, dataSources);
+          }).toThrow(expectsFailure);
         } else {
           expect(evalExpr(expression, component, dataSources)).toEqual(expects);
         }

@@ -4,5 +4,5 @@
     "function": "equals",
     "args": [true, {}]
   },
-  "expectsFailure": "Missing \"function\" property"
+  "expectsFailure": "LayoutExpression is missing required property function or args"
 }

@@ -4,5 +4,5 @@
     "function": "equals",
     "args": [true, { "function": "notEquals" }]
   },
-  "expectsFailure": "Arguments not an array"
+  "expectsFailure": "LayoutExpression is missing required property function or args"
 }

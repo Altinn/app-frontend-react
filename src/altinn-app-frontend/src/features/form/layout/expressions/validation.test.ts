@@ -5,14 +5,6 @@ import {
 } from 'src/features/form/layout/expressions/validation';
 
 describe('Layout expression validation', () => {
-  describe('Shared function tests should validate', () => {
-    const sharedTests = getSharedTests('functions');
-    const flat = sharedTests.content.map((td) => td.content).flat();
-    it.each(flat.map((testCase) => testCase.expression))('%j', (maybeExpr) => {
-      expect(asLayoutExpression(maybeExpr)).toEqual(maybeExpr);
-    });
-  });
-
   describe('Shared tests for invalid expressions', () => {
     const invalidSharedTests = getSharedTests('invalid');
     it.each(invalidSharedTests.content)('$name', (invalid) => {

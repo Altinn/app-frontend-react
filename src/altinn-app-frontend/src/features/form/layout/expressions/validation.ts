@@ -19,10 +19,10 @@ import type {
 } from 'src/features/form/layout/expressions/types';
 
 enum ValidationErrorMessage {
-  UnknownProperty = 'Unexpected property',
+  UnknownProperty = 'Unknown property "%s" in LayoutExpression. (Accepted: function, args)',
   InvalidType = 'Invalid type "%s"',
   FuncNotImpl = 'Function "%s" not implemented',
-  ArgsNotArr = 'Arguments not an array',
+  ArgsNotArr = 'LayoutExpression is missing required property function or args',
   ArgUnexpected = 'Unexpected argument',
   ArgWrongType = 'Expected argument to be %s, got %s',
   ArgsWrongNum = 'Expected %s argument(s), got %s',
@@ -211,7 +211,12 @@ function validateObject(expr: any, ctx: ValidationContext, path: string[]) {
     (key) => key !== 'function' && key !== 'args',
   );
   for (const otherKey of otherKeys) {
-    addError(ctx, [...path, otherKey], ValidationErrorMessage.UnknownProperty);
+    addError(
+      ctx,
+      [...path, otherKey],
+      ValidationErrorMessage.UnknownProperty,
+      otherKey,
+    );
   }
 
   return returnVal;
