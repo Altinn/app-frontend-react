@@ -3,7 +3,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import type { IRuntimeState } from 'src/types';
 
-function* waitForFunc(
+export function* waitForFunc(
   selector: (state: IRuntimeState) => boolean,
 ): SagaIterator {
   if (yield select(selector)) {
