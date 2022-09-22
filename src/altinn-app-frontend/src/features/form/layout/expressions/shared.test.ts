@@ -12,7 +12,9 @@ import type { ContextDataSources } from 'src/features/form/layout/expressions/LE
 import type {
   FunctionTest,
   SharedTestContext,
+  SharedTestContextList,
 } from 'src/features/form/layout/expressions/shared';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 import type {
   IApplicationSettings,
@@ -96,6 +98,23 @@ describe('Layout expressions shared context tests', () => {
     return a.component > b.component ? 1 : -1;
   }
 
+  function recurse(node: LayoutNode<any>, key: string): SharedTestContextList {
+    const splitKey = splitDashedKey(node.item.id);
+    const context: SharedTestContextList = {
+      component: splitKey.baseComponentId,
+      currentLayout: key,
+    };
+    const children = node.children().map((child) => recurse(child, key));
+    if (children.length) {
+      context.children = children;
+    }
+    if (splitKey.depth.length) {
+      context.rowIndices = splitKey.depth;
+    }
+
+    return context;
+  }
+
   describe.each(sharedTests.content)('$folderName', (folder) => {
     it.each(folder.content)(
       '$name',
@@ -112,8 +131,7 @@ describe('Layout expressions shared context tests', () => {
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
         };
 
-        const foundContexts: SharedTestContext[] = [];
-
+        const foundContexts: SharedTestContextList[] = [];
         for (const key of Object.keys(layouts || {})) {
           const repeatingGroups = getRepeatingGroups(
             layouts[key].data.layout,
@@ -124,18 +142,11 @@ describe('Layout expressions shared context tests', () => {
             repeatingGroups,
           );
 
-          for (const node of nodes.flat(true)) {
-            const splitKey = splitDashedKey(node.item.id);
-            const context: SharedTestContext = {
-              component: splitKey.baseComponentId,
-              currentLayout: key,
-            };
-            if (splitKey.depth.length) {
-              context.rowIndices = splitKey.depth;
-            }
-
-            foundContexts.push(context);
-          }
+          foundContexts.push({
+            component: key,
+            currentLayout: key,
+            children: nodes.children().map((child) => recurse(child, key)),
+          });
         }
 
         expect(foundContexts.sort(contextSorter)).toEqual(

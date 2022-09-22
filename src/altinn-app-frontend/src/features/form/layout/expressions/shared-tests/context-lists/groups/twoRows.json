@@ -57,40 +57,54 @@
   },
   "expectedContexts": [
     {
-      "component": "comp1",
-      "currentLayout": "Page1"
+      "component": "Page1",
+      "currentLayout": "Page1",
+      "children": [
+        {
+          "component": "comp1",
+          "currentLayout": "Page1"
+        },
+        {
+          "component": "group1",
+          "currentLayout": "Page1",
+          "children": [
+            {
+              "component": "comp3",
+              "rowIndices": [0],
+              "currentLayout": "Page1"
+            },
+            {
+              "component": "comp4",
+              "rowIndices": [0],
+              "currentLayout": "Page1"
+            },
+            {
+              "component": "comp3",
+              "rowIndices": [1],
+              "currentLayout": "Page1"
+            },
+            {
+              "component": "comp4",
+              "rowIndices": [1],
+              "currentLayout": "Page1"
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": "group1",
-      "currentLayout": "Page1"
-    },
-    {
-      "component": "comp3",
-      "rowIndices": [0],
-      "currentLayout": "Page1"
-    },
-    {
-      "component": "comp4",
-      "rowIndices": [0],
-      "currentLayout": "Page1"
-    },
-    {
-      "component": "comp3",
-      "rowIndices": [1],
-      "currentLayout": "Page1"
-    },
-    {
-      "component": "comp4",
-      "rowIndices": [1],
-      "currentLayout": "Page1"
-    },
-    {
-      "component": "comp5",
-      "currentLayout": "Page2"
-    },
-    {
-      "component": "comp6",
-      "currentLayout": "Page2"
+      "component": "Page2",
+      "currentLayout": "Page2",
+      "children": [
+        {
+          "component": "comp5",
+          "currentLayout": "Page2"
+        },
+        {
+          "component": "comp6",
+          "currentLayout": "Page2"
+        }
+      ]
     }
   ],
   "dataModel": {

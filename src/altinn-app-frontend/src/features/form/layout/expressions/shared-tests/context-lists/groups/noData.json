@@ -12,20 +12,23 @@
             "id": "group1",
             "type": "Group",
             "children": ["comp3", "comp4"],
+            "dataModelBindings": {
+              "group": "dddd"
+            },
             "maxCount": 99
           },
           {
             "id": "comp3",
             "type": "Input",
             "dataModelBindings": {
-              "simpleBinding": "asdf"
+              "simpleBinding": "dddd.comp3"
             }
           },
           {
             "id": "comp4",
             "type": "Input",
             "dataModelBindings": {
-              "simpleBinding": "asdf"
+              "simpleBinding": "dddd.comp4"
             }
           }
         ]
@@ -54,20 +57,32 @@
   },
   "expectedContexts": [
     {
-      "component": "comp1",
-      "currentLayout": "Page1"
+      "component": "Page1",
+      "currentLayout": "Page1",
+      "children": [
+        {
+          "component": "comp1",
+          "currentLayout": "Page1"
+        },
+        {
+          "component": "group1",
+          "currentLayout": "Page1"
+        }
+      ]
     },
     {
-      "component": "group1",
-      "currentLayout": "Page1"
-    },
-    {
-      "component": "comp5",
-      "currentLayout": "Page2"
-    },
-    {
-      "component": "comp6",
-      "currentLayout": "Page2"
+      "component": "Page2",
+      "currentLayout": "Page2",
+      "children": [
+        {
+          "component": "comp5",
+          "currentLayout": "Page2"
+        },
+        {
+          "component": "comp6",
+          "currentLayout": "Page2"
+        }
+      ]
     }
   ],
   "dataModel": {}

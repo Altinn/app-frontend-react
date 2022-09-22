@@ -27,19 +27,26 @@ export interface SharedTest {
 
 export interface SharedTestContext {
   component?: string;
-  rowIndices?: number[];
   currentLayout?: string;
 }
 
+export interface SharedTestFunctionContext extends SharedTestContext {
+  rowIndices?: number[];
+}
+
+export interface SharedTestContextList extends SharedTestFunctionContext {
+  children?: SharedTestContext[];
+}
+
 export interface ContextTest extends SharedTest {
-  expectedContexts: SharedTestContext[];
+  expectedContexts: SharedTestContextList[];
 }
 
 export interface FunctionTest extends SharedTest {
   expression: LayoutExpression;
   expects?: any;
   expectsFailure?: string;
-  context?: SharedTestContext;
+  context?: SharedTestFunctionContext;
 }
 
 export interface LispLikeTest {

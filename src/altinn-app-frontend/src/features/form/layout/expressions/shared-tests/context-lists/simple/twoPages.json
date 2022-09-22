@@ -41,20 +41,32 @@
   },
   "expectedContexts": [
     {
-      "component": "comp1",
-      "currentLayout": "Page1"
+      "component": "Page1",
+      "currentLayout": "Page1",
+      "children": [
+        {
+          "component": "comp1",
+          "currentLayout": "Page1"
+        },
+        {
+          "component": "comp2",
+          "currentLayout": "Page1"
+        }
+      ]
     },
     {
-      "component": "comp2",
-      "currentLayout": "Page1"
-    },
-    {
-      "component": "comp3",
-      "currentLayout": "Page2"
-    },
-    {
-      "component": "comp4",
-      "currentLayout": "Page2"
+      "component": "Page2",
+      "currentLayout": "Page2",
+      "children": [
+        {
+          "component": "comp3",
+          "currentLayout": "Page2"
+        },
+        {
+          "component": "comp4",
+          "currentLayout": "Page2"
+        }
+      ]
     }
   ],
   "dataModel": {}

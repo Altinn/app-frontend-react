@@ -17,8 +17,14 @@
   },
   "expectedContexts": [
     {
-      "component": "comp1",
-      "currentLayout": "Page1"
+      "component": "Page1",
+      "currentLayout": "Page1",
+      "children": [
+        {
+          "component": "comp1",
+          "currentLayout": "Page1"
+        }
+      ]
     }
   ],
   "dataModel": {}
