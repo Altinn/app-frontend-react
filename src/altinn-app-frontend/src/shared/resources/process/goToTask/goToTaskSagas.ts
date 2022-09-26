@@ -38,6 +38,7 @@ export function* goToTaskSaga({
         processStep: ProcessTaskType.Data,
       }),
     );
+    yield put(ProcessActions.getTasks());
     const instanceData: IInstanceDataState = yield select(instanceDataSelector);
     const instanceId = instanceData.instance.id;
     yield put(InstanceDataActions.get({ instanceId }));
