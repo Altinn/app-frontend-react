@@ -4,6 +4,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
 import { EditButton } from 'src/components/summary/EditButton';
+import type { SummaryDisplayProperties } from 'src/features/form/layout';
 
 import appTheme from 'altinn-shared/theme/altinnAppTheme';
 
@@ -13,6 +14,7 @@ export interface SummaryBoilerplateProps {
   changeText: string;
   label: any;
   readOnlyComponent?: boolean;
+  display?: SummaryDisplayProperties;
 }
 
 const useStyles = makeStyles({
@@ -37,8 +39,11 @@ export default function SummaryBoilerplate({
   changeText,
   label,
   readOnlyComponent,
+  display,
 }: SummaryBoilerplateProps) {
   const classes = useStyles();
+  const shouldShowChangeButton =
+    !readOnlyComponent && !display.hideChangeButton;
   return (
     <>
       <Grid
@@ -50,10 +55,7 @@ export default function SummaryBoilerplate({
       >
         <Typography
           variant='body1'
-          className={cn(
-            classes.label,
-            hasValidationMessages && classes.labelWithError,
-          )}
+          className={cn(hasValidationMessages && classes.labelWithError)}
           component='span'
         >
           {label}
@@ -63,7 +65,7 @@ export default function SummaryBoilerplate({
         item
         xs={2}
       >
-        {!readOnlyComponent && (
+        {shouldShowChangeButton && (
           <EditButton
             onClick={onChangeClick}
             editText={changeText}

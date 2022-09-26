@@ -326,3 +326,9 @@ export interface IGroupFilter {
   key: string;
   value: string;
 }
+
+export interface SummaryDisplayProperties {
+  hideChangeButton?: boolean;
+  useComponentGrid?: boolean;
+  hideBottomBorder?: boolean;
+}

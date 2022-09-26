@@ -135,7 +135,11 @@ export function RepeatingGroupsEditContainer({
               ) {
                 return null;
               }
-              return renderGenericComponent(component, layout, editIndex);
+              return renderGenericComponent({
+                component,
+                layout,
+                index: editIndex,
+              });
             },
           )}
         </Grid>
