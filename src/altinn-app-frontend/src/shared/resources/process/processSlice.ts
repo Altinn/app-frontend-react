@@ -5,7 +5,6 @@ import { checkProcessUpdated } from 'src/shared/resources/process/checkProcessUp
 import { completeProcessSaga } from 'src/shared/resources/process/completeProcess/completeProcessSagas';
 import { getProcessStateSaga } from 'src/shared/resources/process/getProcessState/getProcessStateSagas';
 import { getTasksSaga } from 'src/shared/resources/process/getTasks/getTasksSagas';
-import { goToTaskSaga } from 'src/shared/resources/process/goToTask/goToTaskSagas';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type {
   ICompleteProcessFulfilled,
@@ -13,8 +12,6 @@ import type {
   IGetProcessStateFulfilled,
   IGetProcessStateRejected,
   IGetTasksFulfilled,
-  IGoToTaskFulfilled,
-  IGoToTaskRejected,
   IProcessState,
 } from 'src/shared/resources/process';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
@@ -39,7 +36,7 @@ const processSlice = createSagaSlice(
     name: 'process',
     initialState,
     actions: {
-      getTasks: mkAction<void>({
+      getTasks: mkAction<IGetTasksFulfilled>({
         takeLatest: getTasksSaga,
       }),
       getTasksFulfilled: mkAction<IGetTasksFulfilled>({
@@ -56,28 +53,11 @@ const processSlice = createSagaSlice(
           state.error = action.payload.error;
         },
       }),
-      goToTask: mkAction<IGoToTaskFulfilled>({
-        takeLatest: goToTaskSaga,
-      }),
-      goToTaskFulfilled: mkAction<IGoToTaskFulfilled>({
-        reducer: (
-          state: WritableDraft<IProcessState>,
-          action: PayloadAction<IGoToTaskFulfilled>,
-        ) => {
-          state.taskType = action.payload.processStep;
-          state.taskId = action.payload.taskId;
-          state.error = null;
-        },
-      }),
-      goToTaskRejected: mkAction<IGoToTaskRejected>({
-        reducer: (state, action) => {
-          state.error = action.payload.error;
-        },
-      }),
       get: mkAction<void>({
         takeLatest: getProcessStateSaga,
       }),
       getFulfilled: mkAction<IGetProcessStateFulfilled>({
+        takeLatest: getTasksSaga,
         reducer: genericFulfilledReducer,
       }),
       getRejected: mkAction<IGetProcessStateRejected>({
@@ -85,10 +65,11 @@ const processSlice = createSagaSlice(
           state.error = action.payload.error;
         },
       }),
-      complete: mkAction<void>({
+      complete: mkAction<ICompleteProcessFulfilled>({
         takeLatest: completeProcessSaga,
       }),
       completeFulfilled: mkAction<ICompleteProcessFulfilled>({
+        takeLatest: getTasksSaga,
         reducer: genericFulfilledReducer,
       }),
       completeRejected: mkAction<ICompleteProcessRejected>({

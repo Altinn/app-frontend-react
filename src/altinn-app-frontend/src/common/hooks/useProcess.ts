@@ -25,7 +25,6 @@ export function useProcess() {
 
     if (!process?.taskType) {
       dispatch(ProcessActions.get());
-      dispatch(ProcessActions.getTasks());
       return;
     }
 

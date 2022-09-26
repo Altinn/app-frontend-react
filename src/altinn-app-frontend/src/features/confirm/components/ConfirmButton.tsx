@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { SubmitButton } from 'src/components/base/ButtonComponent';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
+import { ProcessTaskType } from 'src/types';
 import { getValidationUrl } from 'src/utils/appUrlHelper';
 import { get } from 'src/utils/networking';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
@@ -37,7 +38,12 @@ export const ConfirmButton = (
           }),
         );
         if (data.length === 0) {
-          dispatch(ProcessActions.complete());
+          dispatch(
+            ProcessActions.complete({
+              taskId: '',
+              processStep: ProcessTaskType.Unknown,
+            }),
+          );
         }
       })
       .finally(() => {

@@ -8,7 +8,9 @@ export interface IProcessState {
 }
 
 export interface IGetTasksFulfilled {
-  tasks: string[];
+  processStep?: ProcessTaskType;
+  tasks?: string[];
+  task?: string;
 }
 
 export interface ICompleteProcessFulfilled {
@@ -17,7 +19,6 @@ export interface ICompleteProcessFulfilled {
 }
 
 export type IGetProcessStateFulfilled = ICompleteProcessFulfilled;
-export type IGoToTaskFulfilled = ICompleteProcessFulfilled;
 
 interface CommonRejected {
   error: Error;

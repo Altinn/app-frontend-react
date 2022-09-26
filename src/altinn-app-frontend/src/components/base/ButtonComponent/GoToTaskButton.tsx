@@ -20,7 +20,7 @@ export const GoToTaskButton = ({ children, taskId, ...props }: props) => {
   const navigateToTask = () => {
     if (canGoToTask) {
       dispatch(
-        ProcessActions.goToTask({
+        ProcessActions.complete({
           taskId,
           processStep: ProcessTaskType.Unknown,
         }),
