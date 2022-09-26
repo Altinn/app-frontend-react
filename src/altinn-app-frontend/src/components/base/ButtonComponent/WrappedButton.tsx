@@ -10,7 +10,7 @@ import type { buttonLoaderProps } from 'src/components/base/ButtonComponent/Butt
 export interface BaseButtonProps {
   onClick: (...args) => void;
   busyWithId?: string;
-  setBusyWithId?: (string) => void;
+  setBusyWithId?: (id: string) => void;
   disabled?: boolean;
 }
 
@@ -36,7 +36,7 @@ export const WrappedButton = ({
   const somethingIsLoading = !!busyWithId;
   const thisIsLoading = busyWithId === id;
   const handleClick = async (...args) => {
-    if (!thisIsLoading) {
+    if (!somethingIsLoading) {
       if (setBusyWithId) {
         setBusyWithId(id);
       }

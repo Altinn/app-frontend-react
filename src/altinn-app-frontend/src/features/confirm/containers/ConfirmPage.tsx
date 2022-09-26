@@ -76,10 +76,7 @@ export const ConfirmPage = ({
         titleSubmitted={getText('confirm.answers')}
         pdf={getInstancePdf(instance.data)}
       />
-      <ProcessNavigation
-        language={language}
-        textResources={textResources}
-      />
+      <ProcessNavigation language={language} />
       <ReadyForPrint />
     </>
   );

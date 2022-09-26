@@ -1,19 +1,49 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { SubmitButton } from 'src/components/base/ButtonComponent';
+import { ValidationActions } from 'src/features/form/validation/validationSlice';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
+import { getValidationUrl } from 'src/utils/appUrlHelper';
+import { get } from 'src/utils/networking';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { buttonLoaderProps } from 'src/components/base/ButtonComponent/ButtonLoader';
+import { mapDataElementValidationToRedux } from 'src/utils/validation';
 import type { BaseButtonProps } from 'src/components/base/ButtonComponent/WrappedButton';
+import type { IAltinnWindow } from 'src/types';
+
+import type { ILanguage } from 'altinn-shared/types';
 
 export const ConfirmButton = (
-  props: BaseButtonProps & buttonLoaderProps & { id: string },
+  props: Omit<BaseButtonProps, 'onClick'> & { id: string; language: ILanguage },
 ) => {
   const textResources = useAppSelector(
     (state) => state.textResources.resources,
   );
+  const dispatch = useAppDispatch();
+  const { instanceId } = window as Window as IAltinnWindow;
+
+  const handleConfirmClick = () => {
+    get(getValidationUrl(instanceId)).then((data: any) => {
+      const mappedValidations = mapDataElementValidationToRedux(
+        data,
+        {},
+        textResources,
+      );
+      dispatch(
+        ValidationActions.updateValidations({
+          validations: mappedValidations,
+        }),
+      );
+      if (data.length === 0) {
+        dispatch(ProcessActions.complete());
+      }
+    });
+  };
   return (
-    <SubmitButton {...props}>
+    <SubmitButton
+      {...props}
+      onClick={handleConfirmClick}
+    >
       {getTextFromAppOrDefault(
         'confirm.button_text',
         textResources,
