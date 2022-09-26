@@ -11,7 +11,7 @@ import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from 'testUtils';
 
 import {
-  type props as IConfirmPage,
+  type Props as IConfirmPage,
   ConfirmPage,
 } from 'src/features/confirm/containers/ConfirmPage';
 

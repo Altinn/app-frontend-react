@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import { ButtonLoader } from 'src/components/base/ButtonComponent/ButtonLoader';
 import css from 'src/components/base/ButtonComponent/WrappedButton.module.css';
-import type { buttonLoaderProps } from 'src/components/base/ButtonComponent/ButtonLoader';
+import type { ButtonLoaderProps } from 'src/components/base/ButtonComponent/ButtonLoader';
 
 export interface BaseButtonProps {
   onClick: (...args) => void;
@@ -14,7 +14,7 @@ export interface BaseButtonProps {
   disabled?: boolean;
 }
 
-export interface ButtonProps extends buttonLoaderProps, BaseButtonProps {
+export interface ButtonProps extends ButtonLoaderProps, BaseButtonProps {
   id: string;
   children: React.ReactNode;
 }
@@ -40,7 +40,7 @@ export const WrappedButton = ({
       if (setBusyWithId) {
         setBusyWithId(id);
       }
-      await onClick(args);
+      onClick(args);
       if (setBusyWithId) {
         setBusyWithId('');
       }

@@ -15,7 +15,7 @@ import {
 } from 'altinn-shared/utils/attachmentsUtils';
 import type { IInstance, ILanguage, IParty } from 'altinn-shared/types';
 
-export interface props {
+export interface Props {
   instance: IInstance;
   parties: IParty[];
   language: ILanguage;
@@ -31,7 +31,7 @@ export const ConfirmPage = ({
   appName,
   textResources,
   applicationMetadata,
-}: props) => {
+}: Props) => {
   const getInstanceMetaObject = () => {
     if (instance?.org && applicationMetadata) {
       const instanceOwnerParty = parties.find((party: IParty) => {

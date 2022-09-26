@@ -6,11 +6,11 @@ import { AltinnLoader } from 'altinn-shared/components';
 import { getLanguageFromKey } from 'altinn-shared/utils';
 import type { ILanguage } from 'altinn-shared/types';
 
-export interface buttonLoaderProps {
+export interface ButtonLoaderProps {
   language: ILanguage;
 }
 
-export const ButtonLoader = ({ language }: buttonLoaderProps) => {
+export const ButtonLoader = ({ language }: ButtonLoaderProps) => {
   return (
     <AltinnLoader
       id={'altinn-button-loader'}
