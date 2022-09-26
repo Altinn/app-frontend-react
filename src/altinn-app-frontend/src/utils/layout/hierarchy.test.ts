@@ -582,6 +582,7 @@ describe('Hierarchical layout tools', () => {
   describe('transposeDataModel', () => {
     const nodes = nodesInLayout(layout, manyRepeatingGroups);
     const inputNode = nodes.findById(`${components.group2ni.id}-2-2`);
+    const topHeaderNode = nodes.findById(components.top1.id);
 
     expect(inputNode.transposeDataModel('MyModel.Group2.Nested.Age')).toEqual(
       'MyModel.Group2[2].Nested[2].Age',
@@ -597,30 +598,25 @@ describe('Hierarchical layout tools', () => {
       'MyModel.Group2[2].Nested[2].Age',
     );
 
-    // Existing indexes are removed:
+    // Existing indexes are not removed:
     expect(
       headerNode.transposeDataModel('MyModel.Group2[1].Nested[1].Age'),
-    ).toEqual('MyModel.Group2[2].Nested[2].Age');
-
-    // Unless you specify for them not to:
-    expect(
-      headerNode.transposeDataModel('MyModel.Group2[1].Nested[1].Age', false),
     ).toEqual('MyModel.Group2[1].Nested[1].Age');
     expect(
-      headerNode.transposeDataModel('MyModel.Group2.Nested[1].Age', false),
+      headerNode.transposeDataModel('MyModel.Group2.Nested[1].Age'),
     ).toEqual('MyModel.Group2[2].Nested[1].Age');
 
     // This is a broken reference: We cannot know exactly which row in the nested
     // group you want to refer to, as you never specified:
     expect(
-      headerNode.transposeDataModel('MyModel.Group2[3].Nested.Age', false),
+      headerNode.transposeDataModel('MyModel.Group2[3].Nested.Age'),
     ).toEqual('MyModel.Group2[3].Nested.Age');
 
-    // This still makes sense, but at least we're on the same row, so we can safely give
-    // you the row you're looking for:
+    // This still doesn't make sense. Even though we're on the same row now, we should behave the same all the time
+    // and fail to resolve the nested row.
     expect(
-      headerNode.transposeDataModel('MyModel.Group2[2].Nested.Age', false),
-    ).toEqual('MyModel.Group2[2].Nested[2].Age');
+      headerNode.transposeDataModel('MyModel.Group2[2].Nested.Age'),
+    ).toEqual('MyModel.Group2[2].Nested.Age');
 
     // Tricks to make sure we don't just compare using startsWith()
     expect(
@@ -639,5 +635,11 @@ describe('Hierarchical layout tools', () => {
         .findById(`${components.group3ni.id}-1-1`)
         .transposeDataModel('Main.Parent[0].Child[1]'),
     ).toEqual('Main.Parent[0].Child[1]');
+
+    // This component doesn't have any repeating group reference point, so it cannot
+    // provide any insights (but it should not fail)
+    expect(
+      topHeaderNode.transposeDataModel('MyModel.Group2.Nested.Age'),
+    ).toEqual('MyModel.Group2.Nested.Age');
   });
 });

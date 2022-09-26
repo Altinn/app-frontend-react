@@ -3,7 +3,7 @@ import {
   LEDefaultsForComponent,
   LEDefaultsForGroup,
 } from 'src/features/form/layout/expressions';
-import { getKeyWithoutIndex } from 'src/utils/databindings';
+import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import type {
   ILayout,
@@ -496,6 +496,15 @@ export class LayoutNode<
     return false;
   }
 
+  private firstDataModelBinding() {
+    const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
+    if (firstBinding) {
+      return this.item.dataModelBindings[firstBinding];
+    }
+
+    return undefined;
+  }
+
   /**
    * This takes a dataModel path (without indexes) and alters it to add indexes such that the data model path refers
    * to an item in the same repeating group row (or nested repeating group row) as the data model for the current
@@ -511,77 +520,46 @@ export class LayoutNode<
    * If you pass the argument 'MyModel.Group[2].NestedGroup[3].Age' to this function, it will still be transposed to
    * the current row indexes: 'MyModel.Group[1].NestedGroup[2].Age' unless you pass overwriteOtherIndices = false.
    */
-  public transposeDataModel(
-    dataModel: string,
-    overwriteOtherIndices = true,
-    rowIndex?: number,
-  ): string {
-    const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
+  public transposeDataModel(dataModel: string, rowIndex?: number): string {
+    const firstBinding = this.firstDataModelBinding();
     if (!firstBinding) {
       if (this.parent instanceof LayoutNode) {
-        return this.parent.transposeDataModel(
-          dataModel,
-          overwriteOtherIndices,
-          this.rowIndex,
-        );
+        return this.parent.transposeDataModel(dataModel, this.rowIndex);
       }
 
       return dataModel;
     }
 
-    const ourBindingParts =
-      this.item.dataModelBindings[firstBinding].split('.');
-    const theirBindingParts = dataModel.split('.');
-    const theirBindingPartsNoIndex = getKeyWithoutIndex(dataModel).split('.');
+    const ourBinding = new DataBinding(firstBinding);
+    const theirBinding = new DataBinding(dataModel);
+    const lastIdx = ourBinding.parts.length - 1;
 
-    for (const idx in theirBindingParts) {
-      const ours = ourBindingParts[idx];
-      const theirs = theirBindingParts[idx];
-      const theirsNoIdx = theirBindingPartsNoIndex[idx];
+    for (const ours of ourBinding.parts) {
+      const theirs = theirBinding.at(ours.parentIndex);
 
-      if (ours && ours.startsWith(theirsNoIdx)) {
-        const remaining = ours.substring(theirsNoIdx.length);
-        const remainingIsIndex = remaining.match(/^(\[\d+])?$/);
-        const theirsHaveIndex = theirsNoIdx !== theirs;
-        if (remaining && !remainingIsIndex) {
-          break;
-        }
-        if (
-          remaining &&
-          remainingIsIndex &&
-          (overwriteOtherIndices || !theirsHaveIndex)
-        ) {
-          theirBindingParts[idx] = ours;
-        } else if (
-          remaining &&
-          remainingIsIndex &&
-          !overwriteOtherIndices &&
-          ours !== theirs
-        ) {
-          // Stop early. We cannot add our row index here, because it makes no sense when an earlier group
-          // index changed.
-          return theirBindingParts.join('.');
-        }
-      } else {
+      if (ours.base !== theirs.base) {
         break;
       }
-    }
 
-    const lastIdx = ourBindingParts.length - 1;
-    if (
-      typeof rowIndex === 'number' &&
-      this.item.type === 'Group' &&
-      theirBindingParts[lastIdx]
-    ) {
-      const idxMatch = theirBindingParts[lastIdx].match(/^(.*?)\[\d+]$/);
-      if (overwriteOtherIndices && idxMatch) {
-        theirBindingParts[lastIdx] = `${idxMatch[1]}[${rowIndex}]`;
-      } else if (!idxMatch) {
-        theirBindingParts[lastIdx] += `[${rowIndex}]`;
+      const arrayIndex =
+        ours.parentIndex === lastIdx && this.item.type === 'Group'
+          ? rowIndex
+          : ours.arrayIndex;
+
+      if (arrayIndex === undefined) {
+        continue;
       }
+
+      if (theirs.hasArrayIndex()) {
+        // Stop early. We cannot add our row index here, because it makes no sense when an earlier group
+        // index changed.we cannot possibly
+        break;
+      }
+
+      theirs.arrayIndex = arrayIndex;
     }
 
-    return theirBindingParts.join('.');
+    return theirBinding.toString();
   }
 }
 

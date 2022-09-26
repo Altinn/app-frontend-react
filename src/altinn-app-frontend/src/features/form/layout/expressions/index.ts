@@ -372,7 +372,7 @@ export const LEFunctions = {
     impl: function (path): string {
       const maybeNode = this.failWithoutNode();
       if (maybeNode instanceof LayoutNode) {
-        const newPath = maybeNode.transposeDataModel(path, false);
+        const newPath = maybeNode.transposeDataModel(path);
         return this.dataSources.formData[newPath] || null;
       }
 
