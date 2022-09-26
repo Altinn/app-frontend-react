@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Button, ButtonVariant } from '@altinn/altinn-design-system';
 import classNames from 'classnames';
@@ -10,7 +10,6 @@ import type { ButtonLoaderProps } from 'src/components/base/ButtonComponent/Butt
 export interface BaseButtonProps {
   onClick: (...args) => void;
   busyWithId?: string;
-  setBusyWithId?: (id: string) => void;
   disabled?: boolean;
 }
 
@@ -29,23 +28,20 @@ export const WrappedButton = ({
   id,
   children,
   busyWithId,
-  setBusyWithId,
   language,
   disabled,
 }: Props) => {
-  const somethingIsLoading = !!busyWithId;
-  const thisIsLoading = busyWithId === id;
+  const [thisIsLoading, setThisIsLoading] = useState(false);
+  const [somethingIsLoading, setSomethingIsLoading] = useState(false);
   const handleClick = async (...args) => {
     if (!somethingIsLoading) {
-      if (setBusyWithId) {
-        setBusyWithId(id);
-      }
       onClick(args);
-      if (setBusyWithId) {
-        setBusyWithId('');
-      }
     }
   };
+  useEffect(() => {
+    setSomethingIsLoading(!!busyWithId);
+    setThisIsLoading(busyWithId === id);
+  }, [id, busyWithId]);
   return (
     <span
       className={classNames(

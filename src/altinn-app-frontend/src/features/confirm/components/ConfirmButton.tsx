@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { SubmitButton } from 'src/components/base/ButtonComponent';
@@ -21,27 +21,33 @@ export const ConfirmButton = (
   );
   const dispatch = useAppDispatch();
   const { instanceId } = window as Window as IAltinnWindow;
-
+  const [busyWithId, setBusyWithId] = useState('');
   const handleConfirmClick = () => {
-    get(getValidationUrl(instanceId)).then((data: any) => {
-      const mappedValidations = mapDataElementValidationToRedux(
-        data,
-        {},
-        textResources,
-      );
-      dispatch(
-        ValidationActions.updateValidations({
-          validations: mappedValidations,
-        }),
-      );
-      if (data.length === 0) {
-        dispatch(ProcessActions.complete());
-      }
-    });
+    setBusyWithId(props.id);
+    get(getValidationUrl(instanceId))
+      .then((data: any) => {
+        const mappedValidations = mapDataElementValidationToRedux(
+          data,
+          {},
+          textResources,
+        );
+        dispatch(
+          ValidationActions.updateValidations({
+            validations: mappedValidations,
+          }),
+        );
+        if (data.length === 0) {
+          dispatch(ProcessActions.complete());
+        }
+      })
+      .finally(() => {
+        setBusyWithId('');
+      });
   };
   return (
     <SubmitButton
       {...props}
+      busyWithId={busyWithId}
       onClick={handleConfirmClick}
     >
       {getTextFromAppOrDefault(
