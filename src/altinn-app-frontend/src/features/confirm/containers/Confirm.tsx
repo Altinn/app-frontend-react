@@ -37,7 +37,7 @@ export const Confirm = () => {
   const { instance, parties } = pageProps;
   const isLoading = !instance || !parties;
   return (
-    <div id='confirm-container'>
+    <div id='confirmcontainer'>
       {isLoading ? (
         <AltinnContentLoader
           width={705}

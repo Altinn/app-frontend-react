@@ -38,7 +38,7 @@ export default class AppFrontend {
 
     // Confirmation
     this.confirm = {
-      container: '#confirm-container',
+      container: '#confirmcontainer',
       body: '#body-text',
       sendIn: '#confirm-button',
       receiptPdf: '#attachment-list-pdf',
