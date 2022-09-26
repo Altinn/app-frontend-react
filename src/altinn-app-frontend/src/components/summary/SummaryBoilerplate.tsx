@@ -43,7 +43,7 @@ export default function SummaryBoilerplate({
 }: SummaryBoilerplateProps) {
   const classes = useStyles();
   const shouldShowChangeButton =
-    !readOnlyComponent && !display.hideChangeButton;
+    !readOnlyComponent && !display?.hideChangeButton;
   return (
     <>
       <Grid

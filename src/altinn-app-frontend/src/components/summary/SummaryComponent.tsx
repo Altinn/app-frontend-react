@@ -185,7 +185,7 @@ export function SummaryComponent({
       <Grid
         container={true}
         className={cn(classes.row, {
-          [classes.border]: !display.hideBottomBorder,
+          [classes.border]: !display?.hideBottomBorder,
         })}
       >
         <SummaryComponentSwitch
