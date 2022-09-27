@@ -1,5 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useState } from 'react';
 
+import {
+  Button,
+  ButtonVariant,
+  PanelVariant,
+  PopoverPanel,
+} from '@altinn/altinn-design-system';
 import {
   createTheme,
   Grid,
@@ -187,6 +193,15 @@ const useStyles = makeStyles({
     clipPath: 'inset(50%)',
     whiteSpace: 'nowrap',
   },
+  popoverButtonContainer: {
+    display: 'flex',
+    '& button': {
+      margin: '1rem 1rem 0 0',
+      '&focus': {
+        outline: 'unset',
+      },
+    },
+  },
 });
 
 function getEditButtonText(
@@ -254,6 +269,8 @@ export function RepeatingGroupTable({
   });
   const showTableHeader =
     repeatingGroupIndex > -1 && !(repeatingGroupIndex == 0 && editIndex == 0);
+  const [popoverPanelIndex, setPopoverPanelIndex] = useState(-1);
+  const [open, setOpen] = useState(false);
 
   const getFormDataForComponent = (
     component: ILayoutComponent | ILayoutGroup,
@@ -269,6 +286,34 @@ export function RepeatingGroupTable({
       options,
       repeatingGroups,
     );
+  };
+
+  const onOpenChange = (index: number) => {
+    if (index == popoverPanelIndex && open) {
+      setPopoverPanelIndex(-1);
+    } else {
+      setPopoverPanelIndex(index);
+    }
+  };
+
+  const handlePopoverDeleteClick = (index: number) => {
+    return () => {
+      onClickRemove(index);
+      onOpenChange(index);
+      setOpen(false);
+    };
+  };
+
+  const handleDeleteClick = (index: number) => {
+    if (container.edit?.alertOnDelete) {
+      return async () => {
+        onOpenChange(index);
+      };
+    } else {
+      return async () => {
+        onClickRemove(index);
+      };
+    }
   };
 
   const handleEditClick = (groupIndex: number) => {
@@ -327,15 +372,6 @@ export function RepeatingGroupTable({
       hiddenFields,
     );
   };
-
-  const removeClicked = useCallback(
-    (index: number) => {
-      return async () => {
-        onClickRemove(index);
-      };
-    },
-    [onClickRemove],
-  );
 
   const renderRepeatingGroupsEditContainer = () => {
     return (
@@ -488,15 +524,45 @@ export function RepeatingGroupTable({
                             style={{ width: '80px', padding: 0 }}
                             key={`delete-${index}`}
                           >
-                            <IconButton
-                              className={classes.deleteButton}
-                              disabled={deleting}
-                              onClick={removeClicked(index)}
-                              aria-label={`${deleteButtonText}-${firstCellData}`}
+                            <PopoverPanel
+                              variant={PanelVariant.Warning}
+                              side={'left'}
+                              open={popoverPanelIndex == index && open}
+                              onOpenChange={setOpen}
+                              showIcon={false}
+                              forceMobileLayout={true}
+                              trigger={
+                                <IconButton
+                                  className={classes.deleteButton}
+                                  disabled={deleting}
+                                  onClick={handleDeleteClick(index)}
+                                  aria-label={`${deleteButtonText}-${firstCellData}`}
+                                >
+                                  <i className='ai ai-trash' />
+                                  {deleteButtonText}
+                                </IconButton>
+                              }
                             >
-                              <i className='ai ai-trash' />
-                              {deleteButtonText}
-                            </IconButton>
+                              <div>
+                                Er du sikker på at du vil slette denne raden?
+                              </div>
+                              <div
+                                className={cn(classes.popoverButtonContainer)}
+                              >
+                                <Button
+                                  variant={ButtonVariant.Cancel}
+                                  onClick={handlePopoverDeleteClick(index)}
+                                >
+                                  Ja, slett raden
+                                </Button>
+                                <Button
+                                  variant={ButtonVariant.Secondary}
+                                  onClick={() => onOpenChange(index)}
+                                >
+                                  Avbryt
+                                </Button>
+                              </div>
+                            </PopoverPanel>
                           </TableCell>
                         )}
                       </AltinnTableRow>

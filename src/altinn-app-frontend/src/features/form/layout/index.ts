@@ -320,6 +320,7 @@ export interface IGroupEditProperties {
   deleteButton?: boolean;
   multiPage?: boolean;
   openByDefault?: boolean;
+  alertOnDelete?: boolean;
 }
 
 export interface IGroupFilter {
