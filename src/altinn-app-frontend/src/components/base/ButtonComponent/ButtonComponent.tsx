@@ -1,7 +1,5 @@
 import React from 'react';
 
-import cn from 'classnames';
-
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import css from 'src/components/base/ButtonComponent/ButtonComponent.module.css';
 import { getComponentFromMode } from 'src/components/base/ButtonComponent/getComponentFromMode';
@@ -37,7 +35,7 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
     return (
       <div className='container pl-0'>
         <div className={css['button-group']}>
-          <div className={cn('row', css['button-row'])}>
+          <div className={css['button-row']}>
             <GenericButton {...props}>{props.text}</GenericButton>
           </div>
         </div>
@@ -64,7 +62,7 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
   return (
     <div className='container pl-0'>
       <div className={css['button-group']}>
-        <div className={cn('row', css['button-row'])}>
+        <div className={css['button-row']}>
           {autoSave === false && ( // can this be removed from the component?
             <SaveButton
               onClick={saveFormData}
