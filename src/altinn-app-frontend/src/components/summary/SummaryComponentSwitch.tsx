@@ -9,11 +9,12 @@ import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
 import SummaryGroupComponent from 'src/components/summary/SummaryGroupComponent';
 import type {
   ILayoutComponent,
+  ILayoutCompSummary,
   ILayoutGroup,
-  SummaryDisplayProperties,
 } from 'src/features/form/layout';
 
-export interface ISummaryComponentSwitch {
+export interface ISummaryComponentSwitch
+  extends Omit<ILayoutCompSummary, 'type'> {
   change: {
     onChangeClick: () => void;
     changeText: string;
@@ -22,14 +23,12 @@ export interface ISummaryComponentSwitch {
   hasValidationMessages?: boolean;
   label?: any;
   formData?: any;
-  componentRef?: string;
   groupProps?: {
     parentGroup?: string;
     pageRef?: string;
     largeGroup?: boolean;
     index?: number;
   };
-  display?: SummaryDisplayProperties;
 }
 
 export default function SummaryComponentSwitch({

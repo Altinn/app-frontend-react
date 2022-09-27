@@ -8,7 +8,8 @@ import type { ILayoutCompSummary } from 'src/features/form/layout';
 
 import appTheme from 'altinn-shared/theme/altinnAppTheme';
 
-export interface SummaryBoilerplateProps extends ILayoutCompSummary {
+export interface SummaryBoilerplateProps
+  extends Omit<ILayoutCompSummary, 'type' | 'id'> {
   hasValidationMessages?: boolean;
   onChangeClick: () => void;
   changeText: string;

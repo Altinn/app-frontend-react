@@ -21,7 +21,7 @@ import type {
 } from 'src/features/form/layout';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
 
-export interface ISummaryComponent extends ILayoutCompSummary {
+export interface ISummaryComponent extends Omit<ILayoutCompSummary, 'type'> {
   parentGroup?: string;
   index?: number;
   formData?: any;
@@ -182,6 +182,7 @@ export function SummaryComponent({
         })}
       >
         <SummaryComponentSwitch
+          id={id}
           change={change}
           formComponent={formComponent}
           label={label}
