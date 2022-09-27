@@ -34,10 +34,14 @@ describe('GroupContainer', () => {
           },
         },
       });
-      screen.getByText('Test title');
-      screen.getByRole('table', { name: 'Test title' });
-      screen.getByText('Test description');
-      screen.getByRole('columnheader', { name: 'Test left column header' });
+      expect(screen.getByText('Test title')).toBeInTheDocument();
+      expect(
+        screen.getByRole('table', { name: 'Test title' }),
+      ).toBeInTheDocument();
+      expect(screen.getByText('Test description')).toBeInTheDocument();
+      expect(
+        screen.getByRole('columnheader', { name: 'Test left column header' }),
+      ).toBeInTheDocument();
     });
 
     it('should render table with one selected row', () => {

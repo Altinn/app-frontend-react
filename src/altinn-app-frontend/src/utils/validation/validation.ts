@@ -439,14 +439,16 @@ export function validateEmptyField(
         warnings: [],
       };
 
+      const textResourceBindingsOrTextKeysForRepeatingGroups = groupDataBinding
+        ? getVariableTextKeysForRepeatingGroupComponent(
+            textResources,
+            textResourceBindings,
+            index,
+          )
+        : textResourceBindings;
+
       const fieldName = getFieldName(
-        groupDataBinding
-          ? getVariableTextKeysForRepeatingGroupComponent(
-              textResources,
-              textResourceBindings,
-              index,
-            )
-          : textResourceBindings,
+        textResourceBindingsOrTextKeysForRepeatingGroups,
         textResources,
         language,
         fieldKey !== 'simpleBinding' ? fieldKey : undefined,
