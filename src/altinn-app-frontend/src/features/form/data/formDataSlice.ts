@@ -30,7 +30,7 @@ import type {
 } from 'src/features/form/data/formDataTypes';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 
-const initialState: IFormDataState = {
+export const initialState: IFormDataState = {
   formData: {},
   error: null,
   responseInstance: null,

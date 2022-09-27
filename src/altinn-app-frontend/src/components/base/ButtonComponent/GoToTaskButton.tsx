@@ -8,9 +8,9 @@ import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';
 import type { ButtonProps } from 'src/components/base/ButtonComponent/WrappedButton';
 
-type props = Omit<ButtonProps, 'onClick'> & { taskId: string };
+export type Props = Omit<ButtonProps, 'onClick'> & { taskId: string };
 
-export const GoToTaskButton = ({ children, taskId, ...props }: props) => {
+export const GoToTaskButton = ({ children, taskId, ...props }: Props) => {
   const dispatch = useAppDispatch();
   const availableProcessTasks = useAppSelector(
     (state) => state.process.availableNextTasks,
