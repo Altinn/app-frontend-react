@@ -8,7 +8,7 @@ import type { Options } from 'ajv';
 import type * as AjvCore from 'ajv/dist/core';
 
 import { Severity } from 'src/types';
-import { getDataTaskDataTypeId } from 'src/utils/appMetadata';
+import { getCurrentDataTypeId } from 'src/utils/appMetadata';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import {
   convertDataBindingToModel,
@@ -1504,9 +1504,10 @@ export function validateGroup(
     return {};
   }
 
-  const currentDataTaskDataTypeId = getDataTaskDataTypeId(
-    state.instanceData.instance.process.currentTask.elementId,
-    state.applicationMetadata.applicationMetadata.dataTypes,
+  const currentDataTaskDataTypeId = getCurrentDataTypeId(
+    state.applicationMetadata.applicationMetadata,
+    state.instanceData.instance,
+    state.formLayout.layoutsets,
   );
   const validator = getValidator(
     currentDataTaskDataTypeId,

@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { Grid, makeStyles } from '@material-ui/core';
-import classNames from 'classnames';
+import { Grid } from '@material-ui/core';
 
 import type { PropsFromGenericComponent } from '..';
 
@@ -14,16 +13,9 @@ import type { ILayoutNavigation, INavigationConfig } from 'src/types';
 
 import { AltinnButton } from 'altinn-shared/components';
 
-const useStyles = makeStyles({
-  backButton: {
-    marginRight: '1.2em',
-  },
-});
-
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtons(props: INavigationButtons) {
-  const classes = useStyles();
   const dispatch = useAppDispatch();
 
   const refPrev = React.useRef<HTMLButtonElement>();
@@ -144,14 +136,11 @@ export function NavigationButtons(props: INavigationButtons) {
   return (
     <Grid
       data-testid='NavigationButtons'
-      container={true}
-      justifyContent='space-between'
+      container
+      spacing={1}
     >
-      <Grid
-        item={true}
-        xs={12}
-      >
-        {!disableBack && props.showBackButton && (
+      {!disableBack && props.showBackButton && (
+        <Grid item>
           <AltinnButton
             ref={refPrev}
             btnText={getTextFromAppOrDefault(
@@ -163,10 +152,11 @@ export function NavigationButtons(props: INavigationButtons) {
             )}
             onClickFunction={onClickPrevious}
             disabled={disableBack}
-            className={classNames(classes.backButton)}
           />
-        )}
-        {!disableNext && (
+        </Grid>
+      )}
+      {!disableNext && (
+        <Grid item>
           <AltinnButton
             ref={refNext}
             btnText={getTextFromAppOrDefault(
@@ -179,8 +169,8 @@ export function NavigationButtons(props: INavigationButtons) {
             onClickFunction={OnClickNext}
             disabled={disableNext}
           />
-        )}
-      </Grid>
+        </Grid>
+      )}
     </Grid>
   );
 }

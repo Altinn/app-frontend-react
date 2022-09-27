@@ -42,7 +42,7 @@ describe('Group', () => {
           cy.get(table).find(mui.tableElement).find(mui.buttonIcon).first().should('be.visible').click();
         });
       cy.get(appFrontend.group.mainGroup)
-        .siblings(appFrontend.group.editContainer)
+        .find(appFrontend.group.editContainer)
         .find(appFrontend.group.next)
         .should('be.visible')
         .click();
@@ -63,16 +63,14 @@ describe('Group', () => {
       }
 
       cy.get(appFrontend.group.mainGroup)
-        .siblings(appFrontend.group.editContainer)
+        .find(appFrontend.group.editContainer)
         .find(appFrontend.group.back)
         .should('be.visible')
         .click();
       cy.get(appFrontend.group.mainGroup)
         .find(mui.tableBody)
         .then((table) => {
-          cy.get(table).find(mui.tableElement).find(appFrontend.group.delete)
-            .should('be.visible')
-            .click();
+          cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
         });
 
       if (openByDefault) {
@@ -105,12 +103,14 @@ describe('Group', () => {
       .should('exist')
       .should('be.visible')
       .should('have.text', texts.zeroIsNotValid);
-    cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('contain.text', texts.errorInGroup);
+    cy.get(appFrontend.group.mainGroup)
+      .siblings(appFrontend.group.tableErrors)
+      .should('contain.text', texts.errorInGroup);
     cy.get(appFrontend.group.newValue).should('be.visible').clear().type('1').blur();
     cy.get(appFrontend.fieldValidationError.replace('field', 'newValue')).should('not.exist');
     cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
     cy.get(appFrontend.group.mainGroup)
-      .siblings(appFrontend.group.editContainer)
+      .find(appFrontend.group.editContainer)
       .find(appFrontend.group.next)
       .should('be.visible')
       .click();
@@ -120,7 +120,9 @@ describe('Group', () => {
       .should('exist')
       .should('be.visible')
       .should('have.text', texts.testIsNotValidValue);
-    cy.get(appFrontend.group.subGroup).siblings(appFrontend.group.tableErrors).should('contain.text', texts.errorInGroup);
+    cy.get(appFrontend.group.subGroup)
+      .siblings(appFrontend.group.tableErrors)
+      .should('contain.text', texts.errorInGroup);
     cy.get(appFrontend.group.comments).clear().type('automation').blur();
     cy.get(appFrontend.fieldValidationError.replace('field', 'comments')).should('not.exist');
     cy.get(appFrontend.group.subGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
@@ -137,6 +139,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.secondGroup_currentValue).should('be.visible').type('1').blur();
     cy.get(appFrontend.group.secondGroup_newValue).should('be.visible').type('2').blur();
     cy.get(appFrontend.group.secondGroup_save).focus().should('be.visible').click();
+    cy.get(appFrontend.group.secondGroup_save_and_close).focus().should('be.visible').click();
     cy.get(appFrontend.group.secondGroup_table).find('tbody').find('tr').its('length').should('eq', 1);
   });
 
@@ -207,16 +210,13 @@ describe('Group', () => {
     cy.get(appFrontend.fieldValidationError.replace('field', 'newValue-0'))
       .should('be.visible')
       .should('have.text', texts.requiredFieldToValue);
-    cy.get(appFrontend.group.mainGroup)
-      .siblings(appFrontend.group.tableErrors)
-      .should('have.text', texts.errorInGroup);
+    cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('have.text', texts.errorInGroup);
 
-    cy.get(appFrontend.group.mainGroup).find(mui.tableBody).then((table) => {
-      cy.get(table)
-        .find(appFrontend.group.delete)
-        .should('be.visible')
-        .click();
-    });
+    cy.get(appFrontend.group.mainGroup)
+      .find(mui.tableBody)
+      .then((table) => {
+        cy.get(table).find(appFrontend.group.delete).should('be.visible').click();
+      });
 
     cy.contains(mui.button, texts.next).click();
     cy.get(appFrontend.group.sendersName).should('exist');

@@ -182,6 +182,8 @@ export interface ILayoutCompImage extends ILayoutCompBase<'Image'> {
 export interface ILayoutCompSummary extends ILayoutCompBase<'Summary'> {
   componentRef?: string;
   pageRef?: string;
+  display?: SummaryDisplayProperties;
+  largeGroup?: boolean;
 }
 
 export type ILayoutCompTextArea = ILayoutCompBase<'TextArea'> &
@@ -327,4 +329,10 @@ export interface IGroupEditProperties {
 export interface IGroupFilter {
   key: string;
   value: string;
+}
+
+export interface SummaryDisplayProperties {
+  hideChangeButton?: boolean;
+  useComponentGrid?: boolean;
+  hideBottomBorder?: boolean;
 }

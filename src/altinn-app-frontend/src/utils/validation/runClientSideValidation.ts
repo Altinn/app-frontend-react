@@ -1,4 +1,4 @@
-import { getDataTaskDataTypeId } from 'src/utils/appMetadata';
+import { getCurrentDataTypeId } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import {
@@ -14,9 +14,10 @@ import type { IRuntimeState } from 'src/types';
  * @param state
  */
 export function runClientSideValidation(state: IRuntimeState) {
-  const currentDataTaskDataTypeId = getDataTaskDataTypeId(
-    state.instanceData.instance.process.currentTask.elementId,
-    state.applicationMetadata.applicationMetadata.dataTypes,
+  const currentDataTaskDataTypeId = getCurrentDataTypeId(
+    state.applicationMetadata.applicationMetadata,
+    state.instanceData.instance,
+    state.formLayout.layoutsets,
   );
   const model = convertDataBindingToModel(state.formData.formData);
   const validator = getValidator(

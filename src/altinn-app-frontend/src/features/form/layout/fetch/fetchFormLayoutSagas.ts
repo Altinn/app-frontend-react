@@ -148,7 +148,6 @@ export function* watchFetchFormLayoutSaga(): SagaIterator {
       take(FormLayoutActions.fetch),
       take(FormDataActions.fetchInitial),
       take(FormDataActions.fetchFulfilled),
-      take(FormLayoutActions.fetchSetsFulfilled),
     ]);
     yield call(fetchLayoutSaga);
   }
