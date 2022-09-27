@@ -16,22 +16,15 @@ import {
 } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type {
-  IGrid,
   ILayoutComponent,
-  SummaryDisplayProperties,
+  ILayoutCompSummary,
 } from 'src/features/form/layout';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
 
-export interface ISummaryComponent {
-  id: string;
-  componentRef?: string;
-  pageRef?: string;
-  display?: SummaryDisplayProperties;
+export interface ISummaryComponent extends ILayoutCompSummary {
   parentGroup?: string;
-  largeGroup?: boolean;
   index?: number;
   formData?: any;
-  grid?: IGrid;
 }
 
 const useStyles = makeStyles({

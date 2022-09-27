@@ -4,17 +4,16 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
 import { EditButton } from 'src/components/summary/EditButton';
-import type { SummaryDisplayProperties } from 'src/features/form/layout';
+import type { ILayoutCompSummary } from 'src/features/form/layout';
 
 import appTheme from 'altinn-shared/theme/altinnAppTheme';
 
-export interface SummaryBoilerplateProps {
+export interface SummaryBoilerplateProps extends ILayoutCompSummary {
   hasValidationMessages?: boolean;
   onChangeClick: () => void;
   changeText: string;
   label: any;
   readOnlyComponent?: boolean;
-  display?: SummaryDisplayProperties;
 }
 
 const useStyles = makeStyles({
