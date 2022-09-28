@@ -61,7 +61,7 @@ export function renderValidationMessages(
   id: string,
   variant: 'error' | 'warning' | 'info' | 'success',
 ) {
-  const key = `error|${JSON.stringify(messages)}`;
+  const key = JSON.stringify({ messages, id, variant });
 
   if (variant !== 'error') {
     return (
