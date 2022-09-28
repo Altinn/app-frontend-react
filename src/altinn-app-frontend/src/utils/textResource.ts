@@ -3,21 +3,9 @@ import type { ITextResource } from 'src/types';
 import {
   getParsedLanguageFromKey,
   getParsedLanguageFromText,
+  getTextResourceByKey,
 } from 'altinn-shared/utils';
 import type { ILanguage } from 'altinn-shared/types';
-
-export function getTextResourceByKey(
-  key: string,
-  textResources: ITextResource[],
-) {
-  if (!textResources) {
-    return key;
-  }
-  const textResource = textResources.find(
-    (resource: ITextResource) => resource.id === key,
-  );
-  return textResource ? textResource.value : key;
-}
 
 export const getTextFromAppOrDefault = (
   key: string,
