@@ -111,7 +111,8 @@ export const CheckboxContainerComponent = ({
     formData?.simpleBinding ?? '',
   );
 
-  const selected = value.length > 0 ? value.split(',') : defaultSelectedOptions;
+  const selected =
+    value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
 
   React.useEffect(() => {
     const shouldSelectOptionAutomatically =
@@ -136,7 +137,7 @@ export const CheckboxContainerComponent = ({
     if (optionsHasChanged && formData.simpleBinding) {
       // New options have been loaded, we have to reset form data.
       // We also skip any required validations
-      setValue(undefined, true, true);
+      setValue(undefined, true);
     }
   }, [setValue, optionsHasChanged, formData]);
 
@@ -152,7 +153,7 @@ export const CheckboxContainerComponent = ({
   };
 
   const handleBlur = () => {
-    handleDataChange(formData?.simpleBinding ?? '');
+    setValue(selected.join(','), true);
   };
 
   const isOptionSelected = (option: string) => selected.includes(option);
@@ -182,7 +183,7 @@ export const CheckboxContainerComponent = ({
           <AltinnSpinner />
         ) : (
           <>
-            {calculatedOptions.map((option, index, { length }) => (
+            {calculatedOptions.map((option, index) => (
               <React.Fragment key={option.value}>
                 <FormControlLabel
                   key={option.value}
@@ -191,7 +192,7 @@ export const CheckboxContainerComponent = ({
                     <StyledCheckbox
                       checked={isOptionSelected(option.value)}
                       onChange={handleChange}
-                      onBlur={index === length - 1 ? handleBlur : undefined}
+                      onBlur={handleBlur}
                       value={index}
                       key={option.value}
                       name={option.value}

@@ -10,11 +10,7 @@ export const mockDelayBeforeSaving = (newDelay: number) => {
 
 export interface DelayedSavedStateRetVal {
   value: string;
-  setValue: (
-    newValue: string,
-    saveImmediately?: boolean,
-    skipValidation?: boolean,
-  ) => void;
+  setValue: (newValue: string, saveImmediately?: boolean) => void;
   saveValue: () => void;
   onPaste: () => void;
 }
@@ -51,14 +47,11 @@ export function useDelayedSavedState(
 
   return {
     value: immediateState,
-    setValue: (newValue, saveImmediately, skipValidation) => {
-      if (skipValidation && !saveImmediately) {
-        throw 'skipValidation is only supported when saving immediatly';
-      }
+    setValue: (newValue, saveImmediately) => {
       setImmediateState(newValue);
       if (newValue !== formValue) {
         if (saveImmediately) {
-          handleDataChange(newValue, undefined, skipValidation, false);
+          handleDataChange(newValue, undefined, false, false);
         } else if (saveNextChangeImmediately) {
           // Save immediately on the next change event after a paste
           handleDataChange(newValue, undefined, false, false);

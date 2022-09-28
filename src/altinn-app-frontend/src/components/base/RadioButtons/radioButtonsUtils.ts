@@ -100,7 +100,7 @@ export const useRadioButtons = ({
     if (optionsHasChanged && formData.simpleBinding) {
       // New options have been loaded, we have to reset form data.
       // We also skip any required validations
-      setValue(undefined, true, true);
+      setValue(undefined, true);
     }
   }, [setValue, optionsHasChanged, formData]);
 
@@ -109,7 +109,7 @@ export const useRadioButtons = ({
   };
 
   const handleBlur = () => {
-    handleDataChange(formData?.simpleBinding ?? '');
+    setValue(formData?.simpleBinding ?? '', true);
   };
   return {
     handleChange,
