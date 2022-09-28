@@ -202,6 +202,10 @@ const useStyles = makeStyles({
       },
     },
   },
+  popoverCurrentCell: {
+    zIndex: 1,
+    position: 'relative',
+  },
 });
 
 function getEditButtonText(
@@ -523,6 +527,10 @@ export function RepeatingGroupTable({
                             align='center'
                             style={{ width: '80px', padding: 0 }}
                             key={`delete-${index}`}
+                            className={cn({
+                              [classes.popoverCurrentCell]:
+                                index == popoverPanelIndex,
+                            })}
                           >
                             <PopoverPanel
                               variant={PanelVariant.Warning}
@@ -544,7 +552,10 @@ export function RepeatingGroupTable({
                               }
                             >
                               <div>
-                                Er du sikker på at du vil slette denne raden?
+                                {getLanguageFromKey(
+                                  'group.row_popover_delete_message',
+                                  language,
+                                )}
                               </div>
                               <div
                                 className={cn(classes.popoverButtonContainer)}
@@ -553,13 +564,19 @@ export function RepeatingGroupTable({
                                   variant={ButtonVariant.Cancel}
                                   onClick={handlePopoverDeleteClick(index)}
                                 >
-                                  Ja, slett raden
+                                  {getLanguageFromKey(
+                                    'group.row_popover_delete_button_confirm',
+                                    language,
+                                  )}
                                 </Button>
                                 <Button
                                   variant={ButtonVariant.Secondary}
                                   onClick={() => onOpenChange(index)}
                                 >
-                                  Avbryt
+                                  {getLanguageFromKey(
+                                    'general.cancel',
+                                    language,
+                                  )}
                                 </Button>
                               </div>
                             </PopoverPanel>
