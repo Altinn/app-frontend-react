@@ -230,8 +230,8 @@ export const render = ({
     error: null,
     hasSubmitted: false,
     ignoreWarnings: false,
-    isSubmitting: '',
-    isSaving: '',
+    submittingId: '',
+    savingId: '',
     responseInstance: null,
     unsavedChanges: false,
   };

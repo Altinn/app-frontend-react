@@ -3,8 +3,8 @@ export interface IFormDataState {
   error: Error;
   responseInstance: any;
   unsavedChanges: boolean;
-  isSubmitting: string;
-  isSaving: string;
+  submittingId: string;
+  savingId: string;
   hasSubmitted: boolean;
   ignoreWarnings: boolean;
 }

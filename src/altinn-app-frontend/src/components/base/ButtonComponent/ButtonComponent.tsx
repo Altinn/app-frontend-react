@@ -25,8 +25,8 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
   const autoSave = useAppSelector(
     (state) => state.formLayout.uiConfig.autoSave,
   );
-  const isSubmitting = useAppSelector((state) => state.formData.isSubmitting);
-  const isSaving = useAppSelector((state) => state.formData.isSaving);
+  const submittingId = useAppSelector((state) => state.formData.submittingId);
+  const savingId = useAppSelector((state) => state.formData.savingId);
   const ignoreWarnings = useAppSelector(
     (state) => state.formData.ignoreWarnings,
   );
@@ -58,7 +58,7 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
       }),
     );
   };
-  const busyWithId = isSaving || isSubmitting || '';
+  const busyWithId = savingId || submittingId || '';
   return (
     <div className='container pl-0'>
       <div className={css['button-group']}>

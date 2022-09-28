@@ -10,8 +10,8 @@ import type { IButtonProvidedProps } from 'src/components/base/ButtonComponent/B
 const submitBtnText = 'Submit form';
 
 describe('ButtonComponent', () => {
-  it('should render button when isSubmitting is false', () => {
-    render({ isSubmitting: '' });
+  it('should render button when submittingId is falsy', () => {
+    render({ submittingId: '' });
 
     expect(
       screen.getByRole('button', { name: submitBtnText }),
@@ -19,21 +19,21 @@ describe('ButtonComponent', () => {
     expect(screen.queryByText('general.loading')).not.toBeInTheDocument();
   });
 
-  it('should render loader when isSubmitting is true', () => {
-    render({ isSubmitting: 'some-id' });
+  it('should render loader when submittingId is truthy', () => {
+    render({ submittingId: 'some-id' });
 
     expect(screen.queryByRole('button')).toBeInTheDocument();
     expect(screen.getByText('general.loading')).toBeInTheDocument();
   });
 });
 
-const render = ({ isSubmitting }: { isSubmitting: string }) => {
+const render = ({ submittingId }: { submittingId: string }) => {
   const initialState = getInitialStateMock();
   const preloadedState = {
     ...initialState,
     formData: {
       ...initialState.formData,
-      isSubmitting,
+      submittingId,
     },
     formLayout: {
       ...initialState.formLayout,

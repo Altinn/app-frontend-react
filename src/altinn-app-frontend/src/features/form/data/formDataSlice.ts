@@ -35,8 +35,8 @@ export const initialState: IFormDataState = {
   error: null,
   responseInstance: null,
   unsavedChanges: false,
-  isSubmitting: '',
-  isSaving: '',
+  submittingId: '',
+  savingId: '',
   hasSubmitted: false,
   ignoreWarnings: false,
 };
@@ -81,16 +81,16 @@ const formDataSlice = createSagaSlice(
         takeLatest: submitFormSaga,
         reducer: (state, action) => {
           const { apiMode, componentId } = action.payload;
-          state.isSaving =
-            apiMode !== 'Complete' ? componentId : state.isSaving;
-          state.isSubmitting =
-            apiMode === 'Complete' ? componentId : state.isSubmitting;
+          state.savingId =
+            apiMode !== 'Complete' ? componentId : state.savingId;
+          state.submittingId =
+            apiMode === 'Complete' ? componentId : state.submittingId;
           state.hasSubmitted = apiMode === 'Complete';
         },
       }),
       submitFulfilled: mkAction<void>({
         reducer: (state) => {
-          state.isSaving = '';
+          state.savingId = '';
           state.unsavedChanges = false;
         },
       }),
@@ -98,8 +98,8 @@ const formDataSlice = createSagaSlice(
         reducer: (state, action) => {
           const { error } = action.payload;
           state.error = error;
-          state.isSubmitting = '';
-          state.isSaving = '';
+          state.submittingId = '';
+          state.savingId = '';
           state.ignoreWarnings = true;
         },
       }),
@@ -146,7 +146,7 @@ const formDataSlice = createSagaSlice(
           state.hasSubmitted = false;
         })
         .addMatcher(isProcessAction, (state) => {
-          state.isSubmitting = '';
+          state.submittingId = '';
         })
         .addDefaultCase((state) => state);
     },

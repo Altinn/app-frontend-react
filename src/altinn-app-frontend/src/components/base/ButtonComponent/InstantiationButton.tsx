@@ -15,7 +15,7 @@ import type { ILayoutCompInstantiationButton } from 'src/features/form/layout';
 export type IInstantiationButtonProps = IComponentProps &
   Omit<ILayoutCompInstantiationButton, 'type'>;
 
-type Props = Omit<ButtonProps, 'onClick'> &
+export type Props = Omit<ButtonProps, 'onClick'> &
   Omit<IInstantiationButtonProps, 'text'>;
 
 export const InstantiationButton = ({ children, ...props }: Props) => {
