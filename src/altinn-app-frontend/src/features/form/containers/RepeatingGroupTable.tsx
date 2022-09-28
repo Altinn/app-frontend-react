@@ -274,7 +274,7 @@ export function RepeatingGroupTable({
   const showTableHeader =
     repeatingGroupIndex > -1 && !(repeatingGroupIndex == 0 && editIndex == 0);
   const [popoverPanelIndex, setPopoverPanelIndex] = useState(-1);
-  const [open, setOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const getFormDataForComponent = (
     component: ILayoutComponent | ILayoutGroup,
@@ -293,7 +293,7 @@ export function RepeatingGroupTable({
   };
 
   const onOpenChange = (index: number) => {
-    if (index == popoverPanelIndex && open) {
+    if (index == popoverPanelIndex && popoverOpen) {
       setPopoverPanelIndex(-1);
     } else {
       setPopoverPanelIndex(index);
@@ -304,7 +304,7 @@ export function RepeatingGroupTable({
     return () => {
       onClickRemove(index);
       onOpenChange(index);
-      setOpen(false);
+      setPopoverOpen(false);
     };
   };
 
@@ -535,8 +535,8 @@ export function RepeatingGroupTable({
                             <PopoverPanel
                               variant={PanelVariant.Warning}
                               side={'left'}
-                              open={popoverPanelIndex == index && open}
-                              onOpenChange={setOpen}
+                              open={popoverPanelIndex == index && popoverOpen}
+                              onOpenChange={setPopoverOpen}
                               showIcon={false}
                               forceMobileLayout={true}
                               trigger={
@@ -640,7 +640,7 @@ export function RepeatingGroupTable({
                       valid={!rowHasErrors}
                       editIndex={editIndex}
                       onEditClick={() => handleEditClick(index)}
-                      onDeleteClick={() => onClickRemove(index)}
+                      onDeleteClick={handleDeleteClick(index)}
                       editButtonText={
                         rowHasErrors
                           ? getLanguageFromKey(
@@ -670,6 +670,12 @@ export function RepeatingGroupTable({
                       deleteIconNode={
                         !hideDeleteButton && <i className={'ai ai-trash'} />
                       }
+                      popoverPanelIndex={popoverPanelIndex}
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      language={language}
+                      onPopoverDeleteClick={handlePopoverDeleteClick}
+                      onOpenChange={onOpenChange}
                     />
                     {editIndex === index &&
                       renderRepeatingGroupsEditContainer()}

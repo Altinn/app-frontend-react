@@ -13,6 +13,14 @@ import {
 import React from 'react';
 import theme from '../../theme/altinnStudioTheme';
 import cn from 'classnames';
+import {
+  ButtonVariant,
+  PanelVariant,
+  PopoverPanel,
+  Button,
+} from '@altinn/altinn-design-system';
+import { getLanguageFromKey } from '../../utils/language';
+import type { ILanguage } from '../../types';
 
 export interface IMobileTableItem {
   key: React.Key;
@@ -31,6 +39,12 @@ export interface IAltinnMobileTableItemProps {
   deleteButtonText?: string;
   deleteIconNode?: React.ReactNode;
   editIconNode: React.ReactNode;
+  popoverPanelIndex?: number;
+  popoverOpen?: boolean;
+  setPopoverOpen?: (open: boolean) => void;
+  onOpenChange?: (index: number) => void;
+  onPopoverDeleteClick?: (index: number) => () => void;
+  language?: ILanguage;
 }
 
 const useStyles = makeStyles({
@@ -164,6 +178,19 @@ const useStyles = makeStyles({
   aboveEditingRow: {
     borderBottom: 0,
   },
+  popoverButtonContainer: {
+    display: 'flex',
+    '& button': {
+      margin: '1rem 1rem 0 0',
+      '&focus': {
+        outline: 'unset',
+      },
+    },
+  },
+  popoverCurrentCell: {
+    zIndex: 1,
+    position: 'relative',
+  },
 });
 
 export default function AltinnMobileTableItem({
@@ -177,6 +204,12 @@ export default function AltinnMobileTableItem({
   deleteButtonText,
   editIconNode,
   deleteIconNode,
+  popoverPanelIndex,
+  popoverOpen,
+  setPopoverOpen,
+  onPopoverDeleteClick,
+  onOpenChange,
+  language,
 }: IAltinnMobileTableItemProps) {
   const classes = useStyles();
   const mobileViewSmall = useMediaQuery('(max-width:768px)');
@@ -242,18 +275,55 @@ export default function AltinnMobileTableItem({
                 )}
                 {index == 0 && deleteIconNode && (
                   <TableCell
-                    className={classes.deleteButtonCell}
                     align='center'
+                    className={cn([classes.deleteButtonCell], {
+                      [classes.popoverCurrentCell]:
+                        tableItemIndex == popoverPanelIndex,
+                    })}
                   >
-                    <IconButton
-                      className={classes.deleteButton}
-                      onClick={onDeleteClick}
-                      data-testid='delete-button'
-                      aria-label={`${deleteButtonText}-${item.value}`}
+                    <PopoverPanel
+                      variant={PanelVariant.Warning}
+                      side={'bottom'}
+                      open={popoverPanelIndex == tableItemIndex && popoverOpen}
+                      onOpenChange={setPopoverOpen}
+                      showIcon={false}
+                      forceMobileLayout={true}
+                      trigger={
+                        <IconButton
+                          className={classes.deleteButton}
+                          onClick={onDeleteClick}
+                          data-testid='delete-button'
+                          aria-label={`${deleteButtonText}-${item.value}`}
+                        >
+                          {deleteIconNode}
+                          {!mobileViewSmall && deleteButtonText}
+                        </IconButton>
+                      }
                     >
-                      {deleteIconNode}
-                      {!mobileViewSmall && deleteButtonText}
-                    </IconButton>
+                      <div>
+                        {getLanguageFromKey(
+                          'group.row_popover_delete_message',
+                          language,
+                        )}
+                      </div>
+                      <div className={cn(classes.popoverButtonContainer)}>
+                        <Button
+                          variant={ButtonVariant.Cancel}
+                          onClick={onPopoverDeleteClick(tableItemIndex)}
+                        >
+                          {getLanguageFromKey(
+                            'group.row_popover_delete_button_confirm',
+                            language,
+                          )}
+                        </Button>
+                        <Button
+                          variant={ButtonVariant.Secondary}
+                          onClick={() => onOpenChange(tableItemIndex)}
+                        >
+                          {getLanguageFromKey('general.cancel', language)}
+                        </Button>
+                      </div>
+                    </PopoverPanel>
                   </TableCell>
                 )}
               </TableRow>
