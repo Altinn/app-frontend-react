@@ -6,6 +6,7 @@ import { getComponentFromMode } from 'src/components/base/ButtonComponent/getCom
 import { SaveButton } from 'src/components/base/ButtonComponent/SaveButton';
 import { SubmitButton } from 'src/components/base/ButtonComponent/SubmitButton';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import type { IComponentProps } from 'src/components';
 import type { ButtonMode } from 'src/components/base/ButtonComponent/getComponentFromMode';
 import type { ILayoutCompButton } from 'src/features/form/layout';
@@ -30,6 +31,9 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
   const ignoreWarnings = useAppSelector(
     (state) => state.formData.ignoreWarnings,
   );
+  const currentTaskType = useAppSelector(
+    (state) => state.instanceData.instance.process.currentTask.altinnTaskType,
+  );
   if (mode && !(mode === 'save' || mode === 'submit')) {
     const GenericButton = getComponentFromMode(mode);
     return (
@@ -47,16 +51,20 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
     dispatch(FormDataActions.submit({ componentId: 'saveBtn' }));
   };
 
-  const submitForm = ({ componentId }: { componentId: string }) => {
+  const submitTask = ({ componentId }: { componentId: string }) => {
     const { org, app, instanceId } = window as Window as IAltinnWindow;
-    dispatch(
-      FormDataActions.submit({
-        url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
-        apiMode: 'Complete',
-        stopWithWarnings: !ignoreWarnings,
-        componentId,
-      }),
-    );
+    if (currentTaskType === 'data') {
+      dispatch(
+        FormDataActions.submit({
+          url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
+          apiMode: 'Complete',
+          stopWithWarnings: !ignoreWarnings,
+          componentId,
+        }),
+      );
+    } else {
+      dispatch(ProcessActions.complete());
+    }
   };
   const busyWithId = savingId || submittingId || '';
   return (
@@ -74,7 +82,7 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
             </SaveButton>
           )}
           <SubmitButton
-            onClick={() => submitForm({ componentId: props.id })}
+            onClick={() => submitTask({ componentId: props.id })}
             id={props.id}
             language={props.language}
             busyWithId={busyWithId}
