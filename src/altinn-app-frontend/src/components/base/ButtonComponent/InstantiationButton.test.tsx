@@ -9,7 +9,7 @@ import { InstantiationButton } from 'src/components/base/ButtonComponent/Instant
 import { setupStore } from 'src/store';
 import type { Props as InstantiationButtonProps } from 'src/components/base/ButtonComponent/InstantiationButton';
 
-const render = ({ props = {}}) => {
+const render = ({ props = {} }) => {
   const allProps = {
     id: 'instantiate-button',
     ...props,
