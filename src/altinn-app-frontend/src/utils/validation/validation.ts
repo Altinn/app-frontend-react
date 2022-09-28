@@ -26,6 +26,7 @@ import {
   splitDashedKey,
 } from 'src/utils/formLayout';
 import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
+import { getTextResourceByKey } from 'src/utils/textResource';
 import type { IFormData } from 'src/features/form/data';
 import type {
   ILayout,
@@ -57,7 +58,6 @@ import {
   getLanguageFromKey,
   getParsedLanguageFromKey,
 } from 'altinn-shared/utils';
-import { getTextResourceByKey } from 'altinn-shared/utils/language';
 import type { ILanguage } from 'altinn-shared/types';
 
 export interface ISchemaValidators {

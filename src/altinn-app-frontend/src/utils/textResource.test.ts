@@ -1,6 +1,5 @@
+import { getTextResourceByKey } from 'src/utils/textResource';
 import type { ITextResource } from 'src/types';
-
-import { getTextResourceByKey } from 'altinn-shared/utils/language';
 
 describe('textResource', () => {
   let mockTextResources: ITextResource[];
