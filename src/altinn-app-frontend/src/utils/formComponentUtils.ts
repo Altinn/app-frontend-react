@@ -10,6 +10,7 @@ import {
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IFormData } from 'src/features/form/data';
 import type {
+  IGridStyling,
   ILayoutComponent,
   ILayoutEntry,
   ILayoutGroup,
@@ -252,7 +253,7 @@ export const getDisplayFormData = (
                   id: selectionComponent.optionsId,
                   mapping: selectionComponent.mapping,
                 })
-              ]?.options.find((option: IOption) => option.value === value)
+              ]?.options?.find((option: IOption) => option.value === value)
                 ?.label,
               textResources,
             ) || '';
@@ -374,37 +375,24 @@ export const isComponentValid = (
 export const getTextResource = (
   resourceKey: string,
   textResources: ITextResource[],
-  tryNesting?: boolean, // used when using variables pointing to resources from data model
 ): React.ReactNode => {
-  let textResource = textResources.find(
-    (resource: ITextResource) => resource.id === resourceKey,
-  );
-  if (tryNesting && textResource) {
-    textResource =
-      textResources.find(
-        (resource: ITextResource) => resource.id === textResource.value,
-      ) || textResource;
+  const textResourceValue = getTextResourceByKey(resourceKey, textResources);
+  if (textResourceValue === resourceKey) {
+    // No match in text resources
+    return resourceKey;
   }
-
-  return textResource
-    ? getParsedLanguageFromText(textResource.value)
-    : resourceKey;
+  return getParsedLanguageFromText(textResourceValue);
 };
 
 export function selectComponentTexts(
   textResources: ITextResource[],
   textResourceBindings: ITextResourceBindings,
-  tryNesting?: boolean,
 ) {
   const result: { [textResourceKey: string]: React.ReactNode } = {};
 
   if (textResourceBindings) {
     Object.keys(textResourceBindings).forEach((key) => {
-      result[key] = getTextResource(
-        textResourceBindings[key],
-        textResources,
-        tryNesting,
-      );
+      result[key] = getTextResource(textResourceBindings[key], textResources);
     });
   }
   return result;
@@ -614,3 +602,14 @@ export function smartLowerCaseFirst(text: string): string {
 
   return lowerCaseFirst(text, firstLetterIdx);
 }
+
+export const gridBreakpoints = (grid?: IGridStyling) => {
+  const { xs, sm, md, lg, xl } = grid || {};
+  return {
+    xs: xs || 12,
+    ...(sm && { sm }),
+    ...(md && { md }),
+    ...(lg && { lg }),
+    ...(xl && { xl }),
+  };
+};

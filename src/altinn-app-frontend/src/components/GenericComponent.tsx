@@ -19,6 +19,7 @@ import {
   componentValidationsHandledByGenericComponent,
   getFormDataForComponent,
   getTextResource,
+  gridBreakpoints,
   isComponentValid,
   selectComponentTexts,
 } from 'src/utils/formComponentUtils';
@@ -129,7 +130,6 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     selectComponentTexts(
       state.textResources.resources,
       props.textResourceBindings,
-      props.type === 'Likert',
     ),
   );
 
@@ -402,16 +402,6 @@ const RenderLabelScoped = (props: IRenderLabelProps) => {
   );
 };
 
-const gridBreakpoints = (grid?: IGridStyling) => {
-  const { xs, sm, md, lg, xl } = grid || {};
-  return {
-    xs: xs || 12,
-    ...(sm && { sm }),
-    ...(md && { md }),
-    ...(lg && { lg }),
-    ...(xl && { xl }),
-  };
-};
 const gridToHiddenProps = (
   labelGrid: IGridStyling,
   classes: ReturnType<typeof useStyles>,
