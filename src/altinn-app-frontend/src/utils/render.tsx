@@ -61,16 +61,24 @@ export function renderValidationMessages(
   id: string,
   variant: 'error' | 'warning' | 'info' | 'success',
 ) {
+  const key = `error|${JSON.stringify(messages)}`;
+
   if (variant !== 'error') {
     return (
-      <SoftValidations variant={variant}>
+      <SoftValidations
+        variant={variant}
+        key={key}
+      >
         <ol id={id}>{messages.map(validationMessagesToList)}</ol>
       </SoftValidations>
     );
   }
 
   return (
-    <div style={{ paddingTop: '0.375rem' }}>
+    <div
+      style={{ paddingTop: '0.375rem' }}
+      key={key}
+    >
       <ErrorMessage id={id}>
         <ol>{messages.map(validationMessagesToList)}</ol>
       </ErrorMessage>
