@@ -27,7 +27,7 @@ export const fileUploadUrl = (attachmentType: string) =>
   `${appPath}/instances/${altinnWindow.instanceId}/data?dataType=${attachmentType}`;
 
 export const fileTagUrl = (dataGuid: string) =>
-  `${altinnWindow.instanceId}/data/${dataGuid}/tags`;
+  `${appPath}/instances/${altinnWindow.instanceId}/data/${dataGuid}/tags`;
 
 export const dataElementUrl = (dataGuid: string) =>
   `${appPath}/instances/${altinnWindow.instanceId}/data/${dataGuid}`;
