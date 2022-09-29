@@ -22,7 +22,8 @@
     "eslint-plugin-sonarjs": "0.15.0",
     "husky": "8.0.1",
     "lint-staged": "13.0.3",
-    "prettier": "2.7.1"
+    "prettier": "2.7.1",
+    "react-select-event": "^5.5.1"
   },
   "packageManager": "yarn@3.2.3",
   "workspaces": [

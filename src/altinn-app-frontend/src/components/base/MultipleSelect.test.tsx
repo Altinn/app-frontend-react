@@ -1,4 +1,6 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
+import { openMenu, select } from 'react-select-event';
 
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { fireEvent, screen } from '@testing-library/react';
@@ -9,6 +11,8 @@ import { MultipleSelect } from 'src/components/base/MultipleSelect';
 import type { IMultipleSelectProps } from 'src/components/base/MultipleSelect';
 import type { RootState } from 'src/store';
 
+const dummyLabel = 'dummyLabel';
+
 const render = (
   props: Partial<IMultipleSelectProps> = {},
   customState: PreloadedState<RootState> = {},
@@ -16,11 +20,11 @@ const render = (
   const allProps: IMultipleSelectProps = {
     ...({} as IMultipleSelectProps),
     id: 'id',
-    formData: {},
+    formData: { simpleBinding: '' },
     handleDataChange: jest.fn(),
     getTextResource: (key: string) => key,
     isValid: true,
-    dataModelBindings: {},
+    dataModelBindings: { simpleBinding: 'some.field' },
     componentValidations: {},
     language: {},
     options: [
@@ -34,28 +38,42 @@ const render = (
     ...props,
   };
 
-  return renderWithProviders(<MultipleSelect {...allProps} />, {
-    preloadedState: {
-      ...getInitialStateMock(),
-      ...customState,
+  return renderWithProviders(
+    <>
+      <label htmlFor={allProps.id}>{dummyLabel}</label>
+      <MultipleSelect {...allProps} />
+    </>,
+    {
+      preloadedState: {
+        ...getInitialStateMock(),
+        ...customState,
+      },
     },
-  });
+  );
 };
 
 describe('MultipleSelect', () => {
-  /*
-  it('should return a comma separated list of selected values on change', async () => {
+  it('should return selected value on change', async () => {
     const handleDataChange = jest.fn();
     render({
       handleDataChange,
     });
-    fireEvent.click(screen.getByRole('combobox'));
-    fireEvent.click(await screen.findByText('label1'));
-    fireEvent.click(screen.getByRole('combobox'));
-    fireEvent.click(await screen.findByText('label2'));
-    expect(handleDataChange).toBeCalledWith('value1,value2');
+    const selectInput = screen.getByLabelText(dummyLabel);
+    act(() => {
+      openMenu(selectInput);
+    });
+    await act(async () => {
+      await select(selectInput, 'label1');
+    });
+    expect(handleDataChange).toBeCalledWith('value1');
+    act(() => {
+      openMenu(selectInput);
+    });
+    await act(async () => {
+      await select(selectInput, 'label2');
+    });
+    expect(handleDataChange).toBeCalledWith('value2');
   });
-  */
 
   it('should display correct options as selected when supplied with a comma separated form data', () => {
     render({
@@ -66,7 +84,7 @@ describe('MultipleSelect', () => {
     expect(screen.getByText('label3')).toBeInTheDocument();
   });
 
-  it('should remove item from form data on delete', () => {
+  it('should remove item from comma separated form data on delete', () => {
     const handleDataChange = jest.fn();
     render({
       handleDataChange,
