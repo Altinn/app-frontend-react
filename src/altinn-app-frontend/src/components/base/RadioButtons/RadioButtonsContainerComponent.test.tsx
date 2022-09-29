@@ -8,6 +8,7 @@ import { renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
 
 import { RadioButtonContainerComponent } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
+import { mockDelayBeforeSaving } from 'src/components/hooks/useDelayedSavedState';
 import { LayoutStyle } from 'src/types';
 import type { IComponentProps } from 'src/components';
 import type { IRadioButtonsContainerProps } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
@@ -30,8 +31,6 @@ const threeOptions = [
 ];
 
 const twoOptions = threeOptions.slice(1);
-
-const debounceTime = 200;
 
 const render = (
   props: Partial<IRadioButtonsContainerProps> = {},
@@ -144,9 +143,13 @@ describe('RadioButtonsContainerComponent', () => {
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
+    mockDelayBeforeSaving(25);
     await userEvent.click(getRadio({ name: 'Denmark' }));
 
-    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+    expect(handleChange).not.toHaveBeenCalled();
+
+    await new Promise((r) => setTimeout(r, 25));
+    mockDelayBeforeSaving(undefined);
 
     expect(handleChange).toHaveBeenCalledWith(
       'denmark',
@@ -299,11 +302,15 @@ describe('RadioButtonsContainerComponent', () => {
       getRadio({ name: 'The value from the group is: Label for second' }),
     ).toBeInTheDocument();
 
+    mockDelayBeforeSaving(25);
     await userEvent.click(
       getRadio({ name: 'The value from the group is: Label for first' }),
     );
 
-    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+    expect(handleDataChange).not.toHaveBeenCalled();
+
+    await new Promise((r) => setTimeout(r, 25));
+    mockDelayBeforeSaving(undefined);
 
     expect(handleDataChange).toHaveBeenCalledWith(
       'Value for first',

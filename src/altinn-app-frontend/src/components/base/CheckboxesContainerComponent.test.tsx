@@ -8,6 +8,7 @@ import { renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
 
 import { CheckboxContainerComponent } from 'src/components/base/CheckboxesContainerComponent';
+import { mockDelayBeforeSaving } from 'src/components/hooks/useDelayedSavedState';
 import { LayoutStyle } from 'src/types';
 import type { IComponentProps } from 'src/components';
 import type { ICheckboxContainerProps } from 'src/components/base/CheckboxesContainerComponent';
@@ -30,8 +31,6 @@ const threeOptions = [
 ];
 
 const twoOptions = threeOptions.slice(1);
-
-const debounceTime = 200;
 
 const render = (
   props: Partial<ICheckboxContainerProps> = {},
@@ -170,9 +169,13 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
+    mockDelayBeforeSaving(25);
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
-    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+    expect(handleChange).not.toHaveBeenCalled();
+
+    await new Promise((r) => setTimeout(r, 25));
+    mockDelayBeforeSaving(undefined);
 
     expect(handleChange).toHaveBeenCalledWith(
       'norway,denmark',
@@ -197,9 +200,13 @@ describe('CheckboxContainerComponent', () => {
       getCheckbox({ name: 'Denmark', isChecked: true }),
     ).toBeInTheDocument();
 
+    mockDelayBeforeSaving(25);
     await userEvent.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
-    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+    expect(handleChange).not.toHaveBeenCalled();
+
+    await new Promise((r) => setTimeout(r, 25));
+    mockDelayBeforeSaving(undefined);
 
     expect(handleChange).toHaveBeenCalledWith(
       'norway',
@@ -256,9 +263,13 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
+    mockDelayBeforeSaving(25);
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
-    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+    expect(handleChange).not.toHaveBeenCalled();
+
+    await new Promise((r) => setTimeout(r, 25));
+    mockDelayBeforeSaving(undefined);
 
     expect(handleChange).toHaveBeenCalledWith(
       'denmark',
@@ -367,11 +378,15 @@ describe('CheckboxContainerComponent', () => {
       getCheckbox({ name: 'The value from the group is: Label for second' }),
     ).toBeInTheDocument();
 
+    mockDelayBeforeSaving(25);
     await userEvent.click(
       getCheckbox({ name: 'The value from the group is: Label for second' }),
     );
 
-    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+    expect(handleDataChange).not.toHaveBeenCalled();
+
+    await new Promise((r) => setTimeout(r, 25));
+    mockDelayBeforeSaving(undefined);
 
     expect(handleDataChange).toHaveBeenCalledWith(
       'Value for second',
