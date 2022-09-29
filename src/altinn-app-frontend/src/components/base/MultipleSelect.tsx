@@ -4,9 +4,12 @@ import type { MultiValue } from 'react-select';
 
 import type { IComponentProps } from '..';
 
+import { useAppSelector } from 'src/common/hooks';
 import { useGetOptions } from 'src/components/hooks';
 import type { ILayoutCompMultipleSelect } from 'src/features/form/layout';
 import type { IOption } from 'src/types';
+
+import { getLanguageFromKey } from 'altinn-shared/utils';
 
 import 'src/components/base/MultipleSelect.css';
 
@@ -29,6 +32,7 @@ export function MultipleSelect({
 }: IMultipleSelectProps) {
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions = apiOptions || options;
+  const language = useAppSelector((state) => state.language.language);
 
   const handleChange = (newValue: MultiValue<IOption>) => {
     handleDataChange(newValue.map((option) => option.value).join(','));
@@ -40,6 +44,14 @@ export function MultipleSelect({
       isMulti
       inputId={id}
       isDisabled={readOnly}
+      noOptionsMessage={getLanguageFromKey(
+        'multiple_select_component.no_options',
+        language,
+      )}
+      placeholder={getLanguageFromKey(
+        'multiple_select_component.placeholder',
+        language,
+      )}
       classNamePrefix={multipleSelectCssPrefix}
       className={multipleSelectCssPrefix}
       styles={{
