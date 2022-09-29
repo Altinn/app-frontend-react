@@ -77,6 +77,7 @@ export const useRadioButtons = ({
   const { value: selected, setValue } = useDelayedSavedState(
     handleDataChange,
     formData?.simpleBinding ?? '',
+    200,
   );
 
   React.useEffect(() => {
@@ -99,7 +100,6 @@ export const useRadioButtons = ({
   React.useEffect(() => {
     if (optionsHasChanged && formData.simpleBinding) {
       // New options have been loaded, we have to reset form data.
-      // We also skip any required validations
       setValue(undefined, true);
     }
   }, [setValue, optionsHasChanged, formData]);
@@ -108,8 +108,11 @@ export const useRadioButtons = ({
     setValue(event.target.value);
   };
 
-  const handleBlur = () => {
-    setValue(formData?.simpleBinding ?? '', true);
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    // Only set value instantly if moving focus outside of the radio group
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setValue(selected, true);
+    }
   };
   return {
     handleChange,

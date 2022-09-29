@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { defaultHandleDataChangeProps } from '__mocks__/constants';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -29,6 +30,8 @@ const threeOptions = [
 ];
 
 const twoOptions = threeOptions.slice(1);
+
+const debounceTime = 200;
 
 const render = (
   props: Partial<ICheckboxContainerProps> = {},
@@ -96,7 +99,10 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(handleChange).toHaveBeenCalledWith('sweden');
+    expect(handleChange).toHaveBeenCalledWith(
+      'sweden',
+      ...defaultHandleDataChangeProps,
+    );
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
@@ -166,7 +172,12 @@ describe('CheckboxContainerComponent', () => {
 
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
-    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
+    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+
+    expect(handleChange).toHaveBeenCalledWith(
+      'norway,denmark',
+      ...defaultHandleDataChangeProps,
+    );
   });
 
   it('should call handleDataChange with updated values when deselecting item', async () => {
@@ -188,10 +199,15 @@ describe('CheckboxContainerComponent', () => {
 
     await userEvent.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
-    expect(handleChange).toHaveBeenCalledWith('norway');
+    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+
+    expect(handleChange).toHaveBeenCalledWith(
+      'norway',
+      ...defaultHandleDataChangeProps,
+    );
   });
 
-  it('should call handleDataChange on blur with already selected value', () => {
+  it('should call handleDataChange instantly on blur when the value has changed', async () => {
     const handleChange = jest.fn();
     render({
       handleDataChange: handleChange,
@@ -200,15 +216,20 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
+    const denmark = getCheckbox({ name: 'Denmark' });
 
-    fireEvent.focus(getCheckbox({ name: 'Denmark' }));
-    fireEvent.blur(getCheckbox({ name: 'Denmark' }));
+    expect(denmark).toBeInTheDocument();
 
-    expect(handleChange).toHaveBeenCalledWith('norway');
+    await userEvent.click(denmark);
+    fireEvent.blur(denmark);
+
+    expect(handleChange).toHaveBeenCalledWith(
+      'norway,denmark',
+      ...defaultHandleDataChangeProps,
+    );
   });
 
-  it('should call handleDataChange on blur with empty value when no item is selected', () => {
+  it('should not call handleDataChange on blur when the value is unchanged', () => {
     const handleChange = jest.fn();
     render({
       handleDataChange: handleChange,
@@ -219,7 +240,7 @@ describe('CheckboxContainerComponent', () => {
     fireEvent.focus(getCheckbox({ name: 'Denmark' }));
     fireEvent.blur(getCheckbox({ name: 'Denmark' }));
 
-    expect(handleChange).toHaveBeenCalledWith('');
+    expect(handleChange).not.toHaveBeenCalled();
   });
 
   it('should call handleDataChange onBlur with no commas in string when starting with empty string formData', async () => {
@@ -237,7 +258,12 @@ describe('CheckboxContainerComponent', () => {
 
     await userEvent.click(getCheckbox({ name: 'Denmark' }));
 
-    expect(handleChange).toHaveBeenCalledWith('denmark');
+    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+
+    expect(handleChange).toHaveBeenCalledWith(
+      'denmark',
+      ...defaultHandleDataChangeProps,
+    );
   });
 
   it('should show spinner while waiting for options', () => {
@@ -345,6 +371,11 @@ describe('CheckboxContainerComponent', () => {
       getCheckbox({ name: 'The value from the group is: Label for second' }),
     );
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for second');
+    await new Promise((r) => setTimeout(r, debounceTime)); // Wait for debounce
+
+    expect(handleDataChange).toHaveBeenCalledWith(
+      'Value for second',
+      ...defaultHandleDataChangeProps,
+    );
   });
 });

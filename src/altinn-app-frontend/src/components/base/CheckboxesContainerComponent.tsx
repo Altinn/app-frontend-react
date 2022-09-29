@@ -109,6 +109,7 @@ export const CheckboxContainerComponent = ({
   const { value, setValue } = useDelayedSavedState(
     handleDataChange,
     formData?.simpleBinding ?? '',
+    200,
   );
 
   const selected =
@@ -136,7 +137,6 @@ export const CheckboxContainerComponent = ({
   React.useEffect(() => {
     if (optionsHasChanged && formData.simpleBinding) {
       // New options have been loaded, we have to reset form data.
-      // We also skip any required validations
       setValue(undefined, true);
     }
   }, [setValue, optionsHasChanged, formData]);

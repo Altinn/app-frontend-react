@@ -19,7 +19,7 @@ export interface IControlledRadioGroupProps
   extends IRadioButtonsContainerProps {
   fetchingOptions: boolean;
   selected: string;
-  handleBlur: () => void;
+  handleBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   calculatedOptions: IOption[];
 }
