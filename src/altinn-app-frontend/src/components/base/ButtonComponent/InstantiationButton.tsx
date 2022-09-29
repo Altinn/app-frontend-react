@@ -8,17 +8,16 @@ import { useInstantiateWithPrefillMutation } from 'src/services/InstancesApi';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { mapFormData } from 'src/utils/databindings';
-import type { IComponentProps } from 'src/components';
+import type { IInstantiationButtonComponentProps } from 'src/components/base/ButtonComponent/InstantiationButtonComponent';
 import type { ButtonProps } from 'src/components/base/ButtonComponent/WrappedButton';
-import type { ILayoutCompInstantiationButton } from 'src/features/form/layout';
 
-export type IInstantiationButtonProps = IComponentProps &
-  Omit<ILayoutCompInstantiationButton, 'type'>;
+export type InstantiationButtonProps = Omit<ButtonProps, 'onClick'> &
+  Omit<IInstantiationButtonComponentProps, 'text'>;
 
-export type Props = Omit<ButtonProps, 'onClick'> &
-  Omit<IInstantiationButtonProps, 'text'>;
-
-export const InstantiationButton = ({ children, ...props }: Props) => {
+export const InstantiationButton = ({
+  children,
+  ...props
+}: InstantiationButtonProps) => {
   const dispatch = useAppDispatch();
   const [instantiateWithPrefill, { isSuccess, data, isLoading, isError }] =
     useInstantiateWithPrefillMutation();

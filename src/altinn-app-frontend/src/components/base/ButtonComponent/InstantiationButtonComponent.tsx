@@ -1,7 +1,11 @@
 import * as React from 'react';
 
 import { InstantiationButton } from 'src/components/base/ButtonComponent/InstantiationButton';
-import type { IInstantiationButtonProps } from 'src/components/base/ButtonComponent/InstantiationButton';
+import type { IComponentProps } from 'src/components';
+import type { ILayoutCompInstantiationButton } from 'src/features/form/layout';
+
+export type IInstantiationButtonComponentProps = IComponentProps &
+  Omit<ILayoutCompInstantiationButton, 'type'>;
 
 const btnGroupStyle = {
   marginTop: '3.6rem',
@@ -15,7 +19,7 @@ const rowStyle = {
 export function InstantiationButtonComponent({
   text,
   ...props
-}: IInstantiationButtonProps) {
+}: IInstantiationButtonComponentProps) {
   return (
     <div className='container pl-0'>
       <div

@@ -7,7 +7,7 @@ import { renderWithProviders } from 'testUtils';
 
 import { InstantiationButton } from 'src/components/base/ButtonComponent/InstantiationButton';
 import { setupStore } from 'src/store';
-import type { Props as InstantiationButtonProps } from 'src/components/base/ButtonComponent/InstantiationButton';
+import type { InstantiationButtonProps as InstantiationButtonProps } from 'src/components/base/ButtonComponent/InstantiationButton';
 
 const render = ({ props = {} }) => {
   const allProps = {
