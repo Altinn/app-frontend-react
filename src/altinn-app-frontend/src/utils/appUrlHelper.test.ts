@@ -25,70 +25,72 @@ import {
 } from 'src/utils/appUrlHelper';
 
 describe('Frontend urlHelper.ts', () => {
-  window['instanceId'] = 'instance/id';
+  window['instanceId'] = '12345/instanceId-1234';
   describe('constants', () => {
-    it('should return te expected url for validPartiesUrl', () => {
+    it('should return the expected url for validPartiesUrl', () => {
       expect(validPartiesUrl).toBe(
         'https://altinn3local.no/ttd/test/api/v1/parties?allowedtoinstantiatefilter=true',
       );
     });
-    it('should return te expected url for updateCookieUrl', () => {
+    it('should return the expected url for updateCookieUrl', () => {
       expect(updateCookieUrl('12345')).toBe(
         'https://altinn3local.no/ttd/test/api/v1/parties/12345',
       );
     });
-    it('should return te expected url for textResourcesUrl', () => {
+    it('should return the expected url for textResourcesUrl', () => {
       expect(textResourcesUrl('nb')).toBe(
         'https://altinn3local.no/ttd/test/api/v1/texts/nb',
       );
     });
-    it('should return te expected url for fileUploadUrl', () => {
+    it('should return the expected url for fileUploadUrl', () => {
       expect(fileUploadUrl('dataGuid')).toBe(
-        'https://altinn3local.no/ttd/test/instances/instance/id/data?dataType=dataGuid',
+        'https://altinn3local.no/ttd/test/instances/12345/instanceId-1234/data?dataType=dataGuid',
       );
     });
-    it('should return te expected url for fileTagUrl', () => {
-      expect(fileTagUrl('dataGuid')).toBe('instance/id/data/dataGuid/tags');
+    it('should return the expected url for fileTagUrl', () => {
+      expect(fileTagUrl('dataGuid')).toBe(
+        'https://altinn3local.no/ttd/test/instances/12345/instanceId-1234/data/dataGuid/tags',
+      );
     });
-    it('should return te expected url for dataElementUrl', () => {
+    it('should return the expected url for dataElementUrl', () => {
       expect(dataElementUrl('dataGuid')).toBe(
-        'https://altinn3local.no/ttd/test/instances/instance/id/data/dataGuid',
+        'https://altinn3local.no/ttd/test/instances/12345/instanceId-1234/data/dataGuid',
       );
     });
-    it('should return te expected url for getProcessStateUrl', () => {
+    it('should return the expected url for getProcessStateUrl', () => {
       expect(getProcessStateUrl()).toBe(
-        'https://altinn3local.no/ttd/test/instances/instance/id/process',
+        'https://altinn3local.no/ttd/test/instances/12345/instanceId-1234/process',
       );
     });
-    it('should return te expected url for getCreateInstancesUrl', () => {
+    it('should return the expected url for getCreateInstancesUrl', () => {
       expect(getCreateInstancesUrl('12345')).toBe(
         'https://altinn3local.no/ttd/test/instances?instanceOwnerPartyId=12345',
       );
     });
-    it('should return te expected url for getValidationUrl', () => {
-      expect(getValidationUrl('instance/id')).toBe(
-        'https://altinn3local.no/ttd/test/instances/instance/id/validate',
+    it('should return the expected url for getValidationUrl', () => {
+      expect(getValidationUrl('12345/instanceId-1234')).toBe(
+        'https://altinn3local.no/ttd/test/instances/12345/instanceId-1234/validate',
       );
     });
-    it('should return te expected url for getDataValidationUrl', () => {
-      expect(getDataValidationUrl('instance/id', 'dataGuid')).toBe(
-        'https://altinn3local.no/ttd/test/instances/instance/id/data/dataGuid/validate',
+    it('should return the expected url for getDataValidationUrl', () => {
+      expect(getDataValidationUrl('12345/instanceId-1234', 'dataGuid')).toBe(
+        'https://altinn3local.no/ttd/test/instances/12345/instanceId-1234/data/dataGuid/validate',
       );
     });
-    it('should return te expected url for getProcessNextUrl', () => {
+    it('should return the expected url for getProcessNextUrl', () => {
       expect(getProcessNextUrl('taskId')).toBe(
-        'https://altinn3local.no/ttd/test/instances/instance/id/process/next?elementId=taskId',
+        'https://altinn3local.no/ttd/test/instances/12345/instanceId-1234/process/next?elementId=taskId',
       );
       expect(getProcessNextUrl()).toBe(
-        'https://altinn3local.no/ttd/test/instances/instance/id/process/next',
+        'https://altinn3local.no/ttd/test/instances/12345/instanceId-1234/process/next',
       );
     });
-    it('should return te expected url for getRedirectUrl', () => {
+    it('should return the expected url for getRedirectUrl', () => {
       expect(getRedirectUrl('http://www.nrk.no')).toBe(
         'https://altinn3local.no/ttd/test/api/v1/redirect?url=http%3A%2F%2Fwww.nrk.no',
       );
     });
-    it('should return te expected url for getUpgradeAuthLevelUrl', () => {
+    it('should return the expected url for getUpgradeAuthLevelUrl', () => {
       expect(getUpgradeAuthLevelUrl('overlord')).toBe(
         'https://altinn3local.no/ui/authentication/upgrade?goTo=https%3A%2F%2Fplatform.altinn3local.no%2Fauthentication%2Fapi%2Fv1%2Fauthentication%3Fgoto%3Dhttps%3A%2F%2Faltinn3local.no%2Fttd%2Ftest&reqAuthLevel=overlord',
       );
@@ -112,7 +114,7 @@ describe('Frontend urlHelper.ts', () => {
       };
     };
     describe('util', () => {
-      it('should return te expected url for getUpgradeAuthLevelUrl', () => {
+      it('should return the expected url for getUpgradeAuthLevelUrl', () => {
         resetWindow();
         expect(getUpgradeAuthLevelUrl('overlord')).toBe(
           'https://altinn.no/ui/authentication/upgrade?goTo=https%3A%2F%2Fplatform.altinn.no%2Fauthentication%2Fapi%2Fv1%2Fauthentication%3Fgoto%3Dhttps%3A%2F%2Faltinn3local.no%2Fttd%2Ftest&reqAuthLevel=overlord',
@@ -333,7 +335,7 @@ describe('Frontend urlHelper.ts', () => {
       const result = getCalculatePageOrderUrl(false);
 
       expect(result).toBe(
-        'https://altinn3local.no/ttd/test/instances/instance/id/pages/order',
+        'https://altinn3local.no/ttd/test/instances/12345/instanceId-1234/pages/order',
       );
     });
 
