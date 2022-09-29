@@ -44,10 +44,12 @@ export function MultipleSelect({
       isMulti
       inputId={id}
       isDisabled={readOnly}
-      noOptionsMessage={getLanguageFromKey(
-        'multiple_select_component.no_options',
-        language,
-      )}
+      noOptionsMessage={() => {
+        return getLanguageFromKey(
+          'multiple_select_component.no_options',
+          language,
+        );
+      }}
       placeholder={getLanguageFromKey(
         'multiple_select_component.placeholder',
         language,
