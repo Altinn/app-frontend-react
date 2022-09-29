@@ -12,6 +12,8 @@ import type { ButtonMode } from 'src/components/base/ButtonComponent/getComponen
 import type { ILayoutCompButton } from 'src/features/form/layout';
 import type { IAltinnWindow } from 'src/types';
 
+import { getLanguageFromKey } from 'altinn-shared/utils';
+
 export interface IButtonProvidedProps
   extends IComponentProps,
     ILayoutCompButton {
@@ -78,7 +80,7 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
               busyWithId={busyWithId}
               language={props.language}
             >
-              Lagre
+              {getLanguageFromKey('general.save', props.language)}
             </SaveButton>
           )}
           <SubmitButton
