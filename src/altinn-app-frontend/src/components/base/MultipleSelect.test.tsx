@@ -1,11 +1,18 @@
 import React from 'react';
 
-import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
+import { getInitialStateMock } from '__mocks__/initialStateMock';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithProviders } from 'testUtils';
+import type { PreloadedState } from 'redux';
 
 import { MultipleSelect } from 'src/components/base/MultipleSelect';
 import type { IMultipleSelectProps } from 'src/components/base/MultipleSelect';
+import type { RootState } from 'src/store';
 
-const render = (props: Partial<IMultipleSelectProps> = {}) => {
+const render = (
+  props: Partial<IMultipleSelectProps> = {},
+  customState: PreloadedState<RootState> = {},
+) => {
   const allProps: IMultipleSelectProps = {
     ...({} as IMultipleSelectProps),
     id: 'id',
@@ -27,7 +34,12 @@ const render = (props: Partial<IMultipleSelectProps> = {}) => {
     ...props,
   };
 
-  return rtlRender(<MultipleSelect {...allProps} />);
+  return renderWithProviders(<MultipleSelect {...allProps} />, {
+    preloadedState: {
+      ...getInitialStateMock(),
+      ...customState,
+    },
+  });
 };
 
 describe('MultipleSelect', () => {
