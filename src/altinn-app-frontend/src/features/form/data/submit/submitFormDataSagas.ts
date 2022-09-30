@@ -132,8 +132,8 @@ export function* putFormData({
   try {
     const options: AxiosRequestConfig = {
       headers: {
-        field,
-        componentId,
+        'X-DataField': field,
+        'X-ComponentId': componentId,
       },
     };
     yield call(put, dataElementUrl(defaultDataElementGuid), model, options);
@@ -224,8 +224,8 @@ export function* saveStatelessData({
   const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
   let options: AxiosRequestConfig = {
     headers: {
-      field,
-      componentId,
+      'X-DataField': field,
+      'X-ComponentId': componentId,
     },
   };
   if (!allowAnonymous) {

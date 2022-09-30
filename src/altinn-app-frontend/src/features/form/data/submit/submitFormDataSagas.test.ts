@@ -94,8 +94,8 @@ describe('submitFormDataSagas', () => {
         [
           call(put, dataElementUrl(defaultDataElementGuid), model, {
             headers: {
-              field,
-              componentId,
+              'X-DataField': field,
+              'X-ComponentId': componentId,
             },
           }),
           {},
@@ -167,8 +167,8 @@ describe('submitFormDataSagas', () => {
             {
               headers: {
                 party: `partyid:${stateMock.party.selectedParty.partyId}`,
-                componentId,
-                field,
+                'X-DataField': field,
+                'X-ComponentId': componentId,
               },
             },
             model,
@@ -257,8 +257,8 @@ describe('submitFormDataSagas', () => {
             getStatelessFormDataUrl(currentDataType, true),
             {
               headers: {
-                field: 'someField',
-                componentId: 'someComponent',
+                'X-DataField': field,
+                'X-ComponentId': componentId,
               },
             },
             model,
