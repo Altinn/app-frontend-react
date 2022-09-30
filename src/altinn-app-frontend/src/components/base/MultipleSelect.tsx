@@ -63,7 +63,7 @@ export function MultipleSelect({
         }),
       }}
       onChange={handleChange}
-      value={options?.filter((option) =>
+      value={calculatedOptions?.filter((option) =>
         formData?.simpleBinding?.split(',').includes(option.value),
       )}
     />
