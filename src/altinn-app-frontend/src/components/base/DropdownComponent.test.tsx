@@ -128,7 +128,7 @@ describe('DropdownComponent', () => {
     expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
-  it('should trigger instantly handleDataChange on blur', async () => {
+  it('should trigger handleDataChange instantly on blur', async () => {
     const handleDataChange = jest.fn();
     render({
       preselectedOptionIndex: 2,

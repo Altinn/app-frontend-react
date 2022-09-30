@@ -130,7 +130,7 @@ describe('RadioButtonsContainerComponent', () => {
     expect(handleChange).not.toHaveBeenCalled();
   });
 
-  it('should call handleDataChange with updated value after a delay when selection changes', async () => {
+  it('should call handleDataChange with updated value when selection changes', async () => {
     const handleChange = jest.fn();
     render({
       handleDataChange: handleChange,
@@ -149,12 +149,13 @@ describe('RadioButtonsContainerComponent', () => {
     expect(handleChange).not.toHaveBeenCalled();
 
     await new Promise((r) => setTimeout(r, 25));
-    mockDelayBeforeSaving(undefined);
 
     expect(handleChange).toHaveBeenCalledWith(
       'denmark',
       ...defaultHandleDataChangeProps,
     );
+
+    mockDelayBeforeSaving(undefined);
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
@@ -171,6 +172,9 @@ describe('RadioButtonsContainerComponent', () => {
     expect(denmark).toBeInTheDocument();
 
     await userEvent.click(denmark);
+
+    expect(handleChange).not.toHaveBeenCalled();
+
     fireEvent.blur(denmark);
 
     expect(handleChange).toHaveBeenCalledWith(
@@ -310,11 +314,12 @@ describe('RadioButtonsContainerComponent', () => {
     expect(handleDataChange).not.toHaveBeenCalled();
 
     await new Promise((r) => setTimeout(r, 25));
-    mockDelayBeforeSaving(undefined);
 
     expect(handleDataChange).toHaveBeenCalledWith(
       'Value for first',
       ...defaultHandleDataChangeProps,
     );
+
+    mockDelayBeforeSaving(undefined);
   });
 });
