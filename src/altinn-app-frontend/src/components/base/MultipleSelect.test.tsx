@@ -1,6 +1,4 @@
 import React from 'react';
-import { act } from 'react-dom/test-utils';
-import { openMenu, select } from 'react-select-event';
 
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { fireEvent, screen } from '@testing-library/react';
@@ -53,28 +51,6 @@ const render = (
 };
 
 describe('MultipleSelect', () => {
-  it('should return selected value on change', async () => {
-    const handleDataChange = jest.fn();
-    render({
-      handleDataChange,
-    });
-    const selectInput = screen.getByLabelText(dummyLabel);
-    act(() => {
-      openMenu(selectInput);
-    });
-    await act(async () => {
-      await select(selectInput, 'label1');
-    });
-    expect(handleDataChange).toBeCalledWith('value1');
-    act(() => {
-      openMenu(selectInput);
-    });
-    await act(async () => {
-      await select(selectInput, 'label2');
-    });
-    expect(handleDataChange).toBeCalledWith('value2');
-  });
-
   it('should display correct options as selected when supplied with a comma separated form data', () => {
     render({
       formData: { simpleBinding: 'value1,value3' },
