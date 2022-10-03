@@ -310,13 +310,9 @@ export function RepeatingGroupTable({
 
   const handleDeleteClick = (index: number) => {
     if (container.edit?.alertOnDelete) {
-      return async () => {
-        onOpenChange(index);
-      };
+      onOpenChange(index);
     } else {
-      return async () => {
-        onClickRemove(index);
-      };
+      onClickRemove(index);
     }
   };
 
