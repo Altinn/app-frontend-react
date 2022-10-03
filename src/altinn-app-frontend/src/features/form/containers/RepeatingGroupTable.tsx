@@ -539,7 +539,7 @@ export function RepeatingGroupTable({
                                 <IconButton
                                   className={classes.deleteButton}
                                   disabled={deleting}
-                                  onClick={handleDeleteClick(index)}
+                                  onClick={() => handleDeleteClick(index)}
                                   aria-label={`${deleteButtonText}-${firstCellData}`}
                                 >
                                   <i className='ai ai-trash' />
@@ -636,7 +636,7 @@ export function RepeatingGroupTable({
                       valid={!rowHasErrors}
                       editIndex={editIndex}
                       onEditClick={() => handleEditClick(index)}
-                      onDeleteClick={handleDeleteClick(index)}
+                      onDeleteClick={() => handleDeleteClick(index)}
                       editButtonText={
                         rowHasErrors
                           ? getLanguageFromKey(
