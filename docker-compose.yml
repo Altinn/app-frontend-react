@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   webpack:
-    container_name: name
+    container_name: altinn-app-frontend
     image: node:16
     volumes:
       - ./:/usr/src/app
