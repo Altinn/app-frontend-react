@@ -74,7 +74,11 @@ export const useRadioButtons = ({
       state.optionState.options[getOptionLookupKey({ id: optionsId, mapping })]
         ?.loading,
   );
-  const { value: selected, setValue } = useDelayedSavedState(
+  const {
+    value: selected,
+    setValue,
+    saveValue,
+  } = useDelayedSavedState(
     handleDataChange,
     formData?.simpleBinding ?? '',
     200,
@@ -111,7 +115,7 @@ export const useRadioButtons = ({
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     // Only set value instantly if moving focus outside of the radio group
     if (!event.currentTarget.contains(event.relatedTarget)) {
-      setValue(selected, true);
+      saveValue();
     }
   };
   return {

@@ -33,7 +33,7 @@ function DropdownComponent({
   const hasSelectedInitial = React.useRef(false);
   const optionsHasChanged = useHasChangedIgnoreUndefined(options);
 
-  const { value, setValue } = useDelayedSavedState(
+  const { value, setValue, saveValue } = useDelayedSavedState(
     handleDataChange,
     formData?.simpleBinding,
     200,
@@ -65,10 +65,6 @@ function DropdownComponent({
     setValue(event.target.value);
   };
 
-  const handleBlur = (event: React.FocusEvent<HTMLSelectElement>) => {
-    setValue(event.target.value, true);
-  };
-
   return (
     <>
       {fetchingOptions ? (
@@ -77,7 +73,7 @@ function DropdownComponent({
         <Select
           id={id}
           onChange={handleChange}
-          onBlur={handleBlur}
+          onBlur={saveValue}
           value={value}
           disabled={readOnly}
           error={!isValid}

@@ -106,7 +106,7 @@ export const CheckboxContainerComponent = ({
         ?.loading,
   );
 
-  const { value, setValue } = useDelayedSavedState(
+  const { value, setValue, saveValue } = useDelayedSavedState(
     handleDataChange,
     formData?.simpleBinding ?? '',
     200,
@@ -152,8 +152,11 @@ export const CheckboxContainerComponent = ({
     }
   };
 
-  const handleBlur = () => {
-    setValue(selected.join(','), true);
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    // Only set value instantly if moving focus outside of the radio group
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      saveValue();
+    }
   };
 
   const isOptionSelected = (option: string) => selected.includes(option);
@@ -178,6 +181,7 @@ export const CheckboxContainerComponent = ({
         })}
         id={id}
         key={`checkboxes_group_${id}`}
+        onBlur={handleBlur}
       >
         {fetchingOptions ? (
           <AltinnSpinner />
@@ -192,7 +196,6 @@ export const CheckboxContainerComponent = ({
                     <StyledCheckbox
                       checked={isOptionSelected(option.value)}
                       onChange={handleChange}
-                      onBlur={handleBlur}
                       value={index}
                       key={option.value}
                       name={option.value}
