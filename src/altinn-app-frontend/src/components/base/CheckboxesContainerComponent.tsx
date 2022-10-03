@@ -190,6 +190,7 @@ export const CheckboxContainerComponent = ({
             {calculatedOptions.map((option, index) => (
               <React.Fragment key={option.value}>
                 <FormControlLabel
+                  tabIndex={-1}
                   key={option.value}
                   classes={{ root: cn(classes.margin) }}
                   control={
