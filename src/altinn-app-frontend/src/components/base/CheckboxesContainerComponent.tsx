@@ -153,7 +153,7 @@ export const CheckboxContainerComponent = ({
   };
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    // Only set value instantly if moving focus outside of the radio group
+    // Only set value instantly if moving focus outside of the checkbox group
     if (!event.currentTarget.contains(event.relatedTarget)) {
       saveValue();
     }
