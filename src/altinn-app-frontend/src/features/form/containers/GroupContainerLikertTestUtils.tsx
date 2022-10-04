@@ -202,10 +202,12 @@ const createTextResource = (
 };
 
 const { setScreenWidth } = mockMediaQuery(992);
+
 interface IQuestion {
   Question: string;
   Answer: string;
 }
+
 interface IRenderProps {
   mobileView: boolean;
   mockQuestions: IQuestion[];
@@ -230,9 +232,9 @@ export const render = ({
     formData: generateMockFormData(mockQuestions),
     error: null,
     hasSubmitted: false,
-    isSubmitting: false,
     ignoreWarnings: false,
-    isSaving: false,
+    submittingId: '',
+    savingId: '',
     responseInstance: null,
     unsavedChanges: false,
   };
@@ -289,11 +291,18 @@ export const validateTableLayout = (questions: IQuestion[]) => {
   validateRadioLayout(questions);
 };
 
-export const validateRadioLayout = (questions: IQuestion[]) => {
-  expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
+export const validateRadioLayout = (
+  questions: IQuestion[],
+  mobileView = false,
+) => {
+  if (mobileView) {
+    expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
+  } else {
+    expect(screen.getAllByRole('row')).toHaveLength(questions.length + 1);
+  }
 
   for (const question of questions) {
-    const row = screen.getByRole('radiogroup', {
+    const row = screen.getByRole(mobileView ? 'radiogroup' : 'row', {
       name: question.Question,
     });
 

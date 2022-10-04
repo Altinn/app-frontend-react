@@ -14,7 +14,6 @@ import {
   LayoutRootNodeCollection,
   nodesInLayout,
 } from 'src/utils/layout/hierarchy';
-import { getTextResourceByKey } from 'src/utils/textResource';
 import * as validation from 'src/utils/validation/validation';
 import type {
   ILayoutComponent,
@@ -33,7 +32,10 @@ import type {
 } from 'src/types';
 import type { LayoutRootNode } from 'src/utils/layout/hierarchy';
 
-import { getParsedLanguageFromKey } from 'altinn-shared/index';
+import {
+  getParsedLanguageFromKey,
+  getTextResourceByKey,
+} from 'altinn-shared/index';
 
 function toCollection(
   mockLayout: ILayouts,

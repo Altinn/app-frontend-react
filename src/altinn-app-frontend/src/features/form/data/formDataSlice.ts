@@ -24,19 +24,20 @@ import type {
   IFetchFormData,
   IFetchFormDataFulfilled,
   IFormDataRejected,
+  ISaveAction,
   ISubmitDataAction,
   IUpdateFormData,
   IUpdateFormDataFulfilled,
 } from 'src/features/form/data/formDataTypes';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 
-const initialState: IFormDataState = {
+export const initialState: IFormDataState = {
   formData: {},
   error: null,
   responseInstance: null,
   unsavedChanges: false,
-  isSubmitting: false,
-  isSaving: false,
+  submittingId: '',
+  savingId: '',
   hasSubmitted: false,
   ignoreWarnings: false,
 };
@@ -80,15 +81,17 @@ const formDataSlice = createSagaSlice(
       submit: mkAction<ISubmitDataAction>({
         takeLatest: submitFormSaga,
         reducer: (state, action) => {
-          const { apiMode } = action.payload;
-          state.isSaving = apiMode !== 'Complete';
-          state.isSubmitting = apiMode === 'Complete';
+          const { apiMode, componentId } = action.payload;
+          state.savingId =
+            apiMode !== 'Complete' ? componentId : state.savingId;
+          state.submittingId =
+            apiMode === 'Complete' ? componentId : state.submittingId;
           state.hasSubmitted = apiMode === 'Complete';
         },
       }),
       submitFulfilled: mkAction<void>({
         reducer: (state) => {
-          state.isSaving = false;
+          state.savingId = '';
           state.unsavedChanges = false;
         },
       }),
@@ -96,8 +99,8 @@ const formDataSlice = createSagaSlice(
         reducer: (state, action) => {
           const { error } = action.payload;
           state.error = error;
-          state.isSubmitting = false;
-          state.isSaving = false;
+          state.submittingId = '';
+          state.savingId = '';
           state.ignoreWarnings = true;
         },
       }),
@@ -128,7 +131,7 @@ const formDataSlice = createSagaSlice(
           state.error = error;
         },
       }),
-      save: mkAction<void>({
+      save: mkAction<ISaveAction>({
         takeLatest: saveFormDataSaga,
       }),
       deleteAttachmentReference: mkAction<IDeleteAttachmentReference>({
@@ -144,7 +147,7 @@ const formDataSlice = createSagaSlice(
           state.hasSubmitted = false;
         })
         .addMatcher(isProcessAction, (state) => {
-          state.isSubmitting = false;
+          state.submittingId = '';
         })
         .addDefaultCase((state) => state);
     },

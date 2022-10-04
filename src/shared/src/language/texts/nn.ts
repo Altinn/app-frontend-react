@@ -93,6 +93,7 @@ export function nn() {
       main: 'Appnavigasjon',
       form: 'Skjemanavigasjon',
       to_main_content: 'Hopp til hovedinnholdet',
+      go_to_task: 'Gå til {0}',
     },
     general: {
       action: 'Handling',
@@ -275,6 +276,10 @@ export function nn() {
     map_component: {
       selectedLocation: 'Valt lokasjon: {0}° nord, {1}° øst',
       noSelectedLocation: 'Ingen lokasjon valt',
+    },
+    multiple_select_component: {
+      no_options: 'Ingen valg tilgjengelig',
+      placeholder: 'Velg...',
     },
   };
 }

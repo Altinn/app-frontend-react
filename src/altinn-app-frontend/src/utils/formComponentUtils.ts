@@ -209,7 +209,10 @@ export const getDisplayFormData = (
 
       return getTextResourceByKey(label, textResources) || formDataValue;
     }
-    if (component.type === 'Checkboxes') {
+    if (
+      component.type === 'Checkboxes' ||
+      component.type === 'MultipleSelect'
+    ) {
       const selectionComponent = component as ISelectionComponentProps;
       let label = '';
       const data: string = formData[dataModelBinding];
@@ -375,36 +378,24 @@ export const isComponentValid = (
 export const getTextResource = (
   resourceKey: string,
   textResources: ITextResource[],
-  tryNesting?: boolean, // used when using variables pointing to resources from data model
 ): React.ReactNode => {
-  let textResource = textResources.find(
-    (resource) => resource.id === resourceKey,
-  );
-  if (tryNesting && textResource) {
-    textResource =
-      textResources.find((resource) => resource.id === textResource.value) ||
-      textResource;
+  const textResourceValue = getTextResourceByKey(resourceKey, textResources);
+  if (textResourceValue === resourceKey) {
+    // No match in text resources
+    return resourceKey;
   }
-
-  return textResource
-    ? getParsedLanguageFromText(textResource.value)
-    : resourceKey;
+  return getParsedLanguageFromText(textResourceValue);
 };
 
 export function selectComponentTexts(
   textResources: ITextResource[],
   textResourceBindings: ITextResourceBindings,
-  tryNesting?: boolean,
 ) {
   const result: { [textResourceKey: string]: React.ReactNode } = {};
 
   if (textResourceBindings) {
     Object.keys(textResourceBindings).forEach((key) => {
-      result[key] = getTextResource(
-        textResourceBindings[key],
-        textResources,
-        tryNesting,
-      );
+      result[key] = getTextResource(textResourceBindings[key], textResources);
     });
   }
   return result;

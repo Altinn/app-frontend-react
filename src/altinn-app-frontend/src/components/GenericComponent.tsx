@@ -141,7 +141,6 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     selectComponentTexts(
       state.textResources.resources,
       props.textResourceBindings,
-      props.type === 'Likert',
     ),
   );
 
