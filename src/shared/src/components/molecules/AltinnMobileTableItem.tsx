@@ -309,7 +309,10 @@ export default function AltinnMobileTableItem({
                       <div className={cn(classes.popoverButtonContainer)}>
                         <Button
                           variant={ButtonVariant.Cancel}
-                          onClick={onPopoverDeleteClick(tableItemIndex)}
+                          onClick={() =>
+                            onPopoverDeleteClick &&
+                            onPopoverDeleteClick(tableItemIndex)
+                          }
                         >
                           {getLanguageFromKey(
                             'group.row_popover_delete_button_confirm',
@@ -318,7 +321,9 @@ export default function AltinnMobileTableItem({
                         </Button>
                         <Button
                           variant={ButtonVariant.Secondary}
-                          onClick={() => onOpenChange(tableItemIndex)}
+                          onClick={() =>
+                            onOpenChange && onOpenChange(tableItemIndex)
+                          }
                         >
                           {getLanguageFromKey('general.cancel', language)}
                         </Button>
