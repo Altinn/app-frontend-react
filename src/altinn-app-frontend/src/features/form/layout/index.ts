@@ -114,6 +114,9 @@ export interface ILayoutCompDatePicker extends ILayoutCompBase<'DatePicker'> {
 export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> &
   ISelectionComponent;
 
+export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect'> &
+  ISelectionComponent;
+
 export interface ILayoutCompFileUploadBase<
   T extends Extract<ComponentTypes, 'FileUpload' | 'FileUploadWithTag'>,
 > extends ILayoutCompBase<T> {
@@ -180,6 +183,8 @@ export interface ILayoutCompImage extends ILayoutCompBase<'Image'> {
 export interface ILayoutCompSummary extends ILayoutCompBase<'Summary'> {
   componentRef?: string;
   pageRef?: string;
+  display?: SummaryDisplayProperties;
+  largeGroup?: boolean;
 }
 
 export type ILayoutCompTextArea = ILayoutCompBase<'TextArea'> &
@@ -207,30 +212,31 @@ export interface ILayoutCompMap extends ILayoutCompBase<'Map'> {
  * type (ex. ILayoutCompTextArea), or ILayoutComponent<'TextArea'>.
  */
 interface Map {
-  Group: ILayoutGroup;
   AddressComponent: ILayoutCompAddress;
   AttachmentList: ILayoutCompAttachmentList;
   Button: ILayoutCompButton;
   Checkboxes: ILayoutCompCheckboxes;
+  Custom: ILayoutCompCustom;
   DatePicker: ILayoutCompDatePicker;
   Dropdown: ILayoutCompDropdown;
   FileUpload: ILayoutCompFileUpload;
   FileUploadWithTag: ILayoutCompFileUploadWithTag;
+  Group: ILayoutGroup;
   Header: ILayoutCompHeader;
-  Input: ILayoutCompInput;
-  NavigationButtons: ILayoutCompNavButtons;
-  InstantiationButton: ILayoutCompInstantiationButton;
-  Paragraph: ILayoutCompParagraph;
   Image: ILayoutCompImage;
+  Input: ILayoutCompInput;
+  InstantiationButton: ILayoutCompInstantiationButton;
+  Likert: ILayoutCompLikert;
+  Map: ILayoutCompMap;
+  MultipleSelect: ILayoutCompMultipleSelect;
+  NavigationBar: ILayoutCompNavBar;
+  NavigationButtons: ILayoutCompNavButtons;
+  Panel: ILayoutCompPanel;
+  Paragraph: ILayoutCompParagraph;
+  PrintButton: ILayoutCompPrintButton;
   RadioButtons: ILayoutCompRadioButtons;
   Summary: ILayoutCompSummary;
   TextArea: ILayoutCompTextArea;
-  NavigationBar: ILayoutCompNavBar;
-  Likert: ILayoutCompLikert;
-  PrintButton: ILayoutCompPrintButton;
-  Panel: ILayoutCompPanel;
-  Custom: ILayoutCompCustom;
-  Map: ILayoutCompMap;
 }
 
 export type ComponentTypes = keyof Map;
@@ -326,4 +332,10 @@ export interface IGroupEditProperties {
 export interface IGroupFilter {
   key: string;
   value: string;
+}
+
+export interface SummaryDisplayProperties {
+  hideChangeButton?: boolean;
+  useComponentGrid?: boolean;
+  hideBottomBorder?: boolean;
 }

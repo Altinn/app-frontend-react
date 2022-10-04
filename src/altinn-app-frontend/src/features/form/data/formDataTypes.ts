@@ -13,8 +13,15 @@ export interface IFormDataRejected {
 }
 
 export interface ISubmitDataAction {
+  url?: string;
   apiMode?: string;
   stopWithWarnings?: boolean;
+  componentId: string;
+}
+
+export interface ISaveAction {
+  field?: string;
+  componentId?: string;
 }
 
 export interface IUpdateFormDataProps {
@@ -31,6 +38,7 @@ export interface IUpdateFormData extends IUpdateFormDataProps {
 
 export interface IUpdateFormDataFulfilled extends IUpdateFormDataProps {
   field: string;
+  componentId: string;
   data: any;
 }
 

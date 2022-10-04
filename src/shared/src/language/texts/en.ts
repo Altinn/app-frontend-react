@@ -93,6 +93,7 @@ export function en() {
       main: 'App navigation',
       form: 'Form navigation',
       to_main_content: 'Go to main content',
+      go_to_task: 'Navigate to {0}',
     },
     general: {
       action: 'Action',
@@ -278,6 +279,10 @@ export function en() {
     map_component: {
       selectedLocation: 'Selected location: {0}° north, {1}° east',
       noSelectedLocation: 'No selected location',
+    },
+    multiple_select_component: {
+      no_options: 'No options available',
+      placeholder: 'Select...',
     },
   };
 }
