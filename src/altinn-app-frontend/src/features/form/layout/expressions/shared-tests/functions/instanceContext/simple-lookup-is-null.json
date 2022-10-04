@@ -1,15 +1,6 @@
 {
   "name": "Simple lookup for non-existing key equals null",
-  "expression": {
-    "function": "equals",
-    "args": [
-      {
-        "function": "instanceContext",
-        "args": ["doesNotExist"]
-      },
-      null
-    ]
-  },
+  "expression": ["equals", ["instanceContext", "doesNotExist"], null],
   "expectsFailure": "Unknown Instance context property doesNotExist",
   "instanceContext": {
     "instanceId": "d00ce51c-800b-416a-a906-ccab55f597e9",

@@ -1,8 +1,5 @@
 {
   "name": "Null is compared case-insensitively",
-  "expression": {
-    "function": "equals",
-    "args": ["nULL", null]
-  },
+  "expression": ["equals", "nULL", null],
   "expects": true
 }

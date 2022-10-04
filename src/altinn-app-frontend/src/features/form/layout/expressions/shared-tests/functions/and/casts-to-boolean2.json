@@ -1,8 +1,5 @@
 {
   "name": "Casts 1.000 to a boolean",
-  "expression": {
-    "function": "and",
-    "args": [1.0]
-  },
+  "expression": ["and", 1],
   "expects": true
 }

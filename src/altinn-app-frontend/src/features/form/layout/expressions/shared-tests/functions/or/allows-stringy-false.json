@@ -1,8 +1,5 @@
 {
   "name": "Allows 'false' as false",
-  "expression": {
-    "function": "or",
-    "args": ["false"]
-  },
+  "expression": ["or", "false"],
   "expects": false
 }

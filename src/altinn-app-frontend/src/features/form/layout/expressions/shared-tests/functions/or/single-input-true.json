@@ -1,8 +1,5 @@
 {
   "name": "Single input returns the same (true)",
-  "expression": {
-    "function": "or",
-    "args": [true]
-  },
+  "expression": ["or", true],
   "expects": true
 }

@@ -1,8 +1,5 @@
 {
   "name": "Should work with [-float, null] (false)",
-  "expression": {
-    "function": "lessThan",
-    "args": [-123.456, null]
-  },
+  "expression": ["lessThan", -123.456, null],
   "expects": false
 }

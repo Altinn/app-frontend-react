@@ -1,8 +1,5 @@
 {
   "name": "Should work with integers (false)",
-  "expression": {
-    "function": "equals",
-    "args": [1, 2]
-  },
+  "expression": ["equals", 1, 2],
   "expects": false
 }

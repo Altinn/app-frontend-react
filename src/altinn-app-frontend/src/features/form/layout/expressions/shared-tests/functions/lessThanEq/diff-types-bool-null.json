@@ -1,8 +1,5 @@
 {
   "name": "Should fail with [boolean, null]",
-  "expression": {
-    "function": "lessThanEq",
-    "args": [true, null]
-  },
+  "expression": ["lessThanEq", true, null],
   "expectsFailure": "Expected number, got value true"
 }

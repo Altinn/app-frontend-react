@@ -1,8 +1,5 @@
 {
   "name": "Should work with [string, float] (false)",
-  "expression": {
-    "function": "equals",
-    "args": ["1234", 1234.55]
-  },
+  "expression": ["equals", "1234", 1234.55],
   "expects": false
 }

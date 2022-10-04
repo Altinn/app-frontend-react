@@ -35,11 +35,14 @@ export type BaseToActualStrict<T extends BaseValue> = [T] extends ['string']
   ? boolean
   : never;
 
-type ArgsToActual<T extends BaseValue[]> = {
+type ArgsToActual<T extends readonly BaseValue[]> = {
   [Index in keyof T]: BaseToActual<T[Index]>;
 };
 
-export interface FuncDef<Args extends BaseValue[], Ret extends BaseValue> {
+export interface FuncDef<
+  Args extends readonly BaseValue[],
+  Ret extends BaseValue,
+> {
   impl: (this: LEContext, ...params: ArgsToActual<Args>) => BaseToActual<Ret>;
   args: Args;
   minArguments?: number;
@@ -51,22 +54,45 @@ export interface FuncDef<Args extends BaseValue[], Ret extends BaseValue> {
   lastArgSpreads?: true;
 }
 
-type ArgsFor<F extends LEFunction> = F extends LEFunction
+type BaseValueArgsFor<F extends LEFunction> = F extends LEFunction
   ? Functions[F]['args']
   : never;
 
-type RealFunctionsReturning<T extends BaseValue> = keyof PickByValue<
+type FunctionsReturning<T extends BaseValue> = keyof PickByValue<
   Functions,
   { returns: T }
 >;
 
-type LEReturning<T extends BaseValue> = LayoutExpression<
-  RealFunctionsReturning<T>
+export type LEReturning<T extends BaseValue> = LayoutExpression<
+  FunctionsReturning<T>
 >;
 
-type MaybeRecursive<Args extends BaseValue[]> = {
-  [Index in keyof Args]: BaseToActual<Args[Index]> | LEReturning<Args[Index]>;
-};
+/**
+ * An expression definition is basically [functionName, ...arguments], but when we map arguments (using their
+ * index from zero) in MaybeRecursive (to support recursive expressions) we'll need to place the function name first.
+ * Because of a TypeScript limitation we can't do this the easy way, so this hack makes sure to place our argument
+ * base value types from index 1 and onwards.
+ *
+ * @see https://github.com/microsoft/TypeScript/issues/29919
+ */
+type IndexHack<F extends LEFunction> = [
+  'Here goes the function name',
+  ...BaseValueArgsFor<F>,
+];
+
+type MaybeRecursive<
+  F extends LEFunction,
+  Iterations extends Prev[number],
+  Args extends ('Here goes the function name' | BaseValue)[] = IndexHack<F>,
+> = [Iterations] extends [never]
+  ? never
+  : {
+      [Index in keyof Args]: Args[Index] extends BaseValue
+        ?
+            | BaseToActual<Args[Index]>
+            | MaybeRecursive<FunctionsReturning<Args[Index]>, Prev[Iterations]>
+        : F;
+    };
 
 /**
  * The base type that represents any valid layout expression function call. When used as a type
@@ -74,10 +100,8 @@ type MaybeRecursive<Args extends BaseValue[]> = {
  *
  * @see LayoutExpressionOr
  */
-export interface LayoutExpression<F extends LEFunction = LEFunction> {
-  function: F;
-  args: MaybeRecursive<ArgsFor<F>>;
-}
+export type LayoutExpression<F extends LEFunction = LEFunction> =
+  MaybeRecursive<F, 2>;
 
 /**
  * This type represents a layout expression for a function that returns

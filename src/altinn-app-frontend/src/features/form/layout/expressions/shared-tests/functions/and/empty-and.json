@@ -1,8 +1,5 @@
 {
   "name": "Empty input produces an error",
-  "expression": {
-    "function": "and",
-    "args": []
-  },
+  "expression": ["and"],
   "expectsFailure": "Expected 1+ argument(s), got 0"
 }

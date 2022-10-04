@@ -1,8 +1,5 @@
 {
   "name": "Should work with [0, null] (false)",
-  "expression": {
-    "function": "greaterThan",
-    "args": [0, null]
-  },
+  "expression": ["greaterThan", 0, null],
   "expects": false
 }

@@ -1,8 +1,5 @@
 {
   "name": "Should work with booleans (false)",
-  "expression": {
-    "function": "equals",
-    "args": [true, false]
-  },
+  "expression": ["equals", true, false],
   "expects": false
 }

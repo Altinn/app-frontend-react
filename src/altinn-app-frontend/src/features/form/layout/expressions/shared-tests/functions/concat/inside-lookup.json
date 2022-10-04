@@ -1,20 +1,16 @@
 {
   "name": "Inside a lookup argument",
-  "expression": {
-    "function": "dataModel",
-    "args": [
-      {
-        "function": "concat",
-        "args": [
-          "FirstPart",
-          ".",
-          { "function": "dataModel", "args": ["Middle"] },
-          ".Last",
-          { "function": "frontendSettings", "args": ["suffix"] }
-        ]
-      }
+  "expression": [
+    "dataModel",
+    [
+      "concat",
+      "FirstPart",
+      ".",
+      ["dataModel", "Middle"],
+      ".Last",
+      ["frontendSettings", "suffix"]
     ]
-  },
+  ],
   "expects": "foo bar",
   "dataModel": {
     "Middle": "MiddlePart",

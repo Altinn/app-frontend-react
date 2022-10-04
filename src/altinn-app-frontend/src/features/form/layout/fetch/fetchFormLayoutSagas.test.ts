@@ -72,17 +72,11 @@ describe('fetchFormLayoutSagas', () => {
     };
 
     const hiddenExprPage1: IHiddenLayoutsExpressions = {
-      page1: {
-        function: 'equals',
-        args: [true, false],
-      },
+      page1: ['equals', true, true],
     };
 
     const hiddenExprPage2: IHiddenLayoutsExpressions = {
-      page2: {
-        function: 'equals',
-        args: [1, 2],
-      },
+      page2: ['equals', 1, 2],
     };
 
     it('should call relevant actions when layout is fetched successfully', () => {

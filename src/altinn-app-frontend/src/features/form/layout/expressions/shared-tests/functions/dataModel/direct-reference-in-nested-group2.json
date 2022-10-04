@@ -1,12 +1,6 @@
 {
   "name": "Direct lookup inside repeating group (not respecting the first group)",
-  "expression": {
-    "function": "equals",
-    "args": [
-      { "function": "dataModel", "args": ["Bedrifter.Ansatte[0].Alder"] },
-      26
-    ]
-  },
+  "expression": ["equals", ["dataModel", "Bedrifter.Ansatte[0].Alder"], 26],
   "context": {
     "component": "myndig",
     "rowIndices": [1, 1],
@@ -79,15 +73,27 @@
       {
         "Navn": "Hell og lykke AS",
         "Ansatte": [
-          { "Navn": "Kaare", "Alder": 24 },
-          { "Navn": "Per", "Alder": 25 }
+          {
+            "Navn": "Kaare",
+            "Alder": 24
+          },
+          {
+            "Navn": "Per",
+            "Alder": 25
+          }
         ]
       },
       {
         "Navn": "Nedtur og motgang AS",
         "Ansatte": [
-          { "Navn": "Arne", "Alder": 26 },
-          { "Navn": "Vidar", "Alder": 14 }
+          {
+            "Navn": "Arne",
+            "Alder": 26
+          },
+          {
+            "Navn": "Vidar",
+            "Alder": 14
+          }
         ]
       }
     ]

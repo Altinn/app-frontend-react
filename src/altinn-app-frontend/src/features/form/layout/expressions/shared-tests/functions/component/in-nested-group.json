@@ -1,9 +1,6 @@
 {
   "name": "Lookup inside nested repeating group",
-  "expression": {
-    "function": "greaterThanEq",
-    "args": [{ "function": "component", "args": ["alder"] }, 18]
-  },
+  "expression": ["greaterThanEq", ["component", "alder"], 18],
   "context": {
     "component": "myndig",
     "rowIndices": [1, 1],
@@ -76,15 +73,27 @@
       {
         "Navn": "Hell og lykke AS",
         "Ansatte": [
-          { "Navn": "Kaare", "Alder": 24 },
-          { "Navn": "Per", "Alder": 24 }
+          {
+            "Navn": "Kaare",
+            "Alder": 24
+          },
+          {
+            "Navn": "Per",
+            "Alder": 24
+          }
         ]
       },
       {
         "Navn": "Nedtur og motgang AS",
         "Ansatte": [
-          { "Navn": "Arne", "Alder": 24 },
-          { "Navn": "Vidar", "Alder": 14 }
+          {
+            "Navn": "Arne",
+            "Alder": 24
+          },
+          {
+            "Navn": "Vidar",
+            "Alder": 14
+          }
         ]
       }
     ]

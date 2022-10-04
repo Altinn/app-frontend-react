@@ -1,8 +1,5 @@
 {
   "name": "All true inputs",
-  "expression": {
-    "function": "or",
-    "args": [true, true, true]
-  },
+  "expression": ["or", true, true, true],
   "expects": true
 }

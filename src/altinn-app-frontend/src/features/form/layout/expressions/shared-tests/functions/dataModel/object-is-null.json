@@ -1,9 +1,6 @@
 {
   "name": "Looking up an object returns null",
-  "expression": {
-    "function": "dataModel",
-    "args": ["a"]
-  },
+  "expression": ["dataModel", "a"],
   "expects": null,
   "dataModel": {
     "a": {

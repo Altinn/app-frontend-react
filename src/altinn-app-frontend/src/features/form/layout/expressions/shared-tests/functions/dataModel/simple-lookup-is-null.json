@@ -1,9 +1,6 @@
 {
   "name": "Simple lookup for non-existing key equals null (1)",
-  "expression": {
-    "function": "dataModel",
-    "args": ["a.value.length"]
-  },
+  "expression": ["dataModel", "a.value.length"],
   "expects": null,
   "dataModel": {
     "a": {

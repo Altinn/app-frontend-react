@@ -1,9 +1,6 @@
 {
   "name": "Simple lookup",
-  "expression": {
-    "function": "frontendSettings",
-    "args": ["mySetting1"]
-  },
+  "expression": ["frontendSettings", "mySetting1"],
   "expects": "foo",
   "frontendSettings": {
     "mySetting1": "foo",

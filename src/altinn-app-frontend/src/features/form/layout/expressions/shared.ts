@@ -73,7 +73,6 @@ interface TestFolders {
   functions: TestFolder<TestFolder<FunctionTest>>;
   invalid: TestFolder<FunctionTest>;
   'layout-preprocessor': TestFolder<LayoutPreprocessorTest>;
-  'lisp-like': TestFolder<LispLikeTest>;
 }
 
 export function getSharedTests<Folder extends keyof TestFolders>(

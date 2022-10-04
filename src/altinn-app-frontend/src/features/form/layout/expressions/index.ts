@@ -1,4 +1,5 @@
 import dot from 'dot-object';
+import type { Mutable } from 'utility-types';
 
 import {
   LERuntimeError,
@@ -9,7 +10,10 @@ import {
   UnknownTargetType,
 } from 'src/features/form/layout/expressions/errors';
 import { LEContext } from 'src/features/form/layout/expressions/LEContext';
-import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
+import {
+  asLayoutExpression,
+  canBeExpression,
+} from 'src/features/form/layout/expressions/validation';
 import { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
@@ -68,16 +72,19 @@ function evalExprInObjectRecursive<T>(
   }
 
   if (Array.isArray(input)) {
+    if (canBeExpression(input)) {
+      const expression = asLayoutExpression(input);
+      if (expression) {
+        return evalExprInObjectCaller(expression, args, path);
+      }
+      // TODO: Only look up inside default values if we have them?
+    }
+
     const newPath = [...path];
     const lastLeg = newPath.pop() || '';
     return input.map((item, idx) =>
       evalExprInObjectRecursive(item, args, [...newPath, `${lastLeg}[${idx}]`]),
     );
-  }
-
-  const expression = asLayoutExpression(input);
-  if (expression) {
-    return evalExprInObjectCaller(expression, args, path);
   }
 
   const out = {};
@@ -134,6 +141,8 @@ export function evalExpr(
   } catch (err) {
     if (err instanceof LERuntimeError) {
       ctx = err.context;
+    } else {
+      throw err;
     }
     if (options && 'defaultValue' in options) {
       // When we know of a default value, we can safely print it as an error to the console and safely recover
@@ -171,24 +180,23 @@ export function argTypeAt(
 }
 
 function innerEvalExpr(context: LEContext) {
-  const expr = context.getExpr();
+  const [func, ...args] = context.getExpr();
 
-  const returnType = LEFunctions[expr.function].returns;
+  const returnType = LEFunctions[func].returns;
 
-  const computedArgs = expr.args.map((arg, idx) => {
+  const computedArgs = args.map((arg, idx) => {
+    const realIdx = idx + 1;
     const argContext = LEContext.withPath(context, [
       ...context.path,
-      `args[${idx}]`,
+      `[${realIdx}]`,
     ]);
 
-    const argValue =
-      typeof arg === 'object' && arg !== null ? innerEvalExpr(argContext) : arg;
-
-    const argType = argTypeAt(expr.function, idx);
+    const argValue = Array.isArray(arg) ? innerEvalExpr(argContext) : arg;
+    const argType = argTypeAt(func, idx);
     return castValue(argValue, argType, argContext);
   });
 
-  const actualFunc: (...args: any) => any = LEFunctions[expr.function].impl;
+  const actualFunc: (...args: any) => any = LEFunctions[func].impl;
   const returnValue = actualFunc.apply(context, computedArgs);
   return castValue(returnValue, returnType, context);
 }
@@ -235,9 +243,9 @@ function castValue<T extends BaseValue>(
   return typeObj.impl.apply(context, [value]);
 }
 
-function defineFunc<Args extends BaseValue[], Ret extends BaseValue>(
+function defineFunc<Args extends readonly BaseValue[], Ret extends BaseValue>(
   def: FuncDef<Args, Ret>,
-): FuncDef<Args, Ret> {
+): FuncDef<Mutable<Args>, Ret> {
   return def;
 }
 
@@ -253,12 +261,12 @@ const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
 export const LEFunctions = {
   equals: defineFunc({
     impl: (arg1, arg2) => arg1 === arg2,
-    args: ['string', 'string'],
+    args: ['string', 'string'] as const,
     returns: 'boolean',
   }),
   notEquals: defineFunc({
     impl: (arg1, arg2) => arg1 !== arg2,
-    args: ['string', 'string'],
+    args: ['string', 'string'] as const,
     returns: 'boolean',
   }),
   greaterThan: defineFunc({
@@ -269,7 +277,7 @@ export const LEFunctions = {
 
       return arg1 > arg2;
     },
-    args: ['number', 'number'],
+    args: ['number', 'number'] as const,
     returns: 'boolean',
   }),
   greaterThanEq: defineFunc({
@@ -280,7 +288,7 @@ export const LEFunctions = {
 
       return arg1 >= arg2;
     },
-    args: ['number', 'number'],
+    args: ['number', 'number'] as const,
     returns: 'boolean',
   }),
   lessThan: defineFunc({
@@ -291,7 +299,7 @@ export const LEFunctions = {
 
       return arg1 < arg2;
     },
-    args: ['number', 'number'],
+    args: ['number', 'number'] as const,
     returns: 'boolean',
   }),
   lessThanEq: defineFunc({
@@ -302,7 +310,7 @@ export const LEFunctions = {
 
       return arg1 <= arg2;
     },
-    args: ['number', 'number'],
+    args: ['number', 'number'] as const,
     returns: 'boolean',
   }),
   concat: defineFunc({
@@ -335,14 +343,14 @@ export const LEFunctions = {
 
       return this.dataSources.instanceContext[key];
     },
-    args: ['string'],
+    args: ['string'] as const,
     returns: 'string',
   }),
   frontendSettings: defineFunc({
     impl: function (key) {
       return this.dataSources.applicationSettings[key];
     },
-    args: ['string'],
+    args: ['string'] as const,
     returns: 'string',
   }),
   component: defineFunc({
@@ -365,7 +373,7 @@ export const LEFunctions = {
         `Unable to find component with identifier ${id} or it does not have a simpleBinding`,
       );
     },
-    args: ['string'],
+    args: ['string'] as const,
     returns: 'string',
   }),
   dataModel: defineFunc({
@@ -380,7 +388,7 @@ export const LEFunctions = {
       // a LayoutRootNode (i.e., when we're resolving an expression directly on the layout definition).
       return this.dataSources.formData[path] || null;
     },
-    args: ['string'],
+    args: ['string'] as const,
     returns: 'string',
   }),
 };

@@ -105,20 +105,16 @@ const getState = (formData: IFormData = {}): IRuntimeState => {
 };
 
 const thingWithExpressions = (
-  expr1: LayoutExpressionOr<'boolean'> = {
-    function: 'equals',
-    args: [
-      { function: 'component', args: [components.topLayer.id] },
-      'hello world',
-    ],
-  },
-  expr2: LayoutExpressionOr<'boolean'> = {
-    function: 'equals',
-    args: [
-      { function: 'component', args: [components.topLayer.id] },
-      'foo bar',
-    ],
-  },
+  expr1: LayoutExpressionOr<'boolean'> = [
+    'equals',
+    ['component', components.topLayer.id],
+    'hello world',
+  ],
+  expr2: LayoutExpressionOr<'boolean'> = [
+    'equals',
+    ['component', components.topLayer.id],
+    'foo bar',
+  ],
 ): ExampleThingWithExpressions => ({
   notAnExpr: false,
   hidden: expr1,
@@ -242,10 +238,11 @@ describe('useLayoutExpressions', () => {
     expect(consoleRef.log).toBeCalledTimes(0);
   });
 
-  const failingExpr: LayoutExpressionOr<'boolean'> = {
-    function: 'greaterThanEq',
-    args: [{ function: 'component', args: [components.topLayer.id] }, '55'],
-  };
+  const failingExpr: LayoutExpressionOr<'boolean'> = [
+    'greaterThanEq',
+    ['component', components.topLayer.id],
+    '55',
+  ];
 
   it('should fail hard when evaluation fails and no defaults are provided', () => {
     const { result, error } = render(thingWithExpressions(failingExpr), {
@@ -319,13 +316,11 @@ describe('useLayoutExpressions', () => {
 
   it('should fail when target component could not be found', () => {
     const { result, error } = render(
-      thingWithExpressions({
-        function: 'equals',
-        args: [
-          { function: 'component', args: [`${components.topLayer.id}-0`] },
-          'hello world',
-        ],
-      }),
+      thingWithExpressions([
+        'equals',
+        ['component', `${components.topLayer.id}-0`],
+        'hello world',
+      ]),
       {
         forComponentId: components.topLayer.id,
         defaults: {
@@ -355,14 +350,8 @@ describe('useLayoutExpressions', () => {
   it('should not fail when source component could not be found, if it is never referenced', () => {
     const { result, error } = render(
       thingWithExpressions(
-        {
-          function: 'equals',
-          args: ['foo bar', 'hello world'],
-        },
-        {
-          function: 'greaterThan',
-          args: [8, 5],
-        },
+        ['equals', 'foo bar', 'hello world'],
+        ['greaterThan', 8, 5],
       ),
       {
         forComponentId: `${components.topLayer.id}-0`,

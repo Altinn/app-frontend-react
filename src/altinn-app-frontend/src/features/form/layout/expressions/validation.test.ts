@@ -17,9 +17,13 @@ describe('Layout expression validation', () => {
   describe('Shared tests for layout preprocessor', () => {
     const tests = getSharedTests('layout-preprocessor');
     it.each(tests.content)('$name', (t) => {
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {
-        return undefined;
-      });
+      const warningsExpected = t.expectsWarnings || [];
+      const logSpy = jest.spyOn(console, 'log');
+      if (warningsExpected.length > 0) {
+        logSpy.mockImplementation(() => {
+          return undefined;
+        });
+      }
 
       const result: typeof tests['content'][number]['layouts'] = {};
       for (const page of Object.keys(t.layouts)) {
@@ -33,7 +37,6 @@ describe('Layout expression validation', () => {
 
       expect(result).toEqual(t.expects);
 
-      const warningsExpected = t.expectsWarnings || [];
       const warningsFound = [];
       for (const call of logSpy.mock.calls) {
         for (const warning of warningsExpected) {
@@ -48,21 +51,6 @@ describe('Layout expression validation', () => {
     });
   });
 
-  describe('Shared tests for lisp-like expressions', () => {
-    const tests = getSharedTests('lisp-like');
-    it.each(tests.content)('$name', (lispLike) => {
-      if (lispLike.expects) {
-        expect(asLayoutExpression(lispLike.expression)).toEqual(
-          lispLike.expects,
-        );
-      } else {
-        expect(() => asLayoutExpression(lispLike.expression)).toThrow(
-          lispLike.expectsFailure,
-        );
-      }
-    });
-  });
-
   describe('Some values/objects should not validate', () => {
     it.each([
       '',
@@ -71,8 +59,6 @@ describe('Layout expression validation', () => {
       undefined,
       5,
       new Date(),
-      [],
-      [5, 6, 7],
       {},
       { hello: 'world' },
       { expr: 'hello world' },

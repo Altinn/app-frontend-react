@@ -1,8 +1,5 @@
 {
   "name": "Allows 0 as false",
-  "expression": {
-    "function": "and",
-    "args": [true, 0, 0.0, 0.0]
-  },
+  "expression": ["and", true, 0, 0, 0],
   "expects": false
 }

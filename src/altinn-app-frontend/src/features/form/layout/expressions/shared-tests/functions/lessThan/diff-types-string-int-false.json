@@ -1,8 +1,5 @@
 {
   "name": "Should work with [string, integer] (false)",
-  "expression": {
-    "function": "lessThan",
-    "args": ["123", 1]
-  },
+  "expression": ["lessThan", "123", 1],
   "expects": false
 }

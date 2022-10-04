@@ -1,8 +1,5 @@
 {
   "name": "Disallows empty strings",
-  "expression": {
-    "function": "and",
-    "args": [true, ""]
-  },
+  "expression": ["and", true, ""],
   "expectsFailure": "Expected boolean, got value \"\""
 }

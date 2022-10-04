@@ -11,10 +11,7 @@
             "dataModelBindings": {
               "simpleBinding": "Bekreftelse"
             },
-            "hidden": {
-              "function": "equals",
-              "args": [true, false]
-            },
+            "hidden": ["equals", true, false],
             "required": true
           }
         ]
@@ -59,14 +56,8 @@
             },
             "hidden": [
               "and",
-              {
-                "function": "greaterThan",
-                "args": [["component", "alder"], 99]
-              },
-              {
-                "function": "notEquals",
-                "args": [["component", "alder"], 101]
-              }
+              ["greaterThan", ["component", "alder"], 99],
+              ["notEquals", ["component", "alder"], 101]
             ],
             "required": ["dataModel", "Bedrifter.isRequired"]
           },
@@ -100,10 +91,7 @@
             "dataModelBindings": {
               "simpleBinding": "Bekreftelse"
             },
-            "hidden": {
-              "function": "equals",
-              "args": [true, false]
-            },
+            "hidden": ["equals", true, false],
             "required": true
           }
         ]
@@ -128,14 +116,8 @@
             "dataModelBindings": {
               "simpleBinding": "Bedrifter.Navn"
             },
-            "hidden": {
-              "function": "equals",
-              "args": [true, false]
-            },
-            "required": {
-              "function": "dataModel",
-              "args": ["Bedrifter.isRequired"]
-            }
+            "hidden": ["equals", true, false],
+            "required": ["dataModel", "Bedrifter.isRequired"]
           },
           {
             "id": "ansatte",
@@ -152,35 +134,12 @@
             "dataModelBindings": {
               "simpleBinding": "Bedrifter.Ansatte.Navn"
             },
-            "hidden": {
-              "function": "and",
-              "args": [
-                {
-                  "function": "greaterThan",
-                  "args": [
-                    {
-                      "function": "component",
-                      "args": ["alder"]
-                    },
-                    99
-                  ]
-                },
-                {
-                  "function": "notEquals",
-                  "args": [
-                    {
-                      "function": "component",
-                      "args": ["alder"]
-                    },
-                    101
-                  ]
-                }
-              ]
-            },
-            "required": {
-              "function": "dataModel",
-              "args": ["Bedrifter.isRequired"]
-            }
+            "hidden": [
+              "and",
+              ["greaterThan", ["component", "alder"], 99],
+              ["notEquals", ["component", "alder"], 101]
+            ],
+            "required": ["dataModel", "Bedrifter.isRequired"]
           },
           {
             "id": "alder",

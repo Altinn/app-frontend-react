@@ -1,8 +1,0 @@
-{
-  "name": "Simple lisp-like expression",
-  "expression": ["equals", 1, 2],
-  "expects": {
-    "function": "equals",
-    "args": [1, 2]
-  }
-}

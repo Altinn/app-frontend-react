@@ -1,9 +1,6 @@
 {
   "name": "Simple lookup",
-  "expression": {
-    "function": "dataModel",
-    "args": ["a.value"]
-  },
+  "expression": ["dataModel", "a.value"],
   "expects": "ABC",
   "dataModel": {
     "a": {

@@ -1,9 +1,6 @@
 {
   "name": "Simple lookup for non-existing key equals null (2)",
-  "expression": {
-    "function": "dataModel",
-    "args": ["a.otherValue.Count"]
-  },
+  "expression": ["dataModel", "a.otherValue.Count"],
   "expects": null,
   "dataModel": {
     "a": {

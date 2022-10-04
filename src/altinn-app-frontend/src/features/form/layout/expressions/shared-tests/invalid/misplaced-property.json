@@ -1,9 +1,0 @@
-{
-  "name": "Extra property in expression gives error",
-  "expression": {
-    "function": "equals",
-    "args": [true, false],
-    "extra": 55
-  },
-  "expectsFailure": "Unknown property \"extra\" in LayoutExpression. (Accepted: function, args)"
-}

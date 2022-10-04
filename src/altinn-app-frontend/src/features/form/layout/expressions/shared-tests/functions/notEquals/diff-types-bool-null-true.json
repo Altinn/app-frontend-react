@@ -1,8 +1,5 @@
 {
   "name": "Should work with [boolean, null] (true)",
-  "expression": {
-    "function": "notEquals",
-    "args": [true, null]
-  },
+  "expression": ["notEquals", true, null],
   "expects": true
 }

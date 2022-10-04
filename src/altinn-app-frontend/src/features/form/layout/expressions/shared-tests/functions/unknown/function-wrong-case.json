@@ -1,8 +1,5 @@
 {
   "name": "Function with wrong case gives an error",
-  "expression": {
-    "function": "datamodel",
-    "args": ["test"]
-  },
+  "expression": ["datamodel", "test"],
   "expectsFailure": "Function \"datamodel\" not implemented"
 }

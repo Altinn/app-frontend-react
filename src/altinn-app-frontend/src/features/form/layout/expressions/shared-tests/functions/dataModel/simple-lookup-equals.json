@@ -1,22 +1,14 @@
 {
   "name": "Simple lookup equals other lookup",
-  "expression": {
-    "function": "equals",
-    "args": [
-      {
-        "function": "dataModel",
-        "args": ["a.value"]
-      },
-      {
-        "function": "dataModel",
-        "args": ["b.value"]
-      }
-    ]
-  },
+  "expression": ["equals", ["dataModel", "a.value"], ["dataModel", "b.value"]],
   "expects": true,
   "dataModel": {
-    "a": { "value": "hello world" },
-    "b": { "value": "hello world" }
+    "a": {
+      "value": "hello world"
+    },
+    "b": {
+      "value": "hello world"
+    }
   },
   "layouts": {
     "Page1": {

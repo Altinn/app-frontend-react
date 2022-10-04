@@ -1,8 +1,5 @@
 {
   "name": "Missing arguments produces an error",
-  "expression": {
-    "function": "equals",
-    "args": [true, { "function": "notEquals" }]
-  },
-  "expectsFailure": "LayoutExpression is missing required property function or args"
+  "expression": ["equals"],
+  "expectsFailure": "Expected 2 argument(s), got 0"
 }

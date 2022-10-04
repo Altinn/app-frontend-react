@@ -1,9 +1,6 @@
 {
   "name": "Simple lookup",
-  "expression": {
-    "function": "component",
-    "args": ["my-component"]
-  },
+  "expression": ["component", "my-component"],
   "expects": "hello world",
   "layouts": {
     "Page1": {

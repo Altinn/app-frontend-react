@@ -1,8 +1,5 @@
 {
   "name": "Should work with strings (false)",
-  "expression": {
-    "function": "notEquals",
-    "args": ["bar", "bar"]
-  },
+  "expression": ["notEquals", "bar", "bar"],
   "expects": false
 }

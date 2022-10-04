@@ -89,7 +89,11 @@ export class LEContext {
       return this.expr;
     }
 
-    const stringPath = this.path.join('.');
+    // For some reason dot.pick wants to use the format '0[1][2]' for arrays instead of '[0][1][2]', so we'll rewrite
+    const [firstKey, ...restKeys] = this.path;
+    const stringPath =
+      firstKey.replace('[', '').replace(']', '') + restKeys.join('');
+
     return dot.pick(stringPath, this.expr, false);
   }
 
@@ -111,7 +115,7 @@ export class LEContext {
     if (err instanceof LERuntimeError) {
       const prettyPrinted = prettyErrors({
         input: this.expr,
-        errors: { [this.path.join('.')]: [err.message] },
+        errors: { [this.path.join('')]: [err.message] },
         indentation: 1,
       });
 
@@ -138,7 +142,7 @@ export class LEContext {
     if (err instanceof LERuntimeError) {
       const prettyPrinted = prettyErrorsToConsole({
         input: this.expr,
-        errors: { [this.path.join('.')]: [err.message] },
+        errors: { [this.path.join('')]: [err.message] },
         indentation: 1,
         defaultStyle: '',
       });

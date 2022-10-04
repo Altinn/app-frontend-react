@@ -1,14 +1,5 @@
 {
   "name": "Too few arguments give an error",
-  "expression": {
-    "function": "equals",
-    "args": [
-      true,
-      {
-        "function": "equals",
-        "args": []
-      }
-    ]
-  },
+  "expression": ["equals", true, ["equals"]],
   "expectsFailure": "Expected 2 argument(s), got 0"
 }

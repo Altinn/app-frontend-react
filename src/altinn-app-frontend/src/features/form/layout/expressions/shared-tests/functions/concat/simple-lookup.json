@@ -1,12 +1,6 @@
 {
   "name": "Simple lookup",
-  "expression": {
-    "function": "concat",
-    "args": [
-      { "function": "dataModel", "args": ["a.value"] },
-      { "function": "dataModel", "args": ["b.value"] }
-    ]
-  },
+  "expression": ["concat", ["dataModel", "a.value"], ["dataModel", "b.value"]],
   "expects": "ABC",
   "dataModel": {
     "a": {

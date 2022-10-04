@@ -1,8 +1,5 @@
 {
   "name": "Should work with floats (false)",
-  "expression": {
-    "function": "notEquals",
-    "args": [12.56, 12.56]
-  },
+  "expression": ["notEquals", 12.56, 12.56],
   "expects": false
 }

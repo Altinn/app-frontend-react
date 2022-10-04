@@ -1,9 +1,6 @@
 {
   "name": "Lookup inside repeating group",
-  "expression": {
-    "function": "greaterThanEq",
-    "args": [{ "function": "component", "args": ["alder"] }, 18]
-  },
+  "expression": ["greaterThanEq", ["component", "alder"], 18],
   "context": {
     "component": "myndig",
     "rowIndices": [1],

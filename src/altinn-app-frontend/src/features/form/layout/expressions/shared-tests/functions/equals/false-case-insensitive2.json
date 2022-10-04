@@ -1,8 +1,5 @@
 {
   "name": "Booleans are compared case-insensitively (2)",
-  "expression": {
-    "function": "equals",
-    "args": ["TRUE", true]
-  },
+  "expression": ["equals", "TRUE", true],
   "expects": true
 }

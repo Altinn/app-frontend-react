@@ -1,8 +1,5 @@
 {
   "name": "Should work with floats (false)",
-  "expression": {
-    "function": "greaterThan",
-    "args": [123.456, 123.456]
-  },
+  "expression": ["greaterThan", 123.456, 123.456],
   "expects": false
 }

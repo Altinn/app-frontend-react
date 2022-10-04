@@ -1,8 +1,5 @@
 {
   "name": "Empty object inside expression parsed as other expression",
-  "expression": {
-    "function": "equals",
-    "args": [true, {}]
-  },
-  "expectsFailure": "LayoutExpression is missing required property function or args"
+  "expression": ["equals", true, {}],
+  "expectsFailure": "Invalid type \"object\""
 }

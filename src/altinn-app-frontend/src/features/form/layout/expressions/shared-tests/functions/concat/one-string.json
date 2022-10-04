@@ -1,8 +1,5 @@
 {
   "name": "One arguments returns the same",
-  "expression": {
-    "function": "concat",
-    "args": ["test"]
-  },
+  "expression": ["concat", "test"],
   "expects": "test"
 }

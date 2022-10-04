@@ -21,31 +21,13 @@ describe('Hierarchical layout tools', () => {
   const header: Omit<ILayoutCompHeader, 'id'> = { type: 'Header', size: 'L' };
   const input: Omit<ILayoutCompInput, 'id'> = {
     type: 'Input',
-    hidden: {
-      function: 'equals',
-      args: [
-        {
-          function: 'dataModel',
-          args: ['Model.ShouldBeTrue'],
-        },
-        'true',
-      ],
-    },
+    hidden: ['equals', ['dataModel', 'Model.ShouldBeTrue'], 'true'],
   };
   const group: Omit<ILayoutGroup, 'id' | 'children'> = { type: 'Group' };
   const repGroup: Omit<ILayoutGroup, 'id' | 'children'> = {
     type: 'Group',
     maxCount: 3,
-    hidden: {
-      function: 'equals',
-      args: [
-        {
-          function: 'dataModel',
-          args: ['Model.ShouldBeFalse'],
-        },
-        'false',
-      ],
-    },
+    hidden: ['equals', ['dataModel', 'Model.ShouldBeFalse'], 'false'],
   };
   const components = {
     top1: { id: 'top1', ...header },

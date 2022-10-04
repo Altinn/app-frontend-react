@@ -1,8 +1,5 @@
 {
   "name": "Should work with [string, integer] (true)",
-  "expression": {
-    "function": "greaterThanEq",
-    "args": ["2", 2]
-  },
+  "expression": ["greaterThanEq", "2", 2],
   "expects": true
 }
