@@ -47,7 +47,6 @@ import type {
   IRuntimeState,
   ISchemaValidator,
   ITextResource,
-  ITextResourceBindings,
   IValidationIssue,
   IValidationResult,
   IValidations,
@@ -243,13 +242,7 @@ export function validateEmptyFieldsForNodes(
       continue;
     }
 
-    const result = validateEmptyField(
-      formData,
-      node.item.dataModelBindings,
-      node.item.textResourceBindings,
-      textResources,
-      language,
-    );
+    const result = validateEmptyField(formData, node, textResources, language);
     if (result !== null) {
       validations[node.item.id] = result;
     }
@@ -289,22 +282,21 @@ export function getGroupChildren(
 
 export function validateEmptyField(
   formData: any,
-  dataModelBindings: IDataModelBindings,
-  textResourceBindings: ITextResourceBindings,
+  node: LayoutNode<'resolved'>,
   textResources: ITextResource[],
   language: ILanguage,
 ): IComponentValidations {
-  if (!dataModelBindings) {
+  if (!node.item.dataModelBindings) {
     return null;
   }
   const fieldKeys = Object.keys(
-    dataModelBindings,
+    node.item.dataModelBindings,
   ) as (keyof IDataModelBindings)[];
   const componentValidations: IComponentValidations = {};
   fieldKeys.forEach((fieldKey) => {
     const value = getFormDataFromFieldKey(
       fieldKey,
-      dataModelBindings,
+      node.item.dataModelBindings,
       formData,
     );
     if (!value && fieldKey) {
@@ -313,16 +305,17 @@ export function validateEmptyField(
         warnings: [],
       };
 
-      const textResourceBindingsOrTextKeysForRepeatingGroups = groupDataBinding
-        ? getVariableTextKeysForRepeatingGroupComponent(
-            textResources,
-            textResourceBindings,
-            index,
-          )
-        : textResourceBindings;
+      const textResource =
+        node.rowIndex === undefined
+          ? node.item.textResourceBindings
+          : getVariableTextKeysForRepeatingGroupComponent(
+              textResources,
+              node.item.textResourceBindings,
+              node.rowIndex,
+            );
 
       const fieldName = getFieldName(
-        textResourceBindingsOrTextKeysForRepeatingGroups,
+        textResource,
         textResources,
         language,
         fieldKey !== 'simpleBinding' ? fieldKey : undefined,

@@ -135,6 +135,16 @@ describe('utils > validation', () => {
         id: 'c6Title',
         value: 'component_6',
       },
+      {
+        id: 'withGroupVariables',
+        value: '{0}',
+        variables: [
+          {
+            key: 'group_1[{0}].dataModelField_4',
+            dataSource: 'dataModel.default',
+          },
+        ],
+      },
     ];
 
     mockComponent4 = {
@@ -842,14 +852,12 @@ describe('utils > validation', () => {
     });
 
     it('should add error to validations if supplied field is required', () => {
-      const component = mockLayout.FormLayout.find(
-        (c) => c.id === 'componentId_3',
-      );
+      const collection = toCollection(mockLayout, repeatingGroups);
+      const component = collection.findComponentById('componentId_3');
       const validations = {};
-      validations[component.id] = validation.validateEmptyField(
+      validations[component.item.id] = validation.validateEmptyField(
         mockFormData,
-        component.dataModelBindings,
-        component.textResourceBindings,
+        component,
         mockTextResources,
         mockLanguage.language,
       );
@@ -867,14 +875,12 @@ describe('utils > validation', () => {
     });
 
     it('should find all errors in an AddressComponent', () => {
-      const component = mockLayout.FormLayout.find(
-        (c) => c.id === 'componentId_6',
-      );
+      const collection = toCollection(mockLayout, repeatingGroups);
+      const component = collection.findComponentById('componentId_6');
       const validations = {};
-      validations[component.id] = validation.validateEmptyField(
+      validations[component.item.id] = validation.validateEmptyField(
         mockFormData,
-        component.dataModelBindings,
-        component.textResourceBindings,
+        component,
         mockTextResources,
         mockLanguage.language,
       );
@@ -888,6 +894,36 @@ describe('utils > validation', () => {
       };
 
       expect(validations).toEqual(mockResult);
+    });
+
+    it('should replace variables in text resources', () => {
+      const validations: any = validation.validateEmptyFields(
+        mockFormData,
+        toCollection(
+          {
+            FormLayout: [
+              mockGroup1,
+              {
+                ...mockComponent4,
+                textResourceBindings: {
+                  title: 'withGroupVariables',
+                },
+              },
+              mockGroup2,
+              mockComponent5,
+            ],
+          },
+          repeatingGroups,
+        ),
+        Object.keys(mockLayout),
+        mockLanguage.language,
+        new Set(),
+        mockTextResources,
+      );
+
+      expect(
+        validations.FormLayout['componentId_4-0'].simpleBinding.errors,
+      ).toEqual(['Du må fylle ut withGroupVariables-0']);
     });
   });
 

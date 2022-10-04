@@ -344,7 +344,7 @@ export class LayoutNode<
   public constructor(
     public item: Item,
     public parent: AnyParentNode<NT>,
-    protected rowIndex?: number,
+    public readonly rowIndex?: number,
   ) {}
 
   /**
