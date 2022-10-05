@@ -2,15 +2,15 @@ import {
   evalExprInObj,
   LEDefaultsForComponent,
   LEDefaultsForGroup,
-} from 'src/features/form/layout/expressions';
+} from 'src/features/expressions';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import type {
   AnyChildNode,
@@ -583,7 +583,7 @@ export class LayoutNode<
  * as if every component is on the same page.
  *
  * @see resolvedNodesInLayout
- *  An alternative that also resolves layout expressions for all nodes in the layout
+ *  An alternative that also resolves expressions for all nodes in the layout
  */
 export function nodesInLayout(
   formLayout: ILayout,
@@ -625,7 +625,7 @@ export function nodesInLayout(
 
 /**
  * This is the same tool as the one above, but additionally it will iterate each component/group in the layout
- * and resolve all layout expressions for it.
+ * and resolve all expressions for it.
  *
  * @see nodesInLayout
  */
@@ -654,7 +654,7 @@ export function resolvedNodesInLayout(
 
     for (const key of Object.keys(resolvedItem)) {
       // Mutates node.item directly - this also mutates references to it and makes sure
-      // we resolve layout expressions deep inside recursive structures.
+      // we resolve expressions deep inside recursive structures.
       node.item[key] = resolvedItem[key];
     }
   }

@@ -7,12 +7,12 @@ import MultipleChoiceSummary from 'src/components/summary/MultipleChoiceSummary'
 import SingleInputSummary from 'src/components/summary/SingleInputSummary';
 import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
 import SummaryGroupComponent from 'src/components/summary/SummaryGroupComponent';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type {
   ILayoutComponent,
   ILayoutCompSummary,
   ILayoutGroup,
 } from 'src/features/form/layout';
-import type { LEResolved } from 'src/features/form/layout/expressions/types';
 
 export interface ISummaryComponentSwitch
   extends Omit<ILayoutCompSummary, 'type'> {
@@ -20,7 +20,7 @@ export interface ISummaryComponentSwitch
     onChangeClick: () => void;
     changeText: string;
   };
-  formComponent: LEResolved<ILayoutComponent | ILayoutGroup>;
+  formComponent: ExprResolved<ILayoutComponent | ILayoutGroup>;
   hasValidationMessages?: boolean;
   label?: any;
   formData?: any;

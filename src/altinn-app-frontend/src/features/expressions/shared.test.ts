@@ -1,20 +1,20 @@
 import dot from 'dot-object';
 
-import { evalExpr } from 'src/features/form/layout/expressions';
-import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
-import { getSharedTests } from 'src/features/form/layout/expressions/shared';
-import { asLayoutExpression } from 'src/features/form/layout/expressions/validation';
+import { evalExpr } from 'src/features/expressions';
+import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
+import { getSharedTests } from 'src/features/expressions/shared';
+import { asExpression } from 'src/features/expressions/validation';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
 import {
   LayoutRootNodeCollection,
   nodesInLayout,
 } from 'src/utils/layout/hierarchy';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   FunctionTest,
   SharedTestContext,
   SharedTestContextList,
-} from 'src/features/form/layout/expressions/shared';
+} from 'src/features/expressions/shared';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 import type {
@@ -29,7 +29,7 @@ function toComponentId({ component, rowIndices }: FunctionTest['context']) {
   );
 }
 
-describe('Layout expressions shared function tests', () => {
+describe('Expressions shared function tests', () => {
   const sharedTests = getSharedTests('functions');
 
   describe.each(sharedTests.content)('Function: $folderName', (folder) => {
@@ -75,7 +75,7 @@ describe('Layout expressions shared function tests', () => {
 
         if (expectsFailure) {
           expect(() => {
-            const expr = asLayoutExpression(expression);
+            const expr = asExpression(expression);
             return evalExpr(expr, component, dataSources);
           }).toThrow(expectsFailure);
         } else {
@@ -86,7 +86,7 @@ describe('Layout expressions shared function tests', () => {
   });
 });
 
-describe('Layout expressions shared context tests', () => {
+describe('Expressions shared context tests', () => {
   const sharedTests = getSharedTests('context-lists');
 
   function contextSorter(

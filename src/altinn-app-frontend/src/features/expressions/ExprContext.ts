@@ -4,13 +4,13 @@ import {
   LERuntimeError,
   NodeNotFound,
   NodeNotFoundWithoutContext,
-} from 'src/features/form/layout/expressions/errors';
+} from 'src/features/expressions/errors';
 import {
   prettyErrors,
   prettyErrorsToConsole,
-} from 'src/features/form/layout/expressions/prettyErrors';
+} from 'src/features/expressions/prettyErrors';
+import type { Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
-import type { LayoutExpression } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 import type {
@@ -30,14 +30,14 @@ export interface PrettyErrorsOptions {
 }
 
 /**
- * The layout expression context object is passed around when executing/evaluating a layout expression, and is
- * a toolbox for layout expressions to resolve lookups in data sources, getting the current node, etc.
+ * The expression context object is passed around when executing/evaluating a expression, and is
+ * a toolbox for expressions to resolve lookups in data sources, getting the current node, etc.
  */
-export class LEContext {
+export class ExprContext {
   public path: string[] = [];
 
   private constructor(
-    public expr: LayoutExpression,
+    public expr: Expression,
     public node:
       | LayoutNode<any>
       | LayoutRootNode<any>
@@ -49,19 +49,19 @@ export class LEContext {
    * Start a new context with a blank path (i.e. with a pointer at the top-level of an expression)
    */
   public static withBlankPath(
-    expr: LayoutExpression,
+    expr: Expression,
     node: LayoutNode<any> | LayoutRootNode<any> | NodeNotFoundWithoutContext,
     dataSources: ContextDataSources,
-  ): LEContext {
-    return new LEContext(expr, node, dataSources);
+  ): ExprContext {
+    return new ExprContext(expr, node, dataSources);
   }
 
   /**
    * Reference a previous instance, but move our path pointer to a new path (meaning the context is working on an
    * inner part of the expression)
    */
-  public static withPath(prevInstance: LEContext, newPath: string[]) {
-    const newInstance = new LEContext(
+  public static withPath(prevInstance: ExprContext, newPath: string[]) {
+    const newInstance = new ExprContext(
       prevInstance.expr,
       prevInstance.node,
       prevInstance.dataSources,
@@ -84,7 +84,7 @@ export class LEContext {
   /**
    * Get the expression for the current path
    */
-  public getExpr(): LayoutExpression {
+  public getExpr(): Expression {
     if (this.path.length === 0) {
       return this.expr;
     }

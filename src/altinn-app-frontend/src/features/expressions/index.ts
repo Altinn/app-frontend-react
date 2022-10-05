@@ -8,24 +8,24 @@ import {
   UnexpectedType,
   UnknownSourceType,
   UnknownTargetType,
-} from 'src/features/form/layout/expressions/errors';
-import { LEContext } from 'src/features/form/layout/expressions/LEContext';
+} from 'src/features/expressions/errors';
+import { ExprContext } from 'src/features/expressions/ExprContext';
 import {
-  asLayoutExpression,
+  asExpression,
   canBeExpression,
-} from 'src/features/form/layout/expressions/validation';
+} from 'src/features/expressions/validation';
 import { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   BaseToActual,
   BaseValue,
+  ExprDefaultValues,
+  Expression,
+  ExprFunction,
+  ExprResolved,
   FuncDef,
-  LayoutExpression,
-  LEDefaultValues,
-  LEFunction,
-  LEResolved,
-} from 'src/features/form/layout/expressions/types';
+} from 'src/features/expressions/types';
+import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 import type { IInstanceContext } from 'altinn-shared/types';
@@ -39,17 +39,17 @@ export interface EvalExprInObjArgs<T> {
   input: T;
   node: LayoutNode<any> | NodeNotFoundWithoutContext;
   dataSources: ContextDataSources;
-  defaults?: LEDefaultValues<T>;
+  defaults?: ExprDefaultValues<T>;
 }
 
 /**
- * This function is the brains behind the useLayoutExpression() hook, as it will find any expressions inside a deep
+ * This function is the brains behind the useExpressions() hook, as it will find any expressions inside a deep
  * object and resolve them.
- * @see useLayoutExpression
+ * @see useExpressions
  */
-export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): LEResolved<T> {
+export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): ExprResolved<T> {
   if (!args.input) {
-    return args.input as LEResolved<T>;
+    return args.input as ExprResolved<T>;
   }
 
   return evalExprInObjectRecursive(
@@ -60,7 +60,7 @@ export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): LEResolved<T> {
 }
 
 /**
- * Recurse through an input object/array/any, finds layout expressions and evaluates them
+ * Recurse through an input object/array/any, finds expressions and evaluates them
  */
 function evalExprInObjectRecursive<T>(
   input: any,
@@ -82,7 +82,7 @@ function evalExprInObjectRecursive<T>(
     }
 
     if (evaluateAsExpression) {
-      const expression = asLayoutExpression(input);
+      const expression = asExpression(input);
       if (expression) {
         return evalExprInObjectCaller(expression, args, path);
       }
@@ -107,7 +107,7 @@ function evalExprInObjectRecursive<T>(
  * Extracted function for evaluating expressions in the context of a larger object
  */
 function evalExprInObjectCaller<T>(
-  expr: LayoutExpression,
+  expr: Expression,
   args: Omit<EvalExprInObjArgs<T>, 'input'>,
   path: string[],
 ) {
@@ -132,18 +132,18 @@ function evalExprInObjectCaller<T>(
 }
 
 /**
- * Run/evaluate a layout expression. You have to provide your own context containing functions for looking up external
+ * Run/evaluate an expression. You have to provide your own context containing functions for looking up external
  * values. If you need a more concrete implementation:
  * @see evalExprInObj
- * @see useLayoutExpression
+ * @see useExpressions
  */
 export function evalExpr(
-  expr: LayoutExpression,
+  expr: Expression,
   node: LayoutNode<any> | LayoutRootNode<any> | NodeNotFoundWithoutContext,
   dataSources: ContextDataSources,
   options?: EvalExprOptions,
 ) {
-  let ctx = LEContext.withBlankPath(expr, node, dataSources);
+  let ctx = ExprContext.withBlankPath(expr, node, dataSources);
   try {
     return innerEvalExpr(ctx);
   } catch (err) {
@@ -170,7 +170,7 @@ export function evalExpr(
 }
 
 export function argTypeAt(
-  func: LEFunction,
+  func: ExprFunction,
   argIndex: number,
 ): BaseValue | undefined {
   const funcDef = LEFunctions[func];
@@ -187,14 +187,14 @@ export function argTypeAt(
   return undefined;
 }
 
-function innerEvalExpr(context: LEContext) {
+function innerEvalExpr(context: ExprContext) {
   const [func, ...args] = context.getExpr();
 
   const returnType = LEFunctions[func].returns;
 
   const computedArgs = args.map((arg, idx) => {
     const realIdx = idx + 1;
-    const argContext = LEContext.withPath(context, [
+    const argContext = ExprContext.withPath(context, [
       ...context.path,
       `[${realIdx}]`,
     ]);
@@ -227,7 +227,7 @@ function isLikeNull(arg: any) {
 function castValue<T extends BaseValue>(
   value: any,
   toType: T,
-  context: LEContext,
+  context: ExprContext,
 ): BaseToActual<T> {
   if (!(toType in LETypes)) {
     throw new UnknownTargetType(this, toType);
@@ -264,7 +264,7 @@ const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
 };
 
 /**
- * All the functions available to execute inside layout expressions
+ * All the functions available to execute inside expressions
  */
 export const LEFunctions = {
   equals: defineFunc({
@@ -413,14 +413,14 @@ function asNumber(arg: string) {
 }
 
 /**
- * All the types available in layout expressions, along with functions to cast possible values to them
+ * All the types available in expressions, along with functions to cast possible values to them
  * @see castValue
  */
 export const LETypes: {
   [Type in BaseValue]: {
     nullable: boolean;
     accepts: BaseValue[];
-    impl: (this: LEContext, arg: any) => BaseToActual<Type>;
+    impl: (this: ExprContext, arg: any) => BaseToActual<Type>;
   };
 } = {
   boolean: {
@@ -483,13 +483,13 @@ export const LETypes: {
   },
 };
 
-export const LEDefaultsForComponent: LEDefaultValues<ILayoutComponent> = {
+export const LEDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {
   readOnly: false,
   required: false,
   hidden: false,
 };
 
-export const LEDefaultsForGroup: LEDefaultValues<ILayoutGroup> = {
+export const LEDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
   ...LEDefaultsForComponent,
   edit: {
     addButton: true,

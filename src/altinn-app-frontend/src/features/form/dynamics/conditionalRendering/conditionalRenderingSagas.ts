@@ -1,7 +1,7 @@
 import { call, put, select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { evalExpr } from 'src/features/form/layout/expressions';
+import { evalExpr } from 'src/features/expressions';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
@@ -9,9 +9,9 @@ import {
   dataSourcesFromState,
   resolvedLayoutsFromState,
 } from 'src/utils/layout/hierarchy';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { IFormData } from 'src/features/form/data';
 import type { IConditionalRenderingRules } from 'src/features/form/dynamics';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 import type {
   IHiddenLayoutsExpressions,
   IRuntimeState,
@@ -53,7 +53,7 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
       uiConfig.repeatingGroups,
     );
 
-    runLayoutExpressionRules(resolvedNodes, hiddenFields, futureHiddenFields);
+    runExpressionRules(resolvedNodes, hiddenFields, futureHiddenFields);
 
     if (shouldUpdate(hiddenFields, futureHiddenFields)) {
       yield put(
@@ -78,7 +78,7 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
     }
 
     const hiddenLayouts = new Set(uiConfig.tracks.hidden);
-    const futureHiddenLayouts = runLayoutExpressionsForLayouts(
+    const futureHiddenLayouts = runExpressionsForLayouts(
       resolvedNodes,
       uiConfig.tracks.hiddenExpr,
       dataSources,
@@ -96,7 +96,7 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
   }
 }
 
-function runLayoutExpressionRules(
+function runExpressionRules(
   layouts: LayoutRootNodeCollection<'resolved'>,
   present: Set<string>,
   future: Set<string>,
@@ -110,7 +110,7 @@ function runLayoutExpressionRules(
   }
 }
 
-function runLayoutExpressionsForLayouts(
+function runExpressionsForLayouts(
   nodes: LayoutRootNodeCollection<'resolved'>,
   hiddenLayoutsExpr: IHiddenLayoutsExpressions,
   dataSources: ContextDataSources,

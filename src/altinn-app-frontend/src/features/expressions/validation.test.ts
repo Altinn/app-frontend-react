@@ -2,20 +2,20 @@ import {
   evalExprInObj,
   LEDefaultsForComponent,
   LEDefaultsForGroup,
-} from 'src/features/form/layout/expressions/index';
-import { getSharedTests } from 'src/features/form/layout/expressions/shared';
+} from 'src/features/expressions/index';
+import { getSharedTests } from 'src/features/expressions/shared';
 import {
-  asLayoutExpression,
+  asExpression,
   preProcessLayout,
-} from 'src/features/form/layout/expressions/validation';
+} from 'src/features/expressions/validation';
 import { nodesInLayout } from 'src/utils/layout/hierarchy';
 import type { IRepeatingGroups } from 'src/types';
 
-describe('Layout expression validation', () => {
+describe('Expression validation', () => {
   describe('Shared tests for invalid expressions', () => {
     const invalidSharedTests = getSharedTests('invalid');
     it.each(invalidSharedTests.content)('$name', (invalid) => {
-      expect(() => asLayoutExpression(invalid.expression)).toThrow(
+      expect(() => asExpression(invalid.expression)).toThrow(
         invalid.expectsFailure,
       );
     });
@@ -46,7 +46,7 @@ describe('Layout expression validation', () => {
 
       // Runs all the expressions inside the layout. This is done so that we have shared tests that make sure to
       // check that evaluating expressions in a component/node context works (i.e. that "triggers": ["validation"]
-      // is not interpreted as a layout expression).
+      // is not interpreted as an expression).
       for (const page of Object.values(result)) {
         const repeatingGroups: IRepeatingGroups = {};
         for (const component of page.data.layout) {
@@ -118,7 +118,7 @@ describe('Layout expression validation', () => {
     ])(
       'should validate %p as an invalid expression (non-throwing)',
       (maybeExpr) => {
-        expect(asLayoutExpression(maybeExpr)).toBeUndefined();
+        expect(asExpression(maybeExpr)).toBeUndefined();
       },
     );
   });

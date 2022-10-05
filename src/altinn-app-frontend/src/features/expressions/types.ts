@@ -1,14 +1,14 @@
 import type { PickByValue } from 'utility-types';
 
-import type { LEFunctions } from 'src/features/form/layout/expressions';
-import type { LEContext } from 'src/features/form/layout/expressions/LEContext';
+import type { LEFunctions } from 'src/features/expressions';
+import type { ExprContext } from 'src/features/expressions/ExprContext';
 
 type Functions = typeof LEFunctions;
 
 /**
- * This union type includes all possible functions usable in layout expressions
+ * This union type includes all possible functions usable in expressions
  */
-export type LEFunction = keyof Functions;
+export type ExprFunction = keyof Functions;
 
 export type BaseValue = 'string' | 'number' | 'boolean';
 export type BaseToActual<T extends BaseValue> = T extends 'string'
@@ -43,7 +43,7 @@ export interface FuncDef<
   Args extends readonly BaseValue[],
   Ret extends BaseValue,
 > {
-  impl: (this: LEContext, ...params: ArgsToActual<Args>) => BaseToActual<Ret>;
+  impl: (this: ExprContext, ...params: ArgsToActual<Args>) => BaseToActual<Ret>;
   args: Args;
   minArguments?: number;
   returns: Ret;
@@ -54,7 +54,7 @@ export interface FuncDef<
   lastArgSpreads?: true;
 }
 
-type BaseValueArgsFor<F extends LEFunction> = F extends LEFunction
+type BaseValueArgsFor<F extends ExprFunction> = F extends ExprFunction
   ? Functions[F]['args']
   : never;
 
@@ -63,7 +63,7 @@ type FunctionsReturning<T extends BaseValue> = keyof PickByValue<
   { returns: T }
 >;
 
-export type LEReturning<T extends BaseValue> = LayoutExpression<
+export type ExprReturning<T extends BaseValue> = Expression<
   FunctionsReturning<T>
 >;
 
@@ -75,13 +75,13 @@ export type LEReturning<T extends BaseValue> = LayoutExpression<
  *
  * @see https://github.com/microsoft/TypeScript/issues/29919
  */
-type IndexHack<F extends LEFunction> = [
+type IndexHack<F extends ExprFunction> = [
   'Here goes the function name',
   ...BaseValueArgsFor<F>,
 ];
 
 type MaybeRecursive<
-  F extends LEFunction,
+  F extends ExprFunction,
   Iterations extends Prev[number],
   Args extends ('Here goes the function name' | BaseValue)[] = IndexHack<F>,
 > = [Iterations] extends [never]
@@ -95,54 +95,55 @@ type MaybeRecursive<
     };
 
 /**
- * The base type that represents any valid layout expression function call. When used as a type
- * inside a layout definition, you probably want something like LayoutExpressionOr<'boolean'>
+ * The base type that represents any valid expression function call. When used as a type
+ * inside a layout definition, you probably want something like ExpressionOr<'boolean'>
  *
- * @see LayoutExpressionOr
+ * @see ExpressionOr
  */
-export type LayoutExpression<F extends LEFunction = LEFunction> =
-  MaybeRecursive<F, 2>;
+export type Expression<F extends ExprFunction = ExprFunction> = MaybeRecursive<
+  F,
+  2
+>;
 
 /**
- * This type represents a layout expression for a function that returns
- * the T type, or just the T type itself.
+ * This type represents an expression for a function that returns the T type, or just the T type itself.
  */
-export type LayoutExpressionOr<T extends BaseValue> =
-  | LEReturning<T>
+export type ExpressionOr<T extends BaseValue> =
+  | ExprReturning<T>
   | BaseToActual<T>;
 
 /**
- * Type that lets you convert a layout expression function name to its return value type
+ * Type that lets you convert an expression function name to its return value type
  */
-export type ReturnValueFor<Func extends LEFunction> =
+export type ReturnValueFor<Func extends ExprFunction> =
   Func extends keyof Functions
     ? BaseToActual<Functions[Func]['returns']>
     : never;
 
 /**
- * This is the heavy lifter for ResolvedLayoutExpression that will recursively work through objects and remove
- * layout expressions (replacing them with the type the layout expression is expected to return).
+ * This is the heavy lifter for ExprResolved that will recursively work through objects and remove
+ * expressions (replacing them with the type the expression is expected to return).
  *
  * @see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
  */
 type ResolveDistributive<T> = [T] extends [any]
-  ? [T] extends [LayoutExpression<infer Func>]
+  ? [T] extends [Expression<infer Func>]
     ? ReturnValueFor<Func>
-    : T extends LayoutExpression
-    ? // When using ILayoutExpressionOr<...>, it creates a union type. Removing the ILayoutExpression from this union
+    : T extends Expression
+    ? // When using ExpressionOr<...>, it creates a union type. Removing the Expression from this union
       never
     : T extends object
-    ? Exclude<LEResolved<T>, LayoutExpression>
+    ? Exclude<ExprResolved<T>, Expression>
     : T
   : never;
 
 /**
- * This type removes all layout expressions from the input type (replacing them with the type
- * the layout expression is expected to return)
+ * This type removes all expressions from the input type (replacing them with the type
+ * the expression is expected to return)
  *
  * @see https://stackoverflow.com/a/54487392
  */
-export type LEResolved<T> = {
+export type ExprResolved<T> = {
   [P in keyof T]: ResolveDistributive<T[P]>;
 };
 
@@ -164,21 +165,21 @@ type OmitEmptyObjects<T> = T extends Record<string, never> ? never : T;
 type OmitNeverArrays<T> = T extends never[] ? never : T;
 
 /**
- * This is the heavy lifter used by LayoutExpressionDefaultValues to recursively iterate types
+ * This is the heavy lifter used by ExprDefaultValues to recursively iterate types
  */
 type ReplaceDistributive<T, Iterations extends Prev[number]> = [T] extends [
-  LayoutExpressionOr<infer BT>,
+  ExpressionOr<infer BT>,
 ]
   ? BaseToActualStrict<BT>
   : [T] extends [object]
-  ? OmitEmptyObjects<LEDefaultValues<T, Prev[Iterations]>>
+  ? OmitEmptyObjects<ExprDefaultValues<T, Prev[Iterations]>>
   : never;
 
 /**
- * This type looks through an object recursively, finds any layout expressions, and requires you to provide a default
- * value for them (i.e. a fallback value should the layout expression evaluation fail).
+ * This type looks through an object recursively, finds any expressions, and requires you to provide a default
+ * value for them (i.e. a fallback value should the expression evaluation fail).
  */
-export type LEDefaultValues<
+export type ExprDefaultValues<
   T,
   Iterations extends Prev[number] = 1, // <-- Recursion depth limited to 2 levels by default
 > = [Iterations] extends [never]

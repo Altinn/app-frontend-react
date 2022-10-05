@@ -2,24 +2,24 @@ import { useContext, useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks';
 import { FormComponentContext } from 'src/components';
-import { NodeNotFoundWithoutContext } from 'src/features/form/layout/expressions/errors';
+import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import {
   evalExprInObj,
   LEDefaultsForComponent,
   LEDefaultsForGroup,
-} from 'src/features/form/layout/expressions/index';
+} from 'src/features/expressions/index';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
-import type { ILayoutComponentOrGroup } from 'src/features/form/layout';
-import type { EvalExprInObjArgs } from 'src/features/form/layout/expressions/index';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
+import type { EvalExprInObjArgs } from 'src/features/expressions/index';
 import type {
-  LEDefaultValues,
-  LEResolved,
-} from 'src/features/form/layout/expressions/types';
+  ExprDefaultValues,
+  ExprResolved,
+} from 'src/features/expressions/types';
+import type { ILayoutComponentOrGroup } from 'src/features/form/layout';
 
 import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
 
-export interface UseLayoutExpressionOptions<T> {
+export interface UseExpressionsOptions<T> {
   /**
    * The component ID for the current component context. Usually optional, as it will be fetched from
    * the FormComponentContext if not given.
@@ -32,22 +32,22 @@ export interface UseLayoutExpressionOptions<T> {
    * print out a pretty error message to the console explaining what went wrong - and continue by using the default
    * value instead.
    */
-  defaults?: LEDefaultValues<T>;
+  defaults?: ExprDefaultValues<T>;
 }
 
 /**
- * React hook used to resolve layout expressions from a component layout definitions. This
+ * React hook used to resolve expressions from a component (usually in layout definitions). This
  * should be used inside a form component context.
  *
- * @param input Any input, object, value from the layout definitions, possibly containing layout expressions somewhere.
- *  This hook will look through the input (and recurse through objects), looking for layout expressions and resolve
+ * @param input Any input, object, value from the layout definitions, possibly containing expressions somewhere.
+ *  This hook will look through the input (and recurse through objects), looking for expressions and resolve
  *  them to provide you with the base out value for the current component context.
  * @param options Optional options (see their own docs)
  */
-export function useLayoutExpression<T>(
+export function useExpressions<T>(
   input: T,
-  options?: UseLayoutExpressionOptions<T>,
-): LEResolved<T> {
+  options?: UseExpressionsOptions<T>,
+): ExprResolved<T> {
   const component = useContext(FormComponentContext);
   const nodes = useLayoutsAsNodes();
   const formData = useAppSelector((state) => state.formData?.formData);
@@ -77,21 +77,19 @@ export function useLayoutExpression<T>(
   );
 
   return evalExprInObj({
-    ...(options as Pick<UseLayoutExpressionOptions<T>, 'defaults'>),
+    ...(options as Pick<UseExpressionsOptions<T>, 'defaults'>),
     input,
     node,
     dataSources,
-  } as EvalExprInObjArgs<T>) as LEResolved<T>;
+  } as EvalExprInObjArgs<T>) as ExprResolved<T>;
 }
 
 // TODO: Implement a simple test for this
-export function useLayoutExpressionForComponent<
-  T extends ILayoutComponentOrGroup,
->(
+export function useExpressionsForComponent<T extends ILayoutComponentOrGroup>(
   input: T,
-  options?: Omit<UseLayoutExpressionOptions<T>, 'defaults'>,
-): LEResolved<T> {
-  return useLayoutExpression(input, {
+  options?: Omit<UseExpressionsOptions<T>, 'defaults'>,
+): ExprResolved<T> {
+  return useExpressions(input, {
     ...options,
     defaults: {
       ...LEDefaultsForComponent,

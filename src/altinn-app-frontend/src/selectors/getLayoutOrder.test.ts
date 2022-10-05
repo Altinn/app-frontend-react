@@ -1,7 +1,7 @@
 import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
 
 describe('getLayoutOrderFromTracks', () => {
-  it('should hide a layout after layout expressions have been evaluated', () => {
+  it('should hide a layout after expressions have been evaluated', () => {
     expect(
       getLayoutOrderFromTracks({
         order: ['first', 'second', 'third'],

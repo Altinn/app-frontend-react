@@ -6,11 +6,11 @@ import classNames from 'classnames';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import components, { FormComponentContext } from 'src/components';
+import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
 import Description from 'src/features/form/components/Description';
 import Label from 'src/features/form/components/Label';
 import Legend from 'src/features/form/components/Legend';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { useLayoutExpressionForComponent } from 'src/features/form/layout/expressions/useLayoutExpression';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { makeGetFocus, makeGetHidden } from 'src/selectors/getLayoutData';
@@ -30,6 +30,7 @@ import type {
   IFormComponentContext,
   PropsFromGenericComponent,
 } from 'src/components';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type {
   ComponentExceptGroup,
   ComponentTypes,
@@ -37,7 +38,6 @@ import type {
   ILayoutCompBase,
   ILayoutComponent,
 } from 'src/features/form/layout';
-import type { LEResolved } from 'src/features/form/layout/expressions/types';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 
 import { getTextResourceByKey } from 'altinn-shared/utils';
@@ -104,9 +104,9 @@ const useStyles = makeStyles((theme) => ({
 export function GenericComponent<Type extends ComponentExceptGroup>(
   _props: IActualGenericComponentProps<Type>,
 ) {
-  const props = useLayoutExpressionForComponent(_props as ILayoutComponent, {
+  const props = useExpressionsForComponent(_props as ILayoutComponent, {
     forComponentId: _props.id,
-  }) as LEResolved<IActualGenericComponentProps<Type>> & {
+  }) as ExprResolved<IActualGenericComponentProps<Type>> & {
     type: Type;
   };
 

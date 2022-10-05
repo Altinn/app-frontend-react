@@ -7,13 +7,13 @@ import {
   nodesInLayout,
   resolvedNodesInLayout,
 } from 'src/utils/layout/hierarchy';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ILayout,
   ILayoutCompHeader,
   ILayoutCompInput,
   ILayoutGroup,
 } from 'src/features/form/layout';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
 import type { IRepeatingGroups } from 'src/types';
 import type { AnyNode } from 'src/utils/layout/hierarchy.types';
 
@@ -488,7 +488,7 @@ describe('Hierarchical layout tools', () => {
     }
     const plain = [true, undefined];
 
-    // Tests to make sure all children also have their layout expressions resolved
+    // Tests to make sure all children also have their expressions resolved
     expect(topInput.item.hidden).toEqual(true);
     expect(group2i.item.hidden).toEqual(true);
     expect(group2ni.item.hidden).toEqual(true);

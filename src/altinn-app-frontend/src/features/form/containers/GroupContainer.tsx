@@ -4,12 +4,12 @@ import { Grid, makeStyles } from '@material-ui/core';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
+import { LEDefaultsForGroup } from 'src/features/expressions';
+import { useExpressions } from 'src/features/expressions/useExpressions';
 import { RepeatingGroupAddButton } from 'src/features/form/components/RepeatingGroupAddButton';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupsLikertContainer } from 'src/features/form/containers/RepeatingGroupsLikertContainer';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
-import { LEDefaultsForGroup } from 'src/features/form/layout/expressions';
-import { useLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
@@ -76,7 +76,7 @@ export function GroupContainer({
     JSON.stringify(components),
   );
 
-  const edit = useLayoutExpression(container.edit, {
+  const edit = useExpressions(container.edit, {
     forComponentId: id,
     defaults: LEDefaultsForGroup.edit,
   });

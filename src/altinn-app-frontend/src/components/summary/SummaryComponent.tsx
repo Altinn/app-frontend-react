@@ -7,7 +7,7 @@ import cn from 'classnames';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
-import { useLayoutExpressionForComponent } from 'src/features/form/layout/expressions/useLayoutExpression';
+import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import {
@@ -84,7 +84,7 @@ export function SummaryComponent({
   const _formComponent = useAppSelector((state) => {
     return state.formLayout.layouts[pageRef].find((c) => c.id === componentRef);
   });
-  const formComponent = useLayoutExpressionForComponent(_formComponent, {
+  const formComponent = useExpressionsForComponent(_formComponent, {
     forComponentId: componentRef,
   });
 

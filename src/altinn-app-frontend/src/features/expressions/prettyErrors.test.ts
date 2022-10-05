@@ -1,4 +1,4 @@
-import { prettyErrors } from 'src/features/form/layout/expressions/prettyErrors';
+import { prettyErrors } from 'src/features/expressions/prettyErrors';
 
 describe('prettyErrors', () => {
   it('should pretty-print errors for simple values', () => {

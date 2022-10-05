@@ -1,24 +1,24 @@
+import type { ExprResolved } from 'src/features/expressions/types';
 import type {
   IDataModelBindings,
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
-import type { LEResolved } from 'src/features/form/layout/expressions/types';
 import type { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 export type NodeType =
-  // Plain/unresolved nodes include (unresolved) layout expressions
+  // Plain/unresolved nodes include (unresolved) expressions
   | 'unresolved'
-  // Resolved nodes have their layout expressions resolved, leaving only the results
+  // Resolved nodes have their expressions resolved, leaving only the results
   | 'resolved';
 
 export type ComponentOf<NT extends NodeType> = NT extends 'unresolved'
   ? ILayoutComponent
-  : LEResolved<ILayoutComponent>;
+  : ExprResolved<ILayoutComponent>;
 
 export type GroupOf<NT extends NodeType> = NT extends 'unresolved'
   ? ILayoutGroup
-  : LEResolved<ILayoutGroup>;
+  : ExprResolved<ILayoutGroup>;
 
 export type LayoutGroupHierarchy<NT extends NodeType = 'unresolved'> = Omit<
   GroupOf<NT>,

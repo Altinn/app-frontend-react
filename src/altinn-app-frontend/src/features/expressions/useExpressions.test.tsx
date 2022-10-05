@@ -5,25 +5,25 @@ import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { act, renderHook } from '@testing-library/react';
 import type { MockInstance } from 'jest-mock';
 
+import { useExpressions } from 'src/features/expressions/useExpressions';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { useLayoutExpression } from 'src/features/form/layout/expressions/useLayoutExpression';
 import { setupStore } from 'src/store';
+import type { ExpressionOr } from 'src/features/expressions/types';
+import type { UseExpressionsOptions } from 'src/features/expressions/useExpressions';
 import type { IFormData } from 'src/features/form/data';
 import type {
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
 } from 'src/features/form/layout';
-import type { LayoutExpressionOr } from 'src/features/form/layout/expressions/types';
-import type { UseLayoutExpressionOptions } from 'src/features/form/layout/expressions/useLayoutExpression';
 import type { IRuntimeState } from 'src/types';
 
 interface ExampleThingWithExpressions {
   notAnExpr: boolean;
-  hidden: LayoutExpressionOr<'boolean'>;
+  hidden: ExpressionOr<'boolean'>;
   innerObject: {
     label: string;
-    readOnly: LayoutExpressionOr<'boolean'>;
+    readOnly: ExpressionOr<'boolean'>;
   };
 }
 
@@ -105,12 +105,12 @@ const getState = (formData: IFormData = {}): IRuntimeState => {
 };
 
 const thingWithExpressions = (
-  expr1: LayoutExpressionOr<'boolean'> = [
+  expr1: ExpressionOr<'boolean'> = [
     'equals',
     ['component', components.topLayer.id],
     'hello world',
   ],
-  expr2: LayoutExpressionOr<'boolean'> = [
+  expr2: ExpressionOr<'boolean'> = [
     'equals',
     ['component', components.topLayer.id],
     'foo bar',
@@ -131,10 +131,10 @@ const thingWithoutExpressions = (
 
 function render<
   T extends ExampleThingWithExpressions | ExampleThingWithExpressions[],
->(thing: T, options: UseLayoutExpressionOptions<T>, state = getState()) {
+>(thing: T, options: UseExpressionsOptions<T>, state = getState()) {
   let error: Error = undefined;
   const store = setupStore(state);
-  const rendered = renderHook(() => useLayoutExpression(thing, options), {
+  const rendered = renderHook(() => useExpressions(thing, options), {
     wrapper: class Wrapper extends React.Component<
       React.PropsWithChildren,
       { hasError: boolean }
@@ -169,7 +169,7 @@ function render<
   };
 }
 
-describe('useLayoutExpressions', () => {
+describe('useExpressions', () => {
   const consoleRef: {
     log: MockInstance;
     error: MockInstance;
@@ -211,7 +211,7 @@ describe('useLayoutExpressions', () => {
     expect(consoleRef.log).toBeCalledTimes(0);
   });
 
-  it('should resolve layout expressions', () => {
+  it('should resolve expressions', () => {
     const { result, store, rerender } = render(thingWithExpressions(), {
       forComponentId: components.topLayer.id,
     });
@@ -238,7 +238,7 @@ describe('useLayoutExpressions', () => {
     expect(consoleRef.log).toBeCalledTimes(0);
   });
 
-  const failingExpr: LayoutExpressionOr<'boolean'> = [
+  const failingExpr: ExpressionOr<'boolean'> = [
     'greaterThanEq',
     ['component', components.topLayer.id],
     '55',
@@ -309,7 +309,7 @@ describe('useLayoutExpressions', () => {
       "Evaluated expression for 'hidden' in component 'topLayer-0'",
     );
     expect(log).toContain(
-      `Unable to evaluate layout expressions in context of the "topLayer-0" component (it could not be found)`,
+      `Unable to evaluate expressions in context of the "topLayer-0" component (it could not be found)`,
     );
     expect(log).toMatch(/Using default value instead:\n\s+%ctrue%c/);
   });

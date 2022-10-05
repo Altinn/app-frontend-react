@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
+import type { Expression } from 'src/features/expressions/types';
 import type { ILayout } from 'src/features/form/layout';
-import type { LayoutExpression } from 'src/features/form/layout/expressions/types';
 
 import type {
   IApplicationSettings,
@@ -43,7 +43,7 @@ export interface ContextTest extends SharedTest {
 }
 
 export interface FunctionTest extends SharedTest {
-  expression: LayoutExpression;
+  expression: Expression;
   expects?: any;
   expectsFailure?: string;
   context?: SharedTestFunctionContext;
@@ -52,7 +52,7 @@ export interface FunctionTest extends SharedTest {
 export interface LispLikeTest {
   name: string;
   expression: any;
-  expects?: LayoutExpression;
+  expects?: Expression;
   expectsFailure?: string;
 }
 

@@ -1,7 +1,7 @@
 import type Ajv from 'ajv/dist/core';
 
+import type { ExpressionOr } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
-import type { LayoutExpressionOr } from 'src/features/form/layout/expressions/types';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { RootState } from 'src/store';
 
@@ -152,7 +152,7 @@ export interface IValidationIssue {
 }
 
 export interface IHiddenLayoutsExpressions {
-  [layoutKey: string]: LayoutExpressionOr<'boolean'>;
+  [layoutKey: string]: ExpressionOr<'boolean'>;
 }
 
 export interface IUiConfig {
@@ -182,7 +182,7 @@ export interface ITracks {
    * The main 'order' is the list of layouts available, or which layouts the server tells us to display. If a layout
    * is not in this list, it should be considered hidden. It will be null until layouts have been fetched.
    *
-   * Do NOT use this directly, as it will not respect hidden layouts via layout expressions!
+   * Do NOT use this directly, as it will not respect layouts hidden using expressions!
    * @see getLayoutOrderFromTracks
    * @see selectLayoutOrder
    */
@@ -195,7 +195,7 @@ export interface ITracks {
   hidden: string[];
 
   /**
-   * List of layout expressions containing logic used to show/hide certain layouts.
+   * List of expressions containing logic used to show/hide certain layouts.
    */
   hiddenExpr: IHiddenLayoutsExpressions;
 }

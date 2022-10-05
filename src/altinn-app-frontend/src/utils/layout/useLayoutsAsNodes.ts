@@ -6,19 +6,19 @@ import {
   nodesInLayout,
   resolvedNodesInLayout,
 } from 'src/utils/layout/hierarchy';
-import type { ContextDataSources } from 'src/features/form/layout/expressions/LEContext';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 
 // TODO: Implement a test for this hook (and verify that it can resolve expressions)
 
 /**
  * React hook used for getting a memoized LayoutRootNodeCollection where you can look up components.
  *
- * It can optionally also resolve layout expressions, if provided with expression data sources. If you only
- * want to resolve layout expressions for a single component, it is more efficient to use the hook specific
+ * It can optionally also resolve expressions, if provided with expression data sources. If you only
+ * want to resolve expressions for a single component, it is more efficient to use the hook specific
  * for that.
  *
- * @see useLayoutExpression
- * @see useLayoutExpressionForComponent
+ * @see useExpressions
+ * @see useExpressionsForComponent
  */
 export function useLayoutsAsNodes(
   dataSources?: undefined,

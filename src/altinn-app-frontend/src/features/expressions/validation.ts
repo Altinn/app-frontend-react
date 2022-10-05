@@ -6,17 +6,17 @@ import {
   LEDefaultsForGroup,
   LEFunctions,
   LETypes,
-} from 'src/features/form/layout/expressions';
+} from 'src/features/expressions';
 import {
   prettyErrors,
   prettyErrorsToConsole,
-} from 'src/features/form/layout/expressions/prettyErrors';
-import type { ILayout } from 'src/features/form/layout';
+} from 'src/features/expressions/prettyErrors';
 import type {
   BaseValue,
-  LayoutExpression,
-  LEFunction,
-} from 'src/features/form/layout/expressions/types';
+  Expression,
+  ExprFunction,
+} from 'src/features/expressions/types';
+import type { ILayout } from 'src/features/form/layout';
 
 enum ValidationErrorMessage {
   InvalidType = 'Invalid type "%s"',
@@ -60,7 +60,7 @@ function addError(
 }
 
 function validateFunctionArg(
-  func: LEFunction,
+  func: ExprFunction,
   idx: number,
   actual: (BaseValue | undefined)[],
   ctx: ValidationContext,
@@ -99,7 +99,7 @@ function validateFunctionArg(
 }
 
 function validateFunctionArgs(
-  func: LEFunction,
+  func: ExprFunction,
   actual: (BaseValue | undefined)[],
   ctx: ValidationContext,
   path: string[],
@@ -146,7 +146,7 @@ function validateFunction(
   const pathArgs = [...path.slice(0, path.length - 1)];
 
   if (funcName in LEFunctions) {
-    validateFunctionArgs(funcName as LEFunction, argTypes, ctx, pathArgs);
+    validateFunctionArgs(funcName as ExprFunction, argTypes, ctx, pathArgs);
     return LEFunctions[funcName].returns;
   }
 
@@ -197,25 +197,25 @@ function validateRecursively(
 
 /**
  * Checks anything and returns true if it _could_ be an expression (but is not guaranteed to be one, and does not
- * validate the expression). This is `asLayoutExpression` light, without any error logging to console if it fails.
+ * validate the expression). This is `asExpression` light, without any error logging to console if it fails.
  */
 export function canBeExpression(expr: any): expr is [] {
   return Array.isArray(expr) && expr.length >= 1 && typeof expr[0] === 'string';
 }
 
 /**
- * Takes the input object, validates it to make sure it is a valid layout expression, returns either a fully
- * parsed verbose expression (ready to pass to evalExpr()), or undefined (if not a valid expression).
+ * Takes the input object, validates it to make sure it is a valid expression, returns either a fully
+ * parsed expression (ready to pass to evalExpr()), or undefined (if not a valid expression).
  *
  * @param obj Input, can be anything
  * @param defaultValue Default value (returned if the expression fails to validate)
  * @param errorText Error intro text used when printing to console or throwing an error
  */
-export function asLayoutExpression(
+export function asExpression(
   obj: any,
   defaultValue: any = undefined,
-  errorText = 'Invalid layout expression',
-): LayoutExpression | undefined {
+  errorText = 'Invalid expression',
+): Expression | undefined {
   if (typeof obj !== 'object' || obj === null || !Array.isArray(obj)) {
     return undefined;
   }
@@ -255,7 +255,7 @@ export function asLayoutExpression(
     throw new InvalidExpression(`${errorText}:\n${pretty}`);
   }
 
-  return obj as unknown as LayoutExpression;
+  return obj as unknown as Expression;
 }
 
 export function preProcessItem(
@@ -267,8 +267,8 @@ export function preProcessItem(
   const pathStr = componentPath.join('.');
   if (pathStr in defaults) {
     if (typeof input === 'object' && input !== null) {
-      const errText = `Invalid layout expression when parsing ${pathStr} for "${componentId}"`;
-      return asLayoutExpression(input, defaults[pathStr], errText);
+      const errText = `Invalid expression when parsing ${pathStr} for "${componentId}"`;
+      return asExpression(input, defaults[pathStr], errText);
     }
 
     return input;
@@ -290,7 +290,7 @@ export function preProcessItem(
 
 /**
  * Pre-process a layout array. This iterates all components and makes sure to validate expressions (making sure they
- * are valid according to the LayoutExpression TypeScript type, ready to pass to evalExpr()).
+ * are valid according to the Expression TypeScript type, ready to pass to evalExpr()).
  *
  * If/when expressions inside components does not validate correctly, a warning is printed to the console, and the
  * expression is substituted with the appropriate default value.

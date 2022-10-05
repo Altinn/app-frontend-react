@@ -26,13 +26,13 @@ import { TextAreaComponent } from 'src/components/base/TextAreaComponent';
 import CustomComponent from 'src/components/custom/CustomWebComponent';
 import { NavigationButtons as NavigationButtonsComponent } from 'src/components/presentation/NavigationButtons';
 import type { IGenericComponentProps } from 'src/components/GenericComponent';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type {
   ComponentExceptGroup,
   ComponentExceptGroupAndSummary,
   IGrid,
   ILayoutComponent,
 } from 'src/features/form/layout';
-import type { LEResolved } from 'src/features/form/layout/expressions/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
 import type { ILanguage } from 'altinn-shared/types';
@@ -84,7 +84,7 @@ export interface IComponentProps extends IGenericComponentProps {
 }
 
 export type PropsFromGenericComponent<T extends ComponentExceptGroup> =
-  IComponentProps & LEResolved<Omit<ILayoutComponent<T>, 'type'>>;
+  IComponentProps & ExprResolved<Omit<ILayoutComponent<T>, 'type'>>;
 
 export interface IFormComponentContext {
   grid?: IGrid;
