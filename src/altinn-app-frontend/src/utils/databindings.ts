@@ -133,6 +133,11 @@ export function getIndexCombinations(
   }
 
   const repeatingGroupValues = Object.values(repeatingGroups);
+
+  if (!repeatingGroupValues.length) {
+    return combinations;
+  }
+
   const mainGroupMaxIndex = repeatingGroupValues.find(
     (group) => group.dataModelBinding === baseGroupBindings[0],
   ).index;
