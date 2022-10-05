@@ -140,10 +140,6 @@ Cypress.Commands.add('navigateToTask5', () => {
 });
 
 Cypress.Commands.add('addItemToGroup', (oldValue, newValue, comment, openByDefault) => {
-  if (openByDefault !== true) {
-    cy.get(appFrontend.group.addNewItem).should('be.visible').focus().click();
-  }
-
   cy.get(appFrontend.group.currentValue).should('be.visible').type(oldValue).blur();
   cy.get(appFrontend.group.newValue).should('be.visible').type(newValue).blur();
   cy.get(appFrontend.group.mainGroup)
@@ -152,7 +148,7 @@ Cypress.Commands.add('addItemToGroup', (oldValue, newValue, comment, openByDefau
     .should('be.visible')
     .click();
 
-  if (openByDefault === true || typeof openByDefault === 'undefined') {
+  if (openByDefault || typeof openByDefault === 'undefined') {
     cy.get(appFrontend.group.addNewItemSubGroup).should('not.exist');
   } else {
     cy.get(appFrontend.group.addNewItemSubGroup).click();
