@@ -87,7 +87,7 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
     if (shouldUpdate(hiddenLayouts, futureHiddenLayouts)) {
       yield put(
         FormLayoutActions.updateHiddenLayouts({
-          hiddenLayouts: [...hiddenLayouts.values()],
+          hiddenLayouts: [...futureHiddenLayouts.values()],
         }),
       );
     }
