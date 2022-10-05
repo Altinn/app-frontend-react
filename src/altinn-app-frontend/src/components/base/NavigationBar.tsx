@@ -5,9 +5,9 @@ import cn from 'classnames';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import { Triggers } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
-import { getLayoutOrderFromTracks } from 'src/utils/layout/tracks';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { PropsFromGenericComponent } from 'src/components';
 
@@ -103,9 +103,7 @@ NavigationButton.displayName = 'NavigationButton';
 export const NavigationBar = ({ triggers }: INavigationBar) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const pageIds = useAppSelector((state) =>
-    getLayoutOrderFromTracks(state.formLayout.uiConfig.tracks),
-  );
+  const pageIds = useAppSelector(selectLayoutOrder);
   const returnToView = useAppSelector(
     (state) => state.formLayout.uiConfig.returnToView,
   );

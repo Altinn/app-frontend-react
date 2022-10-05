@@ -4,10 +4,10 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import Header from 'src/components/presentation/Header';
 import NavBar from 'src/components/presentation/NavBar';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { getRedirectUrl } from 'src/utils/appUrlHelper';
 import { getNextView } from 'src/utils/formLayout';
-import { getLayoutOrderFromTracks } from 'src/utils/layout/tracks';
 import { get } from 'src/utils/networking';
 
 import {

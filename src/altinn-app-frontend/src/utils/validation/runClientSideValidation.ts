@@ -1,7 +1,7 @@
+import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
 import { getCurrentDataTypeId } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
-import { getLayoutOrderFromTracks } from 'src/utils/layout/tracks';
 import {
   getValidator,
   validateEmptyFields,

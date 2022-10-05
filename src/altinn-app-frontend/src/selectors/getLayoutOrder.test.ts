@@ -1,4 +1,4 @@
-import { getLayoutOrderFromTracks } from 'src/utils/layout/tracks';
+import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
 
 describe('getLayoutOrderFromTracks', () => {
   it('should hide a layout after layout expressions have been evaluated', () => {

@@ -184,6 +184,7 @@ export interface ITracks {
    *
    * Do NOT use this directly, as it will not respect hidden layouts via layout expressions!
    * @see getLayoutOrderFromTracks
+   * @see selectLayoutOrder
    */
   order: string[] | null;
 
