@@ -670,22 +670,24 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
   }
 
   // Open by default
-  const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
   const newGroupKeys = Object.keys(newGroups || {});
+  const groupContainers = Object.values(state.formLayout.layouts)
+    .flatMap((e) => e)
+    .filter((e) => e.type === 'Group');
+
   newGroupKeys.forEach((key) => {
     const group = newGroups[key];
+    const container = groupContainers.find(
+      (element) => element.id === key,
+    ) as ILayoutGroup;
 
-    const groupContainer: ILayoutGroup = Object.values(formLayoutState.layouts)
-      .flatMap((e) => e)
-      .find((element) => element.id === key) as ILayoutGroup;
-
-    if (groupContainer && group.index >= 0) {
+    if (container && group.index >= 0) {
       if (
-        groupContainer.edit.openByDefault === true ||
-        groupContainer.edit.openByDefault === 'first'
+        container.edit.openByDefault === true ||
+        container.edit.openByDefault === 'first'
       ) {
         group.editIndex = 0;
-      } else if (groupContainer.edit.openByDefault === 'last') {
+      } else if (container.edit.openByDefault === 'last') {
         group.editIndex = group.index;
       }
     }
