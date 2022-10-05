@@ -139,3 +139,7 @@ export interface ICalculatePageOrderAndMoveToNextPage {
 export interface ICalculatePageOrderAndMoveToNextPageFulfilled {
   order: string[];
 }
+
+export interface IHiddenLayoutsUpdate {
+  hiddenLayouts: string[];
+}

@@ -143,9 +143,12 @@ const createLayout = (
       autoSave: null,
       fileUploadersWithTag: {},
       navigationConfig: {},
-      layoutOrder: null,
+      tracks: {
+        order: null,
+        hidden: [],
+        hiddenExpr: {},
+      },
       pageTriggers: [],
-      hiddenLayoutsExpr: {},
     },
   };
 };

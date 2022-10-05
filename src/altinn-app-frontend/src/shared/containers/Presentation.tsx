@@ -7,6 +7,7 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { getRedirectUrl } from 'src/utils/appUrlHelper';
 import { getNextView } from 'src/utils/formLayout';
+import { getLayoutOrderFromTracks } from 'src/utils/layout/tracks';
 import { get } from 'src/utils/networking';
 
 import {
@@ -46,7 +47,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
       state.formLayout.uiConfig.navigationConfig[
         state.formLayout.uiConfig.currentView
       ],
-      state.formLayout.uiConfig.layoutOrder,
+      getLayoutOrderFromTracks(state.formLayout.uiConfig.tracks),
       state.formLayout.uiConfig.currentView,
       true,
     ),

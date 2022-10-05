@@ -46,30 +46,25 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
     );
     const dataSources = yield select(DataSourcesSelector);
 
-    const present = new Set(uiConfig.hiddenFields);
-    const future = runConditionalRenderingRules(
+    const hiddenFields = new Set(uiConfig.hiddenFields);
+    const futureHiddenFields = runConditionalRenderingRules(
       conditionalRenderingState,
       formData,
       uiConfig.repeatingGroups,
     );
 
-    runLayoutExpressionRules(resolvedNodes, present, future);
-    const newLayoutOrder = runLayoutExpressionsForLayouts(
-      resolvedNodes,
-      uiConfig.hiddenLayoutsExpr,
-      dataSources,
-    );
+    runLayoutExpressionRules(resolvedNodes, hiddenFields, futureHiddenFields);
 
-    if (shouldHiddenFieldsUpdate(present, future)) {
+    if (shouldUpdate(hiddenFields, futureHiddenFields)) {
       yield put(
         FormLayoutActions.updateHiddenComponents({
-          componentsToHide: [...future.values()],
+          componentsToHide: [...futureHiddenFields.values()],
         }),
       );
 
       const newFormValidations = { ...formValidations };
       let validationsChanged = false;
-      future.forEach((componentId) => {
+      futureHiddenFields.forEach((componentId) => {
         if (newFormValidations[componentId]) {
           delete newFormValidations[componentId];
           validationsChanged = true;
@@ -82,10 +77,17 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
       }
     }
 
-    if (shouldLayoutOrderUpdate(uiConfig.layoutOrder, newLayoutOrder)) {
+    const hiddenLayouts = new Set(uiConfig.tracks.hidden);
+    const futureHiddenLayouts = runLayoutExpressionsForLayouts(
+      resolvedNodes,
+      uiConfig.tracks.hiddenExpr,
+      dataSources,
+    );
+
+    if (shouldUpdate(hiddenLayouts, futureHiddenLayouts)) {
       yield put(
-        FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
-          order: newLayoutOrder,
+        FormLayoutActions.updateHiddenLayouts({
+          hiddenLayouts: [...hiddenLayouts.values()],
         }),
       );
     }
@@ -112,8 +114,8 @@ function runLayoutExpressionsForLayouts(
   nodes: LayoutRootNodeCollection<'resolved'>,
   hiddenLayoutsExpr: IHiddenLayoutsExpressions,
   dataSources: ContextDataSources,
-): string[] {
-  const newOrder: string[] = [];
+): Set<string> {
+  const hiddenLayouts: Set<string> = new Set();
   for (const key of Object.keys(hiddenLayoutsExpr)) {
     let isHidden = hiddenLayoutsExpr[key];
     if (typeof isHidden === 'object' && isHidden !== null) {
@@ -121,18 +123,15 @@ function runLayoutExpressionsForLayouts(
         defaultValue: false,
       });
     }
-    if (isHidden !== true) {
-      newOrder.push(key);
+    if (isHidden === true) {
+      hiddenLayouts.add(key);
     }
   }
 
-  return newOrder;
+  return hiddenLayouts;
 }
 
-function shouldHiddenFieldsUpdate(
-  currentList: Set<string>,
-  newList: Set<string>,
-): boolean {
+function shouldUpdate(currentList: Set<string>, newList: Set<string>): boolean {
   if (currentList.size !== newList.size) {
     return true;
   }
@@ -141,15 +140,4 @@ function shouldHiddenFieldsUpdate(
   const future = [...newList.values()].sort();
 
   return JSON.stringify(present) !== JSON.stringify(future);
-}
-
-function shouldLayoutOrderUpdate(
-  currentList: string[],
-  newList: string[],
-): boolean {
-  if (currentList.length !== newList.length) {
-    return true;
-  }
-
-  return JSON.stringify(currentList.sort()) !== JSON.stringify(newList.sort());
 }

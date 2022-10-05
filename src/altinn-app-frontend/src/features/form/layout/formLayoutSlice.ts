@@ -42,8 +42,11 @@ export const initialState: ILayoutState = {
     fileUploadersWithTag: {},
     currentView: 'FormLayout',
     navigationConfig: {},
-    layoutOrder: null,
-    hiddenLayoutsExpr: {},
+    tracks: {
+      hidden: [],
+      hiddenExpr: {},
+      order: null,
+    },
     pageTriggers: [],
     keepScrollPos: undefined,
   },
@@ -68,8 +71,8 @@ const formLayoutSlice = createSagaSlice(
             action.payload;
           state.layouts = layouts;
           state.uiConfig.navigationConfig = navigationConfig;
-          state.uiConfig.layoutOrder = Object.keys(layouts);
-          state.uiConfig.hiddenLayoutsExpr = hiddenLayoutsExpressions;
+          state.uiConfig.tracks.order = Object.keys(layouts);
+          state.uiConfig.tracks.hiddenExpr = hiddenLayoutsExpressions;
           state.error = null;
           state.uiConfig.repeatingGroups = {};
         },
@@ -117,7 +120,7 @@ const formLayoutSlice = createSagaSlice(
               updateCommonPageSettings(state, settings.pages);
               const order = settings.pages.order;
               if (order) {
-                state.uiConfig.layoutOrder = order;
+                state.uiConfig.tracks.order = order;
                 if (state.uiConfig.currentViewCacheKey) {
                   let currentView: string;
                   const lastVisitedPage = localStorage.getItem(
@@ -308,7 +311,7 @@ const formLayoutSlice = createSagaSlice(
         mkAction<LayoutTypes.ICalculatePageOrderAndMoveToNextPageFulfilled>({
           reducer: (state, action) => {
             const { order } = action.payload;
-            state.uiConfig.layoutOrder = order;
+            state.uiConfig.tracks.order = order;
           },
         }),
       calculatePageOrderAndMoveToNextPageRejected:
@@ -318,6 +321,11 @@ const formLayoutSlice = createSagaSlice(
             state.error = error;
           },
         }),
+      updateHiddenLayouts: mkAction<LayoutTypes.IHiddenLayoutsUpdate>({
+        reducer: (state, action) => {
+          state.uiConfig.tracks.hidden = action.payload.hiddenLayouts;
+        },
+      }),
       initRepeatingGroups: mkAction<void>({
         saga: () => watchInitRepeatingGroupsSaga,
       }),

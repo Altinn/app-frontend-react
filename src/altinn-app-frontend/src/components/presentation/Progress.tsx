@@ -3,14 +3,15 @@ import React from 'react';
 import { CircularProgress } from '@altinn/altinn-design-system';
 
 import { useAppSelector } from 'src/common/hooks';
+import { getLayoutOrderFromTracks } from 'src/utils/layout/tracks';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 
 export const Progress = () => {
   const currentPageId = useAppSelector(
     (state) => state.formLayout.uiConfig.currentView,
   );
-  const pageIds = useAppSelector(
-    (state) => state.formLayout.uiConfig.layoutOrder,
+  const pageIds = useAppSelector((state) =>
+    getLayoutOrderFromTracks(state.formLayout.uiConfig.tracks),
   );
   const language = useAppSelector((state) => state.language.language);
   const textResources = useAppSelector(

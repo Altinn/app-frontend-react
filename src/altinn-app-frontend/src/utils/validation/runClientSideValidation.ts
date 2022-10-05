@@ -1,6 +1,7 @@
 import { getCurrentDataTypeId } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { getLayoutOrderFromTracks } from 'src/utils/layout/tracks';
 import {
   getValidator,
   validateEmptyFields,
@@ -26,12 +27,15 @@ export function runClientSideValidation(state: IRuntimeState) {
   );
 
   const hiddenFields = new Set(state.formLayout.uiConfig.hiddenFields);
+  const layoutOrder = getLayoutOrderFromTracks(
+    state.formLayout.uiConfig.tracks,
+  );
 
   const layouts = resolvedLayoutsFromState(state);
   const validationResult = validateFormData(
     model,
     layouts,
-    state.formLayout.uiConfig.layoutOrder,
+    layoutOrder,
     validator,
     state.language.language,
     state.textResources.resources,
@@ -39,7 +43,7 @@ export function runClientSideValidation(state: IRuntimeState) {
   const componentSpecificValidations = validateFormComponents(
     state.attachments.attachments,
     layouts,
-    state.formLayout.uiConfig.layoutOrder,
+    layoutOrder,
     state.formData.formData,
     state.language.language,
     hiddenFields,
@@ -47,7 +51,7 @@ export function runClientSideValidation(state: IRuntimeState) {
   const emptyFieldsValidations = validateEmptyFields(
     state.formData.formData,
     layouts,
-    state.formLayout.uiConfig.layoutOrder,
+    layoutOrder,
     state.language.language,
     hiddenFields,
     state.textResources.resources,

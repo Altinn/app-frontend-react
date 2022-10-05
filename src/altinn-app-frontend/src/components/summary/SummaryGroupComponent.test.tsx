@@ -77,8 +77,11 @@ describe('SummaryGroupComponent', () => {
         },
         currentView: 'FormLayout',
         navigationConfig: {},
-        layoutOrder: [],
-        hiddenLayoutsExpr: {},
+        tracks: {
+          order: [],
+          hidden: [],
+          hiddenExpr: {},
+        },
       },
     });
 

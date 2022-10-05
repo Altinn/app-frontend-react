@@ -72,7 +72,7 @@ describe('fetchFormLayoutSagas', () => {
     };
 
     const hiddenExprPage1: IHiddenLayoutsExpressions = {
-      page1: ['equals', true, true],
+      page1: ['equals', true, false],
     };
 
     const hiddenExprPage2: IHiddenLayoutsExpressions = {
