@@ -1,8 +1,15 @@
+import {
+  evalExprInObj,
+  LEDefaultsForComponent,
+  LEDefaultsForGroup,
+} from 'src/features/form/layout/expressions/index';
 import { getSharedTests } from 'src/features/form/layout/expressions/shared';
 import {
   asLayoutExpression,
   preProcessLayout,
 } from 'src/features/form/layout/expressions/validation';
+import { nodesInLayout } from 'src/utils/layout/hierarchy';
+import type { IRepeatingGroups } from 'src/types';
 
 describe('Layout expression validation', () => {
   describe('Shared tests for invalid expressions', () => {
@@ -36,6 +43,51 @@ describe('Layout expression validation', () => {
       }
 
       expect(result).toEqual(t.expects);
+
+      // Runs all the expressions inside the layout. This is done so that we have shared tests that make sure to
+      // check that evaluating expressions in a component/node context works (i.e. that "triggers": ["validation"]
+      // is not interpreted as a layout expression).
+      for (const page of Object.values(result)) {
+        const repeatingGroups: IRepeatingGroups = {};
+        for (const component of page.data.layout) {
+          if (component.type === 'Group' && component.maxCount > 1) {
+            repeatingGroups[component.id] = {
+              index: 1,
+              editIndex: -1,
+            };
+            for (const child of component.children) {
+              const childElm = page.data.layout.find((c) => c.id === child);
+              if (
+                childElm &&
+                childElm.type === 'Group' &&
+                childElm.maxCount > 1
+              ) {
+                repeatingGroups[`${childElm.id}-0`] = {
+                  index: 1,
+                  editIndex: -1,
+                };
+              }
+            }
+          }
+        }
+
+        const nodes = nodesInLayout(page.data.layout, repeatingGroups);
+        for (const node of nodes.flat(true)) {
+          evalExprInObj({
+            input: node.item,
+            defaults: {
+              ...LEDefaultsForComponent,
+              ...LEDefaultsForGroup,
+            },
+            node,
+            dataSources: {
+              formData: {},
+              applicationSettings: {} as any,
+              instanceContext: {} as any,
+            },
+          });
+        }
+      }
 
       const warningsFound = [];
       for (const call of logSpy.mock.calls) {

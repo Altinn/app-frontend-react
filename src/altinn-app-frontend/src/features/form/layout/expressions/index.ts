@@ -72,12 +72,20 @@ function evalExprInObjectRecursive<T>(
   }
 
   if (Array.isArray(input)) {
-    if (canBeExpression(input)) {
+    let evaluateAsExpression = false;
+    if (args.defaults) {
+      const pathString = path.join('.');
+      const defaultValue = dot.pick(pathString, args.defaults);
+      evaluateAsExpression = typeof defaultValue !== 'undefined';
+    } else if (canBeExpression(input)) {
+      evaluateAsExpression = true;
+    }
+
+    if (evaluateAsExpression) {
       const expression = asLayoutExpression(input);
       if (expression) {
         return evalExprInObjectCaller(expression, args, path);
       }
-      // TODO: Only look up inside default values if we have them?
     }
 
     const newPath = [...path];
