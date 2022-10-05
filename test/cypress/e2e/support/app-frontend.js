@@ -140,6 +140,10 @@ Cypress.Commands.add('navigateToTask5', () => {
 });
 
 Cypress.Commands.add('addItemToGroup', (oldValue, newValue, comment, openByDefault) => {
+  if (!openByDefault) {
+    cy.get(appFrontend.group.addNewItem).should('be.visible').focus().click();
+  }
+
   cy.get(appFrontend.group.currentValue).should('be.visible').type(oldValue).blur();
   cy.get(appFrontend.group.newValue).should('be.visible').type(newValue).blur();
   cy.get(appFrontend.group.mainGroup)

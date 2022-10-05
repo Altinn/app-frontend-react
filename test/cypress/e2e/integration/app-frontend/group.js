@@ -25,7 +25,7 @@ describe('Group', () => {
   [true, false].forEach((openByDefault) => {
     it(`Add and delete items on main and nested group (openByDefault = ${openByDefault ? 'true' : 'false'})`, () => {
       cy.interceptLayout('group', (component) => {
-        if (component.edit && component.edit.openByDefault !== undefined) {
+        if (component.edit && typeof component.edit.openByDefault !== 'undefined') {
           component.edit.openByDefault = openByDefault;
         }
         return component;
@@ -33,9 +33,6 @@ describe('Group', () => {
       init();
 
       cy.get(appFrontend.group.showGroupToContinue).find('input').check();
-      if (!openByDefault) {
-        cy.get(appFrontend.group.addNewItem).should('be.visible').focus().click();
-      }
       cy.addItemToGroup(1, 2, 'automation', openByDefault);
       cy.get(appFrontend.group.mainGroup)
         .find(mui.tableBody)
@@ -230,25 +227,21 @@ describe('Group', () => {
     cy.get(appFrontend.group.sendersName).should('exist');
   });
 
-  ['first', 'last', true, false].forEach((openByDefault) => {
-    it(`Open by default on prefilled group (openByDefault = ${openByDefault})`, () => {
+  it('Open by default on prefilled group (openByDefault = [\'first\', \'last\', true, false])', () => {
+    init();
+
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.addItemToGroup(1, 2, 'item 1');
+    cy.addItemToGroup(20, 30, 'item 2');
+    cy.addItemToGroup(400, 600, 'item 3');
+
+    ['first', 'last', true, false].forEach((openByDefault) => {
       cy.interceptLayout('group', (component) => {
         if (component.edit && component.edit.openByDefault !== undefined) {
           component.edit.openByDefault = openByDefault;
         }
         return component;
       });
-      init();
-
-      cy.get(appFrontend.group.showGroupToContinue).find('input').check();
-      if (!openByDefault) {
-        cy.get(appFrontend.group.addNewItem).should('be.visible').focus().click();
-      }
-      cy.addItemToGroup(1, 2, 'item 1', openByDefault);
-      cy.get(appFrontend.group.addNewItem).should('be.visible').focus().click();
-      cy.addItemToGroup(20, 30, 'item 2', openByDefault);
-      cy.get(appFrontend.group.addNewItem).should('be.visible').focus().click();
-      cy.addItemToGroup(400, 600, 'item 3', openByDefault);
 
       cy.reload();
       cy.wait('@getLayoutGroup');
