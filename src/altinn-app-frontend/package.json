@@ -76,6 +76,7 @@
     "jest": "29.1.2",
     "jest-environment-jsdom": "29.1.2",
     "jest-junit": "14.0.1",
+    "jest-mock-axios": "^4.7.0-beta",
     "mime": "3.0.0",
     "mini-css-extract-plugin": "2.6.1",
     "msw": "0.47.3",
