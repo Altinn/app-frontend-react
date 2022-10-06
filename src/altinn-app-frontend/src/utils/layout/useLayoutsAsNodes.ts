@@ -39,7 +39,7 @@ export function useLayoutsAsNodes(
 
   return useMemo(() => {
     const asNodes = {};
-    for (const key of Object.keys(layouts)) {
+    for (const key of Object.keys(layouts || {})) {
       if (dataSources) {
         asNodes[key] = resolvedNodesInLayout(
           layouts[key],
