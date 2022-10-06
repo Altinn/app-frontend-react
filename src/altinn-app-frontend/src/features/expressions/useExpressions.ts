@@ -76,24 +76,34 @@ export function useExpressions<T>(
     [instanceContext, applicationSettings, formData],
   );
 
-  return evalExprInObj({
-    ...(options as Pick<UseExpressionsOptions<T>, 'defaults'>),
-    input,
-    node,
-    dataSources,
-  } as EvalExprInObjArgs<T>) as ExprResolved<T>;
+  return useMemo(() => {
+    return evalExprInObj({
+      ...(options as Pick<UseExpressionsOptions<T>, 'defaults'>),
+      input,
+      node,
+      dataSources,
+    } as EvalExprInObjArgs<T>) as ExprResolved<T>;
+  }, [dataSources, input, node, options]);
 }
+
+const componentDefaults: any = {
+  ...LEDefaultsForComponent,
+  ...LEDefaultsForGroup,
+};
 
 // TODO: Implement a simple test for this
 export function useExpressionsForComponent<T extends ILayoutComponentOrGroup>(
   input: T,
   options?: Omit<UseExpressionsOptions<T>, 'defaults'>,
 ): ExprResolved<T> {
-  return useExpressions(input, {
-    ...options,
-    defaults: {
-      ...LEDefaultsForComponent,
-      ...LEDefaultsForGroup,
-    } as any, // Casting to any to avoid expensive type-checking already done in the source types
-  });
+  const newOptions = useMemo(
+    () => ({
+      ...options,
+      defaults: componentDefaults,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    Object.values(options),
+  );
+
+  return useExpressions(input, newOptions);
 }
