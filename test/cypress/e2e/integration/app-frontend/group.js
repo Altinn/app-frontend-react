@@ -230,7 +230,39 @@ describe('Group', () => {
   it('Open by default on prefilled group (openByDefault = [\'first\', \'last\', true, false])', () => {
     init();
 
+    cy.intercept('PUT', '**/instances/*/*/data/*').as('updateInstance');
     cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.wait('@updateInstance');
+
+    ['first', 'last', true, false].forEach((openByDefault) => {
+      cy.interceptLayout('group', (component) => {
+        if (component.edit && component.edit.openByDefault !== undefined) {
+          component.edit.openByDefault = openByDefault;
+        }
+        return component;
+      });
+
+      cy.reload();
+      cy.wait('@getLayoutGroup');
+
+      if (openByDefault === 'first') {
+        cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
+        cy.get(appFrontend.group.mainGroupTableBody).children().eq(1).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
+      } else if (openByDefault === 'last') {
+        cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
+        cy.get(appFrontend.group.mainGroupTableBody).children().eq(1).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
+      } else if (openByDefault === true) {
+        cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
+        cy.get(appFrontend.group.mainGroupTableBody).children().eq(1).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
+      } else if (openByDefault === false) {
+        cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
+      }
+    });
+
+    cy.interceptLayout('group', (component) => component);
+    cy.reload();
+    cy.wait('@getLayoutGroup');
+
     cy.addItemToGroup(1, 2, 'item 1');
     cy.addItemToGroup(20, 30, 'item 2');
     cy.addItemToGroup(400, 600, 'item 3');
@@ -246,12 +278,15 @@ describe('Group', () => {
       cy.reload();
       cy.wait('@getLayoutGroup');
 
-      if (openByDefault === true || openByDefault === 'first') {
+      if (openByDefault === 'first') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 4);
         cy.get(appFrontend.group.mainGroupTableBody).children().eq(1).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
       } else if (openByDefault === 'last') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 4);
         cy.get(appFrontend.group.mainGroupTableBody).children().eq(3).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
+      } else if (openByDefault === true) {
+        cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 3);
+        cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
       } else if (openByDefault === false) {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 3);
         cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
