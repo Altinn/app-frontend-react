@@ -34,9 +34,6 @@ Cypress.Commands.add('startAppInstance', (appName, anonymous=false) => {
   cy.visit('/', visitOptions);
 
   const appPath = `/ttd/${appName}/`;
-  const appUrl = Cypress.env('environment') === 'local'
-    ? `${Cypress.config('baseUrl')}${appPath}`
-    : `https://ttd.apps.${Cypress.config('baseUrl').slice(8)}`;
 
   // Rewrite all references to the app-frontend with a local URL
   cy.intercept({ path: appPath }, (req) => {
@@ -55,7 +52,7 @@ Cypress.Commands.add('startAppInstance', (appName, anonymous=false) => {
 
   if (Cypress.env('environment') === 'local') {
     if (anonymous) {
-      cy.visit(appUrl, visitOptions);
+      cy.visit(`${Cypress.config('baseUrl')}${appPath}`, visitOptions);
     } else {
       cy.get(appFrontend.appSelection).select(appName);
       cy.get(appFrontend.startButton).click();
@@ -64,7 +61,7 @@ Cypress.Commands.add('startAppInstance', (appName, anonymous=false) => {
     if (!anonymous) {
       authenticateAltinnII(Cypress.env('testUserName'), Cypress.env('testUserPwd'));
     }
-    cy.visit(appUrl, visitOptions);
+    cy.visit(`https://ttd.apps.${Cypress.config('baseUrl').slice(8)}${appPath}`, visitOptions);
   }
 });
 
