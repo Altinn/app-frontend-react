@@ -43,17 +43,19 @@ import type { IComponentValidations, ILabelSettings } from 'src/types';
 import { getTextResourceByKey } from 'altinn-shared/utils';
 import type { ILanguage } from 'altinn-shared/types';
 
-export interface IGenericComponentProps extends Omit<ILayoutCompBase, 'type'> {
+export interface IGenericComponentProps {
   componentValidations?: IComponentValidations;
   labelSettings?: ILabelSettings;
   layout?: LayoutStyle;
   groupContainerId?: string;
 }
 
-export interface IActualGenericComponentProps<Type extends ComponentTypes>
-  extends IGenericComponentProps {
-  type: Type;
-}
+/**
+ * The IGenericComponentProps type above defines which properties a GenericComponent gets, but it always also gets the
+ * component definition from the layout file as well. Blending these two here.
+ */
+export type IActualGenericComponentProps<Type extends ComponentTypes> =
+  IGenericComponentProps & ILayoutCompBase<Type>;
 
 const useStyles = makeStyles((theme) => ({
   container: {
