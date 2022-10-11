@@ -431,7 +431,6 @@ export function getVariableTextKeysForRepeatingGroupComponent(
 }
 
 export function hasRequiredFields(layout: ILayout) {
-  // TODO: Make sure expressions have been resolved
   return layout.find((c: ILayoutComponent) => c.required);
 }
 
