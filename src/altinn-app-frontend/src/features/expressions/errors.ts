@@ -1,24 +1,24 @@
 import type { ExprContext } from 'src/features/expressions/ExprContext';
 
-export class LERuntimeError extends Error {
+export class ExprRuntimeError extends Error {
   public constructor(public context: ExprContext, message: string) {
     super(message);
   }
 }
 
-export class LookupNotFound extends LERuntimeError {
+export class LookupNotFound extends ExprRuntimeError {
   public constructor(context: ExprContext, message: string) {
     super(context, message);
   }
 }
 
-export class UnknownTargetType extends LERuntimeError {
+export class UnknownTargetType extends ExprRuntimeError {
   public constructor(context: ExprContext, type: string) {
     super(context, `Cannot cast to unknown type '${type}'`);
   }
 }
 
-export class UnknownSourceType extends LERuntimeError {
+export class UnknownSourceType extends ExprRuntimeError {
   public constructor(context: ExprContext, type: string, supported: string) {
     super(
       context,
@@ -27,13 +27,13 @@ export class UnknownSourceType extends LERuntimeError {
   }
 }
 
-export class UnexpectedType extends LERuntimeError {
+export class UnexpectedType extends ExprRuntimeError {
   public constructor(context: ExprContext, expected: string, actual: any) {
     super(context, `Expected ${expected}, got value ${JSON.stringify(actual)}`);
   }
 }
 
-export class NodeNotFound extends LERuntimeError {
+export class NodeNotFound extends ExprRuntimeError {
   public constructor(
     context: ExprContext,
     original: NodeNotFoundWithoutContext,

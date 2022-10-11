@@ -1,7 +1,7 @@
 import dot from 'dot-object';
 
 import {
-  LERuntimeError,
+  ExprRuntimeError,
   NodeNotFound,
   NodeNotFoundWithoutContext,
 } from 'src/features/expressions/errors';
@@ -102,7 +102,7 @@ export class ExprContext {
    * failed (with a message).
    */
   public trace(err: Error, options?: PrettyErrorsOptions) {
-    if (!(err instanceof LERuntimeError)) {
+    if (!(err instanceof ExprRuntimeError)) {
       console.error(err);
       return;
     }
@@ -112,7 +112,7 @@ export class ExprContext {
   }
 
   public prettyError(err: Error, options?: PrettyErrorsOptions): string {
-    if (err instanceof LERuntimeError) {
+    if (err instanceof ExprRuntimeError) {
       const prettyPrinted = prettyErrors({
         input: this.expr,
         errors: { [this.path.join('')]: [err.message] },
@@ -139,7 +139,7 @@ export class ExprContext {
     err: Error,
     options?: PrettyErrorsOptions,
   ): string[] {
-    if (err instanceof LERuntimeError) {
+    if (err instanceof ExprRuntimeError) {
       const prettyPrinted = prettyErrorsToConsole({
         input: this.expr,
         errors: { [this.path.join('')]: [err.message] },

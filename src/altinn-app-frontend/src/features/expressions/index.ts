@@ -2,7 +2,7 @@ import dot from 'dot-object';
 import type { Mutable } from 'utility-types';
 
 import {
-  LERuntimeError,
+  ExprRuntimeError,
   LookupNotFound,
   NodeNotFoundWithoutContext,
   UnexpectedType,
@@ -147,7 +147,7 @@ export function evalExpr(
   try {
     return innerEvalExpr(ctx);
   } catch (err) {
-    if (err instanceof LERuntimeError) {
+    if (err instanceof ExprRuntimeError) {
       ctx = err.context;
     } else {
       throw err;
@@ -173,7 +173,7 @@ export function argTypeAt(
   func: ExprFunction,
   argIndex: number,
 ): BaseValue | undefined {
-  const funcDef = LEFunctions[func];
+  const funcDef = ExprFunctions[func];
   const possibleArgs = funcDef.args;
   const maybeReturn = possibleArgs[argIndex];
   if (maybeReturn) {
@@ -190,7 +190,7 @@ export function argTypeAt(
 function innerEvalExpr(context: ExprContext) {
   const [func, ...args] = context.getExpr();
 
-  const returnType = LEFunctions[func].returns;
+  const returnType = ExprFunctions[func].returns;
 
   const computedArgs = args.map((arg, idx) => {
     const realIdx = idx + 1;
@@ -204,7 +204,7 @@ function innerEvalExpr(context: ExprContext) {
     return castValue(argValue, argType, argContext);
   });
 
-  const actualFunc: (...args: any) => any = LEFunctions[func].impl;
+  const actualFunc: (...args: any) => any = ExprFunctions[func].impl;
   const returnValue = actualFunc.apply(context, computedArgs);
   return castValue(returnValue, returnType, context);
 }
@@ -229,11 +229,11 @@ function castValue<T extends BaseValue>(
   toType: T,
   context: ExprContext,
 ): BaseToActual<T> {
-  if (!(toType in LETypes)) {
+  if (!(toType in ExprTypes)) {
     throw new UnknownTargetType(this, toType);
   }
 
-  const typeObj = LETypes[toType];
+  const typeObj = ExprTypes[toType];
 
   if (typeObj.nullable && isLikeNull(value)) {
     return null;
@@ -266,7 +266,7 @@ const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
 /**
  * All the functions available to execute inside expressions
  */
-export const LEFunctions = {
+export const ExprFunctions = {
   equals: defineFunc({
     impl: (arg1, arg2) => arg1 === arg2,
     args: ['string', 'string'] as const,
@@ -416,7 +416,7 @@ function asNumber(arg: string) {
  * All the types available in expressions, along with functions to cast possible values to them
  * @see castValue
  */
-export const LETypes: {
+export const ExprTypes: {
   [Type in BaseValue]: {
     nullable: boolean;
     accepts: BaseValue[];
@@ -483,14 +483,14 @@ export const LETypes: {
   },
 };
 
-export const LEDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {
+export const ExprDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {
   readOnly: false,
   required: false,
   hidden: false,
 };
 
-export const LEDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
-  ...LEDefaultsForComponent,
+export const ExprDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
+  ...ExprDefaultsForComponent,
   edit: {
     addButton: true,
     deleteButton: true,

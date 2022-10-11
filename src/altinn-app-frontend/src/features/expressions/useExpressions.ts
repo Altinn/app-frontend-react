@@ -5,8 +5,8 @@ import { FormComponentContext } from 'src/components';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import {
   evalExprInObj,
-  LEDefaultsForComponent,
-  LEDefaultsForGroup,
+  ExprDefaultsForComponent,
+  ExprDefaultsForGroup,
 } from 'src/features/expressions/index';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
@@ -87,8 +87,8 @@ export function useExpressions<T>(
 }
 
 const componentDefaults: any = {
-  ...LEDefaultsForComponent,
-  ...LEDefaultsForGroup,
+  ...ExprDefaultsForComponent,
+  ...ExprDefaultsForGroup,
 };
 
 // TODO: Implement a simple test for this

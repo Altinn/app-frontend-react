@@ -1,7 +1,7 @@
 import {
   evalExprInObj,
-  LEDefaultsForComponent,
-  LEDefaultsForGroup,
+  ExprDefaultsForComponent,
+  ExprDefaultsForGroup,
 } from 'src/features/expressions/index';
 import { getSharedTests } from 'src/features/expressions/shared';
 import {
@@ -55,8 +55,8 @@ function evalAllExpressions(layouts: Layouts) {
         input: node.item,
         node,
         defaults: {
-          ...LEDefaultsForComponent,
-          ...LEDefaultsForGroup,
+          ...ExprDefaultsForComponent,
+          ...ExprDefaultsForGroup,
         },
         dataSources: {
           formData: {},

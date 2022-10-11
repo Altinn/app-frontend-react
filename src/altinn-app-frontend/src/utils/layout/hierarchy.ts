@@ -1,7 +1,7 @@
 import {
   evalExprInObj,
-  LEDefaultsForComponent,
-  LEDefaultsForGroup,
+  ExprDefaultsForComponent,
+  ExprDefaultsForGroup,
 } from 'src/features/expressions';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
@@ -647,8 +647,8 @@ export function resolvedNodesInLayout(
       node,
       dataSources,
       defaults: {
-        ...LEDefaultsForComponent,
-        ...LEDefaultsForGroup,
+        ...ExprDefaultsForComponent,
+        ...ExprDefaultsForGroup,
       } as any,
     }) as unknown as AnyItem<'resolved'>;
 

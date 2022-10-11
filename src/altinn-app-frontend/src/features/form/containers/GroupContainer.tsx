@@ -4,7 +4,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
-import { LEDefaultsForGroup } from 'src/features/expressions';
+import { ExprDefaultsForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { RepeatingGroupAddButton } from 'src/features/form/components/RepeatingGroupAddButton';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
@@ -78,7 +78,7 @@ export function GroupContainer({
 
   const edit = useExpressions(container.edit, {
     forComponentId: id,
-    defaults: LEDefaultsForGroup.edit,
+    defaults: ExprDefaultsForGroup.edit,
   });
 
   const editIndex = useAppSelector(

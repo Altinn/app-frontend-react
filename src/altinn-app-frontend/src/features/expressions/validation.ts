@@ -2,10 +2,10 @@ import dot from 'dot-object';
 
 import {
   argTypeAt,
-  LEDefaultsForComponent,
-  LEDefaultsForGroup,
-  LEFunctions,
-  LETypes,
+  ExprDefaultsForComponent,
+  ExprDefaultsForGroup,
+  ExprFunctions,
+  ExprTypes,
 } from 'src/features/expressions';
 import {
   prettyErrors,
@@ -71,7 +71,7 @@ function validateFunctionArg(
   if (expectedType === undefined) {
     addError(ctx, [...path, `[${idx}]`], ValidationErrorMessage.ArgUnexpected);
   } else {
-    const targetType = LETypes[expectedType];
+    const targetType = ExprTypes[expectedType];
 
     if (actualType === undefined) {
       if (targetType.nullable) {
@@ -104,13 +104,13 @@ function validateFunctionArgs(
   ctx: ValidationContext,
   path: string[],
 ) {
-  const expected = LEFunctions[func].args;
+  const expected = ExprFunctions[func].args;
 
-  let minExpected = LEFunctions[func]?.minArguments;
+  let minExpected = ExprFunctions[func]?.minArguments;
   if (minExpected === undefined) {
     minExpected = expected.length;
   }
-  const canSpread = LEFunctions[func].lastArgSpreads;
+  const canSpread = ExprFunctions[func].lastArgSpreads;
 
   const maxIdx = Math.max(expected.length, actual.length);
   for (let idx = 0; idx < maxIdx; idx++) {
@@ -145,9 +145,9 @@ function validateFunction(
 
   const pathArgs = [...path.slice(0, path.length - 1)];
 
-  if (funcName in LEFunctions) {
+  if (funcName in ExprFunctions) {
     validateFunctionArgs(funcName as ExprFunction, argTypes, ctx, pathArgs);
-    return LEFunctions[funcName].returns;
+    return ExprFunctions[funcName].returns;
   }
 
   addError(ctx, path, ValidationErrorMessage.FuncNotImpl, funcName);
@@ -299,8 +299,8 @@ export function preProcessItem(
  */
 export function preProcessLayout(layout: ILayout) {
   const defaults = dot.dot({
-    ...LEDefaultsForComponent,
-    ...LEDefaultsForGroup,
+    ...ExprDefaultsForComponent,
+    ...ExprDefaultsForGroup,
   });
 
   for (const comp of layout) {

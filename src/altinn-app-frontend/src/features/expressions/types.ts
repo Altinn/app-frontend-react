@@ -1,9 +1,9 @@
 import type { PickByValue } from 'utility-types';
 
-import type { LEFunctions } from 'src/features/expressions';
+import type { ExprFunctions } from 'src/features/expressions';
 import type { ExprContext } from 'src/features/expressions/ExprContext';
 
-type Functions = typeof LEFunctions;
+type Functions = typeof ExprFunctions;
 
 /**
  * This union type includes all possible functions usable in expressions
