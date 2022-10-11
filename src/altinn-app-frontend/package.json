@@ -7,10 +7,11 @@
     "start": "cross-env NODE_ENV=development webpack-dev-server --config webpack.config.development.js --mode development --progress",
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.production.js --progress",
     "docker": "cross-env NODE_ENV=development webpack-dev-server --config webpack.config.docker.js --mode development --progress",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:watchall": "jest --watchAll",
-    "compile-ts": "tsc",
+    "test": "jest --runInBand",
+    "test:watch": "jest --runInBand --watch",
+    "test:watchall": "jest --runInBand --watchAll",
+    "tsc": "tsc --noEmit --skipLibCheck",
+    "tsc:watch": "tsc --watch --noEmit --skipLibCheck",
     "clean": "rimraf dist compiled",
     "webpack-watch": "cross-env NODE_ENV=development webpack --mode=development --config webpack.config.development.js --watch --progress",
     "styleguidist:run": "yarn dlx styleguidist server",
@@ -96,8 +97,12 @@
   },
   "jest": {
     "transform": {
-      ".(ts|tsx)": "ts-jest",
-      "\\.js$": "ts-jest"
+      "\\.(js|ts|tsx)$": [
+        "ts-jest",
+        {
+          "isolatedModules": true
+        }
+      ]
     },
     "reporters": [
       "default",
