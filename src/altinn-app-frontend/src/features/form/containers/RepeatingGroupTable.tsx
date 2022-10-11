@@ -248,13 +248,25 @@ export function RepeatingGroupTable({
     components.map((c) => (c as any).baseComponentId || c.id) ||
     [];
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
-  const componentTitles: string[] = [];
-  renderComponents.forEach((component: ILayoutComponent) => {
-    const childId = (component as any).baseComponentId || component.id;
-    if (tableHeaderComponents.includes(childId)) {
-      componentTitles.push(component.textResourceBindings?.title || '');
-    }
-  });
+
+  const tableRenderComponents: ILayoutComponent[] = renderComponents.filter(
+    (component: ILayoutComponent) => {
+      const childId = (component as any).baseComponentId || component.id;
+      return tableHeaderComponents.includes(childId);
+    },
+  );
+
+  const componentTitles: string[] = tableRenderComponents.map(
+    (component: ILayoutComponent) => {
+      if (component.textResourceBindings?.tableTitle) {
+        return component.textResourceBindings.tableTitle;
+      }
+      if (component.textResourceBindings?.title) {
+        return component.textResourceBindings.title;
+      }
+      return '';
+    },
+  );
   const showTableHeader =
     repeatingGroupIndex > -1 && !(repeatingGroupIndex == 0 && editIndex == 0);
 
@@ -540,21 +552,21 @@ export function RepeatingGroupTable({
                 ].some((component: ILayoutComponent | ILayoutGroup) => {
                   return childElementHasErrors(component, index);
                 });
-                const items: IMobileTableItem[] = [];
-                components.forEach((component) => {
-                  const childId =
-                    (component as any).baseComponentId || component.id;
-                  if (tableHeaderComponents.includes(childId)) {
-                    items.push({
+                const items: IMobileTableItem[] = tableRenderComponents.map(
+                  (component: ILayoutComponent) => {
+                    let label = '';
+                    if (component?.textResourceBindings?.tableTitle) {
+                      label = component.textResourceBindings.tableTitle;
+                    } else if (component?.textResourceBindings?.title) {
+                      label = component.textResourceBindings.title;
+                    }
+                    return {
                       key: component.id,
-                      label: getTextResource(
-                        component?.textResourceBindings?.title,
-                        textResources,
-                      ),
+                      label: getTextResource(label, textResources),
                       value: getFormDataForComponent(component, index),
-                    });
-                  }
-                });
+                    };
+                  },
+                );
                 return (
                   <React.Fragment key={index}>
                     <AltinnMobileTableItem
