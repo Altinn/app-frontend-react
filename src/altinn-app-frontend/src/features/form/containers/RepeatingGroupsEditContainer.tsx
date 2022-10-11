@@ -27,7 +27,7 @@ export interface IRepeatingGroupsEditContainer {
   layout: ILayout;
   deleting?: boolean;
   editIndex: number;
-  setEditIndex?: (index: number, save?: boolean) => void;
+  setEditIndex?: (index: number, forceValidation?: boolean) => void;
   repeatingGroupIndex: number;
   onClickRemove?: (groupIndex: number) => void;
   onClickSave: () => void;

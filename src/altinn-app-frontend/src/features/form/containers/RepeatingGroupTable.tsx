@@ -70,7 +70,7 @@ export interface IRepeatingGroupTableProps {
   layout: ILayout;
   validations: IValidations;
   editIndex: number;
-  setEditIndex: (index: number, save?: boolean) => void;
+  setEditIndex: (index: number, forceValidation?: boolean) => void;
   onClickRemove: (groupIndex: number) => void;
   setMultiPageIndex?: (index: number) => void;
   multiPageIndex?: number;
