@@ -145,7 +145,16 @@ export function evalExpr(
 ) {
   let ctx = ExprContext.withBlankPath(expr, node, dataSources);
   try {
-    return innerEvalExpr(ctx);
+    const result = innerEvalExpr(ctx);
+    if (
+      (result === null || result === undefined) &&
+      options &&
+      'defaultValue' in options
+    ) {
+      return options.defaultValue;
+    }
+
+    return result;
   } catch (err) {
     if (err instanceof ExprRuntimeError) {
       ctx = err.context;
