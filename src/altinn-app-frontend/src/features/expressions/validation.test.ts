@@ -9,7 +9,64 @@ import {
   preProcessLayout,
 } from 'src/features/expressions/validation';
 import { nodesInLayout } from 'src/utils/layout/hierarchy';
+import type { Layouts } from 'src/features/expressions/shared';
+import type {
+  ILayout,
+  ILayoutComponentOrGroup,
+  ILayoutGroup,
+} from 'src/features/form/layout';
 import type { IRepeatingGroups } from 'src/types';
+
+function isRepeatingGroup(
+  component?: ILayoutComponentOrGroup,
+): component is ILayoutGroup {
+  return component && component.type === 'Group' && component.maxCount > 1;
+}
+
+function generateRepeatingGroups(layout: ILayout) {
+  const repeatingGroups: IRepeatingGroups = {};
+  for (const component of layout) {
+    if (isRepeatingGroup(component)) {
+      repeatingGroups[component.id] = {
+        index: 1,
+        editIndex: -1,
+      };
+      for (const child of component.children) {
+        const childElm = layout.find((c) => c.id === child);
+        if (isRepeatingGroup(childElm)) {
+          repeatingGroups[`${childElm.id}-0`] = {
+            index: 1,
+            editIndex: -1,
+          };
+        }
+      }
+    }
+  }
+
+  return repeatingGroups;
+}
+
+function evalAllExpressions(layouts: Layouts) {
+  for (const page of Object.values(layouts)) {
+    const repeatingGroups = generateRepeatingGroups(page.data.layout);
+    const nodes = nodesInLayout(page.data.layout, repeatingGroups);
+    for (const node of nodes.flat(true)) {
+      evalExprInObj({
+        input: node.item,
+        node,
+        defaults: {
+          ...LEDefaultsForComponent,
+          ...LEDefaultsForGroup,
+        },
+        dataSources: {
+          formData: {},
+          applicationSettings: {} as any,
+          instanceContext: {} as any,
+        },
+      });
+    }
+  }
+}
 
 describe('Expression validation', () => {
   describe('Shared tests for invalid expressions', () => {
@@ -46,48 +103,9 @@ describe('Expression validation', () => {
 
       // Runs all the expressions inside the layout. This is done so that we have shared tests that make sure to
       // check that evaluating expressions in a component/node context works (i.e. that "triggers": ["validation"]
-      // is not interpreted as an expression).
-      for (const page of Object.values(result)) {
-        const repeatingGroups: IRepeatingGroups = {};
-        for (const component of page.data.layout) {
-          if (component.type === 'Group' && component.maxCount > 1) {
-            repeatingGroups[component.id] = {
-              index: 1,
-              editIndex: -1,
-            };
-            for (const child of component.children) {
-              const childElm = page.data.layout.find((c) => c.id === child);
-              if (
-                childElm &&
-                childElm.type === 'Group' &&
-                childElm.maxCount > 1
-              ) {
-                repeatingGroups[`${childElm.id}-0`] = {
-                  index: 1,
-                  editIndex: -1,
-                };
-              }
-            }
-          }
-        }
-
-        const nodes = nodesInLayout(page.data.layout, repeatingGroups);
-        for (const node of nodes.flat(true)) {
-          evalExprInObj({
-            input: node.item,
-            defaults: {
-              ...LEDefaultsForComponent,
-              ...LEDefaultsForGroup,
-            },
-            node,
-            dataSources: {
-              formData: {},
-              applicationSettings: {} as any,
-              instanceContext: {} as any,
-            },
-          });
-        }
-      }
+      // is not interpreted as an expression). This will throw errors if anything goes wrong, which should make the
+      // test fail.
+      evalAllExpressions(result);
 
       const warningsFound = [];
       for (const call of logSpy.mock.calls) {
