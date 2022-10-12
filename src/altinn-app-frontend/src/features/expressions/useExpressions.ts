@@ -91,7 +91,6 @@ const componentDefaults: any = {
   ...ExprDefaultsForGroup,
 };
 
-// TODO: Implement a simple test for this
 export function useExpressionsForComponent<T extends ILayoutComponentOrGroup>(
   input: T,
   options?: Omit<UseExpressionsOptions<T>, 'defaults'>,
