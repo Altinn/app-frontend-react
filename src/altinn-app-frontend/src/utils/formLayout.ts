@@ -376,12 +376,7 @@ export function createRepeatingGroupComponentsForIndex({
       id: deepCopyId,
       baseComponentId:
         componentDeepCopy.baseComponentId || componentDeepCopy.id,
-      hidden:
-        // TODO: Remove this and properly add the expression results to the global hidden fields instead. This quick-fix
-        // is only here to prove that the concept works when I'm running a demo in half an hour.
-        typeof componentDeepCopy.hidden === 'undefined'
-          ? hidden
-          : componentDeepCopy.hidden,
+      hidden,
       mapping,
     };
   });
