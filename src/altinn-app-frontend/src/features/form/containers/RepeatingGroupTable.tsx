@@ -391,7 +391,7 @@ export function RepeatingGroupTable({
                 {tableComponents.map((component: ILayoutComponent) => (
                   <TableCell
                     align='left'
-                    key={getTableTitle(component)}
+                    key={component.id}
                   >
                     {getTextResource(getTableTitle(component), textResources)}
                   </TableCell>
