@@ -441,8 +441,14 @@ export function getVariableTextKeysForRepeatingGroupComponent(
   return copyTextResourceBindings;
 }
 
-export function hasRequiredFields(layout: ILayout) {
-  return layout.find((c: ILayoutComponent) => c.required);
+/**
+ * Checks if there are required fields in this layout (or fields that potentially can be marked as required if some
+ * dynamic behaviour dictates it).
+ */
+export function hasRequiredFields(layout: ILayout): boolean {
+  return !!layout.find(
+    (c: ILayoutComponent) => c.required === true || Array.isArray(c.required),
+  );
 }
 
 /**
