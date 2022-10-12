@@ -1,4 +1,4 @@
-name: Build and run unit tests
+name: Run unit tests
 on:
   push:
     branches:
@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build
+    name: Unit tests
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -28,9 +28,9 @@ jobs:
           GITHUB_PACKAGES_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: yarn --immutable
 
-      - name: run build
+      - name: type-check
         working-directory: app-frontend/src/altinn-app-frontend
-        run: yarn build
+        run: yarn tsc
 
       - name: run eslint
         working-directory: app-frontend/src
@@ -38,7 +38,7 @@ jobs:
 
       - name: run tests
         working-directory: app-frontend/src
-        run: yarn test --coverage
+        run: yarn test --coverage --runInBand
 
       - name: SonarCloud Scan
         if: |

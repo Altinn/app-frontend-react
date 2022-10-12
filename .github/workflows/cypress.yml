@@ -1,4 +1,4 @@
-name: Cypress altinn-app-frontend Test
+name: Cypress
 
 on:
   push:
