@@ -8,8 +8,6 @@ import {
 } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 
-// TODO: Implement a test for this hook (and verify that it can resolve expressions)
-
 /**
  * React hook used for getting a memoized LayoutRootNodeCollection where you can look up components.
  *
