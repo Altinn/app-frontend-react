@@ -70,7 +70,7 @@ export interface IRepeatingGroupTableProps {
   layout: ILayout;
   validations: IValidations;
   editIndex: number;
-  setEditIndex: (index: number) => void;
+  setEditIndex: (index: number, forceValidation?: boolean) => void;
   onClickRemove: (groupIndex: number) => void;
   setMultiPageIndex?: (index: number) => void;
   multiPageIndex?: number;
@@ -210,7 +210,19 @@ function getEditButtonText(
     );
   }
 
-  return getLanguageFromKey('general.edit_alt', language);
+  return isEditing
+    ? getLanguageFromKey('general.save_and_close', language)
+    : getLanguageFromKey('general.edit_alt', language);
+}
+
+function getTableTitle(component: ILayoutComponent) {
+  if (component.textResourceBindings?.tableTitle) {
+    return component.textResourceBindings.tableTitle;
+  }
+  if (component.textResourceBindings?.title) {
+    return component.textResourceBindings.title;
+  }
+  return '';
 }
 
 export function RepeatingGroupTable({
@@ -240,21 +252,23 @@ export function RepeatingGroupTable({
 }: IRepeatingGroupTableProps): JSX.Element {
   const dispatch = useAppDispatch();
   const classes = useStyles();
-  const renderComponents: ILayoutComponent[] = JSON.parse(
+  const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
+
+  const tableHeaderComponentIds =
+    container.tableHeaders ||
+    components.map((c) => c.baseComponentId || c.id) ||
+    [];
+
+  const componentsDeepCopy: ILayoutComponent[] = JSON.parse(
     JSON.stringify(components),
   );
-  const tableHeaderComponents =
-    container.tableHeaders ||
-    components.map((c) => (c as any).baseComponentId || c.id) ||
-    [];
-  const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
-  const componentTitles: string[] = [];
-  renderComponents.forEach((component: ILayoutComponent) => {
-    const childId = (component as any).baseComponentId || component.id;
-    if (tableHeaderComponents.includes(childId)) {
-      componentTitles.push(component.textResourceBindings?.title || '');
-    }
-  });
+  const tableComponents = componentsDeepCopy.filter(
+    (component: ILayoutComponent) => {
+      const childId = component.baseComponentId || component.id;
+      return tableHeaderComponentIds.includes(childId);
+    },
+  );
+
   const showTableHeader =
     repeatingGroupIndex > -1 && !(repeatingGroupIndex == 0 && editIndex == 0);
 
@@ -347,6 +361,8 @@ export function RepeatingGroupTable({
           className={classes.editContainerInTable}
           container={container}
           editIndex={editIndex}
+          setEditIndex={setEditIndex}
+          repeatingGroupIndex={repeatingGroupIndex}
           id={id}
           language={language}
           textResources={textResources}
@@ -356,6 +372,7 @@ export function RepeatingGroupTable({
           hideSaveButton={container.edit?.saveButton === false}
           multiPageIndex={multiPageIndex}
           setMultiPageIndex={setMultiPageIndex}
+          showSaveAndNextButton={container.edit?.saveAndNextButton === true}
         />
       )
     );
@@ -376,15 +393,17 @@ export function RepeatingGroupTable({
               id={`group-${id}-table-header`}
             >
               <TableRow>
-                {componentTitles.map((title: string) => (
+                {tableComponents.map((component: ILayoutComponent) => (
                   <TableCell
                     align='left'
-                    key={title}
+                    key={component.id}
                   >
-                    {getTextResource(title, textResources)}
+                    {getTextResource(getTableTitle(component), textResources)}
                   </TableCell>
                 ))}
-                <TableCell style={{ width: '110px', padding: 0 }}>
+                <TableCell
+                  style={{ width: '150px', padding: 0, paddingRight: '10px' }}
+                >
                   <span className={classes.visuallyHidden}>
                     {getLanguageFromKey('general.edit', language)}
                   </span>
@@ -446,25 +465,22 @@ export function RepeatingGroupTable({
                           },
                         )}
                       >
-                        {components.map((component: ILayoutComponent) => {
-                          const childId =
-                            (component as any).baseComponentId || component.id;
-                          if (!tableHeaderComponents.includes(childId)) {
-                            return null;
-                          }
-                          return (
-                            <TableCell key={`${component.id}-${index}`}>
-                              <span>
-                                {index !== editIndex
-                                  ? getFormDataForComponent(component, index)
-                                  : null}
-                              </span>
-                            </TableCell>
-                          );
-                        })}
+                        {tableComponents.map((component: ILayoutComponent) => (
+                          <TableCell key={`${component.id}-${index}`}>
+                            <span>
+                              {index !== editIndex
+                                ? getFormDataForComponent(component, index)
+                                : null}
+                            </span>
+                          </TableCell>
+                        ))}
                         <TableCell
-                          align='left'
-                          style={{ width: '110px', padding: 0 }}
+                          align='right'
+                          style={{
+                            width: '150px',
+                            padding: 0,
+                            paddingRight: '10px',
+                          }}
                           key={`edit-${index}`}
                         >
                           <IconButton
@@ -512,8 +528,8 @@ export function RepeatingGroupTable({
                             style={{ padding: 0, borderBottom: 0 }}
                             colSpan={
                               hideDeleteButton
-                                ? componentTitles.length + 1
-                                : componentTitles.length + 2
+                                ? tableComponents.length + 1
+                                : tableComponents.length + 2
                             }
                           >
                             {renderRepeatingGroupsEditContainer()}
@@ -540,21 +556,16 @@ export function RepeatingGroupTable({
                 ].some((component: ILayoutComponent | ILayoutGroup) => {
                   return childElementHasErrors(component, index);
                 });
-                const items: IMobileTableItem[] = [];
-                components.forEach((component) => {
-                  const childId =
-                    (component as any).baseComponentId || component.id;
-                  if (tableHeaderComponents.includes(childId)) {
-                    items.push({
-                      key: component.id,
-                      label: getTextResource(
-                        component?.textResourceBindings?.title,
-                        textResources,
-                      ),
-                      value: getFormDataForComponent(component, index),
-                    });
-                  }
-                });
+                const items: IMobileTableItem[] = tableComponents.map(
+                  (component: ILayoutComponent) => ({
+                    key: component.id,
+                    label: getTextResource(
+                      getTableTitle(component),
+                      textResources,
+                    ),
+                    value: getFormDataForComponent(component, index),
+                  }),
+                );
                 return (
                   <React.Fragment key={index}>
                     <AltinnMobileTableItem

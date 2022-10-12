@@ -31,7 +31,7 @@ function CustomWebComponent({
     if (current) {
       const handleChange = (customEvent: CustomEvent) => {
         const { value, field } = customEvent.detail;
-        handleDataChange(value, field);
+        handleDataChange(value, { key: field });
       };
 
       current.addEventListener('dataChanged', handleChange);

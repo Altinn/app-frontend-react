@@ -538,7 +538,6 @@ export function validateComponentFormData(
   schemaValidator: ISchemaValidator,
   existingValidationErrors: IComponentValidations | undefined,
   componentIdWithIndex: string | null,
-  checkIfRequired: boolean,
 ): IValidationResult {
   const { validator, rootElementPath, schema } = schemaValidator;
   const fieldKey = Object.keys(component.dataModelBindings).find(
@@ -612,22 +611,6 @@ export function validateComponentFormData(
           validationResult.validations,
         );
       });
-  }
-  if (checkIfRequired && component.required && (!formData || formData === '')) {
-    const fieldName = getFieldName(
-      component.textResourceBindings,
-      textResources,
-      language,
-      fieldKey !== 'simpleBinding' ? fieldKey : undefined,
-    );
-    validationResult.validations[layoutId][id][fieldKey].errors.push(
-      getParsedLanguageFromKey(
-        'form_filler.error_required',
-        language,
-        [fieldName],
-        true,
-      ),
-    );
   }
 
   if (

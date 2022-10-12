@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { defaultHandleDataChangeProps } from '__mocks__/constants';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -94,10 +93,7 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
-    expect(handleChange).toHaveBeenCalledWith(
-      'sweden',
-      ...defaultHandleDataChangeProps,
-    );
+    expect(handleChange).toHaveBeenCalledWith('sweden');
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
@@ -148,10 +144,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     await new Promise((r) => setTimeout(r, 25));
 
-    expect(handleChange).toHaveBeenCalledWith(
-      'denmark',
-      ...defaultHandleDataChangeProps,
-    );
+    expect(handleChange).toHaveBeenCalledWith('denmark');
 
     mockDelayBeforeSaving(undefined);
   });
@@ -175,10 +168,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     fireEvent.blur(denmark);
 
-    expect(handleChange).toHaveBeenCalledWith(
-      'denmark',
-      ...defaultHandleDataChangeProps,
-    );
+    expect(handleChange).toHaveBeenCalledWith('denmark');
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', () => {
@@ -313,10 +303,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     await new Promise((r) => setTimeout(r, 25));
 
-    expect(handleDataChange).toHaveBeenCalledWith(
-      'Value for first',
-      ...defaultHandleDataChangeProps,
-    );
+    expect(handleDataChange).toHaveBeenCalledWith('Value for first');
 
     mockDelayBeforeSaving(undefined);
   });
