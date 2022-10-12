@@ -23,6 +23,7 @@ jobs:
           node-version: '16'
 
       - name: Get yarn cache directory path
+        working-directory: app-frontend/src
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 

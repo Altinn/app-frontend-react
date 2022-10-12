@@ -44,6 +44,7 @@ jobs:
           node-version: '16'
 
       - name: Get yarn cache directory path
+        working-directory: test/cypress
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 
@@ -53,7 +54,7 @@ jobs:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-yarn-cypress
 
       - name: Install frontend dependencies
         env:
@@ -110,6 +111,7 @@ jobs:
           node-version: '16'
 
       - name: Get yarn cache directory path
+        working-directory: test/cypress
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 
@@ -119,7 +121,7 @@ jobs:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-yarn-cypress
 
       - name: Install frontend dependencies
         env:
