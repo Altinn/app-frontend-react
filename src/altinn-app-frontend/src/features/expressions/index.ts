@@ -11,6 +11,7 @@ import {
 } from 'src/features/expressions/errors';
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import {
+  addError,
   asExpression,
   canBeExpression,
 } from 'src/features/expressions/validation';
@@ -200,6 +201,9 @@ function innerEvalExpr(context: ExprContext) {
   const [func, ...args] = context.getExpr();
 
   const returnType = ExprFunctions[func].returns;
+  const neverCastIndexes = new Set(
+    ExprFunctions[func].neverCastArguments || [],
+  );
 
   const computedArgs = args.map((arg, idx) => {
     const realIdx = idx + 1;
@@ -209,12 +213,21 @@ function innerEvalExpr(context: ExprContext) {
     ]);
 
     const argValue = Array.isArray(arg) ? innerEvalExpr(argContext) : arg;
+    if (neverCastIndexes.has(idx)) {
+      return argValue;
+    }
+
     const argType = argTypeAt(func, idx);
     return castValue(argValue, argType, argContext);
   });
 
   const actualFunc: (...args: any) => any = ExprFunctions[func].impl;
   const returnValue = actualFunc.apply(context, computedArgs);
+
+  if (ExprFunctions[func].castReturnValue === false) {
+    return returnValue;
+  }
+
   return castValue(returnValue, returnType, context);
 }
 
@@ -348,6 +361,38 @@ export const ExprFunctions = {
     args: ['boolean'],
     returns: 'boolean',
     lastArgSpreads: true,
+  }),
+  if: defineFunc({
+    impl: function (...args) {
+      const [condition, result] = args;
+      if (condition === 'true') {
+        return result;
+      }
+
+      return args.length === 4 ? args[3] : null;
+    },
+    validator: ({ rawArgs, ctx, path }) => {
+      if (rawArgs.length === 2) {
+        return;
+      }
+      if (rawArgs.length > 2 && rawArgs[2] !== 'else') {
+        addError(ctx, [...path, '[2]'], 'Expected third argument to be "else"');
+      }
+      if (rawArgs.length === 4) {
+        return;
+      }
+      addError(
+        ctx,
+        path,
+        'Expected either 2 arguments (if) or 4 (if + else), got %s',
+        `${rawArgs.length}`,
+      );
+    },
+    args: ['string', 'string'],
+    returns: 'string',
+    lastArgSpreads: true,
+    neverCastArguments: [1, 3],
+    castReturnValue: false,
   }),
   instanceContext: defineFunc({
     impl: function (key) {
@@ -504,5 +549,6 @@ export const ExprDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
     addButton: true,
     deleteButton: true,
     saveButton: true,
+    saveAndNextButton: false,
   },
 };

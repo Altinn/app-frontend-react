@@ -15,6 +15,7 @@ import type {
   BaseValue,
   Expression,
   ExprFunction,
+  FuncDef,
 } from 'src/features/expressions/types';
 import type { ILayout } from 'src/features/form/layout';
 
@@ -28,7 +29,7 @@ enum ValidationErrorMessage {
   FuncNotString = 'Function name in expression should be string',
 }
 
-interface ValidationContext {
+export interface ValidationContext {
   errors: {
     [key: string]: string[];
   };
@@ -43,10 +44,10 @@ const validBasicTypes: { [key: string]: BaseValue } = {
 
 export class InvalidExpression extends Error {}
 
-function addError(
+export function addError(
   ctx: ValidationContext,
   path: string[],
-  message: ValidationErrorMessage,
+  message: ValidationErrorMessage | string,
   ...params: string[]
 ) {
   let paramIdx = 0;
@@ -134,6 +135,7 @@ function validateFunctionArgs(
 
 function validateFunction(
   funcName: any,
+  rawArgs: any[],
   argTypes: (BaseValue | undefined)[],
   ctx: ValidationContext,
   path: string[],
@@ -147,7 +149,13 @@ function validateFunction(
 
   if (funcName in ExprFunctions) {
     validateFunctionArgs(funcName as ExprFunction, argTypes, ctx, pathArgs);
-    return ExprFunctions[funcName].returns;
+
+    const def = ExprFunctions[funcName] as FuncDef<any, any>;
+    if (def.validator) {
+      def.validator({ rawArgs, argTypes, ctx, path: pathArgs });
+    }
+
+    return def.returns;
   }
 
   addError(ctx, path, ValidationErrorMessage.FuncNotImpl, funcName);
@@ -172,7 +180,7 @@ function validateExpr(expr: any[], ctx: ValidationContext, path: string[]) {
     args.push(validateRecursively(rawArgs[argIdx], ctx, [...path, `[${idx}]`]));
   }
 
-  return validateFunction(func, args, ctx, [...path, '[0]']);
+  return validateFunction(func, rawArgs, args, ctx, [...path, '[0]']);
 }
 
 function validateRecursively(

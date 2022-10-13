@@ -2,6 +2,7 @@ import type { PickByValue } from 'utility-types';
 
 import type { ExprFunctions } from 'src/features/expressions';
 import type { ExprContext } from 'src/features/expressions/ExprContext';
+import type { ValidationContext } from 'src/features/expressions/validation';
 
 type Functions = typeof ExprFunctions;
 
@@ -52,6 +53,23 @@ export interface FuncDef<
   // all the rest of the arguments should be cast to the last type (and that the function allows any
   // amount  of parameters).
   lastArgSpreads?: true;
+
+  // Optional: Validator function which runs when the function is validated. This allows a function to add its own
+  // validation requirements. Use the addError() function if any errors are found.
+  validator?: (options: {
+    rawArgs: any[];
+    argTypes: (BaseValue | undefined)[];
+    ctx: ValidationContext;
+    path: string[];
+  }) => void;
+
+  // Optional: Allows a function to specify that certain arguments (at the given indexes) should never be cast on the
+  // way in.
+  neverCastArguments?: number[];
+
+  // Optional: Cast return value to the one specified in the 'returns' property. Setting to false allows for functions
+  // passing through their arguments without knowing (or caring) about their specific types. Defaults to true.
+  castReturnValue?: boolean;
 }
 
 type BaseValueArgsFor<F extends ExprFunction> = F extends ExprFunction
