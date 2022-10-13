@@ -12,7 +12,7 @@ describe('UI Components', () => {
   beforeEach(() => {
     cy.intercept('**/active', []).as('noActiveInstances');
     cy.intercept('POST', `**/instances?instanceOwnerPartyId*`).as('createInstace');
-    cy.startAppInstance(Cypress.env('multiData2Stage'));
+    cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.header).should('contain.text', texts.startingSoon);
     cy.wait('@createInstace');
   });
@@ -21,7 +21,7 @@ describe('UI Components', () => {
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
     cy.get(appFrontend.loadingAnimation).should('be.visible');
     cy.get(appFrontend.closeButton).should('be.visible');
-    cy.get(appFrontend.header).should('contain.text', Cypress.env('multiData2Stage')).and('contain.text', texts.ttd);
+    cy.get(appFrontend.header).should('contain.text', appFrontend.apps.frontendTest).and('contain.text', texts.ttd);
     cy.get(appFrontend.message.logo)
       .should('be.visible')
       .then((image) => {

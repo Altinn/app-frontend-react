@@ -1,5 +1,16 @@
 export default class AppFrontend {
   constructor() {
+    this.apps = {
+      /** @see https://dev.altinn.studio/repos/ttd/frontend-test */
+      frontendTest: 'frontend-test',
+
+      /** @see https://dev.altinn.studio/repos/ttd/stateless-app */
+      stateless: 'stateless-app',
+
+      /** @see https://dev.altinn.studio/repos/ttd/anonymous-stateless-app */
+      anonymousStateless: 'anonymous-stateless-app',
+    };
+
     //Start app instance page
     this.userId = '#UserId';
     this.appSelection = '#AppPathSelection';
