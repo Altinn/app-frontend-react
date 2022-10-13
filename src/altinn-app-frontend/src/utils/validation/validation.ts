@@ -98,18 +98,15 @@ export function createValidator(schema: any): ISchemaValidator {
     code: { es5: true },
   };
   let ajv: AjvCore.default;
-  let rootElementPath;
+  const rootElementPath = getRootElementPath(schema);
   if (schema.$schema?.includes('2020-12')) {
     // we have to use a different ajv-instance for 2020-12 draft
     // here we actually validate against the root json-schema object
     ajv = new Ajv2020(ajvOptions);
-    rootElementPath = '';
   } else {
     // leave existing schemas untouched. Here we actually validate against a sub schema with the name of the model
     // for instance "skjema"
     ajv = new Ajv(ajvOptions);
-    const rootKey: string = Object.keys(schema.properties)[0];
-    rootElementPath = schema.properties[rootKey].$ref;
   }
   addFormats(ajv);
   ajv.addFormat('year', /^\d{4}$/);
@@ -121,6 +118,17 @@ export function createValidator(schema: any): ISchemaValidator {
     rootElementPath,
   };
 }
+
+const getRootElementPath = (schema: any) => {
+  if (schema.info?.meldingsnavn && schema.properties) {
+    // SERES workaround
+    return schema.properties[schema.info.meldingsnavn]?.$ref || '';
+  } else if (schema.properties) {
+    const rootKey: string = Object.keys(schema.properties)[0];
+    return schema.properties[rootKey].$ref;
+  }
+  return '';
+};
 
 export const errorMessageKeys = {
   minimum: {
