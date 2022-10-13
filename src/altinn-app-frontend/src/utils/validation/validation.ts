@@ -119,7 +119,7 @@ export function createValidator(schema: any): ISchemaValidator {
   };
 }
 
-const getRootElementPath = (schema: any) => {
+export const getRootElementPath = (schema: any) => {
   if (schema.info?.meldingsnavn && schema.properties) {
     // SERES workaround
     return schema.properties[schema.info.meldingsnavn]?.$ref || '';
