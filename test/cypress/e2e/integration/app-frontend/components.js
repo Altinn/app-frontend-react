@@ -38,11 +38,7 @@ describe('UI Components', () => {
   });
 
   it('is possible to upload and delete attachments', () => {
-    cy.intercept('**/api/layoutsettings/changename').as('getLayoutChangeName');
-    cy.get(appFrontend.sendinButton).then((button) => {
-      cy.get(button).should('be.visible').click();
-      cy.wait('@getLayoutChangeName');
-    });
+    cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
@@ -54,12 +50,8 @@ describe('UI Components', () => {
   });
 
   it('is possible to upload attachments with tags', () => {
-    cy.intercept('**/api/layoutsettings/changename').as('getLayoutChangeName');
     cy.intercept('POST', '**/tags').as('saveTags');
-    cy.get(appFrontend.sendinButton).then((button) => {
-      cy.get(button).should('be.visible').click();
-      cy.wait('@getLayoutChangeName');
-    });
+    cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('be.visible').select('address');
@@ -75,11 +67,7 @@ describe('UI Components', () => {
   });
 
   it('is possible to navigate between pages using navigation bar', () => {
-    cy.intercept('**/api/layoutsettings/changename').as('getLayoutChangeName');
-    cy.get(appFrontend.sendinButton).then((button) => {
-      cy.get(button).should('be.visible').click();
-      cy.wait('@getLayoutChangeName');
-    });
+    cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.navMenu)
       .should('be.visible')
       .find('li > button')
@@ -106,11 +94,7 @@ describe('UI Components', () => {
   });
 
   it('address component fetches post place from zip code', () => {
-    cy.intercept('**/api/layoutsettings/changename').as('getLayoutChangeName');
-    cy.get(appFrontend.sendinButton).then((button) => {
-      cy.get(button).should('be.visible').click();
-      cy.wait('@getLayoutChangeName');
-    });
+    cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.changeOfName.address.street_name).should('be.visible').type('Sesame Street 1A').blur();
     cy.get(appFrontend.changeOfName.address.zip_code).should('be.visible').type('0174').blur();
     cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'OSLO');
