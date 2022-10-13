@@ -220,7 +220,6 @@ export interface LayoutObject<
    */
   children(): Child[];
   children(matching: (item: Item) => boolean): Child | undefined;
-  children(matching?: (item: Item) => boolean): any;
 
   /**
    * This returns all the child nodes (including duplicate components for repeating groups) as a flat list of
