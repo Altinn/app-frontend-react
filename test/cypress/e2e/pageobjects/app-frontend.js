@@ -169,7 +169,7 @@ export default class AppFrontend {
       delete: 'button[class*="makeStyles-deleteButton"]',
       saveSubGroup: 'button[id*="add-button-grp-subGroup"]',
       saveMainGroup: '#add-button-grp-mainGroup',
-      editContainer: '[class^="makeStyles-editContainer"]',
+      editContainer: '[data-testid=group-edit-container]',
       sendersName: '#sendersName',
       summaryText: '#send-in-text',
       next: 'button[aria-label="Neste"]',
