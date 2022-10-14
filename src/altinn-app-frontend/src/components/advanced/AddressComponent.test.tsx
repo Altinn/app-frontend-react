@@ -3,18 +3,12 @@ import { Provider } from 'react-redux';
 
 import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import mockAxios from 'jest-mock-axios';
 import configureStore from 'redux-mock-store';
-import { handlers, setupServer } from 'testUtils';
 
 import { AddressComponent } from 'src/components/advanced/AddressComponent';
 import type { IComponentProps } from 'src/components';
 import type { IAddressComponentProps } from 'src/components/advanced/AddressComponent';
-
-const server = setupServer(...handlers);
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
 
 const render = (props: Partial<IAddressComponentProps> = {}) => {
   const createStore = configureStore();
@@ -186,12 +180,9 @@ describe('AddressComponent', () => {
     await userEvent.type(address, 'Slottsplassen 1');
     fireEvent.blur(address);
 
-    expect(handleDataChange).toHaveBeenCalledWith(
-      'Slottsplassen 1',
-      'address',
-      false,
-      false,
-    );
+    expect(handleDataChange).toHaveBeenCalledWith('Slottsplassen 1', {
+      key: 'address',
+    });
   });
 
   it('should not fire change event when readonly', async () => {
@@ -248,14 +239,19 @@ describe('AddressComponent', () => {
       handleDataChange,
     });
 
+    mockAxios.mockResponseFor(
+      { url: 'https://api.bring.com/shippingguide/api/postalCode.json' },
+      {
+        data: {
+          valid: true,
+          result: 'OSLO',
+        },
+      },
+    );
+
     await screen.findByDisplayValue('OSLO');
 
-    expect(handleDataChange).toHaveBeenCalledWith(
-      'OSLO',
-      'postPlace',
-      false,
-      false,
-    );
+    expect(handleDataChange).toHaveBeenCalledWith('OSLO', { key: 'postPlace' });
   });
 
   it('should call change event when zipcode is valid', async () => {
@@ -277,12 +273,7 @@ describe('AddressComponent', () => {
     await userEvent.type(field, '0001');
     fireEvent.blur(field);
 
-    expect(handleDataChange).toHaveBeenCalledWith(
-      '0001',
-      'zipCode',
-      false,
-      false,
-    );
+    expect(handleDataChange).toHaveBeenCalledWith('0001', { key: 'zipCode' });
   });
 
   it('should call handleDataChange for post place when zip code is cleared', async () => {
@@ -303,13 +294,8 @@ describe('AddressComponent', () => {
     await userEvent.clear(field);
     fireEvent.blur(field);
 
-    expect(handleDataChange).toHaveBeenCalledWith('', 'zipCode', false, false);
-    expect(handleDataChange).toHaveBeenCalledWith(
-      '',
-      'postPlace',
-      false,
-      false,
-    );
+    expect(handleDataChange).toHaveBeenCalledWith('', { key: 'zipCode' });
+    expect(handleDataChange).toHaveBeenCalledWith('', { key: 'postPlace' });
   });
 
   it('should display error message coming from props', () => {
