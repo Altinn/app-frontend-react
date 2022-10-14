@@ -3,6 +3,8 @@ import * as complexSchema from '__mocks__/json-schema/complex.json';
 import * as oneOfOnRootSchema from '__mocks__/json-schema/one-of-on-root.json';
 import * as refOnRootSchema from '__mocks__/json-schema/ref-on-root.json';
 import { getMockValidationState } from '__mocks__/validationStateMock';
+import Ajv from 'ajv';
+import Ajv2020 from 'ajv/dist/2020';
 
 import { Severity } from 'src/types';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
@@ -539,6 +541,43 @@ describe('utils > validation', () => {
 
       oldConsoleWarn(...args);
     };
+  });
+
+  describe('createValidator', () => {
+    const schema = {
+      id: 'schema.json',
+      type: 'object',
+      properties: {
+        test: {
+          $ref: '#/$defs/Test',
+        },
+      },
+      $defs: {
+        Test: {
+          type: 'string',
+        },
+      },
+    };
+
+    describe('when receiving a 2020-12 draft schema', () => {
+      it('should create ajv2020 validator instance', () => {
+        const result = validation.createValidator({
+          $schema: 'https://json-schema.org/draft/2020-12/schema',
+          ...schema,
+        });
+        expect(result.validator).toBeInstanceOf(Ajv2020);
+      });
+    });
+
+    describe('when receiving anything but 2020-12 draft schema', () => {
+      it('should create ajv validator instance', () => {
+        const result = validation.createValidator({
+          $schema: 'http://json-schema.org/schema#',
+          ...schema,
+        });
+        expect(result.validator).toBeInstanceOf(Ajv);
+      });
+    });
   });
 
   describe('getRootElementPath', () => {
