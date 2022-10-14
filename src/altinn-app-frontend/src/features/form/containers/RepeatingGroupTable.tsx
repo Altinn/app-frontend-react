@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 
 import {
-  Button,
-  ButtonVariant,
-  PanelVariant,
-  PopoverPanel,
-} from '@altinn/altinn-design-system';
-import {
   createTheme,
   Grid,
   IconButton,
@@ -18,6 +12,7 @@ import {
 import cn from 'classnames';
 
 import { useAppDispatch } from 'src/common/hooks';
+import { DeleteWarningPopover } from 'src/features/form/components/DeleteWarningPopover';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { Triggers } from 'src/types';
@@ -195,15 +190,6 @@ const useStyles = makeStyles({
     clip: 'rect(1px 1px 1px 1px)',
     clipPath: 'inset(50%)',
     whiteSpace: 'nowrap',
-  },
-  popoverButtonContainer: {
-    display: 'flex',
-    '& button': {
-      margin: '1rem 1rem 0 0',
-      '&focus': {
-        outline: 'unset',
-      },
-    },
   },
   popoverCurrentCell: {
     zIndex: 1,
@@ -531,13 +517,7 @@ export function RepeatingGroupTable({
                                 index == popoverPanelIndex,
                             })}
                           >
-                            <PopoverPanel
-                              variant={PanelVariant.Warning}
-                              side={'left'}
-                              open={popoverPanelIndex == index && popoverOpen}
-                              onOpenChange={setPopoverOpen}
-                              showIcon={false}
-                              forceMobileLayout={true}
+                            <DeleteWarningPopover
                               trigger={
                                 <IconButton
                                   className={classes.deleteButton}
@@ -549,36 +529,23 @@ export function RepeatingGroupTable({
                                   {deleteButtonText}
                                 </IconButton>
                               }
-                            >
-                              <div>
-                                {getLanguageFromKey(
-                                  'group.row_popover_delete_message',
-                                  language,
-                                )}
-                              </div>
-                              <div
-                                className={cn(classes.popoverButtonContainer)}
-                              >
-                                <Button
-                                  variant={ButtonVariant.Cancel}
-                                  onClick={handlePopoverDeleteClick(index)}
-                                >
-                                  {getLanguageFromKey(
-                                    'group.row_popover_delete_button_confirm',
-                                    language,
-                                  )}
-                                </Button>
-                                <Button
-                                  variant={ButtonVariant.Secondary}
-                                  onClick={() => onOpenChange(index)}
-                                >
-                                  {getLanguageFromKey(
-                                    'general.cancel',
-                                    language,
-                                  )}
-                                </Button>
-                              </div>
-                            </PopoverPanel>
+                              side='left'
+                              language={language}
+                              deleteButtonText={getLanguageFromKey(
+                                'group.row_popover_delete_button_confirm',
+                                language,
+                              )}
+                              messageText={getLanguageFromKey(
+                                'group.row_popover_delete_message',
+                                language,
+                              )}
+                              open={popoverPanelIndex == index && popoverOpen}
+                              setPopoverOpen={setPopoverOpen}
+                              onCancelClick={() => onOpenChange(index)}
+                              onPopoverDeleteClick={handlePopoverDeleteClick(
+                                index,
+                              )}
+                            />
                           </TableCell>
                         )}
                       </AltinnTableRow>

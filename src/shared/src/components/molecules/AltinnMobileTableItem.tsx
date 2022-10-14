@@ -13,14 +13,9 @@ import {
 import React from 'react';
 import theme from '../../theme/altinnStudioTheme';
 import cn from 'classnames';
-import {
-  ButtonVariant,
-  PanelVariant,
-  PopoverPanel,
-  Button,
-} from '@altinn/altinn-design-system';
 import { getLanguageFromKey } from '../../utils/language';
 import type { ILanguage } from '../../types';
+import { DeleteWarningPopover } from 'src/features/form/components/DeleteWarningPopover';
 
 export interface IMobileTableItem {
   key: React.Key;
@@ -178,15 +173,6 @@ const useStyles = makeStyles({
   aboveEditingRow: {
     borderBottom: 0,
   },
-  popoverButtonContainer: {
-    display: 'flex',
-    '& button': {
-      margin: '1rem 1rem 0 0',
-      '&focus': {
-        outline: 'unset',
-      },
-    },
-  },
   popoverCurrentCell: {
     zIndex: 1,
     position: 'relative',
@@ -281,13 +267,7 @@ export default function AltinnMobileTableItem({
                         tableItemIndex == popoverPanelIndex,
                     })}
                   >
-                    <PopoverPanel
-                      variant={PanelVariant.Warning}
-                      side={'bottom'}
-                      open={popoverPanelIndex == tableItemIndex && popoverOpen}
-                      onOpenChange={setPopoverOpen}
-                      showIcon={false}
-                      forceMobileLayout={true}
+                    <DeleteWarningPopover
                       trigger={
                         <IconButton
                           className={classes.deleteButton}
@@ -299,36 +279,25 @@ export default function AltinnMobileTableItem({
                           {!mobileViewSmall && deleteButtonText}
                         </IconButton>
                       }
-                    >
-                      <div>
-                        {getLanguageFromKey(
-                          'group.row_popover_delete_message',
-                          language,
-                        )}
-                      </div>
-                      <div className={cn(classes.popoverButtonContainer)}>
-                        <Button
-                          variant={ButtonVariant.Cancel}
-                          onClick={() =>
-                            onPopoverDeleteClick &&
-                            onPopoverDeleteClick(tableItemIndex)
-                          }
-                        >
-                          {getLanguageFromKey(
-                            'group.row_popover_delete_button_confirm',
-                            language,
-                          )}
-                        </Button>
-                        <Button
-                          variant={ButtonVariant.Secondary}
-                          onClick={() =>
-                            onOpenChange && onOpenChange(tableItemIndex)
-                          }
-                        >
-                          {getLanguageFromKey('general.cancel', language)}
-                        </Button>
-                      </div>
-                    </PopoverPanel>
+                      language={language}
+                      deleteButtonText={getLanguageFromKey(
+                        'group.row_popover_delete_button_confirm',
+                        language,
+                      )}
+                      messageText={getLanguageFromKey(
+                        'group.row_popover_delete_message',
+                        language,
+                      )}
+                      open={popoverPanelIndex == tableItemIndex && popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      onCancelClick={() =>
+                        onOpenChange && onOpenChange(tableItemIndex)
+                      }
+                      onPopoverDeleteClick={
+                        onPopoverDeleteClick &&
+                        onPopoverDeleteClick(tableItemIndex)
+                      }
+                    />
                   </TableCell>
                 )}
               </TableRow>
