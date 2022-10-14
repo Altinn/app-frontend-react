@@ -627,6 +627,31 @@ describe('utils > validation', () => {
         expect(result).toEqual('#/definitions/Test');
       });
     });
+
+    describe('when rootNode property is set', () => {
+      const schema = {
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        id: 'schema.json',
+        type: 'object',
+        info: {
+          rootNode: '#/$defs/Test',
+        },
+        oneOf: [
+          {
+            $ref: '#/$defs/Test',
+          },
+        ],
+        $defs: {
+          Test: {
+            type: 'string',
+          },
+        },
+      };
+      it('should return the value set in root node', () => {
+        const result = validation.getRootElementPath(schema);
+        expect(result).toEqual('#/$defs/Test');
+      });
+    });
   });
 
   describe('getErrorCount', () => {

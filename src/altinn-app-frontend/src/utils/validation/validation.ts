@@ -120,10 +120,14 @@ export function createValidator(schema: any): ISchemaValidator {
 }
 
 export const getRootElementPath = (schema: any) => {
-  if (schema.info?.meldingsnavn && schema.properties) {
+  if (![null, undefined].includes(schema.info?.rootNode)) {
+    // If rootNode is defined in the schema
+    return schema.info.rootNode;
+  } else if (schema.info?.meldingsnavn && schema.properties) {
     // SERES workaround
     return schema.properties[schema.info.meldingsnavn]?.$ref || '';
   } else if (schema.properties) {
+    // Expect first property to contain $ref to schema
     const rootKey: string = Object.keys(schema.properties)[0];
     return schema.properties[rootKey].$ref;
   }
