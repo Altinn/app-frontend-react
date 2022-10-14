@@ -7,9 +7,8 @@ import {
   PopoverPanel,
 } from '@altinn/altinn-design-system';
 import { makeStyles } from '@material-ui/core';
-
-import { getLanguageFromKey } from 'altinn-shared/utils';
-import type { ILanguage } from 'altinn-shared/types';
+import type { ILanguage } from '../../types';
+import { getLanguageFromKey } from '../../utils/language';
 
 const useStyles = makeStyles({
   popoverButtonContainer: {

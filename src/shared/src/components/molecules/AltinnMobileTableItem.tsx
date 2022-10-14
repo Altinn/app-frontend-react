@@ -15,7 +15,7 @@ import theme from '../../theme/altinnStudioTheme';
 import cn from 'classnames';
 import { getLanguageFromKey } from '../../utils/language';
 import type { ILanguage } from '../../types';
-import { DeleteWarningPopover } from 'src/features/form/components/DeleteWarningPopover';
+import { DeleteWarningPopover } from './DeleteWarningPopover';
 
 export interface IMobileTableItem {
   key: React.Key;

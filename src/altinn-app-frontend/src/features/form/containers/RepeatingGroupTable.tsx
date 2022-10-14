@@ -12,7 +12,6 @@ import {
 import cn from 'classnames';
 
 import { useAppDispatch } from 'src/common/hooks';
-import { DeleteWarningPopover } from 'src/features/form/components/DeleteWarningPopover';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { Triggers } from 'src/types';
@@ -49,6 +48,7 @@ import {
   AltinnTableHeader,
   AltinnTableRow,
 } from 'altinn-shared/components';
+import { DeleteWarningPopover } from 'altinn-shared/components/molecules/DeleteWarningPopover';
 import altinnAppTheme from 'altinn-shared/theme/altinnAppTheme';
 import { getLanguageFromKey, getTextResourceByKey } from 'altinn-shared/utils';
 import type { IMobileTableItem } from 'altinn-shared/components/molecules/AltinnMobileTableItem';
