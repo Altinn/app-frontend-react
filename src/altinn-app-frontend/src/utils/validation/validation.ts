@@ -788,7 +788,7 @@ export function getSchemaPartOldGenerator(
   // for old generators we can have a ref to a definition that is placed outside of the subSchema we validate against.
   // if we are looking for #/definitons/x we search in main schema
 
-  if (schemaPath.startsWith('#/definitions/')) {
+  if (/^#\/(definitions|\$defs)\//.test(schemaPath)) {
     return getSchemaPart(schemaPath, mainSchema);
   }
   // all other in sub schema
