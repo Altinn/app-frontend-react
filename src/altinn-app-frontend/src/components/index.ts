@@ -15,6 +15,7 @@ import { HeaderComponent } from 'src/components/base/HeaderComponent';
 import { ImageComponent } from 'src/components/base/ImageComponent';
 import { InputComponent } from 'src/components/base/InputComponent';
 import { LikertComponent } from 'src/components/base/LikertComponent';
+import { ListComponent } from 'src/components/base/ListComponent';
 import { MapComponent } from 'src/components/base/MapComponent';
 import { MultipleSelect } from 'src/components/base/MultipleSelect';
 import { NavigationBar as NavigationBarComponent } from 'src/components/base/NavigationBar';
@@ -60,6 +61,7 @@ const components: {
   PrintButton: PrintButtonComponent,
   RadioButtons: RadioButtonContainerComponent,
   TextArea: TextAreaComponent,
+  List: ListComponent,
 };
 
 export interface IComponentProps extends IGenericComponentProps {

@@ -115,6 +115,7 @@ export interface ILayoutCompDatePicker extends ILayoutCompBase<'DatePicker'> {
 
 export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> &
   ISelectionComponent;
+export type ILayoutCompList = ILayoutCompBase<'List'>;
 
 export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect'> &
   ISelectionComponent;
@@ -233,6 +234,7 @@ interface Map {
   Input: ILayoutCompInput;
   InstantiationButton: ILayoutCompInstantiationButton;
   Likert: ILayoutCompLikert;
+  List: ILayoutCompList;
   Map: ILayoutCompMap;
   MultipleSelect: ILayoutCompMultipleSelect;
   NavigationBar: ILayoutCompNavBar;
