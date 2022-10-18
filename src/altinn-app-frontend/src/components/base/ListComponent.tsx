@@ -9,10 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from '@altinn/altinn-design-system';
+import type { ChangeProps } from '@altinn/altinn-design-system';
 
 import type { IComponentProps } from '..';
 
+import { useHasChangedIgnoreUndefined } from 'src/common/hooks';
 import { useGetOptions } from 'src/components/hooks';
+import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import type { ILayoutCompList } from 'src/features/form/layout';
 import type { IListOption, IMapping, IOptionSource } from 'src/types';
 
@@ -34,6 +37,8 @@ export const ListComponent = ({
   optionsId,
   mapping,
   source,
+  formData,
+  handleDataChange,
 }: ILayoutCompProps) => {
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions =
@@ -41,8 +46,32 @@ export const ListComponent = ({
       label: option.label,
       value: option.value,
     })) || [];
+
+  const optionsHasChanged = useHasChangedIgnoreUndefined(options);
+
+  const { value, setValue } = useDelayedSavedState(
+    handleDataChange,
+    formData?.simpleBinding,
+    200,
+  );
+
+  React.useEffect(() => {
+    if (optionsHasChanged && formData.simpleBinding) {
+      // New options have been loaded, we have to reset form data.
+      // We also skip any required validations
+      setValue(undefined, true);
+    }
+  }, [optionsHasChanged, formData, setValue]);
+
+  const handleChange = ({ selectedValue }: ChangeProps) => {
+    setValue(selectedValue);
+  };
   return (
-    <Table>
+    <Table
+      selectRows={true}
+      onChange={handleChange}
+      selectedValue={value}
+    >
       <TableHeader>
         <TableRow>
           {tableHeaders.map((header) => (
@@ -53,7 +82,10 @@ export const ListComponent = ({
       <TableBody>
         {calculatedOptions?.map((option: IListOption) => {
           return (
-            <TableRow key={option.value}>
+            <TableRow
+              key={option.value}
+              value={option.value}
+            >
               {option.label.map((label) => {
                 return <TableCell key={label}>{label}</TableCell>;
               })}
