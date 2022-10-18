@@ -25,6 +25,30 @@ import type { ILanguage } from 'altinn-shared/types';
 
 const user = userEvent.setup();
 
+const getLayout = (group: ILayoutGroup, components: ILayoutComponent[]) => {
+  const layout: ILayoutState = {
+    layouts: {
+      FormLayout: [].concat(group).concat(components),
+    },
+    uiConfig: {
+      hiddenFields: [],
+      repeatingGroups: {
+        'mock-container-id': {
+          index: 3,
+        },
+      },
+      autoSave: false,
+      currentView: 'FormLayout',
+      focus: undefined,
+      layoutOrder: ['FormLayout'],
+    },
+    error: null,
+    layoutsets: null,
+  };
+
+  return layout;
+};
+
 describe('RepeatingGroupTable', () => {
   const group: ILayoutGroup = getFormLayoutGroupMock({});
   const language: ILanguage = {
@@ -98,25 +122,7 @@ describe('RepeatingGroupTable', () => {
       options: options,
     } as ISelectionComponentProps,
   ];
-  const layout: ILayoutState = {
-    layouts: {
-      FormLayout: [].concat(group).concat(components),
-    },
-    uiConfig: {
-      hiddenFields: [],
-      repeatingGroups: {
-        'mock-container-id': {
-          index: 3,
-        },
-      },
-      autoSave: false,
-      currentView: 'FormLayout',
-      focus: undefined,
-      layoutOrder: ['FormLayout'],
-    },
-    error: null,
-    layoutsets: null,
-  };
+  const layout: ILayoutState = getLayout(group, components);
   const currentView = 'FormLayout';
   const data: IFormData = {
     'some-group[1].checkboxBinding': 'option.value',
@@ -150,30 +156,12 @@ describe('RepeatingGroupTable', () => {
     expect(tableHeader).not.toBeInTheDocument();
   });
 
-  describe('PopOver warning', () => {
+  describe('popOver warning', () => {
     beforeEach(() => {
       const group: ILayoutGroup = getFormLayoutGroupMock({
         edit: { alertOnDelete: true },
       });
-      const layout: ILayoutState = {
-        layouts: {
-          FormLayout: [].concat(group).concat(components),
-        },
-        uiConfig: {
-          hiddenFields: [],
-          repeatingGroups: {
-            'mock-container-id': {
-              index: 3,
-            },
-          },
-          autoSave: false,
-          currentView: 'FormLayout',
-          focus: undefined,
-          layoutOrder: ['FormLayout'],
-        },
-        error: null,
-        layoutsets: null,
-      };
+      const layout: ILayoutState = getLayout(group, components);
       const repeatingGroupDeepCopyComponents: Array<
         Array<ILayoutComponent | ILayoutGroup>
       > = createRepeatingGroupComponents(
@@ -183,8 +171,6 @@ describe('RepeatingGroupTable', () => {
         textResources,
       );
 
-      const groupWithAlert = group;
-      groupWithAlert.edit = { alertOnDelete: true };
       render({
         container: group,
         repeatingGroupDeepCopyComponents: repeatingGroupDeepCopyComponents,
