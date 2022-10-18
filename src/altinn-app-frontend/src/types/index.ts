@@ -76,6 +76,11 @@ export interface IOption {
   value: any;
 }
 
+export interface IListOption {
+  label: string[];
+  value: any;
+}
+
 export interface IOptions {
   [key: string]: IOptionData;
 }
