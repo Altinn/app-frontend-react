@@ -49,18 +49,11 @@ const useStyles = makeStyles({
       width: 'calc(100% + 154px)',
     },
     '& &': {
-      width: 'auto',
+      width: '100%',
       marginLeft: '0',
       left: '0',
-
-      '@media (min-width:768px)': {
-        left: '0px',
-        width: 'auto',
-        marginLeft: '0',
-      },
-      '@media (min-width:993px)': {
-        width: 'auto',
-        left: '0',
+      '& div[role=button]': {
+        margin: '0 -24px',
       },
     },
   },
@@ -225,7 +218,6 @@ export function GroupContainer({
         layoutElementId: id,
         remove: true,
         index: groupIndex,
-        leaveOpen: !!edit?.openByDefault,
       }),
     );
   };
