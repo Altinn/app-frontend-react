@@ -342,10 +342,10 @@ describe('Group', () => {
         cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', 'automation');
         cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
         cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
-          .find(popOverCancelButton).should('be.visible').click();
+          .find(appFrontend.group.popOverCancelButton).should('be.visible').click();
         cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
         cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
-          .find(popOverDeleteButton).should('be.visible').click();
+          .find(appFrontend.group.popOverDeleteButton).should('be.visible').click();
         cy.get(table).find(mui.tableElement).should('not.exist');
       });
 
@@ -360,10 +360,10 @@ describe('Group', () => {
       .then((table) => {
         cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
         cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
-          .find(popOverCancelButton).should('be.visible').click();
+          .find(appFrontend.group.popOverCancelButton).should('be.visible').click();
         cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
         cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
-          .find(popOverDeleteButton).should('be.visible').click();
+          .find(appFrontend.group.popOverDeleteButton).should('be.visible').click();
         cy.get(table).find(mui.tableElement).should('not.exist');
       });
   });
