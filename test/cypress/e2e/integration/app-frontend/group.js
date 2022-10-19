@@ -293,4 +293,62 @@ describe('Group', () => {
       }
     });
   });
+
+  it('Opens delete warning popoup when alertOnDelete is true and deletes on confirm', () => {
+    cy.interceptLayout('group', (component) => {
+      if (component.edit && typeof component.edit.openByDefault !== 'undefined') {
+        component.edit.alertOnDelete = true;
+      }
+      return component;
+    });
+    init();
+
+    // Add test-data and verify
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.addItemToGroup(1, 2, 'automation');
+    cy.get(appFrontend.group.mainGroup)
+      .find(mui.tableBody)
+      .then((table) => {
+        cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', '1');
+        cy.get(table).find(mui.tableElement).eq(1).invoke('text').should('equal', '2');
+        cy.get(table).find(mui.tableElement).find(mui.buttonIcon).first().should('be.visible').click();
+      });
+
+    // Navigate to nested group and test delete warning popoup cancel and confirm
+    cy.get(appFrontend.group.mainGroup)
+      .find(appFrontend.group.editContainer)
+      .find(appFrontend.group.next)
+      .should('be.visible')
+      .click();
+    cy.get(appFrontend.group.subGroup)
+      .find(mui.tableBody)
+      .then((table) => {
+        cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', 'automation');
+        cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+        cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
+          .find(popOverCancelButton).should('be.visible').click();
+        cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+        cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
+          .find(popOverDeleteButton).should('be.visible').click();
+        cy.get(table).find(mui.tableElement).should('not.exist');
+      });
+
+    // Navigate to main group and test delete warning popoup cancel and confirm
+    cy.get(appFrontend.group.mainGroup)
+      .find(appFrontend.group.editContainer)
+      .find(appFrontend.group.back)
+      .should('be.visible')
+      .click();
+    cy.get(appFrontend.group.mainGroup)
+      .find(mui.tableBody)
+      .then((table) => {
+        cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+        cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
+          .find(popOverCancelButton).should('be.visible').click();
+        cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+        cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
+          .find(popOverDeleteButton).should('be.visible').click();
+        cy.get(table).find(mui.tableElement).should('not.exist');
+      });
+  });
 });

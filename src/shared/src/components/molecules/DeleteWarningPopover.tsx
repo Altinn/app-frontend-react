@@ -55,12 +55,14 @@ export function DeleteWarningPopover({
       <div>{messageText}</div>
       <div className={classes.popoverButtonContainer}>
         <Button
+          data-testid='warning-popover-delete-button'
           variant={ButtonVariant.Cancel}
           onClick={onPopoverDeleteClick}
         >
           {deleteButtonText}
         </Button>
         <Button
+          data-testid='warning-popover-cancel-button'
           variant={ButtonVariant.Secondary}
           onClick={onCancelClick}
         >
