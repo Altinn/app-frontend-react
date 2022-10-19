@@ -63,7 +63,6 @@ export interface IUpdateRepeatingGroups {
   layoutElementId: string;
   remove?: boolean;
   index?: number;
-  leaveOpen?: boolean;
 }
 
 export interface IUpdateRepeatingGroupsFulfilled {
@@ -136,4 +135,8 @@ export interface ICalculatePageOrderAndMoveToNextPage {
 
 export interface ICalculatePageOrderAndMoveToNextPageFulfilled {
   order: string[];
+}
+
+export interface IHiddenLayoutsUpdate {
+  hiddenLayouts: string[];
 }

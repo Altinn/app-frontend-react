@@ -143,7 +143,7 @@ const useStyles = makeStyles({
     },
   },
   editButtonCell: {
-    width: '140px',
+    width: '150px',
     padding: '0 !important',
     '@media (max-width: 768px)': {
       width: '50px',
