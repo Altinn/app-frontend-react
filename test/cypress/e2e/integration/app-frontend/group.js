@@ -346,7 +346,7 @@ describe('Group', () => {
         cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
         cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
           .find(appFrontend.group.popOverDeleteButton).should('be.visible').click();
-        cy.get(table).find(mui.tableElement).first().invoke('text').should('not.containt.text', 'automation');
+        cy.get(table).find(mui.tableElement).first().invoke('text').should('not.contain.text', 'automation');
       });
 
     // Navigate to main group and test delete warning popoup cancel and confirm
