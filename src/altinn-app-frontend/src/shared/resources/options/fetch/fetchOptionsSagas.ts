@@ -31,7 +31,7 @@ import type {
 import { get } from 'altinn-shared/utils';
 
 export const formLayoutSelector = (state: IRuntimeState): ILayouts =>
-  state.formLayout.layouts;
+  state.formLayout?.layouts;
 export const formDataSelector = (state: IRuntimeState) =>
   state.formData.formData;
 export const optionsSelector = (state: IRuntimeState): IOptions =>
@@ -41,10 +41,10 @@ export const optionsWithIndexIndicatorsSelector = (state: IRuntimeState) =>
 export const instanceIdSelector = (state: IRuntimeState): string =>
   state.instanceData.instance?.id;
 export const repeatingGroupsSelector = (state: IRuntimeState) =>
-  state.formLayout.uiConfig.repeatingGroups;
+  state.formLayout?.uiConfig.repeatingGroups;
 
 export function* fetchOptionsSaga(): SagaIterator {
-  const layouts: ILayouts = yield select(formLayoutSelector);
+  const layouts: ILayouts = yield selectNotNull(formLayoutSelector);
   const repeatingGroups: IRepeatingGroups = yield selectNotNull(
     repeatingGroupsSelector,
   );
