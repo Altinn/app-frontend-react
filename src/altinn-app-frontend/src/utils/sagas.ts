@@ -27,12 +27,13 @@ export const waitFor = (selector: (state: IRuntimeState) => boolean) =>
   call(waitForFunc, selector);
 
 function* selectNotNullFunc<T>(selector: (state: IRuntimeState) => T): any {
+  let result = null;
   yield waitFor((state) => {
-    const result = selector(state);
+    result = selector(state);
     return result !== null && result !== undefined;
   });
 
-  return select(selector);
+  return result;
 }
 
 /**
