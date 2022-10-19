@@ -633,7 +633,10 @@ export function resolvedNodesInLayout(
   repeatingGroups: IRepeatingGroups,
   dataSources: ContextDataSources,
 ): LayoutRootNode<'resolved'> {
-  const unresolved = nodesInLayout(formLayout, repeatingGroups);
+  // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
+  // development server!) the properties are not mutable (but we have to mutate them below).
+  const layoutCopy = JSON.parse(JSON.stringify(formLayout));
+  const unresolved = nodesInLayout(layoutCopy, repeatingGroups);
 
   for (const node of unresolved.flat(true)) {
     const input = { ...node.item };
