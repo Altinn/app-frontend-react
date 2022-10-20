@@ -331,10 +331,10 @@ export interface IGroupEditProperties {
   filter?: IGroupFilter[];
   addButton?: ExpressionOr<'boolean'>;
   saveButton?: ExpressionOr<'boolean'>;
-  deleteButton?: ExpressionOr<'boolean'>;
+  deleteButton?: ExpressionOr<'boolean'>; // TODO: Make expressions resolve per-row
   multiPage?: boolean;
   openByDefault?: boolean | 'first' | 'last';
-  alertOnDelete?: boolean;
+  alertOnDelete?: ExpressionOr<'boolean'>; // TODO: Make expressions resolve per-row
   saveAndNextButton?: ExpressionOr<'boolean'>;
 }
 
