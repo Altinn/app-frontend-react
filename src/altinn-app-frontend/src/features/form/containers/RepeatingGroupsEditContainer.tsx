@@ -226,25 +226,24 @@ export function RepeatingGroupsEditContainer({
             direction='row'
             spacing={2}
           >
-            {!hideSaveButton &&
-              showSaveAndNextButton &&
-              editIndex < repeatingGroupIndex && (
-                <Grid item={true}>
-                  <Button
-                    id={`next-button-grp-${id}`}
-                    onClick={nextClicked}
-                    variant={ButtonVariant.Primary}
-                  >
-                    {container.textResourceBindings?.save_and_next_button
-                      ? getTextResourceByKey(
-                          container.textResourceBindings.save_and_next_button,
-                          textResources,
-                        )
-                      : getLanguageFromKey('general.save_and_next', language)}
-                  </Button>
-                </Grid>
-              )}
-            {!hideSaveButton && (
+            {showSaveAndNextButton && editIndex < repeatingGroupIndex && (
+              <Grid item={true}>
+                <Button
+                  id={`next-button-grp-${id}`}
+                  onClick={nextClicked}
+                  variant={ButtonVariant.Primary}
+                >
+                  {container.textResourceBindings?.save_and_next_button
+                    ? getTextResourceByKey(
+                        container.textResourceBindings.save_and_next_button,
+                        textResources,
+                      )
+                    : getLanguageFromKey('general.save_and_next', language)}
+                </Button>
+              </Grid>
+            )}
+            {(!hideSaveButton ||
+              (showSaveAndNextButton && editIndex === repeatingGroupIndex)) && (
               <Grid item={true}>
                 <Button
                   id={`add-button-grp-${id}`}
