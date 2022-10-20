@@ -334,6 +334,7 @@ export interface IGroupEditProperties {
   deleteButton?: ExpressionOr<'boolean'>;
   multiPage?: boolean;
   openByDefault?: boolean | 'first' | 'last';
+  alertOnDelete?: boolean;
   saveAndNextButton?: ExpressionOr<'boolean'>;
 }
 
