@@ -36,6 +36,7 @@ import type {
   ComponentTypes,
   IGridStyling,
   ILayoutCompBase,
+  ILayoutComponent,
 } from 'src/features/form/layout';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 
