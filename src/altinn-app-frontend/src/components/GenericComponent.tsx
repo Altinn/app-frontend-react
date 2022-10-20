@@ -36,7 +36,6 @@ import type {
   ComponentTypes,
   IGridStyling,
   ILayoutCompBase,
-  ILayoutComponent,
 } from 'src/features/form/layout';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 
@@ -146,9 +145,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     ),
   );
 
-  const hidden = useAppSelector(
-    (state) => props.hidden || GetHiddenSelector(state, props),
-  );
+  const hidden = useAppSelector((state) => GetHiddenSelector(state, props));
   const shouldFocus = useAppSelector((state) => GetFocusSelector(state, props));
   const componentValidations = useAppSelector(
     (state) => state.formValidations.validations[currentView]?.[props.id],
