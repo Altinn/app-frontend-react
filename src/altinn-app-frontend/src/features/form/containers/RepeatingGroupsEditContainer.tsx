@@ -36,6 +36,7 @@ export interface IRepeatingGroupsEditContainer {
   multiPageIndex?: number;
   setMultiPageIndex?: (index: number) => void;
   showSaveAndNextButton?: boolean;
+  filteredIndexes?: number[];
 }
 
 const theme = createTheme(altinnAppTheme);
@@ -111,6 +112,7 @@ export function RepeatingGroupsEditContainer({
   multiPageIndex,
   setMultiPageIndex,
   showSaveAndNextButton,
+  filteredIndexes,
 }: IRepeatingGroupsEditContainer): JSX.Element {
   const classes = useStyles();
 
@@ -121,10 +123,24 @@ export function RepeatingGroupsEditContainer({
     }
   };
 
+  const getNextIndex = (): number | null => {
+    if (!filteredIndexes) {
+      return editIndex < repeatingGroupIndex ? editIndex + 1 : null;
+    } else {
+      const filteredIndex = filteredIndexes.indexOf(editIndex);
+      return filteredIndexes.slice(filteredIndex).length > 1
+        ? filteredIndexes[filteredIndex + 1]
+        : null;
+    }
+  };
+
   const nextClicked = () => {
-    setEditIndex(editIndex + 1, true);
-    if (container.edit?.multiPage) {
-      setMultiPageIndex(0);
+    const nextIndex = getNextIndex();
+    if (nextIndex !== null) {
+      setEditIndex(nextIndex, true);
+      if (container.edit?.multiPage) {
+        setMultiPageIndex(0);
+      }
     }
   };
 
@@ -226,7 +242,7 @@ export function RepeatingGroupsEditContainer({
             direction='row'
             spacing={2}
           >
-            {showSaveAndNextButton && editIndex < repeatingGroupIndex && (
+            {showSaveAndNextButton && getNextIndex() !== null && (
               <Grid item={true}>
                 <Button
                   id={`next-button-grp-${id}`}
@@ -243,7 +259,7 @@ export function RepeatingGroupsEditContainer({
               </Grid>
             )}
             {(!hideSaveButton ||
-              (showSaveAndNextButton && editIndex === repeatingGroupIndex)) && (
+              (showSaveAndNextButton && getNextIndex() === null)) && (
               <Grid item={true}>
                 <Button
                   id={`add-button-grp-${id}`}
