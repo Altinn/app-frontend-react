@@ -1,7 +1,9 @@
 import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
+import type { IFormData } from 'src/features/form/data';
 import type {
   ComponentTypes,
   IGroupEditProperties,
+  IGroupFilter,
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
@@ -554,4 +556,53 @@ export function behavesLikeDataTask(
   layoutSets: ILayoutSets,
 ): boolean {
   return layoutSets?.sets.some((set) => set.tasks?.includes(task));
+}
+
+/**
+ * Returns a list of remaining repeating group element indices after all filters are applied. Returns undefined if no filters are present.
+ * @param repeatingGroupIndex IRepeatingGroup.index for the repeating group.
+ * @param formData IFormData
+ * @param filter IGroupEditProperties.filter or undefined.
+ * @returns a list of indices for repeating group elements after applying filters, or null if no filters are provided.
+ */
+export function getRepeatingGroupFilteredIndices(
+  repeatingGroupIndex: number,
+  formData: IFormData,
+  filter?: IGroupFilter[],
+): number[] | null {
+  if (filter && filter.length > 0) {
+    let filteredIndicies = Array.from(Array(repeatingGroupIndex + 1).keys());
+
+    filter.forEach((rule) => {
+      const formDataKeys: string[] = Object.keys(formData);
+
+      if (formDataKeys && formDataKeys.length > 0) {
+        const matchingSet = new Set<number>();
+
+        formDataKeys
+          .filter((key) => {
+            const keyWithoutIndex = key.replaceAll(/\[\d*\]/g, '');
+            return keyWithoutIndex === rule.key && formData[key] === rule.value;
+          })
+          .forEach((key) => {
+            const match = key.match(/\[(\d*)\]/g);
+            const currentIndex = match[match.length - 1];
+            const matchingIndex = parseInt(
+              currentIndex.substring(1, currentIndex.indexOf(']')),
+              10,
+            );
+            matchingSet.add(matchingIndex);
+          });
+
+        filteredIndicies = filteredIndicies.filter((index) =>
+          matchingSet.has(index),
+        );
+        return Array.from(matchingSet);
+      }
+    });
+
+    return filteredIndicies;
+  }
+
+  return null;
 }
