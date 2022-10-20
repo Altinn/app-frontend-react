@@ -421,6 +421,11 @@
           "title": "Open by default",
           "description": "Boolean value indicating if group should be opened to add a new item by default when no items exist.",
           "type": "boolean"
+        },
+        "alertOnDelete": {
+          "title": "Alert on delete",
+          "description": "Boolean value indicating if warning popup should be displayed when attempting to delete a row",
+          "type": "boolean"
         }
       }
     },
