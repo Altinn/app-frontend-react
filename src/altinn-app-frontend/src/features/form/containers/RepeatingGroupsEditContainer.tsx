@@ -123,19 +123,18 @@ export function RepeatingGroupsEditContainer({
     }
   };
 
-  const getNextIndex = (): number | null => {
-    if (!filteredIndexes) {
-      return editIndex < repeatingGroupIndex ? editIndex + 1 : null;
-    } else {
-      const filteredIndex = filteredIndexes.indexOf(editIndex);
-      return filteredIndexes.slice(filteredIndex).length > 1
+  let nextIndex: number | null = null;
+  if (!filteredIndexes) {
+    nextIndex = editIndex < repeatingGroupIndex ? editIndex + 1 : null;
+  } else {
+    const filteredIndex = filteredIndexes.indexOf(editIndex);
+    nextIndex =
+      filteredIndexes.slice(filteredIndex).length > 1
         ? filteredIndexes[filteredIndex + 1]
         : null;
-    }
-  };
+  }
 
   const nextClicked = () => {
-    const nextIndex = getNextIndex();
     if (nextIndex !== null) {
       setEditIndex(nextIndex, true);
       if (container.edit?.multiPage) {
@@ -242,7 +241,7 @@ export function RepeatingGroupsEditContainer({
             direction='row'
             spacing={2}
           >
-            {showSaveAndNextButton && getNextIndex() !== null && (
+            {showSaveAndNextButton && nextIndex !== null && (
               <Grid item={true}>
                 <Button
                   id={`next-button-grp-${id}`}
@@ -259,7 +258,7 @@ export function RepeatingGroupsEditContainer({
               </Grid>
             )}
             {(!hideSaveButton ||
-              (showSaveAndNextButton && getNextIndex() === null)) && (
+              (showSaveAndNextButton && nextIndex === null)) && (
               <Grid item={true}>
                 <Button
                   id={`add-button-grp-${id}`}
