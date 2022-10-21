@@ -678,7 +678,6 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
     ) as ILayoutGroup;
     if (container && group.index >= 0) {
       const filteredIndexList = getRepeatingGroupFilteredIndices(
-        group.index,
         formDataState.formData,
         container.edit?.filter,
       );

@@ -156,14 +156,13 @@ export function GroupContainer({
 
   React.useEffect(() => {
     const filteredIndexList = getRepeatingGroupFilteredIndices(
-      repeatingGroupIndex,
       formData,
       container.edit?.filter,
     );
     if (filteredIndexList) {
       setFilteredIndexList(filteredIndexList);
     }
-  }, [repeatingGroupIndex, formData, container]);
+  }, [formData, container]);
 
   const onClickAdd = useCallback(() => {
     dispatch(FormLayoutActions.updateRepeatingGroups({ layoutElementId: id }));
