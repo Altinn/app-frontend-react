@@ -124,14 +124,14 @@ export function RepeatingGroupsEditContainer({
   };
 
   let nextIndex: number | null = null;
-  if (!filteredIndexes) {
-    nextIndex = editIndex < repeatingGroupIndex ? editIndex + 1 : null;
-  } else {
+  if (filteredIndexes) {
     const filteredIndex = filteredIndexes.indexOf(editIndex);
     nextIndex =
       filteredIndexes.slice(filteredIndex).length > 1
         ? filteredIndexes[filteredIndex + 1]
         : null;
+  } else {
+    nextIndex = editIndex < repeatingGroupIndex ? editIndex + 1 : null;
   }
 
   const nextClicked = () => {
