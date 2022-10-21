@@ -8,7 +8,7 @@ const appFrontend = new AppFrontend();
 describe('WCAG', () => {
   it('WCAG test in data app', () => {
     cy.intercept('**/active', []).as('noActiveInstances');
-    cy.startAppInstance('frontend-test');
+    cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.closeButton).should('be.visible');
     cy.get(appFrontend.message['header']).should('exist');
     cy.testWcag();
