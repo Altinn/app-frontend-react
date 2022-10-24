@@ -1485,7 +1485,7 @@ export function validateGroup(
   const textResources = state.textResources.resources;
   const hiddenFields = new Set<string>(state.formLayout.uiConfig.hiddenFields);
   const attachments = state.attachments.attachments;
-  const repeatingGroups = state.formLayout.uiConfig.repeatingGroups;
+  const repeatingGroups = state.formLayout.uiConfig.repeatingGroups || {};
   const formData = state.formData.formData;
   const jsonFormData = convertDataBindingToModel(formData);
   const currentView = state.formLayout.uiConfig.currentView;

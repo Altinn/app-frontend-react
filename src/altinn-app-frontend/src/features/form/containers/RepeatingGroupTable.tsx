@@ -402,6 +402,7 @@ export function RepeatingGroupTable({
           multiPageIndex={multiPageIndex}
           setMultiPageIndex={setMultiPageIndex}
           showSaveAndNextButton={edit?.saveAndNextButton === true}
+          filteredIndexes={filteredIndexes}
         />
       )
     );

@@ -38,7 +38,7 @@ export const initialState: ILayoutState = {
     focus: null,
     hiddenFields: [],
     autoSave: null,
-    repeatingGroups: {},
+    repeatingGroups: null,
     fileUploadersWithTag: {},
     currentView: 'FormLayout',
     navigationConfig: {},
@@ -74,7 +74,7 @@ const formLayoutSlice = createSagaSlice(
           state.uiConfig.tracks.order = Object.keys(layouts);
           state.uiConfig.tracks.hiddenExpr = hiddenLayoutsExpressions;
           state.error = null;
-          state.uiConfig.repeatingGroups = {};
+          state.uiConfig.repeatingGroups = null;
         },
         takeLatest: function* () {
           yield put(OptionsActions.fetch());

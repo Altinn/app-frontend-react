@@ -38,6 +38,7 @@ import {
 } from 'src/utils/databindings';
 import {
   findChildren,
+  getRepeatingGroupFilteredIndices,
   getRepeatingGroups,
   mapFileUploadersWithTag,
   removeRepeatingGroupFromUIConfig,
@@ -629,7 +630,7 @@ export function* updateRepeatingGroupEditIndexSaga({
 export function* initRepeatingGroupsSaga(): SagaIterator {
   const formDataState: IFormDataState = yield select(selectFormData);
   const state: IRuntimeState = yield select();
-  const currentGroups = state.formLayout.uiConfig.repeatingGroups;
+  const currentGroups = state.formLayout.uiConfig.repeatingGroups || {};
   const layouts = yield select(selectFormLayouts);
   let newGroups: IRepeatingGroups = {};
   Object.keys(layouts).forEach((layoutKey: string) => {
@@ -639,7 +640,7 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
     };
   });
   // if any groups have been removed as part of calculation we delete the associated validations
-  const currentGroupKeys = Object.keys(currentGroups || {});
+  const currentGroupKeys = Object.keys(currentGroups);
   const groupsToRemoveValidations = currentGroupKeys.filter((key) => {
     return (
       currentGroups[key].index > -1 &&
@@ -675,12 +676,18 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
     const container = groupContainers.find(
       (element) => element.id === key,
     ) as ILayoutGroup;
-
     if (container && group.index >= 0) {
+      const filteredIndexList = getRepeatingGroupFilteredIndices(
+        formDataState.formData,
+        container.edit?.filter,
+      );
+
       if (container.edit?.openByDefault === 'first') {
-        group.editIndex = 0;
+        group.editIndex = filteredIndexList ? filteredIndexList[0] : 0;
       } else if (container.edit?.openByDefault === 'last') {
-        group.editIndex = group.index;
+        group.editIndex = filteredIndexList
+          ? filteredIndexList.at(-1)
+          : group.index;
       }
     }
   });

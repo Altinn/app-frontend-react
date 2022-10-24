@@ -12,9 +12,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@altinn/altinn-design-system@npm:0.14.1":
-  version: 0.14.1
-  resolution: "@altinn/altinn-design-system@npm:0.14.1"
+"@altinn/altinn-design-system@npm:0.15.0":
+  version: 0.15.0
+  resolution: "@altinn/altinn-design-system@npm:0.15.0"
   dependencies:
     "@altinn/figma-design-tokens": ^4.1.0
     "@radix-ui/react-popover": ^1.0.0
@@ -25,7 +25,7 @@ __metadata:
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
-  checksum: c971d3e63ccf9ebf84c1a32ade8e5f315e92e881c6b721150cd2b724dfbb2fedcd883ed3b7c1651e520ab7ab5d35aff318b92bc5f4163ade82d44e15c83edc80
+  checksum: 96a6f454efda28de17499b81c647fcfdd4ed4d39ed2169bfdd47beb3b88af1e6ffef6f73cf7197499bf38c70cd783b45d66661cb53201d873dfb7461d0a6587f
   languageName: node
   linkType: hard
 
@@ -3448,13 +3448,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pmmmwh/react-refresh-webpack-plugin@npm:0.5.7":
-  version: 0.5.7
-  resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.5.7"
+"@pmmmwh/react-refresh-webpack-plugin@npm:0.5.8":
+  version: 0.5.8
+  resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.5.8"
   dependencies:
     ansi-html-community: ^0.0.8
     common-path-prefix: ^3.0.0
-    core-js-pure: ^3.8.1
+    core-js-pure: ^3.23.3
     error-stack-parser: ^2.0.6
     find-up: ^5.0.0
     html-entities: ^2.1.0
@@ -3465,7 +3465,7 @@ __metadata:
     "@types/webpack": 4.x || 5.x
     react-refresh: ">=0.10.0 <1.0.0"
     sockjs-client: ^1.4.0
-    type-fest: ">=0.17.0 <3.0.0"
+    type-fest: ">=0.17.0 <4.0.0"
     webpack: ">=4.43.0 <6.0.0"
     webpack-dev-server: 3.x || 4.x
     webpack-hot-middleware: 2.x
@@ -3483,7 +3483,7 @@ __metadata:
       optional: true
     webpack-plugin-serve:
       optional: true
-  checksum: 3490649181878cc8808fb91f3870ef095e5a1fb9647b3ac83740df07379c9d1cf540f24bf2b09d5f26a3a8c805b2c6b9c5be7192bdb9317d0ffffa67426e9f66
+  checksum: 48d8b2813dfba7d482e58a2b0161b79e3a5d608603f1a3c34d709ecc2e6e08f8b14f79934c57849d06f153eb327f18e3d8e1539f978e40ca91539c342f27b8ae
   languageName: node
   linkType: hard
 
@@ -5158,7 +5158,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "altinn-app-frontend@workspace:altinn-app-frontend"
   dependencies:
-    "@altinn/altinn-design-system": 0.14.1
+    "@altinn/altinn-design-system": 0.15.0
     "@babel/core": 7.19.3
     "@babel/polyfill": 7.12.1
     "@babel/preset-env": 7.19.3
@@ -5167,7 +5167,7 @@ __metadata:
     "@material-ui/core": 4.12.4
     "@material-ui/icons": 4.11.3
     "@material-ui/pickers": 3.3.10
-    "@pmmmwh/react-refresh-webpack-plugin": 0.5.7
+    "@pmmmwh/react-refresh-webpack-plugin": 0.5.8
     "@reduxjs/toolkit": 1.8.5
     "@testing-library/jest-dom": 5.16.5
     "@testing-library/react": 13.4.0
@@ -5197,7 +5197,7 @@ __metadata:
     jest: 29.1.2
     jest-environment-jsdom: 29.1.2
     jest-junit: 14.0.1
-    jest-mock-axios: ^4.7.0-beta
+    jest-mock-axios: 4.7.0-beta
     jsonpointer: 5.0.1
     mime: 3.0.0
     mini-css-extract-plugin: 2.6.1
@@ -5226,7 +5226,7 @@ __metadata:
     ts-jest: 29.0.3
     ts-loader: 9.4.1
     typescript: 4.8.4
-    utility-types: ^3.10.0
+    utility-types: 3.10.0
     uuid: 9.0.0
     webpack: 5.74.0
     webpack-cli: 4.10.0
@@ -5331,7 +5331,7 @@ __metadata:
     eslint-plugin-react: 7.31.8
     eslint-plugin-react-hooks: 4.6.0
     eslint-plugin-simple-import-sort: 8.0.0
-    eslint-plugin-sonarjs: 0.15.0
+    eslint-plugin-sonarjs: 0.16.0
     husky: 8.0.1
     lint-staged: 13.0.3
     prettier: 2.7.1
@@ -6608,10 +6608,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js-pure@npm:^3.8.1":
-  version: 3.22.2
-  resolution: "core-js-pure@npm:3.22.2"
-  checksum: d0618aa2f45182fbce5feb6b436c72a71e1d2a739ec7546be453460fc9938d30235da4506ea128a22780ca00b84f4f5528da8019719a2fba16da6f44999d3bff
+"core-js-pure@npm:^3.23.3":
+  version: 3.25.5
+  resolution: "core-js-pure@npm:3.25.5"
+  checksum: e48799a8ab28f00ef3db18377142ff2c578574ab2b18ebddde6cbf12823e0181a57c80e3caa6046ce2a2e439d603a252be767583ddc54248e3d1060bc5012127
   languageName: node
   linkType: hard
 
@@ -7639,12 +7639,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-sonarjs@npm:0.15.0":
-  version: 0.15.0
-  resolution: "eslint-plugin-sonarjs@npm:0.15.0"
+"eslint-plugin-sonarjs@npm:0.16.0":
+  version: 0.16.0
+  resolution: "eslint-plugin-sonarjs@npm:0.16.0"
   peerDependencies:
     eslint: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
-  checksum: 0718232626057e9a30c58350ef79af3bbc5ea7c3a880d1609965b0c1cbe347e4834ddf831962f755464f7a6350cb715c1c76e2670dc7bdf1a48c37bf0fe269c8
+  checksum: 8421059eb208da147fc5652aa8bbe2aeedd8b57e7f6810a27b6e33c3042a7066870d7647e125d3f9e6a28db4809976c1c260d98a13fcda2360f8b0ae7a416908
   languageName: node
   linkType: hard
 
@@ -10226,7 +10226,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-mock-axios@npm:^4.7.0-beta":
+"jest-mock-axios@npm:4.7.0-beta":
   version: 4.7.0-beta
   resolution: "jest-mock-axios@npm:4.7.0-beta"
   dependencies:
@@ -15501,7 +15501,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"utility-types@npm:^3.10.0":
+"utility-types@npm:3.10.0":
   version: 3.10.0
   resolution: "utility-types@npm:3.10.0"
   checksum: 8f274415c6196ab62883b8bd98c9d2f8829b58016e4269aaa1ebd84184ac5dda7dc2ca45800c0d5e0e0650966ba063bf9a412aaeaea6850ca4440a391283d5c8
