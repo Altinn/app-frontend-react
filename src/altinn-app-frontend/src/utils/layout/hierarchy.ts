@@ -130,7 +130,7 @@ interface HierarchyParent {
  */
 export function layoutAsHierarchyWithRows(
   formLayout: ILayout,
-  repeatingGroups: IRepeatingGroups,
+  repeatingGroups: IRepeatingGroups | null,
 ): HierarchyWithRows[] {
   const rewriteBindings = (
     main: LayoutGroupHierarchy,
@@ -164,7 +164,7 @@ export function layoutAsHierarchyWithRows(
     if (main.type === 'Group' && main.maxCount > 1) {
       const rows: RepeatingGroupHierarchy['rows'] = [];
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
-        repeatingGroups[main.id]?.index,
+        (repeatingGroups || {})[main.id]?.index,
         main.edit,
       );
       for (let index = startIndex; index <= stopIndex; index++) {
@@ -586,7 +586,7 @@ export class LayoutNode<
  */
 export function nodesInLayout(
   formLayout: ILayout,
-  repeatingGroups: IRepeatingGroups,
+  repeatingGroups: IRepeatingGroups | null,
 ): LayoutRootNode {
   const root = new LayoutRootNode();
 
@@ -630,7 +630,7 @@ export function nodesInLayout(
  */
 export function resolvedNodesInLayout(
   formLayout: ILayout,
-  repeatingGroups: IRepeatingGroups,
+  repeatingGroups: IRepeatingGroups | null,
   dataSources: ContextDataSources,
 ): LayoutRootNode<'resolved'> {
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the

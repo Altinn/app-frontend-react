@@ -9,6 +9,7 @@ import {
   dataSourcesFromState,
   resolvedLayoutsFromState,
 } from 'src/utils/layout/hierarchy';
+import { selectNotNull } from 'src/utils/sagas';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { IFormData } from 'src/features/form/data';
 import type { IConditionalRenderingRules } from 'src/features/form/dynamics';
@@ -24,6 +25,8 @@ export const ConditionalRenderingSelector = (store: IRuntimeState) =>
   store.formDynamics.conditionalRendering;
 export const FormDataSelector = (state: IRuntimeState) =>
   state.formData.formData;
+export const RepeatingGroupsSelector = (state: IRuntimeState) =>
+  state.formLayout.uiConfig.repeatingGroups;
 export const UiConfigSelector = (state: IRuntimeState) =>
   state.formLayout.uiConfig;
 export const FormValidationSelector = (state: IRuntimeState) =>
@@ -40,6 +43,7 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
     );
     const formData: IFormData = yield select(FormDataSelector);
     const formValidations: IValidations = yield select(FormValidationSelector);
+    const repeatingGroups = yield selectNotNull(RepeatingGroupsSelector);
     const uiConfig: IUiConfig = yield select(UiConfigSelector);
     const resolvedNodes: LayoutRootNodeCollection<'resolved'> = yield select(
       ResolvedNodesSelector,
@@ -50,7 +54,7 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
     const futureHiddenFields = runConditionalRenderingRules(
       conditionalRenderingState,
       formData,
-      uiConfig.repeatingGroups,
+      repeatingGroups,
     );
 
     runExpressionRules(resolvedNodes, hiddenFields, futureHiddenFields);
