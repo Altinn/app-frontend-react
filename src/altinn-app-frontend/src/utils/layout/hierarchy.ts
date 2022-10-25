@@ -5,6 +5,7 @@ import {
 } from 'src/features/expressions';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
+import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ILayout,
@@ -27,8 +28,6 @@ import type {
   RepeatingGroupHierarchy,
   RepeatingGroupLayoutComponent,
 } from 'src/utils/layout/hierarchy.types';
-
-import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
 
 export const childrenWithoutMultiPagePrefix = (group: ILayoutGroup) =>
   group.edit?.multiPage

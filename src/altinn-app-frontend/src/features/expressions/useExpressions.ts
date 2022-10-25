@@ -8,6 +8,7 @@ import {
   ExprDefaultsForComponent,
   ExprDefaultsForGroup,
 } from 'src/features/expressions/index';
+import { getInstanceContextSelector } from 'src/utils/instanceContext';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { EvalExprInObjArgs } from 'src/features/expressions/index';
@@ -17,7 +18,7 @@ import type {
 } from 'src/features/expressions/types';
 import type { ILayoutComponentOrGroup } from 'src/features/form/layout';
 
-import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
+import type { IInstanceContext } from 'altinn-shared/types';
 
 export interface UseExpressionsOptions<T> {
   /**
@@ -54,8 +55,10 @@ export function useExpressions<T>(
   const applicationSettings = useAppSelector(
     (state) => state.applicationSettings?.applicationSettings,
   );
-  const instance = useAppSelector((state) => state.instanceData?.instance);
-  const instanceContext = buildInstanceContext(instance);
+  const instanceContextSelector = getInstanceContextSelector();
+  const instanceContext: IInstanceContext = useAppSelector(
+    instanceContextSelector,
+  );
   const id = (options && options.forComponentId) || component.id;
 
   const node = useMemo(() => {
@@ -93,16 +96,15 @@ const componentDefaults: any = {
 
 export function useExpressionsForComponent<T extends ILayoutComponentOrGroup>(
   input: T,
-  options?: Omit<UseExpressionsOptions<T>, 'defaults'>,
 ): ExprResolved<T> {
-  const newOptions = useMemo(
-    () => ({
-      ...options,
+  const forComponentId = input.id;
+  const options = useMemo(
+    (): UseExpressionsOptions<T> => ({
+      forComponentId,
       defaults: componentDefaults,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    Object.values(options),
+    [forComponentId],
   );
 
-  return useExpressions(input, newOptions);
+  return useExpressions(input, options);
 }

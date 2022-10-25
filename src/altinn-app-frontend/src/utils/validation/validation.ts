@@ -24,6 +24,7 @@ import {
   createRepeatingGroupComponents,
   getVariableTextKeysForRepeatingGroupComponent,
 } from 'src/utils/formLayout';
+import { buildInstanceContext } from 'src/utils/instanceContext';
 import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
 import { resolvedNodesInLayout } from 'src/utils/layout/hierarchy';
 import type { IFormData } from 'src/features/form/data';
@@ -63,7 +64,6 @@ import {
   getParsedLanguageFromKey,
   getTextResourceByKey,
 } from 'altinn-shared/utils';
-import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
 import type { ILanguage } from 'altinn-shared/types';
 
 export interface ISchemaValidators {

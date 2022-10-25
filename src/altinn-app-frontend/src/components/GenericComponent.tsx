@@ -106,9 +106,9 @@ const useStyles = makeStyles((theme) => ({
 export function GenericComponent<Type extends ComponentExceptGroup>(
   _props: IActualGenericComponentProps<Type>,
 ) {
-  const props = useExpressionsForComponent(_props as ILayoutComponent, {
-    forComponentId: _props.id,
-  }) as ExprResolved<IActualGenericComponentProps<Type>> & {
+  const props = useExpressionsForComponent(
+    _props as ILayoutComponent,
+  ) as ExprResolved<IActualGenericComponentProps<Type>> & {
     type: Type;
   };
 

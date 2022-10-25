@@ -84,9 +84,7 @@ export function SummaryComponent({
   const _formComponent = useAppSelector((state) => {
     return state.formLayout.layouts[pageRef].find((c) => c.id === componentRef);
   });
-  const formComponent = useExpressionsForComponent(_formComponent, {
-    forComponentId: componentRef,
-  });
+  const formComponent = useExpressionsForComponent(_formComponent);
 
   const goToCorrectPageLinkText = useAppSelector((state) => {
     return getTextFromAppOrDefault(
