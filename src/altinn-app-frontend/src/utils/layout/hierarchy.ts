@@ -168,7 +168,7 @@ export function layoutAsHierarchyWithRows(
         main.edit,
       );
       for (let index = startIndex; index <= stopIndex; index++) {
-        const row = main.childComponents.map((child) => {
+        const items = main.childComponents.map((child) => {
           const suffix = parent ? `-${parent.index}-${index}` : `-${index}`;
           const newId = `${child.id}${suffix}`;
           const newChild: RepeatingGroupLayoutComponent = {
@@ -186,7 +186,7 @@ export function layoutAsHierarchyWithRows(
             binding: main.dataModelBindings?.group,
           });
         });
-        rows.push(row);
+        rows.push({ items, index });
       }
 
       const out: RepeatingGroupHierarchy = { ...main, rows };
@@ -393,10 +393,12 @@ export class LayoutNode<
     let list: AnyItem<NT>[] = [];
     if (this.item.type === 'Group' && 'rows' in this.item) {
       if (typeof onlyInRowIndex === 'number') {
-        list = this.item.rows[onlyInRowIndex];
+        list = this.item.rows.find((r) => r.index === onlyInRowIndex).items;
       } else {
         // Beware: In most cases this will just match the first row.
-        list = this.item.rows.flat();
+        list = Object.values(this.item.rows)
+          .map((r) => r.items)
+          .flat();
       }
     } else if (this.item.type === 'Group' && 'childComponents' in this.item) {
       list = this.item.childComponents;
@@ -605,9 +607,7 @@ export function nodesInLayout(
           root,
           rowIndex,
         );
-        component.rows.forEach((row, rowIndex) =>
-          recurse(row, group, rowIndex),
-        );
+        component.rows.forEach((row) => recurse(row.items, group, row.index));
         root._addChild(group);
       } else if (component.type === 'Group' && 'childComponents' in component) {
         const group = new LayoutNode(component, parent, root, rowIndex);
