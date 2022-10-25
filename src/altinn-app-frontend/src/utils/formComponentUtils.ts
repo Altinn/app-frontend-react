@@ -34,6 +34,7 @@ import type {
 } from 'src/types';
 
 import {
+  formatISOString,
   getLanguageFromKey,
   getParsedLanguageFromText,
   getTextResourceByKey,
@@ -298,6 +299,9 @@ export const getDisplayFormData = (
     }
     if (component.type === 'Input' && component.formatting?.number) {
       return formatNumericText(formDataValue, component.formatting.number);
+    }
+    if (component.type === 'DatePicker') {
+      return formatISOString(formDataValue, 'DD.MM.YYYY');
     }
   }
   return formDataValue;
