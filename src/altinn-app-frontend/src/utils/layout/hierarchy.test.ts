@@ -299,8 +299,8 @@ describe('Hierarchical layout tools', () => {
   describe('nodesInLayout', () => {
     it('should resolve a very simple layout', () => {
       const root = new LayoutRootNode();
-      const top1 = new LayoutNode(components.top1, root);
-      const top2 = new LayoutNode(components.top2, root);
+      const top1 = new LayoutNode(components.top1, root, root);
+      const top2 = new LayoutNode(components.top2, root, root);
       root._addChild(top1);
       root._addChild(top2);
 

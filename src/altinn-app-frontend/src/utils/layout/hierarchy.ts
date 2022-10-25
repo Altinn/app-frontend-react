@@ -343,6 +343,7 @@ export class LayoutNode<
   public constructor(
     public item: Item,
     public parent: AnyParentNode<NT>,
+    public top: LayoutRootNode<NT>,
     public readonly rowIndex?: number,
   ) {}
 
@@ -388,8 +389,8 @@ export class LayoutNode<
     return parents;
   }
 
-  private childrenAsList(onlyInRowIndex?: number) {
-    let list: AnyItem<NT>[];
+  private childrenIdsAsList(onlyInRowIndex?: number) {
+    let list: AnyItem<NT>[] = [];
     if (this.item.type === 'Group' && 'rows' in this.item) {
       if (typeof onlyInRowIndex === 'number') {
         list = this.item.rows[onlyInRowIndex];
@@ -401,7 +402,7 @@ export class LayoutNode<
       list = this.item.childComponents;
     }
 
-    return list;
+    return list.map((item) => item.id);
   }
 
   /**
@@ -418,19 +419,20 @@ export class LayoutNode<
     matching?: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
   ): any {
-    const list = this.childrenAsList(onlyInRowIndex);
+    const list = this.childrenIdsAsList(onlyInRowIndex);
 
     if (!matching) {
       if (!list) {
         return [];
       }
-      return list.map((item) => new LayoutNode(item, this));
+      return list.map((id) => this.top.findById(id));
     }
 
     if (typeof list !== 'undefined') {
-      for (const item of list) {
-        if (matching(item)) {
-          return new LayoutNode(item, this);
+      for (const id of list) {
+        const node = this.top.findById(id);
+        if (matching(node.item)) {
+          return node;
         }
       }
     }
@@ -600,6 +602,7 @@ export function nodesInLayout(
         const group: AnyParentNode = new LayoutNode(
           component,
           parent,
+          root,
           rowIndex,
         );
         component.rows.forEach((row, rowIndex) =>
@@ -607,11 +610,11 @@ export function nodesInLayout(
         );
         root._addChild(group);
       } else if (component.type === 'Group' && 'childComponents' in component) {
-        const group = new LayoutNode(component, parent, rowIndex);
+        const group = new LayoutNode(component, parent, root, rowIndex);
         recurse(component.childComponents, group);
         root._addChild(group);
       } else {
-        const node = new LayoutNode(component, parent, rowIndex);
+        const node = new LayoutNode(component, parent, root, rowIndex);
         root._addChild(node);
       }
     }
