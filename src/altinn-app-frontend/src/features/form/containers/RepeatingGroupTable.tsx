@@ -630,7 +630,6 @@ export function RepeatingGroupTable({
                       textResources,
                     ),
                     value: getFormDataForComponent(component, index),
-                    textAlign: getTextAlignment(component),
                   }),
                 );
                 return (
