@@ -1,5 +1,7 @@
 import type React from 'react';
 
+import { formatNumericText } from '@altinn/altinn-design-system';
+
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { setMappingForRepeatingGroupComponent } from 'src/utils/formLayout';
 import {
@@ -293,6 +295,9 @@ export const getDisplayFormData = (
         .filter((name) => name !== '');
 
       return attachmentNamesList.join(', ');
+    }
+    if (component.type === 'Input' && component.formatting?.number) {
+      return formatNumericText(formDataValue, component.formatting.number);
     }
   }
   return formDataValue;

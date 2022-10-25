@@ -21,6 +21,7 @@ export interface IMobileTableItem {
   key: React.Key;
   label: React.ReactNode;
   value: string;
+  textAlign?: 'left' | 'center' | 'right';
 }
 
 export interface IAltinnMobileTableItemProps {
@@ -236,6 +237,7 @@ export default function AltinnMobileTableItem({
                   <Typography
                     variant='body1'
                     className={classes.textContainer}
+                    style={{ textAlign: item.textAlign || 'left' }}
                   >
                     {item.value}
                   </Typography>
