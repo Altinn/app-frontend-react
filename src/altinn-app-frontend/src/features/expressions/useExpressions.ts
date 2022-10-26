@@ -43,12 +43,18 @@ export interface UseExpressionsOptions<T> {
  * @param input Any input, object, value from the layout definitions, possibly containing expressions somewhere.
  *  This hook will look through the input (and recurse through objects), looking for expressions and resolve
  *  them to provide you with the base out value for the current component context.
- * @param options Optional options (see their own docs)
+ * @param _options Optional options (see their own docs)
  */
 export function useExpressions<T>(
   input: T,
-  options?: UseExpressionsOptions<T>,
+  _options?: UseExpressionsOptions<T>,
 ): ExprResolved<T> {
+  // The options argument is an object, so it's natural to create a new one each time this function is called. As
+  // the equality function in React will assume a new object reference is an entirely new object, we'll memoize this
+  // argument as to prevent infinite looping when given a new (but identical) options argument.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const options = useMemo(() => _options, [JSON.stringify(_options)]);
+
   const component = useContext(FormComponentContext);
   const nodes = useLayoutsAsNodes();
   const formData = useAppSelector((state) => state.formData?.formData);
@@ -97,14 +103,8 @@ const componentDefaults: any = {
 export function useExpressionsForComponent<T extends ILayoutComponentOrGroup>(
   input: T,
 ): ExprResolved<T> {
-  const forComponentId = input.id;
-  const options = useMemo(
-    (): UseExpressionsOptions<T> => ({
-      forComponentId,
-      defaults: componentDefaults,
-    }),
-    [forComponentId],
-  );
-
-  return useExpressions(input, options);
+  return useExpressions(input, {
+    forComponentId: input.id,
+    defaults: componentDefaults,
+  });
 }
