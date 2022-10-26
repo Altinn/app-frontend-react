@@ -14,7 +14,7 @@ import type { ChangeProps } from '@altinn/altinn-design-system';
 import type { IComponentProps } from '..';
 
 import { useHasChangedIgnoreUndefined } from 'src/common/hooks';
-import { useGetOptions } from 'src/components/hooks';
+import { useGetTableOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import type { ILayoutCompList } from 'src/features/form/layout';
 import type { IListOption, IMapping, IOptionSource } from 'src/types';
@@ -36,11 +36,10 @@ export const ListComponent = ({
   options,
   optionsId,
   mapping,
-  source,
   formData,
   handleDataChange,
 }: ILayoutCompProps) => {
-  const apiOptions = useGetOptions({ optionsId, mapping, source });
+  const apiOptions = useGetTableOptions({ optionsId, mapping });
   const calculatedOptions =
     (apiOptions || options)?.map((option) => ({
       label: option.label,

@@ -84,4 +84,27 @@ export const useGetOptions = ({
   return options;
 };
 
+interface IUseGetTableOptionsParams {
+  optionsId: string;
+  mapping?: IMapping;
+}
+
+export const useGetTableOptions = ({
+  optionsId,
+  mapping,
+}: IUseGetTableOptionsParams) => {
+  const optionState = useAppSelector((state) => state.optionState.options);
+  const [options, setOptions] = useState<any>(undefined);
+
+  useEffect(() => {
+    if (optionsId) {
+      setOptions(
+        optionState[getOptionLookupKey({ id: optionsId, mapping })]?.options,
+      );
+    }
+  }, [mapping, optionState, optionsId]);
+
+  return options;
+};
+
 export { useDisplayData } from './useDisplayData';
