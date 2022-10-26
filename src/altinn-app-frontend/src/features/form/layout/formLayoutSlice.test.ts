@@ -8,6 +8,7 @@ describe('layoutSlice', () => {
   describe('fetchLayoutFulfilled', () => {
     const layouts = {};
     const navigationConfig = {};
+    const hiddenLayoutsExpressions = {};
 
     it('should set layout state accordingly', () => {
       const nextState = slice.reducer(
@@ -15,11 +16,12 @@ describe('layoutSlice', () => {
         FormLayoutActions.fetchFulfilled({
           layouts,
           navigationConfig,
+          hiddenLayoutsExpressions,
         }),
       );
 
       expect(nextState.layouts).toEqual(layouts);
-      expect(nextState.uiConfig.layoutOrder).toEqual(Object.keys(layouts));
+      expect(nextState.uiConfig.tracks.order).toEqual(Object.keys(layouts));
       expect(nextState.uiConfig.navigationConfig).toEqual(navigationConfig);
     });
 
@@ -40,10 +42,11 @@ describe('layoutSlice', () => {
         FormLayoutActions.fetchFulfilled({
           layouts,
           navigationConfig,
+          hiddenLayoutsExpressions,
         }),
       );
 
-      expect(nextState.uiConfig.repeatingGroups).toEqual({});
+      expect(nextState.uiConfig.repeatingGroups).toBeNull();
     });
 
     it('should reset error if set', () => {
@@ -56,6 +59,7 @@ describe('layoutSlice', () => {
         FormLayoutActions.fetchFulfilled({
           layouts,
           navigationConfig,
+          hiddenLayoutsExpressions,
         }),
       );
 

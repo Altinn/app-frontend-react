@@ -6,7 +6,7 @@ import { render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 
 import { NavigationButtons } from 'src/components/presentation/NavigationButtons';
-import type { IComponentProps } from 'src/components';
+import type { INavigationButtons } from 'src/components/presentation/NavigationButtons';
 
 describe('NavigationButton', () => {
   let mockStore;
@@ -64,7 +64,11 @@ describe('NavigationButton', () => {
         focus: null,
         hiddenFields: [],
         repeatingGroups: null,
-        layoutOrder: ['layout1', 'layout2'],
+        tracks: {
+          order: ['layout1', 'layout2'],
+          hidden: [],
+          hiddenExpr: {},
+        },
         navigationConfig: {
           layout1: {
             next: 'layout2',
@@ -92,7 +96,7 @@ describe('NavigationButton', () => {
           id='nav-button-1'
           showBackButton={false}
           textResourceBindings={null}
-          {...({} as IComponentProps)}
+          {...({} as INavigationButtons)}
         />
       </Provider>,
     );
@@ -108,7 +112,7 @@ describe('NavigationButton', () => {
           id='nav-button-1'
           showBackButton={true}
           textResourceBindings={null}
-          {...({} as IComponentProps)}
+          {...({} as INavigationButtons)}
         />
       </Provider>,
     );
@@ -138,7 +142,7 @@ describe('NavigationButton', () => {
           id='nav-button-2'
           showBackButton={true}
           textResourceBindings={null}
-          {...({} as IComponentProps)}
+          {...({} as INavigationButtons)}
         />
       </Provider>,
     );

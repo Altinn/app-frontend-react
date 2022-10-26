@@ -1,5 +1,6 @@
 import type Ajv from 'ajv/dist/core';
 
+import type { ExpressionOr } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
 import type { RootState } from 'src/store';
@@ -155,6 +156,10 @@ export interface IValidationIssue {
   targetId: string;
 }
 
+export interface IHiddenLayoutsExpressions {
+  [layoutKey: string]: ExpressionOr<'boolean'>;
+}
+
 export interface IUiConfig {
   autoSave: boolean;
   currentView: string;
@@ -165,12 +170,39 @@ export interface IUiConfig {
   repeatingGroups?: IRepeatingGroups;
   fileUploadersWithTag?: IFileUploadersWithTag;
   navigationConfig?: INavigationConfig;
-  layoutOrder: string[];
+  tracks: ITracks;
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
   showLanguageSelector?: boolean;
   showProgress?: boolean;
   keepScrollPos?: IKeepComponentScrollPos;
+}
+
+/**
+ * This state includes everything needed to calculate which layouts should be shown, and their order.
+ * @see https://docs.altinn.studio/app/development/ux/pages/tracks/
+ */
+export interface ITracks {
+  /**
+   * The main 'order' is the list of layouts available, or which layouts the server tells us to display. If a layout
+   * is not in this list, it should be considered hidden. It will be null until layouts have been fetched.
+   *
+   * Do NOT use this directly, as it will not respect layouts hidden using expressions!
+   * @see getLayoutOrderFromTracks
+   * @see selectLayoutOrder
+   */
+  order: string[] | null;
+
+  /**
+   * This state contains the results from calculating `hiddenExpr` (expressions to decide if a certain layout should
+   * be hidden or not). If a layout is in this list, is should also not be displayed.
+   */
+  hidden: string[];
+
+  /**
+   * List of expressions containing logic used to show/hide certain layouts.
+   */
+  hiddenExpr: IHiddenLayoutsExpressions;
 }
 
 export interface IValidationResult {
