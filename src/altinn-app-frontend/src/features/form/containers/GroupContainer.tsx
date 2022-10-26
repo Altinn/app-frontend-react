@@ -3,7 +3,6 @@ import React, { useCallback, useMemo } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import ErrorPaper from 'src/components/message/ErrorPaper';
 import { ExprDefaultsForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { RepeatingGroupAddButton } from 'src/features/form/components/RepeatingGroupAddButton';
@@ -19,22 +18,14 @@ import {
 } from 'src/utils/formLayout';
 import { getHiddenFieldsForGroup } from 'src/utils/layout';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import { repeatingGroupHasValidations } from 'src/utils/validation';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { IRuntimeState } from 'src/types';
-
-import { getLanguageFromKey } from 'altinn-shared/utils';
-
 export interface IGroupProps {
   id: string;
   container: ILayoutGroup;
   components: (ILayoutComponent | ILayoutGroup)[];
   triggers?: Triggers[];
 }
-
-const gridStyle = {
-  paddingTop: '12px',
-};
 
 const useStyles = makeStyles({
   minusMargin: {
@@ -133,26 +124,6 @@ export function GroupContainer({
       repeatingGroupIndex,
       textResources,
       hiddenFields,
-    ],
-  );
-
-  const tableHasErrors = useMemo(
-    () =>
-      repeatingGroupHasValidations(
-        container,
-        repeatingGroupDeepCopyComponents,
-        validations,
-        currentView,
-        repeatingGroups,
-        layout,
-      ),
-    [
-      container,
-      repeatingGroupDeepCopyComponents,
-      validations,
-      currentView,
-      repeatingGroups,
-      layout,
     ],
   );
 
@@ -255,17 +226,6 @@ export function GroupContainer({
           textResources={textResources}
           container={container}
         />
-        {tableHasErrors && (
-          <Grid
-            container={true}
-            style={gridStyle}
-            direction='column'
-          >
-            <ErrorPaper
-              message={getLanguageFromKey('group.row_error', language)}
-            />
-          </Grid>
-        )}
       </>
     );
   }
@@ -387,18 +347,6 @@ export function GroupContainer({
             textResources={textResources}
           />
         )}
-      {tableHasErrors && (
-        <Grid
-          container={true}
-          style={gridStyle}
-          direction='column'
-          data-testid={'group-table-errors'}
-        >
-          <ErrorPaper
-            message={getLanguageFromKey('group.row_error', language)}
-          />
-        </Grid>
-      )}
       <Grid
         item={true}
         xs={12}
