@@ -1,5 +1,16 @@
 export default class AppFrontend {
   constructor() {
+    this.apps = {
+      /** @see https://dev.altinn.studio/repos/ttd/frontend-test */
+      frontendTest: 'frontend-test',
+
+      /** @see https://dev.altinn.studio/repos/ttd/stateless-app */
+      stateless: 'stateless-app',
+
+      /** @see https://dev.altinn.studio/repos/ttd/anonymous-stateless-app */
+      anonymousStateless: 'anonymous-stateless-app',
+    };
+
     //Start app instance page
     this.userId = '#UserId';
     this.appSelection = '#AppPathSelection';
@@ -18,6 +29,7 @@ export default class AppFrontend {
     this.profileIconButton = '#profile-icon-button';
     this.logOut = '#logout-menu-item';
     this.logOutLink = 'a[href$="/ui/authentication/LogOut"]';
+    this.designSystemPanel = '[data-testid="panel-content-wrapper"]';
 
     this.helpText = {
       open: '.reg-help-outline',
@@ -168,7 +180,7 @@ export default class AppFrontend {
       delete: 'button[class*="makeStyles-deleteButton"]',
       saveSubGroup: 'button[id*="add-button-grp-subGroup"]',
       saveMainGroup: '#add-button-grp-mainGroup',
-      editContainer: '[class^="makeStyles-editContainer"]',
+      editContainer: '[data-testid=group-edit-container]',
       sendersName: '#sendersName',
       summaryText: '#send-in-text',
       next: 'button[aria-label="Neste"]',
@@ -177,6 +189,8 @@ export default class AppFrontend {
       mainGroupTableBody: '#group-mainGroup-table-body',
       options: '#reduxOptions',
       tableErrors: '[data-testid=group-table-errors]',
+      popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
+      popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
       rows: [0, 1].map((idx) => ({
         uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3),
         uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4),
