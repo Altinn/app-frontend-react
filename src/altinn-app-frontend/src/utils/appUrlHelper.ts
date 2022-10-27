@@ -197,7 +197,7 @@ export const getOptionsUrl = ({
   if (secure) {
     url = new URL(`${appPath}/instances/${instanceId}/options/${optionsId}`);
   } else {
-    url = new URL(`${appPath}/api/options/${optionsId}`);
+    url = new URL(`${appPath}/api/options/table/${optionsId}`);
   }
   let params: Record<string, string> = {};
 

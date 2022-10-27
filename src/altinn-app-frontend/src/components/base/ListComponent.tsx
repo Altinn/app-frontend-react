@@ -40,11 +40,11 @@ export const ListComponent = ({
   handleDataChange,
 }: ILayoutCompProps) => {
   const apiOptions = useGetTableOptions({ optionsId, mapping });
-  const calculatedOptions =
-    (apiOptions || options)?.map((option) => ({
-      label: option.label,
-      value: option.value,
-    })) || [];
+  // const calculatedOptions =
+  //   (apiOptions || options)?.map((option) => ({
+  //     label: option.label,
+  //     value: option.value,
+  //   })) || [];
 
   const optionsHasChanged = useHasChangedIgnoreUndefined(options);
 
@@ -65,6 +65,14 @@ export const ListComponent = ({
   const handleChange = ({ selectedValue }: ChangeProps) => {
     setValue(selectedValue);
   };
+
+  const renderRow = (option) => {
+    console.log(option);
+    for (const label in option) {
+      console.log(label);
+      return <TableCell key={label}>{label}</TableCell>;
+    }
+  };
   return (
     <Table
       selectRows={true}
@@ -79,15 +87,13 @@ export const ListComponent = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {calculatedOptions?.map((option: IListOption) => {
+        {apiOptions?.map((option) => {
           return (
             <TableRow
-              key={option.value}
-              value={option.value}
+              key={option}
+              value={option}
             >
-              {option.label.map((label) => {
-                return <TableCell key={label}>{label}</TableCell>;
-              })}
+              {renderRow(option)}
             </TableRow>
           );
         })}

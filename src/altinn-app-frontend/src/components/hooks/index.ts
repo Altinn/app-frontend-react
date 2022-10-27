@@ -98,6 +98,7 @@ export const useGetTableOptions = ({
 
   useEffect(() => {
     if (optionsId) {
+      console.log('hei', optionsId);
       setOptions(
         optionState[getOptionLookupKey({ id: optionsId, mapping })]?.options,
       );
