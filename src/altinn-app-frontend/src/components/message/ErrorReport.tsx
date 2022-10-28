@@ -116,7 +116,7 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
           if (parent.edit?.multiPage) {
             const childrenWithMultiPageIndex = (
               layouts[error.layout].find(
-                (c) => c.id === parent.id,
+                (c) => c.id === (parent.baseComponentId ?? parent.id),
               ) as ILayoutGroup
             ).children;
 
