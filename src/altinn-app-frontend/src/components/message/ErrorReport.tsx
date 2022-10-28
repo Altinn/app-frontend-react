@@ -9,7 +9,7 @@ import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { nodesInLayout } from 'src/utils/layout/hierarchy';
 import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation';
-import type { ILayout, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayout } from 'src/features/form/layout';
 import type { AnyChildNode } from 'src/utils/layout/hierarchy.types';
 import type { FlatError } from 'src/utils/validation';
 
@@ -113,21 +113,8 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
               : (allParents[i - 1] as AnyChildNode<'unresolved'>);
 
           // Go to correct multiPage page if necessary
-          if (parent.edit?.multiPage) {
-            const childrenWithMultiPageIndex = (
-              layouts[error.layout].find(
-                (c) => c.id === (parent.baseComponentId ?? parent.id),
-              ) as ILayoutGroup
-            ).children;
-
-            const childIndex = childrenWithMultiPageIndex.findIndex(
-              (id) => id.split(':')[1] == childNode.item.baseComponentId,
-            );
-
-            const multiPageIndex = parseInt(
-              childrenWithMultiPageIndex[childIndex].split(':')[0],
-            );
-
+          if (parent.edit?.multiPage && 'multiPageIndex' in childNode.item) {
+            const multiPageIndex = childNode.item.multiPageIndex;
             dispatch(
               FormLayoutActions.updateRepeatingGroupsMultiPageIndex({
                 group: parent.id,
