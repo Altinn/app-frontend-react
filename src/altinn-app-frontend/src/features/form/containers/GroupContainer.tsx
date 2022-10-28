@@ -78,7 +78,10 @@ export function GroupContainer({
   );
   const [filteredIndexList, setFilteredIndexList] =
     React.useState<number[]>(null);
-  const [multiPageIndex, setMultiPageIndex] = React.useState<number>(-1);
+  const multiPageIndex = useAppSelector(
+    (state: IRuntimeState) =>
+      state.formLayout.uiConfig.repeatingGroups[id]?.multiPageIndex ?? -1,
+  );
 
   const attachments = useAppSelector(
     (state: IRuntimeState) => state.attachments.attachments,
@@ -137,6 +140,18 @@ export function GroupContainer({
     }
   }, [formData, edit]);
 
+  const setMultiPageIndex = useCallback(
+    (index: number) => {
+      dispatch(
+        FormLayoutActions.updateRepeatingGroupsMultiPageIndex({
+          group: id,
+          index,
+        }),
+      );
+    },
+    [dispatch, id],
+  );
+
   const onClickAdd = useCallback(() => {
     dispatch(FormLayoutActions.updateRepeatingGroups({ layoutElementId: id }));
     if (edit?.mode !== 'showAll') {
@@ -146,8 +161,9 @@ export function GroupContainer({
           index: repeatingGroupIndex + 1,
         }),
       );
+      setMultiPageIndex(0);
     }
-  }, [edit?.mode, dispatch, id, repeatingGroupIndex]);
+  }, [dispatch, id, edit?.mode, repeatingGroupIndex, setMultiPageIndex]);
 
   React.useEffect(() => {
     const { edit } = container;
@@ -155,14 +171,16 @@ export function GroupContainer({
       return;
     }
 
-    if (edit.multiPage) {
-      setMultiPageIndex(0);
-    }
-
     if (edit.openByDefault && repeatingGroupIndex === -1) {
       onClickAdd();
     }
   }, [container, onClickAdd, repeatingGroupIndex]);
+
+  React.useEffect(() => {
+    if (edit?.multiPage && multiPageIndex < 0) {
+      setMultiPageIndex(0);
+    }
+  }, [edit?.multiPage, multiPageIndex, setMultiPageIndex]);
 
   const onKeypressAdd = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (
@@ -207,6 +225,9 @@ export function GroupContainer({
         validate,
       }),
     );
+    if (edit?.multiPage && index > -1) {
+      setMultiPageIndex(0);
+    }
   };
 
   const classes = useStyles();

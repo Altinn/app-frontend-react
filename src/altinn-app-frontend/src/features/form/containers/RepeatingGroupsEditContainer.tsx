@@ -118,9 +118,6 @@ export function RepeatingGroupsEditContainer({
 
   const closeEditContainer = () => {
     onClickSave();
-    if (container.edit?.multiPage) {
-      setMultiPageIndex(0);
-    }
   };
 
   let nextIndex: number | null = null;
@@ -137,17 +134,11 @@ export function RepeatingGroupsEditContainer({
   const nextClicked = () => {
     if (nextIndex !== null) {
       setEditIndex(nextIndex, true);
-      if (container.edit?.multiPage) {
-        setMultiPageIndex(0);
-      }
     }
   };
 
   const removeClicked = () => {
     onClickRemove(editIndex);
-    if (container.edit?.multiPage) {
-      setMultiPageIndex(0);
-    }
   };
 
   return (
