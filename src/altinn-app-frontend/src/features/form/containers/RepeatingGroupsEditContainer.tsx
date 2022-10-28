@@ -27,10 +27,9 @@ export interface IRepeatingGroupsEditContainer {
   layout: ILayout;
   deleting?: boolean;
   editIndex: number;
-  setEditIndex?: (index: number, forceValidation?: boolean) => void;
+  setEditIndex: (index: number, forceValidation?: boolean) => void;
   repeatingGroupIndex: number;
   onClickRemove?: (groupIndex: number) => void;
-  onClickSave: () => void;
   hideSaveButton?: boolean;
   hideDeleteButton?: boolean;
   multiPageIndex?: number;
@@ -106,7 +105,6 @@ export function RepeatingGroupsEditContainer({
   setEditIndex,
   repeatingGroupIndex,
   onClickRemove,
-  onClickSave,
   hideSaveButton,
   hideDeleteButton,
   multiPageIndex,
@@ -115,10 +113,6 @@ export function RepeatingGroupsEditContainer({
   filteredIndexes,
 }: IRepeatingGroupsEditContainer): JSX.Element {
   const classes = useStyles();
-
-  const closeEditContainer = () => {
-    onClickSave();
-  };
 
   let nextIndex: number | null = null;
   if (filteredIndexes) {
@@ -130,6 +124,10 @@ export function RepeatingGroupsEditContainer({
   } else {
     nextIndex = editIndex < repeatingGroupIndex ? editIndex + 1 : null;
   }
+
+  const saveClicked = () => {
+    setEditIndex(-1);
+  };
 
   const nextClicked = () => {
     if (nextIndex !== null) {
@@ -256,7 +254,7 @@ export function RepeatingGroupsEditContainer({
               <Grid item={true}>
                 <Button
                   id={`add-button-grp-${id}`}
-                  onClick={closeEditContainer}
+                  onClick={saveClicked}
                   variant={ButtonVariant.Secondary}
                 >
                   {container.textResourceBindings?.save_button

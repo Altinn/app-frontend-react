@@ -202,17 +202,6 @@ export function GroupContainer({
     );
   };
 
-  const onClickSave = () => {
-    const validate = !!container.triggers?.includes(Triggers.Validation);
-    dispatch(
-      FormLayoutActions.updateRepeatingGroupsEditIndex({
-        group: id,
-        index: -1,
-        validate,
-      }),
-    );
-  };
-
   const setEditIndex = (index: number, forceValidation?: boolean) => {
     // if edit button has been clicked while edit container is open, we trigger validations if present in triggers
     const validate: boolean =
@@ -313,7 +302,6 @@ export function GroupContainer({
           language={language}
           textResources={textResources}
           layout={layout}
-          onClickSave={onClickSave}
           repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
           hideSaveButton={edit?.saveButton === false}
           multiPageIndex={multiPageIndex}
@@ -346,7 +334,7 @@ export function GroupContainer({
                 deleting={deletingIndexes.includes(index)}
                 textResources={textResources}
                 layout={layout}
-                onClickSave={onClickSave}
+                setEditIndex={setEditIndex}
                 onClickRemove={onClickRemove}
                 repeatingGroupDeepCopyComponents={
                   repeatingGroupDeepCopyComponents
