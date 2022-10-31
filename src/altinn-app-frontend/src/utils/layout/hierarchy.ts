@@ -447,6 +447,7 @@ export class LayoutNode<
     matching: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
   ): AnyNode<NT> | undefined;
+  public children(matching: null, onlyInRowIndex: number): AnyNode<NT>[];
   public children(
     matching?: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
@@ -478,20 +479,26 @@ export class LayoutNode<
    *
    * @param includeGroups If true, also includes the group nodes (which also includes self, when this node is a group)
    */
-  public flat(includeGroups: true): AnyChildNode<NT>[];
-  public flat(includeGroups: false): LayoutNode<NT, ComponentOf<NT>>[];
-  public flat(includeGroups: boolean): AnyChildNode<NT>[] {
+  public flat(includeGroups: true, onlyInRowIndex?: number): AnyChildNode<NT>[];
+  public flat(
+    includeGroups: false,
+    onlyInRowIndex?: number,
+  ): LayoutNode<NT, ComponentOf<NT>>[];
+  public flat(
+    includeGroups: boolean,
+    onlyInRowIndex?: number,
+  ): AnyChildNode<NT>[] {
     const out: AnyChildNode<NT>[] = [];
-    const recurse = (item: AnyChildNode<NT>) => {
+    const recurse = (item: AnyChildNode<NT>, rowIndex?: number) => {
       if (includeGroups || item.item.type !== 'Group') {
         out.push(item);
       }
-      for (const child of item.children()) {
+      for (const child of item.children(undefined, rowIndex)) {
         recurse(child);
       }
     };
 
-    recurse(this);
+    recurse(this, onlyInRowIndex);
     return out;
   }
 

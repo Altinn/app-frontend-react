@@ -240,9 +240,10 @@ export function validateEmptyFieldsForNodes(
   language: ILanguage,
   hiddenFields: Set<string>,
   textResources: ITextResource[],
+  onlyInRowIndex?: number,
 ): ILayoutValidations {
   const validations: any = {};
-  for (const node of nodes.flat(false)) {
+  for (const node of nodes.flat(false, onlyInRowIndex)) {
     if (
       // These components have their own validation in validateFormComponents(). With data model bindings enabled for
       // attachments, the empty field validations would interfere.
@@ -384,10 +385,11 @@ function validateFormComponentsForNodes(
   formData: IFormData,
   language: ILanguage,
   hiddenFields: Set<string>,
+  onlyInRowIndex?: number,
 ): ILayoutValidations {
   const validations: ILayoutValidations = {};
   const fieldKey: keyof IDataModelBindings = 'simpleBinding';
-  const flatNodes = nodes.flat(false);
+  const flatNodes = nodes.flat(false, onlyInRowIndex);
 
   for (const node of flatNodes) {
     if (node.isHidden(hiddenFields)) {
@@ -1482,6 +1484,7 @@ function removeFixedValidations(
 export function validateGroup(
   groupId: string,
   state: IRuntimeState,
+  onlyInRowIndex?: number,
 ): IValidations {
   const language = state.language.language;
   const textResources = state.textResources.resources;
@@ -1520,6 +1523,7 @@ export function validateGroup(
     language,
     hiddenFields,
     textResources,
+    onlyInRowIndex,
   );
   const componentValidations = validateFormComponentsForNodes(
     attachments,
@@ -1527,6 +1531,7 @@ export function validateGroup(
     formData,
     language,
     hiddenFields,
+    onlyInRowIndex,
   );
   const formDataValidations = validateFormDataForLayout(
     jsonFormData,

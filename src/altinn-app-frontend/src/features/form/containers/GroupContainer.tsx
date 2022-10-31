@@ -203,15 +203,19 @@ export function GroupContainer({
   };
 
   const setEditIndex = (index: number, forceValidation?: boolean) => {
-    // if edit button has been clicked while edit container is open, we trigger validations if present in triggers
-    const validate: boolean =
-      (index === -1 || forceValidation) &&
-      !!container.triggers?.includes(Triggers.Validation);
+    // Validation for whole group takes precedent over single-row validation if both are present.
+    const validate =
+      (container.triggers?.includes(Triggers.Validation) &&
+        Triggers.Validation) ||
+      (container.triggers?.includes(Triggers.ValidateRow) &&
+        Triggers.ValidateRow) ||
+      undefined;
+
     dispatch(
       FormLayoutActions.updateRepeatingGroupsEditIndex({
         group: id,
         index,
-        validate,
+        validate: index === -1 || forceValidation ? validate : undefined,
       }),
     );
     if (edit?.multiPage && index > -1) {
