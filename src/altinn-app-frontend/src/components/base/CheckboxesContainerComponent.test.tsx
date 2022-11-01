@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { defaultHandleDataChangeProps } from '__mocks__/constants';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,9 +7,7 @@ import { renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
 
 import { CheckboxContainerComponent } from 'src/components/base/CheckboxesContainerComponent';
-import { mockDelayBeforeSaving } from 'src/components/hooks/useDelayedSavedState';
 import { LayoutStyle } from 'src/types';
-import type { IComponentProps } from 'src/components';
 import type { ICheckboxContainerProps } from 'src/components/base/CheckboxesContainerComponent';
 import type { IOptionsState } from 'src/shared/resources/options';
 import type { RootState } from 'src/store';
@@ -37,7 +34,6 @@ const render = (
   customState: PreloadedState<RootState> = {},
 ) => {
   const allProps: ICheckboxContainerProps = {
-    type: 'Checkboxes',
     options: [],
     optionsId: 'countries',
     preselectedOptionIndex: undefined,
@@ -46,7 +42,7 @@ const render = (
     handleDataChange: jest.fn(),
     getTextResource: (value) => value,
     getTextResourceAsString: (value) => value,
-    ...({} as IComponentProps),
+    ...({} as ICheckboxContainerProps),
     ...props,
   };
 
@@ -88,6 +84,11 @@ const getCheckbox = ({ name, isChecked = false }) => {
 };
 
 describe('CheckboxContainerComponent', () => {
+  jest.useFakeTimers();
+  const user = userEvent.setup({
+    advanceTimers: jest.advanceTimersByTime,
+  });
+
   it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', () => {
     const handleChange = jest.fn();
     render({
@@ -98,10 +99,7 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(handleChange).toHaveBeenCalledWith(
-      'sweden',
-      ...defaultHandleDataChangeProps,
-    );
+    expect(handleChange).toHaveBeenCalledWith('sweden');
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
@@ -169,19 +167,13 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    mockDelayBeforeSaving(25);
-    await userEvent.click(getCheckbox({ name: 'Denmark' }));
+    await user.click(getCheckbox({ name: 'Denmark' }));
 
     expect(handleChange).not.toHaveBeenCalled();
 
-    await new Promise((r) => setTimeout(r, 25));
+    jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith(
-      'norway,denmark',
-      ...defaultHandleDataChangeProps,
-    );
-
-    mockDelayBeforeSaving(undefined);
+    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
   });
 
   it('should call handleDataChange with updated values when deselecting item', async () => {
@@ -201,19 +193,13 @@ describe('CheckboxContainerComponent', () => {
       getCheckbox({ name: 'Denmark', isChecked: true }),
     ).toBeInTheDocument();
 
-    mockDelayBeforeSaving(25);
-    await userEvent.click(getCheckbox({ name: 'Denmark', isChecked: true }));
+    await user.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
     expect(handleChange).not.toHaveBeenCalled();
 
-    await new Promise((r) => setTimeout(r, 25));
+    jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith(
-      'norway',
-      ...defaultHandleDataChangeProps,
-    );
-
-    mockDelayBeforeSaving(undefined);
+    expect(handleChange).toHaveBeenCalledWith('norway');
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
@@ -229,16 +215,13 @@ describe('CheckboxContainerComponent', () => {
 
     expect(denmark).toBeInTheDocument();
 
-    await userEvent.click(denmark);
+    await user.click(denmark);
 
     expect(handleChange).not.toHaveBeenCalled();
 
     fireEvent.blur(denmark);
 
-    expect(handleChange).toHaveBeenCalledWith(
-      'norway,denmark',
-      ...defaultHandleDataChangeProps,
-    );
+    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', () => {
@@ -268,19 +251,13 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    mockDelayBeforeSaving(25);
-    await userEvent.click(getCheckbox({ name: 'Denmark' }));
+    await user.click(getCheckbox({ name: 'Denmark' }));
 
     expect(handleChange).not.toHaveBeenCalled();
 
-    await new Promise((r) => setTimeout(r, 25));
+    jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith(
-      'denmark',
-      ...defaultHandleDataChangeProps,
-    );
-
-    mockDelayBeforeSaving(undefined);
+    expect(handleChange).toHaveBeenCalledWith('denmark');
   });
 
   it('should show spinner while waiting for options', () => {
@@ -384,20 +361,14 @@ describe('CheckboxContainerComponent', () => {
       getCheckbox({ name: 'The value from the group is: Label for second' }),
     ).toBeInTheDocument();
 
-    mockDelayBeforeSaving(25);
-    await userEvent.click(
+    await user.click(
       getCheckbox({ name: 'The value from the group is: Label for second' }),
     );
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
-    await new Promise((r) => setTimeout(r, 25));
+    jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith(
-      'Value for second',
-      ...defaultHandleDataChangeProps,
-    );
-
-    mockDelayBeforeSaving(undefined);
+    expect(handleDataChange).toHaveBeenCalledWith('Value for second');
   });
 });

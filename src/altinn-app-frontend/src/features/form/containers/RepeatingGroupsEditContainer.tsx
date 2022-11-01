@@ -27,12 +27,15 @@ export interface IRepeatingGroupsEditContainer {
   layout: ILayout;
   deleting?: boolean;
   editIndex: number;
+  setEditIndex: (index: number, forceValidation?: boolean) => void;
+  repeatingGroupIndex: number;
   onClickRemove?: (groupIndex: number) => void;
-  onClickSave: () => void;
   hideSaveButton?: boolean;
   hideDeleteButton?: boolean;
   multiPageIndex?: number;
   setMultiPageIndex?: (index: number) => void;
+  showSaveAndNextButton?: boolean;
+  filteredIndexes?: number[];
 }
 
 const theme = createTheme(altinnAppTheme);
@@ -99,31 +102,48 @@ export function RepeatingGroupsEditContainer({
   layout,
   deleting,
   editIndex,
+  setEditIndex,
+  repeatingGroupIndex,
   onClickRemove,
-  onClickSave,
   hideSaveButton,
   hideDeleteButton,
   multiPageIndex,
   setMultiPageIndex,
+  showSaveAndNextButton,
+  filteredIndexes,
 }: IRepeatingGroupsEditContainer): JSX.Element {
   const classes = useStyles();
 
-  const closeEditContainer = () => {
-    onClickSave();
-    if (container.edit?.multiPage) {
-      setMultiPageIndex(0);
+  let nextIndex: number | null = null;
+  if (filteredIndexes) {
+    const filteredIndex = filteredIndexes.indexOf(editIndex);
+    nextIndex =
+      filteredIndexes.slice(filteredIndex).length > 1
+        ? filteredIndexes[filteredIndex + 1]
+        : null;
+  } else {
+    nextIndex = editIndex < repeatingGroupIndex ? editIndex + 1 : null;
+  }
+
+  const saveClicked = () => {
+    setEditIndex(-1);
+  };
+
+  const nextClicked = () => {
+    if (nextIndex !== null) {
+      setEditIndex(nextIndex, true);
     }
   };
 
   const removeClicked = () => {
     onClickRemove(editIndex);
-    if (container.edit?.multiPage) {
-      setMultiPageIndex(0);
-    }
   };
 
   return (
-    <div className={cn([classes.editContainer], className)}>
+    <div
+      className={cn([classes.editContainer], className)}
+      data-testid='group-edit-container'
+    >
       <Grid
         container={true}
         item={true}
@@ -208,20 +228,45 @@ export function RepeatingGroupsEditContainer({
                 )}
             </div>
           )}
-          {!hideSaveButton && (
-            <Button
-              id={`add-button-grp-${id}`}
-              onClick={closeEditContainer}
-              variant={ButtonVariant.Secondary}
-            >
-              {container.textResourceBindings?.save_button
-                ? getTextResourceByKey(
-                    container.textResourceBindings.save_button,
-                    textResources,
-                  )
-                : getLanguageFromKey('general.save_and_close', language)}
-            </Button>
-          )}
+          <Grid
+            container={true}
+            direction='row'
+            spacing={2}
+          >
+            {showSaveAndNextButton && nextIndex !== null && (
+              <Grid item={true}>
+                <Button
+                  id={`next-button-grp-${id}`}
+                  onClick={nextClicked}
+                  variant={ButtonVariant.Primary}
+                >
+                  {container.textResourceBindings?.save_and_next_button
+                    ? getTextResourceByKey(
+                        container.textResourceBindings.save_and_next_button,
+                        textResources,
+                      )
+                    : getLanguageFromKey('general.save_and_next', language)}
+                </Button>
+              </Grid>
+            )}
+            {(!hideSaveButton ||
+              (showSaveAndNextButton && nextIndex === null)) && (
+              <Grid item={true}>
+                <Button
+                  id={`add-button-grp-${id}`}
+                  onClick={saveClicked}
+                  variant={ButtonVariant.Secondary}
+                >
+                  {container.textResourceBindings?.save_button
+                    ? getTextResourceByKey(
+                        container.textResourceBindings.save_button,
+                        textResources,
+                      )
+                    : getLanguageFromKey('general.save_and_close', language)}
+                </Button>
+              </Grid>
+            )}
+          </Grid>
         </Grid>
       </Grid>
     </div>

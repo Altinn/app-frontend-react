@@ -1,16 +1,14 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompCustom } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 import type { ITextResource, ITextResourceBindings } from 'src/types';
 
 import { getTextResourceByKey } from 'altinn-shared/utils';
 
-export type ICustomComponentProps = IComponentProps &
-  Omit<ILayoutCompCustom, 'type'> & {
-    [key: string]: string | number | boolean | object;
-  };
+export type ICustomComponentProps = PropsFromGenericComponent<'Custom'> & {
+  [key: string]: string | number | boolean | object;
+};
 
 function CustomWebComponent({
   tagName,
@@ -19,6 +17,7 @@ function CustomWebComponent({
   textResourceBindings,
   dataModelBindings,
   language,
+  hidden,
   handleDataChange,
   ...passThroughProps
 }: ICustomComponentProps) {
@@ -33,7 +32,7 @@ function CustomWebComponent({
     if (current) {
       const handleChange = (customEvent: CustomEvent) => {
         const { value, field } = customEvent.detail;
-        handleDataChange(value, field);
+        handleDataChange(value, { key: field });
       };
 
       current.addEventListener('dataChanged', handleChange);
@@ -64,7 +63,7 @@ function CustomWebComponent({
     }
   }, [formData, componentValidations]);
 
-  if (!Tag || !textResources) {
+  if (hidden || !Tag || !textResources) {
     return null;
   }
 

@@ -186,6 +186,60 @@ describe('GroupContainer', () => {
     expect(item).toBeInTheDocument();
   });
 
+  it('calls setMultiPageIndex when opening a group', async () => {
+    const user = userEvent.setup();
+    const multiPageContainer: ILayoutGroup = {
+      ...mockContainer,
+      edit: {
+        ...mockContainer.edit,
+        multiPage: true,
+      },
+    };
+    const store = render({ container: multiPageContainer });
+
+    const editButton = screen.getAllByRole('button', {
+      name: /Rediger/i,
+    })[0];
+    await user.click(editButton);
+
+    const mockDispatchedAction = {
+      payload: {
+        group: 'container-closed-id',
+        index: 0,
+      },
+      type: FormLayoutActions.updateRepeatingGroupsMultiPageIndex.type,
+    };
+
+    expect(store.dispatch).toHaveBeenLastCalledWith(mockDispatchedAction);
+  });
+
+  it('calls setMultiPageIndex when adding a group element', async () => {
+    const user = userEvent.setup();
+    const multiPageContainer: ILayoutGroup = {
+      ...mockContainer,
+      edit: {
+        ...mockContainer.edit,
+        multiPage: true,
+      },
+    };
+    const store = render({ container: multiPageContainer });
+
+    const addButton = screen.getAllByRole('button', {
+      name: /Legg til ny/i,
+    })[0];
+    await user.click(addButton);
+
+    const mockDispatchedAction = {
+      payload: {
+        group: 'container-closed-id',
+        index: 0,
+      },
+      type: FormLayoutActions.updateRepeatingGroupsMultiPageIndex.type,
+    };
+
+    expect(store.dispatch).toHaveBeenLastCalledWith(mockDispatchedAction);
+  });
+
   it('should trigger validate when closing edit mode if validation trigger is present', async () => {
     const mockContainerInEditModeWithTrigger = {
       ...mockContainer,
@@ -195,7 +249,9 @@ describe('GroupContainer', () => {
     const user = userEvent.setup();
     const store = render({ container: mockContainerInEditModeWithTrigger });
 
-    const editButton = screen.getAllByText('Rediger')[0].closest('button');
+    const editButton = screen.getAllByRole('button', {
+      name: /Lagre og lukk/i,
+    })[0];
     await user.click(editButton);
 
     const mockDispatchedAction = {
@@ -219,7 +275,9 @@ describe('GroupContainer', () => {
     const store = render({ container: mockContainerInEditMode });
     const user = userEvent.setup();
 
-    const editButton = screen.getAllByText('Rediger')[0].closest('button');
+    const editButton = screen.getAllByRole('button', {
+      name: /Lagre og lukk/i,
+    })[0];
     await user.click(editButton);
 
     const mockDispatchedAction = {
@@ -244,9 +302,9 @@ describe('GroupContainer', () => {
     const store = render({ container: mockContainerInEditModeWithTrigger });
     const user = userEvent.setup();
 
-    const editButton = screen.getByRole('button', {
+    const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
-    });
+    })[1];
     await user.click(editButton);
 
     const mockDispatchedAction = {
@@ -270,9 +328,9 @@ describe('GroupContainer', () => {
     const store = render({ container: mockContainerInEditMode });
     const user = userEvent.setup();
 
-    const editButton = screen.getByRole('button', {
+    const editButton = screen.getAllByRole('button', {
       name: /Lagre og lukk/i,
-    });
+    })[1];
     await user.click(editButton);
 
     const mockDispatchedAction = {

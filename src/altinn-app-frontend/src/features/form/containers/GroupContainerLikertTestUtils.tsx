@@ -113,7 +113,6 @@ export const createFormDataUpdateAction = (
       data: optionValue,
       field: `Questions[${index}].Answer`,
       skipValidation: false,
-      checkIfRequired: false,
     },
     type: FormDataActions.update.type,
   };
@@ -143,7 +142,11 @@ const createLayout = (
       autoSave: null,
       fileUploadersWithTag: {},
       navigationConfig: {},
-      layoutOrder: null,
+      tracks: {
+        order: null,
+        hidden: [],
+        hiddenExpr: {},
+      },
       pageTriggers: [],
     },
   };

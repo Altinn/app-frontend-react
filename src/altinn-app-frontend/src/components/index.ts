@@ -26,9 +26,12 @@ import { TextAreaComponent } from 'src/components/base/TextAreaComponent';
 import CustomComponent from 'src/components/custom/CustomWebComponent';
 import { NavigationButtons as NavigationButtonsComponent } from 'src/components/presentation/NavigationButtons';
 import type { IGenericComponentProps } from 'src/components/GenericComponent';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type {
+  ComponentExceptGroup,
   ComponentExceptGroupAndSummary,
   IGrid,
+  ILayoutComponent,
 } from 'src/features/form/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
@@ -65,9 +68,10 @@ const components: {
 export interface IComponentProps extends IGenericComponentProps {
   handleDataChange: (
     value: string,
-    key?: string,
-    skipValidation?: boolean,
-    checkIfRequired?: boolean,
+    options?: {
+      key?: string; // Defaults to simpleBinding
+      validate?: boolean; // Defaults to true
+    },
   ) => void;
   getTextResource: (key: string) => React.ReactNode;
   getTextResourceAsString: (key: string) => string;
@@ -80,13 +84,18 @@ export interface IComponentProps extends IGenericComponentProps {
   isValid?: boolean;
 }
 
+export type PropsFromGenericComponent<T extends ComponentExceptGroup> =
+  IComponentProps & ExprResolved<Omit<ILayoutComponent<T>, 'type'>>;
+
 export interface IFormComponentContext {
   grid?: IGrid;
+  id?: string;
   baseComponentId?: string;
 }
 
 export const FormComponentContext = createContext<IFormComponentContext>({
   grid: undefined,
+  id: undefined,
   baseComponentId: undefined,
 });
 

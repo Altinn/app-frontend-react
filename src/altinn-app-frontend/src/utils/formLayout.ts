@@ -1,7 +1,9 @@
 import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
+import type { IFormData } from 'src/features/form/data';
 import type {
   ComponentTypes,
   IGroupEditProperties,
+  IGroupFilter,
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
@@ -127,6 +129,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
             index,
             dataModelBinding: groupElement.dataModelBindings?.group,
             editIndex: -1,
+            multiPageIndex: -1,
           };
           const groupElementChildGroups = [];
           groupElement.children?.forEach((id) => {
@@ -155,6 +158,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
                   ),
                   baseGroupId: childGroup.id,
                   editIndex: -1,
+                  multiPageIndex: -1,
                   dataModelBinding: childGroup.dataModelBindings?.group,
                 };
               },
@@ -166,6 +170,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
           index: -1,
           dataModelBinding: groupElement.dataModelBindings?.group,
           editIndex: -1,
+          multiPageIndex: -1,
         };
       }
     }
@@ -278,10 +283,16 @@ export const getRepeatingGroupStartStopIndex = (
   repeatingGroupIndex: number,
   edit: IGroupEditProperties | undefined,
 ) => {
+  if (typeof repeatingGroupIndex === 'undefined') {
+    return { startIndex: 0, stopIndex: -1 };
+  }
+
   const start = edit?.filter?.find(({ key }) => key === 'start')?.value;
   const stop = edit?.filter?.find(({ key }) => key === 'stop')?.value;
   const startIndex = start ? parseInt(start) : 0;
-  const stopIndex = stop ? parseInt(stop) - 1 : repeatingGroupIndex;
+  const stopIndex = stop
+    ? Math.min(parseInt(stop) - 1, repeatingGroupIndex)
+    : repeatingGroupIndex;
   return { startIndex, stopIndex };
 };
 
@@ -430,8 +441,14 @@ export function getVariableTextKeysForRepeatingGroupComponent(
   return copyTextResourceBindings;
 }
 
-export function hasRequiredFields(layout: ILayout) {
-  return layout.find((c: ILayoutComponent) => c.required);
+/**
+ * Checks if there are required fields in this layout (or fields that potentially can be marked as required if some
+ * dynamic behaviour dictates it).
+ */
+export function hasRequiredFields(layout: ILayout): boolean {
+  return !!layout.find(
+    (c: ILayoutComponent) => c.required === true || Array.isArray(c.required),
+  );
 }
 
 /**
@@ -442,6 +459,7 @@ export function hasRequiredFields(layout: ILayout) {
  * @param options.matching Function which should return true for every component to be included in the returned list.
  *    If not provided, all components are returned.
  * @param options.rootGroupId Component id for a group to use as root, instead of iterating the entire layout.
+ * @deprecated Use nodesInLayout() instead. TODO: Rewrite usages
  */
 export function findChildren(
   layout: ILayout,
@@ -548,4 +566,36 @@ export function behavesLikeDataTask(
   layoutSets: ILayoutSets,
 ): boolean {
   return layoutSets?.sets.some((set) => set.tasks?.includes(task));
+}
+
+/**
+ * (Deprecate this function) Returns the filtered indices of a repeating group.
+ * This is a buggy implementation, but is used for backward compatibility until a new major version is released.
+ * @see https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1286624933
+ * @param formData IFormData
+ * @param filter IGroupEditProperties.filter or undefined.
+ * @returns a list of indices for repeating group elements after applying filters, or null if no filters are provided or if no elements match.
+ */
+export function getRepeatingGroupFilteredIndices(
+  formData: IFormData,
+  filter?: IGroupFilter[],
+): number[] | null {
+  if (filter && filter.length > 0) {
+    const rule = filter.at(-1);
+    const formDataKeys: string[] = Object.keys(formData).filter((key) => {
+      const keyWithoutIndex = key.replaceAll(/\[\d*\]/g, '');
+      return keyWithoutIndex === rule.key && formData[key] === rule.value;
+    });
+    if (formDataKeys && formDataKeys.length > 0) {
+      return formDataKeys.map((key) => {
+        const match = key.match(/\[(\d*)\]/g);
+        const currentIndex = match[match.length - 1];
+        return parseInt(
+          currentIndex.substring(1, currentIndex.indexOf(']')),
+          10,
+        );
+      });
+    }
+  }
+  return null;
 }

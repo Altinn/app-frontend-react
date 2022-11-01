@@ -2,12 +2,6 @@ import * as React from 'react';
 
 import type { IComponentProps } from 'src/components';
 
-let mockDelay: number | undefined = undefined;
-
-export const mockDelayBeforeSaving = (newDelay: number) => {
-  mockDelay = newDelay;
-};
-
 export interface DelayedSavedStateRetVal {
   value: string;
   setValue: (newValue: string, saveImmediately?: boolean) => void;
@@ -33,12 +27,10 @@ export function useDelayedSavedState(
       return;
     }
 
-    const timeout =
-      mockDelay ||
-      ((typeof saveAfter === 'number' ? saveAfter : 400) as number);
+    const timeout = typeof saveAfter === 'number' ? saveAfter : 400;
     const timeoutId = setTimeout(() => {
       if (immediateState !== formValue) {
-        handleDataChange(immediateState, undefined, false, false);
+        handleDataChange(immediateState);
       }
     }, timeout);
 
@@ -51,17 +43,17 @@ export function useDelayedSavedState(
       setImmediateState(newValue);
       if (newValue !== formValue) {
         if (saveImmediately) {
-          handleDataChange(newValue, undefined, false, false);
+          handleDataChange(newValue);
         } else if (saveNextChangeImmediately) {
           // Save immediately on the next change event after a paste
-          handleDataChange(newValue, undefined, false, false);
+          handleDataChange(newValue);
           setSaveNextChangeImmediately(false);
         }
       }
     },
     saveValue: () => {
       if (immediateState !== formValue) {
-        handleDataChange(immediateState, undefined, false, false);
+        handleDataChange(immediateState);
       }
     },
     onPaste: () => {

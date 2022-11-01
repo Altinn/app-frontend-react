@@ -38,6 +38,7 @@ import {
 } from 'src/utils/databindings';
 import {
   findChildren,
+  getRepeatingGroupFilteredIndices,
   getRepeatingGroups,
   mapFileUploadersWithTag,
   removeRepeatingGroupFromUIConfig,
@@ -105,7 +106,7 @@ export const selectOptions = (state: IRuntimeState): IOptions =>
   state.optionState.options;
 
 export function* updateRepeatingGroupsSaga({
-  payload: { layoutElementId, remove, index, leaveOpen },
+  payload: { layoutElementId, remove, index },
 }: PayloadAction<IUpdateRepeatingGroups>): SagaIterator {
   try {
     const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
@@ -154,6 +155,7 @@ export function* updateRepeatingGroupsSaga({
           baseGroupId: group.id,
           dataModelBinding: group.dataModelBindings?.group,
           editIndex: -1,
+          multiPageIndex: -1,
         };
       }
     });
@@ -271,11 +273,6 @@ export function* updateRepeatingGroupsSaga({
             (value) => value !== index,
           );
         updatedRepeatingGroups[layoutElementId].editIndex = -1;
-
-        if (leaveOpen && index === 0) {
-          updatedRepeatingGroups[layoutElementId].index = 0;
-          updatedRepeatingGroups[layoutElementId].editIndex = 0;
-        }
 
         yield put(
           FormLayoutActions.updateRepeatingGroupsFulfilled({
@@ -634,7 +631,7 @@ export function* updateRepeatingGroupEditIndexSaga({
 export function* initRepeatingGroupsSaga(): SagaIterator {
   const formDataState: IFormDataState = yield select(selectFormData);
   const state: IRuntimeState = yield select();
-  const currentGroups = state.formLayout.uiConfig.repeatingGroups;
+  const currentGroups = state.formLayout.uiConfig.repeatingGroups || {};
   const layouts = yield select(selectFormLayouts);
   let newGroups: IRepeatingGroups = {};
   Object.keys(layouts).forEach((layoutKey: string) => {
@@ -644,7 +641,7 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
     };
   });
   // if any groups have been removed as part of calculation we delete the associated validations
-  const currentGroupKeys = Object.keys(currentGroups || {});
+  const currentGroupKeys = Object.keys(currentGroups);
   const groupsToRemoveValidations = currentGroupKeys.filter((key) => {
     return (
       currentGroups[key].index > -1 &&
@@ -668,6 +665,34 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
     }
     yield put(ValidationActions.updateValidations({ validations }));
   }
+
+  // Open by default
+  const newGroupKeys = Object.keys(newGroups || {});
+  const groupContainers = Object.values(state.formLayout.layouts)
+    .flatMap((e) => e)
+    .filter((e) => e.type === 'Group');
+
+  newGroupKeys.forEach((key) => {
+    const group = newGroups[key];
+    const container = groupContainers.find(
+      (element) => element.id === key,
+    ) as ILayoutGroup;
+    if (container && group.index >= 0) {
+      const filteredIndexList = getRepeatingGroupFilteredIndices(
+        formDataState.formData,
+        container.edit?.filter,
+      );
+
+      if (container.edit?.openByDefault === 'first') {
+        group.editIndex = filteredIndexList ? filteredIndexList[0] : 0;
+      } else if (container.edit?.openByDefault === 'last') {
+        group.editIndex = filteredIndexList
+          ? filteredIndexList.at(-1)
+          : group.index;
+      }
+    }
+  });
+
   // preserve current edit index if still valid
   currentGroupKeys
     .filter((key) => !groupsToRemoveValidations.includes(key))

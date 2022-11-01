@@ -14,14 +14,10 @@ const mui = new Common();
 Cypress.Commands.add('navigateToChangeName', () => {
   cy.intercept('**/active', []).as('noActiveInstances');
   cy.intercept('POST', `**/instances?instanceOwnerPartyId*`).as('createInstace');
-  cy.startAppInstance(Cypress.env('multiData2Stage'));
+  cy.startAppInstance(appFrontend.apps.frontendTest);
   cy.wait('@createInstace');
   cy.get(appFrontend.closeButton).should('be.visible');
-  cy.intercept('**/api/layoutsettings/changename').as('getLayoutChangeName');
-  cy.get(appFrontend.sendinButton).then((button) => {
-    cy.get(button).should('be.visible').click();
-    cy.wait('@getLayoutChangeName');
-  });
+  cy.get(appFrontend.sendinButton).click();
 });
 
 /**
@@ -140,7 +136,7 @@ Cypress.Commands.add('navigateToTask5', () => {
 });
 
 Cypress.Commands.add('addItemToGroup', (oldValue, newValue, comment, openByDefault) => {
-  if (openByDefault !== true) {
+  if (!openByDefault) {
     cy.get(appFrontend.group.addNewItem).should('be.visible').focus().click();
   }
 
@@ -152,7 +148,7 @@ Cypress.Commands.add('addItemToGroup', (oldValue, newValue, comment, openByDefau
     .should('be.visible')
     .click();
 
-  if (openByDefault === true || typeof openByDefault === 'undefined') {
+  if (openByDefault || typeof openByDefault === 'undefined') {
     cy.get(appFrontend.group.addNewItemSubGroup).should('not.exist');
   } else {
     cy.get(appFrontend.group.addNewItemSubGroup).click();

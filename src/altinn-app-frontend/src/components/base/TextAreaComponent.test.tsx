@@ -4,7 +4,6 @@ import { render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { TextAreaComponent } from 'src/components/base/TextAreaComponent';
-import type { IComponentProps } from 'src/components';
 import type { ITextAreaProps } from 'src/components/base/TextAreaComponent';
 
 describe('TextAreaComponent.tsx', () => {
@@ -38,12 +37,7 @@ describe('TextAreaComponent.tsx', () => {
     await user.type(textarea, addedText);
     await user.keyboard('{Tab}');
 
-    expect(handleDataChange).toHaveBeenCalledWith(
-      `${initialText}${addedText}`,
-      undefined,
-      false,
-      false,
-    );
+    expect(handleDataChange).toHaveBeenCalledWith(`${initialText}${addedText}`);
   });
 
   it('should not fire handleDataChange when readOnly is true', async () => {
@@ -83,7 +77,7 @@ describe('TextAreaComponent.tsx', () => {
   });
 });
 
-const render = (props: Partial<IComponentProps> = {}) => {
+const render = (props: Partial<ITextAreaProps> = {}) => {
   const allProps = {
     id: 'id',
     type: 'TextArea',

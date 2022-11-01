@@ -1,6 +1,7 @@
 import type { ILayouts } from 'src/features/form/layout';
 import type {
   IFileUploadersWithTag,
+  IHiddenLayoutsExpressions,
   ILayoutSets,
   ILayoutSettings,
   INavigationConfig,
@@ -14,6 +15,7 @@ export interface IFormLayoutActionRejected {
 export interface IFetchLayoutFulfilled {
   layouts: ILayouts;
   navigationConfig?: INavigationConfig;
+  hiddenLayoutsExpressions: IHiddenLayoutsExpressions;
 }
 
 export interface IFetchLayoutSetsFulfilled {
@@ -63,7 +65,6 @@ export interface IUpdateRepeatingGroups {
   layoutElementId: string;
   remove?: boolean;
   index?: number;
-  leaveOpen?: boolean;
 }
 
 export interface IUpdateRepeatingGroupsFulfilled {
@@ -72,6 +73,11 @@ export interface IUpdateRepeatingGroupsFulfilled {
 
 export interface IUpdateRepeatingGroupsRemoveCancelled {
   layoutElementId: string;
+  index: number;
+}
+
+export interface IUpdateRepeatingGroupsMultiPageIndex {
+  group: string;
   index: number;
 }
 
@@ -136,4 +142,8 @@ export interface ICalculatePageOrderAndMoveToNextPage {
 
 export interface ICalculatePageOrderAndMoveToNextPageFulfilled {
   order: string[];
+}
+
+export interface IHiddenLayoutsUpdate {
+  hiddenLayouts: string[];
 }

@@ -38,11 +38,15 @@ export const initialState: ILayoutState = {
     focus: null,
     hiddenFields: [],
     autoSave: null,
-    repeatingGroups: {},
+    repeatingGroups: null,
     fileUploadersWithTag: {},
     currentView: 'FormLayout',
     navigationConfig: {},
-    layoutOrder: null,
+    tracks: {
+      hidden: [],
+      hiddenExpr: {},
+      order: null,
+    },
     pageTriggers: [],
     keepScrollPos: undefined,
   },
@@ -63,12 +67,14 @@ const formLayoutSlice = createSagaSlice(
       }),
       fetchFulfilled: mkAction<LayoutTypes.IFetchLayoutFulfilled>({
         reducer: (state, action) => {
-          const { layouts, navigationConfig } = action.payload;
+          const { layouts, navigationConfig, hiddenLayoutsExpressions } =
+            action.payload;
           state.layouts = layouts;
           state.uiConfig.navigationConfig = navigationConfig;
-          state.uiConfig.layoutOrder = Object.keys(layouts);
+          state.uiConfig.tracks.order = Object.keys(layouts);
+          state.uiConfig.tracks.hiddenExpr = hiddenLayoutsExpressions;
           state.error = null;
-          state.uiConfig.repeatingGroups = {};
+          state.uiConfig.repeatingGroups = null;
         },
         takeLatest: function* () {
           yield put(OptionsActions.fetch());
@@ -114,7 +120,7 @@ const formLayoutSlice = createSagaSlice(
               updateCommonPageSettings(state, settings.pages);
               const order = settings.pages.order;
               if (order) {
-                state.uiConfig.layoutOrder = order;
+                state.uiConfig.tracks.order = order;
                 if (state.uiConfig.currentViewCacheKey) {
                   let currentView: string;
                   const lastVisitedPage = localStorage.getItem(
@@ -220,6 +226,13 @@ const formLayoutSlice = createSagaSlice(
             state.error = error;
           },
         }),
+      updateRepeatingGroupsMultiPageIndex:
+        mkAction<LayoutTypes.IUpdateRepeatingGroupsMultiPageIndex>({
+          reducer: (state, action) => {
+            const { group, index } = action.payload;
+            state.uiConfig.repeatingGroups[group].multiPageIndex = index;
+          },
+        }),
       updateRepeatingGroupsEditIndex:
         mkAction<LayoutTypes.IUpdateRepeatingGroupsEditIndex>({
           takeLatest: updateRepeatingGroupEditIndexSaga,
@@ -305,7 +318,7 @@ const formLayoutSlice = createSagaSlice(
         mkAction<LayoutTypes.ICalculatePageOrderAndMoveToNextPageFulfilled>({
           reducer: (state, action) => {
             const { order } = action.payload;
-            state.uiConfig.layoutOrder = order;
+            state.uiConfig.tracks.order = order;
           },
         }),
       calculatePageOrderAndMoveToNextPageRejected:
@@ -315,6 +328,11 @@ const formLayoutSlice = createSagaSlice(
             state.error = error;
           },
         }),
+      updateHiddenLayouts: mkAction<LayoutTypes.IHiddenLayoutsUpdate>({
+        reducer: (state, action) => {
+          state.uiConfig.tracks.hidden = action.payload.hiddenLayouts;
+        },
+      }),
       initRepeatingGroups: mkAction<void>({
         saga: () => watchInitRepeatingGroupsSaga,
       }),
