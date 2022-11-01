@@ -35,7 +35,7 @@ export const Progress = () => {
             'general.progress',
             textResources,
             language,
-            [currentPageIndex.toString(), numberOfPages.toString()],
+            [currentPageNum.toString(), numberOfPages.toString()],
             true,
           )) ||
         undefined

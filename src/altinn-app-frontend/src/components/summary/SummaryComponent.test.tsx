@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { getFormLayoutStateMock } from '__mocks__/mocks';
+import { getFormLayoutStateMock, getInitialStateMock } from '__mocks__/mocks';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderWithProviders } from 'testUtils';
 
@@ -146,6 +146,7 @@ describe('SummaryComponent', () => {
       />,
       {
         preloadedState: {
+          ...getInitialStateMock(),
           formLayout: mockLayout,
           formValidations: {
             validations,

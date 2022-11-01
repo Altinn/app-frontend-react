@@ -105,6 +105,11 @@ const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
         ],
       },
     },
+    language: {
+      language: {},
+      error: null,
+      selectedAppLanguage: 'nb',
+    },
   });
 
   store.dispatch = dispatch;

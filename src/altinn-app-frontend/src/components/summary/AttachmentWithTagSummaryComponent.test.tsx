@@ -122,11 +122,17 @@ describe('AttachmentWithTagSummaryComponent', () => {
     expect(screen.getByText('da option value')).toBeInTheDocument();
   });
   test('should render the text resource', () => {
-    renderHelper({ ...formLayoutItem, optionsId: 'b' }, extendedState);
+    renderHelper(
+      { ...formLayoutItem, optionsId: 'b', mapping: undefined },
+      extendedState,
+    );
     expect(screen.getByText('the result')).toBeInTheDocument();
   });
   test('should not render a text resource', () => {
-    renderHelper({ ...formLayoutItem, optionsId: 'c' }, extendedState);
+    renderHelper(
+      { ...formLayoutItem, optionsId: 'c', mapping: undefined },
+      extendedState,
+    );
     expect(screen.getByText('ca option value')).toBeInTheDocument();
   });
 

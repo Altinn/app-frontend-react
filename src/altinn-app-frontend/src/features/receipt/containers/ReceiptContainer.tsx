@@ -91,14 +91,6 @@ const ReceiptContainer = () => {
 
   const { instanceGuid, instanceId } = useInstanceIdParams();
 
-  const isLoading = (): boolean =>
-    !attachments ||
-    !instanceMetaObject ||
-    !lastChangedDateTime ||
-    !allOrgs ||
-    !instance ||
-    !parties;
-
   useEffect(() => {
     dispatch(
       InstanceDataActions.get({
@@ -165,20 +157,16 @@ const ReceiptContainer = () => {
     }
   }, [instance, applicationMetadata]);
 
-  if (!applicationMetadata || !language) {
-    return null;
-  }
-
   return (
     <div id='ReceiptContainer'>
-      {isLoading() ? (
-        <AltinnContentLoader
-          width={705}
-          height={561}
-        >
-          <AltinnContentIconReceipt />
-        </AltinnContentLoader>
-      ) : (
+      {attachments &&
+      applicationMetadata &&
+      instanceMetaObject &&
+      lastChangedDateTime &&
+      allOrgs &&
+      instance &&
+      language &&
+      parties ? (
         <>
           {!applicationMetadata.autoDeleteOnProcessEnd && (
             <AltinnReceipt
@@ -223,6 +211,13 @@ const ReceiptContainer = () => {
           )}
           <ReadyForPrint />
         </>
+      ) : (
+        <AltinnContentLoader
+          width={705}
+          height={561}
+        >
+          <AltinnContentIconReceipt />
+        </AltinnContentLoader>
       )}
     </div>
   );

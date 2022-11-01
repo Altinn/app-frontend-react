@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { getFormDataStateMock, getFormLayoutStateMock } from '__mocks__/mocks';
+import {
+  getFormDataStateMock,
+  getFormLayoutStateMock,
+  getInitialStateMock,
+} from '__mocks__/mocks';
 import { screen } from '@testing-library/react';
 import { mockComponentProps, renderWithProviders } from 'testUtils';
 
@@ -58,6 +62,7 @@ const render = (props: Partial<IActualGenericComponentProps<any>> = {}) => {
 
   renderWithProviders(<GenericComponent {...allProps} />, {
     preloadedState: {
+      ...getInitialStateMock(),
       formLayout,
       formData,
     },

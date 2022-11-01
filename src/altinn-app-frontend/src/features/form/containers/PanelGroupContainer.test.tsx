@@ -182,14 +182,16 @@ describe('PanelGroupContainer', () => {
     let saveButton = await screen.queryByText('Lagre');
     expect(saveButton).not.toBeInTheDocument();
 
-    let addNewButton = await screen.getByText('Add new item');
+    let addNewButton: HTMLElement | null = await screen.getByText(
+      'Add new item',
+    );
     await user.click(addNewButton);
 
     // save should appear and add should be hidden
     saveButton = await screen.getByText('Lagre');
     expect(saveButton).toBeInTheDocument();
 
-    addNewButton = await screen.getByText('Add new item');
+    addNewButton = await screen.queryByText('Add new item');
     expect(addNewButton).not.toBeInTheDocument();
 
     // pressing save should close panel and show add button again
