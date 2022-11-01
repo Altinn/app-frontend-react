@@ -1479,6 +1479,7 @@ function removeFixedValidations(
  * Validates a specific group. Validates all rows, with all child components and child groups.
  * @param groupId the group to validate
  * @param state the current state
+ * @param onlyInRowIndex If set, it will only validate the children of that specific row.
  * @returns validations for a given group
  */
 export function validateGroup(

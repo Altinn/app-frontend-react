@@ -478,6 +478,8 @@ export class LayoutNode<
    * LayoutNode objects. Implemented here for parity with LayoutRootNode.
    *
    * @param includeGroups If true, also includes the group nodes (which also includes self, when this node is a group)
+   * @param onlyInRowIndex If set, it will only include children with the given row index. It will still include all
+   *        children of nested groups regardless of row-index.
    */
   public flat(includeGroups: true, onlyInRowIndex?: number): AnyChildNode<NT>[];
   public flat(
