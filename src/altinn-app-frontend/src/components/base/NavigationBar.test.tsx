@@ -14,7 +14,7 @@ const { setScreenWidth } = mockMediaQuery(600);
 const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
   const allProps = {
     triggers: [],
-    ...props,
+    ...(props as any),
   } as INavigationBar;
 
   const store = setupStore({
@@ -31,6 +31,7 @@ const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
         autoSave: false,
         focus: 'focus',
         hiddenFields: [],
+        repeatingGroups: null,
       },
       layouts: {
         page1: [

@@ -20,13 +20,19 @@ export const returnConfirmSummaryObject = ({
     sender = `${instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
   }
 
+  if (!textResources || !languageData) {
+    return {};
+  }
+
+  const key = getTextFromAppOrDefault(
+    'confirm.sender',
+    textResources,
+    languageData,
+    undefined,
+    true,
+  );
+
   return {
-    [getTextFromAppOrDefault(
-      'confirm.sender',
-      textResources,
-      languageData,
-      null,
-      true,
-    )]: sender,
+    [key]: sender,
   };
 };

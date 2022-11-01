@@ -96,9 +96,18 @@ describe('SummaryComponent', () => {
     const otherLayout = {
       ...layoutMock(),
     };
-    otherLayout.layouts[pageId][0].textResourceBindings = {
-      title: 'default title',
-    };
+    const firstComponent =
+      otherLayout.layouts &&
+      pageId &&
+      otherLayout.layouts[pageId] &&
+      otherLayout.layouts[pageId][0];
+
+    if (firstComponent) {
+      firstComponent.textResourceBindings = {
+        title: 'default title',
+      };
+    }
+
     renderHelper({ componentRef: defaultId }, {}, otherLayout);
     expect(screen.getByText('default title')).toBeInTheDocument();
   });
@@ -116,7 +125,7 @@ describe('SummaryComponent', () => {
     );
     const button =
       theRender.container.querySelector<HTMLButtonElement>('button');
-    fireEvent.click(button);
+    button && fireEvent.click(button);
     expect(spy).toHaveBeenCalledWith({
       newView: pageId,
       runValidations: null,

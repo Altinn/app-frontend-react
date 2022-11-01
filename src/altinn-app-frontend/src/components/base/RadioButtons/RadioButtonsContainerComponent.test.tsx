@@ -3,7 +3,7 @@ import React from 'react';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from 'testUtils';
+import { mockComponentProps, renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
 
 import { RadioButtonContainerComponent } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
@@ -34,13 +34,10 @@ const render = (
   customState: PreloadedState<RootState> = {},
 ) => {
   const allProps: IRadioButtonsContainerProps = {
+    ...mockComponentProps,
     options: [],
     optionsId: 'countries',
     preselectedOptionIndex: undefined,
-    legend: 'legend',
-    handleDataChange: jest.fn(),
-    getTextResource: (value) => value,
-    ...({} as IRadioButtonsContainerProps),
     ...props,
   };
 

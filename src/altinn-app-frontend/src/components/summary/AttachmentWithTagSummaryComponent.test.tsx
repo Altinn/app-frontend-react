@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { screen } from '@testing-library/react';
 import { renderWithProviders } from 'testUtils';
 
@@ -18,17 +19,20 @@ describe('AttachmentWithTagSummaryComponent', () => {
     optionsId: 'a',
     mapping: { a: 'b' },
   } as unknown as ILayoutCompFileUploadWithTag;
-  const mockState = (formLayoutItem: ILayoutCompFileUploadWithTag) => ({
+  const initialState = getInitialStateMock();
+  const mockState = (
+    formLayoutItem: ILayoutCompFileUploadWithTag,
+  ): Pick<RootState, 'formLayout'> => ({
     formLayout: {
       layouts: {
         FormLayout: [formLayoutItem],
       },
-      uiConfig: undefined,
-      layoutsets: undefined,
-      error: undefined,
+      uiConfig: initialState.formLayout.uiConfig,
+      layoutsets: initialState.formLayout.layoutsets,
+      error: null,
     },
   });
-  const extendedState = {
+  const extendedState: Partial<RootState> = {
     attachments: {
       attachments: {
         [typeName]: [
@@ -118,17 +122,11 @@ describe('AttachmentWithTagSummaryComponent', () => {
     expect(screen.getByText('da option value')).toBeInTheDocument();
   });
   test('should render the text resource', () => {
-    renderHelper(
-      { ...formLayoutItem, optionsId: 'b', mapping: null },
-      extendedState,
-    );
+    renderHelper({ ...formLayoutItem, optionsId: 'b' }, extendedState);
     expect(screen.getByText('the result')).toBeInTheDocument();
   });
   test('should not render a text resource', () => {
-    renderHelper(
-      { ...formLayoutItem, optionsId: 'c', mapping: null },
-      extendedState,
-    );
+    renderHelper({ ...formLayoutItem, optionsId: 'c' }, extendedState);
     expect(screen.getByText('ca option value')).toBeInTheDocument();
   });
 
@@ -142,7 +140,11 @@ describe('AttachmentWithTagSummaryComponent', () => {
         component={options}
       />,
       {
-        preloadedState: { ...mockState(options), ...extendState },
+        preloadedState: {
+          ...initialState,
+          ...mockState(options),
+          ...extendState,
+        },
       },
     );
   };

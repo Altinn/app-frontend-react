@@ -68,8 +68,8 @@ export const returnInstanceMetaDataObject = (
 
 const ReceiptContainer = () => {
   const dispatch = useAppDispatch();
-  const [attachments, setAttachments] = useState([]);
-  const [pdf, setPdf] = useState<IAttachment[]>(null);
+  const [attachments, setAttachments] = useState<IAttachment[]>([]);
+  const [pdf, setPdf] = useState<IAttachment[] | undefined>(undefined);
   const [lastChangedDateTime, setLastChangedDateTime] = useState('');
   const [instanceMetaObject, setInstanceMetaObject] = useState({});
   const [userLanguage, setUserLanguage] = useState('nb');
@@ -114,7 +114,14 @@ const ReceiptContainer = () => {
   }, [profile]);
 
   useEffect(() => {
-    if (allOrgs != null && instance && instance.org && allOrgs && parties) {
+    if (
+      allOrgs != null &&
+      instance &&
+      instance.org &&
+      allOrgs &&
+      parties &&
+      instanceGuid
+    ) {
       const instanceOwnerParty = parties.find((party: IParty) => {
         return party.partyId.toString() === instance.instanceOwner.partyId;
       });
@@ -158,6 +165,10 @@ const ReceiptContainer = () => {
     }
   }, [instance, applicationMetadata]);
 
+  if (!applicationMetadata || !language) {
+    return null;
+  }
+
   return (
     <div id='ReceiptContainer'>
       {isLoading() ? (
@@ -183,7 +194,7 @@ const ReceiptContainer = () => {
               )}
               instanceMetaDataObject={instanceMetaObject}
               subtitle={getLanguageFromKey('receipt.subtitle', language)}
-              subtitleurl={returnUrlToArchive(origin)}
+              subtitleurl={returnUrlToArchive(origin) || undefined}
               title={`${appName} ${getLanguageFromKey(
                 'receipt.title_part_is_submitted',
                 language,
@@ -192,7 +203,7 @@ const ReceiptContainer = () => {
                 'receipt.title_submitted',
                 language,
               )}
-              pdf={pdf || null}
+              pdf={pdf || undefined}
             />
           )}
           {applicationMetadata.autoDeleteOnProcessEnd && (
@@ -201,7 +212,7 @@ const ReceiptContainer = () => {
                 'receipt.body_simple',
                 textResources,
                 language,
-                null,
+                undefined,
                 false,
               )}
               title={`${appName} ${getLanguageFromKey(
