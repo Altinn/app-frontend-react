@@ -85,10 +85,6 @@ export const getAttachmentGroupings = (
 
   attachments.forEach((attachment: IAttachment) => {
     const grouping = getGroupingForAttachment(attachment, applicationMetadata);
-    if (!grouping) {
-      return;
-    }
-
     const title = getTextResourceByKey(grouping, textResources);
     if (!attachmentGroupings[title]) {
       attachmentGroupings[title] = [];
@@ -107,9 +103,9 @@ export const getAttachmentGroupings = (
 export const getGroupingForAttachment = (
   attachment: IAttachment,
   applicationMetadata: IApplication,
-): string | null => {
+): string => {
   if (!applicationMetadata || !applicationMetadata.dataTypes || !attachment) {
-    return null;
+    return 'null';
   }
 
   const attachmentType = applicationMetadata.dataTypes.find(
@@ -117,7 +113,7 @@ export const getGroupingForAttachment = (
   );
 
   if (!attachmentType || !attachmentType.grouping) {
-    return null;
+    return 'null';
   }
 
   return attachmentType.grouping;
