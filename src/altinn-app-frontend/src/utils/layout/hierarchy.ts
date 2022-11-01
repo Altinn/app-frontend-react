@@ -447,7 +447,7 @@ export class LayoutNode<
     matching: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
   ): AnyNode<NT> | undefined;
-  public children(matching: null, onlyInRowIndex: number): AnyNode<NT>[];
+  public children(matching: null, onlyInRowIndex?: number): AnyNode<NT>[];
   public children(
     matching?: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
@@ -493,7 +493,7 @@ export class LayoutNode<
       if (includeGroups || item.item.type !== 'Group') {
         out.push(item);
       }
-      for (const child of item.children(undefined, rowIndex)) {
+      for (const child of item.children(null, rowIndex)) {
         recurse(child);
       }
     };

@@ -85,7 +85,7 @@ export interface IUpdateRepeatingGroupsMultiPageIndex {
 export interface IUpdateRepeatingGroupsEditIndex {
   group: string;
   index: number;
-  validate?: Triggers;
+  validate?: Triggers.Validation | Triggers.ValidateRow;
 }
 
 export interface IUpdateRepeatingGroupsEditIndexFulfilled {

@@ -553,20 +553,21 @@ export function* updateRepeatingGroupEditIndexSaga({
   payload: { group, index, validate },
 }: PayloadAction<IUpdateRepeatingGroupsEditIndex>): SagaIterator {
   try {
-    if (
-      validate &&
-      [Triggers.Validation, Triggers.ValidateRow].includes(validate)
-    ) {
+    if (validate) {
       const state: IRuntimeState = yield select();
       const validations: IValidations = state.formValidations.validations;
       const currentView = state.formLayout.uiConfig.currentView;
+      const onlyInRowIndex =
+        validate === Triggers.ValidateRow
+          ? state.formLayout.uiConfig.repeatingGroups[group].editIndex
+          : undefined;
+
       const frontendValidations: IValidations = validateGroup(
         group,
         state,
-        validate === Triggers.ValidateRow
-          ? state.formLayout.uiConfig.repeatingGroups[group].editIndex
-          : undefined,
+        onlyInRowIndex,
       );
+
       const options: AxiosRequestConfig = {
         headers: {
           ComponentId: group,
