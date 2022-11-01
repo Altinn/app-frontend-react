@@ -367,12 +367,13 @@ export function* updateCurrentViewSaga({
         );
       const layoutState: ILayoutState = state.formLayout;
 
+      const validationOptions = runValidations === 'page' ? options : undefined;
       const serverValidation: IValidationIssue[] | undefined =
         instanceId && currentTaskDataId
           ? yield call(
               get,
               getDataValidationUrl(instanceId, currentTaskDataId),
-              runValidations === 'page' ? options : undefined,
+              validationOptions,
             )
           : undefined;
 
@@ -830,7 +831,7 @@ export function* updateFileUploaderWithTagChosenOptionsSaga({
     const component =
       state.formLayout.layouts &&
       (state.formLayout.layouts[currentView]?.find(
-        (component: ILayoutComponent) => component.id === baseComponentId,
+        (component) => component.id === baseComponentId,
       ) as ILayoutCompFileUploadWithTag | undefined);
     const lookupKey =
       component &&

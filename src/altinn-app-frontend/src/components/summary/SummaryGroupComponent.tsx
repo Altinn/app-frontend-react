@@ -195,9 +195,10 @@ function SummaryGroupComponent({
           const component = layout?.find(
             (c: ILayoutComponent) => c.id === componentId,
           );
+          const mainIndex =
+            typeof index === 'number' && index >= 0 ? `-${index}` : '';
           const componentIdWithIndex =
-            component &&
-            `${component.id}${index && index >= 0 ? `-${index}` : ''}-${i}`;
+            component && `${component.id}${mainIndex}-${i}`;
 
           if (
             pageRef &&

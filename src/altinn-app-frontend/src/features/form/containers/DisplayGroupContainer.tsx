@@ -15,7 +15,7 @@ import type {
 export type ComponentFromSummary = ILayoutComponentOrGroup & {
   formData?: any;
   index?: number;
-  parentGroup?: string | undefined;
+  parentGroup?: string;
 };
 
 export interface IDisplayGroupContainer {
