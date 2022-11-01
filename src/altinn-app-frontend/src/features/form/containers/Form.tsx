@@ -63,7 +63,6 @@ function RenderLayoutGroup(
   layout: ILayout,
 ): JSX.Element {
   const groupComponents = mapGroupComponents(layoutGroup, layout);
-
   const isRepeatingGroup = layoutGroup.maxCount > 1;
   if (isRepeatingGroup) {
     return (
@@ -112,7 +111,6 @@ export function Form() {
   const hasErrors = useAppSelector((state) =>
     getFormHasErrors(state.formValidations.validations),
   );
-
   const requiredFieldsMissing = React.useMemo(() => {
     if (validations && validations[currentView]) {
       return missingFieldsInLayoutValidations(

@@ -111,7 +111,6 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   ) as ExprResolved<IActualGenericComponentProps<Type>> & {
     type: Type;
   };
-
   const { id, ...passThroughProps } = props;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);

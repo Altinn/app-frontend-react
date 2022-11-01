@@ -48,7 +48,6 @@ export function* fetchOptionsSaga(): SagaIterator {
   const repeatingGroups: IRepeatingGroups = yield selectNotNull(
     repeatingGroupsSelector,
   );
-
   const fetchedOptions: string[] = [];
   const optionsWithIndexIndicators = [];
 
@@ -77,6 +76,7 @@ export function* fetchOptionsSaga(): SagaIterator {
         const { id, mapping, secure } = optionObject;
         const lookupKey = getOptionLookupKey({ id, mapping });
         if (optionsId && !fetchedOptions.includes(lookupKey)) {
+          //Fetch Specific options saga blir trigget her
           yield fork(fetchSpecificOptionSaga, {
             optionsId,
             dataMapping: mapping,
@@ -99,6 +99,7 @@ export function* fetchSpecificOptionSaga({
   dataMapping,
   secure,
 }: IFetchSpecificOptionSaga): SagaIterator {
+  //Blir trigget av fetchOptionsSaga
   const key = getOptionLookupKey({ id: optionsId, mapping: dataMapping });
   const instanceId = yield select(instanceIdSelector);
   try {
@@ -110,6 +111,7 @@ export function* fetchSpecificOptionSaga({
     yield put(OptionsActions.fetching({ key, metaData }));
     const formData: IFormData = yield select(formDataSelector);
     const language = yield select(appLanguageStateSelector);
+    //Her blir UrlHelper trigget og henter url for å hente options
     const url = getOptionsUrl({
       optionsId,
       formData,
@@ -119,8 +121,8 @@ export function* fetchSpecificOptionSaga({
       instanceId,
     });
 
-    const options: IOption[] = yield call(get, url);
-    yield put(OptionsActions.fetchFulfilled({ key, options }));
+    const options: IOption[] = yield call(get, url); //Her blir options hentet fra APIet
+    yield put(OptionsActions.fetchFulfilled({ key, options })); //Her blir optionSlice sin fetchFulfilled trigget for å si at options er hentet
   } catch (error) {
     yield put(OptionsActions.fetchRejected({ key: key, error }));
   }
@@ -133,7 +135,6 @@ export function* checkIfOptionsShouldRefetchSaga({
   const optionsWithIndexIndicators = yield select(
     optionsWithIndexIndicatorsSelector,
   );
-
   let foundInExistingOptions = false;
   for (const optionsKey of Object.keys(options)) {
     const dataMapping = options[optionsKey].mapping;

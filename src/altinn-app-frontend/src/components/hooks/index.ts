@@ -71,11 +71,11 @@ export const useGetOptions = ({
     );
   }, [
     applicationSettings,
+    optionsId,
     relevantFormData,
     instance,
     mapping,
     optionState,
-    optionsId,
     repeatingGroups,
     source,
     relevantTextResource,
@@ -84,28 +84,26 @@ export const useGetOptions = ({
   return options;
 };
 
-interface IUseGetTableOptionsParams {
-  optionsId: string;
+interface IUseGetListParams {
+  appListId: string;
   mapping?: IMapping;
+  source?: IOptionSource;
 }
 
-export const useGetTableOptions = ({
-  optionsId,
+export const useGetAppListOptions = ({
+  appListId,
   mapping,
-}: IUseGetTableOptionsParams) => {
-  const optionState = useAppSelector((state) => state.optionState.options);
-  const [options, setOptions] = useState<any>(undefined);
-
+}: IUseGetListParams) => {
+  const appListState = useAppSelector((state) => state.appListState.appLists);
+  const [appList, setAppList] = useState<any>(undefined);
   useEffect(() => {
-    if (optionsId) {
-      console.log('hei', optionsId);
-      setOptions(
-        optionState[getOptionLookupKey({ id: optionsId, mapping })]?.options,
+    if (appListId) {
+      setAppList(
+        appListState[getOptionLookupKey({ id: appListId, mapping })]?.appLists,
       );
     }
-  }, [mapping, optionState, optionsId]);
-
-  return options;
+  }, [mapping, appListId, appListState]);
+  return appList;
 };
 
 export { useDisplayData } from './useDisplayData';

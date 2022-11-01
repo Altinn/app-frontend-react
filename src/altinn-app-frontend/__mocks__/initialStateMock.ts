@@ -135,6 +135,10 @@ export function getInitialStateMock(
       options: {},
       error: null,
     },
+    appListState: {
+      appLists: {},
+      error: null,
+    },
     applicationSettings: {
       applicationSettings: applicationSettingsMock,
       error: null,

@@ -11,47 +11,56 @@ import {
 } from '@altinn/altinn-design-system';
 import type { ChangeProps } from '@altinn/altinn-design-system';
 
-import type { IComponentProps } from '..';
+import type { PropsFromGenericComponent } from '..';
 
-import { useHasChangedIgnoreUndefined } from 'src/common/hooks';
-import { useGetTableOptions } from 'src/components/hooks';
+import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
+import { useGetAppListOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import type { ILayoutCompList } from 'src/features/form/layout';
-import type { IListOption, IMapping, IOptionSource } from 'src/types';
+import { getAppListLookupKey } from 'src/utils/applist';
 
-export interface ILayoutCompProps
-  extends IComponentProps,
+import { AltinnSpinner } from 'altinn-shared/components';
+
+export type ILayoutCompProps = PropsFromGenericComponent<'List'>;
+/*extends IComponentProps,
     Omit<ILayoutCompList, 'type'> {
   tableHeaders?: string[];
-  options?: IListOption[];
-  optionsId?: string;
+  appList?: IListOption[];
+  appListId?: string;
   mapping?: IMapping;
   secure?: boolean;
   source?: IOptionSource;
   preselectedOptionIndex?: number;
-}
-
+}*/
+const defaultOptions: any[] = [];
 export const ListComponent = ({
   tableHeaders,
-  options,
-  optionsId,
+  appList,
+  appListId,
   mapping,
   formData,
   handleDataChange,
 }: ILayoutCompProps) => {
-  const apiOptions = useGetTableOptions({ optionsId, mapping });
+  const apiOptions = useGetAppListOptions({ appListId, mapping });
+  const calculatedOptions = apiOptions || defaultOptions;
   // const calculatedOptions =
   //   (apiOptions || options)?.map((option) => ({
   //     label: option.label,
   //     value: option.value,
   //   })) || [];
 
-  const optionsHasChanged = useHasChangedIgnoreUndefined(options);
+  const optionsHasChanged = useHasChangedIgnoreUndefined(appList);
 
   const { value, setValue } = useDelayedSavedState(
     handleDataChange,
     formData?.simpleBinding,
     200,
+  );
+
+  const fetchingOptions = useAppSelector(
+    (state) =>
+      state.appListState.appLists[
+        getAppListLookupKey({ id: appListId, mapping })
+      ]?.loading,
   );
 
   React.useEffect(() => {
@@ -68,36 +77,57 @@ export const ListComponent = ({
 
   const renderRow = (option) => {
     console.log(option);
-    for (const label in option) {
-      console.log(label);
-      return <TableCell key={label}>{label}</TableCell>;
+    for (const key in Object.keys(option)) {
+      return (
+        <TableCell key={key}>{option[Object.keys(option)[key]]}</TableCell>
+      );
     }
   };
-  return (
-    <Table
-      selectRows={true}
-      onChange={handleChange}
-      selectedValue={value}
-    >
-      <TableHeader>
-        <TableRow>
-          {tableHeaders.map((header) => (
-            <TableCell key={header}>{header}</TableCell>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {apiOptions?.map((option) => {
-          return (
-            <TableRow
-              key={option}
-              value={option}
-            >
-              {renderRow(option)}
-            </TableRow>
+
+  /*return (
+      <>
+        {Object.keys(option).map((key) => {
+          console.log(option[key]);
+          option[key] == null ? (
+            <TableCell>{''}</TableCell>
+          ) : (
+            <TableCell key={key}>{option[key]}</TableCell>
           );
         })}
-      </TableBody>
-    </Table>
+      </>
+    );*/
+
+  return (
+    <>
+      {fetchingOptions ? (
+        <AltinnSpinner />
+      ) : (
+        <Table
+          selectRows={true}
+          onChange={handleChange}
+          selectedValue={value}
+        >
+          <TableHeader>
+            <TableRow>
+              {tableHeaders.map((header) => (
+                <TableCell key={header}>{header}</TableCell>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {calculatedOptions.map((option) => {
+              return (
+                <TableRow
+                  key={option}
+                  value={option}
+                >
+                  {renderRow(option)}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      )}
+    </>
   );
 };

@@ -77,6 +77,11 @@ export interface IOption {
   value: any;
 }
 
+export interface IAppList {
+  listItems: any[];
+  metaData: any[];
+}
+
 export interface IListOption {
   label: string[];
   value: any;
@@ -85,6 +90,9 @@ export interface IListOption {
 export interface IOptions {
   [key: string]: IOptionData;
 }
+export interface IAppLists {
+  [key: string]: IAppListData;
+}
 
 export interface IOptionSource {
   group: string;
@@ -92,8 +100,18 @@ export interface IOptionSource {
   value: string;
 }
 
+export interface IAppListSource {
+  group: string;
+  appList: any[];
+  metaData: any;
+}
+
 export interface IOptionsActualData {
   options?: IOption[];
+}
+
+export interface IAppListActualData {
+  appLists?: IAppList[];
 }
 
 export interface IOptionsMetaData {
@@ -103,7 +121,16 @@ export interface IOptionsMetaData {
   secure?: boolean;
 }
 
+export interface IAppListsMetaData {
+  id: string;
+  mapping?: IMapping;
+  loading?: boolean;
+  secure?: boolean;
+}
+
 export type IOptionData = IOptionsActualData & IOptionsMetaData;
+
+export type IAppListData = IAppListActualData & IAppListsMetaData;
 
 export interface IRepeatingGroup {
   index: number;
@@ -278,6 +305,15 @@ export interface IMapping {
 
 export interface IFetchSpecificOptionSaga {
   optionsId: string;
+  formData?: IFormData;
+  language?: string;
+  dataMapping?: IMapping;
+  secure?: boolean;
+  instanceId?: string;
+}
+
+export interface IFetchSpecificAppListSaga {
+  appListId: string;
   formData?: IFormData;
   language?: string;
   dataMapping?: IMapping;

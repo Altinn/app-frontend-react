@@ -7,6 +7,7 @@ import type { GridJustification, GridSize } from '@material-ui/core';
 
 import type { ExpressionOr } from 'src/features/expressions/types';
 import type {
+  IAppList,
   ILabelSettings,
   IMapping,
   IOption,
@@ -117,7 +118,14 @@ export interface ILayoutCompDatePicker extends ILayoutCompBase<'DatePicker'> {
 
 export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> &
   ISelectionComponent;
-export type ILayoutCompList = ILayoutCompBase<'List'>;
+export interface ILayoutCompList extends ILayoutCompBase<'List'> {
+  tableHeaders?: string[];
+  appList?: IAppList[];
+  appListId?: string;
+  mapping?: IMapping;
+  secure?: boolean;
+  source?: IOptionSource;
+}
 
 export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect'> &
   ISelectionComponent;
