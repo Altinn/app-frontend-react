@@ -228,7 +228,7 @@ function SummaryGroupComponent({
       const childSummaryComponents = groupChildComponents.map(
         (componentId: string) => {
           const componentIdSuffix = `${
-            index && index >= 0 ? `-${index}` : ''
+            typeof index === 'number' && index >= 0 ? `-${index}` : ''
           }-${i}`;
           if (
             hiddenFields.has(`${componentId}-${i}`) ||
