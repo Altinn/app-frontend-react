@@ -18,6 +18,9 @@ const render = (
     ...mockComponentProps,
     optionsId: 'countries',
     readOnly: false,
+    handleDataChange: jest.fn(),
+    getTextResourceAsString: (value) => value,
+    isValid: true,
     ...props,
   };
 

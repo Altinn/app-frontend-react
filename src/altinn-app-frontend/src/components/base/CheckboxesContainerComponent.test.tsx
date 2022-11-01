@@ -39,6 +39,10 @@ const render = (
     optionsId: 'countries',
     preselectedOptionIndex: undefined,
     validationMessages: {},
+    legend: () => <span>legend</span>,
+    handleDataChange: jest.fn(),
+    getTextResource: (value) => value,
+    getTextResourceAsString: (value) => value,
     ...props,
   };
 

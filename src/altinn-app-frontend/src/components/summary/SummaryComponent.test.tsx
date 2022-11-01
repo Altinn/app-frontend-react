@@ -128,7 +128,6 @@ describe('SummaryComponent', () => {
     button && fireEvent.click(button);
     expect(spy).toHaveBeenCalledWith({
       newView: pageId,
-      runValidations: null,
       returnToView: 'otherPage',
       focusComponentId: defaultId,
     });

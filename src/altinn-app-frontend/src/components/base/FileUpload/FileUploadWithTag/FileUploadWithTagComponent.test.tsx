@@ -271,6 +271,8 @@ const render = ({ props = {}, initialState = {} }: IRenderProps = {}) => {
     readOnly: false,
     optionsId: 'test-options-id',
     textResourceBindings: textResourceBindings,
+    getTextResource: jest.fn(),
+    getTextResourceAsString: jest.fn(),
     ...props,
   };
 

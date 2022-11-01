@@ -28,6 +28,8 @@ const render = (
     readOnly: false,
     required: false,
     textResourceBindings: {},
+    handleDataChange: jest.fn(),
+    getTextResourceAsString: (key) => key,
     ...props,
   };
 
