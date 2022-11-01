@@ -258,7 +258,7 @@ describe('GroupContainer', () => {
       payload: {
         group: 'container-in-edit-mode-id',
         index: -1,
-        validate: true,
+        validate: Triggers.Validation,
       },
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
@@ -284,7 +284,7 @@ describe('GroupContainer', () => {
       payload: {
         group: 'container-in-edit-mode-id',
         index: -1,
-        validate: false,
+        validate: undefined,
       },
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
@@ -311,7 +311,7 @@ describe('GroupContainer', () => {
       payload: {
         group: 'container-in-edit-mode-id',
         index: -1,
-        validate: true,
+        validate: Triggers.Validation,
       },
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
@@ -337,7 +337,7 @@ describe('GroupContainer', () => {
       payload: {
         group: 'container-in-edit-mode-id',
         index: -1,
-        validate: false,
+        validate: undefined,
       },
       type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
     };
