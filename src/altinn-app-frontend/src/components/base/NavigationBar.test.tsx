@@ -151,7 +151,7 @@ describe('NavigationBar', () => {
       expect(dispatchMock).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
-          runValidations: null,
+          runValidations: undefined,
         },
         type: FormLayoutActions.updateCurrentView.type,
       });
@@ -242,7 +242,7 @@ describe('NavigationBar', () => {
       expect(dispatchMock).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
-          runValidations: null,
+          runValidations: undefined,
         },
         type: FormLayoutActions.updateCurrentView.type,
       });
