@@ -723,6 +723,7 @@ function validateFormDataForLayout(
   schemaValidator: ISchemaValidator,
   language: ILanguage,
   textResources: ITextResource[],
+  onlyInRowIndex?: number,
 ): IValidationResult {
   const { validator, rootElementPath, schema } = schemaValidator;
   const valid = validator.validate(
@@ -780,6 +781,7 @@ function validateFormDataForLayout(
       dataBinding,
       errorMessage,
       result.validations,
+      onlyInRowIndex,
     );
   }
 
@@ -845,9 +847,10 @@ export function mapToComponentValidationsGivenNode(
   dataBinding: string,
   errorMessage: string,
   validations: ILayoutValidations,
+  onlyInRowIndex?: number,
 ) {
   let fieldKey = null;
-  const component = node.flat(true).find((item) => {
+  const component = node.flat(true, onlyInRowIndex).find((item) => {
     if (item.item.dataModelBindings) {
       fieldKey = Object.keys(item.item.dataModelBindings).find((key) => {
         return (
@@ -1541,6 +1544,7 @@ export function validateGroup(
     validator,
     language,
     textResources,
+    onlyInRowIndex,
   ).validations;
 
   return mergeValidationObjects(

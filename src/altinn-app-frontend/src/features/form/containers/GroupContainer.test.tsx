@@ -329,6 +329,34 @@ describe('GroupContainer', () => {
     expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
   });
 
+  it('should trigger validate when saving if validateRow trigger is present', async () => {
+    const mockContainerInEditModeWithTrigger = {
+      ...mockContainer,
+      id: 'container-in-edit-mode-id',
+      triggers: [Triggers.ValidateRow],
+    };
+    const store = render({ container: mockContainerInEditModeWithTrigger });
+    const user = userEvent.setup();
+
+    const editButton = screen.getAllByRole('button', {
+      name: /Lagre og lukk/i,
+    })[1];
+    await user.click(editButton);
+
+    const mockDispatchedAction: PayloadAction<IUpdateRepeatingGroupsEditIndex> =
+      {
+        payload: {
+          group: 'container-in-edit-mode-id',
+          index: -1,
+          validate: Triggers.ValidateRow,
+        },
+        type: FormLayoutActions.updateRepeatingGroupsEditIndex.type,
+      };
+
+    expect(store.dispatch).toHaveBeenCalledTimes(1);
+    expect(store.dispatch).toHaveBeenCalledWith(mockDispatchedAction);
+  });
+
   it('should NOT trigger validate when saving if validation trigger is NOT present', async () => {
     const mockContainerInEditMode = {
       ...mockContainer,

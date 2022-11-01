@@ -257,9 +257,12 @@ export interface LayoutObject<
    *
    * @param includeGroups If true, also includes the group nodes
    */
-  flat(includeGroups: true): AnyChildNode<NT>[];
-  flat(includeGroups: false): LayoutNode<NT, ComponentOf<NT>>[];
-  flat(includeGroups: boolean): AnyChildNode<NT>[];
+  flat(includeGroups: true, onlyInRows?: number): AnyChildNode<NT>[];
+  flat(
+    includeGroups: false,
+    onlyInRows?: number,
+  ): LayoutNode<NT, ComponentOf<NT>>[];
+  flat(includeGroups: boolean, onlyInRows?: number): AnyChildNode<NT>[];
 }
 
 /**
