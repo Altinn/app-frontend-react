@@ -258,6 +258,7 @@ export interface LayoutObject<
    * LayoutNode objects.
    *
    * @param includeGroups If true, also includes the group nodes
+   * @param onlyInRows
    */
   flat(includeGroups: true, onlyInRows?: number): AnyChildNode<NT>[];
   flat(
@@ -453,7 +454,7 @@ export class LayoutNode<
     matching: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
   ): AnyNode<NT> | undefined;
-  public children(matching: null, onlyInRowIndex?: number): AnyNode<NT>[];
+  public children(matching: undefined, onlyInRowIndex?: number): AnyNode<NT>[];
   public children(
     matching?: (item: AnyItem<NT>) => boolean,
     onlyInRowIndex?: number,
@@ -501,7 +502,7 @@ export class LayoutNode<
       if (includeGroups || item.item.type !== 'Group') {
         out.push(item);
       }
-      for (const child of item.children(null, rowIndex)) {
+      for (const child of item.children(undefined, rowIndex)) {
         recurse(child);
       }
     };

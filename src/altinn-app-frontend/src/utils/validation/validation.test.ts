@@ -2086,7 +2086,7 @@ describe('utils > validation', () => {
                 'Du må fylle ut component_4',
                 getParsedLanguageFromKey(
                   `validation_errors.pattern`,
-                  state.language.language,
+                  state.language.language || {},
                   [],
                   true,
                 ),
@@ -2098,7 +2098,7 @@ describe('utils > validation', () => {
               errors: [
                 getParsedLanguageFromKey(
                   `validation_errors.minLength`,
-                  state.language.language,
+                  state.language.language || {},
                   [10],
                   true,
                 ),
@@ -2121,7 +2121,7 @@ describe('utils > validation', () => {
                 'Du må fylle ut component_4',
                 getParsedLanguageFromKey(
                   `validation_errors.pattern`,
-                  state.language.language,
+                  state.language.language || {},
                   [],
                   true,
                 ),
@@ -2133,7 +2133,7 @@ describe('utils > validation', () => {
               errors: [
                 getParsedLanguageFromKey(
                   `validation_errors.minLength`,
-                  state.language.language,
+                  state.language.language || {},
                   [10],
                   true,
                 ),
