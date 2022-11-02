@@ -76,26 +76,12 @@ export const ListComponent = ({
   };
 
   const renderRow = (option) => {
-    console.log(option);
-    for (const key in Object.keys(option)) {
-      return (
-        <TableCell key={key}>{option[Object.keys(option)[key]]}</TableCell>
-      );
+    const cells = [];
+    for (let i = 0; i < Object.keys(option).length; i++) {
+      cells.push(<TableCell>{option[Object.keys(option)[i]]}</TableCell>);
     }
+    return cells;
   };
-
-  /*return (
-      <>
-        {Object.keys(option).map((key) => {
-          console.log(option[key]);
-          option[key] == null ? (
-            <TableCell>{''}</TableCell>
-          ) : (
-            <TableCell key={key}>{option[key]}</TableCell>
-          );
-        })}
-      </>
-    );*/
 
   return (
     <>
