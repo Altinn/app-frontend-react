@@ -51,6 +51,9 @@ if ! test -d "$PATH_TO_FRONTEND" || ! test -d "$PATH_TO_FRONTEND/$SOURCE"; then
   exit 1
 fi
 
+SOURCE_SCHEMAS="$PATH_TO_FRONTEND/schemas"
+TARGET_SCHEMAS="$PATH_TO_CDN/schemas"
+
 SOURCE="$PATH_TO_FRONTEND/$SOURCE"
 TARGET="$PATH_TO_CDN/$TARGET"
 
@@ -110,9 +113,13 @@ if [[ "$PRE_RELEASE" == "no" ]]; then
     test -e "$TARGET/$APP_MAJOR_MINOR" && git rm -r "$TARGET/$APP_MAJOR_MINOR"
     mkdir -p "$TARGET/$APP_MAJOR_MINOR"
     cp -fr $SOURCE/* "$TARGET/$APP_MAJOR_MINOR/"
+
+    echo " * Copying schemas"
+    cp -prv $SOURCE_SCHEMAS/* "$TARGET_SCHEMAS/"
 else
     echo " * Copying Major version (skipped using --pre-release)"
     echo " * Copying Minor version (skipped using --pre-release)"
+    echo " * Copying schemas (skipped using --pre-release)"
 fi
 
 echo " * Copying Patch version"
