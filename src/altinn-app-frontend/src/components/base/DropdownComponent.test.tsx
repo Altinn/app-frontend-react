@@ -3,12 +3,10 @@ import React from 'react';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from 'testUtils';
+import { mockComponentProps, renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
 
 import DropdownComponent from 'src/components/base/DropdownComponent';
-import { mockDelayBeforeSaving } from 'src/components/hooks/useDelayedSavedState';
-import type { IComponentProps } from 'src/components';
 import type { IDropdownProps } from 'src/components/base/DropdownComponent';
 import type { RootState } from 'src/store';
 
@@ -17,14 +15,12 @@ const render = (
   customState: PreloadedState<RootState> = {},
 ) => {
   const allProps: IDropdownProps = {
-    id: 'component-id',
+    ...mockComponentProps,
     optionsId: 'countries',
-    formData: {},
+    readOnly: false,
     handleDataChange: jest.fn(),
     getTextResourceAsString: (value) => value,
-    readOnly: false,
     isValid: true,
-    ...({} as IComponentProps),
     ...props,
   };
 
@@ -69,25 +65,26 @@ const render = (
 };
 
 describe('DropdownComponent', () => {
+  jest.useFakeTimers();
+  const user = userEvent.setup({
+    advanceTimers: jest.advanceTimersByTime,
+  });
+
   it('should trigger handleDataChange when option is selected', async () => {
     const handleDataChange = jest.fn();
     render({
       handleDataChange,
     });
 
-    mockDelayBeforeSaving(25);
-
-    await userEvent.selectOptions(screen.getByRole('combobox'), [
+    await user.selectOptions(screen.getByRole('combobox'), [
       screen.getByText('Sweden'),
     ]);
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
-    await new Promise((r) => setTimeout(r, 25));
+    jest.runOnlyPendingTimers();
 
     expect(handleDataChange).toHaveBeenCalledWith('sweden');
-
-    mockDelayBeforeSaving(undefined);
   });
 
   it('should show as disabled when readOnly is true', () => {
@@ -131,7 +128,7 @@ describe('DropdownComponent', () => {
     expect(handleDataChange).toHaveBeenCalledWith('denmark');
     const select = screen.getByRole('combobox');
 
-    await userEvent.click(select);
+    await user.click(select);
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
@@ -168,29 +165,25 @@ describe('DropdownComponent', () => {
       },
     });
 
-    mockDelayBeforeSaving(25);
-
-    await userEvent.selectOptions(screen.getByRole('combobox'), [
+    await user.selectOptions(screen.getByRole('combobox'), [
       screen.getByText('The value from the group is: Label for first'),
     ]);
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
-    await new Promise((r) => setTimeout(r, 25));
+    jest.runOnlyPendingTimers();
 
     expect(handleDataChange).toHaveBeenCalledWith('Value for first');
 
-    await userEvent.selectOptions(screen.getByRole('combobox'), [
+    await user.selectOptions(screen.getByRole('combobox'), [
       screen.getByText('The value from the group is: Label for second'),
     ]);
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
-    await new Promise((r) => setTimeout(r, 25));
+    jest.runOnlyPendingTimers();
 
     expect(handleDataChange).toHaveBeenCalledWith('Value for second');
     expect(handleDataChange).toHaveBeenCalledTimes(2);
-
-    mockDelayBeforeSaving(undefined);
   });
 });

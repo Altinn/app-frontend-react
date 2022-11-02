@@ -16,8 +16,7 @@ import {
 } from 'src/components/base/FileUpload/shared/render';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompFileUpload } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IComponentValidations } from 'src/types';
 
@@ -27,8 +26,7 @@ import { getLanguageFromKey } from 'altinn-shared/utils';
 
 import 'src/components/base/FileUpload/FileUploadComponent.css';
 
-export type IFileUploadProps = IComponentProps &
-  Omit<ILayoutCompFileUpload, 'type'>;
+export type IFileUploadProps = PropsFromGenericComponent<'FileUpload'>;
 
 export const bytesInOneMB = 1048576;
 export const emptyArray = [];
@@ -49,7 +47,7 @@ export function FileUploadComponent({
   dataModelBindings,
 }: IFileUploadProps) {
   const dispatch = useAppDispatch();
-  const [validations, setValidations] = React.useState([]);
+  const [validations, setValidations] = React.useState<string[]>([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
   const attachments = useAppSelector(
@@ -166,7 +164,7 @@ export function FileUploadComponent({
   const NameCell = ({
     attachment,
   }: {
-    attachment: { name: string; size: number };
+    attachment: { name?: string; size: number };
   }) => {
     const readableSize = `${(attachment.size / bytesInOneMB).toFixed(
       2,
@@ -208,7 +206,7 @@ export function FileUploadComponent({
         <i
           className='ai ai-check-circle'
           aria-label={status}
-          style={mobileView ? { marginLeft: '10px' } : null}
+          style={mobileView ? { marginLeft: '10px' } : {}}
         />
       </div>
     ) : (
@@ -263,7 +261,7 @@ export function FileUploadComponent({
       </div>
     );
   };
-  const FileList = (): JSX.Element => {
+  const FileList = (): JSX.Element | null => {
     if (!attachments?.length) {
       return null;
     }
@@ -280,7 +278,7 @@ export function FileUploadComponent({
             >
               <th
                 scope='col'
-                style={mobileView ? { width: '65%' } : null}
+                style={mobileView ? { width: '65%' } : {}}
               >
                 {getLanguageFromKey(
                   'form_filler.file_uploader_list_header_name',
@@ -347,7 +345,7 @@ export function FileUploadComponent({
     );
   };
 
-  const renderAddMoreAttachmentsButton = (): JSX.Element => {
+  const renderAddMoreAttachmentsButton = (): JSX.Element | null => {
     if (
       displayMode === 'simple' &&
       !showFileUpload &&
@@ -375,8 +373,10 @@ export function FileUploadComponent({
   };
 
   const validationMessages = getComponentValidations();
-  const hasValidationMessages: boolean =
+  const hasValidationMessages =
+    validationMessages.simpleBinding?.errors &&
     validationMessages.simpleBinding.errors.length > 0;
+
   return (
     <div
       className='container'
@@ -389,10 +389,10 @@ export function FileUploadComponent({
           isMobile={isMobile}
           language={language}
           maxFileSizeInMB={maxFileSizeInMB}
-          readOnly={readOnly}
+          readOnly={!!readOnly}
           onClick={handleClick}
           onDrop={handleDrop}
-          hasValidationMessages={hasValidationMessages}
+          hasValidationMessages={!!hasValidationMessages}
           hasCustomFileEndings={hasCustomFileEndings}
           validFileEndings={validFileEndings}
           textResourceBindings={textResourceBindings}
@@ -407,7 +407,8 @@ export function FileUploadComponent({
           maxNumberOfAttachments: maxNumberOfAttachments,
         })}
 
-      {validationMessages.simpleBinding.errors.length > 0 &&
+      {validationMessages.simpleBinding?.errors &&
+        validationMessages.simpleBinding.errors.length > 0 &&
         showFileUpload &&
         renderValidationMessagesForComponent(
           validationMessages.simpleBinding,
@@ -422,7 +423,8 @@ export function FileUploadComponent({
           maxNumberOfAttachments: maxNumberOfAttachments,
         })}
 
-      {validationMessages.simpleBinding.errors.length > 0 &&
+      {validationMessages.simpleBinding?.errors &&
+        validationMessages.simpleBinding.errors.length > 0 &&
         !showFileUpload &&
         renderValidationMessagesForComponent(
           validationMessages.simpleBinding,

@@ -1,10 +1,9 @@
 import React from 'react';
 
 import { Panel } from 'src/features/form/components/Panel';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompPanel } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 
-type IPanelProps = IComponentProps & Omit<ILayoutCompPanel, 'type'>;
+type IPanelProps = PropsFromGenericComponent<'Panel'>;
 
 export const PanelComponent = ({
   getTextResource,
@@ -12,6 +11,10 @@ export const PanelComponent = ({
   variant,
   showIcon,
 }: IPanelProps) => {
+  if (!textResourceBindings) {
+    return null;
+  }
+
   return (
     <Panel
       title={getTextResource(textResourceBindings.title)}

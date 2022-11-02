@@ -22,15 +22,14 @@ import {
 } from 'src/utils/formComponentUtils';
 import { getOptionLookupKey } from 'src/utils/options';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompFileUploadWithTag } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IRuntimeState } from 'src/types';
 
 import { getLanguageFromKey } from 'altinn-shared/utils';
 
-export type IFileUploadWithTagProps = IComponentProps &
-  Omit<ILayoutCompFileUploadWithTag, 'type'>;
+export type IFileUploadWithTagProps =
+  PropsFromGenericComponent<'FileUploadWithTag'>;
 
 export function FileUploadWithTagComponent({
   id,
@@ -62,11 +61,15 @@ export function FileUploadWithTagComponent({
   );
   const editIndex = useAppSelector(
     (state: IRuntimeState) =>
-      state.formLayout.uiConfig.fileUploadersWithTag[id]?.editIndex ?? -1,
+      (state.formLayout.uiConfig.fileUploadersWithTag &&
+        state.formLayout.uiConfig.fileUploadersWithTag[id]?.editIndex) ??
+      -1,
   );
   const chosenOptions = useAppSelector(
     (state: IRuntimeState) =>
-      state.formLayout.uiConfig.fileUploadersWithTag[id]?.chosenOptions ?? {},
+      (state.formLayout.uiConfig.fileUploadersWithTag &&
+        state.formLayout.uiConfig.fileUploadersWithTag[id]?.chosenOptions) ??
+      {},
   );
 
   const attachments: IAttachment[] = useAppSelector(
@@ -121,7 +124,7 @@ export function FileUploadWithTagComponent({
         message: `${getLanguageFromKey(
           'form_filler.file_uploader_validation_error_no_chosen_tag',
           language,
-        )} ${(getTextResource(textResourceBindings.tagTitle) || '')
+        )} ${(getTextResource(textResourceBindings?.tagTitle || '') || '')
           .toString()
           .toLowerCase()}.`,
       });
@@ -158,7 +161,7 @@ export function FileUploadWithTagComponent({
         AttachmentActions.updateAttachment({
           attachment,
           componentId: id,
-          baseComponentId,
+          baseComponentId: baseComponentId || id,
           tag: option.value,
         }),
       );
@@ -252,7 +255,7 @@ export function FileUploadWithTagComponent({
           isMobile={isMobile}
           language={language}
           maxFileSizeInMB={maxFileSizeInMB}
-          readOnly={readOnly}
+          readOnly={!!readOnly}
           onClick={handleClick}
           onDrop={handleDrop}
           hasValidationMessages={hasValidationMessages}
@@ -275,6 +278,7 @@ export function FileUploadWithTagComponent({
         renderValidationMessagesForComponent(validationMessages, id)}
 
       <FileList
+        {...({} as PropsFromGenericComponent<'FileUploadWithTag'>)}
         id={id}
         attachments={attachments}
         attachmentValidations={attachmentValidationMessages}
@@ -291,7 +295,6 @@ export function FileUploadWithTagComponent({
         setEditIndex={setEditIndex}
         textResourceBindings={textResourceBindings}
         dataModelBindings={dataModelBindings}
-        {...({} as IComponentProps)}
       />
 
       {!shouldShowFileUpload() &&

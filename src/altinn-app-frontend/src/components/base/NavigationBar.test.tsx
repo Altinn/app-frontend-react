@@ -14,7 +14,7 @@ const { setScreenWidth } = mockMediaQuery(600);
 const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
   const allProps = {
     triggers: [],
-    ...props,
+    ...(props as any),
   } as INavigationBar;
 
   const store = setupStore({
@@ -22,11 +22,16 @@ const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
       error: null,
       layoutsets: null,
       uiConfig: {
-        layoutOrder: ['page1', 'page2', 'page3'],
+        tracks: {
+          order: ['page1', 'page2', 'page3'],
+          hiddenExpr: {},
+          hidden: [],
+        },
         currentView: 'page1',
         autoSave: false,
         focus: 'focus',
         hiddenFields: [],
+        repeatingGroups: null,
       },
       layouts: {
         page1: [
@@ -100,6 +105,11 @@ const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
         ],
       },
     },
+    language: {
+      language: {},
+      error: null,
+      selectedAppLanguage: 'nb',
+    },
   });
 
   store.dispatch = dispatch;
@@ -141,7 +151,7 @@ describe('NavigationBar', () => {
       expect(dispatchMock).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
-          runValidations: null,
+          runValidations: undefined,
         },
         type: FormLayoutActions.updateCurrentView.type,
       });
@@ -232,7 +242,7 @@ describe('NavigationBar', () => {
       expect(dispatchMock).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
-          runValidations: null,
+          runValidations: undefined,
         },
         type: FormLayoutActions.updateCurrentView.type,
       });

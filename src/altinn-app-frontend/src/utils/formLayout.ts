@@ -1,7 +1,9 @@
 import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
+import type { IFormData } from 'src/features/form/data';
 import type {
   ComponentTypes,
   IGroupEditProperties,
+  IGroupFilter,
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
@@ -46,7 +48,7 @@ export function splitDashedKey(componentId: string): SplitKey {
     // Since our form component IDs are usually UUIDs, they will contain hyphens and may even end in '-<number>'.
     // We'll assume the application has less than 5-digit repeating group elements (the last leg of UUIDs are always
     // longer than 5 digits).
-    if (toConsider.match(/^\d{1,5}$/)) {
+    if (toConsider?.match(/^\d{1,5}$/)) {
       depth.push(parseInt(toConsider, 10));
     } else {
       depth.reverse();
@@ -69,14 +71,14 @@ export function splitDashedKey(componentId: string): SplitKey {
 }
 
 const getMaxIndexInKeys = (keys: string[], nested = false) => {
-  const arrayIndexRegex = new RegExp(/\[(\d+)\]/);
+  const arrayIndexRegex = new RegExp(/\[(\d+)]/);
   const nestedArrayIndexRegex = new RegExp(/^.+?\[(\d+)].+?\[(\d+)]/);
   return Math.max(
     ...keys.map((formDataKey) => {
       const match = formDataKey.match(
         nested ? nestedArrayIndexRegex : arrayIndexRegex,
       );
-      const indexAsString = match[nested ? 2 : 1];
+      const indexAsString = match && match[nested ? 2 : 1];
       if (indexAsString) {
         return parseInt(indexAsString, 10);
       }
@@ -113,10 +115,13 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   );
 
   filteredGroups.forEach((groupElement: ILayoutGroup) => {
-    if (groupElement.maxCount > 1) {
+    if (groupElement.maxCount && groupElement.maxCount > 1) {
       const groupFormData = Object.keys(formData)
         .filter((key) => {
-          return key.startsWith(groupElement.dataModelBindings.group);
+          return (
+            groupElement.dataModelBindings?.group &&
+            key.startsWith(groupElement.dataModelBindings.group)
+          );
         })
         .sort();
       if (groupFormData && groupFormData.length > 0) {
@@ -127,8 +132,9 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
             index,
             dataModelBinding: groupElement.dataModelBindings?.group,
             editIndex: -1,
+            multiPageIndex: -1,
           };
-          const groupElementChildGroups = [];
+          const groupElementChildGroups: string[] = [];
           groupElement.children?.forEach((id) => {
             if (
               groupElement.edit?.multiPage &&
@@ -145,17 +151,18 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
             );
             [...Array(index + 1)].forEach(
               (_x: any, childGroupIndex: number) => {
-                const groupId = `${childGroup.id}-${childGroupIndex}`;
+                const groupId = `${childGroup?.id}-${childGroupIndex}`;
                 repeatingGroups[groupId] = {
                   index: getIndexForNestedRepeatingGroup(
                     formData,
-                    childGroup.dataModelBindings?.group,
-                    groupElement.dataModelBindings.group,
+                    childGroup?.dataModelBindings?.group,
+                    groupElement?.dataModelBindings?.group,
                     childGroupIndex,
                   ),
-                  baseGroupId: childGroup.id,
+                  baseGroupId: childGroup?.id,
                   editIndex: -1,
-                  dataModelBinding: childGroup.dataModelBindings?.group,
+                  multiPageIndex: -1,
+                  dataModelBinding: childGroup?.dataModelBindings?.group,
                 };
               },
             );
@@ -166,6 +173,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
           index: -1,
           dataModelBinding: groupElement.dataModelBindings?.group,
           editIndex: -1,
+          multiPageIndex: -1,
         };
       }
     }
@@ -190,7 +198,10 @@ export function mapFileUploadersWithTag(
     const attachments = attachmentState.attachments[componentId];
     const chosenOptions: IOptionsChosen = {};
     for (let index = 0; index < attachments.length; index++) {
-      chosenOptions[attachments[index].id] = attachments[index].tags[0];
+      const tags = attachments[index].tags;
+      if (tags) {
+        chosenOptions[attachments[index].id] = tags[0];
+      }
     }
     fileUploaders[componentId] = {
       editIndex: -1,
@@ -202,11 +213,11 @@ export function mapFileUploadersWithTag(
 
 function getIndexForNestedRepeatingGroup(
   formData: any,
-  groupBinding: string,
-  parentGroupBinding: string,
+  groupBinding: string | undefined,
+  parentGroupBinding: string | undefined,
   parentIndex: number,
 ): number {
-  if (!groupBinding) {
+  if (!groupBinding || !parentGroupBinding) {
     return -1;
   }
   const indexedGroupBinding = groupBinding.replace(
@@ -225,8 +236,8 @@ function getIndexForNestedRepeatingGroup(
 }
 
 export function getNextView(
-  navOptions: ILayoutNavigation,
-  layoutOrder: string[],
+  navOptions: ILayoutNavigation | undefined,
+  layoutOrder: string[] | null,
   currentView: string,
   goBack?: boolean,
 ) {
@@ -278,10 +289,16 @@ export const getRepeatingGroupStartStopIndex = (
   repeatingGroupIndex: number,
   edit: IGroupEditProperties | undefined,
 ) => {
+  if (typeof repeatingGroupIndex === 'undefined') {
+    return { startIndex: 0, stopIndex: -1 };
+  }
+
   const start = edit?.filter?.find(({ key }) => key === 'start')?.value;
   const stop = edit?.filter?.find(({ key }) => key === 'stop')?.value;
   const startIndex = start ? parseInt(start) : 0;
-  const stopIndex = stop ? parseInt(stop) - 1 : repeatingGroupIndex;
+  const stopIndex = stop
+    ? Math.min(parseInt(stop) - 1, repeatingGroupIndex)
+    : repeatingGroupIndex;
   return { startIndex, stopIndex };
 };
 
@@ -339,7 +356,7 @@ export function createRepeatingGroupComponentsForIndex({
       JSON.stringify(component),
     );
     const dataModelBindings = { ...componentDeepCopy.dataModelBindings };
-    const groupDataModelBinding = container.dataModelBindings.group;
+    const groupDataModelBinding = container.dataModelBindings?.group;
     Object.keys(dataModelBindings).forEach((key) => {
       dataModelBindings[key] = dataModelBindings[key].replace(
         groupDataModelBinding,
@@ -377,8 +394,8 @@ export function createRepeatingGroupComponentsForIndex({
 }
 
 export function setMappingForRepeatingGroupComponent(
-  mapping: IMapping,
-  index: number,
+  mapping: IMapping | undefined,
+  index: number | undefined,
 ) {
   if (mapping) {
     const indexedMapping: IMapping = {
@@ -404,7 +421,7 @@ export function setMappingForRepeatingGroupComponent(
 
 export function getVariableTextKeysForRepeatingGroupComponent(
   textResources: ITextResource[],
-  textResourceBindings: ITextResourceBindings,
+  textResourceBindings: ITextResourceBindings | undefined,
   index: number,
 ) {
   const copyTextResourceBindings = { ...textResourceBindings };
@@ -430,8 +447,14 @@ export function getVariableTextKeysForRepeatingGroupComponent(
   return copyTextResourceBindings;
 }
 
-export function hasRequiredFields(layout: ILayout) {
-  return layout.find((c: ILayoutComponent) => c.required);
+/**
+ * Checks if there are required fields in this layout (or fields that potentially can be marked as required if some
+ * dynamic behaviour dictates it).
+ */
+export function hasRequiredFields(layout: ILayout): boolean {
+  return !!layout.find(
+    (c: ILayoutComponent) => c.required === true || Array.isArray(c.required),
+  );
 }
 
 /**
@@ -442,6 +465,7 @@ export function hasRequiredFields(layout: ILayout) {
  * @param options.matching Function which should return true for every component to be included in the returned list.
  *    If not provided, all components are returned.
  * @param options.rootGroupId Component id for a group to use as root, instead of iterating the entire layout.
+ * @deprecated Use nodesInLayout() instead. TODO: Rewrite usages
  */
 export function findChildren(
   layout: ILayout,
@@ -460,7 +484,7 @@ export function findChildren(
       if (item.type === 'Group' && item.children) {
         for (const childId of item.children) {
           const cleanId = item.edit?.multiPage
-            ? childId.match(/^\d+:(.*)$/)[1]
+            ? childId.split(':')[1]
             : childId;
           if (item.id === root) {
             toConsider.add(cleanId);
@@ -544,8 +568,45 @@ export function extractBottomButtons(layout: ILayout) {
  * @param layoutSets the layout sets
  */
 export function behavesLikeDataTask(
-  task: string,
-  layoutSets: ILayoutSets,
+  task: string | null | undefined,
+  layoutSets: ILayoutSets | null,
 ): boolean {
-  return layoutSets?.sets.some((set) => set.tasks?.includes(task));
+  if (!task) {
+    return false;
+  }
+
+  return layoutSets?.sets.some((set) => set.tasks?.includes(task)) || false;
+}
+
+/**
+ * (Deprecate this function) Returns the filtered indices of a repeating group.
+ * This is a buggy implementation, but is used for backward compatibility until a new major version is released.
+ * @see https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1286624933
+ * @param formData IFormData
+ * @param filter IGroupEditProperties.filter or undefined.
+ * @returns a list of indices for repeating group elements after applying filters, or null if no filters are provided or if no elements match.
+ * @deprecated
+ */
+export function getRepeatingGroupFilteredIndices(
+  formData: IFormData,
+  filter?: IGroupFilter[],
+): number[] | null {
+  if (filter && filter.length > 0) {
+    const rule = filter.at(-1);
+    const formDataKeys: string[] = Object.keys(formData).filter((key) => {
+      const keyWithoutIndex = key.replaceAll(/\[\d*]/g, '');
+      return keyWithoutIndex === rule?.key && formData[key] === rule.value;
+    });
+    if (formDataKeys && formDataKeys.length > 0) {
+      return formDataKeys.map((key) => {
+        const match = key.match(/\[(\d*)]/g);
+        const currentIndex = (match && match[match.length - 1]) || '[0]';
+        return parseInt(
+          currentIndex.substring(1, currentIndex.indexOf(']')),
+          10,
+        );
+      });
+    }
+  }
+  return null;
 }

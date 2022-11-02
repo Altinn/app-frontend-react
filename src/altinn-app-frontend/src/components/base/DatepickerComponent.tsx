@@ -23,8 +23,7 @@ import {
   DatePickerSaveFormatNoTimestamp,
   validateDatepickerFormData,
 } from 'src/utils/validation';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompDatePicker } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 import type { DateFlags, IComponentBindingValidation } from 'src/types';
 
 import { getLanguageFromKey } from 'altinn-shared/utils';
@@ -32,8 +31,7 @@ import { getLanguageFromKey } from 'altinn-shared/utils';
 import 'src/components/base/DatepickerComponent.css';
 import 'src/styles/shared.css';
 
-export type IDatePickerProps = IComponentProps &
-  Omit<ILayoutCompDatePicker, 'type'>;
+export type IDatePickerProps = PropsFromGenericComponent<'DatePicker'>;
 
 const iconSize = '30px';
 
@@ -104,10 +102,10 @@ function DatepickerComponent({
   textResourceBindings,
 }: IDatePickerProps) {
   const classes = useStyles();
-  const [date, setDate] = React.useState<moment.Moment>(null);
+  const [date, setDate] = React.useState<moment.Moment | null>(null);
   const [validDate, setValidDate] = React.useState<boolean>(true);
   const [validationMessages, setValidationMessages] =
-    React.useState<IComponentBindingValidation>(null);
+    React.useState<IComponentBindingValidation | null>(null);
   const locale =
     window.navigator?.language ||
     (window.navigator as any)?.userLanguage ||
@@ -135,14 +133,13 @@ function DatepickerComponent({
   }, [date]);
 
   const getValidationMessages = React.useCallback(() => {
-    let checkDate: string;
+    let checkDate: string | null = null;
     if (!date || isDateEmpty()) {
       checkDate = '';
     } else if (date.isValid()) {
       checkDate = date.toISOString();
-    } else {
-      checkDate = null;
     }
+
     const validations: IComponentBindingValidation = validateDatepickerFormData(
       checkDate,
       calculatedMinDate,
@@ -153,14 +150,14 @@ function DatepickerComponent({
     const suppliedValidations = componentValidations?.simpleBinding;
     if (suppliedValidations?.errors) {
       suppliedValidations.errors.forEach((validation: string) => {
-        if (validations.errors.indexOf(validation) === -1) {
+        if (validations.errors?.indexOf(validation) === -1) {
           validations.errors.push(validation);
         }
       });
     }
     if (suppliedValidations?.warnings) {
       suppliedValidations.warnings.forEach((validation: string) => {
-        if (validations.warnings.indexOf(validation) === -1) {
+        if (validations.warnings?.indexOf(validation) === -1) {
           validations.warnings.push(validation);
         }
       });
@@ -216,7 +213,7 @@ function DatepickerComponent({
     }
   };
 
-  const isValidDate = (dateValue: moment.Moment): boolean => {
+  const isValidDate = (dateValue: moment.Moment | null): boolean => {
     if (!dateValue) {
       return true;
     }
@@ -242,7 +239,9 @@ function DatepickerComponent({
           ? date?.format(DatePickerSaveFormatNoTimestamp)
           : date?.toISOString(true);
       const saveDate = isDateEmpty() ? '' : dateString;
-      handleDataChange(saveDate);
+      if (saveDate !== undefined) {
+        handleDataChange(saveDate);
+      }
     } else {
       if (formData?.simpleBinding) {
         handleDataChange('');

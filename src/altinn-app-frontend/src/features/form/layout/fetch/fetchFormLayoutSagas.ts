@@ -2,6 +2,10 @@ import { all, call, put, select, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import components from 'src/components';
+import {
+  preProcessItem,
+  preProcessLayout,
+} from 'src/features/expressions/validation';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
@@ -18,7 +22,12 @@ import type {
   ILayouts,
 } from 'src/features/form/layout';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
-import type { ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
+import type {
+  IHiddenLayoutsExpressions,
+  ILayoutSets,
+  ILayoutSettings,
+  IRuntimeState,
+} from 'src/types';
 
 import type { IInstance } from 'altinn-shared/types';
 
@@ -29,8 +38,9 @@ export const instanceSelector = (state: IRuntimeState) =>
 export const applicationMetadataSelector = (state: IRuntimeState) =>
   state.applicationMetadata.applicationMetadata;
 
-let componentTypeCaseMapping: { [key: string]: ComponentTypes } = undefined;
-function getCaseMapping(): typeof componentTypeCaseMapping {
+type ComponentTypeCaseMapping = { [key: string]: ComponentTypes };
+let componentTypeCaseMapping: ComponentTypeCaseMapping | undefined = undefined;
+function getCaseMapping(): ComponentTypeCaseMapping {
   if (!componentTypeCaseMapping) {
     componentTypeCaseMapping = {
       group: 'Group',
@@ -47,16 +57,20 @@ function getCaseMapping(): typeof componentTypeCaseMapping {
 
 export function cleanLayout(layout: ILayout): ILayout {
   const mapping = getCaseMapping();
-  return layout.map((component) => ({
+  const newLayout = layout.map((component) => ({
     ...component,
     type: mapping[component.type.toLowerCase()] || component.type,
   })) as ILayout;
+
+  preProcessLayout(newLayout);
+
+  return newLayout;
 }
 
 export function* fetchLayoutSaga(): SagaIterator {
   try {
-    const layoutSets: ILayoutSets = yield select(layoutSetsSelector);
-    const instance: IInstance = yield select(instanceSelector);
+    const layoutSets: ILayoutSets | null = yield select(layoutSetsSelector);
+    const instance: IInstance | null = yield select(instanceSelector);
     const applicationMetadata: IApplicationMetadata = yield select(
       applicationMetadataSelector,
     );
@@ -65,13 +79,18 @@ export function* fetchLayoutSaga(): SagaIterator {
       instance,
       layoutSets,
     );
-    const layoutResponse: any = yield call(get, getLayoutsUrl(layoutSetId));
+    const layoutResponse: any = yield call(
+      get,
+      getLayoutsUrl(layoutSetId || null),
+    );
     const layouts: ILayouts = {};
     const navigationConfig: any = {};
-    let autoSave: boolean;
+    const hiddenLayoutsExpressions: IHiddenLayoutsExpressions = {};
+    let autoSave: boolean | undefined;
     let firstLayoutKey: string;
     if (layoutResponse.data?.layout) {
       layouts.FormLayout = layoutResponse.data.layout;
+      hiddenLayoutsExpressions.FormLayout = layoutResponse.data.hidden;
       firstLayoutKey = 'FormLayout';
       autoSave = layoutResponse.data.autoSave;
     } else {
@@ -92,12 +111,28 @@ export function* fetchLayoutSaga(): SagaIterator {
 
       orderedLayoutKeys.forEach((key) => {
         layouts[key] = cleanLayout(layoutResponse[key].data.layout);
+        hiddenLayoutsExpressions[key] = layoutResponse[key].data.hidden;
         navigationConfig[key] = layoutResponse[key].data.navigation;
         autoSave = layoutResponse[key].data.autoSave;
       });
     }
 
-    yield put(FormLayoutActions.fetchFulfilled({ layouts, navigationConfig }));
+    for (const key of Object.keys(hiddenLayoutsExpressions)) {
+      hiddenLayoutsExpressions[key] = preProcessItem(
+        hiddenLayoutsExpressions[key],
+        { hidden: false },
+        ['hidden'],
+        key,
+      );
+    }
+
+    yield put(
+      FormLayoutActions.fetchFulfilled({
+        layouts,
+        navigationConfig,
+        hiddenLayoutsExpressions,
+      }),
+    );
     yield put(FormLayoutActions.updateAutoSave({ autoSave }));
     yield put(
       FormLayoutActions.updateCurrentView({

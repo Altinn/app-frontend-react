@@ -5,9 +5,9 @@ import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 import configureStore from 'redux-mock-store';
+import { mockComponentProps } from 'testUtils';
 
 import { AddressComponent } from 'src/components/advanced/AddressComponent';
-import type { IComponentProps } from 'src/components';
 import type { IAddressComponentProps } from 'src/components/advanced/AddressComponent';
 
 const render = (props: Partial<IAddressComponentProps> = {}) => {
@@ -30,24 +30,17 @@ const render = (props: Partial<IAddressComponentProps> = {}) => {
   };
 
   const allProps: IAddressComponentProps = {
-    id: 'id',
+    ...mockComponentProps,
     formData: {
       address: 'adresse 1',
     },
-    handleDataChange: () => '',
-    getTextResource: () => 'test',
     isValid: true,
     simplified: true,
     dataModelBindings: {},
-    componentValidations: {
-      zipCode: null,
-      houseNumber: null,
-    },
     language: mockLanguage,
     readOnly: false,
     required: false,
     textResourceBindings: {},
-    ...({} as IComponentProps),
     ...props,
   };
 

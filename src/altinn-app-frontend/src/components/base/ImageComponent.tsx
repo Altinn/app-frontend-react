@@ -4,11 +4,10 @@ import { Grid, makeStyles } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks';
 import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompImage } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 import type { IAltinnWindow } from 'src/types';
 
-export type IImageProps = IComponentProps & Omit<ILayoutCompImage, 'type'>;
+export type IImageProps = PropsFromGenericComponent<'Image'>;
 
 const useStyles = makeStyles({
   spacing: {
@@ -21,13 +20,13 @@ export function ImageComponent(props: IImageProps) {
   const language = useAppSelector(
     (state) => state.profile.profile?.profileSettingPreference.language || 'nb',
   );
-  const width = props.image.width || '100%';
-  const align = props.image.align || 'center';
-  const altText = props.getTextResourceAsString(
-    props.textResourceBindings.altTextImg,
-  );
+  const width = props.image?.width || '100%';
+  const align = props.image?.align || 'center';
+  const altText =
+    props.textResourceBindings?.altTextImg &&
+    props.getTextResourceAsString(props.textResourceBindings.altTextImg);
 
-  let imgSrc = props.image.src[language] || props.image.src.nb;
+  let imgSrc = props.image?.src[language] || props.image?.src.nb || '';
   if (imgSrc.startsWith('wwwroot')) {
     imgSrc = imgSrc.replace(
       'wwwroot',

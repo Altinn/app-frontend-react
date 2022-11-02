@@ -15,11 +15,11 @@ import type {
  * Runs conditional rendering rules, returns array of affected layout elements
  */
 export function runConditionalRenderingRules(
-  rules: IConditionalRenderingRules,
-  formData: IFormData,
+  rules: IConditionalRenderingRules | null,
+  formData: IFormData | null,
   repeatingGroups?: IRepeatingGroups,
-): any[] {
-  let componentsToHide: string[] = [];
+): Set<string> {
+  const componentsToHide = new Set<string>();
   if (!(window as Window as IAltinnWindow).conditionalRuleHandlerHelper) {
     // rules have not been initialized
     return componentsToHide;
@@ -36,8 +36,8 @@ export function runConditionalRenderingRules(
 
     const connection: IConditionalRenderingRule = rules[key];
     if (connection.repeatingGroup) {
-      const repeatingGroup: IRepeatingGroup =
-        repeatingGroups[connection.repeatingGroup.groupId];
+      const repeatingGroup: IRepeatingGroup | undefined =
+        repeatingGroups && repeatingGroups[connection.repeatingGroup.groupId];
       if (!repeatingGroup) {
         return;
       }
@@ -57,42 +57,42 @@ export function runConditionalRenderingRules(
         });
 
         if (connection.repeatingGroup.childGroupId) {
-          const childGroup: IRepeatingGroup =
+          const childGroup: IRepeatingGroup | undefined =
+            repeatingGroups &&
             repeatingGroups[
               `${connection.repeatingGroup.childGroupId}-${index}`
             ];
-          for (
-            let childIndex = 0;
-            childIndex <= childGroup?.index;
-            childIndex++
-          ) {
-            const connectionNestedCopy: IConditionalRenderingRule = JSON.parse(
-              JSON.stringify(connectionCopy),
-            );
-            connectionNestedCopy.inputParams = mapRepeatingGroupIndex({
-              ruleObject: connectionCopy.inputParams,
-              index: childIndex,
-              dataModelField: true,
-              nested: true,
-            });
-            connectionNestedCopy.selectedFields = mapRepeatingGroupIndex({
-              ruleObject: connectionCopy.selectedFields,
-              index: childIndex,
-              nested: true,
-            });
-            componentsToHide = componentsToHide.concat(
-              runConditionalRenderingRule(connectionNestedCopy, formData),
-            );
+          if (childGroup) {
+            for (
+              let childIndex = 0;
+              childIndex <= childGroup?.index;
+              childIndex++
+            ) {
+              const connectionNestedCopy: IConditionalRenderingRule =
+                JSON.parse(JSON.stringify(connectionCopy));
+              connectionNestedCopy.inputParams = mapRepeatingGroupIndex({
+                ruleObject: connectionCopy.inputParams,
+                index: childIndex,
+                dataModelField: true,
+                nested: true,
+              });
+              connectionNestedCopy.selectedFields = mapRepeatingGroupIndex({
+                ruleObject: connectionCopy.selectedFields,
+                index: childIndex,
+                nested: true,
+              });
+              runConditionalRenderingRule(
+                connectionNestedCopy,
+                formData,
+                componentsToHide,
+              );
+            }
           }
         }
-        componentsToHide = componentsToHide.concat(
-          runConditionalRenderingRule(connectionCopy, formData),
-        );
+        runConditionalRenderingRule(connectionCopy, formData, componentsToHide);
       }
     } else {
-      componentsToHide = componentsToHide.concat(
-        runConditionalRenderingRule(connection, formData),
-      );
+      runConditionalRenderingRule(connection, formData, componentsToHide);
     }
   });
 
@@ -125,10 +125,10 @@ function mapRepeatingGroupIndex({
 
 function runConditionalRenderingRule(
   rule: IConditionalRenderingRule,
-  formData: IFormData,
+  formData: IFormData | null,
+  hiddenFields: Set<string>,
 ) {
   const functionToRun = rule.selectedFunction;
-  const componentsToHide: string[] = [];
   const objectToUpdate = (
     window as Window as IAltinnWindow
   ).conditionalRuleHandlerHelper[functionToRun]();
@@ -148,15 +148,7 @@ function runConditionalRenderingRule(
   Object.keys(rule.selectedFields).forEach((elementToPerformActionOn) => {
     if (elementToPerformActionOn && hide) {
       const elementId = rule.selectedFields[elementToPerformActionOn];
-      addElementToList(componentsToHide, elementId);
+      hiddenFields.add(elementId);
     }
   });
-
-  return componentsToHide;
-}
-
-function addElementToList(list: string[], elementToAdd: string) {
-  if (list.findIndex((element) => element === elementToAdd) === -1) {
-    list.push(elementToAdd);
-  }
 }

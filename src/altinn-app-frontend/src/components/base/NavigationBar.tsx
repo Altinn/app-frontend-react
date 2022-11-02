@@ -5,11 +5,11 @@ import cn from 'classnames';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import { Triggers } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompNavBar } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 
 const useStyles = makeStyles((theme) => ({
   menu: {
@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export type INavigationBar = IComponentProps & Omit<ILayoutCompNavBar, 'type'>;
+export type INavigationBar = PropsFromGenericComponent<'NavigationBar'>;
 
 interface INavigationButton {
   onClick: () => void;
@@ -103,9 +103,7 @@ NavigationButton.displayName = 'NavigationButton';
 export const NavigationBar = ({ triggers }: INavigationBar) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const pageIds = useAppSelector(
-    (state) => state.formLayout.uiConfig.layoutOrder,
-  );
+  const pageIds = useAppSelector(selectLayoutOrder);
   const returnToView = useAppSelector(
     (state) => state.formLayout.uiConfig.returnToView,
   );
@@ -138,7 +136,7 @@ export const NavigationBar = ({ triggers }: INavigationBar) => {
     const runValidations =
       (runAllValidations && 'allPages') ||
       (runPageValidations && 'page') ||
-      null;
+      undefined;
 
     dispatch(
       FormLayoutActions.updateCurrentView({ newView: pageId, runValidations }),
@@ -154,9 +152,13 @@ export const NavigationBar = ({ triggers }: INavigationBar) => {
   React.useLayoutEffect(() => {
     const shouldFocusFirstItem = firstPageLink.current && showMenu === true;
     if (shouldFocusFirstItem) {
-      firstPageLink.current.focus();
+      firstPageLink.current?.focus();
     }
   }, [showMenu]);
+
+  if (!language || !pageIds) {
+    return null;
+  }
 
   return (
     <Grid container>

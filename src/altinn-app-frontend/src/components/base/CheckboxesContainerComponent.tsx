@@ -13,15 +13,13 @@ import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState'
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { getOptionLookupKey } from 'src/utils/options';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { IComponentProps } from 'src/components';
-import type { ILayoutCompCheckboxes } from 'src/features/form/layout';
+import type { PropsFromGenericComponent } from 'src/components';
 import type { IComponentValidations, IOption } from 'src/types';
 
 import { AltinnSpinner } from 'altinn-shared/components';
 
 export interface ICheckboxContainerProps
-  extends IComponentProps,
-    ILayoutCompCheckboxes {
+  extends PropsFromGenericComponent<'Checkboxes'> {
   validationMessages: IComponentValidations;
 }
 
@@ -99,11 +97,9 @@ export const CheckboxContainerComponent = ({
   const calculatedOptions = apiOptions || options || defaultOptions;
   const hasSelectedInitial = React.useRef(false);
   const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
-
+  const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector(
-    (state) =>
-      state.optionState.options[getOptionLookupKey({ id: optionsId, mapping })]
-        ?.loading,
+    (state) => lookupKey && state.optionState.options[lookupKey]?.loading,
   );
 
   const { value, setValue, saveValue } = useDelayedSavedState(
@@ -118,6 +114,7 @@ export const CheckboxContainerComponent = ({
   React.useEffect(() => {
     const shouldSelectOptionAutomatically =
       !formData?.simpleBinding &&
+      typeof preselectedOptionIndex !== 'undefined' &&
       preselectedOptionIndex >= 0 &&
       calculatedOptions &&
       preselectedOptionIndex < calculatedOptions.length &&

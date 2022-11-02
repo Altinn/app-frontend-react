@@ -126,24 +126,28 @@ describe('getRepeatingGroups', () => {
         index: 2,
         dataModelBinding: 'Group1',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       'Group2-0': {
         index: 0,
         baseGroupId: 'Group2',
         dataModelBinding: 'Group1.Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       'Group2-1': {
         index: 4,
         baseGroupId: 'Group2',
         dataModelBinding: 'Group1.Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       'Group2-2': {
         index: 1,
         baseGroupId: 'Group2',
         dataModelBinding: 'Group1.Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
     };
     const result = getRepeatingGroups(testLayout, formData);
@@ -175,24 +179,28 @@ describe('getRepeatingGroups', () => {
         index: 2,
         dataModelBinding: 'Group1',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       'Group2-0': {
         index: 0,
         baseGroupId: 'Group2',
         dataModelBinding: 'Group1.Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       'Group2-1': {
         index: 10,
         baseGroupId: 'Group2',
         dataModelBinding: 'Group1.Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       'Group2-2': {
         index: 1,
         baseGroupId: 'Group2',
         dataModelBinding: 'Group1.Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
     };
 
@@ -219,24 +227,28 @@ describe('getRepeatingGroups', () => {
         index: 2,
         dataModelBinding: 'Group1',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       'Group2-0': {
         index: 0,
         baseGroupId: 'Group2',
         dataModelBinding: 'Group1.Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       'Group2-1': {
         index: 4,
         baseGroupId: 'Group2',
         dataModelBinding: 'Group1.Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       'Group2-2': {
         index: 1,
         baseGroupId: 'Group2',
         dataModelBinding: 'Group1.Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
     };
     const result = getRepeatingGroups(testLayout, formData);
@@ -304,11 +316,13 @@ describe('getRepeatingGroups', () => {
         index: 3,
         dataModelBinding: 'Group1',
         editIndex: -1,
+        multiPageIndex: -1,
       },
       Group2: {
         index: 2,
         dataModelBinding: 'Group2',
         editIndex: -1,
+        multiPageIndex: -1,
       },
     };
     const result = getRepeatingGroups(testLayout, formData);
@@ -354,6 +368,7 @@ describe('getRepeatingGroups', () => {
         index: 12,
         dataModelBinding: 'Group1',
         editIndex: -1,
+        multiPageIndex: -1,
       },
     };
     const result = getRepeatingGroups(testLayout, formData);
@@ -620,7 +635,7 @@ describe('createRepeatingGroupComponents', () => {
       mockTextResources,
     );
 
-    const allBaseComponentIds = [];
+    const allBaseComponentIds: string[] = [];
     const findBaseComponentId = (obj: any) => {
       if (Array.isArray(obj)) {
         for (const item of obj) {
@@ -817,7 +832,7 @@ describe('findChildren', () => {
       {
         id: 'group1',
         type: 'Group',
-        children: ['0:field2', '1:field3:0'],
+        children: ['0:field2', '1:field3'],
         edit: { multiPage: true },
       } as ILayoutGroup,
       {
@@ -826,14 +841,14 @@ describe('findChildren', () => {
         type: 'Input',
       } as ILayoutComponent,
       {
-        id: 'field3:0',
+        id: 'field3',
         required: false,
         type: 'Input',
       } as ILayoutComponent,
     ];
 
     const result1 = findChildren(layout, {
-      matching: (c) => c.required,
+      matching: (c) => c.required === true,
       rootGroupId: 'group1',
     });
 
@@ -845,7 +860,7 @@ describe('findChildren', () => {
     });
 
     expect(result2).toHaveLength(2);
-    expect(result2.map((c) => c.id)).toEqual(['field2', 'field3:0']);
+    expect(result2.map((c) => c.id)).toEqual(['field2', 'field3']);
   });
 
   it('should work with nested groups out-of-order', () => {
@@ -884,7 +899,7 @@ describe('findChildren', () => {
     ];
 
     const result1 = findChildren(layout, {
-      matching: (c) => c.required,
+      matching: (c) => c.required === true,
     });
 
     expect(result1).toHaveLength(2);

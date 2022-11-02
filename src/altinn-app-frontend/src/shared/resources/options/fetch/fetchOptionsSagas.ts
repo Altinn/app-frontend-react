@@ -1,8 +1,7 @@
-import { all, call, fork, put, select, take } from 'redux-saga/effects';
+import { call, fork, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
 import { getOptionsUrl } from 'src/utils/appUrlHelper';
@@ -13,6 +12,7 @@ import {
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
 import { getOptionLookupKey, getOptionLookupKeys } from 'src/utils/options';
+import { selectNotNull } from 'src/utils/sagas';
 import type { IFormData } from 'src/features/form/data';
 import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import type {
@@ -30,41 +30,43 @@ import type {
 
 import { get } from 'altinn-shared/utils';
 
-export const formLayoutSelector = (state: IRuntimeState): ILayouts =>
-  state.formLayout.layouts;
+export const formLayoutSelector = (state: IRuntimeState): ILayouts | null =>
+  state.formLayout?.layouts;
 export const formDataSelector = (state: IRuntimeState) =>
   state.formData.formData;
 export const optionsSelector = (state: IRuntimeState): IOptions =>
   state.optionState.options;
 export const optionsWithIndexIndicatorsSelector = (state: IRuntimeState) =>
   state.optionState.optionsWithIndexIndicators;
-export const instanceIdSelector = (state: IRuntimeState): string =>
+export const instanceIdSelector = (state: IRuntimeState): string | undefined =>
   state.instanceData.instance?.id;
-export const repeatingGroupsSelector = (
-  state: IRuntimeState,
-): IRepeatingGroups => state.formLayout.uiConfig.repeatingGroups;
+export const repeatingGroupsSelector = (state: IRuntimeState) =>
+  state.formLayout?.uiConfig.repeatingGroups;
 
 export function* fetchOptionsSaga(): SagaIterator {
-  const layouts: ILayouts = yield select(formLayoutSelector);
-  const repeatingGroups: IRepeatingGroups = yield select(
+  const layouts: ILayouts = yield selectNotNull(formLayoutSelector);
+  const repeatingGroups: IRepeatingGroups = yield selectNotNull(
     repeatingGroupsSelector,
   );
 
   const fetchedOptions: string[] = [];
-  const optionsWithIndexIndicators = [];
+  const optionsWithIndexIndicators: IOptionsMetaData[] = [];
 
   for (const layoutId of Object.keys(layouts)) {
-    for (const element of layouts[layoutId]) {
+    for (const element of layouts[layoutId] || []) {
       const { optionsId, mapping, secure } =
         element as ISelectionComponentProps;
 
       // if we have index indicators we get up the lookup keys for existing indexes
-      const { keys, keyWithIndexIndicator } = getOptionLookupKeys({
-        id: optionsId,
-        mapping,
-        secure,
-        repeatingGroups,
-      });
+      const { keys, keyWithIndexIndicator } =
+        (optionsId &&
+          getOptionLookupKeys({
+            id: optionsId,
+            mapping,
+            secure,
+            repeatingGroups,
+          })) ||
+        {};
 
       if (keyWithIndexIndicator) {
         optionsWithIndexIndicators.push(keyWithIndexIndicator);
@@ -93,16 +95,6 @@ export function* fetchOptionsSaga(): SagaIterator {
       optionsWithIndexIndicators,
     }),
   );
-}
-
-export function* watchFetchOptionsSaga(): SagaIterator {
-  while (true) {
-    yield all([
-      take(FormLayoutActions.updateRepeatingGroupsFulfilled),
-      take(OptionsActions.fetch),
-    ]);
-    yield call(fetchOptionsSaga);
-  }
 }
 
 export function* fetchSpecificOptionSaga({
@@ -147,14 +139,16 @@ export function* checkIfOptionsShouldRefetchSaga({
 
   let foundInExistingOptions = false;
   for (const optionsKey of Object.keys(options)) {
-    const dataMapping = options[optionsKey].mapping;
-    const optionsId = options[optionsKey].id;
-    const secure = options[optionsKey].secure;
-    if (dataMapping && Object.keys(dataMapping).includes(field)) {
+    const { mapping, id, secure } = options[optionsKey] || {};
+    if (!id) {
+      continue;
+    }
+
+    if (mapping && Object.keys(mapping).includes(field)) {
       foundInExistingOptions = true;
       yield fork(fetchSpecificOptionSaga, {
-        optionsId,
-        dataMapping,
+        optionsId: id,
+        dataMapping: mapping,
         secure,
       });
     }

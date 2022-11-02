@@ -29,7 +29,7 @@ import type {
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,
-  layout: ILayout,
+  layout: ILayout | undefined | null,
 ) {
   switch (layoutComponent.type) {
     case 'Group': {
@@ -60,11 +60,11 @@ function GenericComponent(component: ILayoutComponent, layout: ILayout) {
 
 function RenderLayoutGroup(
   layoutGroup: ILayoutGroup,
-  layout: ILayout,
+  layout: ILayout | undefined | null,
 ): JSX.Element {
   const groupComponents = mapGroupComponents(layoutGroup, layout);
 
-  const isRepeatingGroup = layoutGroup.maxCount > 1;
+  const isRepeatingGroup = layoutGroup.maxCount && layoutGroup.maxCount > 1;
   if (isRepeatingGroup) {
     return (
       <GroupContainer
@@ -103,7 +103,9 @@ export function Form() {
     (state) => state.formLayout.uiConfig.currentView,
   );
   const layout = useAppSelector(
-    (state) => state.formLayout.layouts[state.formLayout.uiConfig.currentView],
+    (state) =>
+      state.formLayout.layouts &&
+      state.formLayout.layouts[state.formLayout.uiConfig.currentView],
   );
   const language = useAppSelector((state) => state.language.language);
   const validations = useAppSelector(
@@ -114,7 +116,7 @@ export function Form() {
   );
 
   const requiredFieldsMissing = React.useMemo(() => {
-    if (validations && validations[currentView]) {
+    if (validations && validations[currentView] && language) {
       return missingFieldsInLayoutValidations(
         validations[currentView],
         language,
@@ -132,9 +134,13 @@ export function Form() {
     return hasErrors ? extractBottomButtons(topLevel) : [topLevel, []];
   }, [layout, hasErrors]);
 
+  if (!language || !layout) {
+    return null;
+  }
+
   return (
     <>
-      {hasRequiredFields(layout) && (
+      {layout && hasRequiredFields(layout) && (
         <MessageBanner
           language={language}
           error={requiredFieldsMissing}

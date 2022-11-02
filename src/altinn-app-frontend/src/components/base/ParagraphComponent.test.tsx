@@ -3,7 +3,6 @@ import React from 'react';
 import { render as rtlRender, screen } from '@testing-library/react';
 
 import { ParagraphComponent } from 'src/components/base/ParagraphComponent';
-import type { IComponentProps } from 'src/components';
 import type { IParagraphProps } from 'src/components/base/ParagraphComponent';
 
 describe('ParagraphComponent', () => {
@@ -54,13 +53,13 @@ describe('ParagraphComponent', () => {
       ),
     });
 
-    expect(screen.queryByTestId(`paragraph-component-${id}`).tagName).toEqual(
+    expect(screen.getByTestId(`paragraph-component-${id}`).tagName).toEqual(
       'P',
     );
   });
 });
 
-const render = (props: Partial<IComponentProps> = {}) => {
+const render = (props: Partial<IParagraphProps> = {}) => {
   const allProps = {
     id: 'abc123',
     type: 'Paragraph',

@@ -4,11 +4,11 @@ import type { SagaIterator } from 'redux-saga';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
+import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { IFormData } from 'src/features/form/data';
 import type { ITextResourcesState } from 'src/shared/resources/textResources';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 
-import { buildInstanceContext } from 'altinn-shared/utils/instanceContext';
 import { replaceTextResourceParams } from 'altinn-shared/utils/language';
 import type {
   IApplicationSettings,
@@ -18,20 +18,22 @@ import type {
   ITextResource,
 } from 'altinn-shared/types';
 
-export const InstanceSelector: (state: IRuntimeState) => IInstance = (state) =>
-  state.instanceData?.instance;
+export const InstanceSelector: (state: IRuntimeState) => IInstance | null = (
+  state,
+) => state.instanceData?.instance;
 export const FormDataSelector: (state: IRuntimeState) => IFormData = (state) =>
   state.formData?.formData;
 export const ApplicationSettingsSelector: (
   state: IRuntimeState,
-) => IApplicationSettings = (state) =>
+) => IApplicationSettings | null = (state) =>
   state.applicationSettings?.applicationSettings;
 export const TextResourcesSelector: (
   state: IRuntimeState,
 ) => ITextResourcesState = (state) => state.textResources;
 export const RepeatingGroupsSelector: (
   state: IRuntimeState,
-) => IRepeatingGroups = (state) => state.formLayout.uiConfig.repeatingGroups;
+) => IRepeatingGroups | null = (state) =>
+  state.formLayout.uiConfig.repeatingGroups;
 
 export function* replaceTextResourcesSaga(): SagaIterator {
   try {
@@ -47,7 +49,8 @@ export function* replaceTextResourcesSaga(): SagaIterator {
       RepeatingGroupsSelector,
     );
 
-    const instanceContext: IInstanceContext = buildInstanceContext(instance);
+    const instanceContext: IInstanceContext | null =
+      buildInstanceContext(instance);
 
     const dataSources: IDataSources = {
       dataModel: formData,

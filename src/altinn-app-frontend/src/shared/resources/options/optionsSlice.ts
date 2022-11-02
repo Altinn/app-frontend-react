@@ -1,4 +1,4 @@
-import { watchFetchOptionsSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
+import { fetchOptionsSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type {
   IFetchingOptionsAction,
@@ -22,19 +22,25 @@ const optionsSlice = createSagaSlice(
     initialState,
     actions: {
       fetch: mkAction<void>({
-        saga: () => watchFetchOptionsSaga,
+        takeEvery: fetchOptionsSaga,
       }),
       fetchFulfilled: mkAction<IFetchOptionsFulfilledAction>({
         reducer: (state, action) => {
           const { key, options } = action.payload;
-          state.options[key].loading = false;
-          state.options[key].options = options;
+          const option = state.options[key];
+          if (option) {
+            option.loading = false;
+            option.options = options;
+          }
         },
       }),
       fetchRejected: mkAction<IFetchOptionsRejectedAction>({
         reducer: (state, action) => {
           const { key, error } = action.payload;
-          state.options[key].loading = false;
+          const option = state.options[key];
+          if (option) {
+            option.loading = false;
+          }
           state.error = error;
         },
       }),

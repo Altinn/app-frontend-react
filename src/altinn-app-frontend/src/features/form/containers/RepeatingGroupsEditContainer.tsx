@@ -24,18 +24,18 @@ export interface IRepeatingGroupsEditContainer {
   repeatingGroupDeepCopyComponents: (ILayoutComponent | ILayoutGroup)[][];
   language: ILanguage;
   textResources: ITextResource[];
-  layout: ILayout;
+  layout: ILayout | null;
   deleting?: boolean;
   editIndex: number;
-  setEditIndex?: (index: number, forceValidation?: boolean) => void;
+  setEditIndex: (index: number, forceValidation?: boolean) => void;
   repeatingGroupIndex: number;
   onClickRemove?: (groupIndex: number) => void;
-  onClickSave: () => void;
   hideSaveButton?: boolean;
   hideDeleteButton?: boolean;
   multiPageIndex?: number;
   setMultiPageIndex?: (index: number) => void;
   showSaveAndNextButton?: boolean;
+  filteredIndexes?: number[] | null;
 }
 
 const theme = createTheme(altinnAppTheme);
@@ -105,38 +105,51 @@ export function RepeatingGroupsEditContainer({
   setEditIndex,
   repeatingGroupIndex,
   onClickRemove,
-  onClickSave,
   hideSaveButton,
   hideDeleteButton,
   multiPageIndex,
   setMultiPageIndex,
   showSaveAndNextButton,
+  filteredIndexes,
 }: IRepeatingGroupsEditContainer): JSX.Element {
   const classes = useStyles();
 
-  const closeEditContainer = () => {
-    onClickSave();
-    if (container.edit?.multiPage) {
-      setMultiPageIndex(0);
-    }
+  let nextIndex: number | null = null;
+  if (filteredIndexes) {
+    const filteredIndex = filteredIndexes.indexOf(editIndex);
+    nextIndex =
+      filteredIndexes.slice(filteredIndex).length > 1
+        ? filteredIndexes[filteredIndex + 1]
+        : null;
+  } else {
+    nextIndex = editIndex < repeatingGroupIndex ? editIndex + 1 : null;
+  }
+
+  const saveClicked = () => {
+    setEditIndex(-1);
   };
 
   const nextClicked = () => {
-    setEditIndex(editIndex + 1, true);
-    if (container.edit?.multiPage) {
-      setMultiPageIndex(0);
+    if (nextIndex !== null) {
+      setEditIndex && setEditIndex(nextIndex, true);
+      if (container.edit?.multiPage) {
+        setMultiPageIndex && setMultiPageIndex(0);
+      }
     }
   };
 
   const removeClicked = () => {
-    onClickRemove(editIndex);
+    onClickRemove && onClickRemove(editIndex);
     if (container.edit?.multiPage) {
-      setMultiPageIndex(0);
+      setMultiPageIndex && setMultiPageIndex(0);
     }
   };
 
   return (
-    <div className={cn([classes.editContainer], className)}>
+    <div
+      className={cn([classes.editContainer], className)}
+      data-testid='group-edit-container'
+    >
       <Grid
         container={true}
         item={true}
@@ -174,6 +187,7 @@ export function RepeatingGroupsEditContainer({
             (component: ILayoutComponent) => {
               if (
                 container.edit?.multiPage &&
+                typeof multiPageIndex === 'number' &&
                 multiPageIndex > -1 &&
                 !container.children.includes(
                   `${multiPageIndex}:${component.id.substring(
@@ -195,7 +209,8 @@ export function RepeatingGroupsEditContainer({
         <Grid item={true}>
           {container.edit?.multiPage && (
             <div style={style}>
-              {multiPageIndex > -1 &&
+              {typeof multiPageIndex === 'number' &&
+                multiPageIndex > -1 &&
                 container.children.find((childId) =>
                   childId.startsWith(`${multiPageIndex + 1}:`),
                 ) && (
@@ -203,11 +218,12 @@ export function RepeatingGroupsEditContainer({
                     btnText={getLanguageFromKey('general.next', language)}
                     secondaryButton={true}
                     onClickFunction={() =>
-                      setMultiPageIndex(multiPageIndex + 1)
+                      setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)
                     }
                   />
                 )}
-              {multiPageIndex > 0 &&
+              {typeof multiPageIndex === 'number' &&
+                multiPageIndex > 0 &&
                 container.children.find((childId) =>
                   childId.startsWith(`${multiPageIndex - 1}:`),
                 ) && (
@@ -215,7 +231,7 @@ export function RepeatingGroupsEditContainer({
                     btnText={getLanguageFromKey('general.back', language)}
                     secondaryButton={true}
                     onClickFunction={() =>
-                      setMultiPageIndex(multiPageIndex - 1)
+                      setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)
                     }
                   />
                 )}
@@ -226,29 +242,28 @@ export function RepeatingGroupsEditContainer({
             direction='row'
             spacing={2}
           >
-            {!hideSaveButton &&
-              showSaveAndNextButton &&
-              editIndex < repeatingGroupIndex && (
-                <Grid item={true}>
-                  <Button
-                    id={`next-button-grp-${id}`}
-                    onClick={nextClicked}
-                    variant={ButtonVariant.Primary}
-                  >
-                    {container.textResourceBindings?.save_and_next_button
-                      ? getTextResourceByKey(
-                          container.textResourceBindings.save_and_next_button,
-                          textResources,
-                        )
-                      : getLanguageFromKey('general.save_and_next', language)}
-                  </Button>
-                </Grid>
-              )}
-            {!hideSaveButton && (
+            {showSaveAndNextButton && nextIndex !== null && (
+              <Grid item={true}>
+                <Button
+                  id={`next-button-grp-${id}`}
+                  onClick={nextClicked}
+                  variant={ButtonVariant.Primary}
+                >
+                  {container.textResourceBindings?.save_and_next_button
+                    ? getTextResourceByKey(
+                        container.textResourceBindings.save_and_next_button,
+                        textResources,
+                      )
+                    : getLanguageFromKey('general.save_and_next', language)}
+                </Button>
+              </Grid>
+            )}
+            {(!hideSaveButton ||
+              (showSaveAndNextButton && nextIndex === null)) && (
               <Grid item={true}>
                 <Button
                   id={`add-button-grp-${id}`}
-                  onClick={closeEditContainer}
+                  onClick={saveClicked}
                   variant={ButtonVariant.Secondary}
                 >
                   {container.textResourceBindings?.save_button

@@ -3,10 +3,9 @@ import React from 'react';
 import { getAttachments } from '__mocks__/attachmentsMock';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { screen } from '@testing-library/react';
-import { renderWithProviders } from 'testUtils';
+import { mockComponentProps, renderWithProviders } from 'testUtils';
 
 import { FileUploadComponent } from 'src/components/base/FileUpload/FileUploadComponent';
-import type { IComponentProps } from 'src/components';
 import type { IFileUploadProps } from 'src/components/base/FileUpload/FileUploadComponent';
 import type { IAttachment } from 'src/shared/resources/attachments';
 
@@ -134,11 +133,9 @@ interface IRenderProps {
   };
 }
 
-const render = ({
-  props = {},
-  initialState: { attachments = getAttachments() },
-}: IRenderProps = {}) => {
-  const initialState = {
+const render = ({ props = {}, initialState = {} }: IRenderProps = {}) => {
+  const { attachments = getAttachments() } = initialState;
+  const _initialState = {
     ...getInitialStateMock(),
     attachments: {
       attachments: {
@@ -148,6 +145,7 @@ const render = ({
   };
 
   const allProps: IFileUploadProps = {
+    ...mockComponentProps,
     id: testId,
     displayMode: 'simple',
     maxFileSizeInMB: 2,
@@ -155,11 +153,10 @@ const render = ({
     minNumberOfAttachments: 1,
     isValid: true,
     readOnly: false,
-    ...({} as IComponentProps),
     ...props,
   };
 
   return renderWithProviders(<FileUploadComponent {...allProps} />, {
-    preloadedState: initialState,
+    preloadedState: _initialState,
   });
 };

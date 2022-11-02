@@ -12,7 +12,7 @@ import { getLanguageFromKey } from 'altinn-shared/utils';
 
 export interface IHeaderProps {
   type: ProcessTaskType | PresentationType;
-  header?: string;
+  header?: string | JSX.Element | JSX.Element[];
   appOwner?: string;
 }
 
@@ -25,6 +25,10 @@ const Header = ({ type, header, appOwner }: IHeaderProps) => {
   const showProgress =
     type !== ProcessTaskType.Archived && showProgressSettings;
 
+  if (!language) {
+    return null;
+  }
+
   return (
     <header
       className={classNames('modal-header', 'a-modal-header', {
@@ -36,6 +40,8 @@ const Header = ({ type, header, appOwner }: IHeaderProps) => {
           container
           direction='row'
           justifyContent='space-between'
+          wrap='nowrap'
+          spacing={2}
         >
           <Grid item>
             <Grid item>

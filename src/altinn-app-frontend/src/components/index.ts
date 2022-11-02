@@ -26,16 +26,19 @@ import { TextAreaComponent } from 'src/components/base/TextAreaComponent';
 import CustomComponent from 'src/components/custom/CustomWebComponent';
 import { NavigationButtons as NavigationButtonsComponent } from 'src/components/presentation/NavigationButtons';
 import type { IGenericComponentProps } from 'src/components/GenericComponent';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type {
+  ComponentExceptGroup,
   ComponentExceptGroupAndSummary,
   IGrid,
+  ILayoutComponent,
 } from 'src/features/form/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
 import type { ILanguage } from 'altinn-shared/types';
 
 const components: {
-  [Type in ComponentExceptGroupAndSummary]: (props: any) => JSX.Element;
+  [Type in ComponentExceptGroupAndSummary]: (props: any) => JSX.Element | null;
 } = {
   AddressComponent: Address,
   AttachmentList: AttachmentListComponent,
@@ -64,7 +67,7 @@ const components: {
 
 export interface IComponentProps extends IGenericComponentProps {
   handleDataChange: (
-    value: string,
+    value: string | undefined,
     options?: {
       key?: string; // Defaults to simpleBinding
       validate?: boolean; // Defaults to true
@@ -74,20 +77,25 @@ export interface IComponentProps extends IGenericComponentProps {
   getTextResourceAsString: (key: string) => string;
   language: ILanguage;
   shouldFocus: boolean;
-  text: React.ReactNode;
+  text: React.ReactNode | string;
   label: () => JSX.Element;
   legend: () => JSX.Element;
-  formData?: IComponentFormData;
+  formData: IComponentFormData;
   isValid?: boolean;
 }
 
+export type PropsFromGenericComponent<T extends ComponentExceptGroup> =
+  IComponentProps & ExprResolved<Omit<ILayoutComponent<T>, 'type'>>;
+
 export interface IFormComponentContext {
   grid?: IGrid;
+  id?: string;
   baseComponentId?: string;
 }
 
 export const FormComponentContext = createContext<IFormComponentContext>({
   grid: undefined,
+  id: undefined,
   baseComponentId: undefined,
 });
 
