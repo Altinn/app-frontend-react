@@ -37,8 +37,8 @@ describe('Group', () => {
       cy.get(appFrontend.group.mainGroup)
         .find(mui.tableBody)
         .then((table) => {
-          cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', '1');
-          cy.get(table).find(mui.tableElement).eq(1).invoke('text').should('equal', '2');
+          cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
+          cy.get(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
           cy.get(table).find(mui.tableElement).find(mui.buttonIcon).first().should('be.visible').click();
         });
       cy.get(appFrontend.group.mainGroup)
@@ -103,9 +103,6 @@ describe('Group', () => {
       .should('exist')
       .should('be.visible')
       .should('have.text', texts.zeroIsNotValid);
-    cy.get(appFrontend.group.mainGroup)
-      .siblings(appFrontend.group.tableErrors)
-      .should('contain.text', texts.errorInGroup);
     cy.get(appFrontend.group.newValue).should('be.visible').clear().type('1').blur();
     cy.get(appFrontend.fieldValidationError.replace('field', 'newValue')).should('not.exist');
     cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
@@ -120,9 +117,6 @@ describe('Group', () => {
       .should('exist')
       .should('be.visible')
       .should('have.text', texts.testIsNotValidValue);
-    cy.get(appFrontend.group.subGroup)
-      .siblings(appFrontend.group.tableErrors)
-      .should('contain.text', texts.errorInGroup);
     cy.get(appFrontend.group.comments).clear().type('automation').blur();
     cy.get(appFrontend.fieldValidationError.replace('field', 'comments')).should('not.exist');
     cy.get(appFrontend.group.subGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
@@ -169,25 +163,25 @@ describe('Group', () => {
     cy.contains(mui.button, texts.prev).click();
     cy.get(appFrontend.group.prefill.liten).click();
     cy.contains(mui.button, texts.next).click();
-    expectRows([1, 5]);
+    expectRows(['NOK 1', 'NOK 5']);
 
     cy.contains(mui.button, texts.prev).click();
     cy.get(appFrontend.group.prefill.middels).click();
     cy.get(appFrontend.group.prefill.svaer).click();
     cy.contains(mui.button, texts.next).click();
-    expectRows([1, 5], [120, 350], [80323, 123455]);
+    expectRows(['NOK 1', 'NOK 5'], ['NOK 120', 'NOK 350'], ['NOK 80 323', 'NOK 123 455']);
 
     cy.contains(mui.button, texts.prev).click();
     cy.get(appFrontend.group.prefill.middels).click();
     cy.get(appFrontend.group.prefill.svaer).click();
     cy.contains(mui.button, texts.next).click();
-    expectRows([1, 5]);
+    expectRows(['NOK 1', 'NOK 5']);
 
     cy.contains(mui.button, texts.prev).click();
     cy.get(appFrontend.group.prefill.enorm).click();
     cy.get(appFrontend.group.prefill.liten).click();
     cy.contains(mui.button, texts.next).click();
-    expectRows([9872345, 18872345]);
+    expectRows(['NOK 9 872 345', 'NOK 18 872 345']);
   });
 
   it('Delete group row after validation', () => {
@@ -215,7 +209,6 @@ describe('Group', () => {
     cy.get(appFrontend.fieldValidationError.replace('field', 'newValue-0'))
       .should('be.visible')
       .should('have.text', texts.requiredFieldToValue);
-    cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('have.text', texts.errorInGroup);
 
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
@@ -325,8 +318,8 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
       .then((table) => {
-        cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', '1');
-        cy.get(table).find(mui.tableElement).eq(1).invoke('text').should('equal', '2');
+        cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
+        cy.get(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
         cy.get(table).find(mui.tableElement).find(mui.buttonIcon).first().should('be.visible').click();
       });
 

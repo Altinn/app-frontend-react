@@ -138,6 +138,7 @@ export interface IRepeatingGroup {
   dataModelBinding?: string;
   editIndex?: number;
   deletingIndex?: number[];
+  multiPageIndex?: number;
 }
 
 export interface IRepeatingGroups {
