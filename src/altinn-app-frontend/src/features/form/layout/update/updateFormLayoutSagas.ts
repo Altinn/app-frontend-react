@@ -590,7 +590,7 @@ export function* updateRepeatingGroupEditIndexSaga({
       const onlyInRowIndex =
         validate === Triggers.ValidateRow
           ? (state.formLayout.uiConfig.repeatingGroups &&
-              state.formLayout.uiConfig.repeatingGroups[group].editIndex) ||
+              state.formLayout.uiConfig.repeatingGroups[group].editIndex) ??
             undefined
           : undefined;
 
