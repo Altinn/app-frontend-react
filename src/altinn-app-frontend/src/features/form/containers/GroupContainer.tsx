@@ -18,12 +18,16 @@ import {
 } from 'src/utils/formLayout';
 import { getHiddenFieldsForGroup } from 'src/utils/layout';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type {
+  ILayoutComponent,
+  ILayoutComponentOrGroup,
+  ILayoutGroup,
+} from 'src/features/form/layout';
 import type { IRuntimeState } from 'src/types';
 export interface IGroupProps {
   id: string;
   container: ILayoutGroup;
-  components: (ILayoutComponent | ILayoutGroup)[];
+  components: ILayoutComponentOrGroup[];
   triggers?: Triggers[];
 }
 
@@ -68,7 +72,7 @@ export function GroupContainer({
   id,
   container,
   components,
-}: IGroupProps): JSX.Element {
+}: IGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
   const renderComponents: ILayoutComponent[] = JSON.parse(
     JSON.stringify(components),
@@ -81,17 +85,21 @@ export function GroupContainer({
 
   const editIndex = useAppSelector(
     (state: IRuntimeState) =>
-      state.formLayout.uiConfig.repeatingGroups[id]?.editIndex ?? -1,
+      (state.formLayout.uiConfig.repeatingGroups &&
+        state.formLayout.uiConfig.repeatingGroups[id]?.editIndex) ??
+      -1,
   );
   const deletingIndexes = useAppSelector(
     (state: IRuntimeState) =>
-      state.formLayout.uiConfig.repeatingGroups[id]?.deletingIndex ?? [],
+      (state.formLayout.uiConfig.repeatingGroups &&
+        state.formLayout.uiConfig.repeatingGroups[id]?.deletingIndex) ??
+      [],
   );
-  const [filteredIndexList, setFilteredIndexList] =
-    React.useState<number[]>(null);
   const multiPageIndex = useAppSelector(
     (state: IRuntimeState) =>
-      state.formLayout.uiConfig.repeatingGroups[id]?.multiPageIndex ?? -1,
+      (state.formLayout.uiConfig.repeatingGroups &&
+        state.formLayout.uiConfig.repeatingGroups[id]?.multiPageIndex) ??
+      -1,
   );
 
   const attachments = useAppSelector(
@@ -115,7 +123,9 @@ export function GroupContainer({
   const hidden = useAppSelector((state) => GetHiddenSelector(state, { id }));
   const formData = useAppSelector((state) => state.formData.formData);
   const layout = useAppSelector(
-    (state) => state.formLayout.layouts[state.formLayout.uiConfig.currentView],
+    (state) =>
+      state.formLayout.layouts &&
+      state.formLayout.layouts[state.formLayout.uiConfig.currentView],
   );
   const options = useAppSelector((state) => state.optionState.options);
   const textResources = useAppSelector(
@@ -141,15 +151,10 @@ export function GroupContainer({
     ],
   );
 
-  React.useEffect(() => {
-    const filteredIndexList = getRepeatingGroupFilteredIndices(
-      formData,
-      edit?.filter,
-    );
-    if (filteredIndexList) {
-      setFilteredIndexList(filteredIndexList);
-    }
-  }, [formData, edit]);
+  const filteredIndexList = React.useMemo(
+    () => getRepeatingGroupFilteredIndices(formData, edit?.filter),
+    [formData, edit],
+  );
 
   const setMultiPageIndex = useCallback(
     (index: number) => {
@@ -231,7 +236,7 @@ export function GroupContainer({
 
   const classes = useStyles();
 
-  if (hidden) {
+  if (hidden || !language || !layout || !repeatingGroups) {
     return null;
   }
 
@@ -292,7 +297,8 @@ export function GroupContainer({
       {edit?.mode !== 'showAll' &&
         edit?.addButton !== false &&
         editIndex < 0 &&
-        repeatingGroupIndex + 1 < container.maxCount && (
+        repeatingGroupIndex + 1 <
+          (container.maxCount === undefined ? -99 : container.maxCount) && (
           <RepeatingGroupAddButton
             id={`add-button-${id}`}
             container={container}
@@ -356,7 +362,8 @@ export function GroupContainer({
           })}
       {edit?.mode === 'showAll' &&
         edit?.addButton !== false &&
-        repeatingGroupIndex + 1 < container.maxCount && (
+        repeatingGroupIndex + 1 <
+          (container.maxCount === undefined ? -99 : container.maxCount) && (
           <RepeatingGroupAddButton
             id={`add-button-${id}`}
             container={container}

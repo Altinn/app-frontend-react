@@ -10,7 +10,7 @@ import type {
 import type { Triggers } from 'src/types/index';
 
 export interface IFormLayoutActionRejected {
-  error: Error;
+  error: Error | null;
 }
 
 export interface IFetchLayoutFulfilled {
@@ -20,19 +20,19 @@ export interface IFetchLayoutFulfilled {
 }
 
 export interface IFetchLayoutSetsFulfilled {
-  layoutSets: ILayoutSets;
+  layoutSets: ILayoutSets | null;
 }
 
 export interface IFetchLayoutSettingsFulfilled {
-  settings: ILayoutSettings;
+  settings: ILayoutSettings | null;
 }
 
 export interface ISetCurrentViewCacheKey {
-  key: string;
+  key: string | undefined;
 }
 
 export interface IUpdateAutoSave {
-  autoSave: boolean;
+  autoSave: boolean | undefined;
 }
 
 export interface IUpdateCurrentView {
@@ -55,7 +55,7 @@ export interface IUpdateCurrentViewRejected extends IFormLayoutActionRejected {
 }
 
 export interface IUpdateFocus {
-  focusComponentId: string;
+  focusComponentId: string | null;
 }
 
 export interface IUpdateHiddenComponents {
@@ -79,7 +79,7 @@ export interface IUpdateRepeatingGroupsRemoveCancelled {
 
 export interface IUpdateRepeatingGroupsMultiPageIndex {
   group: string;
-  index: number;
+  index: number | undefined;
 }
 
 export interface IUpdateRepeatingGroupsEditIndex {
@@ -132,7 +132,7 @@ export interface IUpdateFileUploaderWithTagChosenOptionsFulfilled {
  */
 export interface IKeepComponentScrollPos {
   componentId: string;
-  offsetTop: number;
+  offsetTop: number | undefined;
 }
 
 export interface ICalculatePageOrderAndMoveToNextPage {
