@@ -241,7 +241,7 @@
           "type": "string",
           "title": "Maximum allowed date",
           "description": "Sets the maximum allowed date. Can also use keyword 'today' to disable all future dates dynamically based on the current date. Defaults to 2100-01-01T12:00:00.000Z.",
-          "default": "2100-01-01T12:00:00.000Z."
+          "default": "2100-01-01T12:00:00.000Z"
         },
         "timeStamp": {
           "type": "boolean",
