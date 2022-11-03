@@ -43,14 +43,17 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
         }),
       );
 
-      const newFormValidations = { ...formValidations };
+      const newlyHidden = Array.from(futureHiddenFields).filter((i) => !hiddenFields.has(i));
+      const newFormValidations: IValidations = JSON.parse(JSON.stringify(formValidations));
       let validationsChanged = false;
-      futureHiddenFields.forEach((componentId) => {
-        if (newFormValidations[componentId]) {
-          delete newFormValidations[componentId];
-          validationsChanged = true;
+      for (const layout of Object.values(newFormValidations)) {
+        for (const componentId of newlyHidden) {
+          if (layout[componentId]) {
+            delete newFormValidations[componentId];
+            validationsChanged = true;
+          }
         }
-      });
+      }
       if (validationsChanged) {
         ValidationActions.updateValidations({
           validations: newFormValidations,
