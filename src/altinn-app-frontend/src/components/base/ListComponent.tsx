@@ -3,7 +3,6 @@ import React from 'react';
 import {
   Table,
   TableBody,
-  //TableBody,
   TableCell,
   //TableFooter,
   TableHeader,
@@ -21,19 +20,11 @@ import { getAppListLookupKey } from 'src/utils/applist';
 import { AltinnSpinner } from 'altinn-shared/components';
 
 export type ILayoutCompProps = PropsFromGenericComponent<'List'>;
-/*extends IComponentProps,
-    Omit<ILayoutCompList, 'type'> {
-  tableHeaders?: string[];
-  appList?: IListOption[];
-  appListId?: string;
-  mapping?: IMapping;
-  secure?: boolean;
-  source?: IOptionSource;
-  preselectedOptionIndex?: number;
-}*/
+
 const defaultOptions: any[] = [];
 export const ListComponent = ({
   tableHeaders,
+  fieldToStoreInDataModel,
   appList,
   appListId,
   mapping,
@@ -42,11 +33,6 @@ export const ListComponent = ({
 }: ILayoutCompProps) => {
   const apiOptions = useGetAppListOptions({ appListId, mapping });
   const calculatedOptions = apiOptions || defaultOptions;
-  // const calculatedOptions =
-  //   (apiOptions || options)?.map((option) => ({
-  //     label: option.label,
-  //     value: option.value,
-  //   })) || [];
 
   const optionsHasChanged = useHasChangedIgnoreUndefined(appList);
 
@@ -78,7 +64,9 @@ export const ListComponent = ({
   const renderRow = (option) => {
     const cells = [];
     for (let i = 0; i < Object.keys(option).length; i++) {
-      cells.push(<TableCell>{option[Object.keys(option)[i]]}</TableCell>);
+      cells.push(
+        <TableCell key={i}>{option[Object.keys(option)[i]]}</TableCell>,
+      );
     }
     return cells;
   };
@@ -104,8 +92,8 @@ export const ListComponent = ({
             {calculatedOptions.map((option) => {
               return (
                 <TableRow
-                  key={option}
-                  value={option}
+                  key={option[fieldToStoreInDataModel]}
+                  value={option[fieldToStoreInDataModel]}
                 >
                   {renderRow(option)}
                 </TableRow>

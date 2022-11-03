@@ -125,6 +125,7 @@ export interface ILayoutCompList extends ILayoutCompBase<'List'> {
   mapping?: IMapping;
   secure?: boolean;
   source?: IOptionSource;
+  fieldToStoreInDataModel: string;
 }
 
 export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect'> &
