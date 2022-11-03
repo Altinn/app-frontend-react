@@ -120,6 +120,7 @@ export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> &
   ISelectionComponent;
 export interface ILayoutCompList extends ILayoutCompBase<'List'> {
   tableHeaders?: string[];
+  sortableColumns?: string[];
   appList?: IAppList[];
   appListId?: string;
   mapping?: IMapping;

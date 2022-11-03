@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
+  SortDirection,
   Table,
   TableBody,
   //TableBody,
@@ -9,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@altinn/altinn-design-system';
-import type { ChangeProps } from '@altinn/altinn-design-system';
+import type { ChangeProps, SortProps } from '@altinn/altinn-design-system';
 
 import type { PropsFromGenericComponent } from '..';
 
@@ -39,6 +40,7 @@ export const ListComponent = ({
   mapping,
   formData,
   handleDataChange,
+  sortableColumns,
 }: ILayoutCompProps) => {
   const apiOptions = useGetAppListOptions({ appListId, mapping });
   const calculatedOptions = apiOptions || defaultOptions;
@@ -55,6 +57,25 @@ export const ListComponent = ({
     formData?.simpleBinding,
     200,
   );
+
+  const [selectedSort, setSelectedSort] = useState({
+    idCell: 0,
+    sortDirection: SortDirection.NotActive,
+  });
+
+  const handleSortChange = ({ idCell, previousSortDirection }: SortProps) => {
+    if (previousSortDirection === SortDirection.Ascending) {
+      setSelectedSort({
+        idCell: idCell,
+        sortDirection: SortDirection.Descending,
+      });
+    } else {
+      setSelectedSort({
+        idCell: idCell,
+        sortDirection: SortDirection.Ascending,
+      });
+    }
+  };
 
   const fetchingOptions = useAppSelector(
     (state) =>
@@ -83,6 +104,30 @@ export const ListComponent = ({
     return cells;
   };
 
+  const checkSortableColumns = (headers) => {
+    const cell = [];
+    for (const header of headers) {
+      if (sortableColumns.includes(header)) {
+        cell.push(
+          <TableCell
+            onChange={handleSortChange}
+            id={1}
+            sortDirecton={
+              selectedSort.idCell === 1
+                ? selectedSort.sortDirection
+                : SortDirection.NotActive
+            }
+          >
+            {header}
+          </TableCell>,
+        );
+      } else {
+        cell.push(<TableCell>{header}</TableCell>);
+      }
+    }
+    return cell;
+  };
+
   return (
     <>
       {fetchingOptions ? (
@@ -94,11 +139,7 @@ export const ListComponent = ({
           selectedValue={value}
         >
           <TableHeader>
-            <TableRow>
-              {tableHeaders.map((header) => (
-                <TableCell key={header}>{header}</TableCell>
-              ))}
-            </TableRow>
+            <TableRow>{checkSortableColumns(tableHeaders)}</TableRow>
           </TableHeader>
           <TableBody>
             {calculatedOptions.map((option) => {
