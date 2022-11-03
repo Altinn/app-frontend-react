@@ -49,15 +49,17 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
       for (const layout of Object.values(newFormValidations)) {
         for (const componentId of newlyHidden) {
           if (layout[componentId]) {
-            delete newFormValidations[componentId];
+            delete layout[componentId];
             validationsChanged = true;
           }
         }
       }
       if (validationsChanged) {
-        ValidationActions.updateValidations({
-          validations: newFormValidations,
-        });
+        yield put(
+          ValidationActions.updateValidations({
+            validations: newFormValidations,
+          }),
+        );
       }
     }
 
