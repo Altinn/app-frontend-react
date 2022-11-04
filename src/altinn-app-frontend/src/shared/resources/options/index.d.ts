@@ -6,7 +6,7 @@ export interface IOptionsState {
   optionsWithIndexIndicators?: IOptionsMetaData[];
 }
 export interface IAppListsState {
-  error: Error;
+  error: Error | null;
   appLists: IAppLists;
   appListsWithIndexIndicator?: IAppListsMetaData[];
 }

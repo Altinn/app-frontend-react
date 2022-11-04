@@ -71,7 +71,7 @@ export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsPara
 };
 
 interface IUseGetListParams {
-  appListId: string;
+  appListId?: string;
   mapping?: IMapping;
   source?: IOptionSource;
 }

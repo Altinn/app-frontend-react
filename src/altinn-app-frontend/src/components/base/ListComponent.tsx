@@ -60,7 +60,7 @@ export const ListComponent = ({
   };
 
   const fetchingOptions = useAppSelector(
-    (state) => state.appListState.appLists[getAppListLookupKey({ id: appListId, mapping })]?.loading,
+    (state) => appListId && state.appListState.appLists[getAppListLookupKey({ id: appListId, mapping })]?.loading,
   );
 
   React.useEffect(() => {
@@ -76,7 +76,7 @@ export const ListComponent = ({
   };
 
   const renderRow = (option) => {
-    const cells = [];
+    const cells: JSX.Element[] = [];
     for (let i = 0; i < Object.keys(option).length; i++) {
       cells.push(<TableCell key={i}>{option[Object.keys(option)[i]]}</TableCell>);
     }
@@ -84,9 +84,9 @@ export const ListComponent = ({
   };
 
   const checkSortableColumns = (headers) => {
-    const cell = [];
+    const cell: JSX.Element[] = [];
     for (const header of headers) {
-      if (sortableColumns.includes(header)) {
+      if ((sortableColumns || []).includes(header)) {
         cell.push(
           <TableCell
             onChange={handleSortChange}

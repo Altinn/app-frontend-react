@@ -46,7 +46,8 @@ export function getOptionLookupKeys({
   const lookupKeys: IOptionsMetaData[] = [];
 
   const mappingsWithIndexIndicators = Object.keys(mapping || {}).filter((key) => keyHasIndexIndicators(key));
-  if (mappingsWithIndexIndicators.length) {
+
+  if (mappingsWithIndexIndicators.length && mapping) {
     // create lookup keys for each index of the relevant repeating group
     mappingsWithIndexIndicators.forEach((mappingKey) => {
       const baseGroupBindings = getBaseGroupDataModelBindingFromKeyWithIndexIndicators(mappingKey);

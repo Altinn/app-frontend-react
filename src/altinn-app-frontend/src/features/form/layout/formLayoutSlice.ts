@@ -182,10 +182,11 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
       takeLatest: updateRepeatingGroupsSaga,
       reducer: (state, action) => {
         const { layoutElementId, remove, index } = action.payload;
-        if (remove) {
+        if (remove && typeof index !== 'undefined') {
+          state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
           state.uiConfig.repeatingGroups[layoutElementId].deletingIndex =
             state.uiConfig.repeatingGroups[layoutElementId].deletingIndex || [];
-          state.uiConfig.repeatingGroups[layoutElementId].deletingIndex.push(index);
+          state.uiConfig.repeatingGroups[layoutElementId].deletingIndex?.push(index);
         }
       },
     }),
@@ -199,6 +200,7 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
     updateRepeatingGroupsRemoveCancelled: mkAction<LayoutTypes.IUpdateRepeatingGroupsRemoveCancelled>({
       reducer: (state, action) => {
         const { layoutElementId, index } = action.payload;
+        state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
         state.uiConfig.repeatingGroups[layoutElementId].deletingIndex = (
           state.uiConfig.repeatingGroups[layoutElementId].deletingIndex || []
         ).filter((value) => value !== index);
@@ -213,7 +215,9 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
     updateRepeatingGroupsMultiPageIndex: mkAction<LayoutTypes.IUpdateRepeatingGroupsMultiPageIndex>({
       reducer: (state, action) => {
         const { group, index } = action.payload;
-        state.uiConfig.repeatingGroups[group].multiPageIndex = index;
+        if (state.uiConfig.repeatingGroups && state.uiConfig.repeatingGroups[group] && typeof index !== 'undefined') {
+          state.uiConfig.repeatingGroups[group].multiPageIndex = index;
+        }
       },
     }),
     updateRepeatingGroupsEditIndex: mkAction<LayoutTypes.IUpdateRepeatingGroupsEditIndex>({
@@ -222,6 +226,7 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
     updateRepeatingGroupsEditIndexFulfilled: mkAction<LayoutTypes.IUpdateRepeatingGroupsEditIndexFulfilled>({
       reducer: (state, action) => {
         const { group, index } = action.payload;
+        state.uiConfig.repeatingGroups = state.uiConfig.repeatingGroups || {};
         state.uiConfig.repeatingGroups[group].editIndex = index;
       },
     }),
@@ -249,7 +254,11 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
     updateFileUploaderWithTagEditIndexFulfilled: mkAction<LayoutTypes.IUpdateFileUploaderWithTagEditIndexFulfilled>({
       reducer: (state, action) => {
         const { componentId, index } = action.payload;
-        state.uiConfig.fileUploadersWithTag[componentId].editIndex = index;
+        state.uiConfig.fileUploadersWithTag = state.uiConfig.fileUploadersWithTag || {};
+        const uploader = state.uiConfig.fileUploadersWithTag[componentId];
+        if (uploader) {
+          uploader.editIndex = index;
+        }
       },
     }),
     updateFileUploaderWithTagEditIndexRejected: mkAction<LayoutTypes.IFormLayoutActionRejected>({
@@ -265,8 +274,10 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
       mkAction<LayoutTypes.IUpdateFileUploaderWithTagChosenOptionsFulfilled>({
         reducer: (state, action) => {
           const { componentId, id, option } = action.payload;
-          if (state.uiConfig.fileUploadersWithTag[componentId]) {
-            state.uiConfig.fileUploadersWithTag[componentId].chosenOptions[id] = option.value;
+          state.uiConfig.fileUploadersWithTag = state.uiConfig.fileUploadersWithTag || {};
+          const uploader = state.uiConfig.fileUploadersWithTag[componentId];
+          if (uploader) {
+            uploader.chosenOptions[id] = option.value;
           } else {
             state.uiConfig.fileUploadersWithTag[componentId] = {
               editIndex: -1,

@@ -15,7 +15,7 @@ import {
 import { selectNotNull } from 'src/utils/sagas';
 import type { IFormData } from 'src/features/form/data';
 import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
-import type { ILayoutCompList, ILayouts } from 'src/features/form/layout';
+import type { ILayouts } from 'src/features/form/layout';
 import type {
   IAppList,
   IAppLists,
@@ -27,22 +27,26 @@ import type {
 
 import { get } from 'altinn-shared/utils';
 
-export const formLayoutSelector = (state: IRuntimeState): ILayouts => state.formLayout?.layouts;
+export const formLayoutSelector = (state: IRuntimeState): ILayouts | null => state.formLayout?.layouts;
 export const formDataSelector = (state: IRuntimeState) => state.formData.formData;
 export const appListsSelector = (state: IRuntimeState): IAppLists => state.appListState.appLists;
 export const appListsWithIndexIndicatorsSelector = (state: IRuntimeState) =>
   state.appListState.appListsWithIndexIndicator;
-export const instanceIdSelector = (state: IRuntimeState): string => state.instanceData.instance?.id;
+export const instanceIdSelector = (state: IRuntimeState): string | undefined => state.instanceData.instance?.id;
 export const repeatingGroupsSelector = (state: IRuntimeState) => state.formLayout?.uiConfig.repeatingGroups;
 
 export function* fetchAppListsSaga(): SagaIterator {
   const layouts: ILayouts = yield selectNotNull(formLayoutSelector);
   const repeatingGroups: IRepeatingGroups = yield selectNotNull(repeatingGroupsSelector);
   const fetchedAppLists: string[] = [];
-  const appListsWithIndexIndicators = [];
+  const appListsWithIndexIndicators: IAppListsMetaData[] = [];
   for (const layoutId of Object.keys(layouts)) {
-    for (const element of layouts[layoutId]) {
-      const { appListId, mapping, secure } = element as ILayoutCompList;
+    for (const element of layouts[layoutId] || []) {
+      if (element.type !== 'List' || !element.appListId) {
+        continue;
+      }
+
+      const { appListId, mapping, secure } = element;
       console.log(`Her er id:${appListId}`);
       const { keys, keyWithIndexIndicator } = getAppListLookupKeys({
         id: appListId,
