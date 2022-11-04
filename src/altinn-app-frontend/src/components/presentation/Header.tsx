@@ -12,18 +12,19 @@ import { getLanguageFromKey } from 'altinn-shared/utils';
 
 export interface IHeaderProps {
   type: ProcessTaskType | PresentationType;
-  header?: string;
+  header?: string | JSX.Element | JSX.Element[];
   appOwner?: string;
 }
 
 const Header = ({ type, header, appOwner }: IHeaderProps) => {
-  const showProgressSettings = useAppSelector(
-    (state) => state.formLayout.uiConfig.showProgress,
-  );
+  const showProgressSettings = useAppSelector((state) => state.formLayout.uiConfig.showProgress);
   const language = useAppSelector((state) => state.language.language);
 
-  const showProgress =
-    type !== ProcessTaskType.Archived && showProgressSettings;
+  const showProgress = type !== ProcessTaskType.Archived && showProgressSettings;
+
+  if (!language) {
+    return null;
+  }
 
   return (
     <header
@@ -50,9 +51,7 @@ const Header = ({ type, header, appOwner }: IHeaderProps) => {
                   data-testid='presentation-heading'
                 >
                   {type === ProcessTaskType.Archived ? (
-                    <span>
-                      {getLanguageFromKey('receipt.receipt', language)}
-                    </span>
+                    <span>{getLanguageFromKey('receipt.receipt', language)}</span>
                   ) : (
                     header
                   )}

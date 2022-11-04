@@ -1,19 +1,12 @@
-import type {
-  IAppList,
-  IAppLists,
-  IAppListsMetaData,
-  IOption,
-  IOptions,
-  IOptionsMetaData,
-} from 'src/types';
+import type { IAppList, IAppLists, IAppListsMetaData, IOption, IOptions, IOptionsMetaData } from 'src/types';
 
 export interface IOptionsState {
-  error: Error;
+  error: Error | null;
   options: IOptions;
   optionsWithIndexIndicators?: IOptionsMetaData[];
 }
 export interface IAppListsState {
-  error: Error;
+  error: Error | null;
   appLists: IAppLists;
   appListsWithIndexIndicator?: IAppListsMetaData[];
 }

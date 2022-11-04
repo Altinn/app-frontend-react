@@ -22,7 +22,7 @@ export interface IComponentBindingValidation {
 }
 
 export interface IComponentValidations {
-  [id: string]: IComponentBindingValidation;
+  [id: string]: IComponentBindingValidation | undefined;
 }
 
 export { IDataModelBindings } from '../features/form/layout';
@@ -37,7 +37,7 @@ export interface IOptionsChosen {
 }
 
 export interface IFileUploadersWithTag {
-  [componentId: string]: IFormFileUploaderWithTag;
+  [componentId: string]: IFormFileUploaderWithTag | undefined;
 }
 
 export interface ILayoutSets {
@@ -69,7 +69,7 @@ export interface ILayoutNavigation {
 }
 
 export interface INavigationConfig {
-  [id: string]: ILayoutNavigation;
+  [id: string]: ILayoutNavigation | undefined;
 }
 
 export interface IOption {
@@ -88,7 +88,7 @@ export interface IListOption {
 }
 
 export interface IOptions {
-  [key: string]: IOptionData;
+  [key: string]: IOptionData | undefined;
 }
 export interface IAppLists {
   [key: string]: IAppListData;
@@ -179,23 +179,23 @@ export interface IValidationIssue {
   code: string;
   description: string;
   field: string;
-  scope: string;
+  scope: string | null;
   severity: Severity;
   targetId: string;
 }
 
 export interface IHiddenLayoutsExpressions {
-  [layoutKey: string]: ExpressionOr<'boolean'>;
+  [layoutKey: string]: ExpressionOr<'boolean'> | undefined;
 }
 
 export interface IUiConfig {
-  autoSave: boolean;
+  autoSave: boolean | null | undefined;
   currentView: string;
   currentViewCacheKey?: string;
   returnToView?: string;
-  focus: string;
+  focus: string | null | undefined;
   hiddenFields: string[];
-  repeatingGroups?: IRepeatingGroups;
+  repeatingGroups: IRepeatingGroups | null;
   fileUploadersWithTag?: IFileUploadersWithTag;
   navigationConfig?: INavigationConfig;
   tracks: ITracks;
@@ -289,6 +289,7 @@ export enum Triggers {
   CalculatePageOrder = 'calculatePageOrder',
   ValidatePage = 'validatePage',
   ValidateAllPages = 'validateAllPages',
+  ValidateRow = 'validateRow',
 }
 
 export interface ILabelSettings {
@@ -331,10 +332,7 @@ export interface IPartyIdInterfaceGuidParams {
  * This function can be used to have TypeScript enforce that we never reach the code branch in question
  * @see https://stackoverflow.com/a/39419171
  */
-export function assertUnreachable<Ret = never>(
-  _x: never,
-  execute?: () => Ret,
-): Ret {
+export function assertUnreachable<Ret = never>(_x: never, execute?: () => Ret): Ret {
   if (execute) {
     return execute();
   }

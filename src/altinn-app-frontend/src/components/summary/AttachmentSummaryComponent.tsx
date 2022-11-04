@@ -3,17 +3,14 @@ import * as React from 'react';
 import { Grid, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks';
+import type { IAttachment } from 'src/shared/resources/attachments';
 
 export interface IAttachmentSummaryComponent {
   componentRef: string;
 }
 
-export function AttachmentSummaryComponent({
-  componentRef,
-}: IAttachmentSummaryComponent) {
-  const attachments = useAppSelector(
-    (state) => state.attachments.attachments[componentRef],
-  );
+export function AttachmentSummaryComponent({ componentRef }: IAttachmentSummaryComponent) {
+  const attachments: IAttachment[] | undefined = useAppSelector((state) => state.attachments.attachments[componentRef]);
   return (
     <Grid
       item

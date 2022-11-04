@@ -8,20 +8,23 @@ import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSl
 import { fileTagUrl } from 'src/utils/appUrlHelper';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { httpDelete, post } from 'src/utils/networking';
+import { selectNotNull } from 'src/utils/sagas';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IUpdateAttachmentAction } from 'src/shared/resources/attachments/update/updateAttachmentActions';
 import type { IRuntimeState } from 'src/types';
+
+import type { ILanguage } from 'altinn-shared/types';
 
 export function* updateAttachmentSaga({
   payload: { attachment, componentId, baseComponentId, tag },
 }: PayloadAction<IUpdateAttachmentAction>): SagaIterator {
   const state: IRuntimeState = yield select();
   const currentView = state.formLayout.uiConfig.currentView;
-  const language = state.language.language;
+  const language: ILanguage = yield selectNotNull((state) => state.language.language);
 
   try {
     // Sets validations to empty.
-    const newValidations = getFileUploadComponentValidations(null, null);
+    const newValidations = getFileUploadComponentValidations(null, {});
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,
@@ -32,21 +35,10 @@ export function* updateAttachmentSaga({
 
     const fileUpdateLink = fileTagUrl(attachment.id);
 
-    if (
-      attachment.tags !== undefined &&
-      attachment.tags.length > 0 &&
-      tag !== attachment.tags[0]
-    ) {
-      const deleteResponse: any = yield call(
-        httpDelete,
-        `${fileUpdateLink}/${attachment.tags[0]}`,
-      );
+    if (attachment.tags !== undefined && attachment.tags.length > 0 && tag !== attachment.tags[0]) {
+      const deleteResponse: any = yield call(httpDelete, `${fileUpdateLink}/${attachment.tags[0]}`);
       if (deleteResponse.status !== 204) {
-        const validations = getFileUploadComponentValidations(
-          'update',
-          language,
-          attachment.id,
-        );
+        const validations = getFileUploadComponentValidations('update', language, attachment.id);
         yield put(
           ValidationActions.updateComponentValidations({
             componentId,
@@ -87,11 +79,7 @@ export function* updateAttachmentSaga({
         }),
       );
     } else {
-      const validations = getFileUploadComponentValidations(
-        'update',
-        language,
-        attachment.id,
-      );
+      const validations = getFileUploadComponentValidations('update', language, attachment.id);
       yield put(
         ValidationActions.updateComponentValidations({
           componentId,
@@ -109,11 +97,7 @@ export function* updateAttachmentSaga({
       );
     }
   } catch (err) {
-    const validations = getFileUploadComponentValidations(
-      'update',
-      language,
-      attachment.id,
-    );
+    const validations = getFileUploadComponentValidations('update', language, attachment.id);
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,

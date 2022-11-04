@@ -5,15 +5,10 @@ import {
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
 import type { IFormData } from 'src/features/form/data';
-import type {
-  IAppListsMetaData,
-  IAppListSource,
-  IMapping,
-  IRepeatingGroups,
-} from 'src/types';
+import type { IAppListsMetaData, IAppListSource, IMapping, IRepeatingGroups } from 'src/types';
 
 interface IGetAppListLookupKeysParam extends IAppListsMetaData {
-  repeatingGroups: IRepeatingGroups;
+  repeatingGroups: IRepeatingGroups | null;
 }
 
 interface IAppListLookupKeys {
@@ -37,28 +32,20 @@ export function getAppListLookupKeys({
 }: IGetAppListLookupKeysParam): IAppListLookupKeys {
   const lookupKeys: IAppListsMetaData[] = [];
 
-  const mappingsWithIndexIndicators = Object.keys(mapping || {}).filter((key) =>
-    keyHasIndexIndicators(key),
-  );
+  const _mapping = mapping || {};
+  const mappingsWithIndexIndicators = Object.keys(_mapping).filter((key) => keyHasIndexIndicators(key));
   if (mappingsWithIndexIndicators.length) {
     // create lookup keys for each index of the relevant repeating group
     mappingsWithIndexIndicators.forEach((mappingKey) => {
-      const baseGroupBindings =
-        getBaseGroupDataModelBindingFromKeyWithIndexIndicators(mappingKey);
-      const possibleCombinations = getIndexCombinations(
-        baseGroupBindings,
-        repeatingGroups,
-      );
+      const baseGroupBindings = getBaseGroupDataModelBindingFromKeyWithIndexIndicators(mappingKey);
+      const possibleCombinations = getIndexCombinations(baseGroupBindings, repeatingGroups);
       for (const possibleCombination of possibleCombinations) {
-        const newMappingKey = replaceIndexIndicatorsWithIndexes(
-          mappingKey,
-          possibleCombination,
-        );
+        const newMappingKey = replaceIndexIndicatorsWithIndexes(mappingKey, possibleCombination);
         const newMapping: IMapping = {
-          ...mapping,
+          ..._mapping,
         };
         delete newMapping[mappingKey];
-        newMapping[newMappingKey] = mapping[mappingKey];
+        newMapping[newMappingKey] = _mapping[mappingKey];
         lookupKeys.push({ id, mapping: newMapping, secure });
       }
     });
@@ -75,10 +62,7 @@ export function getAppListLookupKeys({
   };
 }
 
-export function getRelevantFormDataForAppListSource(
-  formData: IFormData,
-  source: IAppListSource,
-) {
+export function getRelevantFormDataForAppListSource(formData: IFormData, source: IAppListSource) {
   const relevantFormData: IFormData = {};
   console.log('get relevant form data for option source');
   if (!formData || !source) {

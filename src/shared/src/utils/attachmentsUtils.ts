@@ -1,15 +1,8 @@
-import type {
-  IAttachment,
-  IData,
-  ITextResource,
-  IAttachmentGrouping,
-  IDataType,
-  IApplication,
-} from '../types';
+import type { IAttachment, IData, ITextResource, IAttachmentGrouping, IDataType, IApplication } from '../types';
 import { getTextResourceByKey } from './language';
 
 export const mapInstanceAttachments = (
-  data: IData[],
+  data: IData[] | undefined,
   defaultElementIds: string[],
   platform?: boolean,
 ): IAttachment[] => {
@@ -18,18 +11,13 @@ export const mapInstanceAttachments = (
   }
   const tempAttachments: IAttachment[] = [];
   data.forEach((dataElement: IData) => {
-    if (
-      defaultElementIds.indexOf(dataElement.dataType) > -1 ||
-      dataElement.dataType === 'ref-data-as-pdf'
-    ) {
+    if (defaultElementIds.indexOf(dataElement.dataType) > -1 || dataElement.dataType === 'ref-data-as-pdf') {
       return;
     }
 
     tempAttachments.push({
       name: dataElement.filename,
-      url: platform
-        ? dataElement.selfLinks.platform
-        : dataElement.selfLinks.apps,
+      url: platform ? dataElement.selfLinks?.platform : dataElement.selfLinks?.apps,
       iconClass: 'reg reg-attachment',
       dataType: dataElement.dataType,
     });
@@ -37,26 +25,19 @@ export const mapInstanceAttachments = (
   return tempAttachments;
 };
 
-export const getInstancePdf = (
-  data: IData[],
-  platform?: boolean,
-): IAttachment[] => {
+export const getInstancePdf = (data: IData[] | undefined, platform?: boolean): IAttachment[] | undefined => {
   if (!data) {
-    return null;
+    return undefined;
   }
 
-  const pdfElements = data.filter(
-    (element) => element.dataType === 'ref-data-as-pdf',
-  );
+  const pdfElements = data.filter((element) => element.dataType === 'ref-data-as-pdf');
 
   if (!pdfElements) {
-    return null;
+    return undefined;
   }
 
   return pdfElements.map((element) => {
-    const pdfUrl = platform
-      ? element.selfLinks.platform
-      : element.selfLinks.apps;
+    const pdfUrl = platform ? element.selfLinks?.platform : element.selfLinks?.apps;
     return {
       name: element.filename,
       url: pdfUrl,
@@ -73,8 +54,8 @@ export const getInstancePdf = (
  * @param textResources the application text resources
  */
 export const getAttachmentGroupings = (
-  attachments: IAttachment[],
-  applicationMetadata: IApplication,
+  attachments: IAttachment[] | undefined,
+  applicationMetadata: IApplication | null,
   textResources: ITextResource[],
 ): IAttachmentGrouping => {
   const attachmentGroupings: IAttachmentGrouping = {};
@@ -100,12 +81,9 @@ export const getAttachmentGroupings = (
  * @param attachment the attachment
  * @param applicationMetadata the application metadata
  */
-export const getGroupingForAttachment = (
-  attachment: IAttachment,
-  applicationMetadata: IApplication,
-): string => {
+export const getGroupingForAttachment = (attachment: IAttachment, applicationMetadata: IApplication): string => {
   if (!applicationMetadata || !applicationMetadata.dataTypes || !attachment) {
-    return null;
+    return 'null';
   }
 
   const attachmentType = applicationMetadata.dataTypes.find(
@@ -113,7 +91,7 @@ export const getGroupingForAttachment = (
   );
 
   if (!attachmentType || !attachmentType.grouping) {
-    return null;
+    return 'null';
   }
 
   return attachmentType.grouping;

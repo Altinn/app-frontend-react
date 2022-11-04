@@ -2,10 +2,7 @@ import { createContext } from 'react';
 
 import { AddressComponent as Address } from 'src/components/advanced/AddressComponent';
 import { AttachmentListComponent } from 'src/components/base/AttachmentListComponent';
-import {
-  ButtonComponent,
-  InstantiationButtonComponent,
-} from 'src/components/base/ButtonComponent';
+import { ButtonComponent, InstantiationButtonComponent } from 'src/components/base/ButtonComponent';
 import { CheckboxContainerComponent } from 'src/components/base/CheckboxesContainerComponent';
 import DatepickerComponent from 'src/components/base/DatepickerComponent';
 import DropdownComponent from 'src/components/base/DropdownComponent';
@@ -39,7 +36,7 @@ import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { ILanguage } from 'altinn-shared/types';
 
 const components: {
-  [Type in ComponentExceptGroupAndSummary]: (props: any) => JSX.Element;
+  [Type in ComponentExceptGroupAndSummary]: (props: any) => JSX.Element | null;
 } = {
   AddressComponent: Address,
   AttachmentList: AttachmentListComponent,
@@ -69,7 +66,7 @@ const components: {
 
 export interface IComponentProps extends IGenericComponentProps {
   handleDataChange: (
-    value: string,
+    value: string | undefined,
     options?: {
       key?: string; // Defaults to simpleBinding
       validate?: boolean; // Defaults to true
@@ -79,15 +76,15 @@ export interface IComponentProps extends IGenericComponentProps {
   getTextResourceAsString: (key: string) => string;
   language: ILanguage;
   shouldFocus: boolean;
-  text: React.ReactNode;
+  text: React.ReactNode | string;
   label: () => JSX.Element;
   legend: () => JSX.Element;
-  formData?: IComponentFormData;
+  formData: IComponentFormData;
   isValid?: boolean;
 }
 
-export type PropsFromGenericComponent<T extends ComponentExceptGroup> =
-  IComponentProps & ExprResolved<Omit<ILayoutComponent<T>, 'type'>>;
+export type PropsFromGenericComponent<T extends ComponentExceptGroup> = IComponentProps &
+  ExprResolved<Omit<ILayoutComponent<T>, 'type'>>;
 
 export interface IFormComponentContext {
   grid?: IGrid;

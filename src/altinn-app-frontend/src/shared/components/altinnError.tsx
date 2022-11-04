@@ -73,10 +73,7 @@ const AltinnError = ({
         <div className={classes.contentMargin}>
           <Typography
             variant='h1'
-            className={classNames(
-              classes.title,
-              styling ? styling.title : null,
-            )}
+            className={classNames(classes.title, styling ? styling.title : null)}
           >
             {title}
           </Typography>
@@ -84,7 +81,7 @@ const AltinnError = ({
         <div className={classes.contentMargin}>
           <Typography
             classes={{ root: classes.articleText }}
-            className={styling ? styling.content : null}
+            className={styling ? styling.content : undefined}
           >
             {content}
           </Typography>

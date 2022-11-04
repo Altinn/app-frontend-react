@@ -7,22 +7,15 @@ import type { ILanguage } from 'altinn-shared/types';
 
 interface IOptionalIndicatorProps {
   language: ILanguage;
-  required: boolean;
+  required?: boolean;
   readOnly?: boolean;
   labelSettings?: ILabelSettings;
 }
 
 export const OptionalIndicator = (props: IOptionalIndicatorProps) => {
-  const shouldShowOptionalMarking =
-    props.labelSettings?.optionalIndicator &&
-    !props.required &&
-    !props.readOnly;
+  const shouldShowOptionalMarking = props.labelSettings?.optionalIndicator && !props.required && !props.readOnly;
   if (shouldShowOptionalMarking) {
-    return (
-      <span className='label-optional'>
-        {` (${getLanguageFromKey('general.optional', props.language)})`}
-      </span>
-    );
+    return <span className='label-optional'>{` (${getLanguageFromKey('general.optional', props.language)})`}</span>;
   }
   return null;
 };

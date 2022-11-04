@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { getInitialStateMock } from '__mocks__/mocks';
 import { partyMock } from '__mocks__/partyMock';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -31,9 +32,7 @@ describe('altinnParty', () => {
     const handleSelectParty = jest.fn();
     render({ onSelectParty: handleSelectParty });
 
-    const party = screen.getByText(
-      /party_selection\.unit_personal_number 01017512345/i,
-    );
+    const party = screen.getByText(/party_selection\.unit_personal_number 01017512345/i);
 
     await user.click(party);
 
@@ -47,9 +46,7 @@ describe('altinnParty', () => {
         party: partyWithChildParties,
       });
 
-      expect(
-        screen.getByText(/2 party_selection\.unit_type_subunit_plural/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/2 party_selection\.unit_type_subunit_plural/i)).toBeInTheDocument();
       expect(screen.getByText(/child party 1/i)).toBeInTheDocument();
       expect(screen.getByText(/child party 2/i)).toBeInTheDocument();
     });
@@ -60,9 +57,7 @@ describe('altinnParty', () => {
         party: partyWithChildParties,
       });
 
-      expect(
-        screen.queryByText(/2 party_selection\.unit_type_subunit_plural/i),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/2 party_selection\.unit_type_subunit_plural/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/child party 1/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/child party 2/i)).not.toBeInTheDocument();
     });
@@ -73,9 +68,7 @@ describe('altinnParty', () => {
         party: partyMock,
       });
 
-      expect(
-        screen.queryByText(/2 party_selection\.unit_type_subunit_plural/i),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/2 party_selection\.unit_type_subunit_plural/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/child party 1/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/child party 2/i)).not.toBeInTheDocument();
     });
@@ -112,5 +105,14 @@ const render = (props: Partial<IAltinnPartyProps> = {}) => {
     showSubUnits: false,
     ...props,
   };
-  return renderWithProviders(<AltinnParty {...allProps} />);
+  return renderWithProviders(<AltinnParty {...allProps} />, {
+    preloadedState: {
+      ...getInitialStateMock(),
+      language: {
+        language: {},
+        error: null,
+        selectedAppLanguage: 'nb',
+      },
+    },
+  });
 };

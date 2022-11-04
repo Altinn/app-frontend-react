@@ -17,61 +17,50 @@ export const currentPartyUrl = `${appPath}/api/authorization/parties/current?ret
 export const instancesControllerUrl = `${appPath}/instances`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
 
-export const updateCookieUrl = (partyId: string) =>
-  `${appPath}/api/v1/parties/${partyId}`;
+export const updateCookieUrl = (partyId: string) => `${appPath}/api/v1/parties/${partyId}`;
 
-export const textResourcesUrl = (language: string) =>
-  `${origin}/${org}/${app}/api/v1/texts/${language}`;
+export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/api/v1/texts/${language}`;
 
 export const fileUploadUrl = (attachmentType: string) =>
   `${appPath}/instances/${altinnWindow.instanceId}/data?dataType=${attachmentType}`;
 
-export const fileTagUrl = (dataGuid: string) =>
-  `${appPath}/instances/${altinnWindow.instanceId}/data/${dataGuid}/tags`;
+export const fileTagUrl = (dataGuid: string) => `${appPath}/instances/${altinnWindow.instanceId}/data/${dataGuid}/tags`;
 
-export const dataElementUrl = (dataGuid: string) =>
-  `${appPath}/instances/${altinnWindow.instanceId}/data/${dataGuid}`;
+export const dataElementUrl = (dataGuid: string) => `${appPath}/instances/${altinnWindow.instanceId}/data/${dataGuid}`;
 
-export const getProcessStateUrl = () =>
-  `${appPath}/instances/${altinnWindow.instanceId}/process`;
+export const getProcessStateUrl = () => `${appPath}/instances/${altinnWindow.instanceId}/process`;
 
-export const getCreateInstancesUrl = (partyId: string) =>
-  `${appPath}/instances?instanceOwnerPartyId=${partyId}`;
+export const getCreateInstancesUrl = (partyId: string) => `${appPath}/instances?instanceOwnerPartyId=${partyId}`;
 
-export const getValidationUrl = (instanceId: string) =>
-  `${appPath}/instances/${instanceId}/validate`;
+export const getValidationUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/validate`;
 
 export const getDataValidationUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}/validate`;
 
-export const getProcessNextUrl = (taskId?: string) => {
+export const getProcessNextUrl = (taskId?: string | null) => {
   if (taskId) {
-    return `${appPath}/instances/${
-      altinnWindow.instanceId
-    }/process/next?elementId=${encodeURIComponent(taskId)}`;
+    return `${appPath}/instances/${altinnWindow.instanceId}/process/next?elementId=${encodeURIComponent(taskId)}`;
   }
   return `${appPath}/instances/${altinnWindow.instanceId}/process/next`;
 };
 
-export const getRedirectUrl = (returnUrl: string) =>
-  `${appPath}/api/v1/redirect?url=${encodeURIComponent(returnUrl)}`;
+export const getRedirectUrl = (returnUrl: string) => `${appPath}/api/v1/redirect?url=${encodeURIComponent(returnUrl)}`;
 
 export const getUpgradeAuthLevelUrl = (reqAuthLevel: string) => {
   const redirect: string =
-    `https://platform.${getHostname()}` +
-    `/authentication/api/v1/authentication?goto=${appPath}`;
+    `https://platform.${getHostname()}` + `/authentication/api/v1/authentication?goto=${appPath}`;
   return `https://${getHostname()}/ui/authentication/upgrade?goTo=${encodeURIComponent(
     redirect,
   )}&reqAuthLevel=${reqAuthLevel}`;
 };
 
-export const getEnvironmentLoginUrl = (oidcprovider: string) => {
+export const getEnvironmentLoginUrl = (oidcProvider: string | null) => {
   // First split away the protocol 'https://' and take the last part. Then split on dots.
   const domainSplitted: string[] = window.location.host.split('.');
   const encodedGoToUrl = encodeURIComponent(window.location.href);
   let issParam = '';
-  if (oidcprovider != null && oidcprovider != '') {
-    issParam = `&iss=${oidcprovider}`;
+  if (oidcProvider != null && oidcProvider != '') {
+    issParam = `&iss=${oidcProvider}`;
   }
 
   if (domainSplitted.length === 5) {
@@ -114,8 +103,8 @@ export const redirectToUpgrade = (reqAuthLevel: string) => {
 
 export const getJsonSchemaUrl = () => `${appPath}/api/jsonschema/`;
 
-export const getLayoutSettingsUrl = (layoutset: string) => {
-  if (layoutset === null) {
+export const getLayoutSettingsUrl = (layoutset: string | null | undefined) => {
+  if (layoutset === null || layoutset === undefined) {
     return `${appPath}/api/layoutsettings`;
   }
   return `${appPath}/api/layoutsettings/${layoutset}`;
@@ -123,15 +112,10 @@ export const getLayoutSettingsUrl = (layoutset: string) => {
 
 export const getLayoutSetsUrl = () => `${appPath}/api/layoutsets`;
 
-export const getFetchFormDataUrl = (
-  instanceId: string,
-  dataElementId: string,
-) => `${appPath}/instances/${instanceId}/data/${dataElementId}`;
+export const getFetchFormDataUrl = (instanceId: string, dataElementId: string) =>
+  `${appPath}/instances/${instanceId}/data/${dataElementId}`;
 
-export const getStatelessFormDataUrl = (
-  dataType: string,
-  anonymous = false,
-) => {
+export const getStatelessFormDataUrl = (dataType: string, anonymous = false) => {
   if (anonymous) {
     return `${appPath}/v1/data/anonymous?dataType=${dataType}`;
   }
@@ -145,15 +129,15 @@ export const getFetchFormDynamicsUrl = (layoutSetId?: string) => {
   return `${appPath}/api/resource/RuleConfiguration.json`;
 };
 
-export const getLayoutsUrl = (layoutset: string) => {
+export const getLayoutsUrl = (layoutset: string | null) => {
   if (layoutset === null) {
     return `${appPath}/api/resource/FormLayout.json`;
   }
   return `${appPath}/api/layouts/${layoutset}`;
 };
 
-export const getRulehandlerUrl = (layoutset: string) => {
-  if (layoutset === null) {
+export const getRulehandlerUrl = (layoutset?: string) => {
+  if (!layoutset) {
     return `${appPath}/api/resource/RuleHandler.js`;
   }
   return `${appPath}/api/rulehandler/${layoutset}`;
@@ -170,11 +154,9 @@ export const getCalculatePageOrderUrl = (stateless: boolean) => {
 export const getPartyValidationUrl = (partyId: string) =>
   `${appPath}/api/v1/parties/validateInstantiation?partyId=${partyId}`;
 
-export const getActiveInstancesUrl = (partyId: string) =>
-  `${appPath}/instances/${partyId}/active`;
+export const getActiveInstancesUrl = (partyId: string) => `${appPath}/instances/${partyId}/active`;
 
-export const getInstanceUiUrl = (instanceId: string) =>
-  `${appPath}#/instance/${instanceId}`;
+export const getInstanceUiUrl = (instanceId: string) => `${appPath}#/instance/${instanceId}`;
 
 export interface IGetOptionsUrlParams {
   optionsId: string;
@@ -226,12 +208,7 @@ export const getOptionsUrl = ({
   return url.toString();
 };
 
-export const getAppListsUrl = ({
-  appListId,
-  dataMapping,
-  formData,
-  language,
-}: IGetAppListsUrlParams) => {
+export const getAppListsUrl = ({ appListId, dataMapping, formData, language }: IGetAppListsUrlParams) => {
   const url = new URL(`${appPath}/api/lists/${appListId}`);
 
   let params: Record<string, string> = {};

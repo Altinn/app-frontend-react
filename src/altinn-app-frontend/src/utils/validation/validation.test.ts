@@ -8,20 +8,10 @@ import Ajv2020 from 'ajv/dist/2020';
 import dot from 'dot-object';
 
 import { Severity } from 'src/types';
-import {
-  createRepeatingGroupComponents,
-  getRepeatingGroups,
-} from 'src/utils/formLayout';
-import {
-  LayoutRootNodeCollection,
-  nodesInLayout,
-} from 'src/utils/layout/hierarchy';
+import { createRepeatingGroupComponents, getRepeatingGroups } from 'src/utils/formLayout';
+import { LayoutRootNodeCollection, nodesInLayout } from 'src/utils/layout/hierarchy';
 import * as validation from 'src/utils/validation/validation';
-import type {
-  ILayoutComponent,
-  ILayoutGroup,
-  ILayouts,
-} from 'src/features/form/layout';
+import type { ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -34,26 +24,14 @@ import type {
 } from 'src/types';
 import type { LayoutRootNode } from 'src/utils/layout/hierarchy';
 
-import {
-  getParsedLanguageFromKey,
-  getTextResourceByKey,
-} from 'altinn-shared/index';
+import { getParsedLanguageFromKey, getTextResourceByKey } from 'altinn-shared/index';
 
-function toCollection(
-  mockLayout: ILayouts,
-  repeatingGroups: IRepeatingGroups = {},
-) {
+function toCollection(mockLayout: ILayouts, repeatingGroups: IRepeatingGroups = {}) {
   const asNodes = {};
   for (const key of Object.keys(mockLayout)) {
-    asNodes[key] = nodesInLayout(
-      mockLayout[key],
-      repeatingGroups,
-    ) as unknown as LayoutRootNode<'resolved'>;
+    asNodes[key] = nodesInLayout(mockLayout[key] || [], repeatingGroups) as unknown as LayoutRootNode<'resolved'>;
   }
-  return new LayoutRootNodeCollection<'resolved'>(
-    Object.keys(mockLayout)[0] as keyof typeof asNodes,
-    asNodes,
-  );
+  return new LayoutRootNodeCollection<'resolved'>(Object.keys(mockLayout)[0] as keyof typeof asNodes, asNodes);
 }
 
 function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {
@@ -61,10 +39,12 @@ function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {
   let repeatingGroups = {};
 
   for (const layout of Object.values(mockLayout)) {
-    repeatingGroups = {
-      ...repeatingGroups,
-      ...getRepeatingGroups(layout, formData),
-    };
+    if (layout) {
+      repeatingGroups = {
+        ...repeatingGroups,
+        ...getRepeatingGroups(layout, formData),
+      };
+    }
   }
 
   return toCollection(mockLayout, repeatingGroups);
@@ -83,6 +63,7 @@ describe('utils > validation', () => {
   let mockInvalidTypes: any;
   let mockFormData: any;
   let mockValidFormData: any;
+  let mockInvalidFormData: any;
   let mockFormValidationResult: any;
   let mockLanguage: any;
   let mockFormAttachments: any;
@@ -94,8 +75,7 @@ describe('utils > validation', () => {
       language: {
         form_filler: {
           error_required: 'Du må fylle ut {0}',
-          file_uploader_validation_error_file_number_1:
-            'For å fortsette må du laste opp',
+          file_uploader_validation_error_file_number_1: 'For å fortsette må du laste opp',
           file_uploader_validation_error_file_number_2: 'vedlegg',
           address: 'Gateadresse',
           postPlace: 'Poststed',
@@ -334,10 +314,7 @@ describe('utils > validation', () => {
       group_1: [
         {
           dataModelField_4: 'Hello...',
-          group_2: [
-            { dataModelField_5: 'This does not trigger validation' },
-            { dataModelField_5: 'Does.' },
-          ],
+          group_2: [{ dataModelField_5: 'This does not trigger validation' }, { dataModelField_5: 'Does.' }],
         },
       ],
     };
@@ -350,17 +327,28 @@ describe('utils > validation', () => {
       group_1: [
         {
           dataModelField_4: 'Hello, World!',
-          group_2: [
-            { dataModelField_5: 'This is long' },
-            { dataModelField_5: 'This is also long' },
-          ],
+          group_2: [{ dataModelField_5: 'This is long' }, { dataModelField_5: 'This is also long' }],
         },
         {
           dataModelField_4: 'Not now!',
-          group_2: [
-            { dataModelField_5: 'This is long' },
-            { dataModelField_5: 'Something else that is long' },
-          ],
+          group_2: [{ dataModelField_5: 'This is long' }, { dataModelField_5: 'Something else that is long' }],
+        },
+      ],
+    };
+
+    mockInvalidFormData = {
+      dataModelField_1: '12',
+      dataModelField_2: 'Really quite long...',
+      dataModelField_3: 'Test 123',
+      dataModelField_custom: 'abc',
+      group_1: [
+        {
+          dataModelField_4: '',
+          group_2: [{ dataModelField_5: 'This is long' }, { dataModelField_5: '' }],
+        },
+        {
+          dataModelField_4: '',
+          group_2: [{ dataModelField_5: '' }, { dataModelField_5: 'Something else that is long' }],
         },
       ],
     };
@@ -403,11 +391,7 @@ describe('utils > validation', () => {
               $ref: '#/definitions/Address',
             },
           },
-          required: [
-            'dataModelField_1',
-            'dataModelField_2',
-            'dataModelField_3',
-          ],
+          required: ['dataModelField_1', 'dataModelField_2', 'dataModelField_3'],
         },
         Group1: {
           properties: {
@@ -454,50 +438,22 @@ describe('utils > validation', () => {
         FormLayout: {
           componentId_1: {
             simpleBinding: {
-              errors: [
-                getParsedLanguageFromKey(
-                  'validation_errors.min',
-                  mockLanguage.language,
-                  [0],
-                  true,
-                ),
-              ],
+              errors: [getParsedLanguageFromKey('validation_errors.min', mockLanguage.language, [0], true)],
             },
           },
           componentId_2: {
             customBinding: {
-              errors: [
-                getParsedLanguageFromKey(
-                  'validation_errors.minLength',
-                  mockLanguage.language,
-                  [10],
-                  true,
-                ),
-              ],
+              errors: [getParsedLanguageFromKey('validation_errors.minLength', mockLanguage.language, [10], true)],
             },
           },
           'componentId_4-0': {
             simpleBinding: {
-              errors: [
-                getParsedLanguageFromKey(
-                  'validation_errors.pattern',
-                  mockLanguage.language,
-                  [],
-                  true,
-                ),
-              ],
+              errors: [getParsedLanguageFromKey('validation_errors.pattern', mockLanguage.language, [], true)],
             },
           },
           'componentId_5-0-1': {
             simpleBinding: {
-              errors: [
-                getParsedLanguageFromKey(
-                  'validation_errors.minLength',
-                  mockLanguage.language,
-                  [10],
-                  true,
-                ),
-              ],
+              errors: [getParsedLanguageFromKey('validation_errors.minLength', mockLanguage.language, [10], true)],
             },
           },
         },
@@ -586,10 +542,7 @@ describe('utils > validation', () => {
      */
     const oldConsoleWarn = console.warn;
     console.warn = (...args: any[]) => {
-      if (
-        typeof args[0] === 'string' &&
-        args[0].match(/DEPRECATED: option jsPropertySyntax/)
-      ) {
+      if (typeof args[0] === 'string' && args[0].match(/DEPRECATED: option jsPropertySyntax/)) {
         return;
       }
 
@@ -749,9 +702,7 @@ describe('utils > validation', () => {
 
   describe('getErrorCount', () => {
     it('should count total number of errors correctly', () => {
-      const result = validation.getErrorCount(
-        mockFormValidationResult.validations,
-      );
+      const result = validation.getErrorCount(mockFormValidationResult.validations);
       expect(result).toEqual(4);
     });
   });
@@ -759,10 +710,7 @@ describe('utils > validation', () => {
   describe('canFormBeSaved', () => {
     it('should validate correctly', () => {
       const apiModeComplete = 'Complete';
-      const falseResult = validation.canFormBeSaved(
-        mockFormValidationResult,
-        apiModeComplete,
-      );
+      const falseResult = validation.canFormBeSaved(mockFormValidationResult, apiModeComplete);
       const falseResult2 = validation.canFormBeSaved(mockInvalidTypes);
       const trueResult2 = validation.canFormBeSaved(null);
       const trueResult3 = validation.canFormBeSaved(mockFormValidationResult);
@@ -1006,6 +954,10 @@ describe('utils > validation', () => {
     it('should add error to validations if supplied field is required', () => {
       const collection = toCollection(mockLayout, repeatingGroups);
       const component = collection.findComponentById('componentId_3');
+      if (!component) {
+        throw new Error('Node not found');
+      }
+
       const validations = {};
       validations[component.item.id] = validation.validateEmptyField(
         mockFormData,
@@ -1029,6 +981,10 @@ describe('utils > validation', () => {
     it('should find all errors in an AddressComponent', () => {
       const collection = toCollection(mockLayout, repeatingGroups);
       const component = collection.findComponentById('componentId_6');
+      if (!component) {
+        throw new Error('Node not found');
+      }
+
       const validations = {};
       validations[component.item.id] = validation.validateEmptyField(
         mockFormData,
@@ -1073,19 +1029,26 @@ describe('utils > validation', () => {
         mockTextResources,
       );
 
-      expect(
-        validations.FormLayout['componentId_4-0'].simpleBinding.errors,
-      ).toEqual(['Du må fylle ut withGroupVariables-0']);
+      expect(validations.FormLayout['componentId_4-0'].simpleBinding.errors).toEqual([
+        'Du må fylle ut withGroupVariables-0',
+      ]);
     });
   });
 
   describe('validateEmptyFieldsForNodes', () => {
+    interface RenderWith {
+      formData: any;
+      formLayout: any;
+      hiddenFields: string[];
+      repeatingGroups: IRepeatingGroups;
+    }
+
     const _with = ({
       formData = {},
       formLayout = mockLayout.FormLayout,
       hiddenFields = [],
       repeatingGroups = {},
-    }) =>
+    }: Partial<RenderWith>) =>
       validation.validateEmptyFieldsForNodes(
         formData,
         toCollection({ FormLayout: formLayout }, repeatingGroups).current(),
@@ -1106,32 +1069,19 @@ describe('utils > validation', () => {
     };
 
     it('should pass validation on required field in hidden group', () => {
-      expect(
-        _with({ hiddenFields: ['group_simple'] })[requiredFieldInSimpleGroup],
-      ).toBeUndefined();
+      expect(_with({ hiddenFields: ['group_simple'] })[requiredFieldInSimpleGroup]).toBeUndefined();
     });
     it('should pass validation on required field in group, when field itself is hidden', () => {
-      expect(
-        _with({ hiddenFields: [requiredFieldInSimpleGroup] })[
-          requiredFieldInSimpleGroup
-        ],
-      ).toBeUndefined();
+      expect(_with({ hiddenFields: [requiredFieldInSimpleGroup] })[requiredFieldInSimpleGroup]).toBeUndefined();
     });
     it('should mark as required with required field in visible group', () => {
-      expect(_with({ hiddenFields: [] })[requiredFieldInSimpleGroup]).toEqual(
-        requiredError(),
-      );
+      expect(_with({ hiddenFields: [] })[requiredFieldInSimpleGroup]).toEqual(requiredError());
     });
 
     it('should validate successfully with no instances of repeating groups', () => {
       expect(
         _with({
-          formLayout: [
-            mockGroup1,
-            mockGroup2,
-            mockComponent4,
-            { ...mockComponent5, required: true },
-          ],
+          formLayout: [mockGroup1, mockGroup2, mockComponent4, { ...mockComponent5, required: true }],
           repeatingGroups: {},
         }),
       ).toEqual({});
@@ -1140,12 +1090,7 @@ describe('utils > validation', () => {
     it('should support nested repeating groups', () => {
       expect(
         _with({
-          formLayout: [
-            mockGroup1,
-            mockGroup2,
-            mockComponent4,
-            { ...mockComponent5, required: true },
-          ],
+          formLayout: [mockGroup1, mockGroup2, mockComponent4, { ...mockComponent5, required: true }],
           repeatingGroups: {
             group1: { index: 2 }, // Group1 has 3 instances
             'group2-0': { index: 1 }, // Group2 has 2 instances inside the first instance of group1
@@ -1246,12 +1191,11 @@ describe('utils > validation', () => {
 
   describe('mapDataElementValidationToRedux', () => {
     it('should be mapped correctly to our redux format', () => {
-      const mappedDataElementValidations =
-        validation.mapDataElementValidationToRedux(
-          mockDataElementValidations,
-          mockLayoutState.layouts,
-          [],
-        );
+      const mappedDataElementValidations = validation.mapDataElementValidationToRedux(
+        mockDataElementValidations,
+        mockLayoutState.layouts,
+        [],
+      );
       const expected = getMockValidationState(false);
       expect(mappedDataElementValidations).toEqual(expected);
     });
@@ -1309,46 +1253,41 @@ describe('utils > validation', () => {
         },
       };
 
-      const mappedDataElementValidations =
-        validation.mapDataElementValidationToRedux(
-          serverValidationResponse,
-          mockLayoutState.layouts,
-          [],
-        );
+      const mappedDataElementValidations = validation.mapDataElementValidationToRedux(
+        serverValidationResponse,
+        mockLayoutState.layouts,
+        [],
+      );
 
       expect(mappedDataElementValidations).toEqual(expectedResult);
     });
 
     it('should support mapping to two different components on different pages', () => {
-      const mappedDataElementValidations =
-        validation.mapDataElementValidationToRedux(
-          mockDataElementValidations,
-          {
-            ...mockLayoutState.layouts,
-            AnotherPage: [
-              {
-                type: 'Input',
-                id: 'AnotherComponent',
-                dataModelBindings: {
-                  simpleBinding: 'dataModelField_1',
-                },
-                required: true,
-                readOnly: false,
-                textResourceBindings: {},
+      const mappedDataElementValidations = validation.mapDataElementValidationToRedux(
+        mockDataElementValidations,
+        {
+          ...mockLayoutState.layouts,
+          AnotherPage: [
+            {
+              type: 'Input',
+              id: 'AnotherComponent',
+              dataModelBindings: {
+                simpleBinding: 'dataModelField_1',
               },
-            ],
-          },
-          [],
-        );
+              required: true,
+              readOnly: false,
+              textResourceBindings: {},
+            },
+          ],
+        },
+        [],
+      );
       const expected = {
         ...getMockValidationState(false),
         AnotherPage: {
           AnotherComponent: {
             simpleBinding: {
-              errors: [
-                getTextResourceByKey('Error message 1', []),
-                getTextResourceByKey('Error message 2', []),
-              ],
+              errors: [getTextResourceByKey('Error message 1', []), getTextResourceByKey('Error message 2', [])],
             },
           },
         },
@@ -1386,9 +1325,7 @@ describe('utils > validation', () => {
 
     it('should return custom error message when this is defined', () => {
       const mockValidator = validation.createValidator(mockJsonSchema);
-      const mockTexts = [
-        { id: 'custom_error', value: 'This is a custom error message' },
-      ];
+      const mockTexts = [{ id: 'custom_error', value: 'This is a custom error message' }];
       const formData = {
         ...mockValidFormData,
         dataModelField_custom: 'abcdefg',
@@ -1466,13 +1403,7 @@ describe('utils > validation', () => {
           },
         },
       };
-      expect(
-        validation.componentHasValidations(
-          validations,
-          'FormLayout',
-          'dummyId',
-        ),
-      ).toBeTruthy();
+      expect(validation.componentHasValidations(validations, 'FormLayout', 'dummyId')).toBeTruthy();
     });
 
     it('should return false if component has no validations', () => {
@@ -1485,13 +1416,7 @@ describe('utils > validation', () => {
           },
         },
       };
-      expect(
-        validation.componentHasValidations(
-          validations,
-          'FormLayout',
-          'someOtherId',
-        ),
-      ).toBeFalsy();
+      expect(validation.componentHasValidations(validations, 'FormLayout', 'someOtherId')).toBeFalsy();
     });
 
     it('should return false when supplied with null values', () => {
@@ -1692,16 +1617,7 @@ describe('utils > validation', () => {
     });
 
     it('should return false when supplied with null values', () => {
-      expect(
-        validation.repeatingGroupHasValidations(
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-        ),
-      ).toBeFalsy();
+      expect(validation.repeatingGroupHasValidations(null, null, null, null, null, null)).toBeFalsy();
     });
   });
 
@@ -1816,50 +1732,32 @@ describe('utils > validation', () => {
     };
 
     it('should return true when validations have errors and checking for Severity.Error', () => {
-      const result = validation.hasValidationsOfSeverity(
-        validationsWithErrors,
-        Severity.Error,
-      );
+      const result = validation.hasValidationsOfSeverity(validationsWithErrors, Severity.Error);
       expect(result).toBeTruthy();
     });
 
     it('should return false when validations have warnings and checking for Severity.Error', () => {
-      const result = validation.hasValidationsOfSeverity(
-        validationsWithWarnings,
-        Severity.Error,
-      );
+      const result = validation.hasValidationsOfSeverity(validationsWithWarnings, Severity.Error);
       expect(result).toBeFalsy();
     });
 
     it('should return false when validations have no warnings and no errors and checking for Severity.Error', () => {
-      const result = validation.hasValidationsOfSeverity(
-        validationsWithFixed,
-        Severity.Error,
-      );
+      const result = validation.hasValidationsOfSeverity(validationsWithFixed, Severity.Error);
       expect(result).toBeFalsy();
     });
 
     it('should return true when validations have warnings and checking for Severity.Warning', () => {
-      const result = validation.hasValidationsOfSeverity(
-        validationsWithWarnings,
-        Severity.Warning,
-      );
+      const result = validation.hasValidationsOfSeverity(validationsWithWarnings, Severity.Warning);
       expect(result).toBeTruthy();
     });
 
     it('should return false when validations have errors and checking for Severity.Warning', () => {
-      const result = validation.hasValidationsOfSeverity(
-        validationsWithErrors,
-        Severity.Warning,
-      );
+      const result = validation.hasValidationsOfSeverity(validationsWithErrors, Severity.Warning);
       expect(result).toBeFalsy();
     });
 
     it('should return false when validations have no warnings and no errors and checking for Severity.Warning', () => {
-      const result = validation.hasValidationsOfSeverity(
-        validationsWithFixed,
-        Severity.Warning,
-      );
+      const result = validation.hasValidationsOfSeverity(validationsWithFixed, Severity.Warning);
       expect(result).toBeFalsy();
     });
   });
@@ -1937,24 +1835,127 @@ describe('utils > validation', () => {
             simpleBinding: {
               errors: [
                 'Du må fylle ut component_4',
-                getParsedLanguageFromKey(
-                  `validation_errors.pattern`,
-                  state.language.language,
-                  [],
-                  true,
-                ),
+                getParsedLanguageFromKey(`validation_errors.pattern`, state.language.language || {}, [], true),
               ],
             },
           },
           'componentId_5-0-1': {
             simpleBinding: {
               errors: [
-                getParsedLanguageFromKey(
-                  `validation_errors.minLength`,
-                  state.language.language,
-                  [10],
-                  true,
-                ),
+                getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
+              ],
+            },
+          },
+        },
+      });
+    });
+
+    it('should only detect errors in one row when onlyInRowIndex is set', () => {
+      const state: IRuntimeState = getInitialStateMock({
+        formDataModel: {
+          schemas: {
+            default: mockJsonSchema,
+          },
+          error: null,
+        },
+        instanceData: {
+          instance: {
+            instanceOwner: {
+              partyId: 12345,
+            },
+            process: {
+              currentTask: {
+                elementId: 'default',
+              } as any,
+            } as any,
+          } as any,
+          error: null,
+        },
+        applicationMetadata: {
+          applicationMetadata: {
+            dataTypes: [
+              {
+                appLogic: {
+                  classRef: 'Altinn.App.Models.Skjema',
+                },
+                taskId: 'default',
+                maxCount: 0,
+                minCount: 0,
+                allowedContentTypes: [],
+                id: 'default',
+              },
+            ],
+          } as any,
+          error: null,
+        },
+        formLayout: {
+          layouts: mockLayout,
+          error: null,
+          uiConfig: {
+            currentView: 'FormLayout',
+            hiddenFields: [],
+            repeatingGroups: {
+              group1: {
+                index: 1,
+                editIndex: -1,
+              },
+              'group2-0': {
+                index: 1,
+                editIndex: -1,
+              },
+              'group2-1': {
+                index: 1,
+                editIndex: -1,
+              },
+            },
+          },
+        } as any,
+        formData: {
+          formData: mockInvalidFormData,
+        } as any,
+        textResources: {
+          error: null,
+          language: 'nb',
+          resources: mockTextResources,
+        },
+      });
+
+      const result0: IValidations = validation.validateGroup('group1', state, 0);
+      expect(result0).toEqual({
+        FormLayout: {
+          'componentId_4-0': {
+            simpleBinding: {
+              errors: [
+                'Du må fylle ut component_4',
+                getParsedLanguageFromKey(`validation_errors.pattern`, state.language.language || {}, [], true),
+              ],
+            },
+          },
+          'componentId_5-0-1': {
+            simpleBinding: {
+              errors: [
+                getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
+              ],
+            },
+          },
+        },
+      });
+
+      const result1: IValidations = validation.validateGroup('group1', state, 1);
+      expect(result1).toEqual({
+        FormLayout: {
+          'componentId_4-1': {
+            simpleBinding: {
+              errors: [
+                'Du må fylle ut component_4',
+                getParsedLanguageFromKey(`validation_errors.pattern`, state.language.language || {}, [], true),
+              ],
+            },
+          },
+          'componentId_5-1-0': {
+            simpleBinding: {
+              errors: [
+                getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
               ],
             },
           },
@@ -2028,12 +2029,7 @@ describe('utils > validation', () => {
           'componentId_5-0-1': {
             simpleBinding: {
               errors: [
-                getParsedLanguageFromKey(
-                  `validation_errors.minLength`,
-                  state.language.language,
-                  [10],
-                  true,
-                ),
+                getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
               ],
             },
           },
@@ -2370,19 +2366,15 @@ describe('utils > validation', () => {
 
   describe('mergeComponentBindingValidations', () => {
     it('should return merged validation object', () => {
-      const original: IComponentBindingValidation =
-        mockReduxFormat.FormLayout.componentId_1.simpleBinding;
+      const original: IComponentBindingValidation | undefined = mockReduxFormat.FormLayout.componentId_1.simpleBinding;
       const newValidations: IComponentBindingValidation = {
         errors: ['newError'],
         warnings: ['warning'],
       };
 
-      const merged = validation.mergeComponentBindingValidations(
-        original,
-        newValidations,
-      );
+      const merged = validation.mergeComponentBindingValidations(original, newValidations);
       expect(merged).toEqual({
-        errors: original.errors.concat(newValidations.errors),
+        errors: original?.errors?.concat(newValidations.errors || []),
         warnings: newValidations.warnings,
       });
     });
@@ -2401,10 +2393,7 @@ describe('utils > validation', () => {
         success: ['success1', 'success3'],
       };
 
-      const merged = validation.mergeComponentBindingValidations(
-        original,
-        newValidations,
-      );
+      const merged = validation.mergeComponentBindingValidations(original, newValidations);
 
       expect(merged.errors).toEqual(['error1', 'error2', 'error3']);
       expect(merged.warnings).toEqual(['warning1', 'warning2', 'warning3']);
@@ -2428,21 +2417,17 @@ describe('utils > validation', () => {
         },
       };
 
-      const merged = validation.mergeValidationObjects(
-        mockReduxFormat,
-        newValidations,
-      );
+      const merged = validation.mergeValidationObjects(mockReduxFormat, newValidations);
       expect(merged).toEqual({
         ...mockReduxFormat,
         FormLayout: {
           ...mockReduxFormat.FormLayout,
           componentId_1: {
             simpleBinding: {
-              errors:
-                mockReduxFormat.FormLayout.componentId_1.simpleBinding.errors.concat(
-                  componentValidation.simpleBinding.errors,
-                ),
-              warnings: componentValidation.simpleBinding.warnings,
+              errors: mockReduxFormat.FormLayout.componentId_1.simpleBinding?.errors?.concat(
+                componentValidation.simpleBinding?.errors || [],
+              ),
+              warnings: componentValidation.simpleBinding?.warnings,
             },
           },
           componentId_new: componentValidation,
@@ -2480,23 +2465,17 @@ describe('utils > validation', () => {
           },
         },
       };
-      const result: IValidations = validation.mergeValidationObjects(
-        source1,
-        source2,
-      );
-      expect(result.layout1.component1.binding.errors.length).toEqual(2);
-      expect(result.layout1.component1.binding.warnings.length).toEqual(2);
-      expect(result.layout2.component2.binding.errors.length).toEqual(1);
-      expect(result.layout2.component2.binding.warnings.length).toEqual(1);
+      const result: IValidations = validation.mergeValidationObjects(source1, source2);
+      expect(result.layout1.component1.binding?.errors?.length).toEqual(2);
+      expect(result.layout1.component1.binding?.warnings?.length).toEqual(2);
+      expect(result.layout2.component2.binding?.errors?.length).toEqual(1);
+      expect(result.layout2.component2.binding?.warnings?.length).toEqual(1);
     });
   });
 
   describe('getSchemaPart', () => {
     it('should return items based in a oneOf ref on root', () => {
-      const nestedPathResult = validation.getSchemaPart(
-        '#/$defs/skjema/properties/alder/maximum',
-        oneOfOnRootSchema,
-      );
+      const nestedPathResult = validation.getSchemaPart('#/$defs/skjema/properties/alder/maximum', oneOfOnRootSchema);
       expect(nestedPathResult).toEqual({
         type: 'number',
         minimum: 0,
@@ -2517,17 +2496,13 @@ describe('utils > validation', () => {
     });
 
     it('should handle complex schema', () => {
-      const result = validation.getSchemaPart(
-        '#/$defs/Navn/maxLength',
-        complexSchema,
-      );
+      const result = validation.getSchemaPart('#/$defs/Navn/maxLength', complexSchema);
       expect(result).toEqual({
         type: 'string',
         '@xsdType': 'string',
         '@xsdUnhandledAttributes': {
           'seres:elementtype': 'Dataenkeltype',
-          'seres:guid':
-            'https://seres.no/guid/Kursdomene/Dataenkeltype/Navn/4007',
+          'seres:guid': 'https://seres.no/guid/Kursdomene/Dataenkeltype/Navn/4007',
         },
       });
     });
@@ -2587,10 +2562,7 @@ describe('utils > validation', () => {
           },
         },
       };
-      const result = validation.missingFieldsInLayoutValidations(
-        validations,
-        mockLanguage.language,
-      );
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
       expect(result).toBeFalsy();
     });
     it('should return true when validations contain messages (string) for missing fields', () => {
@@ -2602,10 +2574,7 @@ describe('utils > validation', () => {
           },
         },
       };
-      const result = validation.missingFieldsInLayoutValidations(
-        validations,
-        mockLanguage.language,
-      );
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
       expect(result).toBeTruthy();
     });
     it('should return true when validations contain arrays with error message for missing fields', () => {
@@ -2619,18 +2588,8 @@ describe('utils > validation', () => {
       });
       const shallow = 'Første linje\nDu må fylle ut ';
       const deep = 'Dette er feil:\nFørste linje\nDu må fylle ut ';
-      expect(
-        validation.missingFieldsInLayoutValidations(
-          validations(shallow),
-          mockLanguage.language,
-        ),
-      ).toBeTruthy();
-      expect(
-        validation.missingFieldsInLayoutValidations(
-          validations(deep),
-          mockLanguage.language,
-        ),
-      ).toBeTruthy();
+      expect(validation.missingFieldsInLayoutValidations(validations(shallow), mockLanguage.language)).toBeTruthy();
+      expect(validation.missingFieldsInLayoutValidations(validations(deep), mockLanguage.language)).toBeTruthy();
     });
   });
 });

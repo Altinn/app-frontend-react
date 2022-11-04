@@ -2,19 +2,13 @@ import * as React from 'react';
 import { Route } from 'react-router-dom';
 
 import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
+import { getInitialStateMock } from '__mocks__/mocks';
 import { screen, within } from '@testing-library/react';
-import {
-  MemoryRouterWithRedirectingRoot,
-  renderWithProviders,
-} from 'testUtils';
+import { MemoryRouterWithRedirectingRoot, renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
 
 import { Form } from 'src/features/form/containers/Form';
-import type {
-  ILayout,
-  ILayoutComponent,
-  ILayoutEntry,
-} from 'src/features/form/layout';
+import type { ILayout, ILayoutComponent, ILayoutEntry } from 'src/features/form/layout';
 import type { RootState } from 'src/store';
 
 describe('Form', () => {
@@ -105,9 +99,7 @@ describe('Form', () => {
     renderForm(layoutWithNonRepGroup);
     const container = screen.getByTestId('display-group-container');
     expect(container).toBeInTheDocument();
-    expect(
-      within(container).getByText('Title from non repeating child'),
-    ).toBeInTheDocument();
+    expect(within(container).getByText('Title from non repeating child')).toBeInTheDocument();
   });
 
   it('should render PanelGroupContainer and children if group has panel prop', () => {
@@ -142,9 +134,7 @@ describe('Form', () => {
     renderForm(layoutWithPanelGroup);
     const container = screen.getByTestId('panel-group-container');
     expect(container).toBeInTheDocument();
-    expect(
-      within(container).getByText('Title from panel child'),
-    ).toBeInTheDocument();
+    expect(within(container).getByText('Title from panel child')).toBeInTheDocument();
   });
 
   it('should render navbar', () => {
@@ -215,9 +205,7 @@ describe('Form', () => {
 
     expect(screen.getByTestId('NavigationButtons')).toBeInTheDocument();
 
-    expect(
-      within(errorReport).getByTestId('NavigationButtons'),
-    ).toBeInTheDocument();
+    expect(within(errorReport).getByTestId('NavigationButtons')).toBeInTheDocument();
   });
 
   it('should render a summary component', () => {
@@ -234,14 +222,9 @@ describe('Form', () => {
     expect(screen.getByTestId('summary-component')).toBeInTheDocument();
   });
 
-  function renderForm(
-    layout = mockComponents,
-    customState: PreloadedState<RootState> = {},
-  ) {
+  function renderForm(layout = mockComponents, customState: PreloadedState<RootState> = {}) {
     renderWithProviders(
-      <MemoryRouterWithRedirectingRoot
-        to={'/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc'}
-      >
+      <MemoryRouterWithRedirectingRoot to={'/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc'}>
         <Route
           path={'/instance/:partyId/:instanceGuid'}
           element={<Form />}
@@ -249,6 +232,7 @@ describe('Form', () => {
       </MemoryRouterWithRedirectingRoot>,
       {
         preloadedState: {
+          ...getInitialStateMock(),
           ...customState,
           formLayout: getFormLayoutStateMock({
             layouts: {
@@ -260,9 +244,7 @@ describe('Form', () => {
     );
   }
 
-  function mockValidations(
-    validations: RootState['formValidations']['validations'][string],
-  ): Partial<RootState> {
+  function mockValidations(validations: RootState['formValidations']['validations'][string]): Partial<RootState> {
     return {
       formValidations: {
         error: null,

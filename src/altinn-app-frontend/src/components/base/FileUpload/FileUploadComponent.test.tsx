@@ -3,7 +3,7 @@ import React from 'react';
 import { getAttachments } from '__mocks__/attachmentsMock';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { screen } from '@testing-library/react';
-import { renderWithProviders } from 'testUtils';
+import { mockComponentProps, renderWithProviders } from 'testUtils';
 
 import { FileUploadComponent } from 'src/components/base/FileUpload/FileUploadComponent';
 import type { IFileUploadProps } from 'src/components/base/FileUpload/FileUploadComponent';
@@ -23,9 +23,7 @@ describe('FileUploadComponent', () => {
         name: /form_filler\.file_uploader_add_attachment/i,
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/form_filler\.file_uploader_number_of_files 2\/3\./i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/form_filler\.file_uploader_number_of_files 2\/3\./i)).toBeInTheDocument();
   });
 
   it('should not show add attachment button, and should show file counter when number of attachments is same as max', () => {
@@ -39,9 +37,7 @@ describe('FileUploadComponent', () => {
         name: /form_filler\.file_uploader_add_attachment/i,
       }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByText(/form_filler\.file_uploader_number_of_files 3\/3\./i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/form_filler\.file_uploader_number_of_files 3\/3\./i)).toBeInTheDocument();
   });
 
   describe('file status', () => {
@@ -97,9 +93,7 @@ describe('FileUploadComponent', () => {
         initialState: { attachments: getAttachments({ count: 3 }) },
       });
 
-      expect(
-        screen.queryByTestId(`altinn-drop-zone-${testId}`),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`altinn-drop-zone-${testId}`)).not.toBeInTheDocument();
     });
 
     it('should display drop area when displayMode is not simple', () => {
@@ -108,9 +102,7 @@ describe('FileUploadComponent', () => {
         initialState: { attachments: getAttachments({ count: 3 }) },
       });
 
-      expect(
-        screen.getByTestId(`altinn-drop-zone-${testId}`),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(`altinn-drop-zone-${testId}`)).toBeInTheDocument();
     });
 
     it('should not display drop area when displayMode is not simple and max attachments is reached', () => {
@@ -119,9 +111,7 @@ describe('FileUploadComponent', () => {
         initialState: { attachments: getAttachments({ count: 3 }) },
       });
 
-      expect(
-        screen.queryByTestId(`altinn-drop-zone-${testId}`),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`altinn-drop-zone-${testId}`)).not.toBeInTheDocument();
     });
   });
 });
@@ -133,11 +123,9 @@ interface IRenderProps {
   };
 }
 
-const render = ({
-  props = {},
-  initialState: { attachments = getAttachments() },
-}: IRenderProps = {}) => {
-  const initialState = {
+const render = ({ props = {}, initialState = {} }: IRenderProps = {}) => {
+  const { attachments = getAttachments() } = initialState;
+  const _initialState = {
     ...getInitialStateMock(),
     attachments: {
       attachments: {
@@ -147,6 +135,7 @@ const render = ({
   };
 
   const allProps: IFileUploadProps = {
+    ...mockComponentProps,
     id: testId,
     displayMode: 'simple',
     maxFileSizeInMB: 2,
@@ -154,11 +143,10 @@ const render = ({
     minNumberOfAttachments: 1,
     isValid: true,
     readOnly: false,
-    ...({} as IFileUploadProps),
     ...props,
   };
 
   return renderWithProviders(<FileUploadComponent {...allProps} />, {
-    preloadedState: initialState,
+    preloadedState: _initialState,
   });
 };

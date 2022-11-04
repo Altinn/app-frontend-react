@@ -2,7 +2,7 @@ import React from 'react';
 
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { fireEvent, screen } from '@testing-library/react';
-import { renderWithProviders } from 'testUtils';
+import { mockComponentProps, renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
 
 import { MultipleSelect } from 'src/components/base/MultipleSelect';
@@ -11,20 +11,12 @@ import type { RootState } from 'src/store';
 
 const dummyLabel = 'dummyLabel';
 
-const render = (
-  props: Partial<IMultipleSelectProps> = {},
-  customState: PreloadedState<RootState> = {},
-) => {
+const render = (props: Partial<IMultipleSelectProps> = {}, customState: PreloadedState<RootState> = {}) => {
   const allProps: IMultipleSelectProps = {
-    ...({} as IMultipleSelectProps),
-    id: 'id',
+    ...mockComponentProps,
     formData: { simpleBinding: '' },
-    handleDataChange: jest.fn(),
-    getTextResourceAsString: (key: string) => key,
     isValid: true,
     dataModelBindings: { simpleBinding: 'some.field' },
-    componentValidations: {},
-    language: {},
     options: [
       { value: 'value1', label: 'label1' },
       { value: 'value2', label: 'label2' },
@@ -33,6 +25,8 @@ const render = (
     readOnly: false,
     required: false,
     textResourceBindings: {},
+    handleDataChange: jest.fn(),
+    getTextResourceAsString: (key) => key,
     ...props,
   };
 

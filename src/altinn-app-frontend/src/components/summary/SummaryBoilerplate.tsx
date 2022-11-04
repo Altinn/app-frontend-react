@@ -8,11 +8,10 @@ import type { ILayoutCompSummary } from 'src/features/form/layout';
 
 import appTheme from 'altinn-shared/theme/altinnAppTheme';
 
-export interface SummaryBoilerplateProps
-  extends Omit<ILayoutCompSummary, 'type' | 'id'> {
+export interface SummaryBoilerplateProps extends Omit<ILayoutCompSummary, 'type' | 'id'> {
   hasValidationMessages?: boolean;
   onChangeClick: () => void;
-  changeText: string;
+  changeText: string | null;
   label: any;
   readOnlyComponent?: boolean;
 }
@@ -42,8 +41,7 @@ export default function SummaryBoilerplate({
   display,
 }: SummaryBoilerplateProps) {
   const classes = useStyles();
-  const shouldShowChangeButton =
-    !readOnlyComponent && !display?.hideChangeButton;
+  const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;
   return (
     <>
       <Grid

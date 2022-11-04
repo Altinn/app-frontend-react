@@ -1,42 +1,28 @@
 import { deleteGroupData, getKeyIndex } from 'src/utils/databindings';
 import { splitDashedKey } from 'src/utils/formLayout';
 import type { IFormData } from 'src/features/form/data';
-import type {
-  ILayoutComponent,
-  ILayoutGroup,
-  ILayouts,
-} from 'src/features/form/layout';
+import type { ILayoutComponent, ILayouts } from 'src/features/form/layout';
 import type { IAttachments } from 'src/shared/resources/attachments';
 
 import type { IData } from 'altinn-shared/types';
 
 export function mapAttachmentListToAttachments(
   data: IData[],
-  defaultElementId: string,
+  defaultElementId: string | undefined,
   formData: IFormData,
   layouts: ILayouts,
 ): IAttachments {
   const attachments: IAttachments = {};
-  const allComponents = [].concat(...Object.values(layouts)) as (
-    | ILayoutComponent
-    | ILayoutGroup
-  )[];
+  const allComponents = Object.values(layouts).flat();
 
   data.forEach((element: IData) => {
     const baseComponentId = element.dataType;
-    if (
-      element.id === defaultElementId ||
-      baseComponentId === 'ref-data-as-pdf'
-    ) {
+    if (element.id === defaultElementId || baseComponentId === 'ref-data-as-pdf') {
       return;
     }
 
-    const component = allComponents.find((c) => c.id === baseComponentId);
-    if (
-      !component ||
-      (component.type !== 'FileUpload' &&
-        component.type !== 'FileUploadWithTag')
-    ) {
+    const component = allComponents.find((c) => c?.id === baseComponentId);
+    if (!component || (component.type !== 'FileUpload' && component.type !== 'FileUploadWithTag')) {
       return;
     }
 
@@ -76,9 +62,7 @@ function convertToDashedComponentId(
   attachmentUuid: string,
   hasIndex: boolean,
 ): [string, number] {
-  const formDataKey = Object.keys(formData).find(
-    (key) => formData[key] === attachmentUuid,
-  );
+  const formDataKey = Object.keys(formData).find((key) => formData[key] === attachmentUuid);
 
   if (!formDataKey) {
     return ['', 0];
@@ -88,10 +72,7 @@ function convertToDashedComponentId(
   let componentId: string;
   let index: number;
   if (hasIndex) {
-    const groupSuffix =
-      groups.length > 1
-        ? `-${groups.slice(0, groups.length - 1).join('-')}`
-        : '';
+    const groupSuffix = groups.length > 1 ? `-${groups.slice(0, groups.length - 1).join('-')}` : '';
 
     componentId = `${baseComponentId}${groupSuffix}`;
     index = groups[groups.length - 1];
@@ -105,7 +86,7 @@ function convertToDashedComponentId(
   return [componentId, index];
 }
 
-export function getFileEnding(filename: string): string {
+export function getFileEnding(filename: string | undefined): string {
   if (!filename) {
     return '';
   }
@@ -116,7 +97,7 @@ export function getFileEnding(filename: string): string {
   return `.${split[split.length - 1]}`;
 }
 
-export function removeFileEnding(filename: string): string {
+export function removeFileEnding(filename: string | undefined): string {
   if (!filename) {
     return '';
   }
@@ -145,22 +126,13 @@ export function shiftAttachmentRowInRepeatingGroup(
   for (const key of Object.keys(attachments)) {
     const thisSplitId = splitDashedKey(key);
     if (lookForComponents.has(thisSplitId.baseComponentId)) {
-      lastIndex = Math.max(
-        lastIndex,
-        thisSplitId.depth[splitId.depth.length] || -1,
-      );
+      lastIndex = Math.max(lastIndex, thisSplitId.depth[splitId.depth.length] || -1);
     }
   }
 
   for (let laterIdx = index + 1; laterIdx <= lastIndex; laterIdx++) {
     for (const componentId of lookForComponents) {
-      deleteGroupData(
-        result,
-        componentId + splitId.stringDepthWithLeadingDash,
-        laterIdx,
-        false,
-        true,
-      );
+      deleteGroupData(result, componentId + splitId.stringDepthWithLeadingDash, laterIdx, false, true);
     }
   }
 

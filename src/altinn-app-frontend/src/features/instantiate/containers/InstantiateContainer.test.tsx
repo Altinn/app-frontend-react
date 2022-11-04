@@ -53,18 +53,16 @@ describe('InstantiateContainer', () => {
     const mockDispatch = render();
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(
-        InstantiationActions.instantiate(),
-      );
+      expect(mockDispatch).toHaveBeenCalledWith(InstantiationActions.instantiate());
       expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
     const contentLoader = await screen.findByText('Loading...');
     expect(contentLoader).toBeInTheDocument();
 
-    const instantiationText = within(
-      await screen.findByTestId('presentation-heading'),
-    ).getByText('Hold deg fast, nå starter vi!');
+    const instantiationText = within(await screen.findByTestId('presentation-heading')).getByText(
+      'Hold deg fast, nå starter vi!',
+    );
 
     expect(instantiationText).toBeInTheDocument();
     expect(screen.queryByText('Instance page')).not.toBeInTheDocument();
@@ -84,18 +82,14 @@ describe('InstantiateContainer', () => {
     });
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(
-        InstantiationActions.instantiate(),
-      );
+      expect(mockDispatch).toHaveBeenCalledWith(InstantiationActions.instantiate());
       expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
     const contentLoader = await screen.findByText('Loading...');
     expect(contentLoader).toBeInTheDocument();
 
-    const instantiationText = within(
-      await screen.findByTestId('presentation-heading'),
-    ).getByText('');
+    const instantiationText = within(await screen.findByTestId('presentation-heading')).getByText('');
 
     expect(instantiationText).toBeInTheDocument();
   });
@@ -119,14 +113,12 @@ describe('InstantiateContainer', () => {
       instantiation: {
         error: null,
         instanceId: '123456/75154373-aed4-41f7-95b4-e5b5115c2edc',
-        instantiating: null,
+        instantiating: false,
       },
     });
 
     expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Hold deg fast, nå starter vi!'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Hold deg fast, nå starter vi!')).not.toBeInTheDocument();
 
     expect(screen.getByText('Instance page')).toBeInTheDocument();
   });
@@ -146,7 +138,7 @@ describe('InstantiateContainer', () => {
       instantiation: {
         error,
         instanceId: null,
-        instantiating: null,
+        instantiating: false,
       },
     });
 
@@ -168,14 +160,12 @@ describe('InstantiateContainer', () => {
       instantiation: {
         error,
         instanceId: null,
-        instantiating: null,
+        instantiating: false,
       },
     });
 
     expect(screen.getByText('Feil 403')).toBeInTheDocument();
-    expect(
-      screen.getByText('Du mangler rettigheter for å se denne tjenesten.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Du mangler rettigheter for å se denne tjenesten.')).toBeInTheDocument();
   });
 
   it('should show instantiation error page when axios error contains a message', async () => {
@@ -196,7 +186,7 @@ describe('InstantiateContainer', () => {
       instantiation: {
         error,
         instanceId: null,
-        instantiating: null,
+        instantiating: false,
       },
     });
 

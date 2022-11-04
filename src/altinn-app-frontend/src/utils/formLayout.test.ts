@@ -10,19 +10,9 @@ import {
   setMappingForRepeatingGroupComponent,
   topLevelComponents,
 } from 'src/utils/formLayout';
-import type {
-  ILayout,
-  ILayoutCompFileUploadWithTag,
-  ILayoutComponent,
-  ILayoutGroup,
-} from 'src/features/form/layout';
+import type { ILayout, ILayoutCompFileUploadWithTag, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { IAttachmentState } from 'src/shared/resources/attachments';
-import type {
-  ILayoutSets,
-  IMapping,
-  IRepeatingGroups,
-  ITextResource,
-} from 'src/types';
+import type { ILayoutSets, IMapping, IRepeatingGroups, ITextResource } from 'src/types';
 
 describe('setMappingForRepeatingGroupComponent', () => {
   it('should replace indexed mapping with the current index', () => {
@@ -389,12 +379,7 @@ describe('removeRepeatingGroupFromUIConfig', () => {
         index: 3,
       },
     };
-    const result = removeRepeatingGroupFromUIConfig(
-      repeatingGroups,
-      'Group2',
-      1,
-      false,
-    );
+    const result = removeRepeatingGroupFromUIConfig(repeatingGroups, 'Group2', 1, false);
     const expected: IRepeatingGroups = {
       Group: {
         index: 1,
@@ -418,12 +403,7 @@ describe('removeRepeatingGroupFromUIConfig', () => {
         index: 3,
       },
     };
-    const result = removeRepeatingGroupFromUIConfig(
-      repeatingGroups,
-      'Group2',
-      0,
-      true,
-    );
+    const result = removeRepeatingGroupFromUIConfig(repeatingGroups, 'Group2', 0, true);
     const expected: IRepeatingGroups = {
       Group: {
         index: 1,
@@ -509,12 +489,7 @@ describe('createRepeatingGroupComponents', () => {
       ],
     ];
 
-    const result = createRepeatingGroupComponents(
-      container,
-      [testLayout[1]],
-      1,
-      mockTextResources,
-    );
+    const result = createRepeatingGroupComponents(container, [testLayout[1]], 1, mockTextResources);
 
     expect(result).toEqual(expected);
   });
@@ -582,10 +557,7 @@ describe('createRepeatingGroupComponents', () => {
   });
 
   it('baseComponentId should never contain group index', () => {
-    const groupProps: Pick<
-      ILayoutGroup,
-      'type' | 'dataModelBindings' | 'textResourceBindings' | 'maxCount'
-    > = {
+    const groupProps: Pick<ILayoutGroup, 'type' | 'dataModelBindings' | 'textResourceBindings' | 'maxCount'> = {
       type: 'Group',
       dataModelBindings: {},
       textResourceBindings: { label: 't' },
@@ -628,14 +600,9 @@ describe('createRepeatingGroupComponents', () => {
       },
     ];
 
-    const result = createRepeatingGroupComponents(
-      layout[0] as ILayoutGroup,
-      layout,
-      1,
-      mockTextResources,
-    );
+    const result = createRepeatingGroupComponents(layout[0] as ILayoutGroup, layout, 1, mockTextResources);
 
-    const allBaseComponentIds = [];
+    const allBaseComponentIds: string[] = [];
     const findBaseComponentId = (obj: any) => {
       if (Array.isArray(obj)) {
         for (const item of obj) {
@@ -654,9 +621,7 @@ describe('createRepeatingGroupComponents', () => {
     };
 
     findBaseComponentId(result);
-    const numericBaseComponentIds = allBaseComponentIds.filter((id) =>
-      id.match(/\d+/),
-    );
+    const numericBaseComponentIds = allBaseComponentIds.filter((id) => id.match(/\d+/));
 
     expect(numericBaseComponentIds).toEqual([]);
   });
@@ -832,7 +797,7 @@ describe('findChildren', () => {
       {
         id: 'group1',
         type: 'Group',
-        children: ['0:field2', '1:field3:0'],
+        children: ['0:field2', '1:field3'],
         edit: { multiPage: true },
       } as ILayoutGroup,
       {
@@ -841,7 +806,7 @@ describe('findChildren', () => {
         type: 'Input',
       } as ILayoutComponent,
       {
-        id: 'field3:0',
+        id: 'field3',
         required: false,
         type: 'Input',
       } as ILayoutComponent,
@@ -860,7 +825,7 @@ describe('findChildren', () => {
     });
 
     expect(result2).toHaveLength(2);
-    expect(result2.map((c) => c.id)).toEqual(['field2', 'field3:0']);
+    expect(result2.map((c) => c.id)).toEqual(['field2', 'field3']);
   });
 
   it('should work with nested groups out-of-order', () => {

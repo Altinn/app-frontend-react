@@ -5,7 +5,7 @@ import type { IParty } from '../../types';
 import { logoutUrlAltinn } from '../../utils';
 
 export interface IAltinnAppHeaderMenuProps {
-  party: IParty;
+  party: IParty | undefined;
   logoColor: string;
   ariaLabel: string;
   logoutText: string;
@@ -57,9 +57,7 @@ function AltinnAppHeaderMenu(props: IAltinnAppHeaderMenuProps) {
         id='profile-icon-button'
       >
         <AltinnIcon
-          iconClass={`fa ${
-            party.orgNumber ? 'fa-corp-circle-big' : 'fa-private-circle-big'
-          }`}
+          iconClass={`fa ${party.orgNumber ? 'fa-corp-circle-big' : 'fa-private-circle-big'}`}
           iconColor={logoColor}
           iconSize={31}
         />

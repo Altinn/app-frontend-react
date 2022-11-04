@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { render as rtlRender, screen } from '@testing-library/react';
+import { mockComponentProps } from 'testUtils';
 
 import { MapComponent } from 'src/components/base/MapComponent';
 import type { IMapComponentProps } from 'src/components/base/MapComponent';
@@ -14,20 +15,17 @@ const render = (props: Partial<IMapComponentProps> = {}) => {
   };
 
   const allProps: IMapComponentProps = {
+    ...mockComponentProps,
     id: 'id',
     formData: {
       simpleBinding: undefined,
     },
-    handleDataChange: () => '',
-    getTextResource: (key: string) => key,
     isValid: true,
     dataModelBindings: {},
-    componentValidations: {},
     language: mockLanguage,
     readOnly: false,
     required: false,
     textResourceBindings: {},
-    ...({} as IMapComponentProps),
     ...props,
   };
 
@@ -50,9 +48,7 @@ describe('MapComponent', () => {
     });
 
     expect(screen.queryByText('No selected location')).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Selected location: 59.2641592,10.4036248'),
-    ).toBeInTheDocument();
+    expect(screen.queryByText('Selected location: 59.2641592,10.4036248')).toBeInTheDocument();
   });
 
   it('should mark map component with validation error when validation fails', () => {

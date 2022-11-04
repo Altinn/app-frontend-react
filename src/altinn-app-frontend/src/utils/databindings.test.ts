@@ -121,11 +121,49 @@ describe('utils/databindings.ts', () => {
   });
 
   describe('flattenObject', () => {
+    it('should return empty string as undefined when inside an object', () => {
+      // Testing brokenness to make sure the re-implementation to simplify flattenObject() keeps the
+      // same behaviour as the older one. This should be fixed when releasing a breaking change to
+      // support more data types.
+      testObj.anEmptyString = '';
+      testObj.anObject = { withEmptyString: '' };
+      testObj.anOtherObject = { withEmptyString: '', withContent: 'content' };
+      testObj.anArray = [{ withEmptyString: '', withContent: 'content' }];
+      const result = flattenObject(testObj);
+      expect(typeof result.anEmptyString).toBe('string');
+      expect(typeof result['anObject.withEmptyString']).toBe('undefined');
+      expect(typeof result['anObject.withContent']).toBe('undefined');
+      expect(typeof result['anOtherObject.withContent']).toBe('string');
+      expect(typeof result['anArray[0].withEmptyString']).toBe('undefined');
+      expect(typeof result['anArray[0].withContent']).toBe('string');
+    });
+
     it('should return property of type number as a string', () => {
       testObj.aNumber = 43;
       const result = flattenObject(testObj);
       expect(typeof result.aNumber).toBe('string');
       expect(result.aNumber).toBe('43');
+    });
+
+    it('should skip null values', () => {
+      testObj.aNull = null;
+      const result = flattenObject(testObj);
+      expect(typeof result.aNull).toBe('undefined');
+      expect('aNull' in result).toBe(false);
+    });
+
+    it('should return boolean as a string', () => {
+      testObj.aBool = true;
+      const result = flattenObject(testObj);
+      expect(typeof result.aBool).toBe('string');
+      expect(result.aBool).toBe('true');
+    });
+
+    it('should return float as a string', () => {
+      testObj.aFloat = 3.14159265;
+      const result = flattenObject(testObj);
+      expect(typeof result.aFloat).toBe('string');
+      expect(result.aFloat).toBe('3.14159265');
     });
 
     it('should return property of type number and value 0 as a string with character zero', () => {
@@ -278,26 +316,20 @@ describe('utils/databindings.ts', () => {
       expect(result).toEqual(expectedResult);
     });
 
-    it.each([{}, undefined, null])(
-      'should return an empty object if form data is %p',
-      (formData) => {
-        const mapping: IMapping = {
-          someSource: 'someTarget',
-        };
-        expect(mapFormData(formData, mapping)).toEqual({});
-      },
-    );
+    it.each([{}, undefined, null])('should return an empty object if form data is %p', (formData) => {
+      const mapping: IMapping = {
+        someSource: 'someTarget',
+      };
+      expect(mapFormData(formData as any, mapping)).toEqual({});
+    });
 
-    it.each([undefined, null])(
-      'should return whole form data object if mapping is %p',
-      (mapping) => {
-        const formData: IFormData = {
-          someField: 'someValue',
-          someOtherField: 'someOtherValue',
-        };
-        expect(mapFormData(formData, mapping)).toEqual(formData);
-      },
-    );
+    it.each([undefined, null])('should return whole form data object if mapping is %p', (mapping) => {
+      const formData: IFormData = {
+        someField: 'someValue',
+        someOtherField: 'someOtherValue',
+      };
+      expect(mapFormData(formData, mapping as any)).toEqual(formData);
+    });
   });
 
   describe('getFormDataFromFieldKey', () => {
@@ -307,22 +339,12 @@ describe('utils/databindings.ts', () => {
       'group[1].field': 'another value',
     };
     it('should return correct form data for a field not in a group', () => {
-      const result = getFormDataFromFieldKey(
-        'simpleBinding',
-        { simpleBinding: 'field1' },
-        formData,
-      );
+      const result = getFormDataFromFieldKey('simpleBinding', { simpleBinding: 'field1' }, formData);
       expect(result).toEqual('value1');
     });
 
     it('should return correct form data for a field in a group', () => {
-      const result = getFormDataFromFieldKey(
-        'simpleBinding',
-        { simpleBinding: 'group.field' },
-        formData,
-        'group',
-        1,
-      );
+      const result = getFormDataFromFieldKey('simpleBinding', { simpleBinding: 'group.field' }, formData, 'group', 1);
       expect(result).toEqual('another value');
     });
   });
@@ -355,7 +377,7 @@ describe('utils/databindings.ts', () => {
 
         const result = filterOutInvalidData({
           data: formData,
-          invalidKeys: value,
+          invalidKeys: value as any,
         });
 
         expect(result).toEqual({
@@ -372,17 +394,11 @@ describe('utils/databindings.ts', () => {
       const result = getBaseGroupDataModelBindingFromKeyWithIndexIndicators(
         'someBaseProp.someGroup[{0}].someOtherGroup[{1}].someProp',
       );
-      expect(result).toEqual([
-        'someBaseProp.someGroup',
-        'someBaseProp.someGroup.someOtherGroup',
-      ]);
+      expect(result).toEqual(['someBaseProp.someGroup', 'someBaseProp.someGroup.someOtherGroup']);
     });
 
     it('should return an empty array if no groups are present', () => {
-      const result =
-        getBaseGroupDataModelBindingFromKeyWithIndexIndicators(
-          'someField.someProp',
-        );
+      const result = getBaseGroupDataModelBindingFromKeyWithIndexIndicators('someField.someProp');
       expect(result).toEqual([]);
     });
   });
@@ -401,6 +417,8 @@ describe('utils/databindings.ts', () => {
       const result = getIndexCombinations(['Gruppe'], repeatingGroups);
 
       expect(result).toEqual(expected);
+
+      expect(getIndexCombinations(['NoeAnnet'], repeatingGroups)).toEqual([]);
     });
 
     it('should return correct combinations for nested repeating groups', () => {
@@ -431,10 +449,7 @@ describe('utils/databindings.ts', () => {
       };
 
       const expected = [[0], [1, 0], [1, 1], [2, 0], [2, 1], [2, 2]];
-      const result = getIndexCombinations(
-        ['Gruppe', 'Gruppe.UnderGruppe'],
-        repeatingGroups,
-      );
+      const result = getIndexCombinations(['Gruppe', 'Gruppe.UnderGruppe'], repeatingGroups);
       expect(result).toEqual(expected);
     });
 

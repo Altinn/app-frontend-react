@@ -28,30 +28,20 @@ export function* watchMapAttachmentsSaga(): SagaIterator {
   yield takeLatest(AttachmentActions.mapAttachments, mapAttachments);
 }
 
-export const SelectInstanceData = (state: IRuntimeState): IData[] =>
-  state.instanceData.instance.data;
-export const SelectInstance = (state: IRuntimeState): IInstance =>
-  state.instanceData.instance;
-export const SelectApplicationMetaData = (
-  state: IRuntimeState,
-): IApplicationMetadata => state.applicationMetadata.applicationMetadata;
-export const SelectFormData = (state: IRuntimeState): IFormData =>
-  state.formData.formData;
-export const SelectFormLayouts = (state: IRuntimeState): ILayouts =>
-  state.formLayout.layouts;
-export const SelectFormLayoutSets = (state: IRuntimeState): ILayoutSets =>
-  state.formLayout.layoutsets;
+export const SelectInstanceData = (state: IRuntimeState): IData[] | undefined => state.instanceData.instance?.data;
+export const SelectInstance = (state: IRuntimeState): IInstance | null => state.instanceData.instance;
+export const SelectApplicationMetaData = (state: IRuntimeState): IApplicationMetadata | null =>
+  state.applicationMetadata.applicationMetadata;
+export const SelectFormData = (state: IRuntimeState): IFormData => state.formData.formData;
+export const SelectFormLayouts = (state: IRuntimeState): ILayouts | null => state.formLayout.layouts;
+export const SelectFormLayoutSets = (state: IRuntimeState): ILayoutSets | null => state.formLayout.layoutsets;
 
 export function* mapAttachments(): SagaIterator {
   try {
     const instance = yield select(SelectInstance);
     const applicationMetadata = yield select(SelectApplicationMetaData);
     const layoutSets: ILayoutSets = yield select(SelectFormLayoutSets);
-    const defaultElement = getCurrentTaskData(
-      applicationMetadata,
-      instance,
-      layoutSets,
-    );
+    const defaultElement = getCurrentTaskData(applicationMetadata, instance, layoutSets);
 
     const formData = yield select(SelectFormData);
     const layouts = yield select(SelectFormLayouts);
@@ -59,7 +49,7 @@ export function* mapAttachments(): SagaIterator {
     const instanceAttachments: IData[] = yield select(SelectInstanceData);
     const mappedAttachments: IAttachments = mapAttachmentListToAttachments(
       instanceAttachments,
-      defaultElement.id,
+      defaultElement?.id,
       formData,
       layouts,
     );

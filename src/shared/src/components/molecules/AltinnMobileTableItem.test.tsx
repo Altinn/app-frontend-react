@@ -1,9 +1,6 @@
 import React from 'react';
 import { render as renderRtl, screen } from '@testing-library/react';
-import type {
-  IAltinnMobileTableItemProps,
-  IMobileTableItem,
-} from './AltinnMobileTableItem';
+import type { IAltinnMobileTableItemProps, IMobileTableItem } from './AltinnMobileTableItem';
 import AltinnMobileTableItem from './AltinnMobileTableItem';
 import userEvent from '@testing-library/user-event';
 
@@ -11,7 +8,19 @@ const user = userEvent.setup();
 
 describe('AltinnMobileTableItem', () => {
   it('renders delete icon-button when deleteIconNode is given as property', () => {
-    render({ deleteButtonText: 'Delete', deleteIconNode: ' i ' });
+    render({
+      deleteFunctionality: {
+        onDeleteClick: jest.fn(),
+        deleteButtonText: 'Delete',
+        deleteIconNode: <i></i>,
+        popoverOpen: false,
+        popoverPanelIndex: -1,
+        onPopoverDeleteClick: () => jest.fn(),
+        language: {},
+        onOpenChange: jest.fn(),
+        setPopoverOpen: jest.fn(),
+      },
+    });
 
     expect(
       screen.getByRole('button', {
@@ -32,13 +41,11 @@ describe('AltinnMobileTableItem', () => {
   it('triggers onEditClick when editbutton is present and clicked', async () => {
     const onEditClick = jest.fn();
     render({
-      deleteButtonText: 'Delete',
-      deleteIconNode: ' i ',
       onEditClick: onEditClick,
     });
 
     await user.click(
-      screen.queryByRole('button', {
+      screen.getByRole('button', {
         name: /edit-value1/i,
       }),
     );
@@ -49,13 +56,21 @@ describe('AltinnMobileTableItem', () => {
   it('triggers onDeleteClick when delete-button is present and clicked', async () => {
     const onDeleteClick = jest.fn();
     render({
-      deleteButtonText: 'Delete',
-      deleteIconNode: ' i ',
-      onDeleteClick: onDeleteClick,
+      deleteFunctionality: {
+        onDeleteClick: onDeleteClick,
+        deleteButtonText: 'Delete',
+        deleteIconNode: <i></i>,
+        popoverOpen: false,
+        popoverPanelIndex: -1,
+        onPopoverDeleteClick: () => jest.fn(),
+        language: {},
+        onOpenChange: jest.fn(),
+        setPopoverOpen: jest.fn(),
+      },
     });
 
     await user.click(
-      screen.queryByRole('button', {
+      screen.getByRole('button', {
         name: /delete-value1/i,
       }),
     );

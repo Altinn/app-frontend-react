@@ -15,32 +15,18 @@ import Presentation from 'src/shared/containers/Presentation';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
-import {
-  getActiveInstancesUrl,
-  getPartyValidationUrl,
-} from 'src/utils/appUrlHelper';
-import {
-  checkIfAxiosError,
-  get,
-  HttpStatusCodes,
-  post,
-} from 'src/utils/networking';
+import { getActiveInstancesUrl, getPartyValidationUrl } from 'src/utils/appUrlHelper';
+import { checkIfAxiosError, get, HttpStatusCodes, post } from 'src/utils/networking';
 import type { ShowTypes } from 'src/shared/resources/applicationMetadata';
 import type { ISimpleInstance } from 'src/types';
 
-import {
-  AltinnContentIconFormData,
-  AltinnContentLoader,
-} from 'altinn-shared/components';
+import { AltinnContentIconFormData, AltinnContentLoader } from 'altinn-shared/components';
 
 export default function Entrypoint({ allowAnonymous }: any) {
-  const [action, setAction] = React.useState<ShowTypes>(null);
-  const [partyValidation, setPartyValidation] = React.useState(null);
-  const [activeInstances, setActiveInstances] =
-    React.useState<ISimpleInstance[]>(null);
-  const applicationMetadata = useAppSelector(
-    (state) => state.applicationMetadata?.applicationMetadata,
-  );
+  const [action, setAction] = React.useState<ShowTypes | null>(null);
+  const [partyValidation, setPartyValidation] = React.useState<any | null>(null);
+  const [activeInstances, setActiveInstances] = React.useState<ISimpleInstance[] | null>(null);
+  const applicationMetadata = useAppSelector((state) => state.applicationMetadata?.applicationMetadata);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
   const statelessLoading = useAppSelector((state) => state.isLoading.stateless);
   const formDataError = useAppSelector((state) => state.formData.error);
@@ -53,12 +39,10 @@ export default function Entrypoint({ allowAnonymous }: any) {
   };
 
   React.useEffect(() => {
-    if (action === 'select-instance' && partyValidation?.valid) {
+    if (action === 'select-instance' && partyValidation?.valid && selectedParty) {
       const fetchExistingInstances = async () => {
         try {
-          const instances = await get(
-            getActiveInstancesUrl(selectedParty.partyId),
-          );
+          const instances = await get(getActiveInstancesUrl(selectedParty.partyId));
           setActiveInstances(instances || []);
         } catch (err) {
           console.error(err);
@@ -77,9 +61,7 @@ export default function Entrypoint({ allowAnonymous }: any) {
           return;
         }
         try {
-          const { data } = await post(
-            getPartyValidationUrl(selectedParty.partyId),
-          );
+          const { data } = await post(getPartyValidationUrl(selectedParty.partyId));
           setPartyValidation(data);
         } catch (err) {
           console.error(err);
@@ -117,7 +99,7 @@ export default function Entrypoint({ allowAnonymous }: any) {
   // error trying to fetch data, if missing rights we display relevant page
   if (checkIfAxiosError(formDataError)) {
     const axiosError = formDataError as AxiosError;
-    if (axiosError.response.status === HttpStatusCodes.Forbidden) {
+    if (axiosError.response?.status === HttpStatusCodes.Forbidden) {
       return <MissingRolesError />;
     }
   }
@@ -127,11 +109,7 @@ export default function Entrypoint({ allowAnonymous }: any) {
     return <InstantiateContainer />;
   }
 
-  if (
-    action === 'select-instance' &&
-    partyValidation?.valid &&
-    activeInstances !== null
-  ) {
+  if (action === 'select-instance' && partyValidation?.valid && activeInstances !== null) {
     if (activeInstances.length === 0) {
       // no existing instances exist, we start instantiation
       return <InstantiateContainer />;
@@ -139,7 +117,7 @@ export default function Entrypoint({ allowAnonymous }: any) {
     return (
       // let user decide if continuing on existing or starting new
       <Presentation
-        header={appName}
+        header={appName || ''}
         appOwner={appOwner}
         type={ProcessTaskType.Unknown}
       >
@@ -152,17 +130,14 @@ export default function Entrypoint({ allowAnonymous }: any) {
   }
 
   // stateless view
-  if (
-    isStatelessApp(applicationMetadata) &&
-    (allowAnonymous || partyValidation?.valid)
-  ) {
+  if (isStatelessApp(applicationMetadata) && (allowAnonymous || partyValidation?.valid)) {
     if (statelessLoading === null) {
       dispatch(QueueActions.startInitialStatelessQueue());
     }
     if (statelessLoading === false) {
       return (
         <Presentation
-          header={appName}
+          header={appName || ''}
           appOwner={appOwner}
           type={PresentationType.Stateless}
         >

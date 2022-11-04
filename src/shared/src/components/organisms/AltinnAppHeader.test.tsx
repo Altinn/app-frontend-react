@@ -18,17 +18,13 @@ describe('organisms/AltinnAppHeader', () => {
   } as IParty;
 
   const selfIdentifiedUser = {
-    childParties: null,
     isDeleted: false,
     name: 'uidp_brxzt8pt992',
     onlyHierarchyElementWithNoAccess: false,
     orgNumber: '',
-    organization: null,
     partyId: '52057791',
     partyTypeName: 3,
-    person: null,
     ssn: '',
-    unitType: null,
   } as IParty;
 
   const headerBackgroundColor = 'blue';
@@ -56,9 +52,7 @@ describe('organisms/AltinnAppHeader', () => {
     const profileButton = screen.getByRole('button', {
       name: /profilikon meny/i,
     });
-    expect(profileButton.firstChild.firstChild).toHaveClass(
-      'fa-private-circle-big',
-    );
+    expect(profileButton.firstChild?.firstChild).toHaveClass('fa-private-circle-big');
   });
 
   it('should render private icon for user without ssn or org number', () => {
@@ -66,9 +60,7 @@ describe('organisms/AltinnAppHeader', () => {
     const profileButton = screen.getByRole('button', {
       name: /profilikon meny/i,
     });
-    expect(profileButton.firstChild.firstChild).toHaveClass(
-      'fa-private-circle-big',
-    );
+    expect(profileButton.firstChild?.firstChild).toHaveClass('fa-private-circle-big');
   });
 
   it('should render org icon when party is org', () => {
@@ -76,9 +68,7 @@ describe('organisms/AltinnAppHeader', () => {
     const profileButton = screen.getByRole('button', {
       name: /profilikon meny/i,
     });
-    expect(profileButton.firstChild.firstChild).toHaveClass(
-      'fa-corp-circle-big',
-    );
+    expect(profileButton.firstChild?.firstChild).toHaveClass('fa-corp-circle-big');
   });
 
   it('should render menu with logout option when clicking profile icon', async () => {

@@ -7,14 +7,18 @@ type MapExtensionToAcceptMimeProps = {
 export const mapExtToMimeObject = (ext: string) => {
   const mimeType = mime.getType(ext);
 
+  if (!mimeType) {
+    return {
+      'application/octet-stream': [ext],
+    };
+  }
+
   return {
     [mimeType]: [ext],
   };
 };
 
-export const mapExtensionToAcceptMime = ({
-  extensionList,
-}: MapExtensionToAcceptMimeProps) => {
+export const mapExtensionToAcceptMime = ({ extensionList }: MapExtensionToAcceptMimeProps) => {
   if (extensionList.includes(',')) {
     extensionList = (extensionList as string).split(',');
   }
