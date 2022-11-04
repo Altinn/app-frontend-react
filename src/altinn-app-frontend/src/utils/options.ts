@@ -45,9 +45,7 @@ export function getOptionLookupKeys({
 }: IGetOptionLookupKeysParam): IOptionLookupKeys {
   const lookupKeys: IOptionsMetaData[] = [];
 
-  const mappingsWithIndexIndicators = Object.keys(mapping || {}).filter((key) =>
-    keyHasIndexIndicators(key),
-  );
+  const mappingsWithIndexIndicators = Object.keys(mapping || {}).filter((key) => keyHasIndexIndicators(key));
   if (mappingsWithIndexIndicators.length) {
     // create lookup keys for each index of the relevant repeating group
     mappingsWithIndexIndicators.forEach((mappingKey) => {
@@ -111,11 +109,7 @@ export function setupSourceOptions({
   repeatingGroups,
   dataSources,
 }: ISetupSourceOptionsParams) {
-  const replacedOptionLabels = replaceTextResourceParams(
-    [relevantTextResource],
-    dataSources,
-    repeatingGroups,
-  );
+  const replacedOptionLabels = replaceTextResourceParams([relevantTextResource], dataSources, repeatingGroups);
   const repGroup = Object.values(repeatingGroups || {}).find((group) => {
     return group.dataModelBinding === source.group;
   });

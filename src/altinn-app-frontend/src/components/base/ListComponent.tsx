@@ -38,11 +38,7 @@ export const ListComponent = ({
 
   const optionsHasChanged = useHasChangedIgnoreUndefined(appList);
 
-  const { value, setValue } = useDelayedSavedState(
-    handleDataChange,
-    formData?.simpleBinding,
-    200,
-  );
+  const { value, setValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
 
   const [selectedSort, setSelectedSort] = useState({
     idCell: 0,
@@ -64,10 +60,7 @@ export const ListComponent = ({
   };
 
   const fetchingOptions = useAppSelector(
-    (state) =>
-      state.appListState.appLists[
-        getAppListLookupKey({ id: appListId, mapping })
-      ]?.loading,
+    (state) => state.appListState.appLists[getAppListLookupKey({ id: appListId, mapping })]?.loading,
   );
 
   React.useEffect(() => {
@@ -85,9 +78,7 @@ export const ListComponent = ({
   const renderRow = (option) => {
     const cells = [];
     for (let i = 0; i < Object.keys(option).length; i++) {
-      cells.push(
-        <TableCell key={i}>{option[Object.keys(option)[i]]}</TableCell>,
-      );
+      cells.push(<TableCell key={i}>{option[Object.keys(option)[i]]}</TableCell>);
     }
     return cells;
   };
@@ -100,11 +91,7 @@ export const ListComponent = ({
           <TableCell
             onChange={handleSortChange}
             id={1}
-            sortDirecton={
-              selectedSort.idCell === 1
-                ? selectedSort.sortDirection
-                : SortDirection.NotActive
-            }
+            sortDirecton={selectedSort.idCell === 1 ? selectedSort.sortDirection : SortDirection.NotActive}
           >
             {header}
           </TableCell>,

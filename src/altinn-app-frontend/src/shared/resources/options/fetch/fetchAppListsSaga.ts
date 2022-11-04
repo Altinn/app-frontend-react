@@ -27,24 +27,17 @@ import type {
 
 import { get } from 'altinn-shared/utils';
 
-export const formLayoutSelector = (state: IRuntimeState): ILayouts =>
-  state.formLayout?.layouts;
-export const formDataSelector = (state: IRuntimeState) =>
-  state.formData.formData;
-export const appListsSelector = (state: IRuntimeState): IAppLists =>
-  state.appListState.appLists;
+export const formLayoutSelector = (state: IRuntimeState): ILayouts => state.formLayout?.layouts;
+export const formDataSelector = (state: IRuntimeState) => state.formData.formData;
+export const appListsSelector = (state: IRuntimeState): IAppLists => state.appListState.appLists;
 export const appListsWithIndexIndicatorsSelector = (state: IRuntimeState) =>
   state.appListState.appListsWithIndexIndicator;
-export const instanceIdSelector = (state: IRuntimeState): string =>
-  state.instanceData.instance?.id;
-export const repeatingGroupsSelector = (state: IRuntimeState) =>
-  state.formLayout?.uiConfig.repeatingGroups;
+export const instanceIdSelector = (state: IRuntimeState): string => state.instanceData.instance?.id;
+export const repeatingGroupsSelector = (state: IRuntimeState) => state.formLayout?.uiConfig.repeatingGroups;
 
 export function* fetchAppListsSaga(): SagaIterator {
   const layouts: ILayouts = yield selectNotNull(formLayoutSelector);
-  const repeatingGroups: IRepeatingGroups = yield selectNotNull(
-    repeatingGroupsSelector,
-  );
+  const repeatingGroups: IRepeatingGroups = yield selectNotNull(repeatingGroupsSelector);
   const fetchedAppLists: string[] = [];
   const appListsWithIndexIndicators = [];
   for (const layoutId of Object.keys(layouts)) {
@@ -88,11 +81,7 @@ export function* fetchAppListsSaga(): SagaIterator {
   );
 }
 
-export function* fetchSpecificAppListSaga({
-  appListId,
-  dataMapping,
-  secure,
-}: IFetchSpecificAppListSaga): SagaIterator {
+export function* fetchSpecificAppListSaga({ appListId, dataMapping, secure }: IFetchSpecificAppListSaga): SagaIterator {
   console.log('fetchSpecificOptionSaga');
   const key = getAppListLookupKey({ id: appListId, mapping: dataMapping });
   const instanceId = yield select(instanceIdSelector);
@@ -132,9 +121,7 @@ export function* checkIfAppListsShouldRefetchSaga({
   payload: { field },
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
   const appLists: IAppLists = yield select(appListsSelector);
-  const appListsWithIndexIndicators = yield select(
-    appListsWithIndexIndicatorsSelector,
-  );
+  const appListsWithIndexIndicators = yield select(appListsWithIndexIndicatorsSelector);
   let foundInExistingAppLists = false;
   for (const appListKey of Object.keys(appLists)) {
     const dataMapping = appLists[appListKey].mapping;
@@ -166,8 +153,7 @@ export function* checkIfAppListsShouldRefetchSaga({
       const newDataMapping = {};
 
       for (const key of Object.keys(mapping)) {
-        newDataMapping[replaceIndexIndicatorsWithIndexes(key, keys)] =
-          mapping[key];
+        newDataMapping[replaceIndexIndicatorsWithIndexes(key, keys)] = mapping[key];
       }
       yield fork(fetchSpecificAppListSaga, {
         appListId: id,

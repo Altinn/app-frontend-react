@@ -208,12 +208,7 @@ export const getOptionsUrl = ({
   return url.toString();
 };
 
-export const getAppListsUrl = ({
-  appListId,
-  dataMapping,
-  formData,
-  language,
-}: IGetAppListsUrlParams) => {
+export const getAppListsUrl = ({ appListId, dataMapping, formData, language }: IGetAppListsUrlParams) => {
   const url = new URL(`${appPath}/api/lists/${appListId}`);
 
   let params: Record<string, string> = {};

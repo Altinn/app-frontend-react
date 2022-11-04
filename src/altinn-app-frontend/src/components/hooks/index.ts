@@ -76,17 +76,12 @@ interface IUseGetListParams {
   source?: IOptionSource;
 }
 
-export const useGetAppListOptions = ({
-  appListId,
-  mapping,
-}: IUseGetListParams) => {
+export const useGetAppListOptions = ({ appListId, mapping }: IUseGetListParams) => {
   const appListState = useAppSelector((state) => state.appListState.appLists);
   const [appList, setAppList] = useState<any>(undefined);
   useEffect(() => {
     if (appListId) {
-      setAppList(
-        appListState[getOptionLookupKey({ id: appListId, mapping })]?.appLists,
-      );
+      setAppList(appListState[getOptionLookupKey({ id: appListId, mapping })]?.appLists);
     }
   }, [mapping, appListId, appListState]);
   return appList;

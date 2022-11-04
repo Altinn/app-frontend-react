@@ -1,11 +1,4 @@
-import type {
-  IAppList,
-  IAppLists,
-  IAppListsMetaData,
-  IOption,
-  IOptions,
-  IOptionsMetaData,
-} from 'src/types';
+import type { IAppList, IAppLists, IAppListsMetaData, IOption, IOptions, IOptionsMetaData } from 'src/types';
 
 export interface IOptionsState {
   error: Error | null;

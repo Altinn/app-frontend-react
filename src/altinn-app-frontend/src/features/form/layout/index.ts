@@ -2,15 +2,7 @@ import type { Location, MapLayer, TextField } from '@altinn/altinn-design-system
 import type { GridJustification, GridSize } from '@material-ui/core';
 
 import type { ExpressionOr } from 'src/features/expressions/types';
-import type {
-  IAppList,
-  ILabelSettings,
-  IMapping,
-  IOption,
-  IOptionSource,
-  LayoutStyle,
-  Triggers,
-} from 'src/types';
+import type { IAppList, ILabelSettings, IMapping, IOption, IOptionSource, LayoutStyle, Triggers } from 'src/types';
 
 export interface ILayouts {
   [id: string]: ILayout | undefined;
@@ -106,8 +98,7 @@ export interface ILayoutCompDatePicker extends ILayoutCompBase<'DatePicker'> {
   format?: string;
 }
 
-export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> &
-  ISelectionComponent;
+export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> & ISelectionComponent;
 export interface ILayoutCompList extends ILayoutCompBase<'List'> {
   tableHeaders?: string[];
   sortableColumns?: string[];
