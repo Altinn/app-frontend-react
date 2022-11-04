@@ -51,17 +51,10 @@ export function getOptionLookupKeys({
   if (mappingsWithIndexIndicators.length) {
     // create lookup keys for each index of the relevant repeating group
     mappingsWithIndexIndicators.forEach((mappingKey) => {
-      const baseGroupBindings =
-        getBaseGroupDataModelBindingFromKeyWithIndexIndicators(mappingKey);
-      const possibleCombinations = getIndexCombinations(
-        baseGroupBindings,
-        repeatingGroups,
-      );
+      const baseGroupBindings = getBaseGroupDataModelBindingFromKeyWithIndexIndicators(mappingKey);
+      const possibleCombinations = getIndexCombinations(baseGroupBindings, repeatingGroups);
       for (const possibleCombination of possibleCombinations) {
-        const newMappingKey = replaceIndexIndicatorsWithIndexes(
-          mappingKey,
-          possibleCombination,
-        );
+        const newMappingKey = replaceIndexIndicatorsWithIndexes(mappingKey, possibleCombination);
         const newMapping: IMapping = {
           ...mapping,
         };
@@ -83,19 +76,12 @@ export function getOptionLookupKeys({
   };
 }
 
-export function replaceOptionDataField(
-  formData: IFormData,
-  valueString: string,
-  index: number,
-) {
+export function replaceOptionDataField(formData: IFormData, valueString: string, index: number) {
   const indexedValueString = valueString.replace('{0}', index.toString());
   return formData[indexedValueString];
 }
 
-export function getRelevantFormDataForOptionSource(
-  formData: IFormData,
-  source: IOptionSource,
-) {
+export function getRelevantFormDataForOptionSource(formData: IFormData, source: IOptionSource) {
   const relevantFormData: IFormData = {};
   if (!formData || !source) {
     return relevantFormData;
@@ -114,7 +100,7 @@ interface ISetupSourceOptionsParams {
   source: IOptionSource;
   relevantTextResource: ITextResource;
   relevantFormData: IFormData;
-  repeatingGroups: IRepeatingGroups;
+  repeatingGroups: IRepeatingGroups | null;
   dataSources: IDataSources;
 }
 
@@ -130,9 +116,13 @@ export function setupSourceOptions({
     dataSources,
     repeatingGroups,
   );
-  const repGroup = Object.values(repeatingGroups).find((group) => {
+  const repGroup = Object.values(repeatingGroups || {}).find((group) => {
     return group.dataModelBinding === source.group;
   });
+
+  if (!repGroup) {
+    return undefined;
+  }
 
   const options: IOption[] = [];
   for (let i = 0; i <= repGroup.index; i++) {
@@ -161,13 +151,13 @@ export function removeGroupOptionsByIndex({
 }: IRemoveGroupOptionsByIndexParams) {
   const newOptions: IOptions = {};
   const repeatingGroup = repeatingGroups[groupId];
-  const groupDataBinding = getGroupDataModelBinding(
-    repeatingGroup,
-    groupId,
-    layout,
-  );
+  const groupDataBinding = getGroupDataModelBinding(repeatingGroup, groupId, layout);
   Object.keys(options || {}).forEach((optionKey) => {
-    const { mapping, id } = options[optionKey];
+    const { mapping, id } = options[optionKey] || {};
+    if (id === undefined) {
+      return;
+    }
+
     if (!mapping) {
       newOptions[optionKey] = options[optionKey];
       return;
@@ -186,20 +176,13 @@ export function removeGroupOptionsByIndex({
         ...mapping,
       };
       // the indexed to be deleted is lower than total indexes, shift all above
-      for (
-        let shiftIndex = index + 1;
-        shiftIndex <= repeatingGroup.index + 1;
-        shiftIndex++
-      ) {
+      for (let shiftIndex = index + 1; shiftIndex <= repeatingGroup.index + 1; shiftIndex++) {
         const shouldBeShifted = Object.keys(mapping).filter((mappingKey) => {
           return mappingKey.startsWith(`${groupDataBinding}[${shiftIndex}]`);
         });
 
         shouldBeShifted?.forEach((key) => {
-          const newKey = key.replace(
-            `${groupDataBinding}[${shiftIndex}]`,
-            `${groupDataBinding}[${shiftIndex - 1}]`,
-          );
+          const newKey = key.replace(`${groupDataBinding}[${shiftIndex}]`, `${groupDataBinding}[${shiftIndex - 1}]`);
           delete newMapping[key];
           newMapping[newKey] = mapping[key];
         });
@@ -210,6 +193,7 @@ export function removeGroupOptionsByIndex({
 
     newOptions[newOptionsKey] = {
       ...options[optionKey],
+      id,
       mapping: newMapping,
     };
   });

@@ -10,12 +10,9 @@ import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IRuntimeState } from 'src/types';
 
-const selectRuleConnection = (state: IRuntimeState): IRuleConnections =>
-  state.formDynamics.ruleConnection;
-const selectFormDataConnection = (state: IRuntimeState): IFormDataState =>
-  state.formData;
-const selectFormLayoutConnection = (state: IRuntimeState): ILayoutState =>
-  state.formLayout;
+const selectRuleConnection = (state: IRuntimeState): IRuleConnections | null => state.formDynamics.ruleConnection;
+const selectFormDataConnection = (state: IRuntimeState): IFormDataState => state.formData;
+const selectFormLayoutConnection = (state: IRuntimeState): ILayoutState => state.formLayout;
 
 export interface IResponse {
   ruleShouldRun: boolean;
@@ -28,30 +25,18 @@ export function* checkIfRuleShouldRunSaga({
   payload: { field, skipAutoSave, skipValidation },
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
   try {
-    const ruleConnectionState: IRuleConnections = yield select(
-      selectRuleConnection,
-    );
-    const formDataState: IFormDataState = yield select(
-      selectFormDataConnection,
-    );
-    const formLayoutState: ILayoutState = yield select(
-      selectFormLayoutConnection,
-    );
+    const ruleConnectionState: IRuleConnections | null = yield select(selectRuleConnection);
+    const formDataState: IFormDataState = yield select(selectFormDataConnection);
+    const formLayoutState: ILayoutState = yield select(selectFormLayoutConnection);
 
-    const rules: IResponse[] = checkIfRuleShouldRun(
-      ruleConnectionState,
-      formDataState,
-      formLayoutState.layouts,
-      field,
-    );
+    const rules: IResponse[] = checkIfRuleShouldRun(ruleConnectionState, formDataState, formLayoutState.layouts, field);
 
     if (rules.length > 0) {
       yield all(
         rules.map((rule) => {
-          const currentFormDataForField =
-            formDataState.formData[rule.dataBindingName];
+          const currentFormDataForField = formDataState.formData[rule.dataBindingName];
           if (currentFormDataForField === rule.result) {
-            return;
+            return undefined as any;
           }
 
           return put(
@@ -67,6 +52,6 @@ export function* checkIfRuleShouldRunSaga({
       );
     }
   } catch (err) {
-    yield call(console.error, 'Oh noes', err);
+    yield call(console.error, 'Unhandled error when running rule handler', err);
   }
 }

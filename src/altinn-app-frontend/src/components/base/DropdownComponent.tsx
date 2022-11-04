@@ -23,24 +23,18 @@ function DropdownComponent({
   source,
 }: IDropdownProps) {
   const options = useGetOptions({ optionsId, mapping, source });
-  const fetchingOptions = useAppSelector(
-    (state) =>
-      state.optionState.options[getOptionLookupKey({ id: optionsId, mapping })]
-        ?.loading,
-  );
+  const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
+  const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const hasSelectedInitial = React.useRef(false);
   const optionsHasChanged = useHasChangedIgnoreUndefined(options);
 
-  const { value, setValue, saveValue } = useDelayedSavedState(
-    handleDataChange,
-    formData?.simpleBinding,
-    200,
-  );
+  const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
 
   React.useEffect(() => {
     const shouldSelectOptionAutomatically =
       !formData?.simpleBinding &&
       options &&
+      typeof preselectedOptionIndex !== 'undefined' &&
       preselectedOptionIndex >= 0 &&
       preselectedOptionIndex < options.length &&
       hasSelectedInitial.current === false;

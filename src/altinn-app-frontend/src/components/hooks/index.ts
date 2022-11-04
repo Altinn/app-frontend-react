@@ -3,56 +3,42 @@ import { shallowEqual } from 'react-redux';
 
 import { useAppSelector } from 'src/common/hooks';
 import { buildInstanceContext } from 'src/utils/instanceContext';
-import {
-  getOptionLookupKey,
-  getRelevantFormDataForOptionSource,
-  setupSourceOptions,
-} from 'src/utils/options';
+import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import type { IMapping, IOption, IOptionSource } from 'src/types';
 
-import type { IDataSources, IInstanceContext } from 'altinn-shared/types';
+import type { IDataSources } from 'altinn-shared/types';
 
 interface IUseGetOptionsParams {
-  optionsId: string;
+  optionsId: string | undefined;
   mapping?: IMapping;
   source?: IOptionSource;
 }
 
-export const useGetOptions = ({
-  optionsId,
-  mapping,
-  source,
-}: IUseGetOptionsParams) => {
+export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsParams) => {
   const relevantFormData = useAppSelector(
-    (state) =>
-      getRelevantFormDataForOptionSource(state.formData.formData, source),
+    (state) => source && getRelevantFormDataForOptionSource(state.formData.formData, source),
     shallowEqual,
   );
   const instance = useAppSelector((state) => state.instanceData.instance);
-  const relevantTextResource = useAppSelector((state) =>
-    state.textResources.resources.find((e) => e.id === source?.label),
+  const relevantTextResource = useAppSelector(
+    (state) => source && state.textResources.resources.find((e) => e.id === source.label),
   );
-  const repeatingGroups = useAppSelector(
-    (state) => state.formLayout.uiConfig.repeatingGroups,
-  );
-  const applicationSettings = useAppSelector(
-    (state) => state.applicationSettings?.applicationSettings,
-  );
+  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
+  const applicationSettings = useAppSelector((state) => state.applicationSettings?.applicationSettings);
   const optionState = useAppSelector((state) => state.optionState.options);
-  const [options, setOptions] = useState<IOption[]>(undefined);
+  const [options, setOptions] = useState<IOption[] | undefined>(undefined);
 
   useEffect(() => {
     if (optionsId) {
-      setOptions(
-        optionState[getOptionLookupKey({ id: optionsId, mapping })]?.options,
-      );
+      const key = getOptionLookupKey({ id: optionsId, mapping });
+      setOptions(optionState[key]?.options);
     }
 
-    if (!source || !repeatingGroups) {
+    if (!source || !repeatingGroups || !relevantTextResource) {
       return;
     }
 
-    const instanceContext: IInstanceContext = buildInstanceContext(instance);
+    const instanceContext = buildInstanceContext(instance);
 
     const dataSources: IDataSources = {
       dataModel: relevantFormData,

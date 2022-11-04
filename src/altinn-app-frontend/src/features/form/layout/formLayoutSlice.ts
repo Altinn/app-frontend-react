@@ -26,10 +26,10 @@ import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 import type { ILayoutSets, IPagesSettings, IUiConfig } from 'src/types';
 
 export interface ILayoutState {
-  layouts: ILayouts;
-  error: Error;
+  layouts: ILayouts | null;
+  error: Error | null;
   uiConfig: IUiConfig;
-  layoutsets: ILayoutSets;
+  layoutsets: ILayoutSets | null;
 }
 
 export const initialState: ILayoutState = {
@@ -348,10 +348,7 @@ const formLayoutSlice = createSagaSlice(
 
 const updateCommonPageSettings = (
   state: ILayoutState,
-  page: Pick<
-    IPagesSettings,
-    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers'
-  >,
+  page: Pick<IPagesSettings, 'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers'>,
 ) => {
   const {
     hideCloseButton = state.uiConfig.hideCloseButton,

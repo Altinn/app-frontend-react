@@ -3,7 +3,7 @@ import React from 'react';
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from 'testUtils';
+import { mockComponentProps, renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
 
 import { CheckboxContainerComponent } from 'src/components/base/CheckboxesContainerComponent';
@@ -29,49 +29,43 @@ const threeOptions = [
 
 const twoOptions = threeOptions.slice(1);
 
-const render = (
-  props: Partial<ICheckboxContainerProps> = {},
-  customState: PreloadedState<RootState> = {},
-) => {
+const render = (props: Partial<ICheckboxContainerProps> = {}, customState: PreloadedState<RootState> = {}) => {
   const allProps: ICheckboxContainerProps = {
+    ...mockComponentProps,
     options: [],
     optionsId: 'countries',
     preselectedOptionIndex: undefined,
     validationMessages: {},
-    legend: 'legend',
+    legend: () => <span>legend</span>,
     handleDataChange: jest.fn(),
     getTextResource: (value) => value,
     getTextResourceAsString: (value) => value,
-    ...({} as ICheckboxContainerProps),
     ...props,
   };
 
-  const { container } = renderWithProviders(
-    <CheckboxContainerComponent {...allProps} />,
-    {
-      preloadedState: {
-        ...getInitialStateMock(),
-        optionState: {
-          options: {
-            countries: {
-              id: 'countries',
-              options: threeOptions,
-            },
-            loadingOptions: {
-              id: 'loadingOptions',
-              options: undefined,
-              loading: true,
-            },
+  const { container } = renderWithProviders(<CheckboxContainerComponent {...allProps} />, {
+    preloadedState: {
+      ...getInitialStateMock(),
+      optionState: {
+        options: {
+          countries: {
+            id: 'countries',
+            options: threeOptions,
           },
-          error: {
-            name: '',
-            message: '',
+          loadingOptions: {
+            id: 'loadingOptions',
+            options: undefined,
+            loading: true,
           },
         },
-        ...customState,
+        error: {
+          name: '',
+          message: '',
+        },
       },
+      ...customState,
     },
-  );
+  });
 
   return { container };
 };
@@ -114,9 +108,7 @@ describe('CheckboxContainerComponent', () => {
 
     expect(getCheckbox({ name: 'Norway' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
-    expect(
-      getCheckbox({ name: 'Denmark', isChecked: true }),
-    ).toBeInTheDocument();
+    expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
     expect(handleChange).not.toHaveBeenCalled();
   });
@@ -130,13 +122,9 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(
-      getCheckbox({ name: 'Norway', isChecked: true }),
-    ).toBeInTheDocument();
+    expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
-    expect(
-      getCheckbox({ name: 'Denmark', isChecked: true }),
-    ).toBeInTheDocument();
+    expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
     expect(handleChange).not.toHaveBeenCalledWith();
   });
@@ -161,9 +149,7 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(
-      getCheckbox({ name: 'Norway', isChecked: true }),
-    ).toBeInTheDocument();
+    expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
@@ -185,13 +171,9 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(
-      getCheckbox({ name: 'Norway', isChecked: true }),
-    ).toBeInTheDocument();
+    expect(getCheckbox({ name: 'Norway', isChecked: true })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
-    expect(
-      getCheckbox({ name: 'Denmark', isChecked: true }),
-    ).toBeInTheDocument();
+    expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
     await user.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
@@ -276,9 +258,7 @@ describe('CheckboxContainerComponent', () => {
 
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
-    expect(
-      container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length,
-    ).toBe(1);
+    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
   it('should show items in a row when layout is not defined, and options count is 2', () => {
@@ -300,9 +280,7 @@ describe('CheckboxContainerComponent', () => {
 
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
-    expect(
-      container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length,
-    ).toBe(1);
+    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
   it('should show items in a column when layout is "column" and options count is 2 ', () => {
@@ -325,9 +303,7 @@ describe('CheckboxContainerComponent', () => {
 
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
-    expect(
-      container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length,
-    ).toBe(0);
+    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 
   it('should show items in a columns when layout is not defined, and options count is 3', () => {
@@ -337,9 +313,7 @@ describe('CheckboxContainerComponent', () => {
 
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
-    expect(
-      container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length,
-    ).toBe(0);
+    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
@@ -354,16 +328,10 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(
-      getCheckbox({ name: 'The value from the group is: Label for first' }),
-    ).toBeInTheDocument();
-    expect(
-      getCheckbox({ name: 'The value from the group is: Label for second' }),
-    ).toBeInTheDocument();
+    expect(getCheckbox({ name: 'The value from the group is: Label for first' })).toBeInTheDocument();
+    expect(getCheckbox({ name: 'The value from the group is: Label for second' })).toBeInTheDocument();
 
-    await user.click(
-      getCheckbox({ name: 'The value from the group is: Label for second' }),
-    );
+    await user.click(getCheckbox({ name: 'The value from the group is: Label for second' }));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 

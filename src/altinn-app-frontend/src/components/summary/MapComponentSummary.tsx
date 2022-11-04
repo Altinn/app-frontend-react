@@ -7,10 +7,7 @@ import { useAppSelector } from 'src/common/hooks';
 import { parseLocation, useStyles } from 'src/components/base/MapComponent';
 import type { ILayoutCompMap } from 'src/features/form/layout';
 
-import {
-  getLanguageFromKey,
-  getParsedLanguageFromKey,
-} from 'altinn-shared/utils';
+import { getLanguageFromKey, getParsedLanguageFromKey } from 'altinn-shared/utils';
 
 export interface IMapComponentSummary {
   component: ILayoutCompMap;
@@ -22,11 +19,12 @@ function MapComponentSummary({ component, formData }: IMapComponentSummary) {
   const layers = component.layers;
   const location = formData ? parseLocation(formData) : undefined;
   const language = useAppSelector((state) => state.language.language);
+  if (!language) {
+    return null;
+  }
+
   const footerText = location
-    ? getParsedLanguageFromKey('map_component.selectedLocation', language, [
-        location.latitude,
-        location.longitude,
-      ])
+    ? getParsedLanguageFromKey('map_component.selectedLocation', language, [location.latitude, location.longitude])
     : getLanguageFromKey('map_component.noSelectedLocation', language);
 
   return (

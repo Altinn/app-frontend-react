@@ -2,7 +2,7 @@ import { Typography, makeStyles } from '@material-ui/core';
 import React from 'react';
 
 export interface IReceiptComponentProps {
-  body: string;
+  body: string | JSX.Element | JSX.Element[];
   title: string;
 }
 
@@ -15,10 +15,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export function ReceiptComponentSimple({
-  title,
-  body,
-}: IReceiptComponentProps) {
+export function ReceiptComponentSimple({ title, body }: IReceiptComponentProps) {
   const classes = useStyles();
 
   return (

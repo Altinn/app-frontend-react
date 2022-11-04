@@ -10,19 +10,12 @@ import { getRedirectUrl } from 'src/utils/appUrlHelper';
 import { getNextView } from 'src/utils/formLayout';
 import { get } from 'src/utils/networking';
 
-import {
-  AltinnAppHeader,
-  AltinnSubstatusPaper,
-} from 'altinn-shared/components';
+import { AltinnAppHeader, AltinnSubstatusPaper } from 'altinn-shared/components';
 import { AltinnAppTheme } from 'altinn-shared/theme';
-import {
-  getTextResourceByKey,
-  returnUrlFromQueryParameter,
-  returnUrlToMessagebox,
-} from 'altinn-shared/utils';
+import { getTextResourceByKey, returnUrlFromQueryParameter, returnUrlToMessagebox } from 'altinn-shared/utils';
 
 export interface IPresentationProvidedProps {
-  header: string;
+  header?: string | JSX.Element | JSX.Element[];
   appOwner?: string;
   type: ProcessTaskType | PresentationType;
   children?: JSX.Element;
@@ -38,23 +31,18 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
   const language = useAppSelector((state) => state.language.language || {});
   const instance = useAppSelector((state) => state.instanceData?.instance);
   const userParty = useAppSelector((state) => state.profile.profile?.party);
-  const textResources = useAppSelector(
-    (state) => state.textResources.resources,
-  );
+  const textResources = useAppSelector((state) => state.textResources.resources);
 
   const previousFormPage: string = useAppSelector((state) =>
     getNextView(
-      state.formLayout.uiConfig.navigationConfig[
-        state.formLayout.uiConfig.currentView
-      ],
+      state.formLayout.uiConfig.navigationConfig &&
+        state.formLayout.uiConfig.navigationConfig[state.formLayout.uiConfig.currentView],
       getLayoutOrderFromTracks(state.formLayout.uiConfig.tracks),
       state.formLayout.uiConfig.currentView,
       true,
     ),
   );
-  const returnToView = useAppSelector(
-    (state) => state.formLayout.uiConfig.returnToView,
-  );
+  const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
 
   const handleBackArrowButton = () => {
     if (returnToView) {
@@ -64,38 +52,30 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
           runValidations: 'allPages',
         }),
       );
-    } else if (
-      props.type === ProcessTaskType.Data ||
-      props.type === PresentationType.Stateless
-    ) {
-      dispatch(
-        FormLayoutActions.updateCurrentView({ newView: previousFormPage }),
-      );
+    } else if (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless) {
+      dispatch(FormLayoutActions.updateCurrentView({ newView: previousFormPage }));
     }
   };
 
   const handleModalCloseButton = () => {
     const queryParameterReturnUrl = returnUrlFromQueryParameter();
-    const messageBoxUrl = returnUrlToMessagebox(
-      window.location.origin,
-      party?.partyId,
-    );
-    if (!queryParameterReturnUrl) {
+    const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId);
+    if (!queryParameterReturnUrl && messageBoxUrl) {
       window.location.href = messageBoxUrl;
       return;
     }
 
-    get(getRedirectUrl(queryParameterReturnUrl))
-      .then((response) => response)
-      .catch(() => messageBoxUrl)
-      .then((returnUrl) => {
-        window.location.href = returnUrl;
-      });
+    if (queryParameterReturnUrl) {
+      get(getRedirectUrl(queryParameterReturnUrl))
+        .then((response) => response)
+        .catch(() => messageBoxUrl)
+        .then((returnUrl) => {
+          window.location.href = returnUrl;
+        });
+    }
   };
 
-  const isProcessStepsArchived = Boolean(
-    props.type === ProcessTaskType.Archived,
-  );
+  const isProcessStepsArchived = Boolean(props.type === ProcessTaskType.Archived);
   const backgroundColor = isProcessStepsArchived
     ? AltinnAppTheme.altinnPalette.primary.greenLight
     : AltinnAppTheme.altinnPalette.primary.greyLight;
@@ -107,7 +87,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
       style={style}
     >
       <AltinnAppHeader
-        party={party}
+        party={party || undefined}
         userParty={userParty}
         logoColor={AltinnAppTheme.altinnPalette.primary.blueDarker}
         headerBackgroundColor={backgroundColor}
@@ -118,23 +98,15 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
           <div className='col-xl-12 a-p-static'>
             {isProcessStepsArchived && instance?.status?.substatus && (
               <AltinnSubstatusPaper
-                label={getTextResourceByKey(
-                  instance.status.substatus.label,
-                  textResources,
-                )}
-                description={getTextResourceByKey(
-                  instance.status.substatus.description,
-                  textResources,
-                )}
+                label={getTextResourceByKey(instance.status.substatus.label, textResources)}
+                description={getTextResourceByKey(instance.status.substatus.description, textResources)}
               />
             )}
             <NavBar
               handleClose={handleModalCloseButton}
               handleBack={handleBackArrowButton}
               showBackArrow={
-                !!previousFormPage &&
-                (props.type === ProcessTaskType.Data ||
-                  props.type === PresentationType.Stateless)
+                !!previousFormPage && (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless)
               }
             />
             <div className='a-modal-content-target'>
@@ -145,9 +117,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
                     id='main-content'
                   >
                     <Header {...props} />
-                    <div className='modal-body a-modal-body'>
-                      {props.children}
-                    </div>
+                    <div className='modal-body a-modal-body'>{props.children}</div>
                   </section>
                 </div>
               </div>

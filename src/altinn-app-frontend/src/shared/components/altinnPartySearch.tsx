@@ -26,22 +26,20 @@ function AltinnPartySearch({ onSearchUpdated }: IAltinnPartySearchProps) {
     onSearchUpdated(e.target.value);
   };
 
+  if (!language) {
+    return null;
+  }
+
   return (
     <Grid
       container={true}
       className={classes.partySearchContainer}
     >
       <AltinnInput
-        label={getLanguageFromKey(
-          'party_selection.search_placeholder',
-          language,
-        )}
+        label={getLanguageFromKey('party_selection.search_placeholder', language)}
         showLabel={false}
         onChange={handleChange}
-        placeholder={getLanguageFromKey(
-          'party_selection.search_placeholder',
-          language,
-        )}
+        placeholder={getLanguageFromKey('party_selection.search_placeholder', language)}
         iconString='fa fa-others'
       />
     </Grid>

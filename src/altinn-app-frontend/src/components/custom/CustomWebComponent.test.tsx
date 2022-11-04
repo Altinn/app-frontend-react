@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { renderWithProviders } from 'testUtils';
+import { mockComponentProps, renderWithProviders } from 'testUtils';
 
 import CustomWebComponent from 'src/components/custom/CustomWebComponent';
 import type { ICustomComponentProps } from 'src/components/custom/CustomWebComponent';
@@ -20,9 +20,7 @@ describe('CustomWebComponent', () => {
     const screen = render({ tagName: 'test-component' });
     const element = screen.getByTestId('test-component');
     expect(element.id).toEqual('test-component');
-    expect(element.getAttribute('data-CustomAttributeWithJson')).toEqual(
-      JSON.stringify(jsonAttributeValue),
-    );
+    expect(element.getAttribute('data-CustomAttributeWithJson')).toEqual(JSON.stringify(jsonAttributeValue));
   });
 
   it('should render the component with passed props as attributes', () => {
@@ -40,6 +38,7 @@ describe('CustomWebComponent', () => {
 
   const render = (providedProps?: Partial<ICustomComponentProps>) => {
     const allProps: ICustomComponentProps = {
+      ...mockComponentProps,
       id: 'test-component',
       tagName: '',
       formData: { simpleBinding: 'This is a test' },
@@ -55,8 +54,6 @@ describe('CustomWebComponent', () => {
       isValid: true,
       language: {},
       shouldFocus: false,
-      legend: null,
-      label: null,
       textResourceBindings: {
         title: 'title',
       },

@@ -7,7 +7,7 @@ import type { ITextResource, ITextResourceBindings } from 'src/types';
 import { getTextResourceByKey } from 'altinn-shared/utils';
 
 export type ICustomComponentProps = PropsFromGenericComponent<'Custom'> & {
-  [key: string]: string | number | boolean | object;
+  [key: string]: string | number | boolean | object | null | undefined;
 };
 
 function CustomWebComponent({
@@ -22,10 +22,8 @@ function CustomWebComponent({
   ...passThroughProps
 }: ICustomComponentProps) {
   const Tag = tagName;
-  const wcRef = React.useRef(null);
-  const textResources = useAppSelector(
-    (state) => state.textResources.resources,
-  );
+  const wcRef = React.useRef<any>(null);
+  const textResources = useAppSelector((state) => state.textResources.resources);
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
@@ -45,11 +43,7 @@ function CustomWebComponent({
   React.useLayoutEffect(() => {
     const { current } = wcRef;
     if (current) {
-      current.texts = getTextsForComponent(
-        textResourceBindings,
-        textResources,
-        false,
-      );
+      current.texts = getTextsForComponent(textResourceBindings || {}, textResources, false);
       current.dataModelBindings = dataModelBindings;
       current.language = language;
     }
@@ -94,10 +88,7 @@ function getTextsForComponent(
 ) {
   const result: any = {};
   Object.keys(textResourceBindings).forEach((key) => {
-    result[key] = getTextResourceByKey(
-      textResourceBindings[key],
-      textResources,
-    );
+    result[key] = getTextResourceByKey(textResourceBindings[key], textResources);
   });
 
   if (stringify) {

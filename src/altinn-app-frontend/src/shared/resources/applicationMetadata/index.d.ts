@@ -15,19 +15,15 @@ export interface IApplicationMetadata {
 }
 
 export interface IApplicationMetadataState {
-  applicationMetadata: IApplicationMetadata;
-  error: Error;
+  applicationMetadata: IApplicationMetadata | null;
+  error: Error | null;
 }
 
 export interface IOnEntry {
   show: ShowTypes;
 }
 
-export type ShowTypes =
-  | 'new-instance'
-  | 'select-instance'
-  | 'startpage'
-  | string;
+export type ShowTypes = 'new-instance' | 'select-instance' | 'startpage' | string;
 
 interface IPartyTypesAllowed {
   bankruptcyEstate: boolean;

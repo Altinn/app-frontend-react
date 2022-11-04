@@ -25,11 +25,7 @@ import {
   selectComponentTexts,
 } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type {
-  IComponentProps,
-  IFormComponentContext,
-  PropsFromGenericComponent,
-} from 'src/components';
+import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/components';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type {
   ComponentExceptGroup,
@@ -54,8 +50,7 @@ export interface IGenericComponentProps {
  * The IGenericComponentProps type above defines which properties a GenericComponent gets, but it always also gets the
  * component definition from the layout file as well. Blending these two here.
  */
-export type IActualGenericComponentProps<Type extends ComponentTypes> =
-  IGenericComponentProps & ILayoutCompBase<Type>;
+export type IActualGenericComponentProps<Type extends ComponentTypes> = IGenericComponentProps & ILayoutCompBase<Type>;
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -103,46 +98,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function GenericComponent<Type extends ComponentExceptGroup>(
-  _props: IActualGenericComponentProps<Type>,
-) {
-  const props = useExpressionsForComponent(
-    _props as ILayoutComponent,
-  ) as ExprResolved<IActualGenericComponentProps<Type>> & {
+export function GenericComponent<Type extends ComponentExceptGroup>(_props: IActualGenericComponentProps<Type>) {
+  const props = useExpressionsForComponent(_props as ILayoutComponent) as ExprResolved<
+    IActualGenericComponentProps<Type>
+  > & {
     type: Type;
   };
   const { id, ...passThroughProps } = props;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);
-  const gridRef = React.useRef<HTMLDivElement>();
+  const gridRef = React.useRef<HTMLDivElement>(null);
   const GetHiddenSelector = makeGetHidden();
   const GetFocusSelector = makeGetFocus();
-  const [hasValidationMessages, setHasValidationMessages] =
-    React.useState(false);
+  const [hasValidationMessages, setHasValidationMessages] = React.useState(false);
 
   const formData = useAppSelector(
-    (state) =>
-      getFormDataForComponent(state.formData.formData, props.dataModelBindings),
+    (state) => getFormDataForComponent(state.formData.formData, props.dataModelBindings),
     shallowEqual,
   );
-  const currentView = useAppSelector(
-    (state) => state.formLayout.uiConfig.currentView,
-  );
+  const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const isValid = useAppSelector((state) =>
-    isComponentValid(
-      state.formValidations.validations[currentView]?.[props.id],
-    ),
+    isComponentValid(state.formValidations.validations[currentView]?.[props.id]),
   );
   const language = useAppSelector((state) => state.language.language);
-  const textResources = useAppSelector(
-    (state) => state.textResources.resources,
-  );
+  const textResources = useAppSelector((state) => state.textResources.resources);
 
   const texts = useAppSelector((state) =>
-    selectComponentTexts(
-      state.textResources.resources,
-      props.textResourceBindings,
-    ),
+    selectComponentTexts(state.textResources.resources, props.textResourceBindings),
   );
 
   const hidden = useAppSelector((state) => GetHiddenSelector(state, props));
@@ -161,18 +143,17 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   }, [props.baseComponentId, props.grid, props.id]);
 
   React.useEffect(() => {
-    setHasValidationMessages(
-      componentHasValidationMessages(componentValidations),
-    );
+    setHasValidationMessages(componentHasValidationMessages(componentValidations));
   }, [componentValidations]);
 
   React.useLayoutEffect(() => {
     if (!hidden && shouldFocus && gridRef.current) {
       gridRef.current.scrollIntoView();
 
-      const maybeInput = gridRef.current.querySelector(
-        'input,textarea,select',
-      ) as HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement;
+      const maybeInput = gridRef.current.querySelector('input,textarea,select') as
+        | HTMLSelectElement
+        | HTMLInputElement
+        | HTMLTextAreaElement;
       if (maybeInput) {
         maybeInput.focus();
       }
@@ -180,14 +161,11 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
     }
   }, [shouldFocus, hidden, dispatch]);
 
-  if (hidden) {
+  if (hidden || !language) {
     return null;
   }
 
-  const handleDataChange: IComponentProps['handleDataChange'] = (
-    value,
-    options = {},
-  ) => {
+  const handleDataChange: IComponentProps['handleDataChange'] = (value, options = {}) => {
     const { key = 'simpleBinding', validate = true } = options;
 
     if (!props.dataModelBindings || !props.dataModelBindings[key]) {
@@ -335,10 +313,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
   ];
 
   const showValidationMessages =
-    componentValidationsHandledByGenericComponent(
-      props.dataModelBindings,
-      props.type,
-    ) && hasValidationMessages;
+    componentValidationsHandledByGenericComponent(props.dataModelBindings, props.type) && hasValidationMessages;
 
   if (props.type === 'Likert' && props.layout === LayoutStyle.Table) {
     return <RenderComponent {...componentProps} />;
@@ -382,10 +357,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(
         >
           <RenderComponent {...componentProps} />
           {showValidationMessages &&
-            renderValidationMessagesForComponent(
-              componentValidations?.simpleBinding,
-              props.id,
-            )}
+            renderValidationMessagesForComponent(componentValidations?.simpleBinding, props.id)}
         </Grid>
       </Grid>
     </FormComponentContext.Provider>
@@ -412,16 +384,16 @@ const RenderLabelScoped = (props: IRenderLabelProps) => {
   );
 };
 
-const gridToHiddenProps = (
-  labelGrid: IGridStyling,
-  classes: ReturnType<typeof useStyles>,
-) => {
-  if (!labelGrid) return undefined;
+const gridToHiddenProps = (labelGrid: IGridStyling | undefined, classes: ReturnType<typeof useStyles>) => {
+  if (!labelGrid) {
+    return undefined;
+  }
+
   return {
-    [classes.xs]: labelGrid.xs > 0 && labelGrid.xs < 12,
-    [classes.sm]: labelGrid.sm > 0 && labelGrid.sm < 12,
-    [classes.md]: labelGrid.md > 0 && labelGrid.md < 12,
-    [classes.lg]: labelGrid.lg > 0 && labelGrid.lg < 12,
-    [classes.xl]: labelGrid.xl > 0 && labelGrid.xl < 12,
+    [classes.xs]: labelGrid.xs !== undefined && labelGrid.xs > 0 && labelGrid.xs < 12,
+    [classes.sm]: labelGrid.sm !== undefined && labelGrid.sm > 0 && labelGrid.sm < 12,
+    [classes.md]: labelGrid.md !== undefined && labelGrid.md > 0 && labelGrid.md < 12,
+    [classes.lg]: labelGrid.lg !== undefined && labelGrid.lg > 0 && labelGrid.lg < 12,
+    [classes.xl]: labelGrid.xl !== undefined && labelGrid.xl > 0 && labelGrid.xl < 12,
   };
 };

@@ -74,10 +74,7 @@ interface INavigationButton {
 }
 
 const NavigationButton = React.forwardRef(
-  (
-    { onClick, hidden = false, children, current, ...rest }: INavigationButton,
-    ref: any,
-  ) => {
+  ({ onClick, hidden = false, children, current, ...rest }: INavigationButton, ref: any) => {
     const classes = useStyles();
 
     return (
@@ -104,19 +101,11 @@ export const NavigationBar = ({ triggers }: INavigationBar) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const pageIds = useAppSelector(selectLayoutOrder);
-  const returnToView = useAppSelector(
-    (state) => state.formLayout.uiConfig.returnToView,
-  );
-  const pageTriggers = useAppSelector(
-    (state) => state.formLayout.uiConfig.pageTriggers,
-  );
+  const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
+  const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
   const pageOrPropTriggers = triggers || pageTriggers;
-  const textResources = useAppSelector(
-    (state) => state.textResources.resources,
-  );
-  const currentPageId = useAppSelector(
-    (state) => state.formLayout.uiConfig.currentView,
-  );
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const currentPageId = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const language = useAppSelector((state) => state.language.language);
   const [showMenu, setShowMenu] = React.useState(false);
   const theme = useTheme();
@@ -128,19 +117,12 @@ export const NavigationBar = ({ triggers }: INavigationBar) => {
       return setShowMenu(false);
     }
 
-    const runPageValidations =
-      !returnToView && pageOrPropTriggers?.includes(Triggers.ValidatePage);
-    const runAllValidations =
-      returnToView || pageOrPropTriggers?.includes(Triggers.ValidateAllPages);
+    const runPageValidations = !returnToView && pageOrPropTriggers?.includes(Triggers.ValidatePage);
+    const runAllValidations = returnToView || pageOrPropTriggers?.includes(Triggers.ValidateAllPages);
 
-    const runValidations =
-      (runAllValidations && 'allPages') ||
-      (runPageValidations && 'page') ||
-      null;
+    const runValidations = (runAllValidations && 'allPages') || (runPageValidations && 'page') || undefined;
 
-    dispatch(
-      FormLayoutActions.updateCurrentView({ newView: pageId, runValidations }),
-    );
+    dispatch(FormLayoutActions.updateCurrentView({ newView: pageId, runValidations }));
   };
 
   const shouldShowMenu = isMobile === false || showMenu;
@@ -152,9 +134,13 @@ export const NavigationBar = ({ triggers }: INavigationBar) => {
   React.useLayoutEffect(() => {
     const shouldFocusFirstItem = firstPageLink.current && showMenu === true;
     if (shouldFocusFirstItem) {
-      firstPageLink.current.focus();
+      firstPageLink.current?.focus();
     }
   }, [showMenu]);
+
+  if (!language || !pageIds) {
+    return null;
+  }
 
   return (
     <Grid container>
@@ -163,13 +149,7 @@ export const NavigationBar = ({ triggers }: INavigationBar) => {
         component='nav'
         xs={12}
         role='navigation'
-        aria-label={getTextFromAppOrDefault(
-          'general.navigation_form',
-          textResources,
-          language,
-          undefined,
-          true,
-        )}
+        aria-label={getTextFromAppOrDefault('general.navigation_form', textResources, language, undefined, true)}
       >
         {isMobile && (
           <NavigationButton
@@ -182,8 +162,7 @@ export const NavigationBar = ({ triggers }: INavigationBar) => {
           >
             <span className={classes.dropdownMenuContent}>
               <span>
-                {pageIds.indexOf(currentPageId) + 1}/{pageIds.length}{' '}
-                {getTextResource(currentPageId, textResources)}
+                {pageIds.indexOf(currentPageId) + 1}/{pageIds.length} {getTextResource(currentPageId, textResources)}
               </span>
               <i className={cn('ai ai-arrow-down', classes.dropdownIcon)} />
             </span>

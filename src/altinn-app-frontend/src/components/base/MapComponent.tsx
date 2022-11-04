@@ -6,10 +6,7 @@ import type { Location } from '@altinn/altinn-design-system';
 
 import type { PropsFromGenericComponent } from 'src/components';
 
-import {
-  getLanguageFromKey,
-  getParsedLanguageFromKey,
-} from 'altinn-shared/utils';
+import { getLanguageFromKey, getParsedLanguageFromKey } from 'altinn-shared/utils';
 
 export type IMapComponentProps = PropsFromGenericComponent<'Map'>;
 
@@ -30,24 +27,15 @@ export function MapComponent({
   zoom,
 }: IMapComponentProps) {
   const classes = useStyles();
-  const location = formData.simpleBinding
-    ? parseLocation(formData.simpleBinding)
-    : undefined;
+  const location = formData.simpleBinding ? parseLocation(formData.simpleBinding) : undefined;
 
   const footerText = location
-    ? getParsedLanguageFromKey('map_component.selectedLocation', language, [
-        location.latitude,
-        location.longitude,
-      ])
+    ? getParsedLanguageFromKey('map_component.selectedLocation', language, [location.latitude, location.longitude])
     : getLanguageFromKey('map_component.noSelectedLocation', language);
 
   const handleMapClicked = ({ latitude, longitude }: Location) => {
     const fractionDigits = 6;
-    handleDataChange(
-      `${latitude.toFixed(fractionDigits)},${longitude.toFixed(
-        fractionDigits,
-      )}`,
-    );
+    handleDataChange(`${latitude.toFixed(fractionDigits)},${longitude.toFixed(fractionDigits)}`);
   };
 
   return (
@@ -65,7 +53,7 @@ export function MapComponent({
   );
 }
 
-export function parseLocation(locationString: string): Location {
+export function parseLocation(locationString: string): Location | undefined {
   const latLonArray = locationString.split(',');
   if (latLonArray.length != 2) {
     console.error(`Invalid location string: ${locationString}`);

@@ -28,9 +28,8 @@ export function* getProcessStateSaga(): SagaIterator {
     } else {
       yield put(
         ProcessActions.getFulfilled({
-          processStep: processState.currentTask
-            .altinnTaskType as ProcessTaskType,
-          taskId: processState.currentTask.elementId,
+          processStep: processState.currentTask?.altinnTaskType as ProcessTaskType,
+          taskId: processState.currentTask?.elementId || null,
         }),
       );
     }

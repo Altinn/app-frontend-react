@@ -26,24 +26,23 @@ const slice = createSagaSlice((mkAction: MkActionType<IFormDynamicState>) => ({
   name: 'formDynamics',
   initialState,
   actions: {
-    checkIfConditionalRulesShouldRun:
-      mkAction<ICheckIfConditionalRulesShouldRun>({
-        takeLatest: checkIfConditionalRulesShouldRunSaga,
-        saga: () =>
-          function* (): SagaIterator {
-            while (true) {
-              yield all([
-                take(FormLayoutActions.fetchFulfilled),
-                take(FormDataActions.fetchFulfilled),
-                take(FormDynamicsActions.fetchFulfilled),
-                take(FormRulesActions.fetchFulfilled),
-                take(FormLayoutActions.updateRepeatingGroupsFulfilled),
-              ]);
-              yield call(checkIfConditionalRulesShouldRunSaga);
-            }
-          },
-      }),
-    fetch: mkAction<IFetchServiceConfigFulfilled>({
+    checkIfConditionalRulesShouldRun: mkAction<ICheckIfConditionalRulesShouldRun>({
+      takeLatest: checkIfConditionalRulesShouldRunSaga,
+      saga: () =>
+        function* (): SagaIterator {
+          while (true) {
+            yield all([
+              take(FormLayoutActions.fetchFulfilled),
+              take(FormDataActions.fetchFulfilled),
+              take(FormDynamicsActions.fetchFulfilled),
+              take(FormRulesActions.fetchFulfilled),
+              take(FormLayoutActions.updateRepeatingGroupsFulfilled),
+            ]);
+            yield call(checkIfConditionalRulesShouldRunSaga);
+          }
+        },
+    }),
+    fetch: mkAction<IFetchServiceConfigFulfilled | undefined>({
       takeLatest: fetchDynamicsSaga,
     }),
     fetchFulfilled: mkAction<IFetchServiceConfigFulfilled>({

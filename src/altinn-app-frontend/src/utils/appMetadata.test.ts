@@ -10,7 +10,7 @@ import {
 } from 'src/utils/appMetadata';
 import type { ILayoutSets } from 'src/types';
 
-import type { IApplication, IData, IInstance } from 'altinn-shared/types';
+import type { IApplication, IData, IInstance, ITask } from 'altinn-shared/types';
 
 describe('appMetadata.ts', () => {
   const application: IApplication = {
@@ -69,7 +69,7 @@ describe('appMetadata.ts', () => {
     appId: 'ttd/stateless-app-demo',
     org: 'ttd',
     selfLinks: { apps: '', platform: '' },
-    dueBefore: null,
+    dueBefore: undefined,
     process: {
       startEvent: 'StartEvent_1',
       currentTask: {
@@ -86,7 +86,7 @@ describe('appMetadata.ts', () => {
         instanceGuid: 'c23f7e5e-9f04-424f-9ffc-0e9aa14ad907',
         dataType: 'Datamodel',
         filename: null,
-      } as IData,
+      } as unknown as IData,
     ],
     instanceState: undefined,
     lastChanged: undefined,
@@ -127,7 +127,7 @@ describe('appMetadata.ts', () => {
       };
       const result = getCurrentDataTypeForApplication({
         application: statelessApplication,
-        instance: null,
+        instance: undefined,
         layoutSets,
       });
       const expected = 'Stateless';
@@ -150,11 +150,7 @@ describe('appMetadata.ts', () => {
 
   describe('getLayoutSetIdForApplication', () => {
     it('should return correct layout set id if we have an instance', () => {
-      const result = getLayoutSetIdForApplication(
-        application,
-        instance,
-        layoutSets,
-      );
+      const result = getLayoutSetIdForApplication(application, instance, layoutSets);
       const expected = 'datamodel';
       expect(result).toEqual(expected);
     });
@@ -164,11 +160,7 @@ describe('appMetadata.ts', () => {
         ...application,
         onEntry: { show: 'stateless' },
       };
-      const result = getLayoutSetIdForApplication(
-        statelessApplication,
-        null,
-        layoutSets,
-      );
+      const result = getLayoutSetIdForApplication(statelessApplication, undefined, layoutSets);
       const expected = 'stateless';
       expect(result).toEqual(expected);
     });
@@ -190,9 +182,7 @@ describe('appMetadata.ts', () => {
     });
 
     it('should return false if routed to an instance', () => {
-      window.location.replace(
-        '#/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc',
-      );
+      window.location.replace('#/instance/123456/75154373-aed4-41f7-95b4-e5b5115c2edc');
       const result = isStatelessApp(application);
       expect(result).toBeFalsy();
     });
@@ -201,11 +191,7 @@ describe('appMetadata.ts', () => {
   describe('getCurrentTaskDataElementId', () => {
     const layoutSets: ILayoutSets = { sets: [] };
     it('should return current task data element id', () => {
-      const result = getCurrentTaskDataElementId(
-        application,
-        instance,
-        layoutSets,
-      );
+      const result = getCurrentTaskDataElementId(application, instance, layoutSets);
       expect(result).toEqual('datamodel-data-guid');
     });
   });
@@ -214,9 +200,7 @@ describe('appMetadata.ts', () => {
     const layoutSets: ILayoutSets = { sets: [] };
     it('should return current task data', () => {
       const result = getCurrentTaskData(application, instance, layoutSets);
-      const expected = instance.data.find(
-        (e) => e.id === 'datamodel-data-guid',
-      );
+      const expected = instance.data.find((e) => e.id === 'datamodel-data-guid');
       expect(result).toEqual(expected);
     });
   });
@@ -235,7 +219,7 @@ describe('appMetadata.ts', () => {
         process: {
           ...instance.process,
           currentTask: {
-            ...instance.process.currentTask,
+            ...(instance.process.currentTask as ITask),
             flow: 3,
             elementId: 'Task_2',
             name: 'Bekreftelse',
@@ -254,11 +238,7 @@ describe('appMetadata.ts', () => {
         ],
       };
 
-      const result = getCurrentDataTypeId(
-        application,
-        instanceInConfirm,
-        layoutSets,
-      );
+      const result = getCurrentDataTypeId(application, instanceInConfirm, layoutSets);
       const expected = 'Datamodel-for-confirm';
       expect(result).toEqual(expected);
     });

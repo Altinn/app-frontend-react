@@ -1,8 +1,4 @@
-import type {
-  Location,
-  MapLayer,
-  TextField,
-} from '@altinn/altinn-design-system';
+import type { Location, MapLayer, TextField } from '@altinn/altinn-design-system';
 import type { GridJustification, GridSize } from '@material-ui/core';
 
 import type { ExpressionOr } from 'src/features/expressions/types';
@@ -17,7 +13,7 @@ import type {
 } from 'src/types';
 
 export interface ILayouts {
-  [id: string]: ILayout;
+  [id: string]: ILayout | undefined;
 }
 
 /**
@@ -31,8 +27,7 @@ interface NotInLayout {
   disabled?: boolean;
 }
 
-export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes>
-  extends NotInLayout {
+export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> extends NotInLayout {
   id: string;
   type: T;
 }
@@ -60,8 +55,7 @@ export interface IGroupReference {
   group: string;
 }
 
-export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes>
-  extends ILayoutEntry<Type> {
+export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes> extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings;
   readOnly?: ExpressionOr<'boolean'>;
   required?: ExpressionOr<'boolean'>;
@@ -76,14 +70,11 @@ interface ILayoutCompWillBeSavedWhileTyping {
   saveWhileTyping?: boolean | number;
 }
 
-export interface ILayoutCompAddress
-  extends ILayoutCompBase<'AddressComponent'>,
-    ILayoutCompWillBeSavedWhileTyping {
+export interface ILayoutCompAddress extends ILayoutCompBase<'AddressComponent'>, ILayoutCompWillBeSavedWhileTyping {
   simplified?: boolean;
 }
 
-export interface ILayoutCompAttachmentList
-  extends ILayoutCompBase<'AttachmentList'> {
+export interface ILayoutCompAttachmentList extends ILayoutCompBase<'AttachmentList'> {
   dataTypeIds?: string[];
 }
 
@@ -98,9 +89,8 @@ interface ISelectionComponent {
   preselectedOptionIndex?: number;
 }
 
-export interface IComponentRadioOrCheckbox<
-  T extends Extract<ComponentTypes, 'RadioButtons' | 'Checkboxes' | 'Likert'>,
-> extends ILayoutCompBase<T>,
+export interface IComponentRadioOrCheckbox<T extends Extract<ComponentTypes, 'RadioButtons' | 'Checkboxes' | 'Likert'>>
+  extends ILayoutCompBase<T>,
     ISelectionComponent {
   layout?: LayoutStyle;
 }
@@ -129,12 +119,10 @@ export interface ILayoutCompList extends ILayoutCompBase<'List'> {
   fieldToStoreInDataModel: string;
 }
 
-export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect'> &
-  ISelectionComponent;
+export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect'> & ISelectionComponent;
 
-export interface ILayoutCompFileUploadBase<
-  T extends Extract<ComponentTypes, 'FileUpload' | 'FileUploadWithTag'>,
-> extends ILayoutCompBase<T> {
+export interface ILayoutCompFileUploadBase<T extends Extract<ComponentTypes, 'FileUpload' | 'FileUploadWithTag'>>
+  extends ILayoutCompBase<T> {
   maxFileSizeInMB: number;
   maxNumberOfAttachments: number;
   minNumberOfAttachments: number;
@@ -145,8 +133,7 @@ export interface ILayoutCompFileUploadBase<
 
 export type ILayoutCompFileUpload = ILayoutCompFileUploadBase<'FileUpload'>;
 
-export interface ILayoutCompFileUploadWithTag
-  extends ILayoutCompFileUploadBase<'FileUploadWithTag'> {
+export interface ILayoutCompFileUploadWithTag extends ILayoutCompFileUploadBase<'FileUploadWithTag'> {
   optionsId: string;
   mapping?: IMapping;
 }
@@ -155,28 +142,22 @@ export interface ILayoutCompHeader extends ILayoutCompBase<'Header'> {
   size: 'L' | 'M' | 'S' | 'h2' | 'h3' | 'h4';
 }
 
-type NumberFormatProps = Parameters<
-  typeof TextField
->[0]['formatting']['number'];
+type NumberFormatProps = Exclude<Parameters<typeof TextField>[0]['formatting'], undefined>['number'];
 
 export interface IInputFormatting {
   number?: NumberFormatProps;
   align?: 'right' | 'center' | 'left';
 }
 
-export interface ILayoutCompInput
-  extends ILayoutCompBase<'Input'>,
-    ILayoutCompWillBeSavedWhileTyping {
+export interface ILayoutCompInput extends ILayoutCompBase<'Input'>, ILayoutCompWillBeSavedWhileTyping {
   formatting?: IInputFormatting;
 }
 
-export interface ILayoutCompNavButtons
-  extends ILayoutCompBase<'NavigationButtons'> {
+export interface ILayoutCompNavButtons extends ILayoutCompBase<'NavigationButtons'> {
   showBackButton?: boolean;
 }
 
-export interface ILayoutCompInstantiationButton
-  extends ILayoutCompBase<'InstantiationButton'> {
+export interface ILayoutCompInstantiationButton extends ILayoutCompBase<'InstantiationButton'> {
   mapping?: IMapping;
 }
 
@@ -192,7 +173,7 @@ export interface IImageSrc {
   nb?: string;
   nn?: string;
   en?: string;
-  [language: string]: string;
+  [language: string]: string | undefined;
 }
 
 export interface ILayoutCompImage extends ILayoutCompBase<'Image'> {
@@ -206,8 +187,7 @@ export interface ILayoutCompSummary extends ILayoutCompBase<'Summary'> {
   largeGroup?: boolean;
 }
 
-export type ILayoutCompTextArea = ILayoutCompBase<'TextArea'> &
-  ILayoutCompWillBeSavedWhileTyping;
+export type ILayoutCompTextArea = ILayoutCompBase<'TextArea'> & ILayoutCompWillBeSavedWhileTyping;
 
 export type ILayoutCompNavBar = ILayoutCompBase<'NavigationBar'>;
 
@@ -263,10 +243,7 @@ export type ComponentTypes = keyof Map;
 type AllComponents = Map[ComponentTypes];
 
 export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
-export type ComponentExceptGroupAndSummary = Exclude<
-  ComponentExceptGroup,
-  'Summary'
->;
+export type ComponentExceptGroupAndSummary = Exclude<ComponentExceptGroup, 'Summary'>;
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify
@@ -278,9 +255,10 @@ export type ComponentExceptGroupAndSummary = Exclude<
  *
  *  const myImageComponent:ILayoutComponent<'Image'> = ...
  */
-export type ILayoutComponent<
-  Type extends ComponentExceptGroup = ComponentExceptGroup,
-> = Extract<AllComponents, { type: Type }>;
+export type ILayoutComponent<Type extends ComponentExceptGroup = ComponentExceptGroup> = Extract<
+  AllComponents,
+  { type: Type }
+>;
 
 export type ILayoutComponentOrGroup = ILayoutGroup | ILayoutComponent;
 
@@ -317,7 +295,7 @@ export interface ITextResourceBindings {
   [id: string]: string;
 }
 
-export type ILayout = Array<ILayoutComponentOrGroup>;
+export type ILayout = ILayoutComponentOrGroup[];
 
 export type ISelectionComponentProps =
   | ILayoutCompRadioButtons

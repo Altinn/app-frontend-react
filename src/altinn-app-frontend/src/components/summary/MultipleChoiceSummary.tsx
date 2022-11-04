@@ -1,12 +1,6 @@
 import * as React from 'react';
 
-import {
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
-  makeStyles,
-} from '@material-ui/core';
+import { Grid, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 
 import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
 
@@ -28,6 +22,15 @@ const useStyles = makeStyles({
   list: {
     paddingLeft: 0,
     paddingRight: 0,
+  },
+  // Match style in \src\components\summary\SingleInputSummary.tsx
+  data: {
+    fontWeight: 500,
+    fontSize: '1.8rem',
+    '& p': {
+      fontWeight: 500,
+      fontSize: '1.8rem',
+    },
   },
 });
 
@@ -64,6 +67,7 @@ export default function MultipleChoiceSummary({
               >
                 <ListItemText
                   id={key}
+                  primaryTypographyProps={{ classes: { root: classes.data } }}
                   primary={formData[key]}
                 />
               </ListItem>

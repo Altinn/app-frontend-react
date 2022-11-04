@@ -5,6 +5,7 @@ import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 import configureStore from 'redux-mock-store';
+import { mockComponentProps } from 'testUtils';
 
 import { AddressComponent } from 'src/components/advanced/AddressComponent';
 import type { IAddressComponentProps } from 'src/components/advanced/AddressComponent';
@@ -14,10 +15,8 @@ const render = (props: Partial<IAddressComponentProps> = {}) => {
   const mockLanguage = {
     ux_editor: {
       modal_configure_address_component_address: 'Adresse',
-      modal_configure_address_component_title_text_binding:
-        'Søk etter ledetekst for Adresse-komponenten',
-      modal_configure_address_component_care_of:
-        'C/O eller annen tilleggsadresse',
+      modal_configure_address_component_title_text_binding: 'Søk etter ledetekst for Adresse-komponenten',
+      modal_configure_address_component_care_of: 'C/O eller annen tilleggsadresse',
       modal_configure_address_component_house_number: 'Bolignummer',
       modal_configure_address_component_house_number_helper:
         'Om addressen er felles for flere boenhenter må du oppgi' +
@@ -29,24 +28,17 @@ const render = (props: Partial<IAddressComponentProps> = {}) => {
   };
 
   const allProps: IAddressComponentProps = {
-    id: 'id',
+    ...mockComponentProps,
     formData: {
       address: 'adresse 1',
     },
-    handleDataChange: () => '',
-    getTextResource: () => 'test',
     isValid: true,
     simplified: true,
     dataModelBindings: {},
-    componentValidations: {
-      zipCode: null,
-      houseNumber: null,
-    },
     language: mockLanguage,
     readOnly: false,
     required: false,
     textResourceBindings: {},
-    ...({} as IAddressComponentProps),
     ...props,
   };
 
@@ -64,11 +56,7 @@ const getField = ({ method, regex }) =>
     name: regex,
   });
 
-const getAddressField = ({
-  useQuery = false,
-  optional = false,
-  required = false,
-} = {}) => {
+const getAddressField = ({ useQuery = false, optional = false, required = false } = {}) => {
   const method = useQuery ? 'queryByRole' : 'getByRole';
   let regex;
   if (required) {
@@ -81,11 +69,7 @@ const getAddressField = ({
 
   return getField({ method, regex });
 };
-const getZipCodeField = ({
-  useQuery = false,
-  optional = false,
-  required = false,
-} = {}) => {
+const getZipCodeField = ({ useQuery = false, optional = false, required = false } = {}) => {
   const method = useQuery ? 'queryByRole' : 'getByRole';
   let regex;
   if (required) {
@@ -99,11 +83,7 @@ const getZipCodeField = ({
   return getField({ method, regex });
 };
 
-const getGareOfField = ({
-  useQuery = false,
-  optional = false,
-  required = false,
-} = {}) => {
+const getGareOfField = ({ useQuery = false, optional = false, required = false } = {}) => {
   const method = useQuery ? 'queryByRole' : 'getByRole';
   let regex;
   if (required) {
@@ -117,11 +97,7 @@ const getGareOfField = ({
   return getField({ method, regex });
 };
 
-const getHouseNumberField = ({
-  useQuery = false,
-  optional = false,
-  required = false,
-} = {}) => {
+const getHouseNumberField = ({ useQuery = false, optional = false, required = false } = {}) => {
   const method = useQuery ? 'queryByRole' : 'getByRole';
   let regex;
   if (required) {
@@ -135,8 +111,7 @@ const getHouseNumberField = ({
   return getField({ method, regex });
 };
 
-const getPostPlaceField = () =>
-  getField({ method: 'getByRole', regex: /^address_component\.post_place$/i });
+const getPostPlaceField = () => getField({ method: 'getByRole', regex: /^address_component\.post_place$/i });
 
 describe('AddressComponent', () => {
   it('should return simplified version when simplified is true', () => {
@@ -218,9 +193,7 @@ describe('AddressComponent', () => {
     await userEvent.type(field, '1');
     fireEvent.blur(field);
 
-    const errorMessage = screen.getByText(
-      /address_component\.validation_error_zipcode/i,
-    );
+    const errorMessage = screen.getByText(/address_component\.validation_error_zipcode/i);
 
     expect(handleDataChange).not.toHaveBeenCalled();
     expect(errorMessage).toBeInTheDocument();
@@ -341,18 +314,10 @@ describe('AddressComponent', () => {
     expect(getHouseNumberField({ required: true })).toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
 
-    expect(
-      getAddressField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getZipCodeField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getGareOfField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getHouseNumberField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
+    expect(getAddressField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getZipCodeField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getGareOfField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getHouseNumberField({ useQuery: true, optional: true })).not.toBeInTheDocument();
   });
 
   it('should display optional labels when optionalIndicator is true', () => {
@@ -380,18 +345,10 @@ describe('AddressComponent', () => {
       simplified: false,
     });
 
-    expect(
-      getAddressField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getZipCodeField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getGareOfField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getHouseNumberField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
+    expect(getAddressField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getZipCodeField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getGareOfField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getHouseNumberField({ useQuery: true, optional: true })).not.toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
 
     expect(getAddressField()).toBeInTheDocument();
@@ -412,18 +369,10 @@ describe('AddressComponent', () => {
     expect(getHouseNumberField()).toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
 
-    expect(
-      getAddressField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getZipCodeField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getGareOfField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getHouseNumberField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
+    expect(getAddressField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getZipCodeField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getGareOfField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getHouseNumberField({ useQuery: true, optional: true })).not.toBeInTheDocument();
   });
 
   it('should not display optional labels when readonly is true, even when optionalIndicator is true', () => {
@@ -441,18 +390,10 @@ describe('AddressComponent', () => {
     expect(getHouseNumberField()).toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
 
-    expect(
-      getAddressField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getZipCodeField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getGareOfField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getHouseNumberField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
+    expect(getAddressField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getZipCodeField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getGareOfField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getHouseNumberField({ useQuery: true, optional: true })).not.toBeInTheDocument();
   });
 
   it('should not display optional labels when required is true, even when optionalIndicator is true', () => {
@@ -470,17 +411,9 @@ describe('AddressComponent', () => {
     expect(getHouseNumberField({ required: true })).toBeInTheDocument();
     expect(getPostPlaceField()).toBeInTheDocument();
 
-    expect(
-      getAddressField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getZipCodeField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getGareOfField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
-    expect(
-      getHouseNumberField({ useQuery: true, optional: true }),
-    ).not.toBeInTheDocument();
+    expect(getAddressField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getZipCodeField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getGareOfField({ useQuery: true, optional: true })).not.toBeInTheDocument();
+    expect(getHouseNumberField({ useQuery: true, optional: true })).not.toBeInTheDocument();
   });
 });

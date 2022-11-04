@@ -5,19 +5,18 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useAppSelector } from 'src/common/hooks';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type {
-  ILayout,
-  ILayoutComponent,
-  ILayoutGroup,
-} from 'src/features/form/layout';
+import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayoutGroup } from 'src/features/form/layout';
+
+export type ComponentFromSummary = ILayoutComponentOrGroup & {
+  formData?: any;
+  index?: number;
+  parentGroup?: string;
+};
 
 export interface IDisplayGroupContainer {
   container: ILayoutGroup;
-  components: (ILayoutComponent | ILayoutGroup)[];
-  renderLayoutComponent: (
-    components: ILayoutComponent | ILayoutGroup,
-    layout: ILayout,
-  ) => JSX.Element;
+  components: ComponentFromSummary[];
+  renderLayoutComponent: (components: ILayoutComponent | ILayoutGroup, layout: ILayout) => JSX.Element;
 }
 
 const useStyles = makeStyles({
@@ -33,28 +32,20 @@ const useStyles = makeStyles({
 
 export function DisplayGroupContainer(props: IDisplayGroupContainer) {
   const GetHiddenSelector = makeGetHidden();
-  const hidden: boolean = useAppSelector((state) =>
-    GetHiddenSelector(state, { id: props.container.id }),
-  );
+  const hidden: boolean = useAppSelector((state) => GetHiddenSelector(state, { id: props.container.id }));
   const classes = useStyles();
   const title = useAppSelector((state) => {
     const titleKey = props.container.textResourceBindings?.title;
-    if (titleKey) {
-      return getTextFromAppOrDefault(
-        titleKey,
-        state.textResources.resources,
-        state.language.language,
-        [],
-        true,
-      );
+    if (titleKey && state.language.language) {
+      return getTextFromAppOrDefault(titleKey, state.textResources.resources, state.language.language, [], true);
     }
     return undefined;
   });
   const layout = useAppSelector(
-    (state) => state.formLayout.layouts[state.formLayout.uiConfig.currentView],
+    (state) => state.formLayout.layouts && state.formLayout.layouts[state.formLayout.uiConfig.currentView],
   );
 
-  if (hidden) {
+  if (hidden || !layout) {
     return null;
   }
 

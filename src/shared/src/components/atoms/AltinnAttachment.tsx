@@ -1,11 +1,4 @@
-import {
-  Typography,
-  makeStyles,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from '@material-ui/core';
+import { Typography, makeStyles, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import cn from 'classnames';
 import React from 'react';
 
@@ -65,12 +58,7 @@ function ListItemLink(props: any) {
   );
 }
 
-export function AltinnAttachment({
-  attachments,
-  listDisableVerticalPadding,
-  nested,
-  id,
-}: IAltinnAttachmentProps) {
+export function AltinnAttachment({ attachments, listDisableVerticalPadding, nested, id }: IAltinnAttachmentProps) {
   const classes = useStyles();
 
   return (
@@ -90,7 +78,7 @@ export function AltinnAttachment({
                 },
                 classes.a,
               )}
-              href={makeUrlRelativeIfSameDomain(attachment.url)}
+              href={attachment.url && makeUrlRelativeIfSameDomain(attachment.url)}
               key={index}
             >
               <ListItemIcon>

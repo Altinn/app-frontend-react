@@ -16,14 +16,15 @@ import type { ILayoutSet, ILayoutSets } from 'src/types';
 
 import type { IInstance } from 'altinn-shared/types';
 
-export function getLayoutComponentById(
-  id: string,
-  layouts: ILayouts,
-): ILayoutComponentOrGroup {
-  let component: ILayoutComponentOrGroup;
+export function getLayoutComponentById(id: string, layouts: ILayouts | null): ILayoutComponentOrGroup | undefined {
+  if (!layouts) {
+    return undefined;
+  }
+
+  let component: ILayoutComponentOrGroup | undefined;
   Object.keys(layouts).forEach((layoutId) => {
     if (!component) {
-      component = layouts[layoutId].find((element) => {
+      component = layouts[layoutId]?.find((element) => {
         // Check against provided id, with potential -{index} postfix.
         const match = matchLayoutComponent(id, element.id);
         return match && match.length > 0;
@@ -34,15 +35,15 @@ export function getLayoutComponentById(
   return component;
 }
 
-export function getLayoutIdForComponent(id: string, layouts: ILayouts): string {
-  let foundLayout: string;
+export function getLayoutIdForComponent(id: string, layouts: ILayouts): string | undefined {
+  let foundLayout: string | undefined;
   Object.keys(layouts).forEach((layoutId) => {
     if (!foundLayout) {
-      const component = layouts[layoutId].find((element) => {
+      const component = layouts[layoutId]?.find((element) => {
         // Check against provided id, with potential -{index} postfix.
         const match = matchLayoutComponent(id, element.id);
         return match && match.length > 0;
-      }) as ILayoutComponent;
+      });
       if (component) {
         foundLayout = layoutId;
       }
@@ -65,22 +66,15 @@ export function matchLayoutComponent(providedId: string, componentId: string) {
 
 interface RenderGenericComponentProps {
   component: ILayoutComponentOrGroup;
-  layout?: ILayout;
+  layout?: ILayout | null;
   index?: number;
 }
 
-export function renderGenericComponent({
-  component,
-  layout,
-  index = -1,
-}: RenderGenericComponentProps) {
+export function renderGenericComponent({ component, layout, index = -1 }: RenderGenericComponentProps) {
   if (component.type === 'Group') {
-    return renderLayoutGroup(
-      component as unknown as ILayoutGroup,
-      layout,
-      index,
-    );
+    return renderLayoutGroup(component, layout || undefined, index);
   }
+
   return (
     <GenericComponent
       key={component.id}
@@ -89,14 +83,12 @@ export function renderGenericComponent({
   );
 }
 
-export function renderLayoutGroup(
-  layoutGroup: ILayoutGroup,
-  layout: ILayout,
-  index?: number,
-) {
-  const groupComponents = layoutGroup.children?.map((child) => {
-    return layout.find((c) => c.id === child) as ILayoutComponent;
-  });
+export function renderLayoutGroup(layoutGroup: ILayoutGroup, layout?: ILayout, index?: number) {
+  const groupComponents = (layoutGroup.children || [])
+    .map((child) => {
+      return layout?.find((c) => c.id === child);
+    })
+    .filter((item) => item !== undefined) as ILayoutComponentOrGroup[];
 
   const panel = layoutGroup.panel;
   if (panel) {
@@ -109,12 +101,8 @@ export function renderLayoutGroup(
     );
   }
 
-  const deepCopyComponents = setupGroupComponents(
-    groupComponents,
-    layoutGroup.dataModelBindings.group,
-    index,
-  );
-  const repeating = layoutGroup.maxCount > 1;
+  const deepCopyComponents = setupGroupComponents(groupComponents, layoutGroup.dataModelBindings?.group, index);
+  const repeating = layoutGroup.maxCount && layoutGroup.maxCount > 1;
   if (!repeating) {
     // If not repeating, treat as regular components
     return (
@@ -138,8 +126,8 @@ export function renderLayoutGroup(
 
 export function setupGroupComponents(
   components: (ILayoutComponent | ILayoutGroup)[],
-  groupDataModelBinding: string,
-  index: number,
+  groupDataModelBinding: string | undefined,
+  index: number | undefined,
 ): (ILayoutGroup | ILayoutComponent)[] {
   return components.map((component: ILayoutComponent | ILayoutGroup) => {
     if (component.type === 'Group' && component.panel?.groupReference) {
@@ -151,27 +139,16 @@ export function setupGroupComponents(
       return component;
     }
 
-    const componentDeepCopy: ILayoutComponent = JSON.parse(
-      JSON.stringify(component),
-    );
+    const componentDeepCopy: ILayoutComponent = JSON.parse(JSON.stringify(component));
     const dataModelBindings = { ...componentDeepCopy.dataModelBindings };
     Object.keys(dataModelBindings).forEach((key) => {
-      const originalGroupBinding = groupDataModelBinding.replace(
-        `[${index}]`,
-        '',
-      );
-      dataModelBindings[key] = dataModelBindings[key].replace(
-        originalGroupBinding,
-        groupDataModelBinding,
-      );
+      const originalGroupBinding = groupDataModelBinding.replace(`[${index}]`, '');
+      dataModelBindings[key] = dataModelBindings[key].replace(originalGroupBinding, groupDataModelBinding);
     });
 
     let mapping;
     if ('mapping' in componentDeepCopy) {
-      mapping = setMappingForRepeatingGroupComponent(
-        componentDeepCopy.mapping,
-        index,
-      );
+      mapping = setMappingForRepeatingGroupComponent(componentDeepCopy.mapping, index);
     }
     const deepCopyId = `${componentDeepCopy.id}-${index}`;
 
@@ -186,25 +163,22 @@ export function setupGroupComponents(
 }
 
 export function getLayoutsetForDataElement(
-  instance: IInstance,
-  datatype: string,
+  instance: IInstance | undefined | null,
+  datatype: string | undefined,
   layoutsets: ILayoutSets,
 ) {
-  const currentTaskId = instance.process.currentTask.elementId;
+  const currentTaskId = instance?.process.currentTask?.elementId;
   const foundLayout = layoutsets.sets.find((layoutSet: ILayoutSet) => {
     if (layoutSet.dataType !== datatype) {
       return false;
     }
-    return layoutSet.tasks.find((taskId: string) => taskId === currentTaskId);
+    return layoutSet.tasks?.find((taskId: string) => taskId === currentTaskId);
   });
-  return foundLayout.id;
+  return foundLayout?.id;
 }
 
-export function getHiddenFieldsForGroup(
-  hiddenFields: string[],
-  components: (ILayoutGroup | ILayoutComponent)[],
-) {
-  const result = [];
+export function getHiddenFieldsForGroup(hiddenFields: string[], components: (ILayoutGroup | ILayoutComponent)[]) {
+  const result: string[] = [];
   hiddenFields.forEach((fieldKey) => {
     const fieldKeyWithoutIndex = fieldKey.replace(/-\d{1,}$/, '');
     if (components.find((component) => component.id === fieldKeyWithoutIndex)) {

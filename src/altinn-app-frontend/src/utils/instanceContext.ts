@@ -6,7 +6,7 @@ import type { IInstance, IInstanceContext } from 'altinn-shared/types';
 
 const getInstance = (state: IRuntimeState) => state.instanceData.instance;
 
-export function buildInstanceContext(instance: IInstance): IInstanceContext {
+export function buildInstanceContext(instance?: IInstance | null): IInstanceContext | null {
   if (!instance) {
     return null;
   }
@@ -24,9 +24,7 @@ export const getInstanceContextSelector = () => {
     return selector;
   }
 
-  selector = createSelector([getInstance], (instance) =>
-    buildInstanceContext(instance),
-  );
+  selector = createSelector([getInstance], (instance) => buildInstanceContext(instance));
 
   return selector;
 };

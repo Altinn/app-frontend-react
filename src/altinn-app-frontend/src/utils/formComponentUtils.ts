@@ -1,17 +1,12 @@
 import type React from 'react';
 
 import { formatNumericText } from '@altinn/altinn-design-system';
-import moment from 'moment';
 
 import { AsciiUnitSeparator } from 'src/utils/attachment';
+import { getDateFormat } from 'src/utils/dateHelpers';
 import { setMappingForRepeatingGroupComponent } from 'src/utils/formLayout';
-import {
-  getOptionLookupKey,
-  getRelevantFormDataForOptionSource,
-  setupSourceOptions,
-} from 'src/utils/options';
+import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import { DatePickerFormatDefault } from 'src/utils/validation';
 import type { IFormData } from 'src/features/form/data';
 import type {
   IGridStyling,
@@ -20,10 +15,7 @@ import type {
   ILayoutGroup,
   ISelectionComponentProps,
 } from 'src/features/form/layout';
-import type {
-  IAttachment,
-  IAttachments,
-} from 'src/shared/resources/attachments';
+import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentValidations,
   IDataModelBindings,
@@ -44,35 +36,28 @@ import {
 import type { ILanguage } from 'altinn-shared/types';
 
 export const componentValidationsHandledByGenericComponent = (
-  dataModelBindings: IDataModelBindings,
+  dataModelBindings: IDataModelBindings | undefined,
   type: ILayoutEntry['type'],
 ): boolean => {
   return (
-    !!dataModelBindings?.simpleBinding &&
-    type !== 'FileUpload' &&
-    type !== 'FileUploadWithTag' &&
-    type !== 'DatePicker'
+    !!dataModelBindings?.simpleBinding && type !== 'FileUpload' && type !== 'FileUploadWithTag' && type !== 'DatePicker'
   );
 };
 
-export const componentHasValidationMessages = (
-  componentValidations: IComponentValidations,
-) => {
+export const componentHasValidationMessages = (componentValidations: IComponentValidations | undefined) => {
   if (!componentValidations) {
     return false;
   }
   return Object.keys(componentValidations).some((key: string) => {
-    return Object.keys(componentValidations[key]).some((validationKey) => {
-      return componentValidations[key][validationKey]?.length > 0;
+    const bindings = componentValidations[key] || {};
+    return Object.keys(bindings).some((validationKey) => {
+      const messages = bindings && bindings[validationKey];
+      return messages && messages.length > 0;
     });
   });
 };
 
-export const getComponentValidations = (
-  validations: IValidations,
-  componentId: string,
-  pageId: string,
-) => {
+export const getComponentValidations = (validations: IValidations, componentId: string, pageId: string) => {
   if (validations[pageId]) {
     return validations[pageId][componentId];
   }
@@ -81,14 +66,10 @@ export const getComponentValidations = (
 };
 
 export interface IComponentFormData {
-  simpleBinding?: string;
-  [binding: string]: string;
+  [binding: string]: string | undefined;
 }
 
-export const getFormDataForComponent = (
-  formData: IFormData,
-  dataModelBindings: IDataModelBindings,
-) => {
+export const getFormDataForComponent = (formData: IFormData, dataModelBindings: IDataModelBindings | undefined) => {
   if (!dataModelBindings) {
     return {} as IComponentFormData;
   }
@@ -111,20 +92,16 @@ export const getDisplayFormDataForComponent = (
   component: ILayoutComponent,
   textResources: ITextResource[],
   options: IOptions,
-  repeatingGroups: IRepeatingGroups,
+  repeatingGroups: IRepeatingGroups | null,
   multiChoice?: boolean,
 ) => {
   if (!component.dataModelBindings) {
     return '';
   }
 
-  if (
-    component.dataModelBindings?.simpleBinding ||
-    component.dataModelBindings?.list
-  ) {
+  if (component.dataModelBindings?.simpleBinding || component.dataModelBindings?.list) {
     return getDisplayFormData(
-      component.dataModelBindings?.simpleBinding ||
-        component.dataModelBindings?.list,
+      component.dataModelBindings?.simpleBinding || component.dataModelBindings?.list,
       component,
       component.id,
       attachments,
@@ -138,7 +115,7 @@ export const getDisplayFormDataForComponent = (
 
   const formDataObj = {};
   Object.keys(component.dataModelBindings).forEach((key: any) => {
-    const binding = component.dataModelBindings[key];
+    const binding = component.dataModelBindings && component.dataModelBindings[key];
     formDataObj[key] = getDisplayFormData(
       binding,
       component,
@@ -154,16 +131,20 @@ export const getDisplayFormDataForComponent = (
 };
 
 export const getDisplayFormData = (
-  dataModelBinding: string,
+  dataModelBinding: string | undefined,
   component: ILayoutComponent | ILayoutGroup,
   componentId: string,
   attachments: IAttachments,
   formData: any,
   options: IOptions,
   textResources: ITextResource[],
-  repeatingGroups: IRepeatingGroups,
+  repeatingGroups: IRepeatingGroups | null,
   asObject?: boolean,
 ) => {
+  if (!dataModelBinding) {
+    return '';
+  }
+
   let formDataValue = formData[dataModelBinding] || '';
   if (component.dataModelBindings?.list) {
     formDataValue = Object.keys(formData)
@@ -172,52 +153,41 @@ export const getDisplayFormData = (
   }
 
   if (formDataValue) {
-    if (
-      component.type === 'Dropdown' ||
-      component.type === 'RadioButtons' ||
-      component.type === 'Likert'
-    ) {
+    if (component.type === 'Dropdown' || component.type === 'RadioButtons' || component.type === 'Likert') {
       const selectionComponent = component as ISelectionComponentProps;
-      let label: string;
+      let label: string | undefined;
       if (selectionComponent.optionsId) {
         label = options[
           getOptionLookupKey({
             id: selectionComponent.optionsId,
             mapping: selectionComponent.mapping,
           })
-        ]?.options?.find(
-          (option: IOption) => option.value === formDataValue,
-        )?.label;
+        ]?.options?.find((option: IOption) => option.value === formDataValue)?.label;
       } else if (selectionComponent.options) {
-        label = selectionComponent.options.find(
-          (option: IOption) => option.value === formDataValue,
-        )?.label;
+        label = selectionComponent.options.find((option: IOption) => option.value === formDataValue)?.label;
       } else if (selectionComponent.source) {
-        const reduxOptions = setupSourceOptions({
-          source: selectionComponent.source,
-          relevantTextResource: textResources.find(
-            (e) => e.id === selectionComponent.source.label,
-          ),
-          relevantFormData: getRelevantFormDataForOptionSource(
-            formData,
-            selectionComponent.source,
-          ),
-          repeatingGroups,
-          dataSources: {
-            dataModel: formData,
-          },
-        });
-        label = reduxOptions.find(
-          (option) => option.value === formDataValue,
-        )?.label;
+        const relevantTextResource = textResources.find((e) => e.id === selectionComponent.source?.label);
+        const reduxOptions =
+          relevantTextResource &&
+          setupSourceOptions({
+            source: selectionComponent.source,
+            relevantTextResource,
+            relevantFormData: getRelevantFormDataForOptionSource(formData, selectionComponent.source),
+            repeatingGroups,
+            dataSources: {
+              dataModel: formData,
+            },
+          });
+        label = reduxOptions?.find((option) => option.value === formDataValue)?.label;
+      }
+
+      if (!label) {
+        return undefined;
       }
 
       return getTextResourceByKey(label, textResources) || formDataValue;
     }
-    if (
-      component.type === 'Checkboxes' ||
-      component.type === 'MultipleSelect'
-    ) {
+    if (component.type === 'Checkboxes' || component.type === 'MultipleSelect') {
       const selectionComponent = component as ISelectionComponentProps;
       let label = '';
       const data: string = formData[dataModelBinding];
@@ -225,20 +195,16 @@ export const getDisplayFormData = (
       if (asObject) {
         const displayFormData = {};
         split?.forEach((value: string) => {
-          const optionsForComponent = selectionComponent?.optionsId
-            ? options[
-                getOptionLookupKey({
-                  id: selectionComponent.optionsId,
-                  mapping: selectionComponent.mapping,
-                })
-              ].options
-            : selectionComponent.options;
-          const textKey =
-            optionsForComponent?.find(
-              (option: IOption) => option.value === value,
-            )?.label || '';
-          displayFormData[value] =
-            getTextResourceByKey(textKey, textResources) || formDataValue;
+          const key =
+            selectionComponent.optionsId &&
+            getOptionLookupKey({
+              id: selectionComponent.optionsId,
+              mapping: selectionComponent.mapping,
+            });
+          const optionsForComponent =
+            selectionComponent?.optionsId && key ? options[key]?.options : selectionComponent.options;
+          const textKey = optionsForComponent?.find((option: IOption) => option.value === value)?.label || '';
+          displayFormData[value] = getTextResourceByKey(textKey, textResources) || formDataValue;
         });
 
         return displayFormData;
@@ -248,9 +214,7 @@ export const getDisplayFormData = (
         if (selectionComponent?.options) {
           label +=
             getTextResourceByKey(
-              selectionComponent.options.find(
-                (option: IOption) => option.value === value,
-              )?.label,
+              selectionComponent.options?.find((option: IOption) => option.value === value)?.label,
               textResources,
             ) || '';
         } else if (selectionComponent.optionsId) {
@@ -261,8 +225,7 @@ export const getDisplayFormData = (
                   id: selectionComponent.optionsId,
                   mapping: selectionComponent.mapping,
                 })
-              ]?.options?.find((option: IOption) => option.value === value)
-                ?.label,
+              ]?.options?.find((option: IOption) => option.value === value)?.label,
               textResources,
             ) || '';
         }
@@ -272,22 +235,15 @@ export const getDisplayFormData = (
       });
       return label;
     }
-    if (
-      component.type === 'FileUpload' ||
-      component.type === 'FileUploadWithTag'
-    ) {
+    if (component.type === 'FileUpload' || component.type === 'FileUploadWithTag') {
       if (Array.isArray(formDataValue) && !formDataValue.length) {
         return '';
       }
-      const attachmentNamesList = (
-        Array.isArray(formDataValue) ? formDataValue : [formDataValue]
-      )
+      const attachmentNamesList = (Array.isArray(formDataValue) ? formDataValue : [formDataValue])
         .map((uuid) => {
           const attachmentsForComponent = attachments[componentId];
           if (attachmentsForComponent) {
-            const foundAttachment = attachmentsForComponent.find(
-              (a) => a.id === uuid,
-            );
+            const foundAttachment = attachmentsForComponent.find((a) => a.id === uuid);
             if (foundAttachment) {
               return foundAttachment.name;
             }
@@ -303,10 +259,7 @@ export const getDisplayFormData = (
       return formatNumericText(formDataValue, component.formatting.number);
     }
     if (component.type === 'DatePicker') {
-      const dateFormat =
-        moment.localeData().longDateFormat('L') ||
-        component.format ||
-        DatePickerFormatDefault;
+      const dateFormat = getDateFormat(component.format);
       return formatISOString(formDataValue, dateFormat);
     }
   }
@@ -318,10 +271,10 @@ export const getFormDataForComponentInRepeatingGroup = (
   attachments: IAttachments,
   component: ILayoutComponent | ILayoutGroup,
   index: number,
-  groupDataModelBinding: string,
+  groupDataModelBinding: string | undefined,
   textResources: ITextResource[],
   options: IOptions,
-  repeatingGroups: IRepeatingGroups,
+  repeatingGroups: IRepeatingGroups | null,
 ) => {
   if (
     !component.dataModelBindings ||
@@ -338,17 +291,17 @@ export const getFormDataForComponentInRepeatingGroup = (
       ? component.dataModelBindings?.address
       : component.dataModelBindings?.simpleBinding;
   if (
-    (component.type === 'FileUpload' ||
-      component.type === 'FileUploadWithTag') &&
+    (component.type === 'FileUpload' || component.type === 'FileUploadWithTag') &&
     component.dataModelBindings?.list
   ) {
     dataModelBinding = component.dataModelBindings.list;
   }
 
-  const replaced = dataModelBinding.replace(
-    groupDataModelBinding,
-    `${groupDataModelBinding}[${index}]`,
-  );
+  if (!dataModelBinding || !groupDataModelBinding || !repeatingGroups) {
+    return undefined;
+  }
+
+  const replaced = dataModelBinding.replace(groupDataModelBinding, `${groupDataModelBinding}[${index}]`);
   const componentId = `${component.id}-${index}`;
 
   let mapping;
@@ -374,37 +327,37 @@ export const getFormDataForComponentInRepeatingGroup = (
   );
 };
 
-export const isComponentValid = (
-  validations: IComponentValidations,
-): boolean => {
+export const isComponentValid = (validations: IComponentValidations): boolean => {
   if (!validations) {
     return true;
   }
   let isValid = true;
 
   Object.keys(validations).forEach((key: string) => {
-    if (validations[key].errors?.length > 0) {
+    const errors = validations[key]?.errors;
+    if (errors && errors.length > 0) {
       isValid = false;
     }
   });
   return isValid;
 };
 
-export const getTextResource = (
-  resourceKey: string,
-  textResources: ITextResource[],
-): React.ReactNode => {
+export const getTextResource = (resourceKey: string, textResources: ITextResource[]): React.ReactNode => {
   const textResourceValue = getTextResourceByKey(resourceKey, textResources);
   if (textResourceValue === resourceKey) {
     // No match in text resources
     return resourceKey;
   }
+  if (!textResourceValue) {
+    return undefined;
+  }
+
   return getParsedLanguageFromText(textResourceValue);
 };
 
 export function selectComponentTexts(
   textResources: ITextResource[],
-  textResourceBindings: ITextResourceBindings,
+  textResourceBindings: ITextResourceBindings | undefined,
 ) {
   const result: { [textResourceKey: string]: React.ReactNode } = {};
 
@@ -419,7 +372,7 @@ export function selectComponentTexts(
 export function getFileUploadComponentValidations(
   validationError: 'upload' | 'update' | 'delete' | null,
   language: ILanguage,
-  attachmentId: string = undefined,
+  attachmentId?: string,
 ): IComponentValidations {
   const componentValidations: any = {
     simpleBinding: {
@@ -429,47 +382,36 @@ export function getFileUploadComponentValidations(
   };
   if (validationError === 'upload') {
     componentValidations.simpleBinding.errors.push(
-      getLanguageFromKey(
-        'form_filler.file_uploader_validation_error_upload',
-        language,
-      ),
+      getLanguageFromKey('form_filler.file_uploader_validation_error_upload', language),
     );
   } else if (validationError === 'update') {
     if (attachmentId === undefined || attachmentId === '') {
       componentValidations.simpleBinding.errors.push(
-        getLanguageFromKey(
-          'form_filler.file_uploader_validation_error_update',
-          language,
-        ),
+        getLanguageFromKey('form_filler.file_uploader_validation_error_update', language),
       );
     } else {
       componentValidations.simpleBinding.errors.push(
         // If validation has attachmentId, add to start of message and seperate using ASCII Universal Seperator
         attachmentId +
           AsciiUnitSeparator +
-          getLanguageFromKey(
-            'form_filler.file_uploader_validation_error_update',
-            language,
-          ),
+          getLanguageFromKey('form_filler.file_uploader_validation_error_update', language),
       );
     }
   } else if (validationError === 'delete') {
     componentValidations.simpleBinding.errors.push(
-      getLanguageFromKey(
-        'form_filler.file_uploader_validation_error_delete',
-        language,
-      ),
+      getLanguageFromKey('form_filler.file_uploader_validation_error_delete', language),
     );
   }
   return componentValidations;
 }
 
 export function getFileUploadWithTagComponentValidations(
-  validationMessages: IComponentValidations,
+  validationMessages: IComponentValidations | undefined,
   validationState: Array<{ id: string; message: string }>,
 ): Array<{ id: string; message: string }> {
   const result: Array<{ id: string; message: string }> = [];
-  validationMessages = JSON.parse(JSON.stringify(validationMessages || {}));
+  validationMessages = validationMessages && JSON.parse(JSON.stringify(validationMessages));
+
   if (!validationMessages || !validationMessages.simpleBinding) {
     validationMessages = {
       simpleBinding: {
@@ -480,13 +422,14 @@ export function getFileUploadWithTagComponentValidations(
   }
   if (
     validationMessages.simpleBinding !== undefined &&
-    validationMessages.simpleBinding.errors?.length > 0
+    validationMessages.simpleBinding.errors &&
+    validationMessages.simpleBinding.errors.length > 0
   ) {
-    parseFileUploadComponentWithTagValidationObject(
-      validationMessages.simpleBinding.errors as string[],
-    ).forEach((validation) => {
-      result.push(validation);
-    });
+    parseFileUploadComponentWithTagValidationObject(validationMessages.simpleBinding.errors as string[]).forEach(
+      (validation) => {
+        result.push(validation);
+      },
+    );
   }
   validationState.forEach((validation) => {
     result.push(validation);
@@ -512,56 +455,38 @@ export const parseFileUploadComponentWithTagValidationObject = (
   return obj;
 };
 
-export const isAttachmentError = (error: {
-  id: string;
-  message: string;
-}): boolean => {
-  return error.id ? true : false;
-};
+export const isAttachmentError = (error: { id: string | null; message: string }): boolean => !!error.id;
 
-export const isNotAttachmentError = (error: {
-  id: string;
-  message: string;
-}): boolean => {
+export const isNotAttachmentError = (error: { id: string | null; message: string }): boolean => {
   return !error.id;
 };
 
 export const atleastOneTagExists = (attachments: IAttachment[]): boolean => {
   const totalTagCount: number = attachments
-    .map((attachment: IAttachment) =>
-      attachment.tags?.length ? attachment.tags.length : 0,
-    )
+    .map((attachment: IAttachment) => (attachment.tags?.length ? attachment.tags.length : 0))
     .reduce((total, current) => total + current, 0);
 
   return totalTagCount !== undefined && totalTagCount >= 1;
 };
 
 export function getFieldName(
-  textResourceBindings: ITextResourceBindings,
+  textResourceBindings: ITextResourceBindings | undefined,
   textResources: ITextResource[],
   language: ILanguage,
   fieldKey?: string,
-): string {
+): string | undefined {
   if (fieldKey) {
     return smartLowerCaseFirst(
-      getTextFromAppOrDefault(
-        `form_filler.${fieldKey}`,
-        textResources,
-        language,
-        null,
-        true,
-      ),
+      getTextFromAppOrDefault(`form_filler.${fieldKey}`, textResources, language, undefined, true),
     );
   }
 
-  if (textResourceBindings.shortName) {
+  if (textResourceBindings?.shortName) {
     return getTextResourceByKey(textResourceBindings.shortName, textResources);
   }
 
-  if (textResourceBindings.title) {
-    return smartLowerCaseFirst(
-      getTextResourceByKey(textResourceBindings.title, textResources),
-    );
+  if (textResourceBindings?.title) {
+    return smartLowerCaseFirst(getTextResourceByKey(textResourceBindings.title, textResources));
   }
 
   return getLanguageFromKey('validation.generic_field', language);
@@ -573,9 +498,7 @@ export function getFieldName(
 export function lowerCaseFirst(text: string, firstLetterIndex = 0): string {
   if (firstLetterIndex > 0) {
     return (
-      text.substring(0, firstLetterIndex) +
-      text[firstLetterIndex].toLowerCase() +
-      text.substring(firstLetterIndex + 1)
+      text.substring(0, firstLetterIndex) + text[firstLetterIndex].toLowerCase() + text.substring(firstLetterIndex + 1)
     );
   }
   return text[firstLetterIndex].toLowerCase() + text.substring(1);
@@ -585,7 +508,11 @@ export function lowerCaseFirst(text: string, firstLetterIndex = 0): string {
  * Un-uppercase the first letter of a string, but be smart about it (avoiding it when the string is an
  * uppercase abbreviation, etc).
  */
-export function smartLowerCaseFirst(text: string): string {
+export function smartLowerCaseFirst(text: string | undefined): string | undefined {
+  if (text === undefined) {
+    return undefined;
+  }
+
   const uc = text.toUpperCase();
   const lc = text.toLowerCase();
 

@@ -37,6 +37,10 @@ export function MultipleSelect({
     })) || [];
   const language = useAppSelector((state) => state.language.language);
 
+  if (!language) {
+    return null;
+  }
+
   const handleChange = (newValue: MultiValue<IOption>) => {
     handleDataChange(newValue.map((option) => option.value).join(','));
   };
@@ -48,15 +52,9 @@ export function MultipleSelect({
       inputId={id}
       isDisabled={readOnly}
       noOptionsMessage={() => {
-        return getLanguageFromKey(
-          'multiple_select_component.no_options',
-          language,
-        );
+        return getLanguageFromKey('multiple_select_component.no_options', language);
       }}
-      placeholder={getLanguageFromKey(
-        'multiple_select_component.placeholder',
-        language,
-      )}
+      placeholder={getLanguageFromKey('multiple_select_component.placeholder', language)}
       classNamePrefix={multipleSelectCssPrefix}
       className={multipleSelectCssPrefix}
       styles={{
@@ -66,12 +64,9 @@ export function MultipleSelect({
         }),
       }}
       onChange={handleChange}
-      value={calculatedOptions?.filter((option) =>
-        formData?.simpleBinding?.split(',').includes(option.value),
-      )}
+      value={calculatedOptions?.filter((option) => formData?.simpleBinding?.split(',').includes(option.value))}
     />
   );
 }
 
-const controlStylesHasError = (hasError) =>
-  hasError ? { borderColor: invalidBorderColor } : {};
+const controlStylesHasError = (hasError) => (hasError ? { borderColor: invalidBorderColor } : {});

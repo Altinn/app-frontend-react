@@ -2,23 +2,19 @@ import React from 'react';
 
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockMediaQuery, renderWithProviders } from 'testUtils';
+import { mockComponentProps, mockMediaQuery, renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
 
 import DatepickerComponent from 'src/components/base/DatepickerComponent';
 import type { IDatePickerProps } from 'src/components/base/DatepickerComponent';
 import type { RootState } from 'src/store';
 
-const render = (
-  props: Partial<IDatePickerProps> = {},
-  customState: PreloadedState<RootState> = {},
-) => {
+const render = (props: Partial<IDatePickerProps> = {}, customState: PreloadedState<RootState> = {}) => {
   const allProps: IDatePickerProps = {
+    ...mockComponentProps,
     format: 'DD.MM.YYYY',
     minDate: '1900-01-01T12:00:00.000Z',
     maxDate: '2100-01-01T12:00:00.000Z',
-    handleDataChange: jest.fn(),
-    ...({} as IDatePickerProps),
     ...props,
   };
 
@@ -97,9 +93,7 @@ describe('DatepickerComponent', () => {
     expect(handleDataChange).toHaveBeenCalledWith(
       // Ignore TZ part of timestamp to avoid test failing when this changes
       // Calendar opens up on current year/month by default, so we need to cater for this in the expected output
-      expect.stringContaining(
-        `${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`,
-      ),
+      expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`),
     );
   });
 
@@ -158,9 +152,7 @@ describe('DatepickerComponent', () => {
     render({ handleDataChange, minDate: 'today', required: true });
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('date_picker.min_date_exeeded'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('date_picker.min_date_exeeded')).not.toBeInTheDocument();
 
     const inputField = screen.getByRole('textbox');
 
@@ -169,9 +161,7 @@ describe('DatepickerComponent', () => {
 
     expect(handleDataChange).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toBeInTheDocument();
-    expect(
-      screen.getByText('date_picker.min_date_exeeded'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('date_picker.min_date_exeeded')).toBeInTheDocument();
   });
 
   it('should show error message when input is after today, and maxDate is today and not call handleDataChange', async () => {
@@ -179,9 +169,7 @@ describe('DatepickerComponent', () => {
     render({ handleDataChange, maxDate: 'today', required: true });
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('date_picker.max_date_exeeded'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('date_picker.max_date_exeeded')).not.toBeInTheDocument();
 
     const inputField = screen.getByRole('textbox');
 
@@ -190,9 +178,7 @@ describe('DatepickerComponent', () => {
 
     expect(handleDataChange).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toBeInTheDocument();
-    expect(
-      screen.getByText('date_picker.max_date_exeeded'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('date_picker.max_date_exeeded')).toBeInTheDocument();
   });
 
   it('should show error message when typed date is on invalid format but not call handleDataChange when formdata is NOT present ', async () => {
@@ -200,9 +186,7 @@ describe('DatepickerComponent', () => {
     render({ handleDataChange });
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('date_picker.invalid_date_message'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('date_picker.invalid_date_message')).not.toBeInTheDocument();
 
     const inputField = screen.getByRole('textbox');
 
@@ -210,9 +194,7 @@ describe('DatepickerComponent', () => {
     fireEvent.blur(inputField);
 
     expect(screen.getByRole('alert')).toBeInTheDocument();
-    expect(
-      screen.getByText('date_picker.invalid_date_message'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('date_picker.invalid_date_message')).toBeInTheDocument();
 
     expect(handleDataChange).not.toHaveBeenCalled();
   });
@@ -223,9 +205,7 @@ describe('DatepickerComponent', () => {
     render({ handleDataChange, formData: { simpleBinding: '12.12.2022' } });
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('date_picker.invalid_date_message'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('date_picker.invalid_date_message')).not.toBeInTheDocument();
 
     const inputField = screen.getByRole('textbox');
 
@@ -241,9 +221,7 @@ describe('DatepickerComponent', () => {
       ),
     );
 
-    expect(
-      screen.getByText('date_picker.invalid_date_message'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('date_picker.invalid_date_message')).toBeInTheDocument();
 
     expect(handleDataChange).toHaveBeenCalledWith('');
   });
@@ -254,10 +232,7 @@ describe('DatepickerComponent', () => {
       id: 'test-id',
     });
     const inputField = screen.getByRole('textbox');
-    expect(inputField).toHaveAttribute(
-      'aria-describedby',
-      'description-test-id',
-    );
+    expect(inputField).toHaveAttribute('aria-describedby', 'description-test-id');
   });
 
   it('should not have aria-describedby if textResources.description does not exist', () => {

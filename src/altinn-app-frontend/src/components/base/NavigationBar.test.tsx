@@ -14,7 +14,7 @@ const { setScreenWidth } = mockMediaQuery(600);
 const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
   const allProps = {
     triggers: [],
-    ...props,
+    ...(props as any),
   } as INavigationBar;
 
   const store = setupStore({
@@ -31,6 +31,7 @@ const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
         autoSave: false,
         focus: 'focus',
         hiddenFields: [],
+        repeatingGroups: null,
       },
       layouts: {
         page1: [
@@ -104,6 +105,11 @@ const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
         ],
       },
     },
+    language: {
+      language: {},
+      error: null,
+      selectedAppLanguage: 'nb',
+    },
   });
 
   store.dispatch = dispatch;
@@ -122,10 +128,7 @@ describe('NavigationBar', () => {
     it('should show navigation menu, and not show navigation menu toggle button', async () => {
       render();
 
-      expect(screen.getByTestId('navigation-menu')).toHaveProperty(
-        'hidden',
-        false,
-      );
+      expect(screen.getByTestId('navigation-menu')).toHaveProperty('hidden', false);
 
       expect(
         screen.queryByRole('button', {
@@ -145,7 +148,7 @@ describe('NavigationBar', () => {
       expect(dispatchMock).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
-          runValidations: null,
+          runValidations: undefined,
         },
         type: FormLayoutActions.updateCurrentView.type,
       });
@@ -173,10 +176,7 @@ describe('NavigationBar', () => {
     it('should hide navigation buttons and show a button to toggle the navigation menu', async () => {
       render();
 
-      expect(screen.getByTestId('navigation-menu')).toHaveProperty(
-        'hidden',
-        true,
-      );
+      expect(screen.getByTestId('navigation-menu')).toHaveProperty('hidden', true);
       expect(
         screen.getByRole('button', {
           name: /1\/3 page1/i,
@@ -236,7 +236,7 @@ describe('NavigationBar', () => {
       expect(dispatchMock).toHaveBeenCalledWith({
         payload: {
           newView: 'page3',
-          runValidations: null,
+          runValidations: undefined,
         },
         type: FormLayoutActions.updateCurrentView.type,
       });

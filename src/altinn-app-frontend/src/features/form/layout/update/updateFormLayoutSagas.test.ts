@@ -28,6 +28,7 @@ import type {
   ICalculatePageOrderAndMoveToNextPage,
   IUpdateRepeatingGroups,
 } from 'src/features/form/layout/formLayoutTypes';
+import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IDataModelBindings, IRuntimeState } from 'src/types';
 
@@ -46,11 +47,7 @@ describe('updateLayoutSagas', () => {
         .call(initRepeatingGroupsSaga)
         .next()
         .takeLatest(
-          [
-            FormDataActions.fetchFulfilled,
-            FormLayoutActions.initRepeatingGroups,
-            FormLayoutActions.fetchFulfilled,
-          ],
+          [FormDataActions.fetchFulfilled, FormLayoutActions.initRepeatingGroups, FormLayoutActions.fetchFulfilled],
           initRepeatingGroupsSaga,
         )
         .next()
@@ -61,7 +58,7 @@ describe('updateLayoutSagas', () => {
   describe('updateRepeatingGroupsSaga', () => {
     it('should remove attachment references from formData', () => {
       const state: IRuntimeState = getInitialStateMock();
-      state.formLayout.layouts.FormLayout.push({
+      state.formLayout.layouts?.FormLayout?.push({
         id: 'repeating-group',
         type: 'Group',
         dataModelBindings: {
@@ -81,7 +78,7 @@ describe('updateLayoutSagas', () => {
       const dataModelBinding: IDataModelBindings = {
         simpleBinding: 'Group.attachmentRef',
       };
-      state.formLayout.layouts.FormLayout.push({
+      state.formLayout.layouts?.FormLayout?.push({
         id: 'uploader',
         type: 'FileUpload',
         dataModelBindings: dataModelBinding,
@@ -257,7 +254,7 @@ describe('updateLayoutSagas', () => {
         applicationMetadata: {
           ...state.applicationMetadata,
           applicationMetadata: {
-            ...state.applicationMetadata.applicationMetadata,
+            ...(state.applicationMetadata.applicationMetadata as IApplicationMetadata),
             onEntry: {
               show: 'some-data-type',
             },
@@ -266,9 +263,7 @@ describe('updateLayoutSagas', () => {
         formLayout: {
           ...state.formLayout,
           layoutsets: {
-            sets: [
-              { id: 'some-data-type', dataType: 'some-data-type', tasks: [] },
-            ],
+            sets: [{ id: 'some-data-type', dataType: 'some-data-type', tasks: [] }],
           },
         },
       };

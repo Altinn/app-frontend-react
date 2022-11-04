@@ -48,19 +48,12 @@ describe('language.ts', () => {
           id: 'mockId1',
           value: 'This is an {0} text.',
           unparsedValue: 'This is an {0} text.',
-          variables: [
-            { key: 'model.text.adjective', dataSource: 'dataModel.test' },
-          ],
+          variables: [{ key: 'model.text.adjective', dataSource: 'dataModel.test' }],
         },
       ];
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId1',
-      );
-      expect(textResource.value).toEqual(`This is an ${adjectiveValue} text.`);
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId1');
+      expect(textResource?.value).toEqual(`This is an ${adjectiveValue} text.`);
     });
 
     it('should replace multiple parameters', () => {
@@ -76,16 +69,9 @@ describe('language.ts', () => {
         },
       ];
 
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource) => resource.id === 'mockId1',
-      );
-      expect(textResource.value).toEqual(
-        `This is an ${adjectiveValue} text, ${colorValue}.`,
-      );
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource) => resource.id === 'mockId1');
+      expect(textResource?.value).toEqual(`This is an ${adjectiveValue} text, ${colorValue}.`);
     });
 
     it('should replace parameter for previously parsed value', () => {
@@ -94,19 +80,12 @@ describe('language.ts', () => {
           id: 'mockId',
           value: 'This is a green apple.',
           unparsedValue: 'This is a {0} apple.',
-          variables: [
-            { key: 'model.text.color', dataSource: 'dataModel.test' },
-          ],
+          variables: [{ key: 'model.text.color', dataSource: 'dataModel.test' }],
         },
       ];
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId',
-      );
-      expect(textResource.value).toEqual(`This is a ${colorValue} apple.`);
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId');
+      expect(textResource?.value).toEqual(`This is a ${colorValue} apple.`);
     });
 
     it('should replace parameter with text key', () => {
@@ -115,21 +94,12 @@ describe('language.ts', () => {
           id: 'mockId',
           value: 'This is a text with a missing param: {0}.',
           unparsedValue: 'This is a text with a missing param: {0}.',
-          variables: [
-            { key: 'model.text.param', dataSource: 'dataModel.test' },
-          ],
+          variables: [{ key: 'model.text.param', dataSource: 'dataModel.test' }],
         },
       ];
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId',
-      );
-      expect(textResource.value).toEqual(
-        'This is a text with a missing param: model.text.param.',
-      );
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId');
+      expect(textResource?.value).toEqual('This is a text with a missing param: model.text.param.');
     });
 
     it('should not replace the texts from invalid source', () => {
@@ -138,21 +108,12 @@ describe('language.ts', () => {
           id: 'mockId',
           value: 'This: {0} depends on an invalid source.',
           unparsedValue: 'This: {0} depends on an invalid source.',
-          variables: [
-            { key: 'model.text.adjective', dataSource: 'api.invalidSource' },
-          ],
+          variables: [{ key: 'model.text.adjective', dataSource: 'api.invalidSource' }],
         },
       ];
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId',
-      );
-      expect(textResource.value).toEqual(
-        'This: {0} depends on an invalid source.',
-      );
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId');
+      expect(textResource?.value).toEqual('This: {0} depends on an invalid source.');
     });
 
     it('should not replace texts when no variable is defined', () => {
@@ -164,14 +125,9 @@ describe('language.ts', () => {
           variables: undefined,
         },
       ];
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId',
-      );
-      expect(textResource.value).toEqual('mock value');
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId');
+      expect(textResource?.value).toEqual('mock value');
     });
 
     it('should replace texts for repeating groups', () => {
@@ -194,42 +150,25 @@ describe('language.ts', () => {
           dataModelBinding: 'model.group',
         },
       };
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-        mockRepeatingGroups,
-      );
-      let textResource = replacedResources.find(
-        (resource) => resource.id === 'mockId-0',
-      );
-      expect(textResource.value).toEqual(`Hello, ${animal0Value}!`);
-      textResource = replacedResources.find(
-        (resource) => resource.id === 'mockId-1',
-      );
-      expect(textResource.value).toEqual(`Hello, ${animal1Value}!`);
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources, mockRepeatingGroups);
+      let textResource = replacedResources.find((resource) => resource.id === 'mockId-0');
+      expect(textResource?.value).toEqual(`Hello, ${animal0Value}!`);
+      textResource = replacedResources.find((resource) => resource.id === 'mockId-1');
+      expect(textResource?.value).toEqual(`Hello, ${animal1Value}!`);
     });
 
     it('should replace multiple references to same value', () => {
       const mockTextResources: ITextResource[] = [
         {
           id: 'mockId',
-          value:
-            'This is a {0} apple. It will always be {0}. Yes, {0} is my favorite color.',
-          unparsedValue:
-            'This is a {0} apple. It will always be {0}. Yes, {0} is my favorite color.',
-          variables: [
-            { key: 'model.text.color', dataSource: 'dataModel.test' },
-          ],
+          value: 'This is a {0} apple. It will always be {0}. Yes, {0} is my favorite color.',
+          unparsedValue: 'This is a {0} apple. It will always be {0}. Yes, {0} is my favorite color.',
+          variables: [{ key: 'model.text.color', dataSource: 'dataModel.test' }],
         },
       ];
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId',
-      );
-      expect(textResource.value).toEqual(
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId');
+      expect(textResource?.value).toEqual(
         `This is a ${colorValue} apple. It will always be ${colorValue}. Yes, ${colorValue} is my favorite color.`,
       );
     });
@@ -240,19 +179,12 @@ describe('language.ts', () => {
           id: 'mockId',
           value: 'This is a [link]({0}).',
           unparsedValue: 'This is a [link]({0}).',
-          variables: [
-            { key: 'homeBaseUrl', dataSource: 'applicationSettings' },
-          ],
+          variables: [{ key: 'homeBaseUrl', dataSource: 'applicationSettings' }],
         },
       ];
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId',
-      );
-      expect(textResource.value).toEqual(`This is a [link](${homeBaseUrl}).`);
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId');
+      expect(textResource?.value).toEqual(`This is a [link](${homeBaseUrl}).`);
     });
 
     it('should replace text with key when appsettings value is missing', () => {
@@ -261,19 +193,12 @@ describe('language.ts', () => {
           id: 'mockId',
           value: 'This is a [link]({0}).',
           unparsedValue: 'This is a [link]({0}).',
-          variables: [
-            { key: 'doesnotexists', dataSource: 'applicationSettings' },
-          ],
+          variables: [{ key: 'doesnotexists', dataSource: 'applicationSettings' }],
         },
       ];
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId',
-      );
-      expect(textResource.value).toEqual(`This is a [link](doesnotexists).`);
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId');
+      expect(textResource?.value).toEqual(`This is a [link](doesnotexists).`);
     });
 
     it('should replace text from instance context', () => {
@@ -282,21 +207,12 @@ describe('language.ts', () => {
           id: 'mockId',
           value: 'The instance owner party id is {0}',
           unparsedValue: 'The instance owner party id is {0}',
-          variables: [
-            { key: 'instanceOwnerPartyId', dataSource: 'instanceContext' },
-          ],
+          variables: [{ key: 'instanceOwnerPartyId', dataSource: 'instanceContext' }],
         },
       ];
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId',
-      );
-      expect(textResource.value).toEqual(
-        `The instance owner party id is ${instanceOwnerPartyId}`,
-      );
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId');
+      expect(textResource?.value).toEqual(`The instance owner party id is ${instanceOwnerPartyId}`);
     });
 
     it('should replace text in a reapeating group based on appsettings', () => {
@@ -305,9 +221,7 @@ describe('language.ts', () => {
           id: 'mockId',
           value: 'This is a [link]({0}).',
           unparsedValue: 'This is a [link]({0}).',
-          variables: [
-            { key: 'homeBaseUrl', dataSource: 'applicationSettings' },
-          ],
+          variables: [{ key: 'homeBaseUrl', dataSource: 'applicationSettings' }],
         },
       ];
       const mockRepeatingGroups = {
@@ -316,15 +230,9 @@ describe('language.ts', () => {
           dataModelBinding: 'model.group',
         },
       };
-      const replacedResources = replaceTextResourceParams(
-        mockTextResources,
-        mockDataSources,
-        mockRepeatingGroups,
-      );
-      const textResource = replacedResources.find(
-        (resource: ITextResource) => resource.id === 'mockId',
-      );
-      expect(textResource.value).toEqual(`This is a [link](${homeBaseUrl}).`);
+      const replacedResources = replaceTextResourceParams(mockTextResources, mockDataSources, mockRepeatingGroups);
+      const textResource = replacedResources.find((resource: ITextResource) => resource.id === 'mockId');
+      expect(textResource?.value).toEqual(`This is a [link](${homeBaseUrl}).`);
     });
   });
 
@@ -431,8 +339,7 @@ describe('language.ts', () => {
 
     it('should return undefined string if neither defined in textResources and applicationMetadata not set', () => {
       const result = getAppName([], null, 'nb');
-      const expectedResult: string = undefined;
-      expect(result).toEqual(expectedResult);
+      expect(result).toBeUndefined();
     });
   });
 

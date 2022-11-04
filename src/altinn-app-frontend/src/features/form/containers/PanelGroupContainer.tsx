@@ -27,7 +27,7 @@ export interface IPanelGroupContainerProps {
 
 interface ICustomIconProps {
   iconUrl: string;
-  iconAlt: string;
+  iconAlt: string | undefined;
   size?: string;
 }
 
@@ -52,71 +52,58 @@ function CustomIcon({ iconUrl, iconAlt, size }: ICustomIconProps) {
   );
 }
 
-export function PanelGroupContainer({
-  container,
-  components,
-}: IPanelGroupContainerProps) {
+export function PanelGroupContainer({ container, components }: IPanelGroupContainerProps) {
   const dispatch = useAppDispatch();
   const GetHiddenSelector = makeGetHidden();
   const [open, setOpen] = useState<boolean>(!container.panel?.groupReference);
   const layout = useAppSelector(
-    (state) => state.formLayout.layouts[state.formLayout.uiConfig.currentView],
+    (state) => state.formLayout.layouts && state.formLayout.layouts[state.formLayout.uiConfig.currentView],
   );
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const language = useAppSelector((state) => state.language.language);
-  const textResources = useAppSelector(
-    (state) => state.textResources.resources,
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
+  const hidden = useAppSelector((state) => GetHiddenSelector(state, { id: container.id }));
+  const title = useAppSelector(
+    (state) =>
+      container.textResourceBindings?.title &&
+      getTextResource(container.textResourceBindings.title, state.textResources.resources),
   );
-  const hiddenFields = useAppSelector(
-    (state) => state.formLayout.uiConfig.hiddenFields,
+  const body = useAppSelector(
+    (state) =>
+      container.textResourceBindings?.body &&
+      getTextResource(container.textResourceBindings.body, state.textResources.resources),
   );
-  const hidden = useAppSelector((state) =>
-    GetHiddenSelector(state, { id: container.id }),
+  const addLabel = useAppSelector(
+    (state) =>
+      container.textResourceBindings?.add_label &&
+      getTextResource(container.textResourceBindings.add_label, state.textResources.resources),
   );
-  const title = useAppSelector((state) =>
-    getTextResource(
-      container.textResourceBindings?.title,
-      state.textResources.resources,
-    ),
-  );
-  const body = useAppSelector((state) =>
-    getTextResource(
-      container.textResourceBindings?.body,
-      state.textResources.resources,
-    ),
-  );
-  const addLabel = useAppSelector((state) =>
-    getTextResource(
-      container.textResourceBindings?.add_label,
-      state.textResources.resources,
-    ),
-  );
-  const repeatingGroups =
-    useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups) || {};
-  const { iconUrl, iconAlt } = container.panel;
+  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups) || {};
+  const { iconUrl, iconAlt } = container.panel || {};
   const fullWidth = !container.baseComponentId;
   const repGroupReference = container.panel?.groupReference;
-  const referencedGroup: ILayoutGroup = repGroupReference
+  const referencedGroup: ILayoutGroup | undefined = repGroupReference
     ? (getLayoutComponentById(repGroupReference.group, layouts) as ILayoutGroup)
     : undefined;
-  const referencedGroupIndex = referencedGroup
-    ? repeatingGroups[referencedGroup.id].index
-    : -1;
+  const referencedGroupIndex = referencedGroup ? repeatingGroups[referencedGroup.id].index : -1;
 
   const handleSave = () => {
     setOpen(false);
-    dispatch(
-      FormLayoutActions.updateRepeatingGroups({
-        layoutElementId: referencedGroup.id,
-      }),
-    );
+    if (referencedGroup) {
+      dispatch(
+        FormLayoutActions.updateRepeatingGroups({
+          layoutElementId: referencedGroup.id,
+        }),
+      );
+    }
   };
 
   const handleOpen = () => {
     setOpen(true);
   };
 
-  if (hidden) {
+  if (hidden || !language) {
     return null;
   }
 
@@ -128,9 +115,7 @@ export function PanelGroupContainer({
       >
         <ConditionalWrapper
           condition={!fullWidth && open}
-          wrapper={(child) => (
-            <FullWidthGroupWrapper>{child}</FullWidthGroupWrapper>
-          )}
+          wrapper={(child) => <FullWidthGroupWrapper>{child}</FullWidthGroupWrapper>}
         >
           <>
             {referencedGroup && !open && (
@@ -157,7 +142,7 @@ export function PanelGroupContainer({
                     : undefined
                 }
                 showIcon={container.panel?.showIcon}
-                variant={getVariant({ variant: container.panel.variant })}
+                variant={getVariant({ variant: container.panel?.variant })}
                 showPointer={!!repGroupReference}
               >
                 <Grid
@@ -178,10 +163,7 @@ export function PanelGroupContainer({
                     createRepeatingGroupComponentsForIndex({
                       container: referencedGroup,
                       renderComponents:
-                        components ||
-                        referencedGroup.children.map((id) =>
-                          getLayoutComponentById(id, layouts),
-                        ),
+                        components || referencedGroup.children.map((id) => getLayoutComponentById(id, layouts)),
                       textResources,
                       index: referencedGroupIndex + 1,
                       hiddenFields,

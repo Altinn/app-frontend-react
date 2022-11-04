@@ -18,8 +18,7 @@ import type { IComponentValidations, IOption } from 'src/types';
 
 import { AltinnSpinner } from 'altinn-shared/components';
 
-export interface ICheckboxContainerProps
-  extends PropsFromGenericComponent<'Checkboxes'> {
+export interface ICheckboxContainerProps extends PropsFromGenericComponent<'Checkboxes'> {
   validationMessages: IComponentValidations;
 }
 
@@ -97,25 +96,17 @@ export const CheckboxContainerComponent = ({
   const calculatedOptions = apiOptions || options || defaultOptions;
   const hasSelectedInitial = React.useRef(false);
   const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
+  const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
+  const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
 
-  const fetchingOptions = useAppSelector(
-    (state) =>
-      state.optionState.options[getOptionLookupKey({ id: optionsId, mapping })]
-        ?.loading,
-  );
+  const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '', 200);
 
-  const { value, setValue, saveValue } = useDelayedSavedState(
-    handleDataChange,
-    formData?.simpleBinding ?? '',
-    200,
-  );
-
-  const selected =
-    value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
+  const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
 
   React.useEffect(() => {
     const shouldSelectOptionAutomatically =
       !formData?.simpleBinding &&
+      typeof preselectedOptionIndex !== 'undefined' &&
       preselectedOptionIndex >= 0 &&
       calculatedOptions &&
       preselectedOptionIndex < calculatedOptions.length &&
@@ -125,12 +116,7 @@ export const CheckboxContainerComponent = ({
       setValue(calculatedOptions[preselectedOptionIndex].value, true);
       hasSelectedInitial.current = true;
     }
-  }, [
-    formData?.simpleBinding,
-    calculatedOptions,
-    setValue,
-    preselectedOptionIndex,
-  ]);
+  }, [formData?.simpleBinding, calculatedOptions, setValue, preselectedOptionIndex]);
 
   React.useEffect(() => {
     if (optionsHasChanged && formData.simpleBinding) {
@@ -205,10 +191,7 @@ export const CheckboxContainerComponent = ({
                 />
                 {validationMessages &&
                   isOptionSelected(option.value) &&
-                  renderValidationMessagesForComponent(
-                    validationMessages.simpleBinding,
-                    id,
-                  )}
+                  renderValidationMessagesForComponent(validationMessages.simpleBinding, id)}
               </React.Fragment>
             ))}
           </>

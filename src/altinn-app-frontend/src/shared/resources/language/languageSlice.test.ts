@@ -1,7 +1,4 @@
-import slice, {
-  initialState,
-  LanguageActions,
-} from 'src/shared/resources/language/languageSlice';
+import slice, { initialState, LanguageActions } from 'src/shared/resources/language/languageSlice';
 import type { ILanguageState } from 'src/shared/resources/language/languageSlice';
 
 describe('languageSlice', () => {
@@ -19,7 +16,7 @@ describe('languageSlice', () => {
         },
       }),
     );
-    expect(nextState.language.testKey).toEqual('test');
+    expect(nextState.language?.testKey).toEqual('test');
     expect(nextState.error).toBeNull();
   });
 
@@ -32,6 +29,6 @@ describe('languageSlice', () => {
       }),
     );
     expect(nextState.language).toBeNull();
-    expect(nextState.error.message).toEqual(errorMessage);
+    expect(nextState.error?.message).toEqual(errorMessage);
   });
 });

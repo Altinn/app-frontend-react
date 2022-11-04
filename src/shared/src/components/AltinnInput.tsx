@@ -1,11 +1,4 @@
-import {
-  createTheme,
-  createStyles,
-  Grid,
-  Input,
-  InputLabel,
-  makeStyles,
-} from '@material-ui/core';
+import { createTheme, createStyles, Grid, Input, InputLabel, makeStyles } from '@material-ui/core';
 import * as React from 'react';
 import altinnTheme from '../theme/altinnStudioTheme';
 import cn from 'classnames';
@@ -54,18 +47,11 @@ const useStyles = makeStyles(styles);
 
 function AltinnInput(props: IAltinnInputProps) {
   const inputRef = React.createRef<HTMLInputElement>();
-  const {
-    iconString,
-    label,
-    widthPercentage,
-    showLabel,
-    validationError,
-    ...rest
-  } = props;
+  const { iconString, label, widthPercentage, showLabel, validationError, ...rest } = props;
   const classes = useStyles();
 
   function focusInput() {
-    inputRef.current.focus();
+    inputRef.current?.focus();
   }
   return (
     <Grid
@@ -77,17 +63,12 @@ function AltinnInput(props: IAltinnInputProps) {
         width: widthPercentage ? `${widthPercentage}%` : '100%',
       }}
     >
-      {showLabel ? (
-        <InputLabel className={classes.inputLabel}>{label}</InputLabel>
-      ) : null}
+      {showLabel ? <InputLabel className={classes.inputLabel}>{label}</InputLabel> : null}
       <Grid
         {...(validationError && { 'data-testid': 'input-validation-error' })}
         container={true}
         direction={'row'}
-        className={cn(
-          classes.input,
-          validationError && classes.inputValidationError,
-        )}
+        className={cn(classes.input, validationError && classes.inputValidationError)}
       >
         {iconString ? (
           <i
