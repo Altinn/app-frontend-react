@@ -5,7 +5,7 @@
   "description": "Schema that describes the options that can be configured for number formatting on an `input` component, based on react-number-format package. For complete list of available options, see https://s-yadav.github.io/react-number-format/docs/props",
   "type": "object",
   "additionalProperties": true,
-  "oneOf": [
+  "anyOf": [
     {
       "properties": {
         "allowedDecimalSeparators": {
