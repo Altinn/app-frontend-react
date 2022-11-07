@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, ButtonVariant } from '@altinn/altinn-design-system';
+import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
 import { createTheme, Grid, IconButton, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
@@ -227,7 +227,8 @@ export function RepeatingGroupsEditContainer({
                 <Button
                   id={`next-button-grp-${id}`}
                   onClick={nextClicked}
-                  variant={ButtonVariant.Primary}
+                  variant={ButtonVariant.Filled}
+                  color={ButtonColor.Primary}
                 >
                   {container.textResourceBindings?.save_and_next_button
                     ? getTextResourceByKey(container.textResourceBindings.save_and_next_button, textResources)
@@ -240,7 +241,8 @@ export function RepeatingGroupsEditContainer({
                 <Button
                   id={`add-button-grp-${id}`}
                   onClick={saveClicked}
-                  variant={ButtonVariant.Secondary}
+                  variant={ButtonVariant.Outline}
+                  color={ButtonColor.Primary}
                 >
                   {container.textResourceBindings?.save_button
                     ? getTextResourceByKey(container.textResourceBindings.save_button, textResources)
