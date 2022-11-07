@@ -1,7 +1,11 @@
 import moment from 'moment';
 
 import { DateFlags } from 'src/types';
-import { DatePickerFormatDefault } from 'src/utils/validation';
+import {
+  DatePickerFormatDefault,
+  DatePickerSaveFormatNoTimestamp,
+  DatePickerSaveFormatTimestamp,
+} from 'src/utils/validation';
 
 /*
   Creates a specific date based on different flags (DatepickerRestrictionFlags)
@@ -29,4 +33,13 @@ moment.locale(locale);
 
 export function getDateFormat(format?: string): string {
   return moment.localeData().longDateFormat('L') || format || DatePickerFormatDefault;
+}
+
+export function getDateString(date: moment.Moment | null, timestamp: boolean) {
+  if (!date) {
+    return '';
+  }
+  return timestamp === false
+    ? date?.format(DatePickerSaveFormatNoTimestamp)
+    : date?.format(DatePickerSaveFormatTimestamp);
 }

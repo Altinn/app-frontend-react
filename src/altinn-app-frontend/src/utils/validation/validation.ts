@@ -413,6 +413,7 @@ export function attachmentIsMissingTag(attachment: IAttachment): boolean {
 export const DatePickerMinDateDefault = '1900-01-01T12:00:00.000Z';
 export const DatePickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
 export const DatePickerFormatDefault = 'DD.MM.YYYY';
+export const DatePickerSaveFormatTimestamp = 'YYYY-MM-DDThh:mm:ss.sssZ';
 export const DatePickerSaveFormatNoTimestamp = 'YYYY-MM-DD';
 
 /*
@@ -426,10 +427,9 @@ export function validateDatepickerFormData(
   language: ILanguage,
 ): IComponentBindingValidation {
   const validations: IComponentBindingValidation = { errors: [], warnings: [] };
-  const date = formData ? moment(formData) : null;
+  const date = formData ? moment(formData, moment.ISO_8601) : null;
 
-  if (formData === null || formData === undefined) {
-    // is only set to NULL if the format is malformed. Is otherwise undefined or empty string
+  if (date && !date.isValid()) {
     validations.errors?.push(getParsedLanguageFromKey('date_picker.invalid_date_message', language, [format], true));
   }
 

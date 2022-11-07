@@ -8,6 +8,7 @@ export {
   DatePickerMaxDateDefault,
   DatePickerMinDateDefault,
   DatePickerSaveFormatNoTimestamp,
+  DatePickerSaveFormatTimestamp,
   validateDatepickerFormData,
   repeatingGroupHasValidations,
   componentHasValidations,
