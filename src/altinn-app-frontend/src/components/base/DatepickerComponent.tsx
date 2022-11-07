@@ -5,6 +5,7 @@ import { Grid, Icon, makeStyles, useMediaQuery, useTheme } from '@material-ui/co
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import moment from 'moment';
 
+import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { getDateFormat, getDateString, getFlagBasedDate, getISOString } from 'src/utils/dateHelpers';
 import { DatePickerMaxDateDefault, DatePickerMinDateDefault } from 'src/utils/validation';
 import type { PropsFromGenericComponent } from 'src/components';
@@ -85,8 +86,6 @@ function DatepickerComponent({
   textResourceBindings,
 }: IDatePickerProps) {
   const classes = useStyles();
-  const [date, setDate] = React.useState<moment.Moment | null>(null);
-  const [input, setInput] = React.useState<string | undefined>(undefined);
 
   const calculatedMinDate = getFlagBasedDate(minDate as DateFlags) || getISOString(minDate) || DatePickerMinDateDefault;
   const calculatedMaxDate = getFlagBasedDate(maxDate as DateFlags) || getISOString(maxDate) || DatePickerMaxDateDefault;
@@ -95,36 +94,17 @@ function DatepickerComponent({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  React.useEffect(() => {
-    const dateValue = formData?.simpleBinding ? moment(formData.simpleBinding, moment.ISO_8601) : null;
-    if (dateValue?.isValid()) {
-      setDate(dateValue);
-      setInput(undefined);
-    } else {
-      setDate(null);
-      setInput(formData?.simpleBinding || '');
-    }
-  }, [formData?.simpleBinding]);
+  const { value, setValue, saveValue, onPaste } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '');
+
+  const dateValue = moment(value, moment.ISO_8601);
+  const [date, input] = dateValue.isValid() ? [dateValue, undefined] : [null, value ?? ''];
 
   const handleDateValueChange = (dateValue: moment.Moment, inputValue: string) => {
-    dateValue?.set('hour', 12)?.set('minute', 0)?.set('second', 0)?.set('millisecond', 0);
-
     if (dateValue?.isValid()) {
-      setDate(dateValue);
-      setInput(undefined);
-      handleDataChange(getDateString(dateValue, timeStamp));
+      dateValue.set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
+      setValue(getDateString(dateValue, timeStamp));
     } else {
-      setDate(null);
-      setInput(inputValue);
-      handleDataChange(inputValue);
-    }
-  };
-
-  const handleBlur = () => {
-    if (date?.isValid()) {
-      handleDataChange(getDateString(date, timeStamp));
-    } else {
-      handleDataChange(input);
+      setValue(inputValue);
     }
   };
 
@@ -157,7 +137,8 @@ function DatepickerComponent({
             placeholder={calculatedFormat}
             key={id}
             onChange={handleDateValueChange}
-            onBlur={handleBlur}
+            onBlur={saveValue}
+            onPaste={onPaste}
             autoOk={true}
             invalidDateMessage={emptyString}
             maxDateMessage={emptyString}

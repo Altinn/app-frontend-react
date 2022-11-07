@@ -36,10 +36,9 @@ export function getDateFormat(format?: string): string {
 }
 
 export function getDateString(date: moment.Moment | null, timestamp: boolean) {
-  if (!date) {
-    return '';
-  }
-  return timestamp === false
-    ? date?.format(DatePickerSaveFormatNoTimestamp)
-    : date?.format(DatePickerSaveFormatTimestamp);
+  return (
+    (timestamp === false
+      ? date?.format(DatePickerSaveFormatNoTimestamp)
+      : date?.format(DatePickerSaveFormatTimestamp)) ?? ''
+  );
 }
