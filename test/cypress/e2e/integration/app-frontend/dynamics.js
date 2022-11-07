@@ -44,12 +44,18 @@ describe('Dynamics', () => {
       return component;
     });
     cy.navigateToChangeName();
-    cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').type('test');
+    cy.get(appFrontend.changeOfName.newFirstName).type('test');
     cy.get(appFrontend.errorReport)
       .should('exist')
       .should('be.visible')
       .should('contain.text', texts.testIsNotValidValue);
-    cy.get(appFrontend.changeOfName.newLastName).should('be.visible').type('hideFirstName');
+    cy.get(appFrontend.changeOfName.newLastName).type('hideFirstName');
     cy.get(appFrontend.errorReport).should('not.exist');
+    cy.get(appFrontend.changeOfName.newLastName).clear();
+    cy.get(appFrontend.changeOfName.newFirstName).should('be.visible');
+    cy.get(appFrontend.errorReport)
+      .should('exist')
+      .should('be.visible')
+      .should('contain.text', texts.testIsNotValidValue);
   });
 });

@@ -4,6 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 import { evalExpr } from 'src/features/expressions';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
+import { Triggers } from 'src/types';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { dataSourcesFromState, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import { selectNotNull } from 'src/utils/sagas';
@@ -44,13 +45,35 @@ export function* checkIfConditionalRulesShouldRunSaga(): SagaIterator {
       );
 
       const newlyHidden = Array.from(futureHiddenFields).filter((i) => !hiddenFields.has(i));
+      const newlyVisible = Array.from(hiddenFields).filter((i) => !futureHiddenFields.has(i));
       const newFormValidations: IValidations = JSON.parse(JSON.stringify(formValidations));
       let validationsChanged = false;
-      for (const layout of Object.values(newFormValidations)) {
+      for (const layoutId of Object.keys(newFormValidations)) {
+        const layout = newFormValidations[layoutId];
+        const layoutObj = resolvedNodes.findLayout(layoutId);
         for (const componentId of newlyHidden) {
           if (layout[componentId]) {
             delete layout[componentId];
             validationsChanged = true;
+          }
+        }
+        for (const componentId of newlyVisible) {
+          const node = layoutObj.findById(componentId);
+          if (
+            node &&
+            node.item.dataModelBindings &&
+            node.item.triggers &&
+            node.item.triggers.includes(Triggers.Validation)
+          ) {
+            for (const dataModelBinding of Object.values(node.item.dataModelBindings)) {
+              yield put(
+                ValidationActions.runSingleFieldValidation({
+                  componentId,
+                  layoutId,
+                  dataModelBinding,
+                }),
+              );
+            }
           }
         }
       }
