@@ -49,6 +49,7 @@ function evalAllExpressions(layouts: Layouts) {
           formData: {},
           applicationSettings: {} as any,
           instanceContext: {} as any,
+          hiddenFields: new Set(),
         },
       });
     }

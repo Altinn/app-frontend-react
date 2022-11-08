@@ -515,6 +515,7 @@ describe('Hierarchical layout tools', () => {
         appId: 'test',
       },
       applicationSettings: {},
+      hiddenFields: new Set(),
     };
 
     const nodes = resolvedNodesInLayout(layout, repeatingGroups, dataSources);

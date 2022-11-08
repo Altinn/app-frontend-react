@@ -49,6 +49,7 @@ export function useExpressions<T>(input: T, _options?: UseExpressionsOptions<T>)
   const nodes = useLayoutsAsNodes();
   const formData = useAppSelector((state) => state.formData?.formData);
   const applicationSettings = useAppSelector((state) => state.applicationSettings?.applicationSettings);
+  const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const instanceContextSelector = getInstanceContextSelector();
   const instanceContext: IInstanceContext = useAppSelector(instanceContextSelector);
   const id = (options && options.forComponentId) || component.id;
@@ -69,8 +70,9 @@ export function useExpressions<T>(input: T, _options?: UseExpressionsOptions<T>)
       instanceContext,
       applicationSettings,
       formData,
+      hiddenFields: new Set(hiddenFields),
     }),
-    [instanceContext, applicationSettings, formData],
+    [instanceContext, applicationSettings, formData, hiddenFields],
   );
 
   return useMemo(() => {

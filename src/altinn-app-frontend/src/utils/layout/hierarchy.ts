@@ -704,6 +704,7 @@ export function dataSourcesFromState(state: IRuntimeState): ContextDataSources {
     formData: state.formData.formData,
     applicationSettings: state.applicationSettings.applicationSettings,
     instanceContext: buildInstanceContext(state.instanceData?.instance),
+    hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
   };
 }
 

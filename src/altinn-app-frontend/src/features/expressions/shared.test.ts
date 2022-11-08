@@ -28,6 +28,7 @@ describe('Expressions shared function tests', () => {
           formData: dataModel ? dot.dot(dataModel) : {},
           instanceContext: instanceContext || ({} as IInstanceContext),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
+          hiddenFields: new Set(),
         };
 
         const asNodes = {};
@@ -89,6 +90,7 @@ describe('Expressions shared context tests', () => {
         formData: dataModel ? dot.dot(dataModel) : {},
         instanceContext: instanceContext || ({} as IInstanceContext),
         applicationSettings: frontendSettings || ({} as IApplicationSettings),
+        hiddenFields: new Set(),
       };
 
       const foundContexts: SharedTestContextList[] = [];

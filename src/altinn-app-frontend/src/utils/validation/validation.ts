@@ -1265,6 +1265,7 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
     formData,
     instanceContext,
     applicationSettings: state.applicationSettings?.applicationSettings,
+    hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
   });
 
   const node = resolvedLayout.findById(groupId);
