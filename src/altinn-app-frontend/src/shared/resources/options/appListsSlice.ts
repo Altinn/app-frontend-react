@@ -6,6 +6,8 @@ import type {
   IFetchAppListsRejectedAction,
   IFetchingAppListsAction,
   ISetAppLists,
+  ISetAppListsPageNumber,
+  ISetAppListsPageSize,
   ISetAppListsWithIndexIndicators,
 } from 'src/shared/resources/options';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
@@ -25,10 +27,10 @@ const appListsSlice = createSagaSlice((mkAction: MkActionType<IAppListsState>) =
     }),
     fetchFulfilled: mkAction<IFetchAppListsFulfilledAction>({
       reducer: (state, action) => {
-        const { key, appLists } = action.payload;
+        const { key, appLists, metadata } = action.payload;
         state.appLists[key].loading = false;
-        state.appLists[key].appLists = appLists;
-        console.log(appLists);
+        state.appLists[key].listItems = appLists;
+        state.appLists[key].paginationData = metadata;
       },
     }),
     fetchRejected: mkAction<IFetchAppListsRejectedAction>({
@@ -58,6 +60,21 @@ const appListsSlice = createSagaSlice((mkAction: MkActionType<IAppListsState>) =
       reducer: (state, action) => {
         const { appLists } = action.payload;
         state.appLists = appLists;
+      },
+    }),
+    setPageSize: mkAction<ISetAppListsPageSize>({
+      takeLatest: fetchAppListsSaga,
+      reducer: (state, action) => {
+        const { key, size } = action.payload;
+        state.appLists[key].size = size;
+        state.appLists[key].pageNumber = 0;
+      },
+    }),
+    setPageNumber: mkAction<ISetAppListsPageNumber>({
+      takeLatest: fetchAppListsSaga,
+      reducer: (state, action) => {
+        const { key, pageNumber } = action.payload;
+        state.appLists[key].pageNumber = pageNumber;
       },
     }),
   },

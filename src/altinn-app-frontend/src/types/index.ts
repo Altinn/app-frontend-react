@@ -79,7 +79,7 @@ export interface IOption {
 
 export interface IAppList {
   listItems: any[];
-  metaData: any[];
+  _metaData: any;
 }
 
 export interface IListOption {
@@ -111,7 +111,7 @@ export interface IOptionsActualData {
 }
 
 export interface IAppListActualData {
-  appLists?: IAppList[];
+  listItems?: any;
 }
 
 export interface IOptionsMetaData {
@@ -126,6 +126,14 @@ export interface IAppListsMetaData {
   mapping?: IMapping;
   loading?: boolean;
   secure?: boolean;
+  size?: number;
+  pageNumber?: number;
+  paginationData?: IAppListPaginationData;
+}
+export interface IAppListPaginationData {
+  page: number;
+  pageSize: number;
+  totaltItemsCount: number;
 }
 
 export type IOptionData = IOptionsActualData & IOptionsMetaData;

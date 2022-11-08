@@ -167,15 +167,6 @@ export interface IGetOptionsUrlParams {
   instanceId?: string;
 }
 
-export interface IGetAppListsUrlParams {
-  appListId: string;
-  dataMapping?: IMapping;
-  formData?: IFormData;
-  language?: string;
-  secure?: boolean;
-  instanceId?: string;
-}
-
 export const getOptionsUrl = ({
   optionsId,
   dataMapping,
@@ -207,15 +198,40 @@ export const getOptionsUrl = ({
   url.search = new URLSearchParams(params).toString();
   return url.toString();
 };
+export interface IGetAppListsUrlParams {
+  appListId: string;
+  dataMapping?: IMapping;
+  formData?: IFormData;
+  language?: string;
+  secure?: boolean;
+  instanceId?: string;
+  pageSize?: string;
+  pageNumber?: string;
+}
 
-export const getAppListsUrl = ({ appListId, dataMapping, formData, language }: IGetAppListsUrlParams) => {
+export const getAppListsUrl = ({
+  appListId,
+  dataMapping,
+  formData,
+  language,
+  pageSize,
+  pageNumber,
+}: IGetAppListsUrlParams) => {
   const url = new URL(`${appPath}/api/lists/${appListId}`);
-
   let params: Record<string, string> = {};
 
   if (language) {
     params.language = language;
   }
+
+  if (pageSize) {
+    params.size = pageSize;
+  }
+
+  if (pageNumber) {
+    params.page = pageNumber;
+  }
+
   if (formData && dataMapping) {
     const mapped = mapFormData(formData, dataMapping);
 

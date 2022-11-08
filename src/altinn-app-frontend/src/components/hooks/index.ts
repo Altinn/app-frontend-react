@@ -81,7 +81,7 @@ export const useGetAppListOptions = ({ appListId, mapping }: IUseGetListParams) 
   const [appList, setAppList] = useState<any>(undefined);
   useEffect(() => {
     if (appListId) {
-      setAppList(appListState[getOptionLookupKey({ id: appListId, mapping })]?.appLists);
+      setAppList(appListState[getOptionLookupKey({ id: appListId, mapping })]?.listItems);
     }
   }, [mapping, appListId, appListState]);
   return appList;
