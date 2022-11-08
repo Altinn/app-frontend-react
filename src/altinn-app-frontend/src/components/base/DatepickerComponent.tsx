@@ -4,6 +4,7 @@ import MomentUtils from '@date-io/moment';
 import { Grid, Icon, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import moment from 'moment';
+import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { getDateFormat, getDateString, getFlagBasedDate, getISOString } from 'src/utils/dateHelpers';
@@ -99,12 +100,16 @@ function DatepickerComponent({
   const dateValue = moment(value, moment.ISO_8601);
   const [date, input] = dateValue.isValid() ? [dateValue, undefined] : [null, value ?? ''];
 
-  const handleDateValueChange = (dateValue: moment.Moment, inputValue: string) => {
+  const handleDateValueChange = (
+    dateValue: MaterialUiPickersDate,
+    inputValue: string | undefined,
+    saveImmediately = false,
+  ) => {
     if (dateValue?.isValid()) {
       dateValue.set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
-      setValue(getDateString(dateValue, timeStamp));
+      setValue(getDateString(dateValue, timeStamp), saveImmediately);
     } else {
-      setValue(inputValue);
+      setValue(inputValue, saveImmediately);
     }
   };
 
@@ -138,6 +143,7 @@ function DatepickerComponent({
             key={id}
             onChange={handleDateValueChange}
             onBlur={saveValue}
+            onAccept={(dateValue) => handleDateValueChange(dateValue, undefined, true)}
             onPaste={onPaste}
             autoOk={true}
             invalidDateMessage={emptyString}
