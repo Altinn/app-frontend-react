@@ -109,7 +109,8 @@ function DatepickerComponent({
       dateValue.set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
       setValue(getDateString(dateValue, timeStamp), saveImmediately);
     } else {
-      setValue(inputValue, saveImmediately);
+      const skipValidation = (dateValue?.parsingFlags().charsLeftOver ?? 0) > 0;
+      setValue(inputValue, saveImmediately, skipValidation);
     }
   };
 
