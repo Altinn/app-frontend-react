@@ -39,7 +39,8 @@
             "type": "Input",
             "dataModelBindings": {
               "simpleBinding": "Mennesker.Alder"
-            }
+            },
+            "hidden": ["dataModel", "Bedrifter.Ansatte.AlderSkjult"]
           },
           {
             "id": "myndig",
@@ -56,7 +57,8 @@
     "Mennesker": [
       {
         "Navn": "Kåre",
-        "Alder": 24
+        "Alder": 24,
+        "AlderSkjult": true
       },
       {
         "Navn": "Arild",
