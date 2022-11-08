@@ -3,6 +3,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
+import { appListSortColumnSelector } from 'src/selectors/appListSortColumnSelector';
+import { appListSortDirectionSelector } from 'src/selectors/appListSortDirectionSelector';
 import { appListsActions } from 'src/shared/resources/options/appListsSlice';
 import { getAppListLookupKey, getAppListLookupKeys } from 'src/utils/applist';
 import { getAppListsUrl } from 'src/utils/appUrlHelper';
@@ -47,7 +49,7 @@ export function* fetchAppListsSaga(): SagaIterator {
       }
 
       const { appListId, mapping, secure } = element;
-      console.log(`Her er id:${appListId}`);
+
       const { keys, keyWithIndexIndicator } = getAppListLookupKeys({
         id: appListId,
         mapping,
@@ -66,8 +68,6 @@ export function* fetchAppListsSaga(): SagaIterator {
         const { id, mapping, secure } = appListsObject;
         const lookupKey = getAppListLookupKey({ id, mapping });
         if (appListId && !fetchedAppLists.includes(lookupKey)) {
-          console.log('Inne i fetchAppListSaga inne i for løkke');
-
           yield fork(fetchSpecificAppListSaga, {
             appListId,
             dataMapping: mapping,
@@ -86,7 +86,6 @@ export function* fetchAppListsSaga(): SagaIterator {
 }
 
 export function* fetchSpecificAppListSaga({ appListId, dataMapping, secure }: IFetchSpecificAppListSaga): SagaIterator {
-  console.log('fetchSpecificOptionSaga');
   const key = getAppListLookupKey({ id: appListId, mapping: dataMapping });
   const instanceId = yield select(instanceIdSelector);
   try {
@@ -98,6 +97,8 @@ export function* fetchSpecificAppListSaga({ appListId, dataMapping, secure }: IF
     yield put(appListsActions.fetching({ key, metaData }));
     const formData: IFormData = yield select(formDataSelector);
     const language = yield select(appLanguageStateSelector);
+    const sortColumn = yield select(appListSortColumnSelector);
+    const sortDirection = yield select(appListSortDirectionSelector);
 
     const url = getAppListsUrl({
       appListId,
@@ -106,6 +107,8 @@ export function* fetchSpecificAppListSaga({ appListId, dataMapping, secure }: IF
       dataMapping,
       secure,
       instanceId,
+      sortColumn,
+      sortDirection,
     });
 
     const appLists: IAppList = yield call(get, url);

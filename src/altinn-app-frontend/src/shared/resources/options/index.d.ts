@@ -1,3 +1,5 @@
+import type { SortDirection } from '@altinn/altinn-design-system';
+
 import type { IAppList, IAppLists, IAppListsMetaData, IOption, IOptions, IOptionsMetaData } from 'src/types';
 
 export interface IOptionsState {
@@ -9,6 +11,8 @@ export interface IAppListsState {
   error: Error | null;
   appLists: IAppLists;
   appListsWithIndexIndicator?: IAppListsMetaData[];
+  sortColumn?: string;
+  sortDirection?: SortDirection;
 }
 
 export interface IFetchOptionsFulfilledAction {
@@ -53,4 +57,9 @@ export interface ISetOptions {
 }
 export interface ISetAppLists {
   appLists: IAppLists;
+}
+
+export interface ISetSort {
+  sortColumn: string;
+  sortDirection: SortDirection;
 }
