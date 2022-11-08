@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
   Pagination,
@@ -19,9 +19,6 @@ import { useAppDispatch, useAppSelector, useHasChangedIgnoreUndefined } from 'sr
 import { useGetAppListOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { appListsActions } from 'src/shared/resources/options/appListsSlice';
-import { getAppListLookupKey } from 'src/utils/applist';
-
-import { AltinnSpinner } from 'altinn-shared/components';
 
 export type ILayoutCompProps = PropsFromGenericComponent<'List'>;
 
@@ -46,31 +43,27 @@ export const ListComponent = ({
   );
 
   const optionsHasChanged = useHasChangedIgnoreUndefined(appList);
-
   const { value, setValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
-
-  const [selectedSort, setSelectedSort] = useState({
-    idCell: '',
-    sortDirection: SortDirection.NotActive,
-  });
-
+  const dispatch = useAppDispatch();
+  const sortColumn = useAppSelector((state) => state.appListState.sortColumn);
+  const sortDirection = useAppSelector((state) => state.appListState.sortDirection);
   const handleSortChange = ({ idCell, previousSortDirection }: altinnDesignSystem.SortProps) => {
     if (previousSortDirection === SortDirection.Ascending) {
-      setSelectedSort({
-        idCell: idCell,
-        sortDirection: SortDirection.Descending,
-      });
+      dispatch(
+        appListsActions.setSort({
+          sortColumn: idCell,
+          sortDirection: SortDirection.Descending,
+        }),
+      );
     } else {
-      setSelectedSort({
-        idCell: idCell,
-        sortDirection: SortDirection.Ascending,
-      });
+      dispatch(
+        appListsActions.setSort({
+          sortColumn: idCell,
+          sortDirection: SortDirection.Ascending,
+        }),
+      );
     }
   };
-
-  const fetchingOptions = useAppSelector(
-    (state) => appListId && state.appListState.appLists[getAppListLookupKey({ id: appListId, mapping })]?.loading,
-  );
 
   React.useEffect(() => {
     if (optionsHasChanged && formData.simpleBinding) {
@@ -100,7 +93,7 @@ export const ListComponent = ({
           <TableCell
             onChange={handleSortChange}
             id={header}
-            sortDirecton={selectedSort.idCell === header ? selectedSort.sortDirection : SortDirection.NotActive}
+            sortDirecton={sortColumn === header ? sortDirection : SortDirection.NotActive}
           >
             {header}
           </TableCell>,
@@ -111,8 +104,6 @@ export const ListComponent = ({
     }
     return cell;
   };
-
-  const dispatch = useAppDispatch();
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(
@@ -133,48 +124,42 @@ export const ListComponent = ({
   };
 
   return (
-    <>
-      {fetchingOptions ? (
-        <AltinnSpinner />
-      ) : (
-        <Table
-          selectRows={true}
-          onChange={handleChange}
-          selectedValue={value}
-        >
-          <TableHeader>
-            <TableRow>{checkSortableColumns(tableHeaders)}</TableRow>
-          </TableHeader>
-          <TableBody>
-            {calculatedOptions.map((option) => {
-              return (
-                <TableRow
-                  key={option[fieldToStoreInDataModel]}
-                  value={option[fieldToStoreInDataModel]}
-                >
-                  {renderRow(option)}
-                </TableRow>
-              );
-            })}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={tableHeaders?.length}>
-                <Pagination
-                  numberOfRows={totalItemsCount}
-                  rowsPerPageOptions={[5, 10, 15, 20]}
-                  rowsPerPage={rowsPerPage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                  currentPage={currentPage}
-                  setCurrentPage={handleChangeCurrentPage}
-                  rowsPerPageText='Rader per side'
-                  pageDescriptionText='av'
-                />
-              </TableCell>
+    <Table
+      selectRows={true}
+      onChange={handleChange}
+      selectedValue={value}
+    >
+      <TableHeader>
+        <TableRow>{checkSortableColumns(tableHeaders)}</TableRow>
+      </TableHeader>
+      <TableBody>
+        {calculatedOptions.map((option) => {
+          return (
+            <TableRow
+              key={option[fieldToStoreInDataModel]}
+              value={option[fieldToStoreInDataModel]}
+            >
+              {renderRow(option)}
             </TableRow>
-          </TableFooter>
-        </Table>
-      )}
-    </>
+          );
+        })}
+      </TableBody>
+      <TableFooter>
+        <TableRow>
+          <TableCell colSpan={tableHeaders?.length}>
+            <Pagination
+              numberOfRows={totalItemsCount}
+              rowsPerPageOptions={[5, 10, 15, 20]}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              currentPage={currentPage}
+              setCurrentPage={handleChangeCurrentPage}
+              rowsPerPageText='Rader per side'
+              pageDescriptionText='av'
+            />
+          </TableCell>
+        </TableRow>
+      </TableFooter>
+    </Table>
   );
 };

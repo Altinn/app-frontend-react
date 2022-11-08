@@ -1,4 +1,17 @@
-import type { IAppLists, IAppListsMetaData, IOption, IOptions, IOptionsMetaData } from 'src/types';
+import type { SortDirection } from '@altinn/altinn-design-system';
+
+import type {
+  IAppLists,
+  IAppLists,
+  IAppListsMetaData,
+  IAppListsMetaData,
+  IOption,
+  IOption,
+  IOptions,
+  IOptions,
+  IOptionsMetaData,
+  IOptionsMetaData,
+} from 'src/types';
 
 export interface IOptionsState {
   error: Error | null;
@@ -9,6 +22,8 @@ export interface IAppListsState {
   error: Error | null;
   appLists: IAppLists;
   appListsWithIndexIndicator?: IAppListsMetaData[];
+  sortColumn?: string;
+  sortDirection?: SortDirection;
 }
 
 export interface IFetchOptionsFulfilledAction {
@@ -63,4 +78,8 @@ export interface ISetAppListsPageSize {
 export interface ISetAppListsPageNumber {
   key: string;
   pageNumber: number;
+}
+export interface ISetSort {
+  sortColumn: string;
+  sortDirection: SortDirection;
 }

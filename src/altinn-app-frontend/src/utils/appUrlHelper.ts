@@ -1,3 +1,5 @@
+import type { SortDirection } from '@altinn/altinn-design-system';
+
 import { mapFormData } from 'src/utils/databindings';
 import type { IFormData } from 'src/features/form/data';
 import type { IAltinnWindow, IMapping } from 'src/types';
@@ -207,6 +209,8 @@ export interface IGetAppListsUrlParams {
   instanceId?: string;
   pageSize?: string;
   pageNumber?: string;
+  sortDirection?: SortDirection;
+  sortColumn?: string;
 }
 
 export const getAppListsUrl = ({
@@ -216,6 +220,8 @@ export const getAppListsUrl = ({
   language,
   pageSize,
   pageNumber,
+  sortDirection,
+  sortColumn,
 }: IGetAppListsUrlParams) => {
   const url = new URL(`${appPath}/api/lists/${appListId}`);
   let params: Record<string, string> = {};
@@ -232,6 +238,12 @@ export const getAppListsUrl = ({
     params.page = pageNumber;
   }
 
+  if (sortColumn) {
+    params.sortColumn = sortColumn;
+  }
+  if (sortDirection) {
+    params.sortDirection = sortDirection;
+  }
   if (formData && dataMapping) {
     const mapped = mapFormData(formData, dataMapping);
 

@@ -48,6 +48,7 @@ export function* fetchAppListsSaga(): SagaIterator {
       }
 
       const { appListId, mapping, secure } = element;
+
       const { keys, keyWithIndexIndicator } = getAppListLookupKeys({
         id: appListId,
         mapping,
@@ -96,8 +97,11 @@ export function* fetchSpecificAppListSaga({ appListId, dataMapping, secure }: IF
     const formData: IFormData = yield select(formDataSelector);
     const language = yield select(appLanguageStateSelector);
     const appList = yield select(listStateSelector);
+
     const pageSize = appList.appLists[appListId].size ? appList.appLists[appListId].size.toString() : '5';
     const pageNumber = appList.appLists[appListId].pageNumber ? appList.appLists[appListId].pageNumber.toString() : '0';
+    const sortColumn = appList.sortColumn;
+    const sortDirection = appList.sortDirection;
 
     const url = getAppListsUrl({
       appListId,
@@ -108,6 +112,8 @@ export function* fetchSpecificAppListSaga({ appListId, dataMapping, secure }: IF
       instanceId,
       pageSize,
       pageNumber,
+      sortColumn,
+      sortDirection,
     });
 
     const appLists: IAppList = yield call(get, url);
