@@ -110,7 +110,7 @@ function DatepickerComponent({
       setValue(getDateString(dateValue, timeStamp), saveImmediately);
     } else {
       const skipValidation = (dateValue?.parsingFlags().charsLeftOver ?? 0) > 0;
-      setValue(inputValue, saveImmediately, skipValidation);
+      setValue(inputValue ?? '', saveImmediately, skipValidation);
     }
   };
 
