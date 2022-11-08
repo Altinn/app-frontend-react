@@ -318,13 +318,13 @@ export const ExprFunctions = {
     lastArgSpreads: true,
   }),
   and: defineFunc({
-    impl: (...args) => args.reduce((prev, cur) => !!prev && !!cur, true),
+    impl: (...args) => args.reduce((prev, cur) => prev && !!cur, true),
     args: ['boolean'],
     returns: 'boolean',
     lastArgSpreads: true,
   }),
   or: defineFunc({
-    impl: (...args) => args.reduce((prev, cur) => !!prev || !!cur, false),
+    impl: (...args) => args.reduce((prev, cur) => prev || !!cur, false),
     args: ['boolean'],
     returns: 'boolean',
     lastArgSpreads: true,
@@ -358,6 +358,10 @@ export const ExprFunctions = {
   }),
   instanceContext: defineFunc({
     impl: function (key): string | null {
+      if (key === null) {
+        throw new LookupNotFound(this, `Cannot lookup property null`);
+      }
+
       if (instanceContextKeys[key] !== true) {
         throw new LookupNotFound(this, `Unknown Instance context property ${key}`);
       }
@@ -369,6 +373,10 @@ export const ExprFunctions = {
   }),
   frontendSettings: defineFunc({
     impl: function (key): string | null {
+      if (key === null) {
+        throw new LookupNotFound(this, `Cannot lookup property null`);
+      }
+
       return (this.dataSources.applicationSettings && this.dataSources.applicationSettings[key]) || null;
     },
     args: ['string'] as const,
@@ -376,6 +384,10 @@ export const ExprFunctions = {
   }),
   component: defineFunc({
     impl: function (id): string | null {
+      if (id === null) {
+        throw new LookupNotFound(this, `Cannot lookup component null`);
+      }
+
       const component = this.failWithoutNode().closest((c) => c.id === id || c.baseComponentId === id);
       const binding = component?.item?.dataModelBindings?.simpleBinding;
       if (binding) {
@@ -392,6 +404,10 @@ export const ExprFunctions = {
   }),
   dataModel: defineFunc({
     impl: function (path): string | null {
+      if (path === null) {
+        throw new LookupNotFound(this, `Cannot lookup data model null`);
+      }
+
       const maybeNode = this.failWithoutNode();
       if (maybeNode instanceof LayoutNode) {
         const newPath = maybeNode?.transposeDataModel(path);
