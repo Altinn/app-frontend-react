@@ -89,6 +89,11 @@ describe('utils > validation', () => {
           min: 'must be bigger than {0}',
           pattern: 'Feil format eller verdi',
         },
+        date_picker: {
+          invalid_date_message: 'Invalid date format. Use the format {0}.',
+          min_date_exeeded: 'Date should not be before minimal date',
+          max_date_exeeded: 'Date should not be after maximal date',
+        },
       },
     };
 
@@ -2590,6 +2595,120 @@ describe('utils > validation', () => {
       const deep = 'Dette er feil:\nFørste linje\nDu må fylle ut ';
       expect(validation.missingFieldsInLayoutValidations(validations(shallow), mockLanguage.language)).toBeTruthy();
       expect(validation.missingFieldsInLayoutValidations(validations(deep), mockLanguage.language)).toBeTruthy();
+    });
+  });
+  describe('validateDatepickerFormData', () => {
+    it('should pass validation if date is valid and within min and max constraints (timestamp = true)', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2020-06-01T12:00:00.000+01:00',
+        '2020-01-01T12:00:00.000+01:00',
+        '2020-12-01T12:00:00.000+01:00',
+        validation.DatePickerFormatDefault,
+        mockLanguage.language,
+      );
+
+      expect(validations).toEqual({
+        errors: [],
+        warnings: [],
+      });
+    });
+    it('should pass validation if date is valid and within min and max constraints (timestamp = false)', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2020-06-01',
+        '2020-01-01T12:00:00.000+01:00',
+        '2020-12-01T12:00:00.000+01:00',
+        validation.DatePickerFormatDefault,
+        mockLanguage.language,
+      );
+
+      expect(validations).toEqual({
+        errors: [],
+        warnings: [],
+      });
+    });
+    it('should pass validation if date is empty', () => {
+      const validations = validation.validateDatepickerFormData(
+        '',
+        '2020-01-01T12:00:00.000+01:00',
+        '2020-12-01T12:00:00.000+01:00',
+        validation.DatePickerFormatDefault,
+        mockLanguage.language,
+      );
+
+      expect(validations).toEqual({
+        errors: [],
+        warnings: [],
+      });
+    });
+    it('should correctly detect a date before minDate', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2019-12-31',
+        '2020-01-01T12:00:00.000+01:00',
+        '2020-12-01T12:00:00.000+01:00',
+        validation.DatePickerFormatDefault,
+        mockLanguage.language,
+      );
+
+      expect(validations).toEqual({
+        errors: ['Date should not be before minimal date'],
+        warnings: [],
+      });
+    });
+    it('should correctly detect a date after maxDate', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2021-01-01',
+        '2020-01-01T12:00:00.000+01:00',
+        '2020-12-31T12:00:00.000+01:00',
+        validation.DatePickerFormatDefault,
+        mockLanguage.language,
+      );
+
+      expect(validations).toEqual({
+        errors: ['Date should not be after maximal date'],
+        warnings: [],
+      });
+    });
+    it('should correctly detect an invalid (incomplete) date', () => {
+      const validations = validation.validateDatepickerFormData(
+        '01.06.____',
+        '2020-01-01T12:00:00.000+01:00',
+        '2020-12-01T12:00:00.000+01:00',
+        validation.DatePickerFormatDefault,
+        mockLanguage.language,
+      );
+
+      expect(validations).toEqual({
+        errors: [`Invalid date format. Use the format ${validation.DatePickerFormatDefault}.`],
+        warnings: [],
+      });
+    });
+    it('should correctly detect an invalid (complete) date', () => {
+      const validations = validation.validateDatepickerFormData(
+        '45.45.4545',
+        '2020-01-01T12:00:00.000+01:00',
+        '2020-12-01T12:00:00.000+01:00',
+        validation.DatePickerFormatDefault,
+        mockLanguage.language,
+      );
+
+      expect(validations).toEqual({
+        errors: [`Invalid date format. Use the format ${validation.DatePickerFormatDefault}.`],
+        warnings: [],
+      });
+    });
+    it('should correctly detect an invalid (malformed) date', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2020-45-45',
+        '2020-01-01T12:00:00.000+01:00',
+        '2020-12-01T12:00:00.000+01:00',
+        validation.DatePickerFormatDefault,
+        mockLanguage.language,
+      );
+
+      expect(validations).toEqual({
+        errors: [`Invalid date format. Use the format ${validation.DatePickerFormatDefault}.`],
+        warnings: [],
+      });
     });
   });
 });
