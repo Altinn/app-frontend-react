@@ -22,8 +22,6 @@ export interface IAppListsState {
   error: Error | null;
   appLists: IAppLists;
   appListsWithIndexIndicator?: IAppListsMetaData[];
-  sortColumn?: string;
-  sortDirection?: SortDirection;
 }
 
 export interface IFetchOptionsFulfilledAction {
@@ -80,6 +78,7 @@ export interface ISetAppListsPageNumber {
   pageNumber: number;
 }
 export interface ISetSort {
+  key: string;
   sortColumn: string;
   sortDirection: SortDirection;
 }

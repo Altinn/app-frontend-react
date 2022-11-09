@@ -45,21 +45,25 @@ export const ListComponent = ({
   const optionsHasChanged = useHasChangedIgnoreUndefined(appList);
   const { value, setValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
   const dispatch = useAppDispatch();
-  const sortColumn = useAppSelector((state) => state.appListState.sortColumn);
-  const sortDirection = useAppSelector((state) => state.appListState.sortDirection);
+  const sortColumn = useAppSelector((state) => state.appListState.appLists[appListId || ''].sortColumn || null);
+  const sortDirection = useAppSelector(
+    (state) => state.appListState.appLists[appListId || ''].sortDirection || SortDirection.NotActive,
+  );
   const handleSortChange = ({ idCell, previousSortDirection }: altinnDesignSystem.SortProps) => {
-    if (previousSortDirection === SortDirection.Ascending) {
+    if (previousSortDirection === SortDirection.Descending) {
       dispatch(
         appListsActions.setSort({
+          key: appListId || '',
           sortColumn: idCell,
-          sortDirection: SortDirection.Descending,
+          sortDirection: SortDirection.Ascending,
         }),
       );
     } else {
       dispatch(
         appListsActions.setSort({
+          key: appListId || '',
           sortColumn: idCell,
-          sortDirection: SortDirection.Ascending,
+          sortDirection: SortDirection.Descending,
         }),
       );
     }

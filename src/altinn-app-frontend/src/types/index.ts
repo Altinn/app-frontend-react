@@ -1,3 +1,4 @@
+import type { SortDirection } from '@altinn/altinn-design-system';
 import type Ajv from 'ajv/dist/core';
 
 import type { ExpressionOr } from 'src/features/expressions/types';
@@ -129,6 +130,8 @@ export interface IAppListsMetaData {
   size?: number;
   pageNumber?: number;
   paginationData?: IAppListPaginationData;
+  sortColumn?: string;
+  sortDirection?: SortDirection;
 }
 export interface IAppListPaginationData {
   page: number;

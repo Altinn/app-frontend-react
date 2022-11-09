@@ -1,5 +1,3 @@
-import { SortDirection } from '@altinn/altinn-design-system';
-
 import { fetchAppListsSaga } from 'src/shared/resources/options/fetch/fetchAppListsSaga';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type {
@@ -19,8 +17,6 @@ const initialState: IAppListsState = {
   appLists: {},
   appListsWithIndexIndicator: [],
   error: null,
-  sortColumn: '',
-  sortDirection: SortDirection.NotSortable,
 };
 
 const appListsSlice = createSagaSlice((mkAction: MkActionType<IAppListsState>) => ({
@@ -85,9 +81,9 @@ const appListsSlice = createSagaSlice((mkAction: MkActionType<IAppListsState>) =
     setSort: mkAction<ISetSort>({
       takeLatest: fetchAppListsSaga,
       reducer: (state, action) => {
-        const { sortColumn, sortDirection } = action.payload;
-        state.sortColumn = sortColumn;
-        state.sortDirection = sortDirection;
+        const { key, sortColumn, sortDirection } = action.payload;
+        state.appLists[key].sortColumn = sortColumn;
+        state.appLists[key].sortDirection = sortDirection;
       },
     }),
   },

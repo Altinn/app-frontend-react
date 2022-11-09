@@ -1,3 +1,4 @@
+import { SortDirection } from '@altinn/altinn-design-system';
 import { call, fork, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
@@ -100,8 +101,12 @@ export function* fetchSpecificAppListSaga({ appListId, dataMapping, secure }: IF
 
     const pageSize = appList.appLists[appListId].size ? appList.appLists[appListId].size.toString() : '5';
     const pageNumber = appList.appLists[appListId].pageNumber ? appList.appLists[appListId].pageNumber.toString() : '0';
-    const sortColumn = appList.sortColumn;
-    const sortDirection = appList.sortDirection;
+    const sortColumn = appList.appLists[appListId].sortColumn
+      ? appList.appLists[appListId].sortColumn.toString()
+      : null;
+    const sortDirection = appList.appLists[appListId].sortDirection
+      ? appList.appLists[appListId].sortDirection.toString()
+      : SortDirection.NotActive;
 
     const url = getAppListsUrl({
       appListId,
