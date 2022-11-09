@@ -7,15 +7,14 @@ import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlic
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { removeAttachmentReference } from 'src/utils/databindings';
-import { getFlagBasedDate } from 'src/utils/dateHelpers';
 import { getLayoutComponentById, getLayoutIdForComponent } from 'src/utils/layout';
 import { getValidator, validateComponentFormData, validateDatepickerFormData } from 'src/utils/validation';
 import { mergeComponentValidations } from 'src/utils/validation/validation';
 import type { IFormData } from 'src/features/form/data';
 import type { IDeleteAttachmentReference, IUpdateFormData } from 'src/features/form/data/formDataTypes';
-import type { IDataModelBindings, ILayoutComponent, ILayouts } from 'src/features/form/layout';
+import type { ILayoutComponent, ILayouts } from 'src/features/form/layout';
 import type { IAttachments } from 'src/shared/resources/attachments';
-import type { DateFlags, IComponentValidations, IRuntimeState } from 'src/types';
+import type { IComponentValidations, IRuntimeState } from 'src/types';
 
 export function* updateFormDataSaga({
   payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation },
@@ -91,19 +90,7 @@ function* runValidations(field: string, data: any, componentId: string | undefin
 
   let customComponentValidations: IComponentValidations = {};
   if (component.type === 'DatePicker') {
-    const fieldKey: keyof IDataModelBindings = 'simpleBinding';
-    const flagBasedMinDate = getFlagBasedDate(component.minDate as DateFlags) ?? component.minDate;
-    const flagBasedMaxDate = getFlagBasedDate(component.maxDate as DateFlags) ?? component.maxDate;
-    const datepickerValidations = validateDatepickerFormData(
-      data,
-      flagBasedMinDate,
-      flagBasedMaxDate,
-      component.format,
-      state.language.language,
-    );
-    customComponentValidations = {
-      [fieldKey]: datepickerValidations,
-    };
+    customComponentValidations = validateDatepickerFormData(data, component, state.language.language);
   }
 
   const mergedValidations = mergeComponentValidations(componentValidations ?? {}, customComponentValidations);

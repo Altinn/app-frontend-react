@@ -11,7 +11,7 @@ import { Severity } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroups } from 'src/utils/formLayout';
 import { LayoutRootNodeCollection, nodesInLayout } from 'src/utils/layout/hierarchy';
 import * as validation from 'src/utils/validation/validation';
-import type { ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
+import type { ILayoutCompDatePicker, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -49,6 +49,15 @@ function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {
 
   return toCollection(mockLayout, repeatingGroups);
 }
+
+// Mock dateformat
+jest.mock('src/utils/dateHelpers', () => {
+  return {
+    __esModules: true,
+    ...jest.requireActual('src/utils/dateHelpers'),
+    getDateFormat: jest.fn(() => 'DD.MM.YYYY'),
+  };
+});
 
 describe('utils > validation', () => {
   let mockLayout: any;
@@ -2601,13 +2610,15 @@ describe('utils > validation', () => {
     it('should pass validation if date is valid and within min and max constraints (timestamp = true)', () => {
       const validations = validation.validateDatepickerFormData(
         '2020-06-01T12:00:00.000+01:00',
-        '2020-01-01T12:00:00.000+01:00',
-        '2020-12-01T12:00:00.000+01:00',
-        validation.DatePickerFormatDefault,
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
         mockLanguage.language,
       );
 
-      expect(validations).toEqual({
+      expect(validations.simpleBinding).toEqual({
         errors: [],
         warnings: [],
       });
@@ -2615,13 +2626,15 @@ describe('utils > validation', () => {
     it('should pass validation if date is valid and within min and max constraints (timestamp = false)', () => {
       const validations = validation.validateDatepickerFormData(
         '2020-06-01',
-        '2020-01-01T12:00:00.000+01:00',
-        '2020-12-01T12:00:00.000+01:00',
-        validation.DatePickerFormatDefault,
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
         mockLanguage.language,
       );
 
-      expect(validations).toEqual({
+      expect(validations.simpleBinding).toEqual({
         errors: [],
         warnings: [],
       });
@@ -2629,13 +2642,15 @@ describe('utils > validation', () => {
     it('should pass validation if date is empty', () => {
       const validations = validation.validateDatepickerFormData(
         '',
-        '2020-01-01T12:00:00.000+01:00',
-        '2020-12-01T12:00:00.000+01:00',
-        validation.DatePickerFormatDefault,
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
         mockLanguage.language,
       );
 
-      expect(validations).toEqual({
+      expect(validations.simpleBinding).toEqual({
         errors: [],
         warnings: [],
       });
@@ -2643,13 +2658,15 @@ describe('utils > validation', () => {
     it('should correctly detect a date before minDate', () => {
       const validations = validation.validateDatepickerFormData(
         '2019-12-31',
-        '2020-01-01T12:00:00.000+01:00',
-        '2020-12-01T12:00:00.000+01:00',
-        validation.DatePickerFormatDefault,
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
         mockLanguage.language,
       );
 
-      expect(validations).toEqual({
+      expect(validations.simpleBinding).toEqual({
         errors: ['Date should not be before minimal date'],
         warnings: [],
       });
@@ -2657,13 +2674,15 @@ describe('utils > validation', () => {
     it('should correctly detect a date after maxDate', () => {
       const validations = validation.validateDatepickerFormData(
         '2021-01-01',
-        '2020-01-01T12:00:00.000+01:00',
-        '2020-12-31T12:00:00.000+01:00',
-        validation.DatePickerFormatDefault,
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-31T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
         mockLanguage.language,
       );
 
-      expect(validations).toEqual({
+      expect(validations.simpleBinding).toEqual({
         errors: ['Date should not be after maximal date'],
         warnings: [],
       });
@@ -2671,42 +2690,48 @@ describe('utils > validation', () => {
     it('should correctly detect an invalid (incomplete) date', () => {
       const validations = validation.validateDatepickerFormData(
         '01.06.____',
-        '2020-01-01T12:00:00.000+01:00',
-        '2020-12-01T12:00:00.000+01:00',
-        validation.DatePickerFormatDefault,
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
         mockLanguage.language,
       );
 
-      expect(validations).toEqual({
-        errors: [`Invalid date format. Use the format ${validation.DatePickerFormatDefault}.`],
+      expect(validations.simpleBinding).toEqual({
+        errors: [`Invalid date format. Use the format DD.MM.YYYY.`],
         warnings: [],
       });
     });
     it('should correctly detect an invalid (complete) date', () => {
       const validations = validation.validateDatepickerFormData(
         '45.45.4545',
-        '2020-01-01T12:00:00.000+01:00',
-        '2020-12-01T12:00:00.000+01:00',
-        validation.DatePickerFormatDefault,
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
         mockLanguage.language,
       );
 
-      expect(validations).toEqual({
-        errors: [`Invalid date format. Use the format ${validation.DatePickerFormatDefault}.`],
+      expect(validations.simpleBinding).toEqual({
+        errors: [`Invalid date format. Use the format DD.MM.YYYY.`],
         warnings: [],
       });
     });
     it('should correctly detect an invalid (malformed) date', () => {
       const validations = validation.validateDatepickerFormData(
         '2020-45-45',
-        '2020-01-01T12:00:00.000+01:00',
-        '2020-12-01T12:00:00.000+01:00',
-        validation.DatePickerFormatDefault,
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
         mockLanguage.language,
       );
 
-      expect(validations).toEqual({
-        errors: [`Invalid date format. Use the format ${validation.DatePickerFormatDefault}.`],
+      expect(validations.simpleBinding).toEqual({
+        errors: [`Invalid date format. Use the format DD.MM.YYYY.`],
         warnings: [],
       });
     });

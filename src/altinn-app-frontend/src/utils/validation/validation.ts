@@ -11,7 +11,7 @@ import { Severity } from 'src/types';
 import { getCurrentDataTypeId } from 'src/utils/appMetadata';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex } from 'src/utils/databindings';
-import { getFlagBasedDate } from 'src/utils/dateHelpers';
+import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { getFieldName, getFormDataForComponent } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponents, getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
@@ -19,9 +19,9 @@ import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
 import { resolvedNodesInLayout } from 'src/utils/layout/hierarchy';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayout, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
+import type { ILayoutCompDatePicker } from 'src/features/form/layout/index';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
-  DateFlags,
   IComponentBindingValidation,
   IComponentValidations,
   IDataModelBindings,
@@ -378,21 +378,8 @@ function validateFormComponentsForNodes(
     }
 
     if (node.item.type === 'DatePicker') {
-      let componentValidations: IComponentValidations = {};
-      const date = getFormDataForComponent(formData, node.item.dataModelBindings);
-      const flagBasedMinDate = getFlagBasedDate(node.item.minDate as DateFlags) ?? node.item.minDate;
-      const flagBasedMaxDate = getFlagBasedDate(node.item.maxDate as DateFlags) ?? node.item.maxDate;
-      const datepickerValidations = validateDatepickerFormData(
-        date?.simpleBinding,
-        flagBasedMinDate,
-        flagBasedMaxDate,
-        node.item.format,
-        language,
-      );
-      componentValidations = {
-        [fieldKey]: datepickerValidations,
-      };
-      validations[node.item.id] = componentValidations;
+      const componentFormData = getFormDataForComponent(formData, node.item.dataModelBindings);
+      validations[node.item.id] = validateDatepickerFormData(componentFormData?.simpleBinding, node.item, language);
     }
   }
 
@@ -410,22 +397,18 @@ export function attachmentIsMissingTag(attachment: IAttachment): boolean {
   return attachment.tags === undefined || attachment.tags.length === 0;
 }
 
-export const DatePickerMinDateDefault = '1900-01-01T12:00:00.000Z';
-export const DatePickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
-export const DatePickerFormatDefault = 'DD.MM.YYYY';
-export const DatePickerSaveFormatTimestamp = 'YYYY-MM-DDThh:mm:ss.sssZ';
-export const DatePickerSaveFormatNoTimestamp = 'YYYY-MM-DD';
-
 /*
   Validates the datepicker form data, returns an array of error messages or empty array if no errors found
 */
 export function validateDatepickerFormData(
   formData: string | null | undefined,
-  minDate: string = DatePickerMinDateDefault,
-  maxDate: string = DatePickerMaxDateDefault,
-  format: string = DatePickerFormatDefault,
+  component: ILayoutCompDatePicker,
   language: ILanguage,
-): IComponentBindingValidation {
+): IComponentValidations {
+  const minDate = getDateConstraint(component.minDate, 'min');
+  const maxDate = getDateConstraint(component.maxDate, 'max');
+  const format = getDateFormat(component.format);
+
   const validations: IComponentBindingValidation = { errors: [], warnings: [] };
   const date = formData ? moment(formData, moment.ISO_8601) : null;
 
@@ -439,7 +422,9 @@ export function validateDatepickerFormData(
     validations.errors?.push(getLanguageFromKey('date_picker.max_date_exeeded', language));
   }
 
-  return validations;
+  return {
+    simpleBinding: validations,
+  };
 }
 
 /*

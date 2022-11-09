@@ -1,23 +1,12 @@
 import moment from 'moment';
 
 import { DateFlags } from 'src/types';
-import {
-  DatePickerFormatDefault,
-  DatePickerSaveFormatNoTimestamp,
-  DatePickerSaveFormatTimestamp,
-} from 'src/utils/validation';
 
-/*
-  Creates a specific date based on different flags (DatepickerRestrictionFlags)
-  Returns moment.Moment or null
-*/
-export function getFlagBasedDate(flag: DateFlags): string | undefined {
-  if (flag === DateFlags.Today) {
-    return moment().set('hour', 12).set('minute', 0).set('seconds', 0).set('milliseconds', 0).toISOString();
-  }
-
-  return undefined;
-}
+export const DatePickerMinDateDefault = '1900-01-01T12:00:00.000Z';
+export const DatePickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
+export const DatePickerFormatDefault = 'DD.MM.YYYY';
+export const DatePickerSaveFormatTimestamp = 'YYYY-MM-DDThh:mm:ss.sssZ';
+export const DatePickerSaveFormatNoTimestamp = 'YYYY-MM-DD';
 
 export function getISOString(potentialDate: string | undefined): string | undefined {
   if (!potentialDate) {
@@ -41,4 +30,19 @@ export function getDateString(date: moment.Moment | null, timestamp: boolean) {
       ? date?.format(DatePickerSaveFormatNoTimestamp)
       : date?.format(DatePickerSaveFormatTimestamp)) ?? ''
   );
+}
+
+export function getDateConstraint(dateOrFlag: string | DateFlags | undefined, constraint: 'min' | 'max'): string {
+  if (dateOrFlag === DateFlags.Today) {
+    return moment().set('hour', 12).set('minute', 0).set('seconds', 0).set('milliseconds', 0).toISOString();
+  }
+  const date = getISOString(dateOrFlag);
+  if (typeof date === 'string') {
+    return date;
+  }
+  if (constraint === 'min') {
+    return DatePickerMinDateDefault;
+  } else {
+    return DatePickerMaxDateDefault;
+  }
 }

@@ -7,10 +7,8 @@ import moment from 'moment';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import { getDateFormat, getDateString, getFlagBasedDate, getISOString } from 'src/utils/dateHelpers';
-import { DatePickerMaxDateDefault, DatePickerMinDateDefault } from 'src/utils/validation';
+import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
 import type { PropsFromGenericComponent } from 'src/components';
-import type { DateFlags } from 'src/types';
 
 import { getLanguageFromKey } from 'altinn-shared/utils';
 
@@ -88,8 +86,8 @@ function DatepickerComponent({
 }: IDatePickerProps) {
   const classes = useStyles();
 
-  const calculatedMinDate = getFlagBasedDate(minDate as DateFlags) || getISOString(minDate) || DatePickerMinDateDefault;
-  const calculatedMaxDate = getFlagBasedDate(maxDate as DateFlags) || getISOString(maxDate) || DatePickerMaxDateDefault;
+  const calculatedMinDate = getDateConstraint(minDate, 'min');
+  const calculatedMaxDate = getDateConstraint(maxDate, 'max');
 
   const calculatedFormat = getDateFormat(format);
   const theme = useTheme();
