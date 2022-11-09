@@ -146,6 +146,7 @@ export function RepeatingGroupsEditContainer({
                 iconPlacement='right'
                 disabled={deleting}
                 onClick={removeClicked}
+                data-testid='delete-button'
               >
                 {getLanguageFromKey('general.delete', language)}
               </Button>

@@ -177,7 +177,6 @@ export default class AppFrontend {
       addNewItem: '[id^="add-button-mainGroup"]',
       addNewItemSubGroup: '[id*="add-button-subGroup"]',
       comments: 'input[id^="comments"]',
-      delete: 'button[class*="makeStyles-deleteButton"]',
       saveSubGroup: 'button[id*="add-button-grp-subGroup"]',
       saveMainGroup: '#add-button-grp-mainGroup',
       editContainer: '[data-testid=group-edit-container]',
@@ -191,6 +190,8 @@ export default class AppFrontend {
       tableErrors: '[data-testid=group-table-errors]',
       popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
       popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
+      edit: '[data-testid=edit-button]',
+      delete: '[data-testid=delete-button]',
       rows: [0, 1].map((idx) => ({
         uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3),
         uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4),

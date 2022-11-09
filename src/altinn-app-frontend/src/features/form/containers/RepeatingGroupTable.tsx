@@ -456,6 +456,7 @@ export function RepeatingGroupTable({
                             iconPlacement='right'
                             onClick={() => handleEditClick(index)}
                             aria-label={`${editButtonText}-${firstCellData}`}
+                            data-testid='edit-button'
                           >
                             {editButtonText}
                           </Button>
@@ -480,6 +481,7 @@ export function RepeatingGroupTable({
                                   disabled={deleting}
                                   onClick={() => handleDeleteClick(index)}
                                   aria-label={`${deleteButtonText}-${firstCellData}`}
+                                  data-testid='delete-button'
                                 >
                                   {deleteButtonText}
                                 </Button>
