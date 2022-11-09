@@ -70,13 +70,13 @@ export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsPara
   return options;
 };
 
-interface IUseGetListParams {
+interface IUseGetDataListParams {
   dataListId?: string;
   mapping?: IMapping;
   source?: IOptionSource;
 }
 
-export const useGetDataListOptions = ({ dataListId, mapping }: IUseGetListParams) => {
+export const useGetDataList = ({ dataListId, mapping }: IUseGetDataListParams) => {
   const dataListState = useAppSelector((state) => state.dataListState.dataLists);
   const [dataList, setDataList] = useState<any>(undefined);
   useEffect(() => {

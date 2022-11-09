@@ -79,13 +79,8 @@ export interface IOption {
 }
 
 export interface IDataList {
-  listItems: any[];
-  _metaData: any;
-}
-
-export interface IListOption {
-  label: string[];
-  value: any;
+  listItems: any;
+  _metaData: IDataListPaginationData;
 }
 
 export interface IOptions {
@@ -101,18 +96,12 @@ export interface IOptionSource {
   value: string;
 }
 
-export interface IDataListSource {
-  group: string;
-  dataList: any[];
-  metaData: any;
-}
-
 export interface IOptionsActualData {
   options?: IOption[];
 }
 
 export interface IDataListActualData {
-  listItems?: any;
+  listItems: any;
 }
 
 export interface IOptionsMetaData {
@@ -133,9 +122,8 @@ export interface IDataListsMetaData {
   sortColumn?: string;
   sortDirection?: SortDirection;
 }
+
 export interface IDataListPaginationData {
-  page: number;
-  pageSize: number;
   totaltItemsCount: number;
 }
 

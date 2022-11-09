@@ -49,6 +49,7 @@ function GenericComponent(component: ILayoutComponent, layout: ILayout) {
 
 function RenderLayoutGroup(layoutGroup: ILayoutGroup, layout: ILayout | undefined | null): JSX.Element {
   const groupComponents = mapGroupComponents(layoutGroup, layout);
+
   const isRepeatingGroup = layoutGroup.maxCount && layoutGroup.maxCount > 1;
   if (isRepeatingGroup) {
     return (
@@ -91,6 +92,7 @@ export function Form() {
   const language = useAppSelector((state) => state.language.language);
   const validations = useAppSelector((state) => state.formValidations.validations);
   const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
+
   const requiredFieldsMissing = React.useMemo(() => {
     if (validations && validations[currentView] && language) {
       return missingFieldsInLayoutValidations(validations[currentView], language);

@@ -16,7 +16,7 @@ import {
   watchMapFileUploaderWithTagSaga,
   watchUpdateCurrentViewSaga,
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
-import { dataListsActions } from 'src/shared/resources/options/dataListsSlice';
+import { dataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
 import { replaceTextResourcesSaga } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';

@@ -4,8 +4,7 @@ import {
   keyHasIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/form/data';
-import type { IDataListsMetaData, IDataListSource, IMapping, IRepeatingGroups } from 'src/types';
+import type { IDataListsMetaData, IMapping, IRepeatingGroups } from 'src/types';
 
 interface IGetDataListLookupKeysParam extends IDataListsMetaData {
   repeatingGroups: IRepeatingGroups | null;
@@ -60,20 +59,4 @@ export function getDataListLookupKeys({
   return {
     keys: lookupKeys,
   };
-}
-
-export function getRelevantFormDataForDataListSource(formData: IFormData, source: IDataListSource) {
-  const relevantFormData: IFormData = {};
-  console.log('get relevant form data for option source');
-  if (!formData || !source) {
-    return relevantFormData;
-  }
-
-  Object.keys(formData).forEach((key) => {
-    if (key.includes(source.group)) {
-      relevantFormData[key] = formData[key];
-    }
-  });
-
-  return relevantFormData;
 }

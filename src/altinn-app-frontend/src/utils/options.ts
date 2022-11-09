@@ -82,6 +82,7 @@ export function replaceOptionDataField(formData: IFormData, valueString: string,
 
 export function getRelevantFormDataForOptionSource(formData: IFormData, source: IOptionSource) {
   const relevantFormData: IFormData = {};
+
   if (!formData || !source) {
     return relevantFormData;
   }
@@ -111,6 +112,7 @@ export function setupSourceOptions({
   dataSources,
 }: ISetupSourceOptionsParams) {
   const replacedOptionLabels = replaceTextResourceParams([relevantTextResource], dataSources, repeatingGroups);
+
   const repGroup = Object.values(repeatingGroups || {}).find((group) => {
     return group.dataModelBinding === source.group;
   });
@@ -147,6 +149,7 @@ export function removeGroupOptionsByIndex({
   const newOptions: IOptions = {};
   const repeatingGroup = repeatingGroups[groupId];
   const groupDataBinding = getGroupDataModelBinding(repeatingGroup, groupId, layout);
+
   Object.keys(options || {}).forEach((optionKey) => {
     const { mapping, id } = options[optionKey] || {};
     if (id === undefined) {

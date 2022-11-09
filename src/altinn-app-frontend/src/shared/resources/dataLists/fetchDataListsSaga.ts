@@ -1,22 +1,14 @@
 import { SortDirection } from '@altinn/altinn-design-system';
 import { call, fork, put, select } from 'redux-saga/effects';
-import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { listStateSelector } from 'src/selectors/dataListStateSelector';
-import { dataListsActions } from 'src/shared/resources/options/dataListsSlice';
+import { dataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 import { getDataListsUrl } from 'src/utils/appUrlHelper';
-import {
-  getKeyIndex,
-  getKeyWithoutIndex,
-  getKeyWithoutIndexIndicators,
-  replaceIndexIndicatorsWithIndexes,
-} from 'src/utils/databindings';
 import { getDataListLookupKey, getDataListLookupKeys } from 'src/utils/dataList';
 import { selectNotNull } from 'src/utils/sagas';
 import type { IFormData } from 'src/features/form/data';
-import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import type { ILayouts } from 'src/features/form/layout';
 import type {
   IDataList,
@@ -137,52 +129,5 @@ export function* fetchSpecificDataListSaga({
     );
   } catch (error) {
     yield put(dataListsActions.fetchRejected({ key: key, error }));
-  }
-}
-
-export function* checkIfDataListsShouldRefetchSaga({
-  payload: { field },
-}: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
-  const dataLists: IDataLists = yield select(dataListsSelector);
-  const dataListsWithIndexIndicators = yield select(dataListsWithIndexIndicatorsSelector);
-  let foundInExistingDataLists = false;
-  for (const dataListKey of Object.keys(dataLists)) {
-    const dataMapping = dataLists[dataListKey].mapping;
-    const dataListId = dataLists[dataListKey].id;
-    const secure = dataLists[dataListKey].secure;
-    if (dataMapping && Object.keys(dataMapping).includes(field)) {
-      foundInExistingDataLists = true;
-      yield fork(fetchSpecificDataListSaga, {
-        dataListId,
-        dataMapping,
-        secure,
-      });
-    }
-  }
-
-  if (foundInExistingDataLists) {
-    return;
-  }
-
-  for (const dataLists of dataListsWithIndexIndicators) {
-    const { mapping, id, secure } = dataLists;
-    if (
-      mapping &&
-      Object.keys(mapping)
-        .map((key) => getKeyWithoutIndexIndicators(key))
-        .includes(getKeyWithoutIndex(field))
-    ) {
-      const keys = getKeyIndex(field);
-      const newDataMapping = {};
-
-      for (const key of Object.keys(mapping)) {
-        newDataMapping[replaceIndexIndicatorsWithIndexes(key, keys)] = mapping[key];
-      }
-      yield fork(fetchSpecificDataListSaga, {
-        dataListId: id,
-        dataMapping: newDataMapping,
-        secure,
-      });
-    }
   }
 }

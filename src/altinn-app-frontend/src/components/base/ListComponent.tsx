@@ -7,7 +7,6 @@ import {
   TableBody,
   TableCell,
   TableFooter,
-  //TableFooter,
   TableHeader,
   TableRow,
 } from '@altinn/altinn-design-system';
@@ -16,13 +15,14 @@ import type * as altinnDesignSystem from '@altinn/altinn-design-system';
 import type { PropsFromGenericComponent } from '..';
 
 import { useAppDispatch, useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
-import { useGetDataListOptions } from 'src/components/hooks';
+import { useGetDataList } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import { dataListsActions } from 'src/shared/resources/options/dataListsSlice';
+import { dataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 
 export type ILayoutCompProps = PropsFromGenericComponent<'List'>;
 
-const defaultOptions: any[] = [];
+const defaultDataList: any[] = [];
+
 export const ListComponent = ({
   tableHeaders,
   fieldToStoreInDataModel,
@@ -33,49 +33,29 @@ export const ListComponent = ({
   handleDataChange,
   sortableColumns,
 }: ILayoutCompProps) => {
-  const apiOptions = useGetDataListOptions({ dataListId, mapping });
-  const calculatedOptions = apiOptions || defaultOptions;
+  const dynamicDataList = useGetDataList({ dataListId, mapping });
+  const calculatedDataList = dynamicDataList || defaultDataList;
 
   const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].size || 5);
   const currentPage = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].pageNumber || 0);
-  const totalItemsCount = useAppSelector(
-    (state) => state.dataListState.dataLists[dataListId || ''].paginationData?.totaltItemsCount || 0,
-  );
-
-  const optionsHasChanged = useHasChangedIgnoreUndefined(dataList);
-  const { value, setValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
-  const dispatch = useAppDispatch();
   const sortColumn = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].sortColumn || null);
   const sortDirection = useAppSelector(
     (state) => state.dataListState.dataLists[dataListId || ''].sortDirection || SortDirection.NotActive,
   );
-  const handleSortChange = ({ idCell, previousSortDirection }: altinnDesignSystem.SortProps) => {
-    if (previousSortDirection === SortDirection.Descending) {
-      dispatch(
-        dataListsActions.setSort({
-          key: dataListId || '',
-          sortColumn: idCell,
-          sortDirection: SortDirection.Ascending,
-        }),
-      );
-    } else {
-      dispatch(
-        dataListsActions.setSort({
-          key: dataListId || '',
-          sortColumn: idCell,
-          sortDirection: SortDirection.Descending,
-        }),
-      );
-    }
-  };
+  const totalItemsCount = useAppSelector(
+    (state) => state.dataListState.dataLists[dataListId || ''].paginationData?.totaltItemsCount || 0,
+  );
+
+  const dataListHasChanged = useHasChangedIgnoreUndefined(dataList);
+  const { value, setValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
 
   React.useEffect(() => {
-    if (optionsHasChanged && formData.simpleBinding) {
-      // New options have been loaded, we have to reset form data.
+    if (dataListHasChanged && formData.simpleBinding) {
+      // New datalist has been loaded, we have to reset form data.
       // We also skip any required validations
       setValue(undefined, true);
     }
-  }, [optionsHasChanged, formData, setValue]);
+  }, [dataListHasChanged, formData, setValue]);
 
   const handleChange = ({ selectedValue }: altinnDesignSystem.ChangeProps) => {
     setValue(selectedValue);
@@ -109,6 +89,28 @@ export const ListComponent = ({
     return cell;
   };
 
+  const dispatch = useAppDispatch();
+
+  const handleSortChange = ({ idCell, previousSortDirection }: altinnDesignSystem.SortProps) => {
+    if (previousSortDirection === SortDirection.Descending) {
+      dispatch(
+        dataListsActions.setSort({
+          key: dataListId || '',
+          sortColumn: idCell,
+          sortDirection: SortDirection.Ascending,
+        }),
+      );
+    } else {
+      dispatch(
+        dataListsActions.setSort({
+          key: dataListId || '',
+          sortColumn: idCell,
+          sortDirection: SortDirection.Descending,
+        }),
+      );
+    }
+  };
+
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(
       dataListsActions.setPageSize({
@@ -137,7 +139,7 @@ export const ListComponent = ({
         <TableRow>{checkSortableColumns(tableHeaders)}</TableRow>
       </TableHeader>
       <TableBody>
-        {calculatedOptions.map((option) => {
+        {calculatedDataList.map((option) => {
           return (
             <TableRow
               key={option[fieldToStoreInDataModel]}

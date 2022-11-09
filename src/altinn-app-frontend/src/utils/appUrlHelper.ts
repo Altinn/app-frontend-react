@@ -241,9 +241,11 @@ export const getDataListsUrl = ({
   if (sortColumn) {
     params.sortColumn = sortColumn;
   }
+
   if (sortDirection) {
     params.sortDirection = sortDirection;
   }
+
   if (formData && dataMapping) {
     const mapped = mapFormData(formData, dataMapping);
 
