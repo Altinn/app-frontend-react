@@ -513,6 +513,18 @@ export function validateComponentFormData(
   return null;
 }
 
+export function validateComponentSpecificValidations(
+  formData: string | null | undefined,
+  component: ILayoutComponent,
+  language: ILanguage,
+): IComponentValidations {
+  let customComponentValidations: IComponentValidations = {};
+  if (component.type === 'DatePicker') {
+    customComponentValidations = validateDatepickerFormData(formData, component, language);
+  }
+  return customComponentValidations;
+}
+
 /**
  * Wrapper method around getSchemaPart for schemas made with our old generator tool
  * @param schemaPath the path, format #/properties/model/properties/person/properties/name/maxLength
