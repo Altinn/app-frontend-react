@@ -5,18 +5,18 @@ import {
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
 import type { IFormData } from 'src/features/form/data';
-import type { IAppListsMetaData, IAppListSource, IMapping, IRepeatingGroups } from 'src/types';
+import type { IDataListsMetaData, IDataListSource, IMapping, IRepeatingGroups } from 'src/types';
 
-interface IGetAppListLookupKeysParam extends IAppListsMetaData {
+interface IGetDataListLookupKeysParam extends IDataListsMetaData {
   repeatingGroups: IRepeatingGroups | null;
 }
 
-interface IAppListLookupKeys {
-  keys: IAppListsMetaData[];
-  keyWithIndexIndicator?: IAppListsMetaData;
+interface IDataListLookupKeys {
+  keys: IDataListsMetaData[];
+  keyWithIndexIndicator?: IDataListsMetaData;
 }
 
-export function getAppListLookupKey({ id, mapping }: IAppListsMetaData) {
+export function getDataListLookupKey({ id, mapping }: IDataListsMetaData) {
   if (!mapping) {
     return id;
   }
@@ -24,13 +24,13 @@ export function getAppListLookupKey({ id, mapping }: IAppListsMetaData) {
   return JSON.stringify({ id, mapping });
 }
 
-export function getAppListLookupKeys({
+export function getDataListLookupKeys({
   id,
   mapping,
   secure,
   repeatingGroups,
-}: IGetAppListLookupKeysParam): IAppListLookupKeys {
-  const lookupKeys: IAppListsMetaData[] = [];
+}: IGetDataListLookupKeysParam): IDataListLookupKeys {
+  const lookupKeys: IDataListsMetaData[] = [];
 
   const _mapping = mapping || {};
   const mappingsWithIndexIndicators = Object.keys(_mapping).filter((key) => keyHasIndexIndicators(key));
@@ -62,7 +62,7 @@ export function getAppListLookupKeys({
   };
 }
 
-export function getRelevantFormDataForAppListSource(formData: IFormData, source: IAppListSource) {
+export function getRelevantFormDataForDataListSource(formData: IFormData, source: IDataListSource) {
   const relevantFormData: IFormData = {};
   console.log('get relevant form data for option source');
   if (!formData || !source) {

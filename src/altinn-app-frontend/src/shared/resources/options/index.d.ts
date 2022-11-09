@@ -1,10 +1,10 @@
 import type { SortDirection } from '@altinn/altinn-design-system';
 
 import type {
-  IAppLists,
-  IAppLists,
-  IAppListsMetaData,
-  IAppListsMetaData,
+  IDataLists,
+  IDataLists,
+  IDataListsMetaData,
+  IDataListsMetaData,
   IOption,
   IOption,
   IOptions,
@@ -18,19 +18,19 @@ export interface IOptionsState {
   options: IOptions;
   optionsWithIndexIndicators?: IOptionsMetaData[];
 }
-export interface IAppListsState {
+export interface IDataListsState {
   error: Error | null;
-  appLists: IAppLists;
-  appListsWithIndexIndicator?: IAppListsMetaData[];
+  dataLists: IDataLists;
+  dataListsWithIndexIndicator?: IDataListsMetaData[];
 }
 
 export interface IFetchOptionsFulfilledAction {
   key: string;
   options: IOption[];
 }
-export interface IFetchAppListsFulfilledAction {
+export interface IFetchDataListsFulfilledAction {
   key: string;
-  appLists: any;
+  dataLists: any;
   metadata: any;
 }
 
@@ -39,7 +39,7 @@ export interface IFetchOptionsRejectedAction {
   error: Error;
 }
 
-export interface IFetchAppListsRejectedAction {
+export interface IFetchDataListsRejectedAction {
   key: string;
   error: Error;
 }
@@ -49,7 +49,7 @@ export interface IFetchingOptionsAction {
   metaData: IOptionsMetaData;
 }
 
-export interface IFetchingAppListsAction {
+export interface IFetchingDataListsAction {
   key: string;
   metaData: IOptionsMetaData;
 }
@@ -58,22 +58,22 @@ export interface ISetOptionsWithIndexIndicators {
   optionsWithIndexIndicators: IOptionsMetaData[];
 }
 
-export interface ISetAppListsWithIndexIndicators {
-  appListsWithIndexIndicators: IAppListsMetaData[];
+export interface ISetDataListsWithIndexIndicators {
+  dataListsWithIndexIndicators: IDataListsMetaData[];
 }
 
 export interface ISetOptions {
   options: IOptions;
 }
-export interface ISetAppLists {
-  appLists: IAppLists;
+export interface ISetDataLists {
+  dataLists: IDataLists;
 }
-export interface ISetAppListsPageSize {
+export interface ISetDataListsPageSize {
   key: string;
   size: number;
 }
 
-export interface ISetAppListsPageNumber {
+export interface ISetDataListsPageNumber {
   key: string;
   pageNumber: number;
 }

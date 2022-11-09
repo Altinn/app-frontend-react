@@ -200,8 +200,8 @@ export const getOptionsUrl = ({
   url.search = new URLSearchParams(params).toString();
   return url.toString();
 };
-export interface IGetAppListsUrlParams {
-  appListId: string;
+export interface IGetDataListsUrlParams {
+  dataListId: string;
   dataMapping?: IMapping;
   formData?: IFormData;
   language?: string;
@@ -213,8 +213,8 @@ export interface IGetAppListsUrlParams {
   sortColumn?: string;
 }
 
-export const getAppListsUrl = ({
-  appListId,
+export const getDataListsUrl = ({
+  dataListId,
   dataMapping,
   formData,
   language,
@@ -222,8 +222,8 @@ export const getAppListsUrl = ({
   pageNumber,
   sortDirection,
   sortColumn,
-}: IGetAppListsUrlParams) => {
-  const url = new URL(`${appPath}/api/lists/${appListId}`);
+}: IGetDataListsUrlParams) => {
+  const url = new URL(`${appPath}/api/datalists/${dataListId}`);
   let params: Record<string, string> = {};
 
   if (language) {

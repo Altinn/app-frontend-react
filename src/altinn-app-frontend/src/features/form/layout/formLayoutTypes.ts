@@ -1,6 +1,6 @@
 import type { ILayouts } from 'src/features/form/layout';
 import type {
-  IAppList,
+  IDataList,
   IFileUploadersWithTag,
   IHiddenLayoutsExpressions,
   ILayoutSets,
@@ -118,11 +118,11 @@ export interface IUpdateFileUploaderWithTagChosenOptions {
   option: IOption;
 }
 
-export interface IUpdateFileUploaderTagWithChosenAppLists {
+export interface IUpdateFileUploaderTagWithChosenDataLists {
   componentId: string;
   baseComponentId: string;
   id: string;
-  appList: IAppList;
+  dataList: IDataList;
 }
 
 export interface IUpdateFileUploaderWithTagChosenOptionsFulfilled {

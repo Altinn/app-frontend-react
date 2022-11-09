@@ -16,9 +16,9 @@ import type * as altinnDesignSystem from '@altinn/altinn-design-system';
 import type { PropsFromGenericComponent } from '..';
 
 import { useAppDispatch, useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
-import { useGetAppListOptions } from 'src/components/hooks';
+import { useGetDataListOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import { appListsActions } from 'src/shared/resources/options/appListsSlice';
+import { dataListsActions } from 'src/shared/resources/options/dataListsSlice';
 
 export type ILayoutCompProps = PropsFromGenericComponent<'List'>;
 
@@ -26,42 +26,42 @@ const defaultOptions: any[] = [];
 export const ListComponent = ({
   tableHeaders,
   fieldToStoreInDataModel,
-  appList,
-  appListId,
+  dataList,
+  dataListId,
   mapping,
   formData,
   handleDataChange,
   sortableColumns,
 }: ILayoutCompProps) => {
-  const apiOptions = useGetAppListOptions({ appListId, mapping });
+  const apiOptions = useGetDataListOptions({ dataListId, mapping });
   const calculatedOptions = apiOptions || defaultOptions;
 
-  const rowsPerPage = useAppSelector((state) => state.appListState.appLists[appListId || ''].size || 5);
-  const currentPage = useAppSelector((state) => state.appListState.appLists[appListId || ''].pageNumber || 0);
+  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].size || 5);
+  const currentPage = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].pageNumber || 0);
   const totalItemsCount = useAppSelector(
-    (state) => state.appListState.appLists[appListId || ''].paginationData?.totaltItemsCount || 0,
+    (state) => state.dataListState.dataLists[dataListId || ''].paginationData?.totaltItemsCount || 0,
   );
 
-  const optionsHasChanged = useHasChangedIgnoreUndefined(appList);
+  const optionsHasChanged = useHasChangedIgnoreUndefined(dataList);
   const { value, setValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
   const dispatch = useAppDispatch();
-  const sortColumn = useAppSelector((state) => state.appListState.appLists[appListId || ''].sortColumn || null);
+  const sortColumn = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].sortColumn || null);
   const sortDirection = useAppSelector(
-    (state) => state.appListState.appLists[appListId || ''].sortDirection || SortDirection.NotActive,
+    (state) => state.dataListState.dataLists[dataListId || ''].sortDirection || SortDirection.NotActive,
   );
   const handleSortChange = ({ idCell, previousSortDirection }: altinnDesignSystem.SortProps) => {
     if (previousSortDirection === SortDirection.Descending) {
       dispatch(
-        appListsActions.setSort({
-          key: appListId || '',
+        dataListsActions.setSort({
+          key: dataListId || '',
           sortColumn: idCell,
           sortDirection: SortDirection.Ascending,
         }),
       );
     } else {
       dispatch(
-        appListsActions.setSort({
-          key: appListId || '',
+        dataListsActions.setSort({
+          key: dataListId || '',
           sortColumn: idCell,
           sortDirection: SortDirection.Descending,
         }),
@@ -111,8 +111,8 @@ export const ListComponent = ({
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(
-      appListsActions.setPageSize({
-        key: appListId || '',
+      dataListsActions.setPageSize({
+        key: dataListId || '',
         size: parseInt(event.target.value, 10),
       }),
     );
@@ -120,8 +120,8 @@ export const ListComponent = ({
 
   const handleChangeCurrentPage = (newPage: number) => {
     dispatch(
-      appListsActions.setPageNumber({
-        key: appListId || '',
+      dataListsActions.setPageNumber({
+        key: dataListId || '',
         pageNumber: newPage,
       }),
     );

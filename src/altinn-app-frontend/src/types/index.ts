@@ -78,7 +78,7 @@ export interface IOption {
   value: any;
 }
 
-export interface IAppList {
+export interface IDataList {
   listItems: any[];
   _metaData: any;
 }
@@ -91,8 +91,8 @@ export interface IListOption {
 export interface IOptions {
   [key: string]: IOptionData | undefined;
 }
-export interface IAppLists {
-  [key: string]: IAppListData;
+export interface IDataLists {
+  [key: string]: IDataListData;
 }
 
 export interface IOptionSource {
@@ -101,9 +101,9 @@ export interface IOptionSource {
   value: string;
 }
 
-export interface IAppListSource {
+export interface IDataListSource {
   group: string;
-  appList: any[];
+  dataList: any[];
   metaData: any;
 }
 
@@ -111,7 +111,7 @@ export interface IOptionsActualData {
   options?: IOption[];
 }
 
-export interface IAppListActualData {
+export interface IDataListActualData {
   listItems?: any;
 }
 
@@ -122,18 +122,18 @@ export interface IOptionsMetaData {
   secure?: boolean;
 }
 
-export interface IAppListsMetaData {
+export interface IDataListsMetaData {
   id: string;
   mapping?: IMapping;
   loading?: boolean;
   secure?: boolean;
   size?: number;
   pageNumber?: number;
-  paginationData?: IAppListPaginationData;
+  paginationData?: IDataListPaginationData;
   sortColumn?: string;
   sortDirection?: SortDirection;
 }
-export interface IAppListPaginationData {
+export interface IDataListPaginationData {
   page: number;
   pageSize: number;
   totaltItemsCount: number;
@@ -141,7 +141,7 @@ export interface IAppListPaginationData {
 
 export type IOptionData = IOptionsActualData & IOptionsMetaData;
 
-export type IAppListData = IAppListActualData & IAppListsMetaData;
+export type IDataListData = IDataListActualData & IDataListsMetaData;
 
 export interface IRepeatingGroup {
   index: number;
@@ -325,8 +325,8 @@ export interface IFetchSpecificOptionSaga {
   instanceId?: string;
 }
 
-export interface IFetchSpecificAppListSaga {
-  appListId: string;
+export interface IFetchSpecificDataListSaga {
+  dataListId: string;
   formData?: IFormData;
   language?: string;
   dataMapping?: IMapping;

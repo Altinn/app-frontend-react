@@ -14,7 +14,7 @@ import attachmentSlice from 'src/shared/resources/attachments/attachmentSlice';
 import instanceDataSlice from 'src/shared/resources/instanceData/instanceDataSlice';
 import isLoadingSlice from 'src/shared/resources/isLoading/isLoadingSlice';
 import languageSlice from 'src/shared/resources/language/languageSlice';
-import appListsSlice from 'src/shared/resources/options/appListsSlice';
+import dataListsSlice from 'src/shared/resources/options/dataListsSlice';
 import optionsSlice from 'src/shared/resources/options/optionsSlice';
 import orgsSlice from 'src/shared/resources/orgs/orgsSlice';
 import partySlice from 'src/shared/resources/party/partySlice';
@@ -43,7 +43,7 @@ const reducers = {
   [queueSlice.name]: queueSlice.reducer,
   [textResourcesSlice.name]: textResourcesSlice.reducer,
   [optionsSlice.name]: optionsSlice.reducer,
-  [appListsSlice.name]: appListsSlice.reducer,
+  [dataListsSlice.name]: dataListsSlice.reducer,
   [applicationSettingsSlice.name]: applicationSettingsSlice.reducer,
   [appApi.reducerPath]: appApi.reducer,
 };

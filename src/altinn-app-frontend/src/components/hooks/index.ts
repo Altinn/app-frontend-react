@@ -71,20 +71,20 @@ export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsPara
 };
 
 interface IUseGetListParams {
-  appListId?: string;
+  dataListId?: string;
   mapping?: IMapping;
   source?: IOptionSource;
 }
 
-export const useGetAppListOptions = ({ appListId, mapping }: IUseGetListParams) => {
-  const appListState = useAppSelector((state) => state.appListState.appLists);
-  const [appList, setAppList] = useState<any>(undefined);
+export const useGetDataListOptions = ({ dataListId, mapping }: IUseGetListParams) => {
+  const dataListState = useAppSelector((state) => state.dataListState.dataLists);
+  const [dataList, setDataList] = useState<any>(undefined);
   useEffect(() => {
-    if (appListId) {
-      setAppList(appListState[getOptionLookupKey({ id: appListId, mapping })]?.listItems);
+    if (dataListId) {
+      setDataList(dataListState[getOptionLookupKey({ id: dataListId, mapping })]?.listItems);
     }
-  }, [mapping, appListId, appListState]);
-  return appList;
+  }, [mapping, dataListId, dataListState]);
+  return dataList;
 };
 
 export { useDisplayData } from './useDisplayData';
