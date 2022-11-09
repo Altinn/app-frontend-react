@@ -98,13 +98,13 @@ const useStyles = makeStyles({
     textOverflow: 'ellipsis',
   },
   editingRow: {
-    backgroundColor: 'rgba(227, 247, 255, 0.5)',
+    backgroundColor: theme.palette.secondary.transparentBlue,
     borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
     marginTop: '-1px',
     borderBottom: 0,
     boxSizing: 'border-box',
     '& tbody': {
-      backgroundColor: 'rgba(227, 247, 255, 0.5)',
+      backgroundColor: theme.palette.secondary.transparentBlue,
     },
   },
   aboveEditingRow: {
