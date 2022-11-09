@@ -9,10 +9,18 @@ import DatepickerComponent from 'src/components/base/DatepickerComponent';
 import type { IDatePickerProps } from 'src/components/base/DatepickerComponent';
 import type { RootState } from 'src/store';
 
+// Mock dateformat
+jest.mock('src/utils/dateHelpers', () => {
+  return {
+    __esModules: true,
+    ...jest.requireActual('src/utils/dateHelpers'),
+    getDateFormat: jest.fn(() => 'DD.MM.YYYY'),
+  };
+});
+
 const render = (props: Partial<IDatePickerProps> = {}, customState: PreloadedState<RootState> = {}) => {
   const allProps: IDatePickerProps = {
     ...mockComponentProps,
-    format: 'DD.MM.YYYY',
     minDate: '1900-01-01T12:00:00.000Z',
     maxDate: '2100-01-01T12:00:00.000Z',
     ...props,
@@ -99,7 +107,7 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange without skipping validation if date is cleared', async () => {
     const handleDataChange = jest.fn();
-    render({ handleDataChange, formData: { simpleBinding: '2022-01-01' } });
+    render({ handleDataChange, formData: { simpleBinding: '2022-12-31' } });
 
     const inputField = screen.getByRole('textbox');
 
@@ -116,11 +124,11 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await userEvent.type(inputField, '01012022');
+    await userEvent.type(inputField, '31122022');
     fireEvent.blur(inputField);
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-01-01T12:00:00.000+'));
+    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'));
   });
 
   it('should call handleDataChange with formatted value (timestamp=false) without skipping validation if date is valid', async () => {
@@ -129,11 +137,11 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await userEvent.type(inputField, '01012022');
+    await userEvent.type(inputField, '31122022');
     fireEvent.blur(inputField);
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('2022-01-01');
+    expect(handleDataChange).toHaveBeenCalledWith('2022-12-31');
   });
 
   it('should call handleDataChange with formatted value (timestamp=undefined) without skipping validation if date is valid', async () => {
@@ -142,11 +150,11 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await userEvent.type(inputField, '01012022');
+    await userEvent.type(inputField, '31122022');
     fireEvent.blur(inputField);
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-01-01T12:00:00.000+'));
+    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'));
   });
 
   it('should call handleDataChange without skipping validation if date is invalid but finished filling out', async () => {
@@ -159,7 +167,7 @@ describe('DatepickerComponent', () => {
     fireEvent.blur(inputField);
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('12/34/5678');
+    expect(handleDataChange).toHaveBeenCalledWith('12.34.5678');
   });
 
   it('should call handleDataChange with skipValidation=true if not finished filling out the date', async () => {
@@ -171,7 +179,7 @@ describe('DatepickerComponent', () => {
     fireEvent.blur(inputField);
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('12/34/____', { validate: false });
+    expect(handleDataChange).toHaveBeenCalledWith('12.34.____', { validate: false });
   });
 
   it('should have aria-describedby if textResourceBindings.description is present', () => {
