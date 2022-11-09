@@ -60,7 +60,7 @@ export function DeleteWarningPopover({
         <Button
           data-testid='warning-popover-cancel-button'
           variant={ButtonVariant.Quiet}
-          color={ButtonColor.Primary}
+          color={ButtonColor.Secondary}
           onClick={onCancelClick}
         >
           {getLanguageFromKey('general.cancel', language)}
