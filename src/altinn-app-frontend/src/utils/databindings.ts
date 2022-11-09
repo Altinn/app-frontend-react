@@ -171,7 +171,7 @@ export function flattenObject(data: any): any {
   for (const key of Object.keys(flat)) {
     if (flat[key] === null) {
       delete flat[key];
-    } else if (flat[key] === '' && key.indexOf('.') > 0) {
+    } else if (flat[key].toString() === '' && key.indexOf('.') > 0) {
       // For backwards compatibility, delete keys inside deeper object that are empty strings. This behaviour is
       // not always consistent, as it is only a case for deeper object (not direct properties).
       delete flat[key];
