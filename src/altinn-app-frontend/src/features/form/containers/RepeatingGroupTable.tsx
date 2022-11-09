@@ -139,7 +139,7 @@ const useStyles = makeStyles({
         '&::before': {
           display: 'block',
           content: "' '",
-          marginTop: '-12px',
+          marginTop: '-10px',
           width: '100%',
           position: 'absolute',
           borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
