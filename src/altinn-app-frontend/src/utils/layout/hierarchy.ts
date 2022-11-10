@@ -273,16 +273,19 @@ export class LayoutRootNode<NT extends NodeType = 'unresolved'>
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found). Implemented here for parity with LayoutNode
    */
-  public closest(matching: (item: AnyTopLevelItem<NT>) => boolean): AnyTopLevelNode<NT> | undefined {
+  public closest(
+    matching: (item: AnyTopLevelItem<NT>) => boolean,
+    traversePages = true,
+  ): AnyTopLevelNode<NT> | undefined {
     const out = this.children(matching);
     if (out) {
       return out;
     }
 
-    if (this.top) {
+    if (traversePages && this.top) {
       const otherLayouts = this.top.collection.flat(this.top.myKey);
       for (const page of otherLayouts) {
-        const found = page.closest(matching);
+        const found = page.closest(matching, false);
         if (found) {
           return found;
         }
