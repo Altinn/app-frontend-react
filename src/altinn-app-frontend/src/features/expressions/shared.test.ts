@@ -43,7 +43,7 @@ describe('Expressions shared function tests', () => {
         const currentLayout = (context && context.currentLayout) || '';
         const rootCollection = new LayoutRootNodeCollection(currentLayout as keyof typeof asNodes, asNodes);
         const componentId = context ? toComponentId(context) : 'no-component';
-        const component = rootCollection.findComponentById(componentId) || new NodeNotFoundWithoutContext(componentId);
+        const component = rootCollection.findById(componentId) || new NodeNotFoundWithoutContext(componentId);
 
         if (expectsFailure) {
           expect(() => {

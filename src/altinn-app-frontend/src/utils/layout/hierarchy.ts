@@ -1,3 +1,5 @@
+import type { $Values } from 'utility-types';
+
 import { evalExprInObj, ExprDefaultsForComponent, ExprDefaultsForGroup } from 'src/features/expressions';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
@@ -241,6 +243,7 @@ export class LayoutRootNode<NT extends NodeType = 'unresolved'>
 {
   public item: Record<string, undefined> = {};
   public parent: this;
+  public top: { myKey: string; collection: LayoutRootNodeCollection<NT> } | undefined;
 
   private directChildren: AnyTopLevelNode<NT>[] = [];
   private allChildren: AnyChildNode<NT>[] = [];
@@ -271,7 +274,22 @@ export class LayoutRootNode<NT extends NodeType = 'unresolved'>
    * none can be found). Implemented here for parity with LayoutNode
    */
   public closest(matching: (item: AnyTopLevelItem<NT>) => boolean): AnyTopLevelNode<NT> | undefined {
-    return this.children(matching);
+    const out = this.children(matching);
+    if (out) {
+      return out;
+    }
+
+    if (this.top) {
+      const otherLayouts = this.top.collection.flat(this.top.myKey);
+      for (const page of otherLayouts) {
+        const found = page.closest(matching);
+        if (found) {
+          return found;
+        }
+      }
+    }
+
+    return undefined;
   }
 
   /**
@@ -310,20 +328,40 @@ export class LayoutRootNode<NT extends NodeType = 'unresolved'>
     return this.allChildren;
   }
 
-  public findById(id: string): AnyChildNode<NT> | undefined {
+  public findById(id: string, traversePages = true): AnyChildNode<NT> | undefined {
     if (this.idMap[id] && this.idMap[id].length) {
       return this.allChildren[this.idMap[id][0]];
+    }
+
+    if (traversePages && this.top) {
+      return this.top.collection.findById(id, this.top.myKey);
     }
 
     return undefined;
   }
 
-  public findAllById(id: string): AnyChildNode<NT>[] {
+  public findAllById(id: string, traversePages = true): AnyChildNode<NT>[] {
+    const out: AnyChildNode<NT>[] = [];
     if (this.idMap[id] && this.idMap[id].length) {
-      return this.idMap[id].map((idx) => this.allChildren[idx]);
+      for (const idx of this.idMap[id]) {
+        out.push(this.allChildren[idx]);
+      }
     }
 
-    return [];
+    if (traversePages && this.top) {
+      for (const item of this.top.collection.findAllById(id, this.top.myKey)) {
+        out.push(item);
+      }
+    }
+
+    return out;
+  }
+
+  public registerCollection(myKey: string, collection: LayoutRootNodeCollection<any, any>) {
+    this.top = {
+      myKey,
+      collection,
+    };
   }
 }
 
@@ -652,22 +690,27 @@ export class LayoutRootNodeCollection<
     [layoutKey: string]: LayoutRootNode<NT>;
   },
 > {
-  public constructor(private currentView: keyof Collection, private objects: Collection) {}
+  public constructor(private currentView: keyof Collection, private objects: Collection) {
+    for (const layoutKey of Object.keys(objects)) {
+      const layout = objects[layoutKey];
+      layout.registerCollection(layoutKey, this);
+    }
+  }
 
-  public findComponentById(id: string): LayoutNode<NT> | undefined {
+  public findById(id: string, exceptInPage?: string): LayoutNode<NT> | undefined {
     const current = this.current();
-    if (current) {
-      const inCurrent = this.current().findById(id);
+    if (current && this.currentView !== exceptInPage) {
+      const inCurrent = this.current().findById(id, false);
       if (inCurrent) {
         return inCurrent;
       }
     }
 
     for (const otherLayoutKey of Object.keys(this.objects)) {
-      if (otherLayoutKey === this.currentView) {
+      if (otherLayoutKey === this.currentView || otherLayoutKey === exceptInPage) {
         continue;
       }
-      const inOther = this.objects[otherLayoutKey].findById(id);
+      const inOther = this.objects[otherLayoutKey].findById(id, false);
       if (inOther) {
         return inOther;
       }
@@ -676,11 +719,13 @@ export class LayoutRootNodeCollection<
     return undefined;
   }
 
-  public findAllComponentsById(id: string): LayoutNode<NT>[] {
+  public findAllById(id: string, exceptInPage?: string): LayoutNode<NT>[] {
     const out: LayoutNode<NT>[] = [];
 
     for (const key of Object.keys(this.objects)) {
-      out.push(...this.objects[key].findAllById(id));
+      if (key !== exceptInPage) {
+        out.push(...this.objects[key].findAllById(id, false));
+      }
     }
 
     return out;
@@ -696,6 +741,15 @@ export class LayoutRootNodeCollection<
 
   public all(): Collection {
     return this.objects;
+  }
+
+  public flat<L extends keyof Collection>(exceptLayout?: L) {
+    return [
+      ...Object.keys(this.objects)
+        .filter((key) => key !== exceptLayout)
+        .map((key) => this.objects[key])
+        .flat(),
+    ] as $Values<Omit<Collection, L>>[];
   }
 }
 

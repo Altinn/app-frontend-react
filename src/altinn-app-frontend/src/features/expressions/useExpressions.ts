@@ -56,7 +56,7 @@ export function useExpressions<T>(input: T, _options?: UseExpressionsOptions<T>)
 
   const node = useMemo(() => {
     if (id) {
-      const foundNode = nodes.findComponentById(id);
+      const foundNode = nodes.findById(id);
       if (foundNode) {
         return foundNode;
       }

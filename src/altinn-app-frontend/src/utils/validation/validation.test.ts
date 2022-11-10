@@ -953,7 +953,7 @@ describe('utils > validation', () => {
 
     it('should add error to validations if supplied field is required', () => {
       const collection = toCollection(mockLayout, repeatingGroups);
-      const component = collection.findComponentById('componentId_3');
+      const component = collection.findById('componentId_3');
       if (!component) {
         throw new Error('Node not found');
       }
@@ -980,7 +980,7 @@ describe('utils > validation', () => {
 
     it('should find all errors in an AddressComponent', () => {
       const collection = toCollection(mockLayout, repeatingGroups);
-      const component = collection.findComponentById('componentId_6');
+      const component = collection.findById('componentId_6');
       if (!component) {
         throw new Error('Node not found');
       }
