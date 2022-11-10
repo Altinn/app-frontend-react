@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 import type { Expression } from 'src/features/expressions/types';
-import type { ILayout } from 'src/features/form/layout';
+import type { ILayout, ILayouts } from 'src/features/form/layout';
 
 import type { IApplicationSettings, IInstanceContext } from 'altinn-shared/types';
 
@@ -95,4 +95,13 @@ export function getSharedTests<Folder extends keyof TestFolders>(
   });
 
   return out;
+}
+
+export function convertLayouts(input: Layouts | undefined): ILayouts {
+  const _layouts: ILayouts = {};
+  for (const key of Object.keys(input || {})) {
+    _layouts[key] = (input || {})[key]?.data.layout;
+  }
+
+  return _layouts;
 }

@@ -2,13 +2,14 @@ import dot from 'dot-object';
 
 import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
-import { getSharedTests } from 'src/features/expressions/shared';
+import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression } from 'src/features/expressions/validation';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
-import { LayoutRootNodeCollection, nodesInLayout, resolvedNodesInLayout } from 'src/utils/layout/hierarchy';
+import { nodesInLayouts, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
+import type { IRepeatingGroups } from 'src/types';
 import type { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 import type { IApplicationSettings, IInstanceContext } from 'altinn-shared/types';
@@ -32,16 +33,19 @@ describe('Expressions shared function tests', () => {
         };
 
         const asNodes: { [key: string]: LayoutRootNode<any> } = {};
-        const _layouts = layouts || {};
+        const _layouts = convertLayouts(layouts);
+        let repeatingGroups: IRepeatingGroups = {};
         for (const key of Object.keys(_layouts)) {
-          const repeatingGroups = getRepeatingGroups(_layouts[key].data.layout, dataSources.formData);
-          asNodes[key] = expectsFailure
-            ? nodesInLayout(_layouts[key].data.layout, repeatingGroups)
-            : resolvedNodesInLayout(_layouts[key].data.layout, repeatingGroups, dataSources);
+          repeatingGroups = {
+            ...repeatingGroups,
+            ...getRepeatingGroups(_layouts[key] || [], dataSources.formData),
+          };
         }
 
         const currentLayout = (context && context.currentLayout) || '';
-        const rootCollection = new LayoutRootNodeCollection(currentLayout as keyof typeof asNodes, asNodes);
+        const rootCollection = expectsFailure
+          ? nodesInLayouts(_layouts, currentLayout, repeatingGroups)
+          : resolvedNodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources);
         const componentId = context ? toComponentId(context) : 'no-component';
         const component = rootCollection.findById(componentId) || new NodeNotFoundWithoutContext(componentId);
 
@@ -110,12 +114,15 @@ describe('Expressions shared context tests', () => {
       const _layouts = layouts || {};
       for (const key of Object.keys(_layouts)) {
         const repeatingGroups = getRepeatingGroups(_layouts[key].data.layout, dataSources.formData);
-        const nodes = nodesInLayout(_layouts[key].data.layout, repeatingGroups);
+        const nodes = nodesInLayouts({ FormLayout: _layouts[key].data.layout }, 'FormLayout', repeatingGroups);
 
         foundContexts.push({
           component: key,
           currentLayout: key,
-          children: nodes.children().map((child) => recurse(child, key)),
+          children: nodes
+            .current()
+            .children()
+            .map((child) => recurse(child, key)),
         });
       }
 

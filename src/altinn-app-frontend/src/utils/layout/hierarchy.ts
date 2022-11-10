@@ -5,7 +5,13 @@ import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
-import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayoutGroup } from 'src/features/form/layout';
+import type {
+  ILayout,
+  ILayoutComponent,
+  ILayoutComponentOrGroup,
+  ILayoutGroup,
+  ILayouts,
+} from 'src/features/form/layout';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import type {
   AnyChildNode,
@@ -604,8 +610,8 @@ export class LayoutNode<NT extends NodeType = 'unresolved', Item extends AnyItem
  * Note: This strips away multiPage functionality and treats every component of a multiPage group
  * as if every component is on the same page.
  *
- * @see resolvedNodesInLayout
- *  An alternative that also resolves expressions for all nodes in the layout
+ * @see resolvedNodesInLayouts
+ *  An alternative that also resolves expressions for all nodes in all layouts
  */
 export function nodesInLayout(
   formLayout: ILayout | undefined | null,
@@ -642,45 +648,66 @@ export function nodesInLayout(
 }
 
 /**
+ * The same as the function above, but takes multiple layouts and returns a collection
+ */
+export function nodesInLayouts(
+  layouts: ILayouts | undefined | null,
+  currentView: string,
+  repeatingGroups: IRepeatingGroups | null,
+): LayoutRootNodeCollection {
+  const nodes = {};
+
+  const _layouts = layouts || {};
+  for (const key of Object.keys(_layouts)) {
+    nodes[key] = nodesInLayout(_layouts[key], repeatingGroups);
+  }
+
+  return new LayoutRootNodeCollection(currentView as keyof typeof nodes, nodes);
+}
+
+/**
  * This is the same tool as the one above, but additionally it will iterate each component/group in the layout
  * and resolve all expressions for it.
  *
- * @see nodesInLayout
+ * @see nodesInLayouts
  */
-export function resolvedNodesInLayout(
-  formLayout: ILayout,
+export function resolvedNodesInLayouts(
+  layouts: ILayouts | null,
+  currentLayout: string,
   repeatingGroups: IRepeatingGroups | null,
   dataSources: ContextDataSources,
-): LayoutRootNode<'resolved'> {
+) {
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
-  const layoutCopy = JSON.parse(JSON.stringify(formLayout));
-  const unresolved = nodesInLayout(layoutCopy, repeatingGroups);
+  const layoutsCopy: ILayouts = JSON.parse(JSON.stringify(layouts || {}));
+  const unresolved = nodesInLayouts(layoutsCopy, currentLayout, repeatingGroups);
 
-  for (const node of unresolved.flat(true)) {
-    const input = { ...node.item };
-    delete input['children'];
-    delete input['rows'];
-    delete input['childComponents'];
+  for (const layout of Object.values(unresolved.all())) {
+    for (const node of layout.flat(true)) {
+      const input = { ...node.item };
+      delete input['children'];
+      delete input['rows'];
+      delete input['childComponents'];
 
-    const resolvedItem = evalExprInObj({
-      input,
-      node,
-      dataSources,
-      defaults: {
-        ...ExprDefaultsForComponent,
-        ...ExprDefaultsForGroup,
-      } as any,
-    }) as unknown as AnyItem<'resolved'>;
+      const resolvedItem = evalExprInObj({
+        input,
+        node,
+        dataSources,
+        defaults: {
+          ...ExprDefaultsForComponent,
+          ...ExprDefaultsForGroup,
+        } as any,
+      }) as unknown as AnyItem<'resolved'>;
 
-    for (const key of Object.keys(resolvedItem)) {
-      // Mutates node.item directly - this also mutates references to it and makes sure
-      // we resolve expressions deep inside recursive structures.
-      node.item[key] = resolvedItem[key];
+      for (const key of Object.keys(resolvedItem)) {
+        // Mutates node.item directly - this also mutates references to it and makes sure
+        // we resolve expressions deep inside recursive structures.
+        node.item[key] = resolvedItem[key];
+      }
     }
   }
 
-  return unresolved as unknown as LayoutRootNode<'resolved'>;
+  return unresolved as unknown as LayoutRootNodeCollection<'resolved'>;
 }
 
 /**
@@ -766,19 +793,10 @@ export function dataSourcesFromState(state: IRuntimeState): ContextDataSources {
 }
 
 export function resolvedLayoutsFromState(state: IRuntimeState): LayoutRootNodeCollection<'resolved'> {
-  const layoutsAsNodes = {};
-  const dataSources = dataSourcesFromState(state);
-  const layouts = state.formLayout.layouts || {};
-  for (const key of Object.keys(layouts)) {
-    layoutsAsNodes[key] = resolvedNodesInLayout(
-      layouts[key] || [],
-      state.formLayout.uiConfig.repeatingGroups,
-      dataSources,
-    );
-  }
-
-  return new LayoutRootNodeCollection(
-    state.formLayout.uiConfig.currentView as keyof typeof layoutsAsNodes,
-    layoutsAsNodes,
+  return resolvedNodesInLayouts(
+    state.formLayout.layouts,
+    state.formLayout.uiConfig.currentView,
+    state.formLayout.uiConfig.repeatingGroups,
+    dataSourcesFromState(state),
   );
 }

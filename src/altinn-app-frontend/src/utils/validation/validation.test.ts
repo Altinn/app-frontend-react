@@ -9,7 +9,7 @@ import dot from 'dot-object';
 
 import { Severity } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroups } from 'src/utils/formLayout';
-import { LayoutRootNodeCollection, nodesInLayout } from 'src/utils/layout/hierarchy';
+import { nodesInLayouts } from 'src/utils/layout/hierarchy';
 import * as validation from 'src/utils/validation/validation';
 import type { ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
 import type {
@@ -22,16 +22,16 @@ import type {
   IValidationIssue,
   IValidations,
 } from 'src/types';
-import type { LayoutRootNode } from 'src/utils/layout/hierarchy';
+import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
 
 import { getParsedLanguageFromKey, getTextResourceByKey } from 'altinn-shared/index';
 
-function toCollection(mockLayout: ILayouts, repeatingGroups: IRepeatingGroups = {}) {
-  const asNodes = {};
-  for (const key of Object.keys(mockLayout)) {
-    asNodes[key] = nodesInLayout(mockLayout[key] || [], repeatingGroups) as unknown as LayoutRootNode<'resolved'>;
-  }
-  return new LayoutRootNodeCollection<'resolved'>(Object.keys(mockLayout)[0] as keyof typeof asNodes, asNodes);
+function toCollection(mockLayouts: ILayouts, repeatingGroups: IRepeatingGroups = {}) {
+  return nodesInLayouts(
+    mockLayouts,
+    Object.keys(mockLayouts)[0],
+    repeatingGroups,
+  ) as unknown as LayoutRootNodeCollection<'resolved'>;
 }
 
 function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {

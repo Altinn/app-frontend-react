@@ -387,7 +387,7 @@ export const ExprFunctions = {
       }
 
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
-      // results. We should note this in the error message so we know the reason we couldn't find the component.
+      // results. We should note this in the error message, so we know the reason we couldn't find the component.
       const hasAllLayouts = node instanceof LayoutRootNode ? !!node.top : !!node.top.top;
       throw new LookupNotFound(
         this,

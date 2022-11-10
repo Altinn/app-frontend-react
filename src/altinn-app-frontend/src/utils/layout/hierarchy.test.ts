@@ -9,7 +9,7 @@ import {
   LayoutRootNodeCollection,
   nodesInLayout,
   resolvedLayoutsFromState,
-  resolvedNodesInLayout,
+  resolvedNodesInLayouts,
 } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ILayout, ILayoutCompHeader, ILayoutCompInput, ILayoutGroup } from 'src/features/form/layout';
@@ -116,6 +116,7 @@ describe('Hierarchical layout tools', () => {
     components.group3nh,
     components.group3ni,
   ];
+  const layouts = { FormLayout: layout };
 
   describe('layoutAsHierarchy', () => {
     it('should turn a layout into a hierarchy', () => {
@@ -521,7 +522,7 @@ describe('Hierarchical layout tools', () => {
       hiddenFields: new Set(),
     };
 
-    const nodes = resolvedNodesInLayout(layout, repeatingGroups, dataSources);
+    const nodes = resolvedNodesInLayouts(layouts, 'FormLayout', repeatingGroups, dataSources);
 
     const topInput = nodes.findById(components.top2.id);
     const group2 = nodes.findById(components.group2.id);
@@ -549,8 +550,8 @@ describe('Hierarchical layout tools', () => {
     expect(uniqueHidden(group2ni?.parent.parent.children())).toEqual(plain);
     expect(uniqueHidden(group2?.flat(true))).toEqual(plain);
     expect(uniqueHidden(group2?.flat(false))).toEqual(plain);
-    expect(uniqueHidden(nodes.flat(true))).toEqual(plain);
-    expect(uniqueHidden(nodes.children())).toEqual(plain);
+    expect(uniqueHidden(nodes.current().flat(true))).toEqual(plain);
+    expect(uniqueHidden(nodes.current().children())).toEqual(plain);
 
     if (group2?.item.type === 'Group' && 'rows' in group2.item) {
       expect(group2.item.rows[0].items[1].hidden).toEqual(true);
