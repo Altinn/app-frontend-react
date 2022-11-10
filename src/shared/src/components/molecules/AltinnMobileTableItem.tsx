@@ -72,14 +72,14 @@ const useStyles = makeStyles({
     color: theme.altinnPalette.primary.grey,
   },
   editButtonCell: {
-    width: '170px',
+    width: '185px',
     padding: '4px !important',
     '@media (max-width: 768px)': {
       width: '50px',
     },
   },
   deleteButtonCell: {
-    width: '95px',
+    width: '120px',
     padding: '4px !important',
     '@media (max-width: 768px)': {
       width: '50px',

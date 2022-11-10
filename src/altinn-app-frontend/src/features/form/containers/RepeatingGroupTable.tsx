@@ -139,7 +139,7 @@ const useStyles = makeStyles({
         '&::before': {
           display: 'block',
           content: "' '",
-          marginTop: '-10px',
+          marginTop: '-12px',
           width: '100%',
           position: 'absolute',
           borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
@@ -390,11 +390,11 @@ export function RepeatingGroupTable({
                     {getTextResource(getTableTitle(component), textResources)}
                   </TableCell>
                 ))}
-                <TableCell style={{ width: '170px', padding: 0, paddingRight: '10px' }}>
+                <TableCell style={{ width: '185px', padding: 0, paddingRight: '10px' }}>
                   <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
                 </TableCell>
                 {!hideDeleteButton && (
-                  <TableCell style={{ width: '95px', padding: 0 }}>
+                  <TableCell style={{ width: '120px', padding: 0 }}>
                     <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
                   </TableCell>
                 )}
@@ -445,7 +445,7 @@ export function RepeatingGroupTable({
                         </TableCell>
                       ))}
                       <TableCell
-                        style={{ width: '170px', padding: '4px' }}
+                        style={{ width: '185px', padding: '4px' }}
                         key={`edit-${index}`}
                       >
                         <div className={classes.buttonInCellWrapper}>
@@ -464,7 +464,7 @@ export function RepeatingGroupTable({
                       </TableCell>
                       {!hideDeleteButton && (
                         <TableCell
-                          style={{ width: '95px', padding: '4px' }}
+                          style={{ width: '120px', padding: '4px' }}
                           key={`delete-${index}`}
                           className={cn({
                             [classes.popoverCurrentCell]: index == popoverPanelIndex,
