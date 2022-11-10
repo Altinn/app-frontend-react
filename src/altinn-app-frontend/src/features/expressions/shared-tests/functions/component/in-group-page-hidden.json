@@ -16,8 +16,8 @@
     },
     "Page2": {
       "$schema": "https://altinncdn.no/schemas/json/layout/layout.schema.v1.json",
-      "hidden": ["notEquals", 2, 3],
       "data": {
+        "hidden": ["notEquals", 2, 3],
         "layout": [
           {
             "id": "myGroup",

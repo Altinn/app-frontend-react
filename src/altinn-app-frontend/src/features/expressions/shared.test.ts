@@ -10,7 +10,7 @@ import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
 import type { IRepeatingGroups } from 'src/types';
-import type { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 import type { IApplicationSettings, IInstanceContext } from 'altinn-shared/types';
 
@@ -32,7 +32,6 @@ describe('Expressions shared function tests', () => {
           hiddenFields: new Set<string>(),
         };
 
-        const asNodes: { [key: string]: LayoutRootNode<any> } = {};
         const _layouts = convertLayouts(layouts);
         let repeatingGroups: IRepeatingGroups = {};
         for (const key of Object.keys(_layouts)) {
@@ -57,10 +56,20 @@ describe('Expressions shared function tests', () => {
         } else {
           // Simulate what happens in checkIfConditionalRulesShouldRunSaga()
           const newHiddenFields = new Set<string>();
-          for (const layout of Object.values(asNodes)) {
+          for (const layoutKey of Object.keys(rootCollection.all())) {
+            const layout = rootCollection.findLayout(layoutKey);
             for (const node of layout.flat(true)) {
               if (node.isHidden(dataSources.hiddenFields)) {
                 newHiddenFields.add(node.item.id);
+              }
+            }
+            if (layouts && layouts[layoutKey].data.hidden) {
+              const hiddenExpr = asExpression(layouts[layoutKey].data.hidden) as Expression;
+              const isHidden = evalExpr(hiddenExpr, layout, dataSources);
+              if (isHidden) {
+                for (const hiddenComponent of layout.flat(true)) {
+                  newHiddenFields.add(hiddenComponent.item.id);
+                }
               }
             }
           }

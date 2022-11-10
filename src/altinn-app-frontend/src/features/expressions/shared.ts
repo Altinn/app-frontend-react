@@ -9,6 +9,7 @@ export interface Layouts {
   [key: string]: {
     $schema: string;
     data: {
+      hidden?: Expression;
       layout: ILayout;
     };
   };
