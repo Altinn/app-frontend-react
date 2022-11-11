@@ -171,27 +171,18 @@ function innerEvalExpr(context: ExprContext) {
   const [func, ...args] = context.getExpr();
 
   const returnType = ExprFunctions[func].returns;
-  const neverCastIndexes = new Set(ExprFunctions[func].neverCastArguments || []);
 
   const computedArgs = args.map((arg, idx) => {
     const realIdx = idx + 1;
     const argContext = ExprContext.withPath(context, [...context.path, `[${realIdx}]`]);
 
     const argValue = Array.isArray(arg) ? innerEvalExpr(argContext) : arg;
-    if (neverCastIndexes.has(idx)) {
-      return argValue;
-    }
-
     const argType = argTypeAt(func, idx);
     return castValue(argValue, argType, argContext);
   });
 
   const actualFunc: (...args: any) => any = ExprFunctions[func].impl;
   const returnValue = actualFunc.apply(context, computedArgs);
-
-  if (ExprFunctions[func].castReturnValue === false) {
-    return returnValue;
-  }
 
   return castValue(returnValue, returnType, context);
 }
@@ -261,6 +252,11 @@ export const ExprFunctions = {
     args: ['string', 'string'] as const,
     returns: 'boolean',
   }),
+  not: defineFunc({
+    impl: (arg) => !arg,
+    args: ['boolean'] as const,
+    returns: 'boolean',
+  }),
   greaterThan: defineFunc({
     impl: (arg1, arg2) => {
       if (arg1 === null || arg2 === null) {
@@ -313,21 +309,21 @@ export const ExprFunctions = {
     lastArgSpreads: true,
   }),
   and: defineFunc({
-    impl: (...args) => args.reduce((prev, cur) => !!prev && !!cur, true),
+    impl: (...args) => args.reduce((prev, cur) => prev && !!cur, true),
     args: ['boolean'],
     returns: 'boolean',
     lastArgSpreads: true,
   }),
   or: defineFunc({
-    impl: (...args) => args.reduce((prev, cur) => !!prev || !!cur, false),
+    impl: (...args) => args.reduce((prev, cur) => prev || !!cur, false),
     args: ['boolean'],
     returns: 'boolean',
     lastArgSpreads: true,
   }),
   if: defineFunc({
-    impl: function (...args) {
+    impl: function (...args): any {
       const [condition, result] = args;
-      if (condition === 'true') {
+      if (condition === true) {
         return result;
       }
 
@@ -345,14 +341,15 @@ export const ExprFunctions = {
       }
       addError(ctx, path, 'Expected either 2 arguments (if) or 4 (if + else), got %s', `${rawArgs.length}`);
     },
-    args: ['string', 'string'],
-    returns: 'string',
-    lastArgSpreads: true,
-    neverCastArguments: [1, 3],
-    castReturnValue: false,
+    args: ['boolean', 'any', 'string', 'any'],
+    returns: 'any',
   }),
   instanceContext: defineFunc({
     impl: function (key): string | null {
+      if (key === null) {
+        throw new LookupNotFound(this, `Cannot lookup property null`);
+      }
+
       if (instanceContextKeys[key] !== true) {
         throw new LookupNotFound(this, `Unknown Instance context property ${key}`);
       }
@@ -363,14 +360,22 @@ export const ExprFunctions = {
     returns: 'string',
   }),
   frontendSettings: defineFunc({
-    impl: function (key): string | null {
+    impl: function (key): any {
+      if (key === null) {
+        throw new LookupNotFound(this, `Cannot lookup property null`);
+      }
+
       return (this.dataSources.applicationSettings && this.dataSources.applicationSettings[key]) || null;
     },
     args: ['string'] as const,
-    returns: 'string',
+    returns: 'any',
   }),
   component: defineFunc({
-    impl: function (id): string | null {
+    impl: function (id): any {
+      if (id === null) {
+        throw new LookupNotFound(this, `Cannot lookup component null`);
+      }
+
       const component = this.failWithoutNode().closest((c) => c.id === id || c.baseComponentId === id);
       const binding = component?.item?.dataModelBindings?.simpleBinding;
       if (binding) {
@@ -383,10 +388,14 @@ export const ExprFunctions = {
       );
     },
     args: ['string'] as const,
-    returns: 'string',
+    returns: 'any',
   }),
   dataModel: defineFunc({
-    impl: function (path): string | null {
+    impl: function (path): any {
+      if (path === null) {
+        throw new LookupNotFound(this, `Cannot lookup data model null`);
+      }
+
       const maybeNode = this.failWithoutNode();
       if (maybeNode instanceof LayoutNode) {
         const newPath = maybeNode?.transposeDataModel(path);
@@ -398,7 +407,7 @@ export const ExprFunctions = {
       return this.dataSources.formData[path] || null;
     },
     args: ['string'] as const,
-    returns: 'string',
+    returns: 'any',
   }),
 };
 
@@ -426,7 +435,7 @@ export const ExprTypes: {
 } = {
   boolean: {
     nullable: true,
-    accepts: ['boolean', 'string', 'number'],
+    accepts: ['boolean', 'string', 'number', 'any'],
     impl: function (arg) {
       if (typeof arg === 'boolean') {
         return arg;
@@ -447,7 +456,7 @@ export const ExprTypes: {
   },
   string: {
     nullable: true,
-    accepts: ['boolean', 'string', 'number'],
+    accepts: ['boolean', 'string', 'number', 'any'],
     impl: function (arg) {
       if (['number', 'bigint', 'boolean'].includes(typeof arg)) {
         return JSON.stringify(arg);
@@ -463,7 +472,7 @@ export const ExprTypes: {
   },
   number: {
     nullable: true,
-    accepts: ['boolean', 'string', 'number'],
+    accepts: ['boolean', 'string', 'number', 'any'],
     impl: function (arg) {
       if (typeof arg === 'number' || typeof arg === 'bigint') {
         return arg as number;
@@ -477,6 +486,11 @@ export const ExprTypes: {
 
       throw new UnexpectedType(this, 'number', arg);
     },
+  },
+  any: {
+    nullable: true,
+    accepts: ['boolean', 'string', 'number'],
+    impl: (arg) => arg,
   },
 };
 

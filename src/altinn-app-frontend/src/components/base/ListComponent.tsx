@@ -19,7 +19,7 @@ import { useGetDataList } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { dataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 
-export type ILayoutCompProps = PropsFromGenericComponent<'List'>;
+export type IListProps = PropsFromGenericComponent<'List'>;
 
 const defaultDataList: any[] = [];
 
@@ -29,14 +29,17 @@ export const ListComponent = ({
   dataList,
   dataListId,
   mapping,
+  pagination,
   formData,
   handleDataChange,
   sortableColumns,
-}: ILayoutCompProps) => {
+}: IListProps) => {
   const dynamicDataList = useGetDataList({ dataListId, mapping });
   const calculatedDataList = dynamicDataList || defaultDataList;
 
-  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].size || 5);
+  const rowsPerPage = useAppSelector(
+    (state) => state.dataListState.dataLists[dataListId || ''].size || pagination.default,
+  );
   const currentPage = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].pageNumber || 0);
   const sortColumn = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].sortColumn || null);
   const sortDirection = useAppSelector(
@@ -71,20 +74,23 @@ export const ListComponent = ({
 
   const checkSortableColumns = (headers) => {
     const cell: JSX.Element[] = [];
+    let index = 0;
     for (const header of headers) {
       if ((sortableColumns || []).includes(header)) {
         cell.push(
           <TableCell
             onChange={handleSortChange}
             id={header}
+            key={index}
             sortDirecton={sortColumn === header ? sortDirection : SortDirection.NotActive}
           >
             {header}
           </TableCell>,
         );
       } else {
-        cell.push(<TableCell>{header}</TableCell>);
+        cell.push(<TableCell key={index}>{header}</TableCell>);
       }
+      index++;
     }
     return cell;
   };
@@ -155,7 +161,7 @@ export const ListComponent = ({
           <TableCell colSpan={tableHeaders?.length}>
             <Pagination
               numberOfRows={totalItemsCount}
-              rowsPerPageOptions={[5, 10, 15, 20]}
+              rowsPerPageOptions={pagination.alternatives}
               rowsPerPage={rowsPerPage}
               onRowsPerPageChange={handleChangeRowsPerPage}
               currentPage={currentPage}

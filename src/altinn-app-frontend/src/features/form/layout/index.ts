@@ -102,6 +102,7 @@ export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> & ISelectionCompon
 export interface ILayoutCompList extends ILayoutCompBase<'List'> {
   tableHeaders?: string[];
   sortableColumns?: string[];
+  pagination: IPagination;
   dataList?: IDataList[];
   dataListId?: string;
   mapping?: IMapping;
@@ -328,4 +329,9 @@ export interface SummaryDisplayProperties {
   hideChangeButton?: boolean;
   useComponentGrid?: boolean;
   hideBottomBorder?: boolean;
+}
+
+export interface IPagination {
+  alternatives: number[];
+  default: number;
 }
