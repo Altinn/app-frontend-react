@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
-import { createTheme, Grid, makeStyles } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
 import { renderGenericComponent } from 'src/utils/layout';
@@ -9,7 +9,6 @@ import type { ILayout, ILayoutComponent, ILayoutGroup } from 'src/features/form/
 import type { ITextResource } from 'src/types';
 
 import { AltinnButton } from 'altinn-shared/components';
-import altinnAppTheme from 'altinn-shared/theme/altinnAppTheme';
 import { getLanguageFromKey, getTextResourceByKey } from 'altinn-shared/utils';
 import type { ILanguage } from 'altinn-shared/types';
 
@@ -34,28 +33,16 @@ export interface IRepeatingGroupsEditContainer {
   filteredIndexes?: number[] | null;
 }
 
-const theme = createTheme(altinnAppTheme);
-
 const useStyles = makeStyles({
   editContainer: {
     display: 'inline-block',
-    borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-    borderBottom: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-    padding: '24px',
     paddingTop: '12px',
-    width: '100%',
-    marginBottom: '24px',
-    backgroundColor: 'rgba(227, 247, 255, 0.5)',
+    paddingBottom: '12px',
     '@media (min-width:768px)': {
       padding: '24px',
     },
     '@media (min-width:993px)': {
       padding: '36px',
-    },
-    '& &': {
-      padding: '24px',
-      border: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-      backgroundColor: theme.altinnPalette.primary.blueLighter,
     },
   },
   deleteItem: {

@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 
-import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
-import { createTheme, Grid, makeStyles, TableCell, TableRow, useMediaQuery } from '@material-ui/core';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from '@altinn/altinn-design-system';
+import { createTheme, Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ExprDefaultsForGroup } from 'src/features/expressions';
@@ -16,18 +25,9 @@ import type { ILayout, ILayoutCompInput, ILayoutComponent, ILayoutGroup } from '
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
 
-import {
-  AltinnMobileTable,
-  AltinnMobileTableItem,
-  AltinnTable,
-  AltinnTableBody,
-  AltinnTableHeader,
-  AltinnTableRow,
-} from 'altinn-shared/components';
 import { DeleteWarningPopover } from 'altinn-shared/components/molecules/DeleteWarningPopover';
 import altinnAppTheme from 'altinn-shared/theme/altinnAppTheme';
 import { getLanguageFromKey, getTextResourceByKey } from 'altinn-shared/utils';
-import type { IMobileTableItem } from 'altinn-shared/components/molecules/AltinnMobileTableItem';
 import type { ILanguage } from 'altinn-shared/types';
 
 export interface IRepeatingGroupTableProps {
@@ -118,41 +118,15 @@ const useStyles = makeStyles({
       marginTop: '-3px',
     },
   },
-  editContainerInTable: {
-    borderTop: `1px solid ${theme.altinnPalette.primary.blueLight}`,
-    marginBottom: 0,
-  },
   editContainerRow: {
-    '&:hover': {
-      background: 'unset !important',
-    },
-    '& td': {
-      whiteSpace: 'normal',
-    },
+    borderTop: `1px solid ${theme.altinnPalette.primary.blueLight}`,
+    borderBottom: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
   },
   editingRow: {
+    borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
     backgroundColor: 'rgba(227, 247, 255, 0.5)',
     '& td': {
       borderBottom: 0,
-      '&:nth-child(1)': {
-        padding: 0,
-        '&::before': {
-          display: 'block',
-          content: "' '",
-          marginTop: '-12px',
-          width: '100%',
-          position: 'absolute',
-          borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-        },
-        '& span': {
-          padding: '36px',
-        },
-      },
-    },
-  },
-  aboveEditingRow: {
-    '& td': {
-      borderColor: 'transparent',
     },
   },
   visuallyHidden: {
@@ -170,6 +144,11 @@ const useStyles = makeStyles({
   popoverCurrentCell: {
     zIndex: 1,
     position: 'relative',
+  },
+  buttonCell: {
+    '& > div': {
+      margin: 0,
+    },
   },
   buttonInCellWrapper: {
     display: 'inline-flex',
@@ -242,7 +221,6 @@ export function RepeatingGroupTable({
   filteredIndexes,
 }: IRepeatingGroupTableProps): JSX.Element {
   const classes = useStyles();
-  const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
 
   const edit = useExpressions(container.edit, {
     forComponentId: id,
@@ -347,7 +325,6 @@ export function RepeatingGroupTable({
     return (
       editIndex >= 0 && (
         <RepeatingGroupsEditContainer
-          className={classes.editContainerInTable}
           container={container}
           editIndex={editIndex}
           setEditIndex={setEditIndex}
@@ -374,155 +351,30 @@ export function RepeatingGroupTable({
       data-testid={`group-${id}`}
       id={`group-${id}`}
     >
-      {!mobileView && (
-        <AltinnTable id={`group-${id}-table`}>
-          {showTableHeader && (
-            <AltinnTableHeader
-              showBorder={editIndex !== 0}
-              id={`group-${id}-table-header`}
-            >
-              <TableRow>
-                {tableComponents.map((component: ILayoutComponent) => (
-                  <TableCell
-                    align={getTextAlignment(component)}
-                    key={component.id}
-                  >
-                    {getTextResource(getTableTitle(component), textResources)}
-                  </TableCell>
-                ))}
-                <TableCell style={{ width: '185px', padding: 0, paddingRight: '10px' }}>
-                  <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
+      <Table id={`group-${id}-table`}>
+        {showTableHeader && (
+          <TableHeader id={`group-${id}-table-header`}>
+            <TableRow>
+              {tableComponents.map((component: ILayoutComponent) => (
+                <TableCell
+                  style={{ textAlign: getTextAlignment(component) }}
+                  key={component.id}
+                >
+                  {getTextResource(getTableTitle(component), textResources)}
                 </TableCell>
-                {!hideDeleteButton && (
-                  <TableCell style={{ width: '120px', padding: 0 }}>
-                    <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
-                  </TableCell>
-                )}
-              </TableRow>
-            </AltinnTableHeader>
-          )}
-          <AltinnTableBody id={`group-${id}-table-body`}>
-            {repeatingGroupIndex >= 0 &&
-              [...Array(repeatingGroupIndex + 1)].map((_x: any, index: number) => {
-                const rowHasErrors = repeatingGroupDeepCopyComponents[index].some(
-                  (component: ILayoutComponent | ILayoutGroup) => {
-                    return childElementHasErrors(component, index);
-                  },
-                );
-                const editButtonText = rowHasErrors
-                  ? getLanguageFromKey('general.edit_alt_error', language)
-                  : getEditButtonText(language, editIndex === index, textResources, container.textResourceBindings);
-
-                const deleteButtonText = getLanguageFromKey('general.delete', language);
-
-                const firstCellData = getFormDataForComponent(components[0], index);
-
-                // Check if filter is applied and includes specified index.
-                if (filteredIndexes && !filteredIndexes.includes(index)) {
-                  return null;
-                }
-
-                return (
-                  <React.Fragment key={index}>
-                    <AltinnTableRow
-                      valid={!rowHasErrors}
-                      key={`repeating-group-row-${index}`}
-                      className={cn(
-                        {
-                          [classes.editingRow]: index === editIndex,
-                        },
-                        {
-                          [classes.aboveEditingRow]: index === editIndex - 1,
-                        },
-                      )}
-                    >
-                      {tableComponents.map((component: ILayoutComponent) => (
-                        <TableCell
-                          key={`${component.id}-${index}`}
-                          align={getTextAlignment(component)}
-                        >
-                          <span>{index !== editIndex ? getFormDataForComponent(component, index) : null}</span>
-                        </TableCell>
-                      ))}
-                      <TableCell
-                        style={{ width: '185px', padding: '4px' }}
-                        key={`edit-${index}`}
-                      >
-                        <div className={classes.buttonInCellWrapper}>
-                          <Button
-                            variant={ButtonVariant.Quiet}
-                            color={ButtonColor.Secondary}
-                            iconName={rowHasErrors ? 'Warning' : 'Edit'}
-                            iconPlacement='right'
-                            onClick={() => handleEditClick(index)}
-                            aria-label={`${editButtonText}-${firstCellData}`}
-                            data-testid='edit-button'
-                          >
-                            {editButtonText}
-                          </Button>
-                        </div>
-                      </TableCell>
-                      {!hideDeleteButton && (
-                        <TableCell
-                          style={{ width: '120px', padding: '4px' }}
-                          key={`delete-${index}`}
-                          className={cn({
-                            [classes.popoverCurrentCell]: index == popoverPanelIndex,
-                          })}
-                        >
-                          <div className={classes.buttonInCellWrapper}>
-                            <DeleteWarningPopover
-                              trigger={
-                                <Button
-                                  variant={ButtonVariant.Quiet}
-                                  color={ButtonColor.Danger}
-                                  iconName='Delete'
-                                  iconPlacement='right'
-                                  disabled={deleting}
-                                  onClick={() => handleDeleteClick(index)}
-                                  aria-label={`${deleteButtonText}-${firstCellData}`}
-                                  data-testid='delete-button'
-                                >
-                                  {deleteButtonText}
-                                </Button>
-                              }
-                              side='left'
-                              language={language}
-                              deleteButtonText={getLanguageFromKey('group.row_popover_delete_button_confirm', language)}
-                              messageText={getLanguageFromKey('group.row_popover_delete_message', language)}
-                              open={popoverPanelIndex == index && popoverOpen}
-                              setPopoverOpen={setPopoverOpen}
-                              onCancelClick={() => onOpenChange(index)}
-                              onPopoverDeleteClick={handlePopoverDeleteClick(index)}
-                            />
-                          </div>
-                        </TableCell>
-                      )}
-                    </AltinnTableRow>
-                    {editIndex === index && (
-                      <TableRow
-                        key={`edit-container-${index}`}
-                        className={classes.editContainerRow}
-                      >
-                        <TableCell
-                          style={{ padding: 0, borderBottom: 0 }}
-                          colSpan={hideDeleteButton ? tableComponents.length + 1 : tableComponents.length + 2}
-                        >
-                          {renderRepeatingGroupsEditContainer()}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-          </AltinnTableBody>
-        </AltinnTable>
-      )}
-      {mobileView && (
-        <AltinnMobileTable
-          id={`group-${id}-table`}
-          showBorder={showTableHeader && editIndex !== 0}
-        >
+              ))}
+              <TableCell style={{ width: '180px', padding: 0, paddingRight: '10px' }}>
+                <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
+              </TableCell>
+              {!hideDeleteButton && (
+                <TableCell style={{ width: '120px', padding: 0 }}>
+                  <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
+                </TableCell>
+              )}
+            </TableRow>
+          </TableHeader>
+        )}
+        <TableBody id={`group-${id}-table-body`}>
           {repeatingGroupIndex >= 0 &&
             [...Array(repeatingGroupIndex + 1)].map((_x: any, index: number) => {
               const rowHasErrors = repeatingGroupDeepCopyComponents[index].some(
@@ -530,51 +382,111 @@ export function RepeatingGroupTable({
                   return childElementHasErrors(component, index);
                 },
               );
-              const items: IMobileTableItem[] = tableComponents.map((component: ILayoutComponent) => ({
-                key: component.id,
-                label: getTextResource(getTableTitle(component), textResources),
-                value: getFormDataForComponent(component, index),
-              }));
+              const editButtonText = rowHasErrors
+                ? getLanguageFromKey('general.edit_alt_error', language)
+                : getEditButtonText(language, editIndex === index, textResources, container.textResourceBindings);
+
+              const deleteButtonText = getLanguageFromKey('general.delete', language);
+
+              const firstCellData = getFormDataForComponent(components[0], index);
+
+              // Check if filter is applied and includes specified index.
+              if (filteredIndexes && !filteredIndexes.includes(index)) {
+                return null;
+              }
+
               return (
                 <React.Fragment key={index}>
-                  <AltinnMobileTableItem
-                    key={`mobile-table-item-${index}`}
-                    tableItemIndex={index}
-                    items={items}
-                    valid={!rowHasErrors}
-                    editIndex={editIndex}
-                    onEditClick={() => handleEditClick(index)}
-                    editButtonText={
-                      rowHasErrors
-                        ? getLanguageFromKey('general.edit_alt_error', language)
-                        : getEditButtonText(
-                            language,
-                            editIndex === index,
-                            textResources,
-                            container.textResourceBindings,
-                          )
-                    }
-                    deleteFunctionality={
-                      hideDeleteButton
-                        ? undefined
-                        : {
-                            onDeleteClick: () => handleDeleteClick(index),
-                            deleteButtonText: getLanguageFromKey('general.delete', language),
-                            popoverPanelIndex,
-                            popoverOpen,
-                            setPopoverOpen,
-                            onPopoverDeleteClick: handlePopoverDeleteClick,
-                            onOpenChange,
-                            language,
-                          }
-                    }
-                  />
-                  {editIndex === index && renderRepeatingGroupsEditContainer()}
+                  <TableRow
+                    //valid={!rowHasErrors}
+                    key={`repeating-group-row-${index}`}
+                    className={cn({
+                      [classes.editingRow]: index === editIndex,
+                    })}
+                  >
+                    {tableComponents.map((component: ILayoutComponent) => (
+                      <TableCell
+                        key={`${component.id}-${index}`}
+                        style={{ textAlign: getTextAlignment(component) }}
+                      >
+                        <span>{index !== editIndex ? getFormDataForComponent(component, index) : null}</span>
+                      </TableCell>
+                    ))}
+                    <TableCell
+                      key={`edit-${index}`}
+                      className={classes.buttonCell}
+                    >
+                      <div className={classes.buttonInCellWrapper}>
+                        <Button
+                          variant={ButtonVariant.Quiet}
+                          color={ButtonColor.Secondary}
+                          iconName={rowHasErrors ? 'Warning' : 'Edit'}
+                          iconPlacement='right'
+                          onClick={() => handleEditClick(index)}
+                          aria-label={`${editButtonText}-${firstCellData}`}
+                          data-testid='edit-button'
+                        >
+                          {editButtonText}
+                        </Button>
+                      </div>
+                    </TableCell>
+                    {!hideDeleteButton && (
+                      <TableCell
+                        key={`delete-${index}`}
+                        className={cn(
+                          {
+                            [classes.popoverCurrentCell]: index == popoverPanelIndex,
+                          },
+                          classes.buttonCell,
+                        )}
+                      >
+                        <div className={classes.buttonInCellWrapper}>
+                          <DeleteWarningPopover
+                            trigger={
+                              <Button
+                                variant={ButtonVariant.Quiet}
+                                color={ButtonColor.Danger}
+                                iconName='Delete'
+                                iconPlacement='right'
+                                disabled={deleting}
+                                onClick={() => handleDeleteClick(index)}
+                                aria-label={`${deleteButtonText}-${firstCellData}`}
+                                data-testid='delete-button'
+                              >
+                                {deleteButtonText}
+                              </Button>
+                            }
+                            side='left'
+                            language={language}
+                            deleteButtonText={getLanguageFromKey('group.row_popover_delete_button_confirm', language)}
+                            messageText={getLanguageFromKey('group.row_popover_delete_message', language)}
+                            open={popoverPanelIndex == index && popoverOpen}
+                            setPopoverOpen={setPopoverOpen}
+                            onCancelClick={() => onOpenChange(index)}
+                            onPopoverDeleteClick={handlePopoverDeleteClick(index)}
+                          />
+                        </div>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                  {editIndex === index && (
+                    <TableRow
+                      key={`edit-container-${index}`}
+                      className={classes.editContainerRow}
+                    >
+                      <TableCell
+                        style={{ padding: 0, borderTop: 0, backgroundColor: 'rgba(227, 247, 255, 0.5)' }}
+                        colSpan={hideDeleteButton ? tableComponents.length + 1 : tableComponents.length + 2}
+                      >
+                        {renderRepeatingGroupsEditContainer()}
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </React.Fragment>
               );
             })}
-        </AltinnMobileTable>
-      )}
+        </TableBody>
+      </Table>
     </Grid>
   );
 }
