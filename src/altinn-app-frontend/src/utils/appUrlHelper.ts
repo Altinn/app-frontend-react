@@ -222,8 +222,15 @@ export const getDataListsUrl = ({
   pageNumber,
   sortDirection,
   sortColumn,
+  secure,
+  instanceId,
 }: IGetDataListsUrlParams) => {
-  const url = new URL(`${appPath}/api/datalists/${dataListId}`);
+  let url: URL;
+  if (secure) {
+    url = new URL(`${appPath}/instances/${instanceId}/datalists/${dataListId}`);
+  } else {
+    url = new URL(`${appPath}/api/datalists/${dataListId}`);
+  }
   let params: Record<string, string> = {};
 
   if (language) {
