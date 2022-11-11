@@ -74,20 +74,23 @@ export const ListComponent = ({
 
   const checkSortableColumns = (headers) => {
     const cell: JSX.Element[] = [];
+    let index = 0;
     for (const header of headers) {
       if ((sortableColumns || []).includes(header)) {
         cell.push(
           <TableCell
             onChange={handleSortChange}
             id={header}
+            key={index}
             sortDirecton={sortColumn === header ? sortDirection : SortDirection.NotActive}
           >
             {header}
           </TableCell>,
         );
       } else {
-        cell.push(<TableCell>{header}</TableCell>);
+        cell.push(<TableCell key={index}>{header}</TableCell>);
       }
+      index++;
     }
     return cell;
   };
