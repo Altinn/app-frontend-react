@@ -21,9 +21,11 @@ const iconSize = '30px';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    backgroundColor: 'white',
     boxSizing: 'border-box',
     height: '36px',
     fontSize: '1.6rem',
+    fontFamily: 'Altinn-DIN',
     borderWidth: '2px',
     borderStyle: 'solid',
     marginBottom: '0px',
@@ -56,12 +58,32 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: '0px',
     marginTop: '0px',
   },
+  dialog: {
+    '& *': {
+      fontFamily: 'Altinn-DIN',
+    },
+    '& .MuiTypography-h4': {
+      fontSize: '2.4rem',
+    },
+    '& .MuiTypography-body1': {
+      fontSize: '1.8rem',
+    },
+    '& .MuiTypography-body2': {
+      fontSize: '1.6rem',
+    },
+    '& .MuiTypography-caption': {
+      fontSize: '1.6rem',
+    },
+    '& .MuiTypography-subtitle1': {
+      fontSize: '1.6rem',
+    },
+  },
 }));
 
 class AltinnMomentUtils extends MomentUtils {
   getDatePickerHeaderText(date: moment.Moment) {
     if (date && date.locale() === 'nb') {
-      return date.format('ddd, D MMM');
+      return date.format('dddd, D. MMMM');
     }
     return super.getDatePickerHeaderText(date);
   }
@@ -162,6 +184,8 @@ function DatepickerComponent({
                 'aria-describedby': `description-${id}`,
               }),
             }}
+            DialogProps={{ className: classes.dialog }}
+            PopoverProps={{ className: classes.dialog }}
             FormHelperTextProps={{
               classes: {
                 root: classes.formHelperText,
