@@ -9,6 +9,7 @@ import type { ILayout, ILayoutComponent, ILayoutGroup } from 'src/features/form/
 import type { ITextResource } from 'src/types';
 
 import { AltinnButton } from 'altinn-shared/components';
+import theme from 'altinn-shared/theme/altinnStudioTheme';
 import { getLanguageFromKey, getTextResourceByKey } from 'altinn-shared/utils';
 import type { ILanguage } from 'altinn-shared/types';
 
@@ -48,6 +49,12 @@ const useStyles = makeStyles({
   deleteItem: {
     paddingBottom: '0px !important',
     paddingTop: '0px !important',
+  },
+  showAll: {
+    backgroundColor: '#f1fbff',
+    borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+    borderBottom: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+    marginBottom: '-2px',
   },
 });
 
@@ -107,7 +114,7 @@ export function RepeatingGroupsEditContainer({
 
   return (
     <div
-      className={cn([classes.editContainer], className)}
+      className={cn(classes.editContainer, { [classes.showAll]: container.edit?.mode === 'showAll' }, className)}
       data-testid='group-edit-container'
     >
       <Grid

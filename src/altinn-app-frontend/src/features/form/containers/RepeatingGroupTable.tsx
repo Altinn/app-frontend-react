@@ -121,10 +121,11 @@ const useStyles = makeStyles({
   editContainerRow: {
     borderTop: `1px solid ${theme.altinnPalette.primary.blueLight}`,
     borderBottom: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+    backgroundColor: '#f1fbff',
   },
   editingRow: {
     borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-    backgroundColor: 'rgba(227, 247, 255, 0.5)',
+    backgroundColor: '#f1fbff',
     '& td': {
       borderBottom: 0,
     },
@@ -475,7 +476,7 @@ export function RepeatingGroupTable({
                       className={classes.editContainerRow}
                     >
                       <TableCell
-                        style={{ padding: 0, borderTop: 0, backgroundColor: 'rgba(227, 247, 255, 0.5)' }}
+                        style={{ padding: 0, borderTop: 0 }}
                         colSpan={hideDeleteButton ? tableComponents.length + 1 : tableComponents.length + 2}
                       >
                         {renderRepeatingGroupsEditContainer()}
