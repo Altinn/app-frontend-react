@@ -28,7 +28,6 @@ describe('Group', () => {
         if (component.edit && typeof component.edit.openByDefault !== 'undefined') {
           component.edit.openByDefault = openByDefault;
         }
-        return component;
       });
       init();
 
@@ -140,7 +139,6 @@ describe('Group', () => {
           component.triggers = undefined;
           component.required = true;
         }
-        return component;
       });
       init();
 
@@ -258,7 +256,6 @@ describe('Group', () => {
         // Sets these two components to required
         component.required = true;
       }
-      return component;
     });
     init();
 
@@ -301,7 +298,6 @@ describe('Group', () => {
         if (component.edit && component.edit.openByDefault !== undefined) {
           component.edit.openByDefault = openByDefault;
         }
-        return component;
       });
 
       cy.reload();
@@ -321,7 +317,6 @@ describe('Group', () => {
       }
     });
 
-    cy.interceptLayout('group', (component) => component);
     cy.reload();
     cy.wait('@getLayoutGroup');
 
@@ -335,7 +330,6 @@ describe('Group', () => {
         if (component.edit && component.edit.openByDefault !== undefined) {
           component.edit.openByDefault = openByDefault;
         }
-        return component;
       });
 
       cy.reload();
@@ -360,7 +354,6 @@ describe('Group', () => {
       if (component.edit && component.edit.openByDefault !== undefined) {
         component.edit.openByDefault = true;
       }
-      return component;
     });
 
     cy.reload();
@@ -376,7 +369,6 @@ describe('Group', () => {
       if (component.edit && typeof component.edit.openByDefault !== 'undefined') {
         component.edit.alertOnDelete = true;
       }
-      return component;
     });
     init();
 
