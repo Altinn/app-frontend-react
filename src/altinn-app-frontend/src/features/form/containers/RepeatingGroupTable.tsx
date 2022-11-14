@@ -59,6 +59,19 @@ export interface IRepeatingGroupTableProps {
 const theme = createTheme(altinnAppTheme);
 
 const useStyles = makeStyles({
+  container: {
+    overflowX: 'auto',
+    margin: '0 -24px 15px -24px',
+    width: 'calc(100% + 48px)',
+    '@media (min-width: 768px)': {
+      margin: '0 -84px 15px -84px',
+      width: 'calc(100% + 168px)',
+    },
+    '@media (min-width: 992px)': {
+      margin: '0 -96px 15px -96px',
+      width: 'calc(100% + 192px)',
+    },
+  },
   errorIcon: {
     fontSize: '2em',
     minWidth: '0px',
@@ -122,11 +135,14 @@ const useStyles = makeStyles({
     borderTop: `1px solid ${theme.altinnPalette.primary.blueLight}`,
     borderBottom: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
     backgroundColor: '#f1fbff',
+    '& > td > div': {
+      margin: 0,
+    },
   },
   editingRow: {
     borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
     backgroundColor: '#f1fbff',
-    '& td': {
+    '& > td': {
       borderBottom: 0,
     },
   },
@@ -147,6 +163,9 @@ const useStyles = makeStyles({
     position: 'relative',
   },
   buttonCell: {
+    minWidth: 'unset',
+    maxWidth: 'unset',
+    width: 0,
     '& > div': {
       margin: 0,
     },
@@ -158,6 +177,9 @@ const useStyles = makeStyles({
   },
   tableRowError: {
     backgroundColor: theme.altinnPalette.primary.redLight,
+  },
+  tableButton: {
+    width: 'max-content',
   },
 });
 
@@ -354,6 +376,7 @@ export function RepeatingGroupTable({
       item={true}
       data-testid={`group-${id}`}
       id={`group-${id}`}
+      className={classes.container}
     >
       <Table id={`group-${id}-table`}>
         {showTableHeader && (
@@ -367,11 +390,11 @@ export function RepeatingGroupTable({
                   {getTextResource(getTableTitle(component), textResources)}
                 </TableCell>
               ))}
-              <TableCell style={{ width: '180px', padding: 0, paddingRight: '10px' }}>
+              <TableCell style={{ padding: 0, paddingRight: '10px' }}>
                 <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
               </TableCell>
               {!hideDeleteButton && (
-                <TableCell style={{ width: '120px', padding: 0 }}>
+                <TableCell style={{ padding: 0 }}>
                   <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
                 </TableCell>
               )}
@@ -399,13 +422,15 @@ export function RepeatingGroupTable({
                 return null;
               }
 
+              const isEditingRow = index === editIndex;
+
               return (
                 <React.Fragment key={index}>
                   <TableRow
                     //valid={!rowHasErrors}
                     key={`repeating-group-row-${index}`}
                     className={cn({
-                      [classes.editingRow]: index === editIndex,
+                      [classes.editingRow]: isEditingRow,
                       [classes.tableRowError]: rowHasErrors,
                     })}
                   >
@@ -424,12 +449,13 @@ export function RepeatingGroupTable({
                       <div className={classes.buttonInCellWrapper}>
                         <Button
                           variant={ButtonVariant.Quiet}
-                          color={ButtonColor.Primary}
+                          color={ButtonColor.Secondary}
                           iconName={rowHasErrors ? 'WarningColored' : 'Edit'}
                           iconPlacement='right'
                           onClick={() => handleEditClick(index)}
                           aria-label={`${editButtonText}-${firstCellData}`}
                           data-testid='edit-button'
+                          className={classes.tableButton}
                         >
                           {editButtonText}
                         </Button>
@@ -457,6 +483,7 @@ export function RepeatingGroupTable({
                                 onClick={() => handleDeleteClick(index)}
                                 aria-label={`${deleteButtonText}-${firstCellData}`}
                                 data-testid='delete-button'
+                                className={classes.tableButton}
                               >
                                 {deleteButtonText}
                               </Button>

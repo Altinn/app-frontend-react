@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 
 import { Button, ButtonSize, ButtonVariant } from '@altinn/altinn-design-system';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { ExprDefaultsForGroup } from 'src/features/expressions';
@@ -25,18 +25,6 @@ export interface IGroupProps {
   components: ILayoutComponentOrGroup[];
   triggers?: Triggers[];
 }
-
-const useStyles = makeStyles({
-  minusMargin: {
-    left: '23px',
-    width: 'calc(100% + 46px)',
-    position: 'relative',
-    marginLeft: '-46px',
-    '& > button': {
-      margin: '15px 23px 0 23px',
-    },
-  },
-});
 
 const getValidationMethod = (container: ILayoutGroup) => {
   // Validation for whole group takes precedent over single-row validation if both are present.
@@ -190,8 +178,6 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     }
   };
 
-  const classes = useStyles();
-
   if (hidden || !language || !layout || !repeatingGroups) {
     return null;
   }
@@ -213,35 +199,36 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     <Grid
       container={true}
       item={true}
-      className={classes.minusMargin}
     >
-      {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) && (
-        <RepeatingGroupTable
-          components={components}
-          attachments={attachments}
-          container={container}
-          currentView={currentView}
-          editIndex={editIndex}
-          formData={formData}
-          hiddenFields={hiddenFields}
-          id={id}
-          language={language}
-          layout={layout}
-          options={options}
-          repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-          repeatingGroupIndex={repeatingGroupIndex}
-          repeatingGroups={repeatingGroups}
-          deleting={deletingIndexes.includes(repeatingGroupIndex)}
-          setEditIndex={setEditIndex}
-          onClickRemove={onClickRemove}
-          hideDeleteButton={edit?.deleteButton === false}
-          setMultiPageIndex={setMultiPageIndex}
-          multiPageIndex={multiPageIndex}
-          textResources={textResources}
-          validations={validations}
-          filteredIndexes={filteredIndexList}
-        />
-      )}
+      {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) &&
+        repeatingGroupIndex >= 0 &&
+        (!filteredIndexList || filteredIndexList.length > 0) && (
+          <RepeatingGroupTable
+            components={components}
+            attachments={attachments}
+            container={container}
+            currentView={currentView}
+            editIndex={editIndex}
+            formData={formData}
+            hiddenFields={hiddenFields}
+            id={id}
+            language={language}
+            layout={layout}
+            options={options}
+            repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
+            repeatingGroupIndex={repeatingGroupIndex}
+            repeatingGroups={repeatingGroups}
+            deleting={deletingIndexes.includes(repeatingGroupIndex)}
+            setEditIndex={setEditIndex}
+            onClickRemove={onClickRemove}
+            hideDeleteButton={edit?.deleteButton === false}
+            setMultiPageIndex={setMultiPageIndex}
+            multiPageIndex={multiPageIndex}
+            textResources={textResources}
+            validations={validations}
+            filteredIndexes={filteredIndexList}
+          />
+        )}
       <Grid
         container={true}
         justifyContent='flex-end'

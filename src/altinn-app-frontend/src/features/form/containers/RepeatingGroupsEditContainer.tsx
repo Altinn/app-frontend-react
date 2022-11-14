@@ -37,13 +37,12 @@ export interface IRepeatingGroupsEditContainer {
 const useStyles = makeStyles({
   editContainer: {
     display: 'inline-block',
-    paddingTop: '12px',
-    paddingBottom: '12px',
-    '@media (min-width:768px)': {
-      padding: '24px',
+    padding: '12px 24px',
+    '@media (min-width: 768px)': {
+      padding: '24px 84px',
     },
-    '@media (min-width:993px)': {
-      padding: '36px',
+    '@media (min-width: 992px)': {
+      padding: '36px 96px',
     },
   },
   deleteItem: {
