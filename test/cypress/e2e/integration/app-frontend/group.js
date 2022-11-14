@@ -304,8 +304,7 @@ describe('Group', () => {
         return component;
       });
 
-      cy.reload();
-      cy.wait('@getLayoutGroup');
+      cy.reloadAndWait();
 
       if (openByDefault === 'first') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
@@ -322,8 +321,7 @@ describe('Group', () => {
     });
 
     cy.interceptLayout('group', (component) => component);
-    cy.reload();
-    cy.wait('@getLayoutGroup');
+    cy.reloadAndWait();
 
     cy.addItemToGroup(1, 2, 'item 1');
     cy.addItemToGroup(20, 30, 'item 2');
@@ -338,8 +336,7 @@ describe('Group', () => {
         return component;
       });
 
-      cy.reload();
-      cy.wait('@getLayoutGroup');
+      cy.reloadAndWait();
 
       if (openByDefault === 'first') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 4);
@@ -363,8 +360,7 @@ describe('Group', () => {
       return component;
     });
 
-    cy.reload();
-    cy.wait('@getLayoutGroup');
+    cy.reloadAndWait();
 
     // Test that deleting an item does not cause another group to open if there are more elements in the group
     cy.get(appFrontend.group.mainGroupTableBody).children().eq(0).find(appFrontend.group.delete).should('be.visible').click();

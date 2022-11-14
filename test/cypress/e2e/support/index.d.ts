@@ -30,6 +30,11 @@ declare namespace Cypress {
     sendIn(target?: FrontendTestTask): Chainable<Element>;
 
     /**
+     * Reload the page and wait until the app has finished loading
+     */
+    reloadAndWait(): Chainable<null>;
+
+    /**
      * Start an app instance based on the environment selected
      * @example cy.startAppInstance('appName')
      */

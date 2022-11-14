@@ -3,6 +3,11 @@ import AppFrontend from '../pageobjects/app-frontend';
 
 const appFrontend = new AppFrontend();
 
+Cypress.Commands.add('reloadAndWait', () => {
+  cy.reload();
+  cy.get('#readyForPrint').should('exist');
+});
+
 Cypress.Commands.add('addItemToGroup', (oldValue, newValue, comment, openByDefault) => {
   if (!openByDefault) {
     cy.get(appFrontend.group.addNewItem).should('be.visible').focus().click();
