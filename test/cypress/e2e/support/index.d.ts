@@ -81,6 +81,10 @@ declare namespace Cypress {
      * the app you're testing, such as marking some components as required, etc.
      * Must be called in the beginning of your test.
      */
-    interceptLayout(layoutName: string, mutator: (component: any) => any): Chainable<Element>;
+    interceptLayout(
+      layoutName: string,
+      mutator: (component: any) => void,
+      wholeLayoutMutator?: (layoutSet: any) => void,
+    ): Chainable<null>;
   }
 }

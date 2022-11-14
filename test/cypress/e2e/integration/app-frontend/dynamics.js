@@ -41,7 +41,6 @@ describe('Dynamics', () => {
           ['component', 'newLastName'],
         ];
       }
-      return component;
     });
     cy.goto('changeName');
     cy.get(appFrontend.changeOfName.newFirstName).type('test');

@@ -54,14 +54,17 @@ Cypress.Commands.add('getReduxState', (selector) => {
     });
 });
 
-Cypress.Commands.add('interceptLayout', (layoutName, mutator) => {
-  cy.intercept(`**/api/layouts/${layoutName}`, (req) => {
+Cypress.Commands.add('interceptLayout', (layoutName, mutator, wholeLayoutMutator) => {
+  cy.intercept({ method: 'GET', url: `**/api/layouts/${layoutName}`, times: 1 }, (req) => {
     req.reply((res) => {
       const set = JSON.parse(res.body);
       for (const layout of Object.values(set)) {
-        layout.data.layout = layout.data.layout.map(mutator);
+        layout.data.layout.map(mutator);
+      }
+      if (wholeLayoutMutator) {
+        wholeLayoutMutator(set);
       }
       res.send(JSON.stringify(set));
     });
-  });
+  }).as(`interceptLayout(${layoutName})`);
 });
