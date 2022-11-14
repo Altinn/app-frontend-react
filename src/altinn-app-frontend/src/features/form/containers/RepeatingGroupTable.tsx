@@ -165,7 +165,7 @@ const useStyles = makeStyles({
   buttonCell: {
     minWidth: 'unset',
     maxWidth: 'unset',
-    width: 0,
+    width: '1px', // Shrinks column width
     '& > div': {
       margin: 0,
     },
@@ -179,7 +179,7 @@ const useStyles = makeStyles({
     backgroundColor: theme.altinnPalette.primary.redLight,
   },
   tableButton: {
-    width: 'max-content',
+    width: 'max-content', // Stops column from shrinking too much
   },
 });
 
