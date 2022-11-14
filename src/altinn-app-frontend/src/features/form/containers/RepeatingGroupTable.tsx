@@ -156,6 +156,9 @@ const useStyles = makeStyles({
     justifyContent: 'right',
     width: '100%',
   },
+  tableRowError: {
+    backgroundColor: theme.altinnPalette.primary.redLight,
+  },
 });
 
 function getEditButtonText(
@@ -403,6 +406,7 @@ export function RepeatingGroupTable({
                     key={`repeating-group-row-${index}`}
                     className={cn({
                       [classes.editingRow]: index === editIndex,
+                      [classes.tableRowError]: rowHasErrors,
                     })}
                   >
                     {tableComponents.map((component: ILayoutComponent) => (
@@ -420,8 +424,8 @@ export function RepeatingGroupTable({
                       <div className={classes.buttonInCellWrapper}>
                         <Button
                           variant={ButtonVariant.Quiet}
-                          color={ButtonColor.Secondary}
-                          iconName={rowHasErrors ? 'Warning' : 'Edit'}
+                          color={ButtonColor.Primary}
+                          iconName={rowHasErrors ? 'WarningColored' : 'Edit'}
                           iconPlacement='right'
                           onClick={() => handleEditClick(index)}
                           aria-label={`${editButtonText}-${firstCellData}`}
