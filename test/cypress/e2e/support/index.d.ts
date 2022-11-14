@@ -113,5 +113,10 @@ declare namespace Cypress {
       mutator: (component: any) => void,
       wholeLayoutMutator?: (layoutSet: any) => void,
     ): Chainable<Element>;
+
+    /**
+     * Cancels an existing interceptLayout() hook
+     */
+    interceptLayoutCancel(layoutName: string):void;
   }
 }

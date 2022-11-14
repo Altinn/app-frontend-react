@@ -195,3 +195,9 @@ Cypress.Commands.add('interceptLayout', (layoutName, mutator, wholeLayoutMutator
     });
   });
 });
+
+Cypress.Commands.add('interceptLayoutCancel', (layoutName) => {
+  cy.intercept(`**/api/layouts/${layoutName}`, (req) => {
+    req.continue();
+  });
+});

@@ -292,7 +292,6 @@ describe('Group', () => {
     cy.get(appFrontend.group.showGroupToContinue).find('input').check();
     cy.wait('@updateInstance');
 
-    // Test whether new empty group is opened
     ['first', 'last', true, false].forEach((openByDefault) => {
       cy.interceptLayout('group', (component) => {
         if (component.edit && component.edit.openByDefault !== undefined) {
@@ -300,6 +299,7 @@ describe('Group', () => {
         }
       });
 
+      cy.log('Testing whether new empty group is opened when openByDefault =', openByDefault);
       cy.reload();
       cy.wait('@getLayoutGroup');
 
@@ -317,6 +317,7 @@ describe('Group', () => {
       }
     });
 
+    cy.interceptLayoutCancel('group');
     cy.reload();
     cy.wait('@getLayoutGroup');
 
@@ -324,7 +325,6 @@ describe('Group', () => {
     cy.addItemToGroup(20, 30, 'item 2');
     cy.addItemToGroup(400, 600, 'item 3');
 
-    // Test whether existing item is opened
     ['first', 'last', true, false].forEach((openByDefault) => {
       cy.interceptLayout('group', (component) => {
         if (component.edit && component.edit.openByDefault !== undefined) {
@@ -332,6 +332,7 @@ describe('Group', () => {
         }
       });
 
+      cy.log('Testing whether whether existing item is opened when openByDefault =', openByDefault);
       cy.reload();
       cy.wait('@getLayoutGroup');
 
