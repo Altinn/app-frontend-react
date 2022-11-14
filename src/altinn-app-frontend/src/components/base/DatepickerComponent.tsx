@@ -28,14 +28,15 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: 'Altinn-DIN',
     borderWidth: '2px',
     borderStyle: 'solid',
+    borderRadius: 'var(--interactive_components-border_radius-normal)',
     marginBottom: '0px',
     borderColor: theme.altinnPalette.primary.blueMedium,
     '&:hover': {
       borderColor: theme.altinnPalette.primary.blueDark,
     },
-    '&:focus-within': {
-      outlineOffset: '0px',
-      outline: `2px solid ${theme.altinnPalette.primary.blueDark}`,
+    '&:has(input:focus-visible)': {
+      outline: 'var(--component-input-color-outline-focus) auto var(--border_width-thin)',
+      outlineOffset: 'calc(var(--border_width-thin) + var(--border_width-standard))',
     },
   },
   input: {
@@ -49,6 +50,17 @@ const useStyles = makeStyles((theme) => ({
   icon: {
     fontSize: iconSize,
     lineHeight: iconSize,
+    color: 'var(--colors-blue-900)',
+  },
+  iconButton: {
+    padding: 3,
+    '&:focus': {
+      outline: 'none',
+    },
+    '&:focus-visible': {
+      outline: 'var(--interactive_components-colors-focus_outline) solid var(--border_width-standard)',
+      outlineOffset: 'var(--border_width-standard)',
+    },
   },
   formHelperText: {
     fontSize: '1.4rem',
@@ -194,6 +206,9 @@ function DatepickerComponent({
             KeyboardButtonProps={{
               'aria-label': getLanguageFromKey('date_picker.aria_label_icon', language),
               id: 'date-icon-button',
+              classes: {
+                root: classes.iconButton,
+              },
             }}
             leftArrowButtonProps={{
               'aria-label': getLanguageFromKey('date_picker.aria_label_left_arrow', language),
