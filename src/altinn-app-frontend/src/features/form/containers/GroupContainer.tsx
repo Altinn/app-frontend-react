@@ -111,7 +111,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       iconPlacement='left'
       fullWidth
     >
-      {`${getLanguageFromKey('general.add_new', language ?? {})}${
+      {`${getLanguageFromKey('general.add_new', language ?? {})} ${
         container.textResourceBindings?.add_button
           ? getTextResourceByKey(container.textResourceBindings.add_button, textResources)
           : ''
