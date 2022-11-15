@@ -36,6 +36,7 @@ export interface IRepeatingGroupsEditContainer {
 
 const useStyles = makeStyles({
   editContainer: {
+    width: '100%',
     display: 'inline-block',
     padding: '12px 24px',
     '@media (min-width: 768px)': {
