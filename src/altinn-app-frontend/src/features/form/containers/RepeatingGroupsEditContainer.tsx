@@ -46,6 +46,11 @@ const useStyles = makeStyles({
       padding: '36px 96px',
     },
   },
+  nestedEditContainer: {
+    width: '100%',
+    display: 'inline-block',
+    padding: '12px 24px',
+  },
   deleteItem: {
     paddingBottom: '0px !important',
     paddingTop: '0px !important',
@@ -112,9 +117,15 @@ export function RepeatingGroupsEditContainer({
     }
   };
 
+  const isNested = typeof container.baseComponentId === 'string';
+
   return (
     <div
-      className={cn(classes.editContainer, { [classes.showAll]: container.edit?.mode === 'showAll' }, className)}
+      className={cn(
+        isNested ? classes.nestedEditContainer : classes.editContainer,
+        { [classes.showAll]: container.edit?.mode === 'showAll' },
+        className,
+      )}
       data-testid='group-edit-container'
     >
       <Grid
