@@ -56,23 +56,23 @@ export const getUpgradeAuthLevelUrl = (reqAuthLevel: string) => {
 
 export const getEnvironmentLoginUrl = (oidcProvider: string | null) => {
   // First split away the protocol 'https://' and take the last part. Then split on dots.
-  const domainSplitted: string[] = window.location.host.split('.');
+  const domainParts: string[] = window.location.host.split('.');
   const encodedGoToUrl = encodeURIComponent(window.location.href);
   let issParam = '';
   if (oidcProvider != null && oidcProvider != '') {
     issParam = `&iss=${oidcProvider}`;
   }
 
-  if (domainSplitted.length === 5) {
+  if (domainParts.length === 5) {
     return (
-      `https://platform.${domainSplitted[2]}.${domainSplitted[3]}.${domainSplitted[4]}` +
+      `https://platform.${domainParts[2]}.${domainParts[3]}.${domainParts[4]}` +
       `/authentication/api/v1/authentication?goto=${encodedGoToUrl}${issParam}`
     );
   }
 
-  if (domainSplitted.length === 4) {
+  if (domainParts.length === 4) {
     return (
-      `https://platform.${domainSplitted[2]}.${domainSplitted[3]}` +
+      `https://platform.${domainParts[2]}.${domainParts[3]}` +
       `/authentication/api/v1/authentication?goto=${encodedGoToUrl}${issParam}`
     );
   }
