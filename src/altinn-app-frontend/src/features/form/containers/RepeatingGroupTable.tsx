@@ -59,7 +59,7 @@ export interface IRepeatingGroupTableProps {
 const theme = createTheme(altinnAppTheme);
 
 const useStyles = makeStyles({
-  container: {
+  groupContainer: {
     overflowX: 'auto',
     margin: '0 -24px 15px -24px',
     width: 'calc(100% + 48px)',
@@ -70,6 +70,23 @@ const useStyles = makeStyles({
     '@media (min-width: 992px)': {
       margin: '0 -96px 15px -96px',
       width: 'calc(100% + 192px)',
+    },
+  },
+  nestedGroupContainer: {
+    overflowX: 'auto',
+    margin: '0 0 15px 0',
+    width: '100%',
+  },
+  editingBorder: {
+    width: 'calc(100% - 2px)',
+    margin: '0 auto',
+    '& $editContainerRow': {
+      borderRight: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+      borderLeft: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+    },
+    '& $editingRow': {
+      borderRight: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+      borderLeft: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
     },
   },
   errorIcon: {
@@ -278,6 +295,8 @@ export function RepeatingGroupTable({
     );
   };
 
+  const isNested = typeof container.baseComponentId === 'string';
+
   const onOpenChange = (index: number) => {
     if (index == popoverPanelIndex && popoverOpen) {
       setPopoverPanelIndex(-1);
@@ -376,9 +395,12 @@ export function RepeatingGroupTable({
       item={true}
       data-testid={`group-${id}`}
       id={`group-${id}`}
-      className={classes.container}
+      className={isNested ? classes.nestedGroupContainer : classes.groupContainer}
     >
-      <Table id={`group-${id}-table`}>
+      <Table
+        id={`group-${id}-table`}
+        className={cn({ [classes.editingBorder]: isNested })}
+      >
         {showTableHeader && (
           <TableHeader id={`group-${id}-table-header`}>
             <TableRow>
