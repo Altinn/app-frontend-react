@@ -85,7 +85,7 @@ describe('Dynamics', () => {
         ];
       },
     );
-    cy.navigateToChangeName();
+    cy.goto('changeName');
 
     // Make sure the summary page can be hidden
     cy.get(appFrontend.navMenu).find('li > button').should('have.length', 2);
