@@ -198,6 +198,22 @@ const useStyles = makeStyles({
   tableButton: {
     width: 'max-content', // Stops column from shrinking too much
   },
+  tablePadding: {
+    minWidth: 0,
+    padding: 0,
+    width: 24 - 8 - 15, // subtract adjacent cell's padding and margin to align with page
+    '@media (min-width: 768px)': {
+      width: 84 - 8 - 15,
+    },
+    '@media (min-width: 992px)': {
+      width: 96 - 8 - 15,
+    },
+    '& *': {
+      margin: 0,
+      width: 0,
+      padding: 0,
+    },
+  },
 });
 
 function getEditButtonText(
@@ -404,6 +420,7 @@ export function RepeatingGroupTable({
         {showTableHeader && (
           <TableHeader id={`group-${id}-table-header`}>
             <TableRow>
+              {!isNested && <TableCell className={classes.tablePadding} />}
               {tableComponents.map((component: ILayoutComponent) => (
                 <TableCell
                   style={{ textAlign: getTextAlignment(component) }}
@@ -420,6 +437,7 @@ export function RepeatingGroupTable({
                   <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
                 </TableCell>
               )}
+              {!isNested && <TableCell className={classes.tablePadding} />}
             </TableRow>
           </TableHeader>
         )}
@@ -456,6 +474,7 @@ export function RepeatingGroupTable({
                       [classes.tableRowError]: rowHasErrors,
                     })}
                   >
+                    {!isNested && <TableCell className={classes.tablePadding} />}
                     {tableComponents.map((component: ILayoutComponent) => (
                       <TableCell
                         key={`${component.id}-${index}`}
@@ -522,6 +541,7 @@ export function RepeatingGroupTable({
                         </div>
                       </TableCell>
                     )}
+                    {!isNested && <TableCell className={classes.tablePadding} />}
                   </TableRow>
                   {editIndex === index && (
                     <TableRow
@@ -530,7 +550,7 @@ export function RepeatingGroupTable({
                     >
                       <TableCell
                         style={{ padding: 0, borderTop: 0 }}
-                        colSpan={hideDeleteButton ? tableComponents.length + 1 : tableComponents.length + 2}
+                        colSpan={tableComponents.length + 1 + Number(!hideDeleteButton) + 2 * Number(!isNested)}
                       >
                         {renderRepeatingGroupsEditContainer()}
                       </TableCell>
