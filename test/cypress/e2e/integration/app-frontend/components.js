@@ -10,7 +10,7 @@ const mui = new Common();
 
 describe('UI Components', () => {
   it('Image component with help text', () => {
-    cy.goto('changeName');
+    cy.gotoAndComplete('message');
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
     cy.get(appFrontend.loadingAnimation).should('be.visible');
     cy.get(appFrontend.closeButton).should('be.visible');
@@ -32,7 +32,6 @@ describe('UI Components', () => {
 
   it('is possible to upload and delete attachments', () => {
     cy.goto('changeName');
-    cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
@@ -46,7 +45,6 @@ describe('UI Components', () => {
   it('is possible to upload attachments with tags', () => {
     cy.goto('changeName');
     cy.intercept('POST', '**/tags').as('saveTags');
-    cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('be.visible').select('address');
@@ -63,7 +61,6 @@ describe('UI Components', () => {
 
   it('is possible to navigate between pages using navigation bar', () => {
     cy.goto('changeName');
-    cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.navMenu)
       .should('be.visible')
       .find('li > button')
@@ -91,7 +88,6 @@ describe('UI Components', () => {
 
   it('address component fetches post place from zip code', () => {
     cy.goto('changeName');
-    cy.get(appFrontend.sendinButton).click();
     cy.get(appFrontend.changeOfName.address.street_name).should('be.visible').type('Sesame Street 1A').blur();
     cy.get(appFrontend.changeOfName.address.zip_code).should('be.visible').type('0174').blur();
     cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'OSLO');
