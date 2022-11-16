@@ -10,14 +10,16 @@ import {
   TableHeader,
   TableRow,
 } from '@altinn/altinn-design-system';
-import type * as altinnDesignSystem from '@altinn/altinn-design-system';
+import type { ChangeProps, SortProps } from '@altinn/altinn-design-system';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { useAppDispatch, useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
+import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { useGetDataList } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import { dataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
+import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
+
+import { getLanguageFromKey } from 'altinn-shared/utils';
 
 export type IListProps = PropsFromGenericComponent<'List'>;
 
@@ -26,13 +28,13 @@ const defaultDataList: any[] = [];
 export const ListComponent = ({
   tableHeaders,
   fieldToStoreInDataModel,
-  dataList,
   dataListId,
   mapping,
   pagination,
   formData,
   handleDataChange,
   sortableColumns,
+  language,
 }: IListProps) => {
   const dynamicDataList = useGetDataList({ dataListId, mapping });
   const calculatedDataList = dynamicDataList || defaultDataList;
@@ -49,77 +51,61 @@ export const ListComponent = ({
     (state) => state.dataListState.dataLists[dataListId || ''].paginationData?.totaltItemsCount || 0,
   );
 
-  const dataListHasChanged = useHasChangedIgnoreUndefined(dataList);
   const { value, setValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
 
-  React.useEffect(() => {
-    if (dataListHasChanged && formData.simpleBinding) {
-      // New datalist has been loaded, we have to reset form data.
-      // We also skip any required validations
-      setValue(undefined, true);
-    }
-  }, [dataListHasChanged, formData, setValue]);
-
-  const handleChange = ({ selectedValue }: altinnDesignSystem.ChangeProps) => {
+  const handleChange = ({ selectedValue }: ChangeProps) => {
     setValue(selectedValue);
   };
 
   const renderRow = (option) => {
     const cells: JSX.Element[] = [];
     for (let i = 0; i < Object.keys(option).length; i++) {
-      cells.push(<TableCell key={i}>{option[Object.keys(option)[i]]}</TableCell>);
+      cells.push(
+        <TableCell key={`${Object.keys(option)}_${option[Object.keys(option)[i]]}`}>
+          {option[Object.keys(option)[i]]}
+        </TableCell>,
+      );
     }
     return cells;
   };
 
   const checkSortableColumns = (headers) => {
     const cell: JSX.Element[] = [];
-    let index = 0;
     for (const header of headers) {
       if ((sortableColumns || []).includes(header)) {
         cell.push(
           <TableCell
             onChange={handleSortChange}
             id={header}
-            key={index}
+            key={header}
             sortDirecton={sortColumn === header ? sortDirection : SortDirection.NotActive}
           >
             {header}
           </TableCell>,
         );
       } else {
-        cell.push(<TableCell key={index}>{header}</TableCell>);
+        cell.push(<TableCell key={header}>{header}</TableCell>);
       }
-      index++;
     }
     return cell;
   };
 
   const dispatch = useAppDispatch();
 
-  const handleSortChange = ({ idCell, previousSortDirection }: altinnDesignSystem.SortProps) => {
-    if (previousSortDirection === SortDirection.Descending) {
-      dispatch(
-        dataListsActions.setSort({
-          key: dataListId || '',
-          sortColumn: idCell,
-          sortDirection: SortDirection.Ascending,
-        }),
-      );
-    } else {
-      dispatch(
-        dataListsActions.setSort({
-          key: dataListId || '',
-          sortColumn: idCell,
-          sortDirection: SortDirection.Descending,
-        }),
-      );
-    }
+  const handleSortChange = ({ idCell, previousSortDirection }: SortProps) => {
+    dispatch(
+      DataListsActions.setSort({
+        key: dataListId || '',
+        sortColumn: idCell,
+        sortDirection:
+          previousSortDirection === SortDirection.Descending ? SortDirection.Ascending : SortDirection.Descending,
+      }),
+    );
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(
-      dataListsActions.setPageSize({
+      DataListsActions.setPageSize({
         key: dataListId || '',
         size: parseInt(event.target.value, 10),
       }),
@@ -128,7 +114,7 @@ export const ListComponent = ({
 
   const handleChangeCurrentPage = (newPage: number) => {
     dispatch(
-      dataListsActions.setPageNumber({
+      DataListsActions.setPageNumber({
         key: dataListId || '',
         pageNumber: newPage,
       }),
@@ -166,7 +152,7 @@ export const ListComponent = ({
               onRowsPerPageChange={handleChangeRowsPerPage}
               currentPage={currentPage}
               setCurrentPage={handleChangeCurrentPage}
-              rowsPerPageText='Rader per side'
+              rowsPerPageText={getLanguageFromKey('list_component.rowsPerPage', language)}
               pageDescriptionText='av'
             />
           </TableCell>

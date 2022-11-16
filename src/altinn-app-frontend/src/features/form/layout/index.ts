@@ -2,7 +2,8 @@ import type { Location, MapLayer, TextField } from '@altinn/altinn-design-system
 import type { GridJustification, GridSize } from '@material-ui/core';
 
 import type { ExpressionOr } from 'src/features/expressions/types';
-import type { IDataList, ILabelSettings, IMapping, IOption, IOptionSource, LayoutStyle, Triggers } from 'src/types';
+import type { IDataList } from 'src/shared/resources/dataLists/index';
+import type { ILabelSettings, IMapping, IOption, IOptionSource, LayoutStyle, Triggers } from 'src/types';
 
 export interface ILayouts {
   [id: string]: ILayout | undefined;

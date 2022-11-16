@@ -89,5 +89,5 @@ const dataListsSlice = createSagaSlice((mkAction: MkActionType<IDataListsState>)
   },
 }));
 
-export const dataListsActions = dataListsSlice.actions;
+export const DataListsActions = dataListsSlice.actions;
 export default dataListsSlice;

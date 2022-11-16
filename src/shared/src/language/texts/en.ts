@@ -268,5 +268,8 @@ export function en() {
       no_options: 'No options available',
       placeholder: 'Select...',
     },
+    list_component: {
+      rowsPerPage: 'Rows per page',
+    },
   };
 }

@@ -241,7 +241,7 @@ export const getDataListsUrl = ({
     params.size = pageSize;
   }
 
-  if (pageNumber) {
+  if (pageNumber !== undefined) {
     params.page = pageNumber;
   }
 

@@ -4,7 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { listStateSelector } from 'src/selectors/dataListStateSelector';
-import { dataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
+import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 import { getDataListsUrl } from 'src/utils/appUrlHelper';
 import { getDataListLookupKey, getDataListLookupKeys } from 'src/utils/dataList';
 import { selectNotNull } from 'src/utils/sagas';
@@ -15,9 +15,8 @@ import type {
   IDataLists,
   IDataListsMetaData,
   IFetchSpecificDataListSaga,
-  IRepeatingGroups,
-  IRuntimeState,
-} from 'src/types';
+} from 'src/shared/resources/dataLists/index';
+import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 
 import { get } from 'altinn-shared/utils';
 
@@ -71,7 +70,7 @@ export function* fetchDataListsSaga(): SagaIterator {
     }
   }
   yield put(
-    dataListsActions.setDataListsWithIndexIndicators({
+    DataListsActions.setDataListsWithIndexIndicators({
       dataListsWithIndexIndicators,
     }),
   );
@@ -90,7 +89,7 @@ export function* fetchSpecificDataListSaga({
       mapping: dataMapping,
       secure,
     };
-    yield put(dataListsActions.fetching({ key, metaData }));
+    yield put(DataListsActions.fetching({ key, metaData }));
     const formData: IFormData = yield select(formDataSelector);
     const language = yield select(appLanguageStateSelector);
     const dataList = yield select(listStateSelector);
@@ -121,13 +120,13 @@ export function* fetchSpecificDataListSaga({
 
     const dataLists: IDataList = yield call(get, url);
     yield put(
-      dataListsActions.fetchFulfilled({
+      DataListsActions.fetchFulfilled({
         key,
         dataLists: dataLists.listItems,
         metadata: dataLists._metaData,
       }),
     );
   } catch (error) {
-    yield put(dataListsActions.fetchRejected({ key: key, error }));
+    yield put(DataListsActions.fetchRejected({ key: key, error }));
   }
 }

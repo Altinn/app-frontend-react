@@ -269,5 +269,8 @@ export function nn() {
       no_options: 'Ingen valg tilgjengelig',
       placeholder: 'Velg...',
     },
+    list_component: {
+      rowsPerPage: 'Rader per side',
+    },
   };
 }

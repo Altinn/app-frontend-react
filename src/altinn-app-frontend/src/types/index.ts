@@ -1,4 +1,3 @@
-import type { SortDirection } from '@altinn/altinn-design-system';
 import type Ajv from 'ajv/dist/core';
 
 import type { ExpressionOr } from 'src/features/expressions/types';
@@ -78,16 +77,8 @@ export interface IOption {
   value: any;
 }
 
-export interface IDataList {
-  listItems: any;
-  _metaData: IDataListPaginationData;
-}
-
 export interface IOptions {
   [key: string]: IOptionData | undefined;
-}
-export interface IDataLists {
-  [key: string]: IDataListData;
 }
 
 export interface IOptionSource {
@@ -100,10 +91,6 @@ export interface IOptionsActualData {
   options?: IOption[];
 }
 
-export interface IDataListActualData {
-  listItems: any;
-}
-
 export interface IOptionsMetaData {
   id: string;
   mapping?: IMapping;
@@ -111,25 +98,7 @@ export interface IOptionsMetaData {
   secure?: boolean;
 }
 
-export interface IDataListsMetaData {
-  id: string;
-  mapping?: IMapping;
-  loading?: boolean;
-  secure?: boolean;
-  size?: number;
-  pageNumber?: number;
-  paginationData?: IDataListPaginationData;
-  sortColumn?: string;
-  sortDirection?: SortDirection;
-}
-
-export interface IDataListPaginationData {
-  totaltItemsCount: number;
-}
-
 export type IOptionData = IOptionsActualData & IOptionsMetaData;
-
-export type IDataListData = IDataListActualData & IDataListsMetaData;
 
 export interface IRepeatingGroup {
   index: number;
@@ -300,15 +269,6 @@ export interface IMapping {
 
 export interface IFetchSpecificOptionSaga {
   optionsId: string;
-  formData?: IFormData;
-  language?: string;
-  dataMapping?: IMapping;
-  secure?: boolean;
-  instanceId?: string;
-}
-
-export interface IFetchSpecificDataListSaga {
-  dataListId: string;
   formData?: IFormData;
   language?: string;
   dataMapping?: IMapping;

@@ -47,3 +47,45 @@ export interface ISetSort {
   sortColumn: string;
   sortDirection: SortDirection;
 }
+
+export interface IDataList {
+  listItems: any;
+  _metaData: IDataListPaginationData;
+}
+
+export interface IDataLists {
+  [key: string]: IDataListData;
+}
+
+export interface IDataListActualData {
+  listItems: any;
+}
+
+export interface IDataListsMetaData {
+  id: string;
+  mapping?: IMapping;
+  loading?: boolean;
+  secure?: boolean;
+  size?: number;
+  pageNumber?: number;
+  paginationData?: IDataListPaginationData;
+  sortColumn?: string;
+  sortDirection?: SortDirection;
+  dataListId?: string;
+}
+
+export interface IDataListPaginationData {
+  totaltItemsCount: number;
+}
+
+export type IDataListData = IDataListActualData & IDataListsMetaData;
+
+export interface IFetchSpecificDataListSaga {
+  dataListId: string;
+  dataListId: string;
+  formData?: IFormData;
+  language?: string;
+  dataMapping?: IMapping;
+  secure?: boolean;
+  instanceId?: string;
+}
