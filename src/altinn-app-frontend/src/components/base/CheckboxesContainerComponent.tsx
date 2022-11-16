@@ -85,6 +85,7 @@ export const CheckboxContainerComponent = ({
   handleDataChange,
   layout,
   legend,
+  readOnly,
   getTextResourceAsString,
   getTextResource,
   validationMessages,
@@ -177,6 +178,7 @@ export const CheckboxContainerComponent = ({
                   tabIndex={-1}
                   key={option.value}
                   classes={{ root: cn(classes.margin) }}
+                  disabled={readOnly}
                   control={
                     <StyledCheckbox
                       checked={isOptionSelected(option.value)}
