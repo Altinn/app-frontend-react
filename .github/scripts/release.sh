@@ -69,9 +69,9 @@ CURRENT_VERSION_PARTS=(${CURRENT_VERSION//./ })
 APP_FULL=${CURRENT_VERSION:1}
 APP_MAJOR=${CURRENT_VERSION_PARTS[0]:1}
 APP_MAJOR_MINOR=${CURRENT_VERSION_PARTS[0]:1}.${CURRENT_VERSION_PARTS[1]}
-AUTHOR_FULL=$(git log -1 | grep Author)
-AUTHOR_NAME=$(git log -1 | grep Author | cut -d' ' -f2)
-AUTHOR_EMAIL=$(git log -1 | grep Author | cut -d' ' -f3 | cut -d'<' -f2 | cut -d'>' -f1)
+AUTHOR_FULL=$(git log -1 | grep Author | sed 's/^Author: //')
+AUTHOR_NAME="$(echo "$AUTHOR_FULL" | sed -r 's/<.*//')"
+AUTHOR_EMAIL="$(echo "$AUTHOR_FULL" | sed -r 's/^.*?<//' | sed 's/>//')"
 COMMIT_ID=$(git rev-parse HEAD~0)
 
 echo "Full version:  $APP_FULL"
@@ -141,7 +141,7 @@ git status --short
 
 if [[ "$COMMIT" == "yes" ]]; then
   echo " * Committing changes"
-  git commit --author="$AUTHOR_NAME <$AUTHOR_EMAIL>" -F "$COMMIT_FILE"
+  git -c user.email="$AUTHOR_EMAIL" -c user.name="$AUTHOR_NAME" commit -F "$COMMIT_FILE"
 else
     echo " * Skipping commit (toggle with --commit)"
 fi
