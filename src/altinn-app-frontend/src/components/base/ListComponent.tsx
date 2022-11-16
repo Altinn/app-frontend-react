@@ -28,7 +28,7 @@ const defaultDataList: any[] = [];
 export const ListComponent = ({
   tableHeaders,
   fieldToStoreInDataModel,
-  dataListId,
+  id,
   mapping,
   pagination,
   formData,
@@ -36,19 +36,17 @@ export const ListComponent = ({
   sortableColumns,
   language,
 }: IListProps) => {
-  const dynamicDataList = useGetDataList({ dataListId, mapping });
+  const dynamicDataList = useGetDataList({ id, mapping });
   const calculatedDataList = dynamicDataList || defaultDataList;
 
-  const rowsPerPage = useAppSelector(
-    (state) => state.dataListState.dataLists[dataListId || ''].size || pagination.default,
-  );
-  const currentPage = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].pageNumber || 0);
-  const sortColumn = useAppSelector((state) => state.dataListState.dataLists[dataListId || ''].sortColumn || null);
+  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id || ''].size || pagination.default);
+  const currentPage = useAppSelector((state) => state.dataListState.dataLists[id || ''].pageNumber || 0);
+  const sortColumn = useAppSelector((state) => state.dataListState.dataLists[id || ''].sortColumn || null);
   const sortDirection = useAppSelector(
-    (state) => state.dataListState.dataLists[dataListId || ''].sortDirection || SortDirection.NotActive,
+    (state) => state.dataListState.dataLists[id || ''].sortDirection || SortDirection.NotActive,
   );
   const totalItemsCount = useAppSelector(
-    (state) => state.dataListState.dataLists[dataListId || ''].paginationData?.totaltItemsCount || 0,
+    (state) => state.dataListState.dataLists[id || ''].paginationData?.totaltItemsCount || 0,
   );
 
   const { value, setValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
@@ -95,7 +93,7 @@ export const ListComponent = ({
   const handleSortChange = ({ idCell, previousSortDirection }: SortProps) => {
     dispatch(
       DataListsActions.setSort({
-        key: dataListId || '',
+        key: id || '',
         sortColumn: idCell,
         sortDirection:
           previousSortDirection === SortDirection.Descending ? SortDirection.Ascending : SortDirection.Descending,
@@ -106,7 +104,7 @@ export const ListComponent = ({
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(
       DataListsActions.setPageSize({
-        key: dataListId || '',
+        key: id || '',
         size: parseInt(event.target.value, 10),
       }),
     );
@@ -115,7 +113,7 @@ export const ListComponent = ({
   const handleChangeCurrentPage = (newPage: number) => {
     dispatch(
       DataListsActions.setPageNumber({
-        key: dataListId || '',
+        key: id || '',
         pageNumber: newPage,
       }),
     );

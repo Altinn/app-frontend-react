@@ -81,11 +81,12 @@ export interface IDataListPaginationData {
 export type IDataListData = IDataListActualData & IDataListsMetaData;
 
 export interface IFetchSpecificDataListSaga {
-  dataListId: string;
+  id: string;
   dataListId: string;
   formData?: IFormData;
   language?: string;
   dataMapping?: IMapping;
   secure?: boolean;
   instanceId?: string;
+  paginationDefaultValue?: number;
 }

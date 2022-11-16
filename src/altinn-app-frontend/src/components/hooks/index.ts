@@ -71,19 +71,19 @@ export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsPara
 };
 
 interface IUseGetDataListParams {
-  dataListId?: string;
+  id?: string;
   mapping?: IMapping;
   source?: IOptionSource;
 }
 
-export const useGetDataList = ({ dataListId, mapping }: IUseGetDataListParams) => {
+export const useGetDataList = ({ id, mapping }: IUseGetDataListParams) => {
   const dataListState = useAppSelector((state) => state.dataListState.dataLists);
   const [dataList, setDataList] = useState<any>(undefined);
   useEffect(() => {
-    if (dataListId) {
-      setDataList(dataListState[getOptionLookupKey({ id: dataListId, mapping })]?.listItems);
+    if (id) {
+      setDataList(dataListState[getOptionLookupKey({ id: id, mapping })]?.listItems);
     }
-  }, [mapping, dataListId, dataListState]);
+  }, [mapping, id, dataListState]);
   return dataList;
 };
 

@@ -35,14 +35,14 @@ export function* fetchDataListsSaga(): SagaIterator {
   const dataListsWithIndexIndicators: IDataListsMetaData[] = [];
   for (const layoutId of Object.keys(layouts)) {
     for (const element of layouts[layoutId] || []) {
-      if (element.type !== 'List' || !element.dataListId) {
+      if (element.type !== 'List' || !element.id) {
         continue;
       }
 
-      const { dataListId, mapping, secure } = element;
+      const { mapping, secure, id, dataListId, pagination } = element;
 
       const { keys, keyWithIndexIndicator } = getDataListLookupKeys({
-        id: dataListId,
+        id: id,
         mapping,
         secure,
         repeatingGroups,
@@ -58,11 +58,13 @@ export function* fetchDataListsSaga(): SagaIterator {
       for (const dataListsObject of keys) {
         const { id, mapping, secure } = dataListsObject;
         const lookupKey = getDataListLookupKey({ id, mapping });
-        if (dataListId && !fetchedDataLists.includes(lookupKey)) {
+        if (id && !fetchedDataLists.includes(lookupKey) && dataListId) {
           yield fork(fetchSpecificDataListSaga, {
+            id,
             dataListId,
             dataMapping: mapping,
             secure,
+            paginationDefaultValue: pagination.default,
           });
           fetchedDataLists.push(lookupKey);
         }
@@ -77,32 +79,32 @@ export function* fetchDataListsSaga(): SagaIterator {
 }
 
 export function* fetchSpecificDataListSaga({
-  dataListId,
+  id,
   dataMapping,
   secure,
+  dataListId,
+  paginationDefaultValue,
 }: IFetchSpecificDataListSaga): SagaIterator {
-  const key = getDataListLookupKey({ id: dataListId, mapping: dataMapping });
+  const key = getDataListLookupKey({ id: id, mapping: dataMapping });
+
   const instanceId = yield select(instanceIdSelector);
   try {
     const metaData: IDataListsMetaData = {
-      id: dataListId,
+      id: id,
       mapping: dataMapping,
       secure,
+      dataListId,
     };
     yield put(DataListsActions.fetching({ key, metaData }));
     const formData: IFormData = yield select(formDataSelector);
     const language = yield select(appLanguageStateSelector);
     const dataList = yield select(listStateSelector);
 
-    const pageSize = dataList.dataLists[dataListId].size ? dataList.dataLists[dataListId].size.toString() : '5';
-    const pageNumber = dataList.dataLists[dataListId].pageNumber
-      ? dataList.dataLists[dataListId].pageNumber.toString()
-      : '0';
-    const sortColumn = dataList.dataLists[dataListId].sortColumn
-      ? dataList.dataLists[dataListId].sortColumn.toString()
-      : null;
-    const sortDirection = dataList.dataLists[dataListId].sortDirection
-      ? dataList.dataLists[dataListId].sortDirection.toString()
+    const pageSize = dataList.dataLists[id].size ? dataList.dataLists[id].size.toString() : paginationDefaultValue;
+    const pageNumber = dataList.dataLists[id].pageNumber ? dataList.dataLists[id].pageNumber.toString() : '0';
+    const sortColumn = dataList.dataLists[id].sortColumn ? dataList.dataLists[id].sortColumn.toString() : null;
+    const sortDirection = dataList.dataLists[id].sortDirection
+      ? dataList.dataLists[id].sortDirection.toString()
       : SortDirection.NotActive;
 
     const url = getDataListsUrl({
