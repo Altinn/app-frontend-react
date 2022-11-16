@@ -864,16 +864,16 @@ export function filterValidationsByRow(
 
   const nodes = nodesInLayout(formLayout, repeatingGroups);
   const groupNode = nodes.findById(groupId);
-  const childIds = groupNode?.flat(false, rowIndex).map((child) => child.item.id);
+  const childIds = new Set(groupNode?.flat(false, rowIndex).map((child) => child.item.id));
   const filteredValidations = JSON.parse(JSON.stringify(validations)) as IValidations;
 
-  Object.keys(filteredValidations).forEach((layout) => {
-    Object.keys(filteredValidations[layout]).forEach((componentId) => {
-      if (!childIds?.includes(componentId)) {
+  for (const layout of Object.keys(filteredValidations)) {
+    for (const componentId of Object.keys(filteredValidations[layout])) {
+      if (!childIds?.has(componentId)) {
         delete filteredValidations[layout][componentId];
       }
-    });
-  });
+    }
+  }
 
   return filteredValidations;
 }
