@@ -71,6 +71,7 @@ const useStyles = makeStyles((theme) => ({
   formControl: {
     alignItems: 'flex-start',
     marginBottom: '1.2rem',
+    wordBreak: 'break-word',
     '& > span:last-child': {
       marginTop: 9,
     },
