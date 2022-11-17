@@ -49,8 +49,12 @@ export const useRadioStyles = makeStyles((theme) => ({
   legend: {
     color: '#000000',
   },
-  margin: {
+  formControl: {
+    alignItems: 'flex-start',
     marginBottom: '1.2rem',
+    '& > span:last-child': {
+      marginTop: 9,
+    },
   },
 }));
 

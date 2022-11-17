@@ -68,8 +68,12 @@ const useStyles = makeStyles((theme) => ({
   legend: {
     color: '#000000',
   },
-  margin: {
+  formControl: {
+    alignItems: 'flex-start',
     marginBottom: '1.2rem',
+    '& > span:last-child': {
+      marginTop: 9,
+    },
   },
 }));
 
@@ -176,7 +180,7 @@ export const CheckboxContainerComponent = ({
                 <FormControlLabel
                   tabIndex={-1}
                   key={option.value}
-                  classes={{ root: cn(classes.margin) }}
+                  classes={{ root: cn(classes.formControl) }}
                   control={
                     <StyledCheckbox
                       checked={isOptionSelected(option.value)}
