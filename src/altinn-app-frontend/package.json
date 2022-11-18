@@ -13,9 +13,7 @@
     "tsc": "tsc",
     "tsc:watch": "tsc --watch",
     "clean": "rimraf dist compiled",
-    "webpack-watch": "cross-env NODE_ENV=development webpack --mode=development --config webpack.config.development.js --watch --progress",
-    "styleguidist:run": "yarn dlx styleguidist server",
-    "styleguidist:build": "yarn dlx styleguidist build"
+    "webpack-watch": "cross-env NODE_ENV=development webpack --mode=development --config webpack.config.development.js --watch --progress"
   },
   "author": "Altinn",
   "license": "3-Clause BSD",
@@ -51,7 +49,7 @@
     "@babel/core": "7.20.2",
     "@babel/preset-env": "7.20.2",
     "@babel/preset-react": "7.18.6",
-    "@pmmmwh/react-refresh-webpack-plugin": "0.5.8",
+    "@pmmmwh/react-refresh-webpack-plugin": "0.5.9",
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "13.4.0",
     "@testing-library/user-event": "14.4.3",
@@ -81,7 +79,6 @@
     "mini-css-extract-plugin": "2.6.1",
     "react-refresh": "0.14.0",
     "react-refresh-typescript": "2.0.7",
-    "react-styleguidist": "13.0.0",
     "redux-mock-store": "1.5.4",
     "redux-saga-test-plan": "4.0.6",
     "resize-observer-polyfill": "1.5.1",
