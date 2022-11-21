@@ -278,11 +278,16 @@ export interface IDataModelBindingsForAddress {
   careOf?: string;
   houseNumber?: string;
 }
+export interface IDataModelBindingsForList {
+  [columnKey: string]: string;
+}
 
-export type IDataModelBindings = Partial<IDataModelBindingsSimple> &
-  Partial<IDataModelBindingsList> &
-  Partial<IDataModelBindingsForGroup> &
-  Partial<IDataModelBindingsForAddress>;
+export type IDataModelBindings =
+  | (Partial<IDataModelBindingsSimple> &
+      Partial<IDataModelBindingsList> &
+      Partial<IDataModelBindingsForGroup> &
+      Partial<IDataModelBindingsForAddress>)
+  | IDataModelBindingsForList;
 
 export interface ITextResourceBindings {
   [id: string]: string;

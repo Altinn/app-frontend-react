@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   Pagination,
@@ -16,7 +16,6 @@ import type { PropsFromGenericComponent } from '..';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { useGetDataList } from 'src/components/hooks';
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 
 import { getLanguageFromKey } from 'altinn-shared/utils';
@@ -48,18 +47,19 @@ export const ListComponent = ({
   const totalItemsCount = useAppSelector(
     (state) => state.dataListState.dataLists[id || ''].paginationData?.totaltItemsCount || 0,
   );
-
-  const { value, setValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
-
+  const [value, setValue] = useState({});
   const handleChange = ({ selectedValue }: ChangeProps) => {
     setValue(selectedValue);
+    for (const key in formData) {
+      handleDataChange(selectedValue[key], { key: key });
+    }
   };
 
   const renderRow = (option) => {
     const cells: JSX.Element[] = [];
     for (let i = 0; i < Object.keys(option).length; i++) {
       cells.push(
-        <TableCell key={`${Object.keys(option)}_${option[Object.keys(option)[i]]}`}>
+        <TableCell key={`${Object.keys(option)[i]}_${option[Object.keys(option)[i]]}`}>
           {option[Object.keys(option)[i]]}
         </TableCell>,
       );
@@ -133,7 +133,7 @@ export const ListComponent = ({
           return (
             <TableRow
               key={option[fieldToStoreInDataModel]}
-              value={option[fieldToStoreInDataModel]}
+              rowData={option}
             >
               {renderRow(option)}
             </TableRow>
