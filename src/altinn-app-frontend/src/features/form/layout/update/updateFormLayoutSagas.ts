@@ -525,6 +525,7 @@ export function* updateRepeatingGroupEditIndexSaga({
       const options: AxiosRequestConfig = {
         headers: {
           ComponentId: group,
+          ...(validate === Triggers.ValidateRow ? { RowIndex: rowIndex } : {}),
         },
       };
 
@@ -562,15 +563,8 @@ export function* updateRepeatingGroupEditIndexSaga({
         state.formLayout.layouts,
         state.textResources.resources,
       );
-      const finalServerValidations: IValidations = filterValidationsByRow(
-        mappedServerValidations,
-        state.formLayout.layouts[currentView],
-        state.formLayout.uiConfig.repeatingGroups,
-        group,
-        validate === Triggers.ValidateRow ? rowIndex : undefined,
-      );
 
-      const combinedValidations = mergeValidationObjects(frontendValidations, finalServerValidations);
+      const combinedValidations = mergeValidationObjects(frontendValidations, mappedServerValidations);
 
       const rowValidations = filterValidationsByRow(
         combinedValidations,
