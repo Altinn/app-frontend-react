@@ -566,15 +566,23 @@ export function* updateRepeatingGroupEditIndexSaga({
 
       const combinedValidations = mergeValidationObjects(frontendValidations, mappedServerValidations);
 
+      // only overwrite validtions specific to the group - leave all other untouched
+      const newValidations = {
+        ...validations,
+        [currentView]: {
+          ...validations[currentView],
+          ...combinedValidations[currentView],
+        },
+      };
+      yield put(ValidationActions.updateValidations({ validations: newValidations }));
+
       const rowValidations = filterValidationsByRow(
         combinedValidations,
         state.formLayout.layouts[currentView],
         state.formLayout.uiConfig.repeatingGroups,
         group,
-        // Only compute if not already filtered
-        validate === Triggers.Validation ? rowIndex : undefined,
+        rowIndex,
       );
-
       if (canFormBeSaved({ validations: rowValidations, invalidDataTypes: false }, 'Complete')) {
         yield put(
           FormLayoutActions.updateRepeatingGroupsEditIndexFulfilled({
@@ -588,17 +596,6 @@ export function* updateRepeatingGroupEditIndexSaga({
             error: null,
           }),
         );
-      }
-      if (!canFormBeSaved({ validations: combinedValidations, invalidDataTypes: false }, 'Complete')) {
-        // only overwrite validtions specific to the group - leave all other untouched
-        const newValidations = {
-          ...validations,
-          [currentView]: {
-            ...validations[currentView],
-            ...combinedValidations[currentView],
-          },
-        };
-        yield put(ValidationActions.updateValidations({ validations: newValidations }));
       }
     } else {
       yield put(
