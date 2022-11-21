@@ -10,7 +10,7 @@ const mui = new Common();
 
 describe('Summary', () => {
   it('Summary of change name form', () => {
-    cy.gotoAndComplete('changeName');
+    cy.gotoAndComplete('changename');
     cy.get(appFrontend.backButton).should('be.visible');
 
     //Summary displays change button for editable fields and does not for readonly fields
