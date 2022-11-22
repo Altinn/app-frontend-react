@@ -79,7 +79,7 @@ export const ListComponent = ({
             key={header}
             sortDirecton={sortColumn === header ? sortDirection : SortDirection.NotActive}
           >
-            {header}
+            {getTextResourceAsString(header)}
           </TableCell>,
         );
       } else {
