@@ -426,6 +426,21 @@ export class LayoutNode<NT extends NodeType = 'unresolved', Item extends AnyItem
     return parents;
   }
 
+  /**
+   * Returns a list of rowIndices, sorted by most senior parent's rowIndex first
+   * Useful for accessing the datamodel related to a nested component
+   */
+  public rowIndices(): number[] {
+    const rowIndices = this.parents((node) => typeof (node as AnyChildNode<'unresolved'>).rowIndex != 'undefined')
+      .map((node) => (node as AnyChildNode<'resolved'>).rowIndex)
+      .reverse();
+
+    if (typeof this.rowIndex != 'undefined') {
+      rowIndices.push(this.rowIndex);
+    }
+    return rowIndices as number[];
+  }
+
   private childrenIdsAsList(onlyInRowIndex?: number) {
     let list: AnyItem<NT>[] = [];
     if (this.item.type === 'Group' && 'rows' in this.item) {
