@@ -32,6 +32,7 @@ export const ListComponent = ({
   pagination,
   formData,
   handleDataChange,
+  getTextResourceAsString,
   sortableColumns,
   language,
 }: IListProps) => {
@@ -55,12 +56,12 @@ export const ListComponent = ({
     }
   };
 
-  const renderRow = (option) => {
+  const renderRow = (datalist) => {
     const cells: JSX.Element[] = [];
-    for (let i = 0; i < Object.keys(option).length; i++) {
+    for (let i = 0; i < Object.keys(datalist).length; i++) {
       cells.push(
-        <TableCell key={`${Object.keys(option)[i]}_${option[Object.keys(option)[i]]}`}>
-          {option[Object.keys(option)[i]]}
+        <TableCell key={`${Object.keys(datalist)[i]}_${datalist[Object.keys(datalist)[i]]}`}>
+          {datalist[Object.keys(datalist)[i]]}
         </TableCell>,
       );
     }
@@ -82,7 +83,7 @@ export const ListComponent = ({
           </TableCell>,
         );
       } else {
-        cell.push(<TableCell key={header}>{header}</TableCell>);
+        cell.push(<TableCell key={header}>{getTextResourceAsString(header)}</TableCell>);
       }
     }
     return cell;
@@ -129,13 +130,13 @@ export const ListComponent = ({
         <TableRow>{checkSortableColumns(tableHeaders)}</TableRow>
       </TableHeader>
       <TableBody>
-        {calculatedDataList.map((option) => {
+        {calculatedDataList.map((datalist) => {
           return (
             <TableRow
-              key={option[fieldToStoreInDataModel]}
-              rowData={option}
+              key={datalist[fieldToStoreInDataModel]}
+              rowData={datalist}
             >
-              {renderRow(option)}
+              {renderRow(datalist)}
             </TableRow>
           );
         })}
