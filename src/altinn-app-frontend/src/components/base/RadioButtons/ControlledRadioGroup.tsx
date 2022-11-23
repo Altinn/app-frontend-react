@@ -32,6 +32,7 @@ export const ControlledRadioGroup = ({
   validationMessages,
   fetchingOptions,
   selected,
+  readOnly,
   handleBlur,
   handleChange,
   calculatedOptions,
@@ -67,9 +68,10 @@ export const ControlledRadioGroup = ({
               <FormControlLabel
                 tabIndex={-1}
                 control={<StyledRadio />}
+                disabled={readOnly}
                 label={getTextResource(option.label)}
                 value={option.value}
-                classes={{ root: cn(classes.margin) }}
+                classes={{ root: cn(classes.formControl) }}
               />
               {validationMessages &&
                 selected === option.value &&
