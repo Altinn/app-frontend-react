@@ -29,7 +29,6 @@ import {
   splitDashedKey,
 } from 'src/utils/formLayout';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
-import { nodesInLayouts } from 'src/utils/layout/hierarchy';
 import { getOptionLookupKey, removeGroupOptionsByIndex } from 'src/utils/options';
 import {
   canFormBeSaved,
@@ -525,15 +524,13 @@ export function* updateRepeatingGroupEditIndexSaga({
       );
 
       // Get group's rowIndices to send to server for validations
-      const nodes = nodesInLayouts(state.formLayout.layouts, currentView, state.formLayout.uiConfig.repeatingGroups);
-      const groupNode = nodes.findById(group);
-      const rowIndices = groupNode?.rowIndices();
-      rowIndices?.push(rowIndex);
+      const { depth: rowIndices } = splitDashedKey(group);
+      rowIndices.push(rowIndex);
 
       const options: AxiosRequestConfig = {
         headers: {
           ComponentId: group,
-          RowIndex: rowIndices?.join(',') ?? '',
+          RowIndex: rowIndices.join(','),
         },
       };
 
