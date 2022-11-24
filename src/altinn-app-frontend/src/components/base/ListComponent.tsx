@@ -58,12 +58,8 @@ export const ListComponent = ({
 
   const renderRow = (datalist) => {
     const cells: JSX.Element[] = [];
-    for (let i = 0; i < Object.keys(datalist).length; i++) {
-      cells.push(
-        <TableCell key={`${Object.keys(datalist)[i]}_${datalist[Object.keys(datalist)[i]]}`}>
-          {datalist[Object.keys(datalist)[i]]}
-        </TableCell>,
-      );
+    for (const key of Object.keys(datalist)) {
+      cells.push(<TableCell key={`${key}_${datalist[key]}`}>{datalist[key]}</TableCell>);
     }
     return cells;
   };
