@@ -49,7 +49,7 @@ export interface ISetSort {
 }
 
 export interface IDataList {
-  listItems: any;
+  listItems: Record<string, string>[];
   _metaData: IDataListPaginationData;
 }
 
@@ -58,7 +58,7 @@ export interface IDataLists {
 }
 
 export interface IDataListActualData {
-  listItems: any;
+  listItems: Record<string, string>[];
 }
 
 export interface IDataListsMetaData {

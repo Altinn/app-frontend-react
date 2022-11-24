@@ -26,7 +26,6 @@ const defaultDataList: any[] = [];
 
 export const ListComponent = ({
   tableHeaders,
-  fieldToStoreInDataModel,
   id,
   mapping,
   pagination,
@@ -64,7 +63,7 @@ export const ListComponent = ({
     return cells;
   };
 
-  const checkSortableColumns = (headers) => {
+  const renderHeaders = (headers) => {
     const cell: JSX.Element[] = [];
     for (const header of headers) {
       if ((sortableColumns || []).includes(header)) {
@@ -123,13 +122,13 @@ export const ListComponent = ({
       selectedValue={value}
     >
       <TableHeader>
-        <TableRow>{checkSortableColumns(tableHeaders)}</TableRow>
+        <TableRow>{renderHeaders(tableHeaders)}</TableRow>
       </TableHeader>
       <TableBody>
         {calculatedDataList.map((datalist) => {
           return (
             <TableRow
-              key={datalist[fieldToStoreInDataModel]}
+              key={datalist}
               rowData={datalist}
             >
               {renderRow(datalist)}
