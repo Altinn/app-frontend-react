@@ -382,11 +382,23 @@ describe('utils > validation', () => {
               minimum: 0,
             },
             dataModelField_2: {
-              type: 'string',
-              minLength: 10,
+              oneOf: [
+                {
+                  type: 'string',
+                  minLength: 10,
+                },
+                {
+                  type: 'null',
+                },
+              ],
             },
             dataModelField_3: {
               type: 'string',
+            },
+            dataModelField_format: {
+              type: 'string',
+              format: 'date',
+              formatMaximum: '2022-05-05',
             },
             dataModelField_custom: {
               type: 'string',
@@ -1391,6 +1403,36 @@ describe('utils > validation', () => {
         [],
       );
       expect(mockResult).toEqual({ invalidDataTypes: false, validations: {} });
+    });
+
+    it('should handle oneOf/null structure when data is invalid', () => {
+      const mockValidator = validation.createValidator(mockJsonSchema);
+      const useFormData = {
+        dataModelField_1: 5,
+        dataModelField_2: 'Hello',
+        dataModelField_3: 'Test',
+      };
+      const mockResult = validation.validateFormData(
+        useFormData,
+        toCollectionFromData(mockLayout, useFormData),
+        Object.keys(mockLayoutState.layouts),
+        mockValidator,
+        mockLanguage.language,
+        [],
+      );
+      const mockFormValidationResult = {
+        validations: {
+          FormLayout: {
+            componentId_2: {
+              customBinding: {
+                errors: [getParsedLanguageFromKey('validation_errors.minLength', mockLanguage.language, [10], true)],
+              },
+            },
+          },
+        },
+        invalidDataTypes: false,
+      };
+      expect(mockResult).toEqual(mockFormValidationResult);
     });
   });
 
