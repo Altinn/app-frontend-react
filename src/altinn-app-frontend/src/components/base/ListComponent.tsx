@@ -70,7 +70,7 @@ export const ListComponent = ({
         cell.push(
           <TableCell
             onChange={handleSortChange}
-            id={header}
+            sortKey={header}
             key={header}
             sortDirecton={sortColumn === header ? sortDirection : SortDirection.NotActive}
           >
@@ -86,11 +86,11 @@ export const ListComponent = ({
 
   const dispatch = useAppDispatch();
 
-  const handleSortChange = ({ idCell, previousSortDirection }: SortProps) => {
+  const handleSortChange = ({ sortedColumn, previousSortDirection }: SortProps) => {
     dispatch(
       DataListsActions.setSort({
         key: id || '',
-        sortColumn: idCell,
+        sortColumn: sortedColumn,
         sortDirection:
           previousSortDirection === SortDirection.Descending ? SortDirection.Ascending : SortDirection.Descending,
       }),

@@ -83,10 +83,7 @@ export type IDataListData = IDataListActualData & IDataListsMetaData;
 export interface IFetchSpecificDataListSaga {
   id: string;
   dataListId: string;
-  formData?: IFormData;
-  language?: string;
   dataMapping?: IMapping;
   secure?: boolean;
-  instanceId?: string;
   paginationDefaultValue?: number;
 }
