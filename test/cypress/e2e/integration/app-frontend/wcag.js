@@ -19,8 +19,6 @@ describe('WCAG', () => {
     cy.get(appFrontend.navMenu).find('li > button').first().click();
     cy.testWcag();
 
-    /* TODO: Fix the edit/delete buttons
-    */
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
     cy.testWcag();
     cy.get(appFrontend.group.edit).click();
