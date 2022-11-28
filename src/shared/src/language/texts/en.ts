@@ -270,6 +270,7 @@ export function en() {
     },
     list_component: {
       rowsPerPage: 'Rows per page',
+      of: 'of',
     },
   };
 }

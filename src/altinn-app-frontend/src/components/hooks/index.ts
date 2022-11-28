@@ -76,14 +76,14 @@ interface IUseGetDataListParams {
   source?: IOptionSource;
 }
 
-export const useGetDataList = ({ id, mapping }: IUseGetDataListParams) => {
+export const useGetDataList = ({ id }: IUseGetDataListParams) => {
   const dataListState = useAppSelector((state) => state.dataListState.dataLists);
   const [dataList, setDataList] = useState<any>(undefined);
   useEffect(() => {
     if (id) {
-      setDataList(dataListState[getOptionLookupKey({ id: id, mapping })]?.listItems);
+      setDataList(dataListState[getOptionLookupKey({ id: id })]?.listItems);
     }
-  }, [mapping, id, dataListState]);
+  }, [id, dataListState]);
   return dataList;
 };
 

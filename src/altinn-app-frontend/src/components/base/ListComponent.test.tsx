@@ -41,7 +41,6 @@ const render = (props: Partial<IListProps> = {}, customState: PreloadedState<Roo
     tableHeaders: ['Name', 'Population', 'HighestMountain'],
     sortableColumns: ['Population', 'HighestMountain'],
     pagination: { alternatives: [2, 5], default: 2 },
-    fieldToStoreInDataModel: 'Name',
     ...props,
   };
 

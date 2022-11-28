@@ -271,6 +271,7 @@ export function nn() {
     },
     list_component: {
       rowsPerPage: 'Rader per side',
+      of: 'av',
     },
   };
 }

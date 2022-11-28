@@ -39,11 +39,10 @@ export function* fetchDataListsSaga(): SagaIterator {
         continue;
       }
 
-      const { mapping, secure, id, dataListId, pagination } = element;
+      const { secure, id, dataListId, pagination } = element;
 
       const { keys, keyWithIndexIndicator } = getDataListLookupKeys({
         id: id,
-        mapping,
         secure,
         repeatingGroups,
       });
@@ -58,13 +57,14 @@ export function* fetchDataListsSaga(): SagaIterator {
       for (const dataListsObject of keys) {
         const { id, mapping, secure } = dataListsObject;
         const lookupKey = getDataListLookupKey({ id, mapping });
+        const paginationDefault = pagination ? pagination.default : 0;
         if (id && !fetchedDataLists.includes(lookupKey) && dataListId) {
           yield fork(fetchSpecificDataListSaga, {
             id,
             dataListId,
             dataMapping: mapping,
             secure,
-            paginationDefaultValue: pagination.default,
+            paginationDefaultValue: paginationDefault,
           });
           fetchedDataLists.push(lookupKey);
         }

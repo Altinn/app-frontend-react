@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
   Pagination,
@@ -23,23 +23,27 @@ import { getLanguageFromKey } from 'altinn-shared/utils';
 export type IListProps = PropsFromGenericComponent<'List'>;
 
 const defaultDataList: any[] = [];
+export interface rowValue {
+  [key: string]: string;
+}
 
 export const ListComponent = ({
   tableHeaders,
   id,
-  mapping,
   pagination,
   formData,
   handleDataChange,
   getTextResourceAsString,
   sortableColumns,
+  dataModelBindings,
   language,
 }: IListProps) => {
-  const dynamicDataList = useGetDataList({ id, mapping });
+  const dynamicDataList = useGetDataList({ id });
   const calculatedDataList = dynamicDataList || defaultDataList;
-
-  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id || ''].size || pagination.default);
+  const defaultPagination = pagination ? pagination.default : 0;
+  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id || ''].size || defaultPagination);
   const currentPage = useAppSelector((state) => state.dataListState.dataLists[id || ''].pageNumber || 0);
+
   const sortColumn = useAppSelector((state) => state.dataListState.dataLists[id || ''].sortColumn || null);
   const sortDirection = useAppSelector(
     (state) => state.dataListState.dataLists[id || ''].sortDirection || SortDirection.NotActive,
@@ -47,9 +51,18 @@ export const ListComponent = ({
   const totalItemsCount = useAppSelector(
     (state) => state.dataListState.dataLists[id || ''].paginationData?.totaltItemsCount || 0,
   );
-  const [value, setValue] = useState({});
+  const formDataValue = useAppSelector((state) => state.formData.formData);
+  let valueSelected: rowValue = {};
+  //Get formData from redux incase of refresh of page.
+  for (const key in dataModelBindings) {
+    if (formDataValue[dataModelBindings[key]] != undefined) {
+      valueSelected[key] = formDataValue[dataModelBindings[key]];
+    }
+  }
+
   const handleChange = ({ selectedValue }: ChangeProps) => {
-    setValue(selectedValue);
+    valueSelected = selectedValue;
+
     for (const key in formData) {
       handleDataChange(selectedValue[key], { key: key });
     }
@@ -114,12 +127,20 @@ export const ListComponent = ({
       }),
     );
   };
+  //Find the rowDataValue with the right dataModelBindings
+  const FindRowDataValue = (datalist) => {
+    const chosenRowData: rowValue = {};
+    for (const key in dataModelBindings) {
+      chosenRowData[key] = datalist[key];
+    }
+    return chosenRowData;
+  };
 
   return (
     <Table
       selectRows={true}
       onChange={handleChange}
-      selectedValue={value}
+      selectedValue={valueSelected}
     >
       <TableHeader>
         <TableRow>{renderHeaders(tableHeaders)}</TableRow>
@@ -129,29 +150,31 @@ export const ListComponent = ({
           return (
             <TableRow
               key={datalist}
-              rowData={datalist}
+              rowData={FindRowDataValue(datalist)}
             >
               {renderRow(datalist)}
             </TableRow>
           );
         })}
       </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={tableHeaders?.length}>
-            <Pagination
-              numberOfRows={totalItemsCount}
-              rowsPerPageOptions={pagination.alternatives}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              currentPage={currentPage}
-              setCurrentPage={handleChangeCurrentPage}
-              rowsPerPageText={getLanguageFromKey('list_component.rowsPerPage', language)}
-              pageDescriptionText='av'
-            />
-          </TableCell>
-        </TableRow>
-      </TableFooter>
+      {pagination && (
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={tableHeaders?.length}>
+              <Pagination
+                numberOfRows={totalItemsCount}
+                rowsPerPageOptions={pagination.alternatives}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                currentPage={currentPage}
+                setCurrentPage={handleChangeCurrentPage}
+                rowsPerPageText={getLanguageFromKey('list_component.rowsPerPage', language)}
+                pageDescriptionText={getLanguageFromKey('list_component.of', language)}
+              />
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      )}
     </Table>
   );
 };
