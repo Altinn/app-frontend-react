@@ -103,7 +103,6 @@ describe('Summary', () => {
     cy.get('[data-testid=summary-summary-1]').should('not.exist');
 
     // Test mapped options in summary
-    cy.intercept('GET', '**/options/*').as('getOptions');
 
     cy.get('[data-testid=summary-summary-7]').should('exist').and('be.visible');
     cy.get('[data-testid=summary-summary-8]').should('exist').and('be.visible');
@@ -116,6 +115,7 @@ describe('Summary', () => {
     cy.get('[data-testid=summary-summary-8]').should('exist').and('be.visible').and('contain.text', 'Ole');
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
+    cy.intercept('GET', '**/options/*').as('getOptions');
     cy.get('#sources').should('exist').and('be.visible').select('Digitaliseringsdirektoratet');
     cy.wait(['@getOptions', '@getOptions']);
     cy.get('#reference').should('exist').and('be.visible').select('Sophie Salt');
@@ -141,9 +141,9 @@ describe('Summary', () => {
       .and('have.length', 1)
       .first()
       .children(mui.gridItem)
-      .should('have.length', 6)
+      .should('have.length', 8)
       .then((item) => {
-        cy.get(item).find(mui.buttonIcon).should('have.length', 5);
+        cy.get(item).find(mui.buttonIcon).should('have.length', 7);
         cy.get(item)
           .eq(1)
           .children(mui.gridContainer)
@@ -155,6 +155,10 @@ describe('Summary', () => {
         cy.get(item).eq(5).should('contain.text', 'automation');
         cy.get(item).eq(5).should('contain.text', texts.nestedOptionsToggle);
         cy.get(item).eq(5).should('not.contain.text', texts.nestedOptions);
+        cy.get(item).eq(5).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
+        cy.get(item).eq(5).should('contain.text', 'Referanse : Test');
+        cy.get(item).eq(6).should('contain.text', 'Digitaliseringsdirektoratet');
+        cy.get(item).eq(7).should('contain.text', 'Sophie Salt');
 
         // Go back to the repeating group in order to set nested options
         cy.get(item).eq(5).find('button').first().should('contain.text', texts.change).click();
@@ -190,7 +194,7 @@ describe('Summary', () => {
       .and('have.length', 1)
       .first()
       .children(mui.gridItem)
-      .should('have.length', 6)
+      .should('have.length', 8)
       .then((item) => {
         cy.get(item).eq(5).should('contain.text', texts.nestedOptionsToggle);
         cy.get(item).eq(5).should('contain.text', texts.nestedOptions);
