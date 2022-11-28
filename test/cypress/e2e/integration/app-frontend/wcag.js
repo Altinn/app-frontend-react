@@ -20,6 +20,7 @@ describe('WCAG', () => {
     cy.testWcag();
 
     /* TODO: Fix the edit/delete buttons
+    */
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
     cy.testWcag();
     cy.get(appFrontend.group.edit).click();
@@ -30,6 +31,5 @@ describe('WCAG', () => {
       .should('be.visible')
       .click();
     cy.testWcag();
-     */
-  })
+  });
 });
