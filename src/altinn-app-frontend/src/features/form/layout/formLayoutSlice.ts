@@ -7,6 +7,7 @@ import {
 } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
 import {
   calculatePageOrderAndMoveToNextPageSaga,
+  findAndMoveToNextVisibleLayout,
   updateFileUploaderWithTagChosenOptionsSaga,
   updateFileUploaderWithTagEditIndexSaga,
   updateRepeatingGroupEditIndexSaga,
@@ -308,6 +309,7 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
       },
     }),
     updateHiddenLayouts: mkAction<LayoutTypes.IHiddenLayoutsUpdate>({
+      takeEvery: findAndMoveToNextVisibleLayout,
       reducer: (state, action) => {
         state.uiConfig.tracks.hidden = action.payload.hiddenLayouts;
       },
