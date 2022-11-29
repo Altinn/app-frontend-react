@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@altinn/altinn-design-system';
-import type { ChangeProps, SortProps } from '@altinn/altinn-design-system';
+import type { ChangeProps, RowData, SortProps } from '@altinn/altinn-design-system';
 
 import type { PropsFromGenericComponent } from '..';
 
@@ -51,18 +51,8 @@ export const ListComponent = ({
   const totalItemsCount = useAppSelector(
     (state) => state.dataListState.dataLists[id || ''].paginationData?.totaltItemsCount || 0,
   );
-  const formDataValue = useAppSelector((state) => state.formData.formData);
-  let valueSelected: rowValue = {};
-  //Get formData from redux incase of refresh of page.
-  for (const key in dataModelBindings) {
-    if (formDataValue[dataModelBindings[key]] != undefined) {
-      valueSelected[key] = formDataValue[dataModelBindings[key]];
-    }
-  }
 
   const handleChange = ({ selectedValue }: ChangeProps) => {
-    valueSelected = selectedValue;
-
     for (const key in formData) {
       handleDataChange(selectedValue[key], { key: key });
     }
@@ -127,8 +117,7 @@ export const ListComponent = ({
       }),
     );
   };
-  //Find the rowDataValue with the right dataModelBindings
-  const FindRowDataValue = (datalist) => {
+  const rowAsValue = (datalist) => {
     const chosenRowData: rowValue = {};
     for (const key in dataModelBindings) {
       chosenRowData[key] = datalist[key];
@@ -140,7 +129,7 @@ export const ListComponent = ({
     <Table
       selectRows={true}
       onChange={handleChange}
-      selectedValue={valueSelected}
+      selectedValue={formData as RowData}
     >
       <TableHeader>
         <TableRow>{renderHeaders(tableHeaders)}</TableRow>
@@ -150,7 +139,7 @@ export const ListComponent = ({
           return (
             <TableRow
               key={datalist}
-              rowData={FindRowDataValue(datalist)}
+              rowData={rowAsValue(datalist)}
             >
               {renderRow(datalist)}
             </TableRow>

@@ -759,68 +759,56 @@
       "additionalProperties": {
         "type": "string"
       }
-    }
-  },
-  "listComponent": {
-    "properties": {
-      "tableHeaders": {
-        "type": { "type": "array",
-        "items": {
-          "type": "string"
-        },
-        "title": "Table Headers"
-      }
-      },
-      "sortableColumns": {
-        "type": { "type": "array",
-        "items": {
-          "type": "string"
-        },
-        "title": "Sortable Columns"
-      }
-      },
-      "pagination": {
-        "title": "Pagination",
-        "$ref": "#/definitions/paginationProperties"
-      },
-      "dataList": {
-        "type": "Object",
-        "title": "List"
-      },
-      "dataListId": {
-        "type": { "type": "array",
-        "items": {
-          "type": "string"
-        },
-        "title": "List ID"
-      }
-      },
-      "mapping": {
-        "title": "Mapping",
-        "$ref": "#/definitions/mapping"
-      },
-      "secure": {
-        "type": "boolean",
-        "title": "Secure ListItems"
-      },
-      "source": {
-        "type": "object",
-        "title": "Source"
-      }
     },
-    "required": ["pagination", "fieldToStoreInDataModel"]
-
-  },
-  "paginationProperties": {
-    "properties": {
-      "alternatives": { "type": "array",
-      "items": {
-        "type": "number"
+    "listComponent": {
+      "properties": {
+        "tableHeaders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Table Headers",
+          "description": "An array of strings that is going to be headers of the table. Can be added to the resource files to change between languages"
+        },
+        "sortableColumns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Sortable Columns",
+          "description": "An array of the columns that is going to be sortable. The column has to be represented by the the headername that is written in tableHeaders"
+        }
+        },
+        "pagination": {
+          "title": "Pagination",
+          "$ref": "#/definitions/paginationProperties"
+        },
+        "dataListId": {
+          "type": "string",
+          "title": "List ID",
+          "description":"The Id of the list. This id is used to retrive the datalist from the backend"
+        },
+        "secure": {
+          "type": "boolean",
+          "title": "Secure ListItems",
+          "description":"Boolean value indicating if the options should be instance aware. Defaults to false."
+        }
       },
-      "title": "Alternatives"
+      "required":["dataListId"]
     },
-    "default": "number",
-    "title": "Default"
+    "paginationProperties": {
+      "properties": {
+        "alternatives": { "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "title": "Alternatives",
+        "description": "List of page sizes the user can choose from. Make sure to test the performance of the largest number of items per page you are allowing."
+      },
+      "default": "number",
+      "title": "Default",
+      "description": "The pagination size that is set to default"
+    },
+    "required":["alternatives", "default"]
   }
-}
 }
