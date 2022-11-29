@@ -70,6 +70,11 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     defaults: ExprDefaultsForGroup.edit,
   });
 
+  const textResourceBindingsResolved = useExpressions(container.textResourceBindings, {
+    forComponentId: id,
+    defaults: ExprDefaultsForGroup.textResourceBindings,
+  });
+
   const editIndex = useAppSelector(
     (state: IRuntimeState) =>
       (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.editIndex) ?? -1,
@@ -245,11 +250,11 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) && (
           <RepeatingGroupAddButton
             id={`add-button-${id}`}
-            container={container}
             language={language}
             onClickAdd={onClickAdd}
             onKeypressAdd={onKeypressAdd}
             textResources={textResources}
+            textResourceBindings={textResourceBindingsResolved}
           />
         )}
       {editIndex >= 0 && edit?.mode === 'hideTable' && (
@@ -303,11 +308,11 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) && (
           <RepeatingGroupAddButton
             id={`add-button-${id}`}
-            container={container}
             language={language}
             onClickAdd={onClickAdd}
             onKeypressAdd={onKeypressAdd}
             textResources={textResources}
+            textResourceBindings={textResourceBindingsResolved}
           />
         )}
       <Grid

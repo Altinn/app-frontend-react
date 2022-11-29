@@ -1,8 +1,10 @@
 import React from 'react';
+
 import { render as renderRtl, screen } from '@testing-library/react';
-import type { IAltinnMobileTableItemProps, IMobileTableItem } from './AltinnMobileTableItem';
-import AltinnMobileTableItem from './AltinnMobileTableItem';
 import userEvent from '@testing-library/user-event';
+
+import AltinnMobileTableItem from 'src/features/form/containers/AltinnMobileTableItem';
+import type { IAltinnMobileTableItemProps, IMobileTableItem } from 'src/features/form/containers/AltinnMobileTableItem';
 
 const user = userEvent.setup();
 
@@ -15,7 +17,6 @@ describe('AltinnMobileTableItem', () => {
         popoverOpen: false,
         popoverPanelIndex: -1,
         onPopoverDeleteClick: () => jest.fn(),
-        language: {},
         onOpenChange: jest.fn(),
         setPopoverOpen: jest.fn(),
       },
@@ -61,7 +62,6 @@ describe('AltinnMobileTableItem', () => {
         popoverOpen: false,
         popoverPanelIndex: -1,
         onPopoverDeleteClick: () => jest.fn(),
-        language: {},
         onOpenChange: jest.fn(),
         setPopoverOpen: jest.fn(),
       },

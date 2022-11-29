@@ -4,6 +4,8 @@ import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system
 import { createTheme, Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
+import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { useExpressions } from 'src/features/expressions/useExpressions';
 import { renderGenericComponent } from 'src/utils/layout';
 import type { ILayout, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { ITextResource } from 'src/types';
@@ -89,6 +91,11 @@ export function RepeatingGroupsEditContainer({
   filteredIndexes,
 }: IRepeatingGroupsEditContainer): JSX.Element {
   const classes = useStyles();
+
+  const textResourceBindings = useExpressions(container.textResourceBindings, {
+    forComponentId: container.id,
+    defaults: ExprDefaultsForGroup.textResourceBindings,
+  });
 
   let nextIndex: number | null = null;
   if (filteredIndexes) {
@@ -213,8 +220,8 @@ export function RepeatingGroupsEditContainer({
                   variant={ButtonVariant.Filled}
                   color={ButtonColor.Primary}
                 >
-                  {container.textResourceBindings?.save_and_next_button
-                    ? getTextResourceByKey(container.textResourceBindings.save_and_next_button, textResources)
+                  {textResourceBindings?.save_and_next_button
+                    ? getTextResourceByKey(textResourceBindings.save_and_next_button, textResources)
                     : getLanguageFromKey('general.save_and_next', language)}
                 </Button>
               </Grid>
@@ -227,8 +234,8 @@ export function RepeatingGroupsEditContainer({
                   variant={ButtonVariant.Outline}
                   color={ButtonColor.Primary}
                 >
-                  {container.textResourceBindings?.save_button
-                    ? getTextResourceByKey(container.textResourceBindings.save_button, textResources)
+                  {textResourceBindings?.save_button
+                    ? getTextResourceByKey(textResourceBindings.save_button, textResources)
                     : getLanguageFromKey('general.save_and_close', language)}
                 </Button>
               </Grid>

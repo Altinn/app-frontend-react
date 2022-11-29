@@ -272,7 +272,7 @@ export type IDataModelBindings = Partial<IDataModelBindingsSimple> &
   Partial<IDataModelBindingsForAddress>;
 
 export interface ITextResourceBindings {
-  [id: string]: string;
+  [id: string]: ExpressionOr<'string'>;
 }
 
 export type ILayout = ILayoutComponentOrGroup[];

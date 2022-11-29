@@ -507,6 +507,7 @@ export const ExprDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {
   readOnly: false,
   required: false,
   hidden: false,
+  textResourceBindings: { edit_button_open: 'heh' },
 };
 
 export const ExprDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {

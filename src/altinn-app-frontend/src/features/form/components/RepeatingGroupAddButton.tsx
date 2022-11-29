@@ -2,17 +2,16 @@ import React from 'react';
 
 import { createTheme, Grid, makeStyles } from '@material-ui/core';
 
-import type { ILayoutGroup } from 'src/features/form/layout';
-import type { ITextResource } from 'src/types';
+import type { ITextResource, ITextResourceBindings } from 'src/types';
 
 import altinnAppTheme from 'altinn-shared/theme/altinnAppTheme';
 import { getLanguageFromKey, getTextResourceByKey } from 'altinn-shared/utils';
 import type { ILanguage } from 'altinn-shared/types';
 
 export interface IRepeatingGroupAddButton {
-  container: ILayoutGroup;
   language: ILanguage;
   textResources: ITextResource[];
+  textResourceBindings?: ITextResourceBindings;
   onClickAdd: () => void;
   onKeypressAdd: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   id?: string;
@@ -58,9 +57,9 @@ const useStyles = makeStyles({
 });
 
 export function RepeatingGroupAddButton({
-  container,
   language,
   textResources,
+  textResourceBindings,
   onClickAdd,
   onKeypressAdd,
   id,
@@ -94,8 +93,8 @@ export function RepeatingGroupAddButton({
           <span className={classes.addButtonText}>
             {`${getLanguageFromKey('general.add_new', language)}
             ${
-              container.textResourceBindings?.add_button
-                ? getTextResourceByKey(container.textResourceBindings.add_button, textResources)
+              textResourceBindings?.add_button
+                ? getTextResourceByKey(textResourceBindings.add_button, textResources)
                 : ''
             }`}
           </span>

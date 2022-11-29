@@ -1,3 +1,6 @@
+import React from 'react';
+
+import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
 import {
   Grid,
   makeStyles,
@@ -9,13 +12,17 @@ import {
   Typography,
   useMediaQuery,
 } from '@material-ui/core';
-import React from 'react';
-import theme from '../../theme/altinnStudioTheme';
 import cn from 'classnames';
-import { getLanguageFromKey } from '../../utils/language';
-import type { ILanguage } from '../../types';
-import { DeleteWarningPopover } from './DeleteWarningPopover';
-import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
+
+import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { useExpressions } from 'src/features/expressions/useExpressions';
+import type { ILayoutGroup } from 'src/features/form/layout/';
+import type { ITextResourceBindings } from 'src/types';
+
+import { DeleteWarningPopover } from 'altinn-shared/components/molecules/DeleteWarningPopover';
+import theme from 'altinn-shared/theme/altinnStudioTheme';
+import { getLanguageFromKey } from 'altinn-shared/utils';
+import type { ILanguage, ITextResource } from 'altinn-shared/types';
 
 export interface IMobileTableItem {
   key: React.Key;
@@ -26,9 +33,18 @@ export interface IMobileTableItem {
 export interface IAltinnMobileTableItemProps {
   items: IMobileTableItem[];
   tableItemIndex: number;
+  container?: ILayoutGroup;
+  textResources?: ITextResource[];
+  language?: ILanguage;
   valid?: boolean;
   editIndex: number;
   onEditClick: () => void;
+  getEditButtonText?: (
+    language: ILanguage,
+    isEditing: boolean,
+    textResources: ITextResource[],
+    textResourceBindings?: ITextResourceBindings,
+  ) => string;
   editButtonText?: string;
   deleteFunctionality?: {
     onDeleteClick: () => void;
@@ -38,7 +54,6 @@ export interface IAltinnMobileTableItemProps {
     setPopoverOpen: (open: boolean) => void;
     onOpenChange: (index: number) => void;
     onPopoverDeleteClick: (index: number) => () => void;
-    language: ILanguage;
   };
 }
 
@@ -119,9 +134,13 @@ const useStyles = makeStyles({
 export default function AltinnMobileTableItem({
   items,
   tableItemIndex,
+  container,
+  textResources,
   valid = true,
   editIndex,
+  language,
   onEditClick,
+  getEditButtonText,
   editButtonText,
   deleteFunctionality,
 }: IAltinnMobileTableItemProps) {
@@ -136,8 +155,28 @@ export default function AltinnMobileTableItem({
     setPopoverOpen,
     onPopoverDeleteClick,
     onOpenChange,
-    language,
   } = deleteFunctionality || {};
+
+  const textResourceBindings = useExpressions(container?.textResourceBindings, {
+    forComponentId: container?.id,
+    rowIndex: tableItemIndex,
+  });
+
+  const edit = useExpressions(container?.edit, {
+    forComponentId: container?.id,
+    rowIndex: tableItemIndex,
+    defaults: ExprDefaultsForGroup.edit,
+  });
+
+  if (textResources && getEditButtonText && container && language) {
+    const editButtonTextFromTextResources = !valid
+      ? getLanguageFromKey('general.edit_alt_error', language)
+      : getEditButtonText(language, editIndex === tableItemIndex, textResources, textResourceBindings);
+
+    if (!editButtonText) {
+      editButtonText = editButtonTextFromTextResources;
+    }
+  }
 
   return (
     <TableContainer
@@ -199,7 +238,8 @@ export default function AltinnMobileTableItem({
                     </div>
                   )}
                 </TableCell>
-                {setPopoverOpen &&
+                {edit?.deleteButton &&
+                  setPopoverOpen &&
                   onOpenChange &&
                   language &&
                   onPopoverDeleteClick &&
