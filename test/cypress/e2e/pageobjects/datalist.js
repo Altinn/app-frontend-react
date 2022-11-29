@@ -6,5 +6,6 @@ export class Datalist {
     this.navigateNextButton = '[data-testid=pagination-next-icon]';
     this.navigatePreviousButton = '[data-testid=pagination-previous-icon]';
     this.sortButton = '[data-testid="sort-icon"]';
+    this.selectedRowClass = 'TableRow-module_table-row--selected__0i2on';
   }
 }
