@@ -12,6 +12,7 @@ import {
   Typography,
   useMediaQuery,
 } from '@material-ui/core';
+import { Delete as DeleteIcon, Edit as EditIcon, Warning as WarningIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { ExprDefaultsForGroup } from 'src/features/expressions';
@@ -228,7 +229,7 @@ export default function AltinnMobileTableItem({
                         data-testid='edit-button'
                         variant={ButtonVariant.Quiet}
                         color={ButtonColor.Secondary}
-                        iconName={valid ? 'Edit' : 'Warning'}
+                        icon={valid ? <EditIcon aria-hidden='true' /> : <WarningIcon aria-hidden='true' />}
                         iconPlacement={!mobileViewSmall ? 'right' : 'left'}
                         onClick={onEditClick}
                         aria-label={`${editButtonText}-${item.value}`}
@@ -258,7 +259,7 @@ export default function AltinnMobileTableItem({
                                 data-testid='delete-button'
                                 variant={ButtonVariant.Quiet}
                                 color={ButtonColor.Danger}
-                                iconName='Delete'
+                                icon={<DeleteIcon aria-hidden='true' />}
                                 iconPlacement={!mobileViewSmall ? 'right' : 'left'}
                                 onClick={onDeleteClick}
                                 aria-label={`${deleteButtonText}-${item.value}`}

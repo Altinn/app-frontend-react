@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
 import { createTheme, Grid, makeStyles } from '@material-ui/core';
+import { Delete as DeleteIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { ExprDefaultsForGroup } from 'src/features/expressions';
@@ -149,7 +150,7 @@ export function RepeatingGroupsEditContainer({
               <Button
                 variant={ButtonVariant.Quiet}
                 color={ButtonColor.Danger}
-                iconName='Delete'
+                icon={<DeleteIcon />}
                 iconPlacement='right'
                 disabled={deleting}
                 onClick={removeClicked}

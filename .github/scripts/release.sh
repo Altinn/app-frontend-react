@@ -69,11 +69,12 @@ CURRENT_VERSION_PARTS=(${CURRENT_VERSION//./ })
 APP_FULL=${CURRENT_VERSION:1}
 APP_MAJOR=${CURRENT_VERSION_PARTS[0]:1}
 APP_MAJOR_MINOR=${CURRENT_VERSION_PARTS[0]:1}.${CURRENT_VERSION_PARTS[1]}
-AUTHOR_FULL=$(git log -1 | grep Author)
-AUTHOR_NAME=$(git log -1 | grep Author | cut -d' ' -f2)
-AUTHOR_EMAIL=$(git log -1 | grep Author | cut -d' ' -f3 | cut -d'<' -f2 | cut -d'>' -f1)
+AUTHOR_FULL=$(git log -1 | grep Author | sed 's/^Author: //')
+AUTHOR_NAME="$(echo "$AUTHOR_FULL" | sed -r 's/<.*//')"
+AUTHOR_EMAIL="$(echo "$AUTHOR_FULL" | sed -r 's/^.*?<//' | sed 's/>//')"
 COMMIT_ID=$(git rev-parse HEAD~0)
 
+echo "Git tag:       $CURRENT_VERSION"
 echo "Full version:  $APP_FULL"
 echo "Major version: $APP_MAJOR"
 echo "Major + minor: $APP_MAJOR_MINOR"
@@ -82,6 +83,17 @@ echo "Author name:   $AUTHOR_NAME"
 echo "Author email:  $AUTHOR_EMAIL"
 echo "Commit ID:     $COMMIT_ID"
 echo "-------------------------------------"
+
+if ! [[ "$CURRENT_VERSION" =~ ^v ]]; then
+  echo "Error: Expected git tag to start with v"
+  exit 1
+fi
+
+VERSION_REGEX="^[\d\.]+(-[a-z0-9.]+)?$"
+if ! echo "$APP_FULL" | grep --quiet --perl-regexp "$VERSION_REGEX"; then
+  echo "Error: Broken/unexpected version number: $APP_FULL"
+  exit 1
+fi
 
 COMMIT_FILE=$(mktemp --suffix=-cdn-commit)
 {
@@ -129,7 +141,7 @@ cp -fr $SOURCE/* "$TARGET/$APP_FULL/"
 
 echo " * Updating index.json"
 ls -1 | \
-  grep --perl-regexp '^[\d\.]+(-[a-z0-9.]+)?$' | \
+  grep --perl-regexp "$VERSION_REGEX" | \
   sort --version-sort | \
   jq --raw-input --slurp 'split("\n") | map(select(. != ""))' > index.json
 
@@ -141,7 +153,7 @@ git status --short
 
 if [[ "$COMMIT" == "yes" ]]; then
   echo " * Committing changes"
-  git commit --author="$AUTHOR_NAME <$AUTHOR_EMAIL>" -F "$COMMIT_FILE"
+  git -c user.email="$AUTHOR_EMAIL" -c user.name="$AUTHOR_NAME" commit -F "$COMMIT_FILE"
 else
     echo " * Skipping commit (toggle with --commit)"
 fi

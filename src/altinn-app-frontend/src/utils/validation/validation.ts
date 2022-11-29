@@ -16,7 +16,7 @@ import { getFieldName, getFormDataForComponent } from 'src/utils/formComponentUt
 import { createRepeatingGroupComponents, getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
-import { resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
+import { nodesInLayout, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayout, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
 import type { ILayoutCompDatePicker } from 'src/features/form/layout/index';
@@ -215,6 +215,7 @@ export function validateEmptyFieldsForNodes(
       node.item.type === 'FileUpload' ||
       node.item.type === 'FileUploadWithTag' ||
       node.item.required === false ||
+      node.item.required === undefined ||
       node.isHidden(hiddenFields)
     ) {
       continue;
@@ -734,31 +735,6 @@ export function mapToComponentValidationsGivenNode(
 }
 
 /*
- * Gets the total number of validation errors
- */
-export function getErrorCount(validations: IValidations) {
-  let count = 0;
-  if (!validations) {
-    return count;
-  }
-  Object.keys(validations).forEach((layoutId: string) => {
-    Object.keys(validations[layoutId])?.forEach((componentId: string) => {
-      const componentValidations: IComponentValidations = validations[layoutId]?.[componentId];
-      if (componentValidations === null) {
-        return;
-      }
-      Object.keys(componentValidations).forEach((bindingKey: string) => {
-        const componentErrors = componentValidations[bindingKey]?.errors;
-        if (componentErrors) {
-          count += componentErrors.length;
-        }
-      });
-    });
-  });
-  return count;
-}
-
-/*
  * Checks if form can be saved. If it contains anything other than valid error messages it returns false
  */
 export function canFormBeSaved(validationResult: IValidationResult | null, apiMode?: string): boolean {
@@ -848,6 +824,33 @@ export function findComponentFromValidationIssue(
     component,
     componentValidations,
   };
+}
+
+export function filterValidationsByRow(
+  validations: IValidations,
+  formLayout: ILayout | null | undefined,
+  repeatingGroups: IRepeatingGroups | null | undefined,
+  groupId: string,
+  rowIndex?: number,
+): IValidations {
+  if (!formLayout || !repeatingGroups || typeof rowIndex === 'undefined') {
+    return validations;
+  }
+
+  const nodes = nodesInLayout(formLayout, repeatingGroups);
+  const groupNode = nodes.findById(groupId);
+  const childIds = new Set(groupNode?.flat(false, rowIndex).map((child) => child.item.id));
+  const filteredValidations = JSON.parse(JSON.stringify(validations)) as IValidations;
+
+  for (const layout of Object.keys(filteredValidations)) {
+    for (const componentId of Object.keys(filteredValidations[layout])) {
+      if (!childIds?.has(componentId)) {
+        delete filteredValidations[layout][componentId];
+      }
+    }
+  }
+
+  return filteredValidations;
 }
 
 /* Function to map the new data element validations to our internal redux structure */
