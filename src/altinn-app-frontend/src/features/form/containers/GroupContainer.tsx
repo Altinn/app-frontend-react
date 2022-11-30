@@ -232,7 +232,6 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
           deleting={deletingIndexes.includes(repeatingGroupIndex)}
           setEditIndex={setEditIndex}
           onClickRemove={onClickRemove}
-          hideDeleteButton={edit?.deleteButton === false}
           setMultiPageIndex={setMultiPageIndex}
           multiPageIndex={multiPageIndex}
           textResources={textResources}

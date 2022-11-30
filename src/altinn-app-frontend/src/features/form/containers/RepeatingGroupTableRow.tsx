@@ -134,7 +134,7 @@ export function RepeatingGroupTableRow({
   });
 
   useEffect(() => {
-    if (edit?.deleteButton) {
+    if (edit?.deleteButton !== false) {
       setDisplayDeleteColumn(true);
     }
   }, [edit?.deleteButton, setDisplayDeleteColumn]);
@@ -225,7 +225,7 @@ export function RepeatingGroupTableRow({
       <TableCell
         style={{ width: '185px', padding: '4px' }}
         key={`edit-${index}`}
-        colSpan={edit?.deleteButton ? 1 : 2}
+        colSpan={edit?.deleteButton === false ? 2 : 1}
       >
         <div className={classes.buttonInCellWrapper}>
           <Button
@@ -241,7 +241,7 @@ export function RepeatingGroupTableRow({
           </Button>
         </div>
       </TableCell>
-      {edit?.deleteButton && (
+      {edit?.deleteButton !== false && (
         <TableCell
           style={{ width: '120px', padding: '4px' }}
           key={`delete-${index}`}

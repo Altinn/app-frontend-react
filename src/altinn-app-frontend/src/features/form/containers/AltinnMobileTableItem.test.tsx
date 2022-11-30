@@ -1,15 +1,18 @@
 import React from 'react';
 
-import { render as renderRtl, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderWithProviders } from 'testUtils';
 
 import AltinnMobileTableItem from 'src/features/form/containers/AltinnMobileTableItem';
 import type { IAltinnMobileTableItemProps, IMobileTableItem } from 'src/features/form/containers/AltinnMobileTableItem';
 
+import type { ILanguage } from 'altinn-shared/types';
+
 const user = userEvent.setup();
 
 describe('AltinnMobileTableItem', () => {
-  it('renders delete icon-button when deleteIconNode is given as property', () => {
+  it('renders delete icon-button when deleteFunctionality is given as property', () => {
     render({
       deleteFunctionality: {
         onDeleteClick: jest.fn(),
@@ -83,14 +86,22 @@ const render = (props: Partial<IAltinnMobileTableItemProps> = {}) => {
     { key: 'test2', label: 'label2', value: 'value2' },
   ] as IMobileTableItem[];
 
+  const language: ILanguage = {
+    general: {
+      delete: 'Delete',
+      edit_alt: 'Edit',
+    },
+  };
+
   const allProps = {
     items: items,
     onEditClick: jest.fn(),
     onDeleteClick: jest.fn(),
     editIconNode: ' i ',
     editButtonText: 'Edit',
+    language: language,
     ...props,
   } as IAltinnMobileTableItemProps;
 
-  return renderRtl(<AltinnMobileTableItem {...allProps} />);
+  return renderWithProviders(<AltinnMobileTableItem {...allProps} />);
 };

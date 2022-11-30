@@ -47,7 +47,7 @@ function GroupInputSummary({ index, formData, textResourceBindings, textResource
             [],
             false,
           )}
-        {': '}
+        {' : '}
       </span>
       <span className={classes.data}>{displayData}</span>
     </Typography>

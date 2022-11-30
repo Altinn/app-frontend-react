@@ -239,7 +239,7 @@ export default function AltinnMobileTableItem({
                     </div>
                   )}
                 </TableCell>
-                {edit?.deleteButton &&
+                {edit?.deleteButton !== false &&
                   setPopoverOpen &&
                   onOpenChange &&
                   language &&

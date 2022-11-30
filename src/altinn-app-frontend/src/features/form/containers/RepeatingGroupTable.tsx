@@ -44,7 +44,6 @@ export interface IRepeatingGroupTableProps {
   setMultiPageIndex?: (index: number) => void;
   multiPageIndex?: number;
   deleting: boolean;
-  hideDeleteButton?: boolean;
   filteredIndexes?: number[] | null;
 }
 
@@ -352,7 +351,7 @@ export function RepeatingGroupTable({
                       >
                         <TableCell
                           style={{ padding: 0, borderBottom: 0 }}
-                          colSpan={!displayDeleteColumn ? tableComponents.length + 1 : tableComponents.length + 2}
+                          colSpan={displayDeleteColumn ? tableComponents.length + 2 : tableComponents.length + 1}
                         >
                           {renderRepeatingGroupsEditContainer()}
                         </TableCell>
