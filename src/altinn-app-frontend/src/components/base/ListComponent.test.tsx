@@ -24,7 +24,7 @@ export const testState: IDataListsState = {
   dataLists: {
     ['countries']: {
       listItems: countries,
-      id: 'countries',
+      dataListId: 'countries',
       loading: true,
       sortColumn: 'HighestMountain',
       sortDirection: SortDirection.Ascending,
@@ -41,6 +41,7 @@ const render = (props: Partial<IListProps> = {}, customState: PreloadedState<Roo
     tableHeaders: ['Name', 'Population', 'HighestMountain'],
     sortableColumns: ['Population', 'HighestMountain'],
     pagination: { alternatives: [2, 5], default: 2 },
+    getTextResourceAsString: (value) => value,
     ...props,
   };
 
@@ -49,7 +50,7 @@ const render = (props: Partial<IListProps> = {}, customState: PreloadedState<Roo
       ...getInitialStateMock(),
       dataListState: {
         dataLists: {
-          ['countries']: { listItems: countries, id: 'countries' },
+          [allProps.id]: { listItems: countries, id: 'countries' },
         },
         error: {
           name: '',

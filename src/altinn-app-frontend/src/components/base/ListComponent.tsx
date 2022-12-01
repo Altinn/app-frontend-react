@@ -43,15 +43,15 @@ export const ListComponent = ({
   const dynamicDataList = useGetDataList({ id });
   const calculatedDataList = dynamicDataList || defaultDataList;
   const defaultPagination = pagination ? pagination.default : 0;
-  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id].size || defaultPagination);
-  const currentPage = useAppSelector((state) => state.dataListState.dataLists[id].pageNumber || 0);
+  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id]?.size || defaultPagination);
+  const currentPage = useAppSelector((state) => state.dataListState.dataLists[id]?.pageNumber || 0);
 
-  const sortColumn = useAppSelector((state) => state.dataListState.dataLists[id].sortColumn || null);
+  const sortColumn = useAppSelector((state) => state.dataListState.dataLists[id]?.sortColumn || null);
   const sortDirection = useAppSelector(
-    (state) => state.dataListState.dataLists[id].sortDirection || SortDirection.NotActive,
+    (state) => state.dataListState.dataLists[id]?.sortDirection || SortDirection.NotActive,
   );
   const totalItemsCount = useAppSelector(
-    (state) => state.dataListState.dataLists[id].paginationData?.totaltItemsCount || 0,
+    (state) => state.dataListState.dataLists[id]?.paginationData?.totaltItemsCount || 0,
   );
 
   const handleChange = ({ selectedValue }: ChangeProps) => {
