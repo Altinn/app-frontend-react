@@ -1,7 +1,9 @@
 import React from 'react';
+import type { ChangeEvent } from 'react';
 
 import {
   Pagination,
+  RadioButton,
   SortDirection,
   Table,
   TableBody,
@@ -124,6 +126,19 @@ export const ListComponent = ({
     }
     return chosenRowData;
   };
+  const rowAsValueString = (datalist) => {
+    const chosenRowData: rowValue = {};
+    for (const key in dataModelBindings) {
+      chosenRowData[key] = datalist[key];
+    }
+    return JSON.stringify(chosenRowData);
+  };
+  const handleRadioButton = (event: ChangeEvent<HTMLInputElement>) => {
+    const eventObject = JSON.parse(event.target.value);
+    for (const key in formData) {
+      handleDataChange(eventObject[key], { key: key });
+    }
+  };
 
   return (
     <Table
@@ -132,7 +147,10 @@ export const ListComponent = ({
       selectedValue={formData as RowData}
     >
       <TableHeader>
-        <TableRow>{renderHeaders(tableHeaders)}</TableRow>
+        <TableRow>
+          <TableCell></TableCell>
+          {renderHeaders(tableHeaders)}
+        </TableRow>
       </TableHeader>
       <TableBody>
         {calculatedDataList.map((datalist) => {
@@ -141,6 +159,14 @@ export const ListComponent = ({
               key={datalist}
               rowData={rowAsValue(datalist)}
             >
+              <TableCell>
+                <RadioButton
+                  name={datalist}
+                  onChange={(event) => handleRadioButton(event)}
+                  value={rowAsValueString(datalist)}
+                  checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
+                ></RadioButton>
+              </TableCell>
               {renderRow(datalist)}
             </TableRow>
           );
@@ -149,7 +175,7 @@ export const ListComponent = ({
       {pagination && (
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={tableHeaders?.length}>
+            <TableCell colSpan={tableHeaders && 1 + tableHeaders?.length}>
               <Pagination
                 numberOfRows={totalItemsCount}
                 rowsPerPageOptions={pagination.alternatives}
