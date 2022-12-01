@@ -105,6 +105,7 @@ export interface ILayoutCompList extends ILayoutCompBase<'List'> {
   pagination?: IPagination;
   dataListId: string;
   secure?: boolean;
+  bindingToShowInSummary?: string;
 }
 
 export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect'> & ISelectionComponent;
