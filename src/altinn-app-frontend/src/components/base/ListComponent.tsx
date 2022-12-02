@@ -139,6 +139,13 @@ export const ListComponent = ({
       handleDataChange(eventObject[key], { key: key });
     }
   };
+  const createLabelRadioButton = (datalist) => {
+    let label = '';
+    for (const key in formData) {
+      label += `${key} ${datalist[key]} `;
+    }
+    return label;
+  };
 
   return (
     <Table
@@ -148,7 +155,7 @@ export const ListComponent = ({
     >
       <TableHeader>
         <TableRow>
-          <TableCell></TableCell>
+          <TableCell radiobutton={true}></TableCell>
           {renderHeaders(tableHeaders)}
         </TableRow>
       </TableHeader>
@@ -159,12 +166,14 @@ export const ListComponent = ({
               key={datalist}
               rowData={rowAsValue(datalist)}
             >
-              <TableCell>
+              <TableCell radiobutton={true}>
                 <RadioButton
                   name={datalist}
                   onChange={(event) => handleRadioButton(event)}
                   value={rowAsValueString(datalist)}
                   checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
+                  label={createLabelRadioButton(datalist)}
+                  hideLabel={true}
                 ></RadioButton>
               </TableCell>
               {renderRow(datalist)}
