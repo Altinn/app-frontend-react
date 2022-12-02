@@ -42,15 +42,15 @@ export const ListComponent = ({
   const dynamicDataList = useGetDataList({ id });
   const calculatedDataList = dynamicDataList || defaultDataList;
   const defaultPagination = pagination ? pagination.default : 0;
-  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id].size || defaultPagination);
-  const currentPage = useAppSelector((state) => state.dataListState.dataLists[id].pageNumber || 0);
+  const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id]?.size || defaultPagination);
+  const currentPage = useAppSelector((state) => state.dataListState.dataLists[id]?.pageNumber || 0);
 
-  const sortColumn = useAppSelector((state) => state.dataListState.dataLists[id].sortColumn || null);
+  const sortColumn = useAppSelector((state) => state.dataListState.dataLists[id]?.sortColumn || null);
   const sortDirection = useAppSelector(
-    (state) => state.dataListState.dataLists[id].sortDirection || SortDirection.NotActive,
+    (state) => state.dataListState.dataLists[id]?.sortDirection || SortDirection.NotActive,
   );
   const totalItemsCount = useAppSelector(
-    (state) => state.dataListState.dataLists[id].paginationData?.totaltItemsCount || 0,
+    (state) => state.dataListState.dataLists[id]?.paginationData?.totaltItemsCount || 0,
   );
 
   const handleChange = ({ selectedValue }: ChangeProps) => {
@@ -133,6 +133,14 @@ export const ListComponent = ({
     return JSON.stringify(chosenRowData);
   };
 
+  const createLabelRadioButton = (datalist) => {
+    let label = '';
+    for (const key in formData) {
+      label += `${key} ${datalist[key]} `;
+    }
+    return label;
+  };
+
   return (
     <Table
       selectRows={true}
@@ -141,7 +149,7 @@ export const ListComponent = ({
     >
       <TableHeader>
         <TableRow>
-          <TableCell></TableCell>
+          <TableCell radiobutton={true}></TableCell>
           {renderHeaders(tableHeaders)}
         </TableRow>
       </TableHeader>
@@ -152,13 +160,15 @@ export const ListComponent = ({
               key={JSON.stringify(datalist)}
               rowData={rowAsValue(datalist)}
             >
-              <TableCell>
+              <TableCell radiobutton={true}>
                 <RadioButton
                   name={datalist}
                   // eslint-disable-next-line @typescript-eslint/no-empty-function
                   onChange={() => {}}
                   value={rowAsValueString(datalist)}
                   checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
+                  label={createLabelRadioButton(datalist)}
+                  hideLabel={true}
                 ></RadioButton>
               </TableCell>
               {renderRow(datalist)}
