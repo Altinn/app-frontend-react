@@ -192,8 +192,7 @@ export const ListComponent = ({
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 currentPage={currentPage}
                 setCurrentPage={handleChangeCurrentPage}
-                rowsPerPageText={getLanguageFromKey('list_component.rowsPerPage', language)}
-                pageDescriptionText={getLanguageFromKey('list_component.of', language)}
+                descriptionTexts={getLanguageFromKey('list_component', language)}
               />
             </TableCell>
           </TableRow>
