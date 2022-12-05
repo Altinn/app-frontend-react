@@ -1,5 +1,4 @@
 import React from 'react';
-import type { ChangeEvent } from 'react';
 
 import {
   Pagination,
@@ -133,12 +132,7 @@ export const ListComponent = ({
     }
     return JSON.stringify(chosenRowData);
   };
-  const handleRadioButton = (event: ChangeEvent<HTMLInputElement>) => {
-    const eventObject = JSON.parse(event.target.value);
-    for (const key in formData) {
-      handleDataChange(eventObject[key], { key: key });
-    }
-  };
+
   const createLabelRadioButton = (datalist) => {
     let label = '';
     for (const key in formData) {
@@ -163,13 +157,14 @@ export const ListComponent = ({
         {calculatedDataList.map((datalist) => {
           return (
             <TableRow
-              key={datalist}
+              key={JSON.stringify(datalist)}
               rowData={rowAsValue(datalist)}
             >
               <TableCell radiobutton={true}>
                 <RadioButton
                   name={datalist}
-                  onChange={(event) => handleRadioButton(event)}
+                  // eslint-disable-next-line @typescript-eslint/no-empty-function
+                  onChange={() => {}}
                   value={rowAsValueString(datalist)}
                   checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
                   label={createLabelRadioButton(datalist)}
