@@ -13,16 +13,16 @@ describe('List component', () => {
     cy.goto('datalist');
     cy.get(dataListPage.tableBody).first().should('be.visible');
     cy.get(dataListPage.tableBody).contains('Caroline').parent('td').parent('tr').within(() => {
-      cy.get('td').eq(1).contains(28);
-      cy.get('td').eq(2).contains('Utvikler');
+      cy.get('td').eq(2).contains(28);
+      cy.get('td').eq(3).contains('Utvikler');
     });
     cy.get(dataListPage.tableBody).contains('Kåre').parent('td').parent('tr').within(() => {
-      cy.get('td').eq(1).contains(37);
-      cy.get('td').eq(2).contains('Sykepleier');
+      cy.get('td').eq(2).contains(37);
+      cy.get('td').eq(3).contains('Sykepleier');
     });
     cy.get(dataListPage.tableBody).contains('Petter').parent('td').parent('tr').within(() => {
-      cy.get('td').eq(1).contains(19);
-      cy.get('td').eq(2).contains('Personlig trener');
+      cy.get('td').eq(2).contains(19);
+      cy.get('td').eq(3).contains('Personlig trener');
     });
   });
   
