@@ -1,4 +1,4 @@
-import type { IValidations } from '../src/types';
+import type { IValidations } from 'src/types';
 import { getTextResourceByKey } from 'src/utils/sharedUtils';
 
 export function getMockValidationState(withFixed = false): IValidations {
