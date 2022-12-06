@@ -10,13 +10,7 @@ import type { ITextResourcesState } from 'src/shared/resources/textResources';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 
 import { replaceTextResourceParams } from 'src/language/sharedLanguage';
-import type {
-  IApplicationSettings,
-  IDataSources,
-  IInstance,
-  IInstanceContext,
-  ITextResource,
-} from 'src/types/shared';
+import type { IApplicationSettings, IDataSources, IInstance, IInstanceContext, ITextResource } from 'src/types/shared';
 
 export const InstanceSelector: (state: IRuntimeState) => IInstance | null = (state) => state.instanceData?.instance;
 export const FormDataSelector: (state: IRuntimeState) => IFormData = (state) => state.formData?.formData;

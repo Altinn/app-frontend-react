@@ -1,11 +1,4 @@
-import type {
-  IAttachment,
-  IData,
-  ITextResource,
-  IAttachmentGrouping,
-  IDataType,
-  IApplication,
-} from 'src/types/shared';
+import type { IAttachment, IData, ITextResource, IAttachmentGrouping, IDataType, IApplication } from 'src/types/shared';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
 
 export const mapInstanceAttachments = (
