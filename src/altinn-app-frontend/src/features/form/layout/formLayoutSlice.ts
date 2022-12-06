@@ -8,6 +8,7 @@ import {
 import {
   calculatePageOrderAndMoveToNextPageSaga,
   findAndMoveToNextVisibleLayout,
+  updateCurrentViewSaga,
   updateFileUploaderWithTagChosenOptionsSaga,
   updateFileUploaderWithTagEditIndexSaga,
   updateRepeatingGroupEditIndexSaga,
@@ -15,7 +16,6 @@ import {
   watchInitialCalculatePageOrderAndMoveToNextPageSaga,
   watchInitRepeatingGroupsSaga,
   watchMapFileUploaderWithTagSaga,
-  watchUpdateCurrentViewSaga,
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
 import { replaceTextResourcesSaga } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
@@ -151,7 +151,7 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
       },
     }),
     updateCurrentView: mkAction<LayoutTypes.IUpdateCurrentView>({
-      saga: () => watchUpdateCurrentViewSaga,
+      takeLatest: updateCurrentViewSaga,
     }),
     updateCurrentViewFulfilled: mkAction<LayoutTypes.IUpdateCurrentViewFulfilled>({
       reducer: (state, action) => {
