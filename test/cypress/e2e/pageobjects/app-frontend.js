@@ -38,6 +38,7 @@ export default class AppFrontend {
 
     this.navMenu = '#navigation-menu';
     this.navMenuButtons = '#navigation-menu li > button';
+    this.navMenuCurrent = '#navigation-menu li > button[aria-current=page]';
     this.navButtons = '[data-testid=NavigationButtons]';
     this.startAgain = '#startAgain';
 

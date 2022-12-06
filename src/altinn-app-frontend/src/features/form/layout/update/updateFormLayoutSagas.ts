@@ -289,12 +289,24 @@ export function* updateCurrentViewSaga({
     yield waitFor((state) => !state.formData.unsavedChanges);
 
     const state: IRuntimeState = yield select();
+    const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
     const viewCacheKey = state.formLayout.uiConfig.currentViewCacheKey;
     const instanceId = state.instanceData.instance?.id;
     if (!viewCacheKey) {
       yield put(FormLayoutActions.setCurrentViewCacheKey({ key: instanceId }));
     }
     const currentViewCacheKey = viewCacheKey || instanceId;
+
+    if (visibleLayouts && !visibleLayouts.includes(newView)) {
+      yield put(
+        FormLayoutActions.updateCurrentViewRejected({
+          error: null,
+          keepScrollPos,
+        }),
+      );
+      return;
+    }
+
     if (!runValidations) {
       if (!skipPageCaching && currentViewCacheKey) {
         localStorage.setItem(currentViewCacheKey, newView);
