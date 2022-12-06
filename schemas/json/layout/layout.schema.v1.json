@@ -42,33 +42,7 @@
           "type": "string",
           "title": "Type",
           "description": "The component type.",
-          "enum": [
-            "AddressComponent",
-            "AttachmentList",
-            "Button",
-            "Checkboxes",
-            "Custom",
-            "Datepicker",
-            "Dropdown",
-            "FileUpload",
-            "FileUploadWithTag",
-            "Group",
-            "Header",
-            "Image",
-            "Input",
-            "InstantiationButton",
-            "Likert",
-            "List",
-            "MultipleSelect",
-            "NavigationButtons",
-            "NavigationBar",
-            "Panel",
-            "Paragraph",
-            "PrintButton",
-            "RadioButtons",
-            "Summary",
-            "TextArea"
-          ]
+          "enum": ["AddressComponent", "AttachmentList", "Button", "Checkboxes", "Custom", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Group", "Header", "Image", "Input", "InstantiationButton", "Likert","List", "MultipleSelect", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
         },
         "required": {
           "title": "Required",
@@ -143,263 +117,29 @@
           ]
         }
       },
-      "required": [
-        "id",
-        "type"
-      ],
+      "required": ["id", "type"],
       "allOf": [
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "AddressComponent"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/addressComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "AttachmentList"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/attachmentListComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Checkboxes"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/radioAndCheckboxComponents"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Custom"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/customComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Datepicker"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/datepickerComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Dropdown"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/selectionComponents"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "FileUpload"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/fileUploadComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "FileUploadWithTag"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/fileUploadWithTagComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Group"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/groupComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Image"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/imageComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Input"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/inputComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "TextArea"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/textAreaComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "InstantiationButton"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/instantiationButtonComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Likert"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/radioAndCheckboxComponents"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "MultipleSelect"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/selectionComponents"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "NavigationButtons"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/navigationButtonsComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "RadioButtons"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/radioAndCheckboxComponents"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Summary"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/summaryComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Header"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/headerComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "Panel"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/panelComponent"
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "List"
-              }
-            }
-          },
-          "then": {
-            "$ref": "#/definitions/listComponent"
-          }
-        }
+        { "if": {"properties": {"type": { "const": "AddressComponent"}}}, "then": { "$ref": "#/definitions/addressComponent"}},
+        { "if": {"properties": {"type": { "const": "AttachmentList"}}}, "then": { "$ref": "#/definitions/attachmentListComponent"}},
+        { "if": {"properties": {"type": { "const": "Checkboxes"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "Custom"}}}, "then": { "$ref": "#/definitions/customComponent"}},
+        { "if": {"properties": {"type": { "const": "Datepicker"}}}, "then": { "$ref": "#/definitions/datepickerComponent"}},
+        { "if": {"properties": {"type": { "const": "Dropdown"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
+        { "if": {"properties": {"type": { "const": "FileUpload"}}}, "then": { "$ref": "#/definitions/fileUploadComponent"}},
+        { "if": {"properties": {"type": { "const": "FileUploadWithTag"}}}, "then": { "$ref": "#/definitions/fileUploadWithTagComponent"}},
+        { "if": {"properties": {"type": { "const": "Group"}}}, "then": { "$ref": "#/definitions/groupComponent"}},
+        { "if": {"properties": {"type": { "const": "Image"}}}, "then": { "$ref": "#/definitions/imageComponent"}},
+        { "if": {"properties": {"type": { "const": "Input"}}}, "then": { "$ref": "#/definitions/inputComponent"}},
+        { "if": {"properties": {"type": { "const": "TextArea"}}}, "then": { "$ref": "#/definitions/textAreaComponent"}},
+        { "if": {"properties": {"type": { "const": "InstantiationButton"}}}, "then": { "$ref": "#/definitions/instantiationButtonComponent"}},
+        { "if": {"properties": {"type": { "const": "Likert"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "MultipleSelect"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
+        { "if": {"properties": {"type": { "const": "NavigationButtons"}}}, "then": { "$ref": "#/definitions/navigationButtonsComponent"}},
+        { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}},
+        { "if": {"properties": {"type": { "const": "Header"}}}, "then": {"$ref": "#/definitions/headerComponent"}},
+        { "if": {"properties": {"type": { "const": "Panel"}}}, "then": {"$ref": "#/definitions/panelComponent"}},
+        { "if": {"properties": {"type": { "const": "List"}}}, "then": {"$ref": "#/definitions/listComponent"}}
       ]
     },
     "headerComponent": {
@@ -408,19 +148,10 @@
           "title": "Header size",
           "description": "'L'=<h2>, 'M'=<h3>, 'S'=<h4>",
           "type": "string",
-          "enum": [
-            "L",
-            "M",
-            "S",
-            "h2",
-            "h3",
-            "h4"
-          ]
+          "enum": ["L", "M", "S", "h2", "h3", "h4"]
         }
       },
-      "required": [
-        "size"
-      ]
+      "required": ["size"]
     },
     "panelComponent": {
       "properties": {
@@ -428,11 +159,7 @@
           "title": "Panel variant",
           "description": "Change the look of the panel.",
           "type": "string",
-          "enum": [
-            "info",
-            "warning",
-            "success"
-          ],
+          "enum": ["info", "warning", "success"],
           "default": "info"
         },
         "showIcon": {
@@ -467,10 +194,7 @@
           "title": "Display mode",
           "description": "Sets the display mode for the file upload component.",
           "type": "string",
-          "enum": [
-            "simple",
-            "list"
-          ]
+          "enum": ["simple", "list"]
         },
         "hasCustomFileEndings": {
           "title": "Has custom file endings",
@@ -480,15 +204,7 @@
         "validFileEndings": {
           "title": "Valid file endings",
           "description": "A separated string of valid file endings to upload. If not set all endings are accepted.",
-          "examples": [
-            ".csv",
-            ".doc",
-            ".docx",
-            ".gif",
-            ".jpeg",
-            ".pdf",
-            ".txt"
-          ],
+          "examples": [".csv", ".doc", ".docx", ".gif", ".jpeg", ".pdf", ".txt"],
           "anyOf": [
             {
               "type": "string"
@@ -502,18 +218,11 @@
           ]
         }
       },
-      "required": [
-        "displayMode",
-        "maxFileSizeInMB",
-        "maxNumberOfAttachments",
-        "minNumberOfAttachments"
-      ]
+      "required": ["displayMode", "maxFileSizeInMB", "maxNumberOfAttachments", "minNumberOfAttachments" ]
     },
     "fileUploadWithTagComponent": {
       "allOf": [
-        {
-          "$ref": "#/definitions/fileUploadComponent"
-        }
+        { "$ref": "#/definitions/fileUploadComponent" }
       ],
       "properties": {
         "optionsId": {
@@ -526,9 +235,7 @@
           "description": "Optionally used to map options"
         }
       },
-      "required": [
-        "optionsId"
-      ]
+      "required": ["optionsId"]
     },
     "datepickerComponent": {
       "properties": {
@@ -554,11 +261,7 @@
           "type": "string",
           "title": "Date format",
           "description": "Long date format used when displaying the date to the user. The user date format from the locale will be prioritized over this setting.",
-          "examples": [
-            "DD/MM/YYYY",
-            "MM/DD/YYYY",
-            "YYYY-MM-DD"
-          ],
+          "examples": ["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"],
           "default": "DD.MM.YYYY"
         }
       },
@@ -684,9 +387,7 @@
           "uniqueItems": true
         }
       },
-      "required": [
-        "children"
-      ]
+      "required": ["children"]
     },
     "groupEditOptions": {
       "properties": {
@@ -694,12 +395,7 @@
           "title": "Edit mode",
           "description": "Mode for how repeating group table is displayed in edit mode",
           "type": "string",
-          "enum": [
-            "hideTable",
-            "likert",
-            "showAll",
-            "showTable"
-          ]
+          "enum": ["hideTable", "likert", "showAll", "showTable"]
         },
         "filter": {
           "title": "Filter",
@@ -738,15 +434,10 @@
           "title": "Open by default",
           "description": "Boolean or string indicating if group should be opened by default. If no items exist: 'first', 'last', and true adds a new item. If items exist already, true does not open anything, but 'first' opens the first item, and 'last' opens the last item in the group.",
           "oneOf": [
-            {
-              "type": "boolean"
-            },
+            { "type": "boolean" },
             {
               "type": "string",
-              "enum": [
-                "first",
-                "last"
-              ]
+              "enum": ["first", "last"]
             }
           ]
         },
@@ -759,20 +450,15 @@
     },
     "groupPanelOptions": {
       "additionalProperties": false,
-      "allOf": [
-        {
-          "$ref": "#/definitions/panelComponent"
-        }
-      ],
+      "allOf": [{
+        "$ref": "#/definitions/panelComponent"
+      }],
       "properties": {
         "iconUrl": {
           "title": "Icon url",
           "description": "Url of the icon to be shown in panel. Can be relative if hosted by app or full if referencing a cdn or other hosting.",
           "type": "string",
-          "examples": [
-            "fancyIcon.svg",
-            "https://cdn.example.com/fancyIcon.svg"
-          ]
+          "examples": ["fancyIcon.svg", "https://cdn.example.com/fancyIcon.svg"]
         },
         "iconAlt": {
           "title": "Icon alt",
@@ -784,14 +470,11 @@
           "description": "Reference to the group that is being displayed in the panel. Used for referencing another repeating group context.",
           "type": "object",
           "properties": {
-            "group": {
+            "group" : {
               "type": "string",
               "title": "Group",
               "description": "Group reference. Can be either the group id or the group data model binding.",
-              "examples": [
-                "the-group-id",
-                "some.model.theGroup"
-              ]
+              "examples": ["the-group-id", "some.model.theGroup"]
             }
           }
         }
@@ -824,10 +507,7 @@
           "description": "The option value."
         }
       },
-      "required": [
-        "label",
-        "value"
-      ]
+      "required": ["label", "value"]
     },
     "triggers": {
       "title": "Triggers",
@@ -835,13 +515,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": [
-          "validation",
-          "validateRow",
-          "validatePage",
-          "validateAllPages",
-          "calculatePageOrder"
-        ]
+        "enum": ["validation", "validateRow", "validatePage", "validateAllPages", "calculatePageOrder"]
       }
     },
     "selectionComponents": {
@@ -879,32 +553,22 @@
               "type": "string",
               "title": "Group",
               "description": "The repeating group to base options on.",
-              "examples": [
-                "model.some.group"
-              ]
+              "examples": ["model.some.group"]
             },
             "label": {
               "type": "string",
               "title": "Label",
               "description": "Reference to a text resource to be used as the option label.",
-              "examples": [
-                "some.text.key"
-              ]
+              "examples": ["some.text.key"]
             },
             "value": {
               "type": "string",
               "title": "Label",
               "description": "Field in the group that should be used as value",
-              "examples": [
-                "model.some.group[{0}].someField"
-              ]
+              "examples": ["model.some.group[{0}].someField"]
             }
           },
-          "required": [
-            "group",
-            "label",
-            "value"
-          ]
+          "required": ["group", "label", "value"]
         },
         "mapping": {
           "$ref": "#/definitions/mapping",
@@ -913,19 +577,11 @@
       }
     },
     "radioAndCheckboxComponents": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/selectionComponents"
-        }
-      ],
+      "allOf": [{ "$ref": "#/definitions/selectionComponents" }],
       "properties": {
         "layout": {
           "type": "string",
-          "enum": [
-            "column",
-            "row",
-            "table"
-          ],
+          "enum": ["column", "row", "table"],
           "title": "Layout",
           "description": "Define the layout style for the options"
         }
@@ -952,9 +608,7 @@
           "description": "Web component tag name to use"
         }
       },
-      "required": [
-        "tagName"
-      ]
+      "required": ["tagName"]
     },
     "summaryComponent": {
       "properties": {
@@ -1006,12 +660,7 @@
           },
           "title": "Data type IDs",
           "description": "List of data type IDs for the attachment list to show.",
-          "examples": [
-            [
-              "SomeDataType",
-              "SomeOtherDataType"
-            ]
-          ]
+          "examples": [["SomeDataType", "SomeOtherDataType"]]
         }
       }
     },
@@ -1027,15 +676,15 @@
               "description": "",
               "type": "object",
               "properties": {
-                "nb": {
+                "nb" :{
                   "type": "string",
                   "title": "Bokmål"
                 },
-                "nn": {
+                "nn":{
                   "type": "string",
                   "title": "Nynorsk"
                 },
-                "en": {
+                "en":{
                   "type": "string",
                   "title": "English"
                 }
@@ -1043,30 +692,17 @@
               "additionalProperties": true
             },
             "width": {
-              "type": "string",
+              "type":"string",
               "title": "Image width",
-              "examples": [
-                "100%"
-              ]
+              "examples": ["100%"]
             },
             "align": {
-              "type": "string",
+              "type":"string",
               "title": "Align image",
-              "enum": [
-                "flex-start",
-                "center",
-                "flex-end",
-                "space-between",
-                "space-around",
-                "space-evenly"
-              ]
+              "enum": ["flex-start", "center", "flex-end", "space-between", "space-around", "space-evenly"]
             }
           },
-          "required": [
-            "src",
-            "width",
-            "align"
-          ]
+          "required": ["src", "width", "align"]
         }
       }
     },
@@ -1094,12 +730,8 @@
       "description": "Boolean or number. True = feature on (default), false = feature off (saves on focus blur), number = timeout in milliseconds (400 by default)",
       "default": true,
       "oneOf": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "number"
-        }
+        { "type": "boolean" },
+        { "type": "number" }
       ]
     },
     "inputFormatting": {
@@ -1111,11 +743,7 @@
           "type": "string",
           "title": "Align input",
           "description": "The alignment for Input field (eg. right aligning a series of numbers)",
-          "enum": [
-            "left",
-            "center",
-            "right"
-          ]
+          "enum": [ "left", "center", "right"]
         }
       }
     },
@@ -1132,70 +760,65 @@
         "type": "string"
       }
     },
-    "listComponent": {
-      "type": "object",
-      "properties": {
-        "tableHeaders": {
-          "type": "array",
-          "items": {
-            "type": "string"
+      "listComponent": {
+        "type": "object",
+        "properties": {
+          "tableHeaders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "Table Headers",
+            "description": "An array of strings that is going to be headers of the table. Can be added to the resource files to change between languages"
           },
-          "title": "Table Headers",
-          "description": "An array of strings that is going to be headers of the table. Can be added to the resource files to change between languages"
-        },
-        "sortableColumns": {
-          "type": "array",
-          "items": {
-            "type": "string"
+          "sortableColumns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "Sortable Columns",
+            "description": "An array of the columns that is going to be sortable. The column has to be represented by the the headername that is written in tableHeaders"
           },
-          "title": "Sortable Columns",
-          "description": "An array of the columns that is going to be sortable. The column has to be represented by the the headername that is written in tableHeaders"
+          "pagination": {
+            "title": "Pagination",
+            "$ref": "#/definitions/paginationProperties"
+          },
+          "dataListId": {
+            "type": "string",
+            "title": "List ID",
+            "description": "The Id of the list. This id is used to retrive the datalist from the backend"
+          },
+          "secure": {
+            "type": "boolean",
+            "title": "Secure ListItems",
+            "description": "Boolean value indicating if the options should be instance aware. Defaults to false."
+          }
         },
-        "pagination": {
-          "title": "Pagination",
-          "$ref": "#/definitions/paginationProperties"
-        },
-        "dataListId": {
-          "type": "string",
-          "title": "List ID",
-          "description": "The Id of the list. This id is used to retrive the datalist from the backend"
-        },
-        "secure": {
-          "type": "boolean",
-          "title": "Secure ListItems",
-          "description": "Boolean value indicating if the options should be instance aware. Defaults to false."
-        },
-        "bindingToShowInSummary": {
-          "type": "string",
-          "title": "Binding to show in summary",
-          "description": "The value of this binding will be shown in the summary component for the list. This binding must be one of the specified bindings under dataModelBindings."
-        }
+        "required": [
+          "dataListId"
+        ]
       },
-      "required": [
-        "dataListId"
-      ]
-    },
-    "paginationProperties": {
-      "type": "object",
-      "properties": {
-        "alternatives": {
-          "type": "array",
-          "items": {
-            "type": "number"
+      "paginationProperties": {
+        "type": "object",
+        "properties": {
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "title": "Alternatives",
+            "description": "List of page sizes the user can choose from. Make sure to test the performance of the largest number of items per page you are allowing."
           },
-          "title": "Alternatives",
-          "description": "List of page sizes the user can choose from. Make sure to test the performance of the largest number of items per page you are allowing."
+          "default": {
+            "type": "number",
+            "title": "Default",
+            "description": "The pagination size that is set to default"
+          }
         },
-        "default": {
-          "type": "number",
-          "title": "Default",
-          "description": "The pagination size that is set to default"
-        }
-      },
-      "required": [
-        "alternatives",
-        "default"
-      ]
+        "required": [
+          "alternatives",
+          "default"
+        ]
+      }
     }
   }
-}
