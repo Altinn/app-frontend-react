@@ -197,7 +197,10 @@ const sendInTask = {
   group: genericSendIn,
   likert: genericSendIn,
   datalist: genericSendIn,
-  confirm: genericSendIn,
+  confirm: () => {
+    cy.get(appFrontend.confirm.sendIn).should('be.visible').click();
+    cy.get(appFrontend.confirm.sendIn).should('not.exist');
+  },
 };
 
 let currentTask = undefined;
