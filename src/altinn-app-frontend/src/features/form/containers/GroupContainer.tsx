@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 
 import { Button, ButtonSize, ButtonVariant } from '@altinn/altinn-design-system';
 import { Grid } from '@material-ui/core';
+import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { ExprDefaultsForGroup } from 'src/features/expressions';
@@ -107,7 +108,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       onKeyUp={onKeypressAdd}
       variant={ButtonVariant.Outline}
       size={ButtonSize.Medium}
-      iconName='Add'
+      icon={<AddIcon />}
       iconPlacement='left'
       fullWidth
     >

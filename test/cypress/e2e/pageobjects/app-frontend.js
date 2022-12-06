@@ -12,7 +12,6 @@ export default class AppFrontend {
     };
 
     //Start app instance page
-    this.userId = '#UserId';
     this.appSelection = '#AppPathSelection';
     this.startButton = '.btn';
 
@@ -107,7 +106,7 @@ export default class AppFrontend {
       mobilenummer: '#mobilnummer',
       sources: '#sources',
       uploadingAnimation: '#loader-upload',
-      deleteAttachment: 'div[id^="attachment-delete"]',
+      deleteAttachment: 'div[data-testid^="attachment-delete"]',
       uploadedTable: '#altinn-file-listfileUpload-changename',
       uploadSuccess: '.ai-check-circle',
       uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
