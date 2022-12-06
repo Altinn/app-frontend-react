@@ -378,3 +378,13 @@ src/Altinn.Apps/AppTemplates/AspNet/App/Properties/launchSettings.json
 
 ## Dumps
 *.stackdump
+
+#https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+
+/.pnp.*
+/.yarn/*
+!/.yarn/patches
+!/.yarn/plugins
+!/.yarn/releases
+!/.yarn/sdks
+!/.yarn/versions

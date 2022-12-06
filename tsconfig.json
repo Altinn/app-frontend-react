@@ -16,7 +16,12 @@
     "strictNullChecks": true,
     "noUnusedLocals": true,
     "esModuleInterop": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "src/*": ["src/*"],
+      "__mocks__/*": ["src/__mocks__/*"],
+      "testUtils": ["src/testUtils.tsx"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "test/cypress"],
