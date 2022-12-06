@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@altinn/altinn-design-system';
 import { createTheme, Grid, makeStyles } from '@material-ui/core';
-import { Delete as DeleteIcon, Edit as EditIcon, Warning as WarningIcon } from '@navikt/ds-icons';
+import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { ExprDefaultsForGroup } from 'src/features/expressions';
@@ -491,7 +491,7 @@ export function RepeatingGroupTable({
                         <Button
                           variant={ButtonVariant.Quiet}
                           color={ButtonColor.Secondary}
-                          icon={rowHasErrors ? <WarningIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
+                          icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                           iconPlacement='right'
                           onClick={() => handleEditClick(index)}
                           aria-label={`${editButtonText}-${firstCellData}`}
