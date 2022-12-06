@@ -559,4 +559,5 @@ export const ExprDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
     alertOnDelete: false,
     saveAndNextButton: false,
   },
+  textResourceBindings: { edit_button_open: 'heh' },
 };

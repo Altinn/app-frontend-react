@@ -162,7 +162,9 @@ export function RepeatingGroupTable({
   const componentTextResourceBindingsResolved = useExpressions(componentTextResourceBindings);
 
   const showTableHeader = repeatingGroupIndex > -1 && !(repeatingGroupIndex == 0 && editIndex == 0);
-  const [displayDeleteColumn, setDisplayDeleteColumn] = useState(edit?.deleteButton);
+  const [displayDeleteColumn, setDisplayDeleteColumn] = useState(
+    edit?.deleteButton == undefined ? true : edit.deleteButton,
+  );
   const [popoverPanelIndex, setPopoverPanelIndex] = useState(-1);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
