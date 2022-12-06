@@ -11,7 +11,7 @@ import {
 } from 'src/features/expressions/errors';
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
-import { LayoutNode } from 'src/utils/layout/hierarchy';
+import { dataSourcesFromState, LayoutNode, LayoutRootNode, nodesInLayouts } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   BaseToActual,
@@ -23,7 +23,7 @@ import type {
   FuncDef,
 } from 'src/features/expressions/types';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
-import type { LayoutRootNode } from 'src/utils/layout/hierarchy';
+import type { IAltinnWindow } from 'src/types';
 
 import type { IInstanceContext } from 'altinn-shared/types';
 
@@ -56,7 +56,7 @@ export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): ExprResolved<T> {
  * Recurse through an input object/array/any, finds expressions and evaluates them
  */
 function evalExprInObjectRecursive<T>(input: any, args: Omit<EvalExprInObjArgs<T>, 'input'>, path: string[]) {
-  if (typeof input !== 'object') {
+  if (typeof input !== 'object' || input === null) {
     return input;
   }
 
@@ -346,11 +346,7 @@ export const ExprFunctions = {
   }),
   instanceContext: defineFunc({
     impl: function (key): string | null {
-      if (key === null) {
-        throw new LookupNotFound(this, `Cannot lookup property null`);
-      }
-
-      if (instanceContextKeys[key] !== true) {
+      if (key === null || instanceContextKeys[key] !== true) {
         throw new LookupNotFound(this, `Unknown Instance context property ${key}`);
       }
 
@@ -362,7 +358,7 @@ export const ExprFunctions = {
   frontendSettings: defineFunc({
     impl: function (key): any {
       if (key === null) {
-        throw new LookupNotFound(this, `Cannot lookup property null`);
+        throw new LookupNotFound(this, `Value cannot be null. (Parameter 'key')`);
       }
 
       return (this.dataSources.applicationSettings && this.dataSources.applicationSettings[key]) || null;
@@ -376,15 +372,25 @@ export const ExprFunctions = {
         throw new LookupNotFound(this, `Cannot lookup component null`);
       }
 
-      const component = this.failWithoutNode().closest((c) => c.id === id || c.baseComponentId === id);
+      const node = this.failWithoutNode();
+      const component = node.closest((c) => c.id === id || c.baseComponentId === id);
       const binding = component?.item?.dataModelBindings?.simpleBinding;
-      if (binding) {
+      if (component && binding) {
+        if (component.isHidden(this.dataSources.hiddenFields)) {
+          return null;
+        }
+
         return (this.dataSources.formData && this.dataSources.formData[binding]) || null;
       }
 
+      // Expressions can technically be used without having all the layouts available, which might lead to unexpected
+      // results. We should note this in the error message, so we know the reason we couldn't find the component.
+      const hasAllLayouts = node instanceof LayoutRootNode ? !!node.top : !!node.top.top;
       throw new LookupNotFound(
         this,
-        `Unable to find component with identifier ${id} or it does not have a simpleBinding`,
+        hasAllLayouts
+          ? `Unable to find component with identifier ${id} or it does not have a simpleBinding`
+          : `Unable to find component with identifier ${id} in the current layout or it does not have a simpleBinding`,
       );
     },
     args: ['string'] as const,
@@ -393,7 +399,7 @@ export const ExprFunctions = {
   dataModel: defineFunc({
     impl: function (path): any {
       if (path === null) {
-        throw new LookupNotFound(this, `Cannot lookup data model null`);
+        throw new LookupNotFound(this, `Cannot lookup dataModel null`);
       }
 
       const maybeNode = this.failWithoutNode();
@@ -492,6 +498,49 @@ export const ExprTypes: {
     accepts: ['boolean', 'string', 'number'],
     impl: (arg) => arg,
   },
+};
+
+/**
+ * This function is attached globally, to aid in expression development. An app developer can use this function
+ * to try out a given expression (even in the context of a given component ID), and see the result directly in
+ * the browser console window.
+ *
+ * @deprecated DO NOT use this directly, it is only meant for app developers to test out their expressions. It is not
+ * meant to be performant, and will never get optimized in any way. In addition, it will spit out nice errors in the
+ * console for app developers to understand. Use other alternatives in your code instead.
+ *
+ * @see useExpressions
+ * @see useExpressionsForComponent
+ * @see resolvedNodesInLayouts
+ */
+(window as unknown as IAltinnWindow).evalExpression = (maybeExpression: any, forComponentId?: string) => {
+  const expr = asExpression(maybeExpression, null);
+  if (!expr) {
+    return null;
+  }
+
+  const state = (window as unknown as IAltinnWindow).reduxStore.getState();
+  const nodes = nodesInLayouts(
+    state.formLayout.layouts,
+    state.formLayout.uiConfig.currentView,
+    state.formLayout.uiConfig.repeatingGroups,
+  );
+  let context: LayoutRootNode | LayoutNode = nodes.findLayout(state.formLayout.uiConfig.currentView);
+  if (forComponentId) {
+    const foundNode = nodes.findById(forComponentId);
+    if (!foundNode) {
+      console.error('Unable to find component with id', forComponentId);
+      console.error(
+        'Available components on the current page:',
+        context.flat(true).map((c) => c.item.id),
+      );
+      return;
+    }
+    context = foundNode;
+  }
+
+  const dataSources = dataSourcesFromState(state);
+  return evalExpr(expr as Expression, context, dataSources, { defaultValue: null });
 };
 
 export const ExprDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {

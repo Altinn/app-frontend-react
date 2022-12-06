@@ -185,15 +185,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/cypress@npm:8.0.3":
-  version: 8.0.3
-  resolution: "@testing-library/cypress@npm:8.0.3"
+"@testing-library/cypress@npm:8.0.7":
+  version: 8.0.7
+  resolution: "@testing-library/cypress@npm:8.0.7"
   dependencies:
     "@babel/runtime": ^7.14.6
     "@testing-library/dom": ^8.1.0
   peerDependencies:
-    cypress: ^2.1.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
-  checksum: 319f6c7297f85e5673882a71009b5d5b576006f986d87a6ca6f2f8c679d96d9779f3ddbc01654b5a943407fa91192814f250835ce01f153e33ef24818cf1bf20
+    cypress: ^2.1.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+  checksum: e005bc1a7ec808706c57e95ed312069fb5be39ea7362900dc2a32c09f124d478ade69ebcd7df88c076e3867ab328ae6e6ce13791bdf042621ff66b56552bf74b
   languageName: node
   linkType: hard
 
@@ -448,10 +448,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axe-core@npm:4.5.0":
-  version: 4.5.0
-  resolution: "axe-core@npm:4.5.0"
-  checksum: 05b5fa52a8ed8498215cec4a43253d115cc2b43616e840768e05b1b00d6789e7480e5b29159920a45a9504489423836b2fe65a49a67b54cbc5d53b1b37245750
+"axe-core@npm:4.5.2":
+  version: 4.5.2
+  resolution: "axe-core@npm:4.5.2"
+  checksum: 4068f183b2ef1db7e5a75606032c238781abfaa34ab4c23177e17f7dff8cc83f175e887b52689d20d88d2d4f001cbf632bd98925850026fe1d9abc739cabcf16
   languageName: node
   linkType: hard
 
@@ -692,7 +692,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorette@npm:^2.0.17":
+"colorette@npm:^2.0.19":
   version: 2.0.19
   resolution: "colorette@npm:2.0.19"
   checksum: 888cf5493f781e5fcf54ce4d49e9d7d698f96ea2b2ef67906834bb319a392c667f9ec69f4a10e268d2946d13a9503d2d19b3abaaaf174e3451bfe91fb9d82427
@@ -722,10 +722,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^9.3.0":
-  version: 9.3.0
-  resolution: "commander@npm:9.3.0"
-  checksum: d421ce66fee25792a1470c69aa8d1b86434bf873a96483aa92c8267f81a6f20c6f7c426f5e82f88ac50a8ec4855d3f2787aebcdef8aa559e1080a2337a95a217
+"commander@npm:^9.4.1":
+  version: 9.4.1
+  resolution: "commander@npm:9.4.1"
+  checksum: bfb18e325a5bdf772763c2213d5c7d9e77144d944124e988bcd8e5e65fb6d45d5d4e86b09155d0f2556c9a59c31e428720e57968bcd050b2306e910a0bf3cf13
   languageName: node
   linkType: hard
 
@@ -743,9 +743,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"concurrently@npm:7.5.0":
-  version: 7.5.0
-  resolution: "concurrently@npm:7.5.0"
+"concurrently@npm:7.6.0":
+  version: 7.6.0
+  resolution: "concurrently@npm:7.6.0"
   dependencies:
     chalk: ^4.1.0
     date-fns: ^2.29.1
@@ -759,7 +759,7 @@ __metadata:
   bin:
     conc: dist/bin/concurrently.js
     concurrently: dist/bin/concurrently.js
-  checksum: 7886e1c8559d2699ae1b62be8aca5d56c226966e252a2b9dd6077b3c1fd5397e98ef537c040fffa1de50418bd2616746eb9dd589a31ffb9056d4758b850a865b
+  checksum: f705c9a7960f1b16559ca64958043faeeef6385c0bf30a03d1375e15ab2d96dba4f8166f1bbbb1c85e8da35ca0ce3c353875d71dff2aa132b2357bb533b3332e
   languageName: node
   linkType: hard
 
@@ -792,18 +792,18 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "cypress-altinn-app-frontend@workspace:."
   dependencies:
-    "@testing-library/cypress": 8.0.3
-    axe-core: 4.5.0
-    concurrently: 7.5.0
-    cypress: 10.11.0
+    "@testing-library/cypress": 8.0.7
+    axe-core: 4.5.2
+    concurrently: 7.6.0
+    cypress: 11.2.0
     cypress-axe: 1.0.0
     cypress-plugin-tab: 1.0.5
     dotenv: 16.0.3
-    eslint: 8.26.0
+    eslint: 8.28.0
     eslint-plugin-cypress: 2.12.1
     execa: 6.1.0
-    lint-staged: 13.0.3
-    prettier: 2.7.1
+    lint-staged: 13.0.4
+    prettier: 2.8.0
     rimraf: 3.0.2
     start-server-and-test: 1.14.0
   languageName: unknown
@@ -828,9 +828,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:10.11.0":
-  version: 10.11.0
-  resolution: "cypress@npm:10.11.0"
+"cypress@npm:11.2.0":
+  version: 11.2.0
+  resolution: "cypress@npm:11.2.0"
   dependencies:
     "@cypress/request": ^2.88.10
     "@cypress/xvfb": ^1.2.4
@@ -876,7 +876,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 938cc6a20f7eeace5c8e850d234904ee1651cbb36d94666fe600cf17ce964e73d4f7d8d944aab677491702a57364e6aceeb4fe8bcbd96147ff5e2b575a956fb2
+  checksum: e13649fb4b62a3c9dff7cc571f4e01dba009d8179b05c4f885c5ceb4ed76b78a7323fec491d992da35527708b54e596bfc9edb1d702f788317889f794d8c1e76
   languageName: node
   linkType: hard
 
@@ -1096,9 +1096,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:8.26.0":
-  version: 8.26.0
-  resolution: "eslint@npm:8.26.0"
+"eslint@npm:8.28.0":
+  version: 8.28.0
+  resolution: "eslint@npm:8.28.0"
   dependencies:
     "@eslint/eslintrc": ^1.3.3
     "@humanwhocodes/config-array": ^0.11.6
@@ -1141,7 +1141,7 @@ __metadata:
     text-table: ^0.2.0
   bin:
     eslint: bin/eslint.js
-  checksum: a2aced939ea060f77d10dcfced5cfeb940f63f383fd7ab1decadea64170ab552582e1c5909db1db641d4283178c9bc569f19b0f8900e00314a5f783e4b3f759d
+  checksum: 1b793486b2ec80f0602d75fff7116f7c39a3286f523608a999eead9bec4154a06841785d2b4fb87f8292a94cf85778c1dbfaec727772a09c4d604fdb9ff0809a
   languageName: node
   linkType: hard
 
@@ -1888,33 +1888,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lilconfig@npm:2.0.5":
-  version: 2.0.5
-  resolution: "lilconfig@npm:2.0.5"
-  checksum: f7bb9e42656f06930ad04e583026f087508ae408d3526b8b54895e934eb2a966b7aafae569656f2c79a29fe6d779b3ec44ba577e80814734c8655d6f71cdf2d1
+"lilconfig@npm:2.0.6":
+  version: 2.0.6
+  resolution: "lilconfig@npm:2.0.6"
+  checksum: 40a3cd72f103b1be5975f2ac1850810b61d4053e20ab09be8d3aeddfe042187e1ba70b4651a7e70f95efa1642e7dc8b2ae395b317b7d7753b241b43cef7c0f7d
   languageName: node
   linkType: hard
 
-"lint-staged@npm:13.0.3":
-  version: 13.0.3
-  resolution: "lint-staged@npm:13.0.3"
+"lint-staged@npm:13.0.4":
+  version: 13.0.4
+  resolution: "lint-staged@npm:13.0.4"
   dependencies:
     cli-truncate: ^3.1.0
-    colorette: ^2.0.17
-    commander: ^9.3.0
+    colorette: ^2.0.19
+    commander: ^9.4.1
     debug: ^4.3.4
     execa: ^6.1.0
-    lilconfig: 2.0.5
-    listr2: ^4.0.5
+    lilconfig: 2.0.6
+    listr2: ^5.0.5
     micromatch: ^4.0.5
     normalize-path: ^3.0.0
     object-inspect: ^1.12.2
     pidtree: ^0.6.0
     string-argv: ^0.3.1
-    yaml: ^2.1.1
+    yaml: ^2.1.3
   bin:
     lint-staged: bin/lint-staged.js
-  checksum: 53d585007df06e162febab6b0836b55016d902586a267823c8a1158529d8c742dc7297e523f7023dff02250bef3eb0d6934f4ec4f9961adfc2ebbed5f54162d0
+  checksum: 4676172df5dc734a7f409ad786a72d39bd2239de8b2e5eb1d99eaa751479f60f7b4ef85c8508698855b51b125a512f395ac6a3c7d2d57de8e8221e0aaaab6f4f
   languageName: node
   linkType: hard
 
@@ -1939,16 +1939,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"listr2@npm:^4.0.5":
-  version: 4.0.5
-  resolution: "listr2@npm:4.0.5"
+"listr2@npm:^5.0.5":
+  version: 5.0.6
+  resolution: "listr2@npm:5.0.6"
   dependencies:
     cli-truncate: ^2.1.0
-    colorette: ^2.0.16
+    colorette: ^2.0.19
     log-update: ^4.0.0
     p-map: ^4.0.0
     rfdc: ^1.3.0
-    rxjs: ^7.5.5
+    rxjs: ^7.5.7
     through: ^2.3.8
     wrap-ansi: ^7.0.0
   peerDependencies:
@@ -1956,7 +1956,7 @@ __metadata:
   peerDependenciesMeta:
     enquirer:
       optional: true
-  checksum: 7af31851abe25969ef0581c6db808117e36af15b131401795182427769d9824f451ba9e8aff6ccd25b6a4f6c8796f816292caf08e5f1f9b1775e8e9c313dc6c5
+  checksum: 18975d690988aa2cce18fea9bacfc12c2607948ff9f7b7fd5b3e2b64d059b6e1961f8d06b4e1400d4c6bc18af84c7c145c2d22a1d392464fdb197c53b062e3d5
   languageName: node
   linkType: hard
 
@@ -2341,12 +2341,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:2.7.1":
-  version: 2.7.1
-  resolution: "prettier@npm:2.7.1"
+"prettier@npm:2.8.0":
+  version: 2.8.0
+  resolution: "prettier@npm:2.8.0"
   bin:
     prettier: bin-prettier.js
-  checksum: 55a4409182260866ab31284d929b3cb961e5fdb91fe0d2e099dac92eaecec890f36e524b4c19e6ceae839c99c6d7195817579cdffc8e2c80da0cb794463a748b
+  checksum: 72004ce0cc9bb097daf3e3833f62495768724392c1d5b178dd47372337616e9e50ecbb0804f236596223f7b5eb1bbe69cefc8957dca21112c5777e77ef73a564
   languageName: node
   linkType: hard
 
@@ -2530,12 +2530,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^7.5.5":
-  version: 7.5.6
-  resolution: "rxjs@npm:7.5.6"
+"rxjs@npm:^7.5.7":
+  version: 7.5.7
+  resolution: "rxjs@npm:7.5.7"
   dependencies:
     tslib: ^2.1.0
-  checksum: fc05f01364a74dac57490fb3e07ea63b422af04017fae1db641a009073f902ef69f285c5daac31359620dc8d9aee7d81e42b370ca2a8573d1feae0b04329383b
+  checksum: edabcdb73b0f7e0f5f6e05c2077aff8c52222ac939069729704357d6406438acca831c24210db320aba269e86dbe1a400f3769c89101791885121a342fb15d9c
   languageName: node
   linkType: hard
 
@@ -3023,10 +3023,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yaml@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "yaml@npm:2.1.1"
-  checksum: f48bb209918aa57cfaf78ef6448d1a1f8187f45c746f933268b7023dc59e5456004611879126c9bb5ea55b0a2b1c2b392dfde436931ece0c703a3d754562bb96
+"yaml@npm:^2.1.3":
+  version: 2.1.3
+  resolution: "yaml@npm:2.1.3"
+  checksum: 91316062324a93f9cb547469092392e7d004ff8f70c40fecb420f042a4870b2181557350da56c92f07bd44b8f7a252b0be26e6ade1f548e1f4351bdd01c9d3c7
   languageName: node
   linkType: hard
 

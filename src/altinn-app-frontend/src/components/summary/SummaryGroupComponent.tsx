@@ -91,10 +91,11 @@ function SummaryGroupComponent({
 
   const groupComponent = useAppSelector(
     (state) =>
-      state.formLayout.layouts &&
-      pageRef &&
-      componentRef &&
-      getComponentForSummaryGroup(state.formLayout.layouts[pageRef], componentRef),
+      (state.formLayout.layouts &&
+        pageRef &&
+        componentRef &&
+        getComponentForSummaryGroup(state.formLayout.layouts[pageRef], componentRef)) ||
+      undefined,
     shallowEqual,
   );
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
@@ -113,13 +114,15 @@ function SummaryGroupComponent({
     if (textResources && groupComponent) {
       const titleKey = groupComponent.textResourceBindings?.title;
       setTitle(
-        getTextFromAppOrDefault(
-          titleKey,
-          textResources,
-          {}, // TODO: Figure out if this should pass `language` instead
-          [],
-          true,
-        ),
+        (titleKey &&
+          getTextFromAppOrDefault(
+            titleKey,
+            textResources,
+            {}, // TODO: Figure out if this should pass `language` instead
+            [],
+            true,
+          )) ||
+          '',
       );
     }
   }, [textResources, groupComponent]);
@@ -145,7 +148,7 @@ function SummaryGroupComponent({
 
   const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
     getRepeatingGroup(componentRef)?.index ?? -1,
-    groupComponent.edit,
+    groupComponent?.edit,
   );
 
   React.useEffect(() => {
@@ -186,8 +189,8 @@ function SummaryGroupComponent({
         const dmBindings = component?.dataModelBindings || {};
         Object.keys(dmBindings).forEach((key) => {
           let binding = dmBindings[key].replace(
-            groupComponent.dataModelBindings.group,
-            `${groupComponent.dataModelBindings.group}[${i}]`,
+            groupComponent?.dataModelBindings?.group,
+            `${groupComponent?.dataModelBindings?.group}[${i}]`,
           );
           if (parentGroup) {
             const { dataModelBindings } = layout.find((c) => c.id === parentGroup) || {};
@@ -197,11 +200,10 @@ function SummaryGroupComponent({
         });
 
         if (component && 'mapping' in component) {
-          componentDeepCopy.mapping = setMappingForRepeatingGroupComponent(component.mapping, index);
-
           if (parentGroup) {
-            componentDeepCopy.mapping = setMappingForRepeatingGroupComponent(componentDeepCopy.mapping, i);
+            componentDeepCopy.mapping = setMappingForRepeatingGroupComponent(componentDeepCopy.mapping, index);
           }
+          componentDeepCopy.mapping = setMappingForRepeatingGroupComponent(componentDeepCopy.mapping, i);
         }
 
         const formDataForComponent = getDisplayFormDataForComponent(
@@ -250,14 +252,17 @@ function SummaryGroupComponent({
     const componentArray: JSX.Element[] = [];
     for (let i = startIndex; i <= stopIndex; i++) {
       const groupContainer: ILayoutGroup = {
-        id: `${groupComponent.id}-${i}-summary`,
+        id: `${groupComponent?.id}-${i}-summary`,
         type: 'Group',
         children: [],
         maxCount: 0,
-        textResourceBindings: {
-          title: groupComponent.textResourceBindings?.title,
-        },
+        textResourceBindings: groupComponent?.textResourceBindings?.title
+          ? {
+              title: groupComponent.textResourceBindings.title,
+            }
+          : {},
       };
+
       const childSummaryComponents: ComponentFromSummary[] = [];
       groupChildComponents.forEach((componentId: string) => {
         if (hiddenFields.has(`${componentId}-${i}`)) {
@@ -275,7 +280,7 @@ function SummaryGroupComponent({
             attachments,
             component as ILayoutComponent,
             i,
-            groupComponent.dataModelBindings.group,
+            groupComponent?.dataModelBindings?.group,
             textResources,
             options,
             repeatingGroups,
@@ -294,7 +299,7 @@ function SummaryGroupComponent({
           required: false,
           formData: formDataForComponent,
           index: i,
-          parentGroup: isGroupComponent ? groupComponent.id : undefined,
+          parentGroup: isGroupComponent ? groupComponent?.id : undefined,
           display,
         };
 

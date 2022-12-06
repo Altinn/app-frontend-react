@@ -10,7 +10,7 @@ const mui = new Common();
 
 describe('Group', () => {
   const init = () => {
-    cy.navigateToTask3();
+    cy.goto('group');
     cy.contains(mui.button, texts.next).click();
     cy.get(appFrontend.group.showGroupToContinue).should('be.visible');
   };
@@ -28,7 +28,6 @@ describe('Group', () => {
         if (component.edit && typeof component.edit.openByDefault !== 'undefined') {
           component.edit.openByDefault = openByDefault;
         }
-        return component;
       });
       init();
 
@@ -39,7 +38,7 @@ describe('Group', () => {
         .then((table) => {
           cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
           cy.get(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
-          cy.get(table).find(mui.tableElement).find(mui.buttonIcon).first().should('be.visible').click();
+          cy.get(table).find(mui.tableElement).find(appFrontend.group.edit).should('be.visible').click();
         });
       cy.get(appFrontend.group.mainGroup)
         .find(appFrontend.group.editContainer)
@@ -50,7 +49,7 @@ describe('Group', () => {
         .find(mui.tableBody)
         .then((table) => {
           cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', 'automation');
-          cy.get(table).find(mui.tableElement).find(mui.buttonIcon).first().should('be.visible').click();
+          cy.get(table).find(mui.tableElement).find(appFrontend.group.edit).should('be.visible').click();
           cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
         });
 
@@ -140,7 +139,6 @@ describe('Group', () => {
           component.triggers = undefined;
           component.required = true;
         }
-        return component;
       });
       init();
 
@@ -168,9 +166,9 @@ describe('Group', () => {
       } else {
         cy.get(appFrontend.errorReport)
           .should('not.exist');
-        cy.get(appFrontend.group.rows[0].editBtn).should('exist').and('be.visible').focus().click();
       }
 
+      cy.get(appFrontend.group.rows[0].editBtn).should('exist').and('be.visible').focus().click();
       cy.get(appFrontend.group.currentValue).should('be.visible').clear().blur();
       cy.get(appFrontend.group.saveMainGroup).focus().should('be.visible').click();
 
@@ -258,7 +256,6 @@ describe('Group', () => {
         // Sets these two components to required
         component.required = true;
       }
-      return component;
     });
     init();
 
@@ -295,17 +292,15 @@ describe('Group', () => {
     cy.get(appFrontend.group.showGroupToContinue).find('input').check();
     cy.wait('@updateInstance');
 
-    // Test whether new empty group is opened
     ['first', 'last', true, false].forEach((openByDefault) => {
       cy.interceptLayout('group', (component) => {
         if (component.edit && component.edit.openByDefault !== undefined) {
           component.edit.openByDefault = openByDefault;
         }
-        return component;
       });
 
-      cy.reload();
-      cy.wait('@getLayoutGroup');
+      cy.log('Testing whether new empty group is opened when openByDefault =', openByDefault);
+      cy.reloadAndWait();
 
       if (openByDefault === 'first') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
@@ -321,25 +316,21 @@ describe('Group', () => {
       }
     });
 
-    cy.interceptLayout('group', (component) => component);
-    cy.reload();
-    cy.wait('@getLayoutGroup');
+    cy.reloadAndWait();
 
     cy.addItemToGroup(1, 2, 'item 1');
     cy.addItemToGroup(20, 30, 'item 2');
     cy.addItemToGroup(400, 600, 'item 3');
 
-    // Test whether existing item is opened
     ['first', 'last', true, false].forEach((openByDefault) => {
       cy.interceptLayout('group', (component) => {
         if (component.edit && component.edit.openByDefault !== undefined) {
           component.edit.openByDefault = openByDefault;
         }
-        return component;
       });
 
-      cy.reload();
-      cy.wait('@getLayoutGroup');
+      cy.log('Testing whether whether existing item is opened when openByDefault =', openByDefault);
+      cy.reloadAndWait();
 
       if (openByDefault === 'first') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 4);
@@ -360,11 +351,9 @@ describe('Group', () => {
       if (component.edit && component.edit.openByDefault !== undefined) {
         component.edit.openByDefault = true;
       }
-      return component;
     });
 
-    cy.reload();
-    cy.wait('@getLayoutGroup');
+    cy.reloadAndWait();
 
     // Test that deleting an item does not cause another group to open if there are more elements in the group
     cy.get(appFrontend.group.mainGroupTableBody).children().eq(0).find(appFrontend.group.delete).should('be.visible').click();
@@ -376,7 +365,6 @@ describe('Group', () => {
       if (component.edit && typeof component.edit.openByDefault !== 'undefined') {
         component.edit.alertOnDelete = true;
       }
-      return component;
     });
     init();
 
@@ -388,7 +376,7 @@ describe('Group', () => {
       .then((table) => {
         cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
         cy.get(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
-        cy.get(table).find(mui.tableElement).find(mui.buttonIcon).first().should('be.visible').click();
+        cy.get(table).find(mui.tableElement).find(appFrontend.group.edit).should('be.visible').click();
       });
 
     // Navigate to nested group and test delete warning popoup cancel and confirm

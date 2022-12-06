@@ -9,13 +9,12 @@ const appFrontend = new AppFrontend();
 
 describe('Confirm', () => {
   it('Confirm page displays texts and attachments', () => {
-    cy.completeTask4Form();
-    cy.get(appFrontend.sendinButton).should('be.visible').click();
+    cy.goto('confirm', 'with-data');
     cy.get(appFrontend.confirm.container).should('be.visible');
     cy.get(appFrontend.confirm.body).should('contain.text', texts.confirmBody);
     cy.get(appFrontend.confirm.receiptPdf)
       .find('a')
-      .should('have.length', 4)
+      .should('have.length', 5) // This is the number of process data tasks
       .first()
       .should('contain.text', `${appFrontend.apps.frontendTest}.pdf`);
 

@@ -16,7 +16,7 @@ interface IUseGetOptionsParams {
 
 export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsParams) => {
   const relevantFormData = useAppSelector(
-    (state) => source && getRelevantFormDataForOptionSource(state.formData.formData, source),
+    (state) => (source && getRelevantFormDataForOptionSource(state.formData.formData, source)) || {},
     shallowEqual,
   );
   const instance = useAppSelector((state) => state.instanceData.instance);
@@ -57,17 +57,34 @@ export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsPara
     );
   }, [
     applicationSettings,
+    optionsId,
     relevantFormData,
     instance,
     mapping,
     optionState,
-    optionsId,
     repeatingGroups,
     source,
     relevantTextResource,
   ]);
 
   return options;
+};
+
+interface IUseGetDataListParams {
+  id?: string;
+  mapping?: IMapping;
+  source?: IOptionSource;
+}
+
+export const useGetDataList = ({ id }: IUseGetDataListParams) => {
+  const dataListState = useAppSelector((state) => state.dataListState.dataLists);
+  const [dataList, setDataList] = useState<any>(undefined);
+  useEffect(() => {
+    if (id) {
+      setDataList(dataListState[getOptionLookupKey({ id: id })]?.listItems);
+    }
+  }, [id, dataListState]);
+  return dataList;
 };
 
 export { useDisplayData } from './useDisplayData';

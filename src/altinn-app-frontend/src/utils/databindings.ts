@@ -94,7 +94,10 @@ export function replaceIndexIndicatorsWithIndexes(key: string, indexes: number[]
   }
   Would produce the following output: [[0, 0], [0, 1], [0, 2], [1, 0]]
 */
-export function getIndexCombinations(baseGroupBindings: string[], repeatingGroups: IRepeatingGroups): number[][] {
+export function getIndexCombinations(
+  baseGroupBindings: string[],
+  repeatingGroups: IRepeatingGroups | null,
+): number[][] {
   const combinations: number[][] = [];
 
   if (!baseGroupBindings?.length || !repeatingGroups) {
@@ -169,7 +172,7 @@ export function flattenObject(data: any): any {
   const flat = dot(data);
 
   for (const key of Object.keys(flat)) {
-    if (flat[key] === null) {
+    if (flat[key] === null || (Array.isArray(flat[key]) && flat[key].length === 0)) {
       delete flat[key];
     } else if (flat[key] === '' && key.indexOf('.') > 0) {
       // For backwards compatibility, delete keys inside deeper object that are empty strings. This behaviour is

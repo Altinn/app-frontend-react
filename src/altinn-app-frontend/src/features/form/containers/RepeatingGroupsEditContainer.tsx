@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { Button, ButtonVariant } from '@altinn/altinn-design-system';
-import { createTheme, Grid, IconButton, makeStyles } from '@material-ui/core';
+import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
+import { createTheme, Grid, makeStyles } from '@material-ui/core';
+import { Delete as DeleteIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { renderGenericComponent } from 'src/utils/layout';
@@ -60,27 +61,7 @@ const useStyles = makeStyles({
   },
   deleteItem: {
     paddingBottom: '0px !important',
-  },
-  deleteButton: {
-    color: theme.altinnPalette.primary.red,
-    fontWeight: 700,
-    padding: '8px 12px 6px 6px',
-    borderRadius: '0',
-    marginRight: '-12px',
-    '@media (min-width:768px)': {
-      margin: '0',
-    },
-    '&:hover': {
-      background: theme.altinnPalette.primary.red,
-      color: theme.altinnPalette.primary.white,
-    },
-    '&:focus': {
-      outlineColor: theme.altinnPalette.primary.red,
-    },
-    '& .ai': {
-      fontSize: '2em',
-      marginTop: '-3px',
-    },
+    paddingTop: '0px !important',
   },
 });
 
@@ -159,14 +140,17 @@ export function RepeatingGroupsEditContainer({
             className={classes.deleteItem}
           >
             <Grid item={true}>
-              <IconButton
-                classes={{ root: classes.deleteButton }}
+              <Button
+                variant={ButtonVariant.Quiet}
+                color={ButtonColor.Danger}
+                icon={<DeleteIcon />}
+                iconPlacement='right'
                 disabled={deleting}
                 onClick={removeClicked}
+                data-testid='delete-button'
               >
-                <i className='ai ai-trash' />
                 {getLanguageFromKey('general.delete', language)}
-              </IconButton>
+              </Button>
             </Grid>
           </Grid>
         )}
@@ -227,7 +211,8 @@ export function RepeatingGroupsEditContainer({
                 <Button
                   id={`next-button-grp-${id}`}
                   onClick={nextClicked}
-                  variant={ButtonVariant.Primary}
+                  variant={ButtonVariant.Filled}
+                  color={ButtonColor.Primary}
                 >
                   {container.textResourceBindings?.save_and_next_button
                     ? getTextResourceByKey(container.textResourceBindings.save_and_next_button, textResources)
@@ -240,7 +225,8 @@ export function RepeatingGroupsEditContainer({
                 <Button
                   id={`add-button-grp-${id}`}
                   onClick={saveClicked}
-                  variant={ButtonVariant.Secondary}
+                  variant={ButtonVariant.Outline}
+                  color={ButtonColor.Primary}
                 >
                   {container.textResourceBindings?.save_button
                     ? getTextResourceByKey(container.textResourceBindings.save_button, textResources)

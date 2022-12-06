@@ -10,7 +10,7 @@ const appFrontend = new AppFrontend();
 
 describe('Receipt', () => {
   it('Receipt page displays links and attachments', () => {
-    cy.navigateToTask5();
+    cy.goto('confirm', 'with-data');
     cy.get(appFrontend.confirm.sendIn).should('be.visible').click();
     cy.get(appFrontend.receipt.container)
       .should('be.visible')
@@ -22,7 +22,7 @@ describe('Receipt', () => {
     cy.get(appFrontend.receipt.linkToArchive).should('be.visible');
     cy.get(appFrontend.receipt.pdf)
       .find('a')
-      .should('have.length', 4)
+      .should('have.length', 5) // This is the number of process data tasks
       .first()
       .should('contain.text', `${appFrontend.apps.frontendTest}.pdf`);
 

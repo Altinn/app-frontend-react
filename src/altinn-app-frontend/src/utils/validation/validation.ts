@@ -11,17 +11,17 @@ import { Severity } from 'src/types';
 import { getCurrentDataTypeId } from 'src/utils/appMetadata';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex } from 'src/utils/databindings';
-import { getFlagBasedDate } from 'src/utils/dateHelpers';
+import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { getFieldName, getFormDataForComponent } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponents, getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
-import { resolvedNodesInLayout } from 'src/utils/layout/hierarchy';
+import { nodesInLayout, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayout, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
+import type { ILayoutCompDatePicker } from 'src/features/form/layout/index';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
-  DateFlags,
   IComponentBindingValidation,
   IComponentValidations,
   IDataModelBindings,
@@ -179,6 +179,22 @@ export const errorMessageKeys = {
     textKey: 'not',
     paramKey: 'passingSchemas',
   },
+  formatMaximum: {
+    textKey: 'formatMaximum',
+    paramKey: 'limit',
+  },
+  formatMinimum: {
+    textKey: 'formatMinimum',
+    paramKey: 'limit',
+  },
+  formatExclusiveMaximum: {
+    textKey: 'formatMaximum',
+    paramKey: 'limit',
+  },
+  formatExclusiveMinimum: {
+    textKey: 'formatMinimum',
+    paramKey: 'limit',
+  },
 };
 
 export function validateEmptyFields(
@@ -215,6 +231,7 @@ export function validateEmptyFieldsForNodes(
       node.item.type === 'FileUpload' ||
       node.item.type === 'FileUploadWithTag' ||
       node.item.required === false ||
+      node.item.required === undefined ||
       node.isHidden(hiddenFields)
     ) {
       continue;
@@ -378,21 +395,8 @@ function validateFormComponentsForNodes(
     }
 
     if (node.item.type === 'DatePicker') {
-      let componentValidations: IComponentValidations = {};
-      const date = getFormDataForComponent(formData, node.item.dataModelBindings);
-      const flagBasedMinDate = getFlagBasedDate(node.item.minDate as DateFlags) ?? node.item.minDate;
-      const flagBasedMaxDate = getFlagBasedDate(node.item.maxDate as DateFlags) ?? node.item.maxDate;
-      const datepickerValidations = validateDatepickerFormData(
-        date?.simpleBinding,
-        flagBasedMinDate,
-        flagBasedMaxDate,
-        node.item.format,
-        language,
-      );
-      componentValidations = {
-        [fieldKey]: datepickerValidations,
-      };
-      validations[node.item.id] = componentValidations;
+      const componentFormData = getFormDataForComponent(formData, node.item.dataModelBindings);
+      validations[node.item.id] = validateDatepickerFormData(componentFormData?.simpleBinding, node.item, language);
     }
   }
 
@@ -410,26 +414,22 @@ export function attachmentIsMissingTag(attachment: IAttachment): boolean {
   return attachment.tags === undefined || attachment.tags.length === 0;
 }
 
-export const DatePickerMinDateDefault = '1900-01-01T12:00:00.000Z';
-export const DatePickerMaxDateDefault = '2100-01-01T12:00:00.000Z';
-export const DatePickerFormatDefault = 'DD.MM.YYYY';
-export const DatePickerSaveFormatNoTimestamp = 'YYYY-MM-DD';
-
 /*
   Validates the datepicker form data, returns an array of error messages or empty array if no errors found
 */
 export function validateDatepickerFormData(
   formData: string | null | undefined,
-  minDate: string = DatePickerMinDateDefault,
-  maxDate: string = DatePickerMaxDateDefault,
-  format: string = DatePickerFormatDefault,
+  component: ILayoutCompDatePicker,
   language: ILanguage,
-): IComponentBindingValidation {
-  const validations: IComponentBindingValidation = { errors: [], warnings: [] };
-  const date = formData ? moment(formData) : null;
+): IComponentValidations {
+  const minDate = getDateConstraint(component.minDate, 'min');
+  const maxDate = getDateConstraint(component.maxDate, 'max');
+  const format = getDateFormat(component.format);
 
-  if (formData === null || formData === undefined) {
-    // is only set to NULL if the format is malformed. Is otherwise undefined or empty string
+  const validations: IComponentBindingValidation = { errors: [], warnings: [] };
+  const date = formData ? moment(formData, moment.ISO_8601) : null;
+
+  if (date && !date.isValid()) {
     validations.errors?.push(getParsedLanguageFromKey('date_picker.invalid_date_message', language, [format], true));
   }
 
@@ -439,7 +439,9 @@ export function validateDatepickerFormData(
     validations.errors?.push(getLanguageFromKey('date_picker.max_date_exeeded', language));
   }
 
-  return validations;
+  return {
+    simpleBinding: validations,
+  };
 }
 
 /*
@@ -485,12 +487,18 @@ export function validateComponentFormData(
 
   if (!valid) {
     validator.errors
-      ?.filter((error) => processInstancePath(error.instancePath) === dataModelField)
+      ?.filter((error) => {
+        return processInstancePath(error.instancePath) === dataModelField && !isOneOfError(error);
+      })
       .forEach((error) => {
         if (error.keyword === 'type' || error.keyword === 'format' || error.keyword === 'maximum') {
           validationResult.invalidDataTypes = true;
         }
-        let errorParams = error.params[errorMessageKeys[error.keyword].paramKey];
+
+        let errorParams = error.params[errorMessageKeys[error.keyword]?.paramKey];
+        if (!errorParams === undefined) {
+          console.warn(`WARN: Error message for ${error.keyword} not implemented`);
+        }
         if (Array.isArray(errorParams)) {
           errorParams = errorParams.join(', ');
         }
@@ -503,7 +511,7 @@ export function validateComponentFormData(
           errorMessage = getTextResourceByKey(fieldSchema.errorMessage, textResources);
         } else {
           errorMessage = getParsedLanguageFromKey(
-            `validation_errors.${errorMessageKeys[error.keyword].textKey}`,
+            `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}`,
             language,
             [errorParams],
             true,
@@ -527,6 +535,30 @@ export function validateComponentFormData(
 
   return null;
 }
+
+export function validateComponentSpecificValidations(
+  formData: string | null | undefined,
+  component: ILayoutComponent,
+  language: ILanguage,
+): IComponentValidations {
+  let customComponentValidations: IComponentValidations = {};
+  if (component.type === 'DatePicker') {
+    customComponentValidations = validateDatepickerFormData(formData, component, language);
+  }
+  return customComponentValidations;
+}
+
+/**
+ * Check if AVJ validation error is a oneOf error ("must match exactly one schema in oneOf").
+ * We don't currently support oneOf validation.
+ * These can be ignored, as there will be other, specific validation errors that actually
+ * from the specified sub-schemas that will trigger validation errors where relevant.
+ * @param error the AJV validation error object
+ * @returns a value indicating if the provided error is a "oneOf" error.
+ */
+export const isOneOfError = (error: AjvCore.ErrorObject<string, Record<string, any>, unknown>): boolean => {
+  return error.keyword === 'oneOf' || error.params?.type === 'null';
+};
 
 /**
  * Wrapper method around getSchemaPart for schemas made with our old generator tool
@@ -624,9 +656,15 @@ function validateFormDataForLayout(
       continue;
     }
 
+    if (isOneOfError(error)) {
+      continue;
+    }
     result.invalidDataTypes = error.keyword === 'type' || error.keyword === 'format' || result.invalidDataTypes;
 
-    let errorParams = error.params[errorMessageKeys[error.keyword].paramKey];
+    let errorParams = error.params[errorMessageKeys[error.keyword]?.paramKey];
+    if (!errorParams === undefined) {
+      console.warn(`WARN: Error message for ${error.keyword} not implemented`);
+    }
     if (Array.isArray(errorParams)) {
       errorParams = errorParams.join(', ');
     }
@@ -641,7 +679,7 @@ function validateFormDataForLayout(
       errorMessage = getTextResourceByKey(fieldSchema.errorMessage, textResources);
     } else {
       errorMessage = getParsedLanguageFromKey(
-        `validation_errors.${errorMessageKeys[error.keyword].textKey}`,
+        `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}`,
         language,
         [errorParams],
         true,
@@ -737,31 +775,6 @@ export function mapToComponentValidationsGivenNode(
 }
 
 /*
- * Gets the total number of validation errors
- */
-export function getErrorCount(validations: IValidations) {
-  let count = 0;
-  if (!validations) {
-    return count;
-  }
-  Object.keys(validations).forEach((layoutId: string) => {
-    Object.keys(validations[layoutId])?.forEach((componentId: string) => {
-      const componentValidations: IComponentValidations = validations[layoutId]?.[componentId];
-      if (componentValidations === null) {
-        return;
-      }
-      Object.keys(componentValidations).forEach((bindingKey: string) => {
-        const componentErrors = componentValidations[bindingKey]?.errors;
-        if (componentErrors) {
-          count += componentErrors.length;
-        }
-      });
-    });
-  });
-  return count;
-}
-
-/*
  * Checks if form can be saved. If it contains anything other than valid error messages it returns false
  */
 export function canFormBeSaved(validationResult: IValidationResult | null, apiMode?: string): boolean {
@@ -851,6 +864,33 @@ export function findComponentFromValidationIssue(
     component,
     componentValidations,
   };
+}
+
+export function filterValidationsByRow(
+  validations: IValidations,
+  formLayout: ILayout | null | undefined,
+  repeatingGroups: IRepeatingGroups | null | undefined,
+  groupId: string,
+  rowIndex?: number,
+): IValidations {
+  if (!formLayout || !repeatingGroups || typeof rowIndex === 'undefined') {
+    return validations;
+  }
+
+  const nodes = nodesInLayout(formLayout, repeatingGroups);
+  const groupNode = nodes.findById(groupId);
+  const childIds = new Set(groupNode?.flat(false, rowIndex).map((child) => child.item.id));
+  const filteredValidations = JSON.parse(JSON.stringify(validations)) as IValidations;
+
+  for (const layout of Object.keys(filteredValidations)) {
+    for (const componentId of Object.keys(filteredValidations[layout])) {
+      if (!childIds?.has(componentId)) {
+        delete filteredValidations[layout][componentId];
+      }
+    }
+  }
+
+  return filteredValidations;
 }
 
 /* Function to map the new data element validations to our internal redux structure */
@@ -1254,20 +1294,17 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
   const formData = state.formData.formData;
   const jsonFormData = convertDataBindingToModel(formData);
   const currentView = state.formLayout.uiConfig.currentView;
-  const currentLayout = state.formLayout.layouts && state.formLayout.layouts[currentView];
-
-  if (!currentLayout) {
-    return {};
-  }
+  const layouts = state.formLayout.layouts;
 
   const instanceContext = buildInstanceContext(state.instanceData?.instance);
-  const resolvedLayout = resolvedNodesInLayout(currentLayout, repeatingGroups, {
+  const resolvedLayouts = resolvedNodesInLayouts(layouts, currentView, repeatingGroups, {
     formData,
     instanceContext,
     applicationSettings: state.applicationSettings?.applicationSettings,
+    hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
   });
 
-  const node = resolvedLayout.findById(groupId);
+  const node = resolvedLayouts.findById(groupId);
   if (!node || !state.applicationMetadata.applicationMetadata || !language) {
     return {};
   }

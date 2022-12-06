@@ -6,12 +6,13 @@ import { getMockValidationState } from '__mocks__/validationStateMock';
 import Ajv from 'ajv';
 import Ajv2020 from 'ajv/dist/2020';
 import dot from 'dot-object';
+import type { ErrorObject } from 'ajv';
 
 import { Severity } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroups } from 'src/utils/formLayout';
-import { LayoutRootNodeCollection, nodesInLayout } from 'src/utils/layout/hierarchy';
+import { nodesInLayouts } from 'src/utils/layout/hierarchy';
 import * as validation from 'src/utils/validation/validation';
-import type { ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
+import type { ILayoutCompDatePicker, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -22,16 +23,16 @@ import type {
   IValidationIssue,
   IValidations,
 } from 'src/types';
-import type { LayoutRootNode } from 'src/utils/layout/hierarchy';
+import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
 
 import { getParsedLanguageFromKey, getTextResourceByKey } from 'altinn-shared/index';
 
-function toCollection(mockLayout: ILayouts, repeatingGroups: IRepeatingGroups = {}) {
-  const asNodes = {};
-  for (const key of Object.keys(mockLayout)) {
-    asNodes[key] = nodesInLayout(mockLayout[key] || [], repeatingGroups) as unknown as LayoutRootNode<'resolved'>;
-  }
-  return new LayoutRootNodeCollection<'resolved'>(Object.keys(mockLayout)[0] as keyof typeof asNodes, asNodes);
+function toCollection(mockLayouts: ILayouts, repeatingGroups: IRepeatingGroups = {}) {
+  return nodesInLayouts(
+    mockLayouts,
+    Object.keys(mockLayouts)[0],
+    repeatingGroups,
+  ) as unknown as LayoutRootNodeCollection<'resolved'>;
 }
 
 function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {
@@ -49,6 +50,15 @@ function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {
 
   return toCollection(mockLayout, repeatingGroups);
 }
+
+// Mock dateformat
+jest.mock('src/utils/dateHelpers', () => {
+  return {
+    __esModules: true,
+    ...jest.requireActual('src/utils/dateHelpers'),
+    getDateFormat: jest.fn(() => 'DD.MM.YYYY'),
+  };
+});
 
 describe('utils > validation', () => {
   let mockLayout: any;
@@ -88,6 +98,11 @@ describe('utils > validation', () => {
           minLength: 'length must be bigger than {0}',
           min: 'must be bigger than {0}',
           pattern: 'Feil format eller verdi',
+        },
+        date_picker: {
+          invalid_date_message: 'Invalid date format. Use the format {0}.',
+          min_date_exeeded: 'Date should not be before minimal date',
+          max_date_exeeded: 'Date should not be after maximal date',
         },
       },
     };
@@ -368,11 +383,23 @@ describe('utils > validation', () => {
               minimum: 0,
             },
             dataModelField_2: {
-              type: 'string',
-              minLength: 10,
+              oneOf: [
+                {
+                  type: 'string',
+                  minLength: 10,
+                },
+                {
+                  type: 'null',
+                },
+              ],
             },
             dataModelField_3: {
               type: 'string',
+            },
+            dataModelField_format: {
+              type: 'string',
+              format: 'date',
+              formatMaximum: '2022-05-05',
             },
             dataModelField_custom: {
               type: 'string',
@@ -700,13 +727,6 @@ describe('utils > validation', () => {
     });
   });
 
-  describe('getErrorCount', () => {
-    it('should count total number of errors correctly', () => {
-      const result = validation.getErrorCount(mockFormValidationResult.validations);
-      expect(result).toEqual(4);
-    });
-  });
-
   describe('canFormBeSaved', () => {
     it('should validate correctly', () => {
       const apiModeComplete = 'Complete';
@@ -953,7 +973,7 @@ describe('utils > validation', () => {
 
     it('should add error to validations if supplied field is required', () => {
       const collection = toCollection(mockLayout, repeatingGroups);
-      const component = collection.findComponentById('componentId_3');
+      const component = collection.findById('componentId_3');
       if (!component) {
         throw new Error('Node not found');
       }
@@ -980,7 +1000,7 @@ describe('utils > validation', () => {
 
     it('should find all errors in an AddressComponent', () => {
       const collection = toCollection(mockLayout, repeatingGroups);
-      const component = collection.findComponentById('componentId_6');
+      const component = collection.findById('componentId_6');
       if (!component) {
         throw new Error('Node not found');
       }
@@ -1377,6 +1397,109 @@ describe('utils > validation', () => {
         [],
       );
       expect(mockResult).toEqual({ invalidDataTypes: false, validations: {} });
+    });
+
+    it('should handle oneOf/null structure when data is invalid', () => {
+      const mockValidator = validation.createValidator(mockJsonSchema);
+      const useFormData = {
+        dataModelField_1: 5,
+        dataModelField_2: 'Hello',
+        dataModelField_3: 'Test',
+      };
+      const mockResult = validation.validateFormData(
+        useFormData,
+        toCollectionFromData(mockLayout, useFormData),
+        Object.keys(mockLayoutState.layouts),
+        mockValidator,
+        mockLanguage.language,
+        [],
+      );
+      const mockFormValidationResult = {
+        validations: {
+          FormLayout: {
+            componentId_2: {
+              customBinding: {
+                errors: [getParsedLanguageFromKey('validation_errors.minLength', mockLanguage.language, [10], true)],
+              },
+            },
+          },
+        },
+        invalidDataTypes: false,
+      };
+      expect(mockResult).toEqual(mockFormValidationResult);
+    });
+
+    it('should handle oneOf/null structure when data is invalid', () => {
+      const mockValidator = validation.createValidator(mockJsonSchema);
+      const { validator: actualValidator, rootElementPath } = validation.createValidator(mockJsonSchema);
+      const useFormData = {
+        dataModelField_1: 5,
+        dataModelField_2: 'Hello',
+        dataModelField_3: 'Test',
+      };
+
+      const mockResult = validation.validateFormData(
+        useFormData,
+        toCollectionFromData(mockLayout, useFormData),
+        Object.keys(mockLayoutState.layouts),
+        mockValidator,
+        mockLanguage.language,
+        [],
+      );
+      const mockFormValidationResult = {
+        validations: {
+          FormLayout: {
+            componentId_2: {
+              customBinding: {
+                errors: [getParsedLanguageFromKey('validation_errors.minLength', mockLanguage.language, [10], true)],
+              },
+            },
+          },
+        },
+        invalidDataTypes: false,
+      };
+      expect(mockResult).toEqual(mockFormValidationResult);
+
+      // Check that actual validation result contains errors that were ignored
+      const valid = actualValidator.validate(`schema${rootElementPath}`, useFormData);
+      expect(valid).toBeFalsy();
+      expect(actualValidator.errors).toHaveLength(3);
+    });
+  });
+
+  describe('isOneOfError', () => {
+    it('should return fasle if provided error does not have keyword `oneOf`', () => {
+      const error: ErrorObject<string, Record<string, any>, unknown> = {
+        keyword: 'test',
+        instancePath: '',
+        schemaPath: '',
+        params: {},
+      };
+      const result = validation.isOneOfError(error);
+      expect(result).toBeFalsy();
+    });
+    it('should return true if provided error has keyword `oneOf`', () => {
+      const error: ErrorObject<string, Record<string, any>, unknown> = {
+        keyword: 'oneOf',
+        instancePath: '',
+        schemaPath: '',
+        params: {},
+      };
+      const result = validation.isOneOfError(error);
+      expect(result).toBeTruthy();
+    });
+
+    it('should return true if provided error has param "type: null"', () => {
+      const error: ErrorObject<string, Record<string, any>, unknown> = {
+        keyword: 'test',
+        instancePath: '',
+        schemaPath: '',
+        params: {
+          type: 'null',
+        },
+      };
+      const result = validation.isOneOfError(error);
+      expect(result).toBeTruthy();
     });
   });
 
@@ -2590,6 +2713,136 @@ describe('utils > validation', () => {
       const deep = 'Dette er feil:\nFørste linje\nDu må fylle ut ';
       expect(validation.missingFieldsInLayoutValidations(validations(shallow), mockLanguage.language)).toBeTruthy();
       expect(validation.missingFieldsInLayoutValidations(validations(deep), mockLanguage.language)).toBeTruthy();
+    });
+  });
+  describe('validateDatepickerFormData', () => {
+    it('should pass validation if date is valid and within min and max constraints (timestamp = true)', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2020-06-01T12:00:00.000+01:00',
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
+        mockLanguage.language,
+      );
+
+      expect(validations.simpleBinding).toEqual({
+        errors: [],
+        warnings: [],
+      });
+    });
+    it('should pass validation if date is valid and within min and max constraints (timestamp = false)', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2020-06-01',
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
+        mockLanguage.language,
+      );
+
+      expect(validations.simpleBinding).toEqual({
+        errors: [],
+        warnings: [],
+      });
+    });
+    it('should pass validation if date is empty', () => {
+      const validations = validation.validateDatepickerFormData(
+        '',
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
+        mockLanguage.language,
+      );
+
+      expect(validations.simpleBinding).toEqual({
+        errors: [],
+        warnings: [],
+      });
+    });
+    it('should correctly detect a date before minDate', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2019-12-31',
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
+        mockLanguage.language,
+      );
+
+      expect(validations.simpleBinding).toEqual({
+        errors: ['Date should not be before minimal date'],
+        warnings: [],
+      });
+    });
+    it('should correctly detect a date after maxDate', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2021-01-01',
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-31T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
+        mockLanguage.language,
+      );
+
+      expect(validations.simpleBinding).toEqual({
+        errors: ['Date should not be after maximal date'],
+        warnings: [],
+      });
+    });
+    it('should correctly detect an invalid (incomplete) date', () => {
+      const validations = validation.validateDatepickerFormData(
+        '01.06.____',
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
+        mockLanguage.language,
+      );
+
+      expect(validations.simpleBinding).toEqual({
+        errors: [`Invalid date format. Use the format DD.MM.YYYY.`],
+        warnings: [],
+      });
+    });
+    it('should correctly detect an invalid (complete) date', () => {
+      const validations = validation.validateDatepickerFormData(
+        '45.45.4545',
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
+        mockLanguage.language,
+      );
+
+      expect(validations.simpleBinding).toEqual({
+        errors: [`Invalid date format. Use the format DD.MM.YYYY.`],
+        warnings: [],
+      });
+    });
+    it('should correctly detect an invalid (malformed) date', () => {
+      const validations = validation.validateDatepickerFormData(
+        '2020-45-45',
+        {
+          minDate: '2020-01-01T12:00:00.000+01:00',
+          maxDate: '2020-12-01T12:00:00.000+01:00',
+          format: 'DD.MM.YYYY',
+        } as ILayoutCompDatePicker,
+        mockLanguage.language,
+      );
+
+      expect(validations.simpleBinding).toEqual({
+        errors: [`Invalid date format. Use the format DD.MM.YYYY.`],
+        warnings: [],
+      });
     });
   });
 });
