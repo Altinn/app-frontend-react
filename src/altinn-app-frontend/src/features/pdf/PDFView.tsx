@@ -8,6 +8,7 @@ import { GenericComponent } from 'src/components/GenericComponent';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
 import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
 import css from 'src/features/pdf/PDFView.module.css';
+import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { getDisplayFormDataForComponent } from 'src/utils/formComponentUtils';
 import { topLevelComponents } from 'src/utils/formLayout';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
@@ -134,6 +135,7 @@ const PDFView = ({ appName }: PDFViewProps) => {
             }
           })}
       </Grid>
+      <ReadyForPrint />
     </div>
   );
 };
