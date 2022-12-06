@@ -126,11 +126,7 @@ export const ListComponent = ({
     return chosenRowData;
   };
   const rowAsValueString = (datalist) => {
-    const chosenRowData: rowValue = {};
-    for (const key in dataModelBindings) {
-      chosenRowData[key] = datalist[key];
-    }
-    return JSON.stringify(chosenRowData);
+    return JSON.stringify(rowAsValue(datalist));
   };
 
   const createLabelRadioButton = (datalist) => {
@@ -163,8 +159,9 @@ export const ListComponent = ({
               <TableCell radiobutton={true}>
                 <RadioButton
                   name={datalist}
-                  // eslint-disable-next-line @typescript-eslint/no-empty-function
-                  onChange={() => {}}
+                  onChange={() => {
+                    // Intentionally empty to prevent double-selection
+                  }}
                   value={rowAsValueString(datalist)}
                   checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
                   label={createLabelRadioButton(datalist)}
