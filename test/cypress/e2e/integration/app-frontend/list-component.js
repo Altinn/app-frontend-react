@@ -1,12 +1,6 @@
-import AppFrontend from '../../pageobjects/app-frontend';
-import Common from '../../pageobjects/common';
 import { Datalist } from '../../pageobjects/datalist';
 
-
-const appFrontend = new AppFrontend();
-const mui = new Common();
 const dataListPage = new Datalist();
-
 
 describe('List component', () => {
   it('Dynamic list is loaded correctly', () => {
@@ -25,7 +19,7 @@ describe('List component', () => {
       cy.get('td').eq(3).contains('Personlig trener');
     });
   });
-  
+
   it('It is possible to select a row', () => {
     cy.goto('datalist');
     cy.get(dataListPage.tableBody).first().should('be.visible');
@@ -39,7 +33,7 @@ describe('List component', () => {
     cy.get(dataListPage.listComponent).get(dataListPage.selectComponent).select('10').should('have.value', 10);
     cy.get(dataListPage.listComponent).get(dataListPage.selectComponent).select('10').get(dataListPage.tableBody).find('tr').its('length').should('eq', 10);
   });
-  
+
   it('When navigation between pages the expected data is shown in the first table row', () => {
     cy.goto('datalist');
     cy.get(dataListPage.navigateNextButton).should('not.be.disabled');
