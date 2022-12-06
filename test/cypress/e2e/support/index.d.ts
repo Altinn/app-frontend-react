@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-export type FrontendTestTask = 'message' | 'changeName' | 'group' | 'likert' | 'confirm';
+export type FrontendTestTask = 'message' | 'changename' | 'group' | 'likert' | 'datalist' | 'confirm';
 export type GotoMode = 'fast' | 'with-data';
 
 declare namespace Cypress {
@@ -76,13 +76,18 @@ declare namespace Cypress {
     getReduxState(selector?: (state: any) => any): any;
 
     /**
+     * Dispatch a redux action directly
+     */
+    reduxDispatch(action: { type: string; payload?: Record<string, any> }): any;
+
+    /**
      * Allows you to intercept the fetched layout and make changes to it. This makes
      * it possible to add small adjustments to the layout not originally intended in
      * the app you're testing, such as marking some components as required, etc.
      * Must be called in the beginning of your test.
      */
     interceptLayout(
-      layoutName: string,
+      layoutName: FrontendTestTask | string,
       mutator: (component: any) => void,
       wholeLayoutMutator?: (layoutSet: any) => void,
     ): Chainable<null>;
