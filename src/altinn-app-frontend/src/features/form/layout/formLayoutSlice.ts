@@ -154,6 +154,11 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
       takeLatest: updateCurrentViewSaga,
     }),
     updateCurrentViewFulfilled: mkAction<LayoutTypes.IUpdateCurrentViewFulfilled>({
+      takeEvery: (action) => {
+        if (!action.payload.focusComponentId) {
+          window.scrollTo({ top: 0 });
+        }
+      },
       reducer: (state, action) => {
         state.uiConfig.currentView = action.payload.newView;
         state.uiConfig.returnToView = action.payload.returnToView;
