@@ -388,3 +388,6 @@ src/Altinn.Apps/AppTemplates/AspNet/App/Properties/launchSettings.json
 !/.yarn/releases
 !/.yarn/sdks
 !/.yarn/versions
+
+# Cypress environment settings
+cypress.env.json

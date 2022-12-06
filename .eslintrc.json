@@ -14,7 +14,8 @@
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:prettier/recommended",
-    "plugin:sonarjs/recommended"
+    "plugin:sonarjs/recommended",
+    "plugin:cypress/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -28,7 +29,8 @@
     "import",
     "sonarjs",
     "no-relative-import-paths",
-    "simple-import-sort"
+    "simple-import-sort",
+    "cypress"
   ],
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
@@ -39,7 +41,16 @@
       "version": "detect"
     }
   },
-  "ignorePatterns": ["node_modules", "coverage", "**/*.snap"],
+  "ignorePatterns": [
+    "node_modules",
+    "coverage",
+    "**/*.snap",
+    "test/cypress/e2e/fixtures/*.json",
+    "test/cypress/e2e/fixtures/*.png",
+    "test/cypress/e2e/fixtures/*.pdf",
+    "test/cypress/e2e/support/*.ts",
+    "test/cypress/e2e/config"
+  ],
   "rules": {
     "no-console": [
       "warn",

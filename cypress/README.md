@@ -20,7 +20,7 @@ If you are running locally you need a copy of [altinn-studio](https://github.com
 1. For running the test against remote test environments like AT, TT02, test user has to be created. You won't need
    these if you intend to only run the tests against your local setup.
 
-Create a new file name `cypress.env.json` under `test\cypress` with a username and password:
+Create a new file name `cypress.env.json` in the root folder with a username and password:
 
 ```json
 {
@@ -36,13 +36,13 @@ Be sure to supply credentials to `cypress.env.json` as described above.
 1. Start your local development server for `app-frontend-react`:
 
 ```cmd
-    yarn run start:frontend
+    yarn start
 ```
 
 2. Run the tests against a remote environment:
 
 ```cmd
-    yarn run test:all -e environment=at21
+    yarn run cy:test:all -e environment=at21
 ```
 
 Other remote environments could also be used (see `e2e/config/*.json`).
@@ -64,25 +64,25 @@ Other remote environments could also be used (see `e2e/config/*.json`).
    When the output of this command seems to have stopped, you can continue to the next step.
 
 ```cmd
-    yarn run before:appfrontend
+    yarn run cy:before:appfrontend
 ```
 
 4. Start the tests for a given app from a new terminal:
 
 ```cmd
-    yarn run test:frontend -e environment=local
+    yarn run cy:test:frontend -e environment=local
 ```
 
 or
 
 ```cmd
-    yarn run test:stateless -e environment=local
+    yarn run cy:test:stateless -e environment=local
 ```
 
 or
 
 ```cmd
-    yarn run test:stateless-anonymous -e environment=local
+    yarn run cy:test:stateless-anonymous -e environment=local
 ```
 
 ### Running a single test
@@ -91,11 +91,4 @@ To run a single test case open cypress runner using
 
 ```cmd
     yarn run cy:open -e environment=<environment>
-```
-
-### Format files with prettier
-
-```cmd
-    yarn run prettier:check # For checking the files deviating standards
-    yarn run prettier:format # format and save the files based on config
 ```
