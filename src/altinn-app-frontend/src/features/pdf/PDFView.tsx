@@ -44,6 +44,10 @@ const PDFView = ({ appName }: PDFViewProps) => {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const attachments = useAppSelector((state) => state.attachments.attachments);
 
+  if (!layouts) {
+    return null;
+  }
+
   const layoutAndComponents: [string, ILayoutComponentOrGroup[]][] = Object.entries(layouts as ILayouts).map(
     ([pageRef, layout]: [string, ILayoutComponentOrGroup[]]) => [
       pageRef,
