@@ -493,7 +493,7 @@ export function* findAndMoveToNextVisibleLayout(): SagaIterator {
 
   if (nextVisiblePage && nextVisiblePage !== current) {
     yield put(
-      FormLayoutActions.updateCurrentView({
+      FormLayoutActions.updateCurrentViewFulfilled({
         newView: nextVisiblePage,
       }),
     );
