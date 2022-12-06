@@ -108,7 +108,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       onKeyUp={onKeypressAdd}
       variant={ButtonVariant.Outline}
       size={ButtonSize.Medium}
-      icon={<AddIcon />}
+      icon={<AddIcon aria-hidden='true' />}
       iconPlacement='left'
       fullWidth
     >
