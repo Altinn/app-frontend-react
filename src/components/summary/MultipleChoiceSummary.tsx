@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Grid, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 
 import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
+import type { SummaryDisplayProperties } from 'src/features/form/layout';
 
 export interface IMultipleChoiceSummaryProps {
   formData: any;
@@ -11,6 +12,7 @@ export interface IMultipleChoiceSummaryProps {
   changeText: any;
   onChangeClick: () => void;
   readOnlyComponent?: boolean;
+  display?: SummaryDisplayProperties;
 }
 
 const useStyles = makeStyles({
@@ -41,6 +43,7 @@ export default function MultipleChoiceSummary({
   changeText,
   onChangeClick,
   readOnlyComponent,
+  display,
 }: IMultipleChoiceSummaryProps) {
   const classes = useStyles();
 
@@ -52,6 +55,7 @@ export default function MultipleChoiceSummary({
         label={label}
         hasValidationMessages={hasValidationMessages}
         readOnlyComponent={readOnlyComponent}
+        display={display}
       />
       <Grid
         item

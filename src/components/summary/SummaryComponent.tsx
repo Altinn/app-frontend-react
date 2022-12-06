@@ -185,7 +185,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
           groupProps={groupProps}
           display={display}
         />
-        {hasValidationMessages && (
+        {hasValidationMessages && !display?.hideValidationMessages && (
           <Grid
             container={true}
             style={{ paddingTop: '12px' }}
