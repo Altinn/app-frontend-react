@@ -2,8 +2,8 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 cd "$(dirname -- "$0")"
-cd ../src
+cd ../
 npx lint-staged
 
-cd ../test/cypress
+cd test/cypress
 npx lint-staged

@@ -123,7 +123,7 @@
   "packageManager": "yarn@3.3.0",
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "../.husky/pre-commit-check-for-skipped-tests",
+      ".husky/pre-commit-check-for-skipped-tests",
       "eslint --cache --fix"
     ],
     "*.{css,md,json}": "prettier --write"
