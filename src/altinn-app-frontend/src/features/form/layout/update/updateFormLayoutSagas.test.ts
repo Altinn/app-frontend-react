@@ -326,7 +326,7 @@ describe('updateLayoutSagas', () => {
 
       if (expected) {
         ret.put(
-          FormLayoutActions.updateCurrentView({
+          FormLayoutActions.updateCurrentViewFulfilled({
             newView: expected,
           }),
         );
