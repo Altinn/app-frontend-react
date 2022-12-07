@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@altinn/altinn-design-system';
-import { createTheme, Grid, makeStyles } from '@material-ui/core';
+import { createTheme, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
@@ -190,7 +190,8 @@ const useStyles = makeStyles({
   },
   buttonInCellWrapper: {
     display: 'inline-flex',
-    justifyContent: 'right',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
     width: '100%',
   },
   tableRowError: {
@@ -281,6 +282,8 @@ export function RepeatingGroupTable({
   filteredIndexes,
 }: IRepeatingGroupTableProps): JSX.Element {
   const classes = useStyles();
+  const mobileView = useMediaQuery('(max-width:992px)');
+  const mobileViewSmall = useMediaQuery('(max-width:768px)');
 
   const edit = useExpressions(container.edit, {
     forComponentId: id,
@@ -418,7 +421,7 @@ export function RepeatingGroupTable({
         id={`group-${id}-table`}
         className={cn({ [classes.editingBorder]: isNested })}
       >
-        {showTableHeader && (
+        {showTableHeader && !mobileView && (
           <TableHeader id={`group-${id}-table-header`}>
             <TableRow>
               {!isNested && <TableCell className={classes.tablePadding} />}
@@ -450,9 +453,12 @@ export function RepeatingGroupTable({
                   return childElementHasErrors(component, index);
                 },
               );
+
+              const isEditingRow = index === editIndex;
+
               const editButtonText = rowHasErrors
                 ? getLanguageFromKey('general.edit_alt_error', language)
-                : getEditButtonText(language, editIndex === index, textResources, container.textResourceBindings);
+                : getEditButtonText(language, isEditingRow, textResources, container.textResourceBindings);
 
               const deleteButtonText = getLanguageFromKey('general.delete', language);
 
@@ -462,8 +468,6 @@ export function RepeatingGroupTable({
               if (filteredIndexes && !filteredIndexes.includes(index)) {
                 return null;
               }
-
-              const isEditingRow = index === editIndex;
 
               return (
                 <React.Fragment key={index}>
@@ -475,44 +479,114 @@ export function RepeatingGroupTable({
                     })}
                   >
                     {!isNested && <TableCell className={classes.tablePadding} />}
-                    {tableComponents.map((component: ILayoutComponent) => (
-                      <TableCell
-                        key={`${component.id}-${index}`}
-                        style={{ textAlign: getTextAlignment(component) }}
-                      >
-                        <span>{index !== editIndex ? getFormDataForComponent(component, index) : null}</span>
-                      </TableCell>
-                    ))}
-                    <TableCell
-                      key={`edit-${index}`}
-                      className={classes.buttonCell}
-                    >
-                      <div className={classes.buttonInCellWrapper}>
-                        <Button
-                          variant={ButtonVariant.Quiet}
-                          color={ButtonColor.Secondary}
-                          icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
-                          iconPlacement='right'
-                          onClick={() => handleEditClick(index)}
-                          aria-label={`${editButtonText}-${firstCellData}`}
-                          data-testid='edit-button'
-                          className={classes.tableButton}
+                    {!mobileView ? (
+                      tableComponents.map((component: ILayoutComponent) => (
+                        <TableCell
+                          key={`${component.id}-${index}`}
+                          style={{ textAlign: getTextAlignment(component) }}
                         >
-                          {editButtonText}
-                        </Button>
-                      </div>
-                    </TableCell>
-                    {!hideDeleteButton && (
-                      <TableCell
-                        key={`delete-${index}`}
-                        className={cn(
-                          {
-                            [classes.popoverCurrentCell]: index == popoverPanelIndex,
-                          },
-                          classes.buttonCell,
+                          <span>{!isEditingRow ? getFormDataForComponent(component, index) : null}</span>
+                        </TableCell>
+                      ))
+                    ) : (
+                      <TableCell>
+                        {tableComponents.map(
+                          (component: ILayoutComponent, i, { length }) =>
+                            !isEditingRow && (
+                              <React.Fragment key={`${component.id}-${index}`}>
+                                <b>{getTextResource(getTableTitle(component), textResources)}:</b>
+                                <br />
+                                <span>{getFormDataForComponent(component, index)}</span>
+                                <br />
+                                {i < length - 1 && <br />}
+                              </React.Fragment>
+                            ),
                         )}
+                      </TableCell>
+                    )}
+                    {!mobileView ? (
+                      <>
+                        <TableCell
+                          key={`edit-${index}`}
+                          className={classes.buttonCell}
+                        >
+                          <div className={classes.buttonInCellWrapper}>
+                            <Button
+                              variant={ButtonVariant.Quiet}
+                              color={ButtonColor.Secondary}
+                              icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
+                              iconPlacement='right'
+                              onClick={() => handleEditClick(index)}
+                              aria-label={`${editButtonText}-${firstCellData}`}
+                              data-testid='edit-button'
+                              className={classes.tableButton}
+                            >
+                              {editButtonText}
+                            </Button>
+                          </div>
+                        </TableCell>
+                        {!hideDeleteButton && (
+                          <TableCell
+                            key={`delete-${index}`}
+                            className={cn(
+                              {
+                                [classes.popoverCurrentCell]: index == popoverPanelIndex,
+                              },
+                              classes.buttonCell,
+                            )}
+                          >
+                            <div className={classes.buttonInCellWrapper}>
+                              <DeleteWarningPopover
+                                trigger={
+                                  <Button
+                                    variant={ButtonVariant.Quiet}
+                                    color={ButtonColor.Danger}
+                                    icon={<DeleteIcon aria-hidden='true' />}
+                                    iconPlacement='right'
+                                    disabled={deleting}
+                                    onClick={() => handleDeleteClick(index)}
+                                    aria-label={`${deleteButtonText}-${firstCellData}`}
+                                    data-testid='delete-button'
+                                    className={classes.tableButton}
+                                  >
+                                    {deleteButtonText}
+                                  </Button>
+                                }
+                                side='left'
+                                language={language}
+                                deleteButtonText={getLanguageFromKey(
+                                  'group.row_popover_delete_button_confirm',
+                                  language,
+                                )}
+                                messageText={getLanguageFromKey('group.row_popover_delete_message', language)}
+                                open={popoverPanelIndex == index && popoverOpen}
+                                setPopoverOpen={setPopoverOpen}
+                                onCancelClick={() => onOpenChange(index)}
+                                onPopoverDeleteClick={handlePopoverDeleteClick(index)}
+                              />
+                            </div>
+                          </TableCell>
+                        )}
+                      </>
+                    ) : (
+                      <TableCell
+                        className={classes.buttonCell}
+                        style={{ verticalAlign: 'top' }}
                       >
                         <div className={classes.buttonInCellWrapper}>
+                          <Button
+                            variant={ButtonVariant.Quiet}
+                            color={ButtonColor.Secondary}
+                            icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
+                            iconPlacement='right'
+                            onClick={() => handleEditClick(index)}
+                            aria-label={`${editButtonText}-${firstCellData}`}
+                            data-testid='edit-button'
+                            className={classes.tableButton}
+                          >
+                            {(isEditingRow || !mobileViewSmall) && editButtonText}
+                          </Button>
+                          <div style={{ height: 8 }} />
                           <DeleteWarningPopover
                             trigger={
                               <Button
@@ -526,7 +600,7 @@ export function RepeatingGroupTable({
                                 data-testid='delete-button'
                                 className={classes.tableButton}
                               >
-                                {deleteButtonText}
+                                {(isEditingRow || !mobileViewSmall) && deleteButtonText}
                               </Button>
                             }
                             side='left'
