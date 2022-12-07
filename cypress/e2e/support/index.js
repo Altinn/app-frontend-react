@@ -25,10 +25,7 @@ afterEach(function () {
     }
 
     const title = this.currentTest.title.replace(/\s+/, '-').replace(/[^a-zA-Z\-0-9_]/, '');
-    const specBaseName = Cypress.spec.relative
-      .split(/[\\\/]/)
-      .pop()
-      .split('.')[0];
+    const specBaseName = Cypress.spec.relative.split(/[\\/]/).pop().split('.')[0];
     const attempt = `failed${failedCaseTable[testName]}`;
     const fileName = `redux-${specBaseName}-${title}-${attempt}.json`;
 
@@ -40,7 +37,7 @@ afterEach(function () {
           payload: JSON.stringify(win.reduxActionLog),
           preloadedState: JSON.stringify(win.reduxStore.getState()),
         };
-        cy.writeFile(`redux-history/${fileName}`, JSON.stringify(history, null, 2));
+        cy.writeFile(`cypress/redux-history/${fileName}`, JSON.stringify(history, null, 2));
       }
     });
   }

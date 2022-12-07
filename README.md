@@ -5,6 +5,7 @@ React SPA used by applications developed in [altinn-studio](https://github.com/A
 ## Prerequisites
 
 ### Docker
+
 If you can't/won't install node on your computer, you can also run frontend in docker using the command.
 
 ```bash
@@ -13,6 +14,7 @@ cd app-frontend-react
 # git checkout pr-branch
 docker compose up
 ```
+
 This is really slow to start and rebuild, but sometimes better than getting someone to install node if you just want to test if a new branch fixes an issue.
 
 ### Node and Corepack
@@ -46,7 +48,6 @@ The development server can be started by following these steps:
 You need an Altinn app to effectively make changes to the app-frontend codebase.
 
 Localtest now includes a way to avoid editing your app to use different frontends [see docs](https://docs.altinn.studio/app/testing/local/debug/#using-other-frontend-versions)
-
 
 If you want to test in `tt02` or other places, you need to make some changes to `views/Home/Index.cshtml` in the app repo you are using:
 
@@ -102,7 +103,7 @@ Configure your IDE to run `eslint --fix` on save (prettier will also reformat yo
 
 ### End to end tests
 
-End to end tests are using Cypress, see [test readme for how to run these](./test/cypress/README.md).
+End to end tests are using Cypress, see [test readme for how to run these](./cypress/README.md).
 
 ### Unit tests and lint rules
 

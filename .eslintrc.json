@@ -24,14 +24,7 @@
     },
     "sourceType": "module"
   },
-  "plugins": [
-    "@typescript-eslint",
-    "import",
-    "sonarjs",
-    "no-relative-import-paths",
-    "simple-import-sort",
-    "cypress"
-  ],
+  "plugins": ["@typescript-eslint", "import", "sonarjs", "no-relative-import-paths", "simple-import-sort", "cypress"],
   "settings": {
     "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
     "import/parsers": {
@@ -45,11 +38,11 @@
     "node_modules",
     "coverage",
     "**/*.snap",
-    "test/cypress/e2e/fixtures/*.json",
-    "test/cypress/e2e/fixtures/*.png",
-    "test/cypress/e2e/fixtures/*.pdf",
-    "test/cypress/e2e/support/*.ts",
-    "test/cypress/e2e/config"
+    "cypress/e2e/fixtures/*.json",
+    "cypress/e2e/fixtures/*.png",
+    "cypress/e2e/fixtures/*.pdf",
+    "cypress/e2e/support/*.ts",
+    "cypress/e2e/config"
   ],
   "rules": {
     "no-console": [

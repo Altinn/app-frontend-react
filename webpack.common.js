@@ -20,8 +20,8 @@ module.exports = {
         test: /\.jsx?/,
         include: [
           path.resolve(__dirname, './src'),
-          path.resolve(__dirname, '../node_modules/ajv'),
-          path.resolve(__dirname, '../node_modules/ajv-formats'),
+          path.resolve(__dirname, './node_modules/ajv'),
+          path.resolve(__dirname, './node_modules/ajv-formats'),
         ],
         use: {
           loader: 'babel-loader',
