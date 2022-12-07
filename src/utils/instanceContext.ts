@@ -14,7 +14,7 @@ export function buildInstanceContext(instance?: IInstance | null): IInstanceCont
     appId: instance.appId,
     instanceId: instance.id,
     instanceOwnerPartyId: instance.instanceOwner.partyId,
-    instanceDateSent: instance.lastChanged,
+    instanceLastChanged: instance.lastChanged,
   };
 }
 
