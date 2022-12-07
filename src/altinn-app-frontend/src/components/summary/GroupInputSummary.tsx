@@ -40,13 +40,7 @@ function GroupInputSummary({ index, formData, textResourceBindings, textResource
     <Typography variant='body1'>
       <span>
         {textResourceBindingsResolvedTextKeys &&
-          getTextFromAppOrDefault(
-            textResourceBindingsResolvedTextKeys.title,
-            textResources,
-            {}, // TODO: Figure out if this should pass `language` instead
-            [],
-            false,
-          )}
+          getTextFromAppOrDefault(textResourceBindingsResolvedTextKeys.title, textResources, {}, [], false)}
         {' : '}
       </span>
       <span className={classes.data}>{displayData}</span>

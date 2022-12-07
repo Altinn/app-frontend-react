@@ -29,8 +29,8 @@ export interface UseExpressionsOptions<T> {
   defaults?: ExprDefaultValues<T>;
 
   /**
-   * tjohei
-   * heh
+   * The index of a repeating group row that the expression should run for. Only applicable when the component
+   * running expression for is a group-component.
    */
   rowIndex?: number;
 }

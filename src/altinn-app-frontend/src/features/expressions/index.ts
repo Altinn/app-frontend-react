@@ -547,7 +547,15 @@ export const ExprDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {
   readOnly: false,
   required: false,
   hidden: false,
-  textResourceBindings: { edit_button_open: 'heh' },
+  textResourceBindings: {
+    title: '',
+    tableTitle: '',
+    description: '',
+    body: '',
+    next: '',
+    back: '',
+    altTextImg: '',
+  },
 };
 
 export const ExprDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
@@ -559,5 +567,11 @@ export const ExprDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
     alertOnDelete: false,
     saveAndNextButton: false,
   },
-  textResourceBindings: { edit_button_open: 'heh' },
+  textResourceBindings: {
+    add_button: '',
+    save_button: '',
+    save_and_next_button: '',
+    edit_button_open: '',
+    edit_button_close: '',
+  },
 };
