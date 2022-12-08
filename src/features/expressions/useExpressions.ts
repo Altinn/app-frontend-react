@@ -3,8 +3,6 @@ import { useContext, useMemo } from 'react';
 import { useAppSelector } from 'src/common/hooks';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { evalExprInObj, ExprDefaultsForComponent, ExprDefaultsForGroup } from 'src/features/expressions/index';
-import { FormComponentContext } from 'src/layout';
-import { getInstanceContextSelector } from 'src/utils/instanceContext';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { EvalExprInObjArgs } from 'src/features/expressions/index';

@@ -1,13 +1,27 @@
 import { createSelector } from 'reselect';
 
+import { useInstanceIdParams } from 'src/common/hooks';
 import type { IRuntimeState } from 'src/types';
-import type { IInstance, IInstanceContext } from 'src/types/shared';
+import type { IAltinnOrgs, IAppLanguage, IInstance, IInstanceContext, IParty } from 'src/types/shared';
 
 const getInstance = (state: IRuntimeState) => state.instanceData.instance;
 
-export function buildInstanceContext(instance?: IInstance | null): IInstanceContext | null {
+export function buildInstanceContext(
+  instance?: IInstance | null,
+  party?: IParty | null,
+  allOrgs?: IAltinnOrgs | null,
+  appLanguage?: IAppLanguage | null,
+): IInstanceContext | null {
+  const { instanceGuid } = useInstanceIdParams();
   if (!instance) {
     return null;
+  } else if (!party || !allOrgs || !appLanguage || !instanceGuid) {
+    return {
+      appId: instance.appId,
+      instanceId: instance.id,
+      instanceOwnerPartyId: instance.instanceOwner.partyId,
+      instanceLastChanged: instance.lastChanged,
+    };
   }
 
   return {
@@ -15,11 +29,17 @@ export function buildInstanceContext(instance?: IInstance | null): IInstanceCont
     instanceId: instance.id,
     instanceOwnerPartyId: instance.instanceOwner.partyId,
     instanceLastChanged: instance.lastChanged,
+    instanceSender: `${party.ssn ? party.ssn : party.orgNumber}-${party.name}`,
+    instanceReceiver: allOrgs[instance.org]
+      ? allOrgs[instance.org].name[appLanguage.language]
+      : 'Error: Receiver org not found',
+
+    instanceReference: instanceGuid.split('-')[4],
   };
 }
 
 let selector: any = undefined;
-export const getInstanceContextSelector = () => {
+export default () => {
   if (selector) {
     return selector;
   }

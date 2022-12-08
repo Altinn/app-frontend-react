@@ -161,7 +161,7 @@ export interface IHiddenLayoutsExpressions {
 
 export interface IUiConfig {
   autoSave: boolean | null | undefined;
-  confirmationOnScreenFileName: string;
+  confirmationOnScreenFileName?: string;
   currentView: string;
   currentViewCacheKey?: string;
   returnToView?: string;

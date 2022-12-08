@@ -17,6 +17,7 @@ const ProcessWrapper = () => {
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+  const confirmationOnScreenFileName = useAppSelector((state) => state.formLayout.uiConfig.confirmationOnScreenFileName);
   const { hasApiErrors } = useApiErrorCheck();
   const { dispatch, process, appOwner, appName } = useProcess();
 
@@ -50,7 +51,7 @@ const ProcessWrapper = () => {
       {isLoading === false ? (
         <>
           {taskType === ProcessTaskType.Data && <Form />}
-          {taskType === ProcessTaskType.Archived && <ConfirmationOnScreen />}
+          {taskType === ProcessTaskType.Archived && confirmationOnScreenFileName ? <ConfirmationOnScreen /> : <Receipt >}
           {taskType === ProcessTaskType.Confirm &&
             (behavesLikeDataTask(process.taskId, layoutSets) ? <Form /> : <Confirm />)}
           {taskType === ProcessTaskType.Feedback && <Feedback />}
