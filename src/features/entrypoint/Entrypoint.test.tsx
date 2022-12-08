@@ -1,9 +1,9 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
+import mockAxios from 'jest-mock-axios';
 
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { act, screen, waitFor } from '@testing-library/react';
-import axios from 'axios';
 import { createStore } from 'redux';
 import { renderWithProviders } from 'testUtils';
 import type { AxiosError } from 'axios';
@@ -14,8 +14,6 @@ import type { IRuntimeState } from 'src/types';
 
 import type { IApplicationLogic } from 'src/types/shared';
 
-jest.mock('axios');
-
 describe('Entrypoint', () => {
   let mockInitialState: IRuntimeState;
   let mockStore: any;
@@ -23,13 +21,6 @@ describe('Entrypoint', () => {
 
   beforeEach(() => {
     mockInitialState = getInitialStateMock({});
-    (axios.post as jest.Mock).mockResolvedValue({
-      data: {
-        valid: true,
-        validParties: [],
-        message: '',
-      },
-    });
     mockReducer = (state: IRuntimeState, action: string): IRuntimeState => {
       if (action === 'queue/startInitialStatelessQueue') {
         return {
@@ -46,17 +37,13 @@ describe('Entrypoint', () => {
   });
 
   it('should show invalid party error if user has no valid parties', async () => {
-    (axios.post as jest.Mock).mockResolvedValue({
+    render({ store: mockStore });
+    mockAxios.mockResponse({
       data: {
         valid: false,
         validParties: [],
         message: '',
       },
-    });
-    render({ store: mockStore });
-    await waitFor(() => {
-      // validate party
-      expect(axios.post).toBeCalled();
     });
 
     const invalidPartyText = await screen.findByText(
@@ -67,6 +54,13 @@ describe('Entrypoint', () => {
 
   it('should show loader while fetching data then start instantiation by default ', async () => {
     render({ store: mockStore });
+    mockAxios.mockResponse({
+      data: {
+        valid: true,
+        validParties: [],
+        message: '',
+      },
+    });
 
     const contentLoader = await screen.findByText('Loading...');
     expect(contentLoader).not.toBeNull();
@@ -90,6 +84,13 @@ describe('Entrypoint', () => {
     mockStore.dispatch = jest.fn();
 
     render({ store: mockStore });
+    mockAxios.mockResponse({
+      data: {
+        valid: true,
+        validParties: [],
+        message: '',
+      },
+    });
 
     const contentLoader = await screen.findByText('Loading...');
     expect(contentLoader).not.toBeNull();
@@ -118,6 +119,13 @@ describe('Entrypoint', () => {
     mockStore.dispatch = jest.fn();
 
     render({ store: mockStore });
+    mockAxios.mockResponse({
+      data: {
+        valid: true,
+        validParties: [],
+        message: '',
+      },
+    });
 
     const contentLoader = await screen.findByText('Loading...');
     expect(contentLoader).not.toBeNull();
@@ -143,37 +151,47 @@ describe('Entrypoint', () => {
     mockStateWithStatelessApplication.applicationMetadata.applicationMetadata = application;
     mockStore = createStore(mockReducer, mockStateWithStatelessApplication);
     mockStore.dispatch = jest.fn();
-    (axios.post as jest.Mock).mockResolvedValue({
-      data: {
-        valid: true,
-        validParties: [],
-        message: '',
-      },
-    });
-    (axios.get as jest.Mock).mockResolvedValue({
-      data: [
-        {
-          id: 'some-id-1',
-          lastChanged: '28-01-1992',
-          lastChangedBy: 'Navn Navnesen',
-        },
-        {
-          id: 'some-id-2',
-          lastChanged: '06-03-1974',
-          lastChangedBy: 'Test Testesen',
-        },
-      ],
-    });
     render({ store: mockStore });
 
     await waitFor(() => {
-      // validate party and fetch active instances
-      expect(axios.post).toBeCalled();
-      expect(axios.get).toBeCalled();
+      expect(mockAxios.post).toHaveBeenCalled();
     });
 
-    const selectInstanceText = await screen.findByText('Du har allerede startet å fylle ut dette skjemaet.');
-    expect(selectInstanceText).not.toBeNull();
+    act(() => {
+      mockAxios.mockResponse({
+        data: {
+          valid: true,
+          validParties: [],
+          message: '',
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(mockAxios.get).toHaveBeenCalled();
+    });
+
+    act(() => {
+      mockAxios.mockResponse({
+        data: [
+          {
+            id: 'some-id-1',
+            lastChanged: '28-01-1992',
+            lastChangedBy: 'Navn Navnesen',
+          },
+          {
+            id: 'some-id-2',
+            lastChanged: '06-03-1974',
+            lastChangedBy: 'Test Testesen',
+          },
+        ],
+      });
+    });
+
+    await waitFor(async () => {
+      const selectInstanceText = await screen.findByText('Du har allerede startet å fylle ut dette skjemaet.');
+      expect(selectInstanceText).not.toBeNull();
+    });
   });
 
   it('should display MissingRolesError if getFormData has returned 403', async () => {
@@ -186,6 +204,14 @@ describe('Entrypoint', () => {
     };
     mockStore = createStore(mockReducer, mockState);
     render({ store: mockStore });
+    mockAxios.mockResponse({
+      data: {
+        valid: true,
+        validParties: [],
+        message: '',
+      },
+    });
+
     await act(async () => {
       const missingRolesText = await screen.findByText('Du mangler rettigheter for å se denne tjenesten.');
       expect(missingRolesText).not.toBeNull();

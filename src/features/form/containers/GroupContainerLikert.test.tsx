@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -15,7 +15,11 @@ import {
 describe('GroupContainerLikert', () => {
   jest.useFakeTimers();
   const user = userEvent.setup({
-    advanceTimers: jest.advanceTimersByTime,
+    advanceTimers: (time) => {
+      act(() => {
+        jest.advanceTimersByTime(time);
+      });
+    },
   });
 
   describe('Desktop', () => {

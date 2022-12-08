@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
 
-import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 import configureStore from 'redux-mock-store';
@@ -114,6 +114,15 @@ const getHouseNumberField = ({ useQuery = false, optional = false, required = fa
 const getPostPlaceField = () => getField({ method: 'getByRole', regex: /^address_component\.post_place$/i });
 
 describe('AddressComponent', () => {
+  jest.useFakeTimers();
+  const user = userEvent.setup({
+    advanceTimers: (time) => {
+      act(() => {
+        jest.advanceTimersByTime(time);
+      });
+    },
+  });
+
   it('should return simplified version when simplified is true', () => {
     render({
       simplified: true,
@@ -151,7 +160,7 @@ describe('AddressComponent', () => {
     });
 
     const address = getAddressField();
-    await userEvent.type(address, 'Slottsplassen 1');
+    await user.type(address, 'Slottsplassen 1');
     fireEvent.blur(address);
 
     expect(handleDataChange).toHaveBeenCalledWith('Slottsplassen 1', {
@@ -172,7 +181,7 @@ describe('AddressComponent', () => {
     });
 
     const address = getAddressField();
-    await userEvent.type(address, 'Slottsplassen 1');
+    await user.type(address, 'Slottsplassen 1');
     fireEvent.blur(address);
 
     expect(handleDataChange).not.toHaveBeenCalled();
@@ -190,7 +199,7 @@ describe('AddressComponent', () => {
     });
 
     const field = getZipCodeField({ required: true });
-    await userEvent.type(field, '1');
+    await user.type(field, '1');
     fireEvent.blur(field);
 
     const errorMessage = screen.getByText(/address_component\.validation_error_zipcode/i);
@@ -241,8 +250,8 @@ describe('AddressComponent', () => {
     });
 
     const field = getZipCodeField({ required: true });
-    await userEvent.clear(field);
-    await userEvent.type(field, '0001');
+    await user.clear(field);
+    await user.type(field, '0001');
     fireEvent.blur(field);
 
     expect(handleDataChange).toHaveBeenCalledWith('0001', { key: 'zipCode' });
@@ -263,7 +272,7 @@ describe('AddressComponent', () => {
     expect(screen.getByDisplayValue('Oslo')).toBeInTheDocument();
 
     const field = getZipCodeField();
-    await userEvent.clear(field);
+    await user.clear(field);
     fireEvent.blur(field);
 
     expect(handleDataChange).toHaveBeenCalledWith('', { key: 'zipCode' });

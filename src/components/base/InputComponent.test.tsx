@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { render as rtlRender, screen } from '@testing-library/react';
+import { act, render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { InputComponent } from 'src/components/base/InputComponent';
@@ -9,7 +9,11 @@ import type { IInputProps } from 'src/components/base/InputComponent';
 describe('InputComponent', () => {
   jest.useFakeTimers();
   const user = userEvent.setup({
-    advanceTimers: jest.advanceTimersByTime,
+    advanceTimers: (time) => {
+      act(() => {
+        jest.advanceTimersByTime(time);
+      });
+    },
   });
 
   it('should correct value with no form data provided', () => {

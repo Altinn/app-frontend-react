@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { getInitialStateMock } from '__mocks__/initialStateMock';
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mockComponentProps, renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
@@ -80,7 +80,11 @@ const getCheckbox = ({ name, isChecked = false }) => {
 describe('CheckboxContainerComponent', () => {
   jest.useFakeTimers();
   const user = userEvent.setup({
-    advanceTimers: jest.advanceTimersByTime,
+    advanceTimers: (time) => {
+      act(() => {
+        jest.advanceTimersByTime(time);
+      });
+    },
   });
 
   it('should call handleDataChange with value of preselectedOptionIndex when simpleBinding is not set', () => {
