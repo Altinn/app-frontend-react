@@ -55,6 +55,7 @@ export interface ILayoutSet {
 
 export interface ILayoutSettings {
   pages: IPagesSettings;
+  confirmationOnScreenFileName: string;
 }
 
 export interface IPagesSettings {
@@ -160,6 +161,7 @@ export interface IHiddenLayoutsExpressions {
 
 export interface IUiConfig {
   autoSave: boolean | null | undefined;
+  confirmationOnScreenFileName: string;
   currentView: string;
   currentViewCacheKey?: string;
   returnToView?: string;

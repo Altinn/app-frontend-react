@@ -4,10 +4,10 @@ import { useAppSelector, useInstanceIdParams, useProcess } from 'src/common/hook
 import { useApiErrorCheck } from 'src/common/hooks/useApiErrorCheck';
 import { AltinnContentIconFormData, AltinnContentLoader } from 'src/components/shared';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
+import { ConfirmationOnScreen } from 'src/features/confirmationOnScreen/containers/ConfirmationOnScreen';
 import Feedback from 'src/features/feedback/Feedback';
 import { Form } from 'src/features/form/containers/Form';
 import UnknownError from 'src/features/instantiate/containers/UnknownError';
-import Receipt from 'src/features/receipt/containers/ReceiptContainer';
 import Presentation from 'src/shared/containers/Presentation';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { ProcessTaskType } from 'src/types';
@@ -50,7 +50,7 @@ const ProcessWrapper = () => {
       {isLoading === false ? (
         <>
           {taskType === ProcessTaskType.Data && <Form />}
-          {taskType === ProcessTaskType.Archived && <Receipt />}
+          {taskType === ProcessTaskType.Archived && <ConfirmationOnScreen />}
           {taskType === ProcessTaskType.Confirm &&
             (behavesLikeDataTask(process.taskId, layoutSets) ? <Form /> : <Confirm />)}
           {taskType === ProcessTaskType.Feedback && <Feedback />}
