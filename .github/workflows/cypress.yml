@@ -67,7 +67,7 @@ jobs:
           ./node_modules/.bin/start-server-and-test
             'yarn start --no-hot'
             http://localhost:8080/altinn-app-frontend.js
-            'yarn run test:all:headless
+            'yarn run cy:test:all:headless
               --env environment=tt02,testUserName=tt02testuser,testUserPwd=${{ secrets.CYPRESS_ALTINN_USERPWD }}
               --record
               --parallel
@@ -124,7 +124,7 @@ jobs:
           ./node_modules/.bin/start-server-and-test
             'yarn start --no-hot'
             http://localhost:8080/altinn-app-frontend.js
-            'yarn run test:all:headless
+            'yarn run cy:test:all:headless
               --config watchForFileChanges=false
               --env environment=tt02,testUserName=testuserexternal,testUserPwd=r@h74Rz7XYQJ'
         "
