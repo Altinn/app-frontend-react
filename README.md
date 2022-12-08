@@ -1,11 +1,13 @@
 # Altinn 3 app frontend
 
 This is the default frontend for Altinn 3 apps developed in Altinn Studio
-(Visit [altinn.studio](https://altinn.studio) or see the [code repository](https://github.com/Altinn/altinn-studio)).
-This frontend fetches the layout files, components and other configuration created in Altinn Studio and presents the UI
-for different steps in the workflow of an Altinn application. It is made to talk with the application backend developed
-using our [nuget packages](https://github.com/Altinn/app-lib-dotnet), usually extended from
-our [application template](https://github.com/Altinn/app-template-dotnet).
+(visit [altinn.studio](https://altinn.studio) or see the [code repository](https://github.com/Altinn/altinn-studio)).
+
+This frontend is tasked with fetching layout files, components and other configuration created in Altinn Studio and
+presents the UI for different steps in the workflow of an Altinn application. It is made to talk with the application
+backend developed using our [nuget packages](https://github.com/Altinn/app-lib-dotnet), usually extended from
+our [application template](https://github.com/Altinn/app-template-dotnet). If you want to try out creating your own
+apps in Altinn Studio, [check out our documentation](https://docs.altinn.studio/app/getting-started/).
 
 ## Getting started
 
@@ -19,8 +21,8 @@ or [contribute](https://github.com/Altinn/app-frontend-react/blob/main/CONTRIBUT
 There are a few ways to set up this project locally:
 
 <details>
-<summary>Docker (simplified setup)</summary>
-If you can't/won't install node on your computer, you can also run frontend in docker using the command.
+<summary>Docker (recommended for beginners)</summary>
+You can start a local app-frontend in Docker using these commands:
 
 ```bash
 git clone https://github.com/Altinn/app-frontend-react
@@ -29,7 +31,9 @@ cd app-frontend-react
 docker compose up
 ```
 
-This is really slow to start and rebuild, but sometimes better than getting someone to install node if you just want to test if a new branch fixes an issue.
+This solution works, but will be slow to start and rebuild. If you just want to run the solution locally, contribute
+by testing a bug fix or new feature before the official release, the Docker method will work fine. We recommend
+installing `node` locally if you are considering contributing code.
 
 </details>
 
