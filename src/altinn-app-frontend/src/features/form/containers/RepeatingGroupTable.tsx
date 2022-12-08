@@ -641,7 +641,7 @@ export function RepeatingGroupTable({
                     >
                       <TableCell
                         style={{ padding: 0, borderTop: 0 }}
-                        colSpan={tableComponents.length + 1 + Number(!hideDeleteButton) + 2 * Number(!isNested)}
+                        colSpan={mobileView ? 2 : tableComponents.length + 1 + Number(!hideDeleteButton)}
                       >
                         {renderRepeatingGroupsEditContainer()}
                       </TableCell>
