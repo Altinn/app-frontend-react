@@ -190,7 +190,9 @@ const completeFormSlow = {
     cy.get(dataListPage.tableBody).contains('Caroline').parent('td').parent('tr').click();
     cy.contains(mui.button, texts.next).click();
   },
-  confirm: () => {},
+  confirm: () => {
+    // Nothing to fill out here, intentionally empty
+  },
 };
 
 const sendInTask = {

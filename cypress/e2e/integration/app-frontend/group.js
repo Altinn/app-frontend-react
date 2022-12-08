@@ -299,23 +299,7 @@ describe('Group', () => {
       cy.log('Testing whether new empty group is opened when openByDefault =', openByDefault);
       cy.reloadAndWait();
 
-      if (openByDefault === 'first') {
-        cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
-        cy.get(appFrontend.group.mainGroupTableBody)
-          .children()
-          .eq(1)
-          .find(appFrontend.group.saveMainGroup)
-          .should('exist')
-          .and('be.visible');
-      } else if (openByDefault === 'last') {
-        cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
-        cy.get(appFrontend.group.mainGroupTableBody)
-          .children()
-          .eq(1)
-          .find(appFrontend.group.saveMainGroup)
-          .should('exist')
-          .and('be.visible');
-      } else if (openByDefault === true) {
+      if (openByDefault === 'first' || openByDefault === 'last' || openByDefault === true) {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
         cy.get(appFrontend.group.mainGroupTableBody)
           .children()
@@ -360,10 +344,7 @@ describe('Group', () => {
           .find(appFrontend.group.saveMainGroup)
           .should('exist')
           .and('be.visible');
-      } else if (openByDefault === true) {
-        cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 3);
-        cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
-      } else if (openByDefault === false) {
+      } else if (openByDefault === true || openByDefault === false) {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 3);
         cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
       }

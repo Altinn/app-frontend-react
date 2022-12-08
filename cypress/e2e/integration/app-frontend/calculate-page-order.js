@@ -12,7 +12,9 @@ describe('Calculate Page Order', () => {
   it('Testing combinations of old and new hidden pages functionalities', () => {
     cy.interceptLayout(
       'group',
-      () => {},
+      () => {
+        // Intentionally empty
+      },
       (layoutSet) => {
         layoutSet.prefill.data.hidden = ['equals', ['component', 'sendersName'], 'hidePrefill'];
         layoutSet.repeating.data.hidden = [
