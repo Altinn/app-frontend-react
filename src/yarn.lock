@@ -4959,7 +4959,7 @@ __metadata:
   resolution: "altinn-app-frontend@workspace:altinn-app-frontend"
   dependencies:
     "@altinn/altinn-design-system": 0.25.6
-    "@babel/core": 7.20.2
+    "@babel/core": 7.20.5
     "@babel/polyfill": 7.12.1
     "@babel/preset-env": 7.20.2
     "@babel/preset-react": 7.18.6

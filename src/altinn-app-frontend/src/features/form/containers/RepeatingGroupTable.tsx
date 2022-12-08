@@ -313,7 +313,7 @@ export function RepeatingGroupTable({
 
   // Values adjusted for filter
   const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
-  const editRowIndex = filteredIndexes ? filteredIndexes.indexOf(editIndex) : editIndex + 1;
+  const editRowIndex = filteredIndexes ? filteredIndexes.indexOf(editIndex) : editIndex;
 
   const isEmpty = numRows === 0;
   const showTableHeader = numRows > 0 && !(numRows == 1 && editRowIndex == 0);
