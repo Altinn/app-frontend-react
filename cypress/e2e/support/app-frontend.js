@@ -55,10 +55,7 @@ Cypress.Commands.add('getReduxState', (selector) => {
 });
 
 Cypress.Commands.add('reduxDispatch', (action) => {
-  return cy
-    .window()
-    .its('reduxStore')
-    .invoke('dispatch', action);
+  return cy.window().its('reduxStore').invoke('dispatch', action);
 });
 
 Cypress.Commands.add('interceptLayout', (layoutName, mutator, wholeLayoutMutator) => {

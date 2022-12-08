@@ -1,5 +1,4 @@
-export default _chai => {
-
+export default (_chai) => {
   /**
    * @see https://www.webtips.dev/webtips/cypress/check-if-element-is-in-viewport
    */
@@ -16,7 +15,7 @@ export default _chai => {
       rect.top > 0 && rect.top < height && rect.right <= width && rect.left >= 0 && rect.bottom <= height,
       'expected #{this} to be in the viewport',
       'expected #{this} to not be in the viewport',
-      this._obj
+      this._obj,
     );
   }
 

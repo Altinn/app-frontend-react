@@ -126,7 +126,6 @@ describe('Group', () => {
 
   ['validation', 'validateRow'].forEach((trigger) => {
     it(`Validates group using triggers = ['${trigger}']`, () => {
-
       cy.intercept('GET', '**/instances/*/*/data/*/validate').as('validate');
 
       cy.interceptLayout('group', (component) => {
@@ -164,8 +163,7 @@ describe('Group', () => {
           .should('contain.text', texts.requiredFieldToValue)
           .should('not.contain.text', texts.requiredFieldFromValue);
       } else {
-        cy.get(appFrontend.errorReport)
-          .should('not.exist');
+        cy.get(appFrontend.errorReport).should('not.exist');
       }
 
       cy.get(appFrontend.group.rows[0].editBtn).should('exist').and('be.visible').focus().click();
@@ -187,7 +185,6 @@ describe('Group', () => {
           .should('contain.text', texts.requiredFieldFromValue)
           .should('not.contain.text', texts.requiredFieldToValue);
       }
-
     });
   });
 
@@ -285,7 +282,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.sendersName).should('exist');
   });
 
-  it('Open by default on prefilled group (openByDefault = [\'first\', \'last\', true, false])', () => {
+  it("Open by default on prefilled group (openByDefault = ['first', 'last', true, false])", () => {
     init();
 
     cy.intercept('PUT', '**/instances/*/*/data/*').as('updateInstance');
@@ -304,13 +301,28 @@ describe('Group', () => {
 
       if (openByDefault === 'first') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
-        cy.get(appFrontend.group.mainGroupTableBody).children().eq(1).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
+        cy.get(appFrontend.group.mainGroupTableBody)
+          .children()
+          .eq(1)
+          .find(appFrontend.group.saveMainGroup)
+          .should('exist')
+          .and('be.visible');
       } else if (openByDefault === 'last') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
-        cy.get(appFrontend.group.mainGroupTableBody).children().eq(1).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
+        cy.get(appFrontend.group.mainGroupTableBody)
+          .children()
+          .eq(1)
+          .find(appFrontend.group.saveMainGroup)
+          .should('exist')
+          .and('be.visible');
       } else if (openByDefault === true) {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 2);
-        cy.get(appFrontend.group.mainGroupTableBody).children().eq(1).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
+        cy.get(appFrontend.group.mainGroupTableBody)
+          .children()
+          .eq(1)
+          .find(appFrontend.group.saveMainGroup)
+          .should('exist')
+          .and('be.visible');
       } else if (openByDefault === false) {
         cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
       }
@@ -334,10 +346,20 @@ describe('Group', () => {
 
       if (openByDefault === 'first') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 4);
-        cy.get(appFrontend.group.mainGroupTableBody).children().eq(1).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
+        cy.get(appFrontend.group.mainGroupTableBody)
+          .children()
+          .eq(1)
+          .find(appFrontend.group.saveMainGroup)
+          .should('exist')
+          .and('be.visible');
       } else if (openByDefault === 'last') {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 4);
-        cy.get(appFrontend.group.mainGroupTableBody).children().eq(3).find(appFrontend.group.saveMainGroup).should('exist').and('be.visible');
+        cy.get(appFrontend.group.mainGroupTableBody)
+          .children()
+          .eq(3)
+          .find(appFrontend.group.saveMainGroup)
+          .should('exist')
+          .and('be.visible');
       } else if (openByDefault === true) {
         cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 3);
         cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
@@ -356,7 +378,12 @@ describe('Group', () => {
     cy.reloadAndWait();
 
     // Test that deleting an item does not cause another group to open if there are more elements in the group
-    cy.get(appFrontend.group.mainGroupTableBody).children().eq(0).find(appFrontend.group.delete).should('be.visible').click();
+    cy.get(appFrontend.group.mainGroupTableBody)
+      .children()
+      .eq(0)
+      .find(appFrontend.group.delete)
+      .should('be.visible')
+      .click();
     cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
@@ -390,11 +417,19 @@ describe('Group', () => {
       .then((table) => {
         cy.get(table).find(mui.tableElement).first().invoke('text').should('equal', 'automation');
         cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
-        cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
-          .find(appFrontend.group.popOverCancelButton).should('be.visible').click();
+        cy.get(table)
+          .find(mui.tableElement)
+          .find(appFrontend.designSystemPanel)
+          .find(appFrontend.group.popOverCancelButton)
+          .should('be.visible')
+          .click();
         cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
-        cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
-          .find(appFrontend.group.popOverDeleteButton).should('be.visible').click();
+        cy.get(table)
+          .find(mui.tableElement)
+          .find(appFrontend.designSystemPanel)
+          .find(appFrontend.group.popOverDeleteButton)
+          .should('be.visible')
+          .click();
         cy.get(table).find(mui.tableElement).eq(0).should('not.contain.text', 'automation');
       });
 
@@ -408,11 +443,19 @@ describe('Group', () => {
       .find(mui.tableBody)
       .then((table) => {
         cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
-        cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
-          .find(appFrontend.group.popOverCancelButton).should('be.visible').click();
+        cy.get(table)
+          .find(mui.tableElement)
+          .find(appFrontend.designSystemPanel)
+          .find(appFrontend.group.popOverCancelButton)
+          .should('be.visible')
+          .click();
         cy.get(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
-        cy.get(table).find(mui.tableElement).find(appFrontend.designSystemPanel)
-          .find(appFrontend.group.popOverDeleteButton).should('be.visible').click();
+        cy.get(table)
+          .find(mui.tableElement)
+          .find(appFrontend.designSystemPanel)
+          .find(appFrontend.group.popOverDeleteButton)
+          .should('be.visible')
+          .click();
         cy.get(table).find(mui.tableElement).should('not.exist');
       });
   });

@@ -15,22 +15,13 @@ describe('Options', () => {
     cy.get(appFrontend.changeOfName.sources).should('be.visible');
 
     // Make sure we wait until the option is visible, as it's not instant
-    cy.get(appFrontend.changeOfName.reference)
-      .get(`option[value=nordmann]`)
-      .should('be.visible');
+    cy.get(appFrontend.changeOfName.reference).get(`option[value=nordmann]`).should('be.visible');
 
-    cy.get(appFrontend.changeOfName.reference)
-      .select('nordmann')
-      .should('have.value', 'nordmann');
+    cy.get(appFrontend.changeOfName.reference).select('nordmann').should('have.value', 'nordmann');
 
     //Secure options
-    cy.get(appFrontend.changeOfName.reference2)
-      .get('option[value=1]')
-      .should('be.visible');
-    cy.get(appFrontend.changeOfName.reference2)
-      .should('be.visible')
-      .select('1')
-      .and('have.value', '1');
+    cy.get(appFrontend.changeOfName.reference2).get('option[value=1]').should('be.visible');
+    cy.get(appFrontend.changeOfName.reference2).should('be.visible').select('1').and('have.value', '1');
 
     // Select a different source, expect previous selection to be cleared and
     // new value to be selectable in the reference option

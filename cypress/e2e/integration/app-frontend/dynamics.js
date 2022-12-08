@@ -32,14 +32,10 @@ describe('Dynamics', () => {
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
   });
 
-  it('Remove validation message when field disappears', ()  => {
+  it('Remove validation message when field disappears', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.id === 'newFirstName') {
-        component.hidden = [
-          'equals',
-          'hideFirstName',
-          ['component', 'newLastName'],
-        ];
+        component.hidden = ['equals', 'hideFirstName', ['component', 'newLastName']];
       }
     });
     cy.goto('changename');

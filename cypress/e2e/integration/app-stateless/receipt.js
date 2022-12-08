@@ -3,7 +3,7 @@
 
 import AppFrontend from '../../pageobjects/app-frontend';
 import * as texts from '../../fixtures/texts.json';
-import {instanceIdExp} from '../../support/util';
+import { instanceIdExp } from '../../support/util';
 
 const appFrontend = new AppFrontend();
 
@@ -20,7 +20,7 @@ describe('Receipt', () => {
       const instanceId = instanceIdExp().exec(url)[1];
       const baseUrl =
         Cypress.env('environment') === 'local'
-          ? (Cypress.config().baseUrl || '')
+          ? Cypress.config().baseUrl || ''
           : `https://ttd.apps.${Cypress.config('baseUrl').slice(8)}`;
       const requestUrl = `${baseUrl}/ttd/${appFrontend.apps.stateless}/instances/${instanceId}/process/next`;
       cy.getCookie('XSRF-TOKEN').then((xsrfToken) => {

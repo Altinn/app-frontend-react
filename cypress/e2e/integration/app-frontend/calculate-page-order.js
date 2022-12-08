@@ -10,16 +10,22 @@ const mui = new Common();
 
 describe('Calculate Page Order', () => {
   it('Testing combinations of old and new hidden pages functionalities', () => {
-    cy.interceptLayout('group', () => {}, (layoutSet) => {
-      layoutSet.prefill.data.hidden = ['equals', ['component', 'sendersName'], 'hidePrefill'];
-      layoutSet.repeating.data.hidden = ['and',
-        ['equals', ['component', 'sendersName'], 'hideRepeating'],
-        ['or',
-          ['equals', ['component', 'choose-group-prefills'], ''],
-          ['equals', ['component', 'choose-group-prefills'], null]
-        ]
-      ];
-    });
+    cy.interceptLayout(
+      'group',
+      () => {},
+      (layoutSet) => {
+        layoutSet.prefill.data.hidden = ['equals', ['component', 'sendersName'], 'hidePrefill'];
+        layoutSet.repeating.data.hidden = [
+          'and',
+          ['equals', ['component', 'sendersName'], 'hideRepeating'],
+          [
+            'or',
+            ['equals', ['component', 'choose-group-prefills'], ''],
+            ['equals', ['component', 'choose-group-prefills'], null],
+          ],
+        ];
+      },
+    );
     cy.intercept('POST', '**/pages/order*').as('getPageOrder');
 
     cy.goto('group');
@@ -86,16 +92,20 @@ describe('Calculate Page Order', () => {
   });
 
   it('Testing pageOrder with hidden next page via dynamics', () => {
-    cy.interceptLayout('group', (component) => {
-      if (component.type === 'NavigationButtons' && !component.triggers) {
-        component.triggers = ['calculatePageOrder'];
-      } else if (component.type === 'NavigationButtons' && !component.triggers.includes('calculatePageOrder')) {
-        component.triggers.push('calculatePageOrder');
-      }
-    }, (layoutSet) => {
-      layoutSet.hide.data.hidden = ['equals', ['component', 'choose-group-prefills'], 'stor'];
-      layoutSet.repeating.data.hidden = ['equals', ['component', 'choose-group-prefills'], 'stor'];
-    });
+    cy.interceptLayout(
+      'group',
+      (component) => {
+        if (component.type === 'NavigationButtons' && !component.triggers) {
+          component.triggers = ['calculatePageOrder'];
+        } else if (component.type === 'NavigationButtons' && !component.triggers.includes('calculatePageOrder')) {
+          component.triggers.push('calculatePageOrder');
+        }
+      },
+      (layoutSet) => {
+        layoutSet.hide.data.hidden = ['equals', ['component', 'choose-group-prefills'], 'stor'];
+        layoutSet.repeating.data.hidden = ['equals', ['component', 'choose-group-prefills'], 'stor'];
+      },
+    );
     cy.intercept('POST', '**/pages/order*').as('getPageOrder');
 
     cy.goto('group');

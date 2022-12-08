@@ -17,12 +17,12 @@ const dataListPage = new Datalist();
  */
 const validMinimalData = {
   changename: {
-    'skjemanummer': '1533',
-    'spesifikasjonsnummer': '11172',
-    'blankettnummer': 'RF-1453',
-    'tittel': 'Endring av navn',
-    'gruppeid': '9308',
-    'Radioknapp': '1',
+    skjemanummer: '1533',
+    spesifikasjonsnummer: '11172',
+    blankettnummer: 'RF-1453',
+    tittel: 'Endring av navn',
+    gruppeid: '9308',
+    Radioknapp: '1',
     'Innledning-grp-9309.gruppeid': '9309',
     'Innledning-grp-9309.Signerer-grp-9320.gruppeid': '9320',
     'Innledning-grp-9309.Signerer-grp-9320.SignererEkstraReferanseAltinn-datadef-34751.orid': '34751',
@@ -31,23 +31,25 @@ const validMinimalData = {
     'Innledning-grp-9309.Kontaktinformasjon-grp-9311.gruppeid': '9311',
     'Innledning-grp-9309.Kontaktinformasjon-grp-9311.MelderFultnavn.orid': '34735',
     'Innledning-grp-9309.Kontaktinformasjon-grp-9311.MelderFultnavn.value': 'Ola Nordmann',
-    'Innledning-grp-9309.NavneendringenGjelderFor-grp-9310.SubjektFornavnFolkeregistrert-datadef-34730.value': 'hello world task is being skipped',
+    'Innledning-grp-9309.NavneendringenGjelderFor-grp-9310.SubjektFornavnFolkeregistrert-datadef-34730.value':
+      'hello world task is being skipped',
     'NyttNavn-grp-9313.NyttNavn-grp-9314.PersonFornavnNytt-datadef-34758.value': 'hello world',
     'NyttNavn-grp-9313.NyttNavn-grp-9314.PersonEtternavnNytt-datadef-34757.value': 'task is being skipped',
     'NyttNavn-grp-9313.NyttNavn-grp-9314.PersonBekrefterNyttNavn.value': 'Ja',
-    'Tilknytning-grp-9315.TilknytningTilNavnet-grp-9316.TilknytningEtternavn1-grp-9350.PersonEtternavnForste-datadef-34896.value': 'asdfasdf2'
+    'Tilknytning-grp-9315.TilknytningTilNavnet-grp-9316.TilknytningEtternavn1-grp-9350.PersonEtternavnForste-datadef-34896.value':
+      'asdfasdf2',
   },
   group: {
-    'skjemanummer': '1603',
-    'spesifikasjonsnummer': '12392',
-    'blankettnummer': 'RF-1366',
-    'tittel': 'Endringsmelding',
-    'gruppeid': '9785',
+    skjemanummer: '1603',
+    spesifikasjonsnummer: '12392',
+    blankettnummer: 'RF-1366',
+    tittel: 'Endringsmelding',
+    gruppeid: '9785',
     'Endringsmelding-grp-9786.gruppeid': '9786',
     'Endringsmelding-grp-9786.Avgiver-grp-9787.gruppeid': '9787',
     'Endringsmelding-grp-9786.Avgiver-grp-9787.KontaktpersonEPost-datadef-27688.orid': '27688',
     'Endringsmelding-grp-9786.Avgiver-grp-9787.KontaktpersonEPost-datadef-27688.value': 'Ja',
-    'Endringsmelding-grp-9786.Avgiver-grp-9787.OppgavegiverNavn-datadef-68.value': 'skipping to likert'
+    'Endringsmelding-grp-9786.Avgiver-grp-9787.OppgavegiverNavn-datadef-68.value': 'skipping to likert',
   },
 };
 
@@ -56,8 +58,8 @@ function endTaskWithData(data) {
   cy.reduxDispatch({
     type: 'formData/setFulfilled',
     payload: {
-      formData: data
-    }
+      formData: data,
+    },
   });
 
   cy.get('#toNextTask').click();

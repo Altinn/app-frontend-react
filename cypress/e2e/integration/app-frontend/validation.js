@@ -28,7 +28,6 @@ describe('Validation', () => {
       .should('be.visible')
       .should('have.text', texts.requiredField);
 
-
     // Doing the same for any other field (without server-side required validation) should not show an error
     cy.get(appFrontend.changeOfName.newMiddleName)
       .should('be.visible')
@@ -38,20 +37,13 @@ describe('Validation', () => {
       .focus()
       .clear()
       .blur();
-    cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newMiddleName.substring(1)))
-      .should('not.exist');
+    cy.get(
+      appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newMiddleName.substring(1)),
+    ).should('not.exist');
 
-    cy.get(appFrontend.changeOfName.newFirstName)
-      .should('be.visible')
-      .focus()
-      .type('Some first name')
-      .blur();
+    cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').focus().type('Some first name').blur();
 
-    cy.get(appFrontend.changeOfName.newMiddleName)
-      .should('be.visible')
-      .focus()
-      .type('Some middle name')
-      .blur();
+    cy.get(appFrontend.changeOfName.newMiddleName).should('be.visible').focus().type('Some middle name').blur();
 
     cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check();
     cy.get(appFrontend.changeOfName.reasonRelationship).should('be.visible').click().type('test');
@@ -65,11 +57,13 @@ describe('Validation', () => {
 
     cy.contains(mui.button, texts.next).click();
 
-    cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newFirstName.substring(1)))
-      .should('not.exist');
+    cy.get(
+      appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newFirstName.substring(1)),
+    ).should('not.exist');
 
-    cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newMiddleName.substring(1)))
-      .should('not.exist');
+    cy.get(
+      appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newMiddleName.substring(1)),
+    ).should('not.exist');
 
     cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newLastName.substring(1)))
       .should('exist')
@@ -167,9 +161,7 @@ describe('Validation', () => {
     cy.get(lastNameError).should('not.exist');
 
     // Click the error text, which should lead us back to the change name form and focus the field
-    cy.get(appFrontend.errorReport)
-      .get(`button:contains("${texts.requiredFieldLastName}")`)
-      .click();
+    cy.get(appFrontend.errorReport).get(`button:contains("${texts.requiredFieldLastName}")`).click();
 
     cy.get(lastNameError).should('exist').should('be.inViewport');
     cy.get(appFrontend.changeOfName.newLastName).should('be.focused');
@@ -205,9 +197,6 @@ describe('Validation', () => {
       },
     ]);
     cy.get(appFrontend.sendinButton).should('be.visible').click();
-    cy.get(appFrontend.errorReport)
-      .should('exist')
-      .should('be.visible')
-      .should('contain.text', 'task validation');
+    cy.get(appFrontend.errorReport).should('exist').should('be.visible').should('contain.text', 'task validation');
   });
 });

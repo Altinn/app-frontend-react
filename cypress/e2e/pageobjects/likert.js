@@ -17,14 +17,14 @@ export class Likert {
   selectRequiredRadios() {
     cy.findByRole('table', { name: this.requiredTableTitle }).within(() => {
       this.requiredQuestions.forEach((question, index) => {
-        this.selectRadio(question + '*', this.options[index]);
+        this.selectRadio(`${question}*`, this.options[index]);
       });
     });
   }
 
   selectRequiredRadiosInMobile() {
     this.requiredQuestions.forEach((question, index) => {
-      this.selectRadioInMobile(question + '*', this.options[index]);
+      this.selectRadioInMobile(`${question}*`, this.options[index]);
     });
   }
 

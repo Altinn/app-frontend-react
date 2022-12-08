@@ -131,13 +131,13 @@ export default class AppFrontend {
           deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) div[role=button]`,
           ...(isTagged
             ? {
-              tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) select`,
-              tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
-              editBtn: `${tableSelector} > tbody > tr:nth-child(${
-                idx + 1
-              }) td:last-of-type button[class*=editTextContainer]`,
-              deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[class*=deleteButton]`,
-            }
+                tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) select`,
+                tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
+                editBtn: `${tableSelector} > tbody > tr:nth-child(${
+                  idx + 1
+                }) td:last-of-type button[class*=editTextContainer]`,
+                deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[class*=deleteButton]`,
+              }
             : {}),
         })),
         addMoreBtn: `#altinn-fileuploader-${id}-${row} > button`,
@@ -145,8 +145,8 @@ export default class AppFrontend {
           typeof row === 'number'
             ? `#group-mainGroup-table-body > tr:nth-child(${row + 1}) > td:nth-child(${tablePreviewColumn})`
             : `#group-subGroup-${row.split('-')[0]}-table-body > tr:nth-child(${
-              parseInt(row.split('-')[1]) + 1
-            }) > td:nth-child(${tablePreviewColumn})`,
+                parseInt(row.split('-')[1]) + 1
+              }) > td:nth-child(${tablePreviewColumn})`,
 
         test: '#group-subGroup-0-table-body > tr > td:nth-child(2)',
       };
@@ -208,8 +208,12 @@ export default class AppFrontend {
               `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(1)`,
               `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(2)`,
             ],
-            editBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:nth-last-of-type(2n) > div > button`,
-            deleteBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:last-of-type > div > button`,
+            editBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${
+              subIdx + 1
+            }) > td:nth-last-of-type(2n) > div > button`,
+            deleteBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${
+              subIdx + 1
+            }) > td:last-of-type > div > button`,
           })),
           groupContainer: `#group-subGroup-${idx}`,
           saveBtn: `#add-button-grp-subGroup-${idx}`,

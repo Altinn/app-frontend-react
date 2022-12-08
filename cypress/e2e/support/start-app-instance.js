@@ -3,7 +3,7 @@ import AppFrontend from '../pageobjects/app-frontend';
 
 const appFrontend = new AppFrontend();
 
-Cypress.Commands.add('startAppInstance', (appName, anonymous=false) => {
+Cypress.Commands.add('startAppInstance', (appName, anonymous = false) => {
   const visitOptions = {
     onBeforeLoad: (win) => {
       cy.spy(win.console, 'log').as('console.log');

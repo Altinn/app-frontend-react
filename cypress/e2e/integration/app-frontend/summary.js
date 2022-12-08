@@ -92,7 +92,6 @@ describe('Summary', () => {
       .then((summaryDate) => {
         cy.get(summaryDate).contains(texts.dateOfEffect).should('not.have.css', 'color', 'rgb(213, 32, 59)');
         cy.get(summaryDate).contains(mui.gridContainer, texts.requiredFieldDateFrom).should('not.exist');
-
       });
 
     // Hide the component the Summary refers to, which should hide the summary component as well
@@ -166,9 +165,7 @@ describe('Summary', () => {
 
     // Check to show a couple of nested options, then go back to the summary
     cy.get(appFrontend.group.rows[0].editBtn).click();
-    cy.get(appFrontend.group.mainGroup)
-      .find(appFrontend.group.editContainer)
-      .find(appFrontend.group.next).click();
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].nestedDynamics).click();
 
     const workAroundSlowSave = JSON.parse('true');

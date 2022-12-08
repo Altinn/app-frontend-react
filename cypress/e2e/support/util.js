@@ -10,7 +10,7 @@ export function instanceIdExp(arg) {
     return instanceIdRegExp;
   }
   return new RegExp(
-    `${prefix}${prefix && '/'}${instanceIdRegExp.source}${postfix && (postfix !== '$' ? '/' + postfix : postfix)}`,
+    `${prefix}${prefix && '/'}${instanceIdRegExp.source}${postfix && (postfix !== '$' ? `/${postfix}` : postfix)}`,
     instanceIdRegExp.flags,
   );
 }

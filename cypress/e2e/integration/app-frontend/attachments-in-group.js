@@ -46,13 +46,9 @@ describe('Repeating group attachments', () => {
 
   const verifyTableRowPreview = (item, fileName, deletedAttachments) => {
     if (deletedAttachments && deletedAttachments.includes(fileName)) {
-      cy.get(item.tableRowPreview)
-        .should('be.visible')
-        .should('not.contain.text', fileName);
+      cy.get(item.tableRowPreview).should('be.visible').should('not.contain.text', fileName);
     } else {
-      cy.get(item.tableRowPreview)
-        .should('be.visible')
-        .should('contain.text', fileName);
+      cy.get(item.tableRowPreview).should('be.visible').should('contain.text', fileName);
     }
   };
 
@@ -65,9 +61,7 @@ describe('Repeating group attachments', () => {
       cy.get(item.attachments[idx].tagSave).click();
     }
 
-    cy.get(item.attachments[idx].status)
-      .should('be.visible')
-      .should('contain.text', texts.finishedUploading);
+    cy.get(item.attachments[idx].status).should('be.visible').should('contain.text', texts.finishedUploading);
     cy.get(item.attachments[idx].name).should('be.visible').should('contain.text', fileName);
 
     if (verifyTableRow) {
@@ -138,45 +132,20 @@ describe('Repeating group attachments', () => {
     const filenames = [
       {
         single: 'singleFileInFirstRow.pdf',
-        multi: [
-          'multiInFirstRow1.pdf',
-          'multiInFirstRow2.pdf',
-          'multiInFirstRow3.pdf',
-        ],
+        multi: ['multiInFirstRow1.pdf', 'multiInFirstRow2.pdf', 'multiInFirstRow3.pdf'],
         nested: [
-          [
-            'nested-row0-sub0-1.pdf',
-            'nested-row0-sub0-2.pdf',
-            'nested-row0-sub0-3.pdf',
-          ],
-          [
-            'nested-row0-sub1-1.pdf',
-            'nested-row0-sub1-2.pdf',
-            'nested-row0-sub1-3.pdf',
-          ]
+          ['nested-row0-sub0-1.pdf', 'nested-row0-sub0-2.pdf', 'nested-row0-sub0-3.pdf'],
+          ['nested-row0-sub1-1.pdf', 'nested-row0-sub1-2.pdf', 'nested-row0-sub1-3.pdf'],
         ],
       },
       {
         single: 'singleFileInSecondRow.pdf',
-        multi: [
-          'multiInSecondRow1.pdf',
-          'multiInSecondRow2.pdf',
-          'multiInSecondRow3.pdf',
-          'multiInSecondRow4.pdf',
-        ],
+        multi: ['multiInSecondRow1.pdf', 'multiInSecondRow2.pdf', 'multiInSecondRow3.pdf', 'multiInSecondRow4.pdf'],
         nested: [
-          [
-            'nested-row1-sub0-1.pdf',
-            'nested-row1-sub0-2.pdf',
-            'nested-row1-sub0-3.pdf',
-          ],
-          [
-            'nested-row1-sub1-1.pdf',
-            'nested-row1-sub1-2.pdf',
-            'nested-row1-sub1-3.pdf',
-          ]
+          ['nested-row1-sub0-1.pdf', 'nested-row1-sub0-2.pdf', 'nested-row1-sub0-3.pdf'],
+          ['nested-row1-sub1-1.pdf', 'nested-row1-sub1-2.pdf', 'nested-row1-sub1-3.pdf'],
         ],
-      }
+      },
     ];
 
     uploadFile({
@@ -185,14 +154,21 @@ describe('Repeating group attachments', () => {
       fileName: filenames[0].single,
       verifyTableRow: true,
       tableRow: appFrontend.group.rows[0],
-      secondPage: true
+      secondPage: true,
     });
     getState().should('deep.equal', {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
     });
 
     filenames[0].multi.forEach((fileName, idx) => {
-      uploadFile({ item: appFrontend.group.rows[0].uploadMulti, idx, fileName, verifyTableRow: true, tableRow: appFrontend.group.rows[0], secondPage: true });
+      uploadFile({
+        item: appFrontend.group.rows[0].uploadMulti,
+        idx,
+        fileName,
+        verifyTableRow: true,
+        tableRow: appFrontend.group.rows[0],
+        secondPage: true,
+      });
       if (idx !== filenames[0].multi.length - 1) {
         cy.get(appFrontend.group.rows[0].uploadMulti.addMoreBtn).click();
       }
@@ -209,7 +185,7 @@ describe('Repeating group attachments', () => {
       fileName: filenames[1].single,
       verifyTableRow: true,
       tableRow: appFrontend.group.rows[1],
-      secondPage: true
+      secondPage: true,
     });
     filenames[1].multi.forEach((fileName, idx) => {
       uploadFile({
@@ -218,7 +194,7 @@ describe('Repeating group attachments', () => {
         fileName,
         verifyTableRow: true,
         tableRow: appFrontend.group.rows[1],
-        secondPage: true
+        secondPage: true,
       });
       if (idx !== filenames[1].multi.length - 1) {
         cy.get(appFrontend.group.rows[1].uploadMulti.addMoreBtn).click();
@@ -329,10 +305,7 @@ describe('Repeating group attachments', () => {
 
     const expectedAttachmentState = {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
-      [appFrontend.group.rows[0].uploadMulti.stateKey]: [
-        filenames[0].multi[0],
-        filenames[0].multi[2],
-      ],
+      [appFrontend.group.rows[0].uploadMulti.stateKey]: [filenames[0].multi[0], filenames[0].multi[2]],
       [appFrontend.group.rows[1].uploadSingle.stateKey]: [filenames[1].single],
       [appFrontend.group.rows[1].uploadMulti.stateKey]: filenames[1].multi,
       [appFrontend.group.rows[0].nestedGroup.rows[0].uploadTagMulti.stateKey]: filenames[0].nested[0],
@@ -397,10 +370,7 @@ describe('Repeating group attachments', () => {
 
     const expectedAttachmentStateAfterDeletingFirstNestedRow = {
       [appFrontend.group.rows[0].uploadSingle.stateKey]: [filenames[0].single],
-      [appFrontend.group.rows[0].uploadMulti.stateKey]: [
-        filenames[0].multi[0],
-        filenames[0].multi[2],
-      ],
+      [appFrontend.group.rows[0].uploadMulti.stateKey]: [filenames[0].multi[0], filenames[0].multi[2]],
       [appFrontend.group.rows[1].uploadSingle.stateKey]: [filenames[1].single],
       [appFrontend.group.rows[1].uploadMulti.stateKey]: filenames[1].multi,
       [appFrontend.group.rows[0].nestedGroup.rows[0].uploadTagMulti.stateKey]: filenames[0].nested[1],
@@ -436,10 +406,11 @@ describe('Repeating group attachments', () => {
 
     // Verify that one of the attachments in the next nested row is visible in the table header. This is also a trick
     // to ensure we wait until the deletion is done before we fetch the redux state.
-    cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].uploadTagMulti.tableRowPreview)
-      .should('contain.text', filenames[0].nested[1][2]);
+    cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].uploadTagMulti.tableRowPreview).should(
+      'contain.text',
+      filenames[0].nested[1][2],
+    );
     cy.get(appFrontend.group.rows[0].nestedGroup.rows[0].editBtn).click();
-
 
     cy.getReduxState(simplifyFormData).should('deep.equal', expectedFormDataAfterDeletingFirstNestedRow);
     getState().should('deep.equal', expectedAttachmentStateAfterDeletingFirstNestedRow);

@@ -121,7 +121,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.reasons).should('not.exist');
     cy.get(appFrontend.changeOfName.confirmChangeName).click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
-    cy.get(appFrontend.changeOfName.reasons).findByText('Slektskap').should('be.visible').click();  // No effect
+    cy.get(appFrontend.changeOfName.reasons).findByText('Slektskap').should('be.visible').click(); // No effect
 
     // Assert the last click had no effect
     cy.get('#form-content-reasonFarm3').should('be.visible');
