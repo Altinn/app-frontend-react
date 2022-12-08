@@ -516,8 +516,7 @@ export function RepeatingGroupTable({
                                 <b>{getTextResource(getTableTitle(component), textResources)}:</b>
                                 <br />
                                 <span>{getFormDataForComponent(component, index)}</span>
-                                <br />
-                                {i < length - 1 && <br />}
+                                {i < length - 1 && <div style={{ height: 8 }} />}
                               </React.Fragment>
                             ),
                         )}
