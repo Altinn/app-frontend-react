@@ -201,35 +201,33 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       container={true}
       item={true}
     >
-      {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) &&
-        repeatingGroupIndex >= 0 &&
-        (!filteredIndexList || filteredIndexList.length > 0) && (
-          <RepeatingGroupTable
-            components={components}
-            attachments={attachments}
-            container={container}
-            currentView={currentView}
-            editIndex={editIndex}
-            formData={formData}
-            hiddenFields={hiddenFields}
-            id={id}
-            language={language}
-            layout={layout}
-            options={options}
-            repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-            repeatingGroupIndex={repeatingGroupIndex}
-            repeatingGroups={repeatingGroups}
-            deleting={deletingIndexes.includes(repeatingGroupIndex)}
-            setEditIndex={setEditIndex}
-            onClickRemove={onClickRemove}
-            hideDeleteButton={edit?.deleteButton === false}
-            setMultiPageIndex={setMultiPageIndex}
-            multiPageIndex={multiPageIndex}
-            textResources={textResources}
-            validations={validations}
-            filteredIndexes={filteredIndexList}
-          />
-        )}
+      {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) && (
+        <RepeatingGroupTable
+          components={components}
+          attachments={attachments}
+          container={container}
+          currentView={currentView}
+          editIndex={editIndex}
+          formData={formData}
+          hiddenFields={hiddenFields}
+          id={id}
+          language={language}
+          layout={layout}
+          options={options}
+          repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
+          repeatingGroupIndex={repeatingGroupIndex}
+          repeatingGroups={repeatingGroups}
+          deleting={deletingIndexes.includes(repeatingGroupIndex)}
+          setEditIndex={setEditIndex}
+          onClickRemove={onClickRemove}
+          hideDeleteButton={edit?.deleteButton === false}
+          setMultiPageIndex={setMultiPageIndex}
+          multiPageIndex={multiPageIndex}
+          textResources={textResources}
+          validations={validations}
+          filteredIndexes={filteredIndexList}
+        />
+      )}
       <Grid
         container={true}
         justifyContent='flex-end'

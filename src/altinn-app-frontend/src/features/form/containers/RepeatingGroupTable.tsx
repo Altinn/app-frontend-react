@@ -59,24 +59,53 @@ export interface IRepeatingGroupTableProps {
 
 const theme = createTheme(altinnAppTheme);
 
+// Page padding could be moved to css-variables
+const ps = 24;
+const pm = 84;
+const pl = 96;
+const m = 15;
+
 const useStyles = makeStyles({
   groupContainer: {
     overflowX: 'auto',
-    margin: '0 -24px 15px -24px',
-    width: 'calc(100% + 48px)',
+
+    // Line up content with page
+    margin: `0 -${ps}px ${m}px -${ps}px`,
+    width: `calc(100% + ${2 * ps}px)`,
     '@media (min-width: 768px)': {
-      margin: '0 -84px 15px -84px',
-      width: 'calc(100% + 168px)',
+      margin: `0 -${pm}px ${m}px -${pm}px`,
+      width: `calc(100% + ${2 * pm}px)`,
     },
     '@media (min-width: 992px)': {
-      margin: '0 -96px 15px -96px',
-      width: 'calc(100% + 192px)',
+      margin: `0 -${pl}px ${m}px -${pl}px`,
+      width: `calc(100% + ${2 * pl}px)`,
+    },
+    '& > table > tbody > tr > td:first-child, & > table > thead > tr > th:first-child': {
+      paddingLeft: ps - m, // subtract cell's margin to align text with page
+      '@media (min-width: 768px)': {
+        paddingLeft: pm - m,
+      },
+      '@media (min-width: 992px)': {
+        paddingLeft: pl - m,
+      },
+    },
+    '& > table > tbody > tr > td:last-child, & > table > thead > tr > th:last-child': {
+      paddingRight: ps - m, // subtract cell's margin to align text with page
+      '@media (min-width: 768px)': {
+        paddingRight: pm - m,
+      },
+      '@media (min-width: 992px)': {
+        paddingRight: pl - m,
+      },
     },
   },
   nestedGroupContainer: {
     overflowX: 'auto',
-    margin: '0 0 15px 0',
+    margin: `0 0 ${m}px 0`,
     width: '100%',
+  },
+  tableEmpty: {
+    margin: 0,
   },
   editingBorder: {
     width: 'calc(100% - 2px)',
@@ -200,22 +229,6 @@ const useStyles = makeStyles({
   tableButton: {
     width: 'max-content', // Stops column from shrinking too much
   },
-  tablePadding: {
-    minWidth: 0,
-    padding: 0,
-    width: 24 - 8 - 15, // subtract adjacent cell's padding and margin to align with page
-    '@media (min-width: 768px)': {
-      width: 84 - 8 - 15,
-    },
-    '@media (min-width: 992px)': {
-      width: 96 - 8 - 15,
-    },
-    '& *': {
-      margin: 0,
-      width: 0,
-      padding: 0,
-    },
-  },
 });
 
 function getEditButtonText(
@@ -298,7 +311,12 @@ export function RepeatingGroupTable({
     return tableHeaderComponentIds.includes(childId);
   });
 
-  const showTableHeader = repeatingGroupIndex > -1 && !(repeatingGroupIndex == 0 && editIndex == 0);
+  // Values adjusted for filter
+  const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
+  const editRowIndex = filteredIndexes ? filteredIndexes.indexOf(editIndex) : editIndex + 1;
+
+  const isEmpty = numRows === 0;
+  const showTableHeader = numRows > 0 && !(numRows == 1 && editRowIndex == 0);
   const [popoverPanelIndex, setPopoverPanelIndex] = useState(-1);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -415,7 +433,11 @@ export function RepeatingGroupTable({
       item={true}
       data-testid={`group-${id}`}
       id={`group-${id}`}
-      className={isNested ? classes.nestedGroupContainer : classes.groupContainer}
+      className={cn({
+        [classes.groupContainer]: !isNested,
+        [classes.nestedGroupContainer]: isNested,
+        [classes.tableEmpty]: isEmpty,
+      })}
     >
       <Table
         id={`group-${id}-table`}
@@ -424,7 +446,6 @@ export function RepeatingGroupTable({
         {showTableHeader && !mobileView && (
           <TableHeader id={`group-${id}-table-header`}>
             <TableRow>
-              {!isNested && <TableCell className={classes.tablePadding} />}
               {tableComponents.map((component: ILayoutComponent) => (
                 <TableCell
                   style={{ textAlign: getTextAlignment(component) }}
@@ -441,7 +462,6 @@ export function RepeatingGroupTable({
                   <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
                 </TableCell>
               )}
-              {!isNested && <TableCell className={classes.tablePadding} />}
             </TableRow>
           </TableHeader>
         )}
@@ -478,7 +498,6 @@ export function RepeatingGroupTable({
                       [classes.tableRowError]: rowHasErrors,
                     })}
                   >
-                    {!isNested && <TableCell className={classes.tablePadding} />}
                     {!mobileView ? (
                       tableComponents.map((component: ILayoutComponent) => (
                         <TableCell
@@ -615,7 +634,6 @@ export function RepeatingGroupTable({
                         </div>
                       </TableCell>
                     )}
-                    {!isNested && <TableCell className={classes.tablePadding} />}
                   </TableRow>
                   {editIndex === index && (
                     <TableRow
