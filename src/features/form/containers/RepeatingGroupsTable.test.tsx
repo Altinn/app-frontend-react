@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { getFormLayoutGroupMock } from '__mocks__/mocks';
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as ResizeObserverModule from 'resize-observer-polyfill';
 import { mockMediaQuery, renderWithProviders } from 'testUtils';
@@ -165,11 +165,11 @@ describe('RepeatingGroupTable', () => {
     });
 
     it('should open and close delete-warning on delete click when alertOnDelete is active', async () => {
-      await user.click(screen.getAllByRole('button', { name: /delete/i })[0]);
+      await act(() => user.click(screen.getAllByRole('button', { name: /delete/i })[0]));
 
       expect(screen.queryByText('Are you sure you want to delete this row?')).toBeInTheDocument();
 
-      await user.click(screen.getAllByRole('button', { name: /delete/i })[0]);
+      await act(() => user.click(screen.getAllByRole('button', { name: /delete/i })[0]));
 
       expect(screen.queryByText('Are you sure you want to delete this row?')).not.toBeInTheDocument();
     });
@@ -185,7 +185,7 @@ describe('RepeatingGroupTable', () => {
       const onClickRemove = jest.fn();
       render({ onClickRemove: onClickRemove });
 
-      await user.click(screen.getAllByRole('button', { name: /delete/i })[0]);
+      await act(() => user.click(screen.getAllByRole('button', { name: /delete/i })[0]));
 
       expect(onClickRemove).toBeCalledTimes(1);
     });
@@ -194,7 +194,7 @@ describe('RepeatingGroupTable', () => {
       const setEditIndex = jest.fn();
       render({ setEditIndex: setEditIndex });
 
-      await user.click(screen.getAllByRole('button', { name: /edit/i })[0]);
+      await act(() => user.click(screen.getAllByRole('button', { name: /edit/i })[0]));
 
       expect(setEditIndex).toBeCalledTimes(1);
     });

@@ -139,7 +139,7 @@ describe('RadioButtonsContainerComponent', () => {
     expect(getRadio({ name: 'Sweden' })).toBeInTheDocument();
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
-    await user.click(getRadio({ name: 'Denmark' }));
+    await act(() => user.click(getRadio({ name: 'Denmark' })));
 
     expect(handleChange).not.toHaveBeenCalled();
     jest.runOnlyPendingTimers();
@@ -159,7 +159,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(denmark).toBeInTheDocument();
 
-    await user.click(denmark);
+    await act(() => user.click(denmark));
 
     expect(handleChange).not.toHaveBeenCalled();
 
@@ -168,7 +168,7 @@ describe('RadioButtonsContainerComponent', () => {
     expect(handleChange).toHaveBeenCalledWith('denmark');
   });
 
-  it('should not call handleDataChange on blur when the value is unchanged', () => {
+  it('should not call handleDataChange on blur when the value is unchanged', async () => {
     const handleChange = jest.fn();
     render({
       handleDataChange: handleChange,
@@ -176,8 +176,10 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
-    fireEvent.focus(getRadio({ name: 'Denmark' }));
-    fireEvent.blur(getRadio({ name: 'Denmark' }));
+    await act(async () => {
+      fireEvent.focus(getRadio({ name: 'Denmark' }));
+      fireEvent.blur(getRadio({ name: 'Denmark' }));
+    });
 
     expect(handleChange).not.toHaveBeenCalled();
   });
@@ -279,7 +281,7 @@ describe('RadioButtonsContainerComponent', () => {
     expect(getRadio({ name: 'The value from the group is: Label for first' })).toBeInTheDocument();
     expect(getRadio({ name: 'The value from the group is: Label for second' })).toBeInTheDocument();
 
-    await user.click(getRadio({ name: 'The value from the group is: Label for first' }));
+    await act(() => user.click(getRadio({ name: 'The value from the group is: Label for first' })));
 
     expect(handleDataChange).not.toHaveBeenCalled();
     jest.runOnlyPendingTimers();

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { render as rtlRender, screen } from '@testing-library/react';
+import { render as rtlRender, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { IAltinnInputProps } from './AltinnInput';
@@ -23,7 +23,7 @@ describe('AltinnInput', () => {
       name: /inputlabel/i,
     });
 
-    await userEvent.type(input, 'input-text');
+    await act(() => userEvent.type(input, 'input-text'));
 
     expect(handleChange).toHaveBeenCalled();
   });

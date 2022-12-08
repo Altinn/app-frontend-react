@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { getInitialStateMock } from '__mocks__/initialStateMock';
-import { screen } from '@testing-library/react';
+import { screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
@@ -121,7 +121,7 @@ describe('PanelGroupContainer', () => {
     const user = userEvent.setup();
 
     const addNewButton = await screen.getByText('Add new item');
-    await user.click(addNewButton);
+    await act(() => user.click(addNewButton));
 
     const inputFieldTitle = await screen.queryByText('The value from the group is: Value from input field [2]');
     expect(inputFieldTitle).toBeInTheDocument();
@@ -149,7 +149,7 @@ describe('PanelGroupContainer', () => {
     const user = userEvent.setup();
 
     const addNewButton = await screen.getByText('Add new item');
-    await user.click(addNewButton);
+    await act(() => user.click(addNewButton));
 
     const firstInputTitle = await screen.queryByText('Referenced Group Input');
     expect(firstInputTitle).toBeInTheDocument();
@@ -177,24 +177,19 @@ describe('PanelGroupContainer', () => {
     const user = userEvent.setup();
 
     // save should not be present when panel is closed
-    let saveButton = await screen.queryByText('Lagre');
-    expect(saveButton).not.toBeInTheDocument();
+    expect(await screen.queryByText('Lagre')).not.toBeInTheDocument();
 
-    let addNewButton: HTMLElement | null = await screen.getByText('Add new item');
-    await user.click(addNewButton);
+    await act(async () => user.click(await screen.getByText('Add new item')));
 
     // save should appear and add should be hidden
-    saveButton = await screen.getByText('Lagre');
-    expect(saveButton).toBeInTheDocument();
+    expect(await screen.getByText('Lagre')).toBeInTheDocument();
 
-    addNewButton = await screen.queryByText('Add new item');
-    expect(addNewButton).not.toBeInTheDocument();
+    expect(await screen.queryByText('Add new item')).not.toBeInTheDocument();
 
     // pressing save should close panel and show add button again
-    await user.click(saveButton);
+    await act(async () => user.click(await screen.getByText('Lagre')));
 
-    addNewButton = await screen.getByText('Add new item');
-    expect(addNewButton).toBeInTheDocument();
+    expect(await screen.getByText('Add new item')).toBeInTheDocument();
   });
 
   it('should display nothing if group is hidden', async () => {

@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 
 import { getInitialStateMock } from '__mocks__/initialStateMock';
 import { applicationMetadataMock, getInstanceDataStateMock } from '__mocks__/mocks';
-import { screen } from '@testing-library/react';
+import { screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from 'testUtils';
 
@@ -79,7 +79,7 @@ describe('ConfirmPage', () => {
     expect(dispatch).toHaveBeenCalledTimes(0);
     expect(screen.queryByText(loadingText)).not.toBeInTheDocument();
     expect(submitBtn).toBeInTheDocument();
-    await userEvent.click(submitBtn);
+    await act(() => userEvent.click(submitBtn));
 
     expect(screen.queryByText(submitBtnText)).toBeInTheDocument();
     expect(screen.getByText(loadingText)).toBeInTheDocument();

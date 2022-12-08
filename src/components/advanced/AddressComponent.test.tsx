@@ -160,8 +160,10 @@ describe('AddressComponent', () => {
     });
 
     const address = getAddressField();
-    await user.type(address, 'Slottsplassen 1');
-    fireEvent.blur(address);
+    await act(async () => {
+      await user.type(address, 'Slottsplassen 1');
+      fireEvent.blur(address);
+    });
 
     expect(handleDataChange).toHaveBeenCalledWith('Slottsplassen 1', {
       key: 'address',
@@ -181,8 +183,10 @@ describe('AddressComponent', () => {
     });
 
     const address = getAddressField();
-    await user.type(address, 'Slottsplassen 1');
-    fireEvent.blur(address);
+    await act(async () => {
+      await user.type(address, 'Slottsplassen 1');
+      fireEvent.blur(address);
+    });
 
     expect(handleDataChange).not.toHaveBeenCalled();
   });
@@ -199,8 +203,10 @@ describe('AddressComponent', () => {
     });
 
     const field = getZipCodeField({ required: true });
-    await user.type(field, '1');
-    fireEvent.blur(field);
+    await act(async () => {
+      await user.type(field, '1');
+      fireEvent.blur(field);
+    });
 
     const errorMessage = screen.getByText(/address_component\.validation_error_zipcode/i);
 
@@ -250,9 +256,11 @@ describe('AddressComponent', () => {
     });
 
     const field = getZipCodeField({ required: true });
-    await user.clear(field);
-    await user.type(field, '0001');
-    fireEvent.blur(field);
+    await act(async () => {
+      await user.clear(field);
+      await user.type(field, '0001');
+      fireEvent.blur(field);
+    });
 
     expect(handleDataChange).toHaveBeenCalledWith('0001', { key: 'zipCode' });
   });
@@ -272,8 +280,10 @@ describe('AddressComponent', () => {
     expect(screen.getByDisplayValue('Oslo')).toBeInTheDocument();
 
     const field = getZipCodeField();
-    await user.clear(field);
-    fireEvent.blur(field);
+    await act(async () => {
+      await user.clear(field);
+      fireEvent.blur(field);
+    });
 
     expect(handleDataChange).toHaveBeenCalledWith('', { key: 'zipCode' });
     expect(handleDataChange).toHaveBeenCalledWith('', { key: 'postPlace' });

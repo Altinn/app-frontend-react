@@ -143,14 +143,14 @@ describe('GroupContainerLikert', () => {
 
       mockStoreDispatch.mockClear();
       expect(btn1).not.toBeChecked();
-      await user.click(btn1);
+      await act(() => user.click(btn1));
       expect(mockStoreDispatch).not.toHaveBeenCalled();
       jest.runOnlyPendingTimers();
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1'));
 
       mockStoreDispatch.mockClear();
       expect(btn2).not.toBeChecked();
-      await user.click(btn2);
+      await act(() => user.click(btn2));
       expect(mockStoreDispatch).not.toHaveBeenCalledTimes(2);
       jest.runOnlyPendingTimers();
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3'));
@@ -160,8 +160,10 @@ describe('GroupContainerLikert', () => {
       const { mockStoreDispatch } = render();
       validateTableLayout(defaultMockQuestions);
 
-      await user.tab();
-      await user.keyboard('[Space]');
+      await act(async () => {
+        await user.tab();
+        await user.keyboard('[Space]');
+      });
       expect(mockStoreDispatch).not.toHaveBeenCalled();
       jest.runOnlyPendingTimers();
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1'));
@@ -235,7 +237,7 @@ describe('GroupContainerLikert', () => {
       });
 
       expect(btn1).not.toBeChecked();
-      await user.click(btn1);
+      await act(() => user.click(btn1));
       expect(mockStoreDispatch).not.toHaveBeenCalled();
       jest.runOnlyPendingTimers();
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1'));
@@ -250,7 +252,7 @@ describe('GroupContainerLikert', () => {
       });
 
       expect(btn2).not.toBeChecked();
-      await user.click(btn2);
+      await act(() => user.click(btn2));
       expect(mockStoreDispatch).not.toHaveBeenCalledTimes(2);
       jest.runOnlyPendingTimers();
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3'));

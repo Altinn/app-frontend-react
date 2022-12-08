@@ -1,7 +1,7 @@
 import React from 'react';
 import { AltinnAppHeader } from 'src/components/shared';
 import type { IParty } from 'src/types/shared';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 describe('organisms/AltinnAppHeader', () => {
@@ -79,10 +79,12 @@ describe('organisms/AltinnAppHeader', () => {
         hidden: true,
       }),
     ).toBeNull();
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: /profilikon meny/i,
-      }),
+    await act(() =>
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /profilikon meny/i,
+        }),
+      ),
     );
     expect(
       screen.getByRole('link', {

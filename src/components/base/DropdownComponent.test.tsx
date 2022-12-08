@@ -77,7 +77,7 @@ describe('DropdownComponent', () => {
       handleDataChange,
     });
 
-    await user.selectOptions(screen.getByRole('combobox'), [screen.getByText('Sweden')]);
+    await act(() => user.selectOptions(screen.getByRole('combobox'), [screen.getByText('Sweden')]));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
@@ -127,11 +127,11 @@ describe('DropdownComponent', () => {
     expect(handleDataChange).toHaveBeenCalledWith('denmark');
     const select = screen.getByRole('combobox');
 
-    await user.click(select);
+    await act(() => user.click(select));
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
-    fireEvent.blur(select);
+    await act(() => fireEvent.blur(select));
 
     expect(handleDataChange).toHaveBeenCalledWith('denmark');
     expect(handleDataChange).toHaveBeenCalledTimes(2);
@@ -164,9 +164,11 @@ describe('DropdownComponent', () => {
       },
     });
 
-    await user.selectOptions(screen.getByRole('combobox'), [
-      screen.getByText('The value from the group is: Label for first'),
-    ]);
+    await act(() =>
+      user.selectOptions(screen.getByRole('combobox'), [
+        screen.getByText('The value from the group is: Label for first'),
+      ]),
+    );
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
@@ -174,9 +176,11 @@ describe('DropdownComponent', () => {
 
     expect(handleDataChange).toHaveBeenCalledWith('Value for first');
 
-    await user.selectOptions(screen.getByRole('combobox'), [
-      screen.getByText('The value from the group is: Label for second'),
-    ]);
+    await act(() =>
+      user.selectOptions(screen.getByRole('combobox'), [
+        screen.getByText('The value from the group is: Label for second'),
+      ]),
+    );
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 

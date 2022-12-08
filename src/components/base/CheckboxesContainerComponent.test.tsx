@@ -157,7 +157,7 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    await user.click(getCheckbox({ name: 'Denmark' }));
+    await act(() => user.click(getCheckbox({ name: 'Denmark' })));
 
     expect(handleChange).not.toHaveBeenCalled();
 
@@ -179,7 +179,7 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
-    await user.click(getCheckbox({ name: 'Denmark', isChecked: true }));
+    await act(() => user.click(getCheckbox({ name: 'Denmark', isChecked: true })));
 
     expect(handleChange).not.toHaveBeenCalled();
 
@@ -201,16 +201,16 @@ describe('CheckboxContainerComponent', () => {
 
     expect(denmark).toBeInTheDocument();
 
-    await user.click(denmark);
+    await act(() => user.click(denmark));
 
     expect(handleChange).not.toHaveBeenCalled();
 
-    fireEvent.blur(denmark);
+    await act(() => fireEvent.blur(denmark));
 
     expect(handleChange).toHaveBeenCalledWith('norway,denmark');
   });
 
-  it('should not call handleDataChange on blur when the value is unchanged', () => {
+  it('should not call handleDataChange on blur when the value is unchanged', async () => {
     const handleChange = jest.fn();
     render({
       handleDataChange: handleChange,
@@ -218,8 +218,10 @@ describe('CheckboxContainerComponent', () => {
 
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    fireEvent.focus(getCheckbox({ name: 'Denmark' }));
-    fireEvent.blur(getCheckbox({ name: 'Denmark' }));
+    await act(() => {
+      fireEvent.focus(getCheckbox({ name: 'Denmark' }));
+      fireEvent.blur(getCheckbox({ name: 'Denmark' }));
+    });
 
     expect(handleChange).not.toHaveBeenCalled();
   });
@@ -237,7 +239,7 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    await user.click(getCheckbox({ name: 'Denmark' }));
+    await act(() => user.click(getCheckbox({ name: 'Denmark' })));
 
     expect(handleChange).not.toHaveBeenCalled();
 
@@ -335,7 +337,7 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'The value from the group is: Label for first' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'The value from the group is: Label for second' })).toBeInTheDocument();
 
-    await user.click(getCheckbox({ name: 'The value from the group is: Label for second' }));
+    await act(() => user.click(getCheckbox({ name: 'The value from the group is: Label for second' })));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 

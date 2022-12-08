@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mockComponentProps, mockMediaQuery, renderWithProviders } from 'testUtils';
 import type { PreloadedState } from 'redux';
@@ -67,7 +67,7 @@ describe('DatepickerComponent', () => {
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
 
-    await userEvent.click(getOpenCalendarButton());
+    await act(() => userEvent.click(getOpenCalendarButton()));
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -85,7 +85,7 @@ describe('DatepickerComponent', () => {
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
 
-    await userEvent.click(getOpenCalendarButton());
+    await act(() => userEvent.click(getOpenCalendarButton()));
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.getAllByRole('dialog')[0]).toBeInTheDocument();
@@ -95,8 +95,8 @@ describe('DatepickerComponent', () => {
     const handleDataChange = jest.fn();
     render({ handleDataChange });
 
-    await userEvent.click(getOpenCalendarButton());
-    await userEvent.click(getCalendarDayButton('15'));
+    await act(() => userEvent.click(getOpenCalendarButton()));
+    await act(() => userEvent.click(getCalendarDayButton('15')));
 
     expect(handleDataChange).toHaveBeenCalledWith(
       // Ignore TZ part of timestamp to avoid test failing when this changes
@@ -111,8 +111,10 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await userEvent.clear(inputField);
-    fireEvent.blur(inputField);
+    await act(async () => {
+      await userEvent.clear(inputField);
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('');
@@ -124,8 +126,10 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await userEvent.type(inputField, '31122022');
-    fireEvent.blur(inputField);
+    await act(async () => {
+      await userEvent.type(inputField, '31122022');
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'));
@@ -137,8 +141,10 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await userEvent.type(inputField, '31122022');
-    fireEvent.blur(inputField);
+    await act(async () => {
+      await userEvent.type(inputField, '31122022');
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('2022-12-31');
@@ -150,8 +156,10 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await userEvent.type(inputField, '31122022');
-    fireEvent.blur(inputField);
+    await act(async () => {
+      await userEvent.type(inputField, '31122022');
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'));
@@ -163,8 +171,10 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await userEvent.type(inputField, '12345678');
-    fireEvent.blur(inputField);
+    await act(async () => {
+      await userEvent.type(inputField, '12345678');
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('12.34.5678');
@@ -175,8 +185,10 @@ describe('DatepickerComponent', () => {
     render({ handleDataChange });
 
     const inputField = screen.getByRole('textbox');
-    await userEvent.type(inputField, `1234`);
-    fireEvent.blur(inputField);
+    await act(async () => {
+      await userEvent.type(inputField, `1234`);
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('12.34.____', { validate: false });

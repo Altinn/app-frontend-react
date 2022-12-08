@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { render as rtlRender, screen } from '@testing-library/react';
+import { render as rtlRender, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { TextAreaComponent } from 'src/components/base/TextAreaComponent';
@@ -34,8 +34,10 @@ describe('TextAreaComponent.tsx', () => {
     });
 
     const textarea = screen.getByRole('textbox');
-    await user.type(textarea, addedText);
-    await user.keyboard('{Tab}');
+    await act(async () => {
+      await user.type(textarea, addedText);
+      await user.keyboard('{Tab}');
+    });
 
     expect(handleDataChange).toHaveBeenCalledWith(`${initialText}${addedText}`);
   });
@@ -54,8 +56,10 @@ describe('TextAreaComponent.tsx', () => {
     });
 
     const textarea = screen.getByRole('textbox');
-    await user.type(textarea, addedText);
-    await user.keyboard('{Tab}');
+    await act(async () => {
+      await user.type(textarea, addedText);
+      await user.keyboard('{Tab}');
+    });
 
     expect(handleDataChange).not.toHaveBeenCalled();
   });

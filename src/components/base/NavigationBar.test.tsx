@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { screen } from '@testing-library/react';
+import { screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mockMediaQuery, renderWithProviders } from 'testUtils';
 
@@ -143,7 +143,7 @@ describe('NavigationBar', () => {
 
       const btn = screen.getByText(/3\. page3/i);
 
-      await userEvent.click(btn);
+      await act(() => userEvent.click(btn));
 
       expect(dispatchMock).toHaveBeenCalledWith({
         payload: {
@@ -158,10 +158,12 @@ describe('NavigationBar', () => {
       const dispatchMock = jest.fn();
       render({ dispatch: dispatchMock });
 
-      await userEvent.click(
-        screen.getByRole('button', {
-          name: /1\. page1/i,
-        }),
+      await act(() =>
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /1\. page1/i,
+          }),
+        ),
       );
 
       expect(dispatchMock).not.toHaveBeenCalled();
@@ -195,7 +197,7 @@ describe('NavigationBar', () => {
       expect(navMenu).toHaveProperty('hidden', true);
       expect(toggleButton).toHaveProperty('hidden', false);
 
-      await userEvent.click(toggleButton);
+      await act(() => userEvent.click(toggleButton));
 
       expect(navMenu).toHaveProperty('hidden', false);
       expect(toggleButton).toHaveProperty('hidden', true);
@@ -208,7 +210,7 @@ describe('NavigationBar', () => {
         name: /1\/3 page1/i,
       });
 
-      await userEvent.click(toggleButton);
+      await act(() => userEvent.click(toggleButton));
 
       const firstNavButton = screen.getByRole('button', {
         name: /1\. page1/i,
@@ -221,16 +223,20 @@ describe('NavigationBar', () => {
       const dispatchMock = jest.fn();
       render({ dispatch: dispatchMock });
 
-      await userEvent.click(
-        screen.getByRole('button', {
-          name: /1\/3 page1/i,
-        }),
+      await act(() =>
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /1\/3 page1/i,
+          }),
+        ),
       );
 
-      await userEvent.click(
-        screen.getByRole('button', {
-          name: /3\. page3/i,
-        }),
+      await act(() =>
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /3\. page3/i,
+          }),
+        ),
       );
 
       expect(dispatchMock).toHaveBeenCalledWith({
@@ -246,16 +252,20 @@ describe('NavigationBar', () => {
       const dispatchMock = jest.fn();
       render({ dispatch: dispatchMock });
 
-      await userEvent.click(
-        screen.getByRole('button', {
-          name: /1\/3 page1/i,
-        }),
+      await act(() =>
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /1\/3 page1/i,
+          }),
+        ),
       );
 
-      await userEvent.click(
-        screen.getByRole('button', {
-          name: /1\. page1/i,
-        }),
+      await act(() =>
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /1\. page1/i,
+          }),
+        ),
       );
 
       expect(dispatchMock).not.toHaveBeenCalled();

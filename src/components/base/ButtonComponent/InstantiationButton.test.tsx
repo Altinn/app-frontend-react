@@ -53,7 +53,7 @@ describe('InstantiationButton', () => {
 
     expect(screen.queryByText('general.loading')).toBeNull();
 
-    await userEvent.click(screen.getByRole('button'));
+    await act(() => userEvent.click(screen.getByRole('button')));
 
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(mockAxios).toHaveBeenCalledTimes(1);

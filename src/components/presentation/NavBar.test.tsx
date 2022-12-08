@@ -2,7 +2,7 @@ import React from 'react';
 
 import { getFormLayoutStateMock } from '__mocks__/formLayoutStateMock';
 import { getUiConfigStateMock } from '__mocks__/uiConfigStateMock';
-import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { screen, waitForElementToBeRemoved, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 import { renderWithProviders } from 'testUtils';
@@ -91,7 +91,7 @@ describe('NavBar', () => {
       showLanguageSelector: false,
     });
     const closeButton = screen.getByRole('button', { name: /Lukk Skjema/i });
-    await userEvent.click(closeButton);
+    await act(() => userEvent.click(closeButton));
     expect(mockClose).toHaveBeenCalled();
   });
 
@@ -112,7 +112,7 @@ describe('NavBar', () => {
       showLanguageSelector: false,
     });
     const backButton = screen.getByTestId('altinn-back-button');
-    await userEvent.click(backButton);
+    await act(() => userEvent.click(backButton));
     expect(mockBack).toHaveBeenCalled();
   });
   it('should render and change app language', async () => {
@@ -124,7 +124,7 @@ describe('NavBar', () => {
     });
     await waitForElementToBeRemoved(screen.queryByRole('progressbar'));
     const dropdown = screen.getByRole('combobox', { name: /Språk/i });
-    await userEvent.selectOptions(dropdown, 'en');
+    await act(() => userEvent.selectOptions(dropdown, 'en'));
     expect(dropdown).toHaveValue('en');
   });
   it('should render app language with custom labels', async () => {

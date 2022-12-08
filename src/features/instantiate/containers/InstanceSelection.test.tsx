@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { getInitialStateMock } from '__mocks__/initialStateMock';
-import { screen, within } from '@testing-library/react';
+import { screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import { mockMediaQuery, renderWithProviders } from 'testUtils';
@@ -90,7 +90,7 @@ describe('InstanceSelection', () => {
       onNewInstance: mockStartNewInstance,
     });
 
-    await user.click(screen.getByText(/start på nytt/i));
+    await act(() => user.click(screen.getByText(/start på nytt/i)));
     expect(mockStartNewInstance).toBeCalledTimes(1);
   });
 
@@ -108,7 +108,7 @@ describe('InstanceSelection', () => {
       name: /fortsett her/i,
     });
 
-    await user.click(button);
+    await act(() => user.click(button));
     expect(window.location.href).toBe('https://local.altinn.cloud/ttd/test#/instance/some-id');
   });
 
@@ -129,7 +129,7 @@ describe('InstanceSelection', () => {
       name: /fortsett her-05\/13\/2021/i,
     });
 
-    await user.click(button);
+    await act(() => user.click(button));
     expect(window.location.href).toBe('https://local.altinn.cloud/ttd/test#/instance/some-other-id');
   });
 });

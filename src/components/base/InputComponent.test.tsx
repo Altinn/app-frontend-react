@@ -40,7 +40,7 @@ describe('InputComponent', () => {
     render();
     const inputComponent = screen.getByRole('textbox');
 
-    await user.type(inputComponent, typedValue);
+    await act(() => user.type(inputComponent, typedValue));
 
     expect(inputComponent).toHaveValue(typedValue);
   });
@@ -51,7 +51,7 @@ describe('InputComponent', () => {
     render({ handleDataChange });
     const inputComponent = screen.getByRole('textbox');
 
-    await user.type(inputComponent, typedValue);
+    await act(() => user.type(inputComponent, typedValue));
 
     expect(inputComponent).toHaveValue(typedValue);
     expect(handleDataChange).not.toHaveBeenCalled();
@@ -65,8 +65,11 @@ describe('InputComponent', () => {
     render({ handleDataChange });
     const inputComponent = screen.getByRole('textbox');
 
-    await user.type(inputComponent, typedValue);
-    await user.tab();
+    await act(async () => {
+      await user.type(inputComponent, typedValue);
+      await user.tab();
+    });
+
     expect(inputComponent).toHaveValue(typedValue);
     expect(handleDataChange).toHaveBeenCalledWith(typedValue);
   });
@@ -93,8 +96,10 @@ describe('InputComponent', () => {
     const inputComponent = screen.getByRole('textbox');
     expect(inputComponent).toHaveValue(inputValueFormatted);
 
-    await user.type(inputComponent, typedValue);
-    await user.tab();
+    await act(async () => {
+      await user.type(inputComponent, typedValue);
+      await user.tab();
+    });
 
     expect(inputComponent).toHaveValue(finalValueFormatted);
     expect(handleDataChange).toHaveBeenCalledTimes(1);
