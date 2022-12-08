@@ -169,7 +169,7 @@ describe('Validation', () => {
 
   it('Validation on uploaded attachment type', () => {
     cy.goto('changename');
-    cy.get(appFrontend.changeOfName.upload).selectFile('e2e/fixtures/test.png', { force: true });
+    cy.get(appFrontend.changeOfName.upload).selectFile('cypress/e2e/fixtures/test.png', { force: true });
     cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.upload.substring(1)))
       .should('exist')
       .should('be.visible')

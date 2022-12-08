@@ -33,7 +33,7 @@ describe('UI Components', () => {
   it('is possible to upload and delete attachments', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
-    cy.get(appFrontend.changeOfName.upload).selectFile('e2e/fixtures/test.pdf', { force: true });
+    cy.get(appFrontend.changeOfName.upload).selectFile('cypress/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
@@ -45,7 +45,9 @@ describe('UI Components', () => {
   it('is possible to upload attachments with tags', () => {
     cy.goto('changename');
     cy.intercept('POST', '**/tags').as('saveTags');
-    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('e2e/fixtures/test.pdf', { force: true });
+    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('cypress/e2e/fixtures/test.pdf', {
+      force: true,
+    });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('be.visible').select('address');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).should('be.visible').click();

@@ -38,8 +38,8 @@ describe('Summary', () => {
           .then((summaryDate) => {
             cy.get(summaryDate).children(mui.gridItem).find(mui.buttonIcon).should('exist').and('be.visible').click();
             cy.get(appFrontend.changeOfName.dateOfEffect).clear();
-            cy.get(appFrontend.changeOfName.upload).selectFile('e2e/fixtures/test.pdf', { force: true });
-            cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('e2e/fixtures/test.pdf', {
+            cy.get(appFrontend.changeOfName.upload).selectFile('cypress/e2e/fixtures/test.pdf', { force: true });
+            cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('cypress/e2e/fixtures/test.pdf', {
               force: true,
             });
             cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('be.visible').select('address');

@@ -126,7 +126,7 @@ const completeFormSlow = {
           .then(() => {
             cy.get(mui.selectedDate).should('be.visible').click();
           });
-        cy.get(appFrontend.changeOfName.upload).selectFile('e2e/fixtures/test.pdf', { force: true });
+        cy.get(appFrontend.changeOfName.upload).selectFile('cypress/e2e/fixtures/test.pdf', { force: true });
         cy.contains(mui.button, texts.next).click();
       });
   },
