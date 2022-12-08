@@ -115,8 +115,13 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
         const { settings } = action.payload;
         if (settings && settings.pages) {
           updateCommonPageSettings(state, settings.pages);
+<<<<<<< HEAD
           const confirmationOnScreenFileName = settings.receiptLayoutName;
           state.uiConfig.receiptLayoutName = confirmationOnScreenFileName;
+=======
+          const confirmationOnScreenFileName = settings.confirmationOnScreenFileName;
+          state.uiConfig.confirmationOnScreenFileName = confirmationOnScreenFileName;
+>>>>>>> ef2500bc (Add custom form for confirmation-on-screen to process.archived in processwrapper)
           const order = settings.pages.order;
           if (order) {
             state.uiConfig.tracks.order = order;
