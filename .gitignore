@@ -178,7 +178,7 @@ ClientBin/
 *.dbmdl
 *.dbproj.schemaview
 *.publishsettings
-node_modules/
+/node_modules
 *.metaproj
 *.metaproj.tmp
 
