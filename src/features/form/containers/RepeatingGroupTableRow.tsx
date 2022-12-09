@@ -5,17 +5,16 @@ import { createTheme, makeStyles, TableCell, useMediaQuery } from '@material-ui/
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { ExprDefaultsForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
+import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import altinnAppTheme from 'src/theme/altinnAppTheme';
 import { getFormDataForComponentInRepeatingGroup, getTextResource } from 'src/utils/formComponentUtils';
 import type { IFormData } from 'src/features/form/data';
 import type { ComponentExceptGroup, ILayoutCompInput, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings } from 'src/types';
-
-import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import altinnAppTheme from 'src/theme/altinnAppTheme';
-import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import type { ILanguage } from 'src/types/shared';
 
 export interface IRepeatingGroupTableRowProps {
@@ -255,7 +254,7 @@ export function RepeatingGroupTableRow({
             <div className={classes.buttonInCellWrapper}>
               <Button
                 variant={ButtonVariant.Quiet}
-                color={ButtonColor.Primary}
+                color={ButtonColor.Secondary}
                 icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 iconPlacement='right'
                 onClick={onEditClick}
@@ -319,7 +318,7 @@ export function RepeatingGroupTableRow({
           <div className={classes.buttonInCellWrapper}>
             <Button
               variant={ButtonVariant.Quiet}
-              color={ButtonColor.Primary}
+              color={ButtonColor.Secondary}
               icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
               iconPlacement='right'
               onClick={onEditClick}

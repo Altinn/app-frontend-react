@@ -6,6 +6,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useAppSelector } from 'src/common/hooks';
 import { GenericComponent } from 'src/components/GenericComponent';
 import { useGetOptions } from 'src/components/hooks';
+import { AltinnSpinner, AltinnTable, AltinnTableBody, AltinnTableHeader, AltinnTableRow } from 'src/components/shared';
 import { ExprDefaultsForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { LayoutStyle } from 'src/types';
@@ -14,8 +15,6 @@ import { getOptionLookupKey } from 'src/utils/options';
 import type { IRadioButtonsContainerProps } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { ITextResource } from 'src/types';
-
-import { AltinnSpinner, AltinnTable, AltinnTableBody, AltinnTableHeader, AltinnTableRow } from 'src/components/shared';
 
 type RepeatingGroupsLikertContainerProps = {
   id: string;

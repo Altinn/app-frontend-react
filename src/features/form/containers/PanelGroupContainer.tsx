@@ -5,6 +5,8 @@ import { Grid } from '@material-ui/core';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { EditIconButton } from 'src/components/EditIconButton';
+import { SuccessIconButton } from 'src/components/SuccessIconButton';
 import { ExprDefaultsForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { FullWidthGroupWrapper } from 'src/features/form/components/FullWidthGroupWrapper';
@@ -16,11 +18,8 @@ import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponentsForIndex } from 'src/utils/formLayout';
 import { getLayoutComponentById } from 'src/utils/layout';
-import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
-
-import { EditIconButton } from 'src/components/EditIconButton';
-import { SuccessIconButton } from 'src/components/SuccessIconButton';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 
 export interface IPanelGroupContainerProps {
   container: ILayoutGroup;

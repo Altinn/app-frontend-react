@@ -6,21 +6,25 @@ import cn from 'classnames';
 
 import { ExprDefaultsForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
+import {
+  fullWidthWrapper,
+  xPaddingLarge,
+  xPaddingMedium,
+  xPaddingSmall,
+} from 'src/features/form/components/FullWidthWrapper';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGroupTableRow';
+import altinnAppTheme from 'src/theme/altinnAppTheme';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { setupGroupComponents } from 'src/utils/layout';
+import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { componentHasValidations, repeatingGroupHasValidations } from 'src/utils/validation';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayout, ILayoutCompInput, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
-
-import altinnAppTheme from 'src/theme/altinnAppTheme';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { ILanguage } from 'src/types/shared';
-import { fullWidthWrapper, xPaddingLarge, xPaddingMedium, xPaddingSmall } from '../components/FullWidthWrapper';
 
 export interface IRepeatingGroupTableProps {
   id: string;
@@ -146,6 +150,9 @@ const useStyles = makeStyles({
   },
   tableButton: {
     width: 'max-content', // Stops column from shrinking too much
+  },
+  breakWord: {
+    wordBreak: 'break-word',
   },
 });
 
@@ -345,6 +352,7 @@ export function RepeatingGroupTable({
             <TableRow>
               {tableComponents.map((component: ILayoutComponent, tableComponentIndex: number) => (
                 <TableCell
+                  className={classes.breakWord}
                   style={{ textAlign: getTextAlignment(component) }}
                   key={component.id}
                 >
