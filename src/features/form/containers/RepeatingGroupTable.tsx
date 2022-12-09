@@ -30,6 +30,7 @@ import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopo
 import altinnAppTheme from 'src/theme/altinnAppTheme';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { ILanguage } from 'src/types/shared';
+import { fullWidthWrapper, xPaddingLarge, xPaddingMedium, xPaddingSmall } from '../components/FullWidthWrapper';
 
 export interface IRepeatingGroupTableProps {
   id: string;
@@ -59,49 +60,36 @@ export interface IRepeatingGroupTableProps {
 
 const theme = createTheme(altinnAppTheme);
 
-// Page padding could be moved to css-variables
-const ps = 24;
-const pm = 84;
-const pl = 96;
-const m = 15;
-
+const cellMargin = 15;
 const useStyles = makeStyles({
+  fullWidthWrapper,
   groupContainer: {
     overflowX: 'auto',
+    marginBottom: 15,
 
     // Line up content with page
-    margin: `0 -${ps}px ${m}px -${ps}px`,
-    width: `calc(100% + ${2 * ps}px)`,
-    '@media (min-width: 768px)': {
-      margin: `0 -${pm}px ${m}px -${pm}px`,
-      width: `calc(100% + ${2 * pm}px)`,
-    },
-    '@media (min-width: 992px)': {
-      margin: `0 -${pl}px ${m}px -${pl}px`,
-      width: `calc(100% + ${2 * pl}px)`,
-    },
     '& > table > tbody > tr > td:first-child, & > table > thead > tr > th:first-child': {
-      paddingLeft: ps - m, // subtract cell's margin to align text with page
+      paddingLeft: xPaddingSmall - cellMargin,
       '@media (min-width: 768px)': {
-        paddingLeft: pm - m,
+        paddingLeft: xPaddingMedium - cellMargin,
       },
       '@media (min-width: 992px)': {
-        paddingLeft: pl - m,
+        paddingLeft: xPaddingLarge - cellMargin,
       },
     },
     '& > table > tbody > tr > td:last-child, & > table > thead > tr > th:last-child': {
-      paddingRight: ps - m, // subtract cell's margin to align text with page
+      paddingRight: xPaddingSmall - cellMargin,
       '@media (min-width: 768px)': {
-        paddingRight: pm - m,
+        paddingRight: xPaddingMedium - cellMargin,
       },
       '@media (min-width: 992px)': {
-        paddingRight: pl - m,
+        paddingRight: xPaddingLarge - cellMargin,
       },
     },
   },
   nestedGroupContainer: {
     overflowX: 'auto',
-    margin: `0 0 ${m}px 0`,
+    margin: '0 0 15px 0',
     width: '100%',
   },
   tableEmpty: {
@@ -434,6 +422,7 @@ export function RepeatingGroupTable({
       data-testid={`group-${id}`}
       id={`group-${id}`}
       className={cn({
+        [classes.fullWidthWrapper]: !isNested,
         [classes.groupContainer]: !isNested,
         [classes.nestedGroupContainer]: isNested,
         [classes.tableEmpty]: isEmpty,
