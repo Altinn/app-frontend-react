@@ -5,18 +5,7 @@ import { createTheme, Grid, makeStyles, TableCell, TableRow, useMediaQuery } fro
 import { Delete as DeleteIcon, Edit as EditIcon, Warning as WarningIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { ExprDefaultsForGroup } from 'src/features/expressions';
-import { useExpressions } from 'src/features/expressions/useExpressions';
-import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
-import { getFormDataForComponentInRepeatingGroup, getTextResource } from 'src/utils/formComponentUtils';
-import { createRepeatingGroupComponents } from 'src/utils/formLayout';
-import { setupGroupComponents } from 'src/utils/layout';
-import { componentHasValidations, repeatingGroupHasValidations } from 'src/utils/validation';
-import type { IFormData } from 'src/features/form/data';
-import type { ILayout, ILayoutCompInput, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
-import type { IAttachments } from 'src/shared/resources/attachments';
-import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
-
+import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import {
   AltinnMobileTable,
   AltinnMobileTableItem,
@@ -25,10 +14,20 @@ import {
   AltinnTableHeader,
   AltinnTableRow,
 } from 'src/components/shared';
-import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { useExpressions } from 'src/features/expressions/useExpressions';
+import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import altinnAppTheme from 'src/theme/altinnAppTheme';
+import { getFormDataForComponentInRepeatingGroup, getTextResource } from 'src/utils/formComponentUtils';
+import { createRepeatingGroupComponents } from 'src/utils/formLayout';
+import { setupGroupComponents } from 'src/utils/layout';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
+import { componentHasValidations, repeatingGroupHasValidations } from 'src/utils/validation';
 import type { IMobileTableItem } from 'src/components/molecules/AltinnMobileTableItem';
+import type { IFormData } from 'src/features/form/data';
+import type { ILayout, ILayoutCompInput, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { IAttachments } from 'src/shared/resources/attachments';
+import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
 export interface IRepeatingGroupTableProps {

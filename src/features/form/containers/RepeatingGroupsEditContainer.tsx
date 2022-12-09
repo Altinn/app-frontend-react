@@ -5,13 +5,12 @@ import { createTheme, Grid, makeStyles } from '@material-ui/core';
 import { Delete as DeleteIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { renderGenericComponent } from 'src/utils/layout';
-import type { ILayout, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
-import type { ITextResource } from 'src/types';
-
 import { AltinnButton } from 'src/components/shared';
 import altinnAppTheme from 'src/theme/altinnAppTheme';
+import { renderGenericComponent } from 'src/utils/layout';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
+import type { ILayout, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
 export interface IRepeatingGroupsEditContainer {
