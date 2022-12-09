@@ -17,6 +17,12 @@ import cn from 'classnames';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { ExprDefaultsForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
+import {
+  fullWidthWrapper,
+  xPaddingLarge,
+  xPaddingMedium,
+  xPaddingSmall,
+} from 'src/features/form/components/FullWidthWrapper';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import altinnAppTheme from 'src/theme/altinnAppTheme';
 import { getFormDataForComponentInRepeatingGroup, getTextResource } from 'src/utils/formComponentUtils';
@@ -29,13 +35,6 @@ import type { ILayout, ILayoutCompInput, ILayoutComponent, ILayoutGroup } from '
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
-
-import {
-  fullWidthWrapper,
-  xPaddingLarge,
-  xPaddingMedium,
-  xPaddingSmall,
-} from '/src/features/form/components/FullWidthWrapper';
 
 export interface IRepeatingGroupTableProps {
   id: string;
