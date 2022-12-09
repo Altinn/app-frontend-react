@@ -48,10 +48,10 @@ export interface IAltinnMobileTableItemProps {
   ) => string;
   editButtonText?: string;
   deleteFunctionality?: {
-    onDeleteClick: () => void;
     deleteButtonText: string;
     popoverOpen: boolean;
     popoverPanelIndex: number;
+    onDeleteClick: () => void;
     setPopoverOpen: (open: boolean) => void;
     onOpenChange: (index: number) => void;
     onPopoverDeleteClick: (index: number) => () => void;
@@ -242,8 +242,8 @@ export default function AltinnMobileTableItem({
                 {edit?.deleteButton !== false &&
                   setPopoverOpen &&
                   onOpenChange &&
-                  language &&
                   onPopoverDeleteClick &&
+                  language &&
                   typeof popoverOpen === 'boolean' && (
                     <TableCell
                       align='right'

@@ -345,6 +345,15 @@ export function RepeatingGroupTable({
                       rowHasErrors={rowHasErrors}
                       tableComponents={tableComponents}
                       setDisplayDeleteColumn={setDisplayDeleteColumn}
+                      onEditClick={() => handleEditClick(index)}
+                      deleteFunctionality={{
+                        onDeleteClick: () => handleDeleteClick(index),
+                        popoverPanelIndex,
+                        popoverOpen,
+                        setPopoverOpen,
+                        onPopoverDeleteClick: handlePopoverDeleteClick,
+                        onOpenChange,
+                      }}
                     />
                     {editIndex === index && (
                       <TableRow

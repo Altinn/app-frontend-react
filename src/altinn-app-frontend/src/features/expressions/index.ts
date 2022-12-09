@@ -555,6 +555,7 @@ export const ExprDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {
     next: '',
     back: '',
     altTextImg: '',
+    help: '',
   },
 };
 
