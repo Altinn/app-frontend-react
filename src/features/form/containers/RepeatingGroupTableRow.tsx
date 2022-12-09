@@ -98,6 +98,9 @@ const useStyles = makeStyles({
   tableButton: {
     width: 'max-content', // Stops column from shrinking too much
   },
+  breakWord: {
+    wordBreak: 'break-word',
+  },
 });
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
@@ -224,13 +227,14 @@ export function RepeatingGroupTableRow({
         tableComponents.map((component: ILayoutComponent) => (
           <TableCell
             key={`${component.id}-${index}`}
+            className={classes.breakWord}
             style={{ textAlign: getTextAlignment(component) }}
           >
             <span>{!isEditingRow ? getFormDataForComponent(component, index) : null}</span>
           </TableCell>
         ))
       ) : (
-        <TableCell>
+        <TableCell className={classes.breakWord}>
           {tableComponents.map(
             (component: ILayoutComponent, i, { length }) =>
               !isEditingRow && (
