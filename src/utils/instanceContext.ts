@@ -1,6 +1,5 @@
 import { createSelector } from 'reselect';
 
-import { useInstanceIdParams } from 'src/common/hooks';
 import type { IRuntimeState } from 'src/types';
 import type { IAltinnOrgs, IAppLanguage, IInstance, IInstanceContext, IParty } from 'src/types/shared';
 
@@ -12,15 +11,15 @@ export function buildInstanceContext(
   allOrgs?: IAltinnOrgs | null,
   appLanguage?: IAppLanguage | null,
 ): IInstanceContext | null {
-  const { instanceGuid } = useInstanceIdParams();
   if (!instance) {
     return null;
-  } else if (!party || !allOrgs || !appLanguage || !instanceGuid) {
+  } else if (!party || !allOrgs || !appLanguage) {
     return {
       appId: instance.appId,
       instanceId: instance.id,
       instanceOwnerPartyId: instance.instanceOwner.partyId,
       instanceLastChanged: instance.lastChanged,
+      instanceGuid: instance.id.split('/')[1].split('-')[4],
     };
   }
 
@@ -33,8 +32,7 @@ export function buildInstanceContext(
     instanceReceiver: allOrgs[instance.org]
       ? allOrgs[instance.org].name[appLanguage.language]
       : 'Error: Receiver org not found',
-
-    instanceReference: instanceGuid.split('-')[4],
+    instanceGuid: instance.id.split('/')[1].split('-')[4],
   };
 }
 

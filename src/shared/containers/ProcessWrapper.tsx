@@ -8,16 +8,20 @@ import { ConfirmationOnScreen } from 'src/features/confirmationOnScreen/containe
 import Feedback from 'src/features/feedback/Feedback';
 import { Form } from 'src/features/form/containers/Form';
 import UnknownError from 'src/features/instantiate/containers/UnknownError';
+import Receipt from 'src/features/receipt/containers/ReceiptContainer';
 import Presentation from 'src/shared/containers/Presentation';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 
 const ProcessWrapper = () => {
+  const confirmationOnScreenFileName = useAppSelector(
+    (state) => state.formLayout.uiConfig.confirmationOnScreenFileName,
+  );
+  console.log(confirmationOnScreenFileName);
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
-  const confirmationOnScreenFileName = useAppSelector((state) => state.formLayout.uiConfig.confirmationOnScreenFileName);
   const { hasApiErrors } = useApiErrorCheck();
   const { dispatch, process, appOwner, appName } = useProcess();
 
@@ -42,6 +46,7 @@ const ProcessWrapper = () => {
     return null;
   }
   const { taskType } = process;
+  console.log('TEST');
   return (
     <Presentation
       header={appName}
@@ -51,7 +56,8 @@ const ProcessWrapper = () => {
       {isLoading === false ? (
         <>
           {taskType === ProcessTaskType.Data && <Form />}
-          {taskType === ProcessTaskType.Archived && confirmationOnScreenFileName ? <ConfirmationOnScreen /> : <Receipt >}
+          {taskType === ProcessTaskType.Archived &&
+            (confirmationOnScreenFileName ? <ConfirmationOnScreen /> : <Receipt />)}
           {taskType === ProcessTaskType.Confirm &&
             (behavesLikeDataTask(process.taskId, layoutSets) ? <Form /> : <Confirm />)}
           {taskType === ProcessTaskType.Feedback && <Feedback />}

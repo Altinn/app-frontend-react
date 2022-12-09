@@ -85,7 +85,10 @@ function RenderLayoutGroup(layoutGroup: ILayoutGroup, layout: ILayout | undefine
 
 export function ConfirmationOnScreen() {
   const confirmationOnScreenFormLayout = useAppSelector(
-    (state) => state.formLayout.layouts && state.formLayout.layouts?[state.formLayout.uiConfig.confirmationOnScreenFileName],
+    (state) =>
+      state.formLayout.layouts &&
+      state.formLayout.uiConfig.confirmationOnScreenFileName &&
+      state.formLayout.layouts[state.formLayout.uiConfig.confirmationOnScreenFileName],
   );
   const language = useAppSelector((state) => state.language.language);
   const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
