@@ -101,7 +101,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     [dispatch, id],
   );
 
-  const addButon = () => (
+  const addButton = () => (
     <Button
       id={`add-button-${id}`}
       onClick={onClickAdd}
@@ -236,7 +236,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
         edit?.addButton !== false &&
         editIndex < 0 &&
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) &&
-        addButon()}
+        addButton()}
       {editIndex >= 0 && edit?.mode === 'hideTable' && (
         <RepeatingGroupsEditContainer
           container={container}
@@ -286,7 +286,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       {edit?.mode === 'showAll' &&
         edit?.addButton !== false &&
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) &&
-        addButon()}
+        addButton()}
       <Grid
         item={true}
         xs={12}
