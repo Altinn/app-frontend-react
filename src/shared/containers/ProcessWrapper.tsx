@@ -18,7 +18,6 @@ const ProcessWrapper = () => {
   const confirmationOnScreenFileName = useAppSelector(
     (state) => state.formLayout.uiConfig.confirmationOnScreenFileName,
   );
-  console.log(confirmationOnScreenFileName);
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
@@ -46,7 +45,6 @@ const ProcessWrapper = () => {
     return null;
   }
   const { taskType } = process;
-  console.log('TEST');
   return (
     <Presentation
       header={appName}
