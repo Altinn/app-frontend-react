@@ -1,29 +1,26 @@
 import React, { useState } from 'react';
 
-import { createTheme, Grid, makeStyles, TableCell, TableRow, useMediaQuery } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@altinn/altinn-design-system';
+import { createTheme, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
+import cn from 'classnames';
 
 import { ExprDefaultsForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
-import AltinnMobileTableItem from 'src/features/form/containers/AltinnMobileTableItem';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGroupTableRow';
-import { getFormDataForComponentInRepeatingGroup, getTextResource } from 'src/utils/formComponentUtils';
+import { getTextResource } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { setupGroupComponents } from 'src/utils/layout';
 import { componentHasValidations, repeatingGroupHasValidations } from 'src/utils/validation';
-import type { IMobileTableItem } from 'src/features/form/containers/AltinnMobileTableItem';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayout, ILayoutCompInput, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
 
-import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
-import type { ILanguage } from 'src/types/shared';
 import altinnAppTheme from 'src/theme/altinnAppTheme';
-import { AltinnTableHeader } from 'src/components/molecules/AltinnTableHeader';
-import AltinnTable from 'src/components/organisms/AltinnTable';
-import AltinnTableBody from 'src/components/molecules/AltinnTableBody';
-import AltinnMobileTable from 'src/components/molecules/AltinnMobileTable';
+import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import type { ILanguage } from 'src/types/shared';
+import { fullWidthWrapper, xPaddingLarge, xPaddingMedium, xPaddingSmall } from '../components/FullWidthWrapper';
 
 export interface IRepeatingGroupTableProps {
   id: string;
@@ -52,17 +49,66 @@ export interface IRepeatingGroupTableProps {
 
 const theme = createTheme(altinnAppTheme);
 
+const cellMargin = 15;
 const useStyles = makeStyles({
-  editContainerInTable: {
-    borderTop: `1px solid ${theme.altinnPalette.primary.blueLight}`,
-    marginBottom: 0,
+  fullWidthWrapper,
+  groupContainer: {
+    overflowX: 'auto',
+    marginBottom: 15,
+
+    // Line up content with page
+    '& > table > tbody > tr > td:first-child, & > table > thead > tr > th:first-child': {
+      paddingLeft: xPaddingSmall - cellMargin,
+      '@media (min-width: 768px)': {
+        paddingLeft: xPaddingMedium - cellMargin,
+      },
+      '@media (min-width: 992px)': {
+        paddingLeft: xPaddingLarge - cellMargin,
+      },
+    },
+    '& > table > tbody > tr > td:last-child, & > table > thead > tr > th:last-child': {
+      paddingRight: xPaddingSmall - cellMargin,
+      '@media (min-width: 768px)': {
+        paddingRight: xPaddingMedium - cellMargin,
+      },
+      '@media (min-width: 992px)': {
+        paddingRight: xPaddingLarge - cellMargin,
+      },
+    },
+  },
+  nestedGroupContainer: {
+    overflowX: 'auto',
+    margin: '0 0 15px 0',
+    width: '100%',
+  },
+  tableEmpty: {
+    margin: 0,
+  },
+  editingBorder: {
+    width: 'calc(100% - 2px)',
+    margin: '0 auto',
+    '& $editContainerRow': {
+      borderRight: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+      borderLeft: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+    },
+    '& $editingRow': {
+      borderRight: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+      borderLeft: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+    },
   },
   editContainerRow: {
-    '&:hover': {
-      background: 'unset !important',
+    borderTop: `1px solid ${theme.altinnPalette.primary.blueLight}`,
+    borderBottom: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+    backgroundColor: '#f1fbff',
+    '& > td > div': {
+      margin: 0,
     },
-    '& td': {
-      whiteSpace: 'normal',
+  },
+  editingRow: {
+    borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+    backgroundColor: '#f1fbff',
+    '& > td': {
+      borderBottom: 0,
     },
   },
   visuallyHidden: {
@@ -77,24 +123,31 @@ const useStyles = makeStyles({
     clipPath: 'inset(50%)',
     whiteSpace: 'nowrap',
   },
+  popoverCurrentCell: {
+    zIndex: 1,
+    position: 'relative',
+  },
+  buttonCell: {
+    minWidth: 'unset',
+    maxWidth: 'unset',
+    width: '1px', // Shrinks column width
+    '& > div': {
+      margin: 0,
+    },
+  },
+  buttonInCellWrapper: {
+    display: 'inline-flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    width: '100%',
+  },
+  tableRowError: {
+    backgroundColor: theme.altinnPalette.primary.redLight,
+  },
+  tableButton: {
+    width: 'max-content', // Stops column from shrinking too much
+  },
 });
-
-function getEditButtonText(
-  language: ILanguage,
-  isEditing: boolean,
-  textResources: ITextResource[],
-  textResourceBindings?: ITextResourceBindings,
-): string {
-  if (isEditing && textResourceBindings?.edit_button_close) {
-    return getTextResourceByKey(textResourceBindings?.edit_button_close, textResources);
-  } else if (!isEditing && textResourceBindings?.edit_button_open) {
-    return getTextResourceByKey(textResourceBindings?.edit_button_open, textResources);
-  }
-
-  return isEditing
-    ? getLanguageFromKey('general.save_and_close', language)
-    : getLanguageFromKey('general.edit_alt', language);
-}
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
   if (textResourceBindings.tableTitle) {
@@ -142,7 +195,7 @@ export function RepeatingGroupTable({
   filteredIndexes,
 }: IRepeatingGroupTableProps): JSX.Element {
   const classes = useStyles();
-  const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
+  const mobileView = useMediaQuery('(max-width:992px)');
 
   const edit = useExpressions(container.edit, {
     forComponentId: id,
@@ -157,6 +210,10 @@ export function RepeatingGroupTable({
     return tableHeaderComponentIds.includes(childId);
   });
 
+  // Values adjusted for filter
+  const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
+  const editRowIndex = filteredIndexes ? filteredIndexes.indexOf(editIndex) : editIndex;
+
   const componentTextResourceBindings: ITextResourceBindings[] = [];
   tableComponents.forEach((component) => {
     componentTextResourceBindings.push(component.textResourceBindings as ITextResourceBindings);
@@ -164,25 +221,15 @@ export function RepeatingGroupTable({
 
   const componentTextResourceBindingsResolved = useExpressions(componentTextResourceBindings);
 
-  const showTableHeader = repeatingGroupIndex > -1 && !(repeatingGroupIndex == 0 && editIndex == 0);
+  const isEmpty = numRows === 0;
+  const showTableHeader = numRows > 0 && !(numRows == 1 && editRowIndex == 0);
   const [displayDeleteColumn, setDisplayDeleteColumn] = useState(
     edit?.deleteButton == undefined ? true : edit.deleteButton,
   );
   const [popoverPanelIndex, setPopoverPanelIndex] = useState(-1);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  const getFormDataForComponent = (component: ILayoutComponent | ILayoutGroup, index: number): string => {
-    return getFormDataForComponentInRepeatingGroup(
-      formData,
-      attachments,
-      component,
-      index,
-      container.dataModelBindings?.group,
-      textResources,
-      options,
-      repeatingGroups,
-    );
-  };
+  const isNested = typeof container.baseComponentId === 'string';
 
   const onOpenChange = (index: number) => {
     if (index == popoverPanelIndex && popoverOpen) {
@@ -257,7 +304,6 @@ export function RepeatingGroupTable({
     return (
       editIndex >= 0 && (
         <RepeatingGroupsEditContainer
-          className={classes.editContainerInTable}
           container={container}
           editIndex={editIndex}
           setEditIndex={setEditIndex}
@@ -283,105 +329,43 @@ export function RepeatingGroupTable({
       item={true}
       data-testid={`group-${id}`}
       id={`group-${id}`}
+      className={cn({
+        [classes.fullWidthWrapper]: !isNested,
+        [classes.groupContainer]: !isNested,
+        [classes.nestedGroupContainer]: isNested,
+        [classes.tableEmpty]: isEmpty,
+      })}
     >
-      {!mobileView && (
-        <AltinnTable id={`group-${id}-table`}>
-          {showTableHeader && (
-            <AltinnTableHeader
-              showBorder={editIndex !== 0}
-              id={`group-${id}-table-header`}
-            >
-              <TableRow>
-                {tableComponents.map((component: ILayoutComponent, tableComponentIndex: number) => (
-                  <TableCell
-                    align={getTextAlignment(component)}
-                    key={component.id}
-                  >
-                    {getTextResource(
-                      getTableTitle(componentTextResourceBindingsResolved[tableComponentIndex]),
-                      textResources,
-                    )}
-                  </TableCell>
-                ))}
-                <TableCell style={{ width: '185px', padding: 0, paddingRight: '10px' }}>
-                  <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
+      <Table
+        id={`group-${id}-table`}
+        className={cn({ [classes.editingBorder]: isNested })}
+      >
+        {showTableHeader && !mobileView && (
+          <TableHeader id={`group-${id}-table-header`}>
+            <TableRow>
+              {tableComponents.map((component: ILayoutComponent, tableComponentIndex: number) => (
+                <TableCell
+                  style={{ textAlign: getTextAlignment(component) }}
+                  key={component.id}
+                >
+                  {getTextResource(
+                    getTableTitle(componentTextResourceBindingsResolved[tableComponentIndex]),
+                    textResources,
+                  )}
                 </TableCell>
-                {displayDeleteColumn && (
-                  <TableCell style={{ width: '120px', padding: 0 }}>
-                    <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
-                  </TableCell>
-                )}
-              </TableRow>
-            </AltinnTableHeader>
-          )}
-          <AltinnTableBody id={`group-${id}-table-body`}>
-            {repeatingGroupIndex >= 0 &&
-              [...Array(repeatingGroupIndex + 1)].map((_x: any, index: number) => {
-                const rowHasErrors = repeatingGroupDeepCopyComponents[index].some(
-                  (component: ILayoutComponent | ILayoutGroup) => {
-                    return childElementHasErrors(component, index);
-                  },
-                );
-
-                // Check if filter is applied and includes specified index.
-                if (filteredIndexes && !filteredIndexes.includes(index)) {
-                  return null;
-                }
-
-                return (
-                  <React.Fragment key={index}>
-                    <RepeatingGroupTableRow
-                      id={id}
-                      container={container}
-                      components={components}
-                      repeatingGroups={repeatingGroups}
-                      formData={formData}
-                      attachments={attachments}
-                      options={options}
-                      textResources={textResources}
-                      language={language}
-                      editIndex={editIndex}
-                      setEditIndex={setEditIndex}
-                      onClickRemove={onClickRemove}
-                      deleting={deleting}
-                      index={index}
-                      rowHasErrors={rowHasErrors}
-                      tableComponents={tableComponents}
-                      setDisplayDeleteColumn={setDisplayDeleteColumn}
-                      onEditClick={() => handleEditClick(index)}
-                      deleteFunctionality={{
-                        onDeleteClick: () => handleDeleteClick(index),
-                        popoverPanelIndex,
-                        popoverOpen,
-                        setPopoverOpen,
-                        onPopoverDeleteClick: handlePopoverDeleteClick,
-                        onOpenChange,
-                      }}
-                    />
-                    {editIndex === index && (
-                      <TableRow
-                        key={`edit-container-${index}`}
-                        className={classes.editContainerRow}
-                      >
-                        <TableCell
-                          style={{ padding: 0, borderBottom: 0 }}
-                          colSpan={displayDeleteColumn ? tableComponents.length + 2 : tableComponents.length + 1}
-                        >
-                          {renderRepeatingGroupsEditContainer()}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-          </AltinnTableBody>
-        </AltinnTable>
-      )}
-      {mobileView && (
-        <AltinnMobileTable
-          id={`group-${id}-table`}
-          showBorder={showTableHeader && editIndex !== 0}
-        >
+              ))}
+              <TableCell style={{ padding: 0, paddingRight: '10px' }}>
+                <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
+              </TableCell>
+              {displayDeleteColumn && (
+                <TableCell style={{ padding: 0 }}>
+                  <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
+                </TableCell>
+              )}
+            </TableRow>
+          </TableHeader>
+        )}
+        <TableBody id={`group-${id}-table-body`}>
           {repeatingGroupIndex >= 0 &&
             [...Array(repeatingGroupIndex + 1)].map((_x: any, index: number) => {
               const rowHasErrors = repeatingGroupDeepCopyComponents[index].some(
@@ -389,32 +373,36 @@ export function RepeatingGroupTable({
                   return childElementHasErrors(component, index);
                 },
               );
-              const items: IMobileTableItem[] = tableComponents.map(
-                (component: ILayoutComponent, tableComponentIndex: number) => ({
-                  key: component.id,
-                  label: getTextResource(
-                    getTableTitle(componentTextResourceBindingsResolved[tableComponentIndex]),
-                    textResources,
-                  ),
-                  value: getFormDataForComponent(component, index),
-                }),
-              );
+
+              // Check if filter is applied and includes specified index.
+              if (filteredIndexes && !filteredIndexes.includes(index)) {
+                return null;
+              }
+
               return (
                 <React.Fragment key={index}>
-                  <AltinnMobileTableItem
-                    key={`mobile-table-item-${index}`}
-                    tableItemIndex={index}
+                  <RepeatingGroupTableRow
+                    id={id}
                     container={container}
+                    components={components}
+                    repeatingGroups={repeatingGroups}
+                    formData={formData}
+                    attachments={attachments}
+                    options={options}
                     textResources={textResources}
                     language={language}
-                    items={items}
-                    valid={!rowHasErrors}
                     editIndex={editIndex}
+                    setEditIndex={setEditIndex}
+                    onClickRemove={onClickRemove}
+                    deleting={deleting}
+                    index={index}
+                    rowHasErrors={rowHasErrors}
+                    tableComponents={tableComponents}
+                    setDisplayDeleteColumn={setDisplayDeleteColumn}
                     onEditClick={() => handleEditClick(index)}
-                    getEditButtonText={getEditButtonText}
+                    mobileView={mobileView}
                     deleteFunctionality={{
                       onDeleteClick: () => handleDeleteClick(index),
-                      deleteButtonText: getLanguageFromKey('general.delete', language),
                       popoverPanelIndex,
                       popoverOpen,
                       setPopoverOpen,
@@ -422,12 +410,24 @@ export function RepeatingGroupTable({
                       onOpenChange,
                     }}
                   />
-                  {editIndex === index && renderRepeatingGroupsEditContainer()}
+                  {editIndex === index && (
+                    <TableRow
+                      key={`edit-container-${index}`}
+                      className={classes.editContainerRow}
+                    >
+                      <TableCell
+                        style={{ padding: 0, borderTop: 0 }}
+                        colSpan={mobileView ? 2 : tableComponents.length + 1 + Number(displayDeleteColumn)}
+                      >
+                        {renderRepeatingGroupsEditContainer()}
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </React.Fragment>
               );
             })}
-        </AltinnMobileTable>
-      )}
+        </TableBody>
+      </Table>
     </Grid>
   );
 }
