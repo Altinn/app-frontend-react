@@ -61,7 +61,7 @@ describe('InstantiateContainer', () => {
     expect(contentLoader).toBeInTheDocument();
 
     const instantiationText = within(await screen.findByTestId('presentation-heading')).getByText(
-      'Hold deg fast, nå starter vi!',
+      'Vent litt, vi starter opp tjenesten for deg.',
     );
 
     expect(instantiationText).toBeInTheDocument();
@@ -118,7 +118,7 @@ describe('InstantiateContainer', () => {
     });
 
     expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    expect(screen.queryByText('Hold deg fast, nå starter vi!')).not.toBeInTheDocument();
+    expect(screen.queryByText('Vent litt, vi starter opp tjenesten for deg.')).not.toBeInTheDocument();
 
     expect(screen.getByText('Instance page')).toBeInTheDocument();
   });
