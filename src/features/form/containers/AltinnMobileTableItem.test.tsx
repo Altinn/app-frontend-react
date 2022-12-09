@@ -7,7 +7,7 @@ import { renderWithProviders } from 'testUtils';
 import AltinnMobileTableItem from 'src/features/form/containers/AltinnMobileTableItem';
 import type { IAltinnMobileTableItemProps, IMobileTableItem } from 'src/features/form/containers/AltinnMobileTableItem';
 
-import type { ILanguage } from 'altinn-shared/types';
+import type { ILanguage } from 'src/types/shared';
 
 const user = userEvent.setup();
 

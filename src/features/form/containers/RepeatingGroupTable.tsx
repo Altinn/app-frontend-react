@@ -17,16 +17,13 @@ import type { ILayout, ILayoutCompInput, ILayoutComponent, ILayoutGroup } from '
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
 
-import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import altinnAppTheme from 'src/theme/altinnAppTheme';
-import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
-import type { IMobileTableItem } from 'src/components/molecules/AltinnMobileTableItem';
+import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import type { ILanguage } from 'src/types/shared';
-
-import { AltinnMobileTable, AltinnTable, AltinnTableBody, AltinnTableHeader } from 'altinn-shared/components';
-import altinnAppTheme from 'altinn-shared/theme/altinnAppTheme';
-import { getLanguageFromKey, getTextResourceByKey } from 'altinn-shared/utils';
-import type { ILanguage } from 'altinn-shared/types';
+import altinnAppTheme from 'src/theme/altinnAppTheme';
+import { AltinnTableHeader } from 'src/components/molecules/AltinnTableHeader';
+import AltinnTable from 'src/components/organisms/AltinnTable';
+import AltinnTableBody from 'src/components/molecules/AltinnTableBody';
+import AltinnMobileTable from 'src/components/molecules/AltinnMobileTable';
 
 export interface IRepeatingGroupTableProps {
   id: string;

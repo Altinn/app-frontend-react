@@ -12,13 +12,8 @@ import {
   Typography,
   useMediaQuery,
 } from '@material-ui/core';
-import React from 'react';
-import theme from 'src/theme/altinnStudioTheme';
-import cn from 'classnames';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import type { ILanguage } from 'src/types/shared';
-import { DeleteWarningPopover } from './DeleteWarningPopover';
-import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
+import type { ILanguage, ITextResource } from 'src/types/shared';
+import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 
 import { Delete as DeleteIcon, Edit as EditIcon, Warning as WarningIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
@@ -28,10 +23,8 @@ import { useExpressions } from 'src/features/expressions/useExpressions';
 import type { ILayoutGroup } from 'src/features/form/layout/';
 import type { ITextResourceBindings } from 'src/types';
 
-import { DeleteWarningPopover } from 'altinn-shared/components/molecules/DeleteWarningPopover';
-import theme from 'altinn-shared/theme/altinnStudioTheme';
-import { getLanguageFromKey } from 'altinn-shared/utils';
-import type { ILanguage, ITextResource } from 'altinn-shared/types';
+import theme from 'src/theme/altinnStudioTheme';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 
 export interface IMobileTableItem {
   key: React.Key;

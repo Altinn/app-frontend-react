@@ -13,11 +13,11 @@ import type { ComponentExceptGroup, ILayoutCompInput, ILayoutComponent, ILayoutG
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings } from 'src/types';
 
-import { AltinnTableRow } from 'altinn-shared/components';
-import { DeleteWarningPopover } from 'altinn-shared/components/molecules/DeleteWarningPopover';
-import altinnAppTheme from 'altinn-shared/theme/altinnAppTheme';
-import { getLanguageFromKey, getTextResourceByKey } from 'altinn-shared/utils';
-import type { ILanguage } from 'altinn-shared/types';
+import AltinnTableRow from 'src/components/molecules/AltinnTableRow';
+import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import altinnAppTheme from 'src/theme/altinnAppTheme';
+import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import type { ILanguage } from 'src/types/shared';
 
 export interface IRepeatingGroupTableRowProps {
   id: string;
