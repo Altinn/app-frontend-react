@@ -255,7 +255,7 @@ export function RepeatingGroupTableRow({
             <div className={classes.buttonInCellWrapper}>
               <Button
                 variant={ButtonVariant.Quiet}
-                color={ButtonColor.Secondary}
+                color={ButtonColor.Primary}
                 icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 iconPlacement='right'
                 onClick={onEditClick}
@@ -319,7 +319,7 @@ export function RepeatingGroupTableRow({
           <div className={classes.buttonInCellWrapper}>
             <Button
               variant={ButtonVariant.Quiet}
-              color={ButtonColor.Secondary}
+              color={ButtonColor.Primary}
               icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
               iconPlacement='right'
               onClick={onEditClick}
