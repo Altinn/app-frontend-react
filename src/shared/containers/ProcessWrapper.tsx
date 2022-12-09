@@ -8,6 +8,7 @@ import { CustomReceipt } from 'src/features/customReceipt/containers/CustomRecei
 import Feedback from 'src/features/feedback/Feedback';
 import { Form } from 'src/features/form/containers/Form';
 import UnknownError from 'src/features/instantiate/containers/UnknownError';
+import Receipt from 'src/features/receipt/containers/ReceiptContainer';
 import Presentation from 'src/shared/containers/Presentation';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { ProcessTaskType } from 'src/types';
@@ -18,7 +19,6 @@ const ProcessWrapper = () => {
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
-
   const { hasApiErrors } = useApiErrorCheck();
   const { dispatch, process, appOwner, appName } = useProcess();
 
@@ -47,7 +47,6 @@ const ProcessWrapper = () => {
     return null;
   }
   const { taskType } = process;
-  console.log(taskType);
   return (
     <Presentation
       header={appName}

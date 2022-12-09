@@ -1,7 +1,6 @@
 import Moment from 'moment';
 import { createSelector } from 'reselect';
 
-import { useInstanceIdParams } from 'src/common/hooks';
 import type { IRuntimeState } from 'src/types';
 import type { IAltinnOrgs, IAppLanguage, IInstance, IInstanceContext, IParty } from 'src/types/shared';
 
