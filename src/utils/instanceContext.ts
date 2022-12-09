@@ -38,7 +38,7 @@ export function buildInstanceContext(
 }
 
 let selector: any = undefined;
-export default () => {
+export const getInstanceContextSelector = () => {
   if (selector) {
     return selector;
   }
