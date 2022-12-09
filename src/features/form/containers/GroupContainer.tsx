@@ -19,7 +19,7 @@ import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ILayoutComponent, ILayoutComponentOrGroup, ILayoutGroup } from 'src/features/form/layout';
 import type { IRuntimeState } from 'src/types';
 
-import { getLanguageFromKey, getTextResourceByKey } from 'altinn-shared/utils';
+import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 export interface IGroupProps {
   id: string;
   container: ILayoutGroup;
