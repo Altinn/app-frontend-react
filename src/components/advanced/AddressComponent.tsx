@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { TextField } from '@altinn/altinn-design-system';
-import axios from 'axios';
+import axios, { isCancel } from 'axios';
 
 import { AddressLabel } from 'src/components/advanced/AddressLabel';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
@@ -42,6 +42,7 @@ export function AddressComponent({
   simplified,
   saveWhileTyping,
 }: IAddressComponentProps) {
+  // eslint-disable-next-line import/no-named-as-default-member
   const cancelToken = axios.CancelToken;
   const source = cancelToken.source();
 
@@ -150,7 +151,7 @@ export function AddressComponent({
         }
         hasFetchedPostPlace.current = true;
       } catch (err) {
-        if (axios.isCancel(err)) {
+        if (isCancel(err)) {
           // Intentionally ignored
         } else {
           console.error(err);
