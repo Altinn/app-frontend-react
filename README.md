@@ -93,7 +93,7 @@ these on commits. To avoid confusion, it is recommended to set this up your IDE:
 
 <details>
 <summary>Visual Studio Code</summary>
-Install the [eslint extension from the marketplace](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
+Install the extensions recommended by the workspace, at least [eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
 </details>
 
 <details>
