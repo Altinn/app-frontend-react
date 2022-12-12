@@ -57,6 +57,26 @@ declare global {
       testWcag(): Chainable<Element>;
 
       /**
+       * Typings for axe/a11y plugin
+       */
+      injectAxe(): Chainable<null>;
+
+      /**
+       * Typings for a11y plugin
+       */
+      checkA11y(...args: any[]): Chainable<null>;
+
+      /**
+       * Typings for tab plugin
+       */
+      tab(...args: any[]): Chainable<null>;
+
+      /**
+       * Missing typings in Cypress, added here for proper TypeScript support
+       */
+      state(arg: 'window'): any;
+
+      /**
        * Get body of ifram from the DOM
        * @example cy.getIframeBody()
        */
@@ -95,14 +115,6 @@ declare global {
         mutator: (component: ILayoutComponentOrGroup) => void,
         wholeLayoutMutator?: (layoutSet: any) => void,
       ): Chainable<null>;
-
-      injectAxe(): Chainable<null>;
-
-      checkA11y(...args: any[]): Chainable<null>;
-
-      tab(...args: any[]): Chainable<null>;
-
-      state(arg: 'window'): any;
     }
   }
 }
