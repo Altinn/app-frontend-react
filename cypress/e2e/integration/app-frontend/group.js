@@ -254,11 +254,20 @@ describe('Group', () => {
       .find(mui.tableBody)
       .then((table) => {
         cy.get(table).children().eq(0).find(appFrontend.group.delete).should('be.visible');
-        cy.get(table).children().eq(0).find(appFrontend.group.edit).should('be.visible').should('have.text', texts.edit);
+        cy.get(table)
+          .children()
+          .eq(0)
+          .find(appFrontend.group.edit)
+          .should('be.visible')
+          .should('have.text', texts.edit);
         cy.get(table).children().eq(1).find(appFrontend.group.delete).should('not.exist');
-        cy.get(table).children().eq(1).find(appFrontend.group.edit).should('be.visible').should('have.text', texts.view);
+        cy.get(table)
+          .children()
+          .eq(1)
+          .find(appFrontend.group.edit)
+          .should('be.visible')
+          .should('have.text', texts.view);
       });
-
   });
 
   it('Delete group row after validation', () => {
