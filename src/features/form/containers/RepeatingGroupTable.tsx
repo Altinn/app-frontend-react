@@ -127,30 +127,6 @@ const useStyles = makeStyles({
     clipPath: 'inset(50%)',
     whiteSpace: 'nowrap',
   },
-  popoverCurrentCell: {
-    zIndex: 1,
-    position: 'relative',
-  },
-  buttonCell: {
-    minWidth: 'unset',
-    maxWidth: 'unset',
-    width: '1px', // Shrinks column width
-    '& > div': {
-      margin: 0,
-    },
-  },
-  buttonInCellWrapper: {
-    display: 'inline-flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    width: '100%',
-  },
-  tableRowError: {
-    backgroundColor: theme.altinnPalette.primary.redLight,
-  },
-  tableButton: {
-    width: 'max-content', // Stops column from shrinking too much
-  },
   breakWord: {
     wordBreak: 'break-word',
   },
@@ -387,10 +363,15 @@ export function RepeatingGroupTable({
                 return null;
               }
 
+              const isEditingRow = index === editIndex;
+
               return (
                 <React.Fragment key={index}>
                   <RepeatingGroupTableRow
                     id={id}
+                    className={cn({
+                      [classes.editingRow]: isEditingRow,
+                    })}
                     container={container}
                     components={components}
                     repeatingGroups={repeatingGroups}
@@ -418,7 +399,7 @@ export function RepeatingGroupTable({
                       onOpenChange,
                     }}
                   />
-                  {editIndex === index && (
+                  {isEditingRow && (
                     <TableRow
                       key={`edit-container-${index}`}
                       className={classes.editContainerRow}

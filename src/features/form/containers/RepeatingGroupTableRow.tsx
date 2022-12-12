@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
-import { Button, ButtonColor, ButtonVariant, TableRow } from '@altinn/altinn-design-system';
-import { createTheme, makeStyles, TableCell, useMediaQuery } from '@material-ui/core';
+import { Button, ButtonColor, ButtonVariant, TableCell, TableRow } from '@altinn/altinn-design-system';
+import { createTheme, makeStyles, useMediaQuery } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
@@ -19,6 +19,7 @@ import type { ILanguage } from 'src/types/shared';
 
 export interface IRepeatingGroupTableRowProps {
   id: string;
+  className?: string;
   container: ILayoutGroup;
   components: (ILayoutComponent | ILayoutGroup)[];
   repeatingGroups: IRepeatingGroups | null;
@@ -50,31 +51,6 @@ export interface IRepeatingGroupTableRowProps {
 const theme = createTheme(altinnAppTheme);
 
 const useStyles = makeStyles({
-  editingRow: {
-    backgroundColor: 'rgba(227, 247, 255, 0.5)',
-    '& td': {
-      borderBottom: 0,
-      '&:nth-child(1)': {
-        padding: '0 !important',
-        '&::before': {
-          display: 'block',
-          content: "' '",
-          marginTop: '-25px',
-          width: '100%',
-          position: 'absolute',
-          borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-        },
-        '& span': {
-          padding: '36px',
-        },
-      },
-    },
-  },
-  aboveEditingRow: {
-    '& td': {
-      borderColor: 'transparent',
-    },
-  },
   popoverCurrentCell: {
     zIndex: 1,
     position: 'relative',
@@ -143,6 +119,7 @@ function getTextAlignment(component: ILayoutComponent): 'left' | 'center' | 'rig
 
 export function RepeatingGroupTableRow({
   id,
+  className,
   container,
   components,
   editIndex,
@@ -218,10 +195,12 @@ export function RepeatingGroupTableRow({
   return (
     <TableRow
       key={`repeating-group-row-${index}`}
-      className={cn({
-        [classes.editingRow]: isEditingRow,
-        [classes.tableRowError]: rowHasErrors,
-      })}
+      className={cn(
+        {
+          [classes.tableRowError]: rowHasErrors,
+        },
+        className,
+      )}
     >
       {!mobileView ? (
         tableComponents.map((component: ILayoutComponent) => (
