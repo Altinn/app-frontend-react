@@ -253,15 +253,15 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
       .then((table) => {
-        cy.get(table).children().eq(0).find(appFrontend.group.delete).should('be.visible');
-        cy.get(table)
+        cy.wrap(table).children().eq(0).find(appFrontend.group.delete).should('be.visible');
+        cy.wrap(table)
           .children()
           .eq(0)
           .find(appFrontend.group.edit)
           .should('be.visible')
           .should('have.text', texts.edit);
-        cy.get(table).children().eq(1).find(appFrontend.group.delete).should('not.exist');
-        cy.get(table)
+        cy.wrap(table).children().eq(1).find(appFrontend.group.delete).should('not.exist');
+        cy.wrap(table)
           .children()
           .eq(1)
           .find(appFrontend.group.edit)
