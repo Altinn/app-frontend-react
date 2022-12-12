@@ -93,6 +93,7 @@ const PDFView = ({ appName }: PDFViewProps) => {
       );
     }, shallowEqual);
 
+    document.body.style.backgroundColor = 'white';
     return (
       <SummaryComponentSwitch
         id={comp.id}

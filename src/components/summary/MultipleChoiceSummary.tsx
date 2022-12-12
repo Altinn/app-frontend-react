@@ -16,14 +16,11 @@ export interface IMultipleChoiceSummaryProps {
 }
 
 const useStyles = makeStyles({
-  row: {
-    borderBottom: '1px dashed #008FD6',
-    marginBottom: 10,
-    paddingBottom: 10,
-  },
   list: {
-    paddingLeft: 0,
-    paddingRight: 0,
+    padding: 0,
+  },
+  listItem: {
+    padding: 0,
   },
   // Match style in \src\components\summary\SingleInputSummary.tsx
   data: {
@@ -62,12 +59,12 @@ export default function MultipleChoiceSummary({
         xs={12}
         data-testid={'multiple-choice-summary'}
       >
-        <List>
+        <List classes={{ root: classes.list }}>
           {formData &&
             Object.keys(formData).map((key) => (
               <ListItem
                 key={key}
-                classes={{ root: classes.list }}
+                classes={{ root: classes.listItem }}
               >
                 <ListItemText
                   id={key}
