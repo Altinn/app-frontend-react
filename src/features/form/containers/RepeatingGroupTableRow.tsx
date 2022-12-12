@@ -65,7 +65,8 @@ const useStyles = makeStyles({
   },
   buttonInCellWrapper: {
     display: 'inline-flex',
-    justifyContent: 'right',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
     width: '100%',
   },
   tableRowError: {
@@ -309,7 +310,7 @@ export function RepeatingGroupTableRow({
               data-testid='edit-button'
               className={classes.tableButton}
             >
-              {!mobileViewSmall && editButtonText}
+              {(isEditingRow || !mobileViewSmall) && editButtonText}
             </Button>
             {edit?.deleteButton !== false &&
               setPopoverOpen &&
@@ -331,7 +332,7 @@ export function RepeatingGroupTableRow({
                         data-testid='delete-button'
                         className={classes.tableButton}
                       >
-                        {!mobileViewSmall && deleteButtonText}
+                        {(isEditingRow || !mobileViewSmall) && deleteButtonText}
                       </Button>
                     }
                     side='left'
