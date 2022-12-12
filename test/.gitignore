@@ -1,17 +1,12 @@
-# Example tests
-cypress/integration/examples
-
 # Screenshots and videos
-screenshots/
-videos/
+/screenshots/
+/videos/
 
 # Reports
-reports/
+/reports/
 
 # Downloads
-downloads/
-
-.env
+/downloads/
 
 # Redux state history saved when tests fail
 /redux-history
