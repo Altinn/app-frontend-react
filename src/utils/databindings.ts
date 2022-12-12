@@ -1,7 +1,7 @@
 import { dot, object } from 'dot-object';
 
 import { getParentGroup } from 'src/utils/validation';
-import type { IFormData } from 'src/features/form/data';
+import type { IDataModelData, IFormData } from 'src/features/form/data';
 import type { ILayout, ILayoutCompFileUpload } from 'src/features/form/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type { IDataModelBindings, IMapping, IRepeatingGroup, IRepeatingGroups } from 'src/types';
@@ -12,8 +12,16 @@ import type { IDataModelBindings, IMapping, IRepeatingGroup, IRepeatingGroups } 
  * XSD. This is needed for the API to understand
  * @param formData the complete datamodel in store
  */
-export function convertDataBindingToModel(formData: any): any {
-  return object({ ...formData });
+export function convertDataBindingToModel(formData: IFormData): IDataModelData {
+  return object({ ...formData }) as IDataModelData;
+}
+
+/**
+ * Converts JSON to the flat datamodel used in Redux data store
+ * @param data The form data as JSON
+ */
+export function convertModelToDataBinding(data: IDataModelData): IFormData {
+  return dot(data);
 }
 
 export function filterOutInvalidData({ data, invalidKeys = [] }: { data: IFormData; invalidKeys: string[] }) {
@@ -33,14 +41,6 @@ export function filterOutInvalidData({ data, invalidKeys = [] }: { data: IFormDa
 
 export const INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/;
 export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/g;
-
-/**
- * Converts JSON to the flat datamodel used in Redux data store
- * @param data The form data as JSON
- */
-export function convertModelToDataBinding(data: any): any {
-  return flattenObject(data);
-}
 
 export function getKeyWithoutIndex(keyWithIndex: string): string {
   if (keyWithIndex?.indexOf('[') === -1) {
@@ -77,7 +77,7 @@ export function replaceIndexIndicatorsWithIndexes(key: string, indexes: number[]
   }, key);
 }
 
-/*
+/**
   Gets possible combinations of repeating group or nested groups
   Example input ["group", "group.subGroup"] (note that sub groups should)
   For the group setup
@@ -162,31 +162,6 @@ export function getBaseGroupDataModelBindingFromKeyWithIndexIndicators(key: stri
 export function getKeyIndex(keyWithIndex: string): number[] {
   const match = keyWithIndex.match(/\[\d+]/g) || [];
   return match.map((n) => parseInt(n.replace('[', '').replace(']', ''), 10));
-}
-
-/**
- * Converts JSON to the flat datamodel used in Redux data store
- * @param data The form data as JSON
- */
-export function flattenObject(data: any): any {
-  const flat = dot(data);
-
-  for (const key of Object.keys(flat)) {
-    if (flat[key] === null || (Array.isArray(flat[key]) && flat[key].length === 0)) {
-      delete flat[key];
-    } else if (flat[key] === '' && key.indexOf('.') > 0) {
-      // For backwards compatibility, delete keys inside deeper object that are empty strings. This behaviour is
-      // not always consistent, as it is only a case for deeper object (not direct properties).
-      delete flat[key];
-    } else {
-      // Cast all values to strings, for backwards compatibility. Lots of code already written in frontend
-      // expects data to be formatted as strings everywhere, and since this is a web application, even numeric
-      // inputs have their values stored as strings.
-      flat[key] = flat[key].toString();
-    }
-  }
-
-  return flat;
 }
 
 export function getGroupDataModelBinding(repeatingGroup: IRepeatingGroup, groupId: string, layout: ILayout) {
