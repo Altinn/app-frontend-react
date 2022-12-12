@@ -94,8 +94,8 @@
           ],
           [
             // All imports from external packages in node_modules (with type-only imports last)
-            "^@?(?!src|test)\\w+[^\\u0000]*$",
-            "^@?(?!src|test)\\w+.*\\u0000$"
+            "^@?(?!src/|test/)\\w+[^\\u0000]*$",
+            "^@?(?!src/|test/)\\w+.*\\u0000$"
           ],
           [
             // Relative/sibling imports
