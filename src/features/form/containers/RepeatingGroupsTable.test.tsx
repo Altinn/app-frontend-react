@@ -40,6 +40,7 @@ const getLayout = (group: ILayoutGroup, components: ILayoutComponent[]) => {
         hidden: [],
         hiddenExpr: {},
       },
+      excludePageFromPdf: [],
     },
     error: null,
     layoutsets: null,

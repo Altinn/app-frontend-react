@@ -64,6 +64,7 @@ export interface IPagesSettings {
   hideCloseButton?: boolean;
   showProgress?: boolean;
   showLanguageSelector?: boolean;
+  excludeFromPdf?: string[];
 }
 
 export interface ILayoutNavigation {
@@ -170,6 +171,7 @@ export interface IUiConfig {
   fileUploadersWithTag?: IFileUploadersWithTag;
   navigationConfig?: INavigationConfig;
   tracks: ITracks;
+  excludePageFromPdf: string[] | null;
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
   showLanguageSelector?: boolean;

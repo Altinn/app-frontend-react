@@ -133,6 +133,7 @@ const createLayout = (container: ILayoutGroup, components: ILayoutComponent[], g
         hiddenExpr: {},
       },
       pageTriggers: [],
+      excludePageFromPdf: [],
     },
   };
 };

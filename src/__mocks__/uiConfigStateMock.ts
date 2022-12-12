@@ -27,6 +27,7 @@ export const getUiConfigStateMock = (customStates?: Partial<IUiConfig>): IUiConf
     fileUploadersWithTag: undefined,
     currentView: 'FormLayout',
     navigationConfig: {},
+    excludePageFromPdf: [],
     ...customStates,
   };
 };
