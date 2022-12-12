@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallowEqual } from 'react-redux';
 
-import { Grid } from '@material-ui/core';
+import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks';
 import { GenericComponent } from 'src/components/GenericComponent';
@@ -113,32 +113,33 @@ const PDFView = ({ appName }: PDFViewProps) => {
   return (
     <div className={css['pdf-wrapper']}>
       <h1>{appName}</h1>
-      <Grid
-        container
-        spacing={2}
-      >
-        {layoutAndComponents
-          .flatMap(([pageRef, components]) => components.map((comp) => [pageRef, comp]))
-          .map(([pageRef, comp]: [string, ILayoutComponentOrGroup]) => {
-            if (presentationComponents.has(comp.type)) {
-              const props = comp as ILayoutComponent;
-              return (
-                <GenericComponent
-                  key={comp.id}
-                  {...props}
-                />
-              );
-            } else {
-              return (
+      {layoutAndComponents
+        .flatMap(([pageRef, components]) => components.map((comp) => [pageRef, comp]))
+        .map(([pageRef, comp]: [string, ILayoutComponentOrGroup]) => {
+          if (presentationComponents.has(comp.type)) {
+            const props = comp as ILayoutComponent;
+            return (
+              <div
+                key={comp.id}
+                className={css['component-container']}
+              >
+                <GenericComponent {...props} />
+              </div>
+            );
+          } else {
+            return (
+              <div
+                key={comp.id}
+                className={cn(css['component-container'], css['summary-container'])}
+              >
                 <SummaryForPDF
-                  key={comp.id}
                   comp={comp}
                   pageRef={pageRef}
                 />
-              );
-            }
-          })}
-      </Grid>
+              </div>
+            );
+          }
+        })}
       <ReadyForPrint />
     </div>
   );

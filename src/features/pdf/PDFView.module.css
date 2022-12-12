@@ -5,3 +5,17 @@
 .pdf-wrapper h1 {
   font-size: xx-large;
 }
+
+.component-container {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.summary-container {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #008fd6;
+}
