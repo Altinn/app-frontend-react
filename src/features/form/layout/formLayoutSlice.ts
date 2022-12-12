@@ -52,6 +52,7 @@ export const initialState: ILayoutState = {
     pageTriggers: [],
     keepScrollPos: undefined,
     excludePageFromPdf: null,
+    excludeComponentFromPdf: null,
   },
   layoutsets: null,
 };
@@ -131,6 +132,10 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
               state.uiConfig.currentView = order[0];
             }
           }
+        }
+        if (settings && settings.components) {
+          const { excludeFromPdf = state.uiConfig.excludeComponentFromPdf } = settings.components;
+          state.uiConfig.excludeComponentFromPdf = excludeFromPdf ?? [];
         }
       },
     }),

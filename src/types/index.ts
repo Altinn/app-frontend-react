@@ -56,6 +56,7 @@ export interface ILayoutSet {
 
 export interface ILayoutSettings {
   pages: IPagesSettings;
+  components?: IComponentsSettings;
 }
 
 export interface IPagesSettings {
@@ -64,6 +65,10 @@ export interface IPagesSettings {
   hideCloseButton?: boolean;
   showProgress?: boolean;
   showLanguageSelector?: boolean;
+  excludeFromPdf?: string[];
+}
+
+export interface IComponentsSettings {
   excludeFromPdf?: string[];
 }
 
@@ -172,6 +177,7 @@ export interface IUiConfig {
   navigationConfig?: INavigationConfig;
   tracks: ITracks;
   excludePageFromPdf: string[] | null;
+  excludeComponentFromPdf: string[] | null;
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
   showLanguageSelector?: boolean;

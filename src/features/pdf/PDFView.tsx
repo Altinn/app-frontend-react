@@ -43,9 +43,10 @@ const presentationComponents = new Set(['Header', 'Paragraph', 'Image']);
 const PDFView = ({ appName }: PDFViewProps) => {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const excludePageFromPdf = useAppSelector((state) => state.formLayout.uiConfig.excludePageFromPdf);
+  const excludeComponentFromPdf = useAppSelector((state) => state.formLayout.uiConfig.excludeComponentFromPdf);
   const attachments = useAppSelector((state) => state.attachments.attachments);
 
-  if (!layouts || !excludePageFromPdf) {
+  if (!layouts || !excludePageFromPdf || !excludeComponentFromPdf) {
     return null;
   }
 
@@ -53,7 +54,9 @@ const PDFView = ({ appName }: PDFViewProps) => {
     .filter(([pageRef]) => !excludePageFromPdf.includes(pageRef))
     .map(([pageRef, layout]: [string, ILayoutComponentOrGroup[]]) => [
       pageRef,
-      topLevelComponents(layout).filter((c) => componentTypesToRender.has(c.type)),
+      topLevelComponents(layout).filter(
+        (c) => componentTypesToRender.has(c.type) && !excludeComponentFromPdf.includes(c.id),
+      ),
     ]);
 
   const SummaryForPDF = ({ comp, pageRef }: { comp: ILayoutComponentOrGroup; pageRef: string }) => {

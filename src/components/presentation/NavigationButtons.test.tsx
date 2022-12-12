@@ -70,6 +70,7 @@ describe('NavigationButton', () => {
           hiddenExpr: {},
         },
         excludePageFromPdf: [],
+        excludeComponentFromPdf: [],
         navigationConfig: {
           layout1: {
             next: 'layout2',

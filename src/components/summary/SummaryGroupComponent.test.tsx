@@ -79,6 +79,7 @@ describe('SummaryGroupComponent', () => {
           hiddenExpr: {},
         },
         excludePageFromPdf: [],
+        excludeComponentFromPdf: [],
       },
     });
 

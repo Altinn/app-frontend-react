@@ -33,6 +33,7 @@ const render = ({ props = {}, dispatch = jest.fn() } = {}) => {
         hiddenFields: [],
         repeatingGroups: null,
         excludePageFromPdf: [],
+        excludeComponentFromPdf: [],
       },
       layouts: {
         page1: [

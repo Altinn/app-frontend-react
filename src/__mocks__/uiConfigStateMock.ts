@@ -28,6 +28,7 @@ export const getUiConfigStateMock = (customStates?: Partial<IUiConfig>): IUiConf
     currentView: 'FormLayout',
     navigationConfig: {},
     excludePageFromPdf: [],
+    excludeComponentFromPdf: [],
     ...customStates,
   };
 };
