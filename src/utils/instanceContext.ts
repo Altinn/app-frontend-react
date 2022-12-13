@@ -1,3 +1,4 @@
+import Moment from 'moment';
 import { createSelector } from 'reselect';
 
 import type { IRuntimeState } from 'src/types';
@@ -18,7 +19,7 @@ export function buildInstanceContext(
       appId: instance.appId,
       instanceId: instance.id,
       instanceOwnerPartyId: instance.instanceOwner.partyId,
-      instanceLastChanged: instance.lastChanged,
+      instanceDateSent: Moment(instance.lastChanged).format('DD.MM.YYYY'),
       instanceGuid: instance.id.split('/')[1].split('-')[4],
     };
   }
@@ -27,7 +28,7 @@ export function buildInstanceContext(
     appId: instance.appId,
     instanceId: instance.id,
     instanceOwnerPartyId: instance.instanceOwner.partyId,
-    instanceLastChanged: instance.lastChanged,
+    instanceDateSent: Moment(instance.lastChanged).format('DD.MM.YYYY'),
     instanceSender: `${party.ssn ? party.ssn : party.orgNumber}-${party.name}`,
     instanceReceiver: allOrgs[instance.org]
       ? allOrgs[instance.org].name[appLanguage.language]

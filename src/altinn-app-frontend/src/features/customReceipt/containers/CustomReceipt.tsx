@@ -83,25 +83,25 @@ function RenderLayoutGroup(layoutGroup: ILayoutGroup, layout: ILayout | undefine
   );
 }
 
-export function ConfirmationOnScreen() {
-  const confirmationOnScreenFormLayout = useAppSelector(
+export function CustomReceipt() {
+  const customReceipt = useAppSelector(
     (state) =>
       state.formLayout.layouts &&
-      state.formLayout.uiConfig.confirmationOnScreenFileName &&
-      state.formLayout.layouts[state.formLayout.uiConfig.confirmationOnScreenFileName],
+      state.formLayout.uiConfig.receiptLayoutName &&
+      state.formLayout.layouts[state.formLayout.uiConfig.receiptLayoutName],
   );
   const language = useAppSelector((state) => state.language.language);
   const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));
 
   const [mainComponents, errorReportComponents] = React.useMemo(() => {
-    if (!confirmationOnScreenFormLayout) {
+    if (!customReceipt) {
       return [[], []];
     }
-    const topLevel = topLevelComponents(confirmationOnScreenFormLayout);
+    const topLevel = topLevelComponents(customReceipt);
     return hasErrors ? extractBottomButtons(topLevel) : [topLevel, []];
-  }, [confirmationOnScreenFormLayout, hasErrors]);
+  }, [customReceipt, hasErrors]);
 
-  if (!language || !confirmationOnScreenFormLayout) {
+  if (!language || !customReceipt) {
     return null;
   }
 
@@ -112,7 +112,7 @@ export function ConfirmationOnScreen() {
         spacing={3}
         alignItems='flex-start'
       >
-        {mainComponents.map((component) => renderLayoutComponent(component, confirmationOnScreenFormLayout))}
+        {mainComponents.map((component) => renderLayoutComponent(component, customReceipt))}
         <ErrorReport components={errorReportComponents} />
       </Grid>
       <ReadyForPrint />

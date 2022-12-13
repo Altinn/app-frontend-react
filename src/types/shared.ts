@@ -265,8 +265,8 @@ export interface IInstanceContext {
   instanceId: string;
   appId: string;
   instanceOwnerPartyId: string;
-  instanceLastChanged?: string;
+  instanceDateSent?: string;
   instanceSender?: string;
   instanceReceiver?: string;
-  instanceReference?: string;
+  instanceGuid?: string;
 }

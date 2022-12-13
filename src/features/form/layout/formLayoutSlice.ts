@@ -42,7 +42,7 @@ export const initialState: ILayoutState = {
     autoSave: null,
     repeatingGroups: null,
     fileUploadersWithTag: {},
-    confirmationOnScreenFileName: 'confirmationOnScreen',
+    receiptLayoutName: 'receipt',
     currentView: 'FormLayout',
     navigationConfig: {},
     tracks: {
@@ -115,8 +115,8 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
         const { settings } = action.payload;
         if (settings && settings.pages) {
           updateCommonPageSettings(state, settings.pages);
-          const confirmationOnScreenFileName = settings.confirmationOnScreenFileName;
-          state.uiConfig.confirmationOnScreenFileName = confirmationOnScreenFileName;
+          const confirmationOnScreenFileName = settings.receiptLayoutName;
+          state.uiConfig.receiptLayoutName = confirmationOnScreenFileName;
           const order = settings.pages.order;
           if (order) {
             state.uiConfig.tracks.order = order;
