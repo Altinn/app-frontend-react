@@ -55,7 +55,7 @@ export interface ILayoutSet {
 
 export interface ILayoutSettings {
   pages: IPagesSettings;
-  receiptLayoutName: string;
+  appReceiptLayoutName: string;
 }
 
 export interface IPagesSettings {
@@ -161,7 +161,7 @@ export interface IHiddenLayoutsExpressions {
 
 export interface IUiConfig {
   autoSave: boolean | null | undefined;
-  receiptLayoutName?: string;
+  appReceiptLayoutName?: string;
   currentView: string;
   currentViewCacheKey?: string;
   returnToView?: string;

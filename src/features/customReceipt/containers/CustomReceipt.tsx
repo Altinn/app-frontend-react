@@ -87,8 +87,8 @@ export function CustomReceipt() {
   const customReceipt = useAppSelector(
     (state) =>
       state.formLayout.layouts &&
-      state.formLayout.uiConfig.receiptLayoutName &&
-      state.formLayout.layouts[state.formLayout.uiConfig.receiptLayoutName],
+      state.formLayout.uiConfig.appReceiptLayoutName &&
+      state.formLayout.layouts[state.formLayout.uiConfig.appReceiptLayoutName],
   );
   const language = useAppSelector((state) => state.language.language);
   const hasErrors = useAppSelector((state) => getFormHasErrors(state.formValidations.validations));

@@ -15,7 +15,7 @@ import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 
 const ProcessWrapper = () => {
-  const receiptLayoutName = useAppSelector((state) => state.formLayout.uiConfig.receiptLayoutName);
+  const appReceiptLayoutName = useAppSelector((state) => state.formLayout.uiConfig.appReceiptLayoutName);
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
@@ -25,10 +25,6 @@ const ProcessWrapper = () => {
   const instanceId = useAppSelector((state) => state.instantiation.instanceId);
   const instanceIdFromUrl = useInstanceIdParams()?.instanceId;
   window['instanceId'] = instanceIdFromUrl;
-
-  if (receiptLayoutName) {
-    console.log(receiptLayoutName ? 'Custom receipt' : 'default receipt');
-  }
 
   React.useEffect(() => {
     if (!instantiating && !instanceId) {
@@ -56,7 +52,7 @@ const ProcessWrapper = () => {
       {isLoading === false ? (
         <>
           {taskType === ProcessTaskType.Data && <Form />}
-          {taskType === ProcessTaskType.Archived && (receiptLayoutName ? <CustomReceipt /> : <Receipt />)}
+          {taskType === ProcessTaskType.Archived && (appReceiptLayoutName ? <CustomReceipt /> : <Receipt />)}
           {taskType === ProcessTaskType.Confirm &&
             (behavesLikeDataTask(process.taskId, layoutSets) ? <Form /> : <Confirm />)}
           {taskType === ProcessTaskType.Feedback && <Feedback />}
