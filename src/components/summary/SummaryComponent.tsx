@@ -16,7 +16,7 @@ import {
   getDisplayFormDataForComponent,
 } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ILayoutComponent, ILayoutCompSummary } from 'src/features/form/layout';
+import type { ILayoutComponent, ILayoutCompSummary } from 'src/layout/layout';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
 
 export interface ISummaryComponent extends Omit<ILayoutCompSummary, 'type'> {

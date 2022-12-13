@@ -1,5 +1,5 @@
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { IDataModelBindings, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { IDataModelBindings, ILayoutComponent, ILayoutGroup } from 'src/layout/layout';
 import type { LayoutNode, LayoutRootNode } from 'src/utils/layout/hierarchy';
 
 export type NodeType =

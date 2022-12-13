@@ -20,7 +20,7 @@ import type {
   ILayoutEntry,
   ILayoutGroup,
   ISelectionComponentProps,
-} from 'src/features/form/layout';
+} from 'src/layout/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentValidations,

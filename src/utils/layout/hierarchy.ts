@@ -5,13 +5,7 @@ import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
-import type {
-  ILayout,
-  ILayoutComponent,
-  ILayoutComponentOrGroup,
-  ILayoutGroup,
-  ILayouts,
-} from 'src/features/form/layout';
+import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayoutGroup, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import type {
   AnyChildNode,

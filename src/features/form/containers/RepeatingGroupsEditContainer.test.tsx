@@ -8,7 +8,7 @@ import { RepeatingGroupsEditContainer } from 'src/features/form/containers/Repea
 import { renderWithProviders } from 'src/testUtils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import type { IRepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
-import type { ILayout, ILayoutComponent, ILayoutGroup, ISelectionComponentProps } from 'src/features/form/layout';
+import type { ILayout, ILayoutComponent, ILayoutGroup, ISelectionComponentProps } from 'src/layout/layout';
 import type { IOption } from 'src/types';
 import type { ILanguage, ITextResource } from 'src/types/shared';
 

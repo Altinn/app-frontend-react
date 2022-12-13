@@ -11,7 +11,7 @@ import {
   resolvedNodesInLayouts,
 } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
-import type { ILayout, ILayoutCompHeader, ILayoutCompInput, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayout, ILayoutCompHeader, ILayoutCompInput, ILayoutGroup } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { AnyNode } from 'src/utils/layout/hierarchy.types';
 

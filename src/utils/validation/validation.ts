@@ -19,8 +19,7 @@ import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
 import { nodesInLayout, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
 import { getLanguageFromKey, getParsedLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { IFormData } from 'src/features/form/data';
-import type { ILayout, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
-import type { ILayoutCompDatePicker } from 'src/features/form/layout/index';
+import type { ILayout, ILayoutCompDatePicker, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/layout/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentBindingValidation,

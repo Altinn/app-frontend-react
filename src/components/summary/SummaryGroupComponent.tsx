@@ -17,7 +17,7 @@ import { getRepeatingGroupStartStopIndex, setMappingForRepeatingGroupComponent }
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ComponentFromSummary } from 'src/features/form/containers/DisplayGroupContainer';
-import type { ILayout, ILayoutComponent, ILayoutGroup, SummaryDisplayProperties } from 'src/features/form/layout';
+import type { ILayout, ILayoutComponent, ILayoutGroup, SummaryDisplayProperties } from 'src/layout/layout';
 import type { IRuntimeState, ITextResourceBindings } from 'src/types';
 
 export interface ISummaryGroupComponent {

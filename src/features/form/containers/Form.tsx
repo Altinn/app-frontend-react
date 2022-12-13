@@ -9,12 +9,12 @@ import MessageBanner from 'src/features/form/components/MessageBanner';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
-import { PanelGroupContainer } from 'src/features/form/containers/PanelGroupContainer';
+import { PanelGroupContainer } from 'src/layout/Panel/PanelGroupContainer';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { extractBottomButtons, hasRequiredFields, topLevelComponents } from 'src/utils/formLayout';
 import { renderGenericComponent } from 'src/utils/layout';
 import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/validation';
-import type { ILayout, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayout, ILayoutComponent, ILayoutGroup } from 'src/layout/layout';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,

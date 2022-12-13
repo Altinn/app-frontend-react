@@ -7,7 +7,7 @@ import type {
   ILayout,
   ILayoutComponent,
   ILayoutGroup,
-} from 'src/features/form/layout';
+} from 'src/layout/layout';
 import type { IAttachmentState } from 'src/shared/resources/attachments';
 import type {
   IFileUploadersWithTag,

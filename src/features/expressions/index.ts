@@ -22,7 +22,7 @@ import type {
   ExprResolved,
   FuncDef,
 } from 'src/features/expressions/types';
-import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayoutComponent, ILayoutGroup } from 'src/layout/layout';
 import type { IAltinnWindow } from 'src/types';
 import type { IInstanceContext } from 'src/types/shared';
 

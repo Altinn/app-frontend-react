@@ -3,7 +3,7 @@ import { convertLayouts, getSharedTests } from 'src/features/expressions/shared'
 import { asExpression, preProcessLayout } from 'src/features/expressions/validation';
 import { nodesInLayouts } from 'src/utils/layout/hierarchy';
 import type { Layouts } from 'src/features/expressions/shared';
-import type { ILayout, ILayoutComponentOrGroup, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayout, ILayoutComponentOrGroup, ILayoutGroup } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 
 function isRepeatingGroup(component?: ILayoutComponentOrGroup): component is ILayoutGroup {

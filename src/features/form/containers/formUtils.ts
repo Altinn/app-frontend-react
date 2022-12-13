@@ -1,4 +1,4 @@
-import type { ILayout, ILayoutComponentOrGroup, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayout, ILayoutComponentOrGroup, ILayoutGroup } from 'src/layout/layout';
 
 export const mapGroupComponents = ({ children, edit }: ILayoutGroup, layout: ILayout | undefined | null) =>
   children

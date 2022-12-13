@@ -10,7 +10,7 @@ import {
 } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import * as networking from 'src/utils/network/networking';
-import type { ILayoutCompFileUploadWithTag, ILayoutCompSummary, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayoutCompFileUploadWithTag, ILayoutCompSummary, ILayoutGroup } from 'src/layout/layout';
 import type { IHiddenLayoutsExpressions } from 'src/types';
 import type { IApplication, IInstance } from 'src/types/shared';
 

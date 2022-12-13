@@ -13,7 +13,7 @@ import {
   SelectInstance,
   SelectInstanceData,
 } from 'src/shared/resources/attachments/map/mapAttachmentsSagas';
-import type { ILayoutCompFileUpload, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayoutCompFileUpload, ILayoutComponent, ILayoutGroup } from 'src/layout/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 
 describe('mapAttachments', () => {

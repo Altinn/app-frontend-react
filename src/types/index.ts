@@ -29,7 +29,7 @@ export interface IComponentValidations {
   [id: string]: IComponentBindingValidation | undefined;
 }
 
-export { IDataModelBindings } from '../features/form/layout';
+export { IDataModelBindings } from '../layout/layout';
 
 export interface IFormFileUploaderWithTag {
   chosenOptions: IOptionsChosen;

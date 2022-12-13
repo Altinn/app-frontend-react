@@ -10,7 +10,7 @@ import {
   setMappingForRepeatingGroupComponent,
   topLevelComponents,
 } from 'src/utils/formLayout';
-import type { ILayout, ILayoutCompFileUploadWithTag, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayout, ILayoutCompFileUploadWithTag, ILayoutComponent, ILayoutGroup } from 'src/layout/layout';
 import type { IAttachmentState } from 'src/shared/resources/attachments';
 import type { ILayoutSets, IMapping, IRepeatingGroups, ITextResource } from 'src/types';
 
