@@ -6,14 +6,15 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useAppSelector } from 'src/common/hooks';
 import { GenericComponent } from 'src/components/GenericComponent';
 import { useGetOptions } from 'src/components/hooks';
+import { AltinnSpinner, AltinnTable, AltinnTableBody, AltinnTableHeader, AltinnTableRow } from 'src/components/shared';
+import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { useExpressions } from 'src/features/expressions/useExpressions';
 import { LayoutStyle } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IRadioButtonsContainerProps } from 'src/components/base/RadioButtons/RadioButtonsContainerComponent';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { ITextResource } from 'src/types';
-
-import { AltinnSpinner, AltinnTable, AltinnTableBody, AltinnTableHeader, AltinnTableRow } from 'src/components/shared';
 
 type RepeatingGroupsLikertContainerProps = {
   id: string;
@@ -36,13 +37,18 @@ export const RepeatingGroupsLikertContainer = ({
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
 
+  const textResourceBindings = useExpressions(container.textResourceBindings, {
+    forComponentId: container.id,
+    defaults: ExprDefaultsForGroup.textResourceBindings,
+  });
+
   const getText = (key: string | undefined) => {
     return key ? getTextResource(key, textResources) : undefined;
   };
 
-  const title = getText(container.textResourceBindings?.title);
-  const description = getText(container.textResourceBindings?.description);
-  const leftColumnHeader = getText(container.textResourceBindings?.leftColumnHeader);
+  const title = getText(textResourceBindings?.title);
+  const description = getText(textResourceBindings?.description);
+  const leftColumnHeader = getText(textResourceBindings?.leftColumnHeader);
   const titleId = `likert-title-${id}`;
   const descriptionId = `likert-description-${id}`;
 
