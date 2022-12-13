@@ -429,7 +429,7 @@ describe('formComponentUtils', () => {
     });
 
     it('should return true when component type is Datepicker', () => {
-      const result = componentValidationsHandledByGenericComponent({ simpleBinding: 'group.superdate' }, 'DatePicker');
+      const result = componentValidationsHandledByGenericComponent({ simpleBinding: 'group.superdate' }, 'Datepicker');
       expect(result).toEqual(true);
     });
 

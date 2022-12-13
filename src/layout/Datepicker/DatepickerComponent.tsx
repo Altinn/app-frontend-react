@@ -11,10 +11,10 @@ import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateH
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-import 'src/layout/DatePicker/DatePickerComponent.css';
+import 'src/layout/Datepicker/DatepickerComponent.css';
 import 'src/styles/shared.css';
 
-export type IDatePickerProps = PropsFromGenericComponent<'DatePicker'>;
+export type IDatepickerProps = PropsFromGenericComponent<'Datepicker'>;
 
 const iconSize = '30px';
 
@@ -103,7 +103,7 @@ class AltinnMomentUtils extends MomentUtils {
 // We dont use the built-in validation for the 3rd party component, so it is always empty string
 const emptyString = '';
 
-export function DatePickerComponent({
+export function DatepickerComponent({
   minDate,
   maxDate,
   format,
@@ -116,7 +116,7 @@ export function DatePickerComponent({
   id,
   isValid,
   textResourceBindings,
-}: IDatePickerProps) {
+}: IDatepickerProps) {
   const classes = useStyles();
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');

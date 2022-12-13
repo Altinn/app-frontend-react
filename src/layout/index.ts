@@ -6,7 +6,7 @@ import { AttachmentListComponent } from 'src/layout/AttachmentList/AttachmentLis
 import { ButtonComponent } from 'src/layout/Button/ButtonComponent';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
-import { DatePickerComponent } from 'src/layout/DatePicker/DatePickerComponent';
+import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
@@ -39,7 +39,7 @@ const components: {
   Button: ButtonComponent,
   Checkboxes: CheckboxContainerComponent,
   Custom: CustomWebComponent,
-  DatePicker: DatePickerComponent,
+  Datepicker: DatepickerComponent,
   Dropdown: DropdownComponent,
   FileUpload: FileUploadComponent,
   FileUploadWithTag: FileUploadWithTagComponent,

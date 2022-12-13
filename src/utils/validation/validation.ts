@@ -19,7 +19,7 @@ import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
 import { nodesInLayout, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
 import { getLanguageFromKey, getParsedLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { IFormData } from 'src/features/form/data';
-import type { ILayout, ILayoutCompDatePicker, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/layout/layout';
+import type { ILayout, ILayoutCompDatepicker, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/layout/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentBindingValidation,
@@ -392,7 +392,7 @@ function validateFormComponentsForNodes(
       }
     }
 
-    if (node.item.type === 'DatePicker') {
+    if (node.item.type === 'Datepicker') {
       const componentFormData = getFormDataForComponent(formData, node.item.dataModelBindings);
       validations[node.item.id] = validateDatepickerFormData(componentFormData?.simpleBinding, node.item, language);
     }
@@ -417,7 +417,7 @@ export function attachmentIsMissingTag(attachment: IAttachment): boolean {
 */
 export function validateDatepickerFormData(
   formData: string | null | undefined,
-  component: ILayoutCompDatePicker,
+  component: ILayoutCompDatepicker,
   language: ILanguage,
 ): IComponentValidations {
   const minDate = getDateConstraint(component.minDate, 'min');
@@ -540,7 +540,7 @@ export function validateComponentSpecificValidations(
   language: ILanguage,
 ): IComponentValidations {
   let customComponentValidations: IComponentValidations = {};
-  if (component.type === 'DatePicker') {
+  if (component.type === 'Datepicker') {
     customComponentValidations = validateDatepickerFormData(formData, component, language);
   }
   return customComponentValidations;

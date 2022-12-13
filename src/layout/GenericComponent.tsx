@@ -204,7 +204,7 @@ export function GenericComponent<Type extends ComponentExceptGroup>(_props: IAct
   const getValidationsForInternalHandling = () => {
     if (
       props.type === 'AddressComponent' ||
-      props.type === 'DatePicker' ||
+      props.type === 'Datepicker' ||
       props.type === 'FileUpload' ||
       props.type === 'FileUploadWithTag' ||
       (props.type === 'Likert' && props.layout === LayoutStyle.Table)

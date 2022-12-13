@@ -4,9 +4,9 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { PreloadedState } from 'redux';
 
-import { DatePickerComponent } from 'src/layout/DatePicker/DatePickerComponent';
+import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { mockComponentProps, mockMediaQuery, renderWithProviders } from 'src/testUtils';
-import type { IDatePickerProps } from 'src/layout/DatePicker/DatePickerComponent';
+import type { IDatepickerProps } from 'src/layout/Datepicker/DatepickerComponent';
 import type { RootState } from 'src/store';
 
 // Mock dateformat
@@ -18,15 +18,15 @@ jest.mock('src/utils/dateHelpers', () => {
   };
 });
 
-const render = (props: Partial<IDatePickerProps> = {}, customState: PreloadedState<RootState> = {}) => {
-  const allProps: IDatePickerProps = {
+const render = (props: Partial<IDatepickerProps> = {}, customState: PreloadedState<RootState> = {}) => {
+  const allProps: IDatepickerProps = {
     ...mockComponentProps,
     minDate: '1900-01-01T12:00:00.000Z',
     maxDate: '2100-01-01T12:00:00.000Z',
     ...props,
   };
 
-  renderWithProviders(<DatePickerComponent {...allProps} />, {
+  renderWithProviders(<DatepickerComponent {...allProps} />, {
     preloadedState: customState,
   });
 };

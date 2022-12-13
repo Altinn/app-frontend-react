@@ -91,7 +91,7 @@ export type ILayoutCompCheckboxes = IComponentRadioOrCheckbox<'Checkboxes'>;
 export type ILayoutCompRadioButtons = IComponentRadioOrCheckbox<'RadioButtons'>;
 export type ILayoutCompLikert = IComponentRadioOrCheckbox<'Likert'>;
 
-export interface ILayoutCompDatePicker extends ILayoutCompBase<'DatePicker'> {
+export interface ILayoutCompDatepicker extends ILayoutCompBase<'Datepicker'> {
   minDate?: string | 'today';
   maxDate?: string | 'today';
   timeStamp?: boolean;
@@ -205,7 +205,7 @@ interface Map {
   Button: ILayoutCompButton;
   Checkboxes: ILayoutCompCheckboxes;
   Custom: ILayoutCompCustom;
-  DatePicker: ILayoutCompDatePicker;
+  Datepicker: ILayoutCompDatepicker;
   Dropdown: ILayoutCompDropdown;
   FileUpload: ILayoutCompFileUpload;
   FileUploadWithTag: ILayoutCompFileUploadWithTag;

@@ -260,7 +260,7 @@ export const getDisplayFormData = (
     if (component.type === 'Input' && component.formatting?.number) {
       return formatNumericText(formDataValue, component.formatting.number);
     }
-    if (component.type === 'DatePicker') {
+    if (component.type === 'Datepicker') {
       const dateFormat = getDateFormat(component.format);
       return formatISOString(formDataValue, dateFormat) ?? formDataValue;
     }
