@@ -5,13 +5,14 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Delete as DeleteIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { AltinnButton } from 'src/components/shared';
+import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { useExpressions } from 'src/features/expressions/useExpressions';
+import theme from 'src/theme/altinnStudioTheme';
 import { renderGenericComponent } from 'src/utils/layout';
+import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { ILayout, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { ITextResource } from 'src/types';
-
-import { AltinnButton } from 'src/components/shared';
-import theme from 'src/theme/altinnStudioTheme';
-import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { ILanguage } from 'src/types/shared';
 
 export interface IRepeatingGroupsEditContainer {
@@ -89,6 +90,11 @@ export function RepeatingGroupsEditContainer({
   filteredIndexes,
 }: IRepeatingGroupsEditContainer): JSX.Element {
   const classes = useStyles();
+
+  const textResourceBindings = useExpressions(container.textResourceBindings, {
+    forComponentId: container.id,
+    defaults: ExprDefaultsForGroup.textResourceBindings,
+  });
 
   let nextIndex: number | null = null;
   if (filteredIndexes) {
@@ -219,8 +225,8 @@ export function RepeatingGroupsEditContainer({
                   variant={ButtonVariant.Filled}
                   color={ButtonColor.Primary}
                 >
-                  {container.textResourceBindings?.save_and_next_button
-                    ? getTextResourceByKey(container.textResourceBindings.save_and_next_button, textResources)
+                  {textResourceBindings?.save_and_next_button
+                    ? getTextResourceByKey(textResourceBindings.save_and_next_button, textResources)
                     : getLanguageFromKey('general.save_and_next', language)}
                 </Button>
               </Grid>
@@ -233,8 +239,8 @@ export function RepeatingGroupsEditContainer({
                   variant={ButtonVariant.Outline}
                   color={ButtonColor.Primary}
                 >
-                  {container.textResourceBindings?.save_button
-                    ? getTextResourceByKey(container.textResourceBindings.save_button, textResources)
+                  {textResourceBindings?.save_button
+                    ? getTextResourceByKey(textResourceBindings.save_button, textResources)
                     : getLanguageFromKey('general.save_and_close', language)}
                 </Button>
               </Grid>

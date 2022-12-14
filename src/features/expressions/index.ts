@@ -24,7 +24,6 @@ import type {
 } from 'src/features/expressions/types';
 import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
 import type { IAltinnWindow } from 'src/types';
-
 import type { IInstanceContext } from 'src/types/shared';
 
 export interface EvalExprOptions {
@@ -40,6 +39,11 @@ export interface EvalExprInObjArgs<T> {
 }
 
 /**
+ * Magic key used to indicate a default value for all possible values in an object
+ */
+export const DEFAULT_FOR_ALL_VALUES_IN_OBJ = '__default__';
+
+/**
  * This function is the brains behind the useExpressions() hook, as it will find any expressions inside a deep
  * object and resolve them.
  * @see useExpressions
@@ -50,6 +54,19 @@ export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): ExprResolved<T> {
   }
 
   return evalExprInObjectRecursive(args.input, args as Omit<EvalExprInObjArgs<T>, 'input'>, []);
+}
+
+function getDefaultValueFor(path: string[], defaults: any) {
+  const pathString = path.join('.');
+  const pathStringAnyDefault = [...path.slice(0, path.length - 2), DEFAULT_FOR_ALL_VALUES_IN_OBJ].join('.');
+  const defaultValueSpecific = dot.pick(pathString, defaults);
+  const defaultValueGeneric = dot.pick(pathStringAnyDefault, defaults);
+
+  if (typeof defaultValueSpecific !== 'undefined') {
+    return defaultValueSpecific;
+  }
+
+  return defaultValueGeneric;
 }
 
 /**
@@ -63,9 +80,7 @@ function evalExprInObjectRecursive<T>(input: any, args: Omit<EvalExprInObjArgs<T
   if (Array.isArray(input)) {
     let evaluateAsExpression = false;
     if (args.defaults) {
-      const pathString = path.join('.');
-      const defaultValue = dot.pick(pathString, args.defaults);
-      evaluateAsExpression = typeof defaultValue !== 'undefined';
+      evaluateAsExpression = typeof getDefaultValueFor(path, args.defaults) !== 'undefined';
     } else if (canBeExpression(input)) {
       evaluateAsExpression = true;
     }
@@ -102,7 +117,7 @@ function evalExprInObjectCaller<T>(expr: Expression, args: Omit<EvalExprInObjArg
   };
 
   if (args.defaults) {
-    const defaultValue = dot.pick(pathString, args.defaults);
+    const defaultValue = getDefaultValueFor(path, args.defaults);
     if (typeof defaultValue !== 'undefined') {
       exprOptions.defaultValue = defaultValue;
     }
@@ -547,6 +562,9 @@ export const ExprDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {
   readOnly: false,
   required: false,
   hidden: false,
+  textResourceBindings: {
+    [DEFAULT_FOR_ALL_VALUES_IN_OBJ]: '',
+  },
 };
 
 export const ExprDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
@@ -557,5 +575,8 @@ export const ExprDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
     saveButton: true,
     alertOnDelete: false,
     saveAndNextButton: false,
+  },
+  textResourceBindings: {
+    [DEFAULT_FOR_ALL_VALUES_IN_OBJ]: '',
   },
 };
