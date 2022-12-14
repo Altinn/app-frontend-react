@@ -171,7 +171,7 @@ export function nb() {
       authorization_error_info_customer_service: 'Du kan også kontakte oss på brukerservice {0}.',
       authorization_error_instantiate_validation_info_customer_service:
         'Om du står fast kontakt oss på brukerservice {0}.',
-      starting: 'Vent litt, vi starter opp tjenesten for deg.',
+      starting: 'Vent litt, vi henter det du trenger',
     },
     language: {
       full_name: {
