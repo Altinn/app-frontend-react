@@ -15,6 +15,7 @@ import {
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IFormData } from 'src/features/form/data';
 import type {
+  IDataModelBindings,
   IGridStyling,
   ILayoutComponent,
   ILayoutEntry,
@@ -24,7 +25,6 @@ import type {
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentValidations,
-  IDataModelBindings,
   IOption,
   IOptions,
   IRepeatingGroups,

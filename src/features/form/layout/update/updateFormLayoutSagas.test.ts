@@ -29,10 +29,10 @@ import type {
   ICalculatePageOrderAndMoveToNextPage,
   IUpdateRepeatingGroups,
 } from 'src/features/form/layout/formLayoutTypes';
-import type { ILayoutCompFileUpload } from 'src/layout/layout';
+import type { IDataModelBindings, ILayoutCompFileUpload } from 'src/layout/layout';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { IAttachment } from 'src/shared/resources/attachments';
-import type { IDataModelBindings, IRuntimeState } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 
 describe('updateLayoutSagas', () => {
   beforeEach(() => {

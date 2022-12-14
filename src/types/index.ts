@@ -29,8 +29,6 @@ export interface IComponentValidations {
   [id: string]: IComponentBindingValidation | undefined;
 }
 
-export { IDataModelBindings } from '../layout/layout';
-
 export interface IFormFileUploaderWithTag {
   chosenOptions: IOptionsChosen;
   editIndex: number;
