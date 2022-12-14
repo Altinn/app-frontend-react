@@ -5,7 +5,8 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { PanelGroupContainer } from 'src/layout/Panel/PanelGroupContainer';
 import { LayoutStyle } from 'src/types';
 import { setMappingForRepeatingGroupComponent } from 'src/utils/formLayout';
-import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayoutGroup, ILayouts } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
 import type { ILayoutSet, ILayoutSets } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 

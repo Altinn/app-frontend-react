@@ -1,7 +1,33 @@
-import type { Location, MapLayer, TextField } from '@altinn/altinn-design-system';
-import type { GridJustification, GridSize } from '@material-ui/core';
+import type { TextField } from '@altinn/altinn-design-system';
+import type { GridSize } from '@material-ui/core';
 
 import type { ExpressionOr } from 'src/features/expressions/types';
+import type { IDataModelBindingsForAddress, ILayoutCompAddress } from 'src/layout/Address/types';
+import type { ILayoutCompAttachmentList } from 'src/layout/AttachmentList/types';
+import type { ILayoutCompButton } from 'src/layout/Button/types';
+import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
+import type { ILayoutCompCustom } from 'src/layout/Custom/types';
+import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
+import type { ILayoutCompDropdown } from 'src/layout/Dropdown/types';
+import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
+import type { IDataModelBindingsForGroup, ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutCompHeader } from 'src/layout/Header/types';
+import type { ILayoutCompImage } from 'src/layout/Image/types';
+import type { ILayoutCompInput } from 'src/layout/Input/types';
+import type { ILayoutCompInstantiationButton } from 'src/layout/InstantiationButton/types';
+import type { ILayoutCompLikert } from 'src/layout/Likert/types';
+import type { IDataModelBindingsForList, ILayoutCompList } from 'src/layout/List/types';
+import type { ILayoutCompMap } from 'src/layout/Map/types';
+import type { ILayoutCompMultipleSelect } from 'src/layout/MultipleSelect/types';
+import type { ILayoutCompNavBar } from 'src/layout/NavigationBar/types';
+import type { ILayoutCompNavButtons } from 'src/layout/NavigationButtons/types';
+import type { ILayoutCompPanel } from 'src/layout/Panel/types';
+import type { ILayoutCompParagraph } from 'src/layout/Paragraph/types';
+import type { ILayoutCompPrintButton } from 'src/layout/PrintButton/types';
+import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
+import type { ILayoutCompSummary } from 'src/layout/Summary/types';
+import type { ILayoutCompTextArea } from 'src/layout/TextArea/types';
 import type { ILabelSettings, IMapping, IOption, IOptionSource, LayoutStyle, Triggers } from 'src/types';
 
 export interface ILayouts {
@@ -24,29 +50,6 @@ export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> extends
   type: T;
 }
 
-export interface ILayoutGroup extends ILayoutCompBase<'Group'> {
-  children: string[];
-  maxCount?: number;
-  tableHeaders?: string[];
-  edit?: IGroupEditProperties;
-  panel?: IGroupPanel;
-}
-
-export interface ILayoutCompPanelBase {
-  variant?: 'info' | 'warning' | 'error' | 'success';
-  showIcon?: boolean;
-}
-
-export interface IGroupPanel extends ILayoutCompPanelBase {
-  iconUrl?: string;
-  iconAlt?: string;
-  groupReference?: IGroupReference;
-}
-
-export interface IGroupReference {
-  group: string;
-}
-
 export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes> extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings;
   readOnly?: ExpressionOr<'boolean'>;
@@ -61,16 +64,6 @@ export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes> e
 interface ILayoutCompWillBeSavedWhileTyping {
   saveWhileTyping?: boolean | number;
 }
-
-export interface ILayoutCompAddress extends ILayoutCompBase<'AddressComponent'>, ILayoutCompWillBeSavedWhileTyping {
-  simplified?: boolean;
-}
-
-export interface ILayoutCompAttachmentList extends ILayoutCompBase<'AttachmentList'> {
-  dataTypeIds?: string[];
-}
-
-export type ILayoutCompButton = ILayoutCompBase<'Button'>;
 
 interface ISelectionComponent {
   options?: IOption[];
@@ -87,111 +80,11 @@ export interface IComponentRadioOrCheckbox<T extends Extract<ComponentTypes, 'Ra
   layout?: LayoutStyle;
 }
 
-export type ILayoutCompCheckboxes = IComponentRadioOrCheckbox<'Checkboxes'>;
-export type ILayoutCompRadioButtons = IComponentRadioOrCheckbox<'RadioButtons'>;
-export type ILayoutCompLikert = IComponentRadioOrCheckbox<'Likert'>;
-
-export interface ILayoutCompDatepicker extends ILayoutCompBase<'Datepicker'> {
-  minDate?: string | 'today';
-  maxDate?: string | 'today';
-  timeStamp?: boolean;
-  format?: string;
-}
-
-export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> & ISelectionComponent;
-export interface ILayoutCompList extends ILayoutCompBase<'List'> {
-  tableHeaders?: string[];
-  sortableColumns?: string[];
-  pagination?: IPagination;
-  dataListId: string;
-  secure?: boolean;
-  bindingToShowInSummary?: string;
-}
-
-export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect'> & ISelectionComponent;
-
-export interface ILayoutCompFileUploadBase<T extends Extract<ComponentTypes, 'FileUpload' | 'FileUploadWithTag'>>
-  extends ILayoutCompBase<T> {
-  maxFileSizeInMB: number;
-  maxNumberOfAttachments: number;
-  minNumberOfAttachments: number;
-  displayMode: 'simple' | 'list';
-  hasCustomFileEndings?: boolean;
-  validFileEndings?: string[] | string;
-}
-
-export type ILayoutCompFileUpload = ILayoutCompFileUploadBase<'FileUpload'>;
-
-export interface ILayoutCompFileUploadWithTag extends ILayoutCompFileUploadBase<'FileUploadWithTag'> {
-  optionsId: string;
-  mapping?: IMapping;
-}
-
-export interface ILayoutCompHeader extends ILayoutCompBase<'Header'> {
-  size: 'L' | 'M' | 'S' | 'h2' | 'h3' | 'h4';
-}
-
 type NumberFormatProps = Exclude<Parameters<typeof TextField>[0]['formatting'], undefined>['number'];
 
 export interface IInputFormatting {
   number?: NumberFormatProps;
   align?: 'right' | 'center' | 'left';
-}
-
-export interface ILayoutCompInput extends ILayoutCompBase<'Input'>, ILayoutCompWillBeSavedWhileTyping {
-  formatting?: IInputFormatting;
-}
-
-export interface ILayoutCompNavButtons extends ILayoutCompBase<'NavigationButtons'> {
-  showBackButton?: boolean;
-}
-
-export interface ILayoutCompInstantiationButton extends ILayoutCompBase<'InstantiationButton'> {
-  mapping?: IMapping;
-}
-
-export type ILayoutCompParagraph = ILayoutCompBase<'Paragraph'>;
-
-export interface IImage {
-  src: IImageSrc;
-  width: string;
-  align: GridJustification;
-}
-
-export interface IImageSrc {
-  nb?: string;
-  nn?: string;
-  en?: string;
-  [language: string]: string | undefined;
-}
-
-export interface ILayoutCompImage extends ILayoutCompBase<'Image'> {
-  image?: IImage;
-}
-
-export interface ILayoutCompSummary extends ILayoutCompBase<'Summary'> {
-  componentRef?: string;
-  pageRef?: string;
-  display?: SummaryDisplayProperties;
-  largeGroup?: boolean;
-}
-
-export type ILayoutCompTextArea = ILayoutCompBase<'TextArea'> & ILayoutCompWillBeSavedWhileTyping;
-
-export type ILayoutCompNavBar = ILayoutCompBase<'NavigationBar'>;
-
-export type ILayoutCompPrintButton = ILayoutCompBase<'PrintButton'>;
-
-export type ILayoutCompPanel = ILayoutCompBase<'Panel'> & ILayoutCompPanelBase;
-
-export interface ILayoutCompCustom extends ILayoutCompBase<'Custom'> {
-  tagName: string;
-}
-
-export interface ILayoutCompMap extends ILayoutCompBase<'Map'> {
-  layers?: MapLayer[];
-  centerLocation?: Location;
-  zoom?: number;
 }
 
 /**
@@ -255,27 +148,12 @@ export interface IDataModelBindingsSimple {
   simpleBinding: string;
 }
 
-export interface IDataModelBindingsForGroup {
-  group: string;
-}
-
 /**
  * A middle ground between group and simple bindings, a list binding can be used to
  * store a list of primitive values, like string[].
  */
 export interface IDataModelBindingsList {
   list: string;
-}
-
-export interface IDataModelBindingsForAddress {
-  address: string;
-  zipCode: string;
-  postPlace: string;
-  careOf?: string;
-  houseNumber?: string;
-}
-export interface IDataModelBindingsForList {
-  [columnKey: string]: string;
 }
 
 export type IDataModelBindings =
@@ -308,32 +186,4 @@ export interface IGridStyling {
   md?: GridSize;
   lg?: GridSize;
   xl?: GridSize;
-}
-
-export interface IGroupEditProperties {
-  mode?: 'hideTable' | 'showTable' | 'showAll' | 'likert';
-  filter?: IGroupFilter[];
-  addButton?: ExpressionOr<'boolean'>;
-  saveButton?: ExpressionOr<'boolean'>;
-  deleteButton?: ExpressionOr<'boolean'>;
-  multiPage?: boolean;
-  openByDefault?: boolean | 'first' | 'last';
-  alertOnDelete?: ExpressionOr<'boolean'>;
-  saveAndNextButton?: ExpressionOr<'boolean'>;
-}
-
-export interface IGroupFilter {
-  key: string;
-  value: string;
-}
-
-export interface SummaryDisplayProperties {
-  hideChangeButton?: boolean;
-  useComponentGrid?: boolean;
-  hideBottomBorder?: boolean;
-}
-
-export interface IPagination {
-  alternatives: number[];
-  default: number;
 }

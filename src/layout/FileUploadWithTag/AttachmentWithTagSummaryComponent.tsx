@@ -4,7 +4,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks';
 import { getOptionLookupKey } from 'src/utils/options';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/layout';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { IAttachment } from 'src/shared/resources/attachments';
 
 export interface IAttachmentWithTagSummaryComponent {

@@ -14,12 +14,12 @@ import {
 } from 'src/utils/sharedUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IFormData } from 'src/features/form/data';
+import type { ILayoutGroup } from 'src/layout/Group/types';
 import type {
   IDataModelBindings,
   IGridStyling,
   ILayoutComponent,
   ILayoutEntry,
-  ILayoutGroup,
   ISelectionComponentProps,
 } from 'src/layout/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';

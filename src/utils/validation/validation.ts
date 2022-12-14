@@ -19,14 +19,9 @@ import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
 import { nodesInLayout, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
 import { getLanguageFromKey, getParsedLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { IFormData } from 'src/features/form/data';
-import type {
-  IDataModelBindings,
-  ILayout,
-  ILayoutCompDatepicker,
-  ILayoutComponent,
-  ILayoutGroup,
-  ILayouts,
-} from 'src/layout/layout';
+import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { IDataModelBindings, ILayout, ILayoutComponent, ILayouts } from 'src/layout/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentBindingValidation,

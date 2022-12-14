@@ -17,7 +17,8 @@ import { Triggers } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
 import { getHiddenFieldsForGroup } from 'src/utils/layout';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { ILayoutComponent, ILayoutComponentOrGroup, ILayoutGroup } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent, ILayoutComponentOrGroup } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
 export interface IGroupProps {
   id: string;

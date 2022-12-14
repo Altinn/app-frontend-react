@@ -9,7 +9,9 @@ import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/
 import HeaderSummary from 'src/layout/Header/HeaderSummary';
 import MapComponentSummary from 'src/layout/Map/MapComponentSummary';
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { ILayoutComponent, ILayoutCompSummary, ILayoutGroup } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent } from 'src/layout/layout';
+import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 
 export interface ISummaryComponentSwitch extends Omit<ILayoutCompSummary, 'type'> {
   change: {

@@ -8,7 +8,8 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { PanelGroupContainer } from 'src/layout/Panel/PanelGroupContainer';
 import { renderWithProviders } from 'src/testUtils';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
-import type { ILayout, ILayoutGroup } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayout } from 'src/layout/layout';
 import type { IPanelGroupContainerProps } from 'src/layout/Panel/PanelGroupContainer';
 import type { RootState } from 'src/store';
 

@@ -19,7 +19,8 @@ import { getTextResource } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponentsForIndex } from 'src/utils/formLayout';
 import { getLayoutComponentById } from 'src/utils/layout';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
-import type { ILayoutComponent, ILayoutGroup } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent } from 'src/layout/layout';
 
 export interface IPanelGroupContainerProps {
   container: ILayoutGroup;

@@ -6,7 +6,7 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { FormComponentContext } from 'src/layout';
 import { assertUnreachable } from 'src/types';
-import type { ILayoutCompPanel } from 'src/layout/layout';
+import type { ILayoutCompPanel } from 'src/layout/Panel/types';
 
 interface IGetVariantProps {
   variant: ILayoutCompPanel['variant'];

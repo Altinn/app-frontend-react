@@ -1,4 +1,4 @@
-import type { ILayoutGroup } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
 
 export function getFormLayoutGroupMock(customMock?: Partial<ILayoutGroup>, children?: string[]): ILayoutGroup {
   const mockLayoutGroup: ILayoutGroup = {

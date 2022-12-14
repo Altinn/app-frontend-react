@@ -52,12 +52,9 @@ import type {
   IUpdateRepeatingGroups,
   IUpdateRepeatingGroupsEditIndex,
 } from 'src/features/form/layout/formLayoutTypes';
-import type {
-  ILayoutCompFileUploadWithTag,
-  ILayoutComponent,
-  ILayoutComponentOrGroup,
-  ILayoutGroup,
-} from 'src/layout/layout';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent, ILayoutComponentOrGroup } from 'src/layout/layout';
 import type { IAttachmentState } from 'src/shared/resources/attachments';
 import type {
   IDeleteAttachmentActionFulfilled,

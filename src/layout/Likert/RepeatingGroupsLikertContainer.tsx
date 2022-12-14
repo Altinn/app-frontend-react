@@ -12,7 +12,8 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutStyle } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { getOptionLookupKey } from 'src/utils/options';
-import type { ILayoutComponent, ILayoutGroup } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent } from 'src/layout/layout';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import type { ITextResource } from 'src/types';
 

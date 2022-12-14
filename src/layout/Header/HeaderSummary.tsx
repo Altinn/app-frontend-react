@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Grid } from '@material-ui/core';
 
 import { HeaderSize } from 'src/layout/Header/HeaderComponent';
-import type { ILayoutCompHeader } from 'src/layout/layout';
+import type { ILayoutCompHeader } from 'src/layout/Header/types';
 
 export interface IHeaderSummary {
   id: string;

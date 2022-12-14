@@ -14,7 +14,7 @@ import type {
   IUpdateRepeatingGroupsEditIndex,
   IUpdateRepeatingGroupsMultiPageIndex,
 } from 'src/features/form/layout/formLayoutTypes';
-import type { ILayoutGroup } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
 
 const mockContainer = getFormLayoutGroupMock();
 

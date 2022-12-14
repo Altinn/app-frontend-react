@@ -6,7 +6,7 @@ import { Typography } from '@material-ui/core';
 import { useAppSelector } from 'src/common/hooks';
 import { parseLocation, useStyles } from 'src/layout/Map/MapComponent';
 import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/utils/sharedUtils';
-import type { ILayoutCompMap } from 'src/layout/layout';
+import type { ILayoutCompMap } from 'src/layout/Map/types';
 
 export interface IMapComponentSummary {
   component: ILayoutCompMap;

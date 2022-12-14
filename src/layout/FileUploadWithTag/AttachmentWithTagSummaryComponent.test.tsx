@@ -5,7 +5,7 @@ import { screen } from '@testing-library/react';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { renderWithProviders } from 'src/testUtils';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/layout';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { RootState } from 'src/store';
 
 describe('AttachmentWithTagSummaryComponent', () => {

@@ -14,7 +14,8 @@ import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { extractBottomButtons, hasRequiredFields, topLevelComponents } from 'src/utils/formLayout';
 import { renderGenericComponent } from 'src/utils/layout';
 import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/validation';
-import type { ILayout, ILayoutComponent, ILayoutGroup } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayout, ILayoutComponent } from 'src/layout/layout';
 
 export function renderLayoutComponent(
   layoutComponent: ILayoutComponent | ILayoutGroup,

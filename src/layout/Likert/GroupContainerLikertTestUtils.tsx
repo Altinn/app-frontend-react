@@ -12,7 +12,9 @@ import type { IFormDataState } from 'src/features/form/data';
 import type { IUpdateFormData } from 'src/features/form/data/formDataTypes';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IValidationState } from 'src/features/form/validation/validationSlice';
-import type { ILayoutCompLikert, ILayoutComponent, ILayoutGroup } from 'src/layout/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent } from 'src/layout/layout';
+import type { ILayoutCompLikert } from 'src/layout/Likert/types';
 import type { ITextResourcesState } from 'src/shared/resources/textResources';
 import type { ILayoutValidations, ITextResource } from 'src/types';
 

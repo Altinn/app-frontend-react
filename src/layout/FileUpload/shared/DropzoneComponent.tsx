@@ -5,7 +5,7 @@ import type { FileRejection } from 'react-dropzone';
 import { mapExtensionToAcceptMime } from 'src/layout/FileUpload/shared/mapExtensionToAcceptMime';
 import { AltinnAppTheme } from 'src/theme';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
-import type { ILayoutCompFileUpload } from 'src/layout/layout';
+import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
 import type { ITextResourceBindings } from 'src/types';
 
 export interface IDropzoneComponentProps {

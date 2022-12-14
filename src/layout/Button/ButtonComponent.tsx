@@ -10,7 +10,7 @@ import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { IComponentProps } from 'src/layout';
 import type { ButtonMode } from 'src/layout/Button/getComponentFromMode';
-import type { ILayoutCompButton } from 'src/layout/layout';
+import type { ILayoutCompButton } from 'src/layout/Button/types';
 import type { IAltinnWindow } from 'src/types';
 
 export interface IButtonProvidedProps extends IComponentProps, ILayoutCompButton {

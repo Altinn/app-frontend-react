@@ -13,7 +13,9 @@ import { Severity } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroups } from 'src/utils/formLayout';
 import { nodesInLayouts } from 'src/utils/layout/hierarchy';
 import * as validation from 'src/utils/validation/validation';
-import type { ILayoutCompDatepicker, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/layout/layout';
+import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent, ILayouts } from 'src/layout/layout';
 import type {
   IComponentBindingValidation,
   IComponentValidations,

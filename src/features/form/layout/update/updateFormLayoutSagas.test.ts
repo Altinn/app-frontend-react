@@ -29,7 +29,8 @@ import type {
   ICalculatePageOrderAndMoveToNextPage,
   IUpdateRepeatingGroups,
 } from 'src/features/form/layout/formLayoutTypes';
-import type { IDataModelBindings, ILayoutCompFileUpload } from 'src/layout/layout';
+import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IRuntimeState } from 'src/types';
