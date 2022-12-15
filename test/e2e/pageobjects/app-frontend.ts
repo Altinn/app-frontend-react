@@ -125,6 +125,7 @@ export default class AppFrontend {
       marked: 'input[name=prefill]',
     },
     showGroupToContinue: '#showGroupToContinue',
+    checkbox_yes: '[for^="showGroupToContinue-Ja"]',
     mainGroup: '#group-mainGroup',
     secondGroup: '#group-group-2',
     secondGroup_newValue: 'input[id^="group2-endre-til"]',

@@ -104,6 +104,10 @@ export const useRadioButtons = ({
     setValue(event.target.value);
   };
 
+  const handleChangeRadioGroup = (value: string) => {
+    setValue(value);
+  };
+
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     // Only set value instantly if moving focus outside of the radio group
     if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -112,6 +116,7 @@ export const useRadioButtons = ({
   };
   return {
     handleChange,
+    handleChangeRadioGroup,
     handleBlur,
     fetchingOptions,
     selected,

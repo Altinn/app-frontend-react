@@ -1,10 +1,11 @@
 import React from 'react';
 import type { ChangeEventHandler, FocusEventHandler } from 'react';
 
+import { RadioGroup } from '@altinn/altinn-design-system';
 import { FormLabel } from '@material-ui/core';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import RadioGroup from '@material-ui/core/RadioGroup';
+import MUIRadioGroup from '@material-ui/core/RadioGroup';
 import cn from 'classnames';
 
 import { useRadioStyles } from 'src/components/base/RadioButtons/radioButtonsUtils';
@@ -20,6 +21,7 @@ export interface IControlledRadioGroupProps extends IRadioButtonsContainerProps 
   selected: string | undefined;
   handleBlur: FocusEventHandler<HTMLInputElement | HTMLButtonElement | HTMLDivElement>;
   handleChange: ChangeEventHandler<HTMLInputElement | HTMLButtonElement>;
+  handleChangeRadioGroup: (value: string) => void;
   calculatedOptions: IOption[];
 }
 
@@ -28,16 +30,19 @@ export const ControlledRadioGroup = ({
   layout,
   legend,
   getTextResource,
+  getTextResourceAsString,
   validationMessages,
   fetchingOptions,
   selected,
   readOnly,
   handleBlur,
+  handleChangeRadioGroup,
   handleChange,
   calculatedOptions,
 }: IControlledRadioGroupProps) => {
   const classes = useRadioStyles();
   const RenderLegend = legend;
+
   return (
     <FormControl component='fieldset'>
       <FormLabel
@@ -50,34 +55,47 @@ export const ControlledRadioGroup = ({
       {fetchingOptions ? (
         <AltinnSpinner />
       ) : (
-        <RadioGroup
-          aria-labelledby={`${id}-label`}
-          name={id}
-          value={selected}
-          onBlur={handleBlur}
-          onChange={handleChange}
-          row={shouldUseRowLayout({
-            layout,
-            optionsCount: calculatedOptions.length,
-          })}
-          id={id}
-        >
-          {calculatedOptions.map((option: any, index: number) => (
-            <React.Fragment key={index}>
-              <FormControlLabel
-                tabIndex={-1}
-                control={<StyledRadio />}
-                disabled={readOnly}
-                label={getTextResource(option.label)}
-                value={option.value}
-                classes={{ root: cn(classes.formControl) }}
-              />
-              {validationMessages &&
-                selected === option.value &&
-                renderValidationMessagesForComponent(validationMessages.simpleBinding, id)}
-            </React.Fragment>
-          ))}
-        </RadioGroup>
+        <>
+          <RadioGroup
+            name={id}
+            items={calculatedOptions.map((option) => ({
+              label: getTextResourceAsString(option.label),
+              value: option.value,
+              checkboxId: `${id}-${option.label}`,
+            }))}
+            value={selected}
+            disabled={readOnly}
+            onChange={handleChangeRadioGroup}
+          />
+          <MUIRadioGroup
+            aria-labelledby={`${id}-label`}
+            name={id}
+            value={selected}
+            onBlur={handleBlur}
+            onChange={handleChange}
+            row={shouldUseRowLayout({
+              layout,
+              optionsCount: calculatedOptions.length,
+            })}
+            id={id}
+          >
+            {calculatedOptions.map((option: any, index: number) => (
+              <React.Fragment key={index}>
+                <FormControlLabel
+                  tabIndex={-1}
+                  control={<StyledRadio />}
+                  disabled={readOnly}
+                  label={getTextResource(option.label)}
+                  value={option.value}
+                  classes={{ root: cn(classes.formControl) }}
+                />
+                {validationMessages &&
+                  selected === option.value &&
+                  renderValidationMessagesForComponent(validationMessages.simpleBinding, id)}
+              </React.Fragment>
+            ))}
+          </MUIRadioGroup>
+        </>
       )}
     </FormControl>
   );

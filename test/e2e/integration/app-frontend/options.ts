@@ -32,7 +32,7 @@ describe('Options', () => {
     cy.goto('group');
     cy.get(appFrontend.navMenu).should('be.visible');
     cy.contains(mui.button, texts.next).click();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find(appFrontend.group.checkbox_yes).click();
     cy.addItemToGroup(1, 2, 'automation');
     cy.addItemToGroup(3, 4, 'altinn');
     cy.get(appFrontend.group.options).then((options) => {
