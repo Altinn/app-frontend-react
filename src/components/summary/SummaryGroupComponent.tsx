@@ -341,7 +341,7 @@ function SummaryGroupComponent({
         >
           <Typography
             variant='body1'
-            className={cn(classes.label, groupHasErrors && classes.labelWithError)}
+            className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
             component='span'
           >
             {title}
