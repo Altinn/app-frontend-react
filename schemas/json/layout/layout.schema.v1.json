@@ -35,40 +35,14 @@
         "id": {
           "type": "string",
           "title": "id",
-          "pattern": "^[0-9a-zA-Z][0-9a-zA-Z-]*(-?[a-zA-Z]+|[a-zA-Z][0-9])$",
-          "description": "The component ID. Must be unique within all layouts/pages in a layout-set. Cannot end with <dash><number>."
+          "pattern": "^[0-9a-zA-Z][0-9a-zA-Z-]*[0-9a-zA-Z]$",
+          "description": "The component ID. Must be unique within a given layout."
         },
         "type": {
           "type": "string",
           "title": "Type",
           "description": "The component type.",
-          "enum": [
-            "AddressComponent",
-            "AttachmentList",
-            "Button",
-            "Checkboxes",
-            "Custom",
-            "Datepicker",
-            "Dropdown",
-            "FileUpload",
-            "FileUploadWithTag",
-            "Group",
-            "Header",
-            "Image",
-            "Input",
-            "InstantiationButton",
-            "Likert",
-            "List",
-            "MultipleSelect",
-            "NavigationButtons",
-            "NavigationBar",
-            "Panel",
-            "Paragraph",
-            "PrintButton",
-            "RadioButtons",
-            "Summary",
-            "TextArea"
-          ]
+          "enum": ["AddressComponent", "AttachmentList", "Button", "Checkboxes", "Custom", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Group", "Header", "Image", "Input", "InstantiationButton", "Likert","List", "MultipleSelect", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
         },
         "required": {
           "title": "Required",
@@ -145,87 +119,27 @@
       },
       "required": ["id", "type"],
       "allOf": [
-        {
-          "if": { "properties": { "type": { "const": "AddressComponent" } } },
-          "then": { "$ref": "#/definitions/addressComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "AttachmentList" } } },
-          "then": { "$ref": "#/definitions/attachmentListComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Checkboxes" } } },
-          "then": { "$ref": "#/definitions/radioAndCheckboxComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Custom" } } },
-          "then": { "$ref": "#/definitions/customComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Datepicker" } } },
-          "then": { "$ref": "#/definitions/datepickerComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Dropdown" } } },
-          "then": { "$ref": "#/definitions/selectionComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "FileUpload" } } },
-          "then": { "$ref": "#/definitions/fileUploadComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "FileUploadWithTag" } } },
-          "then": { "$ref": "#/definitions/fileUploadWithTagComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Group" } } },
-          "then": { "$ref": "#/definitions/groupComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Image" } } },
-          "then": { "$ref": "#/definitions/imageComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Input" } } },
-          "then": { "$ref": "#/definitions/inputComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "TextArea" } } },
-          "then": { "$ref": "#/definitions/textAreaComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "InstantiationButton" } } },
-          "then": { "$ref": "#/definitions/instantiationButtonComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Likert" } } },
-          "then": { "$ref": "#/definitions/radioAndCheckboxComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "MultipleSelect" } } },
-          "then": { "$ref": "#/definitions/selectionComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "NavigationButtons" } } },
-          "then": { "$ref": "#/definitions/navigationButtonsComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "RadioButtons" } } },
-          "then": { "$ref": "#/definitions/radioAndCheckboxComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Summary" } } },
-          "then": { "$ref": "#/definitions/summaryComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Header" } } },
-          "then": { "$ref": "#/definitions/headerComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Panel" } } },
-          "then": { "$ref": "#/definitions/panelComponent" }
-        },
-        { "if": { "properties": { "type": { "const": "List" } } }, "then": { "$ref": "#/definitions/listComponent" } }
+        { "if": {"properties": {"type": { "const": "AddressComponent"}}}, "then": { "$ref": "#/definitions/addressComponent"}},
+        { "if": {"properties": {"type": { "const": "AttachmentList"}}}, "then": { "$ref": "#/definitions/attachmentListComponent"}},
+        { "if": {"properties": {"type": { "const": "Checkboxes"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "Custom"}}}, "then": { "$ref": "#/definitions/customComponent"}},
+        { "if": {"properties": {"type": { "const": "Datepicker"}}}, "then": { "$ref": "#/definitions/datepickerComponent"}},
+        { "if": {"properties": {"type": { "const": "Dropdown"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
+        { "if": {"properties": {"type": { "const": "FileUpload"}}}, "then": { "$ref": "#/definitions/fileUploadComponent"}},
+        { "if": {"properties": {"type": { "const": "FileUploadWithTag"}}}, "then": { "$ref": "#/definitions/fileUploadWithTagComponent"}},
+        { "if": {"properties": {"type": { "const": "Group"}}}, "then": { "$ref": "#/definitions/groupComponent"}},
+        { "if": {"properties": {"type": { "const": "Image"}}}, "then": { "$ref": "#/definitions/imageComponent"}},
+        { "if": {"properties": {"type": { "const": "Input"}}}, "then": { "$ref": "#/definitions/inputComponent"}},
+        { "if": {"properties": {"type": { "const": "TextArea"}}}, "then": { "$ref": "#/definitions/textAreaComponent"}},
+        { "if": {"properties": {"type": { "const": "InstantiationButton"}}}, "then": { "$ref": "#/definitions/instantiationButtonComponent"}},
+        { "if": {"properties": {"type": { "const": "Likert"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "MultipleSelect"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
+        { "if": {"properties": {"type": { "const": "NavigationButtons"}}}, "then": { "$ref": "#/definitions/navigationButtonsComponent"}},
+        { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}},
+        { "if": {"properties": {"type": { "const": "Header"}}}, "then": {"$ref": "#/definitions/headerComponent"}},
+        { "if": {"properties": {"type": { "const": "Panel"}}}, "then": {"$ref": "#/definitions/panelComponent"}},
+        { "if": {"properties": {"type": { "const": "List"}}}, "then": {"$ref": "#/definitions/listComponent"}}
       ]
     },
     "headerComponent": {
@@ -304,10 +218,12 @@
           ]
         }
       },
-      "required": ["displayMode", "maxFileSizeInMB", "maxNumberOfAttachments", "minNumberOfAttachments"]
+      "required": ["displayMode", "maxFileSizeInMB", "maxNumberOfAttachments", "minNumberOfAttachments" ]
     },
     "fileUploadWithTagComponent": {
-      "allOf": [{ "$ref": "#/definitions/fileUploadComponent" }],
+      "allOf": [
+        { "$ref": "#/definitions/fileUploadComponent" }
+      ],
       "properties": {
         "optionsId": {
           "type": "string",
@@ -372,7 +288,9 @@
       "type": "integer",
       "maximum": 12,
       "minimum": 1,
-      "examples": [12]
+      "examples": [
+        12
+      ]
     },
     "gridSettings": {
       "allOf": [
@@ -532,11 +450,9 @@
     },
     "groupPanelOptions": {
       "additionalProperties": false,
-      "allOf": [
-        {
-          "$ref": "#/definitions/panelComponent"
-        }
-      ],
+      "allOf": [{
+        "$ref": "#/definitions/panelComponent"
+      }],
       "properties": {
         "iconUrl": {
           "title": "Icon url",
@@ -554,7 +470,7 @@
           "description": "Reference to the group that is being displayed in the panel. Used for referencing another repeating group context.",
           "type": "object",
           "properties": {
-            "group": {
+            "group" : {
               "type": "string",
               "title": "Group",
               "description": "Group reference. Can be either the group id or the group data model binding.",
@@ -760,15 +676,15 @@
               "description": "",
               "type": "object",
               "properties": {
-                "nb": {
+                "nb" :{
                   "type": "string",
                   "title": "Bokmål"
                 },
-                "nn": {
+                "nn":{
                   "type": "string",
                   "title": "Nynorsk"
                 },
-                "en": {
+                "en":{
                   "type": "string",
                   "title": "English"
                 }
@@ -776,12 +692,12 @@
               "additionalProperties": true
             },
             "width": {
-              "type": "string",
+              "type":"string",
               "title": "Image width",
               "examples": ["100%"]
             },
             "align": {
-              "type": "string",
+              "type":"string",
               "title": "Align image",
               "enum": ["flex-start", "center", "flex-end", "space-between", "space-around", "space-evenly"]
             }
@@ -813,7 +729,10 @@
       "title": "Automatic saving while typing",
       "description": "Boolean or number. True = feature on (default), false = feature off (saves on focus blur), number = timeout in milliseconds (400 by default)",
       "default": true,
-      "oneOf": [{ "type": "boolean" }, { "type": "number" }]
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "number" }
+      ]
     },
     "inputFormatting": {
       "properties": {
@@ -824,7 +743,7 @@
           "type": "string",
           "title": "Align input",
           "description": "The alignment for Input field (eg. right aligning a series of numbers)",
-          "enum": ["left", "center", "right"]
+          "enum": [ "left", "center", "right"]
         }
       }
     },
@@ -880,7 +799,9 @@
           "description": "The value of this binding will be shown in the summary component for the list. This binding must be one of the specified bindings under dataModelBindings."
         }
       },
-      "required": ["dataListId"]
+      "required": [
+        "dataListId"
+      ]
     },
     "paginationProperties": {
       "type": "object",
@@ -899,7 +820,10 @@
           "description": "The pagination size that is set to default"
         }
       },
-      "required": ["alternatives", "default"]
+      "required": [
+        "alternatives",
+        "default"
+      ]
     }
   }
 }
