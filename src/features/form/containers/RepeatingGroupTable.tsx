@@ -127,8 +127,13 @@ const useStyles = makeStyles({
     clipPath: 'inset(50%)',
     whiteSpace: 'nowrap',
   },
-  breakWord: {
-    wordBreak: 'break-word',
+  contentFormatting: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    lineClamp: 2,
+    WebkitBoxOrient: 'vertical',
   },
 });
 
@@ -328,14 +333,15 @@ export function RepeatingGroupTable({
             <TableRow>
               {tableComponents.map((component: ILayoutComponent, tableComponentIndex: number) => (
                 <TableCell
-                  className={classes.breakWord}
                   style={{ textAlign: getTextAlignment(component) }}
                   key={component.id}
                 >
-                  {getTextResource(
-                    getTableTitle(componentTextResourceBindingsResolved[tableComponentIndex]),
-                    textResources,
-                  )}
+                  <span className={classes.contentFormatting}>
+                    {getTextResource(
+                      getTableTitle(componentTextResourceBindingsResolved[tableComponentIndex]),
+                      textResources,
+                    )}
+                  </span>
                 </TableCell>
               ))}
               <TableCell style={{ padding: 0, paddingRight: '10px' }}>
