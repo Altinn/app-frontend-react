@@ -134,6 +134,7 @@ const useStyles = makeStyles({
     WebkitLineClamp: 2,
     lineClamp: 2,
     WebkitBoxOrient: 'vertical',
+    wordBreak: 'break-word',
   },
 });
 
