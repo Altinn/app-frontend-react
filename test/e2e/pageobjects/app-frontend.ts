@@ -122,7 +122,6 @@ export default class AppFrontend {
       stor: 'input[name=stor]',
       svaer: 'input[name=svaer]',
       enorm: 'input[name=enorm]',
-      marked: 'input[name=prefill]',
     },
     showGroupToContinue: '#showGroupToContinue',
     mainGroup: '#group-mainGroup',
@@ -157,13 +156,13 @@ export default class AppFrontend {
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     edit: '[data-testid=edit-button]',
     delete: '[data-testid=delete-button]',
-    rows: [0, 1].map((idx) => ({
+    row: (idx: number) => ({
       uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3),
       uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4),
-      editBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) > td:nth-last-of-type(2n) button`,
-      deleteBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) > td:last-of-type button`,
+      editBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) [data-testid=edit-button]`,
+      deleteBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) [data-testid=delete-button]`,
       nestedGroup: {
-        rows: [0, 1].map((subIdx) => ({
+        row: (subIdx: number) => ({
           uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, true),
           nestedDynamics: `#nestedDynamics-${idx}-${subIdx} input[type=checkbox]`,
           nestedOptions: [
@@ -173,11 +172,11 @@ export default class AppFrontend {
           ],
           editBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:nth-last-of-type(2n) button`,
           deleteBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:last-of-type button`,
-        })),
+        }),
         groupContainer: `#group-subGroup-${idx}`,
         saveBtn: `#add-button-grp-subGroup-${idx}`,
       },
-    })),
+    }),
   };
 
   //Stateless-app
@@ -224,7 +223,7 @@ export const makeUploaderSelectors = (
     stateKey: `${id}-${row}`,
     dropZoneContainer: `#altinn-drop-zone-${id}-${row}`,
     dropZone: `#altinn-drop-zone-${id}-${row} input[type=file]`,
-    attachments: [...Array(5)].map((_, idx) => ({
+    attachments: (idx) => ({
       name: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(1)`,
       status: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(${statusIdx})`,
       deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) div[role=button]`,
@@ -238,7 +237,7 @@ export const makeUploaderSelectors = (
             deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[class*=deleteButton]`,
           }
         : {}),
-    })),
+    }),
     addMoreBtn: `#altinn-fileuploader-${id}-${row} > button`,
     tableRowPreview:
       typeof row === 'number'

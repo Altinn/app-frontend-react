@@ -47,7 +47,7 @@ describe('Calculate Page Order', () => {
     cy.get(appFrontend.navMenuCurrent).should('have.text', '3. summary');
 
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get(appFrontend.group.rows[0].editBtn).click();
+    cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.newValue).clear().type('2');
 
     cy.get(appFrontend.navButtons).contains(mui.button, texts.next).click();
