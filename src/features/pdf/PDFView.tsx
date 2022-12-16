@@ -42,20 +42,24 @@ const presentationComponents = new Set(['Header', 'Paragraph', 'Image']);
 
 const PDFView = ({ appName }: PDFViewProps) => {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const excludePageFromPdf = useAppSelector((state) => state.formLayout.uiConfig.excludePageFromPdf);
-  const excludeComponentFromPdf = useAppSelector((state) => state.formLayout.uiConfig.excludeComponentFromPdf);
+  const excludePageFromPdf = useAppSelector((state) => new Set(state.formLayout.uiConfig.excludePageFromPdf));
+  const excludeComponentFromPdf = useAppSelector((state) => new Set(state.formLayout.uiConfig.excludeComponentFromPdf));
   const attachments = useAppSelector((state) => state.attachments.attachments);
+  const pageOrder = useAppSelector((state) => state.formLayout.uiConfig.tracks.order);
+  const hiddenPages = useAppSelector((state) => new Set(state.formLayout.uiConfig.tracks.hidden));
 
-  if (!layouts || !excludePageFromPdf || !excludeComponentFromPdf) {
+  if (!layouts || !excludePageFromPdf || !excludeComponentFromPdf || !attachments || !pageOrder || !hiddenPages) {
     return null;
   }
 
   const layoutAndComponents: [string, ILayoutComponentOrGroup[]][] = Object.entries(layouts as ILayouts)
-    .filter(([pageRef]) => !excludePageFromPdf.includes(pageRef))
+    .filter(([pageRef]) => !excludePageFromPdf.has(pageRef))
+    .filter(([pageRef]) => !hiddenPages.has(pageRef))
+    .sort(([pA], [pB]) => pageOrder.indexOf(pA) - pageOrder.indexOf(pB))
     .map(([pageRef, layout]: [string, ILayoutComponentOrGroup[]]) => [
       pageRef,
       topLevelComponents(layout).filter(
-        (c) => componentTypesToRender.has(c.type) && !excludeComponentFromPdf.includes(c.id),
+        (c) => componentTypesToRender.has(c.type) && !excludeComponentFromPdf.has(c.id),
       ),
     ]);
 
