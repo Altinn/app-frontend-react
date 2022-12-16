@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import type { IComponentProps } from 'src/components';
+import type { IComponentProps } from 'src/layout';
 
 export interface DelayedSavedStateRetVal {
   value: string | undefined;
@@ -14,9 +14,18 @@ export function useDelayedSavedState(
   formValue?: string,
   saveAfter?: number | boolean,
 ): DelayedSavedStateRetVal {
-  const [immediateState, setImmediateState] = React.useState(formValue);
+  const [immediateState, _setImmediateState] = React.useState(formValue);
+  const immediateStateRef = React.useRef(formValue);
   const [saveNextChangeImmediately, setSaveNextChangeImmediately] = React.useState(false);
   const [skipNextValidation, setSkipNextValidation] = React.useState(false);
+
+  const setImmediateState = React.useCallback(
+    (value: string | undefined) => {
+      immediateStateRef.current = value;
+      _setImmediateState(value);
+    },
+    [_setImmediateState],
+  );
 
   const updateFormData = React.useCallback(
     (value: string | undefined, skipValidation = false) => {
@@ -44,7 +53,7 @@ export function useDelayedSavedState(
 
   React.useEffect(() => {
     setImmediateState(formValue);
-  }, [formValue]);
+  }, [formValue, setImmediateState]);
 
   React.useEffect(() => {
     if (saveAfter === false) {
@@ -69,7 +78,7 @@ export function useDelayedSavedState(
       }
     },
     saveValue: () => {
-      updateFormData(immediateState);
+      updateFormData(immediateStateRef.current);
     },
     onPaste: () => {
       setSaveNextChangeImmediately(true);

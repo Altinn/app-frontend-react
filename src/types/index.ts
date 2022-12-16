@@ -14,6 +14,7 @@ export interface IAltinnWindow extends Window {
   reportee: string;
   evalExpression: (maybeExpression: any, forComponentId?: string) => any;
   reduxStore: ToolkitStore<IRuntimeState>;
+  reduxActionLog: any[];
 }
 
 export interface IComponentBindingValidation {
@@ -27,8 +28,6 @@ export interface IComponentBindingValidation {
 export interface IComponentValidations {
   [id: string]: IComponentBindingValidation | undefined;
 }
-
-export { IDataModelBindings } from '../features/form/layout';
 
 export interface IFormFileUploaderWithTag {
   chosenOptions: IOptionsChosen;
