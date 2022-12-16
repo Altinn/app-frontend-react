@@ -10,6 +10,7 @@ import { Triggers } from 'src/types';
 import { getNextView } from 'src/utils/formLayout';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
+import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutNavigation, IRuntimeState } from 'src/types';
 
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
