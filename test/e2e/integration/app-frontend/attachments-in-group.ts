@@ -11,11 +11,10 @@ const mui = new Common();
 
 interface IUploadFileArgs {
   item: ReturnType<typeof makeUploaderSelectors>;
-  idx: string | number;
+  idx: number;
   fileName: string;
   verifyTableRow: boolean;
   tableRow;
-  isTaggedUploader?: boolean;
   secondPage?: boolean;
 }
 
@@ -66,25 +65,18 @@ describe('Repeating group attachments', () => {
     }
   };
 
-  const uploadFile = ({
-    item,
-    idx,
-    fileName,
-    verifyTableRow,
-    tableRow,
-    isTaggedUploader,
-    secondPage = false,
-  }: IUploadFileArgs) => {
+  const uploadFile = ({ item, idx, fileName, verifyTableRow, tableRow, secondPage = false }: IUploadFileArgs) => {
     cy.get(item.dropZoneContainer).should('be.visible');
     cy.get(item.dropZone).selectFile(makeTestFile(fileName), { force: true });
 
-    if (isTaggedUploader) {
-      cy.get(item.attachments[idx].tagSelector).should('be.visible').select('altinn');
-      cy.get(item.attachments[idx].tagSave).click();
+    const attachment = item.attachments(idx);
+    if (attachment.tagSelector !== undefined && attachment.tagSave !== undefined) {
+      cy.get(attachment.tagSelector).should('be.visible').select('altinn');
+      cy.get(attachment.tagSave).click();
     }
 
-    cy.get(item.attachments[idx].status).should('be.visible').should('contain.text', texts.finishedUploading);
-    cy.get(item.attachments[idx].name).should('be.visible').should('contain.text', fileName);
+    cy.get(attachment.status).should('be.visible').should('contain.text', texts.finishedUploading);
+    cy.get(attachment.name).should('be.visible').should('contain.text', fileName);
 
     if (verifyTableRow) {
       cy.get(tableRow.editBtn).click();
@@ -226,7 +218,7 @@ describe('Repeating group attachments', () => {
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
 
     [0, 1].forEach((row) => {
-      cy.get(appFrontend.group.row[row].editBtn).click();
+      cy.get(appFrontend.group.row(row).editBtn).click();
       gotoSecondPage();
       filenames[row].nested.forEach((nestedRow, nestedRowIdx) => {
         nestedRow.forEach((fileName, idx) => {
@@ -235,7 +227,6 @@ describe('Repeating group attachments', () => {
             idx,
             fileName,
             verifyTableRow: true,
-            isTaggedUploader: true,
             tableRow: appFrontend.group.row(row).nestedGroup.row(nestedRowIdx),
           });
         });

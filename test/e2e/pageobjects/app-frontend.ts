@@ -157,13 +157,13 @@ export default class AppFrontend {
     edit: '[data-testid=edit-button]',
     delete: '[data-testid=delete-button]',
     row: (idx: number) => ({
-      uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3),
-      uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4),
+      uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3, 'untagged'),
+      uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4, 'untagged'),
       editBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) [data-testid=edit-button]`,
       deleteBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) [data-testid=delete-button]`,
       nestedGroup: {
         row: (subIdx: number) => ({
-          uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, true),
+          uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, 'tagged'),
           nestedDynamics: `#nestedDynamics-${idx}-${subIdx} input[type=checkbox]`,
           nestedOptions: [
             `#nestedOptions-${idx}-${subIdx} input[type=checkbox]:nth(0)`,
@@ -208,16 +208,19 @@ export default class AppFrontend {
   };
 }
 
-export const makeUploaderSelectors = (
+type Type = 'tagged' | 'untagged';
+
+export function makeUploaderSelectors<T extends Type>(
   id: string,
   row: number | string,
   tablePreviewColumn: number,
-  isTagged = false,
-) => {
-  const tableSelector = isTagged
-    ? `#form-content-${id}-${row} div[data-testid=tagFile] > div > table`
-    : `#altinn-fileuploader-${id}-${row} .file-upload-table`;
-  const statusIdx = isTagged ? 4 : 3;
+  type: T,
+) {
+  const tableSelector =
+    type === 'tagged'
+      ? `#form-content-${id}-${row} div[data-testid=tagFile] > div > table`
+      : `#altinn-fileuploader-${id}-${row} .file-upload-table`;
+  const statusIdx = type === 'tagged' ? 4 : 3;
 
   return {
     stateKey: `${id}-${row}`,
@@ -227,16 +230,12 @@ export const makeUploaderSelectors = (
       name: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(1)`,
       status: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(${statusIdx})`,
       deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) div[role=button]`,
-      ...(isTagged
-        ? {
-            tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) select`,
-            tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
-            editBtn: `${tableSelector} > tbody > tr:nth-child(${
-              idx + 1
-            }) td:last-of-type button[class*=editTextContainer]`,
-            deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[class*=deleteButton]`,
-          }
-        : {}),
+      ...(type === 'tagged' && {
+        tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) select`,
+        tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
+        editBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) td:last-of-type button[class*=editTextContainer]`,
+        deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[class*=deleteButton]`,
+      }),
     }),
     addMoreBtn: `#altinn-fileuploader-${id}-${row} > button`,
     tableRowPreview:
@@ -248,4 +247,4 @@ export const makeUploaderSelectors = (
 
     test: '#group-subGroup-0-table-body > tr > td:nth-child(2)',
   };
-};
+}

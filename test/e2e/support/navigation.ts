@@ -161,11 +161,11 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
       mkFile('attachment-in-nested.pdf'),
       { force: true },
     );
-    cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments[0].tagSelector || 'nothing')
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector || 'nothing')
       .should('be.visible')
       .select('altinn');
-    cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments[0].tagSave || 'nothing').click();
-    cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments[0].tagSelector || 'nothing').should(
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSave || 'nothing').click();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector || 'nothing').should(
       'not.exist',
     );
 
