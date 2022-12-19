@@ -53,6 +53,7 @@ export const initialState: ILayoutState = {
     keepScrollPos: undefined,
     excludePageFromPdf: null,
     excludeComponentFromPdf: null,
+    pdfLayoutName: undefined,
   },
   layoutsets: null,
 };
@@ -340,7 +341,7 @@ const updateCommonPageSettings = (
   state: ILayoutState,
   page: Pick<
     IPagesSettings,
-    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers' | 'excludeFromPdf'
+    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers' | 'excludeFromPdf' | 'pdfLayoutName'
   >,
 ) => {
   const {
@@ -349,6 +350,7 @@ const updateCommonPageSettings = (
     showProgress = state.uiConfig.showProgress,
     triggers = state.uiConfig.pageTriggers,
     excludeFromPdf = state.uiConfig.excludePageFromPdf,
+    pdfLayoutName = state.uiConfig.pdfLayoutName,
   } = page;
 
   state.uiConfig.hideCloseButton = hideCloseButton;
@@ -356,6 +358,7 @@ const updateCommonPageSettings = (
   state.uiConfig.showLanguageSelector = showLanguageSelector;
   state.uiConfig.pageTriggers = triggers;
   state.uiConfig.excludePageFromPdf = excludeFromPdf ?? [];
+  state.uiConfig.pdfLayoutName = pdfLayoutName;
 };
 
 export const FormLayoutActions = formLayoutSlice.actions;

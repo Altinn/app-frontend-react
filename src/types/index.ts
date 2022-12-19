@@ -65,6 +65,7 @@ export interface IPagesSettings {
   showProgress?: boolean;
   showLanguageSelector?: boolean;
   excludeFromPdf?: string[];
+  pdfLayoutName?: string;
 }
 
 export interface IComponentsSettings {
@@ -177,6 +178,7 @@ export interface IUiConfig {
   tracks: ITracks;
   excludePageFromPdf: string[] | null;
   excludeComponentFromPdf: string[] | null;
+  pdfLayoutName?: string;
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
   showLanguageSelector?: boolean;
