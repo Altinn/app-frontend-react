@@ -29,7 +29,7 @@ const PDFView = ({ appName }: PDFViewProps) => {
     <div className={css['pdf-wrapper']}>
       <h1>{appName}</h1>
       {typeof pdfLayout !== 'undefined' ? (
-        <CustomPDFLayout pdfLayout={pdfLayout} />
+        <CustomPDFLayout layout={pdfLayout} />
       ) : (
         <AutomaticPDFLayout
           excludeComponentFromPdf={excludeComponentFromPdf}

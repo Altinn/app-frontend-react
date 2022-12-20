@@ -16,17 +16,16 @@ const summaryComponents = new Set([
   'FileUpload',
   'FileUploadWithTag',
   'Group',
-  'Header',
-  'Image',
   'Input',
   'Map',
   'MultipleSelect',
-  'Paragraph',
   'RadioButtons',
   'TextArea',
 ]);
 
 const presentationComponents = new Set(['Header', 'Paragraph', 'Image']);
+
+const renderComponents = new Set([...summaryComponents, ...presentationComponents]);
 
 interface IAutomaticPDFLayout {
   layouts: ILayouts;
@@ -36,6 +35,32 @@ interface IAutomaticPDFLayout {
   hiddenPages: Set<string>;
 }
 
+const AutomaticPDFSummaryComponent = ({
+  component,
+  pageRef,
+  excludedChildren,
+}: {
+  component: ILayoutComponentOrGroup;
+  pageRef: string;
+  excludedChildren: string[];
+}) => {
+  if (summaryComponents.has(component.type)) {
+    return (
+      <SummaryComponent
+        id={`__pdf__${component.id}`}
+        componentRef={component.id}
+        pageRef={pageRef}
+        display={{ hideChangeButton: true, hideValidationMessages: true }}
+        excludedChildren={excludedChildren}
+      />
+    );
+  } else if (presentationComponents.has(component.type)) {
+    return <GenericComponent {...(component as ILayoutComponent)} />;
+  } else {
+    return null;
+  }
+};
+
 const AutomaticPDFLayout = ({
   layouts,
   excludePageFromPdf,
@@ -43,47 +68,31 @@ const AutomaticPDFLayout = ({
   pageOrder,
   hiddenPages,
 }: IAutomaticPDFLayout) => {
-  const layoutAndComponents: [string, ILayoutComponentOrGroup[]][] = Object.entries(layouts as ILayouts)
+  const layoutAndComponents = Object.entries(layouts as ILayouts)
     .filter(([pageRef]) => !excludePageFromPdf.has(pageRef))
     .filter(([pageRef]) => !hiddenPages.has(pageRef))
     .filter(([pageRef]) => pageOrder.includes(pageRef))
     .sort(([pA], [pB]) => pageOrder.indexOf(pA) - pageOrder.indexOf(pB))
     .map(([pageRef, layout]: [string, ILayoutComponentOrGroup[]]) => [
       pageRef,
-      topLevelComponents(layout).filter((c) => summaryComponents.has(c.type) && !excludeComponentFromPdf.has(c.id)),
-    ]);
+      topLevelComponents(layout).filter((c) => renderComponents.has(c.type) && !excludeComponentFromPdf.has(c.id)),
+    ])
+    .flatMap(([pageRef, components]: [string, ILayoutComponentOrGroup[]]) => components.map((comp) => [pageRef, comp]));
 
   return (
     <>
-      {layoutAndComponents
-        .flatMap(([pageRef, components]) => components.map((comp) => [pageRef, comp]))
-        .map(([pageRef, comp]: [string, ILayoutComponentOrGroup]) => {
-          if (presentationComponents.has(comp.type)) {
-            const props = comp as ILayoutComponent;
-            return (
-              <div
-                key={comp.id}
-                className={css['component-container']}
-              >
-                <GenericComponent {...props} />
-              </div>
-            );
-          } else {
-            return (
-              <div
-                key={comp.id}
-                className={css['component-container']}
-              >
-                <SummaryComponent
-                  id={`__pdf__${comp.id}`}
-                  componentRef={comp.id}
-                  pageRef={pageRef}
-                  display={{ hideChangeButton: true, hideValidationMessages: true }}
-                />
-              </div>
-            );
-          }
-        })}
+      {layoutAndComponents.map(([pageRef, component]: [string, ILayoutComponentOrGroup]) => (
+        <div
+          key={component.id}
+          className={css['component-container']}
+        >
+          <AutomaticPDFSummaryComponent
+            component={component}
+            pageRef={pageRef}
+            excludedChildren={Array.from(excludeComponentFromPdf)}
+          />
+        </div>
+      ))}
     </>
   );
 };

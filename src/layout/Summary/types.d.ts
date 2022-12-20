@@ -12,4 +12,5 @@ export interface ILayoutCompSummary extends ILayoutCompBase<'Summary'> {
   pageRef?: string;
   display?: SummaryDisplayProperties;
   largeGroup?: boolean;
+  excludedChildren?: string[];
 }

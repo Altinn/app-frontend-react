@@ -627,6 +627,11 @@
           "title": "Large group",
           "description": "Boolean value indicating if summary of repeating group should be displayed in large format. Useful for displaying summary with nested groups."
         },
+        "excludedChildren": {
+          "type": "array",
+          "title": "Excluded child components",
+          "description": "Array of component ids that should not be shown in a repeating group's summary"
+        },
         "display": {
           "type": "object",
           "title": "Display properties",
