@@ -9,3 +9,7 @@
   align-items: flex-start;
   margin-bottom: 10px;
 }
+
+.component-container:empty {
+  display: none;
+}
