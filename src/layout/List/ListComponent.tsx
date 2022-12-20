@@ -143,7 +143,7 @@ export const ListComponent = ({
     >
       <TableHeader>
         <TableRow>
-          <TableCell radiobutton={true}></TableCell>
+          <td />
           {renderHeaders(tableHeaders)}
         </TableRow>
       </TableHeader>
