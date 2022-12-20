@@ -131,6 +131,9 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     optionState: {
       options: {},
       error: null,
+      optionsCount: 0,
+      optionsLoadedCount: 0,
+      loading: false,
     },
     dataListState: {
       dataLists: {},
