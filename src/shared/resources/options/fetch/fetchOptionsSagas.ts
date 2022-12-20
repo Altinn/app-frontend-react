@@ -128,7 +128,7 @@ export function* checkIfOptionsShouldRefetchSaga({
 
     if (mapping && Object.keys(mapping).includes(field)) {
       foundInExistingOptions = true;
-      yield call(fetchSpecificOptionSaga, {
+      yield fork(fetchSpecificOptionSaga, {
         optionsId: id,
         dataMapping: mapping,
         secure,

@@ -45,9 +45,11 @@ const optionsSlice = createSagaSlice((mkAction: MkActionType<IOptionsState>) => 
           option.loading = false;
           option.options = options;
         }
-        state.optionsLoadedCount++;
-        if (state.optionsLoadedCount == state.optionsCount) {
-          state.loading = false;
+        if (state.loading) {
+          state.optionsLoadedCount++;
+          if (state.optionsLoadedCount == state.optionsCount) {
+            state.loading = false;
+          }
         }
       },
     }),
@@ -59,9 +61,11 @@ const optionsSlice = createSagaSlice((mkAction: MkActionType<IOptionsState>) => 
           option.loading = false;
         }
         state.error = error;
-        state.optionsLoadedCount++;
-        if (state.optionsLoadedCount == state.optionsCount) {
-          state.loading = false;
+        if (state.loading) {
+          state.optionsLoadedCount++;
+          if (state.optionsLoadedCount == state.optionsCount) {
+            state.loading = false;
+          }
         }
       },
     }),
