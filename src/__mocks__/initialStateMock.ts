@@ -138,6 +138,9 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     dataListState: {
       dataLists: {},
       error: null,
+      dataListCount: 0,
+      dataListLoadedCount: 0,
+      loading: false,
     },
     applicationSettings: {
       applicationSettings: applicationSettingsMock,

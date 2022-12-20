@@ -18,8 +18,17 @@ const PDFView = ({ appName }: PDFViewProps) => {
   const hiddenPages = useAppSelector((state) => new Set(state.formLayout.uiConfig.tracks.hidden));
   const pdfLayoutName = useAppSelector((state) => state.formLayout.uiConfig.pdfLayoutName);
   const optionsLoading = useAppSelector((state) => state.optionState.loading);
+  const dataListLoading = useAppSelector((state) => state.dataListState.loading);
 
-  if (optionsLoading || !layouts || !excludePageFromPdf || !excludeComponentFromPdf || !pageOrder || !hiddenPages) {
+  if (
+    optionsLoading ||
+    dataListLoading ||
+    !layouts ||
+    !excludePageFromPdf ||
+    !excludeComponentFromPdf ||
+    !pageOrder ||
+    !hiddenPages
+  ) {
     return null;
   }
 

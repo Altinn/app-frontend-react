@@ -17,6 +17,7 @@ const summaryComponents = new Set([
   'FileUploadWithTag',
   'Group',
   'Input',
+  'List',
   'Map',
   'MultipleSelect',
   'RadioButtons',
