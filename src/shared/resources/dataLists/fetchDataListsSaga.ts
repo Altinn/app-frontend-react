@@ -38,12 +38,13 @@ export function* fetchDataListsSaga(): SagaIterator {
         continue;
       }
 
-      const { secure, id, dataListId, pagination } = element;
+      const { secure, id, dataListId, pagination, mapping } = element;
 
       const { keys, keyWithIndexIndicator } = getDataListLookupKeys({
         id: id,
         secure,
         repeatingGroups,
+        mapping,
       });
       if (keyWithIndexIndicator) {
         dataListsWithIndexIndicators.push(keyWithIndexIndicator);
@@ -84,8 +85,6 @@ export function* fetchSpecificDataListSaga({
   dataListId,
   paginationDefaultValue,
 }: IFetchSpecificDataListSaga): SagaIterator {
-  const key = getDataListLookupKey({ id: id, mapping: dataMapping });
-
   const instanceId = yield select(instanceIdSelector);
   try {
     const metaData: IDataListsMetaData = {
@@ -94,11 +93,10 @@ export function* fetchSpecificDataListSaga({
       secure,
       dataListId,
     };
-    yield put(DataListsActions.fetching({ key, metaData }));
+    yield put(DataListsActions.fetching({ key: id, metaData }));
     const formData: IFormData = yield select(formDataSelector);
     const language = yield select(appLanguageStateSelector);
     const dataList = yield select(listStateSelector);
-
     const pageSize = dataList.dataLists[id].size ? dataList.dataLists[id].size.toString() : paginationDefaultValue;
     const pageNumber = dataList.dataLists[id].pageNumber ? dataList.dataLists[id].pageNumber.toString() : '0';
     const sortColumn = dataList.dataLists[id].sortColumn ? dataList.dataLists[id].sortColumn.toString() : null;
@@ -122,12 +120,12 @@ export function* fetchSpecificDataListSaga({
     const dataLists: IDataList = yield call(get, url);
     yield put(
       DataListsActions.fetchFulfilled({
-        key,
+        key: id,
         dataLists: dataLists.listItems,
         metadata: dataLists._metaData,
       }),
     );
   } catch (error) {
-    yield put(DataListsActions.fetchRejected({ key: key, error }));
+    yield put(DataListsActions.fetchRejected({ key: id, error }));
   }
 }
