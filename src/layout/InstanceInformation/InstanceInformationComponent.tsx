@@ -13,29 +13,38 @@ import type { IAltinnOrgs, IInstance, ILanguage, IParty, IProfile } from 'src/ty
 
 export const returnInstanceMetaDataObject = (
   language?: ILanguage | null | undefined,
-  instanceDateSent?: string | null | undefined,
-  instanceSender?: string | null | undefined,
-  instanceReceiver?: string | null | undefined,
-  instanceReferenceNumber?: string | null | undefined,
+  instanceDateSent?: string | boolean | null | undefined,
+  instanceSender?: string | boolean | null | undefined,
+  instanceReceiver?: string | boolean | null | undefined,
+  instanceReferenceNumber?: string | boolean | null | undefined,
 ) => {
   const obj: any = {};
   if (!language) {
     return null;
   }
 
-  obj[getLanguageFromKey('receipt.date_sent', language)] = instanceDateSent;
+  if (instanceDateSent) {
+    obj[getLanguageFromKey('receipt.date_sent', language)] = instanceDateSent;
+  }
 
-  obj[getLanguageFromKey('receipt.sender', language)] = instanceSender;
+  if (instanceSender) {
+    obj[getLanguageFromKey('receipt.sender', language)] = instanceSender;
+  }
 
-  obj[getLanguageFromKey('receipt.receiver', language)] = instanceReceiver;
+  if (instanceReceiver) {
+    obj[getLanguageFromKey('receipt.receiver', language)] = instanceReceiver;
+  }
 
-  obj[getLanguageFromKey('receipt.ref_num', language)] = instanceReferenceNumber;
+  if (instanceReferenceNumber) {
+    obj[getLanguageFromKey('receipt.ref_num', language)] = instanceReferenceNumber;
+  }
 
   return obj;
 };
 
-// eslint-disable-next-line no-empty-pattern
-export function InstanceInformationComponent({}: PropsFromGenericComponent<'InstanceInformation'>) {
+export function InstanceInformationComponent({ elements }: PropsFromGenericComponent<'InstanceInformation'>) {
+  const { dateSent, sender, receiver, referenceNumber } = elements || {};
+
   const instance: IInstance | null = useAppSelector((state: IRuntimeState) => state.instanceData.instance);
   const parties: IParty[] | null = useAppSelector((state: IRuntimeState) => state.party.parties);
   const allOrgs: IAltinnOrgs | null = useAppSelector((state: IRuntimeState) => state.organisationMetaData.allOrgs);
@@ -49,19 +58,20 @@ export function InstanceInformationComponent({}: PropsFromGenericComponent<'Inst
       return party.partyId.toString() === instance.instanceOwner.partyId;
     });
 
-  const instanceDateSent = Moment(instance?.lastChanged).format('DD.MM.YYYY');
+  const instanceDateSent = dateSent !== false && Moment(instance?.lastChanged).format('DD.MM.YYYY');
 
   const instanceSender =
+    sender !== false &&
     instanceOwnerParty &&
     language &&
     `${instanceOwnerParty.ssn ? instanceOwnerParty.ssn : instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
 
   const instanceReceiver =
-    allOrgs && instance && allOrgs[instance?.org] && language
+    receiver !== false && allOrgs && instance && allOrgs[instance?.org] && language
       ? allOrgs[instance.org].name[userLanguage]
       : 'Error: Receiver org not found';
 
-  const instanceReferenceNumber = instance && instance.id.split('/')[1].split('-')[4];
+  const instanceReferenceNumber = referenceNumber !== false && instance && instance.id.split('/')[1].split('-')[4];
 
   const instanceMetaDataObject = returnInstanceMetaDataObject(
     language,
