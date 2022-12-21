@@ -12,6 +12,7 @@ interface ICustomPDFLayout {
   layout: ILayout;
 }
 
+// TODO: Make Panel work with print
 const presentationComponents = new Set(['Header', 'Paragraph', 'Image']);
 
 const CustomPDFSummaryComponent = ({ component, layout }: { component: ILayoutComponentOrGroup; layout: ILayout }) => {

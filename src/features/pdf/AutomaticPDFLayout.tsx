@@ -24,6 +24,7 @@ const summaryComponents = new Set([
   'TextArea',
 ]);
 
+// TODO: Make Panel work with print
 const presentationComponents = new Set(['Header', 'Paragraph', 'Image']);
 
 const renderComponents = new Set([...summaryComponents, ...presentationComponents]);
