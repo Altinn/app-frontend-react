@@ -4,7 +4,6 @@ import { useAppSelector, useInstanceIdParams, useProcess } from 'src/common/hook
 import { useApiErrorCheck } from 'src/common/hooks/useApiErrorCheck';
 import { AltinnContentIconFormData, AltinnContentLoader } from 'src/components/shared';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
-import { CustomReceipt } from 'src/features/customReceipt/containers/CustomReceipt';
 import Feedback from 'src/features/feedback/Feedback';
 import { Form } from 'src/features/form/containers/Form';
 import UnknownError from 'src/features/instantiate/containers/UnknownError';
@@ -15,7 +14,6 @@ import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 
 const ProcessWrapper = () => {
-  const appReceiptLayoutName = useAppSelector((state) => state.formLayout.uiConfig.appReceiptLayoutName);
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
@@ -52,7 +50,7 @@ const ProcessWrapper = () => {
       {isLoading === false ? (
         <>
           {taskType === ProcessTaskType.Data && <Form />}
-          {taskType === ProcessTaskType.Archived && (appReceiptLayoutName ? <CustomReceipt /> : <Receipt />)}
+          {taskType === ProcessTaskType.Archived && <Receipt />}
           {taskType === ProcessTaskType.Confirm &&
             (behavesLikeDataTask(process.taskId, layoutSets) ? <Form /> : <Confirm />)}
           {taskType === ProcessTaskType.Feedback && <Feedback />}
