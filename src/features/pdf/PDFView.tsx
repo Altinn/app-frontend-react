@@ -35,6 +35,7 @@ const PDFView = ({ appName }: PDFViewProps) => {
   const pdfLayout = pdfLayoutName ? layouts[pdfLayoutName] : undefined;
 
   document.body.style.backgroundColor = 'white';
+
   return (
     <div className={css['pdf-wrapper']}>
       <h1>{appName}</h1>
