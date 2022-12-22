@@ -6,6 +6,7 @@ import type { SagaIterator } from 'redux-saga';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { get } from 'src/utils/network/networking';
+import { waitFor } from 'src/utils/sagas';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapDataElementValidationToRedux, mergeValidationObjects } from 'src/utils/validation';
 import type { IRunSingleFieldValidation } from 'src/features/form/validation/validationSlice';
@@ -15,6 +16,11 @@ export function* runSingleFieldValidationSaga({
   payload: { componentId, layoutId, dataModelBinding },
 }: PayloadAction<IRunSingleFieldValidation>): SagaIterator {
   const state: IRuntimeState = yield select();
+  /**
+   * Dont run validataion while there are unsaved changes as we risk running validations for outdated form-data,
+   * which might override a validation run for the most recent form-data in a race condition.
+   */
+  yield waitFor((state) => !state.formData.unsavedChanges);
   const currentTaskDataId =
     state.applicationMetadata.applicationMetadata &&
     getCurrentTaskDataElementId(
@@ -41,7 +47,6 @@ export function* runSingleFieldValidationSaga({
         state.formLayout.layouts || {},
         state.textResources.resources,
       );
-
       const validations = mergeValidationObjects(state.formValidations.validations, mappedValidations);
 
       // Replace/reset validations for field that triggered validation
