@@ -66,6 +66,7 @@ const ReceiptContainer = () => {
   const parties = useAppSelector((state) => state.party.parties);
   const textResources = useAppSelector((state) => state.textResources.resources);
   const profile = useAppSelector((state) => state.profile.profile);
+  const layouts = useAppSelector((state) => Object.keys(state.formLayout.layouts || {}));
 
   const origin = window.location.origin;
 
@@ -130,7 +131,7 @@ const ReceiptContainer = () => {
       parties ? (
         <>
           {!applicationMetadata.autoDeleteOnProcessEnd &&
-            (receiptLayoutName ? (
+            (receiptLayoutName && layouts.includes(receiptLayoutName) ? (
               <CustomReceipt />
             ) : (
               <AltinnReceipt
