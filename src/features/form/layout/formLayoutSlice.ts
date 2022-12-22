@@ -42,7 +42,7 @@ export const initialState: ILayoutState = {
     autoSave: null,
     repeatingGroups: null,
     fileUploadersWithTag: {},
-    receiptLayoutName: 'receipt',
+    receiptLayoutName: undefined,
     currentView: 'FormLayout',
     navigationConfig: {},
     tracks: {
