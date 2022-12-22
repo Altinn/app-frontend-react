@@ -2,13 +2,21 @@
   font-size: xx-large;
   margin-bottom: 2rem;
 }
+@media print {
+  .break-before {
+    page-break-before: always;
+  }
+  .break-after {
+    page-break-after: always;
+  }
+}
 
 .component-container {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 }
 
 .component-container:empty {

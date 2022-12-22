@@ -1,10 +1,12 @@
 import React from 'react';
 
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
-import css from 'src/features/pdf/PDFView.module.css';
+import PDFComponentWrapper from 'src/features/pdf/PDFComponentWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { topLevelComponents } from 'src/utils/formLayout';
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
+import type { LayoutRootNode, LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
 
 const summaryComponents = new Set([
   'AddressComponent',
@@ -34,6 +36,15 @@ interface IAutomaticPDFLayout {
   excludeComponentFromPdf: Set<string>;
   pageOrder: string[];
   hiddenPages: Set<string>;
+  nodes:
+    | LayoutRootNode<'unresolved'>
+    | LayoutRootNodeCollection<
+        'unresolved',
+        {
+          [layoutKey: string]: LayoutRootNode<'unresolved'>;
+        }
+      >;
+  dataSources: ContextDataSources;
 }
 
 const AutomaticPDFSummaryComponent = ({
@@ -74,6 +85,8 @@ const AutomaticPDFLayout = ({
   excludeComponentFromPdf,
   pageOrder,
   hiddenPages,
+  nodes,
+  dataSources,
 }: IAutomaticPDFLayout) => {
   const layoutAndComponents = Object.entries(layouts as ILayouts)
     .filter(([pageRef]) => !excludePageFromPdf.has(pageRef))
@@ -89,16 +102,18 @@ const AutomaticPDFLayout = ({
   return (
     <>
       {layoutAndComponents.map(([pageRef, component]: [string, ILayoutComponentOrGroup]) => (
-        <div
+        <PDFComponentWrapper
           key={component.id}
-          className={css['component-container']}
+          component={component}
+          nodes={nodes}
+          dataSources={dataSources}
         >
           <AutomaticPDFSummaryComponent
             component={component}
             pageRef={pageRef}
             excludedChildren={Array.from(excludeComponentFromPdf)}
           />
-        </div>
+        </PDFComponentWrapper>
       ))}
     </>
   );
