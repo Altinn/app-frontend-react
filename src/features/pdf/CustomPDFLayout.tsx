@@ -12,8 +12,7 @@ interface ICustomPDFLayout {
   layout: ILayout;
 }
 
-// TODO: Make Panel work with print
-const presentationComponents = new Set(['Header', 'Paragraph', 'Image']);
+const presentationComponents = new Set(['Header', 'Paragraph', 'Image', 'Panel']);
 
 const CustomPDFSummaryComponent = ({ component, layout }: { component: ILayoutComponentOrGroup; layout: ILayout }) => {
   if (component.type === 'Group') {
@@ -35,10 +34,16 @@ const CustomPDFSummaryComponent = ({ component, layout }: { component: ILayoutCo
       <SummaryComponent
         {...component}
         display={{ hideChangeButton: true, hideValidationMessages: true }}
+        grid={{ xs: 12 }}
       />
     );
   } else if (presentationComponents.has(component.type)) {
-    return <GenericComponent {...component} />;
+    return (
+      <GenericComponent
+        {...component}
+        grid={{ xs: 12 }}
+      />
+    );
   } else {
     console.warn(`Type: "${component.type}" is not allowed in PDF.`);
     return null;

@@ -24,8 +24,7 @@ const summaryComponents = new Set([
   'TextArea',
 ]);
 
-// TODO: Make Panel work with print
-const presentationComponents = new Set(['Header', 'Paragraph', 'Image']);
+const presentationComponents = new Set(['Header', 'Paragraph', 'Image', 'Panel']);
 
 const renderComponents = new Set([...summaryComponents, ...presentationComponents]);
 
@@ -54,10 +53,16 @@ const AutomaticPDFSummaryComponent = ({
         pageRef={pageRef}
         display={{ hideChangeButton: true, hideValidationMessages: true }}
         excludedChildren={excludedChildren}
+        grid={{ xs: 12 }}
       />
     );
   } else if (presentationComponents.has(component.type)) {
-    return <GenericComponent {...(component as ILayoutComponent)} />;
+    return (
+      <GenericComponent
+        {...(component as ILayoutComponent)}
+        grid={{ xs: 12 }}
+      />
+    );
   } else {
     return null;
   }
