@@ -8,6 +8,7 @@ import type { PropsFromGenericComponent } from '..';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import AltinnSummaryTable from 'src/components/molecules/AltinnSummaryTable';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { getDateFormat } from 'src/utils/dateHelpers';
 import type { IRuntimeState } from 'src/types';
 import type { IAltinnOrgs, IInstance, ILanguage, IParty, IProfile } from 'src/types/shared';
 
@@ -58,7 +59,7 @@ export function InstanceInformationComponent({ elements }: PropsFromGenericCompo
       return party.partyId.toString() === instance.instanceOwner.partyId;
     });
 
-  const instanceDateSent = dateSent !== false && Moment(instance?.lastChanged).format('DD.MM.YYYY');
+  const instanceDateSent = dateSent !== false && Moment(instance?.lastChanged).format(getDateFormat());
 
   const instanceSender =
     sender !== false &&

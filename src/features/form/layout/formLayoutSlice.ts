@@ -113,10 +113,9 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
     fetchSettingsFulfilled: mkAction<LayoutTypes.IFetchLayoutSettingsFulfilled>({
       reducer: (state, action) => {
         const { settings } = action.payload;
+        state.uiConfig.receiptLayoutName = settings?.receiptLayoutName;
         if (settings && settings.pages) {
           updateCommonPageSettings(state, settings.pages);
-          const receiptLayoutName = settings.receiptLayoutName;
-          state.uiConfig.receiptLayoutName = receiptLayoutName;
           const order = settings.pages.order;
           if (order) {
             state.uiConfig.tracks.order = order;

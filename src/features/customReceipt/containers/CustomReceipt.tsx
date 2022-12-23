@@ -34,6 +34,7 @@ export function CustomReceipt() {
   return (
     <>
       <Grid
+        data-testid='custom-receipt'
         container={true}
         spacing={3}
         alignItems='flex-start'
