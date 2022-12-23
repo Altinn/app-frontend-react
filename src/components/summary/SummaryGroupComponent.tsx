@@ -49,6 +49,9 @@ const useStyles = makeStyles({
     marginTop: 12,
     marginBottom: 12,
     padding: 12,
+    '@media print': {
+      pageBreakInside: 'avoid',
+    },
   },
   label: {
     fontWeight: 500,
