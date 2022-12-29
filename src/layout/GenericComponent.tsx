@@ -223,7 +223,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
     passThroughProps.componentValidations = internalComponentValidations;
   }
 
-  const layoutComponent = components[props.type as keyof typeof components];
+  const layoutComponent = components[props.type as keyof typeof components] as LayoutComponent<Type>;
   if (!layoutComponent) {
     return (
       <div>
@@ -319,8 +319,12 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
   const showValidationMessages =
     componentValidationsHandledByGenericComponent(props.dataModelBindings, props.type) && hasValidationMessages;
 
-  if (props.type === 'Likert' && props.layout === LayoutStyle.Table) {
-    return <RenderComponent {...componentProps} />;
+  if (layoutComponent.directRender(componentProps)) {
+    return (
+      <FormComponentContext.Provider value={formComponentContext}>
+        <RenderComponent {...componentProps} />
+      </FormComponentContext.Provider>
+    );
   }
 
   return (
