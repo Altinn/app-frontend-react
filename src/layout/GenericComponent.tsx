@@ -29,12 +29,13 @@ import type { ExprResolved } from 'src/features/expressions/types';
 import type { ISingleFieldValidation } from 'src/features/form/data/formDataTypes';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type {
-  ComponentExceptGroup,
+  ComponentExceptGroupAndSummary,
   ComponentTypes,
   IGridStyling,
   ILayoutCompBase,
   ILayoutComponent,
 } from 'src/layout/layout';
+import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentValidations, ILabelSettings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
@@ -97,7 +98,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function GenericComponent<Type extends ComponentExceptGroup>(_props: IActualGenericComponentProps<Type>) {
+export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
+  _props: IActualGenericComponentProps<Type>,
+) {
   const props = useExpressionsForComponent(_props as ILayoutComponent) as ExprResolved<
     IActualGenericComponentProps<Type>
   > & {
@@ -220,8 +223,8 @@ export function GenericComponent<Type extends ComponentExceptGroup>(_props: IAct
     passThroughProps.componentValidations = internalComponentValidations;
   }
 
-  const RenderComponent = components[props.type as keyof typeof components];
-  if (!RenderComponent) {
+  const layoutComponent = components[props.type as keyof typeof components];
+  if (!layoutComponent) {
     return (
       <div>
         Unknown component type: {props.type}
@@ -230,6 +233,8 @@ export function GenericComponent<Type extends ComponentExceptGroup>(_props: IAct
       </div>
     );
   }
+
+  const RenderComponent = layoutComponent.render as LayoutComponent<Type>['render'];
 
   const RenderLabel = () => {
     return (
