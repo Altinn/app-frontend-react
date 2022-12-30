@@ -5,7 +5,11 @@ import { ParagraphComponent } from 'src/layout/Paragraph/ParagraphComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Paragraph extends LayoutComponent<'Paragraph'> {
-  public render(props: PropsFromGenericComponent<'Paragraph'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'Paragraph'>): JSX.Element | null {
     return <ParagraphComponent {...props} />;
+  }
+
+  renderWithLabel(): boolean {
+    return false;
   }
 }

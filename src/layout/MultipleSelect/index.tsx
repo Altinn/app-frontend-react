@@ -5,7 +5,7 @@ import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelec
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class MultipleSelect extends LayoutComponent<'MultipleSelect'> {
-  public render(props: PropsFromGenericComponent<'MultipleSelect'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'MultipleSelect'>): JSX.Element | null {
     return <MultipleSelectComponent {...props} />;
   }
 }

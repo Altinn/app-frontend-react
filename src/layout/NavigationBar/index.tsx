@@ -5,7 +5,11 @@ import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarCo
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class NavigationBar extends LayoutComponent<'NavigationBar'> {
-  public render(props: PropsFromGenericComponent<'NavigationBar'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'NavigationBar'>): JSX.Element | null {
     return <NavigationBarComponent {...props} />;
+  }
+
+  renderWithLabel(): boolean {
+    return false;
   }
 }

@@ -5,7 +5,11 @@ import { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Custom extends LayoutComponent<'Custom'> {
-  public render(props: PropsFromGenericComponent<'Custom'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'Custom'>): JSX.Element | null {
     return <CustomWebComponent {...props} />;
+  }
+
+  renderWithLabel(): boolean {
+    return false;
   }
 }

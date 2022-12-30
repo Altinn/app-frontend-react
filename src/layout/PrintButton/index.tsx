@@ -4,7 +4,7 @@ import { LayoutComponent } from 'src/layout/LayoutComponent';
 import { PrintButtonComponent } from 'src/layout/PrintButton/PrintButtonComponent';
 
 export class PrintButton extends LayoutComponent<'PrintButton'> {
-  public render(): JSX.Element | null {
+  render(): JSX.Element | null {
     return <PrintButtonComponent />;
   }
 }

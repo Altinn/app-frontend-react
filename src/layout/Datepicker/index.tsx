@@ -5,7 +5,7 @@ import { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Datepicker extends LayoutComponent<'Datepicker'> {
-  public render(props: PropsFromGenericComponent<'Datepicker'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'Datepicker'>): JSX.Element | null {
     return <DatepickerComponent {...props} />;
   }
 }

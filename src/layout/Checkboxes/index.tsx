@@ -5,7 +5,11 @@ import { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Checkboxes extends LayoutComponent<'Checkboxes'> {
-  public render(props: PropsFromGenericComponent<'Checkboxes'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'Checkboxes'>): JSX.Element | null {
     return <CheckboxContainerComponent {...props} />;
+  }
+
+  renderWithLabel(): boolean {
+    return false;
   }
 }

@@ -5,7 +5,7 @@ import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class TextArea extends LayoutComponent<'TextArea'> {
-  public render(props: PropsFromGenericComponent<'TextArea'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'TextArea'>): JSX.Element | null {
     return <TextAreaComponent {...props} />;
   }
 }

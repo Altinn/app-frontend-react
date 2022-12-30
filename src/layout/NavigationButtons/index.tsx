@@ -5,7 +5,11 @@ import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/Navigat
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class NavigationButtons extends LayoutComponent<'NavigationButtons'> {
-  public render(props: PropsFromGenericComponent<'NavigationButtons'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'NavigationButtons'>): JSX.Element | null {
     return <NavigationButtonsComponent {...props} />;
+  }
+
+  renderWithLabel(): boolean {
+    return false;
   }
 }

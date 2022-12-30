@@ -13,7 +13,7 @@ import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import components, { FormComponentContext } from 'src/layout/index';
 import { makeGetFocus, makeGetHidden } from 'src/selectors/getLayoutData';
-import { LayoutStyle, Triggers } from 'src/types';
+import { Triggers } from 'src/types';
 import {
   componentHasValidationMessages,
   componentValidationsHandledByGenericComponent,
@@ -36,11 +36,10 @@ import type {
   ILayoutComponent,
 } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { IComponentValidations, ILabelSettings } from 'src/types';
+import type { ILabelSettings, LayoutStyle } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
 export interface IGenericComponentProps {
-  componentValidations?: IComponentValidations;
   labelSettings?: ILabelSettings;
   layout?: LayoutStyle;
   groupContainerId?: string;
@@ -204,25 +203,6 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
     );
   };
 
-  const getValidationsForInternalHandling = () => {
-    if (
-      props.type === 'AddressComponent' ||
-      props.type === 'Datepicker' ||
-      props.type === 'FileUpload' ||
-      props.type === 'FileUploadWithTag' ||
-      (props.type === 'Likert' && props.layout === LayoutStyle.Table)
-    ) {
-      return componentValidations;
-    }
-    return null;
-  };
-
-  // some components handle their validations internally (i.e merge with internal validation state)
-  const internalComponentValidations = getValidationsForInternalHandling();
-  if (internalComponentValidations !== null) {
-    passThroughProps.componentValidations = internalComponentValidations;
-  }
-
   const layoutComponent = components[props.type as keyof typeof components] as LayoutComponent<Type>;
   if (!layoutComponent) {
     return (
@@ -257,7 +237,6 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
         key={`description-${props.id}`}
         description={texts.description}
         id={id}
-        {...passThroughProps}
       />
     );
   };
@@ -270,8 +249,10 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
         descriptionText={texts.description}
         helpText={texts.help}
         language={language}
-        {...props}
-        {...passThroughProps}
+        id={props.id}
+        required={props.required}
+        labelSettings={props.labelSettings}
+        layout={props.layout}
       />
     );
   };
@@ -296,25 +277,9 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
     text: texts.title,
     label: RenderLabel,
     legend: RenderLegend,
+    componentValidations,
     ...passThroughProps,
   } as unknown as PropsFromGenericComponent<Type>;
-
-  const noLabelComponents: ComponentTypes[] = [
-    'Header',
-    'Paragraph',
-    'Image',
-    'NavigationButtons',
-    'Custom',
-    'AddressComponent',
-    'Button',
-    'Checkboxes',
-    'RadioButtons',
-    'AttachmentList',
-    'InstantiationButton',
-    'NavigationBar',
-    'Likert',
-    'Panel',
-  ];
 
   const showValidationMessages =
     componentValidationsHandledByGenericComponent(props.dataModelBindings, props.type) && hasValidationMessages;
@@ -343,7 +308,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
         )}
         alignItems='baseline'
       >
-        {!noLabelComponents.includes(props.type) && (
+        {layoutComponent.renderWithLabel() && (
           <Grid
             item={true}
             {...gridBreakpoints(props.grid?.labelGrid)}

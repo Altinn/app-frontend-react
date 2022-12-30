@@ -5,7 +5,7 @@ import { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Dropdown extends LayoutComponent<'Dropdown'> {
-  public render(props: PropsFromGenericComponent<'Dropdown'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'Dropdown'>): JSX.Element | null {
     return <DropdownComponent {...props} />;
   }
 }

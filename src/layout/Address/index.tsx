@@ -5,7 +5,11 @@ import { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Address extends LayoutComponent<'AddressComponent'> {
-  public render(props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null {
     return <AddressComponent {...props} />;
+  }
+
+  renderWithLabel(): boolean {
+    return false;
   }
 }

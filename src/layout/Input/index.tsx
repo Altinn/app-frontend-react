@@ -5,7 +5,7 @@ import { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Input extends LayoutComponent<'Input'> {
-  public render(props: PropsFromGenericComponent<'Input'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'Input'>): JSX.Element | null {
     return <InputComponent {...props} />;
   }
 }

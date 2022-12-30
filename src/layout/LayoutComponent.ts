@@ -5,13 +5,20 @@ export abstract class LayoutComponent<Type extends ComponentExceptGroupAndSummar
   /**
    * Given properties from GenericComponent, render this layout component
    */
-  public abstract render(props: PropsFromGenericComponent<Type>): JSX.Element | null;
+  abstract render(props: PropsFromGenericComponent<Type>): JSX.Element | null;
 
   /**
    * Direct render? Override this and return true if you want GenericComponent to omit rendering grid,
    * validation messages, etc.
    */
-  public directRender(_props: PropsFromGenericComponent<Type>): boolean {
+  directRender(_props: PropsFromGenericComponent<Type>): boolean {
     return false;
+  }
+
+  /**
+   * Return false to render this component without the label (in GenericComponent.tsx)
+   */
+  renderWithLabel(): boolean {
+    return true;
   }
 }

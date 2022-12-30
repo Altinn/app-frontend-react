@@ -30,6 +30,7 @@ import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentExceptGroup, ComponentExceptGroupAndSummary, IGrid, ILayoutComponent } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
+import type { IComponentValidations } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
@@ -80,6 +81,7 @@ export interface IComponentProps extends IGenericComponentProps {
   legend: () => JSX.Element;
   formData: IComponentFormData;
   isValid?: boolean;
+  componentValidations?: IComponentValidations;
 }
 
 export type PropsFromGenericComponent<T extends ComponentExceptGroup> = IComponentProps &

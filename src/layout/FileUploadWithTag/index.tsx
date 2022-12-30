@@ -5,7 +5,7 @@ import { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class FileUploadWithTag extends LayoutComponent<'FileUploadWithTag'> {
-  public render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {
     return <FileUploadWithTagComponent {...props} />;
   }
 }
