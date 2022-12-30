@@ -8,4 +8,8 @@ export class FileUploadWithTag extends LayoutComponent<'FileUploadWithTag'> {
   render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {
     return <FileUploadWithTagComponent {...props} />;
   }
+
+  renderDefaultValidations(): boolean {
+    return false;
+  }
 }

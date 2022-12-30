@@ -21,4 +21,14 @@ export abstract class LayoutComponent<Type extends ComponentExceptGroupAndSummar
   renderWithLabel(): boolean {
     return true;
   }
+
+  /**
+   * Should GenericComponent render validation messages for simpleBinding outside of this component?
+   * This has no effect if:
+   *  - Your component renders directly, using directRender()
+   *  - Your component uses a different data binding (you should handle validations yourself)
+   */
+  renderDefaultValidations(): boolean {
+    return true;
+  }
 }

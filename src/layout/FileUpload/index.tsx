@@ -8,4 +8,8 @@ export class FileUpload extends LayoutComponent<'FileUpload'> {
   render(props: PropsFromGenericComponent<'FileUpload'>): JSX.Element | null {
     return <FileUploadComponent {...props} />;
   }
+
+  renderDefaultValidations(): boolean {
+    return false;
+  }
 }

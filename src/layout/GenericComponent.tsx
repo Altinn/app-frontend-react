@@ -16,7 +16,6 @@ import { makeGetFocus, makeGetHidden } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
 import {
   componentHasValidationMessages,
-  componentValidationsHandledByGenericComponent,
   getFormDataForComponent,
   getTextResource,
   gridBreakpoints,
@@ -281,8 +280,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
     ...passThroughProps,
   } as unknown as PropsFromGenericComponent<Type>;
 
-  const showValidationMessages =
-    componentValidationsHandledByGenericComponent(props.dataModelBindings, props.type) && hasValidationMessages;
+  const showValidationMessages = hasValidationMessages && layoutComponent.renderDefaultValidations();
 
   if (layoutComponent.directRender(componentProps)) {
     return (
