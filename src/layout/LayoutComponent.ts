@@ -1,3 +1,4 @@
+import components from 'src/layout/index';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 
@@ -31,4 +32,10 @@ export abstract class LayoutComponent<Type extends ComponentExceptGroupAndSummar
   renderDefaultValidations(): boolean {
     return true;
   }
+}
+
+export function getLayoutComponentObject<T extends ComponentExceptGroupAndSummary>(
+  type: T,
+): LayoutComponent<T> | undefined {
+  return components[type];
 }

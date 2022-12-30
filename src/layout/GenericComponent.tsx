@@ -12,6 +12,7 @@ import Legend from 'src/features/form/components/Legend';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import components, { FormComponentContext } from 'src/layout/index';
+import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
 import { makeGetFocus, makeGetHidden } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
 import {
@@ -34,9 +35,7 @@ import type {
   ILayoutCompBase,
   ILayoutComponent,
 } from 'src/layout/layout';
-import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { ILabelSettings, LayoutStyle } from 'src/types';
-import type { ILanguage } from 'src/types/shared';
 
 export interface IGenericComponentProps {
   labelSettings?: ILabelSettings;
@@ -202,7 +201,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
     );
   };
 
-  const layoutComponent = components[props.type as keyof typeof components] as LayoutComponent<Type>;
+  const layoutComponent = getLayoutComponentObject(_props.type);
   if (!layoutComponent) {
     return (
       <div>
@@ -213,18 +212,20 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
     );
   }
 
-  const RenderComponent = layoutComponent.render as LayoutComponent<Type>['render'];
+  const RenderComponent = layoutComponent.render;
 
-  const RenderLabel = () => {
-    return (
-      <RenderLabelScoped
-        props={props}
-        passThroughProps={passThroughProps}
-        language={language}
-        texts={texts}
-      />
-    );
-  };
+  const RenderLabel = () => (
+    <Label
+      key={`label-${props.id}`}
+      labelText={texts.title}
+      helpText={texts.help}
+      language={language}
+      id={props.id}
+      readOnly={props.readOnly}
+      required={props.required}
+      labelSettings={props.labelSettings}
+    />
+  );
 
   const RenderDescription = () => {
     if (!props.textResourceBindings?.description) {
@@ -302,7 +303,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
           'form-group',
           'a-form-group',
           classes.container,
-          gridToHiddenProps(props.grid?.labelGrid, classes),
+          gridToClasses(props.grid?.labelGrid, classes),
         )}
         alignItems='baseline'
       >
@@ -311,13 +312,8 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
             item={true}
             {...gridBreakpoints(props.grid?.labelGrid)}
           >
-            <RenderLabelScoped
-              props={props}
-              passThroughProps={passThroughProps}
-              language={language}
-              texts={texts}
-            />
-            <RenderDescription key={`description-${props.id}`} />
+            <RenderLabel />
+            <RenderDescription />
           </Grid>
         )}
         <Grid
@@ -335,29 +331,9 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
   );
 }
 
-interface IRenderLabelProps {
-  texts: any;
-  language: ILanguage;
-  props: any;
-  passThroughProps: any;
-}
-
-const RenderLabelScoped = (props: IRenderLabelProps) => {
-  return (
-    <Label
-      key={`label-${props.props.id}`}
-      labelText={props.texts.title}
-      helpText={props.texts.help}
-      language={props.language}
-      {...props.props}
-      {...props.passThroughProps}
-    />
-  );
-};
-
-const gridToHiddenProps = (labelGrid: IGridStyling | undefined, classes: ReturnType<typeof useStyles>) => {
+const gridToClasses = (labelGrid: IGridStyling | undefined, classes: ReturnType<typeof useStyles>) => {
   if (!labelGrid) {
-    return undefined;
+    return {};
   }
 
   return {
