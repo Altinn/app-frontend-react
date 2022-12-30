@@ -15,12 +15,12 @@ import type { IRuntimeState, IValidationIssue } from 'src/types';
 export function* runSingleFieldValidationSaga({
   payload: { componentId, layoutId, dataModelBinding },
 }: PayloadAction<IRunSingleFieldValidation>): SagaIterator {
-  const state: IRuntimeState = yield select();
   /**
    * Dont run validataion while there are unsaved changes as we risk running validations for outdated form-data,
    * which might override a validation run for the most recent form-data in a race condition.
    */
-  yield waitFor((state) => !state.formData.unsavedChanges);
+  yield waitFor((state) => !state?.formData.unsavedChanges);
+  const state: IRuntimeState = yield select();
   const currentTaskDataId =
     state.applicationMetadata.applicationMetadata &&
     getCurrentTaskDataElementId(
