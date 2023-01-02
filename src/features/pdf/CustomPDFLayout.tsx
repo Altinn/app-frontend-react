@@ -12,7 +12,7 @@ interface ICustomPDFLayout {
   layout: ILayout;
 }
 
-const presentationComponents = new Set(['Header', 'Paragraph', 'Image', 'Panel']);
+const presentationComponents = new Set(['Header', 'Paragraph', 'Image', 'Panel', 'InstanceInformation']);
 
 const CustomPDFSummaryComponent = ({ component, layout }: { component: ILayoutComponentOrGroup; layout: ILayout }) => {
   if (component.type === 'Group') {

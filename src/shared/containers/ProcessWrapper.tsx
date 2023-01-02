@@ -48,7 +48,12 @@ const ProcessWrapper = () => {
   const { taskType } = process;
 
   if (pdf) {
-    return <PDFView appName={appName as string} />;
+    return (
+      <PDFView
+        appName={appName as string}
+        appOwner={appOwner}
+      />
+    );
   }
 
   return (

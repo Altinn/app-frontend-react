@@ -4,6 +4,7 @@ import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import css from 'src/features/pdf/PDFView.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { topLevelComponents } from 'src/utils/formLayout';
+import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
 import type { ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
 
 const summaryComponents = new Set([
@@ -86,8 +87,25 @@ const AutomaticPDFLayout = ({
     ])
     .flatMap(([pageRef, components]: [string, ILayoutComponentOrGroup[]]) => components.map((comp) => [pageRef, comp]));
 
+  const instanceInformationProps: ILayoutCompInstanceInformation = {
+    id: '__pdf__instance-information',
+    type: 'InstanceInformation',
+    elements: {
+      dateSent: true,
+      sender: true,
+      receiver: true,
+      referenceNumber: true,
+    },
+    pageBreak: {
+      breakAfter: true,
+    },
+  };
+
   return (
     <>
+      <div className={css['component-container']}>
+        <GenericComponent {...instanceInformationProps} />
+      </div>
       {layoutAndComponents.map(([pageRef, component]: [string, ILayoutComponentOrGroup]) => (
         <div
           key={component.id}

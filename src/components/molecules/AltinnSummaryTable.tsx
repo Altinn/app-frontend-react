@@ -33,7 +33,9 @@ const returnGridRow = (name: string, prop: string, classes: any, index: number) 
 
 const useStyles = makeStyles({
   instanceMetaData: {
-    marginTop: 36,
+    '@media only screen': {
+      marginTop: 36,
+    },
   },
   tableCell: {
     borderBottom: 0,

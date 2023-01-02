@@ -1,5 +1,7 @@
 import React from 'react';
 
+import cn from 'classnames';
+
 import { useAppSelector } from 'src/common/hooks';
 import AutomaticPDFLayout from 'src/features/pdf/AutomaticPDFLayout';
 import CustomPDFLayout from 'src/features/pdf/CustomPDFLayout';
@@ -10,9 +12,10 @@ import type { IInstanceContext } from 'src/types/shared';
 
 interface PDFViewProps {
   appName: string;
+  appOwner?: string;
 }
 
-const PDFView = ({ appName }: PDFViewProps) => {
+const PDFView = ({ appName, appOwner }: PDFViewProps) => {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const excludePageFromPdf = useAppSelector((state) => new Set(state.formLayout.uiConfig.excludePageFromPdf));
   const excludeComponentFromPdf = useAppSelector((state) => new Set(state.formLayout.uiConfig.excludeComponentFromPdf));
@@ -50,7 +53,15 @@ const PDFView = ({ appName }: PDFViewProps) => {
   document.body.style.backgroundColor = 'white';
   return (
     <div className={css['pdf-wrapper']}>
-      <h1>{appName}</h1>
+      <h1 className={cn({ [css['title-margin']]: !appOwner })}>{appName}</h1>
+      {appOwner && (
+        <p
+          role='doc-subtitle'
+          className={css['title-margin']}
+        >
+          {appOwner}
+        </p>
+      )}
       {typeof pdfLayout !== 'undefined' ? (
         <CustomPDFLayout layout={pdfLayout} />
       ) : (
