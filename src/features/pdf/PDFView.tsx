@@ -27,9 +27,15 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const instanceContextSelector = getInstanceContextSelector();
   const instanceContext: IInstanceContext = useAppSelector(instanceContextSelector);
-  const applicationSettings = useAppSelector((state) => state.applicationSettings?.applicationSettings);
+  const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const formData = useAppSelector((state) => state.formData?.formData);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
+  const parties = useAppSelector((state) => state.party.parties);
+  const language = useAppSelector((state) => state.language.language);
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const instance = useAppSelector((state) => state.instanceData.instance);
+  const allOrgs = useAppSelector((state) => state.organisationMetaData.allOrgs);
+  const profile = useAppSelector((state) => state.profile.profile);
 
   if (
     optionsLoading ||
@@ -43,7 +49,13 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
     !instanceContext ||
     !applicationSettings ||
     !formData ||
-    !hiddenFields
+    !hiddenFields ||
+    !parties ||
+    !language ||
+    !textResources ||
+    !instance ||
+    !allOrgs ||
+    !profile
   ) {
     return null;
   }
