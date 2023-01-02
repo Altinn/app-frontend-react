@@ -36,6 +36,9 @@ const useStyles = makeStyles({
     '@media only screen': {
       marginTop: 36,
     },
+    '@media print': {
+      marginBottom: '2rem',
+    },
   },
   tableCell: {
     borderBottom: 0,
