@@ -18,23 +18,23 @@ export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
 export const selectLayoutsState = (state: IRuntimeState) => state.formLayout.layouts;
 export const selectApplicationMetadataState = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 export const selectInstanceState = (state: IRuntimeState) => state.instanceData.instance;
-export const selectLayoutSets = (state: IRuntimeState) => state.formLayout.layoutsets;
-export const selectTextResources = (state: IRuntimeState) => state.textResources.resources;
+export const selectLayoutSetsState = (state: IRuntimeState) => state.formLayout.layoutsets;
+export const selectTextResourcesState = (state: IRuntimeState) => state.textResources.resources;
 export const selectValidationsState = (state: IRuntimeState) => state.formValidations.validations;
-export const selectHiddenFields = (state: IRuntimeState) => state.formLayout.uiConfig.hiddenFields;
+export const selectHiddenFieldsState = (state: IRuntimeState) => state.formLayout.uiConfig.hiddenFields;
 
 export function* runSingleFieldValidationSaga({
   payload: { componentId, layoutId, dataModelBinding },
 }: PayloadAction<IRunSingleFieldValidation>): SagaIterator {
   // Reject validation if field is hidden
-  let hiddenFields: string[] = yield select(selectHiddenFields);
+  let hiddenFields: string[] = yield select(selectHiddenFieldsState);
   if (hiddenFields.includes(componentId)) {
     return;
   }
 
   const applicationMetadata: IApplicationMetadata = yield select(selectApplicationMetadataState);
   const instance: IInstance = yield select(selectInstanceState);
-  const layoutSets: ILayoutSets = yield select(selectLayoutSets);
+  const layoutSets: ILayoutSets = yield select(selectLayoutSetsState);
 
   const currentTaskDataId: string | undefined =
     applicationMetadata && getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
@@ -49,7 +49,7 @@ export function* runSingleFieldValidationSaga({
 
     try {
       const layouts: ILayouts = yield select(selectLayoutsState);
-      const textResources: ITextResource[] = yield select(selectTextResources);
+      const textResources: ITextResource[] = yield select(selectTextResourcesState);
       const serverValidation: IValidationIssue[] = yield call(get, url, options);
 
       const mappedValidations: IValidations = mapDataElementValidationToRedux(
@@ -74,7 +74,7 @@ export function* runSingleFieldValidationSaga({
       }
 
       // Reject validation if field has been set to hidden in the time after we sent the validation request
-      hiddenFields = yield select(selectHiddenFields);
+      hiddenFields = yield select(selectHiddenFieldsState);
       if (hiddenFields.includes(componentId)) {
         return;
       }
