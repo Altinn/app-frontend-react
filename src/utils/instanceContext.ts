@@ -9,11 +9,19 @@ export function buildInstanceContext(instance?: IInstance | null): IInstanceCont
   if (!instance) {
     return null;
   }
+  const instanceOwnerPartyType = instance.instanceOwner.organisationNumber
+    ? 'org'
+    : instance.instanceOwner.personNumber
+    ? 'person'
+    : instance.instanceOwner.userName
+    ? 'selfIdentified'
+    : 'unknown';
 
   return {
     appId: instance.appId,
     instanceId: instance.id,
     instanceOwnerPartyId: instance.instanceOwner.partyId,
+    instanceOwnerPartyType,
   };
 }
 
