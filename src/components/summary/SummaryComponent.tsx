@@ -10,6 +10,7 @@ import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitc
 import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
+import printStyles from 'src/styles/print.module.css';
 import {
   componentHasValidationMessages,
   getComponentValidations,
@@ -43,9 +44,11 @@ const useStyles = makeStyles({
   },
 });
 
-export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponent) {
+export function SummaryComponent(_props: ISummaryComponent) {
+  const { id, grid, ...summaryProps } = _props;
   const { componentRef, display, ...groupProps } = summaryProps;
-  const { pageRef, index } = groupProps;
+  const { parentGroup, index, pageRef, formData, ...containerProps } = _props;
+  const container = { ...containerProps, type: 'Summary' } as ILayoutCompSummary;
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const GetHiddenSelector = makeGetHidden();
@@ -79,6 +82,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
     );
   });
   const formComponent = useExpressionsForComponent(_formComponent);
+  const summaryComponent = useExpressionsForComponent(container);
 
   const goToCorrectPageLinkText = useAppSelector((state) => {
     return (
@@ -92,7 +96,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
       )
     );
   });
-  const formData = useAppSelector((state) => {
+  const calculatedFormData = useAppSelector((state) => {
     if (formComponent?.type === 'Group') {
       return undefined;
     }
@@ -103,7 +107,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
       return undefined;
     }
     return (
-      summaryProps.formData ||
+      formData ||
       getDisplayFormDataForComponent(
         state.formData.formData,
         attachments,
@@ -168,6 +172,10 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
       lg={displayGrid?.lg || false}
       xl={displayGrid?.xl || false}
       data-testid={`summary-${id}`}
+      className={cn({
+        [printStyles['break-before']]: summaryComponent.pageBreak?.breakBefore,
+        [printStyles['break-after']]: summaryComponent.pageBreak?.breakAfter,
+      })}
     >
       <Grid
         container={true}
@@ -181,7 +189,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
           formComponent={formComponent}
           label={label}
           hasValidationMessages={hasValidationMessages}
-          formData={formData}
+          formData={calculatedFormData}
           componentRef={componentRef}
           groupProps={groupProps}
           display={display}

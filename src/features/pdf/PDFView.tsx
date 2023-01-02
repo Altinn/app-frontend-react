@@ -6,8 +6,6 @@ import CustomPDFLayout from 'src/features/pdf/CustomPDFLayout';
 import css from 'src/features/pdf/PDFView.module.css';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { getInstanceContextSelector } from 'src/utils/instanceContext';
-import { nodesInLayout, nodesInLayouts } from 'src/utils/layout/hierarchy';
-import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { IInstanceContext } from 'src/types/shared';
 
 interface PDFViewProps {
@@ -49,28 +47,12 @@ const PDFView = ({ appName }: PDFViewProps) => {
 
   const pdfLayout = pdfLayoutName ? layouts[pdfLayoutName] : undefined;
 
-  const nodes =
-    typeof pdfLayout !== 'undefined'
-      ? nodesInLayout(pdfLayout, repeatingGroups)
-      : nodesInLayouts(layouts, '__pdf__', repeatingGroups);
-
-  const dataSources: ContextDataSources = {
-    instanceContext,
-    applicationSettings,
-    formData,
-    hiddenFields: new Set(hiddenFields),
-  };
-
   document.body.style.backgroundColor = 'white';
   return (
     <div className={css['pdf-wrapper']}>
       <h1>{appName}</h1>
       {typeof pdfLayout !== 'undefined' ? (
-        <CustomPDFLayout
-          layout={pdfLayout}
-          nodes={nodes}
-          dataSources={dataSources}
-        />
+        <CustomPDFLayout layout={pdfLayout} />
       ) : (
         <AutomaticPDFLayout
           excludeComponentFromPdf={excludeComponentFromPdf}
@@ -78,8 +60,6 @@ const PDFView = ({ appName }: PDFViewProps) => {
           hiddenPages={hiddenPages}
           layouts={layouts}
           pageOrder={pageOrder}
-          nodes={nodes}
-          dataSources={dataSources}
         />
       )}
       <ReadyForPrint />

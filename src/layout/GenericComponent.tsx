@@ -13,6 +13,7 @@ import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import components, { FormComponentContext } from 'src/layout/index';
 import { makeGetFocus, makeGetHidden } from 'src/selectors/getLayoutData';
+import printStyles from 'src/styles/print.module.css';
 import { LayoutStyle, Triggers } from 'src/types';
 import {
   componentHasValidationMessages,
@@ -331,6 +332,10 @@ export function GenericComponent<Type extends ComponentExceptGroup>(_props: IAct
           'a-form-group',
           classes.container,
           gridToHiddenProps(props.grid?.labelGrid, classes),
+          {
+            [printStyles['break-before']]: props.pageBreak?.breakBefore,
+            [printStyles['break-after']]: props.pageBreak?.breakAfter,
+          },
         )}
         alignItems='baseline'
       >

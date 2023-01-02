@@ -3,24 +3,13 @@ import React from 'react';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
-import PDFComponentWrapper from 'src/features/pdf/PDFComponentWrapper';
+import css from 'src/features/pdf/PDFView.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { topLevelComponents } from 'src/utils/formLayout';
-import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ILayout, ILayoutComponentOrGroup } from 'src/layout/layout';
-import type { LayoutRootNode, LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
 
 interface ICustomPDFLayout {
   layout: ILayout;
-  nodes:
-    | LayoutRootNode<'unresolved'>
-    | LayoutRootNodeCollection<
-        'unresolved',
-        {
-          [layoutKey: string]: LayoutRootNode<'unresolved'>;
-        }
-      >;
-  dataSources: ContextDataSources;
 }
 
 const presentationComponents = new Set(['Header', 'Paragraph', 'Image', 'Panel']);
@@ -61,20 +50,18 @@ const CustomPDFSummaryComponent = ({ component, layout }: { component: ILayoutCo
   }
 };
 
-const CustomPDFLayout = ({ layout, nodes, dataSources }: ICustomPDFLayout) => (
+const CustomPDFLayout = ({ layout }: ICustomPDFLayout) => (
   <>
     {topLevelComponents(layout).map((component) => (
-      <PDFComponentWrapper
+      <div
         key={component.id}
-        component={component}
-        nodes={nodes}
-        dataSources={dataSources}
+        className={css['component-container']}
       >
         <CustomPDFSummaryComponent
           component={component}
           layout={layout}
         />
-      </PDFComponentWrapper>
+      </div>
     ))}
   </>
 );

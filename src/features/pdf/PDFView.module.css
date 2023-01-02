@@ -2,14 +2,6 @@
   font-size: xx-large;
   margin-bottom: 2rem;
 }
-@media print {
-  .break-before {
-    page-break-before: always;
-  }
-  .break-after {
-    page-break-after: always;
-  }
-}
 
 .component-container {
   width: 100%;
