@@ -8,4 +8,8 @@ export class List extends LayoutComponent<'List'> {
   render(props: PropsFromGenericComponent<'List'>): JSX.Element | null {
     return <ListComponent {...props} />;
   }
+
+  renderWithLabel(): boolean {
+    return false;
+  }
 }
