@@ -6,32 +6,30 @@ import type { SagaIterator } from 'redux-saga';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { get } from 'src/utils/network/networking';
-import { waitFor } from 'src/utils/sagas';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapDataElementValidationToRedux, mergeValidationObjects } from 'src/utils/validation';
 import type { IRunSingleFieldValidation } from 'src/features/form/validation/validationSlice';
 import type { IRuntimeState, IValidationIssue } from 'src/types';
 
+export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
+export const selectLayoutsState = (state: IRuntimeState) => state.formLayout.layouts;
+export const selectApplicationMetadataState = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
+export const selectInstanceState = (state: IRuntimeState) => state.instanceData.instance;
+export const selectLayoutSets = (state: IRuntimeState) => state.formLayout.layoutsets;
+export const selectTextResources = (state: IRuntimeState) => state.textResources.resources;
+export const selectValidationsState = (state: IRuntimeState) => state.formValidations.validations;
+export const selectHiddenFields = (state: IRuntimeState) => state.formLayout.uiConfig.hiddenFields;
+
 export function* runSingleFieldValidationSaga({
   payload: { componentId, layoutId, dataModelBinding },
 }: PayloadAction<IRunSingleFieldValidation>): SagaIterator {
-  /**
-   * Dont run validataion while there are unsaved changes as we risk running validations for outdated form-data,
-   * which might override a validation run for the most recent form-data in a race condition.
-   */
-  yield waitFor((state) => !state?.formData.unsavedChanges);
-  const state: IRuntimeState = yield select();
+  const applicationMetadata = yield select(selectApplicationMetadataState);
+  const instance = yield select(selectInstanceState);
+  const layoutSets = yield select(selectLayoutSets);
+
   const currentTaskDataId =
-    state.applicationMetadata.applicationMetadata &&
-    getCurrentTaskDataElementId(
-      state.applicationMetadata.applicationMetadata,
-      state.instanceData.instance,
-      state.formLayout.layoutsets,
-    );
-  const url =
-    state.instanceData.instance &&
-    currentTaskDataId &&
-    getDataValidationUrl(state.instanceData.instance.id, currentTaskDataId);
+    applicationMetadata && getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
+  const url = instance && currentTaskDataId && getDataValidationUrl(instance.id, currentTaskDataId);
 
   if (url && dataModelBinding) {
     const options: AxiosRequestConfig = {
@@ -41,13 +39,19 @@ export function* runSingleFieldValidationSaga({
     };
 
     try {
+      const layouts = yield select(selectLayoutsState);
+      const textResources = yield select(selectTextResources);
       const serverValidation: IValidationIssue[] = yield call(get, url, options);
-      const mappedValidations = mapDataElementValidationToRedux(
-        serverValidation,
-        state.formLayout.layouts || {},
-        state.textResources.resources,
-      );
-      const validations = mergeValidationObjects(state.formValidations.validations, mappedValidations);
+
+      const mappedValidations = mapDataElementValidationToRedux(serverValidation, layouts || {}, textResources);
+      const validationsFromState = yield select(selectValidationsState);
+      const validations = mergeValidationObjects(validationsFromState, mappedValidations);
+
+      // Reject validation if field is hidden
+      const hiddenFields = yield select(selectHiddenFields);
+      if (componentId in hiddenFields) {
+        throw Error('Single field validation rejected as field is hidden for user');
+      }
 
       // Replace/reset validations for field that triggered validation
       if (serverValidation.length === 0 && validations[layoutId]?.[componentId]) {
