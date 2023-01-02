@@ -1,5 +1,7 @@
-import { put } from 'redux-saga/effects';
+import { put, takeLatest } from 'redux-saga/effects';
+import type { SagaIterator } from 'redux-saga';
 
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import {
   fetchLayoutSetsSaga,
   watchFetchFormLayoutSaga,
@@ -8,13 +10,13 @@ import {
 import {
   calculatePageOrderAndMoveToNextPageSaga,
   findAndMoveToNextVisibleLayout,
+  initRepeatingGroupsSaga,
   updateCurrentViewSaga,
   updateFileUploaderWithTagChosenOptionsSaga,
   updateFileUploaderWithTagEditIndexSaga,
   updateRepeatingGroupEditIndexSaga,
   updateRepeatingGroupsSaga,
   watchInitialCalculatePageOrderAndMoveToNextPageSaga,
-  watchInitRepeatingGroupsSaga,
   watchMapFileUploaderWithTagSaga,
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
@@ -42,6 +44,7 @@ export const initialState: ILayoutState = {
     autoSave: null,
     repeatingGroups: null,
     fileUploadersWithTag: {},
+    receiptLayoutName: undefined,
     currentView: 'FormLayout',
     navigationConfig: {},
     tracks: {
@@ -115,6 +118,7 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
     fetchSettingsFulfilled: mkAction<LayoutTypes.IFetchLayoutSettingsFulfilled>({
       reducer: (state, action) => {
         const { settings } = action.payload;
+        state.uiConfig.receiptLayoutName = settings?.receiptLayoutName;
         if (settings && settings.pages) {
           updateCommonPageSettings(state, settings.pages);
           const order = settings.pages.order;
@@ -327,7 +331,14 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
       },
     }),
     initRepeatingGroups: mkAction<void>({
-      saga: () => watchInitRepeatingGroupsSaga,
+      takeEvery: initRepeatingGroupsSaga,
+      saga: () =>
+        function* (): SagaIterator {
+          yield takeLatest(
+            [FormDataActions.fetchFulfilled, FormLayoutActions.initRepeatingGroups, FormLayoutActions.fetchFulfilled],
+            initRepeatingGroupsSaga,
+          );
+        },
     }),
     clearKeepScrollPos: mkAction<void>({
       reducer: (state) => {
