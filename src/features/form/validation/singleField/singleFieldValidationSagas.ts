@@ -26,8 +26,8 @@ export const selectHiddenFields = (state: IRuntimeState) => state.formLayout.uiC
 export function* runSingleFieldValidationSaga({
   payload: { componentId, layoutId, dataModelBinding },
 }: PayloadAction<IRunSingleFieldValidation>): SagaIterator {
-  // Reject validation if field has been set to hidden in the time after we sent the validation request
-  const hiddenFields: string[] = yield select(selectHiddenFields);
+  // Reject validation if field is hidden
+  let hiddenFields: string[] = yield select(selectHiddenFields);
   if (hiddenFields.includes(componentId)) {
     return;
   }
@@ -71,6 +71,12 @@ export function* runSingleFieldValidationSaga({
           validations[layoutId] = {};
         }
         validations[layoutId][componentId] = mappedValidations[layoutId][componentId];
+      }
+
+      // Reject validation if field has been set to hidden in the time after we sent the validation request
+      hiddenFields = yield select(selectHiddenFields);
+      if (hiddenFields.includes(componentId)) {
+        return;
       }
 
       yield put(ValidationActions.runSingleFieldValidationFulfilled({ validations }));
