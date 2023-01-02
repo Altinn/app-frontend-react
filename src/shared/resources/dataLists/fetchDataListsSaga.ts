@@ -1,5 +1,6 @@
 import { SortDirection } from '@altinn/altinn-design-system';
 import { call, fork, put, select } from 'redux-saga/effects';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
@@ -10,6 +11,7 @@ import { selectNotNull } from 'src/utils/sagas';
 import { get } from 'src/utils/sharedUtils';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/form/data';
+import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type {
   IDataList,
@@ -127,5 +129,32 @@ export function* fetchSpecificDataListSaga({
     );
   } catch (error) {
     yield put(DataListsActions.fetchRejected({ key: id, error }));
+  }
+}
+
+export function* checkIfDataListShouldRefetchSaga({
+  payload: { field },
+}: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
+  const dataList: IDataList = yield select(dataListsSelector);
+  let foundInExistingDataList = false;
+  for (const dataListKey of Object.keys(dataList)) {
+    const { mapping, id, secure, dataListId } = dataList[dataListKey] || {};
+    if (!id) {
+      continue;
+    }
+
+    if (mapping && Object.keys(mapping).includes(field)) {
+      foundInExistingDataList = true;
+      yield fork(fetchSpecificDataListSaga, {
+        id,
+        dataListId,
+        dataMapping: mapping,
+        secure,
+      });
+    }
+  }
+
+  if (foundInExistingDataList) {
+    return;
   }
 }
