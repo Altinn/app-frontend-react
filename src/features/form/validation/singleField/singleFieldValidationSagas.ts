@@ -9,7 +9,10 @@ import { get } from 'src/utils/network/networking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapDataElementValidationToRedux, mergeValidationObjects } from 'src/utils/validation';
 import type { IRunSingleFieldValidation } from 'src/features/form/validation/validationSlice';
-import type { IRuntimeState, IValidationIssue } from 'src/types';
+import type { ILayouts } from 'src/layout/layout';
+import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
+import type { ILayoutSets, IRuntimeState, ITextResource, IValidationIssue, IValidations } from 'src/types';
+import type { IInstance } from 'src/types/shared';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
 export const selectLayoutsState = (state: IRuntimeState) => state.formLayout.layouts;
@@ -23,13 +26,19 @@ export const selectHiddenFields = (state: IRuntimeState) => state.formLayout.uiC
 export function* runSingleFieldValidationSaga({
   payload: { componentId, layoutId, dataModelBinding },
 }: PayloadAction<IRunSingleFieldValidation>): SagaIterator {
-  const applicationMetadata = yield select(selectApplicationMetadataState);
-  const instance = yield select(selectInstanceState);
-  const layoutSets = yield select(selectLayoutSets);
+  // Reject validation if field has been set to hidden in the time after we sent the validation request
+  const hiddenFields: string[] = yield select(selectHiddenFields);
+  if (hiddenFields.includes(componentId)) {
+    return;
+  }
 
-  const currentTaskDataId =
+  const applicationMetadata: IApplicationMetadata = yield select(selectApplicationMetadataState);
+  const instance: IInstance = yield select(selectInstanceState);
+  const layoutSets: ILayoutSets = yield select(selectLayoutSets);
+
+  const currentTaskDataId: string | undefined =
     applicationMetadata && getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
-  const url = instance && currentTaskDataId && getDataValidationUrl(instance.id, currentTaskDataId);
+  const url: string | undefined = instance && currentTaskDataId && getDataValidationUrl(instance.id, currentTaskDataId);
 
   if (url && dataModelBinding) {
     const options: AxiosRequestConfig = {
@@ -39,19 +48,17 @@ export function* runSingleFieldValidationSaga({
     };
 
     try {
-      const layouts = yield select(selectLayoutsState);
-      const textResources = yield select(selectTextResources);
+      const layouts: ILayouts = yield select(selectLayoutsState);
+      const textResources: ITextResource[] = yield select(selectTextResources);
       const serverValidation: IValidationIssue[] = yield call(get, url, options);
 
-      const mappedValidations = mapDataElementValidationToRedux(serverValidation, layouts || {}, textResources);
-      const validationsFromState = yield select(selectValidationsState);
-      const validations = mergeValidationObjects(validationsFromState, mappedValidations);
-
-      // Reject validation if field is hidden
-      const hiddenFields = yield select(selectHiddenFields);
-      if (componentId in hiddenFields) {
-        throw Error('Single field validation rejected as field is hidden for user');
-      }
+      const mappedValidations: IValidations = mapDataElementValidationToRedux(
+        serverValidation,
+        layouts || {},
+        textResources,
+      );
+      const validationsFromState: IValidations = yield select(selectValidationsState);
+      const validations: IValidations = mergeValidationObjects(validationsFromState, mappedValidations);
 
       // Replace/reset validations for field that triggered validation
       if (serverValidation.length === 0 && validations[layoutId]?.[componentId]) {
