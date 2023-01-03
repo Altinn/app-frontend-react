@@ -319,16 +319,18 @@ function SummaryGroupComponent({
     return componentArray;
   };
 
+  const isEmpty = stopIndex - startIndex < 0;
+
   const renderComponents: any = largeGroup
     ? createRepeatingGroupSummaryForLargeGroups()
     : createRepeatingGroupSummaryComponents();
 
-  if (largeGroup && layout) {
-    return <>{renderComponents}</>;
-  }
-
   if (!language) {
     return null;
+  }
+
+  if (!isEmpty && largeGroup && layout) {
+    return renderComponents;
   }
 
   return (
@@ -364,7 +366,17 @@ function SummaryGroupComponent({
           item
           xs={12}
         >
-          {renderComponents}
+          {isEmpty ? (
+            <Typography
+              variant='body1'
+              className={classes.label}
+              component='p'
+            >
+              {getLanguageFromKey('general.empty_summary', language)}
+            </Typography>
+          ) : (
+            renderComponents
+          )}
         </Grid>
       </Grid>
       {groupHasErrors && !display?.hideValidationMessages && (

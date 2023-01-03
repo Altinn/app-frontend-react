@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 
+import { useAppSelector } from 'src/common/hooks';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import type { IFormDataState } from 'src/features/form/data';
 
 export const useDisplayData = ({ formData }: Partial<IFormDataState> | { formData: string | string[] }) => {
   const [displayData, setDisplayData] = useState('');
+  const language = useAppSelector((state) => state.language.language);
   useEffect(() => {
     if (formData && typeof formData === 'object') {
       let displayString = '';
@@ -12,8 +15,8 @@ export const useDisplayData = ({ formData }: Partial<IFormDataState> | { formDat
       });
       setDisplayData(displayString);
     } else {
-      setDisplayData((formData as string) || '');
+      setDisplayData((formData as string) || getLanguageFromKey('general.empty_summary', language || {}));
     }
-  }, [formData, setDisplayData]);
+  }, [formData, setDisplayData, language]);
   return displayData;
 };
