@@ -3,6 +3,7 @@ import React from 'react';
 import {
   Pagination,
   RadioButton,
+  RadioButtonSize,
   ScreenSize,
   SortDirection,
   Table,
@@ -38,22 +39,10 @@ const MobileView = () => {
   return isMobile;
 };
 
-const TabletView = () => {
-  const tablet: boolean = useMediaQuery(`(max-width: ${tokens.BreakpointsLg})`);
-  let isTablet = false;
-  if (tablet) {
-    isTablet = true;
-  }
-  return isTablet;
-};
-
 const DecideLayout = () => {
   const mobile: boolean = MobileView();
-  const tablet: boolean = TabletView();
   if (mobile) {
     return ScreenSize.Mobile;
-  } else if (tablet) {
-    return ScreenSize.Tablet;
   } else {
     return ScreenSize.Laptop;
   }
@@ -172,14 +161,10 @@ export const ListComponent = ({
 
   const renderMobileTableCell = (datalist) => {
     const mobileViewProperties: RowData = {};
-    console.log(tableHeaders);
-    console.log(chosenPrioritizedColumsMobile);
     if (tableHeaders) {
       let i = 0;
       for (const key in datalist) {
         if (chosenPrioritizedColumsMobile?.includes(tableHeaders[i])) {
-          console.log(getTextResourceAsString(tableHeaders[i]));
-          console.log(datalist[key]);
           mobileViewProperties[getTextResourceAsString(tableHeaders[i])] = datalist[key];
         }
         i++;
@@ -194,6 +179,7 @@ export const ListComponent = ({
         selectRows={true}
         onChange={handleChange}
         selectedValue={formData as RowData}
+        screenSize={ScreenSize.Mobile}
       >
         <TableBody>
           {calculatedDataList.map((datalist) => {
@@ -212,50 +198,10 @@ export const ListComponent = ({
                     checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
                     label={createLabelRadioButton(datalist)}
                     hideLabel={true}
+                    size={RadioButtonSize.Xsmall}
                   ></RadioButton>
                 </TableCell>
                 {renderMobileTableCell(datalist)}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    );
-  };
-
-  const isLaptop = () => {
-    return (
-      <Table
-        selectRows={true}
-        onChange={handleChange}
-        selectedValue={formData as RowData}
-      >
-        <TableHeader>
-          <TableRow>
-            <TableCell radiobutton={true}></TableCell>
-            {renderHeaders(tableHeaders)}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {calculatedDataList.map((datalist) => {
-            return (
-              <TableRow
-                key={JSON.stringify(datalist)}
-                rowData={rowAsValue(datalist)}
-              >
-                <TableCell radiobutton={true}>
-                  <RadioButton
-                    name={datalist}
-                    onChange={() => {
-                      // Intentionally empty to prevent double-selection
-                    }}
-                    value={rowAsValueString(datalist)}
-                    checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
-                    label={createLabelRadioButton(datalist)}
-                    hideLabel={true}
-                  ></RadioButton>
-                </TableCell>
-                {renderRow(datalist)}
               </TableRow>
             );
           })}
@@ -272,12 +218,76 @@ export const ListComponent = ({
                   currentPage={currentPage}
                   setCurrentPage={handleChangeCurrentPage}
                   descriptionTexts={getLanguageFromKey('list_component', language)}
+                  screenSize={ScreenSize.Mobile}
                 />
               </TableCell>
             </TableRow>
           </TableFooter>
         )}
       </Table>
+    );
+  };
+
+  const isLaptop = () => {
+    return (
+      <div style={{ overflow: 'auto' }}>
+        <Table
+          screenSize={ScreenSize.Laptop}
+          selectRows={true}
+          onChange={handleChange}
+          selectedValue={formData as RowData}
+          style={{ overflow: 'scroll' }}
+        >
+          <TableHeader>
+            <TableRow>
+              <TableCell radiobutton={true}></TableCell>
+              {renderHeaders(tableHeaders)}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {calculatedDataList.map((datalist) => {
+              return (
+                <TableRow
+                  key={JSON.stringify(datalist)}
+                  rowData={rowAsValue(datalist)}
+                >
+                  <TableCell radiobutton={true}>
+                    <RadioButton
+                      name={datalist}
+                      onChange={() => {
+                        // Intentionally empty to prevent double-selection
+                      }}
+                      value={rowAsValueString(datalist)}
+                      checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
+                      label={createLabelRadioButton(datalist)}
+                      hideLabel={true}
+                    ></RadioButton>
+                  </TableCell>
+                  {renderRow(datalist)}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+          {pagination && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={tableHeaders && 1 + tableHeaders?.length}>
+                  <Pagination
+                    numberOfRows={totalItemsCount}
+                    rowsPerPageOptions={pagination.alternatives}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    currentPage={currentPage}
+                    setCurrentPage={handleChangeCurrentPage}
+                    descriptionTexts={getLanguageFromKey('list_component', language)}
+                    screenSize={ScreenSize.Laptop}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          )}
+        </Table>
+      </div>
     );
   };
 
