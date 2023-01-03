@@ -15,6 +15,7 @@
   "prev": "Forrige",
   "next": "Neste",
   "requiredField": "Feltet er påkrevd",
+  "requiredFieldFromBackend": "Feltet er påkrevd (fra backend)",
   "requiredFieldLastName": "Du må fylle ut nytt etternavn",
   "requiredFieldDateFrom": "Du må fylle ut dato for navneendring",
   "requiredFieldFromValue": "Du må fylle ut 1. endre fra",

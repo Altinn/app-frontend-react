@@ -23,7 +23,7 @@ describe('Validation', () => {
     cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.newFirstName.substring(1)))
       .should('exist')
       .should('be.visible')
-      .should('have.text', texts.requiredField);
+      .should('have.text', texts.requiredFieldFromBackend);
 
     // Doing the same for any other field (without server-side required validation) should not show an error
     cy.get(appFrontend.changeOfName.newMiddleName)
