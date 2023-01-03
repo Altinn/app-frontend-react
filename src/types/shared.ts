@@ -110,7 +110,7 @@ export interface IInstanceOwner {
   partyId: string;
   personNumber?: string;
   organisationNumber?: string | null;
-  userName?: string;
+  username?: string;
 }
 
 export interface IInstanceState {

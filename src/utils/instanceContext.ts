@@ -13,7 +13,7 @@ export function buildInstanceContext(instance?: IInstance | null): IInstanceCont
     ? 'org'
     : instance.instanceOwner.personNumber
     ? 'person'
-    : instance.instanceOwner.userName
+    : instance.instanceOwner.username
     ? 'selfIdentified'
     : 'unknown';
 
