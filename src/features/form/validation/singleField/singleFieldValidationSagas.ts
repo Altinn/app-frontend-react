@@ -29,6 +29,7 @@ export function* runSingleFieldValidationSaga({
   // Reject validation if field is hidden
   let hiddenFields: string[] = yield select(selectHiddenFieldsState);
   if (hiddenFields.includes(componentId)) {
+    yield put(ValidationActions.runSingleFieldValidationRejected({}));
     return;
   }
 
@@ -76,6 +77,7 @@ export function* runSingleFieldValidationSaga({
       // Reject validation if field has been set to hidden in the time after we sent the validation request
       hiddenFields = yield select(selectHiddenFieldsState);
       if (hiddenFields.includes(componentId)) {
+        yield put(ValidationActions.runSingleFieldValidationRejected({}));
         return;
       }
 
