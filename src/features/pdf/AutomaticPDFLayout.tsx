@@ -5,7 +5,12 @@ import css from 'src/features/pdf/PDFView.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { topLevelComponents } from 'src/utils/formLayout';
 import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
-import type { ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
+import type {
+  ComponentExceptGroupAndSummary,
+  ILayoutComponent,
+  ILayoutComponentOrGroup,
+  ILayouts,
+} from 'src/layout/layout';
 
 const summaryComponents = new Set([
   'AddressComponent',
@@ -60,7 +65,7 @@ const AutomaticPDFSummaryComponent = ({
   } else if (presentationComponents.has(component.type)) {
     return (
       <GenericComponent
-        {...(component as ILayoutComponent)}
+        {...(component as ILayoutComponent<ComponentExceptGroupAndSummary>)}
         grid={{ xs: 12 }}
       />
     );
