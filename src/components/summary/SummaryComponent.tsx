@@ -8,6 +8,8 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
 import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
+import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
+import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import {
@@ -68,7 +70,9 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
       ),
   );
   const formValidations = useAppSelector((state) => state.formValidations.validations);
-  const layout = useAppSelector((state) => state.formLayout.layouts && pageRef && state.formLayout.layouts[pageRef]);
+  const layout = useAppSelector((state) =>
+    state.formLayout.layouts && pageRef ? state.formLayout.layouts[pageRef] : undefined,
+  );
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
   const _formComponent = useAppSelector((state) => {
     return (
@@ -155,6 +159,29 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
     onChangeClick,
     changeText,
   };
+
+  const isNonRepeatingGroup =
+    formComponent?.type === 'Group' && (!formComponent.maxCount || formComponent.maxCount <= 1);
+  if (isNonRepeatingGroup) {
+    // Display children as summary components
+    const groupComponents = mapGroupComponents(formComponent, layout);
+    return (
+      <DisplayGroupContainer
+        key={id}
+        container={formComponent}
+        components={groupComponents}
+        renderLayoutComponent={(child) => (
+          <SummaryComponent
+            id={`__summary__${child.id}`}
+            componentRef={child.id}
+            pageRef={groupProps.pageRef}
+            largeGroup={groupProps.largeGroup}
+            display={display}
+          />
+        )}
+      />
+    );
+  }
 
   const displayGrid = display && display.useComponentGrid ? formComponent?.grid : grid;
   return (
