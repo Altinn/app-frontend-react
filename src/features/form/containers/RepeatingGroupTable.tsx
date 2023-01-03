@@ -21,7 +21,9 @@ import { setupGroupComponents } from 'src/utils/layout';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { componentHasValidations, repeatingGroupHasValidations } from 'src/utils/validation';
 import type { IFormData } from 'src/features/form/data';
-import type { ILayout, ILayoutCompInput, ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutCompInput } from 'src/layout/Input/types';
+import type { ComponentInGroup, ILayout, ILayoutComponent } from 'src/layout/layout';
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
@@ -29,10 +31,10 @@ import type { ILanguage } from 'src/types/shared';
 export interface IRepeatingGroupTableProps {
   id: string;
   container: ILayoutGroup;
-  components: (ILayoutComponent | ILayoutGroup)[];
+  components: ComponentInGroup[];
   repeatingGroupIndex: number;
   repeatingGroups: IRepeatingGroups | null;
-  repeatingGroupDeepCopyComponents: (ILayoutComponent | ILayoutGroup)[][];
+  repeatingGroupDeepCopyComponents: ComponentInGroup[][];
   hiddenFields: string[];
   formData: IFormData;
   attachments: IAttachments;
@@ -127,7 +129,13 @@ const useStyles = makeStyles({
     clipPath: 'inset(50%)',
     whiteSpace: 'nowrap',
   },
-  breakWord: {
+  contentFormatting: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    lineClamp: 2,
+    WebkitBoxOrient: 'vertical',
     wordBreak: 'break-word',
   },
 });
@@ -259,7 +267,9 @@ export function RepeatingGroupTable({
     }
 
     const childGroupIndex = repeatingGroups[childGroup.id]?.index;
-    const childGroupComponents = layout.filter((childElement) => childGroup.children?.indexOf(childElement.id) > -1);
+    const childGroupComponents = layout.filter(
+      (childElement) => childGroup.children?.indexOf(childElement.id) > -1,
+    ) as ComponentInGroup[];
     const childRenderComponents = setupGroupComponents(
       childGroupComponents,
       childGroup.dataModelBindings?.group,
@@ -296,10 +306,8 @@ export function RepeatingGroupTable({
           textResources={textResources}
           layout={layout}
           repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-          hideSaveButton={edit?.saveButton === false}
           multiPageIndex={multiPageIndex}
           setMultiPageIndex={setMultiPageIndex}
-          showSaveAndNextButton={edit?.saveAndNextButton === true}
           filteredIndexes={filteredIndexes}
         />
       )
@@ -328,14 +336,15 @@ export function RepeatingGroupTable({
             <TableRow>
               {tableComponents.map((component: ILayoutComponent, tableComponentIndex: number) => (
                 <TableCell
-                  className={classes.breakWord}
                   style={{ textAlign: getTextAlignment(component) }}
                   key={component.id}
                 >
-                  {getTextResource(
-                    getTableTitle(componentTextResourceBindingsResolved[tableComponentIndex]),
-                    textResources,
-                  )}
+                  <span className={classes.contentFormatting}>
+                    {getTextResource(
+                      getTableTitle(componentTextResourceBindingsResolved[tableComponentIndex]),
+                      textResources,
+                    )}
+                  </span>
                 </TableCell>
               ))}
               <TableCell style={{ padding: 0, paddingRight: '10px' }}>

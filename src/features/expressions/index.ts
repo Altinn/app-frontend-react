@@ -22,7 +22,8 @@ import type {
   ExprResolved,
   FuncDef,
 } from 'src/features/expressions/types';
-import type { ILayoutComponent, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent } from 'src/layout/layout';
 import type { IAltinnWindow } from 'src/types';
 import type { IInstanceContext } from 'src/types/shared';
 
@@ -58,7 +59,7 @@ export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): ExprResolved<T> {
 
 function getDefaultValueFor(path: string[], defaults: any) {
   const pathString = path.join('.');
-  const pathStringAnyDefault = [...path.slice(0, path.length - 2), DEFAULT_FOR_ALL_VALUES_IN_OBJ].join('.');
+  const pathStringAnyDefault = [...path.slice(0, path.length - 1), DEFAULT_FOR_ALL_VALUES_IN_OBJ].join('.');
   const defaultValueSpecific = dot.pick(pathString, defaults);
   const defaultValueGeneric = dot.pick(pathStringAnyDefault, defaults);
 
@@ -143,6 +144,10 @@ export function evalExpr(
     const result = innerEvalExpr(ctx);
     if ((result === null || result === undefined) && options && 'defaultValue' in options) {
       return options.defaultValue;
+    }
+
+    if (options && 'defaultValue' in options && typeof options.defaultValue !== typeof result) {
+      return castValue(result, typeof options.defaultValue as BaseValue, ctx);
     }
 
     return result;
@@ -575,8 +580,5 @@ export const ExprDefaultsForGroup: ExprDefaultValues<ILayoutGroup> = {
     saveButton: true,
     alertOnDelete: false,
     saveAndNextButton: false,
-  },
-  textResourceBindings: {
-    [DEFAULT_FOR_ALL_VALUES_IN_OBJ]: '',
   },
 };

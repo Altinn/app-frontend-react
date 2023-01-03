@@ -5,7 +5,6 @@ import { AsciiUnitSeparator } from 'src/utils/attachment';
 import {
   atleastOneTagExists,
   componentHasValidationMessages,
-  componentValidationsHandledByGenericComponent,
   getDisplayFormData,
   getFieldName,
   getFileUploadComponentValidations,
@@ -19,7 +18,7 @@ import {
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
 import type { IFormData } from 'src/features/form/data';
-import type { IGridStyling, ILayoutComponent, ISelectionComponentProps } from 'src/features/form/layout';
+import type { IGridStyling, ILayoutComponent, ISelectionComponentProps } from 'src/layout/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentBindingValidation,
@@ -419,23 +418,6 @@ describe('formComponentUtils', () => {
         mockRepeatingGroups,
       );
       expect(result).toEqual('RepValue1, RepValue2, RepValue3');
-    });
-  });
-
-  describe('componentValidationsHandledByGenericComponent', () => {
-    it('should return false when dataModelBinding is undefined', () => {
-      const result = componentValidationsHandledByGenericComponent(undefined, 'FileUpload');
-      expect(result).toEqual(false);
-    });
-
-    it('should return true when component type is Datepicker', () => {
-      const result = componentValidationsHandledByGenericComponent({ simpleBinding: 'group.superdate' }, 'DatePicker');
-      expect(result).toEqual(true);
-    });
-
-    it('should return true when component type is Input', () => {
-      const result = componentValidationsHandledByGenericComponent({ simpleBinding: 'group.secretnumber' }, 'Input');
-      expect(result).toEqual(true);
     });
   });
 

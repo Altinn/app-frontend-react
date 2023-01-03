@@ -8,21 +8,23 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { ExprDefaultsForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
-import { RepeatingGroupsLikertContainer } from 'src/features/form/containers/RepeatingGroupsLikertContainer';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
 import { getHiddenFieldsForGroup } from 'src/utils/layout';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { ILayoutComponent, ILayoutComponentOrGroup, ILayoutGroup } from 'src/features/form/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
+
 export interface IGroupProps {
   id: string;
   container: ILayoutGroup;
-  components: ILayoutComponentOrGroup[];
+  components: ComponentInGroup[];
   triggers?: Triggers[];
 }
 
@@ -192,7 +194,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       <>
         <RepeatingGroupsLikertContainer
           id={id}
-          repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents.map((c) => c[0] as ILayoutComponent)}
+          repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents.map((c) => c[0])}
           textResources={textResources}
           container={container}
         />
@@ -251,10 +253,8 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
           textResources={textResources}
           layout={layout}
           repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-          hideSaveButton={edit?.saveButton === false}
           multiPageIndex={multiPageIndex}
           setMultiPageIndex={setMultiPageIndex}
-          showSaveAndNextButton={edit?.saveAndNextButton === true}
           filteredIndexes={filteredIndexList}
         />
       )}
@@ -281,8 +281,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
                 setEditIndex={setEditIndex}
                 onClickRemove={onClickRemove}
                 repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-                hideSaveButton={true}
-                hideDeleteButton={edit?.deleteButton === false}
+                forceHideSaveButton={true}
               />
             );
           })}

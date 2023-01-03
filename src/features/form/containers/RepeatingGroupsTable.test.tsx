@@ -10,8 +10,9 @@ import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import type { IRepeatingGroupTableProps } from 'src/features/form/containers/RepeatingGroupTable';
 import type { IFormData } from 'src/features/form/data';
-import type { ILayoutComponent, ILayoutGroup, ISelectionComponentProps } from 'src/features/form/layout';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ComponentInGroup, ILayoutComponent, ISelectionComponentProps } from 'src/layout/layout';
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOption, ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
@@ -20,7 +21,7 @@ import type { ILanguage } from 'src/types/shared';
 
 const user = userEvent.setup();
 
-const getLayout = (group: ILayoutGroup, components: ILayoutComponent[]) => {
+const getLayout = (group: ILayoutGroup, components: (ILayoutComponent | ComponentInGroup)[]) => {
   const layout: ILayoutState = {
     layouts: {
       FormLayout: [group, ...components],
@@ -64,7 +65,7 @@ describe('RepeatingGroupTable', () => {
   const textResources: ITextResource[] = [{ id: 'option.label', value: 'Value to be shown' }];
   const attachments: IAttachments = {};
   const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
-  const components: ILayoutComponent[] = [
+  const components: ComponentInGroup[] = [
     {
       id: 'field1',
       type: 'Input',
@@ -126,8 +127,12 @@ describe('RepeatingGroupTable', () => {
   };
 
   const repeatingGroupIndex = 3;
-  const repeatingGroupDeepCopyComponents: Array<Array<ILayoutComponent | ILayoutGroup>> =
-    createRepeatingGroupComponents(group, components, repeatingGroupIndex, textResources);
+  const repeatingGroupDeepCopyComponents = createRepeatingGroupComponents(
+    group,
+    components,
+    repeatingGroupIndex,
+    textResources,
+  );
 
   it('should render table header when table has entries', () => {
     const container = render();
@@ -149,8 +154,12 @@ describe('RepeatingGroupTable', () => {
         edit: { alertOnDelete: true },
       });
       const layout: ILayoutState = getLayout(group, components);
-      const repeatingGroupDeepCopyComponents: Array<Array<ILayoutComponent | ILayoutGroup>> =
-        createRepeatingGroupComponents(group, components, repeatingGroupIndex, textResources);
+      const repeatingGroupDeepCopyComponents = createRepeatingGroupComponents(
+        group,
+        components,
+        repeatingGroupIndex,
+        textResources,
+      );
 
       if (!layout.layouts) {
         return;

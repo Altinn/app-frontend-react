@@ -30,7 +30,7 @@ import {
 } from 'src/utils/formLayout';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
 import { getOptionLookupKey, removeGroupOptionsByIndex } from 'src/utils/options';
-import { waitFor } from 'src/utils/sagas';
+import { selectNotNull, waitFor } from 'src/utils/sagas';
 import { get, post } from 'src/utils/sharedUtils';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import {
@@ -43,12 +43,6 @@ import {
 } from 'src/utils/validation';
 import { filterValidationsByRow } from 'src/utils/validation/validation';
 import type { IFormDataState } from 'src/features/form/data';
-import type {
-  ILayoutCompFileUploadWithTag,
-  ILayoutComponent,
-  ILayoutComponentOrGroup,
-  ILayoutGroup,
-} from 'src/features/form/layout';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type {
   ICalculatePageOrderAndMoveToNextPage,
@@ -58,6 +52,9 @@ import type {
   IUpdateRepeatingGroups,
   IUpdateRepeatingGroupsEditIndex,
 } from 'src/features/form/layout/formLayoutTypes';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent, ILayoutComponentOrGroup } from 'src/layout/layout';
 import type { IAttachmentState } from 'src/shared/resources/attachments';
 import type {
   IDeleteAttachmentActionFulfilled,
@@ -659,10 +656,10 @@ export function* updateRepeatingGroupEditIndexSaga({
 }
 
 export function* initRepeatingGroupsSaga(): SagaIterator {
+  const layouts = yield selectNotNull(selectFormLayouts);
   const formDataState: IFormDataState = yield select(selectFormData);
   const state: IRuntimeState = yield select();
   const currentGroups = state.formLayout.uiConfig.repeatingGroups || {};
-  const layouts = yield select(selectFormLayouts);
   let newGroups: IRepeatingGroups = {};
   Object.keys(layouts).forEach((layoutKey: string) => {
     newGroups = {
@@ -731,15 +728,7 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
       repeatingGroups: newGroups,
     }),
   );
-}
-
-export function* watchInitRepeatingGroupsSaga(): SagaIterator {
-  yield take(FormLayoutActions.fetchFulfilled);
-  yield call(initRepeatingGroupsSaga);
-  yield takeLatest(
-    [FormDataActions.fetchFulfilled, FormLayoutActions.initRepeatingGroups, FormLayoutActions.fetchFulfilled],
-    initRepeatingGroupsSaga,
-  );
+  yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
 }
 
 export function* updateFileUploaderWithTagEditIndexSaga({

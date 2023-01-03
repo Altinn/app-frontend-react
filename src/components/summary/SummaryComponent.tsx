@@ -16,7 +16,8 @@ import {
   getDisplayFormDataForComponent,
 } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ILayoutComponent, ILayoutCompSummary } from 'src/features/form/layout';
+import type { ILayoutComponent } from 'src/layout/layout';
+import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
 
 export interface ISummaryComponent extends Omit<ILayoutCompSummary, 'type'> {
@@ -26,11 +27,9 @@ export interface ISummaryComponent extends Omit<ILayoutCompSummary, 'type'> {
 }
 
 const useStyles = makeStyles({
-  row: {
+  border: {
     marginBottom: 10,
     paddingBottom: 10,
-  },
-  border: {
     borderBottom: '1px dashed #008FD6',
   },
   link: {
@@ -170,7 +169,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
     >
       <Grid
         container={true}
-        className={cn(classes.row, {
+        className={cn({
           [classes.border]: !display?.hideBottomBorder,
         })}
       >

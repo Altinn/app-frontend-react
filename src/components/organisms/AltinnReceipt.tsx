@@ -15,7 +15,7 @@ export interface IReceiptComponentProps {
   hideCollapsibleCount?: boolean;
   instanceMetaDataObject: any;
   pdf?: IAttachment[];
-  subtitle?: boolean;
+  subtitle?: JSX.Element | JSX.Element[];
   subtitleurl?: string;
   title: React.ReactNode;
   titleSubmitted: React.ReactNode;
@@ -125,7 +125,10 @@ export function ReceiptComponent({
 
   // renders attachment groups. Always shows default group first
   return (
-    <div className={classes.wordBreak}>
+    <div
+      data-testid='altinn-receipt'
+      className={classes.wordBreak}
+    >
       <Typography variant='h2'>{title}</Typography>
       <AltinnSummaryTable summaryDataObject={instanceMetaDataObject} />
       {subtitle && (

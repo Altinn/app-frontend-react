@@ -13,7 +13,9 @@ import { Severity } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroups } from 'src/utils/formLayout';
 import { nodesInLayouts } from 'src/utils/layout/hierarchy';
 import * as validation from 'src/utils/validation/validation';
-import type { ILayoutCompDatePicker, ILayoutComponent, ILayoutGroup, ILayouts } from 'src/features/form/layout';
+import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutComponent, ILayouts } from 'src/layout/layout';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -1238,6 +1240,14 @@ describe('utils > validation', () => {
           code: '',
         },
         {
+          field: 'dataModelField_1',
+          severity: Severity.Fixed,
+          scope: null,
+          targetId: '',
+          description: 'Another error message',
+          code: '',
+        },
+        {
           field: 'dataModelField_2',
           severity: Severity.Success,
           scope: null,
@@ -1261,6 +1271,7 @@ describe('utils > validation', () => {
             simpleBinding: {
               errors: [getTextResourceByKey('Error message', [])],
               info: [getTextResourceByKey('Info message', [])],
+              fixed: [getTextResourceByKey('Another error message', [])],
             },
           },
           componentId_2: {
@@ -2522,6 +2533,21 @@ describe('utils > validation', () => {
       expect(merged.info).toEqual(['info1', 'info2', 'info3']);
       expect(merged.success).toEqual(['success1', 'success2', 'success3']);
     });
+
+    it('should remove fixed validation errors', () => {
+      const original: IComponentBindingValidation = {
+        errors: ['error1', 'error2'],
+      };
+      const newValidations: IComponentBindingValidation = {
+        errors: ['error3'],
+        fixed: ['error1'],
+      };
+
+      const merged = validation.mergeComponentBindingValidations(original, newValidations);
+
+      expect(merged.errors).toEqual(['error2', 'error3']);
+      expect(merged.fixed).toBeUndefined();
+    });
   });
 
   describe('mergeValidationObjects', () => {
@@ -2722,7 +2748,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatePicker,
+        } as ILayoutCompDatepicker,
         mockLanguage.language,
       );
 
@@ -2738,7 +2764,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatePicker,
+        } as ILayoutCompDatepicker,
         mockLanguage.language,
       );
 
@@ -2754,7 +2780,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatePicker,
+        } as ILayoutCompDatepicker,
         mockLanguage.language,
       );
 
@@ -2770,7 +2796,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatePicker,
+        } as ILayoutCompDatepicker,
         mockLanguage.language,
       );
 
@@ -2786,7 +2812,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-31T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatePicker,
+        } as ILayoutCompDatepicker,
         mockLanguage.language,
       );
 
@@ -2802,7 +2828,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatePicker,
+        } as ILayoutCompDatepicker,
         mockLanguage.language,
       );
 
@@ -2818,7 +2844,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatePicker,
+        } as ILayoutCompDatepicker,
         mockLanguage.language,
       );
 
@@ -2834,7 +2860,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatePicker,
+        } as ILayoutCompDatepicker,
         mockLanguage.language,
       );
 

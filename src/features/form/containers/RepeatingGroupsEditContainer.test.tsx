@@ -8,7 +8,8 @@ import { RepeatingGroupsEditContainer } from 'src/features/form/containers/Repea
 import { renderWithProviders } from 'src/testUtils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import type { IRepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
-import type { ILayout, ILayoutComponent, ILayoutGroup, ISelectionComponentProps } from 'src/features/form/layout';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayout, ILayoutComponent, ISelectionComponentProps } from 'src/layout/layout';
 import type { IOption } from 'src/types';
 import type { ILanguage, ITextResource } from 'src/types/shared';
 
@@ -84,8 +85,12 @@ describe('RepeatingGroupsEditContainer', () => {
   const layout: ILayout = [multiPageGroup, ...components];
 
   const repeatingGroupIndex = 3;
-  const repeatingGroupDeepCopyComponents: Array<Array<ILayoutComponent | ILayoutGroup>> =
-    createRepeatingGroupComponents(multiPageGroup, components, repeatingGroupIndex, textResources);
+  const repeatingGroupDeepCopyComponents = createRepeatingGroupComponents(
+    multiPageGroup,
+    components,
+    repeatingGroupIndex,
+    textResources,
+  );
 
   it('calls setEditIndex when save and open next is pressed when edit.saveAndNextButton is true', async () => {
     const setEditIndex = jest.fn();
@@ -110,8 +115,6 @@ describe('RepeatingGroupsEditContainer', () => {
       repeatingGroupIndex: repeatingGroupIndex,
       setEditIndex: jest.fn(),
       onClickRemove: jest.fn(),
-      hideDeleteButton: false,
-      showSaveAndNextButton: multiPageGroup.edit?.saveAndNextButton === true,
       ...props,
     };
 
