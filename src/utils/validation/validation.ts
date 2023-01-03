@@ -8,7 +8,7 @@ import type { Options } from 'ajv';
 import type * as AjvCore from 'ajv/dist/core';
 
 import { Severity } from 'src/types';
-import { getCurrentDataTypeId } from 'src/utils/appMetadata';
+import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex } from 'src/utils/databindings';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
@@ -21,7 +21,7 @@ import { getLanguageFromKey, getParsedLanguageFromKey, getTextResourceByKey } fr
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { IDataModelBindings, ILayout, ILayoutComponent, ILayouts } from 'src/layout/layout';
+import type { ComponentInGroup, IDataModelBindings, ILayout, ILayoutComponent, ILayouts } from 'src/layout/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentBindingValidation,
@@ -1158,7 +1158,9 @@ export function repeatingGroupHasValidations(
         return false;
       }
       const childGroupIndex = repeatingGroups[element.id]?.index;
-      const childGroupComponents = layout.filter((childElement) => element.children?.indexOf(childElement.id) > -1);
+      const childGroupComponents = layout.filter(
+        (childElement) => element.children?.indexOf(childElement.id) > -1,
+      ) as ComponentInGroup[];
       const renderComponents = setupGroupComponents(childGroupComponents, element.dataModelBindings?.group, index);
       const deepCopyComponents = createRepeatingGroupComponents(
         element,
@@ -1327,11 +1329,11 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
     return {};
   }
 
-  const currentDataTaskDataTypeId = getCurrentDataTypeId(
-    state.applicationMetadata.applicationMetadata,
-    state.instanceData.instance,
-    state.formLayout.layoutsets,
-  );
+  const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
+    application: state.applicationMetadata.applicationMetadata,
+    instance: state.instanceData.instance,
+    layoutSets: state.formLayout.layoutsets,
+  });
   const validator = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
   const emptyFieldsValidations = validateEmptyFieldsForNodes(
     formData,
