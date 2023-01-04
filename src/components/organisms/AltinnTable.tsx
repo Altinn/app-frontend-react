@@ -22,16 +22,15 @@ const useStyles = makeStyles(() => {
 });
 
 export default function AltinnTable(props: IAltinnTableProps & Omit<TableProps, 'id'>) {
-  const { tableLayout, wordBreak, ...tableProps } = props;
   const classes = useStyles(props);
   return (
     <TableContainer
       component={Grid}
-      id={`${tableProps.id}-container`}
+      id={`${props.id}-container`}
     >
       <Table
         className={classes.table}
-        {...tableProps}
+        {...props}
       />
     </TableContainer>
   );
