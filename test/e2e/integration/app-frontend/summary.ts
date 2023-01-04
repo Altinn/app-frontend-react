@@ -6,7 +6,7 @@ const appFrontend = new AppFrontend();
 const mui = new Common();
 
 describe('Summary', () => {
-  it.only('Summary of change name form', () => {
+  it('Summary of change name form', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.id === 'changeNameFrom') {
         component.hidden = ['equals', ['component', 'newFirstName'], 'hidePrevName'];
@@ -100,7 +100,7 @@ describe('Summary', () => {
 
     // Test summary of non-repeating group
     cy.get('#reference-group').should('exist').and('be.visible');
-    cy.get('#reference-group > div').eq(0).should('contain.text', 'Referanse');
+    cy.get('#reference-group > div').eq(0).should('contain.text', 'Referanser');
     cy.get('#reference-group > [data-testid=summary-__summary__sources]').should('exist').and('be.visible');
     cy.get('#reference-group > [data-testid=summary-__summary__reference]').should('exist').and('be.visible');
     cy.get('#reference-group > [data-testid=summary-__summary__reference2]').should('exist').and('be.visible');
