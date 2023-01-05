@@ -256,6 +256,7 @@ const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
   instanceId: true,
   appId: true,
   instanceOwnerPartyId: true,
+  instanceOwnerPartyType: true,
 };
 
 /**
@@ -569,6 +570,10 @@ export const ExprDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {
   hidden: false,
   textResourceBindings: {
     [DEFAULT_FOR_ALL_VALUES_IN_OBJ]: '',
+  },
+  pageBreak: {
+    breakBefore: false,
+    breakAfter: false,
   },
 };
 
