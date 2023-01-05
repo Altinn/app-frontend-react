@@ -839,6 +839,14 @@
           "type": "string",
           "title": "Binding to show in summary",
           "description": "The value of this binding will be shown in the summary component for the list. This binding must be one of the specified bindings under dataModelBindings."
+        },
+        "tableHeadersMobile": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Table Headers Mobile",
+          "description": "An array that decides which colums should be shown in mobile view. If not used all colums is shown."
         }
       },
       "required": [

@@ -32,24 +32,6 @@ export interface rowValue {
   [key: string]: string;
 }
 
-const MobileView = () => {
-  const mobile: boolean = useMediaQuery(`(max-width: ${tokens.BreakpointsSm})`);
-  let isMobile = false;
-  if (mobile) {
-    isMobile = true;
-  }
-  return isMobile;
-};
-
-const DecideLayout = () => {
-  const mobile: boolean = MobileView();
-  if (mobile) {
-    return ScreenSize.Mobile;
-  } else {
-    return ScreenSize.Laptop;
-  }
-};
-
 export const ListComponent = ({
   tableHeaders,
   id,
@@ -60,10 +42,11 @@ export const ListComponent = ({
   sortableColumns,
   dataModelBindings,
   language,
-  chosenPrioritizedColumsMobile,
+  tableHeadersMobile,
   legend,
 }: IListProps) => {
-  const screenSize = DecideLayout();
+  const isMobile = useMediaQuery(`(max-width: ${tokens.BreakpointsSm})`);
+  const screenSize = isMobile ? ScreenSize.Mobile : ScreenSize.Laptop;
   const dynamicDataList = useGetDataList({ id });
   const calculatedDataList = dynamicDataList || defaultDataList;
   const defaultPagination = pagination ? pagination.default : 0;
@@ -167,10 +150,18 @@ export const ListComponent = ({
   const RenderLegend = legend;
   const renderMobileTableCell = (datalist) => {
     const mobileViewProperties: RowData = {};
-    if (tableHeaders) {
+    if (tableHeaders && tableHeadersMobile) {
       let i = 0;
       for (const key in datalist) {
-        if (chosenPrioritizedColumsMobile?.includes(tableHeaders[i])) {
+        if (tableHeadersMobile?.includes(tableHeaders[i])) {
+          mobileViewProperties[getTextResourceAsString(tableHeaders[i])] = datalist[key];
+        }
+        i++;
+      }
+    } else if (tableHeaders) {
+      let i = 0;
+      for (const key in datalist) {
+        if (datalist[key] != '') {
           mobileViewProperties[getTextResourceAsString(tableHeaders[i])] = datalist[key];
         }
         i++;
@@ -179,25 +170,36 @@ export const ListComponent = ({
     return <TableCell mobileViewShownProperties={mobileViewProperties}></TableCell>;
   };
 
-  const isMobile = () => {
-    return (
-      <FormControl component='fieldset'>
-        <FormLabel
-          component='legend'
-          classes={{ root: cn(classes.legend) }}
-          id={`${id}-label`}
-        >
-          <RenderLegend />
-        </FormLabel>
+  return (
+    <FormControl
+      component='fieldset'
+      style={{ width: '100%' }}
+    >
+      <FormLabel
+        component='legend'
+        classes={{ root: cn(classes.legend) }}
+        id={`${id}-label`}
+      >
+        <RenderLegend />
+      </FormLabel>
+      <div style={{ overflow: 'auto' }}>
         <Table
           selectRows={true}
           onChange={handleChange}
           selectedValue={formData as RowData}
-          screenSize={ScreenSize.Mobile}
+          style={{ overflow: 'scroll' }}
           aria-labelledby={`${id}-label`}
           id={id}
           tabIndex={0}
         >
+          {screenSize === ScreenSize.Laptop && (
+            <TableHeader>
+              <TableRow>
+                <td />
+                {renderHeaders(tableHeaders)}
+              </TableRow>
+            </TableHeader>
+          )}
           <TableBody>
             {calculatedDataList.map((datalist) => {
               return (
@@ -215,10 +217,10 @@ export const ListComponent = ({
                       checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
                       label={createLabelRadioButton(datalist, tableHeaders)}
                       hideLabel={true}
-                      size={RadioButtonSize.Xsmall}
+                      size={screenSize === ScreenSize.Mobile ? RadioButtonSize.Xsmall : RadioButtonSize.Small}
                     ></RadioButton>
                   </TableCell>
-                  {renderMobileTableCell(datalist)}
+                  {screenSize === ScreenSize.Mobile ? renderMobileTableCell(datalist) : renderRow(datalist)}
                 </TableRow>
               );
             })}
@@ -235,91 +237,13 @@ export const ListComponent = ({
                     currentPage={currentPage}
                     setCurrentPage={handleChangeCurrentPage}
                     descriptionTexts={getLanguageFromKey('list_component', language)}
-                    screenSize={ScreenSize.Mobile}
                   />
                 </TableCell>
               </TableRow>
             </TableFooter>
           )}
         </Table>
-      </FormControl>
-    );
-  };
-
-  const isLaptop = () => {
-    return (
-      <FormControl component='fieldset'>
-        <FormLabel
-          component='legend'
-          classes={{ root: cn(classes.legend) }}
-          id={`${id}-label`}
-        >
-          <RenderLegend />
-        </FormLabel>
-        <div style={{ overflow: 'auto' }}>
-          <Table
-            screenSize={ScreenSize.Laptop}
-            selectRows={true}
-            onChange={handleChange}
-            selectedValue={formData as RowData}
-            style={{ overflow: 'scroll' }}
-            aria-labelledby={`${id}-label`}
-            id={id}
-            tabIndex={0}
-          >
-            <TableHeader>
-              <TableRow>
-                <td />
-                {renderHeaders(tableHeaders)}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {calculatedDataList.map((datalist) => {
-                return (
-                  <TableRow
-                    key={JSON.stringify(datalist)}
-                    rowData={rowAsValue(datalist)}
-                  >
-                    <TableCell radiobutton={true}>
-                      <RadioButton
-                        name={datalist}
-                        onChange={() => {
-                          // Intentionally empty to prevent double-selection
-                        }}
-                        value={rowAsValueString(datalist)}
-                        checked={rowAsValueString(datalist) === JSON.stringify(formData) ? true : false}
-                        label={createLabelRadioButton(datalist, tableHeaders)}
-                        hideLabel={true}
-                      ></RadioButton>
-                    </TableCell>
-                    {renderRow(datalist)}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-            {pagination && (
-              <TableFooter>
-                <TableRow>
-                  <TableCell colSpan={tableHeaders && 1 + tableHeaders?.length}>
-                    <Pagination
-                      numberOfRows={totalItemsCount}
-                      rowsPerPageOptions={pagination.alternatives}
-                      rowsPerPage={rowsPerPage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                      currentPage={currentPage}
-                      setCurrentPage={handleChangeCurrentPage}
-                      descriptionTexts={getLanguageFromKey('list_component', language)}
-                      screenSize={ScreenSize.Laptop}
-                    />
-                  </TableCell>
-                </TableRow>
-              </TableFooter>
-            )}
-          </Table>
-        </div>
-      </FormControl>
-    );
-  };
-
-  return <>{screenSize === ScreenSize.Mobile ? isMobile() : isLaptop()}</>;
+      </div>
+    </FormControl>
+  );
 };

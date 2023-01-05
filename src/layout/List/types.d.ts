@@ -12,7 +12,7 @@ export interface ILayoutCompList extends ILayoutCompBase<'List'> {
   dataListId: string;
   secure?: boolean;
   bindingToShowInSummary?: string;
-  chosenPrioritizedColumsMobile?: string[];
+  tableHeadersMobile?: string[];
 }
 
 export interface IDataModelBindingsForList {
