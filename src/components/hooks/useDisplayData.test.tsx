@@ -9,15 +9,17 @@ import { useDisplayData } from 'src/components/hooks/useDisplayData';
 const createStore = configureStore();
 const mockLanguage = {
   general: {
-    empty_summary: '(empty)',
+    empty_summary: 'You have not entered any information here',
   },
 };
 const mockStore = createStore({ language: { language: mockLanguage } });
 const wrapper = ({ children }) => <Provider store={mockStore}>{children}</Provider>;
 
 describe('useDisplayData', () => {
-  test('should show (empty) if formData is undefined', async () => {
-    expect(renderHook(() => useDisplayData({ formData: undefined }), { wrapper }).result.current).toBe('(empty)');
+  test('should show "You have not entered any information here" if formData is undefined', async () => {
+    expect(renderHook(() => useDisplayData({ formData: undefined }), { wrapper }).result.current).toBe(
+      'You have not entered any information here',
+    );
   });
 
   test('should handle formData as object', async () => {

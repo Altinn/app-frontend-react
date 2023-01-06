@@ -109,10 +109,10 @@ describe('AttachmentWithTagSummaryComponent', () => {
       loading: false,
     },
   };
-  test('should render file upload with tag without content with the text (tomt)', () => {
+  test('should render file upload with tag without content with the text Du har ikke lagt inn informasjon her', () => {
     renderHelper(formLayoutItem);
     const element = screen.getByTestId('attachment-with-tag-summary');
-    expect(element).toHaveTextContent('(tomt)');
+    expect(element).toHaveTextContent('Du har ikke lagt inn informasjon her');
   });
   test('should contain attachments', () => {
     renderHelper(formLayoutItem, extendedState);

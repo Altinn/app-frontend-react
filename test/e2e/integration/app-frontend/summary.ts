@@ -19,27 +19,27 @@ describe('Summary', () => {
     cy.get('[data-testid=summary-summary-2] > div > [data-testid=single-input-summary]')
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get('[data-testid=summary-summary-4] > div > [data-testid=single-input-summary]')
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get('[data-testid=summary-summary-5] > div > [data-testid=attachment-summary-component]')
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get('[data-testid=summary-summary-6] > div > [data-testid=attachment-with-tag-summary]')
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get('[data-testid=summary-__summary__reference] > div > [data-testid=single-input-summary]')
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get('[data-testid=summary-__summary__reference2] > div > [data-testid=single-input-summary]')
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
     cy.gotoAndComplete('changename');
@@ -187,7 +187,7 @@ describe('Summary', () => {
       .last()
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get(appFrontend.navMenu).find('li > button').first().click();
 
     cy.gotoAndComplete('group');
@@ -313,25 +313,25 @@ describe('Summary', () => {
       .last()
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get('#mainGroup-4-summary > [data-testid=summary-newValue-summary] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get('#mainGroup-4-summary > [data-testid=summary-mainUploaderSingle-summary] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get('#mainGroup-4-summary > [data-testid=summary-mainUploaderMulti-summary] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get(
       '#mainGroup-4-summary > [data-testid=summary-subGroup-summary-group] > div > [data-testid=summary-group-component]',
     )
@@ -340,23 +340,23 @@ describe('Summary', () => {
       .first()
       .should('exist')
       .and('be.visible')
-      .and('contain.text', 'Kommentarer : (tomt)')
-      .and('contain.text', 'Nested uploader with tags : (tomt)')
-      .and('contain.text', 'Vis tillegg : (tomt)')
-      .and('contain.text', 'Referanse : (tomt)')
-      .and('contain.text', 'Skjul kommentar felt : (tomt)');
+      .and('contain.text', 'Kommentarer : Du har ikke lagt inn informasjon her')
+      .and('contain.text', 'Nested uploader with tags : Du har ikke lagt inn informasjon her')
+      .and('contain.text', 'Vis tillegg : Du har ikke lagt inn informasjon her')
+      .and('contain.text', 'Referanse : Du har ikke lagt inn informasjon her')
+      .and('contain.text', 'Skjul kommentar felt : Du har ikke lagt inn informasjon her');
     cy.get('#mainGroup-4-summary > [data-testid=summary-source-summary] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
     cy.get('#mainGroup-4-summary > [data-testid=summary-reference-summary] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
-      .and('contain.text', '(tomt)');
+      .and('contain.text', 'Du har ikke lagt inn informasjon her');
 
     // Hiding the group should hide the group summary as well
     cy.get('[data-testid=summary-summary-1]').should('be.visible');
