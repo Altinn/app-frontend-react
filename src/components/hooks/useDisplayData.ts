@@ -8,14 +8,16 @@ export const useDisplayData = ({ formData }: Partial<IFormDataState> | { formDat
   const [displayData, setDisplayData] = useState('');
   const language = useAppSelector((state) => state.language.language);
   useEffect(() => {
+    const emptyString = getLanguageFromKey('general.empty_summary', language || {});
+
     if (formData && typeof formData === 'object') {
       let displayString = '';
       Object.keys(formData).forEach((key, index) => {
         displayString += `${index > 0 ? ' ' : ''}${formData[key]}`;
       });
-      setDisplayData(displayString);
+      setDisplayData(displayString.trim().length > 0 ? displayString : emptyString);
     } else {
-      setDisplayData((formData as string) || getLanguageFromKey('general.empty_summary', language || {}));
+      setDisplayData(formData || emptyString);
     }
   }, [formData, setDisplayData, language]);
   return displayData;
