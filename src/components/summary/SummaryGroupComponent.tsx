@@ -77,6 +77,7 @@ const useStyles = makeStyles({
   emptyField: {
     fontStyle: 'italic',
     fontSize: '1.6rem',
+    marginTop: 4,
   },
 });
 
