@@ -21,13 +21,9 @@ const useStyles = makeStyles({
     marginTop: 10,
     paddingTop: 10,
   },
-  label: {
-    fontWeight: 500,
-    fontSize: '1.8rem',
-    '& p': {
-      fontWeight: 500,
-      fontSize: '1.8rem',
-    },
+  emptyField: {
+    fontStyle: 'italic',
+    fontSize: '1.6rem',
   },
 });
 
@@ -63,7 +59,7 @@ export function AttachmentWithTagSummaryComponent({ componentRef, component }: I
       {isEmpty ? (
         <Typography
           variant='body1'
-          className={classes.label}
+          className={classes.emptyField}
           component='p'
         >
           {getLanguageFromKey('general.empty_summary', language || {})}

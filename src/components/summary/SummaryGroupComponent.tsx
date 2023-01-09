@@ -74,6 +74,10 @@ const useStyles = makeStyles({
     cursor: 'pointer',
     paddingLeft: 0,
   },
+  emptyField: {
+    fontStyle: 'italic',
+    fontSize: '1.6rem',
+  },
 });
 
 function SummaryGroupComponent({
@@ -369,7 +373,7 @@ function SummaryGroupComponent({
           {isEmpty ? (
             <Typography
               variant='body1'
-              className={classes.label}
+              className={classes.emptyField}
               component='p'
             >
               {getLanguageFromKey('general.empty_summary', language)}
