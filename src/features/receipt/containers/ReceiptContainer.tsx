@@ -146,12 +146,15 @@ const ReceiptContainer = () => {
                 pdf={pdf || undefined}
               />
             ))}
-          {applicationMetadata.autoDeleteOnProcessEnd && (
-            <AltinnReceiptSimple
-              body={getTextFromAppOrDefault('receipt.body_simple', textResources, language, undefined, false)}
-              title={getTextFromAppOrDefault('receipt.title', textResources, language)}
-            />
-          )}
+          {applicationMetadata.autoDeleteOnProcessEnd &&
+            (receiptLayoutName && layouts.includes(receiptLayoutName) ? (
+              <CustomReceipt />
+            ) : (
+              <AltinnReceiptSimple
+                body={getTextFromAppOrDefault('receipt.body_simple', textResources, language, undefined, false)}
+                title={getTextFromAppOrDefault('receipt.title', textResources, language)}
+              />
+            ))}
           <ReadyForPrint />
         </>
       ) : (
