@@ -49,7 +49,7 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
     if (
       applicationMetadata &&
       instance &&
-      layoutSets &&
+      (instance?.data?.length === 1 || layoutSets) &&
       excludedPages &&
       excludedComponents &&
       pageOrder &&
