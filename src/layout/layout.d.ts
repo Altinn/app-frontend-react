@@ -15,6 +15,7 @@ import type { IDataModelBindingsForGroup, ILayoutGroup } from 'src/layout/Group/
 import type { ILayoutCompHeader } from 'src/layout/Header/types';
 import type { ILayoutCompImage } from 'src/layout/Image/types';
 import type { ILayoutCompInput } from 'src/layout/Input/types';
+import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
 import type { ILayoutCompInstantiationButton } from 'src/layout/InstantiationButton/types';
 import type { ILayoutCompLikert } from 'src/layout/Likert/types';
 import type { IDataModelBindingsForList, ILayoutCompList } from 'src/layout/List/types';
@@ -59,6 +60,7 @@ export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes> e
   grid?: IGrid;
   triggers?: Triggers[];
   labelSettings?: ILabelSettings;
+  pageBreak?: IPageBreak;
 }
 
 interface ILayoutCompWillBeSavedWhileTyping {
@@ -107,6 +109,7 @@ interface Map {
   Image: ILayoutCompImage;
   Input: ILayoutCompInput;
   InstantiationButton: ILayoutCompInstantiationButton;
+  InstanceInformation: ILayoutCompInstanceInformation;
   Likert: ILayoutCompLikert;
   List: ILayoutCompList;
   Map: ILayoutCompMap;
@@ -126,6 +129,8 @@ type AllComponents = Map[ComponentTypes];
 
 export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
 export type ComponentExceptGroupAndSummary = Exclude<ComponentExceptGroup, 'Summary'>;
+export type RenderableGenericComponent = ILayoutComponent<ComponentExceptGroupAndSummary>;
+export type ComponentInGroup = RenderableGenericComponent | ILayoutGroup;
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify
@@ -186,4 +191,9 @@ export interface IGridStyling {
   md?: GridSize;
   lg?: GridSize;
   xl?: GridSize;
+}
+
+export interface IPageBreak {
+  breakBefore?: ExpressionOr<'boolean'>;
+  breakAfter?: ExpressionOr<'boolean'>;
 }

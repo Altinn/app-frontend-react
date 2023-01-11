@@ -8,7 +8,7 @@ import type { Options } from 'ajv';
 import type * as AjvCore from 'ajv/dist/core';
 
 import { Severity } from 'src/types';
-import { getCurrentDataTypeId } from 'src/utils/appMetadata';
+import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex } from 'src/utils/databindings';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
@@ -21,7 +21,7 @@ import { getLanguageFromKey, getParsedLanguageFromKey, getTextResourceByKey } fr
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { IDataModelBindings, ILayout, ILayoutComponent, ILayouts } from 'src/layout/layout';
+import type { ComponentInGroup, IDataModelBindings, ILayout, ILayoutComponent, ILayouts } from 'src/layout/layout';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentBindingValidation,
@@ -925,7 +925,11 @@ export function mapDataElementValidationToRedux(
           validationResult[layoutId][componentId] = componentValidations;
         } else {
           const currentValidations = validationResult[layoutId][componentId];
-          validationResult[layoutId][componentId] = mergeComponentValidations(currentValidations, componentValidations);
+          validationResult[layoutId][componentId] = mergeComponentValidations(
+            currentValidations,
+            componentValidations,
+            false,
+          );
         }
       } else {
         // unmapped error
@@ -1154,7 +1158,9 @@ export function repeatingGroupHasValidations(
         return false;
       }
       const childGroupIndex = repeatingGroups[element.id]?.index;
-      const childGroupComponents = layout.filter((childElement) => element.children?.indexOf(childElement.id) > -1);
+      const childGroupComponents = layout.filter(
+        (childElement) => element.children?.indexOf(childElement.id) > -1,
+      ) as ComponentInGroup[];
       const renderComponents = setupGroupComponents(childGroupComponents, element.dataModelBindings?.group, index);
       const deepCopyComponents = createRepeatingGroupComponents(
         element,
@@ -1197,12 +1203,14 @@ export function mergeValidationObjects(...sources: (IValidations | null)[]): IVa
 export function mergeLayoutValidations(
   currentLayoutValidations: ILayoutValidations,
   newLayoutValidations: ILayoutValidations,
+  fixValidations = true,
 ): ILayoutValidations {
   const mergedValidations: ILayoutValidations = { ...currentLayoutValidations };
   Object.keys(newLayoutValidations).forEach((component) => {
     mergedValidations[component] = mergeComponentValidations(
       currentLayoutValidations[component] || {},
       newLayoutValidations[component] || {},
+      fixValidations,
     );
   });
   return mergedValidations;
@@ -1211,6 +1219,7 @@ export function mergeLayoutValidations(
 export function mergeComponentValidations(
   currentComponentValidations: IComponentValidations,
   newComponentValidations: IComponentValidations,
+  fixValidations = true,
 ): IComponentValidations {
   const mergedValidations: IComponentValidations = {
     ...currentComponentValidations,
@@ -1219,6 +1228,7 @@ export function mergeComponentValidations(
     mergedValidations[binding] = mergeComponentBindingValidations(
       currentComponentValidations[binding],
       newComponentValidations[binding],
+      fixValidations,
     );
   });
   return mergedValidations;
@@ -1227,24 +1237,35 @@ export function mergeComponentValidations(
 export function mergeComponentBindingValidations(
   existingValidations?: IComponentBindingValidation,
   newValidations?: IComponentBindingValidation,
+  fixValidations = true,
 ): IComponentBindingValidation {
   const existingErrors = existingValidations?.errors || [];
   const existingWarnings = existingValidations?.warnings || [];
   const existingInfo = existingValidations?.info || [];
   const existingSuccess = existingValidations?.success || [];
+  const existingFixed = existingValidations?.fixed || [];
 
   // Only merge items that are not already in the existing components errors/warnings array
   const uniqueNewErrors = getUniqueNewElements(existingErrors, newValidations?.errors);
   const uniqueNewWarnings = getUniqueNewElements(existingWarnings, newValidations?.warnings);
   const uniqueNewInfo = getUniqueNewElements(existingInfo, newValidations?.info);
   const uniqueNewSuccess = getUniqueNewElements(existingSuccess, newValidations?.success);
+  const uniqueNewFixed = getUniqueNewElements(existingFixed, newValidations?.fixed);
 
-  const merged = {
-    errors: removeFixedValidations(existingErrors.concat(uniqueNewErrors), newValidations?.fixed),
-    warnings: removeFixedValidations(existingWarnings.concat(uniqueNewWarnings), newValidations?.fixed),
-    info: removeFixedValidations(existingInfo.concat(uniqueNewInfo), newValidations?.fixed),
-    success: removeFixedValidations(existingSuccess.concat(uniqueNewSuccess), newValidations?.fixed),
-  };
+  const merged = fixValidations
+    ? {
+        errors: removeFixedValidations(existingErrors.concat(uniqueNewErrors), newValidations?.fixed),
+        warnings: removeFixedValidations(existingWarnings.concat(uniqueNewWarnings), newValidations?.fixed),
+        info: removeFixedValidations(existingInfo.concat(uniqueNewInfo), newValidations?.fixed),
+        success: removeFixedValidations(existingSuccess.concat(uniqueNewSuccess), newValidations?.fixed),
+      }
+    : {
+        errors: existingErrors.concat(uniqueNewErrors),
+        warnings: existingWarnings.concat(uniqueNewWarnings),
+        info: existingInfo.concat(uniqueNewInfo),
+        success: existingSuccess.concat(uniqueNewSuccess),
+        fixed: existingFixed.concat(uniqueNewFixed),
+      };
 
   Object.keys(merged).forEach((key) => {
     if (!merged[key] || merged[key].length === 0) {
@@ -1308,11 +1329,11 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
     return {};
   }
 
-  const currentDataTaskDataTypeId = getCurrentDataTypeId(
-    state.applicationMetadata.applicationMetadata,
-    state.instanceData.instance,
-    state.formLayout.layoutsets,
-  );
+  const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
+    application: state.applicationMetadata.applicationMetadata,
+    instance: state.instanceData.instance,
+    layoutSets: state.formLayout.layoutsets,
+  });
   const validator = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
   const emptyFieldsValidations = validateEmptyFieldsForNodes(
     formData,

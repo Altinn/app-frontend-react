@@ -55,6 +55,8 @@ export interface ILayoutSet {
 
 export interface ILayoutSettings {
   pages: IPagesSettings;
+  components?: IComponentsSettings;
+  receiptLayoutName: string;
 }
 
 export interface IPagesSettings {
@@ -63,6 +65,12 @@ export interface IPagesSettings {
   hideCloseButton?: boolean;
   showProgress?: boolean;
   showLanguageSelector?: boolean;
+  excludeFromPdf?: string[];
+  pdfLayoutName?: string;
+}
+
+export interface IComponentsSettings {
+  excludeFromPdf?: string[];
 }
 
 export interface ILayoutNavigation {
@@ -160,6 +168,7 @@ export interface IHiddenLayoutsExpressions {
 
 export interface IUiConfig {
   autoSave: boolean | null | undefined;
+  receiptLayoutName?: string;
   currentView: string;
   currentViewCacheKey?: string;
   returnToView?: string;
@@ -169,6 +178,9 @@ export interface IUiConfig {
   fileUploadersWithTag?: IFileUploadersWithTag;
   navigationConfig?: INavigationConfig;
   tracks: ITracks;
+  excludePageFromPdf: string[] | null;
+  excludeComponentFromPdf: string[] | null;
+  pdfLayoutName?: string;
   pageTriggers?: Triggers[];
   hideCloseButton?: boolean;
   showLanguageSelector?: boolean;

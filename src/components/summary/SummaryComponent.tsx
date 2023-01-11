@@ -8,8 +8,11 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
 import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
+import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
+import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
+import printStyles from 'src/styles/print.module.css';
 import {
   componentHasValidationMessages,
   getComponentValidations,
@@ -27,11 +30,9 @@ export interface ISummaryComponent extends Omit<ILayoutCompSummary, 'type'> {
 }
 
 const useStyles = makeStyles({
-  row: {
+  border: {
     marginBottom: 10,
     paddingBottom: 10,
-  },
-  border: {
     borderBottom: '1px dashed #008FD6',
   },
   link: {
@@ -43,9 +44,11 @@ const useStyles = makeStyles({
   },
 });
 
-export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponent) {
+export function SummaryComponent(_props: ISummaryComponent) {
+  const { id, grid, ...summaryProps } = _props;
   const { componentRef, display, ...groupProps } = summaryProps;
-  const { pageRef, index } = groupProps;
+  const { index, pageRef, formData, ...containerProps } = _props;
+  const container = { ...containerProps, type: 'Summary' } as ILayoutCompSummary;
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const GetHiddenSelector = makeGetHidden();
@@ -70,7 +73,9 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
       ),
   );
   const formValidations = useAppSelector((state) => state.formValidations.validations);
-  const layout = useAppSelector((state) => state.formLayout.layouts && pageRef && state.formLayout.layouts[pageRef]);
+  const layout = useAppSelector((state) =>
+    state.formLayout.layouts && pageRef ? state.formLayout.layouts[pageRef] : undefined,
+  );
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
   const _formComponent = useAppSelector((state) => {
     return (
@@ -79,6 +84,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
     );
   });
   const formComponent = useExpressionsForComponent(_formComponent);
+  const summaryComponent = useExpressionsForComponent(container);
 
   const goToCorrectPageLinkText = useAppSelector((state) => {
     return (
@@ -92,7 +98,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
       )
     );
   });
-  const formData = useAppSelector((state) => {
+  const calculatedFormData = useAppSelector((state) => {
     if (formComponent?.type === 'Group') {
       return undefined;
     }
@@ -103,7 +109,7 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
       return undefined;
     }
     return (
-      summaryProps.formData ||
+      formData ||
       getDisplayFormDataForComponent(
         state.formData.formData,
         attachments,
@@ -158,6 +164,29 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
     changeText,
   };
 
+  const isNonRepeatingGroup =
+    formComponent?.type === 'Group' && (!formComponent.maxCount || formComponent.maxCount <= 1);
+  if (isNonRepeatingGroup) {
+    // Display children as summary components
+    const groupComponents = mapGroupComponents(formComponent, layout);
+    return (
+      <DisplayGroupContainer
+        key={id}
+        container={formComponent}
+        components={groupComponents}
+        renderLayoutComponent={(child) => (
+          <SummaryComponent
+            id={`__summary__${child.id}`}
+            componentRef={child.id}
+            pageRef={groupProps.pageRef}
+            largeGroup={groupProps.largeGroup}
+            display={display}
+          />
+        )}
+      />
+    );
+  }
+
   const displayGrid = display && display.useComponentGrid ? formComponent?.grid : grid;
   return (
     <Grid
@@ -168,10 +197,14 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
       lg={displayGrid?.lg || false}
       xl={displayGrid?.xl || false}
       data-testid={`summary-${id}`}
+      className={cn({
+        [printStyles['break-before']]: summaryComponent.pageBreak?.breakBefore,
+        [printStyles['break-after']]: summaryComponent.pageBreak?.breakAfter,
+      })}
     >
       <Grid
         container={true}
-        className={cn(classes.row, {
+        className={cn({
           [classes.border]: !display?.hideBottomBorder,
         })}
       >
@@ -181,12 +214,12 @@ export function SummaryComponent({ id, grid, ...summaryProps }: ISummaryComponen
           formComponent={formComponent}
           label={label}
           hasValidationMessages={hasValidationMessages}
-          formData={formData}
+          formData={calculatedFormData}
           componentRef={componentRef}
           groupProps={groupProps}
           display={display}
         />
-        {hasValidationMessages && (
+        {hasValidationMessages && !display?.hideValidationMessages && (
           <Grid
             container={true}
             style={{ paddingTop: '12px' }}

@@ -110,6 +110,7 @@ export function en() {
       edit_alt_error: 'Fix error here',
       edit_alt: 'Edit',
       edit: 'Edit',
+      empty_summary: 'You have not entered any information here',
       enabled: 'Enabled',
       error_message_with_colon: 'Error message:',
       for: 'for',
@@ -225,7 +226,7 @@ export function en() {
       ref_num: 'Reference number',
       sender: 'Sender',
       subtitle: 'A copy of your receipt has been sent to your archive',
-      title_part_is_submitted: 'is submitted',
+      title: 'Form is submitted',
       title_submitted: 'The following is submitted:',
     },
     receipt_platform: {

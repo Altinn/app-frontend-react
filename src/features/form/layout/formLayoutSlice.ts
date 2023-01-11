@@ -1,5 +1,7 @@
-import { put } from 'redux-saga/effects';
+import { put, takeLatest } from 'redux-saga/effects';
+import type { SagaIterator } from 'redux-saga';
 
+import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import {
   fetchLayoutSetsSaga,
   watchFetchFormLayoutSaga,
@@ -8,13 +10,13 @@ import {
 import {
   calculatePageOrderAndMoveToNextPageSaga,
   findAndMoveToNextVisibleLayout,
+  initRepeatingGroupsSaga,
   updateCurrentViewSaga,
   updateFileUploaderWithTagChosenOptionsSaga,
   updateFileUploaderWithTagEditIndexSaga,
   updateRepeatingGroupEditIndexSaga,
   updateRepeatingGroupsSaga,
   watchInitialCalculatePageOrderAndMoveToNextPageSaga,
-  watchInitRepeatingGroupsSaga,
   watchMapFileUploaderWithTagSaga,
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
@@ -42,6 +44,7 @@ export const initialState: ILayoutState = {
     autoSave: null,
     repeatingGroups: null,
     fileUploadersWithTag: {},
+    receiptLayoutName: undefined,
     currentView: 'FormLayout',
     navigationConfig: {},
     tracks: {
@@ -51,6 +54,9 @@ export const initialState: ILayoutState = {
     },
     pageTriggers: [],
     keepScrollPos: undefined,
+    excludePageFromPdf: null,
+    excludeComponentFromPdf: null,
+    pdfLayoutName: undefined,
   },
   layoutsets: null,
 };
@@ -112,6 +118,7 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
     fetchSettingsFulfilled: mkAction<LayoutTypes.IFetchLayoutSettingsFulfilled>({
       reducer: (state, action) => {
         const { settings } = action.payload;
+        state.uiConfig.receiptLayoutName = settings?.receiptLayoutName;
         if (settings && settings.pages) {
           updateCommonPageSettings(state, settings.pages);
           const order = settings.pages.order;
@@ -130,6 +137,10 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
               state.uiConfig.currentView = order[0];
             }
           }
+        }
+        if (settings && settings.components) {
+          const { excludeFromPdf = state.uiConfig.excludeComponentFromPdf } = settings.components;
+          state.uiConfig.excludeComponentFromPdf = excludeFromPdf ?? [];
         }
       },
     }),
@@ -320,7 +331,14 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
       },
     }),
     initRepeatingGroups: mkAction<void>({
-      saga: () => watchInitRepeatingGroupsSaga,
+      takeEvery: initRepeatingGroupsSaga,
+      saga: () =>
+        function* (): SagaIterator {
+          yield takeLatest(
+            [FormDataActions.fetchFulfilled, FormLayoutActions.initRepeatingGroups, FormLayoutActions.fetchFulfilled],
+            initRepeatingGroupsSaga,
+          );
+        },
     }),
     clearKeepScrollPos: mkAction<void>({
       reducer: (state) => {
@@ -332,19 +350,26 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
 
 const updateCommonPageSettings = (
   state: ILayoutState,
-  page: Pick<IPagesSettings, 'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers'>,
+  page: Pick<
+    IPagesSettings,
+    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers' | 'excludeFromPdf' | 'pdfLayoutName'
+  >,
 ) => {
   const {
     hideCloseButton = state.uiConfig.hideCloseButton,
     showLanguageSelector = state.uiConfig.showLanguageSelector,
     showProgress = state.uiConfig.showProgress,
     triggers = state.uiConfig.pageTriggers,
+    excludeFromPdf = state.uiConfig.excludePageFromPdf,
+    pdfLayoutName = state.uiConfig.pdfLayoutName,
   } = page;
 
   state.uiConfig.hideCloseButton = hideCloseButton;
   state.uiConfig.showProgress = showProgress;
   state.uiConfig.showLanguageSelector = showLanguageSelector;
   state.uiConfig.pageTriggers = triggers;
+  state.uiConfig.excludePageFromPdf = excludeFromPdf ?? [];
+  state.uiConfig.pdfLayoutName = pdfLayoutName;
 };
 
 export const FormLayoutActions = formLayoutSlice.actions;

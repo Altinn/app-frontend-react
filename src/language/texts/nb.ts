@@ -110,6 +110,7 @@ export function nb() {
       edit_alt_error: 'Rett feil her',
       edit_alt: 'Rediger',
       edit: 'Endre',
+      empty_summary: 'Du har ikke lagt inn informasjon her',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
       for: 'for',
@@ -226,7 +227,7 @@ export function nb() {
       ref_num: 'Referansenummer',
       sender: 'Avsender',
       subtitle: 'Kopi av din kvittering er sendt til ditt arkiv',
-      title_part_is_submitted: 'er sendt inn',
+      title: 'Skjema er sendt inn',
       title_submitted: 'Følgende er sendt inn:',
     },
     receipt_platform: {
