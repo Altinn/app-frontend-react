@@ -36,6 +36,7 @@ export function InputComponent({
           onChange={handleChange}
           onBlur={saveValue}
           onPaste={onPaste}
+          disabled={readOnly}
           aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
         ></SearchField>
       ) : (
