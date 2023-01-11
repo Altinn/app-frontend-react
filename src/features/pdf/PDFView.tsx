@@ -40,10 +40,21 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
   const allOrgs = useAppSelector((state) => state.organisationMetaData.allOrgs);
   const profile = useAppSelector((state) => state.profile.profile);
 
+  // Custom pdf layout
+  const pdfLayout = pdfLayoutName && layouts ? layouts[pdfLayoutName] : undefined;
+
   // Fetch PdfFormat from backend
   const [pdfFormat, setPdfFormat] = React.useState<IPdfFormat | null>(null);
   React.useEffect(() => {
-    if (applicationMetadata && instance && layoutSets && excludedPages && excludedComponents && pageOrder) {
+    if (
+      applicationMetadata &&
+      instance &&
+      layoutSets &&
+      excludedPages &&
+      excludedComponents &&
+      pageOrder &&
+      !pdfLayout
+    ) {
       const dataGuid = getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
       if (typeof dataGuid === 'string') {
         const url = getPdfFormatUrl(instance.id, dataGuid);
@@ -54,7 +65,7 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
         setPdfFormat({ excludedPages, excludedComponents, pageOrder });
       }
     }
-  }, [applicationMetadata, excludedComponents, excludedPages, instance, layoutSets, pageOrder]);
+  }, [applicationMetadata, excludedComponents, excludedPages, instance, layoutSets, pageOrder, pdfLayout]);
 
   if (
     optionsLoading ||
@@ -70,12 +81,10 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
     !textResources ||
     !allOrgs ||
     !profile ||
-    !pdfFormat
+    (!pdfFormat && !pdfLayout)
   ) {
     return null;
   }
-
-  const pdfLayout = pdfLayoutName ? layouts[pdfLayoutName] : undefined;
 
   document.body.style.backgroundColor = 'white';
   return (
@@ -93,7 +102,7 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
         <CustomPDFLayout layout={pdfLayout} />
       ) : (
         <AutomaticPDFLayout
-          pdfFormat={pdfFormat}
+          pdfFormat={pdfFormat as IPdfFormat}
           hidden={hidden}
           layouts={layouts}
         />
