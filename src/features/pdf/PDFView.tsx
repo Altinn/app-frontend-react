@@ -32,6 +32,7 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const formData = useAppSelector((state) => state.formData.formData);
+  const unsavedChanges = useAppSelector((state) => state.formData.unsavedChanges);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const parties = useAppSelector((state) => state.party.parties);
   const language = useAppSelector((state) => state.language.language);
@@ -53,7 +54,8 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
       excludedPages &&
       excludedComponents &&
       pageOrder &&
-      !pdfLayout
+      !pdfLayout &&
+      !unsavedChanges
     ) {
       const dataGuid = getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
       if (typeof dataGuid === 'string') {
@@ -65,7 +67,16 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
         setPdfFormat({ excludedPages, excludedComponents, pageOrder });
       }
     }
-  }, [applicationMetadata, excludedComponents, excludedPages, instance, layoutSets, pageOrder, pdfLayout]);
+  }, [
+    applicationMetadata,
+    excludedComponents,
+    excludedPages,
+    instance,
+    layoutSets,
+    pageOrder,
+    pdfLayout,
+    unsavedChanges,
+  ]);
 
   if (
     optionsLoading ||
