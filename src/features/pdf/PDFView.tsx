@@ -2,13 +2,16 @@ import React from 'react';
 
 import cn from 'classnames';
 
+import type { IPdfFormat } from '.';
+
 import { useAppSelector } from 'src/common/hooks';
 import AutomaticPDFLayout from 'src/features/pdf/AutomaticPDFLayout';
 import CustomPDFLayout from 'src/features/pdf/CustomPDFLayout';
 import css from 'src/features/pdf/PDFView.module.css';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
-import { getInstanceContextSelector } from 'src/utils/instanceContext';
-import type { IInstanceContext } from 'src/types/shared';
+import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
+import { get } from 'src/utils/network/networking';
+import { getPdfFormatUrl } from 'src/utils/urls/appUrlHelper';
 
 interface PDFViewProps {
   appName: string;
@@ -17,18 +20,18 @@ interface PDFViewProps {
 
 const PDFView = ({ appName, appOwner }: PDFViewProps) => {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const excludePageFromPdf = useAppSelector((state) => new Set(state.formLayout.uiConfig.excludePageFromPdf));
-  const excludeComponentFromPdf = useAppSelector((state) => new Set(state.formLayout.uiConfig.excludeComponentFromPdf));
+  const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
+  const excludedPages = useAppSelector((state) => state.formLayout.uiConfig.excludePageFromPdf);
+  const excludedComponents = useAppSelector((state) => state.formLayout.uiConfig.excludeComponentFromPdf);
   const pageOrder = useAppSelector((state) => state.formLayout.uiConfig.tracks.order);
-  const hiddenPages = useAppSelector((state) => new Set(state.formLayout.uiConfig.tracks.hidden));
+  const hidden = useAppSelector((state) => state.formLayout.uiConfig.tracks.hidden);
   const pdfLayoutName = useAppSelector((state) => state.formLayout.uiConfig.pdfLayoutName);
   const optionsLoading = useAppSelector((state) => state.optionState.loading);
   const dataListLoading = useAppSelector((state) => state.dataListState.loading);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const instanceContextSelector = getInstanceContextSelector();
-  const instanceContext: IInstanceContext = useAppSelector(instanceContextSelector);
   const applicationSettings = useAppSelector((state) => state.applicationSettings.applicationSettings);
-  const formData = useAppSelector((state) => state.formData?.formData);
+  const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const formData = useAppSelector((state) => state.formData.formData);
   const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const parties = useAppSelector((state) => state.party.parties);
   const language = useAppSelector((state) => state.language.language);
@@ -37,25 +40,37 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
   const allOrgs = useAppSelector((state) => state.organisationMetaData.allOrgs);
   const profile = useAppSelector((state) => state.profile.profile);
 
+  // Fetch PdfFormat from backend
+  const [pdfFormat, setPdfFormat] = React.useState<IPdfFormat | null>(null);
+  React.useEffect(() => {
+    if (applicationMetadata && instance && layoutSets && excludedPages && excludedComponents && pageOrder) {
+      const dataGuid = getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
+      if (typeof dataGuid === 'string') {
+        const url = getPdfFormatUrl(instance.id, dataGuid);
+        get(url)
+          .then((pdfFormat: IPdfFormat) => setPdfFormat(pdfFormat))
+          .catch(() => setPdfFormat({ excludedPages, excludedComponents, pageOrder }));
+      } else {
+        setPdfFormat({ excludedPages, excludedComponents, pageOrder });
+      }
+    }
+  }, [applicationMetadata, excludedComponents, excludedPages, instance, layoutSets, pageOrder]);
+
   if (
     optionsLoading ||
     dataListLoading ||
     !layouts ||
-    !excludePageFromPdf ||
-    !excludeComponentFromPdf ||
-    !pageOrder ||
-    !hiddenPages ||
+    !hidden ||
     !repeatingGroups ||
-    !instanceContext ||
     !applicationSettings ||
     !formData ||
     !hiddenFields ||
     !parties ||
     !language ||
     !textResources ||
-    !instance ||
     !allOrgs ||
-    !profile
+    !profile ||
+    !pdfFormat
   ) {
     return null;
   }
@@ -78,11 +93,9 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
         <CustomPDFLayout layout={pdfLayout} />
       ) : (
         <AutomaticPDFLayout
-          excludeComponentFromPdf={excludeComponentFromPdf}
-          excludePageFromPdf={excludePageFromPdf}
-          hiddenPages={hiddenPages}
+          pdfFormat={pdfFormat}
+          hidden={hidden}
           layouts={layouts}
-          pageOrder={pageOrder}
         />
       )}
       <ReadyForPrint />
