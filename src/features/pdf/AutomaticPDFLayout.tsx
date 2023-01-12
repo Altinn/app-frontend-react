@@ -39,6 +39,7 @@ const renderComponents = new Set([...summaryComponents, ...presentationComponent
 interface IAutomaticPDFLayout {
   layouts: ILayouts;
   pdfFormat: IPdfFormat;
+  pageOrder: string[];
   hidden: string[];
 }
 
@@ -74,7 +75,7 @@ const AutomaticPDFSummaryComponent = ({
   }
 };
 
-const AutomaticPDFLayout = ({ layouts, pdfFormat, hidden }: IAutomaticPDFLayout) => {
+const AutomaticPDFLayout = ({ layouts, pdfFormat, pageOrder, hidden }: IAutomaticPDFLayout) => {
   const excludedPages = new Set(pdfFormat.excludedPages);
   const excludedComponents = new Set(pdfFormat.excludedComponents);
   const hiddenPages = new Set(hidden);
@@ -82,8 +83,8 @@ const AutomaticPDFLayout = ({ layouts, pdfFormat, hidden }: IAutomaticPDFLayout)
   const layoutAndComponents = Object.entries(layouts as ILayouts)
     .filter(([pageRef]) => !excludedPages.has(pageRef))
     .filter(([pageRef]) => !hiddenPages.has(pageRef))
-    .filter(([pageRef]) => pdfFormat.pageOrder.includes(pageRef))
-    .sort(([pA], [pB]) => pdfFormat.pageOrder.indexOf(pA) - pdfFormat.pageOrder.indexOf(pB))
+    .filter(([pageRef]) => pageOrder.includes(pageRef))
+    .sort(([pA], [pB]) => pageOrder.indexOf(pA) - pageOrder.indexOf(pB))
     .map(([pageRef, layout]: [string, ILayoutComponentOrGroup[]]) => [
       pageRef,
       topLevelComponents(layout).filter((c) => renderComponents.has(c.type) && !excludedComponents.has(c.id)),

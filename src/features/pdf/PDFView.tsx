@@ -53,7 +53,6 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
       (instance?.data?.length === 1 || layoutSets) &&
       excludedPages &&
       excludedComponents &&
-      pageOrder &&
       !pdfLayout &&
       !unsavedChanges
     ) {
@@ -62,21 +61,12 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
         const url = getPdfFormatUrl(instance.id, dataGuid);
         get(url)
           .then((pdfFormat: IPdfFormat) => setPdfFormat(pdfFormat))
-          .catch(() => setPdfFormat({ excludedPages, excludedComponents, pageOrder }));
+          .catch(() => setPdfFormat({ excludedPages, excludedComponents }));
       } else {
-        setPdfFormat({ excludedPages, excludedComponents, pageOrder });
+        setPdfFormat({ excludedPages, excludedComponents });
       }
     }
-  }, [
-    applicationMetadata,
-    excludedComponents,
-    excludedPages,
-    instance,
-    layoutSets,
-    pageOrder,
-    pdfLayout,
-    unsavedChanges,
-  ]);
+  }, [applicationMetadata, excludedComponents, excludedPages, instance, layoutSets, pdfLayout, unsavedChanges]);
 
   if (
     optionsLoading ||
@@ -92,6 +82,7 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
     !textResources ||
     !allOrgs ||
     !profile ||
+    !pageOrder ||
     (!pdfFormat && !pdfLayout)
   ) {
     return null;
@@ -113,6 +104,7 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
       ) : (
         <AutomaticPDFLayout
           pdfFormat={pdfFormat as IPdfFormat}
+          pageOrder={pageOrder}
           hidden={hidden}
           layouts={layouts}
         />
