@@ -908,14 +908,8 @@
           "description": "The value of this binding will be shown in the summary component for the list. This binding must be one of the specified bindings under dataModelBindings."
         },
         "mapping": {
-          "type":"object",
-          "description": "Usally used for search",
-          "examples": [
-            {
-              "some.source.field": "key1",
-              "some.other.source": "key2"
-            }],
-          "title": "Mapping"
+          "$ref": "#/definitions/mapping",
+          "description": "(Optional) Used to map data model paths to query parameters when fetching list data"
         }
       },
       "required": [
