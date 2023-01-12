@@ -40,7 +40,7 @@ export const getDataValidationUrl = (instanceId: string, dataGuid: string) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}/validate`;
 
 export const getPdfFormatUrl = (instanceId: string, dataGuid: string) =>
-  `${appPath}/instances/${instanceId}/data/${dataGuid}/pdfformat`;
+  `${appPath}/instances/${instanceId}/data/${dataGuid}/pdf/format`;
 
 export const getProcessNextUrl = (taskId?: string | null) => {
   if (taskId) {
