@@ -6,12 +6,13 @@ export interface IPagination {
 }
 
 export interface ILayoutCompList extends ILayoutCompBase<'List'> {
-  tableHeaders?: string[];
+  tableHeaders: { [Col in keyof T]: string };
   sortableColumns?: string[];
   pagination?: IPagination;
   dataListId: string;
   secure?: boolean;
   bindingToShowInSummary?: string;
+  tableHeadersMobile?: string[];
 }
 
 export interface IDataModelBindingsForList {
