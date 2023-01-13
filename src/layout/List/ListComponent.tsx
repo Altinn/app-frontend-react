@@ -137,7 +137,9 @@ export const ListComponent = ({
       >
         <RenderLegend />
       </FormLabel>
-      <ResponsiveTable config={config}></ResponsiveTable>
+      <div style={{ overflow: 'auto' }}>
+        <ResponsiveTable config={config}></ResponsiveTable>
+      </div>
     </FormControl>
   );
 };
