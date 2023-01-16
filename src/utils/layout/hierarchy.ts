@@ -725,7 +725,7 @@ export class LayoutRootNodeCollection<
   public findById(id: string, exceptInPage?: string): LayoutNode<NT> | undefined {
     const current = this.current();
     if (current && this.currentView !== exceptInPage) {
-      const inCurrent = this.current().findById(id, false);
+      const inCurrent = this.current()?.findById(id, false);
       if (inCurrent) {
         return inCurrent;
       }
@@ -756,12 +756,22 @@ export class LayoutRootNodeCollection<
     return out;
   }
 
-  public findLayout(key: keyof Collection): LayoutRootNode<NT> {
+  public findLayout(key: keyof Collection): LayoutRootNode<NT> | undefined {
     return this.objects[key];
   }
 
-  public current(): LayoutRootNode<NT> {
-    return this.objects[this.currentView];
+  public current(): LayoutRootNode<NT> | undefined {
+    const current = this.findLayout(this.currentView);
+    if (current) {
+      return current;
+    }
+
+    const layouts = Object.keys(this.objects);
+    if (layouts.length) {
+      return this.objects[layouts[0]];
+    }
+
+    return undefined;
   }
 
   public all(): Collection {

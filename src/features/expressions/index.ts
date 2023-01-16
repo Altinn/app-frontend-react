@@ -541,27 +541,29 @@ export const ExprTypes: {
   }
 
   const state = (window as unknown as IAltinnWindow).reduxStore.getState();
-  const nodes = nodesInLayouts(
-    state.formLayout.layouts,
-    state.formLayout.uiConfig.currentView,
-    state.formLayout.uiConfig.repeatingGroups,
-  );
-  let context: LayoutRootNode | LayoutNode = nodes.findLayout(state.formLayout.uiConfig.currentView);
+  const currentLayout = state.formLayout.uiConfig.currentView;
+  const nodes = nodesInLayouts(state.formLayout.layouts, currentLayout, state.formLayout.uiConfig.repeatingGroups);
+  let layout: LayoutRootNode | LayoutNode | undefined = nodes.findLayout(currentLayout);
+  if (!layout) {
+    console.error('Unable to find current page/layout:', currentLayout);
+    return;
+  }
+
   if (forComponentId) {
     const foundNode = nodes.findById(forComponentId);
     if (!foundNode) {
       console.error('Unable to find component with id', forComponentId);
       console.error(
         'Available components on the current page:',
-        context.flat(true).map((c) => c.item.id),
+        layout?.flat(true).map((c) => c.item.id),
       );
       return;
     }
-    context = foundNode;
+    layout = foundNode;
   }
 
   const dataSources = dataSourcesFromState(state);
-  return evalExpr(expr as Expression, context, dataSources, { defaultValue: null });
+  return evalExpr(expr as Expression, layout, dataSources, { defaultValue: null });
 };
 
 export const ExprDefaultsForComponent: ExprDefaultValues<ILayoutComponent> = {

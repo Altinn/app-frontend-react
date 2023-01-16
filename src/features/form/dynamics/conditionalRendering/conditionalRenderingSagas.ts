@@ -57,7 +57,7 @@ export function* checkIfConditionalRulesShouldRunSaga({
     }
 
     for (const layout of futureHiddenLayouts) {
-      for (const node of resolvedNodes.findLayout(layout).flat(true)) {
+      for (const node of resolvedNodes.findLayout(layout)?.flat(true) || []) {
         if (!futureHiddenFields.has(node.item.id)) {
           futureHiddenFields.add(node.item.id);
         }
@@ -85,7 +85,7 @@ export function* checkIfConditionalRulesShouldRunSaga({
           }
         }
         for (const componentId of newlyVisible) {
-          const node = layoutObj.findById(componentId);
+          const node = layoutObj?.findById(componentId) || resolvedNodes.findById(componentId);
           if (
             node &&
             node.item.dataModelBindings &&
@@ -145,9 +145,14 @@ function runExpressionsForLayouts(
 ): Set<string> {
   const hiddenLayouts: Set<string> = new Set();
   for (const key of Object.keys(hiddenLayoutsExpr)) {
+    const layout = nodes.findLayout(key);
+    if (!layout) {
+      continue;
+    }
+
     let isHidden = hiddenLayoutsExpr[key];
     if (typeof isHidden === 'object' && isHidden !== null) {
-      isHidden = evalExpr(isHidden, nodes.findLayout(key), dataSources, {
+      isHidden = evalExpr(isHidden, layout, dataSources, {
         defaultValue: false,
       });
     }
