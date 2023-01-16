@@ -1,5 +1,5 @@
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
-import { DEFAULT_FOR_ALL_VALUES_IN_OBJ, evalExpr, evalExprInObj } from 'src/features/expressions/index';
+import { CONFIG_FOR_ALL_VALUES_IN_OBJ, evalExpr, evalExprInObj } from 'src/features/expressions/index';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig } from 'src/features/expressions/types';
 
@@ -59,7 +59,7 @@ describe('Expressions', () => {
         ...options,
         input: { obj: ['instanceContext', 'whatever1'], other: ['instanceContext', 'whatever2'] },
         config: {
-          [DEFAULT_FOR_ALL_VALUES_IN_OBJ]: {
+          [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
             returnType: 'string',
             defaultValue: 'some-default-result',
             resolvePerRow: false,

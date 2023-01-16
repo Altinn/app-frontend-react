@@ -41,9 +41,9 @@ export interface EvalExprInObjArgs<T> {
 }
 
 /**
- * Magic key used to indicate a default value for all possible values in an object
+ * Magic key used to indicate a config value for all possible values in an object
  */
-export const DEFAULT_FOR_ALL_VALUES_IN_OBJ = '__default__';
+export const CONFIG_FOR_ALL_VALUES_IN_OBJ = '__default__';
 
 /**
  * This function is the brains behind the useExpressions() hook, as it will find any expressions inside a deep
@@ -60,7 +60,7 @@ export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): ExprResolved<T> {
 
 export function getConfigFor(path: string[], config: ExprObjConfig<any>): ExprConfig<any> | undefined {
   const pathString = path.join('.');
-  const pathStringAnyDefault = [...path.slice(0, path.length - 1), DEFAULT_FOR_ALL_VALUES_IN_OBJ].join('.');
+  const pathStringAnyDefault = [...path.slice(0, path.length - 1), CONFIG_FOR_ALL_VALUES_IN_OBJ].join('.');
   const configSpecific = dot.pick(pathString, config);
   const configGeneric = dot.pick(pathStringAnyDefault, config);
 
@@ -595,7 +595,7 @@ export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
     resolvePerRow: false,
   },
   textResourceBindings: {
-    [DEFAULT_FOR_ALL_VALUES_IN_OBJ]: {
+    [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
       returnType: 'string',
       defaultValue: '',
       resolvePerRow: true,
