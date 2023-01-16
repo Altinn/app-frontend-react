@@ -873,12 +873,14 @@
       "type": "object",
       "properties": {
         "tableHeaders": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
+          "type": "object",
           "title": "Table Headers",
-          "description": "An array of strings that is going to be headers of the table. Can be added to the resource files to change between languages"
+          "examples": [
+            {
+              "AFieldInRowDataModel": "header1",
+              "OtherFieldInRowDataModell": "header2"
+            }],
+          "description": "An object where the fields in the datamodel is mapped to headers. Must correspond to datamodel representing a row. Can be added to the resource files to change between languages"
         },
         "sortableColumns": {
           "type": "array",

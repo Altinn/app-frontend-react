@@ -7,7 +7,7 @@ export interface IPagination {
 }
 
 export interface ILayoutCompList extends ILayoutCompBase<'List'> {
-  tableHeaders: { [Col in keyof T]: string };
+  tableHeaders: Record<string, string>;
   sortableColumns?: string[];
   pagination?: IPagination;
   dataListId: string;

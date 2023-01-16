@@ -95,6 +95,23 @@ export const ListComponent = ({
       }),
     );
   };
+  const renderPagination = () => {
+    if (pagination) {
+      return (
+        <Pagination
+          numberOfRows={totalItemsCount}
+          rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          currentPage={currentPage}
+          setCurrentPage={handleChangeCurrentPage}
+          descriptionTexts={getLanguageFromKey('list_component', language)}
+        />
+      );
+    } else {
+      return undefined;
+    }
+  };
 
   const config: ResponsiveTableConfig<Record<string, string>> = {
     rows: calculatedDataList,
@@ -112,17 +129,7 @@ export const ListComponent = ({
       onSelectionChange: (row) => handleChange({ selectedValue: row }),
       selectedValue: selectedRow,
     },
-    footer: (
-      <Pagination
-        numberOfRows={totalItemsCount}
-        rowsPerPageOptions={pagination?.alternatives ? pagination?.alternatives : []}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        currentPage={currentPage}
-        setCurrentPage={handleChangeCurrentPage}
-        descriptionTexts={getLanguageFromKey('list_component', language)}
-      />
-    ),
+    footer: renderPagination(),
   };
 
   return (
