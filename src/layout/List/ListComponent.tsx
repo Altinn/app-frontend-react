@@ -68,7 +68,7 @@ export const ListComponent = ({
 
   const dispatch = useAppDispatch();
 
-  const handleSortChange = (props: SortProps & { column: keyof Record<string, string> }) => {
+  const handleSortChange = (props: SortProps & { column: string }) => {
     dispatch(
       DataListsActions.setSort({
         key: id || '',
