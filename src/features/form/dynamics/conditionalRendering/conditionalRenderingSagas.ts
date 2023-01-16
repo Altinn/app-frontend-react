@@ -11,6 +11,7 @@ import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { dataSourcesFromState, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import { selectNotNull } from 'src/utils/sagas';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
+import type { ExprConfig } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { ICheckIfConditionalRulesShouldRun, IConditionalRenderingRules } from 'src/features/form/dynamics';
 import type { IHiddenLayoutsExpressions, IRuntimeState, IUiConfig, IValidations } from 'src/types';
@@ -143,6 +144,12 @@ function runExpressionsForLayouts(
   hiddenLayoutsExpr: IHiddenLayoutsExpressions,
   dataSources: ContextDataSources,
 ): Set<string> {
+  const config: ExprConfig<'boolean'> = {
+    returnType: 'boolean',
+    defaultValue: false,
+    resolvePerRow: false,
+  };
+
   const hiddenLayouts: Set<string> = new Set();
   for (const key of Object.keys(hiddenLayoutsExpr)) {
     const layout = nodes.findLayout(key);
@@ -152,9 +159,7 @@ function runExpressionsForLayouts(
 
     let isHidden = hiddenLayoutsExpr[key];
     if (typeof isHidden === 'object' && isHidden !== null) {
-      isHidden = evalExpr(isHidden, layout, dataSources, {
-        defaultValue: false,
-      });
+      isHidden = evalExpr(isHidden, layout, dataSources, { config }) as boolean;
     }
     if (isHidden === true) {
       hiddenLayouts.add(key);

@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@altinn/alti
 import { createTheme, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
-import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { ExprConfigForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import {
   fullWidthWrapper,
@@ -190,7 +190,7 @@ export function RepeatingGroupTable({
 
   const edit = useExpressions(container.edit, {
     forComponentId: id,
-    defaults: ExprDefaultsForGroup.edit,
+    config: ExprConfigForGroup.edit,
   });
 
   const tableHeaderComponentIds = container.tableHeaders || components.map((c) => c.baseComponentId || c.id) || [];

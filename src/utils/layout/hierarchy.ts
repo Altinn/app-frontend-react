@@ -1,6 +1,6 @@
 import type { $Values } from 'utility-types';
 
-import { evalExprInObj, ExprDefaultsForComponent, ExprDefaultsForGroup } from 'src/features/expressions';
+import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
@@ -688,9 +688,9 @@ export function resolvedNodesInLayouts(
         input,
         node,
         dataSources,
-        defaults: {
-          ...ExprDefaultsForComponent,
-          ...ExprDefaultsForGroup,
+        config: {
+          ...ExprConfigForComponent,
+          ...ExprConfigForGroup,
         } as any,
       }) as unknown as AnyItem<'resolved'>;
 

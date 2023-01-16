@@ -6,7 +6,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useAppSelector } from 'src/common/hooks';
 import { useGetOptions } from 'src/components/hooks';
 import { AltinnSpinner, AltinnTable, AltinnTableBody, AltinnTableHeader, AltinnTableRow } from 'src/components/shared';
-import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { ExprConfigForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutStyle } from 'src/types';
@@ -40,7 +40,7 @@ export const RepeatingGroupsLikertContainer = ({
 
   const textResourceBindings = useExpressions(container.textResourceBindings, {
     forComponentId: container.id,
-    defaults: ExprDefaultsForGroup.textResourceBindings,
+    config: ExprConfigForGroup.textResourceBindings,
   });
 
   const getText = (key: string | undefined) => {

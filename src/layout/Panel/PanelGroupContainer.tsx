@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { EditIconButton } from 'src/components/EditIconButton';
 import { SuccessIconButton } from 'src/components/SuccessIconButton';
-import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { ExprConfigForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { FullWidthGroupWrapper } from 'src/features/form/components/FullWidthGroupWrapper';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
@@ -69,7 +69,7 @@ export function PanelGroupContainer({ container, components }: IPanelGroupContai
 
   const textResourceBindings = useExpressions(container.textResourceBindings, {
     forComponentId: container.id,
-    defaults: ExprDefaultsForGroup.textResourceBindings,
+    config: ExprConfigForGroup.textResourceBindings,
   });
 
   const title = useAppSelector(

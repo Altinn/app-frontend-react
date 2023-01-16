@@ -8,7 +8,7 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { setupStore } from 'src/store';
-import type { ExpressionOr } from 'src/features/expressions/types';
+import type { ExpressionOr, ExprObjConfig } from 'src/features/expressions/types';
 import type { UseExpressionsOptions } from 'src/features/expressions/useExpressions';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutGroup } from 'src/layout/Group/types';
@@ -23,6 +23,21 @@ interface ExampleThingWithExpressions {
     readOnly: ExpressionOr<'boolean'>;
   };
 }
+
+const config: ExprObjConfig<ExampleThingWithExpressions> = {
+  hidden: {
+    returnType: 'boolean',
+    defaultValue: true,
+    resolvePerRow: false,
+  },
+  innerObject: {
+    readOnly: {
+      returnType: 'boolean',
+      defaultValue: false,
+      resolvePerRow: false,
+    },
+  },
+};
 
 const components = {
   topLayer: {
@@ -124,7 +139,7 @@ function render<T extends ExampleThingWithExpressions | ExampleThingWithExpressi
 ) {
   let error: Error | undefined = undefined;
   const store = setupStore(state);
-  const rendered = renderHook(() => useExpressions(thing, options), {
+  const rendered = renderHook(() => useExpressions<T>(thing, options), {
     wrapper: class Wrapper extends React.Component<React.PropsWithChildren, { hasError: boolean }> {
       constructor(props) {
         super(props);
@@ -244,12 +259,7 @@ describe('useExpressions', () => {
   it('should fail softly when evaluation fails and defaults are provided', () => {
     const { result, error } = render(thingWithExpressions(failingExpr), {
       forComponentId: components.topLayer.id,
-      defaults: {
-        hidden: true,
-        innerObject: {
-          readOnly: false,
-        },
-      },
+      config,
     });
 
     expect(result.current).toEqual(thingWithoutExpressions(true, false));
@@ -266,12 +276,7 @@ describe('useExpressions', () => {
   it('should fail when source component could not be found', () => {
     const { result, error } = render(thingWithExpressions(), {
       forComponentId: `${components.topLayer.id}-0`,
-      defaults: {
-        hidden: true,
-        innerObject: {
-          readOnly: false,
-        },
-      },
+      config,
     });
 
     expect(result.current).toEqual(thingWithoutExpressions(true, false));
@@ -292,12 +297,7 @@ describe('useExpressions', () => {
       thingWithExpressions(['equals', ['component', `${components.topLayer.id}-0`], 'hello world']),
       {
         forComponentId: components.topLayer.id,
-        defaults: {
-          hidden: true,
-          innerObject: {
-            readOnly: false,
-          },
-        },
+        config,
       },
     );
 

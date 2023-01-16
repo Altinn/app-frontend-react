@@ -6,7 +6,7 @@ import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } fro
 import cn from 'classnames';
 
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { ExprConfigForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import altinnAppTheme from 'src/theme/altinnAppTheme';
@@ -156,7 +156,7 @@ export function RepeatingGroupTableRow({
   const edit = useExpressions(container.edit, {
     forComponentId: id,
     rowIndex: index,
-    defaults: ExprDefaultsForGroup.edit,
+    config: ExprConfigForGroup.edit,
   });
 
   useEffect(() => {
@@ -168,7 +168,7 @@ export function RepeatingGroupTableRow({
   const textResourceBindingsForRow = useExpressions(container.textResourceBindings, {
     forComponentId: id,
     rowIndex: index,
-    defaults: ExprDefaultsForGroup.textResourceBindings,
+    config: ExprConfigForGroup.textResourceBindings,
   });
 
   const componentTextResourceBindings: ITextResourceBindings[] = [];

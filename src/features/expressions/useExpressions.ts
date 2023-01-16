@@ -2,13 +2,13 @@ import { useContext, useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
-import { evalExprInObj, ExprDefaultsForComponent, ExprDefaultsForGroup } from 'src/features/expressions/index';
+import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions/index';
 import { FormComponentContext } from 'src/layout';
 import { getInstanceContextSelector } from 'src/utils/instanceContext';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { EvalExprInObjArgs } from 'src/features/expressions/index';
-import type { ExprDefaultValues, ExprResolved } from 'src/features/expressions/types';
+import type { ExprObjConfig, ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutComponentOrGroup } from 'src/layout/layout';
 import type { IInstanceContext } from 'src/types/shared';
 
@@ -20,12 +20,12 @@ export interface UseExpressionsOptions<T> {
   forComponentId?: string;
 
   /**
-   * Default values in case the expression evaluation fails. If this is not given, a failing expression will throw
-   * an exception and fail hard. If you provide default values for your expressions, a failing expression will instead
-   * print out a pretty error message to the console explaining what went wrong - and continue by using the default
-   * value instead.
+   * Config and default values in case the expression evaluation fails. If this is not given, a failing expression will
+   * throw an exception and fail hard. If you provide default values for your expressions, a failing expression will
+   * instead print out a pretty error message to the console explaining what went wrong - and continue by using the
+   * default value instead.
    */
-  defaults?: ExprDefaultValues<T>;
+  config?: ExprObjConfig<T>;
 
   /**
    * The index of a repeating group row that the expression should run for. Only applicable when the component
@@ -85,8 +85,8 @@ export function useExpressions<T>(input: T, _options?: UseExpressionsOptions<T>)
   );
 
   return useMemo(() => {
-    return evalExprInObj({
-      ...(options as Pick<UseExpressionsOptions<T>, 'defaults'>),
+    return evalExprInObj<T>({
+      ...(options as Pick<UseExpressionsOptions<T>, 'config'>),
       input,
       node,
       dataSources,
@@ -94,28 +94,28 @@ export function useExpressions<T>(input: T, _options?: UseExpressionsOptions<T>)
   }, [dataSources, input, node, options]);
 }
 
-let componentDefaults: any = undefined;
-function getComponentDefaults(): any {
+let componentExprConfig: any = undefined;
+function getComponentExprConfig(): any {
   // The default values can be stored in the variable above, but it cannot be constructed as soon as this
   // file is imported, as that relies on the global import order (and may start to fail if files are moved around).
-  if (componentDefaults === undefined) {
-    componentDefaults = {
-      ...ExprDefaultsForComponent,
-      ...ExprDefaultsForGroup,
+  if (componentExprConfig === undefined) {
+    componentExprConfig = {
+      ...ExprConfigForComponent,
+      ...ExprConfigForGroup,
     };
   }
 
-  return componentDefaults;
+  return componentExprConfig;
 }
 
 export function useExpressionsForComponent<T extends ILayoutComponentOrGroup | undefined | null>(
   input: T,
   options?: Omit<UseExpressionsOptions<T>, 'forComponentId' | 'defaults'>,
 ): ExprResolved<T> {
-  const defaults = getComponentDefaults();
+  const config = getComponentExprConfig();
   return useExpressions(input, {
     forComponentId: (typeof input === 'object' && input !== null && input.id) || undefined,
-    defaults,
+    config,
     ...options,
   });
 }

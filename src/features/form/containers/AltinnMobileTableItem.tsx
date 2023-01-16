@@ -16,7 +16,7 @@ import { Delete as DeleteIcon, Edit as EditIcon, Warning as WarningIcon } from '
 import cn from 'classnames';
 
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { ExprConfigForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import theme from 'src/theme/altinnStudioTheme';
@@ -165,7 +165,7 @@ export default function AltinnMobileTableItem({
   const edit = useExpressions(container?.edit, {
     forComponentId: container?.id,
     rowIndex: tableItemIndex,
-    defaults: ExprDefaultsForGroup.edit,
+    config: ExprConfigForGroup.edit,
   });
 
   if (textResources && getEditButtonText && container && language) {

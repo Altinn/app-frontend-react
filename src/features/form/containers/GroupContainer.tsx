@@ -5,7 +5,7 @@ import { Grid } from '@material-ui/core';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { ExprDefaultsForGroup } from 'src/features/expressions';
+import { ExprConfigForGroup } from 'src/features/expressions';
 import { useExpressions } from 'src/features/expressions/useExpressions';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
@@ -45,12 +45,12 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
 
   const edit = useExpressions(container.edit, {
     forComponentId: id,
-    defaults: ExprDefaultsForGroup.edit,
+    config: ExprConfigForGroup.edit,
   });
 
   const textResourceBindingsResolved = useExpressions(container.textResourceBindings, {
     forComponentId: id,
-    defaults: ExprDefaultsForGroup.textResourceBindings,
+    config: ExprConfigForGroup.textResourceBindings,
   });
 
   const editIndex = useAppSelector(
