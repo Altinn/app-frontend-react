@@ -41,7 +41,7 @@ const render = (props: Partial<IListProps> = {}, customState: PreloadedState<Roo
   const allProps: IListProps = {
     ...mockComponentProps,
     dataListId: 'countries',
-    tableHeaders: { name: 'Name', population: 'Population', highestMountain: 'HighestMountain' },
+    tableHeaders: { Name: 'Name', Population: 'Population', HighestMountain: 'HighestMountain' },
     sortableColumns: ['population', 'highestMountain'],
     pagination: { alternatives: [2, 5], default: 2 },
     getTextResourceAsString: (value) => value,
