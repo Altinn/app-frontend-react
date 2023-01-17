@@ -54,6 +54,9 @@ export const ListComponent = ({
 
   const selectedRow: Record<string, string> = React.useMemo(() => {
     let matchRow: boolean[] = [];
+    if (!formData || JSON.stringify(formData) === '{}') {
+      return {};
+    }
     for (const row of calculatedDataList) {
       for (const key in formData) {
         matchRow.push(formData[key] === row[key]);
