@@ -38,6 +38,8 @@ export interface EvalExprInObjArgs<T> {
   node: LayoutNode<any> | NodeNotFoundWithoutContext;
   dataSources: ContextDataSources;
   config?: ExprObjConfig<T>;
+  resolvingPerRow?: boolean;
+  deleteNonExpressions?: boolean;
 }
 
 /**
@@ -75,20 +77,34 @@ export function getConfigFor(path: string[], config: ExprObjConfig<any>): ExprCo
   return undefined;
 }
 
+const DELETE_LATER = '__DELETE_LATER__';
+
 /**
  * Recurse through an input object/array/any, finds expressions and evaluates them
  */
 function evalExprInObjectRecursive<T>(input: any, args: Omit<EvalExprInObjArgs<T>, 'input'>, path: string[]) {
   if (typeof input !== 'object' || input === null) {
+    if (args.deleteNonExpressions) {
+      return DELETE_LATER;
+    }
+
     return input;
   }
 
   if (Array.isArray(input)) {
+    let config: ExprConfig<any> | undefined = undefined;
     let evaluateAsExpression = false;
     if (args.config) {
-      evaluateAsExpression = typeof getConfigFor(path, args.config) !== 'undefined';
+      config = getConfigFor(path, args.config);
+      evaluateAsExpression = typeof config !== 'undefined';
     } else if (canBeExpression(input)) {
       evaluateAsExpression = true;
+    }
+
+    if (args.resolvingPerRow === false && config && config.resolvePerRow) {
+      // Leave some expressions deep inside objects alone. I.e., for Group components, some of the properties should
+      // only be evaluated in the context of each row (when the Group is repeating).
+      evaluateAsExpression = false;
     }
 
     if (evaluateAsExpression) {
@@ -100,12 +116,27 @@ function evalExprInObjectRecursive<T>(input: any, args: Omit<EvalExprInObjArgs<T
 
     const newPath = [...path];
     const lastLeg = newPath.pop() || '';
-    return input.map((item, idx) => evalExprInObjectRecursive<T>(item, args, [...newPath, `${lastLeg}[${idx}]`]));
+    const out = input
+      .map((item, idx) => evalExprInObjectRecursive<T>(item, args, [...newPath, `${lastLeg}[${idx}]`]))
+      .filter((item) => item !== DELETE_LATER);
+
+    if (args.deleteNonExpressions && out.length === 0) {
+      return DELETE_LATER;
+    }
+
+    return out;
   }
 
   const out = {};
   for (const key of Object.keys(input)) {
     out[key] = evalExprInObjectRecursive<T>(input[key], args, [...path, key]);
+    if (out[key] === DELETE_LATER) {
+      delete out[key];
+    }
+  }
+
+  if (args.deleteNonExpressions && Object.keys(out).length === 0) {
+    return DELETE_LATER;
   }
 
   return out;

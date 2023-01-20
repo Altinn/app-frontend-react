@@ -677,6 +677,11 @@ export function resolvedNodesInLayouts(
   const layoutsCopy: ILayouts = JSON.parse(JSON.stringify(layouts || {}));
   const unresolved = nodesInLayouts(layoutsCopy, currentLayout, repeatingGroups);
 
+  const config = {
+    ...ExprConfigForComponent,
+    ...ExprConfigForGroup,
+  } as any;
+
   for (const layout of Object.values(unresolved.all())) {
     for (const node of layout.flat(true)) {
       const input = { ...node.item };
@@ -688,11 +693,26 @@ export function resolvedNodesInLayouts(
         input,
         node,
         dataSources,
-        config: {
-          ...ExprConfigForComponent,
-          ...ExprConfigForGroup,
-        } as any,
+        config,
+        resolvingPerRow: false,
       }) as unknown as AnyItem<'resolved'>;
+
+      if (node.item.type === 'Group' && 'rows' in node.item) {
+        for (const row of node.item.rows) {
+          const firstItem = row.items[0];
+          const firstItemNode = unresolved.findById(firstItem.id);
+          if (firstItemNode) {
+            row.groupExpressions = evalExprInObj({
+              input,
+              node: firstItemNode,
+              dataSources,
+              config,
+              resolvingPerRow: true,
+              deleteNonExpressions: true,
+            }) as any;
+          }
+        }
+      }
 
       for (const key of Object.keys(resolvedItem)) {
         // Mutates node.item directly - this also mutates references to it and makes sure
