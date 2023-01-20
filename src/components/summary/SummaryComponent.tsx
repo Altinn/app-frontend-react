@@ -7,7 +7,7 @@ import cn from 'classnames';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
-import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useExpressions';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
@@ -19,6 +19,7 @@ import {
   getDisplayFormDataForComponent,
 } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutComponent } from 'src/layout/layout';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
@@ -83,8 +84,8 @@ export function SummaryComponent(_props: ISummaryComponent) {
       undefined
     );
   });
-  const formComponent = useExpressionsForComponent(_formComponent);
-  const summaryComponent = useExpressionsForComponent(container);
+  const formComponent = useResolvedNode(_formComponent)?.item;
+  const summaryComponent = useResolvedNode(container)?.item;
 
   const goToCorrectPageLinkText = useAppSelector((state) => {
     return (
@@ -164,15 +165,14 @@ export function SummaryComponent(_props: ISummaryComponent) {
     changeText,
   };
 
-  const isNonRepeatingGroup =
-    formComponent?.type === 'Group' && (!formComponent.maxCount || formComponent.maxCount <= 1);
-  if (isNonRepeatingGroup) {
+  if (formComponent?.type === 'Group' && (!formComponent.maxCount || formComponent.maxCount <= 1)) {
     // Display children as summary components
-    const groupComponents = mapGroupComponents(formComponent, layout);
+    const plainGroup = _formComponent as ILayoutGroup;
+    const groupComponents = mapGroupComponents(plainGroup, layout);
     return (
       <DisplayGroupContainer
         key={id}
-        container={formComponent}
+        container={plainGroup}
         components={groupComponents}
         renderLayoutComponent={(child) => (
           <SummaryComponent
@@ -198,8 +198,8 @@ export function SummaryComponent(_props: ISummaryComponent) {
       xl={displayGrid?.xl || false}
       data-testid={`summary-${id}`}
       className={cn({
-        [printStyles['break-before']]: summaryComponent.pageBreak?.breakBefore,
-        [printStyles['break-after']]: summaryComponent.pageBreak?.breakAfter,
+        [printStyles['break-before']]: summaryComponent?.pageBreak?.breakBefore,
+        [printStyles['break-after']]: summaryComponent?.pageBreak?.breakAfter,
       })}
     >
       <Grid
@@ -211,7 +211,7 @@ export function SummaryComponent(_props: ISummaryComponent) {
         <SummaryComponentSwitch
           id={id}
           change={change}
-          formComponent={formComponent}
+          formComponent={_formComponent}
           label={label}
           hasValidationMessages={hasValidationMessages}
           formData={calculatedFormData}

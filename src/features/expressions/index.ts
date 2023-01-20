@@ -629,7 +629,7 @@ export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
     [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
       returnType: 'string',
       defaultValue: '',
-      resolvePerRow: true,
+      resolvePerRow: false,
     },
   },
   pageBreak: {
@@ -648,6 +648,19 @@ export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
 
 export const ExprConfigForGroup: ExprObjConfig<ILayoutGroup> = {
   ...ExprConfigForComponent,
+  textResourceBindings: {
+    ...ExprConfigForComponent.textResourceBindings,
+    save_and_next_button: {
+      returnType: 'string',
+      defaultValue: '',
+      resolvePerRow: true,
+    },
+    save_button: {
+      returnType: 'string',
+      defaultValue: '',
+      resolvePerRow: true,
+    },
+  },
   edit: {
     addButton: {
       returnType: 'boolean',

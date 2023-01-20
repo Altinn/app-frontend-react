@@ -5,7 +5,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useExpressions';
 import Description from 'src/features/form/components/Description';
 import Label from 'src/features/form/components/Label';
 import Legend from 'src/features/form/components/Legend';
@@ -99,7 +99,7 @@ const useStyles = makeStyles((theme) => ({
 export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
   _props: IActualGenericComponentProps<Type>,
 ) {
-  const props = useExpressionsForComponent(_props as ILayoutComponent) as ExprResolved<
+  const props = useResolvedNode(_props as ILayoutComponent)?.item as ExprResolved<
     IActualGenericComponentProps<Type>
   > & {
     type: Type;

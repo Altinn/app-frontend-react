@@ -4,7 +4,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks';
-import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useExpressions';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import printStyles from 'src/styles/print.module.css';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
@@ -35,13 +35,13 @@ const useStyles = makeStyles({
 });
 
 export function DisplayGroupContainer(props: IDisplayGroupContainer) {
-  const container = useExpressionsForComponent(props.container);
+  const container = useResolvedNode(props.container)?.item;
 
   const GetHiddenSelector = makeGetHidden();
   const hidden: boolean = useAppSelector((state) => GetHiddenSelector(state, { id: props.container.id }));
   const classes = useStyles();
   const title = useAppSelector((state) => {
-    const titleKey = container.textResourceBindings?.title;
+    const titleKey = container?.textResourceBindings?.title;
     if (titleKey && state.language.language) {
       return getTextFromAppOrDefault(titleKey, state.textResources.resources, state.language.language, [], true);
     }
@@ -61,8 +61,8 @@ export function DisplayGroupContainer(props: IDisplayGroupContainer) {
       item={true}
       id={props.container.id}
       className={cn(classes.groupContainer, {
-        [printStyles['break-before']]: container.pageBreak?.breakBefore,
-        [printStyles['break-after']]: container.pageBreak?.breakAfter,
+        [printStyles['break-before']]: container?.pageBreak?.breakBefore,
+        [printStyles['break-after']]: container?.pageBreak?.breakAfter,
       })}
       spacing={3}
       alignItems='flex-start'

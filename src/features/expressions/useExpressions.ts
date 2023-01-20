@@ -2,15 +2,18 @@ import { useContext, useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
-import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions/index';
+import { evalExprInObj } from 'src/features/expressions/index';
 import { FormComponentContext } from 'src/layout';
 import { getInstanceContextSelector } from 'src/utils/instanceContext';
+import { ExprContext } from 'src/utils/layout/ExprContext';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { EvalExprInObjArgs } from 'src/features/expressions/index';
 import type { ExprObjConfig, ExprResolved } from 'src/features/expressions/types';
-import type { ILayoutComponentOrGroup } from 'src/layout/layout';
+import type { ComponentExceptGroup, ILayoutComponent } from 'src/layout/layout';
 import type { IInstanceContext } from 'src/types/shared';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { ComponentOf } from 'src/utils/layout/hierarchy.types';
 
 export interface UseExpressionsOptions<T> {
   /**
@@ -94,28 +97,24 @@ export function useExpressions<T>(input: T, _options?: UseExpressionsOptions<T>)
   }, [dataSources, input, node, options]);
 }
 
-let componentExprConfig: any = undefined;
-function getComponentExprConfig(): any {
-  // The default values can be stored in the variable above, but it cannot be constructed as soon as this
-  // file is imported, as that relies on the global import order (and may start to fail if files are moved around).
-  if (componentExprConfig === undefined) {
-    componentExprConfig = {
-      ...ExprConfigForComponent,
-      ...ExprConfigForGroup,
-    };
+type MaybeSpecificItem<T> = T extends ILayoutComponent
+  ? T extends { type: infer Type }
+    ? Type extends ComponentExceptGroup
+      ? LayoutNode<'resolved', ComponentOf<'resolved', Type>>
+      : LayoutNode<'resolved'>
+    : LayoutNode<'resolved'>
+  : LayoutNode<'resolved'>;
+
+export function useResolvedNode<T>(selector: string | undefined | T): MaybeSpecificItem<T> | undefined {
+  const context = useContext(ExprContext);
+
+  if (typeof selector === 'string') {
+    return context.findById(selector) as any;
   }
 
-  return componentExprConfig;
-}
+  if (typeof selector == 'object' && selector !== null && 'id' in selector && typeof selector.id === 'string') {
+    return context.findById(selector.id) as any;
+  }
 
-export function useExpressionsForComponent<T extends ILayoutComponentOrGroup | undefined | null>(
-  input: T,
-  options?: Omit<UseExpressionsOptions<T>, 'forComponentId' | 'defaults'>,
-): ExprResolved<T> {
-  const config = getComponentExprConfig();
-  return useExpressions(input, {
-    forComponentId: (typeof input === 'object' && input !== null && input.id) || undefined,
-    config,
-    ...options,
-  });
+  return undefined;
 }

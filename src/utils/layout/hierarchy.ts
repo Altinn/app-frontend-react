@@ -735,9 +735,12 @@ export class LayoutRootNodeCollection<
     [layoutKey: string]: LayoutRootNode<NT>;
   },
 > {
-  public constructor(private currentView: keyof Collection, private objects: Collection) {
-    for (const layoutKey of Object.keys(objects)) {
-      const layout = objects[layoutKey];
+  private readonly objects: Collection;
+
+  public constructor(private currentView?: keyof Collection, objects?: Collection) {
+    this.objects = objects || ({} as any);
+    for (const layoutKey of Object.keys(this.objects)) {
+      const layout = this.objects[layoutKey];
       layout.registerCollection(layoutKey, this);
     }
   }
@@ -781,6 +784,10 @@ export class LayoutRootNodeCollection<
   }
 
   public current(): LayoutRootNode<NT> | undefined {
+    if (!this.currentView) {
+      return undefined;
+    }
+
     const current = this.findLayout(this.currentView);
     if (current) {
       return current;
