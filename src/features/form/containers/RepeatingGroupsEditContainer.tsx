@@ -5,7 +5,6 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Delete as DeleteIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { AltinnButton } from 'src/components/shared';
 import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
 import theme from 'src/theme/altinnStudioTheme';
 import { renderGenericComponent } from 'src/utils/layout';
@@ -190,20 +189,24 @@ export function RepeatingGroupsEditContainer({
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > -1 &&
                 group.children.find((childId) => childId.startsWith(`${multiPageIndex + 1}:`)) && (
-                  <AltinnButton
-                    btnText={getLanguageFromKey('general.next', language)}
-                    secondaryButton={true}
-                    onClickFunction={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
-                  />
+                  <Button
+                    variant={ButtonVariant.Outline}
+                    color={ButtonColor.Primary}
+                    onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
+                  >
+                    {getLanguageFromKey('general.next', language)}
+                  </Button>
                 )}
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > 0 &&
                 group.children.find((childId) => childId.startsWith(`${multiPageIndex - 1}:`)) && (
-                  <AltinnButton
-                    btnText={getLanguageFromKey('general.back', language)}
-                    secondaryButton={true}
-                    onClickFunction={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
-                  />
+                  <Button
+                    variant={ButtonVariant.Outline}
+                    color={ButtonColor.Primary}
+                    onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
+                  >
+                    {getLanguageFromKey('general.back', language)}
+                  </Button>
                 )}
             </div>
           )}
