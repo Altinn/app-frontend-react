@@ -210,13 +210,13 @@ export function RepeatingGroupTable({
   const [popoverPanelIndex, setPopoverPanelIndex] = useState(-1);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  const hideDeleteButtonColumns: boolean[] = [];
+  const showDeleteButtonColumns = new Set<boolean>();
   if (node?.item.type === 'Group' && 'rows' in node.item) {
     for (const row of node.item.rows) {
-      hideDeleteButtonColumns.push(row.groupExpressions?.edit?.deleteButton === false);
+      showDeleteButtonColumns.add(row.groupExpressions?.edit?.deleteButton !== false);
     }
   }
-  const displayDeleteColumn = hideDeleteButtonColumns.reduce((prev, cur) => prev || cur, false);
+  const displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);
 
   const isNested = typeof container.baseComponentId === 'string';
 
