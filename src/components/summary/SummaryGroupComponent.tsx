@@ -231,7 +231,6 @@ function SummaryGroupComponent({
               <GroupInputSummary
                 key={componentId}
                 componentId={componentId}
-                index={i}
                 formData={formDataForComponent}
                 textResources={textResources}
               />

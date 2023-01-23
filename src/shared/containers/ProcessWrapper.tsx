@@ -18,7 +18,6 @@ import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceD
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { ExprContext } from 'src/utils/layout/ExprContext';
-import { dataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
 
 const ProcessWrapper = () => {
@@ -27,8 +26,7 @@ const ProcessWrapper = () => {
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const { hasApiErrors } = useApiErrorCheck();
   const { dispatch, process, appOwner, appName } = useProcess();
-  const dataSources = useAppSelector((state) => dataSourcesFromState(state));
-  const resolvedNodes = useLayoutsAsNodes(dataSources);
+  const resolvedNodes = useLayoutsAsNodes();
 
   const instanceId = useAppSelector((state) => state.instantiation.instanceId);
   const instanceIdFromUrl = useInstanceIdParams()?.instanceId;

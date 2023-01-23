@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks';
-import { nodesInLayouts, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
-import type { ContextDataSources } from 'src/features/expressions/ExprContext';
+import { dataSourcesFromState, resolvedNodesInLayouts, rewriteTextResourceBindings } from 'src/utils/layout/hierarchy';
 import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
 
 /**
@@ -12,16 +11,17 @@ import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
  *
  * @see useResolvedNode
  */
-export function useLayoutsAsNodes(dataSources?: undefined): LayoutRootNodeCollection;
-export function useLayoutsAsNodes(dataSources?: ContextDataSources): LayoutRootNodeCollection<'resolved'>;
-export function useLayoutsAsNodes(dataSources?: ContextDataSources | undefined): LayoutRootNodeCollection<any> {
+export function useLayoutsAsNodes(): LayoutRootNodeCollection<'resolved'> {
+  const dataSources = useAppSelector((state) => dataSourcesFromState(state));
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const current = useAppSelector((state) => state.formLayout.uiConfig.currentView);
+  const textResources = useAppSelector((state) => state.textResources.resources);
 
   return useMemo(() => {
-    return dataSources
-      ? resolvedNodesInLayouts(layouts, current, repeatingGroups, dataSources)
-      : nodesInLayouts(layouts, current, repeatingGroups);
-  }, [layouts, current, repeatingGroups, dataSources]);
+    const resolved = resolvedNodesInLayouts(layouts, current, repeatingGroups, dataSources);
+    rewriteTextResourceBindings(resolved, textResources);
+
+    return resolved;
+  }, [layouts, current, repeatingGroups, dataSources, textResources]);
 }

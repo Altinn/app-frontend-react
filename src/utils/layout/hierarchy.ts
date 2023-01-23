@@ -2,12 +2,12 @@ import type { $Values } from 'utility-types';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
-import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
+import { getRepeatingGroupStartStopIndex, getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
-import type { IRepeatingGroups, IRuntimeState } from 'src/types';
+import type { IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
 import type {
   AnyChildNode,
   AnyItem,
@@ -136,7 +136,7 @@ export function layoutAsHierarchyWithRows(
   formLayout: ILayout,
   repeatingGroups: IRepeatingGroups | null,
 ): HierarchyWithRows[] {
-  const rewriteBindings = (
+  const rewriteDataModelBindings = (
     main: LayoutGroupHierarchy,
     child: LayoutGroupHierarchy | ILayoutComponent,
     newChild: RepeatingGroupLayoutComponent,
@@ -180,7 +180,7 @@ export function layoutAsHierarchyWithRows(
           };
 
           if (child.dataModelBindings) {
-            rewriteBindings(main, child, newChild, parent, index);
+            rewriteDataModelBindings(main, child, newChild, parent, index);
           }
 
           return recurse(newChild, {
@@ -723,6 +723,41 @@ export function resolvedNodesInLayouts(
   }
 
   return unresolved as unknown as LayoutRootNodeCollection<'resolved'>;
+}
+
+/**
+ * This updates the textResourceBindings for each node to match the new one made in replaceTextResourcesSaga.
+ * It must be run _after_ resolving expressions, as that may decide to use other text resource bindings.
+ *
+ * @see replaceTextResourcesSaga
+ * @see replaceTextResourceParams
+ * @see createRepeatingGroupComponentsForIndex
+ * @ßee getVariableTextKeysForRepeatingGroupComponent
+ */
+export function rewriteTextResourceBindings(
+  collection: LayoutRootNodeCollection<'resolved'>,
+  textResources: ITextResource[],
+) {
+  for (const layout of Object.values(collection.all())) {
+    for (const node of layout.flat(true)) {
+      if (!node.item.textResourceBindings || node.rowIndex === undefined) {
+        continue;
+      }
+
+      if (node.parent instanceof LayoutRootNode || !(node.parent.parent instanceof LayoutRootNode)) {
+        // This only works in row items on the first level (not for nested repeating groups)
+        continue;
+      }
+
+      const rewrittenItems = getVariableTextKeysForRepeatingGroupComponent(
+        textResources,
+        node.item.textResourceBindings,
+        node.rowIndex,
+      );
+
+      node.item.textResourceBindings = { ...rewrittenItems };
+    }
+  }
 }
 
 /**
