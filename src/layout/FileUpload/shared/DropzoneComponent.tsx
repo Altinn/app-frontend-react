@@ -81,12 +81,13 @@ export function DropzoneComponent({
           styles = isDragReject ? { ...styles, ...rejectStyle } : styles;
           styles = hasValidationMessages ? { ...styles, ...validationErrorStyle } : styles;
 
-          const ariaDescribedByDefault =
-            'file-upload-description file-format-description max-size number-of-attachments';
-          const ariaDescribedByDescription = textResourceBindings?.description ? `description-${id}` : undefined;
-          const ariaDescribedBy = ariaDescribedByDescription
-            ? `${ariaDescribedByDefault} ${ariaDescribedByDescription}`
-            : ariaDescribedByDefault;
+          const labelId = `label-${id}`;
+          const descriptionId = textResourceBindings?.description ? `description-${id}` : undefined;
+          const dragLabelId = `file-upload-drag-${id}`;
+          const formatLabelId = `file-upload-format-${id}`;
+          const ariaDescribedBy = descriptionId
+            ? `${descriptionId} ${dragLabelId} ${formatLabelId}`
+            : `${dragLabelId} ${formatLabelId}`;
 
           return (
             <div
@@ -97,9 +98,9 @@ export function DropzoneComponent({
               id={`altinn-drop-zone-${id}`}
               data-testid={`altinn-drop-zone-${id}`}
               className={`file-upload${hasValidationMessages ? ' file-upload-invalid' : ''}`}
-              aria-describedby={ariaDescribedBy}
-              aria-labelledby={`label-${id}`}
               role='button'
+              aria-labelledby={labelId}
+              aria-describedby={ariaDescribedBy}
             >
               <input
                 {...getInputProps()}
@@ -113,8 +114,8 @@ export function DropzoneComponent({
                   <i className='ai ai-upload' />
                 </div>
                 <div className='col text-center'>
-                  <label
-                    htmlFor={id}
+                  <span
+                    id={dragLabelId}
                     className='file-upload-text-bold'
                   >
                     {isMobile ? (
@@ -127,18 +128,18 @@ export function DropzoneComponent({
                         </span>
                       </>
                     )}
-                  </label>
+                  </span>
                 </div>
                 <div className='col text-center'>
-                  <label
-                    htmlFor={id}
+                  <span
+                    id={formatLabelId}
                     className='file-upload-text'
                   >
                     {getLanguageFromKey('form_filler.file_uploader_valid_file_format', language)}
                     {hasCustomFileEndings
                       ? ` ${validFileEndings}`
                       : ` ${getLanguageFromKey('form_filler.file_upload_valid_file_format_all', language)}`}
-                  </label>
+                  </span>
                 </div>
               </div>
             </div>
