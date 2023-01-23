@@ -17,8 +17,7 @@ import css from 'src/shared/containers/ProcessWrapper.module.css';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import { ExprContext } from 'src/utils/layout/ExprContext';
-import { useLayoutsAsNodes } from 'src/utils/layout/useLayoutsAsNodes';
+import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 const ProcessWrapper = () => {
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
@@ -26,7 +25,6 @@ const ProcessWrapper = () => {
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const { hasApiErrors } = useApiErrorCheck();
   const { dispatch, process, appOwner, appName } = useProcess();
-  const resolvedNodes = useLayoutsAsNodes();
 
   const instanceId = useAppSelector((state) => state.instantiation.instanceId);
   const instanceIdFromUrl = useInstanceIdParams()?.instanceId;
@@ -64,7 +62,7 @@ const ProcessWrapper = () => {
   }
 
   return (
-    <ExprContext.Provider value={resolvedNodes}>
+    <ExprContextWrapper>
       <div
         className={cn(css['content'], {
           [css['hide-form']]: previewPDF,
@@ -103,7 +101,7 @@ const ProcessWrapper = () => {
           />
         </div>
       )}
-    </ExprContext.Provider>
+    </ExprContextWrapper>
   );
 };
 
