@@ -700,6 +700,9 @@ export function resolvedNodesInLayouts(
       if (node.item.type === 'Group' && 'rows' in node.item) {
         for (const row of node.item.rows) {
           const firstItem = row.items[0];
+          if (!firstItem) {
+            continue;
+          }
           const firstItemNode = unresolved.findById(firstItem.id);
           if (firstItemNode) {
             row.groupExpressions = evalExprInObj({

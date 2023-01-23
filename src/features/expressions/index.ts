@@ -55,7 +55,13 @@ export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): ExprResolved<T> {
     return args.input as ExprResolved<T>;
   }
 
-  return evalExprInObjectRecursive<T>(args.input, args as Omit<EvalExprInObjArgs<T>, 'input'>, []);
+  const out = evalExprInObjectRecursive<T>(args.input, args as Omit<EvalExprInObjArgs<T>, 'input'>, []);
+
+  if (args.deleteNonExpressions && out === DELETE_LATER) {
+    return {} as any;
+  }
+
+  return out;
 }
 
 export function getConfigFor(path: string[], config: ExprObjConfig<any>): ExprConfig<any> | undefined {

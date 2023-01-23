@@ -339,7 +339,7 @@ export function RepeatingGroupTable({
                 >
                   <span className={classes.contentFormatting}>
                     {getTextResource(
-                      getTableTitle(tableNodes[tableComponentIndex].item.textResourceBindings || {}),
+                      getTableTitle(tableNodes[tableComponentIndex]?.item.textResourceBindings || {}),
                       textResources,
                     )}
                   </span>
