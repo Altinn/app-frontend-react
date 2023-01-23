@@ -6,8 +6,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useAppSelector } from 'src/common/hooks';
 import { useGetOptions } from 'src/components/hooks';
 import { AltinnSpinner, AltinnTable, AltinnTableBody, AltinnTableHeader, AltinnTableRow } from 'src/components/shared';
-import { ExprConfigForGroup } from 'src/features/expressions';
-import { useExpressions } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutStyle } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
@@ -38,18 +37,15 @@ export const RepeatingGroupsLikertContainer = ({
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
 
-  const textResourceBindings = useExpressions(container.textResourceBindings, {
-    forComponentId: container.id,
-    config: ExprConfigForGroup.textResourceBindings,
-  });
+  const node = useResolvedNode(container);
 
   const getText = (key: string | undefined) => {
     return key ? getTextResource(key, textResources) : undefined;
   };
 
-  const title = getText(textResourceBindings?.title);
-  const description = getText(textResourceBindings?.description);
-  const leftColumnHeader = getText(textResourceBindings?.leftColumnHeader);
+  const title = getText(node?.item.textResourceBindings?.title);
+  const description = getText(node?.item.textResourceBindings?.description);
+  const leftColumnHeader = getText(node?.item.textResourceBindings?.leftColumnHeader);
   const titleId = `likert-title-${id}`;
   const descriptionId = `likert-description-${id}`;
 

@@ -4,8 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@altinn/alti
 import { createTheme, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
-import { ExprConfigForGroup } from 'src/features/expressions';
-import { useExpressions } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import {
   fullWidthWrapper,
   xPaddingLarge,
@@ -27,6 +26,7 @@ import type { ComponentInGroup, ILayout, ILayoutComponent } from 'src/layout/lay
 import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 export interface IRepeatingGroupTableProps {
   id: string;
@@ -188,37 +188,35 @@ export function RepeatingGroupTable({
   const classes = useStyles();
   const mobileView = useMediaQuery('(max-width:992px)');
 
-  const edit = useExpressions(container.edit, {
-    forComponentId: id,
-    config: ExprConfigForGroup.edit,
-  });
-
+  const node = useResolvedNode(id);
+  const edit = node?.item.type === 'Group' ? node.item.edit : undefined;
   const tableHeaderComponentIds = container.tableHeaders || components.map((c) => c.baseComponentId || c.id) || [];
 
   const componentsDeepCopy: ILayoutComponent[] = JSON.parse(JSON.stringify(components));
-  const tableComponents = componentsDeepCopy.filter((component: ILayoutComponent) => {
+  const tableComponents = componentsDeepCopy.filter((component) => {
     const childId = component.baseComponentId || component.id;
     return tableHeaderComponentIds.includes(childId);
   });
+  const tableNodes = tableComponents
+    .map((c) => node?.children((i) => i.baseComponentId === c.baseComponentId || i.baseComponentId === c.id))
+    .filter((child) => !!child) as LayoutNode<'resolved'>[];
 
   // Values adjusted for filter
   const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
   const editRowIndex = filteredIndexes ? filteredIndexes.indexOf(editIndex) : editIndex;
 
-  const componentTextResourceBindings: ITextResourceBindings[] = [];
-  tableComponents.forEach((component) => {
-    componentTextResourceBindings.push(component.textResourceBindings as ITextResourceBindings);
-  });
-
-  const componentTextResourceBindingsResolved = useExpressions(componentTextResourceBindings);
-
   const isEmpty = numRows === 0;
   const showTableHeader = numRows > 0 && !(numRows == 1 && editRowIndex == 0);
-  const [displayDeleteColumn, setDisplayDeleteColumn] = useState(
-    edit?.deleteButton == undefined ? true : edit.deleteButton,
-  );
   const [popoverPanelIndex, setPopoverPanelIndex] = useState(-1);
   const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const hideDeleteButtonColumns: boolean[] = [];
+  if (node?.item.type === 'Group' && 'rows' in node.item) {
+    for (const row of node.item.rows) {
+      hideDeleteButtonColumns.push(row.groupExpressions?.edit?.deleteButton === false);
+    }
+  }
+  const displayDeleteColumn = hideDeleteButtonColumns.reduce((prev, cur) => prev || cur, false);
 
   const isNested = typeof container.baseComponentId === 'string';
 
@@ -341,7 +339,7 @@ export function RepeatingGroupTable({
                 >
                   <span className={classes.contentFormatting}>
                     {getTextResource(
-                      getTableTitle(componentTextResourceBindingsResolved[tableComponentIndex]),
+                      getTableTitle(tableNodes[tableComponentIndex].item.textResourceBindings || {}),
                       textResources,
                     )}
                   </span>
@@ -396,7 +394,6 @@ export function RepeatingGroupTable({
                     index={index}
                     rowHasErrors={rowHasErrors}
                     tableComponents={tableComponents}
-                    setDisplayDeleteColumn={setDisplayDeleteColumn}
                     onEditClick={() => handleEditClick(index)}
                     mobileView={mobileView}
                     deleteFunctionality={{

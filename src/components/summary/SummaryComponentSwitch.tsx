@@ -3,7 +3,7 @@ import * as React from 'react';
 import SingleInputSummary from 'src/components/summary/SingleInputSummary';
 import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
 import SummaryGroupComponent from 'src/components/summary/SummaryGroupComponent';
-import { useResolvedNode } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import MultipleChoiceSummary from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';

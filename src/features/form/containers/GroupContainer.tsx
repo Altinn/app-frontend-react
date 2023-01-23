@@ -5,8 +5,7 @@ import { Grid } from '@material-ui/core';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { ExprConfigForGroup } from 'src/features/expressions';
-import { useExpressions } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
@@ -43,15 +42,9 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
   const dispatch = useAppDispatch();
   const renderComponents: ILayoutComponent[] = JSON.parse(JSON.stringify(components));
 
-  const edit = useExpressions(container.edit, {
-    forComponentId: id,
-    config: ExprConfigForGroup.edit,
-  });
-
-  const textResourceBindingsResolved = useExpressions(container.textResourceBindings, {
-    forComponentId: id,
-    config: ExprConfigForGroup.textResourceBindings,
-  });
+  const node = useResolvedNode(id);
+  const resolvedTextBindings = node?.item.textResourceBindings;
+  const edit = node?.item.type === 'Group' ? node.item.edit : undefined;
 
   const editIndex = useAppSelector(
     (state: IRuntimeState) =>
@@ -119,9 +112,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       fullWidth
     >
       {`${getLanguageFromKey('general.add_new', language ?? {})} ${
-        textResourceBindingsResolved?.add_button
-          ? getTextResourceByKey(textResourceBindingsResolved.add_button, textResources)
-          : ''
+        resolvedTextBindings?.add_button ? getTextResourceByKey(resolvedTextBindings.add_button, textResources) : ''
       }`}
     </Button>
   );

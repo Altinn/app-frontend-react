@@ -8,12 +8,9 @@ import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
 /**
  * React hook used for getting a memoized LayoutRootNodeCollection where you can look up components.
  *
- * It can optionally also resolve expressions, if provided with expression data sources. If you only
- * want to resolve expressions for a single component, it is more efficient to use the hook specific
- * for that.
+ * Do not use this directly, rather useContext(ExprContext), which will fetch you an already resolved hierarchy.
  *
- * @see useExpressions
- * @see useExpressionsForComponent
+ * @see useResolvedNode
  */
 export function useLayoutsAsNodes(dataSources?: undefined): LayoutRootNodeCollection;
 export function useLayoutsAsNodes(dataSources?: ContextDataSources): LayoutRootNodeCollection<'resolved'>;

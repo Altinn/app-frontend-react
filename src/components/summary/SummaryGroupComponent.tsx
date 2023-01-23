@@ -7,8 +7,8 @@ import cn from 'classnames';
 import { useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
 import { EditButton } from 'src/components/summary/EditButton';
-import GroupInputSummary from 'src/components/summary/GroupInputSummary';
-import { useExpressions } from 'src/features/expressions/useExpressions';
+import { GroupInputSummary } from 'src/components/summary/GroupInputSummary';
+import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import appTheme from 'src/theme/altinnAppTheme';
@@ -21,7 +21,7 @@ import type { ComponentFromSummary } from 'src/features/form/containers/DisplayG
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent } from 'src/layout/layout';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/types';
-import type { IRuntimeState, ITextResourceBindings } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 
 export interface ISummaryGroupComponent {
   pageRef?: string;
@@ -108,9 +108,9 @@ function SummaryGroupComponent({
     shallowEqual,
   );
 
-  const textResourceBindings = useExpressions(groupComponent?.textResourceBindings, {
-    forComponentId: groupComponent?.id,
-  });
+  const node = useResolvedNode(groupComponent);
+  const textResourceBindings = node?.item.textResourceBindings;
+
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const layout = useAppSelector(
     (state) => (state.formLayout.layouts && pageRef && state.formLayout.layouts[pageRef]) || [],
@@ -230,9 +230,9 @@ function SummaryGroupComponent({
             component && (
               <GroupInputSummary
                 key={componentId}
+                componentId={componentId}
                 index={i}
                 formData={formDataForComponent}
-                textResourceBindings={component.textResourceBindings as ITextResourceBindings}
                 textResources={textResources}
               />
             )

@@ -4,16 +4,16 @@ import { makeStyles, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks';
 import { useDisplayData } from 'src/components/hooks';
-import { useExpressions } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import { getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ITextResource, ITextResourceBindings } from 'src/types';
+import type { ITextResource } from 'src/types';
 
 export interface ISingleInputSummary {
+  componentId: string;
   index: number;
   formData: any;
-  textResourceBindings: ITextResourceBindings | undefined;
   textResources: ITextResource[];
 }
 
@@ -30,24 +30,19 @@ const useStyles = makeStyles({
   },
 });
 
-function GroupInputSummary({ index, formData, textResourceBindings, textResources }: ISingleInputSummary) {
+export function GroupInputSummary({ index, componentId, formData, textResources }: ISingleInputSummary) {
   const displayData = useDisplayData({ formData });
   const classes = useStyles();
   const language = useAppSelector((state) => state.language.language);
 
-  const textResourceBindingsResolvedExpressions = useExpressions(textResourceBindings);
-
-  const textResourceBindingsResolvedTextKeys = getVariableTextKeysForRepeatingGroupComponent(
-    textResources,
-    textResourceBindingsResolvedExpressions,
-    index,
-  );
+  const node = useResolvedNode(componentId);
+  const textBindings = node?.item.textResourceBindings;
+  const textKeys = getVariableTextKeysForRepeatingGroupComponent(textResources, textBindings, index);
 
   return (
     <Typography variant='body1'>
       <span>
-        {textResourceBindingsResolvedTextKeys &&
-          getTextFromAppOrDefault(textResourceBindingsResolvedTextKeys.title, textResources, {}, [], false)}
+        {textKeys && getTextFromAppOrDefault(textKeys.title, textResources, {}, [], false)}
         {' : '}
       </span>
       {typeof displayData !== 'undefined' ? (
@@ -58,5 +53,3 @@ function GroupInputSummary({ index, formData, textResourceBindings, textResource
     </Typography>
   );
 }
-
-export default GroupInputSummary;

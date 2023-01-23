@@ -48,9 +48,7 @@ export interface EvalExprInObjArgs<T> {
 export const CONFIG_FOR_ALL_VALUES_IN_OBJ = '__default__';
 
 /**
- * This function is the brains behind the useExpressions() hook, as it will find any expressions inside a deep
- * object and resolve them.
- * @see useExpressions
+ * This function will find any expressions inside a deep object and resolve them
  */
 export function evalExprInObj<T>(args: EvalExprInObjArgs<T>): ExprResolved<T> {
   if (!args.input) {
@@ -161,7 +159,6 @@ function evalExprInObjectCaller<T>(expr: Expression, args: Omit<EvalExprInObjArg
  * Run/evaluate an expression. You have to provide your own context containing functions for looking up external
  * values. If you need a more concrete implementation:
  * @see evalExprInObj
- * @see useExpressions
  */
 export function evalExpr(
   expr: Expression,
@@ -567,8 +564,6 @@ export const ExprTypes: {
  * meant to be performant, and will never get optimized in any way. In addition, it will spit out nice errors in the
  * console for app developers to understand. Use other alternatives in your code instead.
  *
- * @see useExpressions
- * @see useExpressionsForComponent
  * @see resolvedNodesInLayouts
  */
 (window as unknown as IAltinnWindow).evalExpression = (maybeExpression: any, forComponentId?: string) => {
@@ -656,6 +651,16 @@ export const ExprConfigForGroup: ExprObjConfig<ILayoutGroup> = {
       resolvePerRow: true,
     },
     save_button: {
+      returnType: 'string',
+      defaultValue: '',
+      resolvePerRow: true,
+    },
+    edit_button_close: {
+      returnType: 'string',
+      defaultValue: '',
+      resolvePerRow: true,
+    },
+    edit_button_open: {
       returnType: 'string',
       defaultValue: '',
       resolvePerRow: true,

@@ -6,7 +6,7 @@ import { Delete as DeleteIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { AltinnButton } from 'src/components/shared';
-import { useResolvedNode } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import theme from 'src/theme/altinnStudioTheme';
 import { renderGenericComponent } from 'src/utils/layout';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';

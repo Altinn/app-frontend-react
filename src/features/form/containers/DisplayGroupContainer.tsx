@@ -4,7 +4,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks';
-import { useResolvedNode } from 'src/features/expressions/useExpressions';
+import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import printStyles from 'src/styles/print.module.css';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
