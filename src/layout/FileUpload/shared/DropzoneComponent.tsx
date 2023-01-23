@@ -57,9 +57,14 @@ export function DropzoneComponent({
   validFileEndings,
   textResourceBindings,
 }: IDropzoneComponentProps): JSX.Element {
+  const maxSizeLabelId = `file-upload-max-size-${id}`;
+
   return (
     <div>
-      <div className='file-upload-text-bold-small'>
+      <div
+        className='file-upload-text-bold-small'
+        id={maxSizeLabelId}
+      >
         {`${getLanguageFromKey('form_filler.file_uploader_max_size', language)} ${maxFileSizeInMB} ${getLanguageFromKey(
           'form_filler.file_uploader_mb',
           language,
@@ -86,8 +91,8 @@ export function DropzoneComponent({
           const dragLabelId = `file-upload-drag-${id}`;
           const formatLabelId = `file-upload-format-${id}`;
           const ariaDescribedBy = descriptionId
-            ? `${descriptionId} ${dragLabelId} ${formatLabelId}`
-            : `${dragLabelId} ${formatLabelId}`;
+            ? `${descriptionId} ${maxSizeLabelId} ${dragLabelId} ${formatLabelId}`
+            : `${maxSizeLabelId} ${dragLabelId} ${formatLabelId}`;
 
           return (
             <div
