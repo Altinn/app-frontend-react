@@ -182,15 +182,13 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
                 }}
               />
             ) : (
-              <div>
-                <Button
-                  onClick={() => props.onSave(props.attachment)}
-                  id={`attachment-save-tag-button-${props.attachment.id}`}
-                  disabled={saveIsDisabled}
-                >
-                  {getLanguageFromKey('general.save', props.language)}
-                </Button>
-              </div>
+              <Button
+                onClick={() => props.onSave(props.attachment)}
+                id={`attachment-save-tag-button-${props.attachment.id}`}
+                disabled={saveIsDisabled}
+              >
+                {getLanguageFromKey('general.save', props.language)}
+              </Button>
             )}
           </Grid>
         </Grid>
