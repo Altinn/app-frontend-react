@@ -62,10 +62,6 @@ const useStyles = makeStyles({
   },
 });
 
-const style = {
-  marginBottom: 12,
-};
-
 export function RepeatingGroupsEditContainer({
   id,
   className,
@@ -121,6 +117,8 @@ export function RepeatingGroupsEditContainer({
   };
 
   const isNested = typeof group.baseComponentId === 'string';
+  const saveButtonVisible = !hideSaveButton || (group.edit?.saveAndNextButton === true && nextIndex === null);
+  const saveAndNextButtonVisible = group.edit?.saveAndNextButton === true && nextIndex !== null;
 
   return (
     <div
@@ -185,37 +183,46 @@ export function RepeatingGroupsEditContainer({
         </Grid>
         <Grid item={true}>
           {group.edit?.multiPage && (
-            <div style={style}>
-              {typeof multiPageIndex === 'number' &&
-                multiPageIndex > -1 &&
-                group.children.find((childId) => childId.startsWith(`${multiPageIndex + 1}:`)) && (
-                  <Button
-                    variant={ButtonVariant.Outline}
-                    color={ButtonColor.Primary}
-                    onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
-                  >
-                    {getLanguageFromKey('general.next', language)}
-                  </Button>
-                )}
+            <Grid
+              container={true}
+              direction='row'
+              spacing={1}
+              style={{ marginBottom: 12 }}
+            >
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > 0 &&
                 group.children.find((childId) => childId.startsWith(`${multiPageIndex - 1}:`)) && (
-                  <Button
-                    variant={ButtonVariant.Outline}
-                    color={ButtonColor.Primary}
-                    onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
-                  >
-                    {getLanguageFromKey('general.back', language)}
-                  </Button>
+                  <Grid item={true}>
+                    <Button
+                      variant={ButtonVariant.Outline}
+                      color={ButtonColor.Primary}
+                      onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
+                    >
+                      {getLanguageFromKey('general.back', language)}
+                    </Button>
+                  </Grid>
                 )}
-            </div>
+              {typeof multiPageIndex === 'number' &&
+                multiPageIndex > -1 &&
+                group.children.find((childId) => childId.startsWith(`${multiPageIndex + 1}:`)) && (
+                  <Grid item={true}>
+                    <Button
+                      variant={ButtonVariant.Outline}
+                      color={ButtonColor.Primary}
+                      onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
+                    >
+                      {getLanguageFromKey('general.next', language)}
+                    </Button>
+                  </Grid>
+                )}
+            </Grid>
           )}
           <Grid
             container={true}
             direction='row'
-            spacing={2}
+            spacing={1}
           >
-            {group.edit?.saveAndNextButton === true && nextIndex !== null && (
+            {saveAndNextButtonVisible && (
               <Grid item={true}>
                 <Button
                   id={`next-button-grp-${id}`}
@@ -229,12 +236,12 @@ export function RepeatingGroupsEditContainer({
                 </Button>
               </Grid>
             )}
-            {(!hideSaveButton || (group.edit?.saveAndNextButton === true && nextIndex === null)) && (
+            {saveButtonVisible && (
               <Grid item={true}>
                 <Button
                   id={`add-button-grp-${id}`}
                   onClick={saveClicked}
-                  variant={ButtonVariant.Outline}
+                  variant={saveAndNextButtonVisible ? ButtonVariant.Outline : ButtonVariant.Filled}
                   color={ButtonColor.Primary}
                 >
                   {group.textResourceBindings?.save_button

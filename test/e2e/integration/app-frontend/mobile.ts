@@ -1,4 +1,3 @@
-import * as texts from 'test/e2e/fixtures/texts.json';
 import AppFrontend from 'test/e2e/pageobjects/app-frontend';
 import Common from 'test/e2e/pageobjects/common';
 import { Datalist } from 'test/e2e/pageobjects/datalist';
@@ -29,12 +28,12 @@ describe('Mobile', () => {
       });
     cy.sendIn();
     cy.wait('@getLayoutGroup');
-    cy.contains(mui.button, texts.next).click();
+    cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.group.showGroupToContinue).then((checkbox) => {
       cy.wrap(checkbox).should('be.visible').find('input').check();
     });
     cy.addItemToGroup(1, 2, 'automation');
-    cy.contains(mui.button, texts.next).click();
+    cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.group.sendersName).should('be.visible').type('automation');
     cy.get(appFrontend.navMenu).should('have.attr', 'hidden');
     cy.get(appFrontend.group.navigationBarButton)
@@ -49,7 +48,7 @@ describe('Mobile', () => {
     likertPage.selectRequiredRadiosInMobile();
     cy.sendIn();
     cy.get(dataListPage.tableBody).contains('Caroline').parent('div').parent('td').parent('tr').click();
-    cy.contains(mui.button, texts.next).click();
+    cy.get(appFrontend.nextButton).click();
     cy.sendIn();
 
     cy.get(appFrontend.confirm.sendIn).should('be.visible').click();

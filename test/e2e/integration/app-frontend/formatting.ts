@@ -1,4 +1,3 @@
-import * as texts from 'test/e2e/fixtures/texts.json';
 import AppFrontend from 'test/e2e/pageobjects/app-frontend';
 import Common from 'test/e2e/pageobjects/common';
 
@@ -22,7 +21,7 @@ describe('Formatting', () => {
     cy.intercept('**/api/layoutsettings/group').as('getLayoutGroup');
     cy.get(appFrontend.sendinButton).should('be.visible').click();
     cy.wait('@getLayoutGroup');
-    cy.contains(mui.button, texts.next).click();
+    cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.group.showGroupToContinue).then((checkbox) => {
       cy.wrap(checkbox).should('be.visible').find('input').check();
     });

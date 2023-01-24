@@ -38,7 +38,7 @@ describe('Repeating group attachments', () => {
 
   beforeEach(() => {
     cy.goto('group');
-    cy.contains(mui.button, texts.next).click();
+    cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.group.showGroupToContinue).then((checkbox) => {
       cy.wrap(checkbox).should('be.visible').find('input').check();
     });
