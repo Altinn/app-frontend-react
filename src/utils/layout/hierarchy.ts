@@ -425,12 +425,12 @@ export class LayoutNode<NT extends NodeType = 'unresolved', Item extends AnyItem
     let list: AnyItem<NT>[] = [];
     if (this.item.type === 'Group' && 'rows' in this.item) {
       if (typeof onlyInRowIndex === 'number') {
-        list = this.item.rows.find((r) => r.index === onlyInRowIndex)?.items || [];
+        list = this.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || [];
       } else {
         // Beware: In most cases this will just match the first row.
         list = Object.values(this.item.rows)
-          .map((r) => r.items)
-          .flat();
+          .map((r) => r && r.items)
+          .flat() as AnyItem<NT>[];
       }
     } else if (this.item.type === 'Group' && 'childComponents' in this.item) {
       list = this.item.childComponents;
@@ -622,7 +622,7 @@ export function nodesInLayout(
     for (const component of list) {
       if (component.type === 'Group' && 'rows' in component) {
         const group: AnyParentNode = new LayoutNode(component, parent, root, rowIndex);
-        component.rows.forEach((row) => recurse(row.items, group, row.index));
+        component.rows.forEach((row) => row && recurse(row.items, group, row.index));
         root._addChild(group);
       } else if (component.type === 'Group' && 'childComponents' in component) {
         const group = new LayoutNode(component, parent, root, rowIndex);
@@ -699,6 +699,9 @@ export function resolvedNodesInLayouts(
 
       if (node.item.type === 'Group' && 'rows' in node.item) {
         for (const row of node.item.rows) {
+          if (!row) {
+            continue;
+          }
           const firstItem = row.items[0];
           if (!firstItem) {
             continue;

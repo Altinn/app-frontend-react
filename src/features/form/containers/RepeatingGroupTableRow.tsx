@@ -152,10 +152,9 @@ export function RepeatingGroupTableRow({
     deleteFunctionality || {};
 
   const node = useResolvedNode(id);
-  const expressionsForRow =
-    node?.item.type === 'Group' && 'rows' in node.item && node.item.rows[index].groupExpressions
-      ? node.item.rows[index].groupExpressions
-      : undefined;
+  const row =
+    node?.item.type === 'Group' && 'rows' in node.item && node.item.rows[index] ? node.item.rows[index] : undefined;
+  const expressionsForRow = row && row.groupExpressions;
   const edit = {
     ...(node?.item.type === 'Group' && node.item.edit),
     ...expressionsForRow?.edit,

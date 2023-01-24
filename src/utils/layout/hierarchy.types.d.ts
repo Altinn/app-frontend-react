@@ -44,7 +44,7 @@ export type RepeatingGroupHierarchy<NT extends NodeType = 'unresolved'> = Omit<
   'childComponents' | 'children'
 > &
   RepeatingGroupExtensions & {
-    rows: RepeatingGroupHierarchyRow<NT>[];
+    rows: (RepeatingGroupHierarchyRow<NT> | undefined)[];
   };
 
 /**

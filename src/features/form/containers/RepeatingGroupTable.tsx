@@ -213,7 +213,7 @@ export function RepeatingGroupTable({
   const showDeleteButtonColumns = new Set<boolean>();
   if (node?.item.type === 'Group' && 'rows' in node.item) {
     for (const row of node.item.rows) {
-      showDeleteButtonColumns.add(row.groupExpressions?.edit?.deleteButton !== false);
+      showDeleteButtonColumns.add(row?.groupExpressions?.edit?.deleteButton !== false);
     }
   }
   const displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);

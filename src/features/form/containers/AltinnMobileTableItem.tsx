@@ -159,8 +159,8 @@ export default function AltinnMobileTableItem({
 
   const node = useResolvedNode(container);
   const expressionsForRow =
-    node?.item.type === 'Group' && 'rows' in node.item && node.item.rows[tableItemIndex].groupExpressions
-      ? node.item.rows[tableItemIndex].groupExpressions
+    node?.item.type === 'Group' && 'rows' in node.item && node.item.rows[tableItemIndex]?.groupExpressions
+      ? node.item.rows[tableItemIndex]?.groupExpressions
       : undefined;
 
   const textResourceBindings = {

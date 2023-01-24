@@ -92,8 +92,8 @@ export function RepeatingGroupsEditContainer({
     return null;
   }
 
-  const textsForRow = 'rows' in group ? group.rows[editIndex].groupExpressions?.textResourceBindings : undefined;
-  const editForRow = 'rows' in group ? group.rows[editIndex].groupExpressions?.edit : undefined;
+  const textsForRow = 'rows' in group ? group.rows[editIndex]?.groupExpressions?.textResourceBindings : undefined;
+  const editForRow = 'rows' in group ? group.rows[editIndex]?.groupExpressions?.edit : undefined;
   const editForGroup = group.type === 'Group' ? group.edit : undefined;
 
   const texts = {

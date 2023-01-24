@@ -557,11 +557,11 @@ describe('Hierarchical layout tools', () => {
     expect(uniqueHidden(nodes.current()?.children())).toEqual(plain);
 
     if (group2?.item.type === 'Group' && 'rows' in group2.item) {
-      expect(group2.item.rows[0].items[1].hidden).toEqual(true);
-      expect(group2.item.rows[0].items[2].hidden).toEqual(true);
-      const group2n = group2.item.rows[0].items[2];
-      if (group2n.type === 'Group' && 'rows' in group2n) {
-        expect(group2n.rows[0].items[1].hidden).toEqual(true);
+      expect(group2.item.rows[0]?.items[1].hidden).toEqual(true);
+      expect(group2.item.rows[0]?.items[2].hidden).toEqual(true);
+      const group2n = group2.item.rows[0]?.items[2];
+      if (group2n?.type === 'Group' && 'rows' in group2n) {
+        expect(group2n.rows[0]?.items[1].hidden).toEqual(true);
       } else {
         expect(false).toEqual(true);
       }
