@@ -1,13 +1,14 @@
 import type { $Values } from 'utility-types';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex, getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
-import type { IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
+import type { IMapping, IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
 import type {
   AnyChildNode,
   AnyItem,
@@ -136,6 +137,9 @@ export function layoutAsHierarchyWithRows(
   formLayout: ILayout,
   repeatingGroups: IRepeatingGroups | null,
 ): HierarchyWithRows[] {
+  /**
+   * @see createRepeatingGroupComponentsForIndex
+   */
   const rewriteDataModelBindings = (
     main: LayoutGroupHierarchy,
     child: LayoutGroupHierarchy | ILayoutComponent,
@@ -162,6 +166,32 @@ export function layoutAsHierarchyWithRows(
     }
   };
 
+  /**
+   * @see setMappingForRepeatingGroupComponent
+   */
+  const rewriteMappingReferences = (
+    newChild: RepeatingGroupLayoutComponent,
+    parent: HierarchyParent | undefined,
+    index: number,
+  ) => {
+    if (!('mapping' in newChild) || !newChild.mapping) {
+      return;
+    }
+
+    const indexes = parent ? [parent.index, index] : [index];
+    const mappingKeys = Object.keys(newChild.mapping);
+    const newMapping: IMapping = {};
+    for (const oldKey of mappingKeys) {
+      let newKey = oldKey;
+      for (const i of indexes) {
+        newKey = newKey.replace(INDEX_KEY_INDICATOR_REGEX, `[${i}]`);
+      }
+      newMapping[newKey] = newChild.mapping[oldKey];
+    }
+
+    newChild.mapping = newMapping;
+  };
+
   const recurse = (main: ILayoutComponent | LayoutGroupHierarchy, parent?: HierarchyParent) => {
     if (main.type === 'Group' && main.maxCount && main.maxCount > 1) {
       const rows: RepeatingGroupHierarchy['rows'] = [];
@@ -182,6 +212,8 @@ export function layoutAsHierarchyWithRows(
           if (child.dataModelBindings) {
             rewriteDataModelBindings(main, child, newChild, parent, index);
           }
+
+          rewriteMappingReferences(newChild, parent, index);
 
           return recurse(newChild, {
             index,
