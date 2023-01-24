@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { Provider } from 'react-redux';
 
-import { render } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 
 import { getFormDataStateMock, getFormLayoutStateMock, getInitialStateMock } from 'src/__mocks__/mocks';
 import SummaryGroupComponent from 'src/components/summary/SummaryGroupComponent';
+import { renderWithProviders } from 'src/testUtils';
 import type { ISummaryGroupComponent } from 'src/components/summary/SummaryGroupComponent';
 
 describe('SummaryGroupComponent', () => {
@@ -133,13 +132,12 @@ describe('SummaryGroupComponent', () => {
       onChangeClick: mockHandleDataChange,
     };
 
-    return render(
-      <Provider store={mockStore}>
-        <SummaryGroupComponent
-          {...defaultProps}
-          {...props}
-        />
-      </Provider>,
+    return renderWithProviders(
+      <SummaryGroupComponent
+        {...defaultProps}
+        {...props}
+      />,
+      { store: mockStore },
     );
   }
 });
