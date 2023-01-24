@@ -36,6 +36,7 @@ import type {
   ILayoutCompBase,
   ILayoutComponent,
 } from 'src/layout/layout';
+import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { ILabelSettings, LayoutStyle } from 'src/types';
 
 export interface IGenericComponentProps {
@@ -97,15 +98,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
-  _props: IActualGenericComponentProps<Type>,
+  passedProps: IActualGenericComponentProps<Type>,
 ) {
-  const props = useResolvedNode(_props as ILayoutComponent)?.item as ExprResolved<
-    IActualGenericComponentProps<Type>
-  > & {
+  const evaluatedProps = useResolvedNode(passedProps as ILayoutComponent)?.item;
+
+  const props = {
+    ...passedProps,
+    ...evaluatedProps,
+  } as ExprResolved<IActualGenericComponentProps<Type>> & {
     type: Type;
   };
 
-  const { id, ...passThroughProps } = props;
+  const id = props.id;
   const dispatch = useAppDispatch();
   const classes = useStyles(props);
   const gridRef = React.useRef<HTMLDivElement>(null);
@@ -202,7 +206,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
     );
   };
 
-  const layoutComponent = getLayoutComponentObject(_props.type);
+  const layoutComponent = getLayoutComponentObject(props.type) as LayoutComponent<Type> | undefined;
   if (!layoutComponent) {
     return (
       <div>
@@ -273,13 +277,12 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
     formData,
     isValid,
     language,
-    id,
     shouldFocus,
     text: texts.title,
     label: RenderLabel,
     legend: RenderLegend,
     componentValidations,
-    ...passThroughProps,
+    ...props,
   } as unknown as PropsFromGenericComponent<Type>;
 
   const showValidationMessages = hasValidationMessages && layoutComponent.renderDefaultValidations();
