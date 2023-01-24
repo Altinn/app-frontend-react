@@ -1,10 +1,8 @@
 import AppFrontend from 'test/e2e/pageobjects/app-frontend';
-import Common from 'test/e2e/pageobjects/common';
 
 import { Triggers } from 'src/types';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
 
 describe('Calculate Page Order', () => {
   it('Testing combinations of old and new hidden pages functionalities', () => {

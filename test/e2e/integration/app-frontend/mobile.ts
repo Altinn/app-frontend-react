@@ -1,10 +1,8 @@
 import AppFrontend from 'test/e2e/pageobjects/app-frontend';
-import Common from 'test/e2e/pageobjects/common';
 import { Datalist } from 'test/e2e/pageobjects/datalist';
 import { Likert } from 'test/e2e/pageobjects/likert';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
 const likertPage = new Likert();
 const dataListPage = new Datalist();
 

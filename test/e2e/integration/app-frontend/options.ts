@@ -1,8 +1,6 @@
 import AppFrontend from 'test/e2e/pageobjects/app-frontend';
-import Common from 'test/e2e/pageobjects/common';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
 
 describe('Options', () => {
   it('is possible to retrieve options dynamically', () => {

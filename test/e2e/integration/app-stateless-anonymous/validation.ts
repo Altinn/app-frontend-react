@@ -1,9 +1,7 @@
 import * as texts from 'test/e2e/fixtures/texts.json';
 import AppFrontend from 'test/e2e/pageobjects/app-frontend';
-import Common from 'test/e2e/pageobjects/common';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
 
 describe('Validation in anonymous stateless app', () => {
   beforeEach(() => {
