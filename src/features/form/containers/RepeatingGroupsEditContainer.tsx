@@ -5,7 +5,6 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Delete as DeleteIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { AltinnButton } from 'src/components/shared';
 import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import theme from 'src/theme/altinnStudioTheme';
 import { renderGenericComponent } from 'src/utils/layout';
@@ -37,6 +36,7 @@ export interface IRepeatingGroupsEditContainer {
 
 const useStyles = makeStyles({
   editContainer: {
+    backgroundColor: '#f1fbff',
     width: '100%',
     display: 'inline-block',
     padding: '12px 24px',
@@ -48,25 +48,21 @@ const useStyles = makeStyles({
     },
   },
   nestedEditContainer: {
+    backgroundColor: '#f1fbff',
     width: '100%',
     display: 'inline-block',
     padding: '12px 24px',
   },
-  deleteItem: {
-    paddingBottom: '0px !important',
-    paddingTop: '0px !important',
-  },
-  showAll: {
-    backgroundColor: '#f1fbff',
+  hideTable: {
     borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
     borderBottom: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
     marginBottom: '-2px',
   },
+  nestedHideTable: {
+    borderRight: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+    borderLeft: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
+  },
 });
-
-const style = {
-  marginBottom: 12,
-};
 
 export function RepeatingGroupsEditContainer({
   id,
@@ -106,8 +102,6 @@ export function RepeatingGroupsEditContainer({
     ...editForRow,
   } as ExprResolved<IGroupEditProperties>;
 
-  const hideSaveButton = forceHideSaveButton || edit?.saveButton === false;
-
   let nextIndex: number | null = null;
   if (filteredIndexes) {
     const filteredIndex = filteredIndexes.indexOf(editIndex);
@@ -137,46 +131,51 @@ export function RepeatingGroupsEditContainer({
   };
 
   const isNested = typeof group.baseComponentId === 'string';
+  const saveButtonVisible =
+    !forceHideSaveButton && (edit?.saveButton !== false || (edit.saveAndNextButton === true && nextIndex === null));
+  const saveAndNextButtonVisible = !forceHideSaveButton && edit.saveAndNextButton === true && nextIndex !== null;
+
+  const hideTable = edit.mode === 'hideTable' || edit.mode === 'showAll';
 
   return (
     <div
       className={cn(
         isNested ? classes.nestedEditContainer : classes.editContainer,
-        { [classes.showAll]: edit?.mode === 'showAll' },
+        { [classes.hideTable]: hideTable, [classes.nestedHideTable]: hideTable && isNested },
         className,
       )}
+      style={{ marginBottom: isNested && edit?.mode === 'showAll' ? 15 : undefined }}
       data-testid='group-edit-container'
     >
+      {edit?.deleteButton !== false && edit?.mode === 'showAll' && (
+        <Grid
+          item={true}
+          container={true}
+          direction='column'
+          alignItems='flex-end'
+          spacing={3}
+        >
+          <Grid item={true}>
+            <Button
+              variant={ButtonVariant.Quiet}
+              color={ButtonColor.Danger}
+              icon={<DeleteIcon />}
+              iconPlacement='right'
+              disabled={deleting}
+              onClick={removeClicked}
+              data-testid='delete-button'
+            >
+              {getLanguageFromKey('general.delete', language)}
+            </Button>
+          </Grid>
+        </Grid>
+      )}
       <Grid
         container={true}
         item={true}
         direction='row'
         spacing={3}
       >
-        {edit?.deleteButton !== false && edit?.mode === 'showAll' && (
-          <Grid
-            item={true}
-            container={true}
-            direction='column'
-            alignItems='flex-end'
-            spacing={3}
-            className={classes.deleteItem}
-          >
-            <Grid item={true}>
-              <Button
-                variant={ButtonVariant.Quiet}
-                color={ButtonColor.Danger}
-                icon={<DeleteIcon />}
-                iconPlacement='right'
-                disabled={deleting}
-                onClick={removeClicked}
-                data-testid='delete-button'
-              >
-                {getLanguageFromKey('general.delete', language)}
-              </Button>
-            </Grid>
-          </Grid>
-        )}
         <Grid
           container={true}
           alignItems='flex-start'
@@ -203,33 +202,46 @@ export function RepeatingGroupsEditContainer({
         </Grid>
         <Grid item={true}>
           {edit?.multiPage && (
-            <div style={style}>
-              {typeof multiPageIndex === 'number' &&
-                multiPageIndex > -1 &&
-                container.children.find((childId) => childId.startsWith(`${multiPageIndex + 1}:`)) && (
-                  <AltinnButton
-                    btnText={getLanguageFromKey('general.next', language)}
-                    secondaryButton={true}
-                    onClickFunction={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
-                  />
-                )}
+            <Grid
+              container={true}
+              direction='row'
+              spacing={1}
+              style={{ marginBottom: 12 }}
+            >
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > 0 &&
                 container.children.find((childId) => childId.startsWith(`${multiPageIndex - 1}:`)) && (
-                  <AltinnButton
-                    btnText={getLanguageFromKey('general.back', language)}
-                    secondaryButton={true}
-                    onClickFunction={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
-                  />
+                  <Grid item={true}>
+                    <Button
+                      variant={ButtonVariant.Outline}
+                      color={ButtonColor.Primary}
+                      onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
+                    >
+                      {getLanguageFromKey('general.back', language)}
+                    </Button>
+                  </Grid>
                 )}
-            </div>
+              {typeof multiPageIndex === 'number' &&
+                multiPageIndex > -1 &&
+                container.children.find((childId) => childId.startsWith(`${multiPageIndex + 1}:`)) && (
+                  <Grid item={true}>
+                    <Button
+                      variant={ButtonVariant.Outline}
+                      color={ButtonColor.Primary}
+                      onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
+                    >
+                      {getLanguageFromKey('general.next', language)}
+                    </Button>
+                  </Grid>
+                )}
+            </Grid>
           )}
           <Grid
             container={true}
             direction='row'
-            spacing={2}
+            spacing={1}
           >
-            {edit?.saveAndNextButton === true && nextIndex !== null && (
+            {saveAndNextButtonVisible && (
               <Grid item={true}>
                 <Button
                   id={`next-button-grp-${id}`}
@@ -243,12 +255,12 @@ export function RepeatingGroupsEditContainer({
                 </Button>
               </Grid>
             )}
-            {(!hideSaveButton || (edit?.saveAndNextButton === true && nextIndex === null)) && (
+            {saveButtonVisible && (
               <Grid item={true}>
                 <Button
                   id={`add-button-grp-${id}`}
                   onClick={saveClicked}
-                  variant={ButtonVariant.Outline}
+                  variant={saveAndNextButtonVisible ? ButtonVariant.Outline : ButtonVariant.Filled}
                   color={ButtonColor.Primary}
                 >
                   {texts?.save_button
