@@ -50,12 +50,7 @@ export default function Legend(props: IFormLegendProps) {
 
   return (
     <>
-      <label
-        className='a-form-label title-label'
-        htmlFor={props.id}
-      >
-        {LabelText}
-      </label>
+      <legend className='a-form-label title-label'>{LabelText}</legend>
       {props.descriptionText && (
         <Description
           description={props.descriptionText}

@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { CheckboxGroup, CheckboxGroupVariant } from '@altinn/altinn-design-system';
-import { FormLabel } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import cn from 'classnames';
 
@@ -97,12 +96,12 @@ export const CheckboxContainerComponent = ({
 
   return (
     <>
-      <FormLabel
-        component='legend'
-        classes={{ root: cn(classes.legend) }}
+      <div
+        id={`${id}-label`}
+        className={cn(classes.legend)}
       >
         <RenderLegend />
-      </FormLabel>
+      </div>
       {fetchingOptions ? (
         <AltinnSpinner />
       ) : (

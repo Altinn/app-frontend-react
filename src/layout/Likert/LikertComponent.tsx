@@ -1,10 +1,10 @@
 import React from 'react';
 
+import { RadioButton } from '@altinn/altinn-design-system';
 import { Box, TableCell, TableRow } from '@material-ui/core';
 
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
-import { StyledRadio } from 'src/layout/RadioButtons/StyledRadio';
 import { LayoutStyle } from 'src/types';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
@@ -40,6 +40,7 @@ const RadioGroupTableRow = ({
   groupContainerId,
   componentValidations,
   legend,
+  isValid,
 }: IControlledRadioGroupProps) => {
   const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
@@ -61,32 +62,24 @@ const RadioGroupTableRow = ({
       {calculatedOptions?.map((option, colIndex) => {
         // column label must reference correct id of header in table
         const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
-        const inputId = `input-${id}-${colIndex}`;
+        const inputId = `${id}-${colIndex}`;
         const isChecked = selected === option.value;
         return (
-          <TableCell key={option.value}>
-            <label
-              htmlFor={inputId}
-              style={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-              }}
-            >
-              <StyledRadio
-                inputProps={{
-                  'aria-labelledby': `${rowLabelId} ${colLabelId}`,
-                  id: inputId,
-                  role: 'radio',
-                  name: rowLabelId,
-                  'aria-checked': isChecked,
-                }}
-                checked={isChecked}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={option.value}
-              />
-            </label>
+          <TableCell
+            key={option.value}
+            align={'center'}
+            onBlur={handleBlur}
+          >
+            <RadioButton
+              checked={isChecked}
+              onChange={handleChange}
+              value={option.value}
+              label={`${rowLabelId} ${colLabelId}`}
+              hideLabel={true}
+              name={rowLabelId}
+              radioId={inputId}
+              error={!isValid}
+            />
           </TableCell>
         );
       })}
