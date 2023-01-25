@@ -266,12 +266,6 @@ select.disabled {
   outline-offset: var(--border_width-standard);
 }
 
-/*
-outline: var(--interactive_components-colors-focus_outline) solid
-    var(--border_width-standard);
-  outline-offset: var(--border_width-standard);
-*/
-
 .a-modal-back,
 .a-modal-close {
   background: transparent;

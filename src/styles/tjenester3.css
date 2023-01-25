@@ -19878,12 +19878,7 @@ body.modal-open {
   border: none;
   opacity: 0.7;
 }
-.a-modal-close:focus,
-.a-modal-back:focus {
-  background: #cff0ff;
-  border: none;
-  outline: 3px solid #022f51;
-}
+
 .a-modal-close span.ai-stack i,
 .a-modal-close span.reg-stack i,
 .a-modal-back span.ai-stack i,
