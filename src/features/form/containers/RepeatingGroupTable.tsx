@@ -4,7 +4,6 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@altinn/alti
 import { createTheme, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import {
   fullWidthWrapper,
   xPaddingLarge,
@@ -17,6 +16,7 @@ import altinnAppTheme from 'src/theme/altinnAppTheme';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { setupGroupComponents } from 'src/utils/layout';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { componentHasValidations, repeatingGroupHasValidations } from 'src/utils/validation';
 import type { IFormData } from 'src/features/form/data';

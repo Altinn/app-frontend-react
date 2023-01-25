@@ -6,7 +6,6 @@ import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
@@ -17,6 +16,7 @@ import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
 import { getHiddenFieldsForGroup } from 'src/utils/layout';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';

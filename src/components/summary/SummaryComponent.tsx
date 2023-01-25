@@ -7,7 +7,6 @@ import cn from 'classnames';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import ErrorPaper from 'src/components/message/ErrorPaper';
 import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
-import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
@@ -18,6 +17,7 @@ import {
   getComponentValidations,
   getDisplayFormDataForComponent,
 } from 'src/utils/formComponentUtils';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ILayoutComponent } from 'src/layout/layout';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';

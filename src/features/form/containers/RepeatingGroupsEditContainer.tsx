@@ -5,9 +5,9 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Delete as DeleteIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
 import theme from 'src/theme/altinnStudioTheme';
 import { renderGenericComponent } from 'src/utils/layout';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGroupEditProperties, ILayoutGroup } from 'src/layout/Group/types';

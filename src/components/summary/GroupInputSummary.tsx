@@ -4,7 +4,7 @@ import { makeStyles, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks';
 import { useDisplayData } from 'src/components/hooks';
-import { useResolvedNode } from 'src/features/expressions/useResolvedNode';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ITextResource } from 'src/types';
