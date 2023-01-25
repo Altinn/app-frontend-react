@@ -29,6 +29,7 @@ describe('SummaryGroupComponent', () => {
             edit: {
               multiPage: true,
             },
+            maxCount: 3,
           },
           {
             type: 'Input',
