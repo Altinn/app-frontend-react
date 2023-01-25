@@ -242,35 +242,30 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
         editIndex < 0 &&
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) &&
         addButton()}
-      {editIndex >= 0 && edit?.mode === 'hideTable' && (
-        <ConditionalWrapper
-          condition={!isNested}
-          wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
-        >
-          <RepeatingGroupsEditContainer
-            container={container}
-            editIndex={editIndex}
-            setEditIndex={setEditIndex}
-            repeatingGroupIndex={repeatingGroupIndex}
-            id={id}
-            language={language}
-            textResources={textResources}
-            layout={layout}
-            repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-            multiPageIndex={multiPageIndex}
-            setMultiPageIndex={setMultiPageIndex}
-            filteredIndexes={filteredIndexList}
-          />
-        </ConditionalWrapper>
-      )}
-      {edit?.mode === 'showAll' && (
-        // Generate array of length repeatingGroupIndex and iterate over indexes
-        <ConditionalWrapper
-          condition={!isNested}
-          wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
-        >
-          <>
-            {Array(repeatingGroupIndex + 1)
+      <ConditionalWrapper
+        condition={!isNested}
+        wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
+      >
+        <>
+          {editIndex >= 0 && edit?.mode === 'hideTable' && (
+            <RepeatingGroupsEditContainer
+              container={container}
+              editIndex={editIndex}
+              setEditIndex={setEditIndex}
+              repeatingGroupIndex={repeatingGroupIndex}
+              id={id}
+              language={language}
+              textResources={textResources}
+              layout={layout}
+              repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
+              multiPageIndex={multiPageIndex}
+              setMultiPageIndex={setMultiPageIndex}
+              filteredIndexes={filteredIndexList}
+            />
+          )}
+          {edit?.mode === 'showAll' &&
+            // Generate array of length repeatingGroupIndex and iterate over indexes
+            Array(repeatingGroupIndex + 1)
               .fill(0)
               .map((_, index) => {
                 if (filteredIndexList && filteredIndexList.length > 0 && !filteredIndexList.includes(index)) {
@@ -299,9 +294,8 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
                   </div>
                 );
               })}
-          </>
-        </ConditionalWrapper>
-      )}
+        </>
+      </ConditionalWrapper>
       {edit?.mode === 'showAll' &&
         edit?.addButton !== false &&
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) &&
