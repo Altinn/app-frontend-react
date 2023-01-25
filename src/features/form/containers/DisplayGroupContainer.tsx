@@ -13,7 +13,6 @@ import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup } from 'src/lay
 
 export type ComponentFromSummary = ILayoutComponentOrGroup & {
   formData?: any;
-  index?: number;
   parentGroup?: string;
 };
 

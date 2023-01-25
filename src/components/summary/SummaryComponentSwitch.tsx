@@ -23,10 +23,8 @@ export interface ISummaryComponentSwitch extends Omit<ILayoutCompSummary, 'type'
   label?: JSX.Element | JSX.Element[] | null | undefined;
   formData?: any;
   groupProps?: {
-    parentGroup?: string;
     pageRef?: string;
     largeGroup?: boolean;
-    index?: number;
   };
 }
 
