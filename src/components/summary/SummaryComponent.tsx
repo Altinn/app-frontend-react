@@ -19,7 +19,6 @@ import {
   getDisplayFormDataForComponent,
 } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutComponent } from 'src/layout/layout';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
@@ -78,13 +77,15 @@ export function SummaryComponent(_props: ISummaryComponent) {
     state.formLayout.layouts && pageRef ? state.formLayout.layouts[pageRef] : undefined,
   );
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
-  const _formComponent = useAppSelector((state) => {
-    return (
-      (state.formLayout.layouts && pageRef && state.formLayout.layouts[pageRef]?.find((c) => c.id === componentRef)) ||
-      undefined
-    );
-  });
-  const formComponent = useResolvedNode(_formComponent)?.item;
+  const formComponent = useResolvedNode(componentRef)?.item;
+  const formComponentPlain = useAppSelector(
+    (state) =>
+      (state.formLayout.layouts &&
+        pageRef &&
+        state.formLayout.layouts[pageRef]?.find((c) => c.id === formComponent?.baseComponentId || formComponent?.id)) ||
+      undefined,
+  );
+
   const summaryComponent = useResolvedNode(container)?.item;
 
   const goToCorrectPageLinkText = useAppSelector((state) => {
@@ -157,22 +158,22 @@ export function SummaryComponent(_props: ISummaryComponent) {
     }
   }, [formValidations, layout, pageRef, formComponent, componentRef, index]);
 
-  if (hidden) {
+  if (hidden || !formComponent || !formComponentPlain) {
     return null;
   }
+
   const change = {
     onChangeClick,
     changeText,
   };
 
-  if (formComponent?.type === 'Group' && (!formComponent.maxCount || formComponent.maxCount <= 1)) {
+  if (formComponentPlain?.type === 'Group' && (!formComponentPlain.maxCount || formComponentPlain.maxCount <= 1)) {
     // Display children as summary components
-    const plainGroup = _formComponent as ILayoutGroup;
-    const groupComponents = mapGroupComponents(plainGroup, layout);
+    const groupComponents = mapGroupComponents(formComponentPlain, layout);
     return (
       <DisplayGroupContainer
         key={id}
-        container={plainGroup}
+        container={formComponentPlain}
         components={groupComponents}
         renderLayoutComponent={(child) => (
           <SummaryComponent
@@ -211,7 +212,7 @@ export function SummaryComponent(_props: ISummaryComponent) {
         <SummaryComponentSwitch
           id={id}
           change={change}
-          formComponent={_formComponent}
+          formComponent={formComponentPlain}
           label={label}
           hasValidationMessages={hasValidationMessages}
           formData={calculatedFormData}

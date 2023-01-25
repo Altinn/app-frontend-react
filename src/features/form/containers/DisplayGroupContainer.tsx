@@ -18,6 +18,7 @@ export type ComponentFromSummary = ILayoutComponentOrGroup & {
 };
 
 export interface IDisplayGroupContainer {
+  id?: string;
   container: ILayoutGroup;
   components: ComponentFromSummary[];
   renderLayoutComponent: (components: ILayoutComponent | ILayoutGroup, layout: ILayout) => JSX.Element;
@@ -51,7 +52,7 @@ export function DisplayGroupContainer(props: IDisplayGroupContainer) {
     (state) => state.formLayout.layouts && state.formLayout.layouts[state.formLayout.uiConfig.currentView],
   );
 
-  if (hidden || !layout) {
+  if (hidden || !layout || !container) {
     return null;
   }
 
@@ -59,7 +60,7 @@ export function DisplayGroupContainer(props: IDisplayGroupContainer) {
     <Grid
       container={true}
       item={true}
-      id={props.container.id}
+      id={props.id || container.id}
       className={cn(classes.groupContainer, {
         [printStyles['break-before']]: container?.pageBreak?.breakBefore,
         [printStyles['break-after']]: container?.pageBreak?.breakAfter,

@@ -472,9 +472,9 @@ export class LayoutNode<NT extends NodeType = 'unresolved', Item extends AnyItem
   }
 
   /**
-   * Looks for a matching component inside the children of this node (only makes sense for a group node). Beware that
-   * matching inside a repeating group with multiple rows, you should provide a second argument to specify the row
-   * number, otherwise you'll most likely just find a component on the first row.
+   * Looks for a matching component inside the (direct) children of this node (only makes sense for a group node).
+   * Beware that matching inside a repeating group with multiple rows, you should provide a second argument to specify
+   * the row number, otherwise you'll most likely just find a component on the first row.
    */
   public children(): AnyNode<NT>[];
   public children(matching: (item: AnyItem<NT>) => boolean, onlyInRowIndex?: number): AnyNode<NT> | undefined;

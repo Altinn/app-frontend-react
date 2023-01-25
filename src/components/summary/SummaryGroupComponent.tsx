@@ -13,8 +13,7 @@ import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroup
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import appTheme from 'src/theme/altinnAppTheme';
 import { getDisplayFormDataForComponent, getFormDataForComponentInRepeatingGroup } from 'src/utils/formComponentUtils';
-import { getRepeatingGroupStartStopIndex, setMappingForRepeatingGroupComponent } from 'src/utils/formLayout';
-import { nodesInLayout } from 'src/utils/layout/hierarchy';
+import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ComponentFromSummary } from 'src/features/form/containers/DisplayGroupContainer';
@@ -22,6 +21,7 @@ import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent } from 'src/layout/layout';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/types';
 import type { IRuntimeState } from 'src/types';
+import type { AnyNode } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryGroupComponent {
   pageRef?: string;
@@ -95,10 +95,8 @@ function SummaryGroupComponent({
   const classes = useStyles();
 
   const [title, setTitle] = React.useState<string>('');
-  const [groupHasErrors, setGroupHasErrors] = React.useState<boolean>(false);
-  const [groupChildComponents, setGroupChildComponents] = React.useState<string[]>([]);
 
-  const groupComponent = useAppSelector(
+  const legacyGroupComponent = useAppSelector(
     (state) =>
       (state.formLayout.layouts &&
         pageRef &&
@@ -108,13 +106,15 @@ function SummaryGroupComponent({
     shallowEqual,
   );
 
-  const node = useResolvedNode(groupComponent);
+  const node = useResolvedNode(legacyGroupComponent);
   const textResourceBindings = node?.item.textResourceBindings;
 
+  const removeExcludedChildren = (n: AnyNode<'resolved'>) =>
+    !excludedChildren ||
+    !excludedChildren.includes(n.item.id) ||
+    !excludedChildren.includes(`${n.item.baseComponentId}`);
+
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const layout = useAppSelector(
-    (state) => (state.formLayout.layouts && pageRef && state.formLayout.layouts[pageRef]) || [],
-  );
   const formData = useAppSelector((state) => state.formData.formData);
   const textResources = useAppSelector((state) => state.textResources.resources);
   const language = useAppSelector((state) => state.language.language);
@@ -140,16 +140,6 @@ function SummaryGroupComponent({
     }
   }, [textResources, textResourceBindings]);
 
-  React.useEffect(() => {
-    if (groupComponent && groupComponent.children) {
-      setGroupChildComponents(
-        groupComponent.edit?.multiPage
-          ? groupComponent.children.map((childId) => childId.split(':')[1] || childId)
-          : groupComponent.children,
-      );
-    }
-  }, [groupComponent]);
-
   const getRepeatingGroup = (containerId: string | undefined) => {
     const id = index !== undefined && index >= 0 && parentGroup ? `${containerId}-${index}` : containerId;
     if (id !== undefined && repeatingGroups && repeatingGroups[id]) {
@@ -161,80 +151,53 @@ function SummaryGroupComponent({
 
   const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
     getRepeatingGroup(componentRef)?.index ?? -1,
-    groupComponent?.edit,
+    legacyGroupComponent?.edit,
   );
 
-  React.useEffect(() => {
-    if (!largeGroup && groupComponent && pageRef) {
-      const nodes = nodesInLayout(layout, repeatingGroups);
-      const groupNode = nodes.findById(groupComponent.id);
-      if (groupNode) {
-        const allChildren = groupNode.flat(true);
-        const hasGroupErrors = allChildren.some((child) =>
-          Object.keys(validations[pageRef]?.[child.item.id] || {}).some((bindingKey: string) => {
-            const length = validations[pageRef][child.item.id][bindingKey]?.errors?.length;
-            return length && length > 0;
-          }),
-        );
-        setGroupHasErrors(hasGroupErrors);
-      }
+  const groupHasErrors = React.useMemo(() => {
+    if (!largeGroup && node && pageRef) {
+      return node.flat(true).some((child) =>
+        Object.keys(validations[pageRef]?.[child.item.id] || {}).some((bindingKey: string) => {
+          const length = validations[pageRef][child.item.id][bindingKey]?.errors?.length;
+          return length && length > 0;
+        }),
+      );
     }
-  }, [groupComponent, largeGroup, layout, pageRef, repeatingGroups, validations]);
+
+    return false;
+  }, [node, largeGroup, pageRef, validations]);
 
   const createRepeatingGroupSummaryComponents = () => {
+    if (!node) {
+      return [];
+    }
+
     const componentArray: JSX.Element[] = [];
     for (let i = startIndex; i <= stopIndex; ++i) {
-      const childSummaryComponents = groupChildComponents
-        .filter((componentId) => !excludedChildren || !excludedChildren.includes(componentId))
-        .map((componentId: string) => {
-          const componentIdPart1 = typeof index === 'number' && index >= 0 ? `-${index}` : '';
-          const componentIdSuffix = `${componentIdPart1}-${i}`;
-          if (hiddenFields.has(`${componentId}-${i}`) || hiddenFields.has(`${componentId}${componentIdSuffix}`)) {
-            return null;
-          }
-
-          const component = layout.find((c: ILayoutComponent) => c.id === componentId);
-          const componentDeepCopy = JSON.parse(JSON.stringify(component));
-          componentDeepCopy.id = `${componentDeepCopy.id}${componentIdSuffix}`;
-
-          const dmBindings = component?.dataModelBindings || {};
-          Object.keys(dmBindings).forEach((key) => {
-            let binding = dmBindings[key].replace(
-              groupComponent?.dataModelBindings?.group,
-              `${groupComponent?.dataModelBindings?.group}[${i}]`,
-            );
-            if (parentGroup) {
-              const { dataModelBindings } = layout.find((c) => c.id === parentGroup) || {};
-              binding = binding.replace(dataModelBindings?.group, `${dataModelBindings?.group}[${index}]`);
-            }
-            componentDeepCopy.dataModelBindings[key] = binding;
-          });
-
-          if (component && 'mapping' in component) {
-            if (parentGroup) {
-              componentDeepCopy.mapping = setMappingForRepeatingGroupComponent(componentDeepCopy.mapping, index);
-            }
-            componentDeepCopy.mapping = setMappingForRepeatingGroupComponent(componentDeepCopy.mapping, i);
+      const childSummaryComponents = node
+        .children(undefined, i)
+        .filter(removeExcludedChildren)
+        .map((n) => {
+          if (n.isHidden(hiddenFields)) {
+            return;
           }
 
           const formDataForComponent = getDisplayFormDataForComponent(
             formData,
             attachments,
-            componentDeepCopy,
+            n.item as ILayoutComponent,
             textResources,
             options,
             repeatingGroups,
           );
 
           return (
-            component && (
-              <GroupInputSummary
-                key={componentId}
-                componentId={componentId}
-                formData={formDataForComponent}
-                textResources={textResources}
-              />
-            )
+            <GroupInputSummary
+              key={n.item.id}
+              componentId={n.item.id}
+              formData={formDataForComponent}
+              textResources={textResources}
+            />
           );
         });
       componentArray.push(
@@ -251,40 +214,35 @@ function SummaryGroupComponent({
   };
 
   const createRepeatingGroupSummaryForLargeGroups = () => {
+    if (!node) {
+      return;
+    }
+
     const componentArray: JSX.Element[] = [];
     for (let i = startIndex; i <= stopIndex; i++) {
-      const groupContainer: ILayoutGroup = {
-        id: `${groupComponent?.id}-${i}-summary`,
-        type: 'Group',
+      const groupContainer = {
+        ...node.item,
         children: [],
-        maxCount: 0,
-        textResourceBindings: groupComponent?.textResourceBindings?.title
-          ? {
-              title: groupComponent.textResourceBindings.title,
-            }
-          : {},
-      };
+      } as ILayoutGroup;
 
       const childSummaryComponents: ComponentFromSummary[] = [];
-      groupChildComponents
-        .filter((componentId) => !excludedChildren || !excludedChildren.includes(componentId))
-        .forEach((componentId: string) => {
-          if (hiddenFields.has(`${componentId}-${i}`)) {
+      node
+        .children(undefined, i)
+        .filter(removeExcludedChildren)
+        .forEach((n) => {
+          if (n.isHidden(hiddenFields)) {
             return;
           }
 
-          const component = layout.find((c: ILayoutComponent) => c.id === componentId);
-          const isGroupComponent = component?.type === 'Group';
-          const summaryType = 'Summary';
-          const summaryId = `${component?.id}-summary${isGroupComponent ? '-group' : ''}`;
+          const summaryId = `${n.item.id}-summary${n.item.type === 'Group' ? '-group' : ''}`;
           let formDataForComponent: any;
-          if (!isGroupComponent) {
+          if (n.item.type !== 'Group') {
             formDataForComponent = getFormDataForComponentInRepeatingGroup(
               formData,
               attachments,
-              component as ILayoutComponent,
+              n.item as ILayoutComponent,
               i,
-              groupComponent?.dataModelBindings?.group,
+              legacyGroupComponent?.dataModelBindings?.group,
               textResources,
               options,
               repeatingGroups,
@@ -294,8 +252,8 @@ function SummaryGroupComponent({
 
           const summaryComponent: ComponentFromSummary = {
             id: summaryId,
-            type: summaryType,
-            componentRef: component?.id,
+            type: 'Summary',
+            componentRef: n.item.id,
             pageRef: pageRef,
             dataModelBindings: {},
             textResourceBindings: {},
@@ -303,7 +261,7 @@ function SummaryGroupComponent({
             required: false,
             formData: formDataForComponent,
             index: i,
-            parentGroup: isGroupComponent ? groupComponent?.id : undefined,
+            parentGroup: n.item.type === 'Group' ? legacyGroupComponent?.id : undefined,
             display,
             excludedChildren,
           };
@@ -314,6 +272,7 @@ function SummaryGroupComponent({
       componentArray.push(
         <DisplayGroupContainer
           key={`${groupContainer.id}-summary`}
+          id={`${groupContainer.id}-${i}-summary`}
           components={childSummaryComponents}
           container={groupContainer}
           renderLayoutComponent={renderLayoutComponent}
@@ -333,7 +292,7 @@ function SummaryGroupComponent({
     return null;
   }
 
-  if (!isEmpty && largeGroup && layout) {
+  if (!isEmpty && largeGroup) {
     return renderComponents;
   }
 
