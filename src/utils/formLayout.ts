@@ -275,6 +275,7 @@ export function createRepeatingGroupComponents(
   hiddenFields?: string[],
 ): ComponentInGroup[][] {
   const componentArray: ComponentInGroup[][] = [];
+
   const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(repeatingGroupIndex, container.edit);
   for (let index = startIndex; index <= stopIndex; index++) {
     componentArray.push(

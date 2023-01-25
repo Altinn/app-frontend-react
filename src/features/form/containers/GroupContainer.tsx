@@ -85,6 +85,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
   const options = useAppSelector((state) => state.optionState.options);
   const textResources = useAppSelector((state) => state.textResources.resources);
   const repeatingGroupIndex = repeatingGroups && repeatingGroups[id] ? repeatingGroups[id].index : -1;
+
   const repeatingGroupDeepCopyComponents = useMemo(
     () => createRepeatingGroupComponents(container, renderComponents, repeatingGroupIndex, textResources, hiddenFields),
     [container, renderComponents, repeatingGroupIndex, textResources, hiddenFields],
