@@ -78,11 +78,14 @@ export function SummaryComponent(_props: ISummaryComponent) {
   );
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
   const formComponent = useResolvedNode(componentRef)?.item;
-  const formComponentPlain = useAppSelector(
+  const formComponentLegacy = useAppSelector(
     (state) =>
       (state.formLayout.layouts &&
         pageRef &&
-        state.formLayout.layouts[pageRef]?.find((c) => c.id === formComponent?.baseComponentId || formComponent?.id)) ||
+        formComponent &&
+        state.formLayout.layouts[pageRef]?.find(
+          (c) => c.id === formComponent.baseComponentId || c.id === formComponent.id,
+        )) ||
       undefined,
   );
 
@@ -158,7 +161,7 @@ export function SummaryComponent(_props: ISummaryComponent) {
     }
   }, [formValidations, layout, pageRef, formComponent, componentRef, index]);
 
-  if (hidden || !formComponent || !formComponentPlain) {
+  if (hidden || !formComponent || !formComponentLegacy) {
     return null;
   }
 
@@ -167,13 +170,13 @@ export function SummaryComponent(_props: ISummaryComponent) {
     changeText,
   };
 
-  if (formComponentPlain?.type === 'Group' && (!formComponentPlain.maxCount || formComponentPlain.maxCount <= 1)) {
+  if (formComponentLegacy?.type === 'Group' && (!formComponentLegacy.maxCount || formComponentLegacy.maxCount <= 1)) {
     // Display children as summary components
-    const groupComponents = mapGroupComponents(formComponentPlain, layout);
+    const groupComponents = mapGroupComponents(formComponentLegacy, layout);
     return (
       <DisplayGroupContainer
         key={id}
-        container={formComponentPlain}
+        container={formComponentLegacy}
         components={groupComponents}
         renderLayoutComponent={(child) => (
           <SummaryComponent
@@ -212,7 +215,7 @@ export function SummaryComponent(_props: ISummaryComponent) {
         <SummaryComponentSwitch
           id={id}
           change={change}
-          formComponent={formComponentPlain}
+          formComponent={formComponentLegacy}
           label={label}
           hasValidationMessages={hasValidationMessages}
           formData={calculatedFormData}
