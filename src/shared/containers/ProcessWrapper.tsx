@@ -17,7 +17,6 @@ import css from 'src/shared/containers/ProcessWrapper.module.css';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 const ProcessWrapper = () => {
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
@@ -62,7 +61,7 @@ const ProcessWrapper = () => {
   }
 
   return (
-    <ExprContextWrapper>
+    <>
       <div
         className={cn(css['content'], {
           [css['hide-form']]: previewPDF,
@@ -101,7 +100,7 @@ const ProcessWrapper = () => {
           />
         </div>
       )}
-    </ExprContextWrapper>
+    </>
   );
 };
 

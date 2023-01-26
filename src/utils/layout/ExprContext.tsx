@@ -6,7 +6,7 @@ import type { ComponentExceptGroup, ILayoutComponent } from 'src/layout/layout';
 import type { LayoutNode, LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
 import type { ComponentOf } from 'src/utils/layout/hierarchy.types';
 
-export const ExprContext = React.createContext<LayoutRootNodeCollection<'resolved'>>(undefined as any);
+export const ExprContext = React.createContext<LayoutRootNodeCollection<'resolved'> | undefined>(undefined);
 
 type MaybeSpecificItem<T> = T extends ILayoutComponent
   ? T extends { type: infer Type }
@@ -22,7 +22,7 @@ type MaybeSpecificItem<T> = T extends ILayoutComponent
  *
  * @see useResolvedNode
  */
-function useLayoutsAsNodes(): LayoutRootNodeCollection<'resolved'> {
+function useLayoutsAsNodes(): LayoutRootNodeCollection<'resolved'> | undefined {
   const dataSources = useAppSelector((state) => dataSourcesFromState(state));
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const layouts = useAppSelector((state) => state.formLayout.layouts);
@@ -30,6 +30,10 @@ function useLayoutsAsNodes(): LayoutRootNodeCollection<'resolved'> {
   const textResources = useAppSelector((state) => state.textResources.resources);
 
   return useMemo(() => {
+    if (!layouts || !current || !repeatingGroups) {
+      return undefined;
+    }
+
     const resolved = resolvedNodesInLayouts(layouts, current, repeatingGroups, dataSources);
     rewriteTextResourceBindings(resolved, textResources);
 
@@ -65,11 +69,11 @@ export function useResolvedNode<T>(selector: string | undefined | T): MaybeSpeci
   const context = useExprContext();
 
   if (typeof selector === 'string') {
-    return context.findById(selector) as any;
+    return context?.findById(selector) as any;
   }
 
   if (typeof selector == 'object' && selector !== null && 'id' in selector && typeof selector.id === 'string') {
-    return context.findById(selector.id) as any;
+    return context?.findById(selector.id) as any;
   }
 
   return undefined;

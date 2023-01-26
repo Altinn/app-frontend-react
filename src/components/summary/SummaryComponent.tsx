@@ -98,11 +98,14 @@ export function SummaryComponent(_props: ISummaryComponent) {
     );
   });
   const calculatedFormData = useAppSelector((state) => {
-    if (formComponent?.type === 'Group') {
+    if (!formComponent) {
+      return undefined;
+    }
+    if (formComponent.type === 'Group') {
       return undefined;
     }
     if (
-      (formComponent?.type === 'FileUpload' || formComponent?.type === 'FileUploadWithTag') &&
+      (formComponent.type === 'FileUpload' || formComponent.type === 'FileUploadWithTag') &&
       Object.keys(formComponent.dataModelBindings || {}).length === 0
     ) {
       return undefined;
