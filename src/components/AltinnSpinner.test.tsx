@@ -21,9 +21,8 @@ describe('tests to make sure to follow accessibility requirements', () => {
 
   test('should fallback spinnerText to "Laster innhold", but hidden from visual view to stay accessible"', () => {
     render(<AltinnSpinner />);
-    const spinnerText = screen.getByText('Laster innhold');
-
-    expect(spinnerText).toBeTruthy();
-    expect(spinnerText).not.toBeVisible();
+    const spinnerText = screen.getByLabelText('Laster innhold');
+    expect(spinnerText).toBeInTheDocument();
+    expect(spinnerText).toHaveTextContent('');
   });
 });
