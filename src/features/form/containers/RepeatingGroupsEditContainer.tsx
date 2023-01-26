@@ -197,7 +197,7 @@ export function RepeatingGroupsEditContainer({
                 group.children.find((childId) => childId.startsWith(`${multiPageIndex - 1}:`)) && (
                   <Grid item={true}>
                     <Button
-                      icon={<Back />}
+                      icon={<Back aria-hidden='true' />}
                       variant={ButtonVariant.Quiet}
                       color={ButtonColor.Secondary}
                       onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
@@ -211,7 +211,7 @@ export function RepeatingGroupsEditContainer({
                 group.children.find((childId) => childId.startsWith(`${multiPageIndex + 1}:`)) && (
                   <Grid item={true}>
                     <Button
-                      icon={<Next />}
+                      icon={<Next aria-hidden='true' />}
                       iconPlacement='right'
                       variant={ButtonVariant.Quiet}
                       color={ButtonColor.Secondary}
