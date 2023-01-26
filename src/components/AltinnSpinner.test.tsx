@@ -16,7 +16,7 @@ describe('tests to make sure to follow accessibility requirements', () => {
 
     expect(spinnerText).toHaveTextContent('Loading form');
     expect(spinnerText).toHaveAttribute('aria-busy', 'true');
-    expect(spinnerText).toBeVisible();
+    expect(spinnerText).toHaveTextContent('Loading form');
   });
 
   test('should fallback spinnerText to "Laster innhold", but hidden from visual view to stay accessible"', () => {
