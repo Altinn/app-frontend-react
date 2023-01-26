@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
 import { Grid, makeStyles } from '@material-ui/core';
-import { Delete as DeleteIcon } from '@navikt/ds-icons';
+import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { useExpressionsForComponent } from 'src/features/expressions/useExpressions';
@@ -197,6 +197,7 @@ export function RepeatingGroupsEditContainer({
                 group.children.find((childId) => childId.startsWith(`${multiPageIndex - 1}:`)) && (
                   <Grid item={true}>
                     <Button
+                      icon={<Back />}
                       variant={ButtonVariant.Quiet}
                       color={ButtonColor.Secondary}
                       onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex - 1)}
@@ -210,6 +211,8 @@ export function RepeatingGroupsEditContainer({
                 group.children.find((childId) => childId.startsWith(`${multiPageIndex + 1}:`)) && (
                   <Grid item={true}>
                     <Button
+                      icon={<Next />}
+                      iconPlacement='right'
                       variant={ButtonVariant.Quiet}
                       color={ButtonColor.Secondary}
                       onClick={() => setMultiPageIndex && setMultiPageIndex(multiPageIndex + 1)}
