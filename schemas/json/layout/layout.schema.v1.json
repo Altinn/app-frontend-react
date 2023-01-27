@@ -831,8 +831,7 @@
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
         }
-      },
-      "required": ["autocomplete"]
+      }
     },
     "textAreaComponent": {
       "properties": {
@@ -842,8 +841,7 @@
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
         }
-      },
-      "required": ["autocomplete"]
+      }
     },
     "saveWhileTyping": {
       "title": "Automatic saving while typing",
@@ -980,7 +978,6 @@
       "title": "HTML attribute: autocomplete",
       "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
       "type": "string",
-      "default": "on",
       "enum": [
         "on",
         "off",

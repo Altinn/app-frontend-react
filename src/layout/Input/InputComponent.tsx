@@ -52,7 +52,7 @@ export function InputComponent({
           value={value}
           aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
           formatting={formatting as IInputFormatting}
-          autoComplete={autocomplete ?? 'off'}
+          autoComplete={autocomplete}
         />
       )}
     </>
