@@ -1,16 +1,17 @@
 import { call, select } from 'redux-saga/effects';
 import { expectSaga } from 'redux-saga-test-plan';
 
-import { getFormDataStateMock, getInitialStateMock, getInstanceDataStateMock } from 'src/__mocks__/mocks';
+import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { putFormData, saveFormDataSaga, saveStatelessData } from 'src/features/form/data/submit/submitFormDataSagas';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId } from 'src/utils/appMetadata';
+import { dataElementUrl, getStatelessFormDataUrl } from 'src/utils/appUrlHelper';
 import { convertDataBindingToModel } from 'src/utils/databindings';
-import { post } from 'src/utils/network/networking';
-import { put } from 'src/utils/network/sharedNetworking';
-import { dataElementUrl, getStatelessFormDataUrl } from 'src/utils/urls/appUrlHelper';
+import { basicPut as put, post } from 'src/utils/networking';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 import type { IRuntimeState } from 'src/types';

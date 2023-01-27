@@ -4,7 +4,7 @@ import { CircularProgress, createStyles, createTheme, makeStyles, Typography } f
 import classNames from 'classnames';
 import type { ArgumentArray } from 'classnames';
 
-import altinnTheme from 'src/theme/altinnStudioTheme';
+import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 
 export interface IAltinnSpinnerComponentProvidedProps {
   id?: string;
@@ -12,7 +12,7 @@ export interface IAltinnSpinnerComponentProvidedProps {
   styleObj?: ArgumentArray;
 }
 
-const theme = createTheme(altinnTheme);
+const theme = createTheme(AltinnStudioTheme);
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -32,7 +32,7 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-const AltinnSpinner = (props: IAltinnSpinnerComponentProvidedProps) => {
+export const AltinnSpinner = (props: IAltinnSpinnerComponentProvidedProps) => {
   const { id, spinnerText, styleObj } = props;
   const classes = useStyles(props);
 
@@ -58,5 +58,3 @@ const AltinnSpinner = (props: IAltinnSpinnerComponentProvidedProps) => {
     </div>
   );
 };
-
-export default AltinnSpinner;

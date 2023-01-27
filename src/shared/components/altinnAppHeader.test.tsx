@@ -5,9 +5,9 @@ import { screen } from '@testing-library/react';
 import { organisationMock } from 'src/__mocks__/organisationMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { getLanguageFromCode } from 'src/language/languages';
-import Header from 'src/shared/components/altinnAppHeader';
+import { AltinnAppHeader2 } from 'src/shared/components/altinnAppHeader2';
 import { renderWithProviders } from 'src/testUtils';
-import type { IHeaderProps } from 'src/shared/components/altinnAppHeader';
+import type { IHeaderProps } from 'src/shared/components/altinnAppHeader2';
 
 describe('AltinnAppHeader', () => {
   it('should show organisation name when profile has party, and party has organisation with name, and "type" is not set', () => {
@@ -82,5 +82,5 @@ const render = (props: Partial<IHeaderProps> = {}) => {
     ...props,
   };
 
-  renderWithProviders(<Header {...allProps} />);
+  renderWithProviders(<AltinnAppHeader2 {...allProps} />);
 };

@@ -5,7 +5,7 @@ import { screen, within } from '@testing-library/react';
 import type { PreloadedState } from 'redux';
 
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
-import { getInitialStateMock } from 'src/__mocks__/mocks';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Form } from 'src/features/form/containers/Form';
 import { MemoryRouterWithRedirectingRoot, renderWithProviders } from 'src/testUtils';
 import type { ILayout, ILayoutComponent, ILayoutEntry } from 'src/layout/layout';

@@ -9,7 +9,7 @@ import {
   layoutSetsSelector,
 } from 'src/features/form/layout/fetch/fetchFormLayoutSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import * as networking from 'src/utils/network/networking';
+import * as networking from 'src/utils/networking';
 import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';

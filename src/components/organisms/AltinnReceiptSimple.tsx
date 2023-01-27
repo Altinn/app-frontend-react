@@ -16,7 +16,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export function ReceiptComponentSimple({ title, body }: IReceiptComponentProps) {
+export function AltinnReceiptSimple({ title, body }: IReceiptComponentProps) {
   const classes = useStyles();
 
   return (
@@ -32,5 +32,3 @@ export function ReceiptComponentSimple({ title, body }: IReceiptComponentProps) 
     </div>
   );
 }
-
-export default ReceiptComponentSimple;

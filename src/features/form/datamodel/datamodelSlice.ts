@@ -8,7 +8,7 @@ const initialState: IDataModelState = {
   error: null,
 };
 
-const formDataModelSlice = createSagaSlice((mkAction: MkActionType<IDataModelState>) => ({
+export const dataModelSlice = createSagaSlice((mkAction: MkActionType<IDataModelState>) => ({
   name: 'formDataModel',
   initialState,
   actions: {
@@ -30,5 +30,4 @@ const formDataModelSlice = createSagaSlice((mkAction: MkActionType<IDataModelSta
   },
 }));
 
-export const DataModelActions = formDataModelSlice.actions;
-export default formDataModelSlice;
+export const DataModelActions = dataModelSlice.actions;

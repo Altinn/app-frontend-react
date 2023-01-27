@@ -1,17 +1,18 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import Entrypoint from 'src/features/entrypoint/Entrypoint';
-import PartySelection from 'src/features/instantiate/containers/PartySelection';
-import UnknownError from 'src/features/instantiate/containers/UnknownError';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
+import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { makeGetHasErrorsSelector } from 'src/selectors/getErrors';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
-import ProcessWrapper from 'src/shared/containers/ProcessWrapper';
+import { ProcessWrapper } from 'src/shared/containers/ProcessWrapper';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
-import { get } from 'src/utils/network/networking';
-import { getEnvironmentLoginUrl, refreshJwtTokenUrl } from 'src/utils/urls/appUrlHelper';
+import { getEnvironmentLoginUrl, refreshJwtTokenUrl } from 'src/utils/appUrlHelper';
+import { get } from 'src/utils/networking';
 
 // 1 minute = 60.000ms
 const TEN_MINUTE_IN_MILLISECONDS: number = 60000 * 10;

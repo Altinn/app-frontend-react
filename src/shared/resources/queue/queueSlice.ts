@@ -15,7 +15,7 @@ import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 import { watchStartInitialInfoTaskQueueSaga } from 'src/shared/resources/queue/infoTask/infoTaskQueueSaga';
 import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
-import { profileApiUrl } from 'src/utils/urls/appUrlHelper';
+import { profileApiUrl } from 'src/utils/appUrlHelper';
 import type { IQueueError, IQueueState } from 'src/shared/resources/queue';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 
@@ -28,7 +28,7 @@ export const initialState: IQueueState = {
   stateless: { ...commonState },
 };
 
-const queueSlice = createSagaSlice((mkAction: MkActionType<IQueueState>) => ({
+export const queueSlice = createSagaSlice((mkAction: MkActionType<IQueueState>) => ({
   name: 'queue',
   initialState,
   actions: {
@@ -147,4 +147,3 @@ const queueSlice = createSagaSlice((mkAction: MkActionType<IQueueState>) => ({
 }));
 
 export const QueueActions = queueSlice.actions;
-export default queueSlice;

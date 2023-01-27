@@ -3,7 +3,7 @@ import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { AltinnAppHeader } from 'src/components/shared';
+import { AltinnAppHeader1 } from 'src/components/organisms/AltinnAppHeader1';
 import type { IParty } from 'src/types/shared';
 
 describe('organisms/AltinnAppHeader', () => {
@@ -40,7 +40,7 @@ describe('organisms/AltinnAppHeader', () => {
 
   const renderComponent = (party: IParty, user = partyPerson) =>
     render(
-      <AltinnAppHeader
+      <AltinnAppHeader1
         party={party}
         userParty={user}
         logoColor={logoColor}

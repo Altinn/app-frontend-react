@@ -3,25 +3,27 @@ import { Navigate } from 'react-router-dom';
 
 import type { AxiosError } from 'axios';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { AltinnContentIconFormData, AltinnContentLoader } from 'src/components/shared';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
+import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { Form } from 'src/features/form/containers/Form';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
-import InstanceSelection from 'src/features/instantiate/containers/InstanceSelection';
+import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
-import MissingRolesError from 'src/features/instantiate/containers/MissingRolesError';
-import NoValidPartiesError from 'src/features/instantiate/containers/NoValidPartiesError';
+import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
+import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
-import Presentation from 'src/shared/containers/Presentation';
+import { Presentation } from 'src/shared/containers/Presentation';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
-import { checkIfAxiosError, get, HttpStatusCodes, post } from 'src/utils/network/networking';
-import { getActiveInstancesUrl, getPartyValidationUrl } from 'src/utils/urls/appUrlHelper';
+import { getActiveInstancesUrl, getPartyValidationUrl } from 'src/utils/appUrlHelper';
+import { get, HttpStatusCodes, isAxiosError, post } from 'src/utils/networking';
 import type { ShowTypes } from 'src/shared/resources/applicationMetadata';
 import type { ISimpleInstance } from 'src/types';
 
-export default function Entrypoint({ allowAnonymous }: any) {
+export function Entrypoint({ allowAnonymous }: any) {
   const [action, setAction] = React.useState<ShowTypes | null>(null);
   const [partyValidation, setPartyValidation] = React.useState<any | null>(null);
   const [activeInstances, setActiveInstances] = React.useState<ISimpleInstance[] | null>(null);
@@ -96,7 +98,7 @@ export default function Entrypoint({ allowAnonymous }: any) {
   }
 
   // error trying to fetch data, if missing rights we display relevant page
-  if (checkIfAxiosError(formDataError)) {
+  if (isAxiosError(formDataError)) {
     const axiosError = formDataError as AxiosError;
     if (axiosError.response?.status === HttpStatusCodes.Forbidden) {
       return <MissingRolesError />;

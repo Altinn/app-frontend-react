@@ -2,16 +2,12 @@ import type React from 'react';
 
 import { formatNumericText } from '@altinn/altinn-design-system';
 
+import { getLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { getDateFormat } from 'src/utils/dateHelpers';
+import { formatISOString } from 'src/utils/formatDate';
 import { setMappingForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
-import {
-  formatISOString,
-  getLanguageFromKey,
-  getParsedLanguageFromText,
-  getTextResourceByKey,
-} from 'src/utils/sharedUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutGroup } from 'src/layout/Group/types';

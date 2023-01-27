@@ -4,7 +4,7 @@ import { List, ListItem, ListItemIcon, ListItemText, makeStyles, Typography } fr
 import cn from 'classnames';
 
 import { AltinnIcon } from 'src/components/AltinnIcon';
-import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
+import { makeUrlRelativeIfSameDomain } from 'src/utils/appUrlHelper';
 import type { IAttachment } from 'src/types/shared';
 
 const useStyles = makeStyles(() => ({
@@ -119,5 +119,3 @@ export function AltinnAttachment({ attachments, listDisableVerticalPadding, nest
     </>
   );
 }
-
-export default AltinnAttachment;

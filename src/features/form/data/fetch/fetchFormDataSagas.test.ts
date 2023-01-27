@@ -21,8 +21,8 @@ import {
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId } from 'src/utils/appMetadata';
-import * as networking from 'src/utils/network/sharedNetworking';
-import * as appUrlHelper from 'src/utils/urls/appUrlHelper';
+import * as appUrlHelper from 'src/utils/appUrlHelper';
+import * as networking from 'src/utils/networking';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { ILayoutSets } from 'src/types';
 import type { IApplication } from 'src/types/shared';

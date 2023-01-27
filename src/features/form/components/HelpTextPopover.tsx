@@ -3,9 +3,9 @@ import { isMobile } from 'react-device-detect';
 
 import { createTheme, makeStyles } from '@material-ui/core';
 
-import { AltinnPopover } from 'src/components/shared';
-import { AltinnAppTheme } from 'src/theme';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import { AltinnPopover } from 'src/components/AltinnPopover';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { IAnchorOrigin } from 'src/components/AltinnPopover';
 import type { ILanguage } from 'src/types/shared';
 
@@ -37,13 +37,7 @@ export interface IHelpTextPopoverProps {
   onClose: () => void;
 }
 
-export default function HelpTextPopover({
-  helpIconRef,
-  openPopover,
-  helpText,
-  language,
-  onClose,
-}: IHelpTextPopoverProps) {
+export function HelpTextPopover({ helpIconRef, openPopover, helpText, language, onClose }: IHelpTextPopoverProps) {
   const classes = useStyle();
 
   return (

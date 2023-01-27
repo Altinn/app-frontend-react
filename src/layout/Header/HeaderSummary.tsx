@@ -11,7 +11,7 @@ export interface IHeaderSummary {
   component: ILayoutCompHeader;
 }
 
-function HeaderSummary({ id, label, component }: IHeaderSummary) {
+export function HeaderSummary({ id, label, component }: IHeaderSummary) {
   return (
     <Grid
       item
@@ -26,5 +26,3 @@ function HeaderSummary({ id, label, component }: IHeaderSummary) {
     </Grid>
   );
 }
-
-export default HeaderSummary;

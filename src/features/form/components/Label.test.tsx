@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { render } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 
-import Label from 'src/features/form/components/Label';
+import { Label } from 'src/features/form/components/Label';
 import type { IFormLabelProps } from 'src/features/form/components/Label';
 
 describe('Label', () => {

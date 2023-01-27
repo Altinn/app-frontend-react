@@ -3,8 +3,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { PartyActions } from 'src/shared/resources/party/partySlice';
-import { putWithoutConfig } from 'src/utils/network/networking';
-import { updateCookieUrl } from 'src/utils/urls/appUrlHelper';
+import { updateCookieUrl } from 'src/utils/appUrlHelper';
+import { putWithoutConfig } from 'src/utils/networking';
 import type { ISelectParty } from 'src/shared/resources/party';
 import type { IAltinnWindow } from 'src/types';
 

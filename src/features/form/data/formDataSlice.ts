@@ -37,7 +37,7 @@ const isProcessAction = (action: AnyAction) => {
   return action.type === ProcessActions.completeFulfilled.type || action.type === ProcessActions.completeRejected.type;
 };
 
-const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) => ({
+export const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) => ({
   name: 'formData',
   initialState,
   actions: {
@@ -139,4 +139,3 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
 }));
 
 export const FormDataActions = formDataSlice.actions;
-export default formDataSlice;

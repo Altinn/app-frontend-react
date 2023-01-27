@@ -7,9 +7,9 @@ import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceD
 import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';
+import { getProcessNextUrl } from 'src/utils/appUrlHelper';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import { put as httpPut } from 'src/utils/sharedUtils';
-import { getProcessNextUrl } from 'src/utils/urls/appUrlHelper';
+import { basicPut as httpPut } from 'src/utils/networking';
 import type { IInstanceDataState } from 'src/shared/resources/instanceData';
 import type { ICompleteProcessFulfilled } from 'src/shared/resources/process';
 import type { IRuntimeState } from 'src/types';

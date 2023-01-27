@@ -4,9 +4,10 @@ import { TextField } from '@altinn/altinn-design-system';
 import axios from 'axios';
 
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { AddressLabel } from 'src/layout/Address/AddressLabel';
+import { get } from 'src/utils/networking';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import { get, getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IComponentValidations } from 'src/types';
 

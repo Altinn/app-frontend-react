@@ -1,6 +1,9 @@
 import { commonTheme } from 'src/theme/commonTheme';
 
-const theme = {
+/**
+ * @deprecated
+ */
+export const AltinnStudioTheme = {
   ...commonTheme,
   overrides: {
     MuiToolbar: {
@@ -43,5 +46,3 @@ const theme = {
     useNextVariants: true,
   },
 };
-
-export default theme;

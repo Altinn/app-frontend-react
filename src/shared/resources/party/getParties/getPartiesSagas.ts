@@ -3,8 +3,8 @@ import type { SagaIterator } from 'redux-saga';
 
 import { PartyActions } from 'src/shared/resources/party/partySlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
-import { get } from 'src/utils/network/networking';
-import { currentPartyUrl, validPartiesUrl } from 'src/utils/urls/appUrlHelper';
+import { currentPartyUrl, validPartiesUrl } from 'src/utils/appUrlHelper';
+import { get } from 'src/utils/networking';
 import type { IRuntimeState } from 'src/types';
 import type { IParty } from 'src/types/shared';
 

@@ -5,7 +5,7 @@ import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import mockAxios from 'jest-mock-axios';
 
-import { getInitialStateMock } from 'src/__mocks__/mocks';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { InstantiationButton } from 'src/layout/InstantiationButton/InstantiationButton';
 import { setupStore } from 'src/store';
 import { mockComponentProps, renderWithProviders } from 'src/testUtils';

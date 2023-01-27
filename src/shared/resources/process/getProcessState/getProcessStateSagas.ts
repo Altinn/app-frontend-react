@@ -3,8 +3,8 @@ import type { SagaIterator } from 'redux-saga';
 
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';
-import { get } from 'src/utils/sharedUtils';
-import { getProcessStateUrl } from 'src/utils/urls/appUrlHelper';
+import { getProcessStateUrl } from 'src/utils/appUrlHelper';
+import { get } from 'src/utils/networking';
 import type { IProcess } from 'src/types/shared';
 
 export function* getProcessStateSaga(): SagaIterator {

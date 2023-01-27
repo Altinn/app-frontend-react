@@ -5,7 +5,7 @@ export interface IDescriptionProps {
   id: string;
 }
 
-export default function Description(props: IDescriptionProps) {
+export function Description(props: IDescriptionProps) {
   if (!props.description) {
     return null;
   }

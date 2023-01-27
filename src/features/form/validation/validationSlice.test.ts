@@ -1,4 +1,4 @@
-import slice, { initialState, ValidationActions } from 'src/features/form/validation/validationSlice';
+import { initialState, ValidationActions, validationSlice } from 'src/features/form/validation/validationSlice';
 import type { IValidationState } from 'src/features/form/validation/validationSlice';
 import type { IComponentValidations, IValidations } from 'src/types';
 
@@ -23,7 +23,7 @@ describe('validationSlice', () => {
   });
 
   it('handles runSingleFieldValidationFulfilled action', () => {
-    const nextState = slice.reducer(
+    const nextState = validationSlice.reducer(
       state,
       ValidationActions.runSingleFieldValidationFulfilled({
         validations: mockValidations,
@@ -33,7 +33,10 @@ describe('validationSlice', () => {
   });
 
   it('handles runSingleFieldValidationRejected action', () => {
-    const nextState = slice.reducer(state, ValidationActions.runSingleFieldValidationRejected({ error: mockError }));
+    const nextState = validationSlice.reducer(
+      state,
+      ValidationActions.runSingleFieldValidationRejected({ error: mockError }),
+    );
     expect(nextState.error).toEqual(mockError);
   });
 
@@ -46,7 +49,7 @@ describe('validationSlice', () => {
     };
     const componentId = 'testComponent';
     const invalidDataTypes: string[] = [componentId];
-    const nextState = slice.reducer(
+    const nextState = validationSlice.reducer(
       {
         ...initialState,
         validations: mockValidations,
@@ -70,7 +73,7 @@ describe('validationSlice', () => {
   });
 
   it('handles updateValidations action', () => {
-    const nextState = slice.reducer(
+    const nextState = validationSlice.reducer(
       state,
       ValidationActions.updateValidations({
         validations: mockValidations,

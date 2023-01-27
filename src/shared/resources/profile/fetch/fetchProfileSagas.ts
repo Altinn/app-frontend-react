@@ -4,7 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
-import { get } from 'src/utils/network/networking';
+import { get } from 'src/utils/networking';
 import type { IFetchProfile } from 'src/shared/resources/profile';
 import type { IProfile } from 'src/types/shared';
 

@@ -1,17 +1,19 @@
 import * as React from 'react';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import Header from 'src/components/presentation/Header';
-import NavBar from 'src/components/presentation/NavBar';
-import { AltinnAppHeader, AltinnSubstatusPaper } from 'src/components/shared';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
+import { AltinnAppHeader1 } from 'src/components/organisms/AltinnAppHeader1';
+import { Header } from 'src/components/presentation/Header';
+import { NavBar } from 'src/components/presentation/NavBar';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { PresentationType, ProcessTaskType } from 'src/types';
+import { getRedirectUrl, returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/appUrlHelper';
 import { getNextView } from 'src/utils/formLayout';
-import { get } from 'src/utils/network/networking';
-import { getTextResourceByKey, returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/sharedUtils';
-import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
+import { get } from 'src/utils/networking';
 
 export interface IPresentationProvidedProps {
   header?: string | JSX.Element | JSX.Element[];
@@ -24,7 +26,7 @@ const style = {
   marginBottom: '1rem',
 };
 
-const PresentationComponent = (props: IPresentationProvidedProps) => {
+export const Presentation = (props: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const party = useAppSelector((state) => state.party?.selectedParty);
   const language = useAppSelector((state) => state.language.language || {});
@@ -85,7 +87,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
       id='processContainer'
       style={style}
     >
-      <AltinnAppHeader
+      <AltinnAppHeader1
         party={party || undefined}
         userParty={userParty}
         logoColor={AltinnAppTheme.altinnPalette.primary.blueDarker}
@@ -127,5 +129,3 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
     </div>
   );
 };
-
-export default PresentationComponent;

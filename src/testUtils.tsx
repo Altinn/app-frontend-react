@@ -8,7 +8,7 @@ import type { RenderOptions } from '@testing-library/react';
 import type { PreloadedState } from 'redux';
 
 import { setupStore } from 'src/store';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 import type { IComponentProps } from 'src/layout';
 import type { AppStore, RootState } from 'src/store';

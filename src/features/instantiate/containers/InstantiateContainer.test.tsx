@@ -5,12 +5,12 @@ import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { screen, waitFor, within } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { InstantiateContainer } from 'src/features/instantiate/containers';
+import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { setupStore } from 'src/store';
 import { renderWithProviders } from 'src/testUtils';
-import { AltinnAppTheme } from 'src/theme';
-import { HttpStatusCodes } from 'src/utils/network/networking';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
+import { HttpStatusCodes } from 'src/utils/networking';
 import type { IRuntimeState } from 'src/types';
 
 describe('InstantiateContainer', () => {

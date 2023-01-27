@@ -53,7 +53,7 @@ export interface IAltinnSummaryTableProps {
   summaryDataObject: any;
 }
 
-export default function AltinnSummaryTable(props: IAltinnSummaryTableProps) {
+export function AltinnSummaryTable(props: IAltinnSummaryTableProps) {
   const classes = useStyles();
   return (
     <Table

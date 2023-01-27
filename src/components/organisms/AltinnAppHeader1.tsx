@@ -4,9 +4,9 @@ import { AppBar, Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { AltinnLogo } from 'src/components/AltinnLogo';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
-import AltinnAppHeaderMenu from 'src/components/organisms/AltinnAppHeaderMenu';
+import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { renderPartyName } from 'src/utils/party';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { ILanguage, IParty } from 'src/types/shared';
 
 export interface IAltinnAppHeaderProps {
@@ -54,7 +54,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export function AltinnAppHeader({
+export function AltinnAppHeader1({
   logoColor,
   headerBackgroundColor,
   party,
@@ -132,5 +132,3 @@ export function AltinnAppHeader({
     </AppBar>
   );
 }
-
-export default AltinnAppHeader;

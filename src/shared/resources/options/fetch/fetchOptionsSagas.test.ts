@@ -13,7 +13,7 @@ import {
   optionsWithIndexIndicatorsSelector,
   repeatingGroupsSelector,
 } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
-import * as networking from 'src/utils/network/sharedNetworking';
+import * as networking from 'src/utils/networking';
 import { selectNotNull } from 'src/utils/sagas';
 import type { ILayouts, ISelectionComponentProps } from 'src/layout/layout';
 import type { IOptions, IRuntimeState } from 'src/types';

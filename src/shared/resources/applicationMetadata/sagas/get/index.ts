@@ -4,8 +4,8 @@ import type { SagaIterator } from 'redux-saga';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
-import { get } from 'src/utils/network/networking';
-import { applicationMetadataApiUrl } from 'src/utils/urls/appUrlHelper';
+import { applicationMetadataApiUrl } from 'src/utils/appUrlHelper';
+import { get } from 'src/utils/networking';
 
 export function* getApplicationMetadata(): SagaIterator {
   try {

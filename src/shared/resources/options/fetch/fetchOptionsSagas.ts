@@ -4,16 +4,16 @@ import type { SagaIterator } from 'redux-saga';
 
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
+import { getOptionsUrl } from 'src/utils/appUrlHelper';
 import {
   getKeyIndex,
   getKeyWithoutIndex,
   getKeyWithoutIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
+import { get } from 'src/utils/networking';
 import { getOptionLookupKey, getOptionLookupKeys } from 'src/utils/options';
 import { selectNotNull } from 'src/utils/sagas';
-import { get } from 'src/utils/sharedUtils';
-import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/form/data';
 import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import type { ILayouts, ISelectionComponentProps } from 'src/layout/layout';

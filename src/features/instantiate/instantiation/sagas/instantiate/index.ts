@@ -4,8 +4,8 @@ import type { SagaIterator } from 'redux-saga';
 
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
-import { post, putWithoutConfig } from 'src/utils/network/networking';
-import { getCreateInstancesUrl, invalidateCookieUrl, redirectToUpgrade } from 'src/utils/urls/appUrlHelper';
+import { getCreateInstancesUrl, invalidateCookieUrl, redirectToUpgrade } from 'src/utils/appUrlHelper';
+import { post, putWithoutConfig } from 'src/utils/networking';
 import type { IRuntimeState } from 'src/types';
 import type { IParty } from 'src/types/shared';
 

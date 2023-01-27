@@ -17,8 +17,8 @@ import {
 } from 'src/features/form/validation/singleField/singleFieldValidationSagas';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { Severity } from 'src/types';
-import { get } from 'src/utils/network/networking';
-import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
+import { getDataValidationUrl } from 'src/utils/appUrlHelper';
+import { get } from 'src/utils/networking';
 import type { IRuntimeState, IValidationIssue, IValidations } from 'src/types';
 
 describe('singleFieldValidationSagas', () => {

@@ -19,5 +19,3 @@ export const AltinnContentLoader = ({ width = 400, height = 200, children }: IAl
     </ContentLoader>
   );
 };
-
-export default AltinnContentLoader;

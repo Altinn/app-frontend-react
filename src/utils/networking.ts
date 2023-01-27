@@ -20,6 +20,17 @@ export async function post(url: string, options?: AxiosRequestConfig, data?: any
   return await axios.post(url, data, options);
 }
 
+/**
+ * A basic 'put', since the other 'put' expects apiMode to always be present in URL, and 'putWithoutConfig' wraps errors
+ * and does not accept data (or config, even if you have it).
+ * @see put
+ * @see putWithoutConfig
+ */
+export async function basicPut(url: string, data: any, config?: AxiosRequestConfig): Promise<void> {
+  const response = await axios.put(url, data, config);
+  return response.data;
+}
+
 export async function put(
   url: string,
   apiMode: string,
@@ -43,6 +54,6 @@ export async function putWithoutConfig<ReturnType>(url: string): Promise<AxiosRe
   }
 }
 
-export function checkIfAxiosError(error: Error | null | undefined): boolean {
+export function isAxiosError(error: Error | null | undefined): error is AxiosError {
   return (error as AxiosError)?.config !== undefined;
 }

@@ -81,5 +81,3 @@ export function AltinnContentIcon() {
     </>
   );
 }
-
-export default AltinnContentIcon;

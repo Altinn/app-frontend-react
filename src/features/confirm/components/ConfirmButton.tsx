@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';
-import { get } from 'src/utils/network/networking';
+import { getValidationUrl } from 'src/utils/appUrlHelper';
+import { get } from 'src/utils/networking';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import { getValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { mapDataElementValidationToRedux } from 'src/utils/validation';
+import { mapDataElementValidationToRedux } from 'src/utils/validation/validation';
 import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
 import type { IAltinnWindow } from 'src/types';
 import type { ILanguage } from 'src/types/shared';

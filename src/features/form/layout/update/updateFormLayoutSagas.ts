@@ -18,6 +18,7 @@ import {
   getCurrentTaskDataElementId,
   isStatelessApp,
 } from 'src/utils/appMetadata';
+import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/appUrlHelper';
 import { shiftAttachmentRowInRepeatingGroup } from 'src/utils/attachment';
 import { convertDataBindingToModel, findChildAttachments, removeGroupData } from 'src/utils/databindings';
 import {
@@ -29,19 +30,18 @@ import {
   splitDashedKey,
 } from 'src/utils/formLayout';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
+import { get, post } from 'src/utils/networking';
 import { getOptionLookupKey, removeGroupOptionsByIndex } from 'src/utils/options';
 import { selectNotNull, waitFor } from 'src/utils/sagas';
-import { get, post } from 'src/utils/sharedUtils';
-import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
+import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
 import {
   canFormBeSaved,
+  filterValidationsByRow,
   mapDataElementValidationToRedux,
   mergeValidationObjects,
   removeGroupValidationsByIndex,
-  runClientSideValidation,
   validateGroup,
-} from 'src/utils/validation';
-import { filterValidationsByRow } from 'src/utils/validation/validation';
+} from 'src/utils/validation/validation';
 import type { IFormDataState } from 'src/features/form/data';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type {
@@ -434,16 +434,21 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
         layoutSetId = getLayoutsetForDataElement(instance, dataTypeId || undefined, layoutSets) || null;
       }
     }
-    const layoutOrder = yield call(post, getCalculatePageOrderUrl(appIsStateless), formData, {
-      params: {
-        currentPage: currentView,
-        layoutSetId,
-        dataTypeId,
+    const layoutOrder = yield call(
+      post,
+      getCalculatePageOrderUrl(appIsStateless),
+      {
+        params: {
+          currentPage: currentView,
+          layoutSetId,
+          dataTypeId,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+      formData,
+    );
     yield put(
       FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
         order: layoutOrder,

@@ -5,10 +5,10 @@ import type { SagaIterator } from 'redux-saga';
 
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import { fileTagUrl } from 'src/utils/appUrlHelper';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
-import { httpDelete, post } from 'src/utils/network/networking';
+import { httpDelete, post } from 'src/utils/networking';
 import { selectNotNull } from 'src/utils/sagas';
-import { fileTagUrl } from 'src/utils/urls/appUrlHelper';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IUpdateAttachmentAction } from 'src/shared/resources/attachments/update/updateAttachmentActions';
 import type { IRuntimeState } from 'src/types';
