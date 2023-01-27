@@ -42,34 +42,7 @@
           "type": "string",
           "title": "Type",
           "description": "The component type.",
-          "enum": [
-            "AddressComponent",
-            "AttachmentList",
-            "Button",
-            "Checkboxes",
-            "Custom",
-            "Datepicker",
-            "Dropdown",
-            "FileUpload",
-            "FileUploadWithTag",
-            "Group",
-            "Header",
-            "Image",
-            "Input",
-            "InstanceInformation",
-            "InstantiationButton",
-            "Likert",
-            "List",
-            "MultipleSelect",
-            "NavigationButtons",
-            "NavigationBar",
-            "Panel",
-            "Paragraph",
-            "PrintButton",
-            "RadioButtons",
-            "Summary",
-            "TextArea"
-          ]
+          "enum": ["AddressComponent", "AttachmentList", "Button", "Checkboxes", "Custom", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Group", "Header", "Image", "Input", "InstanceInformation", "InstantiationButton", "Likert","List", "MultipleSelect", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
         },
         "required": {
           "title": "Required",
@@ -149,95 +122,29 @@
       },
       "required": ["id", "type"],
       "allOf": [
-        {
-          "if": { "properties": { "type": { "const": "AddressComponent" } } },
-          "then": { "$ref": "#/definitions/addressComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "AttachmentList" } } },
-          "then": { "$ref": "#/definitions/attachmentListComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Checkboxes" } } },
-          "then": { "$ref": "#/definitions/radioAndCheckboxComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Custom" } } },
-          "then": { "$ref": "#/definitions/customComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Datepicker" } } },
-          "then": { "$ref": "#/definitions/datepickerComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Dropdown" } } },
-          "then": { "$ref": "#/definitions/selectionComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "FileUpload" } } },
-          "then": { "$ref": "#/definitions/fileUploadComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "FileUploadWithTag" } } },
-          "then": { "$ref": "#/definitions/fileUploadWithTagComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Group" } } },
-          "then": { "$ref": "#/definitions/groupComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Image" } } },
-          "then": { "$ref": "#/definitions/imageComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Input" } } },
-          "then": { "$ref": "#/definitions/inputComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "TextArea" } } },
-          "then": { "$ref": "#/definitions/textAreaComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "InstanceInformation" } } },
-          "then": { "$ref": "#/definitions/instanceInformationComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "InstantiationButton" } } },
-          "then": { "$ref": "#/definitions/instantiationButtonComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Likert" } } },
-          "then": { "$ref": "#/definitions/radioAndCheckboxComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "MultipleSelect" } } },
-          "then": { "$ref": "#/definitions/selectionComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "NavigationButtons" } } },
-          "then": { "$ref": "#/definitions/navigationButtonsComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "RadioButtons" } } },
-          "then": { "$ref": "#/definitions/radioAndCheckboxComponents" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Summary" } } },
-          "then": { "$ref": "#/definitions/summaryComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Header" } } },
-          "then": { "$ref": "#/definitions/headerComponent" }
-        },
-        {
-          "if": { "properties": { "type": { "const": "Panel" } } },
-          "then": { "$ref": "#/definitions/panelComponent" }
-        },
-        { "if": { "properties": { "type": { "const": "List" } } }, "then": { "$ref": "#/definitions/listComponent" } },
-        {
-          "if": { "properties": { "type": { "const": "MapComponent" } } },
-          "then": { "$ref": "#/definitions/mapComponent" }
-        }
+        { "if": {"properties": {"type": { "const": "AddressComponent"}}}, "then": { "$ref": "#/definitions/addressComponent"}},
+        { "if": {"properties": {"type": { "const": "AttachmentList"}}}, "then": { "$ref": "#/definitions/attachmentListComponent"}},
+        { "if": {"properties": {"type": { "const": "Checkboxes"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "Custom"}}}, "then": { "$ref": "#/definitions/customComponent"}},
+        { "if": {"properties": {"type": { "const": "Datepicker"}}}, "then": { "$ref": "#/definitions/datepickerComponent"}},
+        { "if": {"properties": {"type": { "const": "Dropdown"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
+        { "if": {"properties": {"type": { "const": "FileUpload"}}}, "then": { "$ref": "#/definitions/fileUploadComponent"}},
+        { "if": {"properties": {"type": { "const": "FileUploadWithTag"}}}, "then": { "$ref": "#/definitions/fileUploadWithTagComponent"}},
+        { "if": {"properties": {"type": { "const": "Group"}}}, "then": { "$ref": "#/definitions/groupComponent"}},
+        { "if": {"properties": {"type": { "const": "Image"}}}, "then": { "$ref": "#/definitions/imageComponent"}},
+        { "if": {"properties": {"type": { "const": "Input"}}}, "then": { "$ref": "#/definitions/inputComponent"}},
+        { "if": {"properties": {"type": { "const": "TextArea"}}}, "then": { "$ref": "#/definitions/textAreaComponent"}},
+        { "if": {"properties": {"type": { "const": "InstanceInformation"}}}, "then": { "$ref": "#/definitions/instanceInformationComponent"}},
+        { "if": {"properties": {"type": { "const": "InstantiationButton"}}}, "then": { "$ref": "#/definitions/instantiationButtonComponent"}},
+        { "if": {"properties": {"type": { "const": "Likert"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "MultipleSelect"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
+        { "if": {"properties": {"type": { "const": "NavigationButtons"}}}, "then": { "$ref": "#/definitions/navigationButtonsComponent"}},
+        { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}},
+        { "if": {"properties": {"type": { "const": "Header"}}}, "then": {"$ref": "#/definitions/headerComponent"}},
+        { "if": {"properties": {"type": { "const": "Panel"}}}, "then": {"$ref": "#/definitions/panelComponent"}},
+        { "if": {"properties": {"type": { "const": "List"}}}, "then": {"$ref": "#/definitions/listComponent"}},
+        { "if": { "properties": { "type": { "const": "MapComponent" } } }, "then": { "$ref": "#/definitions/mapComponent" }}
       ]
     },
     "headerComponent": {
@@ -316,10 +223,12 @@
           ]
         }
       },
-      "required": ["displayMode", "maxFileSizeInMB", "maxNumberOfAttachments", "minNumberOfAttachments"]
+      "required": ["displayMode", "maxFileSizeInMB", "maxNumberOfAttachments", "minNumberOfAttachments" ]
     },
     "fileUploadWithTagComponent": {
-      "allOf": [{ "$ref": "#/definitions/fileUploadComponent" }],
+      "allOf": [
+        { "$ref": "#/definitions/fileUploadComponent" }
+      ],
       "properties": {
         "optionsId": {
           "type": "string",
@@ -379,7 +288,7 @@
           "description": "The properties to include in the instanceInformation summary",
           "type": "object",
           "properties": {
-            "dateSent": {
+            "dateSent":{
               "title": "Date sent",
               "description": "Date when the schema was sent.",
               "type": "boolean",
@@ -471,7 +380,9 @@
       "type": "integer",
       "maximum": 12,
       "minimum": 1,
-      "examples": [12]
+      "examples": [
+        12
+      ]
     },
     "gridSettings": {
       "allOf": [
@@ -631,11 +542,9 @@
     },
     "groupPanelOptions": {
       "additionalProperties": false,
-      "allOf": [
-        {
-          "$ref": "#/definitions/panelComponent"
-        }
-      ],
+      "allOf": [{
+        "$ref": "#/definitions/panelComponent"
+      }],
       "properties": {
         "iconUrl": {
           "title": "Icon url",
@@ -653,7 +562,7 @@
           "description": "Reference to the group that is being displayed in the panel. Used for referencing another repeating group context.",
           "type": "object",
           "properties": {
-            "group": {
+            "group" : {
               "type": "string",
               "title": "Group",
               "description": "Group reference. Can be either the group id or the group data model binding.",
@@ -873,15 +782,15 @@
               "description": "",
               "type": "object",
               "properties": {
-                "nb": {
+                "nb" :{
                   "type": "string",
                   "title": "Bokmål"
                 },
-                "nn": {
+                "nn":{
                   "type": "string",
                   "title": "Nynorsk"
                 },
-                "en": {
+                "en":{
                   "type": "string",
                   "title": "English"
                 }
@@ -889,12 +798,12 @@
               "additionalProperties": true
             },
             "width": {
-              "type": "string",
+              "type":"string",
               "title": "Image width",
               "examples": ["100%"]
             },
             "align": {
-              "type": "string",
+              "type":"string",
               "title": "Align image",
               "enum": ["flex-start", "center", "flex-end", "space-between", "space-around", "space-evenly"]
             }
@@ -914,10 +823,10 @@
           "$ref": "#/definitions/saveWhileTyping"
         },
         "variant": {
-          "type": "string",
+          "type":"string",
           "title": "Input Variant",
-          "description": "An enum to choose if the inputfield it is a normal textfield or a searchbar",
-          "enum": ["text", "search"]
+          "description":"An enum to choose if the inputfield it is a normal textfield or a searchbar",
+          "enum":["text","search"]
         },
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
@@ -929,10 +838,10 @@
       "properties": {
         "saveWhileTyping": {
           "$ref": "#/definitions/saveWhileTyping"
+        },
+        "autocomplete": {
+          "$ref": "#/definitions/autocomplete"
         }
-      },
-      "autocomplete": {
-        "$ref": "#/definitions/autocomplete"
       },
       "required": ["autocomplete"]
     },
@@ -940,7 +849,10 @@
       "title": "Automatic saving while typing",
       "description": "Boolean or number. True = feature on (default), false = feature off (saves on focus blur), number = timeout in milliseconds (400 by default)",
       "default": true,
-      "oneOf": [{ "type": "boolean" }, { "type": "number" }]
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "number" }
+      ]
     },
     "inputFormatting": {
       "properties": {
@@ -951,7 +863,7 @@
           "type": "string",
           "title": "Align input",
           "description": "The alignment for Input field (eg. right aligning a series of numbers)",
-          "enum": ["left", "center", "right"]
+          "enum": [ "left", "center", "right"]
         }
       }
     },
@@ -978,12 +890,11 @@
             {
               "productId": "product.id",
               "description": "Beskrivelse av produkt"
-            }
-          ],
+            }],
           "description": "An object where the fields in the datalist is mapped to headers. Must correspond to datalist representing a row. Can be added to the resource files to change between languages."
         },
-        "tableHeadersMobile": {
-          "type": "array",
+        "tableHeadersMobile":{
+          "type":"array",
           "items": {
             "type": "string"
           },
@@ -1022,7 +933,9 @@
           "description": "(Optional) Used to map data model paths to query parameters when fetching list data."
         }
       },
-      "required": ["dataListId"]
+      "required": [
+        "dataListId"
+      ]
     },
     "paginationProperties": {
       "type": "object",
@@ -1041,7 +954,10 @@
           "description": "The pagination size that is set to default."
         }
       },
-      "required": ["alternatives", "default"]
+      "required": [
+        "alternatives",
+        "default"
+      ]
     },
     "pageBreak": {
       "type": "object",
@@ -1061,8 +977,10 @@
       }
     },
     "autocomplete": {
+      "title": "HTML attribute: autocomplete",
+      "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
       "type": "string",
-      "default": "off",
+      "default": "on",
       "enum": [
         "on",
         "off",
@@ -1115,7 +1033,6 @@
         "tel-area-code",
         "tel-local",
         "tel-extension",
-        "impp",
         "url",
         "photo"
       ]
