@@ -6,6 +6,7 @@ import NavBar from 'src/components/presentation/NavBar';
 import { AltinnAppHeader, AltinnSubstatusPaper } from 'src/components/shared';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
+import Footer from 'src/shared/components/Footer';
 import { AltinnAppTheme } from 'src/theme';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { getNextView } from 'src/utils/formLayout';
@@ -124,6 +125,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };
