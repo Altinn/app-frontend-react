@@ -46,9 +46,10 @@
   - [ ] I have added a `kind/*` label to this PR for proper release notes grouping
   - [ ] I don't have permissions to add labels, please help me out
   <!---
-    Breaking changes: kind/breaking-change
-    New features:     kind/product-feature
-    Bug fixes:        kind/bug
-    Dependencies:     kind/dependencies
-    Other changes:    kind/other
+    Breaking changes:       kind/breaking-change
+    New features:               kind/product-feature
+    Bug fixes:                      kind/bug
+    Dependencies:             kind/dependencies
+    Other changes:            kind/other
+    Not in release notes:  ignore-for-release
   --->
