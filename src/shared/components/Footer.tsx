@@ -3,12 +3,14 @@ import React from 'react';
 import { Email, Information, Telephone } from '@navikt/ds-icons';
 
 import { useAppSelector } from 'src/common/hooks';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import css from 'src/shared/components/Footer.module.css';
 
 const Footer = () => {
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
+  const language = useAppSelector((state) => state.language.language);
 
-  if (applicationMetadata === null) {
+  if (applicationMetadata === null || language === null) {
     return null;
   }
 
@@ -30,7 +32,7 @@ const Footer = () => {
           height={20}
           width={20}
         />
-        Tilgjengelighet
+        {getLanguageFromKey('general.accessibility', language)}
       </a>
       {contactEmail && (
         <a
