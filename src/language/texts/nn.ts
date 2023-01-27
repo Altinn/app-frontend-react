@@ -100,6 +100,8 @@ export function nn() {
       choose: 'Vel',
       close_schema: 'Lukk skjema',
       close: 'Lukk',
+      contact_email: 'Kontakt e-post',
+      contact_phone_number: 'Kontakt telefonnummer',
       contains: 'Inneheld',
       control_submit: 'Kontroller og send inn',
       create_new: 'Opprett ny',

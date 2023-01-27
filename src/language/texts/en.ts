@@ -100,6 +100,8 @@ export function en() {
       choose: 'Choose',
       close_schema: 'Close schema',
       close: 'Close',
+      contact_email: 'Contact email',
+      contact_phone_number: 'Contact phone number',
       contains: 'Contains{0}',
       control_submit: 'Control and submit',
       create_new: 'Create new',

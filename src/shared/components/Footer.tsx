@@ -40,7 +40,7 @@ const Footer = () => {
           href={`mailto:${contactEmail}`}
         >
           <Email
-            aria-hidden={true}
+            aria-label={getLanguageFromKey('general.contact_email', language)}
             height={20}
             width={20}
           />
@@ -53,7 +53,7 @@ const Footer = () => {
           href={`tel:${contactPhoneNumber}`}
         >
           <Telephone
-            aria-hidden={true}
+            aria-label={getLanguageFromKey('general.contact_phone_number', language)}
             height={20}
             width={20}
           />
