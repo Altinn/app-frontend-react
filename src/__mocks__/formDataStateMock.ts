@@ -12,6 +12,7 @@ export function getFormDataStateMock(customState?: Partial<IFormDataState>) {
       'referencedGroup[1].inputField': 'Value from input field [1]',
       'referencedGroup[2].inputField': 'Value from input field [2]',
     },
+    lastSavedFormData: {},
     hasSubmitted: false,
     savingId: '',
     submittingId: '',

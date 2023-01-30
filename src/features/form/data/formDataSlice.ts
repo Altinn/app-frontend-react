@@ -24,6 +24,7 @@ import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 
 export const initialState: IFormDataState = {
   formData: {},
+  lastSavedFormData: {},
   error: null,
   responseInstance: null,
   unsavedChanges: false,
@@ -51,6 +52,7 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
       reducer: (state, action) => {
         const { formData } = action.payload;
         state.formData = formData;
+        state.lastSavedFormData = formData;
       },
     }),
     fetchRejected: mkAction<IFormDataRejected>({
@@ -63,6 +65,7 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
       reducer: (state, action) => {
         const { formData } = action.payload;
         state.formData = formData;
+        state.lastSavedFormData = formData;
       },
     }),
     submit: mkAction<ISubmitDataAction>({
@@ -78,6 +81,7 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
       reducer: (state) => {
         state.savingId = '';
         state.unsavedChanges = false;
+        state.lastSavedFormData = state.formData;
       },
     }),
     submitRejected: mkAction<IFormDataRejected>({

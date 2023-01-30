@@ -99,13 +99,10 @@ function createFormDataRequest(
   componentId: string | undefined,
 ): { data: any; options?: AxiosRequestConfig } {
   if (state.backendFeatures.multiPartSave) {
-    const changes = {
-      'Some.Path': 'prev-value',
-    };
-
+    const previous = diffModels(state.formData.formData, state.formData.lastSavedFormData);
     const data = new FormData();
     data.append('dataModel', JSON.stringify(model));
-    data.append('changes', JSON.stringify(changes));
+    data.append('previousValues', JSON.stringify(previous));
     return { data };
   }
 
@@ -117,6 +114,25 @@ function createFormDataRequest(
   };
 
   return { data: model, options };
+}
+
+function diffModels(current: IFormData, prev: IFormData) {
+  const changes: { [key: string]: string | null } = {};
+  for (const key of Object.keys(current)) {
+    if (current[key] !== prev[key]) {
+      changes[key] = prev[key];
+      if (prev[key] === undefined) {
+        changes[key] = null;
+      }
+    }
+  }
+  for (const key of Object.keys(prev)) {
+    if (!(key in current)) {
+      changes[key] = prev[key];
+    }
+  }
+
+  return changes;
 }
 
 export function* putFormData({ state, model, field, componentId }: SaveDataParams) {

@@ -1,18 +1,21 @@
+import dot from 'dot-object';
+
 import AppFrontend from 'test/e2e/pageobjects/app-frontend';
 
+import type { IFormData } from 'src/features/form/data';
 import type { IBackendFeaturesState } from 'src/shared/resources/backendFeatures';
 
 const appFrontend = new AppFrontend();
 
 interface MultipartReq {
-  dataModel: any;
-  changes: { [key: string]: string };
+  dataModel: IFormData;
+  previousValues: IFormData;
 }
 
 describe('Multipart save', () => {
   const lastRequest: MultipartReq = {
     dataModel: {},
-    changes: {},
+    previousValues: {},
   };
 
   /**
@@ -29,9 +32,9 @@ describe('Multipart save', () => {
     cy.intercept('PUT', '**/instances/**/data/*', (req) => {
       const contentType = req.headers['content-type']?.toString();
       if (contentType.startsWith('multipart/form-data')) {
-        const { dataModel, changes } = dirtyMultiPartParser(contentType, req.body);
-        lastRequest.dataModel = dataModel;
-        lastRequest.changes = changes;
+        const { dataModel, previousValues } = dirtyMultiPartParser(contentType, req.body);
+        lastRequest.dataModel = dot.dot(dataModel);
+        lastRequest.previousValues = previousValues;
         req.body = JSON.stringify(dataModel);
         req.headers['content-type'] = 'application/json';
         delete req.headers['content-length'];
@@ -49,12 +52,28 @@ describe('Multipart save', () => {
     cy.reload();
 
     cy.get(appFrontend.nextButton).click();
+
+    // Checking the checkbox should update with a 'null' previous value
     cy.get(appFrontend.group.showGroupToContinue).find('input').check().blur();
     cy.wait('@multipartSave').then(() => {
-      expect(lastRequest.changes).to.deep.equal({
-        'Some.Path': 'prev-value',
+      const key = 'Endringsmelding-grp-9786.Avgiver-grp-9787.KontaktpersonEPost-datadef-27688.value';
+      expect(lastRequest.dataModel[key]).to.equal('Ja');
+      expect(lastRequest.previousValues).to.deep.equal({
+        [key]: null,
       });
     });
+
+    // And then unchecking it should do the inverse
+    cy.get(appFrontend.group.showGroupToContinue).find('input').uncheck().blur();
+    cy.wait('@multipartSave').then(() => {
+      const key = 'Endringsmelding-grp-9786.Avgiver-grp-9787.KontaktpersonEPost-datadef-27688.value';
+      expect(lastRequest.dataModel[key]).to.be.undefined;
+      expect(lastRequest.previousValues).to.deep.equal({
+        [key]: 'Ja',
+      });
+    });
+
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check().blur();
     cy.get(appFrontend.group.addNewItem).should('be.visible');
   });
 });
