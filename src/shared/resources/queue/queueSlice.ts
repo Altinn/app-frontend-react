@@ -7,6 +7,7 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
 import { ApplicationSettingsActions } from 'src/shared/resources/applicationSettings/applicationSettingsSlice';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import { BackendFeaturesActions } from 'src/shared/resources/backendFeatures/backendFeaturesSlice';
 import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
 import { LanguageActions } from 'src/shared/resources/language/languageSlice';
 import { OrgsActions } from 'src/shared/resources/orgs/orgsSlice';
@@ -71,6 +72,7 @@ const queueSlice = createSagaSlice((mkAction: MkActionType<IQueueState>) => ({
         yield put(FormLayoutActions.fetchSets());
         yield put(OrgsActions.fetch());
         yield put(QueueActions.startInitialAppTaskQueueFulfilled());
+        yield put(BackendFeaturesActions.fetch());
       },
       reducer: (state) => {
         state.appTask.isDone = false;
