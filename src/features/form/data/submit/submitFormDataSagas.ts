@@ -22,6 +22,7 @@ import {
   mergeValidationObjects,
   runClientSideValidation,
 } from 'src/utils/validation';
+import type { IFormData } from 'src/features/form/data';
 import type { ISubmitDataAction, IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { IRuntimeState, IRuntimeStore, IUiConfig, IValidationIssue } from 'src/types';
@@ -91,6 +92,33 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean | undef
   return yield sagaPut(ProcessActions.complete());
 }
 
+function createFormDataRequest(
+  state: IRuntimeState,
+  model: any,
+  field: string | undefined,
+  componentId: string | undefined,
+): { data: any; options?: AxiosRequestConfig } {
+  if (state.backendFeatures.multiPartSave) {
+    const changes = {
+      'Some.Path': 'prev-value',
+    };
+
+    const data = new FormData();
+    data.append('dataModel', JSON.stringify(model));
+    data.append('changes', JSON.stringify(changes));
+    return { data };
+  }
+
+  const options: AxiosRequestConfig = {
+    headers: {
+      'X-DataField': (field && encodeURIComponent(field)) || 'undefined',
+      'X-ComponentId': (componentId && encodeURIComponent(componentId)) || 'undefined',
+    },
+  };
+
+  return { data: model, options };
+}
+
 export function* putFormData({ state, model, field, componentId }: SaveDataParams) {
   // updates the default data element
   const defaultDataElementGuid = getCurrentTaskDataElementId(
@@ -98,22 +126,21 @@ export function* putFormData({ state, model, field, componentId }: SaveDataParam
     state.instanceData.instance,
     state.formLayout.layoutsets,
   );
+  if (!defaultDataElementGuid) {
+    return;
+  }
+
   try {
-    const options: AxiosRequestConfig = {
-      headers: {
-        'X-DataField': (field && encodeURIComponent(field)) || 'undefined',
-        'X-ComponentId': (componentId && encodeURIComponent(componentId)) || 'undefined',
-      },
-    };
-    if (defaultDataElementGuid) {
-      yield call(put, dataElementUrl(defaultDataElementGuid), model, options);
-    }
+    const { data, options } = createFormDataRequest(state, model, field, componentId);
+    const responseData = yield call(put, dataElementUrl(defaultDataElementGuid), data, options);
+    yield call(handleChangedFields, responseData?.changedFields);
   } catch (error) {
     if (error.response && error.response.status === 303) {
       // 303 means that data has been changed by calculation on server. Try to update from response.
+      // Newer backends might not reply back with this special response code when there are changes, they
+      // will just respond with the 'changedFields' property instead (see code handling this above).
       if (error.response.data?.changedFields) {
-        yield call(handleCalculationUpdate, error.response.data?.changedFields);
-        yield sagaPut(FormLayoutActions.initRepeatingGroups());
+        yield call(handleChangedFields, error.response.data?.changedFields);
       } else if (defaultDataElementGuid) {
         // No changedFields property returned, try to fetch
         yield sagaPut(
@@ -128,7 +155,11 @@ export function* putFormData({ state, model, field, componentId }: SaveDataParam
   }
 }
 
-function* handleCalculationUpdate(changedFields) {
+/**
+ * When asked to save the data model, the server will execute ProcessDataWrite(), which may mutate the data model and
+ * add new data/remove data from it. If that happens, we need to inject those changes back into our data model.
+ */
+function* handleChangedFields(changedFields?: IFormData) {
   if (!changedFields) {
     return;
   }
@@ -145,6 +176,8 @@ function* handleCalculationUpdate(changedFields) {
       ),
     ),
   );
+
+  yield sagaPut(FormLayoutActions.initRepeatingGroups());
 }
 
 export function* saveFormDataSaga({

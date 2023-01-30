@@ -27,7 +27,11 @@ export const backendFeaturesSlice = createSagaSlice((mkAction: MkActionType<IBac
     }),
     fetchFulfilled: mkAction<IBackendFeaturesState>({
       reducer: (state, { payload }) => {
-        state.multiPartSave = !!payload.multiPartSave;
+        for (const key of Object.keys(state)) {
+          if (key in payload && typeof payload[key] === 'boolean') {
+            state[key] = payload[key];
+          }
+        }
       },
     }),
     fetchRejected: mkAction<{ error: string }>({
