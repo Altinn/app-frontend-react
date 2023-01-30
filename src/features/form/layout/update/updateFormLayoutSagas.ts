@@ -1,6 +1,6 @@
 import { all, call, put, race, select, take, takeLatest } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
@@ -434,7 +434,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
         layoutSetId = getLayoutsetForDataElement(instance, dataTypeId || undefined, layoutSets) || null;
       }
     }
-    const layoutOrder = yield call(
+    const layoutOrder: AxiosResponse = yield call(
       post,
       getCalculatePageOrderUrl(appIsStateless),
       {
@@ -451,7 +451,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     );
     yield put(
       FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
-        order: layoutOrder,
+        order: layoutOrder?.data || null,
       }),
     );
     if (skipMoveToNext) {
@@ -461,7 +461,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     const newOrder =
       getLayoutOrderFromTracks({
         ...state.formLayout.uiConfig.tracks,
-        order: layoutOrder,
+        order: layoutOrder?.data || null,
       }) || [];
     const newView = returnToView || newOrder[newOrder.indexOf(currentView) + 1];
     yield put(
