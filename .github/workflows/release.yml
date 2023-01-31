@@ -49,3 +49,24 @@ jobs:
       - name: Push to CDN
         working-directory: cdn
         run: git push
+
+      - name: Deploy files to azure CDN (staging)
+        uses: azure/CLI@v1
+        if: "!github.event.release.prerelease"
+        with:
+          azcliversion: 2.44.1
+          inlineScript: |
+            cd cdn
+            az storage copy -s toolkits -d https://${{ secrets.STAGING_STORAGEACCOUNT_NAME }}.blob.core.windows.net/app-frontend${{ secrets.STAGING_ALTINN_CDN_SAS_TOKEN }} --recursive
+            cd schemas/json
+            az storage copy -s layout/ -d https://${{ secrets.STAGING_STORAGEACCOUNT_NAME }}.blob.core.windows.net/app-frontend${{ secrets.STAGING_ALTINN_CDN_SAS_TOKEN }} --recursive
+            az storage copy -s component/ -d https://${{ secrets.STAGING_STORAGEACCOUNT_NAME }}.blob.core.windows.net/app-frontend${{ secrets.STAGING_ALTINN_CDN_SAS_TOKEN }} --recursive
+
+      - name: Deploy files to azure CDN (staging) (prerelease)
+        uses: azure/CLI@v1
+        if: "github.event.release.prerelease"
+        with:
+          azcliversion: 2.44.1
+          inlineScript: |
+            cd cdn
+            az storage copy -s toolkits -d https://${{ secrets.STAGING_STORAGEACCOUNT_NAME }}.blob.core.windows.net/app-frontend${{ secrets.STAGING_ALTINN_CDN_SAS_TOKEN }} --recursive
