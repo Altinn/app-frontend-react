@@ -113,8 +113,10 @@
     "string-or-number": {
       "title": "Any expression returning a string or number",
       "oneOf": [
-        { "$ref": "#/definitions/string" },
-        { "$ref": "#/definitions/number" }
+        { "type": "null", "title": "Null/missing value" },
+        { "$ref": "#/definitions/strict-string" },
+        { "$ref": "#/definitions/strict-number" },
+        { "$ref": "#/definitions/func-if" }
       ]
     },
     "func-if": {
