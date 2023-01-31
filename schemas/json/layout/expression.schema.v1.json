@@ -110,15 +110,6 @@
         { "type": "number", "title": "Numeric constant" }
       ]
     },
-    "string-or-number": {
-      "title": "Any expression returning a string or number",
-      "oneOf": [
-        { "type": "null", "title": "Null/missing value" },
-        { "$ref": "#/definitions/strict-string" },
-        { "$ref": "#/definitions/strict-number" },
-        { "$ref": "#/definitions/func-if" }
-      ]
-    },
     "func-if": {
       "title": "If/else conditional expression",
       "description": "This function will evaluate and return the result of either branch. If else is not given, null will be returned instead.",
@@ -194,7 +185,7 @@
       "items": [
         { "const":  "concat" }
       ],
-      "additionalItems": { "$ref": "#/definitions/string-or-number" }
+      "additionalItems": { "$ref": "#/definitions/string" }
     },
     "func-equals": {
       "title": "Equals function",
@@ -234,8 +225,8 @@
       "type": "array",
       "items": [
         { "const":  "greaterThan" },
-        { "$ref": "#/definitions/string-or-number" },
-        { "$ref": "#/definitions/string-or-number" }
+        { "$ref": "#/definitions/number" },
+        { "$ref": "#/definitions/number" }
       ],
       "additionalItems": false
     },
@@ -245,8 +236,8 @@
       "type": "array",
       "items": [
         { "const":  "greaterThanEq" },
-        { "$ref": "#/definitions/string-or-number" },
-        { "$ref": "#/definitions/string-or-number" }
+        { "$ref": "#/definitions/number" },
+        { "$ref": "#/definitions/number" }
       ],
       "additionalItems": false
     },
@@ -256,8 +247,8 @@
       "type": "array",
       "items": [
         { "const":  "lessThan" },
-        { "$ref": "#/definitions/string-or-number" },
-        { "$ref": "#/definitions/string-or-number" }
+        { "$ref": "#/definitions/number" },
+        { "$ref": "#/definitions/number" }
       ],
       "additionalItems": false
     },
@@ -267,8 +258,8 @@
       "type": "array",
       "items": [
         { "const":  "lessThanEq" },
-        { "$ref": "#/definitions/string-or-number" },
-        { "$ref": "#/definitions/string-or-number" }
+        { "$ref": "#/definitions/number" },
+        { "$ref": "#/definitions/number" }
       ],
       "additionalItems": false
     },
