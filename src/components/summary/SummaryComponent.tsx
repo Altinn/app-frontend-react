@@ -10,7 +10,9 @@ import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitc
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { ComponentType } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
+import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import printStyles from 'src/styles/print.module.css';
 import {
@@ -20,7 +22,7 @@ import {
 } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ILayoutComponent, RenderableGenericComponent } from 'src/layout/layout';
+import type { ComponentExceptGroupAndSummary, ILayoutComponent, RenderableGenericComponent } from 'src/layout/layout';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
 
@@ -42,8 +44,6 @@ const useStyles = makeStyles({
     paddingLeft: 0,
   },
 });
-
-const presentationComponents = new Set(['Header', 'Paragraph', 'Image', 'Panel']);
 
 export function SummaryComponent(_props: ISummaryComponent) {
   const { id, grid, componentRef, display, ...groupProps } = _props;
@@ -77,6 +77,7 @@ export function SummaryComponent(_props: ISummaryComponent) {
   );
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
   const formComponent = useResolvedNode(componentRef)?.item;
+  const layoutComponent = getLayoutComponentObject(formComponent?.type as ComponentExceptGroupAndSummary);
   const formComponentLegacy = useAppSelector(
     (state) =>
       (state.formLayout.layouts &&
@@ -188,7 +189,7 @@ export function SummaryComponent(_props: ISummaryComponent) {
         )}
       />
     );
-  } else if (presentationComponents.has(formComponentLegacy.type)) {
+  } else if (layoutComponent?.getComponentType() === ComponentType.Presentation) {
     // Render non-input components as normal
     return <GenericComponent {...(formComponentLegacy as RenderableGenericComponent)} />;
   }
