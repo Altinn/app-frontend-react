@@ -1,23 +1,19 @@
 import React from 'react';
 
-import { Email, Information, Telephone } from '@navikt/ds-icons';
+import { Information } from '@navikt/ds-icons';
 
 import { useAppSelector } from 'src/common/hooks';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import css from 'src/shared/components/Footer.module.css';
 
 const Footer = () => {
-  const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const language = useAppSelector((state) => state.language.language);
 
-  if (applicationMetadata === null || language === null) {
+  if (language === null) {
     return null;
   }
 
-  const accessibilityStatement =
-    applicationMetadata.accessibilityStatement ?? 'https://www.altinn.no/om-altinn/tilgjengelighet/';
-  const contactEmail = applicationMetadata.contactEmail;
-  const contactPhoneNumber = applicationMetadata.contactPhoneNumber;
+  const accessibilityStatement = 'https://www.altinn.no/om-altinn/tilgjengelighet/';
 
   return (
     <footer className={css['footer']}>
@@ -34,32 +30,6 @@ const Footer = () => {
         />
         {getLanguageFromKey('general.accessibility', language)}
       </a>
-      {contactEmail && (
-        <a
-          className={css['link']}
-          href={`mailto:${contactEmail}`}
-        >
-          <Email
-            aria-label={getLanguageFromKey('general.contact_email', language)}
-            height={20}
-            width={20}
-          />
-          {contactEmail}
-        </a>
-      )}
-      {contactPhoneNumber && (
-        <a
-          className={css['link']}
-          href={`tel:${contactPhoneNumber}`}
-        >
-          <Telephone
-            aria-label={getLanguageFromKey('general.contact_phone_number', language)}
-            height={20}
-            width={20}
-          />
-          {contactPhoneNumber}
-        </a>
-      )}
     </footer>
   );
 };

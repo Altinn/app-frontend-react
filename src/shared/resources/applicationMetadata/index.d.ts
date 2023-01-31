@@ -12,9 +12,6 @@ export interface IApplicationMetadata {
   title: ITitle;
   autoDeleteOnProcessEnd: boolean;
   onEntry?: IOnEntry;
-  accessibilityStatement?: string;
-  contactEmail?: string;
-  contactPhoneNumber?: string;
 }
 
 export interface IApplicationMetadataState {
