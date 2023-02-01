@@ -3,15 +3,19 @@ import React from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
+import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
+import { AltinnAppTheme } from 'src/theme';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
 
 const useStyles = makeStyles({
   spacing: {
-    letterSpacing: '0.3px',
-    maxWidth: '684px',
-    marginTop: '-12px',
+    '@media only screen': {
+      letterSpacing: '0.3px',
+      maxWidth: '684px',
+      marginTop: '-12px',
+    },
   },
   // Class to override default stylings for headers created by markdown parsing. Done to align help text icon.
   typography: {
@@ -33,15 +37,21 @@ const useStyles = makeStyles({
     '& h6': {
       margin: 0,
     },
+    '& *': {
+      // TODO: Remove when switching to 'Inter'
+      fontFamily: AltinnAppTheme.typography.fontFamily,
+    },
   },
 });
 
 export function ParagraphComponent(props: IParagraphProps) {
   const classes = useStyles();
-  const isHeader =
-    typeof props.text === 'object' &&
-    typeof (props.text as any).type === 'string' &&
-    (props.text as any).type.match(/^h\d+$/);
+
+  const text = getParsedLanguageFromText(
+    props.getTextResourceAsString(props?.textResourceBindings?.title ?? ''),
+    {},
+    false,
+  );
 
   return (
     <Grid
@@ -51,12 +61,12 @@ export function ParagraphComponent(props: IParagraphProps) {
     >
       <Grid item={true}>
         <Typography
-          component={isHeader ? 'div' : 'p'}
+          component={'div'}
           id={props.id}
           data-testid={`paragraph-component-${props.id}`}
           className={`${classes.spacing} ${classes.typography}`}
         >
-          {props.text}
+          {text}
         </Typography>
       </Grid>
       {props.textResourceBindings?.help && (

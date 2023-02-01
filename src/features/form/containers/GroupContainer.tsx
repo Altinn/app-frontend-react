@@ -5,8 +5,8 @@ import { Grid } from '@material-ui/core';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { ExprDefaultsForGroup } from 'src/features/expressions';
-import { useExpressions } from 'src/features/expressions/useExpressions';
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
@@ -16,6 +16,7 @@ import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
 import { getHiddenFieldsForGroup } from 'src/utils/layout';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';
@@ -43,15 +44,9 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
   const dispatch = useAppDispatch();
   const renderComponents: ILayoutComponent[] = JSON.parse(JSON.stringify(components));
 
-  const edit = useExpressions(container.edit, {
-    forComponentId: id,
-    defaults: ExprDefaultsForGroup.edit,
-  });
-
-  const textResourceBindingsResolved = useExpressions(container.textResourceBindings, {
-    forComponentId: id,
-    defaults: ExprDefaultsForGroup.textResourceBindings,
-  });
+  const node = useResolvedNode(id);
+  const resolvedTextBindings = node?.item.textResourceBindings;
+  const edit = node?.item.type === 'Group' ? node.item.edit : undefined;
 
   const editIndex = useAppSelector(
     (state: IRuntimeState) =>
@@ -119,9 +114,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       fullWidth
     >
       {`${getLanguageFromKey('general.add_new', language ?? {})} ${
-        textResourceBindingsResolved?.add_button
-          ? getTextResourceByKey(textResourceBindingsResolved.add_button, textResources)
-          : ''
+        resolvedTextBindings?.add_button ? getTextResourceByKey(resolvedTextBindings.add_button, textResources) : ''
       }`}
     </Button>
   );
@@ -189,6 +182,8 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     return null;
   }
 
+  const isNested = typeof container.baseComponentId === 'string';
+
   if (edit?.mode === 'likert') {
     return (
       <>
@@ -233,58 +228,65 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
           filteredIndexes={filteredIndexList}
         />
       )}
-      <Grid
-        container={true}
-        justifyContent='flex-end'
-      />
       {edit?.mode !== 'showAll' &&
         edit?.addButton !== false &&
         editIndex < 0 &&
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) &&
         addButton()}
-      {editIndex >= 0 && edit?.mode === 'hideTable' && (
-        <RepeatingGroupsEditContainer
-          container={container}
-          editIndex={editIndex}
-          setEditIndex={setEditIndex}
-          repeatingGroupIndex={repeatingGroupIndex}
-          id={id}
-          language={language}
-          textResources={textResources}
-          layout={layout}
-          repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-          multiPageIndex={multiPageIndex}
-          setMultiPageIndex={setMultiPageIndex}
-          filteredIndexes={filteredIndexList}
-        />
-      )}
-      {edit?.mode === 'showAll' &&
-        // Generate array of length repeatingGroupIndex and iterate over indexes
-        Array(repeatingGroupIndex + 1)
-          .fill(0)
-          .map((v, index) => {
-            if (filteredIndexList && filteredIndexList.length > 0 && !filteredIndexList.includes(index)) {
-              return null;
-            }
+      <ConditionalWrapper
+        condition={!isNested}
+        wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
+      >
+        <>
+          {editIndex >= 0 && edit?.mode === 'hideTable' && (
+            <RepeatingGroupsEditContainer
+              container={container}
+              editIndex={editIndex}
+              setEditIndex={setEditIndex}
+              repeatingGroupIndex={repeatingGroupIndex}
+              id={id}
+              language={language}
+              textResources={textResources}
+              layout={layout}
+              repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
+              multiPageIndex={multiPageIndex}
+              setMultiPageIndex={setMultiPageIndex}
+              filteredIndexes={filteredIndexList}
+            />
+          )}
+          {edit?.mode === 'showAll' &&
+            // Generate array of length repeatingGroupIndex and iterate over indexes
+            Array(repeatingGroupIndex + 1)
+              .fill(0)
+              .map((_, index) => {
+                if (filteredIndexList && filteredIndexList.length > 0 && !filteredIndexList.includes(index)) {
+                  return null;
+                }
 
-            return (
-              <RepeatingGroupsEditContainer
-                key={index}
-                editIndex={index}
-                repeatingGroupIndex={repeatingGroupIndex}
-                container={container}
-                id={id}
-                language={language}
-                deleting={deletingIndexes.includes(index)}
-                textResources={textResources}
-                layout={layout}
-                setEditIndex={setEditIndex}
-                onClickRemove={onClickRemove}
-                repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
-                forceHideSaveButton={true}
-              />
-            );
-          })}
+                return (
+                  <div
+                    key={index}
+                    style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
+                  >
+                    <RepeatingGroupsEditContainer
+                      editIndex={index}
+                      repeatingGroupIndex={repeatingGroupIndex}
+                      container={container}
+                      id={id}
+                      language={language}
+                      deleting={deletingIndexes.includes(index)}
+                      textResources={textResources}
+                      layout={layout}
+                      setEditIndex={setEditIndex}
+                      onClickRemove={onClickRemove}
+                      repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
+                      forceHideSaveButton={true}
+                    />
+                  </div>
+                );
+              })}
+        </>
+      </ConditionalWrapper>
       {edit?.mode === 'showAll' &&
         edit?.addButton !== false &&
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) &&

@@ -1,5 +1,6 @@
 import { SortDirection } from '@altinn/altinn-design-system';
 import { call, fork, put, select } from 'redux-saga/effects';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
@@ -10,6 +11,7 @@ import { selectNotNull } from 'src/utils/sagas';
 import { get } from 'src/utils/sharedUtils';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/form/data';
+import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type {
   IDataList,
@@ -32,18 +34,20 @@ export function* fetchDataListsSaga(): SagaIterator {
   const repeatingGroups: IRepeatingGroups = yield selectNotNull(repeatingGroupsSelector);
   const fetchedDataLists: string[] = [];
   const dataListsWithIndexIndicators: IDataListsMetaData[] = [];
+  let count = 0;
   for (const layoutId of Object.keys(layouts)) {
     for (const element of layouts[layoutId] || []) {
       if (element.type !== 'List' || !element.id) {
         continue;
       }
 
-      const { secure, id, dataListId, pagination } = element;
+      const { secure, id, dataListId, pagination, mapping } = element;
 
       const { keys, keyWithIndexIndicator } = getDataListLookupKeys({
         id: id,
         secure,
         repeatingGroups,
+        mapping,
       });
       if (keyWithIndexIndicator) {
         dataListsWithIndexIndicators.push(keyWithIndexIndicator);
@@ -65,11 +69,13 @@ export function* fetchDataListsSaga(): SagaIterator {
             secure,
             paginationDefaultValue: paginationDefault,
           });
+          count++;
           fetchedDataLists.push(lookupKey);
         }
       }
     }
   }
+  yield put(DataListsActions.dataListCountFulfilled({ count }));
   yield put(
     DataListsActions.setDataListsWithIndexIndicators({
       dataListsWithIndexIndicators,
@@ -84,8 +90,6 @@ export function* fetchSpecificDataListSaga({
   dataListId,
   paginationDefaultValue,
 }: IFetchSpecificDataListSaga): SagaIterator {
-  const key = getDataListLookupKey({ id: id, mapping: dataMapping });
-
   const instanceId = yield select(instanceIdSelector);
   try {
     const metaData: IDataListsMetaData = {
@@ -94,11 +98,10 @@ export function* fetchSpecificDataListSaga({
       secure,
       dataListId,
     };
-    yield put(DataListsActions.fetching({ key, metaData }));
+    yield put(DataListsActions.fetching({ key: id, metaData }));
     const formData: IFormData = yield select(formDataSelector);
     const language = yield select(appLanguageStateSelector);
     const dataList = yield select(listStateSelector);
-
     const pageSize = dataList.dataLists[id].size ? dataList.dataLists[id].size.toString() : paginationDefaultValue;
     const pageNumber = dataList.dataLists[id].pageNumber ? dataList.dataLists[id].pageNumber.toString() : '0';
     const sortColumn = dataList.dataLists[id].sortColumn ? dataList.dataLists[id].sortColumn.toString() : null;
@@ -122,12 +125,39 @@ export function* fetchSpecificDataListSaga({
     const dataLists: IDataList = yield call(get, url);
     yield put(
       DataListsActions.fetchFulfilled({
-        key,
+        key: id,
         dataLists: dataLists.listItems,
         metadata: dataLists._metaData,
       }),
     );
   } catch (error) {
-    yield put(DataListsActions.fetchRejected({ key: key, error }));
+    yield put(DataListsActions.fetchRejected({ key: id, error }));
+  }
+}
+
+export function* checkIfDataListShouldRefetchSaga({
+  payload: { field },
+}: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
+  const dataList: IDataList = yield select(dataListsSelector);
+  let foundInExistingDataList = false;
+  for (const dataListKey of Object.keys(dataList)) {
+    const { mapping, id, secure, dataListId } = dataList[dataListKey] || {};
+    if (!id) {
+      continue;
+    }
+
+    if (mapping && Object.keys(mapping).includes(field)) {
+      foundInExistingDataList = true;
+      yield fork(fetchSpecificDataListSaga, {
+        id,
+        dataListId,
+        dataMapping: mapping,
+        secure,
+      });
+    }
+  }
+
+  if (foundInExistingDataList) {
+    return;
   }
 }

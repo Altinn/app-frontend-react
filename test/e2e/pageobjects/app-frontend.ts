@@ -1,3 +1,5 @@
+import * as texts from 'test/e2e/fixtures/texts.json';
+
 export default class AppFrontend {
   public apps = {
     /** @see https://dev.altinn.studio/repos/ttd/frontend-test */
@@ -40,6 +42,9 @@ export default class AppFrontend {
   public navMenuCurrent = '#navigation-menu li > button[aria-current=page]';
   public navButtons = '[data-testid=NavigationButtons]';
   public startAgain = '#startAgain';
+  public nextButton = `[data-testid=NavigationButtons] button:contains("${texts.next}")`;
+  public prevButton = `[data-testid=NavigationButtons] button:contains("${texts.prev}")`;
+  public backToSummaryButton = `[data-testid=NavigationButtons] button:contains("${texts.backToSummary}")`;
 
   //Receipt
   public receipt = {
@@ -147,8 +152,8 @@ export default class AppFrontend {
     editContainer: '[data-testid=group-edit-container]',
     sendersName: '#sendersName',
     summaryText: '#send-in-text',
-    next: 'button[aria-label="Neste"]',
-    back: 'button[aria-label="Tilbake"]',
+    next: `button:contains("${texts.next}")`,
+    back: `button:contains("${texts.back}")`,
     mainGroupSummary: '[id^="mainGroup-"][id$="-summary"]',
     mainGroupTableBody: '#group-mainGroup-table-body',
     options: '#reduxOptions',
@@ -157,6 +162,7 @@ export default class AppFrontend {
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     edit: '[data-testid=edit-button]',
     delete: '[data-testid=delete-button]',
+    hideCommentField: '[id^="hideComment"]',
     row: (idx: number) => ({
       uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3, 'untagged'),
       uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4, 'untagged'),

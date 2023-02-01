@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { RadioButton } from '@altinn/altinn-design-system';
-import { Box, TableCell, TableRow } from '@material-ui/core';
+import { TableCell, TableRow, Typography } from '@material-ui/core';
 
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
@@ -46,19 +46,16 @@ const RadioGroupTableRow = ({
   const rowLabelId = `row-label-${id}`;
   return (
     <TableRow aria-labelledby={rowLabelId}>
-      <TableCell
+      <th
         scope='row'
         id={rowLabelId}
-        style={{ whiteSpace: 'normal' }}
+        style={{ whiteSpace: 'normal', fontWeight: 400, borderBottom: '1px solid rgb(0, 143, 214)', paddingLeft: 12 }}
       >
-        <Box
-          pt={1}
-          pb={1}
-        >
+        <Typography component={'div'}>
           <RenderLegend />
           {renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
-        </Box>
-      </TableCell>
+        </Typography>
+      </th>
       {calculatedOptions?.map((option, colIndex) => {
         // column label must reference correct id of header in table
         const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;

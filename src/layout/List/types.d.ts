@@ -1,4 +1,5 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
+import type { IMapping } from 'src/types';
 
 export interface IPagination {
   alternatives: number[];
@@ -6,12 +7,14 @@ export interface IPagination {
 }
 
 export interface ILayoutCompList extends ILayoutCompBase<'List'> {
-  tableHeaders?: string[];
+  tableHeaders: Record<string, string>;
   sortableColumns?: string[];
   pagination?: IPagination;
   dataListId: string;
   secure?: boolean;
+  mapping?: IMapping;
   bindingToShowInSummary?: string;
+  tableHeadersMobile?: string[];
 }
 
 export interface IDataModelBindingsForList {

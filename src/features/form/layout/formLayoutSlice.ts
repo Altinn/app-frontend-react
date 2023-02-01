@@ -54,6 +54,9 @@ export const initialState: ILayoutState = {
     },
     pageTriggers: [],
     keepScrollPos: undefined,
+    excludePageFromPdf: null,
+    excludeComponentFromPdf: null,
+    pdfLayoutName: undefined,
   },
   layoutsets: null,
 };
@@ -135,6 +138,8 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
             }
           }
         }
+        state.uiConfig.excludeComponentFromPdf = settings?.components?.excludeFromPdf ?? [];
+        state.uiConfig.excludePageFromPdf = settings?.pages?.excludeFromPdf ?? [];
       },
     }),
     fetchSettingsRejected: mkAction<LayoutTypes.IFormLayoutActionRejected>({
@@ -343,19 +348,24 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
 
 const updateCommonPageSettings = (
   state: ILayoutState,
-  page: Pick<IPagesSettings, 'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers'>,
+  page: Pick<
+    IPagesSettings,
+    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers' | 'pdfLayoutName'
+  >,
 ) => {
   const {
     hideCloseButton = state.uiConfig.hideCloseButton,
     showLanguageSelector = state.uiConfig.showLanguageSelector,
     showProgress = state.uiConfig.showProgress,
     triggers = state.uiConfig.pageTriggers,
+    pdfLayoutName = state.uiConfig.pdfLayoutName,
   } = page;
 
   state.uiConfig.hideCloseButton = hideCloseButton;
   state.uiConfig.showProgress = showProgress;
   state.uiConfig.showLanguageSelector = showLanguageSelector;
   state.uiConfig.pageTriggers = triggers;
+  state.uiConfig.pdfLayoutName = pdfLayoutName;
 };
 
 export const FormLayoutActions = formLayoutSlice.actions;
