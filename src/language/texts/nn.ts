@@ -147,10 +147,12 @@ export function nn() {
       changed_by: 'Endra av',
       continue: 'Hald fram her',
       description: 'Vel om du vil halde fram med eit skjema du har byrja på, eller om du vil starte på ny.',
+      due_before: 'Frist',
       header: 'Du har allereie starta å fylle ut dette skjemaet.',
       last_changed: 'Sist endra',
       left_of: 'Hald fram der du slapp',
       new_instance: 'Start på nytt',
+      presentation_texts: 'Text',
     },
     instantiate: {
       all_forms: 'alle skjema',

@@ -147,10 +147,12 @@ export function nb() {
       changed_by: 'Endret av',
       continue: 'Fortsett her',
       description: 'Velg om du vil fortsette på et skjema du har begynt på, eller om du vil starte på ny.',
+      due_before: 'Frist',
       header: 'Du har allerede startet å fylle ut dette skjemaet.',
       last_changed: 'Sist endret',
       left_of: 'Fortsett der du slapp',
       new_instance: 'Start på nytt',
+      presentation_texts: 'Text',
     },
     instantiate: {
       all_forms: 'alle skjema',

@@ -147,10 +147,12 @@ export function en() {
       changed_by: 'Changed by',
       continue: 'Continue here',
       description: 'Choose if you want to continue on an existing form, or if you want to start on a new one.',
+      due_before: 'Due Before',
       header: 'You have already started filling out this form.',
       last_changed: 'Last changed',
       left_of: 'Continue where you left of',
       new_instance: 'Start over',
+      presentation_texts: 'Text',
     },
     instantiate: {
       all_forms: 'all forms',

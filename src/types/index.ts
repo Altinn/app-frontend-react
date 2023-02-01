@@ -138,6 +138,8 @@ export interface ISchemaValidator {
 
 export interface ISimpleInstance {
   id: string;
+  presentationTexts?: { [key: string]: string };
+  dueBefore?: string;
   lastChanged: string;
   lastChangedBy: string;
 }

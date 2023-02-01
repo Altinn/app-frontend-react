@@ -23,7 +23,8 @@ export interface IInstanceSelectionProps {
   onNewInstance: () => void;
 }
 
-function getDateDisplayString(timeStamp: string) {
+function getDateDisplayString(timeStamp?: string) {
+  if (!timeStamp) return '';
   let date = new Date(timeStamp);
   const offset = date.getTimezoneOffset();
   date = new Date(date.getTime() - offset * 60 * 1000);
@@ -75,11 +76,21 @@ export default function InstanceSelection({ instances, onNewInstance }: IInstanc
                 items={[
                   {
                     key: 1,
+                    label: getLanguageFromKey('instance_selection.presentation_texts', language),
+                    value: Object.values(instance.presentationTexts ?? {}).join(' '),
+                  },
+                  {
+                    key: 2,
+                    label: getLanguageFromKey('instance_selection.due_before', language),
+                    value: getDateDisplayString(instance.dueBefore),
+                  },
+                  {
+                    key: 3,
                     label: getLanguageFromKey('instance_selection.last_changed', language),
                     value: getDateDisplayString(instance.lastChanged),
                   },
                   {
-                    key: 2,
+                    key: 4,
                     label: getLanguageFromKey('instance_selection.changed_by', language),
                     value: instance.lastChangedBy,
                   },
@@ -98,10 +109,16 @@ export default function InstanceSelection({ instances, onNewInstance }: IInstanc
   };
 
   const renderTable = () => {
+    const has_presentation_values = instances.some((i) => i.presentationTexts && Object.keys(i.presentationTexts));
+    const has_due_before = instances.some((i) => i.dueBefore);
     return (
       <AltinnTable id='instance-selection-table'>
         <AltinnTableHeader id='instance-selection-table-header'>
           <AltinnTableRow>
+            {has_presentation_values && (
+              <TableCell>{getLanguageFromKey('instance_selection.presentation_texts', language)}</TableCell>
+            )}
+            {has_due_before && <TableCell>{getLanguageFromKey('instance_selection.due_before', language)}</TableCell>}
             <TableCell>{getLanguageFromKey('instance_selection.last_changed', language)}</TableCell>
             <TableCell>{getLanguageFromKey('instance_selection.changed_by', language)}</TableCell>
           </AltinnTableRow>
@@ -110,6 +127,10 @@ export default function InstanceSelection({ instances, onNewInstance }: IInstanc
           {instances.map((instance: ISimpleInstance) => {
             return (
               <AltinnTableRow key={instance.id}>
+                {has_presentation_values && (
+                  <TableCell>{Object.values(instance.presentationTexts ?? {}).join(' ')}</TableCell>
+                )}
+                {has_due_before && <TableCell>{getDateDisplayString(instance.dueBefore)}</TableCell>}
                 <TableCell>{getDateDisplayString(instance.lastChanged)}</TableCell>
                 <TableCell>{instance.lastChangedBy}</TableCell>
                 <TableCell style={buttonCell}>
