@@ -64,6 +64,7 @@ describe('PanelGroupContainer', () => {
     },
     error: null,
     layoutsets: null,
+    footerLayout: null,
   };
 
   it('should display panel with group children', async () => {

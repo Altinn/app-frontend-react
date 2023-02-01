@@ -117,6 +117,7 @@ const createLayout = (
   return {
     error: null,
     layoutsets: null,
+    footerLayout: null,
     layouts: {
       FormLayout: [container, ...components],
     },

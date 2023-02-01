@@ -3,8 +3,8 @@ import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks';
+import Footer from 'src/features/footer/Footer';
 import Header from 'src/shared/components/altinnAppHeader';
-import Footer from 'src/shared/components/Footer';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { AltinnAppTheme } from 'src/theme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';

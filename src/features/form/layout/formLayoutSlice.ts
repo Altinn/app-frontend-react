@@ -23,6 +23,7 @@ import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice'
 import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
 import { replaceTextResourcesSaga } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import type { IFooterLayout } from 'src/features/footer/types';
 import type * as LayoutTypes from 'src/features/form/layout/formLayoutTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
@@ -33,6 +34,7 @@ export interface ILayoutState {
   error: Error | null;
   uiConfig: IUiConfig;
   layoutsets: ILayoutSets | null;
+  footerLayout: IFooterLayout | null;
 }
 
 export const initialState: ILayoutState = {
@@ -59,6 +61,7 @@ export const initialState: ILayoutState = {
     pdfLayoutName: undefined,
   },
   layoutsets: null,
+  footerLayout: null,
 };
 const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) => ({
   name: 'formLayout',

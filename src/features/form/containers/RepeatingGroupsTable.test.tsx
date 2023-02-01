@@ -46,6 +46,7 @@ const getLayout = (group: ILayoutGroup, components: (ILayoutComponent | Componen
     },
     error: null,
     layoutsets: null,
+    footerLayout: null,
   };
 
   return layout;
