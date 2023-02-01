@@ -118,7 +118,7 @@
         },
         "pageBreak": {
           "$ref": "#/definitions/pageBreak"
-        },
+        }
       },
       "required": ["id", "type"],
       "allOf": [
