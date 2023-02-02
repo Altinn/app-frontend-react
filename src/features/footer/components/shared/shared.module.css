@@ -1,11 +1,16 @@
 .link {
-  color: var(--colors-interaction-button-default);
+  color: var(--colors-interaction-button-default) !important;
+  border: none !important;
+  border-radius: 3px;
+}
+
+.link:hover {
+  color: var(--colors-interaction-button-hover) !important;
 }
 
 .link:focus-visible {
   outline: var(--interactive_components-colors-focus_outline) solid var(--border_width-standard);
   outline-offset: var(--border_width-standard);
-  color: var(--colors-interaction-button-default);
 }
 
 .link::after {
@@ -21,4 +26,8 @@
   white-space: unset !important;
   overflow: unset !important;
   text-indent: unset !important;
+}
+
+.link-text {
+  border-bottom: 2px solid var(--colors-interaction-button-default);
 }

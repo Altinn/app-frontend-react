@@ -23,7 +23,7 @@ export const FooterGenericLink = ({ title, target, icon }: FooterGenericLinkProp
           <FooterIcon icon={icon} />
         </span>
       )}
-      {title}
+      <span className={css['link-text']}>{title}</span>
     </a>
   );
 };
