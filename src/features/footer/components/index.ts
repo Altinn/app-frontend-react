@@ -2,7 +2,7 @@ import { FooterEmailComponent } from 'src/features/footer/components/Email';
 import { FooterLinkComponent } from 'src/features/footer/components/Link';
 import { FooterPhoneComponent } from 'src/features/footer/components/Phone';
 import { FooterTextComponent } from 'src/features/footer/components/Text';
-import type { IFooterComponent, IFooterComponentType } from 'src/features/footer/types.d';
+import type { IFooterComponent, IFooterComponentType } from 'src/features/footer/components/types';
 
 export abstract class FooterComponent<T extends IFooterComponent<IFooterComponentType>> {
   private props: T;
@@ -18,17 +18,17 @@ export abstract class FooterComponent<T extends IFooterComponent<IFooterComponen
   }
 }
 
-export function createFooterComponent(props: IFooterComponent<IFooterComponentType>) {
-  switch (props.type) {
-    case 'Email':
-      return new FooterEmailComponent(props);
-    case 'Link':
-      return new FooterLinkComponent(props);
-    case 'Phone':
-      return new FooterPhoneComponent(props);
-    case 'Text':
-      return new FooterTextComponent(props);
-    default:
-      return null;
-  }
+type IFooterComponentMap = {
+  [K in IFooterComponentType]: new (props: IFooterComponent<K>) => FooterComponent<IFooterComponent<K>>;
+};
+
+const FooterComponentMap: IFooterComponentMap = {
+  Email: FooterEmailComponent,
+  Link: FooterLinkComponent,
+  Phone: FooterPhoneComponent,
+  Text: FooterTextComponent,
+};
+
+export function createFooterComponent<T extends IFooterComponentType>(props: IFooterComponent<T>) {
+  return new FooterComponentMap[props.type](props);
 }

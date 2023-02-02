@@ -50,8 +50,7 @@
           "type": "string",
           "title": "Target",
           "description": "The email to link to."
-        },
-        "icon": { "$ref": "#/definitions/icon" }
+        }
       }
     },
     "linkComponent": {
@@ -72,8 +71,7 @@
           "type": "string",
           "title": "Target",
           "description": "The phone number to link to."
-        },
-        "icon": { "$ref": "#/definitions/icon" }
+        }
       }
     },
     "textComponent": {

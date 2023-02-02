@@ -1,16 +1,12 @@
 import React from 'react';
 
-import type { IFooterEmailComponent } from 'src/features/footer/types';
+import { FooterGenericLink } from 'src/features/footer/components/shared/FooterGenericLink';
+import type { IFooterEmailComponent } from 'src/features/footer/components/Email/types';
 
-export const FooterEmail = ({ title, target, icon }: IFooterEmailComponent) => (
-  <div>
-    {icon && <span>icon</span>}
-    <a
-      href={`mailto:${target}`}
-      target='_blank'
-      rel='noreferrer'
-    >
-      {title}
-    </a>
-  </div>
+export const FooterEmail = ({ title, target }: IFooterEmailComponent) => (
+  <FooterGenericLink
+    title={title}
+    target={`mailto:${target}`}
+    icon='email'
+  />
 );

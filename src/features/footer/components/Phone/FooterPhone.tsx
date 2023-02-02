@@ -1,16 +1,12 @@
 import React from 'react';
 
-import type { IFooterPhoneComponent } from 'src/features/footer/types';
+import { FooterGenericLink } from 'src/features/footer/components/shared/FooterGenericLink';
+import type { IFooterPhoneComponent } from 'src/features/footer/components/Phone/types';
 
-export const FooterPhone = ({ title, target, icon }: IFooterPhoneComponent) => (
-  <div>
-    {icon && <span>icon</span>}
-    <a
-      href={`tel:${target}`}
-      target='_blank'
-      rel='noreferrer'
-    >
-      {title}
-    </a>
-  </div>
+export const FooterPhone = ({ title, target }: IFooterPhoneComponent) => (
+  <FooterGenericLink
+    title={title}
+    target={`tel:${target}`}
+    icon='phone'
+  />
 );
