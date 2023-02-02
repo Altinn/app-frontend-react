@@ -1,3 +1,4 @@
+import type { IFooterLayout } from 'src/features/footer/types';
 import type { ILayouts } from 'src/layout/layout';
 import type {
   IFileUploadersWithTag,
@@ -21,6 +22,10 @@ export interface IFetchLayoutFulfilled {
 
 export interface IFetchLayoutSetsFulfilled {
   layoutSets: ILayoutSets | null;
+}
+
+export interface IFetchFooterLayoutFulfilled {
+  footerLayout: IFooterLayout | null;
 }
 
 export interface IFetchLayoutSettingsFulfilled {

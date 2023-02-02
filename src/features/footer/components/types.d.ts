@@ -1,9 +1,5 @@
-export type IFooterComponentType = 'Email' | 'Link' | 'Phone' | 'Text';
+import type { IFooterComponentType } from 'src/features/footer/types';
 
 export interface IFooterComponent<T extends IFooterComponentType> {
   type: T;
 }
-
-export type IFooterLayout = IFooterComponent[];
-
-export type IFooterIcon = 'information' | 'email' | 'phone';

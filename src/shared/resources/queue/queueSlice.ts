@@ -69,6 +69,7 @@ const queueSlice = createSagaSlice((mkAction: MkActionType<IQueueState>) => ({
         yield put(LanguageActions.fetchLanguage());
         yield put(ApplicationMetadataActions.get());
         yield put(FormLayoutActions.fetchSets());
+        yield put(FormLayoutActions.fetchFooterLayout());
         yield put(OrgsActions.fetch());
         yield put(QueueActions.startInitialAppTaskQueueFulfilled());
       },

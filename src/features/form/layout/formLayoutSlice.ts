@@ -3,6 +3,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import {
+  fetchFooterLayoutSaga,
   fetchLayoutSetsSaga,
   watchFetchFormLayoutSaga,
   watchFetchFormLayoutSettingsSaga,
@@ -23,7 +24,7 @@ import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice'
 import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
 import { replaceTextResourcesSaga } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
-import type { IFooterLayout } from 'src/features/footer/components/types';
+import type { IFooterLayout } from 'src/features/footer/types';
 import type * as LayoutTypes from 'src/features/form/layout/formLayoutTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
@@ -110,6 +111,21 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
       },
     }),
     fetchSetsRejected: mkAction<LayoutTypes.IFormLayoutActionRejected>({
+      reducer: (state, action) => {
+        const { error } = action.payload;
+        state.error = error;
+      },
+    }),
+    fetchFooterLayout: mkAction<void>({
+      takeLatest: fetchFooterLayoutSaga,
+    }),
+    fetchFooterLayoutFulfilled: mkAction<LayoutTypes.IFetchFooterLayoutFulfilled>({
+      reducer: (state, action) => {
+        const { footerLayout } = action.payload;
+        state.footerLayout = footerLayout;
+      },
+    }),
+    fetchFooterLayoutRejected: mkAction<LayoutTypes.IFormLayoutActionRejected>({
       reducer: (state, action) => {
         const { error } = action.payload;
         state.error = error;

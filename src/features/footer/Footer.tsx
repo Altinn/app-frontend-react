@@ -1,27 +1,23 @@
 import React from 'react';
 
-import { Grid } from '@material-ui/core';
-
 import { useAppSelector } from 'src/common/hooks';
+import { createFooterComponent } from 'src/features/footer';
 import css from 'src/features/footer/Footer.module.css';
+import type { IFooterLayout } from 'src/features/footer/types';
 
 const Footer = () => {
-  const language = useAppSelector((state) => state.language.language);
+  const footerLayout: IFooterLayout | null = useAppSelector((state) => state.formLayout.footerLayout);
 
-  if (language === null) {
+  const components = React.useMemo(
+    () => footerLayout?.footer.map((props) => createFooterComponent(props)),
+    [footerLayout],
+  );
+
+  if (!footerLayout) {
     return null;
   }
 
-  return (
-    <footer className={css['footer']}>
-      <Grid
-        container={true}
-        spacing={2}
-        alignItems='center'
-        justifyContent='center'
-      ></Grid>
-    </footer>
-  );
+  return <footer className={css['footer']}>{components?.map((component) => component.render())}</footer>;
 };
 
 export default Footer;

@@ -1,7 +1,8 @@
 import React from 'react';
 
 import { FooterIcon } from 'src/features/footer/components/shared/FooterIcon';
-import type { IFooterIcon } from 'src/features/footer/components/types';
+import css from 'src/features/footer/components/shared/shared.module.css';
+import type { IFooterIcon } from 'src/features/footer/types';
 
 interface FooterGenericLinkProps {
   title: string;
@@ -11,15 +12,18 @@ interface FooterGenericLinkProps {
 
 export const FooterGenericLink = ({ title, target, icon }: FooterGenericLinkProps) => {
   return (
-    <div>
-      {icon && <FooterIcon icon={icon} />}
-      <a
-        href={target}
-        target='_blank'
-        rel='noreferrer'
-      >
-        {title}
-      </a>
-    </div>
+    <a
+      href={target}
+      target='_blank'
+      rel='noreferrer'
+      className={css['link']}
+    >
+      {icon && (
+        <span style={{ marginRight: 6 }}>
+          <FooterIcon icon={icon} />
+        </span>
+      )}
+      {title}
+    </a>
   );
 };
