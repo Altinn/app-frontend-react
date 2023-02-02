@@ -89,7 +89,6 @@ export function en() {
     },
     general: {
       action: 'Action',
-      accessibility: 'Accessibility',
       add_connection: 'Add connection',
       add_new: 'Add new',
       add: 'Add',
@@ -100,8 +99,6 @@ export function en() {
       choose: 'Choose',
       close_schema: 'Close schema',
       close: 'Close',
-      contact_email: 'Contact email',
-      contact_phone_number: 'Contact phone number',
       contains: 'Contains{0}',
       control_submit: 'Control and submit',
       create_new: 'Create new',

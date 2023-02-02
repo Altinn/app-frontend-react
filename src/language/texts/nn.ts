@@ -89,7 +89,6 @@ export function nn() {
     },
     general: {
       action: 'Handling',
-      accessibility: 'Tilgjengelegheit',
       add_connection: 'Legg til tilkobling',
       add_new: 'Legg til ny',
       add: 'Legg til',
@@ -100,8 +99,6 @@ export function nn() {
       choose: 'Vel',
       close_schema: 'Lukk skjema',
       close: 'Lukk',
-      contact_email: 'Kontakt e-post',
-      contact_phone_number: 'Kontakt telefonnummer',
       contains: 'Inneheld',
       control_submit: 'Kontroller og send inn',
       create_new: 'Opprett ny',
