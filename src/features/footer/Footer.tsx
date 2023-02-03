@@ -13,11 +13,11 @@ const Footer = () => {
     [footerLayout],
   );
 
-  if (!footerLayout) {
+  if (!components) {
     return null;
   }
 
-  return <footer className={css['footer']}>{components?.map((component) => component.render())}</footer>;
+  return <footer className={css['footer']}>{components.map((component) => component.render())}</footer>;
 };
 
 export default Footer;
