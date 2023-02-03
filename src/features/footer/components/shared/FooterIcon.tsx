@@ -8,17 +8,17 @@ interface FooterIconProps {
   icon: IFooterIcon;
 }
 type Icon = typeof Email;
-type IFooterLinkMap = {
+type IFooterIconMap = {
   [K in IFooterIcon]: Icon;
 };
-const FooterLinkMap: IFooterLinkMap = {
+const FooterIconMap: IFooterIconMap = {
   email: Email,
   information: Information,
   phone: Telephone,
 };
 
 export const FooterIcon = ({ icon }: FooterIconProps) => {
-  const IconComponent = FooterLinkMap[icon];
+  const IconComponent = FooterIconMap[icon];
   return (
     <IconComponent
       aria-hidden={true}
