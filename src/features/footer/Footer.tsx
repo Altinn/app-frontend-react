@@ -21,7 +21,7 @@ const Footer = () => {
 
   const gridBreakpoints = footerLayout?.columns
     ? {
-        '--footer-grid-xs': footerLayout?.columns.xs ? `repeat(${footerLayout.columns.xs}, auto)` : '1',
+        '--footer-grid-xs': footerLayout?.columns.xs ? `repeat(${footerLayout.columns.xs}, auto)` : 'auto',
         ...(footerLayout?.columns.sm && { '--footer-grid-sm': `repeat(${footerLayout.columns.sm}, auto)` }),
         ...(footerLayout?.columns.md && { '--footer-grid-md': `repeat(${footerLayout.columns.md}, auto)` }),
         ...(footerLayout?.columns.lg && { '--footer-grid-lg': `repeat(${footerLayout.columns.lg}, auto)` }),
