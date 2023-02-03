@@ -1,7 +1,9 @@
 import React from 'react';
 
+import { useAppSelector } from 'src/common/hooks';
 import { FooterIcon } from 'src/features/footer/components/shared/FooterIcon';
 import css from 'src/features/footer/components/shared/shared.module.css';
+import { getTextResource } from 'src/utils/formComponentUtils';
 import type { IFooterIcon } from 'src/features/footer/types';
 
 interface FooterGenericLinkProps {
@@ -11,6 +13,8 @@ interface FooterGenericLinkProps {
 }
 
 export const FooterGenericLink = ({ title, target, icon }: FooterGenericLinkProps) => {
+  const textResources = useAppSelector((state) => state.textResources.resources);
+
   return (
     <a
       href={target}
@@ -23,7 +27,7 @@ export const FooterGenericLink = ({ title, target, icon }: FooterGenericLinkProp
           <FooterIcon icon={icon} />
         </span>
       )}
-      <span className={css.link_text}>{title}</span>
+      <span className={css.link_text}>{getTextResource(title, textResources)}</span>
     </a>
   );
 };
