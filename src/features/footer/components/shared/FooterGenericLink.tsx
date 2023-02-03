@@ -16,14 +16,14 @@ export const FooterGenericLink = ({ title, target, icon }: FooterGenericLinkProp
       href={target}
       target='_blank'
       rel='noreferrer'
-      className={css['link']}
+      className={css.link}
     >
       {icon && (
         <span style={{ marginRight: 6 }}>
           <FooterIcon icon={icon} />
         </span>
       )}
-      <span className={css['link-text']}>{title}</span>
+      <span className={css.link_text}>{title}</span>
     </a>
   );
 };

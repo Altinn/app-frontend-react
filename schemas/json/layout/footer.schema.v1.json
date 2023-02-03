@@ -6,16 +6,35 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
+    "columns": {
+      "title": "Number of columns",
+      "description": "Number of columns in the grid layout",
+      "type": "object",
+      "$ref": "#/definitions/columnProps"
+    },
     "footer": {
       "title": "The footer",
       "description": "Array of components to be presented in the footer.",
       "type": "array",
-      "items": { "$ref": "#/definitions/footerLayout" }
+      "items": { "allOf": [
+        {"if": {"properties": {"columns": {"const": null}}}, "then": {"$ref": "#/definitions/footer-without-grid"}},
+        {"if": {"not": {"properties": {"columns": {"const": null}}}}, "then": {"$ref": "#/definitions/footer-with-grid"}}
+      ] }
     }
   },
   "definitions": {
-    "footerLayout": {
+    "footer-with-grid": {
       "type": "object",
+      "allOf": [
+        {"$ref": "#/definitions/footerLayout"},
+        {"$ref": "#/definitions/gridLayout"}
+      ]
+    },
+    "footer-without-grid": {
+      "type": "object",
+      "$ref": "#/definitions/footerLayout"
+    },
+    "footerLayout": {
       "properties": {
         "type": {
           "type": "string",
@@ -31,6 +50,22 @@
         { "if": {"properties": {"type": { "const": "Phone"}}}, "then": { "$ref": "#/definitions/phoneComponent"}},
         { "if": {"properties": {"type": { "const": "Text"}}}, "then": { "$ref": "#/definitions/textComponent"}}
       ]
+    },
+    "gridLayout": {
+      "properties": {
+        "gridColumns": {
+          "title": "Grid columns",
+          "description": "The columns the component should span",
+          "type": "object",
+          "$ref": "#/definitions/gridProps"
+        },
+        "gridRows": {
+          "title": "Grid rows",
+          "description": "The rows the component should span",
+          "type": "object",
+          "$ref": "#/definitions/gridProps"
+        }
+      }
     },
     "icon": {
       "type": "string",
@@ -78,6 +113,81 @@
       "properties": {
         "title": { "$ref": "#/definitions/title" }
       }
+    },
+    "columnProps": {
+      "properties": {
+        "xs": {
+          "type": "number",
+          "title": "xs",
+          "description": "Grid breakpoint at 0px"
+        },
+        "sm": {
+          "type": "number",
+          "title": "sm",
+          "description": "Grid breakpoint at 600px"
+        },
+        "md": {
+          "type": "number",
+          "title": "md",
+          "description": "Grid breakpoint at 960px"
+        },
+        "lg": {
+          "type": "number",
+          "title": "lg",
+          "description": "Grid breakpoint at 1280px"
+        },
+        "xl": {
+          "type": "number",
+          "title": "xl",
+          "description": "Grid breakpoint at 1920px"
+        }
+      }
+    },
+    "gridProps": {
+      "properties": {
+        "xs": {
+          "type": "integer",
+          "title": "xs",
+          "description": "Grid breakpoint at 0px"
+        },
+        "sm": {
+          "type": "integer",
+          "title": "sm",
+          "description": "Grid breakpoint at 600px"
+        },
+        "md": {
+          "type": "integer",
+          "title": "md",
+          "description": "Grid breakpoint at 960px"
+        },
+        "lg": {
+          "type": "integer",
+          "title": "lg",
+          "description": "Grid breakpoint at 1280px"
+        },
+        "xl": {
+          "type": "integer",
+          "title": "xl",
+          "description": "Grid breakpoint at 1920px"
+        }
+      }
+    },
+    "gridValue": {
+      "type": ["integer", "array"],
+      "examples": [1, 2, [1, 2]],
+      "allOf": [
+        {"if": {"type": "array"}, "then": {
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }},
+        {"if": {"type": "integer"}, "then": {
+          "minimum": 1
+        }}
+      ]
     }
   }
 }

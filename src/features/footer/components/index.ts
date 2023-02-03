@@ -17,6 +17,6 @@ export abstract class FooterComponent<T extends IFooterComponent<IFooterComponen
   }
 
   public render() {
-    return FooterComponent.wrapper({ id: this.id, children: this.renderComponent(this.props) });
+    return FooterComponent.wrapper({ id: this.id, props: this.props, childRenderer: this.renderComponent });
   }
 }

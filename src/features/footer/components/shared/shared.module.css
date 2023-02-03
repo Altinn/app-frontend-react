@@ -28,6 +28,6 @@
   text-indent: unset !important;
 }
 
-.link-text {
+.link_text {
   border-bottom: 2px solid var(--colors-interaction-button-default);
 }
