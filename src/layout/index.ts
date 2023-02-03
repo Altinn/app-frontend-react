@@ -77,6 +77,9 @@ export interface IComponentProps extends IGenericComponentProps {
   language: ILanguage;
   shouldFocus: boolean;
   text: React.ReactNode | string;
+  texts: {
+    [textResourceKey: string]: React.ReactNode;
+  };
   label: () => JSX.Element;
   legend: () => JSX.Element;
   formData: IComponentFormData;

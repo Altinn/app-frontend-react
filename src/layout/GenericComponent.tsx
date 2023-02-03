@@ -279,6 +279,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
     language,
     shouldFocus,
     text: texts.title,
+    texts,
     label: RenderLabel,
     legend: RenderLegend,
     componentValidations,

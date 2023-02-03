@@ -1,30 +1,19 @@
 import React from 'react';
 
-import { CheckboxGroup, CheckboxGroupVariant } from '@altinn/altinn-design-system';
-import { makeStyles } from '@material-ui/core/styles';
-import cn from 'classnames';
+import { CheckboxGroup, CheckboxGroupVariant } from '@digdir/design-system-react';
 
 import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
 import { useGetOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { AltinnSpinner } from 'src/components/shared';
+import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
+import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/types';
 
 export type ICheckboxContainerProps = PropsFromGenericComponent<'Checkboxes'>;
-
-const useStyles = makeStyles(() => ({
-  root: {
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-  },
-  legend: {
-    color: '#000000',
-  },
-}));
 
 const defaultOptions: IOption[] = [];
 const defaultSelectedOptions: string[] = [];
@@ -37,14 +26,16 @@ export const CheckboxContainerComponent = ({
   preselectedOptionIndex,
   handleDataChange,
   layout,
-  legend,
   readOnly,
   getTextResourceAsString,
   mapping,
+  texts,
+  labelSettings,
+  required,
+  language,
   source,
   isValid,
 }: ICheckboxContainerProps) => {
-  const classes = useStyles();
   const apiOptions: IOption[] | undefined = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions: IOption[] | undefined = apiOptions || options || defaultOptions;
   const hasSelectedInitial = React.useRef(false);
@@ -90,48 +81,53 @@ export const CheckboxContainerComponent = ({
     }
   };
 
+  const labelText = (
+    <span className='a-form-label title-label'>
+      {texts.title}
+      <RequiredIndicator
+        required={required}
+        language={language}
+      />
+      <OptionalIndicator
+        labelSettings={labelSettings}
+        language={language}
+        required={required}
+      />
+    </span>
+  );
+
   const isOptionSelected = (option: string) => selected.includes(option);
 
-  const RenderLegend = legend;
-
-  return (
-    <>
-      <div
-        id={`${id}-label`}
-        className={cn(classes.legend)}
-      >
-        <RenderLegend />
-      </div>
-      {fetchingOptions ? (
-        <AltinnSpinner />
-      ) : (
-        <div
-          id={id}
-          key={`checkboxes_group_${id}`}
-          onBlur={handleBlur}
-        >
-          <CheckboxGroup
-            compact={false}
-            disabled={readOnly}
-            onChange={handleChange}
-            error={!isValid}
-            variant={
-              shouldUseRowLayout({
-                layout,
-                optionsCount: calculatedOptions.length,
-              })
-                ? CheckboxGroupVariant.Horizontal
-                : CheckboxGroupVariant.Vertical
-            }
-            items={calculatedOptions.map((option) => ({
-              checked: isOptionSelected(option.value),
-              label: getTextResourceAsString(option.label),
-              name: option.value,
-              checkboxId: `${id}-${option.label}`,
-            }))}
-          />
-        </div>
-      )}
-    </>
+  return fetchingOptions ? (
+    <AltinnSpinner />
+  ) : (
+    <div
+      id={id}
+      key={`checkboxes_group_${id}`}
+      onBlur={handleBlur}
+    >
+      <CheckboxGroup
+        compact={false}
+        disabled={readOnly}
+        onChange={handleChange}
+        legend={labelText}
+        description={texts.description}
+        error={!isValid}
+        variant={
+          shouldUseRowLayout({
+            layout,
+            optionsCount: calculatedOptions.length,
+          })
+            ? CheckboxGroupVariant.Horizontal
+            : CheckboxGroupVariant.Vertical
+        }
+        items={calculatedOptions.map((option) => ({
+          checked: isOptionSelected(option.value),
+          label: getTextResourceAsString(option.label),
+          name: option.value,
+          checkboxId: `${id}-${option.label}`,
+        }))}
+      />
+    </div>
   );
 };

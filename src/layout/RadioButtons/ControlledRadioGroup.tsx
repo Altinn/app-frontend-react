@@ -1,9 +1,11 @@
 import React from 'react';
 import type { ChangeEventHandler, FocusEventHandler } from 'react';
 
-import { RadioGroup, RadioGroupVariant } from '@altinn/altinn-design-system';
+import { RadioGroup, RadioGroupVariant } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/shared';
+import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
+import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import type { IOption } from 'src/types';
@@ -20,16 +22,34 @@ export interface IControlledRadioGroupProps extends IRadioButtonsContainerProps 
 export const ControlledRadioGroup = ({
   id,
   layout,
-  textResourceBindings,
   getTextResourceAsString,
   fetchingOptions,
   selected,
   readOnly,
+  texts,
+  required,
+  labelSettings,
+  language,
   handleBlur,
   handleChangeRadioGroup,
   calculatedOptions,
   isValid,
 }: IControlledRadioGroupProps) => {
+  const labelText = (
+    <span className='a-form-label title-label'>
+      {texts.title}
+      <RequiredIndicator
+        required={required}
+        language={language}
+      />
+      <OptionalIndicator
+        labelSettings={labelSettings}
+        language={language}
+        required={required}
+      />
+    </span>
+  );
+
   return (
     <div>
       {fetchingOptions ? (
@@ -47,7 +67,8 @@ export const ControlledRadioGroup = ({
               value: option.value,
               checkboxId: `${id}-${option.label}`,
             }))}
-            legend={getTextResourceAsString(textResourceBindings?.title ? textResourceBindings.title : '')}
+            legend={labelText}
+            description={texts.description}
             value={selected}
             error={!isValid}
             disabled={readOnly}
