@@ -7,9 +7,5 @@ import type { IFooterTextComponent } from 'src/features/footer/components/Text/t
 export const FooterText = ({ title }: IFooterTextComponent) => {
   const textResources = useAppSelector((state) => state.textResources.resources);
 
-  return (
-    <div>
-      <span>{getTextResource(title, textResources)}</span>
-    </div>
-  );
+  return <span>{getTextResource(title, textResources)}</span>;
 };
