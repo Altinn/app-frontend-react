@@ -63,7 +63,6 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
       reducer: (state, action) => {
         const { formData } = action.payload;
         state.formData = formData;
-        state.lastSavedFormData = formData;
       },
     }),
     submit: mkAction<ISubmitDataAction>({

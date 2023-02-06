@@ -40,13 +40,21 @@ describe('Multipart save', () => {
       req.continue();
     }).as('multipartSave');
   }
-  function expectSave(key: string, newValue: any, prevValue: any) {
+
+  function expectReq(cb: (req: MultipartReq) => void) {
     cy.waitUntil(() => requests.length > 0).then(() => {
-      cy.log('Checking that', key, 'equals', newValue);
       const req = requests.shift();
       if (!req) {
         throw new Error(`No request to shift off the start`);
       }
+
+      cb(req);
+    });
+  }
+
+  function expectSave(key: string, newValue: any, prevValue: any) {
+    expectReq((req) => {
+      cy.log('Checking that', key, 'equals', newValue);
 
       const val = req.dataModel[key];
       if (val !== newValue && val === undefined) {
@@ -102,6 +110,41 @@ describe('Multipart save', () => {
     expectSave(`${groupKey}[1].${newValueKey}`, '5678', null);
     expectSave(`${groupKey}[1].${subGroupKey}[0].source`, 'altinn', null);
     expectSave(`${groupKey}[1].${subGroupKey}[0].${commentKey}`, 'second comment', null);
+
+    cy.get(appFrontend.group.row(0).deleteBtn).click();
+    expectReq((req) => {
+      expect(Object.entries(req.dataModel).filter(([k]) => k.startsWith(groupKey))).to.deep.equal([
+        // Group should now just have one row (we deleted the first one)
+        [`${groupKey}[0].${currentValueKey}`, '1234'],
+        [`${groupKey}[0].${newValueKey}`, '5678'],
+        [`${groupKey}[0].${subGroupKey}[0].source`, 'altinn'],
+        [`${groupKey}[0].${subGroupKey}[0].${commentKey}`, 'second comment'],
+      ]);
+      expect(req.previousValues).to.deep.equal({
+        [`${groupKey}[0].${currentValueKey}`]: '1',
+        [`${groupKey}[0].${newValueKey}`]: '2',
+        // This following is not present, because it never really changed (previous value is the same as new value):
+        // [`${groupKey}[0].${subGroupKey}[0].source`]: 'altinn',
+        [`${groupKey}[0].${subGroupKey}[0].${commentKey}`]: 'first comment',
+
+        [`${groupKey}[1].${currentValueKey}`]: '1234',
+        [`${groupKey}[1].${newValueKey}`]: '5678',
+        [`${groupKey}[1].${subGroupKey}[0].source`]: 'altinn',
+        [`${groupKey}[1].${subGroupKey}[0].${commentKey}`]: 'second comment',
+      });
+    });
+
+    cy.get(appFrontend.group.row(0).deleteBtn).click();
+    expectReq((req) => {
+      const keys = Object.keys(req.dataModel);
+      expect(keys.filter((k) => k.startsWith(groupKey))).to.deep.equal([]);
+      expect(req.previousValues).to.deep.equal({
+        [`${groupKey}[0].${currentValueKey}`]: '1234',
+        [`${groupKey}[0].${newValueKey}`]: '5678',
+        [`${groupKey}[0].${subGroupKey}[0].source`]: 'altinn',
+        [`${groupKey}[0].${subGroupKey}[0].${commentKey}`]: 'second comment',
+      });
+    });
 
     // Ensure there are no more save requests in the queue afterwards
     cy.waitUntil(() => requests.length === 0);
