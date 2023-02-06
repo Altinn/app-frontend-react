@@ -10,9 +10,11 @@ export interface IFormDataState {
   error: Error | null;
   responseInstance: any;
   unsavedChanges: boolean;
+
+  // The component IDs which triggered submitting/saving last time
   submittingId: string;
   savingId: string;
-  hasSubmitted: boolean;
+
   ignoreWarnings: boolean;
 }
 

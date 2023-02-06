@@ -221,7 +221,6 @@ export const render = ({
     formData: generateMockFormData(mockQuestions),
     lastSavedFormData: {},
     error: null,
-    hasSubmitted: false,
     ignoreWarnings: false,
     submittingId: '',
     savingId: '',

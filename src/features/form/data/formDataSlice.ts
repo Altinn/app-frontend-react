@@ -3,7 +3,6 @@ import type { AnyAction } from 'redux';
 import { fetchFormDataSaga, watchFetchFormDataInitialSaga } from 'src/features/form/data/fetch/fetchFormDataSagas';
 import { autoSaveSaga, saveFormDataSaga, submitFormSaga } from 'src/features/form/data/submit/submitFormDataSagas';
 import { deleteAttachmentReferenceSaga, updateFormDataSaga } from 'src/features/form/data/update/updateFormDataSagas';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { checkIfRuleShouldRunSaga } from 'src/features/form/rules/check/checkRulesSagas';
 import { checkIfDataListShouldRefetchSaga } from 'src/shared/resources/dataLists/fetchDataListsSaga';
 import { checkIfOptionsShouldRefetchSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
@@ -30,7 +29,6 @@ export const initialState: IFormDataState = {
   unsavedChanges: false,
   submittingId: '',
   savingId: '',
-  hasSubmitted: false,
   ignoreWarnings: false,
 };
 
@@ -74,7 +72,6 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
         const { apiMode, componentId } = action.payload;
         state.savingId = apiMode !== 'Complete' ? componentId : state.savingId;
         state.submittingId = apiMode === 'Complete' ? componentId : state.submittingId;
-        state.hasSubmitted = apiMode === 'Complete';
       },
     }),
     submitFulfilled: mkAction<void>({
@@ -96,7 +93,6 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
     update: mkAction<IUpdateFormData>({
       takeEvery: updateFormDataSaga,
       reducer: (state) => {
-        state.hasSubmitted = false;
         state.ignoreWarnings = false;
       },
     }),
@@ -129,12 +125,6 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
   },
   extraReducers: (builder) => {
     builder
-      .addCase(FormLayoutActions.updateCurrentView, (state) => {
-        state.hasSubmitted = true;
-      })
-      .addCase(FormLayoutActions.updateCurrentViewFulfilled, (state) => {
-        state.hasSubmitted = false;
-      })
       .addMatcher(isProcessAction, (state) => {
         state.submittingId = '';
       })
