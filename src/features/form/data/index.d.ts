@@ -8,7 +8,6 @@ export interface IFormDataState {
   lastSavedFormData: IFormData;
 
   error: Error | null;
-  responseInstance: any;
   unsavedChanges: boolean;
 
   // The component IDs which triggered submitting/saving last time

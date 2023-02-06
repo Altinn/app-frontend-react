@@ -224,7 +224,6 @@ export const render = ({
     ignoreWarnings: false,
     submittingId: '',
     savingId: '',
-    responseInstance: null,
     unsavedChanges: false,
   };
 

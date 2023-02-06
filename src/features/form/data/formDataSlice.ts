@@ -25,7 +25,6 @@ export const initialState: IFormDataState = {
   formData: {},
   lastSavedFormData: {},
   error: null,
-  responseInstance: null,
   unsavedChanges: false,
   submittingId: '',
   savingId: '',
