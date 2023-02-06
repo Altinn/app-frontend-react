@@ -16,6 +16,7 @@ export function getFormDataStateMock(customState?: Partial<IFormDataState>) {
     savingId: '',
     submittingId: '',
     unsavedChanges: false,
+    saving: false,
     ignoreWarnings: true,
   };
 

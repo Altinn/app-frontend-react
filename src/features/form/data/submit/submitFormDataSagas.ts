@@ -13,6 +13,7 @@ import { Severity } from 'src/types';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from 'src/utils/databindings';
 import { post } from 'src/utils/network/networking';
+import { waitFor } from 'src/utils/sagas';
 import { get, put } from 'src/utils/sharedUtils';
 import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from 'src/utils/urls/appUrlHelper';
 import {
@@ -35,8 +36,7 @@ export function* submitFormSaga({
 }: PayloadAction<ISubmitDataAction>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
-    const { model, validationResult, componentSpecificValidations, emptyFieldsValidations } =
-      runClientSideValidation(state);
+    const { validationResult, componentSpecificValidations, emptyFieldsValidations } = runClientSideValidation(state);
 
     validationResult.validations = mergeValidationObjects(
       validationResult.validations,
@@ -49,7 +49,7 @@ export function* submitFormSaga({
       return yield sagaPut(FormDataActions.submitRejected({ error: null }));
     }
 
-    yield call(putFormData, { state, model });
+    yield call(putFormData, {});
     if (apiMode === 'Complete') {
       yield call(submitComplete, state, stopWithWarnings);
     }
@@ -135,20 +135,33 @@ function diffModels(current: IFormData, prev: IFormData) {
   return changes;
 }
 
-export function* putFormData({ state, model, field, componentId }: SaveDataParams) {
-  // updates the default data element
-  const defaultDataElementGuid = getCurrentTaskDataElementId(
-    state.applicationMetadata.applicationMetadata,
-    state.instanceData.instance,
-    state.formLayout.layoutsets,
+function* waitForSaving() {
+  // We should only run one save request at a time. This function waits until we can perform
+  // a saving operations, and reserves a spot.
+  yield waitFor((state) => !state.formData.saving);
+  yield sagaPut(FormDataActions.savingStarted());
+}
+
+export function* putFormData({ field, componentId }: SaveDataParams) {
+  const defaultDataElementGuid: string | undefined = yield select((state) =>
+    getCurrentTaskDataElementId(
+      state.applicationMetadata.applicationMetadata,
+      state.instanceData.instance,
+      state.formLayout.layoutsets,
+    ),
   );
   if (!defaultDataElementGuid) {
     return;
   }
 
+  yield call(waitForSaving);
+  const state: IRuntimeState = yield select();
+  const model = getModelToSave(state);
+
+  const url = dataElementUrl(defaultDataElementGuid);
   try {
     const { data, options } = createFormDataRequest(state, model, field, componentId);
-    const responseData = yield call(put, dataElementUrl(defaultDataElementGuid), data, options);
+    const responseData = yield call(put, url, data, options);
     yield call(handleChangedFields, responseData?.changedFields);
   } catch (error) {
     if (error.response && error.response.status === 303) {
@@ -159,16 +172,14 @@ export function* putFormData({ state, model, field, componentId }: SaveDataParam
         yield call(handleChangedFields, error.response.data?.changedFields);
       } else if (defaultDataElementGuid) {
         // No changedFields property returned, try to fetch
-        yield sagaPut(
-          FormDataActions.fetch({
-            url: dataElementUrl(defaultDataElementGuid),
-          }),
-        );
+        yield sagaPut(FormDataActions.fetch({ url }));
       }
     } else {
       throw error;
     }
   }
+
+  yield sagaPut(FormDataActions.savingEnded());
 }
 
 /**
@@ -196,6 +207,15 @@ function* handleChangedFields(changedFields?: IFormData) {
   yield sagaPut(FormLayoutActions.initRepeatingGroups());
 }
 
+function getModelToSave(state: IRuntimeState) {
+  return convertDataBindingToModel(
+    filterOutInvalidData({
+      data: state.formData.formData,
+      invalidKeys: state.formValidations.invalidDataTypes,
+    }),
+  );
+}
+
 export function* saveFormDataSaga({
   payload: { field, componentId, singleFieldValidation },
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
@@ -203,18 +223,12 @@ export function* saveFormDataSaga({
     const state: IRuntimeState = yield select();
     // updates the default data element
     const application = state.applicationMetadata.applicationMetadata;
-    const model = convertDataBindingToModel(
-      filterOutInvalidData({
-        data: state.formData.formData,
-        invalidKeys: state.formValidations.invalidDataTypes,
-      }),
-    );
 
     if (isStatelessApp(application)) {
-      yield call(saveStatelessData, { state, model, field, componentId });
+      yield call(saveStatelessData, { field, componentId });
     } else {
       // app with instance
-      yield call(putFormData, { state, model, field, componentId });
+      yield call(putFormData, { field, componentId });
     }
 
     if (singleFieldValidation && componentId) {
@@ -235,13 +249,15 @@ export function* saveFormDataSaga({
 }
 
 interface SaveDataParams {
-  state: IRuntimeState;
-  model: any;
   field?: string;
   componentId?: string;
 }
 
-export function* saveStatelessData({ state, model, field, componentId }: SaveDataParams) {
+export function* saveStatelessData({ field, componentId }: SaveDataParams) {
+  yield call(waitForSaving);
+
+  const state: IRuntimeState = yield select();
+  const model = getModelToSave(state);
   const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
   let headers: AxiosRequestConfig['headers'] = {
     'X-DataField': (field && encodeURIComponent(field)) || 'undefined',
@@ -266,6 +282,8 @@ export function* saveStatelessData({ state, model, field, componentId }: SaveDat
     yield sagaPut(FormDataActions.fetchFulfilled({ formData }));
     yield sagaPut(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
   }
+
+  yield sagaPut(FormDataActions.savingEnded());
 }
 
 export function* autoSaveSaga({

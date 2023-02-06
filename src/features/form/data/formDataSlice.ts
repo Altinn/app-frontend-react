@@ -24,10 +24,11 @@ import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 export const initialState: IFormDataState = {
   formData: {},
   lastSavedFormData: {},
-  error: null,
   unsavedChanges: false,
+  saving: false,
   submittingId: '',
   savingId: '',
+  error: null,
   ignoreWarnings: false,
 };
 
@@ -66,11 +67,21 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
       },
     }),
     submit: mkAction<ISubmitDataAction>({
-      takeLatest: submitFormSaga,
+      takeEvery: submitFormSaga,
       reducer: (state, action) => {
         const { apiMode, componentId } = action.payload;
         state.savingId = apiMode !== 'Complete' ? componentId : state.savingId;
         state.submittingId = apiMode === 'Complete' ? componentId : state.submittingId;
+      },
+    }),
+    savingStarted: mkAction<void>({
+      reducer: (state) => {
+        state.saving = true;
+      },
+    }),
+    savingEnded: mkAction<void>({
+      reducer: (state) => {
+        state.saving = false;
       },
     }),
     submitFulfilled: mkAction<void>({
@@ -116,7 +127,7 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
       },
     }),
     save: mkAction<ISaveAction>({
-      takeLatest: saveFormDataSaga,
+      takeEvery: saveFormDataSaga,
     }),
     deleteAttachmentReference: mkAction<IDeleteAttachmentReference>({
       takeLatest: deleteAttachmentReferenceSaga,

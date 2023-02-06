@@ -225,6 +225,7 @@ export const render = ({
     submittingId: '',
     savingId: '',
     unsavedChanges: false,
+    saving: false,
   };
 
   const preloadedState = getInitialStateMock({
