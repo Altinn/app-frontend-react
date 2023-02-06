@@ -13,10 +13,7 @@ interface MultipartReq {
 }
 
 describe('Multipart save', () => {
-  const lastRequest: MultipartReq = {
-    dataModel: {},
-    previousValues: {},
-  };
+  const requests: MultipartReq[] = [];
 
   /**
    * This is not supported by 'frontend-test' yet, so we'll simulate the functionality by intercepting the requests
@@ -28,19 +25,40 @@ describe('Multipart save', () => {
       multiPartSave: true,
     };
     cy.intercept('GET', '**/featureset', JSON.stringify(backendFeatures));
-
     cy.intercept('PUT', '**/instances/**/data/*', (req) => {
       const contentType = req.headers['content-type']?.toString();
       if (contentType.startsWith('multipart/form-data')) {
         const { dataModel, previousValues } = dirtyMultiPartParser(contentType, req.body);
-        lastRequest.dataModel = dot.dot(dataModel);
-        lastRequest.previousValues = previousValues;
+        requests.push({
+          dataModel: dot.dot(dataModel),
+          previousValues,
+        });
         req.body = JSON.stringify(dataModel);
         req.headers['content-type'] = 'application/json';
         delete req.headers['content-length'];
       }
       req.continue();
     }).as('multipartSave');
+  }
+  function expectSave(key: string, newValue: any, prevValue: any) {
+    cy.waitUntil(() => requests.length > 0).then(() => {
+      cy.log('Checking that', key, 'equals', newValue);
+      const req = requests.shift();
+      if (!req) {
+        throw new Error(`No request to shift off the start`);
+      }
+
+      const val = req.dataModel[key];
+      if (val !== newValue && val === undefined) {
+        // This will probably help in debugging, in case something goes wrong
+        throw new Error(`Found no such key: ${key}`);
+      }
+
+      expect(val).to.equal(newValue);
+      expect(req.previousValues).to.deep.equal({
+        [key]: prevValue,
+      });
+    });
   }
 
   it('Multipart saving with groups', () => {
@@ -54,27 +72,39 @@ describe('Multipart save', () => {
     cy.get(appFrontend.nextButton).click();
 
     // Checking the checkbox should update with a 'null' previous value
+    const root = 'Endringsmelding-grp-9786';
+    const showGroupKey = `${root}.Avgiver-grp-9787.KontaktpersonEPost-datadef-27688.value`;
     cy.get(appFrontend.group.showGroupToContinue).find('input').check().blur();
-    cy.wait('@multipartSave').then(() => {
-      const key = 'Endringsmelding-grp-9786.Avgiver-grp-9787.KontaktpersonEPost-datadef-27688.value';
-      expect(lastRequest.dataModel[key]).to.equal('Ja');
-      expect(lastRequest.previousValues).to.deep.equal({
-        [key]: null,
-      });
-    });
+    expectSave(showGroupKey, 'Ja', null);
 
     // And then unchecking it should do the inverse
     cy.get(appFrontend.group.showGroupToContinue).find('input').uncheck().blur();
-    cy.wait('@multipartSave').then(() => {
-      const key = 'Endringsmelding-grp-9786.Avgiver-grp-9787.KontaktpersonEPost-datadef-27688.value';
-      expect(lastRequest.dataModel[key]).to.be.undefined;
-      expect(lastRequest.previousValues).to.deep.equal({
-        [key]: 'Ja',
-      });
-    });
+    expectSave(showGroupKey, undefined, 'Ja');
 
     cy.get(appFrontend.group.showGroupToContinue).find('input').check().blur();
-    cy.get(appFrontend.group.addNewItem).should('be.visible');
+    expectSave(showGroupKey, 'Ja', null);
+
+    const groupKey = `${root}.OversiktOverEndringene-grp-9788`;
+    const currentValueKey = 'SkattemeldingEndringEtterFristOpprinneligBelop-datadef-37131.value';
+    const newValueKey = 'SkattemeldingEndringEtterFristNyttBelop-datadef-37132.value';
+    const subGroupKey = 'nested-grp-1234';
+    const commentKey = 'SkattemeldingEndringEtterFristKommentar-datadef-37133.value';
+
+    // Add a simple item to the group
+    cy.addItemToGroup(1, 2, 'first comment');
+    expectSave(`${groupKey}[0].${currentValueKey}`, '1', null);
+    expectSave(`${groupKey}[0].${newValueKey}`, '2', null);
+    expectSave(`${groupKey}[0].${subGroupKey}[0].source`, 'altinn', null);
+    expectSave(`${groupKey}[0].${subGroupKey}[0].${commentKey}`, 'first comment', null);
+
+    cy.addItemToGroup(1234, 5678, 'second comment');
+    expectSave(`${groupKey}[1].${currentValueKey}`, '1234', null);
+    expectSave(`${groupKey}[1].${newValueKey}`, '5678', null);
+    expectSave(`${groupKey}[1].${subGroupKey}[0].source`, 'altinn', null);
+    expectSave(`${groupKey}[1].${subGroupKey}[0].${commentKey}`, 'second comment', null);
+
+    // Ensure there are no more save requests in the queue afterwards
+    cy.waitUntil(() => requests.length === 0);
   });
 });
 
