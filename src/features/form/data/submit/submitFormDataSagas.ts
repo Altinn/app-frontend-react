@@ -159,18 +159,19 @@ export function* putFormData({ field, componentId }: SaveDataParams) {
   const model = getModelToSave(state);
 
   const url = dataElementUrl(defaultDataElementGuid);
+  let lastSavedModel = state.formData.formData;
   try {
     const { data, options } = createFormDataRequest(state, model, field, componentId);
     const responseData = yield call(put, url, data, options);
-    yield call(handleChangedFields, responseData?.changedFields);
+    lastSavedModel = yield call(handleChangedFields, responseData?.changedFields, state.formData.formData);
   } catch (error) {
     if (error.response && error.response.status === 303) {
       // 303 means that data has been changed by calculation on server. Try to update from response.
       // Newer backends might not reply back with this special response code when there are changes, they
       // will just respond with the 'changedFields' property instead (see code handling this above).
       if (error.response.data?.changedFields) {
-        yield call(handleChangedFields, error.response.data?.changedFields);
-      } else if (defaultDataElementGuid) {
+        lastSavedModel = yield call(handleChangedFields, error.response.data?.changedFields, state.formData.formData);
+      } else {
         // No changedFields property returned, try to fetch
         yield sagaPut(FormDataActions.fetch({ url }));
       }
@@ -179,32 +180,45 @@ export function* putFormData({ field, componentId }: SaveDataParams) {
     }
   }
 
-  yield sagaPut(FormDataActions.savingEnded());
+  yield sagaPut(FormDataActions.savingEnded({ model: lastSavedModel }));
 }
 
 /**
  * When asked to save the data model, the server will execute ProcessDataWrite(), which may mutate the data model and
  * add new data/remove data from it. If that happens, we need to inject those changes back into our data model.
  */
-function* handleChangedFields(changedFields?: IFormData) {
+function* handleChangedFields(changedFields: IFormData | undefined, lastSavedFormData: IFormData) {
   if (!changedFields) {
-    return;
+    return lastSavedFormData;
   }
 
   yield all(
-    Object.keys(changedFields).map((fieldKey) =>
-      sagaPut(
+    Object.keys(changedFields).map((field) => {
+      // Simulating the update on lastSavedFormData as well, because we need to pretend these changes were here all
+      // along in order to send the proper list of changed fields in the next save request. We can't simply read the
+      // current formData when the save is done (and use that for the lastSavedFormData state) because that may have
+      // changed since we started saving (another request may be in the queue to save the next piece of data).
+      const data = changedFields[field]?.toString();
+      if (data === undefined || data === null || data === '') {
+        delete lastSavedFormData[field];
+      } else {
+        lastSavedFormData[field] = data;
+      }
+
+      return sagaPut(
         FormDataActions.update({
-          data: changedFields[fieldKey]?.toString(),
-          field: fieldKey,
+          data,
+          field,
           skipValidation: true,
           skipAutoSave: true,
         }),
-      ),
-    ),
+      );
+    }),
   );
 
   yield sagaPut(FormLayoutActions.initRepeatingGroups());
+
+  return lastSavedFormData;
 }
 
 function getModelToSave(state: IRuntimeState) {
@@ -283,7 +297,7 @@ export function* saveStatelessData({ field, componentId }: SaveDataParams) {
     yield sagaPut(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
   }
 
-  yield sagaPut(FormDataActions.savingEnded());
+  yield sagaPut(FormDataActions.savingEnded({ model: state.formData.formData }));
 }
 
 export function* autoSaveSaga({

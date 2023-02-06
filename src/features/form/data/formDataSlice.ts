@@ -8,7 +8,7 @@ import { checkIfDataListShouldRefetchSaga } from 'src/shared/resources/dataLists
 import { checkIfOptionsShouldRefetchSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
-import type { IFormDataState } from 'src/features/form/data';
+import type { IFormData, IFormDataState } from 'src/features/form/data';
 import type {
   IDeleteAttachmentReference,
   IFetchFormData,
@@ -79,16 +79,16 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
         state.saving = true;
       },
     }),
-    savingEnded: mkAction<void>({
-      reducer: (state) => {
+    savingEnded: mkAction<{ model: IFormData }>({
+      reducer: (state, action) => {
         state.saving = false;
+        state.lastSavedFormData = action.payload.model;
       },
     }),
     submitFulfilled: mkAction<void>({
       reducer: (state) => {
         state.savingId = '';
         state.unsavedChanges = false;
-        state.lastSavedFormData = state.formData;
       },
     }),
     submitRejected: mkAction<IFormDataRejected>({
@@ -110,14 +110,16 @@ const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataState>) =
       takeLatest: [checkIfRuleShouldRunSaga, autoSaveSaga],
       takeEvery: [checkIfOptionsShouldRefetchSaga, checkIfDataListShouldRefetchSaga],
       reducer: (state, action) => {
-        const { field, data } = action.payload;
+        const { field, data, skipAutoSave } = action.payload;
         // Remove if data is null, undefined or empty string
         if (data === undefined || data === null || data === '') {
           delete state.formData[field];
         } else {
           state.formData[field] = data;
         }
-        state.unsavedChanges = true;
+        if (!skipAutoSave) {
+          state.unsavedChanges = true;
+        }
       },
     }),
     updateRejected: mkAction<IFormDataRejected>({
