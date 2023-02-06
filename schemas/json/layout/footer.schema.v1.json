@@ -11,28 +11,41 @@
       "description": "Number of columns in the grid layout",
       "type": "object",
       "$ref": "#/definitions/columnProps"
-    },
-    "footer": {
-      "title": "The footer",
-      "description": "Array of components to be presented in the footer.",
-      "type": "array",
-      "items": { "allOf": [
-        {"if": {"properties": {"columns": {"const": null}}}, "then": {"$ref": "#/definitions/footer-without-grid"}},
-        {"if": {"not": {"properties": {"columns": {"const": null}}}}, "then": {"$ref": "#/definitions/footer-with-grid"}}
-      ] }
     }
   },
+  "if": {"required": ["columns"]},
+  "then": {"$ref": "#/definitions/footer-with-grid"},
+  "else": {"$ref": "#/definitions/footer-without-grid"},
   "definitions": {
     "footer-with-grid": {
-      "type": "object",
-      "allOf": [
-        {"$ref": "#/definitions/footerLayout"},
-        {"$ref": "#/definitions/gridLayout"}
-      ]
+      "properties": {
+        "footer": {
+          "title": "The footer",
+          "description": "Array of components to be presented in the footer.",
+          "type": "array",
+          "items": {
+            "allOf": [
+              {"$ref": "#/definitions/footerLayout"},
+              {"$ref": "#/definitions/gridLayout"}
+            ]
+          }
+        }
+      }
     },
     "footer-without-grid": {
-      "type": "object",
-      "$ref": "#/definitions/footerLayout"
+      "properties": {
+        "footer": {
+          "title": "The footer",
+          "description": "Array of components to be presented in the footer.",
+          "type": "array",
+          "items": {
+            "allOf": [
+              {"$ref": "#/definitions/footerLayout"},
+              {"properties": {"gridColumns": false, "gridRows": false}}
+            ]
+          }
+        }
+      }
     },
     "footerLayout": {
       "properties": {
