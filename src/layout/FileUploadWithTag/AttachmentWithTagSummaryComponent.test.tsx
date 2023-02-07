@@ -28,7 +28,6 @@ describe('AttachmentWithTagSummaryComponent', () => {
       uiConfig: initialState.formLayout.uiConfig,
       layoutsets: initialState.formLayout.layoutsets,
       error: null,
-      footerLayout: null,
     },
   });
   const extendedState: Partial<RootState> = {

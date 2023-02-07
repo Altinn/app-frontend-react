@@ -6,7 +6,7 @@ import css from 'src/features/footer/Footer.module.css';
 import type { IFooterLayout } from 'src/features/footer/types';
 
 const Footer = () => {
-  const footerLayout: IFooterLayout | null = useAppSelector((state) => state.formLayout.footerLayout);
+  const footerLayout: IFooterLayout | null = useAppSelector((state) => state.footerLayout.footerLayout);
 
   const components = React.useMemo(
     () => footerLayout?.footer.map((props) => createFooterComponent(props)),

@@ -8,9 +8,8 @@ import components from 'src/layout';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { get } from 'src/utils/network/networking';
-import { getFooterLayoutUrl, getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';
+import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';
 import type { ExpressionOr, ExprObjConfig } from 'src/features/expressions/types';
-import type { IFooterLayout } from 'src/features/footer/types';
 import type { ComponentTypes, ILayout, ILayouts } from 'src/layout/layout';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { IHiddenLayoutsExpressions, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
@@ -167,20 +166,6 @@ export function* fetchLayoutSetsSaga(): SagaIterator {
       yield put(FormLayoutActions.fetchSetsFulfilled({ layoutSets: null }));
     } else {
       yield put(FormLayoutActions.fetchSetsRejected({ error }));
-    }
-  }
-}
-
-export function* fetchFooterLayoutSaga(): SagaIterator {
-  try {
-    const footerLayout: IFooterLayout = yield call(get, getFooterLayoutUrl());
-    yield put(FormLayoutActions.fetchFooterLayoutFulfilled({ footerLayout }));
-  } catch (error) {
-    if (error?.response?.status === 404) {
-      // We accept that the app does not have a layout sets as this is not default
-      yield put(FormLayoutActions.fetchFooterLayoutFulfilled({ footerLayout: null }));
-    } else {
-      yield put(FormLayoutActions.fetchFooterLayoutRejected({ error }));
     }
   }
 }
