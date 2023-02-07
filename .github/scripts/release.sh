@@ -176,11 +176,11 @@ fi
 
 echo "-------------------------------------"
 if [[ -z "$AZURE_STORAGE_ACCOUNT_NAME" ]]; then
-  echo "Skipping publish to azure cdn. As --azure-cdn-uri flag not defined"
+  echo "Skipping publish to azure cdn. As --azure-sa-name flag not defined"
 else 
   if [[ -d "$AZURE_STORAGE_ACCOUNT_NAME" ]]; then
     echo
-    echo "azure-cdn-uri seems to be a local directory. Simulating azcopy sync with rsync to folder"
+    echo "azure-sa-name seems to be a local directory. Simulating azcopy sync with rsync to folder"
     echo
     toolkits_rsync_opts=( -am --include='*/' --include="${APP_FULL}/*" )
     if [[ "$PRE_RELEASE" == "no" ]]; then
@@ -204,7 +204,7 @@ else
     AZCOPY_SCHEMAS_OPTS=( --include-rexec"^component/.*|^layout/.*" )
     AZCOPY_ADDITIONAL_OPTS=( --put-md5 --compare-hash=MD5 --delete-destination=true )
     if [[ "$SYNC_AZURE_CDN" == "no" ]]; then
-      echo "Publish to azure cdn will run with --dry-run (toggle with --sync-azure-cdn). No files will actually be synced"
+      echo "Publish to azure cdn will run with --dry-run (toggle with --azure-sync-cdn). No files will actually be synced"
       AZCOPY_ADDITIONAL_OPTS+=( --dry-run )
     else
       echo "Publishing files to azure cdn"
