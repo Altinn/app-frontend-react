@@ -27,11 +27,6 @@ while [[ $# -gt 0 ]]; do
       COMMIT=yes
       shift # pop option
       ;;
-    --azure-cdn-uri)
-      AZURE_CDN_URI=$(realpath "$2")
-      shift # pop option
-      shift # pop option
-      ;;
     --azure-sa-name)
       AZURE_STORAGE_ACCOUNT_NAME="$2"
       shift # pop option
