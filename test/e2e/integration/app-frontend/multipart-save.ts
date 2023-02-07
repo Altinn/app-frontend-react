@@ -111,6 +111,26 @@ describe('Multipart save', () => {
     expectSave(`${groupKey}[1].${subGroupKey}[0].source`, 'altinn', null);
     expectSave(`${groupKey}[1].${subGroupKey}[0].${commentKey}`, 'second comment', null);
 
+    cy.get(appFrontend.group.row(0).editBtn).click();
+    cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
+    cy.get(appFrontend.group.addNewItemSubGroup).click();
+    cy.get(appFrontend.group.comments).type('third comment in first row');
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedDynamics).click();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[2]).check().blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[1]).check().blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[0]).check().blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[2]).uncheck().blur();
+    cy.get(appFrontend.group.saveSubGroup).click();
+    cy.get(appFrontend.group.saveMainGroup).click();
+
+    expectSave(`${groupKey}[0].${subGroupKey}[1].source`, 'altinn', null);
+    expectSave(`${groupKey}[0].${subGroupKey}[1].${commentKey}`, 'third comment in first row', null);
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptionsToggle`, 'Ja', null);
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o111', null);
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o111,o1', 'o111');
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o111,o1,o11', 'o111,o1');
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o1,o11', 'o111,o1,o11');
+
     cy.get(appFrontend.group.row(0).deleteBtn).click();
     expectReq((req) => {
       expect(Object.entries(req.dataModel).filter(([k]) => k.startsWith(groupKey))).to.deep.equal([
@@ -123,9 +143,15 @@ describe('Multipart save', () => {
       expect(req.previousValues).to.deep.equal({
         [`${groupKey}[0].${currentValueKey}`]: '1',
         [`${groupKey}[0].${newValueKey}`]: '2',
+
         // This following is not present, because it never really changed (previous value is the same as new value):
         // [`${groupKey}[0].${subGroupKey}[0].source`]: 'altinn',
         [`${groupKey}[0].${subGroupKey}[0].${commentKey}`]: 'first comment',
+
+        [`${groupKey}[0].${subGroupKey}[1].source`]: 'altinn',
+        [`${groupKey}[0].${subGroupKey}[1].${commentKey}`]: 'third comment in first row',
+        [`${groupKey}[0].${subGroupKey}[1].extraOptionsToggle`]: 'Ja',
+        [`${groupKey}[0].${subGroupKey}[1].extraOptions`]: 'o1,o11',
 
         [`${groupKey}[1].${currentValueKey}`]: '1234',
         [`${groupKey}[1].${newValueKey}`]: '5678',
