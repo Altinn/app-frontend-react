@@ -1,4 +1,5 @@
 import dot from 'dot-object';
+import deepEqual from 'fast-deep-equal';
 
 import AppFrontend from 'test/e2e/pageobjects/app-frontend';
 
@@ -13,7 +14,7 @@ interface MultipartReq {
 }
 
 describe('Multipart save', () => {
-  const requests: MultipartReq[] = [];
+  const requests: (MultipartReq | undefined)[] = [];
 
   /**
    * This is not supported by 'frontend-test' yet, so we'll simulate the functionality by intercepting the requests
@@ -41,32 +42,54 @@ describe('Multipart save', () => {
     }).as('multipartSave');
   }
 
-  function expectReq(cb: (req: MultipartReq) => void) {
-    cy.waitUntil(() => requests.length > 0).then(() => {
-      const req = requests.shift();
-      if (!req) {
-        throw new Error(`No request to shift off the start`);
-      }
+  function expectReq(cb: (req: MultipartReq) => boolean, customMessage: string, errorMsg: string) {
+    cy.waitUntil(
+      () => {
+        for (const idx in requests) {
+          const req = requests[idx];
+          if (req && cb(req)) {
+            requests[idx] = undefined;
+            return true;
+          }
+        }
 
-      cb(req);
-    });
+        return false;
+      },
+      {
+        description: 'save',
+        customMessage,
+        errorMsg,
+      },
+    );
   }
 
   function expectSave(key: string, newValue: any, prevValue: any) {
-    expectReq((req) => {
-      cy.log('Checking that', key, 'equals', newValue);
+    const newValueString = newValue === undefined ? 'undefined' : JSON.stringify(newValue);
+    const prevValueString = prevValue === null ? 'null' : JSON.stringify(prevValue);
+    const msg = `${key} => ${newValueString} (was ${prevValueString})`;
+    expectReq(
+      (req) => {
+        let val: any = req.dataModel[key];
+        if (val !== newValue && val === undefined) {
+          return false;
+        }
 
-      const val = req.dataModel[key];
-      if (val !== newValue && val === undefined) {
-        // This will probably help in debugging, in case something goes wrong
-        throw new Error(`Found no such key: ${key}`);
-      }
+        if (Array.isArray(newValue) && Array.isArray(prevValue)) {
+          // Crude workaround for checkboxes not supporting array storage. We'll split the value and sort the results
+          // in order to not rely on the order of saving these.
+          newValue.sort();
+          prevValue.sort();
+          val = val.split(',').sort();
+          if (typeof req.previousValues[key] === 'string') {
+            req.previousValues[key] = req.previousValues[key].split(',').sort() as any;
+          }
+        }
 
-      expect(val).to.equal(newValue);
-      expect(req.previousValues).to.deep.equal({
-        [key]: prevValue,
-      });
-    });
+        return deepEqual(val, newValue) && deepEqual(req.previousValues, { [key]: prevValue });
+      },
+      msg,
+      `Failed to assert that saving occurred with ${msg}`,
+    );
   }
 
   it('Multipart saving with groups', () => {
@@ -114,66 +137,88 @@ describe('Multipart save', () => {
     cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.addNewItemSubGroup).click();
+    expectSave(`${groupKey}[0].${subGroupKey}[1].source`, 'altinn', null);
+
     cy.get(appFrontend.group.comments).type('third comment in first row');
+    expectSave(`${groupKey}[0].${subGroupKey}[1].${commentKey}`, 'third comment in first row', null);
+
     cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedDynamics).click();
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptionsToggle`, 'Ja', null);
+
     cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[2]).check().blur();
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o111', null);
+
     cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[1]).check().blur();
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, ['o111', 'o1'], ['o111']);
+
     cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[0]).check().blur();
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, ['o111', 'o1', 'o11'], ['o111', 'o1']);
+
     cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[2]).uncheck().blur();
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, ['o1', 'o11'], ['o111', 'o1', 'o11']);
+
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[1]).uncheck().blur();
+    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, ['o11'], ['o1', 'o11']);
+
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.group.saveMainGroup).click();
 
-    expectSave(`${groupKey}[0].${subGroupKey}[1].source`, 'altinn', null);
-    expectSave(`${groupKey}[0].${subGroupKey}[1].${commentKey}`, 'third comment in first row', null);
-    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptionsToggle`, 'Ja', null);
-    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o111', null);
-    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o111,o1', 'o111');
-    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o111,o1,o11', 'o111,o1');
-    expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o1,o11', 'o111,o1,o11');
+    cy.get(appFrontend.group.row(0).deleteBtn).click();
+    expectReq(
+      (req) => {
+        const relevantEntries = Object.entries(req.dataModel).filter(([k]) => k.startsWith(groupKey));
+        const expectedEntries = [
+          // Group should now just have one row (we deleted the first one)
+          [`${groupKey}[0].${currentValueKey}`, '1234'],
+          [`${groupKey}[0].${newValueKey}`, '5678'],
+          [`${groupKey}[0].${subGroupKey}[0].source`, 'altinn'],
+          [`${groupKey}[0].${subGroupKey}[0].${commentKey}`, 'second comment'],
+        ];
+
+        const expectedPrevValues = {
+          [`${groupKey}[0].${currentValueKey}`]: '1',
+          [`${groupKey}[0].${newValueKey}`]: '2',
+
+          // This following is not present, because it never really changed (previous value is the same as new value):
+          // [`${groupKey}[0].${subGroupKey}[0].source`]: 'altinn',
+          [`${groupKey}[0].${subGroupKey}[0].${commentKey}`]: 'first comment',
+
+          [`${groupKey}[0].${subGroupKey}[1].source`]: 'altinn',
+          [`${groupKey}[0].${subGroupKey}[1].${commentKey}`]: 'third comment in first row',
+          [`${groupKey}[0].${subGroupKey}[1].extraOptionsToggle`]: 'Ja',
+          [`${groupKey}[0].${subGroupKey}[1].extraOptions`]: 'o11',
+
+          [`${groupKey}[1].${currentValueKey}`]: '1234',
+          [`${groupKey}[1].${newValueKey}`]: '5678',
+          [`${groupKey}[1].${subGroupKey}[0].source`]: 'altinn',
+          [`${groupKey}[1].${subGroupKey}[0].${commentKey}`]: 'second comment',
+        };
+
+        return deepEqual(relevantEntries, expectedEntries) && deepEqual(req.previousValues, expectedPrevValues);
+      },
+      'first row deleted',
+      'failed to assert first row deletion',
+    );
 
     cy.get(appFrontend.group.row(0).deleteBtn).click();
-    expectReq((req) => {
-      expect(Object.entries(req.dataModel).filter(([k]) => k.startsWith(groupKey))).to.deep.equal([
-        // Group should now just have one row (we deleted the first one)
-        [`${groupKey}[0].${currentValueKey}`, '1234'],
-        [`${groupKey}[0].${newValueKey}`, '5678'],
-        [`${groupKey}[0].${subGroupKey}[0].source`, 'altinn'],
-        [`${groupKey}[0].${subGroupKey}[0].${commentKey}`, 'second comment'],
-      ]);
-      expect(req.previousValues).to.deep.equal({
-        [`${groupKey}[0].${currentValueKey}`]: '1',
-        [`${groupKey}[0].${newValueKey}`]: '2',
+    expectReq(
+      (req) => {
+        const relevantKeys = Object.keys(req.dataModel).filter((k) => k.startsWith(groupKey));
+        const expectedPrevValues = {
+          [`${groupKey}[0].${currentValueKey}`]: '1234',
+          [`${groupKey}[0].${newValueKey}`]: '5678',
+          [`${groupKey}[0].${subGroupKey}[0].source`]: 'altinn',
+          [`${groupKey}[0].${subGroupKey}[0].${commentKey}`]: 'second comment',
+        };
 
-        // This following is not present, because it never really changed (previous value is the same as new value):
-        // [`${groupKey}[0].${subGroupKey}[0].source`]: 'altinn',
-        [`${groupKey}[0].${subGroupKey}[0].${commentKey}`]: 'first comment',
-
-        [`${groupKey}[0].${subGroupKey}[1].source`]: 'altinn',
-        [`${groupKey}[0].${subGroupKey}[1].${commentKey}`]: 'third comment in first row',
-        [`${groupKey}[0].${subGroupKey}[1].extraOptionsToggle`]: 'Ja',
-        [`${groupKey}[0].${subGroupKey}[1].extraOptions`]: 'o1,o11',
-
-        [`${groupKey}[1].${currentValueKey}`]: '1234',
-        [`${groupKey}[1].${newValueKey}`]: '5678',
-        [`${groupKey}[1].${subGroupKey}[0].source`]: 'altinn',
-        [`${groupKey}[1].${subGroupKey}[0].${commentKey}`]: 'second comment',
-      });
-    });
-
-    cy.get(appFrontend.group.row(0).deleteBtn).click();
-    expectReq((req) => {
-      const keys = Object.keys(req.dataModel);
-      expect(keys.filter((k) => k.startsWith(groupKey))).to.deep.equal([]);
-      expect(req.previousValues).to.deep.equal({
-        [`${groupKey}[0].${currentValueKey}`]: '1234',
-        [`${groupKey}[0].${newValueKey}`]: '5678',
-        [`${groupKey}[0].${subGroupKey}[0].source`]: 'altinn',
-        [`${groupKey}[0].${subGroupKey}[0].${commentKey}`]: 'second comment',
-      });
-    });
+        return relevantKeys.length === 0 && deepEqual(req.previousValues, expectedPrevValues);
+      },
+      'second row deleted',
+      'failed to assert second row deletion',
+    );
 
     // Ensure there are no more save requests in the queue afterwards
-    cy.waitUntil(() => requests.length === 0);
+    cy.waitUntil(() => requests.filter((r) => !!r).length === 0);
   });
 });
 
