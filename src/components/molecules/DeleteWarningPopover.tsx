@@ -9,8 +9,8 @@ import type { ILanguage } from 'src/types/shared';
 const useStyles = makeStyles({
   popoverButtonContainer: {
     display: 'flex',
-    marginTop: '1rem',
-    gap: '1rem',
+    marginTop: '0.625rem',
+    gap: '0.625rem',
   },
 });
 

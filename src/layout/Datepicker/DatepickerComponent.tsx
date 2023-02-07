@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: 'white',
     boxSizing: 'border-box',
     height: '36px',
-    fontSize: '1.6rem',
+    fontSize: '1rem',
     fontFamily: 'Altinn-DIN',
     borderWidth: '2px',
     borderStyle: 'solid',
@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   formHelperText: {
-    fontSize: '1.4rem',
+    fontSize: '0.875rem',
   },
   datepicker: {
     width: 'auto',
@@ -74,19 +74,19 @@ const useStyles = makeStyles((theme) => ({
       fontFamily: 'Altinn-DIN',
     },
     '& .MuiTypography-h4': {
-      fontSize: '2.4rem',
+      fontSize: '1.5rem',
     },
     '& .MuiTypography-body1': {
-      fontSize: '1.8rem',
+      fontSize: '1.125rem',
     },
     '& .MuiTypography-body2': {
-      fontSize: '1.6rem',
+      fontSize: '1rem',
     },
     '& .MuiTypography-caption': {
-      fontSize: '1.6rem',
+      fontSize: '1rem',
     },
     '& .MuiTypography-subtitle1': {
-      fontSize: '1.6rem',
+      fontSize: '1rem',
     },
   },
 }));

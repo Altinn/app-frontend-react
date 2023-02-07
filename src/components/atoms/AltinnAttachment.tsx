@@ -47,7 +47,7 @@ interface IAltinnAttachmentProps {
   attachments?: IAttachment[];
   /** Disables vertical padding (does not currently work in Styleguidist) */
   listDisableVerticalPadding?: boolean;
-  /** Adds 2rem paddingLeft */
+  /** Adds 1.25rem paddingLeft */
   nested?: boolean;
   id?: string;
 }
@@ -89,7 +89,7 @@ export function AltinnAttachment({ attachments, listDisableVerticalPadding, nest
                 <AltinnIcon
                   iconClass={attachment.iconClass}
                   iconColor='#000000'
-                  iconSize='5rem'
+                  iconSize='3.125rem'
                 />
               </ListItemIcon>
               <ListItemText
