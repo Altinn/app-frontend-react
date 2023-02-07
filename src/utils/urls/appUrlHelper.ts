@@ -116,7 +116,7 @@ export const getLayoutSettingsUrl = (layoutset: string | null | undefined) => {
 };
 
 export const getLayoutSetsUrl = () => `${appPath}/api/layoutsets`;
-export const getFooterLayoutUrl = () => `${appPath}/api/footer`;
+export const getFooterLayoutUrl = () => `${appPath}/api/v1/footer`;
 
 export const getFetchFormDataUrl = (instanceId: string, dataElementId: string) =>
   `${appPath}/instances/${instanceId}/data/${dataElementId}`;

@@ -4,8 +4,9 @@
   "title": "Altinn footer",
   "description": "Schema that describes the footer configuration for Altinn applications.",
   "type": "object",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "properties": {
+    "$schema": true,
     "footer": {
       "title": "The footer",
       "description": "Array of components to be presented in the footer.",
@@ -40,43 +41,55 @@
     "title": {
       "type": "string",
       "title": "Title",
-      "description": "The text to display."
+      "description": "The text to display. Can be a text resource."
     },
     "emailComponent": {
+      "additionalProperties": false,
       "properties": {
+        "type": true,
         "title": { "$ref": "#/definitions/title" },
         "target": {
           "type": "string",
           "title": "Target",
-          "description": "The email to link to."
+          "description": "The email to link to. Can be a text resource."
         }
-      }
+      },
+      "required": ["title", "target"]
     },
     "linkComponent": {
+      "additionalProperties": false,
       "properties": {
+        "type": true,
         "title": { "$ref": "#/definitions/title" },
         "target": {
           "type": "string",
           "title": "Target",
-          "description": "The URL to link to."
+          "description": "The URL to link to. Can be a text resource."
         },
         "icon": { "$ref": "#/definitions/icon" }
-      }
+      },
+      "required": ["title", "target"]
     },
     "phoneComponent": {
+      "additionalProperties": false,
       "properties": {
+        "type": true,
         "title": { "$ref": "#/definitions/title" },
         "target": {
           "type": "string",
           "title": "Target",
-          "description": "The phone number to link to."
+          "description": "The phone number to link to. Can be a text resource."
         }
-      }
+      },
+      "required": ["title", "target"]
     },
     "textComponent": {
+      "additionalProperties": false,
       "properties": {
+        "type": true,
         "title": { "$ref": "#/definitions/title" }
-      }
+      },
+      "required": ["title"]
     }
   }
 }
