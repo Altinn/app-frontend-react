@@ -195,7 +195,9 @@ else
     schemas_rsync_opts=( -am --include='*/' --include="component/*" --include="layout/*"  --exclude='*' )
     set -x
     rsync "${toolkits_rsync_opts[@]}" $TARGET $AZURE_STORAGE_ACCOUNT_NAME
-    rsync "${schemas_rsync_opts[@]}" $TARGET_SCHEMAS/json $AZURE_STORAGE_ACCOUNT_NAME -v
+    if [[ "$PRE_RELEASE" == "no" ]]; then
+      rsync "${schemas_rsync_opts[@]}" $TARGET_SCHEMAS/json $AZURE_STORAGE_ACCOUNT_NAME -v
+    fi
     set +x
     echo "-------------------------------------"
   else
