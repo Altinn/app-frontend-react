@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { v4 as uuidv4 } from 'uuid';
 
 import { FooterComponentWrapper } from 'src/features/footer/components/FooterComponentWrapper';
@@ -17,6 +19,10 @@ export abstract class FooterComponent<T extends IFooterComponent<IFooterComponen
   }
 
   public render() {
-    return FooterComponent.wrapper({ id: this.id, props: this.props, childRenderer: this.renderComponent });
+    return React.createElement(FooterComponent.wrapper, {
+      key: this.id,
+      props: this.props,
+      childRenderer: this.renderComponent,
+    });
   }
 }
