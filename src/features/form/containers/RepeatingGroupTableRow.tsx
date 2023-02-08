@@ -238,12 +238,14 @@ export function RepeatingGroupTableRow({
           >
             <div className={classes.buttonInCellWrapper}>
               <Button
+                aria-expanded={isEditingRow}
+                aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
                 variant={ButtonVariant.Quiet}
                 color={ButtonColor.Secondary}
                 icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 iconPlacement='right'
                 onClick={onEditClick}
-                aria-label={`${editButtonText}-${firstCellData}`}
+                aria-label={`${editButtonText} ${firstCellData}`}
                 data-testid='edit-button'
                 className={classes.tableButton}
               >
@@ -302,12 +304,14 @@ export function RepeatingGroupTableRow({
         >
           <div className={classes.buttonInCellWrapper}>
             <Button
+              aria-expanded={isEditingRow}
+              aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
               variant={ButtonVariant.Quiet}
               color={ButtonColor.Secondary}
               icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
               iconPlacement='right'
               onClick={onEditClick}
-              aria-label={`${editButtonText}-${firstCellData}`}
+              aria-label={`${editButtonText} ${firstCellData}`}
               data-testid='edit-button'
               className={classes.tableButton}
             >
