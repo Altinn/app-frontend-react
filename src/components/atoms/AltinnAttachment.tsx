@@ -15,8 +15,8 @@ const useStyles = makeStyles(() => ({
     '&:focus': {
       borderBottom: '0px',
       backgroundColor: 'transparent',
-      outline: 'var(--interactive_components-colors-focus_outline) solid var(--border_width-standard)',
-      outlineOffset: 'var(--border_width-standard)',
+      outline: 'var(--semantic-tab_focus-outline-color) solid var(--semantic-tab_focus-outline-width)',
+      outlineOffset: 'var(--semantic-tab_focus-outline-offset)',
     },
     '&:active': {
       borderBottom: '0px',

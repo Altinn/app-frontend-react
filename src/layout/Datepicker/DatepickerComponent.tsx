@@ -34,8 +34,8 @@ const useStyles = makeStyles((theme) => ({
       borderColor: theme.altinnPalette.primary.blueDark,
     },
     '&:has(input:focus-visible)': {
-      outline: 'var(--component-input-color-outline-focus) auto var(--border_width-thin)',
-      outlineOffset: 'calc(var(--border_width-thin) + var(--border_width-standard))',
+      outline: 'var(--semantic-tab_focus-outline-color) solid var(--semantic-tab_focus-outline-width)',
+      outlineOffset: 'var(--semantic-tab_focus-outline-offset)',
     },
   },
   input: {
@@ -57,8 +57,8 @@ const useStyles = makeStyles((theme) => ({
       outline: 'none',
     },
     '&:focus-visible': {
-      outline: 'var(--interactive_components-colors-focus_outline) solid var(--border_width-standard)',
-      outlineOffset: 'var(--border_width-standard)',
+      outline: 'var(--semantic-tab_focus-outline-color) solid var(--semantic-tab_focus-outline-width)',
+      outlineOffset: 'var(--semantic-tab_focus-outline-offset)',
     },
   },
   formHelperText: {
