@@ -1,5 +1,5 @@
-import type { IFooterComponent } from 'src/features/footer/components/types';
+import type { IFooterBaseComponent } from 'src/features/footer/types';
 
-export interface IFooterTextComponent extends IFooterComponent<'Text'> {
+export interface IFooterTextComponent extends IFooterBaseComponent<'Text'> {
   title: string;
 }

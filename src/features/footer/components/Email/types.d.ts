@@ -1,6 +1,6 @@
-import type { IFooterComponent } from 'src/features/footer/components/types';
+import type { IFooterBaseComponent } from 'src/features/footer/types';
 
-export interface IFooterEmailComponent extends IFooterComponent<'Email'> {
+export interface IFooterEmailComponent extends IFooterBaseComponent<'Email'> {
   title: string;
   target: string;
 }

@@ -3,10 +3,9 @@ import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { FooterComponentWrapper } from 'src/features/footer/components/FooterComponentWrapper';
-import type { IFooterComponent } from 'src/features/footer/components/types';
-import type { IFooterComponentType } from 'src/features/footer/types';
+import type { IFooterBaseComponent, IFooterComponentType } from 'src/features/footer/types';
 
-export abstract class FooterComponent<T extends IFooterComponent<IFooterComponentType>> {
+export abstract class FooterComponent<T extends IFooterBaseComponent<IFooterComponentType>> {
   private static wrapper = FooterComponentWrapper;
   private id: string;
   private props: T;
