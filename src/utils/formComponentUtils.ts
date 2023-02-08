@@ -1,6 +1,6 @@
 import type React from 'react';
 
-import { formatNumericText } from '@altinn/altinn-design-system';
+import { formatNumericText } from '@digdir/design-system-react';
 
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { getDateFormat } from 'src/utils/dateHelpers';
