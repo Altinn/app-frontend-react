@@ -65,7 +65,7 @@ You need an Altinn app for testing when making changes to this codebase. You can
 
 To start the app locally:
 
-1. Clone the [App-Localtest repository](https://github.com/Altinn/app-localtest)
+1. Clone the [App-LocalTest repository](https://github.com/Altinn/app-localtest)
 2. Follow the steps in the [README.md documentation](https://github.com/Altinn/app-localtest/blob/main/README.md)
 3. Follow our documentation on [how to use the local app-frontend](https://docs.altinn.studio/app/testing/local/debug/#using-other-frontend-versions) when running locally
 
