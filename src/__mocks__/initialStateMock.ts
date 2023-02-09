@@ -147,9 +147,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       error: null,
     },
     appApi: {} as IRuntimeState['appApi'],
-    backendFeatures: {
-      multiPartSave: false,
-    },
   };
 
   return {

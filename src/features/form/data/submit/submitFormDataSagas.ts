@@ -98,7 +98,7 @@ function createFormDataRequest(
   field: string | undefined,
   componentId: string | undefined,
 ): { data: any; options?: AxiosRequestConfig } {
-  if (state.backendFeatures.multiPartSave) {
+  if (state.applicationMetadata.applicationMetadata?.features?.multiPartSave) {
     const previous = diffModels(state.formData.formData, state.formData.lastSavedFormData);
     const data = new FormData();
     data.append('dataModel', JSON.stringify(model));

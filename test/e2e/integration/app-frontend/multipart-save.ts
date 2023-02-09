@@ -4,7 +4,7 @@ import deepEqual from 'fast-deep-equal';
 import AppFrontend from 'test/e2e/pageobjects/app-frontend';
 
 import type { IFormData } from 'src/features/form/data';
-import type { IBackendFeaturesState } from 'src/shared/resources/backendFeatures';
+import type { IBackendFeaturesState } from 'src/shared/resources/applicationMetadata';
 
 const appFrontend = new AppFrontend();
 
@@ -22,10 +22,13 @@ describe('Multipart save', () => {
    * functionality works on the frontend.
    */
   function simulateMultipartSave() {
-    const backendFeatures: IBackendFeaturesState = {
-      multiPartSave: true,
-    };
-    cy.intercept('GET', '**/featureset', JSON.stringify(backendFeatures));
+    cy.intercept('GET', '**/applicationmetadata', (req) => {
+      req.on('response', (res) => {
+        res.body.features = {
+          multiPartSave: true,
+        } as IBackendFeaturesState;
+      });
+    });
     cy.intercept('PUT', '**/instances/**/data/*', (req) => {
       const contentType = req.headers['content-type']?.toString();
       if (contentType.startsWith('multipart/form-data')) {
