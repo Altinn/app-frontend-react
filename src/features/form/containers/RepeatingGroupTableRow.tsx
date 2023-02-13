@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { Button, ButtonColor, ButtonVariant, TableCell, TableRow } from '@altinn/altinn-design-system';
+import { TableCell, TableRow } from '@altinn/altinn-design-system';
+import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { createTheme, makeStyles, useMediaQuery } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
@@ -237,12 +238,14 @@ export function RepeatingGroupTableRow({
           >
             <div className={classes.buttonInCellWrapper}>
               <Button
+                aria-expanded={isEditingRow}
+                aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
                 variant={ButtonVariant.Quiet}
                 color={ButtonColor.Secondary}
                 icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 iconPlacement='right'
                 onClick={onEditClick}
-                aria-label={`${editButtonText}-${firstCellData}`}
+                aria-label={`${editButtonText} ${firstCellData}`}
                 data-testid='edit-button'
                 className={classes.tableButton}
               >
@@ -265,8 +268,8 @@ export function RepeatingGroupTableRow({
                 )}
               >
                 <div className={classes.buttonInCellWrapper}>
-                  <DeleteWarningPopover
-                    trigger={
+                  {(() => {
+                    const deleteButton = (
                       <Button
                         variant={ButtonVariant.Quiet}
                         color={ButtonColor.Danger}
@@ -280,16 +283,26 @@ export function RepeatingGroupTableRow({
                       >
                         {deleteButtonText}
                       </Button>
+                    );
+
+                    if (edit?.alertOnDelete) {
+                      return (
+                        <DeleteWarningPopover
+                          trigger={deleteButton}
+                          side='left'
+                          language={language}
+                          deleteButtonText={getLanguageFromKey('group.row_popover_delete_button_confirm', language)}
+                          messageText={getLanguageFromKey('group.row_popover_delete_message', language)}
+                          open={popoverPanelIndex == index && popoverOpen}
+                          setPopoverOpen={setPopoverOpen}
+                          onCancelClick={() => onOpenChange(index)}
+                          onPopoverDeleteClick={onPopoverDeleteClick(index)}
+                        />
+                      );
+                    } else {
+                      return deleteButton;
                     }
-                    side='left'
-                    language={language}
-                    deleteButtonText={getLanguageFromKey('group.row_popover_delete_button_confirm', language)}
-                    messageText={getLanguageFromKey('group.row_popover_delete_message', language)}
-                    open={popoverPanelIndex == index && popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                    onCancelClick={() => onOpenChange(index)}
-                    onPopoverDeleteClick={onPopoverDeleteClick(index)}
-                  />
+                  })()}
                 </div>
               </TableCell>
             )}
@@ -301,12 +314,14 @@ export function RepeatingGroupTableRow({
         >
           <div className={classes.buttonInCellWrapper}>
             <Button
+              aria-expanded={isEditingRow}
+              aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
               variant={ButtonVariant.Quiet}
               color={ButtonColor.Secondary}
               icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
               iconPlacement='right'
               onClick={onEditClick}
-              aria-label={`${editButtonText}-${firstCellData}`}
+              aria-label={`${editButtonText} ${firstCellData}`}
               data-testid='edit-button'
               className={classes.tableButton}
             >
@@ -319,8 +334,8 @@ export function RepeatingGroupTableRow({
               typeof popoverOpen === 'boolean' && (
                 <>
                   <div style={{ height: 8 }} />
-                  <DeleteWarningPopover
-                    trigger={
+                  {(() => {
+                    const deleteButton = (
                       <Button
                         variant={ButtonVariant.Quiet}
                         color={ButtonColor.Danger}
@@ -334,16 +349,26 @@ export function RepeatingGroupTableRow({
                       >
                         {(isEditingRow || !mobileViewSmall) && deleteButtonText}
                       </Button>
+                    );
+
+                    if (edit?.alertOnDelete) {
+                      return (
+                        <DeleteWarningPopover
+                          trigger={deleteButton}
+                          side='left'
+                          language={language}
+                          deleteButtonText={getLanguageFromKey('group.row_popover_delete_button_confirm', language)}
+                          messageText={getLanguageFromKey('group.row_popover_delete_message', language)}
+                          open={popoverPanelIndex == index && popoverOpen}
+                          setPopoverOpen={setPopoverOpen}
+                          onCancelClick={() => onOpenChange(index)}
+                          onPopoverDeleteClick={onPopoverDeleteClick(index)}
+                        />
+                      );
+                    } else {
+                      return deleteButton;
                     }
-                    side='left'
-                    language={language}
-                    deleteButtonText={getLanguageFromKey('group.row_popover_delete_button_confirm', language)}
-                    messageText={getLanguageFromKey('group.row_popover_delete_message', language)}
-                    open={popoverPanelIndex == index && popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                    onCancelClick={() => onOpenChange(index)}
-                    onPopoverDeleteClick={onPopoverDeleteClick(index)}
-                  />
+                  })()}
                 </>
               )}
           </div>

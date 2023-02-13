@@ -1,4 +1,4 @@
-import type { TextField } from '@altinn/altinn-design-system';
+import type { TextField } from '@digdir/design-system-react';
 import type { GridSize } from '@material-ui/core';
 
 import type { ExpressionOr } from 'src/features/expressions/types';
@@ -194,6 +194,6 @@ export interface IGridStyling {
 }
 
 export interface IPageBreak {
-  breakBefore?: ExpressionOr<'boolean'>;
-  breakAfter?: ExpressionOr<'boolean'>;
+  breakBefore?: ExpressionOr<'string'>; // 'auto' | 'always' | 'avoid'
+  breakAfter?: ExpressionOr<'string'>; // 'auto' | 'always' | 'avoid'
 }
