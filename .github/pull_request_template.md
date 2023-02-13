@@ -22,7 +22,7 @@
   - [ ] Cypress E2E test(s) have been added/updated
   - [ ] No automatic tests are needed here (no functional changes/additions)
   - [ ] I want someone to help me make some tests
-- WCAG
+- UU/WCAG ([follow these guidelines](https://aksel.nav.no/god-praksis/artikler/utvikling?tema=universell-utforming) until we have our own)
   - [ ] I have tested with a screen reader/keyboard navigation/automated wcag validator
   - [ ] No testing done/necessary (no DOM/visual changes)
   - [ ] I want someone to help me perform accessibility testing
