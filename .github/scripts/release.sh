@@ -182,7 +182,7 @@ else
     echo
     echo "azure-sa-name seems to be a local directory. Simulating azcopy sync with rsync to folder"
     echo
-    toolkits_rsync_opts=( -am --include='*/' --include="${APP_FULL}/*" )
+    toolkits_rsync_opts=( -am --include='*/' --include="${APP_FULL}/*" --include="index.json" )
     if [[ "$PRE_RELEASE" == "no" ]]; then
       toolkits_rsync_opts+=( --include="${APP_MAJOR}/*" --include="${APP_MAJOR_MINOR}/*" )
     fi
@@ -196,7 +196,7 @@ else
     set +x
     echo "-------------------------------------"
   else
-    AZCOPY_INCLUDE_REGEX="^$APP_FULL/*"
+    AZCOPY_INCLUDE_REGEX="^index\.json$|^$APP_FULL/*"
     if [[ "$PRE_RELEASE" == "no" ]]; then
       AZCOPY_INCLUDE_REGEX+="|^$APP_MAJOR/.*|^$APP_MAJOR_MINOR/.*"
     fi
