@@ -15,6 +15,7 @@ export function EditButton(props: IEditButtonProps) {
       color={ButtonColor.Secondary}
       icon={<Edit aria-hidden={true} />}
       iconPlacement='right'
+      onClick={props.onClick}
     >
       {props.editText}
     </Button>
