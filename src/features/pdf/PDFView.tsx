@@ -11,7 +11,7 @@ import css from 'src/features/pdf/PDFView.module.css';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import { get } from 'src/utils/network/networking';
+import { httpGet } from 'src/utils/network/networking';
 import { getPdfFormatUrl } from 'src/utils/urls/appUrlHelper';
 
 interface PDFViewProps {
@@ -61,7 +61,7 @@ export const PDFView = ({ appName, appOwner }: PDFViewProps) => {
       const dataGuid = getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
       if (typeof dataGuid === 'string') {
         const url = getPdfFormatUrl(instance.id, dataGuid);
-        get(url)
+        httpGet(url)
           .then((pdfFormat: IPdfFormat) => setPdfFormat(pdfFormat))
           .catch(() => setPdfFormat({ excludedPages, excludedComponents }));
       } else {

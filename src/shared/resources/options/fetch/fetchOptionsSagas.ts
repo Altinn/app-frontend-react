@@ -10,7 +10,7 @@ import {
   getKeyWithoutIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
-import { get } from 'src/utils/network/sharedNetworking';
+import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getOptionLookupKey, getOptionLookupKeys } from 'src/utils/options';
 import { selectNotNull } from 'src/utils/sagas';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
@@ -107,7 +107,7 @@ export function* fetchSpecificOptionSaga({ optionsId, dataMapping, secure }: IFe
       instanceId,
     });
 
-    const options: IOption[] = yield call(get, url);
+    const options: IOption[] = yield call(httpGet, url);
     yield put(OptionsActions.fetchFulfilled({ key, options }));
   } catch (error) {
     yield put(OptionsActions.fetchRejected({ key: key, error }));

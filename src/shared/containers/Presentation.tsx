@@ -12,7 +12,7 @@ import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { getNextView } from 'src/utils/formLayout';
-import { get } from 'src/utils/network/networking';
+import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
 import { returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 
@@ -68,7 +68,7 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
     }
 
     if (queryParameterReturnUrl) {
-      get(getRedirectUrl(queryParameterReturnUrl))
+      httpGet(getRedirectUrl(queryParameterReturnUrl))
         .then((response) => response)
         .catch(() => messageBoxUrl)
         .then((returnUrl) => {

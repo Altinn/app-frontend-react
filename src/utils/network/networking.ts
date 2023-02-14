@@ -7,7 +7,7 @@ export enum HttpStatusCodes {
   Forbidden = 403,
 }
 
-export async function get(url: string, options?: AxiosRequestConfig): Promise<any> {
+export async function httpGet(url: string, options?: AxiosRequestConfig): Promise<any> {
   const headers = options?.headers as RawAxiosRequestHeaders | undefined;
   const response: AxiosResponse = await axios.get(url, {
     ...options,
@@ -16,11 +16,11 @@ export async function get(url: string, options?: AxiosRequestConfig): Promise<an
   return response.data ? response.data : null;
 }
 
-export async function post(url: string, options?: AxiosRequestConfig, data?: any): Promise<AxiosResponse> {
+export async function httpPost(url: string, options?: AxiosRequestConfig, data?: any): Promise<AxiosResponse> {
   return await axios.post(url, data, options);
 }
 
-export async function put(
+export async function httpPut(
   url: string,
   apiMode: string,
   data: any,

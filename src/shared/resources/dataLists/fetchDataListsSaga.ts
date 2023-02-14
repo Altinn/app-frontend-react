@@ -7,7 +7,7 @@ import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector
 import { listStateSelector } from 'src/selectors/dataListStateSelector';
 import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 import { getDataListLookupKey, getDataListLookupKeys } from 'src/utils/dataList';
-import { get } from 'src/utils/network/sharedNetworking';
+import { httpGet } from 'src/utils/network/sharedNetworking';
 import { selectNotNull } from 'src/utils/sagas';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/form/data';
@@ -122,7 +122,7 @@ export function* fetchSpecificDataListSaga({
       sortDirection,
     });
 
-    const dataLists: IDataList = yield call(get, url);
+    const dataLists: IDataList = yield call(httpGet, url);
     yield put(
       DataListsActions.fetchFulfilled({
         key: id,

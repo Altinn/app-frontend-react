@@ -7,7 +7,7 @@ import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
-import { post } from 'src/utils/network/networking';
+import { httpPost } from 'src/utils/network/networking';
 import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/shared/resources/attachments';
@@ -50,7 +50,7 @@ export function* uploadAttachmentSaga({
       },
     };
 
-    const response: any = yield call(post, fileUploadLink, config, file);
+    const response: any = yield call(httpPost, fileUploadLink, config, file);
 
     if (response.status === 201) {
       const attachment: IAttachment = {

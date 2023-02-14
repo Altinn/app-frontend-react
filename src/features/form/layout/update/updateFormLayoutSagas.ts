@@ -29,7 +29,7 @@ import {
   splitDashedKey,
 } from 'src/utils/formLayout';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
-import { get, post } from 'src/utils/network/sharedNetworking';
+import { httpGet, httpPost } from 'src/utils/network/sharedNetworking';
 import { getOptionLookupKey, removeGroupOptionsByIndex } from 'src/utils/options';
 import { selectNotNull, waitFor } from 'src/utils/sagas';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
@@ -334,7 +334,7 @@ export function* updateCurrentViewSaga({
       const validationOptions = runValidations === 'page' ? options : undefined;
       const serverValidation: IValidationIssue[] | undefined =
         instanceId && currentTaskDataId
-          ? yield call(get, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
+          ? yield call(httpGet, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
           : undefined;
 
       // update validation state
@@ -434,7 +434,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
         layoutSetId = getLayoutsetForDataElement(instance, dataTypeId || undefined, layoutSets) || null;
       }
     }
-    const layoutOrder = yield call(post, getCalculatePageOrderUrl(appIsStateless), formData, {
+    const layoutOrder = yield call(httpPost, getCalculatePageOrderUrl(appIsStateless), formData, {
       params: {
         currentPage: currentView,
         layoutSetId,
@@ -599,7 +599,7 @@ export function* updateRepeatingGroupEditIndexSaga({
       }
 
       const serverValidations: IValidationIssue[] = yield call(
-        get,
+        httpGet,
         getDataValidationUrl(state.instanceData.instance.id, currentTaskDataId),
         options,
       );

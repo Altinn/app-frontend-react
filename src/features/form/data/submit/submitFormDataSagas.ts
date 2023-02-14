@@ -12,8 +12,8 @@ import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { Severity } from 'src/types';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from 'src/utils/databindings';
-import { post } from 'src/utils/network/networking';
-import { get, put } from 'src/utils/network/sharedNetworking';
+import { httpPost } from 'src/utils/network/networking';
+import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
@@ -64,7 +64,7 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean | undef
   // run validations against the datamodel
   const instanceId = state.instanceData.instance?.id;
   const serverValidation: IValidationIssue[] | undefined = instanceId
-    ? yield call(get, getValidationUrl(instanceId))
+    ? yield call(httpGet, getValidationUrl(instanceId))
     : undefined;
 
   // update validation state
@@ -162,7 +162,7 @@ export function* putFormData({ field, componentId }: SaveDataParams) {
   let lastSavedModel = state.formData.formData;
   try {
     const { data, options } = createFormDataRequest(state, model, field, componentId);
-    const responseData = yield call(put, url, data, options);
+    const responseData = yield call(httpPut, url, data, options);
     lastSavedModel = yield call(handleChangedFields, responseData?.changedFields, state.formData.formData);
   } catch (error) {
     if (error.response && error.response.status === 303) {
@@ -291,7 +291,7 @@ export function* saveStatelessData({ field, componentId }: SaveDataParams) {
     layoutSets: state.formLayout.layoutsets,
   });
   if (currentDataType) {
-    const response = yield call(post, getStatelessFormDataUrl(currentDataType, allowAnonymous), { headers }, model);
+    const response = yield call(httpPost, getStatelessFormDataUrl(currentDataType, allowAnonymous), { headers }, model);
     const formData = convertModelToDataBinding(response?.data);
     yield sagaPut(FormDataActions.fetchFulfilled({ formData }));
     yield sagaPut(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));

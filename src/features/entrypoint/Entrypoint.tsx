@@ -18,7 +18,7 @@ import { PresentationComponent as Presentation } from 'src/shared/containers/Pre
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
-import { checkIfAxiosError, get, HttpStatusCodes, post } from 'src/utils/network/networking';
+import { checkIfAxiosError, httpGet, httpPost, HttpStatusCodes } from 'src/utils/network/networking';
 import { getActiveInstancesUrl, getPartyValidationUrl } from 'src/utils/urls/appUrlHelper';
 import type { ShowTypes } from 'src/shared/resources/applicationMetadata';
 import type { ISimpleInstance } from 'src/types';
@@ -43,7 +43,7 @@ export function Entrypoint({ allowAnonymous }: any) {
     if (action === 'select-instance' && partyValidation?.valid && selectedParty) {
       const fetchExistingInstances = async () => {
         try {
-          const instances = await get(getActiveInstancesUrl(selectedParty.partyId));
+          const instances = await httpGet(getActiveInstancesUrl(selectedParty.partyId));
           setActiveInstances(instances || []);
         } catch (err) {
           console.error(err);
@@ -62,7 +62,7 @@ export function Entrypoint({ allowAnonymous }: any) {
           return;
         }
         try {
-          const { data } = await post(getPartyValidationUrl(selectedParty.partyId));
+          const { data } = await httpPost(getPartyValidationUrl(selectedParty.partyId));
           setPartyValidation(data);
         } catch (err) {
           console.error(err);
