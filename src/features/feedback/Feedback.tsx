@@ -10,7 +10,7 @@ import { getTextFromAppOrDefault } from 'src/utils/textResource';
 
 const theme = createTheme(AltinnAppTheme);
 
-export default function Feedback() {
+export function Feedback() {
   const dispatch = useAppDispatch();
   const processState = useAppSelector((state) => state.process.taskType);
   const textResources = useAppSelector((state) => state.textResources.resources);

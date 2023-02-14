@@ -1,4 +1,4 @@
-import slice, { initialState, LanguageActions } from 'src/shared/resources/language/languageSlice';
+import { initialState, LanguageActions, languageSlice as slice } from 'src/shared/resources/language/languageSlice';
 import type { ILanguageState } from 'src/shared/resources/language/languageSlice';
 
 describe('languageSlice', () => {

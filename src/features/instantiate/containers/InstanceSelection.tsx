@@ -12,7 +12,7 @@ import {
   AltinnTableHeader,
   AltinnTableRow,
 } from 'src/components/shared';
-import AltinnMobileTableItem from 'src/features/form/containers/AltinnMobileTableItem';
+import { AltinnMobileTableItem } from 'src/features/form/containers/AltinnMobileTableItem';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
@@ -52,7 +52,7 @@ const buttonCell = {
   padding: '4px 36px 4px 4px',
 };
 
-export default function InstanceSelection({ instances, onNewInstance }: IInstanceSelectionProps) {
+export function InstanceSelection({ instances, onNewInstance }: IInstanceSelectionProps) {
   const language = useAppSelector((state) => state.language.language);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
 

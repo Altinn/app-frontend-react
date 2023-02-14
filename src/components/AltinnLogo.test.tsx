@@ -3,7 +3,7 @@ import React from 'react';
 import { render as rtlRender, screen } from '@testing-library/react';
 
 import { AltinnLogo } from 'src/components/AltinnLogo';
-import altinnTheme from 'src/theme/altinnAppTheme';
+import { AltinnAppTheme as altinnTheme } from 'src/theme/altinnAppTheme';
 import type { IAltinnLogoProps } from 'src/components/AltinnLogo';
 
 describe('AltinnLogo', () => {

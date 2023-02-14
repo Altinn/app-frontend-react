@@ -37,13 +37,7 @@ export interface IHelpTextPopoverProps {
   onClose: () => void;
 }
 
-export default function HelpTextPopover({
-  helpIconRef,
-  openPopover,
-  helpText,
-  language,
-  onClose,
-}: IHelpTextPopoverProps) {
+export function HelpTextPopover({ helpIconRef, openPopover, helpText, language, onClose }: IHelpTextPopoverProps) {
   const classes = useStyle();
 
   return (

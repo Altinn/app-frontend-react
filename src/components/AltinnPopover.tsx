@@ -5,7 +5,7 @@ import { createStyles, createTheme, Grid, makeStyles, Popover, Typography } from
 import classNames from 'classnames';
 import type { PopoverProps } from '@material-ui/core';
 
-import altinnTheme from 'src/theme/altinnAppTheme';
+import { AltinnAppTheme as altinnTheme } from 'src/theme/altinnAppTheme';
 
 export interface IAnchorOrigin {
   horizontal: 'left' | 'center' | 'right' | number;
@@ -59,7 +59,7 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-const AltinnPopoverComponent = ({
+export const AltinnPopoverComponent = ({
   anchorOrigin,
   anchorEl,
   handleClose,
@@ -134,5 +134,3 @@ const AltinnPopoverComponent = ({
     </>
   );
 };
-
-export default AltinnPopoverComponent;

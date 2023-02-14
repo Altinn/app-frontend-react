@@ -50,7 +50,7 @@ export const returnInstanceMetaDataObject = (
   return obj;
 };
 
-const ReceiptContainer = () => {
+export const ReceiptContainer = () => {
   const dispatch = useAppDispatch();
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
   const [pdf, setPdf] = useState<IAttachment[] | undefined>(undefined);
@@ -165,5 +165,3 @@ const ReceiptContainer = () => {
     </div>
   );
 };
-
-export default ReceiptContainer;

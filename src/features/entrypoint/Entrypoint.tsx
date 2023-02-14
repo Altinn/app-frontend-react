@@ -7,12 +7,12 @@ import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { AltinnContentIconFormData, AltinnContentLoader } from 'src/components/shared';
 import { Form } from 'src/features/form/containers/Form';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
-import InstanceSelection from 'src/features/instantiate/containers/InstanceSelection';
+import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
-import MissingRolesError from 'src/features/instantiate/containers/MissingRolesError';
-import NoValidPartiesError from 'src/features/instantiate/containers/NoValidPartiesError';
+import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
+import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
-import Presentation from 'src/shared/containers/Presentation';
+import { PresentationComponent as Presentation } from 'src/shared/containers/Presentation';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
@@ -21,7 +21,7 @@ import { getActiveInstancesUrl, getPartyValidationUrl } from 'src/utils/urls/app
 import type { ShowTypes } from 'src/shared/resources/applicationMetadata';
 import type { ISimpleInstance } from 'src/types';
 
-export default function Entrypoint({ allowAnonymous }: any) {
+export function Entrypoint({ allowAnonymous }: any) {
   const [action, setAction] = React.useState<ShowTypes | null>(null);
   const [partyValidation, setPartyValidation] = React.useState<any | null>(null);
   const [activeInstances, setActiveInstances] = React.useState<ISimpleInstance[] | null>(null);

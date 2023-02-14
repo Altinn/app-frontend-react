@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import Header from 'src/components/presentation/Header';
-import NavBar from 'src/components/presentation/NavBar';
+import { Header } from 'src/components/presentation/Header';
+import { NavBar } from 'src/components/presentation/NavBar';
 import { AltinnAppHeader, AltinnSubstatusPaper } from 'src/components/shared';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
@@ -24,7 +24,7 @@ const style = {
   marginBottom: '0.625rem',
 };
 
-const PresentationComponent = (props: IPresentationProvidedProps) => {
+export const PresentationComponent = (props: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const party = useAppSelector((state) => state.party?.selectedParty);
   const language = useAppSelector((state) => state.language.language || {});
@@ -127,5 +127,3 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
     </div>
   );
 };
-
-export default PresentationComponent;

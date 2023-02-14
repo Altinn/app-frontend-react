@@ -1,4 +1,4 @@
-import slice, { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import { AttachmentActions, attachmentSlice as slice } from 'src/shared/resources/attachments/attachmentSlice';
 import type { IAttachment, IAttachmentState } from 'src/shared/resources/attachments';
 
 describe('attachmentReducer', () => {

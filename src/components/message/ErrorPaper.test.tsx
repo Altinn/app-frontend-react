@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { render } from '@testing-library/react';
 
-import ErrorPaper from 'src/components/message/ErrorPaper';
+import { ErrorPaper } from 'src/components/message/ErrorPaper';
 
 describe('ErrorPaper', () => {
   it('should render the supplied message', async () => {

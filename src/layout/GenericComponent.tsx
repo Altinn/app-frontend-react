@@ -5,12 +5,12 @@ import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import Description from 'src/features/form/components/Description';
-import Label from 'src/features/form/components/Label';
-import Legend from 'src/features/form/components/Legend';
+import { Description } from 'src/features/form/components/Description';
+import { Label } from 'src/features/form/components/Label';
+import { Legend } from 'src/features/form/components/Legend';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import components, { FormComponentContext } from 'src/layout/index';
+import { components, FormComponentContext } from 'src/layout/index';
 import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
 import { makeGetFocus, makeGetHidden } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';

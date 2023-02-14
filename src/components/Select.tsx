@@ -34,7 +34,7 @@ interface ISelectProps {
   className?: string;
 }
 
-const Select = ({
+export const Select = ({
   id,
   onChange,
   onBlur,
@@ -76,5 +76,3 @@ const Select = ({
     </select>
   );
 };
-
-export default Select;

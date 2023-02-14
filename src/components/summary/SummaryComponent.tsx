@@ -5,8 +5,8 @@ import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import ErrorPaper from 'src/components/message/ErrorPaper';
-import SummaryComponentSwitch from 'src/components/summary/SummaryComponentSwitch';
+import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { SummaryComponentSwitch } from 'src/components/summary/SummaryComponentSwitch';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';

@@ -6,7 +6,7 @@ import axios from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/mocks';
 import { partyMock } from 'src/__mocks__/partyMock';
-import Presentation from 'src/shared/containers/Presentation';
+import { PresentationComponent as Presentation } from 'src/shared/containers/Presentation';
 import { renderWithProviders } from 'src/testUtils';
 import { AltinnAppTheme } from 'src/theme';
 import { ProcessTaskType } from 'src/types';

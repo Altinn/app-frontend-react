@@ -100,7 +100,7 @@ const gridStyle = { flexGrow: 1 };
 
 const emptyObj = {};
 
-const AltinnAppHeader = ({ type, profile, language }: IHeaderProps) => {
+export const AltinnAppHeader = ({ type, profile, language }: IHeaderProps) => {
   const party = profile?.party;
   const classes = useStyles();
 
@@ -195,5 +195,3 @@ const AltinnAppHeader = ({ type, profile, language }: IHeaderProps) => {
     </div>
   );
 };
-
-export default AltinnAppHeader;

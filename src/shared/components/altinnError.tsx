@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AltinnError = ({
+export const AltinnError = ({
   styling,
   statusCode,
   title,
@@ -109,5 +109,3 @@ const AltinnError = ({
     </Grid>
   );
 };
-
-export default AltinnError;

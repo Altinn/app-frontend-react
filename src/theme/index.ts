@@ -1,1 +1,1 @@
-export { default as AltinnAppTheme } from './altinnAppTheme';
+export { AltinnAppTheme } from './altinnAppTheme';

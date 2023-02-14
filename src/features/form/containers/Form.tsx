@@ -3,9 +3,9 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 
 import { useAppSelector } from 'src/common/hooks';
-import ErrorReport from 'src/components/message/ErrorReport';
+import { ErrorReport } from 'src/components/message/ErrorReport';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
-import MessageBanner from 'src/features/form/components/MessageBanner';
+import { MessageBanner } from 'src/features/form/components/MessageBanner';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';

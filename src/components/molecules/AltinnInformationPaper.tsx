@@ -3,7 +3,7 @@ import * as React from 'react';
 import { createTheme, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import altinnTheme from 'src/theme/altinnStudioTheme';
+import { AltinnStudioTheme as altinnTheme } from 'src/theme/altinnStudioTheme';
 
 const theme = createTheme(altinnTheme);
 const useStyles = makeStyles({
@@ -21,7 +21,7 @@ export interface IAltinnInformationPaperProps {
   children: JSX.Element[] | JSX.Element;
 }
 
-export default function AltinnInformationPaper({ children }: IAltinnInformationPaperProps) {
+export function AltinnInformationPaper({ children }: IAltinnInformationPaperProps) {
   const classes = useStyles();
   return (
     <Paper

@@ -4,7 +4,7 @@ import { AppBar, Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { AltinnLogo } from 'src/components/AltinnLogo';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
-import AltinnAppHeaderMenu from 'src/components/organisms/AltinnAppHeaderMenu';
+import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
 import { renderPartyName } from 'src/utils/party';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { ILanguage, IParty } from 'src/types/shared';
@@ -132,5 +132,3 @@ export function AltinnAppHeader({
     </AppBar>
   );
 }
-
-export default AltinnAppHeader;

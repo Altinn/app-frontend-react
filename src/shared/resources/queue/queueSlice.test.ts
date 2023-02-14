@@ -1,4 +1,4 @@
-import slice, { initialState, QueueActions } from 'src/shared/resources/queue/queueSlice';
+import { initialState, QueueActions, queueSlice as slice } from 'src/shared/resources/queue/queueSlice';
 import type { IQueueState } from 'src/shared/resources/queue';
 
 describe('queueSlice', () => {

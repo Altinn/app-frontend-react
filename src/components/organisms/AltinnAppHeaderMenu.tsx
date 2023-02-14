@@ -35,7 +35,7 @@ const useStyles = makeStyles({
   },
 });
 
-function AltinnAppHeaderMenu(props: IAltinnAppHeaderMenuProps) {
+export function AltinnAppHeaderMenu(props: IAltinnAppHeaderMenuProps) {
   const { party, logoColor, ariaLabel, logoutText } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const classes = useStyles();
@@ -104,5 +104,3 @@ function AltinnAppHeaderMenu(props: IAltinnAppHeaderMenuProps) {
     </>
   );
 }
-
-export default AltinnAppHeaderMenu;

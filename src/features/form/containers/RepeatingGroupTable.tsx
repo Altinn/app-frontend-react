@@ -14,7 +14,7 @@ import { RepeatingGroupsEditContainer } from 'src/features/form/containers/Repea
 import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGroupTableRow';
 import { ComponentType } from 'src/layout';
 import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
-import altinnAppTheme from 'src/theme/altinnAppTheme';
+import { AltinnAppTheme as altinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { setupGroupComponents } from 'src/utils/layout';

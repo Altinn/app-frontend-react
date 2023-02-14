@@ -3,7 +3,7 @@ import React from 'react';
 import { makeStyles, TableHead } from '@material-ui/core';
 import cn from 'classnames';
 
-import theme from 'src/theme/altinnAppTheme';
+import { AltinnAppTheme as theme } from 'src/theme/altinnAppTheme';
 
 export interface IAltinnTableHeaderProps {
   id: string;

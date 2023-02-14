@@ -34,7 +34,7 @@ interface IMessageBannerProps {
   messageKey: string;
 }
 
-export default function MessageBanner({ language, error, messageKey }: IMessageBannerProps) {
+export function MessageBanner({ language, error, messageKey }: IMessageBannerProps) {
   const classes = useStyles();
 
   return (

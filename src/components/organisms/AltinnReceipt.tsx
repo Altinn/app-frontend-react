@@ -3,9 +3,9 @@ import React from 'react';
 import { makeStyles, Typography } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
-import AltinnAttachmentComponent from 'src/components/atoms/AltinnAttachment';
-import AltinnCollapsibleAttachmentsComponent from 'src/components/molecules/AltinnCollapsibleAttachments';
-import AltinnSummaryTable from 'src/components/molecules/AltinnSummaryTable';
+import { AltinnAttachment as AltinnAttachmentComponent } from 'src/components/atoms/AltinnAttachment';
+import { AltinnCollapsibleAttachments as AltinnCollapsibleAttachmentsComponent } from 'src/components/molecules/AltinnCollapsibleAttachments';
+import { AltinnSummaryTable } from 'src/components/molecules/AltinnSummaryTable';
 import type { IAttachment, IAttachmentGrouping } from 'src/types/shared';
 
 export interface IReceiptComponentProps {
@@ -177,5 +177,3 @@ export function ReceiptComponent({
     </div>
   );
 }
-
-export default ReceiptComponent;

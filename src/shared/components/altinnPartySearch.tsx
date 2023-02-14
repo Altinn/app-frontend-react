@@ -17,7 +17,7 @@ export interface IAltinnPartySearchProps {
   onSearchUpdated: (searchString: string) => void;
 }
 
-function AltinnPartySearch({ onSearchUpdated }: IAltinnPartySearchProps) {
+export function AltinnPartySearch({ onSearchUpdated }: IAltinnPartySearchProps) {
   const classes = useStyles();
   const language = useAppSelector((state) => state.language.language);
 
@@ -44,5 +44,3 @@ function AltinnPartySearch({ onSearchUpdated }: IAltinnPartySearchProps) {
     </Grid>
   );
 }
-
-export default AltinnPartySearch;

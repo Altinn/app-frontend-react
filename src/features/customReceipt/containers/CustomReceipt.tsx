@@ -3,7 +3,7 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 
 import { useAppSelector } from 'src/common/hooks';
-import ErrorReport from 'src/components/message/ErrorReport';
+import { ErrorReport } from 'src/components/message/ErrorReport';
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { extractBottomButtons, topLevelComponents } from 'src/utils/formLayout';

@@ -15,7 +15,7 @@ export interface IHeaderProps {
   appOwner?: string;
 }
 
-const Header = ({ type, header, appOwner }: IHeaderProps) => {
+export const Header = ({ type, header, appOwner }: IHeaderProps) => {
   const showProgressSettings = useAppSelector((state) => state.formLayout.uiConfig.showProgress);
   const language = useAppSelector((state) => state.language.language);
   const textResources = useAppSelector((state) => state.textResources.resources);
@@ -69,5 +69,3 @@ const Header = ({ type, header, appOwner }: IHeaderProps) => {
     </header>
   );
 };
-
-export default Header;

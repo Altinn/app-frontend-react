@@ -27,7 +27,7 @@ export const useStyles = makeStyles(() => ({
   },
 }));
 
-function MapComponentSummary({ component, formData }: IMapComponentSummary) {
+export function MapComponentSummary({ component, formData }: IMapComponentSummary) {
   const classes = useStyles();
   const layers = component.layers;
   const location = formData ? parseLocation(formData) : undefined;
@@ -69,5 +69,3 @@ function MapComponentSummary({ component, formData }: IMapComponentSummary) {
     </Grid>
   );
 }
-
-export default MapComponentSummary;

@@ -4,7 +4,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks';
 import { useDisplayData } from 'src/components/hooks';
-import SummaryBoilerplate from 'src/components/summary/SummaryBoilerplate';
+import { SummaryBoilerplate } from 'src/components/summary/SummaryBoilerplate';
 import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/types';
 
@@ -33,7 +33,7 @@ const useStyles = makeStyles({
   },
 });
 
-function SingleInputSummary({ formData, display, ...rest }: ISingleInputSummary) {
+export function SingleInputSummary({ formData, display, ...rest }: ISingleInputSummary) {
   const classes = useStyles();
   const displayData = useDisplayData({ formData });
   const language = useAppSelector((state) => state.language.language);
@@ -68,5 +68,3 @@ function SingleInputSummary({ formData, display, ...rest }: ISingleInputSummary)
     </>
   );
 }
-
-export default SingleInputSummary;

@@ -17,7 +17,7 @@ import cn from 'classnames';
 
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import theme from 'src/theme/altinnStudioTheme';
+import { AltinnStudioTheme as theme } from 'src/theme/altinnStudioTheme';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
@@ -131,7 +131,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function AltinnMobileTableItem({
+export function AltinnMobileTableItem({
   items,
   tableItemIndex,
   container,

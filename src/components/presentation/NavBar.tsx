@@ -13,7 +13,7 @@ export interface INavBarProps {
   showBackArrow?: boolean;
 }
 
-const NavBar = (props: INavBarProps) => {
+export const NavBar = (props: INavBarProps) => {
   const hideCloseButton = useAppSelector((state) => state.formLayout.uiConfig.hideCloseButton);
   const language = useAppSelector((state) => state.language.language || {});
   const theme = useTheme();
@@ -61,5 +61,3 @@ const NavBar = (props: INavBarProps) => {
     </Box>
   );
 };
-
-export default NavBar;

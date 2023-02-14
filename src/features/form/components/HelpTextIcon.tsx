@@ -27,7 +27,7 @@ export interface IHelpTextIconProps {
   onPopoverKeypress: (event: any) => void;
 }
 
-export default function HelpTextIcon({
+export function HelpTextIcon({
   helpIconRef,
   openPopover,
   language,

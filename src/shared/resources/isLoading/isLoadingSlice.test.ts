@@ -1,4 +1,4 @@
-import slice, { initialState, IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
+import { initialState, IsLoadingActions, isLoadingSlice as slice } from 'src/shared/resources/isLoading/isLoadingSlice';
 import type { IIsLoadingState } from 'src/shared/resources/isLoading/isLoadingSlice';
 
 describe('isLoadingSlice', () => {

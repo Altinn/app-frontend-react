@@ -4,7 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 import { preProcessItem, preProcessLayout } from 'src/features/expressions/validation';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import components from 'src/layout';
+import { components } from 'src/layout';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { get } from 'src/utils/network/networking';

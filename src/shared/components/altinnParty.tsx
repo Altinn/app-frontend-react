@@ -113,7 +113,7 @@ export interface IAltinnPartyProps {
   showSubUnits: boolean;
 }
 
-function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnPartyProps) {
+export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnPartyProps) {
   const classes = useStyles();
 
   const [subUnitsExpanded, setSubUnitsExpanded] = React.useState<boolean>(false);
@@ -251,5 +251,3 @@ function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnPartyProps) 
     </Paper>
   );
 }
-
-export default AltinnParty;

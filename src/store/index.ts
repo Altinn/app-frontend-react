@@ -4,7 +4,7 @@ import createSagaMiddleware from 'redux-saga';
 import type { PreloadedState } from 'redux';
 import type { SagaMiddleware } from 'redux-saga';
 
-import reducers from 'src/reducers';
+import { combinedReducers as reducers } from 'src/reducers';
 import { appApi } from 'src/services/AppApi';
 import type { IAltinnWindow } from 'src/types';
 

@@ -2,11 +2,11 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import { useAppSelector } from 'src/common/hooks';
-import InstantiationErrorPage from 'src/features/instantiate/containers/InstantiationErrorPage';
+import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
 import { getLanguageFromKey, getParsedLanguageFromKey, getParsedLanguageFromText } from 'src/utils/sharedUtils';
 import { getHostname } from 'src/utils/urls/appUrlHelper';
 
-function MissingRolesError() {
+export function MissingRolesError() {
   const language = useAppSelector((state) => state.language.language);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
 
@@ -74,5 +74,3 @@ function MissingRolesError() {
     />
   );
 }
-
-export default MissingRolesError;

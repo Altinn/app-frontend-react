@@ -1,4 +1,4 @@
-import slice, { FormLayoutActions, initialState } from 'src/features/form/layout/formLayoutSlice';
+import { FormLayoutActions, formLayoutSlice as slice, initialState } from 'src/features/form/layout/formLayoutSlice';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 
 describe('layoutSlice', () => {

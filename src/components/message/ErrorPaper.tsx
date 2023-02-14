@@ -24,7 +24,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function ErrorPaper(props: IErrorPaperProps) {
+export function ErrorPaper(props: IErrorPaperProps) {
   const classes = useStyles();
   return (
     <Paper

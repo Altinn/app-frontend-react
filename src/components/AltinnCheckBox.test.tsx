@@ -4,7 +4,7 @@ import { createTheme, MuiThemeProvider } from '@material-ui/core';
 import { act, render as rtlRender, screen } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 
-import AltinnCheckBoxComponent from 'src/components/AltinnCheckBox';
+import { AltinnCheckBox as AltinnCheckBoxComponent } from 'src/components/AltinnCheckBox';
 import { AltinnAppTheme } from 'src/theme';
 
 const render = (props = {}) => {

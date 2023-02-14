@@ -3,7 +3,7 @@ import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import theme from 'src/theme/altinnStudioTheme';
+import { AltinnStudioTheme as theme } from 'src/theme/altinnStudioTheme';
 
 export interface IAltinnMobileTableProps {
   children: React.ReactNode;
@@ -21,7 +21,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function AltinnMobileTable({ children, id, showBorder = true }: IAltinnMobileTableProps) {
+export function AltinnMobileTable({ children, id, showBorder = true }: IAltinnMobileTableProps) {
   const classes = useStyles();
 
   return (

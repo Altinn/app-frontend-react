@@ -3,11 +3,11 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector, useInstanceIdParams } from 'src/common/hooks';
 import { AltinnContentIconFormData, AltinnContentLoader } from 'src/components/shared';
-import InstantiateValidationError from 'src/features/instantiate/containers/InstantiateValidationError';
-import MissingRolesError from 'src/features/instantiate/containers/MissingRolesError';
-import UnknownError from 'src/features/instantiate/containers/UnknownError';
+import { InstantiateValidationError } from 'src/features/instantiate/containers/InstantiateValidationError';
+import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import Presentation from 'src/shared/containers/Presentation';
+import { PresentationComponent as Presentation } from 'src/shared/containers/Presentation';
 import { AltinnAppTheme } from 'src/theme';
 import { ProcessTaskType } from 'src/types';
 import { changeBodyBackground } from 'src/utils/bodyStyling';

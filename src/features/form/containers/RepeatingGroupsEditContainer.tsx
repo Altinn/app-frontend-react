@@ -5,7 +5,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import theme from 'src/theme/altinnStudioTheme';
+import { AltinnStudioTheme as theme } from 'src/theme/altinnStudioTheme';
 import { renderGenericComponent } from 'src/utils/layout';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';

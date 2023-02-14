@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ErrorReport = ({ components }: IErrorReportProps) => {
+export const ErrorReport = ({ components }: IErrorReportProps) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -175,5 +175,3 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
     </Grid>
   );
 };
-
-export default ErrorReport;

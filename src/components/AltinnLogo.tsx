@@ -1,6 +1,6 @@
 import React from 'react';
 
-import appTheme from 'src/theme/altinnAppTheme';
+import { AltinnAppTheme as appTheme } from 'src/theme/altinnAppTheme';
 
 import 'src/styles/shared.css';
 
@@ -41,5 +41,3 @@ export const AltinnLogo = ({ color }: IAltinnLogoProps) => {
     />
   );
 };
-
-export default AltinnLogo;

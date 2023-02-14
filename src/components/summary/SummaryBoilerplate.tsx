@@ -4,7 +4,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
 import { EditButton } from 'src/components/summary/EditButton';
-import appTheme from 'src/theme/altinnAppTheme';
+import { AltinnAppTheme as appTheme } from 'src/theme/altinnAppTheme';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 
 export interface SummaryBoilerplateProps extends Omit<ILayoutCompSummary, 'type' | 'id'> {
@@ -31,7 +31,7 @@ const useStyles = makeStyles({
     },
   },
 });
-export default function SummaryBoilerplate({
+export function SummaryBoilerplate({
   hasValidationMessages,
   onChangeClick,
   changeText,

@@ -91,5 +91,3 @@ export function AltinnContentIconReceipt() {
     </>
   );
 }
-
-export default AltinnContentIconReceipt;

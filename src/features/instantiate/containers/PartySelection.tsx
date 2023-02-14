@@ -7,10 +7,10 @@ import AddIcon from '@material-ui/icons/Add';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { AltinnCheckBox } from 'src/components/shared';
 import { InstantiationContainer } from 'src/features/instantiate/containers';
-import NoValidPartiesError from 'src/features/instantiate/containers/NoValidPartiesError';
+import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import AltinnParty from 'src/shared/components/altinnParty';
-import AltinnPartySearch from 'src/shared/components/altinnPartySearch';
+import { AltinnParty } from 'src/shared/components/altinnParty';
+import { AltinnPartySearch } from 'src/shared/components/altinnPartySearch';
 import { PartyActions } from 'src/shared/resources/party/partySlice';
 import { AltinnAppTheme } from 'src/theme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: '0.75rem',
   },
 }));
-const PartySelection = () => {
+export const PartySelection = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const match = useMatch(`/partyselection/:errorCode`);
@@ -344,5 +344,3 @@ const PartySelection = () => {
     </InstantiationContainer>
   );
 };
-
-export default PartySelection;

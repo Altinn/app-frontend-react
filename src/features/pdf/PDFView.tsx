@@ -5,8 +5,8 @@ import cn from 'classnames';
 import type { IPdfFormat } from '.';
 
 import { useAppSelector } from 'src/common/hooks';
-import AutomaticPDFLayout from 'src/features/pdf/AutomaticPDFLayout';
-import CustomPDFLayout from 'src/features/pdf/CustomPDFLayout';
+import { AutomaticPDFLayout } from 'src/features/pdf/AutomaticPDFLayout';
+import { CustomPDFLayout } from 'src/features/pdf/CustomPDFLayout';
 import css from 'src/features/pdf/PDFView.module.css';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
@@ -19,7 +19,7 @@ interface PDFViewProps {
   appOwner?: string;
 }
 
-const PDFView = ({ appName, appOwner }: PDFViewProps) => {
+export const PDFView = ({ appName, appOwner }: PDFViewProps) => {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
   const excludedPages = useAppSelector((state) => state.formLayout.uiConfig.excludePageFromPdf);
@@ -116,5 +116,3 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
     </div>
   );
 };
-
-export default PDFView;

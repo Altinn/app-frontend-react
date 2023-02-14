@@ -7,18 +7,18 @@ import { useAppSelector, useInstanceIdParams, useProcess } from 'src/common/hook
 import { useApiErrorCheck } from 'src/common/hooks/useApiErrorCheck';
 import { AltinnContentIconFormData, AltinnContentLoader } from 'src/components/shared';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
-import Feedback from 'src/features/feedback/Feedback';
+import { Feedback } from 'src/features/feedback/Feedback';
 import { Form } from 'src/features/form/containers/Form';
-import UnknownError from 'src/features/instantiate/containers/UnknownError';
-import PDFView from 'src/features/pdf/PDFView';
-import Receipt from 'src/features/receipt/containers/ReceiptContainer';
-import Presentation from 'src/shared/containers/Presentation';
+import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { PDFView } from 'src/features/pdf/PDFView';
+import { ReceiptContainer as Receipt } from 'src/features/receipt/containers/ReceiptContainer';
+import { PresentationComponent as Presentation } from 'src/shared/containers/Presentation';
 import css from 'src/shared/containers/ProcessWrapper.module.css';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 
-const ProcessWrapper = () => {
+export const ProcessWrapper = () => {
   const instantiating = useAppSelector((state) => state.instantiation.instantiating);
   const isLoading = useAppSelector((state) => state.isLoading.dataTask);
   const layoutSets = useAppSelector((state) => state.formLayout.layoutsets);
@@ -103,5 +103,3 @@ const ProcessWrapper = () => {
     </>
   );
 };
-
-export default ProcessWrapper;

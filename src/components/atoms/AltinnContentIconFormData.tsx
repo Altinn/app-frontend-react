@@ -157,5 +157,3 @@ export function AltinnContentIconFormData() {
     </>
   );
 }
-
-export default AltinnContentIconFormData;
