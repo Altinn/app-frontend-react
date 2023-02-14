@@ -48,11 +48,14 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
       dispatch(
         FormLayoutActions.updateCurrentView({
           newView: returnToView,
-          runValidations: 'allPages',
         }),
       );
     } else if (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless) {
-      dispatch(FormLayoutActions.updateCurrentView({ newView: previousFormPage }));
+      dispatch(
+        FormLayoutActions.updateCurrentView({
+          newView: previousFormPage,
+        }),
+      );
     }
   };
 

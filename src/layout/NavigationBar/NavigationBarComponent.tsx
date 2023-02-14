@@ -6,7 +6,7 @@ import cn from 'classnames';
 import { useAppDispatch, useAppSelector } from 'src/common/hooks';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { Triggers } from 'src/types';
+import { reducePageValidations } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -105,7 +105,6 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const pageIds = useAppSelector(selectLayoutOrder);
-  const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
   const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
   const pageOrPropTriggers = triggers || pageTriggers;
   const textResources = useAppSelector((state) => state.textResources.resources);
@@ -121,22 +120,23 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
       return setShowMenu(false);
     }
 
-    const runPageValidations = !returnToView && pageOrPropTriggers?.includes(Triggers.ValidatePage);
-    const runAllValidations = returnToView || pageOrPropTriggers?.includes(Triggers.ValidateAllPages);
-
-    const runValidations = (runAllValidations && 'allPages') || (runPageValidations && 'page') || undefined;
-
-    dispatch(FormLayoutActions.updateCurrentView({ newView: pageId, runValidations }));
+    const runValidations = reducePageValidations(pageOrPropTriggers);
+    dispatch(
+      FormLayoutActions.updateCurrentView({
+        newView: pageId,
+        runValidations,
+      }),
+    );
   };
 
-  const shouldShowMenu = isMobile === false || showMenu;
+  const shouldShowMenu = !isMobile || showMenu;
 
   const handleShowMenu = () => {
     setShowMenu(true);
   };
 
   React.useLayoutEffect(() => {
-    const shouldFocusFirstItem = firstPageLink.current && showMenu === true;
+    const shouldFocusFirstItem = firstPageLink.current && showMenu;
     if (shouldFocusFirstItem) {
       firstPageLink.current?.focus();
     }

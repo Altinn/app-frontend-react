@@ -76,7 +76,6 @@ const ErrorReport = ({ components }: IErrorReportProps) => {
       dispatch(
         FormLayoutActions.updateCurrentView({
           newView: error.layout,
-          returnToView: currentView,
         }),
       );
     }
