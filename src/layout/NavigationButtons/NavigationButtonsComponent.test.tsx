@@ -4,7 +4,8 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 
-import { getFormLayoutStateMock, getInitialStateMock } from 'src/__mocks__/mocks';
+import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
 import type { INavigationButtons } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
 

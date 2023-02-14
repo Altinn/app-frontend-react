@@ -5,7 +5,7 @@ import { act, render as rtlRender, screen } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 
 import { AltinnCheckBox as AltinnCheckBoxComponent } from 'src/components/AltinnCheckBox';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 
 const render = (props = {}) => {
   const allProps = {

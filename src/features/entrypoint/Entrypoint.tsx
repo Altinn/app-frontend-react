@@ -3,8 +3,10 @@ import { Navigate } from 'react-router-dom';
 
 import type { AxiosError } from 'axios';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { AltinnContentIconFormData, AltinnContentLoader } from 'src/components/shared';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
+import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { Form } from 'src/features/form/containers/Form';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';

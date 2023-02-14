@@ -2,8 +2,8 @@ import React from 'react';
 
 import { createTheme, Grid, makeStyles } from '@material-ui/core';
 
+import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { AltinnAppTheme as altinnAppTheme } from 'src/theme/altinnAppTheme';
-import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { ITextResource, ITextResourceBindings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 

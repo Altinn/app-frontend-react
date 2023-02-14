@@ -4,7 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';
-import { get } from 'src/utils/sharedUtils';
+import { get } from 'src/utils/network/sharedNetworking';
 import { getProcessNextUrl } from 'src/utils/urls/appUrlHelper';
 import type { IGetTasksFulfilled } from 'src/shared/resources/process';
 import type { IProcess } from 'src/types/shared';

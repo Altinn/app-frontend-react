@@ -29,19 +29,19 @@ import {
   splitDashedKey,
 } from 'src/utils/formLayout';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
+import { get, post } from 'src/utils/network/sharedNetworking';
 import { getOptionLookupKey, removeGroupOptionsByIndex } from 'src/utils/options';
 import { selectNotNull, waitFor } from 'src/utils/sagas';
-import { get, post } from 'src/utils/sharedUtils';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
+import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
 import {
   canFormBeSaved,
+  filterValidationsByRow,
   mapDataElementValidationToRedux,
   mergeValidationObjects,
   removeGroupValidationsByIndex,
-  runClientSideValidation,
   validateGroup,
-} from 'src/utils/validation';
-import { filterValidationsByRow } from 'src/utils/validation/validation';
+} from 'src/utils/validation/validation';
 import type { IFormDataState } from 'src/features/form/data';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type {

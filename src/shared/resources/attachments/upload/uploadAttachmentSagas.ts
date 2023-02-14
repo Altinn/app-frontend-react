@@ -8,8 +8,8 @@ import { ValidationActions } from 'src/features/form/validation/validationSlice'
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { post } from 'src/utils/network/networking';
-import { customEncodeURI } from 'src/utils/sharedUtils';
 import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
+import { customEncodeURI } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IUploadAttachmentAction } from 'src/shared/resources/attachments/upload/uploadAttachmentActions';
 import type { IRuntimeState } from 'src/types';

@@ -5,10 +5,10 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { AltinnStudioTheme as theme } from 'src/theme/altinnStudioTheme';
 import { renderGenericComponent } from 'src/utils/layout';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import { getLanguageFromKey, getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGroupEditProperties, ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentInGroup, ILayout } from 'src/layout/layout';

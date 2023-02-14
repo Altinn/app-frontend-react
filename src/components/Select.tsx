@@ -3,7 +3,7 @@ import * as React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import cn from 'classnames';
 
-import { AltinnAppTheme } from 'src/theme/index';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 
 import 'src/styles/shared.css';
 

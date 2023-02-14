@@ -7,8 +7,8 @@ import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector
 import { listStateSelector } from 'src/selectors/dataListStateSelector';
 import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 import { getDataListLookupKey, getDataListLookupKeys } from 'src/utils/dataList';
+import { get } from 'src/utils/network/sharedNetworking';
 import { selectNotNull } from 'src/utils/sagas';
-import { get } from 'src/utils/sharedUtils';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/form/data';
 import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';

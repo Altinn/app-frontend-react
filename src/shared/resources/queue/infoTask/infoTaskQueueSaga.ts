@@ -7,7 +7,7 @@ import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice'
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
 import { convertModelToDataBinding } from 'src/utils/databindings';
-import { get } from 'src/utils/sharedUtils';
+import { get } from 'src/utils/network/sharedNetworking';
 import { getFetchFormDataUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { IRuntimeState, ITextResource } from 'src/types';

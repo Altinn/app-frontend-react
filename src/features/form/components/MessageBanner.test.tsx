@@ -3,7 +3,7 @@ import * as React from 'react';
 import { render } from '@testing-library/react';
 
 import { MessageBanner } from 'src/features/form/components/MessageBanner';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { ILanguage } from 'src/types/shared';
 
 describe('MessageBanner', () => {

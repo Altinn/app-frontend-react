@@ -1,17 +1,20 @@
 import * as React from 'react';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
+import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
 import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
-import { AltinnAppHeader, AltinnSubstatusPaper } from 'src/components/shared';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { getNextView } from 'src/utils/formLayout';
 import { get } from 'src/utils/network/networking';
-import { getTextResourceByKey, returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/sharedUtils';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
+import { returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 
 export interface IPresentationProvidedProps {
   header?: string | JSX.Element | JSX.Element[];

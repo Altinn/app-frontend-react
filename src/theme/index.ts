@@ -1,1 +1,0 @@
-export { AltinnAppTheme } from './altinnAppTheme';

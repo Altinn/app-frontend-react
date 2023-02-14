@@ -4,7 +4,8 @@ import { shallowEqual } from 'react-redux';
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { SummaryComponentSwitch } from 'src/components/summary/SummaryComponentSwitch';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';

@@ -2,7 +2,7 @@ import * as texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import type { makeUploaderSelectors } from 'test/e2e/pageobjects/app-frontend';
 
-import { getInstanceIdRegExp } from 'src/utils';
+import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { IRuntimeState } from 'src/types';
 
 const appFrontend = new AppFrontend();

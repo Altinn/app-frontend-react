@@ -3,9 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 
 import cn from 'classnames';
 
-import { useAppSelector, useInstanceIdParams, useProcess } from 'src/common/hooks';
 import { useApiErrorCheck } from 'src/common/hooks/useApiErrorCheck';
-import { AltinnContentIconFormData, AltinnContentLoader } from 'src/components/shared';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useInstanceIdParams } from 'src/common/hooks/useInstanceIdParams';
+import { useProcess } from 'src/common/hooks/useProcess';
+import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
+import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
 import { Form } from 'src/features/form/containers/Form';

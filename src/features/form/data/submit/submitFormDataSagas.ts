@@ -13,16 +13,16 @@ import { Severity } from 'src/types';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from 'src/utils/databindings';
 import { post } from 'src/utils/network/networking';
+import { get, put } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
-import { get, put } from 'src/utils/sharedUtils';
 import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from 'src/utils/urls/appUrlHelper';
+import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
 import {
   canFormBeSaved,
   hasValidationsOfSeverity,
   mapDataElementValidationToRedux,
   mergeValidationObjects,
-  runClientSideValidation,
-} from 'src/utils/validation';
+} from 'src/utils/validation/validation';
 import type { IFormData } from 'src/features/form/data';
 import type { ISubmitDataAction, IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';

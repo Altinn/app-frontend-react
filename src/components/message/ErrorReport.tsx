@@ -3,16 +3,17 @@ import * as React from 'react';
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import { Grid, makeStyles } from '@material-ui/core';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { getLanguageFromKey, getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { nodesInLayouts } from 'src/utils/layout/hierarchy';
-import { getLanguageFromKey, getParsedLanguageFromText } from 'src/utils/sharedUtils';
-import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation';
+import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
 import type { ILayout } from 'src/layout/layout';
 import type { AnyChildNode } from 'src/utils/layout/hierarchy.types';
-import type { FlatError } from 'src/utils/validation';
+import type { FlatError } from 'src/utils/validation/validation';
 
 export interface IErrorReportProps {
   components: ILayout;

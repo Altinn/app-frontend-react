@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Grid } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { Progress } from 'src/components/presentation/Progress';
 import { ProcessTaskType } from 'src/types';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';

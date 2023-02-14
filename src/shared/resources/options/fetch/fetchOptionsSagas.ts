@@ -10,9 +10,9 @@ import {
   getKeyWithoutIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
+import { get } from 'src/utils/network/sharedNetworking';
 import { getOptionLookupKey, getOptionLookupKeys } from 'src/utils/options';
 import { selectNotNull } from 'src/utils/sagas';
-import { get } from 'src/utils/sharedUtils';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/form/data';
 import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';

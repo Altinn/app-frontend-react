@@ -4,7 +4,7 @@ import cn from 'classnames';
 
 import type { IPdfFormat } from '.';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AutomaticPDFLayout } from 'src/features/pdf/AutomaticPDFLayout';
 import { CustomPDFLayout } from 'src/features/pdf/CustomPDFLayout';
 import css from 'src/features/pdf/PDFView.module.css';

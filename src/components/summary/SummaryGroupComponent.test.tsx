@@ -2,7 +2,9 @@ import * as React from 'react';
 
 import configureStore from 'redux-mock-store';
 
-import { getFormDataStateMock, getFormLayoutStateMock, getInitialStateMock } from 'src/__mocks__/mocks';
+import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
+import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
+import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { SummaryGroupComponent } from 'src/components/summary/SummaryGroupComponent';
 import { renderWithProviders } from 'src/testUtils';
 import type { ISummaryGroupComponent } from 'src/components/summary/SummaryGroupComponent';

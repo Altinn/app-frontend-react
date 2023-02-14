@@ -2,10 +2,10 @@ import * as React from 'react';
 
 import { Box, useTheme } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { CloseButton } from 'src/components/presentation/CloseButton';
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 
 export interface INavBarProps {
   handleClose: () => void;

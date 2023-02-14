@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ErrorMessage } from '@digdir/design-system-react';
 
 import { SoftValidations } from 'src/features/form/components/SoftValidations';
-import { getParsedLanguageFromText } from 'src/utils/sharedUtils';
+import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import type { IComponentBindingValidation } from 'src/types';
 
 export function renderValidationMessagesForComponent(

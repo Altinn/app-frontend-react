@@ -18,8 +18,8 @@ import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
 import { putWithoutConfig } from 'src/utils/network/networking';
+import { get } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
-import { get } from 'src/utils/sharedUtils';
 import {
   getFetchFormDataUrl,
   getStatelessFormDataUrl,
