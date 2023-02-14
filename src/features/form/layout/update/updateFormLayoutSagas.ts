@@ -1,6 +1,6 @@
 import { all, call, put, race, select, take, takeLatest } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
@@ -29,7 +29,8 @@ import {
   splitDashedKey,
 } from 'src/utils/formLayout';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
-import { httpGet, httpPost } from 'src/utils/network/sharedNetworking';
+import { httpPost } from 'src/utils/network/networking';
+import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getOptionLookupKey, removeGroupOptionsByIndex } from 'src/utils/options';
 import { selectNotNull, waitFor } from 'src/utils/sagas';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
@@ -434,16 +435,22 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
         layoutSetId = getLayoutsetForDataElement(instance, dataTypeId || undefined, layoutSets) || null;
       }
     }
-    const layoutOrder = yield call(httpPost, getCalculatePageOrderUrl(appIsStateless), formData, {
-      params: {
-        currentPage: currentView,
-        layoutSetId,
-        dataTypeId,
+    const layoutOrderResponse: AxiosResponse = yield call(
+      httpPost,
+      getCalculatePageOrderUrl(appIsStateless),
+      formData,
+      {
+        params: {
+          currentPage: currentView,
+          layoutSetId,
+          dataTypeId,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    );
+    const layoutOrder = layoutOrderResponse.data ? layoutOrderResponse.data : null;
     yield put(
       FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
         order: layoutOrder,

@@ -20,16 +20,6 @@ export async function httpPost(url: string, options?: AxiosRequestConfig, data?:
   return await axios.post(url, data, options);
 }
 
-export async function httpPut(
-  url: string,
-  apiMode: string,
-  data: any,
-  config?: AxiosRequestConfig,
-): Promise<AxiosResponse> {
-  const response: AxiosResponse = await axios.put(`${url}/${apiMode}`, data, config);
-  return response.data ? response.data : null;
-}
-
 export async function httpDelete(url: string, options?: AxiosRequestConfig): Promise<AxiosResponse> {
   return await axios.delete(url, options);
 }

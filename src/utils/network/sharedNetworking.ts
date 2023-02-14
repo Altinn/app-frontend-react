@@ -9,11 +9,6 @@ export async function httpGet(url: string, options?: AxiosRequestConfig): Promis
   return response.data ? response.data : null;
 }
 
-export async function httpPost(url: string, data?: any, options?: AxiosRequestConfig): Promise<void> {
-  const response: AxiosResponse = await axios.post(url, data || null, options);
-  return response.data ? response.data : null;
-}
-
 export async function httpPut(url: string, data: any, config?: AxiosRequestConfig): Promise<void> {
   const response = await axios.put(url, data, config);
   return response.data;
