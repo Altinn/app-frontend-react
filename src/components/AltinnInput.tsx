@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 
 import { createStyles, createTheme, Grid, Input, InputLabel, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import { AltinnStudioTheme as altinnTheme } from 'src/theme/altinnStudioTheme';
+import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 
-const theme = createTheme(altinnTheme);
+const theme = createTheme(AltinnStudioTheme);
 const styles = createStyles({
   input: {
     backgroundColor: theme.altinnPalette.primary.white,

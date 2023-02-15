@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { isMobile } from 'react-device-detect';
 import type { FileRejection } from 'react-dropzone';
 

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 import type { AxiosError } from 'axios';
@@ -14,7 +14,7 @@ import { InstantiateContainer } from 'src/features/instantiate/containers/Instan
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
-import { PresentationComponent as Presentation } from 'src/shared/containers/Presentation';
+import { PresentationComponent } from 'src/shared/containers/Presentation';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
@@ -117,7 +117,7 @@ export function Entrypoint({ allowAnonymous }: any) {
     }
     return (
       // let user decide if continuing on existing or starting new
-      <Presentation
+      <PresentationComponent
         header={appName || ''}
         appOwner={appOwner}
         type={ProcessTaskType.Unknown}
@@ -126,7 +126,7 @@ export function Entrypoint({ allowAnonymous }: any) {
           instances={activeInstances}
           onNewInstance={handleNewInstance}
         />
-      </Presentation>
+      </PresentationComponent>
     );
   }
 
@@ -137,7 +137,7 @@ export function Entrypoint({ allowAnonymous }: any) {
     }
     if (statelessLoading === false) {
       return (
-        <Presentation
+        <PresentationComponent
           header={appName || ''}
           appOwner={appOwner}
           type={PresentationType.Stateless}
@@ -145,13 +145,13 @@ export function Entrypoint({ allowAnonymous }: any) {
           <div>
             <Form />
           </div>
-        </Presentation>
+        </PresentationComponent>
       );
     }
   }
 
   return (
-    <Presentation
+    <PresentationComponent
       header=''
       type={ProcessTaskType.Unknown}
     >
@@ -161,6 +161,6 @@ export function Entrypoint({ allowAnonymous }: any) {
       >
         <AltinnContentIconFormData />
       </AltinnContentLoader>
-    </Presentation>
+    </PresentationComponent>
   );
 }

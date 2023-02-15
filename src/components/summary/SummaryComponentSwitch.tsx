@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { SingleInputSummary } from 'src/components/summary/SingleInputSummary';
 import { SummaryBoilerplate } from 'src/components/summary/SummaryBoilerplate';

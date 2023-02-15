@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';

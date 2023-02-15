@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
@@ -12,7 +12,7 @@ import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
 import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
-import { AltinnAppTheme as appTheme } from 'src/theme/altinnAppTheme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getDisplayFormDataForComponent, getFormDataForComponentInRepeatingGroup } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
@@ -56,9 +56,9 @@ const useStyles = makeStyles({
     },
   },
   labelWithError: {
-    color: appTheme.altinnPalette.primary.red,
+    color: AltinnAppTheme.altinnPalette.primary.red,
     '& p': {
-      color: appTheme.altinnPalette.primary.red,
+      color: AltinnAppTheme.altinnPalette.primary.red,
     },
   },
   link: {

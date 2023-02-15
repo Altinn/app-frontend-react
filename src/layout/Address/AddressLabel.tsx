@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
 import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';

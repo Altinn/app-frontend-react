@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AltinnAppTheme as appTheme } from 'src/theme/altinnAppTheme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 
 import 'src/styles/shared.css';
 
@@ -9,7 +9,7 @@ export interface IAltinnLogoProps {
 }
 
 function getLogoColor(color: string) {
-  const colors = appTheme.altinnPalette.primary;
+  const colors = AltinnAppTheme.altinnPalette.primary;
   switch (color) {
     case 'white':
     case colors.white:

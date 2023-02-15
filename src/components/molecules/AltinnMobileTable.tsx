@@ -3,7 +3,7 @@ import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import { AltinnStudioTheme as theme } from 'src/theme/altinnStudioTheme';
+import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 
 export interface IAltinnMobileTableProps {
   children: React.ReactNode;
@@ -16,7 +16,7 @@ const useStyles = makeStyles({
     marginBottom: '0.75rem',
   },
   border: {
-    borderTop: `2px solid ${theme.altinnPalette.primary.blueMedium}`,
+    borderTop: `2px solid ${AltinnStudioTheme.altinnPalette.primary.blueMedium}`,
     marginTop: '-1px',
   },
 });

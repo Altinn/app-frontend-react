@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 
 import { createTheme, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { AltinnStudioTheme as altinnTheme } from 'src/theme/altinnStudioTheme';
+import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 
-const theme = createTheme(altinnTheme);
+const theme = createTheme(AltinnStudioTheme);
 const useStyles = makeStyles({
   paper: {
     background: theme.altinnPalette.primary.white,

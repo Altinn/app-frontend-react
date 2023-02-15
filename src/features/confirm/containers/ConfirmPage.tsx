@@ -10,7 +10,7 @@ import type { IApplicationMetadata } from 'src/shared/resources/applicationMetad
 import type { ITextResource } from 'src/types';
 import type { IInstance, ILanguage, IParty } from 'src/types/shared';
 
-export interface Props {
+export interface IConfirmPageProps {
   instance: IInstance | null;
   parties: IParty[] | null;
   language: ILanguage | null;
@@ -19,7 +19,14 @@ export interface Props {
   applicationMetadata: IApplicationMetadata | null;
 }
 
-export const ConfirmPage = ({ instance, parties, language, appName, textResources, applicationMetadata }: Props) => {
+export const ConfirmPage = ({
+  instance,
+  parties,
+  language,
+  appName,
+  textResources,
+  applicationMetadata,
+}: IConfirmPageProps) => {
   const getInstanceMetaObject = () => {
     if (instance?.org && applicationMetadata) {
       const instanceOwnerParty = parties?.find((party: IParty) => {

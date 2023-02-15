@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import DropZone from 'react-dropzone';
 import type { FileRejection } from 'react-dropzone';
 

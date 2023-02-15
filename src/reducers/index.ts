@@ -2,9 +2,9 @@ import { combineReducers } from 'redux';
 
 import { formDataSlice } from 'src/features/form/data/formDataSlice';
 import { formDataModelSlice } from 'src/features/form/datamodel/datamodelSlice';
-import { slice as formDynamicsSlice } from 'src/features/form/dynamics/formDynamicsSlice';
+import { formDynamicsSlice } from 'src/features/form/dynamics/formDynamicsSlice';
 import { formLayoutSlice } from 'src/features/form/layout/formLayoutSlice';
-import { rulesSlice as formRulesSlice } from 'src/features/form/rules/rulesSlice';
+import { formRulesSlice } from 'src/features/form/rules/rulesSlice';
 import { validationSlice } from 'src/features/form/validation/validationSlice';
 import { instantiationSlice } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { appApi } from 'src/services/AppApi';

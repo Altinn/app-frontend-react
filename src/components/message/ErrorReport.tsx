@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 import { Grid, makeStyles } from '@material-ui/core';

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Button } from '@digdir/design-system-react';
 import { Grid, IconButton, makeStyles } from '@material-ui/core';

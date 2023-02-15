@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import MomentUtils from '@date-io/moment';
 import { Grid, Icon, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';

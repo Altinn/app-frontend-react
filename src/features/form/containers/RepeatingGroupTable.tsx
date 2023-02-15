@@ -15,7 +15,7 @@ import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGr
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
 import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
-import { AltinnAppTheme as altinnAppTheme } from 'src/theme/altinnAppTheme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { setupGroupComponents } from 'src/utils/layout';
@@ -55,7 +55,7 @@ export interface IRepeatingGroupTableProps {
   filteredIndexes?: number[] | null;
 }
 
-const theme = createTheme(altinnAppTheme);
+const theme = createTheme(AltinnAppTheme);
 
 const cellMargin = 15;
 const useStyles = makeStyles({

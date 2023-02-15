@@ -1,5 +1,5 @@
 import React from 'react';
-import { Provider as ReduxProvider } from 'react-redux';
+import { Provider } from 'react-redux';
 import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
@@ -27,9 +27,9 @@ export const renderWithProviders = (
 
     return (
       <MuiThemeProvider theme={theme}>
-        <ReduxProvider store={store}>
+        <Provider store={store}>
           <ExprContextWrapper>{children}</ExprContextWrapper>
-        </ReduxProvider>
+        </Provider>
       </MuiThemeProvider>
     );
   }

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { makeStyles, Table, TableBody, TableCell, TableRow, Typography } from '@material-ui/core';
 import classNames from 'classnames';

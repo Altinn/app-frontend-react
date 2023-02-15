@@ -22,7 +22,7 @@ const initialState: IFormDynamicState = {
   error: null,
 };
 
-export const slice = createSagaSlice((mkAction: MkActionType<IFormDynamicState>) => ({
+export const formDynamicsSlice = createSagaSlice((mkAction: MkActionType<IFormDynamicState>) => ({
   name: 'formDynamics',
   initialState,
   actions: {
@@ -61,4 +61,4 @@ export const slice = createSagaSlice((mkAction: MkActionType<IFormDynamicState>)
   },
 }));
 
-export const FormDynamicsActions = slice.actions;
+export const FormDynamicsActions = formDynamicsSlice.actions;

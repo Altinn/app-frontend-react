@@ -14,8 +14,8 @@ import { Feedback } from 'src/features/feedback/Feedback';
 import { Form } from 'src/features/form/containers/Form';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
-import { ReceiptContainer as Receipt } from 'src/features/receipt/containers/ReceiptContainer';
-import { PresentationComponent as Presentation } from 'src/shared/containers/Presentation';
+import { ReceiptContainer } from 'src/features/receipt/containers/ReceiptContainer';
+import { PresentationComponent } from 'src/shared/containers/Presentation';
 import css from 'src/shared/containers/ProcessWrapper.module.css';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { ProcessTaskType } from 'src/types';
@@ -70,7 +70,7 @@ export const ProcessWrapper = () => {
           [css['hide-form']]: previewPDF,
         })}
       >
-        <Presentation
+        <PresentationComponent
           header={appName}
           appOwner={appOwner}
           type={taskType}
@@ -78,7 +78,7 @@ export const ProcessWrapper = () => {
           {isLoading === false ? (
             <>
               {taskType === ProcessTaskType.Data && <Form />}
-              {taskType === ProcessTaskType.Archived && <Receipt />}
+              {taskType === ProcessTaskType.Archived && <ReceiptContainer />}
               {taskType === ProcessTaskType.Confirm &&
                 (behavesLikeDataTask(process.taskId, layoutSets) ? <Form /> : <Confirm />)}
               {taskType === ProcessTaskType.Feedback && <Feedback />}
@@ -93,7 +93,7 @@ export const ProcessWrapper = () => {
               </AltinnContentLoader>
             </div>
           )}
-        </Presentation>
+        </PresentationComponent>
       </div>
       {previewPDF && (
         <div className={cn(css['content'], css['hide-pdf'])}>

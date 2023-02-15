@@ -6,7 +6,7 @@ import axios from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
-import { PresentationComponent as Presentation } from 'src/shared/containers/Presentation';
+import { PresentationComponent } from 'src/shared/containers/Presentation';
 import { renderWithProviders } from 'src/testUtils';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
@@ -157,5 +157,5 @@ const render = (props: Partial<IPresentationProvidedProps> = {}, preloadedState:
     ...props,
   };
 
-  renderWithProviders(<Presentation {...allProps} />, { preloadedState });
+  renderWithProviders(<PresentationComponent {...allProps} />, { preloadedState });
 };

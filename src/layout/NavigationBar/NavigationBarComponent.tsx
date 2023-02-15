@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Grid, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import cn from 'classnames';

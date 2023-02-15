@@ -10,7 +10,7 @@ const initialState: IFormRuleState = {
   error: null,
 };
 
-export const rulesSlice = createSagaSlice((mkAction: MkActionType<IFormRuleState>) => ({
+export const formRulesSlice = createSagaSlice((mkAction: MkActionType<IFormRuleState>) => ({
   name: 'formRules',
   initialState,
   actions: {
@@ -40,4 +40,4 @@ export const rulesSlice = createSagaSlice((mkAction: MkActionType<IFormRuleState
   },
 }));
 
-export const FormRulesActions = rulesSlice.actions;
+export const FormRulesActions = formRulesSlice.actions;

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
@@ -10,7 +10,7 @@ import { InstantiateValidationError } from 'src/features/instantiate/containers/
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import { PresentationComponent as Presentation } from 'src/shared/containers/Presentation';
+import { PresentationComponent } from 'src/shared/containers/Presentation';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
@@ -68,7 +68,7 @@ export const InstantiateContainer = () => {
   }
 
   return (
-    <Presentation
+    <PresentationComponent
       header={titleText}
       type={ProcessTaskType.Unknown}
     >
@@ -78,6 +78,6 @@ export const InstantiateContainer = () => {
       >
         <AltinnContentIconFormData />
       </AltinnContentLoader>
-    </Presentation>
+    </PresentationComponent>
   );
 };

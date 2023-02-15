@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';

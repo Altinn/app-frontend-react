@@ -1,4 +1,4 @@
-import * as texts from 'test/e2e/fixtures/texts.json';
+import texts from 'test/e2e/fixtures/texts.json';
 
 export class AppFrontend {
   public apps = {

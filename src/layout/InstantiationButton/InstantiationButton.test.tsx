@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { act, screen } from '@testing-library/react';
