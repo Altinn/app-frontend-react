@@ -28,7 +28,6 @@ export interface ISummaryComponentSwitch extends Omit<ILayoutCompSummary, 'type'
 }
 
 export function SummaryComponentSwitch({
-  id,
   change,
   formComponent,
   label,
