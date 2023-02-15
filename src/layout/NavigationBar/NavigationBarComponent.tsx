@@ -24,6 +24,9 @@ const useStyles = makeStyles((theme) => ({
       flexDirection: 'column',
     },
   },
+  menuCompact: {
+    flexDirection: 'column',
+  },
   containerBase: {
     borderRadius: '40px',
 
@@ -101,7 +104,7 @@ const NavigationButton = React.forwardRef(
 
 NavigationButton.displayName = 'NavigationButton';
 
-export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
+export const NavigationBarComponent = ({ triggers, compact }: INavigationBar) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const pageIds = useAppSelector(selectLayoutOrder);
@@ -113,7 +116,7 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
   const language = useAppSelector((state) => state.language.language);
   const [showMenu, setShowMenu] = React.useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down(600));
+  const isMobile = useMediaQuery(theme.breakpoints.down(600)) || compact;
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
   const handleNavigationClick = (pageId: string) => {
@@ -176,7 +179,9 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
           hidden={!shouldShowMenu}
           id='navigation-menu'
           data-testid='navigation-menu'
-          className={classes.menu}
+          className={cn(classes.menu, {
+            [classes.menuCompact]: isMobile,
+          })}
         >
           {pageIds.map((pageId, index) => {
             return (
