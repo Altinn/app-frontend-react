@@ -51,7 +51,7 @@ const RadioGroupTableRow = ({
       <th
         scope='row'
         id={rowLabelId}
-        className={classes.likertGroupTableHeader}
+        className={classes.likertTableHeader}
       >
         <Typography component={'div'}>
           <RenderLegend />
@@ -65,7 +65,7 @@ const RadioGroupTableRow = ({
           <TableCell
             key={option.value}
             align={'center'}
-            className={classes.likertGroupTableCell}
+            className={classes.likertTableCell}
             onBlur={handleBlur}
           >
             <RadioButton
