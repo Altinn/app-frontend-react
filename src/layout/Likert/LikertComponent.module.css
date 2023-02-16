@@ -1,0 +1,14 @@
+.likertRadioGroupWrapperMobile {
+  padding-top: 12px;
+}
+
+.likertGroupTableHeader {
+  white-space: 'normal';
+  font-weight: 400;
+  border-bottom: '1px solid rgb(0, 143, 214)';
+  padding-left: 12;
+}
+
+.likertGroupTableCell {
+  padding: 4px 12px;
+}

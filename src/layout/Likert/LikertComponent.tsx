@@ -3,6 +3,7 @@ import React from 'react';
 import { RadioButton } from '@altinn/altinn-design-system';
 import { TableCell, TableRow, Typography } from '@material-ui/core';
 
+import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { LayoutStyle } from 'src/types';
@@ -24,10 +25,12 @@ export const LikertComponent = (props: IRadioButtonsContainerProps) => {
   }
 
   return (
-    <ControlledRadioGroup
-      {...props}
-      {...useRadioProps}
-    />
+    <div className={classes.likertRadioGroupWrapperMobile}>
+      <ControlledRadioGroup
+        {...props}
+        {...useRadioProps}
+      />
+    </div>
   );
 };
 
@@ -48,7 +51,7 @@ const RadioGroupTableRow = ({
       <th
         scope='row'
         id={rowLabelId}
-        style={{ whiteSpace: 'normal', fontWeight: 400, borderBottom: '1px solid rgb(0, 143, 214)', paddingLeft: 12 }}
+        className={classes.likertGroupTableHeader}
       >
         <Typography component={'div'}>
           <RenderLegend />
@@ -62,9 +65,7 @@ const RadioGroupTableRow = ({
           <TableCell
             key={option.value}
             align={'center'}
-            style={{
-              padding: '4px 12px',
-            }}
+            className={classes.likertGroupTableCell}
             onBlur={handleBlur}
           >
             <RadioButton
