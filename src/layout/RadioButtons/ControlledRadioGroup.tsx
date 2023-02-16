@@ -23,10 +23,12 @@ export const ControlledRadioGroup = ({
   id,
   layout,
   getTextResourceAsString,
+  getTextResource,
+  textResourceBindings,
   fetchingOptions,
   selected,
   readOnly,
-  texts,
+  text,
   required,
   labelSettings,
   language,
@@ -36,8 +38,8 @@ export const ControlledRadioGroup = ({
   isValid,
 }: IControlledRadioGroupProps) => {
   const labelText = (
-    <span className='a-form-label title-label'>
-      {texts.title}
+    <span style={{ wordBreak: 'break-word' }}>
+      {text}
       <RequiredIndicator
         required={required}
         language={language}
@@ -62,15 +64,11 @@ export const ControlledRadioGroup = ({
           <RadioGroup
             name={id}
             aria-labelledby={`${id}-label`}
-            items={calculatedOptions.map((option) => ({
-              label: getTextResourceAsString(option.label),
-              value: option.value,
-              checkboxId: `${id}-${option.label}`,
-            }))}
             legend={labelText}
-            description={texts.description}
+            description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
             value={selected}
             error={!isValid}
+            helpText={textResourceBindings?.help && getTextResourceAsString(textResourceBindings.help)}
             disabled={readOnly}
             variant={
               shouldUseRowLayout({
@@ -81,6 +79,12 @@ export const ControlledRadioGroup = ({
                 : RadioGroupVariant.Vertical
             }
             onChange={handleChangeRadioGroup}
+            items={calculatedOptions.map((option) => ({
+              value: option.value,
+              checkboxId: `${id}-${option.label}`,
+              label: getTextResourceAsString(option.label),
+              helpText: option.helpText && getTextResourceAsString(option.helpText),
+            }))}
           />
         </div>
       )}

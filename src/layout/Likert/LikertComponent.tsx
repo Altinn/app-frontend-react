@@ -37,7 +37,6 @@ const RadioGroupTableRow = ({
   handleChange,
   calculatedOptions,
   handleBlur,
-  groupContainerId,
   componentValidations,
   legend,
   isValid,
@@ -57,21 +56,22 @@ const RadioGroupTableRow = ({
         </Typography>
       </th>
       {calculatedOptions?.map((option, colIndex) => {
-        // column label must reference correct id of header in table
-        const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
         const inputId = `${id}-${colIndex}`;
         const isChecked = selected === option.value;
         return (
           <TableCell
             key={option.value}
             align={'center'}
+            style={{
+              padding: '4px 12px',
+            }}
             onBlur={handleBlur}
           >
             <RadioButton
               checked={isChecked}
               onChange={handleChange}
               value={option.value}
-              label={`${rowLabelId} ${colLabelId}`}
+              label={option.label}
               hideLabel={true}
               name={rowLabelId}
               radioId={inputId}

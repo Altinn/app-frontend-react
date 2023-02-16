@@ -28,8 +28,10 @@ export const CheckboxContainerComponent = ({
   layout,
   readOnly,
   getTextResourceAsString,
+  getTextResource,
+  textResourceBindings,
   mapping,
-  texts,
+  text,
   labelSettings,
   required,
   language,
@@ -82,8 +84,8 @@ export const CheckboxContainerComponent = ({
   };
 
   const labelText = (
-    <span className='a-form-label title-label'>
-      {texts.title}
+    <span>
+      {text}
       <RequiredIndicator
         required={required}
         language={language}
@@ -111,8 +113,9 @@ export const CheckboxContainerComponent = ({
         disabled={readOnly}
         onChange={handleChange}
         legend={labelText}
-        description={texts.description}
+        description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
         error={!isValid}
+        helpText={textResourceBindings?.help && getTextResourceAsString(textResourceBindings.help)}
         variant={
           shouldUseRowLayout({
             layout,
@@ -122,10 +125,11 @@ export const CheckboxContainerComponent = ({
             : CheckboxGroupVariant.Vertical
         }
         items={calculatedOptions.map((option) => ({
-          checked: isOptionSelected(option.value),
-          label: getTextResourceAsString(option.label),
           name: option.value,
           checkboxId: `${id}-${option.label}`,
+          checked: isOptionSelected(option.value),
+          label: getTextResourceAsString(option.label),
+          helpText: option.helpText && getTextResourceAsString(option.helpText),
         }))}
       />
     </div>
