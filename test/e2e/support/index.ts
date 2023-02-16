@@ -7,7 +7,7 @@ import 'test/e2e/support/custom';
 import 'test/e2e/support/start-app-instance';
 import 'test/e2e/support/wcag';
 
-import chaiExtensions from 'test/e2e/support/chai-extensions';
+import { chaiExtensions } from 'test/e2e/support/chai-extensions';
 import { resetNavigation } from 'test/e2e/support/navigation';
 
 import type { IAltinnWindow } from 'src/types';
