@@ -65,8 +65,8 @@ You need an Altinn app for testing when making changes to this codebase. You can
 
 To start the app locally:
 
-1. Clone the [Altinn Studio repository](https://github.com/Altinn/altinn-studio)
-2. Follow the steps in the [LOCALAPP.md documentation](https://github.com/Altinn/altinn-studio/blob/master/docs/LOCALAPP.md)
+1. Clone the [App-LocalTest repository](https://github.com/Altinn/app-localtest)
+2. Follow the steps in the [README.md documentation](https://github.com/Altinn/app-localtest/blob/main/README.md)
 3. Follow our documentation on [how to use the local app-frontend](https://docs.altinn.studio/app/testing/local/debug/#using-other-frontend-versions) when running locally
 
 ## Automated tests
@@ -93,13 +93,17 @@ these on commits. To avoid confusion, it is recommended to set this up your IDE:
 
 <details>
 <summary>Visual Studio Code</summary>
+
 Install the extensions recommended by the workspace, at least [eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
+
 </details>
 
 <details>
 <summary>WebStorm/IntelliJ IDEA</summary>
+
 Configure your IDE to run `eslint --fix` on save (prettier will also reformat your code when doing this). It is also recommended to
 [set up Prettier as the default formatter](https://www.jetbrains.com/help/webstorm/prettier.html#ws_prettier_default_formatter).
+
 </details>
 
 ## Authors

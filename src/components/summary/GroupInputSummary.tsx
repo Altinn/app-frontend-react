@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 
 import { makeStyles, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks';
-import { useDisplayData } from 'src/components/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useDisplayData } from 'src/components/hooks/useDisplayData';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ITextResource } from 'src/types';
 
@@ -24,7 +24,7 @@ const useStyles = makeStyles({
   },
   emptyField: {
     fontStyle: 'italic',
-    fontSize: '1.4rem',
+    fontSize: '0.875rem',
   },
 });
 

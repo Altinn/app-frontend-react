@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import DropZone from 'react-dropzone';
 import type { FileRejection } from 'react-dropzone';
 
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { mapExtensionToAcceptMime } from 'src/layout/FileUpload/shared/mapExtensionToAcceptMime';
-import { AltinnAppTheme } from 'src/theme';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
 import type { ITextResourceBindings } from 'src/types';
 
@@ -26,7 +26,7 @@ export const bytesInOneMB = 1048576;
 
 export const baseStyle = {
   width: 'auto',
-  height: '15.6rem',
+  height: '9.75rem',
   borderWidth: '2px',
   borderColor: AltinnAppTheme.altinnPalette.primary.blueMedium,
   borderStyle: 'dotted',
@@ -114,7 +114,7 @@ export function DropzoneComponent({
               <div className='container'>
                 <div
                   className='col text-center icon'
-                  style={{ marginTop: '3.5rem' }}
+                  style={{ marginTop: '2.1875rem' }}
                 >
                   <i className='ai ai-upload' />
                 </div>

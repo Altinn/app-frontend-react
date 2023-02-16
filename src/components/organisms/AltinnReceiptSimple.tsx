@@ -9,7 +9,7 @@ export interface IReceiptComponentProps {
 
 const useStyles = makeStyles(() => ({
   paddingTop24: {
-    paddingTop: '2.4rem',
+    paddingTop: '1.5rem',
   },
   wordBreak: {
     wordBreak: 'break-word',
@@ -32,5 +32,3 @@ export function ReceiptComponentSimple({ title, body }: IReceiptComponentProps) 
     </div>
   );
 }
-
-export default ReceiptComponentSimple;

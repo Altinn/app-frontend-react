@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 
 import { createStyles, createTheme, Grid, Input, InputLabel, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import altinnTheme from 'src/theme/altinnStudioTheme';
+import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 
-const theme = createTheme(altinnTheme);
+const theme = createTheme(AltinnStudioTheme);
 const styles = createStyles({
   input: {
     backgroundColor: theme.altinnPalette.primary.white,
@@ -17,7 +17,7 @@ const styles = createStyles({
     border: `2px solid ${theme.altinnPalette.primary.red}`,
   },
   inputField: {
-    fontSize: '1.6rem',
+    fontSize: '1rem',
     border: 0,
     outline: 'none',
     flexGrow: 2,
@@ -25,15 +25,15 @@ const styles = createStyles({
   },
   inputIcon: {
     color: theme.altinnPalette.primary.black,
-    fontSize: '2.5rem',
-    padding: '1.6rem 1rem 1.6rem 1rem',
+    fontSize: '1.5625rem',
+    padding: '1rem 0.625rem 1rem 0.625rem',
     flexGrow: 0,
     alignSelf: 'stretch',
   },
   inputLabel: {
     color: theme.altinnPalette.primary.black,
-    fontSize: '1.6rem',
-    paddingBottom: '1rem',
+    fontSize: '1rem',
+    paddingBottom: '0.625rem',
   },
 });
 
@@ -47,7 +47,7 @@ export interface IAltinnInputProps extends React.InputHTMLAttributes<any> {
 
 const useStyles = makeStyles(styles);
 
-function AltinnInput(props: IAltinnInputProps) {
+export function AltinnInput(props: IAltinnInputProps) {
   const inputRef = React.createRef<HTMLInputElement>();
   const { iconString, label, widthPercentage, showLabel, validationError, ...rest } = props;
   const classes = useStyles();
@@ -87,7 +87,7 @@ function AltinnInput(props: IAltinnInputProps) {
           className={classes.inputField}
           disableUnderline={true}
           style={{
-            padding: '0rem 0.5rem 0rem 0.5rem',
+            padding: '0rem 0.3125rem 0rem 0.3125rem',
           }}
           inputRef={inputRef}
           tabIndex={0}
@@ -101,5 +101,3 @@ AltinnInput.defaultProps = {
   showLabel: true,
   validationError: false,
 };
-
-export default AltinnInput;

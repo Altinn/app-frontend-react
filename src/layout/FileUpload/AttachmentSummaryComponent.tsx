@@ -1,9 +1,9 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import type { IAttachment } from 'src/shared/resources/attachments';
 
 export interface IAttachmentSummaryComponent {
@@ -13,7 +13,7 @@ export interface IAttachmentSummaryComponent {
 const useStyles = makeStyles({
   emptyField: {
     fontStyle: 'italic',
-    fontSize: '1.6rem',
+    fontSize: '1rem',
   },
 });
 

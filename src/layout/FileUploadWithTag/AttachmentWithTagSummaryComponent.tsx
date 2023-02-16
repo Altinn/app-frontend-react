@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { getOptionLookupKey } from 'src/utils/options';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { IAttachment } from 'src/shared/resources/attachments';
 
@@ -23,7 +23,7 @@ const useStyles = makeStyles({
   },
   emptyField: {
     fontStyle: 'italic',
-    fontSize: '1.6rem',
+    fontSize: '1rem',
   },
 });
 

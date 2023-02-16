@@ -1,18 +1,20 @@
-import * as React from 'react';
+import React from 'react';
 import { isMobile } from 'react-device-detect';
 import type { FileRejection } from 'react-dropzone';
 
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { v4 as uuidv4 } from 'uuid';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { AltinnLoader } from 'src/components/shared';
-import { DropzoneComponent, handleRejectedFiles } from 'src/layout/FileUpload/shared';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnLoader } from 'src/components/AltinnLoader';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { DropzoneComponent } from 'src/layout/FileUpload/shared/DropzoneComponent';
+import { handleRejectedFiles } from 'src/layout/FileUpload/shared/handleRejectedFiles';
 import { AttachmentsCounter, FileName } from 'src/layout/FileUpload/shared/render';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IComponentValidations } from 'src/types';
@@ -183,8 +185,8 @@ export function FileUploadComponent({
       <AltinnLoader
         id='loader-upload'
         style={{
-          marginBottom: '1.6rem',
-          marginRight: '1.3rem',
+          marginBottom: '1rem',
+          marginRight: '0.8125rem',
         }}
         srContent={status}
       />
@@ -204,7 +206,7 @@ export function FileUploadComponent({
           <AltinnLoader
             id='loader-delete'
             style={{
-              marginBottom: '1.6rem',
+              marginBottom: '1rem',
               marginRight: '1.0rem',
             }}
             srContent={getLanguageFromKey('general.loading', language)}

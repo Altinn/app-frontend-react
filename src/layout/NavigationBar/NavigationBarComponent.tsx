@@ -1,12 +1,13 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Grid, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { Triggers } from 'src/types';
+import { reducePageValidations } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -42,14 +43,14 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'left',
     padding: '6px 12px',
     borderRadius: '40px',
-    fontSize: '1.6rem',
+    fontSize: '1rem',
 
     '&:hover': {
       outline: `2px solid ${theme.altinnPalette.primary.blueMedium}`,
     },
     '&:focus': {
-      outline: 'var(--interactive_components-colors-focus_outline) solid var(--border_width-standard)',
-      outlineOffset: 'var(--border_width-standard)',
+      outline: 'var(--semantic-tab_focus-outline-color) solid var(--semantic-tab_focus-outline-width)',
+      outlineOffset: 'var(--semantic-tab_focus-outline-offset)',
     },
   },
   buttonSelected: {
@@ -62,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
   },
   dropdownIcon: {
-    marginLeft: '1rem',
+    marginLeft: '0.625rem',
     marginTop: '0 !important', // "".form-group i" selector is stronger
     fontSize: '1em !important', // "".form-group i" selector is stronger
   },
@@ -105,7 +106,6 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const pageIds = useAppSelector(selectLayoutOrder);
-  const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
   const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
   const pageOrPropTriggers = triggers || pageTriggers;
   const textResources = useAppSelector((state) => state.textResources.resources);
@@ -121,22 +121,23 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
       return setShowMenu(false);
     }
 
-    const runPageValidations = !returnToView && pageOrPropTriggers?.includes(Triggers.ValidatePage);
-    const runAllValidations = returnToView || pageOrPropTriggers?.includes(Triggers.ValidateAllPages);
-
-    const runValidations = (runAllValidations && 'allPages') || (runPageValidations && 'page') || undefined;
-
-    dispatch(FormLayoutActions.updateCurrentView({ newView: pageId, runValidations }));
+    const runValidations = reducePageValidations(pageOrPropTriggers);
+    dispatch(
+      FormLayoutActions.updateCurrentView({
+        newView: pageId,
+        runValidations,
+      }),
+    );
   };
 
-  const shouldShowMenu = isMobile === false || showMenu;
+  const shouldShowMenu = !isMobile || showMenu;
 
   const handleShowMenu = () => {
     setShowMenu(true);
   };
 
   React.useLayoutEffect(() => {
-    const shouldFocusFirstItem = firstPageLink.current && showMenu === true;
+    const shouldFocusFirstItem = firstPageLink.current && showMenu;
     if (shouldFocusFirstItem) {
       firstPageLink.current?.focus();
     }

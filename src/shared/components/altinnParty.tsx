@@ -2,35 +2,35 @@ import React from 'react';
 
 import { Grid, makeStyles, Paper, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks';
-import { AltinnCollapsableList } from 'src/components/shared';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnCollapsableList } from 'src/components/AltinnCollapsableList';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import type { IParty } from 'src/types/shared';
 
 const useStyles = makeStyles((theme) => ({
   partyPaper: {
-    marginBottom: '1.2rem',
+    marginBottom: '0.75rem',
     borderRadius: 0,
     backgroundColor: theme.altinnPalette.primary.blueLighter,
     boxShadow: theme.sharedStyles.boxShadow,
     width: '100%',
   },
   partyWrapper: {
-    paddingLeft: '2.4rem',
-    paddingRight: '2.4rem',
+    paddingLeft: '1.5rem',
+    paddingRight: '1.5rem',
     '&:hover': {
       cursor: 'pointer',
     },
   },
   partyWrapperDisabled: {
-    paddingLeft: '2.4rem',
-    paddingRight: '2.4rem',
+    paddingLeft: '1.5rem',
+    paddingRight: '1.5rem',
     '&:hover': {
       cursor: 'not-allowed',
     },
   },
   partyPaperDisabled: {
-    marginBottom: '1.2rem',
+    marginBottom: '0.75rem',
     borderRadius: 0,
     backgroundColor: theme.altinnPalette.primary.blueLighter,
     boxShadow: theme.sharedStyles.boxShadow,
@@ -38,18 +38,18 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
   },
   partyIcon: {
-    padding: '1.2rem',
+    padding: '0.75rem',
     fontSize: '42px',
   },
   partyName: {
-    padding: '1.2rem',
-    paddingTop: '2.4rem',
-    fontSize: '1.75rem',
+    padding: '0.75rem',
+    paddingTop: '1.5rem',
+    fontSize: '1.093rem',
     fontWeight: 700,
   },
   partyInfo: {
-    paddingTop: '2.6rem',
-    fontSize: '1.5rem',
+    paddingTop: '1.625rem',
+    fontSize: '0.9375rem',
     fontWeight: 300,
   },
   subUnitWrapper: {
@@ -59,51 +59,51 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       cursor: 'pointer',
     },
-    paddingTop: '1.2rem',
-    paddingBottom: '1.2rem',
+    paddingTop: '0.75rem',
+    paddingBottom: '0.75rem',
     borderTop: `1px solid ${theme.altinnPalette.primary.greyMedium}`,
   },
   subUnit: {
     width: '100%',
-    paddingLeft: '2.4rem',
-    paddingRight: '2.4rem',
+    paddingLeft: '1.5rem',
+    paddingRight: '1.5rem',
     '&:hover': {
       background: theme.altinnPalette.primary.blueLight,
       cursor: 'pointer',
     },
   },
   subUnitListHeader: {
-    paddingLeft: '2.4rem',
-    paddingRight: '2.4rem',
+    paddingLeft: '1.5rem',
+    paddingRight: '1.5rem',
     '&:hover': {
       background: theme.altinnPalette.primary.blueLight,
       cursor: 'pointer',
     },
   },
   subUnitListHeaderText: {
-    paddingTop: '1.2rem',
+    paddingTop: '0.75rem',
     color: theme.altinnPalette.primary.black,
   },
   subUnitListHeaderIcon: {
-    padding: '1.2rem',
-    fontSize: '1.3rem',
+    padding: '0.75rem',
+    fontSize: '0.8125rem',
     color: theme.altinnPalette.primary.blue,
   },
   subUnitTextWrapper: {
     borderTop: `1px solid ${theme.altinnPalette.primary.greyMedium}`,
-    paddingRight: '2.1rem',
-    paddingLeft: '4.8rem',
+    paddingRight: '1.3125rem',
+    paddingLeft: '3rem',
   },
   subUnitText: {
-    fontSize: '1.6rem',
+    fontSize: '1rem',
   },
   subUnitTextBold: {
-    fontSize: '1.6rem',
+    fontSize: '1rem',
     fontWeight: 700,
   },
   subUnitIcon: {
-    paddingLeft: '2.8rem',
-    fontSize: '4.2rem',
+    paddingLeft: '1.75rem',
+    fontSize: '2.625rem',
   },
 }));
 
@@ -113,7 +113,7 @@ export interface IAltinnPartyProps {
   showSubUnits: boolean;
 }
 
-function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnPartyProps) {
+export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnPartyProps) {
   const classes = useStyles();
 
   const [subUnitsExpanded, setSubUnitsExpanded] = React.useState<boolean>(false);
@@ -251,5 +251,3 @@ function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnPartyProps) 
     </Paper>
   );
 }
-
-export default AltinnParty;

@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Button, ButtonColor, ButtonVariant } from '@altinn/altinn-design-system';
+import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 
 export const PrintButtonComponent = () => {

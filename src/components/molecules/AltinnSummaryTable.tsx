@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { makeStyles, Table, TableBody, TableCell, TableRow, Typography } from '@material-ui/core';
 import classNames from 'classnames';
@@ -37,12 +37,12 @@ const useStyles = makeStyles({
       marginTop: 36,
     },
     '@media print': {
-      marginBottom: '2rem',
+      marginBottom: '1.25rem',
     },
   },
   tableCell: {
     borderBottom: 0,
-    paddingRight: '2.5rem',
+    paddingRight: '1.5625rem',
   },
   tableRow: {
     height: 'auto',
@@ -53,7 +53,7 @@ export interface IAltinnSummaryTableProps {
   summaryDataObject: any;
 }
 
-export default function AltinnSummaryTable(props: IAltinnSummaryTableProps) {
+export function AltinnSummaryTable(props: IAltinnSummaryTableProps) {
   const classes = useStyles();
   return (
     <Table

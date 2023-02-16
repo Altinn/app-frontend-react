@@ -1,15 +1,15 @@
-import * as React from 'react';
+import React from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import cn from 'classnames';
 
-import { AltinnAppTheme } from 'src/theme/index';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 
 import 'src/styles/shared.css';
 
 const useStyles = makeStyles({
   select: {
-    fontSize: '1.6rem',
+    fontSize: '1rem',
     '&:focus': {
       outline: `2px solid ${AltinnAppTheme.altinnPalette.primary.blueDark}`,
     },
@@ -34,7 +34,7 @@ interface ISelectProps {
   className?: string;
 }
 
-const Select = ({
+export const Select = ({
   id,
   onChange,
   onBlur,
@@ -76,5 +76,3 @@ const Select = ({
     </select>
   );
 };
-
-export default Select;

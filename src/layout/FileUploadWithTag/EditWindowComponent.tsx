@@ -1,16 +1,16 @@
-import * as React from 'react';
+import React from 'react';
 
-import { Button } from '@altinn/altinn-design-system';
+import { Button } from '@digdir/design-system-react';
 import { Grid, IconButton, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { useAppDispatch } from 'src/common/hooks';
-import { AltinnLoader } from 'src/components/shared';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { AltinnLoader } from 'src/components/AltinnLoader';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { FileName } from 'src/layout/FileUpload/shared/render';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { renderValidationMessages } from 'src/utils/render';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IOption } from 'src/types';
@@ -22,7 +22,7 @@ const useStyles = makeStyles({
     overflow: 'hidden',
     color: '#000',
     fontWeight: '500 !important' as any,
-    fontSize: '1.4rem',
+    fontSize: '0.875rem',
     minWidth: '0px',
   },
   editContainer: {
@@ -39,7 +39,7 @@ const useStyles = makeStyles({
     justifyContent: 'left',
   },
   select: {
-    fontSize: '1.6rem',
+    fontSize: '1rem',
     '&:focus': {
       outline: `2px solid ${AltinnAppTheme.altinnPalette.primary.blueDark}`,
     },
@@ -101,7 +101,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
         >
           <div style={{ display: 'flex' }}>
             {props.attachment.uploaded && (
-              <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem' }}>
+              <div style={{ marginLeft: '0.9375rem', marginRight: '0.9375rem' }}>
                 {!props.mobileView
                   ? getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)
                   : undefined}
