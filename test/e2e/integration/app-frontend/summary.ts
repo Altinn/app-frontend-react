@@ -384,17 +384,22 @@ describe('Summary', () => {
       cy.get(appFrontend.changeOfName.newFirstName).clear().type(`Hello world`).blur();
       cy.get(appFrontend.changeOfName.newLastName).clear().blur();
       cy.get(appFrontend.changeOfName.sources).should('have.value', 'altinn');
-      cy.get(appFrontend.nextButton).should('contain.text', texts.next).click();
+      cy.get(appFrontend.nextButton).click();
 
-      if (trigger !== undefined) {
+      if (trigger === undefined) {
+        cy.get(appFrontend.navMenu).find('li > button').eq(1).should('have.attr', 'aria-current', 'page');
+      } else {
+        cy.get(appFrontend.navMenu).find('li > button').eq(0).should('have.attr', 'aria-current', 'page');
         cy.get(appFrontend.errorReport).should('exist').and('contain.text', texts.requiredFieldLastName);
         cy.get(appFrontend.changeOfName.newLastName).type('a').blur();
-        cy.get(appFrontend.nextButton).should('contain.text', texts.next).click();
+        cy.get(appFrontend.nextButton).click();
       }
 
       if (trigger === Triggers.ValidateAllPages) {
         cy.get(appFrontend.errorReport).should('exist').and('contain.text', 'Du må fylle ut page3required');
         cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
+      } else if (trigger !== undefined) {
+        cy.get(appFrontend.navMenu).find('li > button').eq(1).should('have.attr', 'aria-current', 'page');
       }
 
       cy.get(newFirstNameSummary).should('contain.text', `Hello world`);
