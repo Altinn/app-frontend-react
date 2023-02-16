@@ -264,9 +264,7 @@ describe('CheckboxContainerComponent', () => {
       layout: LayoutStyle.Row,
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a row when layout is not defined, and options count is 2', () => {
@@ -286,9 +284,7 @@ describe('CheckboxContainerComponent', () => {
       },
     );
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a column when layout is "column" and options count is 2 ', () => {
@@ -309,9 +305,7 @@ describe('CheckboxContainerComponent', () => {
       },
     );
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: column;');
   });
 
   it('should show items in a columns when layout is not defined, and options count is 3', () => {
@@ -319,9 +313,7 @@ describe('CheckboxContainerComponent', () => {
       optionsId: 'countries',
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: column;');
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {

@@ -38,6 +38,7 @@ const render = (props: Partial<IRadioButtonsContainerProps> = {}, customState: P
     legend: () => <span>legend</span>,
     handleDataChange: jest.fn(),
     getTextResource: (value) => value,
+    getTextResourceAsString: (value) => value,
     ...props,
   };
 
@@ -204,18 +205,16 @@ describe('RadioButtonsContainerComponent', () => {
   });
 
   it('should show items in a row when layout is "row" and options count is 3', () => {
-    const { container } = render({
+    render({
       optionsId: 'countries',
       layout: LayoutStyle.Row,
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a row when layout is not defined, and options count is 2', () => {
-    const { container } = render(
+    render(
       {
         optionsId: 'countries',
       },
@@ -231,13 +230,11 @@ describe('RadioButtonsContainerComponent', () => {
       },
     );
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a column when layout is "column" and options count is 2 ', () => {
-    const { container } = render(
+    render(
       {
         optionsId: 'countries',
         layout: LayoutStyle.Column,
@@ -254,19 +251,15 @@ describe('RadioButtonsContainerComponent', () => {
       },
     );
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: column;');
   });
 
   it('should show items in a columns when layout is not defined, and options count is 3', () => {
-    const { container } = render({
+    render({
       optionsId: 'countries',
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: column;');
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
