@@ -116,7 +116,8 @@ export const NavigationBarComponent = ({ triggers, compact }: INavigationBar) =>
   const language = useAppSelector((state) => state.language.language);
   const [showMenu, setShowMenu] = React.useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down(600)) || compact;
+  const isMobile = useMediaQuery(theme.breakpoints.down(600)) || compact === true;
+
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
   const handleNavigationClick = (pageId: string) => {
