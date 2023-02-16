@@ -438,7 +438,6 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
     const layoutOrderResponse: AxiosResponse = yield call(
       httpPost,
       getCalculatePageOrderUrl(appIsStateless),
-      formData,
       {
         params: {
           currentPage: currentView,
@@ -449,6 +448,7 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
           'Content-Type': 'application/json',
         },
       },
+      formData,
     );
     const layoutOrder = layoutOrderResponse.data ? layoutOrderResponse.data : null;
     yield put(
