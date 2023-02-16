@@ -49,15 +49,7 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
   // Fetch PdfFormat from backend
   const [pdfFormat, setPdfFormat] = React.useState<IPdfFormat | null>(null);
   React.useEffect(() => {
-    if (
-      applicationMetadata &&
-      instance &&
-      (instance?.data?.length === 1 || layoutSets) &&
-      excludedPages &&
-      excludedComponents &&
-      !pdfLayout &&
-      !unsavedChanges
-    ) {
+    if (applicationMetadata && instance && excludedPages && excludedComponents && !pdfLayout && !unsavedChanges) {
       const dataGuid = getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
       if (typeof dataGuid === 'string') {
         const url = getPdfFormatUrl(instance.id, dataGuid);
