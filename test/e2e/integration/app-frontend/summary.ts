@@ -404,27 +404,40 @@ describe('Summary', () => {
 
       cy.get(newFirstNameSummary).should('contain.text', `Hello world`);
 
+      const assertErrorReport = () => {
+        if (trigger === Triggers.ValidateAllPages) {
+          cy.get(appFrontend.errorReport).should('exist').and('contain.text', 'Du må fylle ut page3required');
+        } else {
+          cy.get(appFrontend.errorReport).should('not.exist');
+        }
+      };
+
       // Going back to the first page via an 'edit' button and navigating to the summary page again. Also testing
       // that the back to summary button goes away when navigating via the navMenu instead.
       cy.get(sourcesSummary).find('button').click();
       cy.get(appFrontend.backToSummaryButton).should('exist');
       cy.get(appFrontend.navMenu).find('li > button').last().click();
+      assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
       cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
+      assertErrorReport();
       cy.get(sourcesSummary).find('button').click();
+      assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).should('exist').click();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
+      assertErrorReport();
       cy.get(appFrontend.navMenu).find('li > button').last().click();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
       cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
+      assertErrorReport();
       cy.get(appFrontend.backButton).click();
+      assertErrorReport();
       cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
+      assertErrorReport();
 
-      if (trigger === Triggers.ValidateAllPages) {
-        cy.get(appFrontend.errorReport).should('exist').and('contain.text', 'Du må fylle ut page3required');
-      } else {
-        cy.get(appFrontend.errorReport).should('not.exist');
-      }
+      // Sending in always validates all pages
+      cy.get(appFrontend.sendinButton).click();
+      cy.get(appFrontend.errorReport).should('exist').and('contain.text', 'Du må fylle ut page3required');
     }
   });
 
