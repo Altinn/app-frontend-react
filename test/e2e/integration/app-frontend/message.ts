@@ -49,16 +49,24 @@ describe('Message', () => {
       cy.get('a:contains("Intern lenke i nytt vindu")')
         .should('have.attr', 'target', '_blank')
         .should('not.have.class', 'same-window')
+        .should('not.have.class', 'target-external')
+        .should('have.class', 'target-internal')
         .then(hasOpenInNewTabIconAfter(true));
       cy.get('a:contains("Intern lenke i samme vindu")')
         .should('have.class', 'same-window')
+        .should('not.have.class', 'target-external')
+        .should('have.class', 'target-internal')
         .then(hasOpenInNewTabIconAfter(false));
       cy.get('a:contains("Ekstern lenke i nytt vindu")')
         .should('have.attr', 'target', '_blank')
+        .should('have.class', 'target-external')
+        .should('not.have.class', 'target-internal')
         .should('not.have.class', 'same-window')
         .then(hasOpenInNewTabIconAfter(true));
       cy.get('a:contains("Ekstern lenke i samme vindu")')
         .should('have.class', 'same-window')
+        .should('not.have.class', 'target-internal')
+        .should('have.class', 'target-external')
         .then(hasOpenInNewTabIconAfter(false));
     });
     cy.get(appFrontend.sendinButton).should('be.visible');
