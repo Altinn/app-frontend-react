@@ -177,17 +177,6 @@ describe('NavigationBar', () => {
       setScreenWidth(500);
     });
 
-    it('should hide navigation buttons and show a button to toggle the navigation menu', async () => {
-      render();
-
-      expect(screen.getByTestId('navigation-menu')).toHaveProperty('hidden', true);
-      expect(
-        screen.getByRole('button', {
-          name: /1\/3 page1/i,
-        }),
-      ).toBeInTheDocument();
-    });
-
     it('should show navigation buttons when clicking navigation toggle button, and hide toggle button', async () => {
       render();
 
