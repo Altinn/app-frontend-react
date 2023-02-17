@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { RadioButton } from '@altinn/altinn-design-system';
+import { RadioButton } from '@digdir/design-system-react';
 import { TableCell, TableRow, Typography } from '@material-ui/core';
 
 import classes from 'src/layout/Likert/LikertComponent.module.css';
