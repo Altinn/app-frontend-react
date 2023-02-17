@@ -65,7 +65,7 @@ const RadioGroupTableRow = ({
           <TableCell
             key={option.value}
             align={'center'}
-            className={classes.likertTableCell}
+            style={{ padding: '4px 12px' }}
             onBlur={handleBlur}
           >
             <RadioButton
