@@ -153,6 +153,7 @@ export const NavigationBarComponent = ({ triggers, compact }: INavigationBar) =>
   return (
     <Grid container>
       <Grid
+        data-testid='NavigationBar'
         item
         component='nav'
         xs={12}
@@ -176,31 +177,32 @@ export const NavigationBarComponent = ({ triggers, compact }: INavigationBar) =>
             </span>
           </NavigationButton>
         )}
-        <ul
-          hidden={!shouldShowMenu}
-          id='navigation-menu'
-          data-testid='navigation-menu'
-          className={cn(classes.menu, {
-            [classes.menuCompact]: isMobile,
-          })}
-        >
-          {pageIds.map((pageId, index) => {
-            return (
-              <li
-                key={pageId}
-                className={classes.containerBase}
-              >
-                <NavigationButton
-                  current={currentPageId === pageId}
-                  onClick={() => handleNavigationClick(pageId)}
-                  ref={index === 0 ? firstPageLink : null}
+        {shouldShowMenu && (
+          <ul
+            id='navigation-menu'
+            data-testid='navigation-menu'
+            className={cn(classes.menu, {
+              [classes.menuCompact]: isMobile,
+            })}
+          >
+            {pageIds.map((pageId, index) => {
+              return (
+                <li
+                  key={pageId}
+                  className={classes.containerBase}
                 >
-                  {index + 1}. {getTextResource(pageId, textResources)}
-                </NavigationButton>
-              </li>
-            );
-          })}
-        </ul>
+                  <NavigationButton
+                    current={currentPageId === pageId}
+                    onClick={() => handleNavigationClick(pageId)}
+                    ref={index === 0 ? firstPageLink : null}
+                  >
+                    {index + 1}. {getTextResource(pageId, textResources)}
+                  </NavigationButton>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </Grid>
     </Grid>
   );
