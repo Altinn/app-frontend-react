@@ -8,7 +8,7 @@ import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { Triggers } from 'src/types';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
-import { dataSourcesFromState, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { dataSourcesFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { selectNotNull } from 'src/utils/sagas';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig } from 'src/features/expressions/types';
@@ -22,7 +22,6 @@ export const FormDataSelector = (state: IRuntimeState) => state.formData.formDat
 export const RepeatingGroupsSelector = (state: IRuntimeState) => state.formLayout.uiConfig.repeatingGroups;
 export const UiConfigSelector = (state: IRuntimeState) => state.formLayout.uiConfig;
 export const FormValidationSelector = (state: IRuntimeState) => state.formValidations.validations;
-export const ResolvedNodesSelector = (state: IRuntimeState) => resolvedLayoutsFromState(state);
 export const DataSourcesSelector = (state: IRuntimeState) => dataSourcesFromState(state);
 
 export function* checkIfConditionalRulesShouldRunSaga({

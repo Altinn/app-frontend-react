@@ -11,7 +11,7 @@ import { getMockValidationState } from 'src/__mocks__/validationStateMock';
 import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { Severity } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroups } from 'src/utils/formLayout';
-import { nodesInLayouts } from 'src/utils/layout/hierarchy';
+import { _private } from 'src/utils/layout/hierarchy';
 import * as validation from 'src/utils/validation/validation';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
@@ -27,6 +27,8 @@ import type {
   IValidations,
 } from 'src/types';
 import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
+
+const { nodesInLayouts } = _private;
 
 function toCollection(mockLayouts: ILayouts, repeatingGroups: IRepeatingGroups = {}) {
   return nodesInLayouts(

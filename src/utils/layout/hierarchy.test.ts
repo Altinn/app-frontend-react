@@ -1,12 +1,10 @@
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import {
-  layoutAsHierarchy,
-  layoutAsHierarchyWithRows,
+  _private,
   LayoutNode,
   LayoutRootNode,
   LayoutRootNodeCollection,
-  nodesInLayout,
   resolvedLayoutsFromState,
   resolvedNodesInLayouts,
 } from 'src/utils/layout/hierarchy';
@@ -17,6 +15,8 @@ import type { ILayoutCompInput } from 'src/layout/Input/types';
 import type { ILayout } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { AnyNode } from 'src/utils/layout/hierarchy.types';
+
+const { layoutAsHierarchyWithRows, layoutAsHierarchy, nodesInLayout } = _private;
 
 describe('Hierarchical layout tools', () => {
   const header: Omit<ILayoutCompHeader, 'id'> = { type: 'Header', size: 'L' };

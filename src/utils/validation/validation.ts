@@ -15,9 +15,8 @@ import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex 
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { getFieldName, getFormDataForComponent } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponents, getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
-import { buildInstanceContext } from 'src/utils/instanceContext';
 import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
-import { nodesInLayout, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
+import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
@@ -866,17 +865,15 @@ export function findComponentFromValidationIssue(
 }
 
 export function filterValidationsByRow(
+  nodes: LayoutRootNodeCollection<'resolved'>,
   validations: IValidations,
-  formLayout: ILayout | null | undefined,
-  repeatingGroups: IRepeatingGroups | null | undefined,
   groupId: string,
   rowIndex?: number,
 ): IValidations {
-  if (!formLayout || !repeatingGroups || typeof rowIndex === 'undefined') {
+  if (!nodes || typeof rowIndex === 'undefined') {
     return validations;
   }
 
-  const nodes = nodesInLayout(formLayout, repeatingGroups);
   const groupNode = nodes.findById(groupId);
   const childIds = new Set(groupNode?.flat(false, rowIndex).map((child) => child.item.id));
   const filteredValidations = JSON.parse(JSON.stringify(validations)) as IValidations;
@@ -1310,19 +1307,10 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
   const textResources = state.textResources.resources;
   const hiddenFields = new Set<string>(state.formLayout.uiConfig.hiddenFields);
   const attachments = state.attachments.attachments;
-  const repeatingGroups = state.formLayout.uiConfig.repeatingGroups || {};
   const formData = state.formData.formData;
   const jsonFormData = convertDataBindingToModel(formData);
   const currentView = state.formLayout.uiConfig.currentView;
-  const layouts = state.formLayout.layouts;
-
-  const instanceContext = buildInstanceContext(state.instanceData?.instance);
-  const resolvedLayouts = resolvedNodesInLayouts(layouts, currentView, repeatingGroups, {
-    formData,
-    instanceContext,
-    applicationSettings: state.applicationSettings?.applicationSettings,
-    hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
-  });
+  const resolvedLayouts = ResolvedNodesSelector(state);
 
   const node = resolvedLayouts.findById(groupId);
   if (!node || !state.applicationMetadata.applicationMetadata || !language) {

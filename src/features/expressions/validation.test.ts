@@ -1,11 +1,13 @@
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions/index';
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression, preProcessLayout } from 'src/features/expressions/validation';
-import { nodesInLayouts } from 'src/utils/layout/hierarchy';
+import { _private } from 'src/utils/layout/hierarchy';
 import type { Layouts } from 'src/features/expressions/shared';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponentOrGroup } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
+
+const { nodesInLayouts } = _private;
 
 function isRepeatingGroup(component?: ILayoutComponentOrGroup): component is ILayoutGroup {
   return !!(component && component.type === 'Group' && component.maxCount && component.maxCount > 1);

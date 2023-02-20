@@ -43,7 +43,7 @@ import type {
  * Note: This strips away multiPage functionality and treats every component of a multiPage group
  * as if every component is on the same page.
  */
-export function layoutAsHierarchy(originalLayout: ILayout): (ILayoutComponent | LayoutGroupHierarchy)[] {
+function layoutAsHierarchy(originalLayout: ILayout): (ILayoutComponent | LayoutGroupHierarchy)[] {
   const layoutAsMap: { [id: string]: ILayoutComponentOrGroup } = {};
   const layoutCopy = JSON.parse(JSON.stringify(originalLayout)) as ILayout;
   for (const component of layoutCopy) {
@@ -111,10 +111,7 @@ interface HierarchyParent {
  * Note: This strips away multiPage functionality and treats every component of a multiPage group
  * as if every component is on the same page.
  */
-export function layoutAsHierarchyWithRows(
-  formLayout: ILayout,
-  repeatingGroups: IRepeatingGroups | null,
-): HierarchyWithRows[] {
+function layoutAsHierarchyWithRows(formLayout: ILayout, repeatingGroups: IRepeatingGroups | null): HierarchyWithRows[] {
   /**
    * @see createRepeatingGroupComponentsForIndex
    */
@@ -614,11 +611,8 @@ export class LayoutNode<NT extends NodeType = 'unresolved', Item extends AnyItem
  *
  * Note: This strips away multiPage functionality and treats every component of a multiPage group
  * as if every component is on the same page.
- *
- * @see resolvedNodesInLayouts
- *  An alternative that also resolves expressions for all nodes in all layouts
  */
-export function nodesInLayout(
+function nodesInLayout(
   formLayout: ILayout | undefined | null,
   repeatingGroups: IRepeatingGroups | null,
 ): LayoutRootNode {
@@ -655,7 +649,7 @@ export function nodesInLayout(
 /**
  * The same as the function above, but takes multiple layouts and returns a collection
  */
-export function nodesInLayouts(
+function nodesInLayouts(
   layouts: ILayouts | undefined | null,
   currentView: string,
   repeatingGroups: IRepeatingGroups | null,
@@ -674,7 +668,8 @@ export function nodesInLayouts(
  * This is the same tool as the one above, but additionally it will iterate each component/group in the layout
  * and resolve all expressions for it.
  *
- * @see nodesInLayouts
+ * @deprecated Do not use directly. Use ExprContext instead, as it provides
+ *   resolved layouts. In sagas, use ResolvedNodesSelector
  */
 export function resolvedNodesInLayouts(
   layouts: ILayouts | null,
@@ -876,10 +871,30 @@ export function dataSourcesFromState(state: IRuntimeState): ContextDataSources {
 }
 
 export function resolvedLayoutsFromState(state: IRuntimeState): LayoutRootNodeCollection<'resolved'> {
-  return resolvedNodesInLayouts(
+  const resolved = resolvedNodesInLayouts(
     state.formLayout.layouts,
     state.formLayout.uiConfig.currentView,
     state.formLayout.uiConfig.repeatingGroups,
     dataSourcesFromState(state),
   );
+  rewriteTextResourceBindings(resolved, state.textResources.resources);
+
+  return resolved;
 }
+
+/**
+ * Selector for use in redux sagas. Will return a fully resolved layouts tree.
+ * Set this return type manually:
+ *   LayoutRootNodeCollection<'resolved'>
+ */
+export const ResolvedNodesSelector = (state: IRuntimeState) => resolvedLayoutsFromState(state);
+
+/**
+ * Exported only for testing. Please do not use!
+ */
+export const _private = {
+  layoutAsHierarchy,
+  layoutAsHierarchyWithRows,
+  nodesInLayout,
+  nodesInLayouts,
+};

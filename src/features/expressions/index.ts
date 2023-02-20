@@ -11,7 +11,7 @@ import {
 } from 'src/features/expressions/errors';
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
-import { dataSourcesFromState, LayoutNode, LayoutRootNode, nodesInLayouts } from 'src/utils/layout/hierarchy';
+import { dataSourcesFromState, LayoutNode, LayoutRootNode, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   BaseToActual,
@@ -585,11 +585,10 @@ export const ExprTypes: {
   }
 
   const state = (window as unknown as IAltinnWindow).reduxStore.getState();
-  const currentLayout = state.formLayout.uiConfig.currentView;
-  const nodes = nodesInLayouts(state.formLayout.layouts, currentLayout, state.formLayout.uiConfig.repeatingGroups);
-  let layout: LayoutRootNode | LayoutNode | undefined = nodes.findLayout(currentLayout);
+  const nodes = resolvedLayoutsFromState(state);
+  let layout: LayoutRootNode<'resolved'> | LayoutNode<'resolved'> | undefined = nodes.current();
   if (!layout) {
-    console.error('Unable to find current page/layout:', currentLayout);
+    console.error('Unable to find current page/layout');
     return;
   }
 
