@@ -3,7 +3,7 @@ import type { ChangeEventHandler, FocusEventHandler } from 'react';
 
 import { RadioGroup, RadioGroupVariant } from '@digdir/design-system-react';
 
-import { AltinnSpinner } from 'src/components/shared';
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
 import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';
 import { shouldUseRowLayout } from 'src/utils/layout';

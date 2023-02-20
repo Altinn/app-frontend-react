@@ -2,10 +2,11 @@ import React from 'react';
 
 import { CheckboxGroup, CheckboxGroupVariant } from '@digdir/design-system-react';
 
-import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
+import { useHasChangedIgnoreUndefined } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { useGetOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import { AltinnSpinner } from 'src/components/shared';
 import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
 import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';
 import { shouldUseRowLayout } from 'src/utils/layout';
