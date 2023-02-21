@@ -1,4 +1,4 @@
-import AppFrontend from 'test/e2e/pageobjects/app-frontend';
+import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { mockFooter } from 'test/e2e/support/footer';
 
 const appFrontend = new AppFrontend();
