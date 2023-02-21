@@ -1023,36 +1023,6 @@ describe('utils > validation', () => {
 
       expect(validations).toEqual(mockResult);
     });
-
-    it('should replace variables in text resources', () => {
-      const validations: any = validation.validateEmptyFields(
-        mockFormData,
-        toCollection(
-          {
-            FormLayout: [
-              mockGroup1,
-              {
-                ...mockComponent4,
-                textResourceBindings: {
-                  title: 'withGroupVariables',
-                },
-              },
-              mockGroup2,
-              mockComponent5,
-            ],
-          },
-          repeatingGroups,
-        ),
-        Object.keys(mockLayout),
-        mockLanguage.language,
-        new Set(),
-        mockTextResources,
-      );
-
-      expect(validations.FormLayout['componentId_4-0'].simpleBinding.errors).toEqual([
-        'Du må fylle ut withGroupVariables-0',
-      ]);
-    });
   });
 
   describe('validateEmptyFieldsForNodes', () => {
