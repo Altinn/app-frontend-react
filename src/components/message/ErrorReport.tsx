@@ -68,6 +68,14 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
     return null;
   }
 
+  if (errorsMapped.length > 0) {
+    errorsMapped.forEach((error, index) => {
+      if (error.componentId === 'fileUploadWithTags-changename') {
+        errorsMapped[index].message = error.message.slice(37);
+      }
+    });
+  }
+
   const handleErrorClick = (error: FlatError) => (ev: React.KeyboardEvent | React.MouseEvent) => {
     if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
       return;
