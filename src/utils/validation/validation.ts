@@ -14,7 +14,7 @@ import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex } from 'src/utils/databindings';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { getFieldName, getFormDataForComponent } from 'src/utils/formComponentUtils';
-import { createRepeatingGroupComponents, getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
+import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { matchLayoutComponent, setupGroupComponents } from 'src/utils/layout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
@@ -304,14 +304,8 @@ export function validateEmptyField(
     if (!value && fieldKey) {
       const errors: string[] = [];
       const warnings: string[] = [];
-
-      const textResource =
-        node.rowIndex === undefined
-          ? node.item.textResourceBindings
-          : getVariableTextKeysForRepeatingGroupComponent(textResources, node.item.textResourceBindings, node.rowIndex);
-
       const fieldName = getFieldName(
-        textResource,
+        node.item.textResourceBindings,
         textResources,
         language,
         fieldKey !== 'simpleBinding' ? fieldKey : undefined,
