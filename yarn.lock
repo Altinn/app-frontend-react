@@ -2553,13 +2553,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/design-system-react@npm:0.5.1":
-  version: 0.5.1
-  resolution: "@digdir/design-system-react@npm:0.5.1"
+"@digdir/design-system-react@npm:0.6.0":
+  version: 0.6.0
+  resolution: "@digdir/design-system-react@npm:0.6.0"
   peerDependencies:
     react: ^18.1.0
     react-dom: ^18.0.0
-  checksum: ec50cc3c176f4969de2b6e331082e5aa09f114a5ae6f432df187ca164cf6defad9dfda8015c7dabc0ac0e04602378ab416d6768ba7f8e92b221fdea0797f266e
+  checksum: b6e4a9b94cdc4fbb33f811a1b16028958872dc1059fbb2337f94bc858f1af2f9877950bc0bfc7efae1c021db9b8e50e43d19e049395fd099eb345fdccfafd570
   languageName: node
   linkType: hard
 
@@ -5487,7 +5487,7 @@ __metadata:
     "@babel/preset-env": 7.20.2
     "@babel/preset-react": 7.18.6
     "@date-io/moment": 1.3.13
-    "@digdir/design-system-react": 0.5.1
+    "@digdir/design-system-react": 0.6.0
     "@material-ui/core": 4.12.4
     "@material-ui/icons": 4.11.3
     "@material-ui/pickers": 3.3.10

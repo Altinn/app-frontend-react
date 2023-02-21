@@ -39,16 +39,16 @@ export const CheckboxContainerComponent = ({
   source,
   isValid,
 }: ICheckboxContainerProps) => {
-  const apiOptions: IOption[] | undefined = useGetOptions({ optionsId, mapping, source });
-  const calculatedOptions: IOption[] | undefined = apiOptions || options || defaultOptions;
+  const apiOptions = useGetOptions({ optionsId, mapping, source });
+  const calculatedOptions = apiOptions || options || defaultOptions;
   const hasSelectedInitial = React.useRef(false);
-  const optionsHasChanged: boolean = useHasChangedIgnoreUndefined(apiOptions);
-  const lookupKey: string | undefined = optionsId && getOptionLookupKey({ id: optionsId, mapping });
+  const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
+  const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
 
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '', 200);
 
-  let selected: string[] = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
+  const selected = value && value.length > 0 ? value.split(',') : defaultSelectedOptions;
 
   React.useEffect(() => {
     const shouldSelectOptionAutomatically =
@@ -73,8 +73,8 @@ export const CheckboxContainerComponent = ({
   }, [setValue, optionsHasChanged, formData]);
 
   const handleChange = (checkedItems: string[]) => {
-    selected = checkedItems;
-    setValue(selected.join(','));
+    const checkedItemsString = checkedItems.join(',');
+    if (checkedItemsString !== value) setValue(checkedItems.join(','));
   };
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
@@ -99,8 +99,6 @@ export const CheckboxContainerComponent = ({
     </span>
   );
 
-  const isOptionSelected = (option: string) => selected.includes(option);
-
   return fetchingOptions ? (
     <AltinnSpinner />
   ) : (
@@ -112,7 +110,7 @@ export const CheckboxContainerComponent = ({
       <CheckboxGroup
         compact={false}
         disabled={readOnly}
-        onChange={handleChange}
+        onChange={(values) => handleChange(values)}
         legend={labelText}
         description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
         error={!isValid}
@@ -128,7 +126,7 @@ export const CheckboxContainerComponent = ({
         items={calculatedOptions.map((option) => ({
           name: option.value,
           checkboxId: `${id}-${option.label}`,
-          checked: isOptionSelected(option.value),
+          checked: selected.includes(option.value),
           label: getTextResourceAsString(option.label),
           helpText: option.helpText && getTextResourceAsString(option.helpText),
         }))}
