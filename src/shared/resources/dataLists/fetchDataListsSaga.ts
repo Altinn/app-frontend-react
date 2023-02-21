@@ -29,7 +29,7 @@ export const dataListsWithIndexIndicatorsSelector = (state: IRuntimeState) =>
 export const instanceIdSelector = (state: IRuntimeState): string | undefined => state.instanceData.instance?.id;
 export const repeatingGroupsSelector = (state: IRuntimeState) => state.formLayout?.uiConfig.repeatingGroups;
 
-function* watchFinishedLoadingSaga(): SagaIterator {
+export function* watchFinishedLoadingSaga(): SagaIterator {
   let dataListCount = 0;
   let fulfilledCount = 0;
   while (true) {
@@ -47,7 +47,6 @@ function* watchFinishedLoadingSaga(): SagaIterator {
 }
 
 export function* fetchDataListsSaga(): SagaIterator {
-  yield fork(watchFinishedLoadingSaga);
   const layouts: ILayouts = yield selectNotNull(formLayoutSelector);
   const repeatingGroups: IRepeatingGroups = yield selectNotNull(repeatingGroupsSelector);
   const fetchedDataLists: string[] = [];

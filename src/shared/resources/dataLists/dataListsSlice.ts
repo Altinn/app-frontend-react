@@ -1,4 +1,4 @@
-import { fetchDataListsSaga } from 'src/shared/resources/dataLists/fetchDataListsSaga';
+import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/shared/resources/dataLists/fetchDataListsSaga';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type {
   IDataListsState,
@@ -25,6 +25,7 @@ const initialState: IDataListsState = {
 export const dataListsSlice = createSagaSlice((mkAction: MkActionType<IDataListsState>) => ({
   name: 'dataListState',
   initialState,
+  extraSagas: [watchFinishedLoadingSaga],
   actions: {
     fetch: mkAction<void>({
       takeEvery: fetchDataListsSaga,
