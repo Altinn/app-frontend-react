@@ -4,16 +4,17 @@ import { shallowEqual } from 'react-redux';
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import Description from 'src/features/form/components/Description';
-import Label from 'src/features/form/components/Label';
-import Legend from 'src/features/form/components/Legend';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { Description } from 'src/features/form/components/Description';
+import { Label } from 'src/features/form/components/Label';
+import { Legend } from 'src/features/form/components/Legend';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import components, { FormComponentContext } from 'src/layout/index';
+import { getTextResourceByKey } from 'src/language/sharedLanguage';
+import { components, FormComponentContext } from 'src/layout/index';
 import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
 import { makeGetFocus, makeGetHidden } from 'src/selectors/getLayoutData';
-import printStyles from 'src/styles/print.module.css';
 import { Triggers } from 'src/types';
 import {
   componentHasValidationMessages,
@@ -21,11 +22,11 @@ import {
   getTextResource,
   gridBreakpoints,
   isComponentValid,
+  pageBreakStyles,
   selectComponentTexts,
 } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import { getTextResourceByKey } from 'src/utils/sharedUtils';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ISingleFieldValidation } from 'src/features/form/data/formDataTypes';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
@@ -308,10 +309,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
           'a-form-group',
           classes.container,
           gridToClasses(props.grid?.labelGrid, classes),
-          {
-            [printStyles['break-before']]: props.pageBreak?.breakBefore,
-            [printStyles['break-after']]: props.pageBreak?.breakAfter,
-          },
+          pageBreakStyles(evaluatedProps),
         )}
         alignItems='baseline'
       >

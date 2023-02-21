@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { FooterGenericLink } from 'src/features/footer/components/shared/FooterGenericLink';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';

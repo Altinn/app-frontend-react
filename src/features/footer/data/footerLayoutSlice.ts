@@ -12,7 +12,7 @@ export const initialState: IFooterLayoutState = {
   error: null,
 };
 
-const footerLayoutSlice = createSagaSlice((mkAction: MkActionType<IFooterLayoutState>) => ({
+export const footerLayoutSlice = createSagaSlice((mkAction: MkActionType<IFooterLayoutState>) => ({
   name: 'footerLayout',
   initialState,
   actions: {
@@ -35,4 +35,3 @@ const footerLayoutSlice = createSagaSlice((mkAction: MkActionType<IFooterLayoutS
 }));
 
 export const FooterLayoutActions = footerLayoutSlice.actions;
-export default footerLayoutSlice;

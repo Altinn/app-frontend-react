@@ -3,9 +3,9 @@ import React from 'react';
 import { makeStyles, Typography } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
-import AltinnAttachmentComponent from 'src/components/atoms/AltinnAttachment';
-import AltinnCollapsibleAttachmentsComponent from 'src/components/molecules/AltinnCollapsibleAttachments';
-import AltinnSummaryTable from 'src/components/molecules/AltinnSummaryTable';
+import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
+import { AltinnCollapsibleAttachments } from 'src/components/molecules/AltinnCollapsibleAttachments';
+import { AltinnSummaryTable } from 'src/components/molecules/AltinnSummaryTable';
 import type { IAttachment, IAttachmentGrouping } from 'src/types/shared';
 
 export interface IReceiptComponentProps {
@@ -27,13 +27,13 @@ const useStyles = makeStyles(() => ({
   },
   tableCell: {
     borderBottom: 0,
-    paddingRight: '2.5rem',
+    paddingRight: '1.5625rem',
   },
   tableRow: {
     height: 'auto',
   },
   paddingTop24: {
-    paddingTop: '2.4rem',
+    paddingTop: '1.5rem',
   },
   wordBreak: {
     wordBreak: 'break-word',
@@ -50,7 +50,7 @@ const CollapsibleAttachments = ({ attachments, title, hideCollapsibleCount }: IC
   const isPrint = useMediaQuery('print') ? false : Boolean(attachments.length > 4);
 
   return (
-    <AltinnCollapsibleAttachmentsComponent
+    <AltinnCollapsibleAttachments
       attachments={attachments}
       collapsible={isPrint}
       title={title}
@@ -153,15 +153,15 @@ export function ReceiptComponent({
             <Typography
               variant='h3'
               style={{
-                paddingTop: '4.1rem',
-                paddingBottom: '0.5rem',
+                paddingTop: '2.562rem',
+                paddingBottom: '0.3125rem',
                 fontWeight: 600,
               }}
             >
               {titleSubmitted}
             </Typography>
           )}
-          <AltinnAttachmentComponent
+          <AltinnAttachment
             attachments={pdf}
             id='attachment-list-pdf'
           />
@@ -177,5 +177,3 @@ export function ReceiptComponent({
     </div>
   );
 }
-
-export default ReceiptComponent;

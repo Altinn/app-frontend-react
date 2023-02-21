@@ -7,10 +7,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import cn from 'classnames';
 import type { CheckboxProps } from '@material-ui/core/Checkbox';
 
-import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
+import { useHasChangedIgnoreUndefined } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { useGetOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import { AltinnSpinner } from 'src/components/shared';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -66,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     alignItems: 'flex-start',
-    marginBottom: '1.2rem',
+    marginBottom: '0.75rem',
     wordBreak: 'break-word',
     '& > span:last-child': {
       marginTop: 9,

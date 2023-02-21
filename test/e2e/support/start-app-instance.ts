@@ -1,4 +1,4 @@
-import AppFrontend from 'test/e2e/pageobjects/app-frontend';
+import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 const appFrontend = new AppFrontend();
 
@@ -45,8 +45,20 @@ Cypress.Commands.add('startAppInstance', (appName, anonymous = false) => {
       cy.visit(`${Cypress.config('baseUrl')}/ttd/${appName}/`, visitOptions);
     } else {
       cy.visit('/', visitOptions);
-      cy.get(appFrontend.appSelection).select(appName);
-      cy.get(appFrontend.startButton).click();
+
+      // Selecting 'Ola Nordmann'
+      cy.get('#UserSelect').select('12345.512345');
+
+      cy.get('body')
+        .then(($body) => {
+          const appSelection = $body.find(appFrontend.appSelection);
+          if (appSelection) {
+            appSelection.find(`option[value="${appName}"]`).select();
+          }
+
+          return $body.find(appFrontend.startButton);
+        })
+        .click();
     }
   } else {
     if (!anonymous) {

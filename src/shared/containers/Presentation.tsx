@@ -1,18 +1,21 @@
-import * as React from 'react';
+import React from 'react';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import Header from 'src/components/presentation/Header';
-import NavBar from 'src/components/presentation/NavBar';
-import { AltinnAppHeader, AltinnSubstatusPaper } from 'src/components/shared';
-import Footer from 'src/features/footer/Footer';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
+import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
+import { Header } from 'src/components/presentation/Header';
+import { NavBar } from 'src/components/presentation/NavBar';
+import { Footer } from 'src/features/footer/Footer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { getNextView } from 'src/utils/formLayout';
-import { get } from 'src/utils/network/networking';
-import { getTextResourceByKey, returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/sharedUtils';
+import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
+import { returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
 
 export interface IPresentationProvidedProps {
   header?: string | JSX.Element | JSX.Element[];
@@ -22,10 +25,10 @@ export interface IPresentationProvidedProps {
 }
 
 const style = {
-  marginBottom: '1rem',
+  marginBottom: '0.625rem',
 };
 
-const PresentationComponent = (props: IPresentationProvidedProps) => {
+export const PresentationComponent = (props: IPresentationProvidedProps) => {
   const dispatch = useAppDispatch();
   const party = useAppSelector((state) => state.party?.selectedParty);
   const language = useAppSelector((state) => state.language.language || {});
@@ -49,11 +52,14 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
       dispatch(
         FormLayoutActions.updateCurrentView({
           newView: returnToView,
-          runValidations: 'allPages',
         }),
       );
     } else if (props.type === ProcessTaskType.Data || props.type === PresentationType.Stateless) {
-      dispatch(FormLayoutActions.updateCurrentView({ newView: previousFormPage }));
+      dispatch(
+        FormLayoutActions.updateCurrentView({
+          newView: previousFormPage,
+        }),
+      );
     }
   };
 
@@ -66,7 +72,7 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
     }
 
     if (queryParameterReturnUrl) {
-      get(getRedirectUrl(queryParameterReturnUrl))
+      httpGet(getRedirectUrl(queryParameterReturnUrl))
         .then((response) => response)
         .catch(() => messageBoxUrl)
         .then((returnUrl) => {
@@ -129,5 +135,3 @@ const PresentationComponent = (props: IPresentationProvidedProps) => {
     </div>
   );
 };
-
-export default PresentationComponent;

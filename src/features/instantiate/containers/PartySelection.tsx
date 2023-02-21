@@ -4,30 +4,31 @@ import { useMatch } from 'react-router-dom';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
-import { AltinnCheckBox } from 'src/components/shared';
-import { InstantiationContainer } from 'src/features/instantiate/containers';
-import NoValidPartiesError from 'src/features/instantiate/containers/NoValidPartiesError';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AltinnCheckBox } from 'src/components/AltinnCheckBox';
+import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
+import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import AltinnParty from 'src/shared/components/altinnParty';
-import AltinnPartySearch from 'src/shared/components/altinnPartySearch';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { AltinnParty } from 'src/shared/components/altinnParty';
+import { AltinnPartySearch } from 'src/shared/components/altinnPartySearch';
 import { PartyActions } from 'src/shared/resources/party/partySlice';
-import { AltinnAppTheme } from 'src/theme';
+import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
-import { getLanguageFromKey } from 'src/utils/sharedUtils';
 import { capitalizeName } from 'src/utils/stringHelper';
 import type { IParty } from 'src/types/shared';
 
 const useStyles = makeStyles((theme) => ({
   partySelectionTitle: {
-    fontSize: '3.5rem',
+    fontSize: '2.1875rem',
     fontWeight: 200,
     paddingBottom: 18,
     padding: 12,
   },
   partySelectionError: {
-    fontSize: '1.75rem',
+    fontSize: '1.093rem',
     fontWeight: 300,
     backgroundColor: theme.altinnPalette.primary.redLight,
     padding: 12,
@@ -38,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 12,
   },
   partySelectionSubTitle: {
-    fontSize: '1.75rem',
+    fontSize: '1.093rem',
     fontWeight: 600,
     paddingTop: 24,
     paddingBottom: 18,
@@ -50,13 +51,13 @@ const useStyles = makeStyles((theme) => ({
     border: `2px dotted ${theme.altinnPalette.primary.blue}`,
   },
   loadMoreButtonIcon: {
-    marginLeft: '1.5rem',
+    marginLeft: '0.9375rem',
   },
   loadMoreButtonText: {
     display: 'flex',
     alignItems: 'center',
-    fontSize: '1.75rem',
-    marginLeft: '1.2rem',
+    fontSize: '1.093rem',
+    marginLeft: '0.75rem',
     fontWeight: 500,
   },
   partySelectionCheckbox: {
@@ -64,10 +65,10 @@ const useStyles = makeStyles((theme) => ({
     padding: 12,
   },
   checkboxLabes: {
-    paddingTop: '1.2rem',
+    paddingTop: '0.75rem',
   },
 }));
-const PartySelection = () => {
+export const PartySelection = () => {
   changeBodyBackground(AltinnAppTheme.altinnPalette.primary.white);
   const classes = useStyles();
   const match = useMatch(`/partyselection/:errorCode`);
@@ -344,5 +345,3 @@ const PartySelection = () => {
     </InstantiationContainer>
   );
 };
-
-export default PartySelection;

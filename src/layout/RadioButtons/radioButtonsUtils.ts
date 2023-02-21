@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useAppSelector, useHasChangedIgnoreUndefined } from 'src/common/hooks';
+import { useHasChangedIgnoreUndefined } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { useGetOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { getOptionLookupKey } from 'src/utils/options';
@@ -51,7 +52,7 @@ export const useRadioStyles = makeStyles((theme) => ({
   },
   formControl: {
     alignItems: 'flex-start',
-    marginBottom: '1.2rem',
+    marginBottom: '0.75rem',
     wordBreak: 'break-word',
     '& > span:last-child': {
       marginTop: 9,

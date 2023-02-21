@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IFooterTextComponent } from 'src/features/footer/components/Text/types';
 

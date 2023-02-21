@@ -3,9 +3,9 @@ import React from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
-import printStyles from 'src/styles/print.module.css';
+import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ILayoutGroup } from 'src/layout/Group/types';
@@ -26,7 +26,7 @@ export interface IDisplayGroupContainer {
 const useStyles = makeStyles({
   groupTitle: {
     fontWeight: 700,
-    fontSize: '2.4rem',
+    fontSize: '1.5rem',
     paddingBottom: 12,
   },
   groupContainer: {
@@ -60,10 +60,7 @@ export function DisplayGroupContainer(props: IDisplayGroupContainer) {
       container={true}
       item={true}
       id={props.id || container.id}
-      className={cn(classes.groupContainer, {
-        [printStyles['break-before']]: container?.pageBreak?.breakBefore,
-        [printStyles['break-after']]: container?.pageBreak?.breakAfter,
-      })}
+      className={cn(classes.groupContainer, pageBreakStyles(container))}
       spacing={3}
       alignItems='flex-start'
       data-testid='display-group-container'
