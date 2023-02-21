@@ -12,11 +12,11 @@ import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src
 import type { Expression } from 'src/features/expressions/types';
 import type { IRepeatingGroups } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
-import type { LayoutNode, LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
+import type { LayoutNode, LayoutPages } from 'src/utils/layout/hierarchy';
 
 const { nodesInLayouts } = _private;
 
-function findComponent(context: FunctionTest['context'], collection: LayoutRootNodeCollection<any>) {
+function findComponent(context: FunctionTest['context'], collection: LayoutPages<any>) {
   const { component, rowIndices } = context || { component: 'no-component' };
   const componentId = (component || 'no-component') + (rowIndices ? `-${rowIndices.join('-')}` : '');
   const found = collection.findById(componentId);
@@ -118,7 +118,7 @@ describe('Expressions shared context tests', () => {
     return a.component > b.component ? 1 : -1;
   }
 
-  function recurse(node: LayoutNode<any>, key: string): SharedTestContextList {
+  function recurse(node: LayoutNode, key: string): SharedTestContextList {
     const splitKey = splitDashedKey(node.item.id);
     const context: SharedTestContextList = {
       component: splitKey.baseComponentId,

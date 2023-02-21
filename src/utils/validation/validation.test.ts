@@ -26,16 +26,12 @@ import type {
   IValidationIssue,
   IValidations,
 } from 'src/types';
-import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
+import type { LayoutPages } from 'src/utils/layout/hierarchy';
 
 const { nodesInLayouts } = _private;
 
 function toCollection(mockLayouts: ILayouts, repeatingGroups: IRepeatingGroups = {}) {
-  return nodesInLayouts(
-    mockLayouts,
-    Object.keys(mockLayouts)[0],
-    repeatingGroups,
-  ) as unknown as LayoutRootNodeCollection<'resolved'>;
+  return nodesInLayouts(mockLayouts, Object.keys(mockLayouts)[0], repeatingGroups) as unknown as LayoutPages;
 }
 
 function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {

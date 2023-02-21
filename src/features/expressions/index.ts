@@ -11,7 +11,7 @@ import {
 } from 'src/features/expressions/errors';
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
-import { dataSourcesFromState, LayoutNode, LayoutRootNode, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { dataSourcesFromState, LayoutNode, LayoutPage, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   BaseToActual,
@@ -35,7 +35,7 @@ export interface EvalExprOptions {
 
 export interface EvalExprInObjArgs<T> {
   input: T;
-  node: LayoutNode<any> | NodeNotFoundWithoutContext;
+  node: LayoutNode | NodeNotFoundWithoutContext;
   dataSources: ContextDataSources;
   config?: ExprObjConfig<T>;
   resolvingPerRow?: boolean;
@@ -168,7 +168,7 @@ function evalExprInObjectCaller<T>(expr: Expression, args: Omit<EvalExprInObjArg
  */
 export function evalExpr(
   expr: Expression,
-  node: LayoutNode<any> | LayoutRootNode<any> | NodeNotFoundWithoutContext,
+  node: LayoutNode | LayoutPage | NodeNotFoundWithoutContext,
   dataSources: ContextDataSources,
   options?: EvalExprOptions,
 ) {
@@ -446,7 +446,7 @@ export const ExprFunctions = {
 
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
       // results. We should note this in the error message, so we know the reason we couldn't find the component.
-      const hasAllLayouts = node instanceof LayoutRootNode ? !!node.top : !!node.top.top;
+      const hasAllLayouts = node instanceof LayoutPage ? !!node.top : !!node.top.top;
       throw new LookupNotFound(
         this,
         hasAllLayouts
@@ -470,7 +470,7 @@ export const ExprFunctions = {
       }
 
       // No need to transpose the data model according to the location inside a repeating group when the context is
-      // a LayoutRootNode (i.e., when we're resolving an expression directly on the layout definition).
+      // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
       return this.dataSources.formData[path] || null;
     },
     args: ['string'] as const,
@@ -586,7 +586,7 @@ export const ExprTypes: {
 
   const state = (window as unknown as IAltinnWindow).reduxStore.getState();
   const nodes = resolvedLayoutsFromState(state);
-  let layout: LayoutRootNode<'resolved'> | LayoutNode<'resolved'> | undefined = nodes.current();
+  let layout: LayoutPage | LayoutNode | undefined = nodes.current();
   if (!layout) {
     console.error('Unable to find current page/layout');
     return;

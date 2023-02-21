@@ -35,7 +35,7 @@ import type {
   IValidations,
 } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
-import type { LayoutNode, LayoutObject, LayoutRootNode, LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
+import type { LayoutNode, LayoutObject, LayoutPage, LayoutPages } from 'src/utils/layout/hierarchy';
 
 export interface ISchemaValidators {
   [id: string]: ISchemaValidator;
@@ -197,7 +197,7 @@ export const errorMessageKeys = {
 
 export function validateEmptyFields(
   formData: IFormData,
-  layouts: LayoutRootNodeCollection<'resolved'>,
+  layouts: LayoutPages,
   layoutOrder: string[],
   language: ILanguage,
   hiddenFields: Set<string>,
@@ -215,7 +215,7 @@ export function validateEmptyFields(
 
 export function validateEmptyFieldsForNodes(
   formData: IFormData,
-  nodes: LayoutRootNode<'resolved'> | LayoutNode<'resolved'>,
+  nodes: LayoutPage | LayoutNode,
   language: ILanguage,
   hiddenFields: Set<string>,
   textResources: ITextResource[],
@@ -270,7 +270,7 @@ export function getGroupChildren(groupId: string, layout: ILayout): (ILayoutGrou
 
 export function validateEmptyField(
   formData: any,
-  node: LayoutNode<'resolved'>,
+  node: LayoutNode,
   textResources: ITextResource[],
   language: ILanguage,
 ): IComponentValidations | null {
@@ -309,7 +309,7 @@ export function validateEmptyField(
 
 export function validateFormComponents(
   attachments: IAttachments,
-  nodeLayout: LayoutRootNodeCollection<'resolved'>,
+  nodeLayout: LayoutPages,
   layoutOrder: string[],
   formData: IFormData,
   language: ILanguage,
@@ -331,7 +331,7 @@ export function validateFormComponents(
 */
 function validateFormComponentsForNodes(
   attachments: IAttachments,
-  nodes: LayoutRootNode<'resolved'> | LayoutNode<'resolved'>,
+  nodes: LayoutPage | LayoutNode,
   formData: IFormData,
   language: ILanguage,
   hiddenFields: Set<string>,
@@ -595,7 +595,7 @@ export function getSchemaPart(schemaPath: string, jsonSchema: object): any {
 
 export function validateFormData(
   formDataAsObject: any,
-  layouts: LayoutRootNodeCollection<'resolved'>,
+  layouts: LayoutPages,
   layoutOrder: string[],
   schemaValidator: ISchemaValidator,
   language: ILanguage,
@@ -630,7 +630,7 @@ export function validateFormData(
 */
 function validateFormDataForLayout(
   formDataAsObject: any,
-  node: LayoutRootNode<'resolved'> | LayoutNode<'resolved'>,
+  node: LayoutPage | LayoutNode,
   layoutKey: string,
   schemaValidator: ISchemaValidator,
   language: ILanguage,
@@ -747,7 +747,7 @@ function mapToComponentValidationsGivenComponent(
 
 export function mapToComponentValidationsGivenNode(
   layoutId: string,
-  node: LayoutObject<'resolved'>,
+  node: LayoutObject,
   dataBinding: string,
   errorMessage: string,
   validations: ILayoutValidations,
@@ -865,7 +865,7 @@ export function findComponentFromValidationIssue(
 }
 
 export function filterValidationsByRow(
-  nodes: LayoutRootNodeCollection<'resolved'>,
+  nodes: LayoutPages,
   validations: IValidations,
   groupId: string,
   rowIndex?: number,

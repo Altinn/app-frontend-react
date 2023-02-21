@@ -15,7 +15,7 @@ import type { ExprConfig } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { ICheckIfConditionalRulesShouldRun, IConditionalRenderingRules } from 'src/features/form/dynamics';
 import type { IHiddenLayoutsExpressions, IRuntimeState, IUiConfig, IValidations } from 'src/types';
-import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
+import type { LayoutPages } from 'src/utils/layout/hierarchy';
 
 export const ConditionalRenderingSelector = (store: IRuntimeState) => store.formDynamics.conditionalRendering;
 export const FormDataSelector = (state: IRuntimeState) => state.formData.formData;
@@ -33,7 +33,7 @@ export function* checkIfConditionalRulesShouldRunSaga({
     const formValidations: IValidations = yield select(FormValidationSelector);
     const repeatingGroups = yield selectNotNull(RepeatingGroupsSelector);
     const uiConfig: IUiConfig = yield select(UiConfigSelector);
-    const resolvedNodes: LayoutRootNodeCollection<'resolved'> = yield select(ResolvedNodesSelector);
+    const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
     const dataSources = yield select(DataSourcesSelector);
 
     const hiddenFields = new Set(uiConfig.hiddenFields);
@@ -125,7 +125,7 @@ export function* checkIfConditionalRulesShouldRunSaga({
   }
 }
 
-function runExpressionRules(layouts: LayoutRootNodeCollection<'resolved'>, future: Set<string>) {
+function runExpressionRules(layouts: LayoutPages, future: Set<string>) {
   for (const layout of Object.values(layouts.all())) {
     for (const node of layout.flat(true)) {
       if (node.item.hidden === true || future.has(node.item.id)) {
@@ -139,7 +139,7 @@ function runExpressionRules(layouts: LayoutRootNodeCollection<'resolved'>, futur
 }
 
 function runExpressionsForLayouts(
-  nodes: LayoutRootNodeCollection<'resolved'>,
+  nodes: LayoutPages,
   hiddenLayoutsExpr: IHiddenLayoutsExpressions,
   dataSources: ContextDataSources,
 ): Set<string> {

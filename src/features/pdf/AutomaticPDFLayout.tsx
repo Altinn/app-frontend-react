@@ -9,10 +9,10 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
 import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
 import type { ComponentExceptGroupAndSummary, RenderableGenericComponent } from 'src/layout/layout';
-import type { LayoutNode, LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
+import type { LayoutNode, LayoutPages } from 'src/utils/layout/hierarchy';
 
 interface IAutomaticPDFLayout {
-  layouts: LayoutRootNodeCollection<'resolved'>;
+  layouts: LayoutPages;
   pdfFormat: IPdfFormat | null;
   pageOrder: string[];
   hidden: string[];
@@ -23,7 +23,7 @@ const AutomaticPDFSummaryComponent = ({
   pageRef,
   excludedChildren,
 }: {
-  node: LayoutNode<'resolved'>;
+  node: LayoutNode;
   pageRef: string;
   excludedChildren: string[];
 }) => {

@@ -70,7 +70,7 @@ import type {
   IValidationIssue,
   IValidations,
 } from 'src/types';
-import type { LayoutRootNodeCollection } from 'src/utils/layout/hierarchy';
+import type { LayoutPages } from 'src/utils/layout/hierarchy';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
 export const selectFormData = (state: IRuntimeState) => state.formData;
@@ -560,7 +560,7 @@ export function* updateRepeatingGroupEditIndexSaga({
 }: PayloadAction<IUpdateRepeatingGroupsEditIndex>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
-    const resolvedNodes: LayoutRootNodeCollection<'resolved'> = yield select(ResolvedNodesSelector);
+    const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
     const rowIndex = state.formLayout.uiConfig.repeatingGroups?.[group].editIndex;
 
     if (validate && typeof rowIndex === 'number' && rowIndex > -1) {

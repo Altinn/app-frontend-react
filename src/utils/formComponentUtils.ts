@@ -546,7 +546,7 @@ export const gridBreakpoints = (grid?: IGridStyling) => {
   };
 };
 
-export const pageBreakStyles = (component: AnyItem<'resolved'> | undefined) => {
+export const pageBreakStyles = (component: AnyItem | undefined) => {
   if (!component?.pageBreak) {
     return {};
   }

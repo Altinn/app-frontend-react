@@ -3,8 +3,8 @@ import { getRepeatingGroups } from 'src/utils/formLayout';
 import {
   _private,
   LayoutNode,
-  LayoutRootNode,
-  LayoutRootNodeCollection,
+  LayoutPage,
+  LayoutPages,
   resolvedLayoutsFromState,
   resolvedNodesInLayouts,
 } from 'src/utils/layout/hierarchy';
@@ -14,7 +14,7 @@ import type { ILayoutCompHeader } from 'src/layout/Header/types';
 import type { ILayoutCompInput } from 'src/layout/Input/types';
 import type { ILayout } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
-import type { AnyNode } from 'src/utils/layout/hierarchy.types';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 const { layoutAsHierarchyWithRows, layoutAsHierarchy, nodesInLayout } = _private;
 
@@ -319,9 +319,9 @@ describe('Hierarchical layout tools', () => {
 
   describe('nodesInLayout', () => {
     it('should resolve a very simple layout', () => {
-      const root = new LayoutRootNode();
-      const top1 = new LayoutNode(components.top1, root, root);
-      const top2 = new LayoutNode(components.top2, root, root);
+      const root = new LayoutPage();
+      const top1 = new LayoutNode(components.top1 as AnyItem, root, root);
+      const top2 = new LayoutNode(components.top2 as AnyItem, root, root);
       root._addChild(top1);
       root._addChild(top2);
 
@@ -532,7 +532,7 @@ describe('Hierarchical layout tools', () => {
     const group2i = nodes.findById(`${components.group2i.id}-0`);
     const group2ni = nodes.findById(`${components.group2ni.id}-0-1`);
 
-    function uniqueHidden(nodes: AnyNode<any>[] | undefined): any[] | undefined {
+    function uniqueHidden(nodes: LayoutNode[] | undefined): any[] | undefined {
       if (!nodes) {
         return undefined;
       }
@@ -570,7 +570,7 @@ describe('Hierarchical layout tools', () => {
     }
   });
 
-  describe('LayoutRootNodeCollection', () => {
+  describe('LayoutPages', () => {
     const layout1: ILayout = [components.top1, components.top2];
 
     const layout2: ILayout = [
@@ -583,8 +583,8 @@ describe('Hierarchical layout tools', () => {
       l2: nodesInLayout(layout2, {}),
     };
 
-    const collection1 = new LayoutRootNodeCollection('l1', layouts);
-    const collection2 = new LayoutRootNodeCollection('l2', layouts);
+    const collection1 = new LayoutPages('l1', layouts);
+    const collection2 = new LayoutPages('l2', layouts);
 
     it('should find the component in the current layout first', () => {
       expect(collection1?.findById(components.top1.id)?.item.readOnly).toBeUndefined();

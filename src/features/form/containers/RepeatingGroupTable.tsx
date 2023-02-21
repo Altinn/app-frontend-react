@@ -204,7 +204,7 @@ export function RepeatingGroupTable({
   });
   const tableNodes = tableComponents
     .map((c) => node?.children((i) => i.baseComponentId === c.baseComponentId || i.baseComponentId === c.id))
-    .filter((child) => !!child) as LayoutNode<'resolved'>[];
+    .filter((child) => !!child) as LayoutNode[];
 
   // Values adjusted for filter
   const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
