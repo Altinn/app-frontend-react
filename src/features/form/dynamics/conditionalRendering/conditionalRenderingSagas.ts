@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { evalExpr } from 'src/features/expressions';
-import { BaseValue } from 'src/features/expressions/types';
+import { ExprVal } from 'src/features/expressions/types';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
@@ -144,8 +144,8 @@ function runExpressionsForLayouts(
   hiddenLayoutsExpr: ExprUnresolved<IHiddenLayoutsExpressions>,
   dataSources: ContextDataSources,
 ): Set<string> {
-  const config: ExprConfig<BaseValue.Boolean> = {
-    returnType: BaseValue.Boolean,
+  const config: ExprConfig<ExprVal.Boolean> = {
+    returnType: ExprVal.Boolean,
     defaultValue: false,
     resolvePerRow: false,
   };

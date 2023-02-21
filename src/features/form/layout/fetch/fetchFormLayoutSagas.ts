@@ -9,7 +9,7 @@ import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';
-import type { BaseValue, ExprObjConfig, ExprUnresolved } from 'src/features/expressions/types';
+import type { ExprObjConfig, ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { ComponentTypes, ILayout, ILayouts } from 'src/layout/layout';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { IHiddenLayoutsExpressions, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
@@ -87,7 +87,7 @@ export function* fetchLayoutSaga(): SagaIterator {
       });
     }
 
-    const config: ExprObjConfig<{ hidden: BaseValue.Boolean; whatever: string }> = {
+    const config: ExprObjConfig<{ hidden: ExprVal.Boolean; whatever: string }> = {
       hidden: {
         returnType: 'test',
         defaultValue: false,

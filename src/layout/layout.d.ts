@@ -1,7 +1,7 @@
 import type { TextField } from '@digdir/design-system-react';
 import type { GridSize } from '@material-ui/core';
 
-import type { BaseValue, ExprUnresolved } from 'src/features/expressions/types';
+import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { IDataModelBindingsForAddress, ILayoutCompAddress } from 'src/layout/Address/types';
 import type { ILayoutCompAttachmentList } from 'src/layout/AttachmentList/types';
 import type { ILayoutCompButton } from 'src/layout/Button/types';
@@ -53,9 +53,9 @@ export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> extends
 
 export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes> extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings;
-  readOnly?: BaseValue.Boolean;
-  required?: BaseValue.Boolean;
-  hidden?: BaseValue.Boolean;
+  readOnly?: ExprVal.Boolean;
+  required?: ExprVal.Boolean;
+  hidden?: ExprVal.Boolean;
   textResourceBindings?: ITextResourceBindings;
   grid?: IGrid;
   triggers?: Triggers[];
@@ -174,7 +174,7 @@ export type IDataModelBindings =
   | IDataModelBindingsForList;
 
 export interface ITextResourceBindings {
-  [id: string]: BaseValue.String;
+  [id: string]: ExprVal.String;
 }
 
 export type ILayout = ExprUnresolved<ILayoutComponentOrGroup>[];
@@ -199,6 +199,6 @@ export interface IGridStyling {
 }
 
 export interface IPageBreak {
-  breakBefore?: BaseValue.String; // 'auto' | 'always' | 'avoid'
-  breakAfter?: BaseValue.String; // 'auto' | 'always' | 'avoid'
+  breakBefore?: ExprVal.String; // 'auto' | 'always' | 'avoid'
+  breakAfter?: ExprVal.String; // 'auto' | 'always' | 'avoid'
 }

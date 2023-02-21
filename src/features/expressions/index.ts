@@ -10,17 +10,17 @@ import {
   UnknownTargetType,
 } from 'src/features/expressions/errors';
 import { ExprContext } from 'src/features/expressions/ExprContext';
-import { BaseValue } from 'src/features/expressions/types';
+import { ExprVal } from 'src/features/expressions/types';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
 import { dataSourcesFromState, LayoutNode, LayoutPage, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
-  BaseToActual,
   ExprConfig,
   Expression,
   ExprFunction,
   ExprObjConfig,
   ExprResolved,
+  ExprValToActual,
   FuncDef,
 } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
@@ -186,7 +186,7 @@ export function evalExpr(
     if (
       options &&
       options.config &&
-      options.config.returnType !== BaseValue.Any &&
+      options.config.returnType !== ExprVal.Any &&
       options.config.returnType !== valueToExprValueType(result)
     ) {
       // If you have an expression that expects (for example) a true|false return value, and the actual returned result
@@ -216,7 +216,7 @@ export function evalExpr(
   }
 }
 
-export function argTypeAt(func: ExprFunction, argIndex: number): BaseValue | undefined {
+export function argTypeAt(func: ExprFunction, argIndex: number): ExprVal | undefined {
   const funcDef = ExprFunctions[func];
   const possibleArgs = funcDef.args;
   const maybeReturn = possibleArgs[argIndex];
@@ -251,17 +251,17 @@ function innerEvalExpr(context: ExprContext) {
   return castValue(returnValue, returnType, context);
 }
 
-function valueToExprValueType(value: any): BaseValue {
+function valueToExprValueType(value: any): ExprVal {
   if (typeof value === 'number' || typeof value === 'bigint') {
-    return BaseValue.Number;
+    return ExprVal.Number;
   }
   if (typeof value === 'string') {
-    return BaseValue.String;
+    return ExprVal.String;
   }
   if (typeof value === 'boolean') {
-    return BaseValue.Boolean;
+    return ExprVal.Boolean;
   }
-  return BaseValue.Any;
+  return ExprVal.Any;
 }
 
 function isLikeNull(arg: any) {
@@ -272,11 +272,11 @@ function isLikeNull(arg: any) {
  * This function is used to cast any value to a target type before/after it is passed
  * through a function call.
  */
-function castValue<T extends BaseValue>(
+function castValue<T extends ExprVal>(
   value: any,
   toType: T | undefined,
   context: ExprContext,
-): BaseToActual<T> | null {
+): ExprValToActual<T> | null {
   if (!toType || !(toType in ExprTypes)) {
     throw new UnknownTargetType(context, toType ? toType : typeof toType);
   }
@@ -296,7 +296,7 @@ function castValue<T extends BaseValue>(
   return typeObj.impl.apply(context, [value]);
 }
 
-function defineFunc<Args extends readonly BaseValue[], Ret extends BaseValue>(
+function defineFunc<Args extends readonly ExprVal[], Ret extends ExprVal>(
   def: FuncDef<Args, Ret>,
 ): FuncDef<Mutable<Args>, Ret> {
   return def;
@@ -315,18 +315,18 @@ const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
 export const ExprFunctions = {
   equals: defineFunc({
     impl: (arg1, arg2) => arg1 === arg2,
-    args: [BaseValue.String, BaseValue.String] as const,
-    returns: BaseValue.Boolean,
+    args: [ExprVal.String, ExprVal.String] as const,
+    returns: ExprVal.Boolean,
   }),
   notEquals: defineFunc({
     impl: (arg1, arg2) => arg1 !== arg2,
-    args: [BaseValue.String, BaseValue.String] as const,
-    returns: BaseValue.Boolean,
+    args: [ExprVal.String, ExprVal.String] as const,
+    returns: ExprVal.Boolean,
   }),
   not: defineFunc({
     impl: (arg) => !arg,
-    args: [BaseValue.Boolean] as const,
-    returns: BaseValue.Boolean,
+    args: [ExprVal.Boolean] as const,
+    returns: ExprVal.Boolean,
   }),
   greaterThan: defineFunc({
     impl: (arg1, arg2) => {
@@ -336,8 +336,8 @@ export const ExprFunctions = {
 
       return arg1 > arg2;
     },
-    args: [BaseValue.Number, BaseValue.Number] as const,
-    returns: BaseValue.Boolean,
+    args: [ExprVal.Number, ExprVal.Number] as const,
+    returns: ExprVal.Boolean,
   }),
   greaterThanEq: defineFunc({
     impl: (arg1, arg2) => {
@@ -347,8 +347,8 @@ export const ExprFunctions = {
 
       return arg1 >= arg2;
     },
-    args: [BaseValue.Number, BaseValue.Number] as const,
-    returns: BaseValue.Boolean,
+    args: [ExprVal.Number, ExprVal.Number] as const,
+    returns: ExprVal.Boolean,
   }),
   lessThan: defineFunc({
     impl: (arg1, arg2) => {
@@ -358,8 +358,8 @@ export const ExprFunctions = {
 
       return arg1 < arg2;
     },
-    args: [BaseValue.Number, BaseValue.Number] as const,
-    returns: BaseValue.Boolean,
+    args: [ExprVal.Number, ExprVal.Number] as const,
+    returns: ExprVal.Boolean,
   }),
   lessThanEq: defineFunc({
     impl: (arg1, arg2) => {
@@ -369,26 +369,26 @@ export const ExprFunctions = {
 
       return arg1 <= arg2;
     },
-    args: [BaseValue.Number, BaseValue.Number] as const,
-    returns: BaseValue.Boolean,
+    args: [ExprVal.Number, ExprVal.Number] as const,
+    returns: ExprVal.Boolean,
   }),
   concat: defineFunc({
     impl: (...args) => args.join(''),
-    args: [BaseValue.String],
+    args: [ExprVal.String],
     minArguments: 0,
-    returns: BaseValue.String,
+    returns: ExprVal.String,
     lastArgSpreads: true,
   }),
   and: defineFunc({
     impl: (...args) => args.reduce((prev, cur) => prev && !!cur, true),
-    args: [BaseValue.Boolean],
-    returns: BaseValue.Boolean,
+    args: [ExprVal.Boolean],
+    returns: ExprVal.Boolean,
     lastArgSpreads: true,
   }),
   or: defineFunc({
     impl: (...args) => args.reduce((prev, cur) => prev || !!cur, false),
-    args: [BaseValue.Boolean],
-    returns: BaseValue.Boolean,
+    args: [ExprVal.Boolean],
+    returns: ExprVal.Boolean,
     lastArgSpreads: true,
   }),
   if: defineFunc({
@@ -412,8 +412,8 @@ export const ExprFunctions = {
       }
       addError(ctx, path, 'Expected either 2 arguments (if) or 4 (if + else), got %s', `${rawArgs.length}`);
     },
-    args: [BaseValue.Boolean, BaseValue.Any, BaseValue.String, BaseValue.Any],
-    returns: BaseValue.Any,
+    args: [ExprVal.Boolean, ExprVal.Any, ExprVal.String, ExprVal.Any],
+    returns: ExprVal.Any,
   }),
   instanceContext: defineFunc({
     impl: function (key): string | null {
@@ -423,8 +423,8 @@ export const ExprFunctions = {
 
       return (this.dataSources.instanceContext && this.dataSources.instanceContext[key]) || null;
     },
-    args: [BaseValue.String] as const,
-    returns: BaseValue.String,
+    args: [ExprVal.String] as const,
+    returns: ExprVal.String,
   }),
   frontendSettings: defineFunc({
     impl: function (key): any {
@@ -434,8 +434,8 @@ export const ExprFunctions = {
 
       return (this.dataSources.applicationSettings && this.dataSources.applicationSettings[key]) || null;
     },
-    args: [BaseValue.String] as const,
-    returns: BaseValue.Any,
+    args: [ExprVal.String] as const,
+    returns: ExprVal.Any,
   }),
   component: defineFunc({
     impl: function (id): any {
@@ -464,8 +464,8 @@ export const ExprFunctions = {
           : `Unable to find component with identifier ${id} in the current layout or it does not have a simpleBinding`,
       );
     },
-    args: [BaseValue.String] as const,
-    returns: BaseValue.Any,
+    args: [ExprVal.String] as const,
+    returns: ExprVal.Any,
   }),
   dataModel: defineFunc({
     impl: function (path): any {
@@ -483,8 +483,8 @@ export const ExprFunctions = {
       // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
       return this.dataSources.formData[path] || null;
     },
-    args: [BaseValue.String] as const,
-    returns: BaseValue.Any,
+    args: [ExprVal.String] as const,
+    returns: ExprVal.Any,
   }),
 };
 
@@ -504,15 +504,15 @@ function asNumber(arg: string) {
  * @see castValue
  */
 export const ExprTypes: {
-  [Type in BaseValue]: {
+  [Type in ExprVal]: {
     nullable: boolean;
-    accepts: BaseValue[];
-    impl: (this: ExprContext, arg: any) => BaseToActual<Type> | null;
+    accepts: ExprVal[];
+    impl: (this: ExprContext, arg: any) => ExprValToActual<Type> | null;
   };
 } = {
-  [BaseValue.Boolean]: {
+  [ExprVal.Boolean]: {
     nullable: true,
-    accepts: [BaseValue.Boolean, BaseValue.String, BaseValue.Number, BaseValue.Any],
+    accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
     impl: function (arg) {
       if (typeof arg === 'boolean') {
         return arg;
@@ -531,9 +531,9 @@ export const ExprTypes: {
       throw new UnexpectedType(this, 'boolean', arg);
     },
   },
-  [BaseValue.String]: {
+  [ExprVal.String]: {
     nullable: true,
-    accepts: [BaseValue.Boolean, BaseValue.String, BaseValue.Number, BaseValue.Any],
+    accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
     impl: function (arg) {
       if (['number', 'bigint', 'boolean'].includes(typeof arg)) {
         return JSON.stringify(arg);
@@ -547,9 +547,9 @@ export const ExprTypes: {
       return `${arg}`;
     },
   },
-  [BaseValue.Number]: {
+  [ExprVal.Number]: {
     nullable: true,
-    accepts: [BaseValue.Boolean, BaseValue.String, BaseValue.Number, BaseValue.Any],
+    accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
     impl: function (arg) {
       if (typeof arg === 'number' || typeof arg === 'bigint') {
         return arg as number;
@@ -564,9 +564,9 @@ export const ExprTypes: {
       throw new UnexpectedType(this, 'number', arg);
     },
   },
-  [BaseValue.Any]: {
+  [ExprVal.Any]: {
     nullable: true,
-    accepts: [BaseValue.Boolean, BaseValue.String, BaseValue.Number, BaseValue.Any],
+    accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
     impl: (arg) => arg,
   },
 };
@@ -583,8 +583,8 @@ export const ExprTypes: {
  * @see resolvedNodesInLayouts
  */
 (window as unknown as IAltinnWindow).evalExpression = (maybeExpression: any, forComponentId?: string) => {
-  const config: ExprConfig<BaseValue.Any> = {
-    returnType: BaseValue.Any,
+  const config: ExprConfig<ExprVal.Any> = {
+    returnType: ExprVal.Any,
     defaultValue: null,
     resolvePerRow: false,
   };
@@ -621,35 +621,35 @@ export const ExprTypes: {
 
 export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
   readOnly: {
-    returnType: BaseValue.Boolean,
+    returnType: ExprVal.Boolean,
     defaultValue: false,
     resolvePerRow: false,
   },
   required: {
-    returnType: BaseValue.Boolean,
+    returnType: ExprVal.Boolean,
     defaultValue: false,
     resolvePerRow: false,
   },
   hidden: {
-    returnType: BaseValue.Boolean,
+    returnType: ExprVal.Boolean,
     defaultValue: false,
     resolvePerRow: false,
   },
   textResourceBindings: {
     [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
-      returnType: BaseValue.String,
+      returnType: ExprVal.String,
       defaultValue: '',
       resolvePerRow: false,
     },
   },
   pageBreak: {
     breakBefore: {
-      returnType: BaseValue.String,
+      returnType: ExprVal.String,
       defaultValue: 'auto',
       resolvePerRow: false,
     },
     breakAfter: {
-      returnType: BaseValue.String,
+      returnType: ExprVal.String,
       defaultValue: 'auto',
       resolvePerRow: false,
     },
@@ -660,54 +660,54 @@ export const ExprConfigForGroup: ExprObjConfig<ILayoutGroup> = {
   ...ExprConfigForComponent,
   textResourceBindings: {
     [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
-      returnType: BaseValue.String,
+      returnType: ExprVal.String,
       defaultValue: '',
       resolvePerRow: false,
     },
     save_and_next_button: {
-      returnType: BaseValue.String,
+      returnType: ExprVal.String,
       defaultValue: '',
       resolvePerRow: true,
     },
     save_button: {
-      returnType: BaseValue.String,
+      returnType: ExprVal.String,
       defaultValue: '',
       resolvePerRow: true,
     },
     edit_button_close: {
-      returnType: BaseValue.String,
+      returnType: ExprVal.String,
       defaultValue: '',
       resolvePerRow: true,
     },
     edit_button_open: {
-      returnType: BaseValue.String,
+      returnType: ExprVal.String,
       defaultValue: '',
       resolvePerRow: true,
     },
   },
   edit: {
     addButton: {
-      returnType: BaseValue.Boolean,
+      returnType: ExprVal.Boolean,
       defaultValue: true,
       resolvePerRow: false,
     },
     deleteButton: {
-      returnType: BaseValue.Boolean,
+      returnType: ExprVal.Boolean,
       defaultValue: true,
       resolvePerRow: true,
     },
     saveButton: {
-      returnType: BaseValue.Boolean,
+      returnType: ExprVal.Boolean,
       defaultValue: true,
       resolvePerRow: true,
     },
     alertOnDelete: {
-      returnType: BaseValue.Boolean,
+      returnType: ExprVal.Boolean,
       defaultValue: false,
       resolvePerRow: true,
     },
     saveAndNextButton: {
-      returnType: BaseValue.Boolean,
+      returnType: ExprVal.Boolean,
       defaultValue: false,
       resolvePerRow: true,
     },

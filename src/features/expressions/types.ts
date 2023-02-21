@@ -11,29 +11,29 @@ type Functions = typeof ExprFunctions;
  */
 export type ExprFunction = keyof Functions;
 
-export enum BaseValue {
+export enum ExprVal {
   Boolean = '__boolean__',
   String = '__string__',
   Number = '__number__',
   Any = '__any__',
 }
 
-export type BaseToActual<T extends BaseValue = BaseValue> = T extends BaseValue.String
+export type ExprValToActual<T extends ExprVal = ExprVal> = T extends ExprVal.String
   ? string
-  : T extends BaseValue.Number
+  : T extends ExprVal.Number
   ? number
-  : T extends BaseValue.Boolean
+  : T extends ExprVal.Boolean
   ? boolean
-  : T extends BaseValue.Any
+  : T extends ExprVal.Any
   ? string | number | boolean | null
   : unknown;
 
-type ArgsToActualOrNull<T extends readonly BaseValue[]> = {
-  [Index in keyof T]: BaseToActual<T[Index]> | null;
+type ArgsToActualOrNull<T extends readonly ExprVal[]> = {
+  [Index in keyof T]: ExprValToActual<T[Index]> | null;
 };
 
-export interface FuncDef<Args extends readonly BaseValue[], Ret extends BaseValue> {
-  impl: (this: ExprContext, ...params: ArgsToActualOrNull<Args>) => BaseToActual<Ret> | null;
+export interface FuncDef<Args extends readonly ExprVal[], Ret extends ExprVal> {
+  impl: (this: ExprContext, ...params: ArgsToActualOrNull<Args>) => ExprValToActual<Ret> | null;
   args: Args;
   minArguments?: number;
   returns: Ret;
@@ -47,17 +47,17 @@ export interface FuncDef<Args extends readonly BaseValue[], Ret extends BaseValu
   // validation requirements. Use the addError() function if any errors are found.
   validator?: (options: {
     rawArgs: any[];
-    argTypes: (BaseValue | undefined)[];
+    argTypes: (ExprVal | undefined)[];
     ctx: ValidationContext;
     path: string[];
   }) => void;
 }
 
-type BaseValueArgsFor<F extends ExprFunction> = F extends ExprFunction ? Functions[F]['args'] : never;
+type ArgsFor<F extends ExprFunction> = F extends ExprFunction ? Functions[F]['args'] : never;
 
-type FunctionsReturning<T extends BaseValue> =
+type FunctionsReturning<T extends ExprVal> =
   | keyof PickByValue<Functions, { returns: T }>
-  | keyof PickByValue<Functions, { returns: BaseValue.Any }>;
+  | keyof PickByValue<Functions, { returns: ExprVal.Any }>;
 
 /**
  * An expression definition is basically [functionName, ...arguments], but when we map arguments (using their
@@ -67,17 +67,17 @@ type FunctionsReturning<T extends BaseValue> =
  *
  * @see https://github.com/microsoft/TypeScript/issues/29919
  */
-type IndexHack<F extends ExprFunction> = ['Here goes the function name', ...BaseValueArgsFor<F>];
+type IndexHack<F extends ExprFunction> = ['Here goes the function name', ...ArgsFor<F>];
 
 type MaybeRecursive<
   F extends ExprFunction,
   Iterations extends Prev[number],
-  Args extends ('Here goes the function name' | BaseValue)[] = IndexHack<F>,
+  Args extends ('Here goes the function name' | ExprVal)[] = IndexHack<F>,
 > = [Iterations] extends [never]
   ? never
   : {
-      [Index in keyof Args]: Args[Index] extends BaseValue
-        ? BaseToActual<Args[Index]> | MaybeRecursive<FunctionsReturning<Args[Index]>, Prev[Iterations]>
+      [Index in keyof Args]: Args[Index] extends ExprVal
+        ? ExprValToActual<Args[Index]> | MaybeRecursive<FunctionsReturning<Args[Index]>, Prev[Iterations]>
         : F;
     };
 
@@ -94,8 +94,8 @@ export type Expression<F extends ExprFunction = ExprFunction> = MaybeRecursive<F
  * @see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
  * @see https://stackoverflow.com/a/54487392
  */
-export type ExprResolved<T> = T extends BaseValue
-  ? BaseToActual<T>
+export type ExprResolved<T> = T extends ExprVal
+  ? ExprValToActual<T>
   : T extends any
   ? T extends object
     ? {
@@ -113,8 +113,8 @@ export type ExprResolved<T> = T extends BaseValue
  * @see useResolvedNode
  * @see ResolvedNodesSelector
  */
-export type ExprUnresolved<T> = T extends BaseValue
-  ? BaseToActual<T> | Expression<FunctionsReturning<T>>
+export type ExprUnresolved<T> = T extends ExprVal
+  ? ExprValToActual<T> | Expression<FunctionsReturning<T>>
   : T extends any
   ? T extends object
     ? {
@@ -144,9 +144,9 @@ type OmitNeverArrays<T> = T extends never[] ? never : T;
  * Expression configuration. This configuration object needs to be set on every layout property which can be resolved
  * as an expression, and it is the configuration passed to the expression evaluator.
  */
-export interface ExprConfig<V extends BaseValue = BaseValue> {
+export interface ExprConfig<V extends ExprVal = ExprVal> {
   returnType: V;
-  defaultValue: BaseToActual<V> | null;
+  defaultValue: ExprValToActual<V> | null;
 
   // Setting this to true means that if there are such expressions on a repeating 'Group' layout component, they will
   // be evaluated separately for each row in the group. This means you can have a property like edit.deleteButton which
@@ -161,7 +161,7 @@ type DistributiveExprConfig<T, Iterations extends Prev[number]> = [T] extends [
   string | number | boolean | null | undefined,
 ]
   ? never
-  : T extends BaseValue
+  : T extends ExprVal
   ? ExprConfig<T>
   : [T] extends [object]
   ? OmitEmptyObjects<ExprObjConfig<T, Prev[Iterations]>>
