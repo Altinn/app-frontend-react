@@ -621,35 +621,35 @@ export const ExprTypes: {
 
 export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
   readOnly: {
-    returnType: 'boolean',
+    returnType: BaseValue.Boolean,
     defaultValue: false,
     resolvePerRow: false,
   },
   required: {
-    returnType: 'boolean',
+    returnType: BaseValue.Boolean,
     defaultValue: false,
     resolvePerRow: false,
   },
   hidden: {
-    returnType: 'boolean',
+    returnType: BaseValue.Boolean,
     defaultValue: false,
     resolvePerRow: false,
   },
   textResourceBindings: {
     [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
-      returnType: 'string',
+      returnType: BaseValue.String,
       defaultValue: '',
       resolvePerRow: false,
     },
   },
   pageBreak: {
     breakBefore: {
-      returnType: 'string',
+      returnType: BaseValue.String,
       defaultValue: 'auto',
       resolvePerRow: false,
     },
     breakAfter: {
-      returnType: 'string',
+      returnType: BaseValue.String,
       defaultValue: 'auto',
       resolvePerRow: false,
     },
@@ -660,54 +660,54 @@ export const ExprConfigForGroup: ExprObjConfig<ILayoutGroup> = {
   ...ExprConfigForComponent,
   textResourceBindings: {
     [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
-      returnType: 'string',
+      returnType: BaseValue.String,
       defaultValue: '',
       resolvePerRow: false,
     },
     save_and_next_button: {
-      returnType: 'string',
+      returnType: BaseValue.String,
       defaultValue: '',
       resolvePerRow: true,
     },
     save_button: {
-      returnType: 'string',
+      returnType: BaseValue.String,
       defaultValue: '',
       resolvePerRow: true,
     },
     edit_button_close: {
-      returnType: 'string',
+      returnType: BaseValue.String,
       defaultValue: '',
       resolvePerRow: true,
     },
     edit_button_open: {
-      returnType: 'string',
+      returnType: BaseValue.String,
       defaultValue: '',
       resolvePerRow: true,
     },
   },
   edit: {
     addButton: {
-      returnType: 'boolean',
+      returnType: BaseValue.Boolean,
       defaultValue: true,
       resolvePerRow: false,
     },
     deleteButton: {
-      returnType: 'boolean',
+      returnType: BaseValue.Boolean,
       defaultValue: true,
       resolvePerRow: true,
     },
     saveButton: {
-      returnType: 'boolean',
+      returnType: BaseValue.Boolean,
       defaultValue: true,
       resolvePerRow: true,
     },
     alertOnDelete: {
-      returnType: 'boolean',
+      returnType: BaseValue.Boolean,
       defaultValue: false,
       resolvePerRow: true,
     },
     saveAndNextButton: {
-      returnType: 'boolean',
+      returnType: BaseValue.Boolean,
       defaultValue: false,
       resolvePerRow: true,
     },

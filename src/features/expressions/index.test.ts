@@ -61,12 +61,12 @@ describe('Expressions', () => {
         input: { obj: ['instanceContext', 'whatever1'], other: ['instanceContext', 'whatever2'] },
         config: {
           [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
-            returnType: 'string',
+            returnType: BaseValue.String,
             defaultValue: 'some-default-result',
             resolvePerRow: false,
           },
           obj: {
-            returnType: 'string',
+            returnType: BaseValue.String,
             defaultValue: 'default-for-this-one',
             resolvePerRow: false,
           },

@@ -87,9 +87,9 @@ export function* fetchLayoutSaga(): SagaIterator {
       });
     }
 
-    const config: ExprObjConfig<{ hidden: BaseValue.Boolean }> = {
+    const config: ExprObjConfig<{ hidden: BaseValue.Boolean; whatever: string }> = {
       hidden: {
-        returnType: 'boolean',
+        returnType: 'test',
         defaultValue: false,
         resolvePerRow: false,
       },
