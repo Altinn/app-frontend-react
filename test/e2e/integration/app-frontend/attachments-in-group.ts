@@ -38,7 +38,7 @@ describe('Repeating group attachments', () => {
     cy.goto('group');
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.group.showGroupToContinue).then((checkbox) => {
-      cy.wrap(checkbox).should('be.visible').find('input').check();
+      cy.wrap(checkbox).should('be.visible').find('input').check({ force: true });
     });
     addNewRow();
     gotoSecondPage();
