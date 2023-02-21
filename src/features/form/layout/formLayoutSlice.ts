@@ -310,6 +310,7 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
     calculatePageOrderAndMoveToNextPage: mkAction<LayoutTypes.ICalculatePageOrderAndMoveToNextPage>({
       takeEvery: calculatePageOrderAndMoveToNextPageSaga,
     }),
+    noCalculateTriggerFulfilled: mkAction<void>({}),
     calculatePageOrderAndMoveToNextPageFulfilled: mkAction<LayoutTypes.ICalculatePageOrderAndMoveToNextPageFulfilled>({
       reducer: (state, action) => {
         const { order } = action.payload;
@@ -341,6 +342,11 @@ const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutState>) =
     clearKeepScrollPos: mkAction<void>({
       reducer: (state) => {
         state.uiConfig.keepScrollPos = undefined;
+      },
+    }),
+    updateLayout: mkAction<ILayouts>({
+      reducer: (state, action) => {
+        state.layouts = { ...state.layouts, ...action.payload };
       },
     }),
   },

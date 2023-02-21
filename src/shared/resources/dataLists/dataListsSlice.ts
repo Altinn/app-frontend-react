@@ -2,7 +2,6 @@ import { fetchDataListsSaga } from 'src/shared/resources/dataLists/fetchDataList
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type {
   IDataListsState,
-  IFetchDataListCountFulfilledAction,
   IFetchDataListsFulfilledAction,
   IFetchDataListsRejectedAction,
   IFetchingDataListsAction,
@@ -30,14 +29,9 @@ const dataListsSlice = createSagaSlice((mkAction: MkActionType<IDataListsState>)
     fetch: mkAction<void>({
       takeEvery: fetchDataListsSaga,
     }),
-    dataListCountFulfilled: mkAction<IFetchDataListCountFulfilledAction>({
-      reducer: (state, action) => {
-        const { count } = action.payload;
-        if (count <= 0) {
-          state.loading = false;
-        } else {
-          state.dataListCount = count;
-        }
+    loaded: mkAction<void>({
+      reducer: (state) => {
+        state.loading = false;
       },
     }),
     fetchFulfilled: mkAction<IFetchDataListsFulfilledAction>({
@@ -46,12 +40,6 @@ const dataListsSlice = createSagaSlice((mkAction: MkActionType<IDataListsState>)
         state.dataLists[key].loading = false;
         state.dataLists[key].listItems = dataLists;
         state.dataLists[key].paginationData = metadata;
-        if (state.loading) {
-          state.dataListLoadedCount++;
-          if (state.dataListLoadedCount == state.dataListCount) {
-            state.loading = false;
-          }
-        }
       },
     }),
     fetchRejected: mkAction<IFetchDataListsRejectedAction>({
@@ -59,12 +47,6 @@ const dataListsSlice = createSagaSlice((mkAction: MkActionType<IDataListsState>)
         const { key, error } = action.payload;
         state.dataLists[key].loading = false;
         state.error = error;
-        if (state.loading) {
-          state.dataListLoadedCount++;
-          if (state.dataListLoadedCount == state.dataListCount) {
-            state.loading = false;
-          }
-        }
       },
     }),
     fetching: mkAction<IFetchingDataListsAction>({
