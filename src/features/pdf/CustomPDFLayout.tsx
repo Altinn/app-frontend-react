@@ -8,14 +8,21 @@ import { ComponentType } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
 import { topLevelComponents } from 'src/utils/formLayout';
-import type { ComponentExceptGroupAndSummary, ILayout, ILayoutComponentOrGroup } from 'src/layout/layout';
+import type { ExprUnresolved } from 'src/features/expressions/types';
+import type { ILayout, ILayoutComponentOrGroup } from 'src/layout/layout';
 
 interface ICustomPDFLayout {
   layout: ILayout;
 }
 
-const CustomPDFSummaryComponent = ({ component, layout }: { component: ILayoutComponentOrGroup; layout: ILayout }) => {
-  const layoutComponent = getLayoutComponentObject(component.type as ComponentExceptGroupAndSummary);
+const CustomPDFSummaryComponent = ({
+  component,
+  layout,
+}: {
+  component: ExprUnresolved<ILayoutComponentOrGroup>;
+  layout: ILayout;
+}) => {
+  const layoutComponent = getLayoutComponentObject(component.type);
 
   if (component.type === 'Group') {
     return (

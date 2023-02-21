@@ -6,6 +6,7 @@ import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex, getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
+import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
 import type { IMapping, IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
 import type {
@@ -39,7 +40,7 @@ import type {
  * as if every component is on the same page.
  */
 function layoutAsHierarchy(originalLayout: ILayout): (ILayoutComponent | HNonRepGroup)[] {
-  const layoutAsMap: { [id: string]: ILayoutComponentOrGroup } = {};
+  const layoutAsMap: { [id: string]: ExprUnresolved<ILayoutComponentOrGroup> } = {};
   const layoutCopy = JSON.parse(JSON.stringify(originalLayout)) as ILayout;
   for (const component of layoutCopy) {
     layoutAsMap[component.id] = component;

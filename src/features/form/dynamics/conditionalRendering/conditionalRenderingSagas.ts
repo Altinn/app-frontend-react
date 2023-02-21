@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { evalExpr } from 'src/features/expressions';
+import { BaseValue } from 'src/features/expressions/types';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
@@ -11,7 +12,7 @@ import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { dataSourcesFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { selectNotNull } from 'src/utils/sagas';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
-import type { ExprConfig } from 'src/features/expressions/types';
+import type { ExprConfig, ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { ICheckIfConditionalRulesShouldRun, IConditionalRenderingRules } from 'src/features/form/dynamics';
 import type { IHiddenLayoutsExpressions, IRuntimeState, IUiConfig, IValidations } from 'src/types';
@@ -140,11 +141,11 @@ function runExpressionRules(layouts: LayoutPages, future: Set<string>) {
 
 function runExpressionsForLayouts(
   nodes: LayoutPages,
-  hiddenLayoutsExpr: IHiddenLayoutsExpressions,
+  hiddenLayoutsExpr: ExprUnresolved<IHiddenLayoutsExpressions>,
   dataSources: ContextDataSources,
 ): Set<string> {
-  const config: ExprConfig<'boolean'> = {
-    returnType: 'boolean',
+  const config: ExprConfig<BaseValue.Boolean> = {
+    returnType: BaseValue.Boolean,
     defaultValue: false,
     resolvePerRow: false,
   };

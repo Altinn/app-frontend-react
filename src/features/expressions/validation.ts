@@ -7,8 +7,9 @@ import {
   getConfigFor,
 } from 'src/features/expressions';
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
+import { BaseValue } from 'src/features/expressions/types';
 import type {
-  BaseValue,
+  BaseToActual,
   ExprConfig,
   Expression,
   ExprFunction,
@@ -34,10 +35,10 @@ export interface ValidationContext {
 }
 
 const validBasicTypes: { [key: string]: BaseValue } = {
-  boolean: 'boolean',
-  string: 'string',
-  bigint: 'number',
-  number: 'number',
+  boolean: BaseValue.Boolean,
+  string: BaseValue.String,
+  bigint: BaseValue.Number,
+  number: BaseValue.Number,
 };
 
 export class InvalidExpression extends Error {}
@@ -209,7 +210,11 @@ export function canBeExpression(expr: any): expr is [] {
  * @param config Configuration and default value (the default is returned if the expression fails to validate)
  * @param errorText Error intro text used when printing to console or throwing an error
  */
-export function asExpression(obj: any, config?: ExprConfig, errorText = 'Invalid expression'): Expression | undefined {
+export function asExpression(
+  obj: any,
+  config?: ExprConfig,
+  errorText = 'Invalid expression',
+): Expression | BaseToActual | undefined {
   if (typeof obj !== 'object' || obj === null || !Array.isArray(obj)) {
     return undefined;
   }

@@ -7,8 +7,9 @@ import css from 'src/features/pdf/PDFView.module.css';
 import { ComponentType } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
+import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
-import type { ComponentExceptGroupAndSummary, RenderableGenericComponent } from 'src/layout/layout';
+import type { RenderableGenericComponent } from 'src/layout/layout';
 import type { LayoutNode, LayoutPages } from 'src/utils/layout/hierarchy';
 
 interface IAutomaticPDFLayout {
@@ -27,7 +28,7 @@ const AutomaticPDFSummaryComponent = ({
   pageRef: string;
   excludedChildren: string[];
 }) => {
-  const layoutComponent = getLayoutComponentObject(node.item.type as ComponentExceptGroupAndSummary);
+  const layoutComponent = getLayoutComponentObject(node.item.type);
 
   if (node.item.type === 'Group' || layoutComponent?.getComponentType() === ComponentType.Form) {
     return (
@@ -45,7 +46,7 @@ const AutomaticPDFSummaryComponent = ({
   if (layoutComponent?.getComponentType() === ComponentType.Presentation) {
     return (
       <GenericComponent
-        {...(node.item as RenderableGenericComponent)}
+        {...(node.item as ExprUnresolved<RenderableGenericComponent>)}
         grid={{ xs: 12 }}
       />
     );
@@ -64,7 +65,7 @@ export const AutomaticPDFLayout = ({ layouts, pdfFormat, pageOrder, hidden }: IA
     .filter(([pageRef]) => pageOrder.includes(pageRef))
     .sort(([pA], [pB]) => pageOrder.indexOf(pA) - pageOrder.indexOf(pB));
 
-  const instanceInformationProps: ILayoutCompInstanceInformation = {
+  const instanceInformationProps: ExprUnresolved<ILayoutCompInstanceInformation> = {
     id: '__pdf__instance-information',
     type: 'InstanceInformation',
     elements: {

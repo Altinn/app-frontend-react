@@ -9,6 +9,7 @@ import {
   resolvedNodesInLayouts,
 } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
+import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompHeader } from 'src/layout/Header/types';
 import type { ILayoutCompInput } from 'src/layout/Input/types';
@@ -19,13 +20,13 @@ import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 const { layoutAsHierarchyWithRows, layoutAsHierarchy, nodesInLayout } = _private;
 
 describe('Hierarchical layout tools', () => {
-  const header: Omit<ILayoutCompHeader, 'id'> = { type: 'Header', size: 'L' };
-  const input: Omit<ILayoutCompInput, 'id'> = {
+  const header: Omit<ExprUnresolved<ILayoutCompHeader>, 'id'> = { type: 'Header', size: 'L' };
+  const input: Omit<ExprUnresolved<ILayoutCompInput>, 'id'> = {
     type: 'Input',
     hidden: ['equals', ['dataModel', 'Model.ShouldBeTrue'], 'true'],
   };
-  const group: Omit<ILayoutGroup, 'id' | 'children'> = { type: 'Group' };
-  const repGroup: Omit<ILayoutGroup, 'id' | 'children'> = {
+  const group: Omit<ExprUnresolved<ILayoutGroup>, 'id' | 'children'> = { type: 'Group' };
+  const repGroup: Omit<ExprUnresolved<ILayoutGroup>, 'id' | 'children'> = {
     type: 'Group',
     maxCount: 3,
     hidden: ['equals', ['dataModel', 'Model.ShouldBeFalse'], 'false'],
@@ -76,7 +77,7 @@ describe('Hierarchical layout tools', () => {
           { key: 'stop', value: '2' },
         ],
       },
-    } as Omit<ILayoutGroup, 'children'>,
+    } as Omit<ExprUnresolved<ILayoutGroup>, 'children'>,
     group3h: { id: 'group3_header', ...header },
     group3i: { id: 'group3_input', ...input },
     group3n: { id: 'group3nested', ...repGroup },

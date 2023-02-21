@@ -13,9 +13,10 @@ import { Severity } from 'src/types';
 import { createRepeatingGroupComponents, getRepeatingGroups } from 'src/utils/formLayout';
 import { _private } from 'src/utils/layout/hierarchy';
 import * as validation from 'src/utils/validation/validation';
+import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayoutComponent, ILayouts } from 'src/layout/layout';
+import type { ILayout, ILayoutComponent, ILayouts } from 'src/layout/layout';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -1168,7 +1169,7 @@ describe('utils > validation', () => {
     });
 
     it('should support multiPage repeating and nesting groups', () => {
-      const makeComponent = (id: string): ILayoutComponent => ({
+      const makeComponent = (id: string): ExprUnresolved<ILayoutComponent> => ({
         id,
         type: 'Input',
         required: true,
@@ -1562,12 +1563,12 @@ describe('utils > validation', () => {
 
   describe('repeatingGroupHasValidations', () => {
     it('should return true when components in group has errors', () => {
-      const group = {
+      const group: ExprUnresolved<ILayoutGroup> = {
         id: 'group',
         type: 'Group',
         dataModelBindings: { group: 'group' },
         children: ['child1', 'child2'],
-      } as unknown as ILayoutGroup;
+      };
 
       const validations: IValidations = {
         FormLayout: {
@@ -1586,23 +1587,23 @@ describe('utils > validation', () => {
         },
       };
 
-      const layout = [
+      const layout: ILayout = [
         {
           id: 'group',
           type: 'Group',
           dataModelBindings: { group: 'group' },
           children: ['child1', 'child2'],
-        } as unknown as ILayoutGroup,
+        },
         {
           id: 'child1',
           type: 'Input',
           dataModelBindings: { simpleBinding: 'group.child1' },
-        } as unknown as ILayoutComponent,
+        },
         {
           id: 'child2',
           type: 'Input',
           dataModelBindings: { simpleBinding: 'group.child2' },
-        } as unknown as ILayoutComponent,
+        },
       ];
 
       // this parsing is handled internally in GroupContainer. Is done manually here to test util function
@@ -1625,12 +1626,12 @@ describe('utils > validation', () => {
     });
 
     it('should return true when a child group has validations', () => {
-      const group = {
+      const group: ExprUnresolved<ILayoutGroup> = {
         id: 'group',
         type: 'Group',
         dataModelBindings: { group: 'group' },
         children: ['child1', 'group2'],
-      } as unknown as ILayoutGroup;
+      };
 
       const validations: IValidations = {
         FormLayout: {
@@ -1653,29 +1654,29 @@ describe('utils > validation', () => {
         },
       };
 
-      const layout = [
+      const layout: ILayout = [
         {
           id: 'group',
           type: 'Group',
           dataModelBindings: { group: 'group' },
           children: ['child1', 'group2'],
-        } as unknown as ILayoutGroup,
+        },
         {
           id: 'child1',
           type: 'Input',
           dataModelBindings: { simpleBinding: 'group.child1' },
-        } as unknown as ILayoutComponent,
+        },
         {
           id: 'group2',
           type: 'Group',
           dataModelBindings: { group: 'group.group2' },
           children: ['child2'],
-        } as unknown as ILayoutComponent,
+        },
         {
           id: 'child2',
           type: 'Input',
           dataModelBindings: { simpleBinding: 'group.group2.child2' },
-        } as unknown as ILayoutComponent,
+        },
       ];
       const groupChildren = createRepeatingGroupComponents(
         group,
@@ -1696,12 +1697,12 @@ describe('utils > validation', () => {
     });
 
     it('should return false when no children has validations', () => {
-      const group = {
+      const group: ExprUnresolved<ILayoutGroup> = {
         id: 'group',
         type: 'Group',
         dataModelBindings: { group: 'group' },
         children: ['child1'],
-      } as unknown as ILayoutGroup;
+      };
 
       const validations: IValidations = {
         FormLayout: {
@@ -1720,18 +1721,18 @@ describe('utils > validation', () => {
         },
       };
 
-      const layout = [
+      const layout: ILayout = [
         {
           id: 'group',
           type: 'Group',
           dataModelBindings: { group: 'group' },
           children: ['child1', 'child2'],
-        } as unknown as ILayoutGroup,
+        },
         {
           id: 'child1',
           type: 'Input',
           dataModelBindings: { simpleBinding: 'group.child1' },
-        } as unknown as ILayoutComponent,
+        },
       ];
 
       const groupChildren = createRepeatingGroupComponents(
@@ -2763,7 +2764,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatepicker,
+        } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
       );
 
@@ -2779,7 +2780,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatepicker,
+        } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
       );
 
@@ -2795,7 +2796,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatepicker,
+        } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
       );
 
@@ -2811,7 +2812,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatepicker,
+        } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
       );
 
@@ -2827,7 +2828,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-31T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatepicker,
+        } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
       );
 
@@ -2843,7 +2844,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatepicker,
+        } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
       );
 
@@ -2859,7 +2860,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatepicker,
+        } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
       );
 
@@ -2875,7 +2876,7 @@ describe('utils > validation', () => {
           minDate: '2020-01-01T12:00:00.000+01:00',
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
-        } as ILayoutCompDatepicker,
+        } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
       );
 

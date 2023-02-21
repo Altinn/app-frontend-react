@@ -10,12 +10,12 @@ import {
   UnknownTargetType,
 } from 'src/features/expressions/errors';
 import { ExprContext } from 'src/features/expressions/ExprContext';
+import { BaseValue } from 'src/features/expressions/types';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
 import { dataSourcesFromState, LayoutNode, LayoutPage, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   BaseToActual,
-  BaseValue,
   ExprConfig,
   Expression,
   ExprFunction,
@@ -29,7 +29,7 @@ import type { IAltinnWindow } from 'src/types';
 import type { IInstanceContext } from 'src/types/shared';
 
 export interface EvalExprOptions {
-  config?: ExprConfig<BaseValue>;
+  config?: ExprConfig;
   errorIntroText?: string;
 }
 
@@ -114,6 +114,10 @@ function evalExprInObjectRecursive<T>(input: any, args: Omit<EvalExprInObjArgs<T
     if (evaluateAsExpression) {
       const expression = asExpression(input);
       if (expression) {
+        if (!Array.isArray(expression)) {
+          return expression;
+        }
+
         return evalExprInObjectCaller<T>(expression, args, path);
       }
     }
@@ -182,8 +186,8 @@ export function evalExpr(
     if (
       options &&
       options.config &&
-      options.config.returnType !== 'any' &&
-      options.config.returnType !== typeof result
+      options.config.returnType !== BaseValue.Any &&
+      options.config.returnType !== valueToExprValueType(result)
     ) {
       // If you have an expression that expects (for example) a true|false return value, and the actual returned result
       // is "true" (as a string), it makes sense to finally cast the value to the proper return value type.
@@ -247,11 +251,17 @@ function innerEvalExpr(context: ExprContext) {
   return castValue(returnValue, returnType, context);
 }
 
-function valueToBaseValueType(value: any): BaseValue | string {
+function valueToExprValueType(value: any): BaseValue {
   if (typeof value === 'number' || typeof value === 'bigint') {
-    return 'number';
+    return BaseValue.Number;
   }
-  return typeof value;
+  if (typeof value === 'string') {
+    return BaseValue.String;
+  }
+  if (typeof value === 'boolean') {
+    return BaseValue.Boolean;
+  }
+  return BaseValue.Any;
 }
 
 function isLikeNull(arg: any) {
@@ -277,8 +287,8 @@ function castValue<T extends BaseValue>(
     return null;
   }
 
-  const valueBaseType = valueToBaseValueType(value) as BaseValue;
-  if (!typeObj.accepts.includes(valueBaseType)) {
+  const valueType = valueToExprValueType(value);
+  if (!typeObj.accepts.includes(valueType)) {
     const supported = [...typeObj.accepts, ...(typeObj.nullable ? ['null'] : [])].join(', ');
     throw new UnknownSourceType(context, typeof value, supported);
   }
@@ -305,18 +315,18 @@ const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
 export const ExprFunctions = {
   equals: defineFunc({
     impl: (arg1, arg2) => arg1 === arg2,
-    args: ['string', 'string'] as const,
-    returns: 'boolean',
+    args: [BaseValue.String, BaseValue.String] as const,
+    returns: BaseValue.Boolean,
   }),
   notEquals: defineFunc({
     impl: (arg1, arg2) => arg1 !== arg2,
-    args: ['string', 'string'] as const,
-    returns: 'boolean',
+    args: [BaseValue.String, BaseValue.String] as const,
+    returns: BaseValue.Boolean,
   }),
   not: defineFunc({
     impl: (arg) => !arg,
-    args: ['boolean'] as const,
-    returns: 'boolean',
+    args: [BaseValue.Boolean] as const,
+    returns: BaseValue.Boolean,
   }),
   greaterThan: defineFunc({
     impl: (arg1, arg2) => {
@@ -326,8 +336,8 @@ export const ExprFunctions = {
 
       return arg1 > arg2;
     },
-    args: ['number', 'number'] as const,
-    returns: 'boolean',
+    args: [BaseValue.Number, BaseValue.Number] as const,
+    returns: BaseValue.Boolean,
   }),
   greaterThanEq: defineFunc({
     impl: (arg1, arg2) => {
@@ -337,8 +347,8 @@ export const ExprFunctions = {
 
       return arg1 >= arg2;
     },
-    args: ['number', 'number'] as const,
-    returns: 'boolean',
+    args: [BaseValue.Number, BaseValue.Number] as const,
+    returns: BaseValue.Boolean,
   }),
   lessThan: defineFunc({
     impl: (arg1, arg2) => {
@@ -348,8 +358,8 @@ export const ExprFunctions = {
 
       return arg1 < arg2;
     },
-    args: ['number', 'number'] as const,
-    returns: 'boolean',
+    args: [BaseValue.Number, BaseValue.Number] as const,
+    returns: BaseValue.Boolean,
   }),
   lessThanEq: defineFunc({
     impl: (arg1, arg2) => {
@@ -359,26 +369,26 @@ export const ExprFunctions = {
 
       return arg1 <= arg2;
     },
-    args: ['number', 'number'] as const,
-    returns: 'boolean',
+    args: [BaseValue.Number, BaseValue.Number] as const,
+    returns: BaseValue.Boolean,
   }),
   concat: defineFunc({
     impl: (...args) => args.join(''),
-    args: ['string'],
+    args: [BaseValue.String],
     minArguments: 0,
-    returns: 'string',
+    returns: BaseValue.String,
     lastArgSpreads: true,
   }),
   and: defineFunc({
     impl: (...args) => args.reduce((prev, cur) => prev && !!cur, true),
-    args: ['boolean'],
-    returns: 'boolean',
+    args: [BaseValue.Boolean],
+    returns: BaseValue.Boolean,
     lastArgSpreads: true,
   }),
   or: defineFunc({
     impl: (...args) => args.reduce((prev, cur) => prev || !!cur, false),
-    args: ['boolean'],
-    returns: 'boolean',
+    args: [BaseValue.Boolean],
+    returns: BaseValue.Boolean,
     lastArgSpreads: true,
   }),
   if: defineFunc({
@@ -402,8 +412,8 @@ export const ExprFunctions = {
       }
       addError(ctx, path, 'Expected either 2 arguments (if) or 4 (if + else), got %s', `${rawArgs.length}`);
     },
-    args: ['boolean', 'any', 'string', 'any'],
-    returns: 'any',
+    args: [BaseValue.Boolean, BaseValue.Any, BaseValue.String, BaseValue.Any],
+    returns: BaseValue.Any,
   }),
   instanceContext: defineFunc({
     impl: function (key): string | null {
@@ -413,8 +423,8 @@ export const ExprFunctions = {
 
       return (this.dataSources.instanceContext && this.dataSources.instanceContext[key]) || null;
     },
-    args: ['string'] as const,
-    returns: 'string',
+    args: [BaseValue.String] as const,
+    returns: BaseValue.String,
   }),
   frontendSettings: defineFunc({
     impl: function (key): any {
@@ -424,8 +434,8 @@ export const ExprFunctions = {
 
       return (this.dataSources.applicationSettings && this.dataSources.applicationSettings[key]) || null;
     },
-    args: ['string'] as const,
-    returns: 'any',
+    args: [BaseValue.String] as const,
+    returns: BaseValue.Any,
   }),
   component: defineFunc({
     impl: function (id): any {
@@ -454,8 +464,8 @@ export const ExprFunctions = {
           : `Unable to find component with identifier ${id} in the current layout or it does not have a simpleBinding`,
       );
     },
-    args: ['string'] as const,
-    returns: 'any',
+    args: [BaseValue.String] as const,
+    returns: BaseValue.Any,
   }),
   dataModel: defineFunc({
     impl: function (path): any {
@@ -473,8 +483,8 @@ export const ExprFunctions = {
       // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
       return this.dataSources.formData[path] || null;
     },
-    args: ['string'] as const,
-    returns: 'any',
+    args: [BaseValue.String] as const,
+    returns: BaseValue.Any,
   }),
 };
 
@@ -500,9 +510,9 @@ export const ExprTypes: {
     impl: (this: ExprContext, arg: any) => BaseToActual<Type> | null;
   };
 } = {
-  boolean: {
+  [BaseValue.Boolean]: {
     nullable: true,
-    accepts: ['boolean', 'string', 'number', 'any'],
+    accepts: [BaseValue.Boolean, BaseValue.String, BaseValue.Number, BaseValue.Any],
     impl: function (arg) {
       if (typeof arg === 'boolean') {
         return arg;
@@ -521,9 +531,9 @@ export const ExprTypes: {
       throw new UnexpectedType(this, 'boolean', arg);
     },
   },
-  string: {
+  [BaseValue.String]: {
     nullable: true,
-    accepts: ['boolean', 'string', 'number', 'any'],
+    accepts: [BaseValue.Boolean, BaseValue.String, BaseValue.Number, BaseValue.Any],
     impl: function (arg) {
       if (['number', 'bigint', 'boolean'].includes(typeof arg)) {
         return JSON.stringify(arg);
@@ -537,9 +547,9 @@ export const ExprTypes: {
       return `${arg}`;
     },
   },
-  number: {
+  [BaseValue.Number]: {
     nullable: true,
-    accepts: ['boolean', 'string', 'number', 'any'],
+    accepts: [BaseValue.Boolean, BaseValue.String, BaseValue.Number, BaseValue.Any],
     impl: function (arg) {
       if (typeof arg === 'number' || typeof arg === 'bigint') {
         return arg as number;
@@ -554,9 +564,9 @@ export const ExprTypes: {
       throw new UnexpectedType(this, 'number', arg);
     },
   },
-  any: {
+  [BaseValue.Any]: {
     nullable: true,
-    accepts: ['boolean', 'string', 'number'],
+    accepts: [BaseValue.Boolean, BaseValue.String, BaseValue.Number, BaseValue.Any],
     impl: (arg) => arg,
   },
 };
@@ -573,8 +583,8 @@ export const ExprTypes: {
  * @see resolvedNodesInLayouts
  */
 (window as unknown as IAltinnWindow).evalExpression = (maybeExpression: any, forComponentId?: string) => {
-  const config: ExprConfig<'any'> = {
-    returnType: 'any',
+  const config: ExprConfig<BaseValue.Any> = {
+    returnType: BaseValue.Any,
     defaultValue: null,
     resolvePerRow: false,
   };
@@ -649,7 +659,11 @@ export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
 export const ExprConfigForGroup: ExprObjConfig<ILayoutGroup> = {
   ...ExprConfigForComponent,
   textResourceBindings: {
-    ...ExprConfigForComponent.textResourceBindings,
+    [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
+      returnType: 'string',
+      defaultValue: '',
+      resolvePerRow: false,
+    },
     save_and_next_button: {
       returnType: 'string',
       defaultValue: '',
