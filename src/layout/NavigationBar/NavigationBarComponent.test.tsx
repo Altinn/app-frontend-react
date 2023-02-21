@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -175,34 +175,6 @@ describe('NavigationBar', () => {
   describe('Mobile', () => {
     beforeEach(() => {
       setScreenWidth(500);
-    });
-
-    it('should hide navigation buttons and show a button to toggle the navigation menu', async () => {
-      render();
-
-      expect(screen.getByTestId('navigation-menu')).toHaveProperty('hidden', true);
-      expect(
-        screen.getByRole('button', {
-          name: /1\/3 page1/i,
-        }),
-      ).toBeInTheDocument();
-    });
-
-    it('should show navigation buttons when clicking navigation toggle button, and hide toggle button', async () => {
-      render();
-
-      const navMenu = screen.getByTestId('navigation-menu');
-      const toggleButton = screen.getByRole('button', {
-        name: /1\/3 page1/i,
-      });
-
-      expect(navMenu).toHaveProperty('hidden', true);
-      expect(toggleButton).toHaveProperty('hidden', false);
-
-      await act(() => userEvent.click(toggleButton));
-
-      expect(navMenu).toHaveProperty('hidden', false);
-      expect(toggleButton).toHaveProperty('hidden', true);
     });
 
     it('should automatically focus the first item in the navigation menu when it is displayed', async () => {

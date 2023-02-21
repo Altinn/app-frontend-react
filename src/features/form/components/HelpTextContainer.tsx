@@ -2,8 +2,8 @@ import React from 'react';
 
 import { makeStyles } from '@material-ui/core';
 
-import HelpTextIcon from 'src/features/form/components/HelpTextIcon';
-import HelpTextPopover from 'src/features/form/components/HelpTextPopover';
+import { HelpTextIcon } from 'src/features/form/components/HelpTextIcon';
+import { HelpTextPopover } from 'src/features/form/components/HelpTextPopover';
 import type { ILanguage } from 'src/types/shared';
 
 export interface IHelpTextContainerProps {

@@ -2,7 +2,7 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { useAppSelector } from 'src/common/hooks';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
@@ -57,7 +57,7 @@ const PDFComponent = ({ component, layout }: { component: ILayoutComponentOrGrou
   }
 };
 
-const PDFView = ({ appName, appOwner }: PDFViewProps) => {
+export const PDFView = ({ appName, appOwner }: PDFViewProps) => {
   const pdfState = useAppSelector((state) => state.pdf);
   const layouts = useAppSelector((state) => state.formLayout.layouts);
 
@@ -93,5 +93,3 @@ const PDFView = ({ appName, appOwner }: PDFViewProps) => {
     </div>
   );
 };
-
-export default PDFView;

@@ -16,7 +16,7 @@ import { PartyActions } from 'src/shared/resources/party/partySlice';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
-import { get } from 'src/utils/network/networking';
+import { httpGet } from 'src/utils/network/networking';
 import { pdfPreviewMode, shouldGeneratePdf } from 'src/utils/pdf';
 import { getPdfFormatUrl } from 'src/utils/urls/appUrlHelper';
 import type { IPdfFormat, IPdfMethod } from 'src/features/pdf/data/types';
@@ -126,7 +126,7 @@ function* fetchPdfFormatSaga(): SagaIterator {
   let pdfFormat: IPdfFormat;
   if (typeof dataGuid === 'string') {
     try {
-      pdfFormat = yield call(get, getPdfFormatUrl(instance.id, dataGuid));
+      pdfFormat = yield call(httpGet, getPdfFormatUrl(instance.id, dataGuid));
     } catch {
       pdfFormat = {
         excludedPages: uiConfig.excludePageFromPdf ?? [],

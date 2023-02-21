@@ -1,6 +1,6 @@
 import { all, call, put, race, select, take, takeLatest } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
@@ -29,19 +29,20 @@ import {
   splitDashedKey,
 } from 'src/utils/formLayout';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
+import { httpPost } from 'src/utils/network/networking';
+import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getOptionLookupKey, removeGroupOptionsByIndex } from 'src/utils/options';
 import { selectNotNull, waitFor } from 'src/utils/sagas';
-import { get, post } from 'src/utils/sharedUtils';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
+import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
 import {
   canFormBeSaved,
+  filterValidationsByRow,
   mapDataElementValidationToRedux,
   mergeValidationObjects,
   removeGroupValidationsByIndex,
-  runClientSideValidation,
   validateGroup,
-} from 'src/utils/validation';
-import { filterValidationsByRow } from 'src/utils/validation/validation';
+} from 'src/utils/validation/validation';
 import type { IFormDataState } from 'src/features/form/data';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type {
@@ -303,7 +304,7 @@ export function* updateCurrentViewSaga({
       return;
     }
 
-    if (!runValidations) {
+    if (runValidations === undefined) {
       if (!skipPageCaching && currentViewCacheKey) {
         localStorage.setItem(currentViewCacheKey, newView);
       }
@@ -331,10 +332,10 @@ export function* updateCurrentViewSaga({
         );
       const layoutState: ILayoutState = state.formLayout;
 
-      const validationOptions = runValidations === 'page' ? options : undefined;
+      const validationOptions = runValidations === Triggers.ValidatePage ? options : undefined;
       const serverValidation: IValidationIssue[] | undefined =
         instanceId && currentTaskDataId
-          ? yield call(get, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
+          ? yield call(httpGet, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
           : undefined;
 
       // update validation state
@@ -350,7 +351,7 @@ export function* updateCurrentViewSaga({
         mappedValidations,
       );
       const validations =
-        runValidations === 'page'
+        runValidations === Triggers.ValidatePage
           ? { [currentView]: validationResult.validations[currentView] } // only store validations for the specific page
           : validationResult.validations;
       yield put(ValidationActions.updateValidations({ validations }));
@@ -434,16 +435,22 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
         layoutSetId = getLayoutsetForDataElement(instance, dataTypeId || undefined, layoutSets) || null;
       }
     }
-    const layoutOrder = yield call(post, getCalculatePageOrderUrl(appIsStateless), formData, {
-      params: {
-        currentPage: currentView,
-        layoutSetId,
-        dataTypeId,
+    const layoutOrderResponse: AxiosResponse = yield call(
+      httpPost,
+      getCalculatePageOrderUrl(appIsStateless),
+      {
+        params: {
+          currentPage: currentView,
+          layoutSetId,
+          dataTypeId,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+      formData,
+    );
+    const layoutOrder = layoutOrderResponse.data ? layoutOrderResponse.data : null;
     yield put(
       FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
         order: layoutOrder,
@@ -601,7 +608,7 @@ export function* updateRepeatingGroupEditIndexSaga({
       }
 
       const serverValidations: IValidationIssue[] = yield call(
-        get,
+        httpGet,
         getDataValidationUrl(state.instanceData.instance.id, currentTaskDataId),
         options,
       );

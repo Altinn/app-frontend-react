@@ -1,12 +1,13 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Grid, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppDispatch, useAppSelector } from 'src/common/hooks';
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { Triggers } from 'src/types';
+import { reducePageValidations } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -23,6 +24,9 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down(600)]: {
       flexDirection: 'column',
     },
+  },
+  menuCompact: {
+    flexDirection: 'column',
   },
   containerBase: {
     borderRadius: '40px',
@@ -101,11 +105,10 @@ const NavigationButton = React.forwardRef(
 
 NavigationButton.displayName = 'NavigationButton';
 
-export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
+export const NavigationBarComponent = ({ triggers, compact }: INavigationBar) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const pageIds = useAppSelector(selectLayoutOrder);
-  const returnToView = useAppSelector((state) => state.formLayout.uiConfig.returnToView);
   const pageTriggers = useAppSelector((state) => state.formLayout.uiConfig.pageTriggers);
   const pageOrPropTriggers = triggers || pageTriggers;
   const textResources = useAppSelector((state) => state.textResources.resources);
@@ -113,7 +116,8 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
   const language = useAppSelector((state) => state.language.language);
   const [showMenu, setShowMenu] = React.useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down(600));
+  const isMobile = useMediaQuery(theme.breakpoints.down(600)) || compact === true;
+
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
   const handleNavigationClick = (pageId: string) => {
@@ -121,22 +125,23 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
       return setShowMenu(false);
     }
 
-    const runPageValidations = !returnToView && pageOrPropTriggers?.includes(Triggers.ValidatePage);
-    const runAllValidations = returnToView || pageOrPropTriggers?.includes(Triggers.ValidateAllPages);
-
-    const runValidations = (runAllValidations && 'allPages') || (runPageValidations && 'page') || undefined;
-
-    dispatch(FormLayoutActions.updateCurrentView({ newView: pageId, runValidations }));
+    const runValidations = reducePageValidations(pageOrPropTriggers);
+    dispatch(
+      FormLayoutActions.updateCurrentView({
+        newView: pageId,
+        runValidations,
+      }),
+    );
   };
 
-  const shouldShowMenu = isMobile === false || showMenu;
+  const shouldShowMenu = !isMobile || showMenu;
 
   const handleShowMenu = () => {
     setShowMenu(true);
   };
 
   React.useLayoutEffect(() => {
-    const shouldFocusFirstItem = firstPageLink.current && showMenu === true;
+    const shouldFocusFirstItem = firstPageLink.current && showMenu;
     if (shouldFocusFirstItem) {
       firstPageLink.current?.focus();
     }
@@ -149,6 +154,7 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
   return (
     <Grid container>
       <Grid
+        data-testid='NavigationBar'
         item
         component='nav'
         xs={12}
@@ -172,29 +178,32 @@ export const NavigationBarComponent = ({ triggers }: INavigationBar) => {
             </span>
           </NavigationButton>
         )}
-        <ul
-          hidden={!shouldShowMenu}
-          id='navigation-menu'
-          data-testid='navigation-menu'
-          className={classes.menu}
-        >
-          {pageIds.map((pageId, index) => {
-            return (
-              <li
-                key={pageId}
-                className={classes.containerBase}
-              >
-                <NavigationButton
-                  current={currentPageId === pageId}
-                  onClick={() => handleNavigationClick(pageId)}
-                  ref={index === 0 ? firstPageLink : null}
+        {shouldShowMenu && (
+          <ul
+            id='navigation-menu'
+            data-testid='navigation-menu'
+            className={cn(classes.menu, {
+              [classes.menuCompact]: isMobile,
+            })}
+          >
+            {pageIds.map((pageId, index) => {
+              return (
+                <li
+                  key={pageId}
+                  className={classes.containerBase}
                 >
-                  {index + 1}. {getTextResource(pageId, textResources)}
-                </NavigationButton>
-              </li>
-            );
-          })}
-        </ul>
+                  <NavigationButton
+                    current={currentPageId === pageId}
+                    onClick={() => handleNavigationClick(pageId)}
+                    ref={index === 0 ? firstPageLink : null}
+                  >
+                    {index + 1}. {getTextResource(pageId, textResources)}
+                  </NavigationButton>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </Grid>
     </Grid>
   );
