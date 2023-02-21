@@ -139,7 +139,7 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
     });
 
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).should('be.visible').find('label').click();
     cy.addItemToGroup(1, 2, 'automation');
     cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
