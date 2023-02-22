@@ -9,6 +9,7 @@ import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper'
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromKey, getParsedLanguageFromText } from 'src/language/sharedLanguage';
+import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { nodesInLayouts } from 'src/utils/layout/hierarchy';
 import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
 import type { ILayout } from 'src/layout/layout';
@@ -66,14 +67,6 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
 
   if (!hasErrors) {
     return null;
-  }
-
-  if (errorsMapped.length > 0) {
-    errorsMapped.forEach((error, index) => {
-      if (error.componentId === 'fileUploadWithTags-changename') {
-        errorsMapped[index].message = error.message.slice(37);
-      }
-    });
   }
 
   const handleErrorClick = (error: FlatError) => (ev: React.KeyboardEvent | React.MouseEvent) => {
@@ -166,9 +159,16 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
                       onClick={handleErrorClick(error)}
                       onKeyDown={handleErrorClick(error)}
                     >
-                      {getParsedLanguageFromText(error.message, {
-                        disallowedTags: ['a'],
-                      })}
+                      {error.message.includes(AsciiUnitSeparator)
+                        ? getParsedLanguageFromText(
+                            error.message.substring(error.message.indexOf(AsciiUnitSeparator) + 1),
+                            {
+                              disallowedTags: ['a'],
+                            },
+                          )
+                        : getParsedLanguageFromText(error.message, {
+                            disallowedTags: ['a'],
+                          })}
                     </button>
                   </li>
                 ))}
