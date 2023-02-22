@@ -122,6 +122,10 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
     );
   };
 
+  const errorMessage = (message: string) => {
+    return message.includes(AsciiUnitSeparator) ? message.substring(message.indexOf(AsciiUnitSeparator) + 1) : message;
+  };
+
   return (
     <Grid
       data-testid='ErrorReport'
@@ -159,16 +163,9 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
                       onClick={handleErrorClick(error)}
                       onKeyDown={handleErrorClick(error)}
                     >
-                      {error.message.includes(AsciiUnitSeparator)
-                        ? getParsedLanguageFromText(
-                            error.message.substring(error.message.indexOf(AsciiUnitSeparator) + 1),
-                            {
-                              disallowedTags: ['a'],
-                            },
-                          )
-                        : getParsedLanguageFromText(error.message, {
-                            disallowedTags: ['a'],
-                          })}
+                      {getParsedLanguageFromText(errorMessage(error.message), {
+                        disallowedTags: ['a'],
+                      })}
                     </button>
                   </li>
                 ))}
