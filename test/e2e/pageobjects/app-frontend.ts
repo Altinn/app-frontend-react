@@ -129,7 +129,6 @@ export class AppFrontend {
       enorm: 'input[name=enorm]',
     },
     showGroupToContinue: '#showGroupToContinue',
-    checkbox_yes: '[for^="showGroupToContinue-Ja"]',
     mainGroup: '#group-mainGroup',
     secondGroup: '#group-group-2',
     secondGroup_newValue: 'input[id^="group2-endre-til"]',

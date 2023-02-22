@@ -184,7 +184,7 @@ describe('Summary', () => {
 
     // Verify empty group summary
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-group-component] > div')
       .last()
@@ -235,11 +235,11 @@ describe('Summary', () => {
       // and in the future we should fix this properly by simplifying to save data immediately in the redux state
       // but delay the PUT request instead.
       // See https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1321920974
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).click({ force: true }).blur();
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).click({ force: true }).blur();
+      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true }).blur();
+      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true }).blur();
     } else {
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check();
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check();
+      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true });
+      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true });
     }
 
     cy.get(appFrontend.group.row(0).nestedGroup.saveBtn).click();
@@ -365,7 +365,7 @@ describe('Summary', () => {
     // Hiding the group should hide the group summary as well
     cy.get('[data-testid=summary-summary-1]').should('be.visible');
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input[type=checkbox]').uncheck({ force: true });
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-summary-1]').should('not.exist');
   });

@@ -28,13 +28,13 @@ export class Likert {
 
   selectRadio(question, option) {
     cy.findByRole('row', { name: question }).within(() => {
-      cy.findByRole('radio', { name: new RegExp(option) }).click({ force: true });
+      cy.findByRole('label', { name: new RegExp(option) }).click();
     });
   }
 
   selectRadioInMobile(question, option) {
     cy.findByRole('group', { name: question }).within(() => {
-      cy.findByRole('radio', { name: new RegExp(option) }).click({ force: true });
+      cy.findByRole('label', { name: new RegExp(option) }).click();
     });
   }
 

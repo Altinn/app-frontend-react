@@ -28,9 +28,7 @@ describe('Calculate Page Order', () => {
 
     cy.goto('group');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.group.showGroupToContinue).then((checkbox) => {
-      cy.wrap(checkbox).should('be.visible').find('input').check({ force: true });
-    });
+    cy.get(appFrontend.group.showGroupToContinue).should('be.visible').find('input').check({ force: true });
 
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
 

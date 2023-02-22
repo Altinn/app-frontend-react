@@ -83,7 +83,7 @@ describe('Group', () => {
 
   it('Calculation on Item in Main Group should update value', () => {
     init();
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     cy.get(appFrontend.group.addNewItem).focus().should('be.visible').click();
     cy.get(appFrontend.group.currentValue).should('be.visible').type('1337').blur();
     // DataProcessingHandler.cs for frontend-test changes 1337 to 1338.
@@ -93,7 +93,7 @@ describe('Group', () => {
 
   it('Validation on group', () => {
     init();
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     cy.get(appFrontend.group.addNewItem).should('exist').and('be.visible').focus().click();
     cy.get(appFrontend.group.currentValue).should('be.visible').type('1').blur();
     cy.get(appFrontend.group.newValue).should('be.visible').type('0').blur();
@@ -191,7 +191,7 @@ describe('Group', () => {
 
   it('should support panel group adding item to referenced group', () => {
     init();
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     cy.get(appFrontend.group.secondGroup_add).should('exist').and('be.visible').focus().click();
     cy.get(appFrontend.group.secondGroup_add_to_reference_group).should('exist').and('be.visible').focus().click();
     cy.get(appFrontend.group.secondGroup_currentValue).should('be.visible').type('1').blur();
@@ -221,7 +221,7 @@ describe('Group', () => {
         });
     };
 
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     expectRows();
 
     function clickOnPrefills(...items: (keyof typeof appFrontend.group.prefill)[]) {
@@ -268,7 +268,7 @@ describe('Group', () => {
     });
     init();
 
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     cy.get(appFrontend.group.addNewItem).click();
 
     cy.get(appFrontend.group.saveMainGroup).click();
@@ -298,7 +298,7 @@ describe('Group', () => {
     init();
 
     cy.intercept('PUT', '**/instances/*/*/data/*').as('updateInstance');
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     cy.wait('@updateInstance');
 
     ['first' as const, 'last' as const, true, false].forEach((openByDefault) => {
@@ -389,7 +389,7 @@ describe('Group', () => {
     init();
 
     // Add test-data and verify
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     cy.addItemToGroup(1, 2, 'automation');
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)

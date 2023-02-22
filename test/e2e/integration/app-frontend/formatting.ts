@@ -20,7 +20,7 @@ describe('Formatting', () => {
     cy.get(appFrontend.sendinButton).should('be.visible').click();
     cy.wait('@getLayoutGroup');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.group.showGroupToContinue).find('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     cy.get(appFrontend.group.addNewItem).should('be.visible').click();
     cy.get(appFrontend.group.currentValue)
       .should('be.visible')
