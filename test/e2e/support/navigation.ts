@@ -117,7 +117,12 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
       .then(() => {
         cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').type('a').blur();
         cy.get(appFrontend.changeOfName.newLastName).should('be.visible').type('a').blur();
-        cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check({ force: true });
+        cy.get(appFrontend.changeOfName.confirmChangeName)
+          .should('be.visible')
+          .find('input')
+          .focus()
+          .check({ force: true })
+          .blur();
         cy.get(appFrontend.changeOfName.reasonRelationship).should('be.visible').click().type('test');
         cy.get(appFrontend.changeOfName.dateOfEffect)
           .siblings()
