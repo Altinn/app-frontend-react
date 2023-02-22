@@ -105,7 +105,6 @@ export class AppFrontend {
       editWindow: '[id^="attachment-edit-window"]',
       tagsDropDown: '[id^="attachment-tag-dropdown"]',
       saveTag: '[id^="attachment-save-tag-button"]',
-      delete: 'button[class*="makeStyles-deleteButton"]',
       uploaded: '#tagFile',
     },
     reasonRelationship: '#reasonRelationship',
