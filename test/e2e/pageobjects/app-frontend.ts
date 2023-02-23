@@ -107,6 +107,8 @@ export class AppFrontend {
       saveTag: '[id^="attachment-save-tag-button"]',
       delete: 'button[class*="makeStyles-deleteButton"]',
       uploaded: '#tagFile',
+      error: '[id^="attachment-error"]',
+      unwantedChar: String.fromCharCode(31),
     },
     reasonRelationship: '#reasonRelationship',
     summaryNameChanges: '#nameChanges',
