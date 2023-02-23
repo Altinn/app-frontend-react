@@ -6,6 +6,7 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { mapGroupComponents } from 'src/features/form/containers/formUtils';
+import { PDF_LAYOUT_NAME } from 'src/features/pdf/data/pdfSlice';
 import css from 'src/features/pdf/PDFView.module.css';
 import { ComponentType } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -58,12 +59,13 @@ const PDFComponent = ({ component, layout }: { component: ILayoutComponentOrGrou
 };
 
 export const PDFView = ({ appName, appOwner }: PDFViewProps) => {
-  const pdfState = useAppSelector((state) => state.pdf);
-  const layouts = useAppSelector((state) => state.formLayout.layouts);
+  const { readyForPrint, method } = useAppSelector((state) => state.pdf);
+  const { layouts, uiConfig } = useAppSelector((state) => state.formLayout);
 
-  const pdfLayout = pdfState.layoutName && layouts?.[pdfState.layoutName];
+  const pdfLayoutName = method === 'custom' ? uiConfig.pdfLayoutName : method === 'auto' ? PDF_LAYOUT_NAME : undefined;
+  const pdfLayout = pdfLayoutName && layouts?.[pdfLayoutName];
 
-  if (!pdfState.readyForPrint || !pdfLayout) {
+  if (!readyForPrint || !pdfLayout) {
     return null;
   }
 

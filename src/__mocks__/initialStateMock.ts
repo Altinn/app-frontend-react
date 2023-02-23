@@ -78,7 +78,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     },
     pdf: {
       readyForPrint: false,
-      layoutName: null,
       pdfFormat: null,
       method: null,
       error: null,

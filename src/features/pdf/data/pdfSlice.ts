@@ -6,7 +6,6 @@ import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 
 export const initialState: IPdfState = {
   readyForPrint: false,
-  layoutName: null,
   pdfFormat: null,
   method: null,
   error: null,
@@ -34,9 +33,8 @@ export const pdfSlice = createSagaSlice((mkAction: MkActionType<IPdfState>) => (
     }),
     methodFulfilled: mkAction<IPdfMethodFulfilled>({
       reducer: (state, action) => {
-        const { method, layoutName } = action.payload;
+        const { method } = action.payload;
         state.method = method;
-        state.layoutName = layoutName;
       },
     }),
     pdfFormatFulfilled: mkAction<IPdfFormatFulfilled>({

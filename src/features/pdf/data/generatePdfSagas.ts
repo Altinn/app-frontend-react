@@ -193,11 +193,9 @@ export function* watchInitialPdfSaga(): SagaIterator {
       const uiConfig: IUiConfig = yield select(uiConfigSelector);
       const customPdfLayout = uiConfig.pdfLayoutName ? layouts[uiConfig.pdfLayoutName] : undefined;
       const method = customPdfLayout ? 'custom' : 'auto';
-      const layoutName = customPdfLayout ? (uiConfig.pdfLayoutName as string) : PDF_LAYOUT_NAME;
       yield put(
         PdfActions.methodFulfilled({
           method,
-          layoutName,
         }),
       );
       if (method == 'auto') {

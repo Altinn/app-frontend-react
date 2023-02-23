@@ -2,7 +2,6 @@ export type IPdfMethod = 'auto' | 'custom';
 
 export interface IPdfState {
   readyForPrint: boolean;
-  layoutName: string | null;
   pdfFormat: IPdfFormat | null;
   method: IPdfMethod | null;
   error: Error | null;
@@ -13,7 +12,6 @@ export interface IPdfActionRejected {
 }
 
 export interface IPdfMethodFulfilled {
-  layoutName: string;
   method: IPdfMethod;
 }
 
