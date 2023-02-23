@@ -169,7 +169,7 @@ export function* watchPdfReadySaga(): SagaIterator {
     take(DataListsActions.loaded),
     take(IsLoadingActions.finishDataTaskIsLoading),
     race([
-      take(FormLayoutActions.noCalculateTriggerFulfilled),
+      take(FormLayoutActions.calculatePageOrderAndMoveToNextPageRejected),
       take(FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled),
     ]),
   ]);

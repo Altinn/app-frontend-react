@@ -550,7 +550,7 @@ export function* watchInitialCalculatePageOrderAndMoveToNextPageSaga(): SagaIter
         }),
       );
     } else {
-      yield put(FormLayoutActions.noCalculateTriggerFulfilled());
+      yield put(FormLayoutActions.calculatePageOrderAndMoveToNextPageRejected({ error: null }));
     }
   }
 }

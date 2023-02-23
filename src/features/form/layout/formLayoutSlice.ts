@@ -310,7 +310,6 @@ export const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutSt
     calculatePageOrderAndMoveToNextPage: mkAction<LayoutTypes.ICalculatePageOrderAndMoveToNextPage>({
       takeEvery: calculatePageOrderAndMoveToNextPageSaga,
     }),
-    noCalculateTriggerFulfilled: mkAction<void>({}),
     calculatePageOrderAndMoveToNextPageFulfilled: mkAction<LayoutTypes.ICalculatePageOrderAndMoveToNextPageFulfilled>({
       reducer: (state, action) => {
         const { order } = action.payload;

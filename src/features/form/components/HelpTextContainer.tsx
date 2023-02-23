@@ -12,7 +12,7 @@ export interface IHelpTextContainerProps {
 }
 
 const useStyles = makeStyles({
-  hidden: {
+  hiddenInPdf: {
     '@media print': {
       display: 'none',
     },
@@ -50,7 +50,7 @@ export function HelpTextContainer({ language, helpText }: IHelpTextContainerProp
     <span
       tabIndex={-1}
       onBlur={onBlur}
-      className={classes.hidden}
+      className={classes.hiddenInPdf}
     >
       <HelpTextIcon
         helpIconRef={helpIconRef}
