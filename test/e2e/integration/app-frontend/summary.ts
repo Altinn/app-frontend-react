@@ -371,7 +371,7 @@ describe('Summary', () => {
     cy.get('[data-testid=summary-summary-1]').should('not.exist');
   });
 
-  it.only('Can exclude children from group summary', () => {
+  it('Can exclude children from group summary', () => {
     cy.interceptLayout('group', (component: ILayoutCompSummary) => {
       if (component.id === 'summary-1') {
         component.excludedChildren = ['comments-0-1', 'hideComment'];
