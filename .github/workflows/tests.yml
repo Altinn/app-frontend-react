@@ -45,6 +45,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: Install dependencies
+        run: yarn --immutable
+
+      - name: Build
+        run: yarn build # TODO: Instrument for code coverage
+
       # This caches node_modules and dist, so that we can re-use these results in subsequent test runs.
       # The cache key is unique to this workflow run, so the same results are only used in the tests below,
       # and will never be re-used across different runs (unlike the yarn cache above).
@@ -55,12 +61,6 @@ jobs:
             node_modules/
             dist/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
-      - name: Install dependencies
-        run: yarn --immutable
-
-      - name: Build
-        run: yarn build # TODO: Instrument for code coverage
 
   cypress:
     name: Cypress
