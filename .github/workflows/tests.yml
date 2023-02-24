@@ -60,6 +60,7 @@ jobs:
           path: |
             node_modules/
             dist/
+            /home/runner/.cache/Cypress
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
   cypress:
@@ -150,15 +151,12 @@ jobs:
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: type-check
-        working-directory: app-frontend
         run: yarn tsc
 
       - name: run eslint
-        working-directory: app-frontend
         run: yarn lint
 
       - name: run tests
-        working-directory: app-frontend
         run: yarn test --coverage --runInBand
 
       # TODO: Cache code coverage
@@ -198,7 +196,7 @@ jobs:
 # TODO: Fetch coverage from previous steps, merge them
 #      - name: SonarCloud Scan
 #        with:
-#          projectBaseDir: app-frontend
+#          projectBaseDir: .
 #        uses: SonarSource/sonarcloud-github-action@master
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
