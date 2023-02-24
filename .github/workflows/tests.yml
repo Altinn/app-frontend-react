@@ -128,6 +128,11 @@ jobs:
             /home/runner/.cache/Cypress
           key: node-modules-${{ hashFiles('yarn.lock') }}
 
+      - uses: actions/cache/restore@v3
+        with:
+          path: dist
+          key: dist-${{ github.run_id }}
+
       # TODO: Re-introduce non-matrix runner for external PRs
       - name: Run end-to-end Cypress tests
         run: "
