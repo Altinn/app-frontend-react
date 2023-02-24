@@ -10,7 +10,7 @@ import { formatISOString } from 'src/utils/formatDate';
 import { setMappingForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ExprUnresolved } from 'src/features/expressions/types';
+import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type {
@@ -557,7 +557,7 @@ export const gridBreakpoints = (grid?: IGridStyling) => {
   };
 };
 
-export const pageBreakStyles = (pageBreak: IPageBreak | undefined) => {
+export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined) => {
   if (!pageBreak) {
     return {};
   }
