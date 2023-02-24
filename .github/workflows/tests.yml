@@ -37,7 +37,7 @@ jobs:
         with:
           fail-on-cache-miss: false
           path: |
-            ${{ env.YARN_CACHE_DIR }}
+            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
