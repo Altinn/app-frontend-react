@@ -48,7 +48,7 @@ jobs:
           path: |
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
       - name: Install dependencies
         run: yarn --immutable
@@ -68,7 +68,7 @@ jobs:
           path: |
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
   build:
     name: Build
@@ -88,7 +88,7 @@ jobs:
           path: |
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
       - name: Build
         run: yarn build:cypressCoverage
@@ -126,7 +126,7 @@ jobs:
           path: |
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
       # TODO: Re-introduce non-matrix runner for external PRs
       - name: Run end-to-end Cypress tests
@@ -181,7 +181,7 @@ jobs:
           path: |
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
       - name: run tests
         run: "
@@ -215,7 +215,7 @@ jobs:
           path: |
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
       - name: run eslint
         run: yarn lint
@@ -239,7 +239,7 @@ jobs:
           path: |
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
       - name: type-check
         run: yarn tsc
@@ -271,7 +271,7 @@ jobs:
           path: |
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
