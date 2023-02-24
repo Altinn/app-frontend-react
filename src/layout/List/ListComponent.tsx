@@ -26,6 +26,7 @@ export const ListComponent = ({
   pagination,
   formData,
   handleDataChange,
+  getTextResourceAsString,
   sortableColumns,
   tableHeadersMobile,
   language,
@@ -52,6 +53,10 @@ export const ListComponent = ({
       handleDataChange(selectedValue[key], { key: key });
     }
   };
+
+  for (const key in tableHeaders) {
+    tableHeaders[key] = getTextResourceAsString(tableHeaders[key]);
+  }
 
   const selectedRow: Record<string, string> = React.useMemo(() => {
     let matchRow: boolean[] = [];
