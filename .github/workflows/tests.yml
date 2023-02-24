@@ -48,7 +48,7 @@ jobs:
       - uses: actions/cache/save@v3
         with:
           path: |
-            ${{ env.YARN_CACHE_DIR }}
+            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
@@ -69,7 +69,7 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.YARN_CACHE_DIR }}
+            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
@@ -108,7 +108,7 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.YARN_CACHE_DIR }}
+            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
@@ -161,7 +161,7 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.YARN_CACHE_DIR }}
+            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
@@ -193,7 +193,7 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.YARN_CACHE_DIR }}
+            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
@@ -218,7 +218,7 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.YARN_CACHE_DIR }}
+            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
@@ -251,7 +251,7 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.YARN_CACHE_DIR }}
+            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
