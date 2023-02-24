@@ -105,6 +105,7 @@ jobs:
 
       - uses: actions/cache/restore@v3
         with:
+          fail-on-cache-miss: true
           path: |
             node_modules
             /home/runner/.cache/Cypress
@@ -112,6 +113,7 @@ jobs:
 
       - uses: actions/cache/restore@v3
         with:
+          fail-on-cache-miss: true
           path: dist
           key: dist-${{ github.run_id }}
 
@@ -169,6 +171,7 @@ jobs:
 
       - uses: actions/cache/restore@v3
         with:
+          fail-on-cache-miss: true
           path: |
             node_modules
             /home/runner/.cache/Cypress
@@ -208,6 +211,7 @@ jobs:
 
       - uses: actions/cache/restore@v3
         with:
+          fail-on-cache-miss: true
           path: |
             node_modules
             /home/runner/.cache/Cypress
