@@ -5,36 +5,38 @@ on:
       - main
     paths:
       - 'src/**'
+      - 'test/**'
       - 'yarn.lock'
       - '.github/workflows/unit-tests.yml'
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
       - 'src/**'
+      - 'test/**'
       - 'yarn.lock'
       - '.github/workflows/unit-tests.yml'
 
 jobs:
-  unit-tests:
+  prepare:
+    name: Dependencies and build
     runs-on: ubuntu-latest
-    name: Type-checks, eslint, unit tests and SonarCloud
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v3
-        with:
-          path: app-frontend
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
-      - name: install node
-        uses: actions/setup-node@v3
+      - name: Increase file watchers
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: 18
 
       - name: Get yarn cache directory path
-        working-directory: app-frontend
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 
+      # This caches our yarn packages so that running `yarn install` is fairly fast in repeated runs.
+      # We use yarn.lock as the cache key, so that the cache is invalidated when there are new dependencies.
       - uses: actions/cache@v3
         id: yarn-cache
         with:
@@ -43,9 +45,109 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: install dependencies
-        working-directory: app-frontend
+      # This caches node_modules and dist, so that we can re-use these results in subsequent test runs.
+      # The cache key is unique to this workflow run, so the same results are only used in the tests below,
+      # and will never be re-used across different runs (unlike the yarn cache above).
+      - uses: actions/cache/save@v3
+        id: workflow-cache
+        with:
+          path: |
+            node_modules/
+            dist/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Install dependencies
         run: yarn --immutable
+
+      - name: Build
+        run: yarn build # TODO: Instrument for code coverage
+
+  cypress:
+    name: Cypress
+    runs-on: ubuntu-latest
+    needs: [ prepare ]
+    strategy:
+      fail-fast: false
+      matrix:
+        machines: [ 1, 2, 3 ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Increase file watchers
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: actions/cache/restore@v3
+        id: restore-cache
+        with:
+          path: |
+            node_modules/
+            dist/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+      # These secrets are only available when running from the Altinn org, so we only enable Cypress cloud integration
+      # for our internal/branch-origin pull requests.
+      - name: Enable Cypress cloud
+        if: |
+          github.repository_owner == 'Altinn' &&
+          (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
+          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+        run: "
+          export CYPRESS_PROJECT_ID=y2jhp6\n
+          export CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}\n
+          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}\n
+          export CYPRESS_OPTIONS=\"
+            --record
+            --tag altinn-app-frontend
+            --group altinn-app-frontend
+            --ci-build-id $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT
+          \"
+        "
+
+      - name: Run end-to-end Cypress tests
+        run: "
+          yarn run cy:verify\n
+          bash -c 'cd dist/; npx http-server -p 8080 --cors >/dev/null &'\n
+          bash -c 'yarn run cy:test:all:headless
+            --config watchForFileChanges=false
+            --env environment=tt02,testUserName=testuserexternal,testUserPwd=r@h74Rz7XYQJ'
+            --parallel
+            ${CYPRESS_OPTIONS}
+          '
+        "
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: redux-state-history
+          path: test/redux-history/*.json
+
+      # TODO: Cache code coverage
+
+  unit-tests:
+    name: Type-checks, eslint, unit tests
+    runs-on: ubuntu-latest
+    needs: [ prepare ]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: actions/cache/restore@v3
+        id: restore-cache
+        with:
+          path: |
+            node_modules/
+            dist/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: type-check
         working-directory: app-frontend
@@ -59,14 +161,45 @@ jobs:
         working-directory: app-frontend
         run: yarn test --coverage --runInBand
 
-      - name: SonarCloud Scan
-        if: |
-          github.repository_owner == 'Altinn' &&
-          (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
-          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+      # TODO: Cache code coverage
+
+  sonar_cloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    needs: [ prepare, cypress, unit-tests ]
+    if: |
+      github.event_name == 'pull_request' &&
+      github.repository_owner == 'Altinn' &&
+      (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
         with:
-          projectBaseDir: app-frontend
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          path: app-frontend
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: actions/cache/restore@v3
+        id: restore-cache
+        with:
+          path: |
+            node_modules/
+            dist/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: TODO
+        run: echo "Pretending to upload to SonarCloud at this point"
+
+# TODO: Fetch coverage from previous steps, merge them
+#      - name: SonarCloud Scan
+#        with:
+#          projectBaseDir: app-frontend
+#        uses: SonarSource/sonarcloud-github-action@master
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
