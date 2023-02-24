@@ -90,6 +90,9 @@ jobs:
             dist/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
+      - name: Install dependencies
+        run: yarn --immutable
+
       # These secrets are only available when running from the Altinn org, so we only enable Cypress cloud integration
       # for our internal/branch-origin pull requests.
       - name: Enable Cypress cloud
@@ -149,6 +152,9 @@ jobs:
             node_modules/
             dist/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Install dependencies
+        run: yarn --immutable
 
       - name: type-check
         run: yarn tsc
