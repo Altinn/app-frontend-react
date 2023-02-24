@@ -544,6 +544,8 @@ export function* watchInitialCalculatePageOrderAndMoveToNextPageSaga(): SagaIter
           skipMoveToNext: true,
         }),
       );
+    } else {
+      yield put(FormLayoutActions.calculatePageOrderAndMoveToNextPageRejected({ error: null }));
     }
   }
 }

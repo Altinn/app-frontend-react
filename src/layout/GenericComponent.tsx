@@ -313,7 +313,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary>(
           'a-form-group',
           classes.container,
           gridToClasses(props.grid?.labelGrid, classes),
-          pageBreakStyles(evaluatedProps),
+          pageBreakStyles(evaluatedProps?.pageBreak),
         )}
         alignItems='baseline'
       >

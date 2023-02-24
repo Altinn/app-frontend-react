@@ -247,8 +247,6 @@ export const render = ({
         },
       },
       error: null,
-      optionsCount: 1,
-      optionsLoadedCount: 1,
       loading: false,
     },
   });

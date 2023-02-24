@@ -20,6 +20,7 @@ import type {
   ISelectionComponentProps,
   NumberFormatProps,
 } from 'src/layout/layout';
+import type { IPageBreak } from 'src/layout/layout.d';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentValidations,
@@ -556,17 +557,17 @@ export const gridBreakpoints = (grid?: IGridStyling) => {
   };
 };
 
-export const pageBreakStyles = (component: AnyItem | undefined) => {
-  if (!component?.pageBreak) {
+export const pageBreakStyles = (pageBreak: IPageBreak | undefined) => {
+  if (!pageBreak) {
     return {};
   }
 
   return {
-    [printStyles['break-before-auto']]: component.pageBreak.breakBefore === 'auto',
-    [printStyles['break-before-always']]: component.pageBreak.breakBefore === 'always',
-    [printStyles['break-before-avoid']]: component.pageBreak.breakBefore === 'avoid',
-    [printStyles['break-after-auto']]: component.pageBreak.breakAfter === 'auto',
-    [printStyles['break-after-always']]: component.pageBreak.breakAfter === 'always',
-    [printStyles['break-after-avoid']]: component.pageBreak.breakAfter === 'avoid',
+    [printStyles['break-before-auto']]: pageBreak.breakBefore === 'auto',
+    [printStyles['break-before-always']]: pageBreak.breakBefore === 'always',
+    [printStyles['break-before-avoid']]: pageBreak.breakBefore === 'avoid',
+    [printStyles['break-after-auto']]: pageBreak.breakAfter === 'auto',
+    [printStyles['break-after-always']]: pageBreak.breakAfter === 'always',
+    [printStyles['break-after-avoid']]: pageBreak.breakAfter === 'avoid',
   };
 };

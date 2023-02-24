@@ -9,6 +9,7 @@ import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper'
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromKey, getParsedLanguageFromText } from 'src/language/sharedLanguage';
+import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
 import type { ILayout } from 'src/layout/layout';
@@ -119,6 +120,10 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
     );
   };
 
+  const errorMessage = (message: string) => {
+    return message.includes(AsciiUnitSeparator) ? message.substring(message.indexOf(AsciiUnitSeparator) + 1) : message;
+  };
+
   return (
     <Grid
       data-testid='ErrorReport'
@@ -156,7 +161,7 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
                       onClick={handleErrorClick(error)}
                       onKeyDown={handleErrorClick(error)}
                     >
-                      {getParsedLanguageFromText(error.message, {
+                      {getParsedLanguageFromText(errorMessage(error.message), {
                         disallowedTags: ['a'],
                       })}
                     </button>
