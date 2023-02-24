@@ -33,13 +33,13 @@ jobs:
           yarn --version\n
           echo Yarn cache folder:\n
           yarn config get cacheFolder\n
-          echo YARN_CACHE_DIR=$(yarn config get cacheFolder) >> $GITHUB_ENV
+          echo Y_CACHE_DIR=$(yarn config get cacheFolder) >> $GITHUB_ENV
         "
 
       - uses: actions/cache/restore@v3
         with:
           fail-on-cache-miss: false
-          path: ${{ env.YARN_CACHE_DIR }}
+          path: ${{ env.Y_CACHE_DIR }}
           key: yarn-cache
 
       - uses: actions/cache/restore@v3
@@ -58,7 +58,7 @@ jobs:
       # that we keep it somewhat up to date.
       - uses: actions/cache/save@v3
         with:
-          path: ${{ env.YARN_CACHE_DIR }}
+          path: ${{ env.Y_CACHE_DIR }}
           key: yarn-cache
 
       # This caches our node packages so that we don't have to run `yarn install` again later in this workflow.
