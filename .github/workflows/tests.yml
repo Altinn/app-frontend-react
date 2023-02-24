@@ -29,29 +29,41 @@ jobs:
           node-version: 18
 
       - name: Get yarn cache directory path
-        run: echo "YARN_CACHE_DIR=$(yarn config get cacheFolder)" >> $GITHUB_STATE
+        run: echo "YARN_CACHE_DIR=$(yarn config get cacheFolder)" >> $GITHUB_ENV
 
-      # This caches our yarn packages so that running `yarn install` is fairly fast in repeated runs.
-      # We use yarn.lock as the cache key, so that the cache is invalidated when there are new dependencies.
+      - uses: actions/cache/restore@v3
+        with:
+          fail-on-cache-miss: false
+          path: ${{ env.YARN_CACHE_DIR }}
+          key: yarn-cache
+
       - uses: actions/cache/restore@v3
         with:
           fail-on-cache-miss: false
           path: |
-            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies
         run: yarn --immutable
 
+      # This stores our yarn cache, so that we don't have to go out to the network to fetch packages we already
+      # have in the cache. It's not super important that it's in sync with yarn.lock all the time, it just matters
+      # that we keep it somewhat up to date.
+      - uses: actions/cache/save@v3
+        with:
+          path: ${{ env.YARN_CACHE_DIR }}
+          key: yarn-cache
+
+      # This caches our node packages so that we don't have to run `yarn install` again later in this workflow.
+      # We use yarn.lock as the cache key, so that the cache is invalidated when there are new dependencies.
       - uses: actions/cache/save@v3
         with:
           path: |
-            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('**/yarn.lock') }}
 
   build:
     name: Build
@@ -69,10 +81,9 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Build
         run: yarn build:cypressCoverage
@@ -108,10 +119,9 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('**/yarn.lock') }}
 
       # TODO: Re-introduce non-matrix runner for external PRs
       - name: Run end-to-end Cypress tests
@@ -164,10 +174,9 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: run tests
         run: "
@@ -199,10 +208,9 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: run eslint
         run: yarn lint
@@ -224,10 +232,9 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: type-check
         run: yarn tsc
@@ -257,10 +264,9 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
-            ${{ env.STATE_YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          key: node-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
