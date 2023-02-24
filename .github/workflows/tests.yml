@@ -33,8 +33,9 @@ jobs:
 
       # This caches our yarn packages so that running `yarn install` is fairly fast in repeated runs.
       # We use yarn.lock as the cache key, so that the cache is invalidated when there are new dependencies.
-      - uses: actions/cache@v3
+      - uses: actions/cache/restore@v3
         with:
+          fail-on-cache-miss: false
           path: |
             ${{ env.YARN_CACHE_DIR }}
             node_modules
@@ -43,6 +44,14 @@ jobs:
 
       - name: Install dependencies
         run: yarn --immutable
+
+      - uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ env.YARN_CACHE_DIR }}
+            node_modules
+            /home/runner/.cache/Cypress
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
 
   build:
     name: Build
