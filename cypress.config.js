@@ -1,15 +1,18 @@
 const { defineConfig } = require('cypress');
 const path = require('node:path');
 const fs = require('node:fs/promises');
+const codeCoverage = require('@cypress/code-coverage/task');
 
 // noinspection JSUnusedGlobalSymbols
 module.exports = defineConfig({
   e2e: {
-    setupNodeEvents(_, config) {
+    async setupNodeEvents(on, config) {
       const validEnvironments = ['local', 'at21', 'at22', 'tt02'];
 
       if (validEnvironments.includes(config.env.environment)) {
-        return getConfigurationByFile(config.env.environment);
+        await getConfigurationByFile(config);
+        codeCoverage(on, config);
+        return config;
       }
 
       throw new Error(`Unknown environment "${config.env.environment}"
@@ -40,7 +43,18 @@ Valid environments are:
   },
 });
 
-async function getConfigurationByFile(file) {
+async function getConfigurationByFile(config) {
+  const file = config.env.environment;
   const pathToJsonDataFile = path.resolve('test/e2e/config', `${file}.json`);
-  return JSON.parse((await fs.readFile(pathToJsonDataFile)).toString());
+  const newConfig = JSON.parse((await fs.readFile(pathToJsonDataFile)).toString());
+
+  for (const key of Object.keys(newConfig)) {
+    if (key === 'env') {
+      for (const [key2, val] of Object.entries(newConfig[key])) {
+        config.env[key2] = val;
+      }
+    } else if (key !== '$schema') {
+      config[key] = newConfig[key];
+    }
+  }
 }

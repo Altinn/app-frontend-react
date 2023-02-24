@@ -9,6 +9,7 @@
     "start": "cross-env NODE_ENV=development webpack-dev-server --config webpack.config.development.js --mode development --progress",
     "start:silent": "cross-env NOTIFY_ON_ERRORS=false yarn start",
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.production.js --progress",
+    "build:cypressCoverage": "cross-env NODE_ENV=production webpack --config webpack.config.production.with-map.js --progress && nyc instrument dist/altinn-app-frontend.js tmp_coverage && mv tmp_coverage/dist/* dist/ && rm -rf tmp_coverage/",
     "docker": "cross-env NODE_ENV=development webpack-dev-server --config webpack.config.docker.js --mode development --progress",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -40,6 +41,7 @@
     "@babel/core": "7.20.12",
     "@babel/preset-env": "7.20.2",
     "@babel/preset-react": "7.18.6",
+    "@cypress/code-coverage": "^3.10.0",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.10",
     "@testing-library/cypress": "9.0.0",
     "@testing-library/jest-dom": "5.16.5",
@@ -97,6 +99,7 @@
     "lint-staged": "13.1.2",
     "mime": "3.0.0",
     "mini-css-extract-plugin": "2.7.2",
+    "nyc": "^15.1.0",
     "prettier": "2.8.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -160,7 +163,17 @@
     "*.{json}": "eslint --cache --fix",
     "*.{css,md}": "prettier --write"
   },
+  "nyc": {
+    "report-dir": "coverage/cypress",
+    "reporter": [
+      "json"
+    ]
+  },
   "jest": {
+    "coverageDirectory": "coverage/jest",
+    "coverageReporters": [
+      "json"
+    ],
     "transform": {
       "\\.(js|ts|tsx)$": [
         "ts-jest",

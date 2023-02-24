@@ -75,7 +75,7 @@ jobs:
           key: yarn-${{ hashFiles('**/yarn.lock') }}
 
       - name: Build
-        run: yarn build # TODO: Instrument for code coverage
+        run: yarn build:cypressCoverage
 
       # This caches node_modules and dist, so that we can re-use these results in subsequent test runs.
       # The cache key is unique to this workflow run, so the same results are only used in the tests below,
@@ -133,12 +133,15 @@ jobs:
         "
 
       - uses: actions/upload-artifact@v3
+        with:
+          name: coverage-cypress-${{ strategy.job-index }}
+          path: coverage/cypress/coverage-final.json
+
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: redux-state-history
           path: test/redux-history/*.json
-
-      # TODO: Cache code coverage
 
   unit-tests:
     name: Unit tests
@@ -174,7 +177,10 @@ jobs:
             | xargs yarn test --coverage --runInBand
         "
 
-      # TODO: Cache code coverage
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage-jest-${{ strategy.job-index }}
+          path: coverage/jest/coverage-final.json
 
   linting:
     name: Linting
@@ -256,8 +262,15 @@ jobs:
             /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
 
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: all-artifacts
+
       - name: TODO
-        run: echo "Pretending to upload to SonarCloud at this point"
+        run:
+          echo "Pretending to upload to SonarCloud at this point"\n
+          ls -lR all-artifacts/
 
 # TODO: Fetch coverage from previous steps, merge them
 #      - name: SonarCloud Scan
@@ -267,6 +280,3 @@ jobs:
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  # TODO: Add a cleanup job to remove caches
-  # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#managing-caches
