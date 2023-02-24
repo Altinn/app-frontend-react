@@ -29,7 +29,11 @@ jobs:
           node-version: 18
 
       - name: Get yarn cache directory path
-        run: echo "YARN_CACHE_DIR=$(yarn config get cacheFolder)" >> $GITHUB_ENV
+        run: |
+          yarn --version\n
+          echo "Yarn cache folder:"\n
+          yarn config get cacheFolder\n
+          echo "YARN_CACHE_DIR=$(yarn config get cacheFolder)" >> $GITHUB_ENV
 
       - uses: actions/cache/restore@v3
         with:
