@@ -17,15 +17,12 @@ on:
       - '.github/workflows/unit-tests.yml'
 
 jobs:
-  prepare:
-    name: Dependencies and build
+  dependencies:
+    name: Dependencies
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Increase file watchers
-        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
       - uses: actions/setup-node@v3
         with:
@@ -38,15 +35,43 @@ jobs:
       # This caches our yarn packages so that running `yarn install` is fairly fast in repeated runs.
       # We use yarn.lock as the cache key, so that the cache is invalidated when there are new dependencies.
       - uses: actions/cache@v3
-        id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            yarn-
 
       - name: Install dependencies
         run: yarn --immutable
+
+      # This caches node_modules, so that we can re-use these results in subsequent test runs.
+      # The cache key is unique to this workflow run, so the same results are only used in the tests below,
+      # and will never be re-used across different runs (unlike the yarn cache above).
+      - uses: actions/cache/save@v3
+        with:
+          path: |
+            node_modules
+            /home/runner/.cache/Cypress
+          key: node-modules-${{ github.run_id }}
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [ dependencies ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: actions/cache/restore@v3
+        with:
+          path: |
+            node_modules
+            /home/runner/.cache/Cypress
+          key: node-modules-${{ github.run_id }}
 
       - name: Build
         run: yarn build # TODO: Instrument for code coverage
@@ -55,18 +80,14 @@ jobs:
       # The cache key is unique to this workflow run, so the same results are only used in the tests below,
       # and will never be re-used across different runs (unlike the yarn cache above).
       - uses: actions/cache/save@v3
-        id: workflow-cache
         with:
-          path: |
-            node_modules/
-            dist/
-            /home/runner/.cache/Cypress
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist
+          key: dist-${{ github.run_id }}
 
   cypress:
     name: Cypress
     runs-on: ubuntu-latest
-    needs: [ prepare ]
+    needs: [ build ]
     strategy:
       fail-fast: false
       matrix:
@@ -83,15 +104,16 @@ jobs:
           node-version: 18
 
       - uses: actions/cache/restore@v3
-        id: restore-cache
         with:
           path: |
-            node_modules/
-            dist/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+            node_modules
+            /home/runner/.cache/Cypress
+          key: node-modules-${{ github.run_id }}
 
-      - name: Install dependencies
-        run: yarn --immutable
+      - uses: actions/cache/restore@v3
+        with:
+          path: dist
+          key: dist-${{ github.run_id }}
 
       # These secrets are only available when running from the Altinn org, so we only enable Cypress cloud integration
       # for our internal/branch-origin pull requests.
@@ -135,7 +157,7 @@ jobs:
   unit-tests:
     name: Type-checks, eslint, unit tests
     runs-on: ubuntu-latest
-    needs: [ prepare ]
+    needs: [ dependencies ]
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -146,15 +168,11 @@ jobs:
           node-version: 18
 
       - uses: actions/cache/restore@v3
-        id: restore-cache
         with:
           path: |
-            node_modules/
-            dist/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
-      - name: Install dependencies
-        run: yarn --immutable
+            node_modules
+            /home/runner/.cache/Cypress
+          key: node-modules-${{ github.run_id }}
 
       - name: type-check
         run: yarn tsc
@@ -167,10 +185,10 @@ jobs:
 
       # TODO: Cache code coverage
 
-  sonar_cloud:
+  sonar-cloud:
     name: SonarCloud
     runs-on: ubuntu-latest
-    needs: [ prepare, cypress, unit-tests ]
+    needs: [ cypress, unit-tests ]
     if: |
       github.event_name == 'pull_request' &&
       github.repository_owner == 'Altinn' &&
@@ -189,12 +207,11 @@ jobs:
           node-version: 18
 
       - uses: actions/cache/restore@v3
-        id: restore-cache
         with:
           path: |
-            node_modules/
-            dist/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+            node_modules
+            /home/runner/.cache/Cypress
+          key: node-modules-${{ github.run_id }}
 
       - name: TODO
         run: echo "Pretending to upload to SonarCloud at this point"
@@ -207,3 +224,6 @@ jobs:
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # TODO: Add a cleanup job to remove caches
+  # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#managing-caches
