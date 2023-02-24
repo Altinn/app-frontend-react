@@ -142,7 +142,7 @@ jobs:
           bash -c 'cd dist/; npx http-server -p 8080 --cors >/dev/null &'\n
           bash -c 'yarn run cy:test:all:headless
             --config watchForFileChanges=false
-            --env environment=tt02,testUserName=testuserexternal,testUserPwd=r@h74Rz7XYQJ'
+            --env environment=tt02,testUserName=testuserexternal,testUserPwd=r@h74Rz7XYQJ
             --parallel
             ${CYPRESS_OPTIONS}
           '
