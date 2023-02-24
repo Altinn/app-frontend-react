@@ -29,30 +29,20 @@ jobs:
           node-version: 18
 
       - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+        run: echo "YARN_CACHE_DIR=$(yarn config get cacheFolder)" << $GITHUB_STATE
 
       # This caches our yarn packages so that running `yarn install` is fairly fast in repeated runs.
       # We use yarn.lock as the cache key, so that the cache is invalidated when there are new dependencies.
       - uses: actions/cache@v3
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          path: |
+            ${{ env.YARN_CACHE_DIR }}
+            node_modules
+            /home/runner/.cache/Cypress
           key: yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            yarn-
 
       - name: Install dependencies
         run: yarn --immutable
-
-      # This caches node_modules, so that we can re-use these results in subsequent test runs.
-      # The cache key is unique to this workflow run, so the same results are only used in the tests below,
-      # and will never be re-used across different runs (unlike the yarn cache above).
-      - uses: actions/cache/save@v3
-        with:
-          path: |
-            node_modules
-            /home/runner/.cache/Cypress
-          key: node-modules-${{ github.run_id }}
 
   build:
     name: Build
@@ -68,10 +58,12 @@ jobs:
 
       - uses: actions/cache/restore@v3
         with:
+          fail-on-cache-miss: true
           path: |
+            ${{ env.YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ github.run_id }}
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
 
       - name: Build
         run: yarn build # TODO: Instrument for code coverage
@@ -107,44 +99,27 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
+            ${{ env.YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ github.run_id }}
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
 
-      - uses: actions/cache/restore@v3
-        with:
-          fail-on-cache-miss: true
-          path: dist
-          key: dist-${{ github.run_id }}
-
-      # These secrets are only available when running from the Altinn org, so we only enable Cypress cloud integration
-      # for our internal/branch-origin pull requests.
-      - name: Enable Cypress cloud
-        if: |
-          github.repository_owner == 'Altinn' &&
-          (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
-          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+      # TODO: Re-introduce non-matrix runner for external PRs
+      - name: Run end-to-end Cypress tests
         run: "
           export CYPRESS_PROJECT_ID=y2jhp6\n
           export CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}\n
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}\n
-          export CYPRESS_OPTIONS=\"
-            --record
-            --tag altinn-app-frontend
-            --group altinn-app-frontend
-            --ci-build-id $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT
-          \"
-        "
-
-      - name: Run end-to-end Cypress tests
-        run: "
           yarn run cy:verify\n
           bash -c 'cd dist/; npx http-server -p 8080 --cors >/dev/null &'\n
           bash -c 'yarn run cy:test:all:headless
             --config watchForFileChanges=false
             --env environment=tt02,testUserName=testuserexternal,testUserPwd=r@h74Rz7XYQJ
             --parallel
-            ${CYPRESS_OPTIONS}
+            --record
+            --tag altinn-app-frontend
+            --group altinn-app-frontend
+            --ci-build-id $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT
           '
         "
 
@@ -173,9 +148,10 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
+            ${{ env.YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ github.run_id }}
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
 
       - name: run tests
         run: yarn test --coverage --runInBand
@@ -199,9 +175,10 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
+            ${{ env.YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ github.run_id }}
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
 
       - name: run eslint
         run: yarn lint
@@ -223,9 +200,10 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
+            ${{ env.YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ github.run_id }}
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
 
       - name: type-check
         run: yarn tsc
@@ -255,9 +233,10 @@ jobs:
         with:
           fail-on-cache-miss: true
           path: |
+            ${{ env.YARN_CACHE_DIR }}
             node_modules
             /home/runner/.cache/Cypress
-          key: node-modules-${{ github.run_id }}
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
 
       - name: TODO
         run: echo "Pretending to upload to SonarCloud at this point"
