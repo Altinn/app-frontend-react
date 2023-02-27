@@ -10,6 +10,7 @@ import { Datepicker } from 'src/layout/Datepicker/index';
 import { Dropdown } from 'src/layout/Dropdown/index';
 import { FileUpload } from 'src/layout/FileUpload/index';
 import { FileUploadWithTag } from 'src/layout/FileUploadWithTag/index';
+import { Grid } from 'src/layout/Grid';
 import { Header } from 'src/layout/Header/index';
 import { Image } from 'src/layout/Image/index';
 import { Input } from 'src/layout/Input/index';
@@ -46,6 +47,7 @@ export const components: {
   Dropdown: new Dropdown(),
   FileUpload: new FileUpload(),
   FileUploadWithTag: new FileUploadWithTag(),
+  Grid: new Grid(),
   Header: new Header(),
   Image: new Image(),
   Input: new Input(),
