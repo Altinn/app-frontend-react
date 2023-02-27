@@ -129,7 +129,7 @@ export function SummaryGroupComponent({
   }, [node, largeGroup, pageRef, validations]);
 
   const createRepeatingGroupSummaryComponents = () => {
-    if (!node || !('rows' in node.item)) {
+    if (!node || !('rows' in node.item) || node.item.type !== 'Group') {
       return [];
     }
 
@@ -179,7 +179,7 @@ export function SummaryGroupComponent({
   };
 
   const createRepeatingGroupSummaryForLargeGroups = () => {
-    if (!node || !('rows' in node.item)) {
+    if (!node || !('rows' in node.item) || node.item.type !== 'Group') {
       return;
     }
 
@@ -206,7 +206,7 @@ export function SummaryGroupComponent({
           const summaryId = `${n.item.id}-summary${n.item.type === 'Group' ? '-group' : ''}`;
           const groupDataModelBinding = node?.item.dataModelBindings?.group?.replace(/\[\d+]/g, '');
           let formDataForComponent: any;
-          if (n.item.type !== 'Group') {
+          if (n.item.type !== 'Group' && n.item.type !== 'Grid') {
             formDataForComponent = getFormDataForComponentInRepeatingGroup(
               formData,
               attachments,
