@@ -5,6 +5,7 @@ import { HelpTextContainer } from 'src/features/form/components/HelpTextContaine
 import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
 import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';
 import { LayoutStyle } from 'src/types';
+import { getLabelFromChildren } from 'src/utils/stringHelper';
 import type { ILabelSettings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
@@ -39,6 +40,7 @@ export function Legend(props: IFormLegendProps) {
         <HelpTextContainer
           language={props.language}
           helpText={props.helpText}
+          title={getLabelFromChildren(props.labelText)}
         />
       )}
     </>
