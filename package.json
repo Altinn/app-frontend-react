@@ -164,7 +164,7 @@
     "*.{css,md}": "prettier --write"
   },
   "nyc": {
-    "report-dir": "coverage/cypress",
+    "report-dir": "coverage/nyc",
     "reporter": [
       "json"
     ]

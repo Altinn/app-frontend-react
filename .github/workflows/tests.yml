@@ -40,7 +40,7 @@ jobs:
         with:
           fail-on-cache-miss: false
           path: ${{ env.Y_CACHE_DIR }}
-          key: yarn-cache
+          key: yarn-cache-${{ hashFiles('yarn.lock') }}
 
       - uses: actions/cache/restore@v3
         with:
@@ -59,7 +59,7 @@ jobs:
       - uses: actions/cache/save@v3
         with:
           path: ${{ env.Y_CACHE_DIR }}
-          key: yarn-cache
+          key: yarn-cache-${{ hashFiles('yarn.lock') }}
 
       # This caches our node packages so that we don't have to run `yarn install` again later in this workflow.
       # We use yarn.lock as the cache key, so that the cache is invalidated when there are new dependencies.
@@ -108,7 +108,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        machines: [ 1, 2, 3, 4, 5 ]
+        machines: [ 1, 2, 3 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -155,7 +155,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: coverage-cypress-${{ strategy.job-index }}
-          path: coverage/cypress/coverage-final.json
+          path: coverage/nyc/coverage-final.json
 
       - uses: actions/upload-artifact@v3
         if: failure()
@@ -283,19 +283,17 @@ jobs:
         with:
           path: all-artifacts
 
-      # TODO: Clean this up
       - name: Merge coverage files
         run: "
-          ls -lR all-artifacts/\n
           mkdir -p all-coverage\n
           find all-artifacts/ -name coverage-final.json | while read line; do\n
-            echo mv $line all-coverage/$(echo $line | sed 's#/coverage-final.json$#.json#' | xargs basename)\n
+            mv $line all-coverage/$(echo $line | sed 's#/coverage-final.json$#.json#' | xargs basename)\n
           done\n
           npx nyc merge all-coverage\n
-          mkdir -p .nyc_output\n
-          mv coverage.json .nyc_output/out.json\n
+          mkdir -p coverage/nyc\n
+          mv coverage.json coverage/nyc/out.json\n
           rm -rf all-coverage all-artifacts\n
-          npx nyc report
+          npx nyc report --reporter=lcov
         "
 
       - name: Delete previous artifacts
@@ -309,8 +307,6 @@ jobs:
           path: .nyc_output/out.json
 
       - name: SonarCloud Scan
-        with:
-          projectBaseDir: .
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
