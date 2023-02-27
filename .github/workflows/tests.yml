@@ -283,16 +283,35 @@ jobs:
         with:
           path: all-artifacts
 
-      - name: TODO
-        run:
-          echo "Pretending to upload to SonarCloud at this point"\n
-          ls -lR all-artifacts/
+      # TODO: Clean this up
+      - name: Merge coverage files
+        run: "
+          ls -lR all-artifacts/\n
+          mkdir -p all-coverage\n
+          find all-artifacts/ -name coverage-final.json | while read line; do\n
+            echo mv $line all-coverage/$(echo $line | sed 's#/coverage-final.json$#.json#' | xargs basename)\n
+          done\n
+          npx nyc merge all-coverage\n
+          mkdir -p .nyc_output\n
+          mv coverage.json .nyc_output/out.json\n
+          rm -rf all-coverage all-artifacts\n
+          npx nyc report
+        "
 
-# TODO: Fetch coverage from previous steps, merge them
-#      - name: SonarCloud Scan
-#        with:
-#          projectBaseDir: .
-#        uses: SonarSource/sonarcloud-github-action@master
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Delete previous artifacts
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: coverage-*
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage-merged
+          path: .nyc_output/out.json
+
+      - name: SonarCloud Scan
+        with:
+          projectBaseDir: .
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
