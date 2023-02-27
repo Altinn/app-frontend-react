@@ -54,8 +54,9 @@ export const ListComponent = ({
     }
   };
 
+  const tableHeadersValues = tableHeaders;
   for (const key in tableHeaders) {
-    tableHeaders[key] = getTextResourceAsString(tableHeaders[key]);
+    tableHeadersValues[key] = getTextResourceAsString(tableHeaders[key]);
   }
 
   const selectedRow: Record<string, string> = React.useMemo(() => {
@@ -124,7 +125,7 @@ export const ListComponent = ({
 
   const config: ResponsiveTableConfig<Record<string, string>> = {
     rows: calculatedDataList,
-    headers: tableHeaders,
+    headers: tableHeadersValues,
     showColumnsMobile: tableHeadersMobile,
     columnSort: {
       onSortChange: ({ column, next, previous }) => {
