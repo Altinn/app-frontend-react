@@ -1,6 +1,7 @@
 import type { DeepPartial } from 'utility-types';
 
 import type { ExprResolved } from 'src/features/expressions/types';
+import type { ILayoutGridHierarchy } from 'src/layout/Grid/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentExceptGroup, IDataModelBindings, ILayoutComponentExact } from 'src/layout/layout';
 import type { LayoutNode, LayoutPage } from 'src/utils/layout/hierarchy';
@@ -8,7 +9,9 @@ import type { LayoutNode, LayoutPage } from 'src/utils/layout/hierarchy';
 /**
  * In the hierarchy, components and groups will always have their layout expressions evaluated and resolved.
  */
-export type HComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = ExprResolved<ILayoutComponentExact<T>>;
+export type HComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = T extends 'Grid'
+  ? ILayoutGridHierarchy
+  : ExprResolved<ILayoutComponentExact<T>>;
 export type HGroup = ExprResolved<ILayoutGroup>;
 
 /**

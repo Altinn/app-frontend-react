@@ -1,12 +1,15 @@
 import type { $Values } from 'utility-types';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { isGridComponent } from 'src/layout/Grid/tools';
 import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex, getVariableTextKeysForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
-import type { ExprUnresolved } from 'src/features/expressions/types';
+import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
+import type { ILayoutCompGrid, ILayoutGridHierarchy } from 'src/layout/Grid/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
 import type { IMapping, IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
 import type {
@@ -19,6 +22,69 @@ import type {
   HRepGroupExtensions,
   ParentNode,
 } from 'src/utils/layout/hierarchy.types';
+
+type LayoutMap = { [id: string]: ExprUnresolved<ILayoutComponentOrGroup> };
+type HierarchyItem = Exclude<ILayoutComponent, ILayoutCompGrid> | HNonRepGroup | ILayoutGridHierarchy;
+
+interface AsHierarchyProps<T> {
+  component: T;
+  layoutAsMap: LayoutMap;
+  idsToRemove: Set<string>;
+}
+
+/**
+ * Inlines components into the group component definition.
+ * @see layoutAsHierarchy
+ */
+function groupAsHierarchy({ component, layoutAsMap, idsToRemove }: AsHierarchyProps<ExprUnresolved<ILayoutGroup>>) {
+  const children: { id: string; index?: number }[] = component.edit?.multiPage
+    ? component.children.map((compoundId) => {
+        const [multiPageIndex, id] = compoundId.split(':');
+        return { id, index: parseInt(multiPageIndex) };
+      })
+    : component.children.map((id) => ({ id }));
+
+  const childComponents = children
+    .map((child) => {
+      const component = layoutAsMap[child.id];
+      if (component) {
+        idsToRemove.add(child.id);
+
+        if (typeof child.index === 'number') {
+          component['multiPageIndex'] = child.index;
+        }
+
+        return component;
+      }
+
+      return false;
+    })
+    .filter((child) => !!child) as (ILayoutComponent | HNonRepGroup)[];
+
+  delete (component as any)['children'];
+  component['childComponents'] = childComponents;
+}
+
+/**
+ * Inlines components into the grid component definition.
+ * @see layoutAsHierarchy
+ */
+function gridAsHierarchy({ component, layoutAsMap, idsToRemove }: AsHierarchyProps<ExprUnresolved<ILayoutCompGrid>>) {
+  for (const row of component.rows) {
+    for (const cellIdx in row.cells) {
+      const cell = row.cells[cellIdx];
+      if (cell && 'component' in cell) {
+        const targetComponent = layoutAsMap[cell.component];
+        if (targetComponent) {
+          row.cells[cellIdx] = targetComponent as any;
+          idsToRemove.add(cell.component);
+        } else {
+          row.cells[cellIdx] = null as any;
+        }
+      }
+    }
+  }
+}
 
 /**
  * Takes a flat layout and turns it into a hierarchy. That means, each group component will not have
@@ -39,49 +105,24 @@ import type {
  * Note: This strips away multiPage functionality and treats every component of a multiPage group
  * as if every component is on the same page.
  */
-function layoutAsHierarchy(originalLayout: ILayout): (ILayoutComponent | HNonRepGroup)[] {
-  const layoutAsMap: { [id: string]: ExprUnresolved<ILayoutComponentOrGroup> } = {};
+export function layoutAsHierarchy(originalLayout: ILayout): HierarchyItem[] {
+  const layoutAsMap: LayoutMap = {};
   const layoutCopy = JSON.parse(JSON.stringify(originalLayout)) as ILayout;
   for (const component of layoutCopy) {
     layoutAsMap[component.id] = component;
   }
 
-  const idsInGroups = new Set<string>();
+  const idsToRemove = new Set<string>();
   for (const component of layoutCopy) {
-    if (component.type !== 'Group') {
-      continue;
+    if (component.type === 'Group') {
+      groupAsHierarchy({ component, layoutAsMap, idsToRemove });
     }
-
-    const children: { id: string; index?: number }[] = component.edit?.multiPage
-      ? component.children.map((compoundId) => {
-          const [multiPageIndex, id] = compoundId.split(':');
-          return { id, index: parseInt(multiPageIndex) };
-        })
-      : component.children.map((id) => ({ id }));
-
-    const childComponents = children
-      .map((child) => {
-        const component = layoutAsMap[child.id];
-        if (component) {
-          idsInGroups.add(child.id);
-
-          if (typeof child.index === 'number') {
-            component['multiPageIndex'] = child.index;
-          }
-
-          return component;
-        }
-
-        return false;
-      })
-      .filter((child) => !!child) as (ILayoutComponent | HNonRepGroup)[];
-
-    delete (component as any)['children'];
-    component['childComponents'] = childComponents;
+    if (component.type === 'Grid') {
+      gridAsHierarchy({ component, layoutAsMap, idsToRemove });
+    }
   }
 
-  const out = layoutCopy.filter((c) => !idsInGroups.has(c.id));
-  return out as (ILayoutComponent | HNonRepGroup)[];
+  return layoutCopy.filter((c) => !idsToRemove.has(c.id)) as HierarchyItem[];
 }
 
 interface HierarchyParent {
@@ -168,7 +209,7 @@ function layoutAsHierarchyWithRows(formLayout: ILayout, repeatingGroups: IRepeat
     newChild.mapping = newMapping;
   };
 
-  const recurse = (main: ILayoutComponent | HNonRepGroup | HComponentInRepGroup, parent?: HierarchyParent) => {
+  const recurse = (main: HierarchyItem | HComponentInRepGroup, parent?: HierarchyParent) => {
     if (main.type === 'Group' && main.maxCount && main.maxCount > 1) {
       const rows: HRepGroup['rows'] = [];
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
@@ -207,7 +248,7 @@ function layoutAsHierarchyWithRows(formLayout: ILayout, repeatingGroups: IRepeat
     return main as HComponentInRepGroup;
   };
 
-  return layoutAsHierarchy(formLayout).map((child) => recurse(child));
+  return layoutAsHierarchy(formLayout).map((child) => recurse(child)) as HierarchyWithRows[];
 }
 
 /**
@@ -420,18 +461,22 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
 
   private childrenIdsAsList(onlyInRowIndex?: number) {
     let list: AnyItem[] = [];
-    if (this.item.type === 'Group' && 'rows' in this.item) {
-      if (typeof onlyInRowIndex === 'number') {
-        list = this.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || [];
-      } else {
-        // Beware: In most cases this will just match the first row.
-        list = Object.values(this.item.rows)
-          .map((r) => r && r.items)
-          .flat() as AnyItem[];
+    if (this.item.type === 'Group') {
+      const item = this.item as AnyItem & { type: 'Group' };
+      if ('rows' in item) {
+        if (typeof onlyInRowIndex === 'number') {
+          list = item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || [];
+        } else {
+          // Beware: In most cases this will just match the first row.
+          list = Object.values(item.rows)
+            .map((r) => r && r.items)
+            .flat() as AnyItem[];
+        }
+      } else if ('childComponents' in item) {
+        list = item.childComponents;
       }
-    } else if (this.item.type === 'Group' && 'childComponents' in this.item) {
-      list = this.item.childComponents;
     }
+    // TODO: Support Grid
 
     return list.map((item) => item.id);
   }
@@ -606,7 +651,8 @@ function nodesInLayout(formLayout: ILayout | undefined | null, repeatingGroups: 
   const root = new LayoutPage();
 
   const recurse = (
-    list: (ILayoutComponent | HNonRepGroup | HRepGroup | HRepGroupChildren)[],
+    // The typing here is a lie. We don't have resolved expressions yet, that will happen later.
+    list: (ExprResolved<ILayoutComponent> | HNonRepGroup | HRepGroup | HRepGroupChildren)[],
     parent: ParentNode,
     rowIndex?: number,
   ) => {
@@ -619,6 +665,16 @@ function nodesInLayout(formLayout: ILayout | undefined | null, repeatingGroups: 
         const group = new LayoutNode(component, parent, root, rowIndex);
         recurse(component.childComponents, group);
         root._addChild(group);
+      } else if (component.type === 'Grid') {
+        const grid = new LayoutNode(component, parent, root, rowIndex);
+        for (const row of component.rows) {
+          for (const cell of row.cells) {
+            if (isGridComponent(cell)) {
+              recurse([cell], grid);
+            }
+          }
+        }
+        root._addChild(grid);
       } else {
         const node = new LayoutNode(component as AnyItem, parent, root, rowIndex);
         root._addChild(node);
