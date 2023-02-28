@@ -127,7 +127,8 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
             cy.get(mui.selectedDate).should('be.visible').click();
           });
         cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
-        cy.get(appFrontend.nextButton).click();
+        cy.get(appFrontend.nextButton).click().should('not.exist');
+        cy.get(appFrontend.nextButton).click().should('not.exist');
       });
   },
   group: () => {

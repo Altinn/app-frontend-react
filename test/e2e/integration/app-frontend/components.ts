@@ -69,13 +69,13 @@ describe('UI Components', () => {
       .should('be.visible')
       .find('li > button')
       .should('be.visible')
-      .and('have.length', 2)
+      .and('have.length', 3)
       .then((navButtons) => {
         cy.wrap(navButtons)
           .first()
           .should('have.attr', 'aria-current', 'page')
           .and('have.css', 'background-color', 'rgb(2, 47, 81)');
-        cy.wrap(navButtons).last().should('have.css', 'background-color', 'rgba(0, 0, 0, 0)').click();
+        cy.wrap(navButtons).eq(1).should('have.css', 'background-color', 'rgba(0, 0, 0, 0)').click();
       });
     cy.get(`${appFrontend.navMenu} li:first-child > button`).should('not.have.attr', 'aria-current', 'page');
     cy.get(appFrontend.navMenu)
@@ -83,7 +83,7 @@ describe('UI Components', () => {
       .then((navButtons) => {
         cy.wrap(navButtons).should('be.visible');
         cy.wrap(navButtons)
-          .last()
+          .eq(1)
           .should('have.attr', 'aria-current', 'page')
           .and('have.css', 'background-color', 'rgb(2, 47, 81)');
         cy.get(appFrontend.changeOfName.summaryNameChanges).should('be.visible');
