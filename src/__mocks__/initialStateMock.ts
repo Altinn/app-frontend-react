@@ -40,6 +40,10 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       error: null,
       invalidDataTypes: [],
     },
+    footerLayout: {
+      footerLayout: null,
+      error: null,
+    },
     instanceData: getInstanceDataStateMock(),
     instantiation: {
       error: null,
@@ -75,6 +79,12 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       error: null,
       parties: [partyMock],
       selectedParty: partyMock,
+    },
+    pdf: {
+      readyForPrint: false,
+      pdfFormat: null,
+      method: null,
+      error: null,
     },
     process: {
       error: null,
@@ -131,8 +141,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     optionState: {
       options: {},
       error: null,
-      optionsCount: 0,
-      optionsLoadedCount: 0,
       loading: false,
     },
     dataListState: {

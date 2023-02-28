@@ -89,6 +89,7 @@ export function nb() {
     },
     general: {
       action: 'Handling',
+      accessibility: 'Tilgjengelighet',
       add_connection: 'Legg til tilkobling',
       add_new: 'Legg til ny',
       add: 'Legg til',
@@ -212,9 +213,9 @@ export function nb() {
       show_deleted: 'Vis slettede',
       show_sub_unit: 'Vis underenheter',
     },
-    popover: {
-      popover_button_helptext: 'Hjelp',
-      popover_open: 'Popover åpen',
+    helptext: {
+      button_title: 'Hjelp',
+      button_title_prefix: 'Hjelpetekst for',
     },
     receipt: {
       attachments: 'Vedlegg',
@@ -253,8 +254,8 @@ export function nb() {
       generic_field: 'dette feltet',
     },
     validation_errors: {
-      min: 'Minste gyldig verdi er {0}',
-      max: 'Største gyldig verdi er {0}',
+      min: 'Minste gyldig tall er {0}',
+      max: 'Største gyldig tall er {0}',
       minLength: 'Bruk {0} eller flere tegn',
       maxLength: 'Bruk {0} eller færre tegn',
       length: 'Antall tillatte tegn er {0}',

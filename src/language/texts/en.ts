@@ -89,6 +89,7 @@ export function en() {
     },
     general: {
       action: 'Action',
+      accessibility: 'Accessibility',
       add_connection: 'Add connection',
       add_new: 'Add new',
       add: 'Add',
@@ -211,9 +212,9 @@ export function en() {
       show_deleted: 'Show deleted',
       show_sub_unit: 'Show sub units',
     },
-    popover: {
-      popover_button_helptext: 'Help',
-      popover_open: 'Popover open',
+    helptext: {
+      button_title: 'Help',
+      button_title_prefix: 'Helptext for',
     },
     receipt: {
       attachments: 'Attachments',
@@ -252,8 +253,8 @@ export function en() {
       generic_field: 'this field',
     },
     validation_errors: {
-      min: 'Minimum valid value is {0}',
-      max: 'Maximum valid value is {0}',
+      min: 'Minimum valid number is {0}',
+      max: 'Maximum valid number is {0}',
       minLength: 'Use {0} or more characters',
       maxLength: 'Use {0} or fewer characters',
       length: 'Number of characters allowed is {0}',

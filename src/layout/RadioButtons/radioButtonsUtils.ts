@@ -12,6 +12,7 @@ import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioB
 export const useRadioStyles = makeStyles(() => ({
   legend: {
     color: '#000000',
+    fontFamily: 'Altinn-DIN',
   },
   formControl: {
     alignItems: 'flex-start',

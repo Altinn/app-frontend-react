@@ -20,7 +20,7 @@ describe('UI Components', () => {
           .parentsUntil(appFrontend.message.logoFormContent)
           .eq(1)
           .should('have.css', 'justify-content', 'center');
-        cy.wrap(image).parent().siblings().find(appFrontend.helpText.open).parent().click();
+        cy.wrap(image).parent().siblings().find(appFrontend.helpText.open).click();
         cy.get(appFrontend.helpText.alert).contains('Altinn logo').type('{esc}');
         cy.get(appFrontend.helpText.alert).should('not.exist');
       });
@@ -42,6 +42,7 @@ describe('UI Components', () => {
   it('is possible to upload attachments with tags', () => {
     cy.goto('changename');
     cy.intercept('POST', '**/tags').as('saveTags');
+    cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
       force: true,
     });
@@ -55,7 +56,11 @@ describe('UI Components', () => {
       cy.wrap(table).find(mui.tableBody).find(mui.tableElement).eq(1).should('have.text', 'Adresse');
       cy.wrap(table).find(mui.tableBody).find(mui.tableElement).last().find('button').click();
     });
-    cy.get(appFrontend.changeOfName.uploadWithTag.delete).should('be.visible').click();
+    cy.get(appFrontend.changeOfName.uploadWithTag.editWindow)
+      .find('button:contains("Slett")')
+      .should('be.visible')
+      .click();
+    cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
   });
 
   it('is possible to navigate between pages using navigation bar', () => {

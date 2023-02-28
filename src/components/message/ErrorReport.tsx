@@ -9,10 +9,11 @@ import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper'
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromKey, getParsedLanguageFromText } from 'src/language/sharedLanguage';
-import { nodesInLayouts } from 'src/utils/layout/hierarchy';
+import { AsciiUnitSeparator } from 'src/utils/attachment';
+import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
 import type { ILayout } from 'src/layout/layout';
-import type { AnyChildNode } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { FlatError } from 'src/utils/validation/validation';
 
 export interface IErrorReportProps {
@@ -55,12 +56,11 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
-  const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const [errorsMapped, errorsUnmapped] = useAppSelector((state) => [
     getMappedErrors(state.formValidations.validations),
     getUnmappedErrors(state.formValidations.validations),
   ]);
+  const nodes = useExprContext();
   const language = useAppSelector((state) => state.language.language);
   const hasErrors = errorsUnmapped.length > 0 || errorsMapped.length > 0;
 
@@ -81,14 +81,13 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
       );
     }
 
-    const nodes = nodesInLayouts(layouts, error.layout, repeatingGroups);
-    const componentNode = nodes.findById(error.componentId);
+    const componentNode = nodes?.findById(error.componentId);
 
     // Iterate over parent repeating groups
     componentNode?.parents().forEach((parentNode, i, allParents) => {
       const parent = parentNode.item;
       if (parent?.type == 'Group' && parent.edit?.mode !== 'likert' && parent.maxCount && parent.maxCount > 1) {
-        const childNode = i == 0 ? componentNode : (allParents[i - 1] as AnyChildNode<'unresolved'>);
+        const childNode = i == 0 ? componentNode : (allParents[i - 1] as LayoutNode);
 
         // Go to correct multiPage page if necessary
         if (parent.edit?.multiPage && 'multiPageIndex' in childNode.item) {
@@ -119,6 +118,10 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
         focusComponentId: error.componentId,
       }),
     );
+  };
+
+  const errorMessage = (message: string) => {
+    return message.includes(AsciiUnitSeparator) ? message.substring(message.indexOf(AsciiUnitSeparator) + 1) : message;
   };
 
   return (
@@ -158,7 +161,7 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
                       onClick={handleErrorClick(error)}
                       onKeyDown={handleErrorClick(error)}
                     >
-                      {getParsedLanguageFromText(error.message, {
+                      {getParsedLanguageFromText(errorMessage(error.message), {
                         disallowedTags: ['a'],
                       })}
                     </button>

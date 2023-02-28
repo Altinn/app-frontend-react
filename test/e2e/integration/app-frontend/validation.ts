@@ -125,6 +125,7 @@ describe('Validation', () => {
     cy.get(appFrontend.nextButton).click();
     cy.wait('@validateData');
     cy.get(appFrontend.errorReport)
+      .parent()
       .should('exist')
       .should('be.visible')
       .should('be.inViewport')
@@ -171,6 +172,18 @@ describe('Validation', () => {
       .should('exist')
       .should('be.visible')
       .should('contain.text', texts.attachmentError);
+  });
+
+  it('Validation on uploaded attachment type with tag', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+    cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click({ multiple: true });
+    cy.get(appFrontend.changeOfName.uploadWithTag.error)
+      .should('exist')
+      .should('be.visible')
+      .should('not.contain.text', appFrontend.changeOfName.uploadWithTag.unwantedChar);
+    cy.get('#toNextTask').click();
+    cy.get(appFrontend.errorReport).should('not.contain.text', appFrontend.changeOfName.uploadWithTag.unwantedChar);
   });
 
   it('Client side validation from json schema', () => {

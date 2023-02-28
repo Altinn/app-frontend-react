@@ -32,9 +32,9 @@ export class AppFrontend {
   public designSystemPanel = '[data-testid="panel-content-wrapper"]';
 
   public helpText = {
-    open: '.reg-help-outline',
-    close: '.reg-help-filled',
-    alert: 'div[role="alert"]',
+    open: 'button[aria-expanded=false]',
+    close: 'button[aria-expanded=true]',
+    alert: 'div[role="dialog"]',
   };
 
   public navMenu = '#navigation-menu';
@@ -105,8 +105,9 @@ export class AppFrontend {
       editWindow: '[id^="attachment-edit-window"]',
       tagsDropDown: '[id^="attachment-tag-dropdown"]',
       saveTag: '[id^="attachment-save-tag-button"]',
-      delete: 'button[class*="makeStyles-deleteButton"]',
       uploaded: '#tagFile',
+      error: '[id^="attachment-error"]',
+      unwantedChar: String.fromCharCode(31),
     },
     reasonRelationship: '#reasonRelationship',
     summaryNameChanges: '#nameChanges',
@@ -239,8 +240,8 @@ export function makeUploaderSelectors<T extends Type>(
       ...(type === 'tagged' && {
         tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) select`,
         tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
-        editBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) td:last-of-type button[class*=editTextContainer]`,
-        deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[class*=deleteButton]`,
+        editBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) td:last-of-type button:contains("Rediger")`,
+        deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button:contains("Slett")`,
       }),
     }),
     addMoreBtn: `#altinn-fileuploader-${id}-${row} > button`,
