@@ -1,9 +1,9 @@
-import type { ExpressionOr, ExprResolved } from 'src/features/expressions/types';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type { ComponentExceptGroupAndSummary, ILayoutCompBase, ILayoutComponent } from 'src/layout/layout';
 
 export interface GridCellOptions {
-  header?: boolean;
-  readOnly?: boolean;
+  header?: boolean; // TODO: Support expressions here?
+  readOnly?: boolean; // TODO: Support expressions here?
 }
 
 export interface GridComponentRef extends GridCellOptions {
@@ -11,7 +11,7 @@ export interface GridComponentRef extends GridCellOptions {
 }
 
 export interface GridText extends GridCellOptions {
-  text: ExpressionOr<string>;
+  text: string; // TODO: Support expressions here
 }
 
 export type GridCell<C = GridComponentRef> = C | GridText | null;
