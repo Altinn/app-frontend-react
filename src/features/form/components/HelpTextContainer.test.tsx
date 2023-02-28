@@ -25,7 +25,6 @@ describe('HelpTextContainer', () => {
 
   it('receives correct accessible title', () => {
     render();
-    screen.debug();
     expect(
       screen.getByRole('button', {
         name: /help/i,
