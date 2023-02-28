@@ -125,7 +125,6 @@ describe('Validation', () => {
     cy.get(appFrontend.nextButton).click();
     cy.wait('@validateData');
     cy.get(appFrontend.errorReport)
-      .parent()
       .should('exist')
       .should('be.visible')
       .should('be.inViewport')
@@ -236,6 +235,5 @@ describe('Validation', () => {
     cy.get(appFrontend.group.hideCommentField).should('be.visible').find('input').check();
     cy.get(appFrontend.group.comments).should('not.exist');
     cy.get(appFrontend.fieldValidationError.replace('field', 'comments')).should('not.exist');
-    cy.get(appFrontend.errorReport).should('not.exist');
   });
 });

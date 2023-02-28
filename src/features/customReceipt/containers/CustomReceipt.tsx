@@ -40,7 +40,13 @@ export function CustomReceipt() {
         alignItems='flex-start'
       >
         {mainComponents.map((component) => renderLayoutComponent(component, customReceipt))}
-        <ErrorReport components={errorReportComponents} />
+        <Grid
+          data-testid='ErrorReport'
+          item={true}
+          xs={12}
+        >
+          <ErrorReport components={errorReportComponents} />
+        </Grid>
       </Grid>
       <ReadyForPrint />
     </>
