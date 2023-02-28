@@ -5,7 +5,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { getLabelFromChildren } from 'src/utils/stringHelper';
+import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
@@ -78,7 +78,7 @@ export function ParagraphComponent(props: IParagraphProps) {
           <HelpTextContainer
             language={props.language}
             helpText={props.getTextResourceAsString(props.textResourceBindings.help)}
-            title={getLabelFromChildren(text)}
+            title={getPlainTextFromNode(text)}
           />
         </Grid>
       )}

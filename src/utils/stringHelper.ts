@@ -1,4 +1,4 @@
-import { isValidElement } from 'react';
+import { Children, isValidElement } from 'react';
 
 export const capitalizeName = (name: string) => {
   return name
@@ -20,13 +20,16 @@ export const capitalizeName = (name: string) => {
     .trim();
 };
 
-export const getLabelFromChildren = (children: React.ReactNode): string => {
-  const hasChildren = (element: React.ReactNode) => isValidElement(element) && Boolean(element.props.children);
-
-  const reactChildrenText = (children) => {
-    if (hasChildren(children)) return reactChildrenText(children.props.children);
-    return children;
-  };
-
-  return reactChildrenText(children);
+export const getPlainTextFromNode = (node: React.ReactNode): string => {
+  if (typeof node === 'string') {
+    return node;
+  }
+  if (isValidElement(node)) {
+    let text = '';
+    Children.forEach(node.props.children, (child) => {
+      text += getPlainTextFromNode(child);
+    });
+    return text;
+  }
+  return '';
 };
