@@ -235,5 +235,6 @@ describe('Validation', () => {
     cy.get(appFrontend.group.hideCommentField).should('be.visible').find('input').check();
     cy.get(appFrontend.group.comments).should('not.exist');
     cy.get(appFrontend.fieldValidationError.replace('field', 'comments')).should('not.exist');
+    cy.get(appFrontend.errorReport).children().should('not.exist');
   });
 });
