@@ -16,7 +16,7 @@ describe('Summary', () => {
       }
     });
     cy.goto('changename');
-    cy.get(appFrontend.navMenu).find('li > button').last().click();
+    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
 
     // Verify empty summary components
     cy.get('[data-testid=summary-summary-2] > div > [data-testid=single-input-summary]')
@@ -46,6 +46,7 @@ describe('Summary', () => {
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
     cy.gotoAndComplete('changename');
+    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
     cy.get(appFrontend.backButton).should('be.visible');
 
     // Summary displays change button for editable fields and does not for readonly fields
@@ -128,7 +129,7 @@ describe('Summary', () => {
     cy.get('[data-testid=summary-summary-1]').contains('span', 'Du har valgt å endre:').should('be.visible');
     cy.get(appFrontend.navMenu).find('li > button').first().click();
     cy.get(appFrontend.changeOfName.newFirstName).clear().type('hidePrevName');
-    cy.get(appFrontend.navMenu).find('li > button').last().click();
+    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
     cy.get('[data-testid=summary-summary-1]').should('not.exist');
 
     // Test summary of non-repeating group
@@ -146,7 +147,7 @@ describe('Summary', () => {
     cy.get(appFrontend.navMenu).find('li > button').first().click();
     cy.get('#reference').should('exist').and('be.visible').select('Ola Nordmann');
     cy.get('#reference2').should('exist').and('be.visible').select('Ole');
-    cy.get(appFrontend.navMenu).find('li > button').last().click();
+    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
     cy.get('[data-testid=summary-__summary__reference]')
       .should('exist')
       .and('be.visible')
@@ -159,7 +160,7 @@ describe('Summary', () => {
     cy.wait(['@getOptions', '@getOptions']);
     cy.get('#reference').should('exist').and('be.visible').select('Sophie Salt');
     cy.get('#reference2').should('exist').and('be.visible').select('Dole');
-    cy.get(appFrontend.navMenu).find('li > button').last().click();
+    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
     cy.get('[data-testid=summary-__summary__reference]')
       .should('exist')
       .and('be.visible')
@@ -171,7 +172,7 @@ describe('Summary', () => {
     cy.wait(['@getOptions', '@getOptions']);
     cy.get('#reference').should('exist').and('be.visible').select('Test');
     cy.get('#reference2').should('exist').and('be.visible').select('Doffen');
-    cy.get(appFrontend.navMenu).find('li > button').last().click();
+    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
     cy.get('[data-testid=summary-__summary__reference]').should('exist').and('be.visible').and('contain.text', 'Test');
     cy.get('[data-testid=summary-__summary__reference2]')
       .should('exist')
@@ -508,6 +509,7 @@ describe('Summary', () => {
       assertErrorReport();
 
       // Sending in always validates all pages
+      cy.get(appFrontend.navMenu).find('li > button').eq(2).click();
       cy.get(appFrontend.sendinButton).click();
       cy.get(appFrontend.errorReport).should('exist').and('contain.text', 'Du må fylle ut page3required');
     }
@@ -599,7 +601,7 @@ function injectExtraPageAndSetTriggers(trigger?: Triggers | undefined) {
       // Injecting the new page into redux
       type: 'formLayout/calculatePageOrderAndMoveToNextPageFulfilled',
       payload: {
-        order: ['form', 'summary', 'lastPage'],
+        order: ['form', 'summary', 'grid', 'lastPage'],
       },
     });
   });
