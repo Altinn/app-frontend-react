@@ -35,6 +35,14 @@ describe('stringHelper', () => {
       getPlainTextFromNode(getParsedLanguageFromText('<div><span>This is my message<br/> with newline</span></div>')),
     ).toEqual('This is my message with newline');
 
+    expect(
+      getPlainTextFromNode(
+        getParsedLanguageFromText(
+          '<div><span>This is my message with <a href=https://www.vg.no/>link</a></span></div>',
+        ),
+      ),
+    ).toEqual('This is my message with link');
+
     const myReactNode: React.ReactNode = getParsedLanguageFromText('<div><span>This is my message</span></div>');
     expect(getPlainTextFromNode(myReactNode)).toEqual('This is my message');
   });
