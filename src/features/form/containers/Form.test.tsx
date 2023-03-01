@@ -153,7 +153,7 @@ describe('Form', () => {
 
   it('should not render ErrorReport when there are no validation errors', () => {
     renderForm(mockComponents);
-    expect(screen.queryByTestId('ErrorReport')?.querySelector('div')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('ErrorReport')).not.toBeInTheDocument();
   });
 
   it('should render ErrorReport when there are validation errors', () => {
