@@ -54,7 +54,7 @@ export const ListComponent = ({
     }
   };
 
-  const tableHeadersValues = tableHeaders;
+  const tableHeadersValues = {...tableHeaders};
   for (const key in tableHeaders) {
     tableHeadersValues[key] = getTextResourceAsString(tableHeaders[key]);
   }
