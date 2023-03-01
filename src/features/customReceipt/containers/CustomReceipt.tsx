@@ -41,9 +41,9 @@ export function CustomReceipt() {
       >
         {mainComponents.map((component) => renderLayoutComponent(component, customReceipt))}
         <Grid
-          data-testid='ErrorReport'
           item={true}
           xs={12}
+          aria-live='polite'
         >
           <ErrorReport components={errorReportComponents} />
         </Grid>
