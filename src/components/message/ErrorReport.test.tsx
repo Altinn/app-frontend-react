@@ -28,7 +28,7 @@ describe('ErrorReport', () => {
 
   it('should not render when there are no errors', () => {
     render({});
-    expect(screen.queryByTestId('ErrorReport')?.querySelector('div')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('ErrorReport')?.firstChild).not.toBeInTheDocument();
   });
 
   it('should list unmapped errors as unclickable', () => {
@@ -46,7 +46,7 @@ describe('ErrorReport', () => {
     };
 
     render(validations);
-    expect(screen.getByTestId('ErrorReport')?.querySelector('div')).toBeInTheDocument();
+    expect(screen.getByTestId('ErrorReport')?.firstChild).toBeInTheDocument();
 
     // Unmapped errors should not be clickable
     const errorNode = screen.getByText('some unmapped error');
@@ -66,7 +66,7 @@ describe('ErrorReport', () => {
     };
 
     render(validations);
-    expect(screen.getByTestId('ErrorReport')?.querySelector('div')).toBeInTheDocument();
+    expect(screen.getByTestId('ErrorReport')?.firstChild).toBeInTheDocument();
 
     const errorNode = screen.getByText('some mapped error');
     expect(errorNode).toBeInTheDocument();
