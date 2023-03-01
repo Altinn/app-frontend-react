@@ -131,7 +131,6 @@ export function Form() {
       >
         {mainComponents.map((component) => renderLayoutComponent(component, layout))}
         <Grid
-          data-testid='ErrorReport'
           item={true}
           xs={12}
           aria-live='polite'

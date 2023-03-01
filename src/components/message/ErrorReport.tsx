@@ -125,50 +125,52 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
   };
 
   return (
-    <FullWidthWrapper isOnBottom={true}>
-      <Panel
-        title={language && getLanguageFromKey('form_filler.error_report_header', language)}
-        showIcon={false}
-        variant={PanelVariant.Error}
-      >
-        <Grid
-          container={true}
-          item={true}
-          spacing={3}
-          alignItems='flex-start'
+    <div data-testid='ErrorReport'>
+      <FullWidthWrapper isOnBottom={true}>
+        <Panel
+          title={language && getLanguageFromKey('form_filler.error_report_header', language)}
+          showIcon={false}
+          variant={PanelVariant.Error}
         >
           <Grid
-            item
-            xs={12}
+            container={true}
+            item={true}
+            spacing={3}
+            alignItems='flex-start'
           >
-            <ul className={classes.errorList}>
-              {errorsUnmapped.map((error: string, index: number) => (
-                <li key={`unmapped-${index}`}>
-                  {getParsedLanguageFromText(error, {
-                    disallowedTags: ['a'],
-                  })}
-                </li>
-              ))}
-              {errorsMapped.map((error) => (
-                <li key={`mapped-${error.componentId}`}>
-                  <button
-                    className={classes.buttonAsInvisibleLink}
-                    onClick={handleErrorClick(error)}
-                    onKeyDown={handleErrorClick(error)}
-                  >
-                    {getParsedLanguageFromText(errorMessage(error.message), {
+            <Grid
+              item
+              xs={12}
+            >
+              <ul className={classes.errorList}>
+                {errorsUnmapped.map((error: string, index: number) => (
+                  <li key={`unmapped-${index}`}>
+                    {getParsedLanguageFromText(error, {
                       disallowedTags: ['a'],
                     })}
-                  </button>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+                {errorsMapped.map((error) => (
+                  <li key={`mapped-${error.componentId}`}>
+                    <button
+                      className={classes.buttonAsInvisibleLink}
+                      onClick={handleErrorClick(error)}
+                      onKeyDown={handleErrorClick(error)}
+                    >
+                      {getParsedLanguageFromText(errorMessage(error.message), {
+                        disallowedTags: ['a'],
+                      })}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </Grid>
+            {components.map((component) => {
+              return renderLayoutComponent(component, []);
+            })}
           </Grid>
-          {components.map((component) => {
-            return renderLayoutComponent(component, []);
-          })}
-        </Grid>
-      </Panel>
-    </FullWidthWrapper>
+        </Panel>
+      </FullWidthWrapper>
+    </div>
   );
 };
