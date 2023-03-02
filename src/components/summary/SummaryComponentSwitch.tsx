@@ -8,17 +8,16 @@ import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSumm
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayoutComponent } from 'src/layout/layout';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryComponentSwitch extends Omit<ILayoutCompSummary, 'type'> {
   change: {
     onChangeClick: () => void;
     changeText: string | null;
   };
-  formComponent?: ExprUnresolved<ILayoutComponent | ILayoutGroup>;
+  formComponent?: ExprResolved<AnyItem>;
   hasValidationMessages?: boolean;
   label?: JSX.Element | JSX.Element[] | null | undefined;
   formData?: any;
