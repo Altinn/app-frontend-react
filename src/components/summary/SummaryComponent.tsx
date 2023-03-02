@@ -22,8 +22,11 @@ import {
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ExprUnresolved } from 'src/features/expressions/types';
+import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryComponent extends Omit<ExprUnresolved<ILayoutCompSummary>, 'type'> {
   formData?: any;
@@ -189,13 +192,9 @@ export function SummaryComponent(_props: ISummaryComponent) {
         )}
       />
     );
-  } else if (
-    layoutComponent?.getComponentType() === ComponentType.Presentation &&
-    formComponent?.type !== 'Summary' &&
-    formComponent?.type !== 'Group'
-  ) {
+  } else if (layoutComponent?.getComponentType() === ComponentType.Presentation) {
     // Render non-input components as normal
-    return <GenericComponent {...formComponent} />;
+    return <GenericComponent node={formComponentNode as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>} />;
   }
 
   const displayGrid = display && display.useComponentGrid ? formComponent?.grid : grid;

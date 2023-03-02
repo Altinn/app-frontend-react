@@ -119,7 +119,6 @@ export const mockComponentProps: IComponentProps & { id: string } = {
   shouldFocus: false,
   isValid: undefined,
   language: {},
-  layout: undefined,
   componentValidations: {},
   label: () => {
     throw new Error('Rendered mock label, override this yourself');

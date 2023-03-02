@@ -22,17 +22,18 @@ import {
   pageBreakStyles,
   selectComponentTexts,
 } from 'src/utils/formComponentUtils';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ISingleFieldValidation } from 'src/features/form/data/formDataTypes';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentExceptGroupAndSummary, IGridStyling } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { LayoutStyle } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
-export interface IGenericComponentProps {
-  id: string; // PRIORITY: Pass a node object instead
-  layout?: LayoutStyle; // PRIORITY: Get rid of this
+export interface IGenericComponentProps<Type extends ComponentExceptGroupAndSummary> {
+  node: LayoutNode<HComponent<Type>>;
+  layout?: LayoutStyle; // PRIORITY: Get rid of this (support overriding properties instead)
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -82,18 +83,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function GenericComponent<Type extends ComponentExceptGroupAndSummary = ComponentExceptGroupAndSummary>({
-  id,
+  node,
   layout,
-}: IGenericComponentProps) {
-  const node = useResolvedNode(id);
-  const item = node?.item;
+}: IGenericComponentProps<Type>) {
+  const item = node.item;
+  const id = item.id;
 
   const dispatch = useAppDispatch();
   const classes = useStyles();
   const gridRef = React.useRef<HTMLDivElement>(null);
   const GetFocusSelector = makeGetFocus();
-  const hasValidationMessages = node?.hasValidationMessages('any');
-  const hidden = node?.isHidden();
+  const hasValidationMessages = node.hasValidationMessages('any');
+  const hidden = node.isHidden();
 
   const formData = useAppSelector(
     (state) => getFormDataForComponent(state.formData.formData, item?.dataModelBindings),
@@ -101,7 +102,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
   );
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
 
-  const isValid = !node?.hasValidationMessages('errors');
+  const isValid = !node.hasValidationMessages('errors');
   const language = useAppSelector((state) => state.language.language);
   const textResources = useAppSelector((state) => state.textResources.resources);
 
@@ -243,7 +244,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
     return getTextResourceByKey(key, textResources);
   };
 
-  const componentProps = {
+  const fixedComponentProps: IComponentProps = {
     handleDataChange,
     getTextResource: getTextResourceWrapper,
     getTextResourceAsString,
@@ -255,6 +256,13 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
     label: RenderLabel,
     legend: RenderLegend,
     componentValidations,
+  };
+
+  const componentProps = {
+    ...fixedComponentProps,
+    // TODO: Pass on the node object instead of all the properties in it. This could work fairly simply for most
+    // components, but breaks hard on Button and FileUploadWithTag (and possibly more), as they have deep/complex
+    // logic that continues to pass on these properties downstream.
     ...item,
   } as unknown as PropsFromGenericComponent<Type>;
 

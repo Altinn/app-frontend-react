@@ -27,7 +27,6 @@ import { PrintButton } from 'src/layout/PrintButton/index';
 import { RadioButtons } from 'src/layout/RadioButtons/index';
 import { TextArea } from 'src/layout/TextArea/index';
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentExceptGroup, ComponentExceptGroupAndSummary, IGrid, ILayoutComponent } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentValidations } from 'src/types';
@@ -64,7 +63,7 @@ export const components: {
   List: new List(),
 };
 
-export interface IComponentProps extends IGenericComponentProps {
+export interface IComponentProps {
   handleDataChange: (
     value: string | undefined,
     options?: {

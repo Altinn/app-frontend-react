@@ -14,7 +14,9 @@ import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/validation/validation';
+import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
 export function renderLayoutComponent(node: LayoutNode) {
   if (node.item.type === 'Group') {
@@ -59,7 +61,7 @@ export function renderLayoutComponent(node: LayoutNode) {
   return (
     <GenericComponent
       key={node.item.id}
-      id={node.item.id}
+      node={node as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>}
     />
   );
 }

@@ -15,6 +15,7 @@ import { LayoutStyle } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getOptionLookupKey } from 'src/utils/options';
+import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
@@ -87,15 +88,15 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
           aria-describedby={(description && descriptionId) || undefined}
         >
           {node?.children().map((comp) => {
-            if (comp.item.type === 'Group') {
-              console.warn('Unexpected group inside likert container', comp);
+            if (comp.item.type === 'Group' || comp.item.type === 'Summary') {
+              console.warn('Unexpected Group or Summary inside likert container', comp);
               return;
             }
 
             return (
               <GenericComponent
                 key={comp.item.id}
-                id={comp.item.id}
+                node={comp as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>}
               />
             );
           })}
@@ -142,15 +143,15 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
             padding={'dense'}
           >
             {node?.children().map((comp) => {
-              if (comp.item.type === 'Group') {
-                console.warn('Unexpected group inside likert container', comp);
+              if (comp.item.type === 'Group' || comp.item.type === 'Summary') {
+                console.warn('Unexpected Group or Summary inside likert container', comp);
                 return;
               }
 
               return (
                 <GenericComponent
                   key={comp.item.id}
-                  id={comp.item.id}
+                  node={comp as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>}
                   // PRIORITY: Figure out how to override these:
                   layout={LayoutStyle.Table}
                 />
