@@ -84,7 +84,7 @@ export interface IComponentProps extends IGenericComponentProps {
   componentValidations?: IComponentValidations;
 }
 
-export type PropsFromGenericComponent<T extends ComponentExceptGroup> = IComponentProps &
+export type PropsFromGenericComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = IComponentProps &
   ExprResolved<Omit<ILayoutComponent<T>, 'type'>>;
 
 export interface IFormComponentContext {
@@ -107,4 +107,13 @@ export enum ComponentType {
   Presentation = 'presentation',
   Form = 'form',
   Button = 'button',
+}
+
+export function getLayoutComponentObject<T extends string | undefined | ComponentExceptGroupAndSummary>(
+  type: T,
+): T extends ComponentExceptGroupAndSummary ? LayoutComponent<T> : undefined {
+  if (type && type in components) {
+    return components[type as keyof typeof components] as any;
+  }
+  return undefined as any;
 }

@@ -15,34 +15,26 @@ import { LayoutStyle } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getOptionLookupKey } from 'src/utils/options';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentInGroup } from 'src/layout/layout';
-import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
-import type { ITextResource } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
 type RepeatingGroupsLikertContainerProps = {
   id: string;
-  repeatingGroupDeepCopyComponents: ExprUnresolved<ComponentInGroup>[];
-  textResources: ITextResource[];
-  container: ExprUnresolved<ILayoutGroup>;
 };
 
-export const RepeatingGroupsLikertContainer = ({
-  id,
-  repeatingGroupDeepCopyComponents,
-  textResources,
-  container,
-}: RepeatingGroupsLikertContainerProps) => {
-  const { optionsId, mapping, source, options } =
-    repeatingGroupDeepCopyComponents[0] as unknown as IRadioButtonsContainerProps;
+export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertContainerProps) => {
+  const textResources = useAppSelector((state) => state.textResources.resources);
+
+  const node = useResolvedNode(id);
+  const firstLikertChild = node?.children((item) => item.type === 'Likert') as
+    | LayoutNode<HComponent<'Likert'>>
+    | undefined;
+  const { optionsId, mapping, source, options } = firstLikertChild?.item || {};
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions = apiOptions || options || [];
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
-
-  const node = useResolvedNode(container);
 
   const getText = (key: string | undefined) => {
     return key ? getTextResource(key, textResources) : undefined;
@@ -94,16 +86,16 @@ export const RepeatingGroupsLikertContainer = ({
           aria-labelledby={(title && titleId) || undefined}
           aria-describedby={(description && descriptionId) || undefined}
         >
-          {repeatingGroupDeepCopyComponents.map((comp) => {
-            if (comp.type === 'Group') {
+          {node?.children().map((comp) => {
+            if (comp.item.type === 'Group') {
               console.warn('Unexpected group inside likert container', comp);
               return;
             }
 
             return (
               <GenericComponent
-                key={comp.id}
-                {...comp}
+                key={comp.item.id}
+                id={comp.item.id}
               />
             );
           })}
@@ -149,18 +141,18 @@ export const RepeatingGroupsLikertContainer = ({
             id={`likert-table-body-${id}`}
             padding={'dense'}
           >
-            {repeatingGroupDeepCopyComponents.map((comp) => {
-              if (comp.type === 'Group') {
+            {node?.children().map((comp) => {
+              if (comp.item.type === 'Group') {
                 console.warn('Unexpected group inside likert container', comp);
                 return;
               }
 
               return (
                 <GenericComponent
-                  key={comp.id}
-                  {...comp}
+                  key={comp.item.id}
+                  id={comp.item.id}
+                  // PRIORITY: Figure out how to override these:
                   layout={LayoutStyle.Table}
-                  groupContainerId={id}
                 />
               );
             })}

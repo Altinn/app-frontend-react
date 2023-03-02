@@ -7,7 +7,6 @@ import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
-import { setMappingForRepeatingGroupComponent } from 'src/utils/formLayout';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
@@ -34,6 +33,11 @@ import type {
 import type { ILanguage } from 'src/types/shared';
 import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
+/**
+ * @deprecated
+ * @see LayoutNode.hasValidationMessages
+ * @see LayoutNode.hasDeepValidationMessages
+ */
 export const componentHasValidationMessages = (componentValidations: IComponentValidations | undefined) => {
   if (!componentValidations) {
     return false;
@@ -47,6 +51,11 @@ export const componentHasValidationMessages = (componentValidations: IComponentV
   });
 };
 
+/**
+ * @deprecated
+ * @see LayoutNode.hasValidationMessages
+ * @see LayoutNode.hasDeepValidationMessages
+ */
 export const getComponentValidations = (validations: IValidations, componentId: string, pageId: string) => {
   if (validations[pageId]) {
     return validations[pageId][componentId];
@@ -267,12 +276,13 @@ export const getDisplayFormData = (
 export const getFormDataForComponentInRepeatingGroup = (
   formData: IFormData,
   attachments: IAttachments,
-  component: ExprUnresolved<ILayoutComponent | ILayoutGroup>,
+  component: ExprUnresolved<ILayoutComponent | ILayoutGroup> | AnyItem,
   index: number,
   groupDataModelBinding: string | undefined,
   textResources: ITextResource[],
   options: IOptions,
   repeatingGroups: IRepeatingGroups | null,
+  isResolved = false,
 ) => {
   if (
     !component.dataModelBindings ||
@@ -299,19 +309,16 @@ export const getFormDataForComponentInRepeatingGroup = (
     return undefined;
   }
 
-  const replaced = dataModelBinding.replace(groupDataModelBinding, `${groupDataModelBinding}[${index}]`);
-  const componentId = `${component.id}-${index}`;
-
-  let mapping;
-  if ('mapping' in component) {
-    mapping = setMappingForRepeatingGroupComponent(component.mapping, index);
+  let replaced: string;
+  let indexedComponent: ExprUnresolved<ILayoutComponent | ILayoutGroup> | AnyItem;
+  let componentId: string;
+  if (isResolved) {
+    replaced = dataModelBinding;
+    componentId = component.id;
+    indexedComponent = component;
+  } else {
+    throw new Error('Calling this function without "isResolved = true" is unsupported');
   }
-
-  const indexedComponent = {
-    ...component,
-    mapping,
-    id: componentId,
-  };
 
   return getDisplayFormData(
     replaced,
@@ -323,21 +330,6 @@ export const getFormDataForComponentInRepeatingGroup = (
     textResources,
     repeatingGroups,
   );
-};
-
-export const isComponentValid = (validations: IComponentValidations): boolean => {
-  if (!validations) {
-    return true;
-  }
-  let isValid = true;
-
-  Object.keys(validations).forEach((key: string) => {
-    const errors = validations[key]?.errors;
-    if (errors && errors.length > 0) {
-      isValid = false;
-    }
-  });
-  return isValid;
 };
 
 export const getTextResource = (resourceKey: string, textResources: ITextResource[]): React.ReactNode => {

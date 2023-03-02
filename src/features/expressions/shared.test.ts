@@ -65,8 +65,8 @@ describe('Expressions shared function tests', () => {
 
         const currentLayout = (context && context.currentLayout) || '';
         const rootCollection = expectsFailure
-          ? nodesInLayouts(_layouts, currentLayout, repeatingGroups)
-          : resolvedNodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources);
+          ? nodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources.hiddenFields, {})
+          : resolvedNodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources, {});
         const component = findComponent(context, rootCollection);
 
         if (expectsFailure) {
@@ -84,7 +84,7 @@ describe('Expressions shared function tests', () => {
             }
 
             for (const node of layout.flat(true)) {
-              if (node.isHidden(dataSources.hiddenFields)) {
+              if (node.isHidden()) {
                 newHiddenFields.add(node.item.id);
               }
             }
@@ -148,7 +148,13 @@ describe('Expressions shared context tests', () => {
       const _layouts = layouts || {};
       for (const key of Object.keys(_layouts)) {
         const repeatingGroups = getRepeatingGroups(_layouts[key].data.layout, dataSources.formData);
-        const nodes = nodesInLayouts({ FormLayout: _layouts[key].data.layout }, 'FormLayout', repeatingGroups);
+        const nodes = nodesInLayouts(
+          { FormLayout: _layouts[key].data.layout },
+          'FormLayout',
+          repeatingGroups,
+          dataSources.hiddenFields,
+          {},
+        );
         const layout = nodes.current();
         if (!layout) {
           throw new Error('No layout found - check your test data!');

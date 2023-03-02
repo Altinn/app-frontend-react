@@ -7,7 +7,6 @@ import { getMultiPageGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { renderWithProviders } from 'src/testUtils';
-import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IRepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
@@ -88,12 +87,6 @@ describe('RepeatingGroupsEditContainer', () => {
   const layout: ILayout = [multiPageGroup, ...components];
 
   const repeatingGroupIndex = 3;
-  const repeatingGroupDeepCopyComponents = createRepeatingGroupComponents(
-    multiPageGroup,
-    components,
-    repeatingGroupIndex,
-    textResources,
-  );
 
   it('calls setEditIndex when save and open next is pressed when edit.saveAndNextButton is true', async () => {
     const setEditIndex = jest.fn();
@@ -109,11 +102,8 @@ describe('RepeatingGroupsEditContainer', () => {
   const render = (props: Partial<IRepeatingGroupsEditContainer> = {}) => {
     const allProps: IRepeatingGroupsEditContainer = {
       id: 'multipageGroup',
-      container: multiPageGroup,
-      repeatingGroupDeepCopyComponents: repeatingGroupDeepCopyComponents,
       language: language,
       textResources: textResources,
-      layout: layout,
       editIndex: 1,
       repeatingGroupIndex: repeatingGroupIndex,
       setEditIndex: jest.fn(),

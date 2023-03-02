@@ -36,7 +36,7 @@ export type HComponentInRepGroup = HComponent & HRepGroupExtensions;
  */
 export type HRepGroupRow = {
   index: number;
-  items: HRepGroupChildren[];
+  items: HRepGroupChild[];
 
   // If this object is present, it contains a subset of the Group layout object, where some expressions may be resolved
   // in the context of the current repeating group row.
@@ -54,7 +54,7 @@ export type HRepGroup = Omit<HGroup, 'children'> &
 /**
  * Types of possible components inside repeating group rows
  */
-export type HRepGroupChildren = HComponentInRepGroup | HNonRepGroup | HRepGroup;
+export type HRepGroupChild = (HComponent | HNonRepGroup | HRepGroup) & HRepGroupExtensions;
 
 /**
  * Any parent object of a LayoutNode (with for example repeating groups, the parent can be the group node, but above
@@ -62,8 +62,10 @@ export type HRepGroupChildren = HComponentInRepGroup | HNonRepGroup | HRepGroup;
  */
 export type ParentNode = LayoutNode | LayoutPage;
 
+export type HGroups = HComponentInRepGroup | HNonRepGroup | HRepGroup;
+
 /**
  * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
  * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
  */
-export type AnyItem = HComponent | HComponentInRepGroup | HNonRepGroup | HRepGroup;
+export type AnyItem = HComponent | HGroups;

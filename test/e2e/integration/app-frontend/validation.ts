@@ -130,7 +130,9 @@ describe('Validation', () => {
       .should('be.inViewport')
       .should('contain.text', texts.errorReport)
       .should('contain.text', texts.requiredFieldLastName)
-      .should('contain.text', texts.requiredFieldDateFrom);
+      .should('contain.text', texts.requiredFieldDateFrom)
+      .should('contain.text', texts.next);
+    // PRIORITY: Make sure the next button is in errorReport, and not in the rest of the layout
 
     const lastNameError = appFrontend.fieldValidationError.replace(
       'field',

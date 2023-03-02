@@ -1,4 +1,4 @@
-import { components, ComponentType } from 'src/layout/index';
+import { ComponentType } from 'src/layout/index';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 
@@ -40,13 +40,4 @@ export abstract class LayoutComponent<Type extends ComponentExceptGroupAndSummar
   getComponentType(): ComponentType {
     return ComponentType.Form;
   }
-}
-
-export function getLayoutComponentObject<T extends string | undefined | ComponentExceptGroupAndSummary>(
-  type: T,
-): T extends ComponentExceptGroupAndSummary ? LayoutComponent<T> : undefined {
-  if (type && type in components) {
-    return components[type as keyof typeof components] as any;
-  }
-  return undefined as any;
 }

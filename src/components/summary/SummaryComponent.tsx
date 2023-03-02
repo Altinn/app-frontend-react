@@ -9,11 +9,9 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { SummaryComponentSwitch } from 'src/components/summary/SummaryComponentSwitch';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
-import { mapGroupComponents } from 'src/features/form/containers/formUtils';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ComponentType } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import {
   componentHasValidationMessages,
@@ -77,9 +75,10 @@ export function SummaryComponent(_props: ISummaryComponent) {
     state.formLayout.layouts && pageRef ? state.formLayout.layouts[pageRef] : undefined,
   );
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
-  const formComponent = useResolvedNode(componentRef)?.item;
+  const formComponentNode = useResolvedNode(componentRef);
+  const formComponent = formComponentNode?.item;
   const summaryComponent = useResolvedNode(id)?.item;
-  const layoutComponent = getLayoutComponentObject(formComponent?.type);
+  const layoutComponent = formComponentNode?.getComponent();
   const formComponentLegacy = useAppSelector(
     (state) =>
       (state.formLayout.layouts &&
@@ -174,17 +173,15 @@ export function SummaryComponent(_props: ISummaryComponent) {
 
   if (formComponentLegacy?.type === 'Group' && (!formComponentLegacy.maxCount || formComponentLegacy.maxCount <= 1)) {
     // Display children as summary components
-    const groupComponents = mapGroupComponents(formComponentLegacy, layout);
     return (
       <DisplayGroupContainer
         key={id}
-        container={formComponentLegacy}
-        components={groupComponents}
+        id={id}
         renderLayoutComponent={(child) => (
           <SummaryComponent
-            key={`__summary__${child.id}`}
-            id={`__summary__${child.id}`}
-            componentRef={child.id}
+            key={`__summary__${child.item.id}`}
+            id={`__summary__${child.item.id}`}
+            componentRef={child.item.id}
             pageRef={groupProps.pageRef}
             largeGroup={groupProps.largeGroup}
             display={display}

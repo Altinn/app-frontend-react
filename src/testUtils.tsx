@@ -128,6 +128,4 @@ export const mockComponentProps: IComponentProps & { id: string } = {
     throw new Error('Rendered mock legend, override this yourself');
   },
   text: undefined,
-  groupContainerId: undefined,
-  labelSettings: undefined,
 };

@@ -12,12 +12,11 @@ import { getLanguageFromKey, getParsedLanguageFromText } from 'src/language/shar
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
-import type { ILayout } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { FlatError } from 'src/utils/validation/validation';
 
 export interface IErrorReportProps {
-  components: ILayout;
+  nodes: LayoutNode[];
 }
 
 const iconSize = 16;
@@ -52,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const ErrorReport = ({ components }: IErrorReportProps) => {
+export const ErrorReport = ({ nodes }: IErrorReportProps) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -60,7 +59,7 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
     getMappedErrors(state.formValidations.validations),
     getUnmappedErrors(state.formValidations.validations),
   ]);
-  const nodes = useExprContext();
+  const allNodes = useExprContext();
   const language = useAppSelector((state) => state.language.language);
   const hasErrors = errorsUnmapped.length > 0 || errorsMapped.length > 0;
 
@@ -81,7 +80,7 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
       );
     }
 
-    const componentNode = nodes?.findById(error.componentId);
+    const componentNode = allNodes?.findById(error.componentId);
 
     // Iterate over parent repeating groups
     componentNode?.parents().forEach((parentNode, i, allParents) => {
@@ -165,9 +164,7 @@ export const ErrorReport = ({ components }: IErrorReportProps) => {
                 ))}
               </ul>
             </Grid>
-            {components.map((component) => {
-              return renderLayoutComponent(component, []);
-            })}
+            {nodes.map((n) => renderLayoutComponent(n))}
           </Grid>
         </Panel>
       </FullWidthWrapper>

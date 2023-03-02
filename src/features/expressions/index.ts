@@ -447,7 +447,7 @@ export const ExprFunctions = {
       const component = node.closest((c) => c.id === id || c.baseComponentId === id);
       const binding = component?.item?.dataModelBindings?.simpleBinding;
       if (component && binding) {
-        if (component.isHidden(this.dataSources.hiddenFields)) {
+        if (component.isHidden()) {
           return null;
         }
 

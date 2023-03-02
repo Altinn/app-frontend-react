@@ -8,10 +8,8 @@ import {
   getDisplayFormData,
   getFieldName,
   getFileUploadComponentValidations,
-  getFormDataForComponentInRepeatingGroup,
   gridBreakpoints,
   isAttachmentError,
-  isComponentValid,
   isNotAttachmentError,
   parseFileUploadComponentWithTagValidationObject,
   selectComponentTexts,
@@ -169,30 +167,6 @@ describe('formComponentUtils', () => {
   ];
 
   const mockRepeatingGroups: IRepeatingGroups = {};
-
-  describe('getFormDataForComponentInRepeatingGroup', () => {
-    it('should return comma separated string of text resources for checkboxes with multiple values', () => {
-      const checkboxComponent: ExprUnresolved<ILayoutCompCheckboxes> = {
-        id: 'whatever',
-        type: 'Checkboxes',
-        optionsId: 'mockRepOption',
-        dataModelBindings: {
-          simpleBinding: 'group.checkbox',
-        },
-      };
-      const result = getFormDataForComponentInRepeatingGroup(
-        mockFormData,
-        mockAttachments,
-        checkboxComponent,
-        0,
-        'group',
-        mockTextResources,
-        mockOptions,
-        mockRepeatingGroups,
-      );
-      expect(result).toEqual('RepValue1, RepValue2, RepValue3');
-    });
-  });
 
   describe('getDisplayFormData', () => {
     it('should return form data for a component', () => {
@@ -470,52 +444,6 @@ describe('formComponentUtils', () => {
       expect(result).toEqual({
         title: 'key-that-does-not-exist',
       });
-    });
-  });
-
-  describe('isComponentValid', () => {
-    it('should return false when validations has errors', () => {
-      const result = isComponentValid({
-        simpleBinding: {
-          errors: ['has error'],
-          warnings: [],
-        },
-      });
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false when validations has errors and warnings', () => {
-      const result = isComponentValid({
-        simpleBinding: {
-          errors: ['has error'],
-          warnings: ['has warning'],
-        },
-      });
-
-      expect(result).toBe(false);
-    });
-
-    it('should return true when validations has warnings', () => {
-      const result = isComponentValid({
-        simpleBinding: {
-          errors: [],
-          warnings: ['has warnings'],
-        },
-      });
-
-      expect(result).toBe(true);
-    });
-
-    it('should return true when validations has no warnings or errors', () => {
-      const result = isComponentValid({
-        simpleBinding: {
-          errors: [],
-          warnings: [],
-        },
-      });
-
-      expect(result).toBe(true);
     });
   });
 

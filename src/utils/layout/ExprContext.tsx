@@ -4,7 +4,7 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { dataSourcesFromState, resolvedNodesInLayouts, rewriteTextResourceBindings } from 'src/utils/layout/hierarchy';
 import type { ComponentExceptGroup, ILayoutComponent } from 'src/layout/layout';
 import type { LayoutNode, LayoutPages } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { HComponent, HGroups } from 'src/utils/layout/hierarchy.types';
 
 export const ExprContext = React.createContext<LayoutPages | undefined>(undefined);
 
@@ -12,6 +12,8 @@ type MaybeSpecificItem<T> = T extends ILayoutComponent
   ? T extends { type: infer Type }
     ? Type extends ComponentExceptGroup
       ? LayoutNode<HComponent<Type>>
+      : Type extends 'Group'
+      ? LayoutNode<HGroups>
       : LayoutNode
     : LayoutNode
   : LayoutNode;
@@ -29,17 +31,18 @@ function useLayoutsAsNodes(): LayoutPages | undefined {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const current = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const textResources = useAppSelector((state) => state.textResources.resources);
+  const validations = useAppSelector((state) => state.formValidations.validations);
 
   return useMemo(() => {
     if (!layouts || !current || !repeatingGroups) {
       return undefined;
     }
 
-    const resolved = resolvedNodesInLayouts(layouts, current, repeatingGroups, dataSources);
+    const resolved = resolvedNodesInLayouts(layouts, current, repeatingGroups, dataSources, validations);
     rewriteTextResourceBindings(resolved, textResources);
 
     return resolved;
-  }, [layouts, current, repeatingGroups, dataSources, textResources]);
+  }, [layouts, current, repeatingGroups, dataSources, textResources, validations]);
 }
 
 export const ExprContextWrapper = (props: React.PropsWithChildren) => {

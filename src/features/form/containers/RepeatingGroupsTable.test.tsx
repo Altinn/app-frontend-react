@@ -8,7 +8,6 @@ import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
-import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IRepeatingGroupTableProps } from 'src/features/form/containers/RepeatingGroupTable';
 import type { IFormData } from 'src/features/form/data';
@@ -129,18 +128,11 @@ describe('RepeatingGroupTable', () => {
     } as ExprUnresolved<ILayoutCompCheckboxes>,
   ];
   const layout: ILayoutState = getLayout(group, components);
-  const currentView = 'FormLayout';
   const data: IFormData = {
     'some-group[1].checkboxBinding': 'option.value',
   };
 
   const repeatingGroupIndex = 3;
-  const repeatingGroupDeepCopyComponents = createRepeatingGroupComponents(
-    group,
-    components,
-    repeatingGroupIndex,
-    textResources,
-  );
 
   it('should render table header when table has entries', () => {
     const container = render();
@@ -162,25 +154,12 @@ describe('RepeatingGroupTable', () => {
         edit: { alertOnDelete: true },
       });
       const layout = getLayout(group, components);
-      const repeatingGroupDeepCopyComponents = createRepeatingGroupComponents(
-        group,
-        components,
-        repeatingGroupIndex,
-        textResources,
-      );
 
       if (!layout.layouts) {
         return;
       }
 
-      render(
-        {
-          container: group,
-          repeatingGroupDeepCopyComponents: repeatingGroupDeepCopyComponents,
-          layout: layout.layouts[currentView],
-        },
-        layout,
-      );
+      render({}, layout);
     });
 
     it('should open and close delete-warning on delete click when alertOnDelete is active', async () => {
@@ -244,25 +223,18 @@ describe('RepeatingGroupTable', () => {
 
   const render = (props: Partial<IRepeatingGroupTableProps> = {}, newLayout?: ILayoutState) => {
     const allProps: IRepeatingGroupTableProps = {
-      container: group,
       attachments: attachments,
       language: language,
       textResources: textResources,
-      components: components,
-      currentView: currentView,
       editIndex: -1,
       formData: data,
-      hiddenFields: [],
       id: group.id,
-      layout: (layout.layouts && layout.layouts[currentView]) || null,
       options: {},
-      repeatingGroupDeepCopyComponents: repeatingGroupDeepCopyComponents,
       repeatingGroupIndex: repeatingGroupIndex,
       repeatingGroups: layout.uiConfig.repeatingGroups,
       deleting: false,
       onClickRemove: jest.fn(),
       setEditIndex: jest.fn(),
-      validations: {},
       ...props,
     };
 

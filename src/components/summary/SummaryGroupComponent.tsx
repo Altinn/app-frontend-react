@@ -11,13 +11,11 @@ import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroup
 import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
-import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { getDisplayFormDataForComponent, getFormDataForComponentInRepeatingGroup } from 'src/utils/formComponentUtils';
+import { getDisplayFormDataForComponent } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ComponentFromSummary } from 'src/features/form/containers/DisplayGroupContainer';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/types';
 import type { IRuntimeState } from 'src/types';
@@ -100,7 +98,6 @@ export function SummaryGroupComponent({
   const options = useAppSelector((state) => state.optionState.options);
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
   const validations = useAppSelector((state) => state.formValidations.validations);
-  const hiddenFields = useAppSelector((state) => new Set(state.formLayout.uiConfig.hiddenFields));
 
   const title = React.useMemo(() => {
     if (textResources && textResourceBindings) {
@@ -141,9 +138,9 @@ export function SummaryGroupComponent({
       const childSummaryComponents = node
         .children(undefined, row.index)
         .filter(removeExcludedChildren)
-        .filter((node) => getLayoutComponentObject(node.item.type)?.getComponentType() === ComponentType.Form)
+        .filter((node) => node.getComponent()?.getComponentType() === ComponentType.Form)
         .map((n) => {
-          if (n.isHidden(hiddenFields)) {
+          if (n.isHidden()) {
             return;
           }
 
@@ -194,12 +191,13 @@ export function SummaryGroupComponent({
         children: [],
       } as ExprUnresolved<ILayoutGroup>;
 
+      /*
       const childSummaryComponents: ComponentFromSummary[] = [];
       node
         .children(undefined, row.index)
         .filter(removeExcludedChildren)
         .forEach((n) => {
-          if (n.isHidden(hiddenFields)) {
+          if (n.isHidden()) {
             return;
           }
 
@@ -236,13 +234,15 @@ export function SummaryGroupComponent({
 
           childSummaryComponents.push(summaryComponent);
         });
+       */
 
       componentArray.push(
+        // PRIORITY: Find a way to avoid faking this
         <DisplayGroupContainer
           key={`${groupContainer.id}-summary`}
           id={`${groupContainer.id}-${row.index}-summary`}
-          components={childSummaryComponents}
-          container={groupContainer}
+          // components={childSummaryComponents}
+          // container={groupContainer}
           renderLayoutComponent={renderLayoutComponent}
         />,
       );

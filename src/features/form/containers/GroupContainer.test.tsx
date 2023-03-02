@@ -145,8 +145,6 @@ function render({ container = mockContainer }: IRender = {}) {
 
   const { store } = renderWithProviders(
     <GroupContainer
-      components={mockComponents}
-      container={container}
       id={container.id}
       key='testKey'
     />,

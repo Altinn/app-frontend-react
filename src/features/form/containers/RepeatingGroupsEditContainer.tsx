@@ -5,24 +5,20 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
-import { renderGenericComponent } from 'src/utils/layout';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
-import type { IGroupEditProperties, ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentInGroup, ILayout } from 'src/layout/layout';
+import type { ExprResolved } from 'src/features/expressions/types';
+import type { IGroupEditProperties } from 'src/layout/Group/types';
 import type { ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
 export interface IRepeatingGroupsEditContainer {
   id: string;
   className?: string;
-  container: ExprUnresolved<ILayoutGroup>;
-  repeatingGroupDeepCopyComponents: ExprUnresolved<ComponentInGroup>[][];
   language: ILanguage;
   textResources: ITextResource[];
-  layout: ILayout | null;
   deleting?: boolean;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;
@@ -67,11 +63,8 @@ const useStyles = makeStyles({
 export function RepeatingGroupsEditContainer({
   id,
   className,
-  container,
-  repeatingGroupDeepCopyComponents,
   language,
   textResources,
-  layout,
   deleting,
   editIndex,
   setEditIndex,
@@ -83,14 +76,16 @@ export function RepeatingGroupsEditContainer({
   filteredIndexes,
 }: IRepeatingGroupsEditContainer): JSX.Element | null {
   const classes = useStyles();
-  const group = useResolvedNode(container)?.item;
-  if (!group) {
+  const node = useResolvedNode(id);
+  const group = node?.item;
+  if (!group || !node || group.type !== 'Group' || !('rows' in group)) {
     return null;
   }
 
-  const textsForRow = 'rows' in group ? group.rows[editIndex]?.groupExpressions?.textResourceBindings : undefined;
-  const editForRow = 'rows' in group ? group.rows[editIndex]?.groupExpressions?.edit : undefined;
-  const editForGroup = group.type === 'Group' ? group.edit : undefined;
+  const row = group.rows[editIndex];
+  const textsForRow = row?.groupExpressions?.textResourceBindings;
+  const editForRow = row?.groupExpressions?.edit;
+  const editForGroup = group.edit;
 
   const texts = {
     ...group.textResourceBindings,
@@ -136,6 +131,10 @@ export function RepeatingGroupsEditContainer({
   const saveAndNextButtonVisible = !forceHideSaveButton && edit.saveAndNextButton === true && nextIndex !== null;
 
   const hideTable = edit.mode === 'hideTable' || edit.mode === 'showAll';
+
+  if (!row) {
+    return null;
+  }
 
   return (
     <div
@@ -183,22 +182,20 @@ export function RepeatingGroupsEditContainer({
           item={true}
           spacing={3}
         >
-          {repeatingGroupDeepCopyComponents[editIndex]?.map((component) => {
+          {row.items.map((component) => {
             if (
               edit?.multiPage &&
               typeof multiPageIndex === 'number' &&
               multiPageIndex > -1 &&
-              !container.children.includes(
-                `${multiPageIndex}:${component.id.substring(0, component.id.lastIndexOf('-'))}`,
-              )
+              component.multiPageIndex !== multiPageIndex
             ) {
               return null;
             }
-            return renderGenericComponent({
-              component,
-              layout,
-              index: editIndex,
-            });
+            const n = node?.top.findById(component.id);
+            if (!n) {
+              return null;
+            }
+            return renderLayoutComponent(n);
           })}
         </Grid>
         <Grid item={true}>
@@ -211,7 +208,7 @@ export function RepeatingGroupsEditContainer({
             >
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > 0 &&
-                container.children.find((childId) => childId.startsWith(`${multiPageIndex - 1}:`)) && (
+                row.items.filter((n) => n.multiPageIndex === multiPageIndex - 1).length > 0 && (
                   <Grid item={true}>
                     <Button
                       icon={<Back aria-hidden='true' />}
@@ -225,7 +222,7 @@ export function RepeatingGroupsEditContainer({
                 )}
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > -1 &&
-                container.children.find((childId) => childId.startsWith(`${multiPageIndex + 1}:`)) && (
+                row.items.filter((n) => n.multiPageIndex === multiPageIndex + 1).length > 0 && (
                   <Grid item={true}>
                     <Button
                       icon={<Next aria-hidden='true' />}

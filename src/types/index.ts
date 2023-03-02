@@ -25,6 +25,9 @@ export interface IComponentBindingValidation {
   fixed?: string[];
 }
 
+export type ValidationKey = keyof IComponentBindingValidation;
+export type ValidationKeyOrAny = ValidationKey | 'any';
+
 export interface IComponentValidations {
   [id: string]: IComponentBindingValidation | undefined;
 }

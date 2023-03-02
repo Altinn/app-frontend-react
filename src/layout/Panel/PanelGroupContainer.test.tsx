@@ -240,7 +240,15 @@ describe('PanelGroupContainer', () => {
   });
 });
 
-const render = (props: Partial<IPanelGroupContainerProps> = {}, customState: Partial<RootState> = {}) => {
+interface TestExtensions {
+  container: ExprUnresolved<ILayoutGroup>;
+  components: ILayout;
+}
+
+const render = (
+  props: Partial<IPanelGroupContainerProps & TestExtensions> = {},
+  customState: Partial<RootState> = {},
+) => {
   const allProps: IPanelGroupContainerProps = {
     ...({} as IPanelGroupContainerProps),
     ...props,
@@ -252,7 +260,8 @@ const render = (props: Partial<IPanelGroupContainerProps> = {}, customState: Par
     ...customState,
   };
   const formLayout = preloadedState.formLayout.layouts && preloadedState.formLayout.layouts['FormLayout'];
-  formLayout?.push(allProps.container, ...(allProps.components || []));
+  props.container && formLayout?.push(props.container);
+  formLayout?.push(...(props.components || []));
 
   const { container } = renderWithProviders(<PanelGroupContainer {...allProps} />, { preloadedState });
 

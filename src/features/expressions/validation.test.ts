@@ -47,7 +47,7 @@ function evalAllExpressions(layouts: Layouts) {
       ...generateRepeatingGroups(page.data.layout),
     };
   }
-  const nodes = nodesInLayouts(convertLayouts(layouts), Object.keys(layouts)[0], repeatingGroups);
+  const nodes = nodesInLayouts(convertLayouts(layouts), Object.keys(layouts)[0], repeatingGroups, new Set(), {});
   for (const page of Object.values(nodes.all())) {
     for (const node of page.flat(true)) {
       evalExprInObj({
