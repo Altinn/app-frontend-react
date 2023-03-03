@@ -7,7 +7,6 @@ import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSumma
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { AnyItem } from 'src/utils/layout/hierarchy.types';
@@ -37,8 +36,6 @@ export function SummaryComponentSwitch({
   groupProps = {},
   display,
 }: ISummaryComponentSwitch) {
-  const resolved = useResolvedNode(formComponent)?.item;
-
   if (!formComponent) {
     return null;
   }
@@ -94,7 +91,7 @@ export function SummaryComponentSwitch({
         label={label}
         hasValidationMessages={!!hasValidationMessages}
         formData={formData}
-        readOnlyComponent={resolved?.readOnly}
+        readOnlyComponent={formComponent.readOnly}
         display={display}
       />
     );
@@ -123,7 +120,7 @@ export function SummaryComponentSwitch({
       label={label}
       hasValidationMessages={!!hasValidationMessages}
       formData={formData}
-      readOnlyComponent={resolved?.readOnly}
+      readOnlyComponent={formComponent.readOnly}
       display={display}
     />
   );
