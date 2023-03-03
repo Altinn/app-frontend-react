@@ -163,17 +163,14 @@ export function RepeatingGroupTableRow({
     ...expressionsForRow?.textResourceBindings,
   } as ExprResolved<ILayoutGroup['textResourceBindings']>;
 
-  const getFormDataForItem = (item: AnyItem, index: number): string => {
+  const getFormDataForItem = (item: AnyItem): string => {
     return getFormDataForComponentInRepeatingGroup(
       formData,
       attachments,
       item,
-      index,
-      group?.dataModelBindings?.group,
       textResources,
       options,
       repeatingGroups,
-      true,
     );
   };
 
@@ -186,7 +183,7 @@ export function RepeatingGroupTableRow({
   const deleteButtonText = getLanguageFromKey('general.delete', language);
 
   const firstItem = tableNodes[0]?.item;
-  const firstCellData = firstItem && getFormDataForItem(firstItem, index);
+  const firstCellData = firstItem && getFormDataForItem(firstItem);
 
   return (
     <TableRow
@@ -204,9 +201,7 @@ export function RepeatingGroupTableRow({
             key={`${n.item.id}-${index}`}
             style={{ textAlign: getTextAlignment(n.item) }}
           >
-            <span className={classes.contentFormatting}>
-              {!isEditingRow ? getFormDataForItem(n.item, index) : null}
-            </span>
+            <span className={classes.contentFormatting}>{!isEditingRow ? getFormDataForItem(n.item) : null}</span>
           </TableCell>
         ))
       ) : (
@@ -218,7 +213,7 @@ export function RepeatingGroupTableRow({
                   <b className={classes.contentFormatting}>
                     {getTextResource(getTableTitle(n.item.textResourceBindings || {}), textResources)}:
                   </b>
-                  <span className={classes.contentFormatting}>{getFormDataForItem(n.item, index)}</span>
+                  <span className={classes.contentFormatting}>{getFormDataForItem(n.item)}</span>
                   {i < length - 1 && <div style={{ height: 8 }} />}
                 </React.Fragment>
               )

@@ -230,13 +230,10 @@ export const getDisplayFormData = (
 export const getFormDataForComponentInRepeatingGroup = (
   formData: IFormData,
   attachments: IAttachments,
-  component: ExprUnresolved<ILayoutComponent | ILayoutGroup> | AnyItem,
-  index: number,
-  groupDataModelBinding: string | undefined,
+  component: AnyItem,
   textResources: ITextResource[],
   options: IOptions,
   repeatingGroups: IRepeatingGroups | null,
-  isResolved = false,
 ) => {
   if (
     !component.dataModelBindings ||
@@ -259,25 +256,14 @@ export const getFormDataForComponentInRepeatingGroup = (
     dataModelBinding = component.dataModelBindings.list;
   }
 
-  if (!dataModelBinding || !groupDataModelBinding || !repeatingGroups) {
+  if (!dataModelBinding) {
     return undefined;
   }
 
-  let replaced: string;
-  let indexedComponent: ExprUnresolved<ILayoutComponent | ILayoutGroup> | AnyItem;
-  let componentId: string;
-  if (isResolved) {
-    replaced = dataModelBinding;
-    componentId = component.id;
-    indexedComponent = component;
-  } else {
-    throw new Error('Calling this function without "isResolved = true" is unsupported');
-  }
-
   return getDisplayFormData(
-    replaced,
-    indexedComponent,
-    componentId,
+    dataModelBinding,
+    component,
+    component.id,
     attachments,
     formData,
     options,
