@@ -31,18 +31,17 @@ function useLayoutsAsNodes(): LayoutPages | undefined {
   const layouts = useAppSelector((state) => state.formLayout.layouts);
   const current = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const textResources = useAppSelector((state) => state.textResources.resources);
-  const validations = useAppSelector((state) => state.formValidations.validations);
 
   return useMemo(() => {
     if (!layouts || !current || !repeatingGroups) {
       return undefined;
     }
 
-    const resolved = resolvedNodesInLayouts(layouts, current, repeatingGroups, dataSources, validations);
+    const resolved = resolvedNodesInLayouts(layouts, current, repeatingGroups, dataSources);
     rewriteTextResourceBindings(resolved, textResources);
 
     return resolved;
-  }, [layouts, current, repeatingGroups, dataSources, textResources, validations]);
+  }, [layouts, current, repeatingGroups, dataSources, textResources]);
 }
 
 export const ExprContextWrapper = (props: React.PropsWithChildren) => {

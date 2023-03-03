@@ -12,13 +12,7 @@ import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type {
-  IDataModelBindings,
-  IGridStyling,
-  ILayoutComponent,
-  ISelectionComponentProps,
-  NumberFormatProps,
-} from 'src/layout/layout';
+import type { IGridStyling, ILayoutComponent, ISelectionComponentProps, NumberFormatProps } from 'src/layout/layout';
 import type { IPageBreak } from 'src/layout/layout.d';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
@@ -35,27 +29,6 @@ import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 export interface IComponentFormData {
   [binding: string]: string | undefined;
 }
-
-/**
- * PRIORITY: Remove this, rewrite into each component
- * @deprecated Move this into the node hierarchy?
- */
-export const getFormDataForComponent = (formData: IFormData, dataModelBindings: IDataModelBindings | undefined) => {
-  if (!dataModelBindings) {
-    return {} as IComponentFormData;
-  }
-
-  const formDataObj: IComponentFormData = {};
-  Object.keys(dataModelBindings).forEach((key: any) => {
-    const binding = dataModelBindings[key];
-    if (formData[binding]) {
-      formDataObj[key] = formData[binding];
-    } else {
-      formDataObj[key] = '';
-    }
-  });
-  return formDataObj;
-};
 
 /**
  * PRIORITY: Remove this, rewrite into each component

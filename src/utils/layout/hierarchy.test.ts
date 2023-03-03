@@ -8,14 +8,13 @@ import {
   resolvedLayoutsFromState,
   resolvedNodesInLayouts,
 } from 'src/utils/layout/hierarchy';
-import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompHeader } from 'src/layout/Header/types';
 import type { ILayoutCompInput } from 'src/layout/Input/types';
 import type { ILayout } from 'src/layout/layout';
 import type { IRepeatingGroups, IValidations } from 'src/types';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
+import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 
 const { layoutAsHierarchyWithRows, layoutAsHierarchy, nodesInLayout } = _private;
 
@@ -120,6 +119,19 @@ describe('Hierarchical layout tools', () => {
     components.group3ni,
   ];
   const layouts = { FormLayout: layout };
+
+  const dataSources: HierarchyDataSources = {
+    formData: {},
+    instanceContext: {
+      instanceId: 'abc-123',
+      appId: 'org/app',
+      instanceOwnerPartyId: 'test',
+      instanceOwnerPartyType: 'person',
+    },
+    applicationSettings: {},
+    hiddenFields: new Set(),
+    validations: {},
+  };
 
   describe('layoutAsHierarchy', () => {
     it('should turn a layout into a hierarchy', () => {
@@ -320,20 +332,18 @@ describe('Hierarchical layout tools', () => {
 
   describe('nodesInLayout', () => {
     it('should resolve a very simple layout', () => {
-      const hidden = new Set<string>();
       const root = new LayoutPage();
-      const top1 = new LayoutNode(components.top1 as AnyItem, root, root, hidden, {});
-      const top2 = new LayoutNode(components.top2 as AnyItem, root, root, hidden, {});
+      const top1 = new LayoutNode(components.top1 as AnyItem, root, root, dataSources);
+      const top2 = new LayoutNode(components.top2 as AnyItem, root, root, dataSources);
       root._addChild(top1);
       root._addChild(top2);
 
-      const result = nodesInLayout([components.top1, components.top2], {}, hidden, {});
+      const result = nodesInLayout([components.top1, components.top2], {}, dataSources);
       expect(result).toEqual(root);
     });
 
     it('should resolve a complex layout without groups', () => {
-      const hidden = new Set<string>();
-      const nodes = nodesInLayout(layout, repeatingGroups, hidden, {});
+      const nodes = nodesInLayout(layout, repeatingGroups, dataSources);
       const flatNoGroups = nodes.flat(false);
       expect(flatNoGroups.map((n) => n.item.id)).toEqual([
         // Top-level nodes:
@@ -362,8 +372,7 @@ describe('Hierarchical layout tools', () => {
     });
 
     it('should resolve a complex layout with groups', () => {
-      const hidden = new Set<string>();
-      const nodes = nodesInLayout(layout, repeatingGroups, hidden, {});
+      const nodes = nodesInLayout(layout, repeatingGroups, dataSources);
       const flatWithGroups = nodes.flat(true);
       expect(flatWithGroups.map((n) => n.item.id)).toEqual([
         // Top-level nodes:
@@ -395,8 +404,7 @@ describe('Hierarchical layout tools', () => {
     });
 
     it('should enable traversal of layout', () => {
-      const hidden = new Set<string>();
-      const nodes = nodesInLayout(layout, manyRepeatingGroups, hidden, {});
+      const nodes = nodesInLayout(layout, manyRepeatingGroups, dataSources);
       const flatWithGroups = nodes.flat(true);
       const deepComponent = flatWithGroups.find((node) => node.item.id === `${components.group2nh.id}-2-2`);
       expect(deepComponent?.item.id).toEqual(`${components.group2nh.id}-2-2`);
@@ -504,8 +512,7 @@ describe('Hierarchical layout tools', () => {
           dataModelBindings: { simpleBinding: 'Group.Title' },
         },
       ];
-      const hidden = new Set<string>();
-      const nodes = nodesInLayout(layout, getRepeatingGroups(layout, dataModel), hidden, {});
+      const nodes = nodesInLayout(layout, getRepeatingGroups(layout, dataModel), dataSources);
 
       expect(nodes.findAllById('g1c').length).toEqual(3);
       expect(nodes.findAllById('g2c').length).toEqual(3);
@@ -516,7 +523,7 @@ describe('Hierarchical layout tools', () => {
   });
 
   describe('resolvedNodesInLayout', () => {
-    const dataSources: ContextDataSources = {
+    const dataSources: HierarchyDataSources = {
       formData: {
         'Model.ShouldBeTrue': 'true',
         'Model.ShouldBeFalse': 'false',
@@ -529,9 +536,10 @@ describe('Hierarchical layout tools', () => {
       },
       applicationSettings: {},
       hiddenFields: new Set(),
+      validations: {},
     };
 
-    const nodes = resolvedNodesInLayouts(layouts, 'FormLayout', repeatingGroups, dataSources, {});
+    const nodes = resolvedNodesInLayouts(layouts, 'FormLayout', repeatingGroups, dataSources);
 
     const topInput = nodes.findById(components.top2.id);
     const group2 = nodes.findById(components.group2.id);
@@ -577,7 +585,6 @@ describe('Hierarchical layout tools', () => {
   });
 
   describe('LayoutPages', () => {
-    const hidden = new Set<string>();
     const layout1: ILayout = [components.top1, components.top2];
 
     const layout2: ILayout = [
@@ -586,8 +593,8 @@ describe('Hierarchical layout tools', () => {
     ];
 
     const layouts = {
-      l1: nodesInLayout(layout1, {}, hidden, {}),
-      l2: nodesInLayout(layout2, {}, hidden, {}),
+      l1: nodesInLayout(layout1, {}, dataSources),
+      l2: nodesInLayout(layout2, {}, dataSources),
     };
 
     const collection1 = new LayoutPages('l1', layouts);
@@ -617,8 +624,7 @@ describe('Hierarchical layout tools', () => {
   });
 
   describe('transposeDataModel', () => {
-    const hidden = new Set<string>();
-    const nodes = nodesInLayout(layout, manyRepeatingGroups, hidden, {});
+    const nodes = nodesInLayout(layout, manyRepeatingGroups, dataSources);
     const inputNode = nodes.findById(`${components.group2ni.id}-2-2`);
     const topHeaderNode = nodes.findById(components.top1.id);
 
@@ -662,7 +668,6 @@ describe('Hierarchical layout tools', () => {
   });
 
   describe('validation functions', () => {
-    const hidden = new Set<string>();
     const nestedId = `${components.group3ni.id}-1-2`;
     const validations: IValidations = {
       formLayout: {
@@ -683,7 +688,7 @@ describe('Hierarchical layout tools', () => {
         },
       },
     };
-    const page = nodesInLayout(layout, manyRepeatingGroups, hidden, validations);
+    const page = nodesInLayout(layout, manyRepeatingGroups, { ...dataSources, validations });
     page.registerCollection('formLayout', new LayoutPages<any>());
     const nestedNode = page.findById(nestedId);
     const topHeaderNode = page.findById(components.top1.id);

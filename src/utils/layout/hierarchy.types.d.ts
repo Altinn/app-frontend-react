@@ -1,8 +1,10 @@
 import type { DeepPartial } from 'utility-types';
 
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentExceptGroup, IDataModelBindings, ILayoutComponentExact } from 'src/layout/layout';
+import type { IValidations } from 'src/types';
 import type { LayoutNode, LayoutPage } from 'src/utils/layout/hierarchy';
 
 /**
@@ -69,3 +71,7 @@ export type HGroups = HComponentInRepGroup | HNonRepGroup | HRepGroup;
  * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
  */
 export type AnyItem = HComponent | HGroups;
+
+export interface HierarchyDataSources extends ContextDataSources {
+  validations: IValidations;
+}

@@ -15,13 +15,7 @@ import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { components, FormComponentContext } from 'src/layout/index';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
-import {
-  getFormDataForComponent,
-  getTextResource,
-  gridBreakpoints,
-  pageBreakStyles,
-  selectComponentTexts,
-} from 'src/utils/formComponentUtils';
+import { getTextResource, gridBreakpoints, pageBreakStyles, selectComponentTexts } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ISingleFieldValidation } from 'src/features/form/data/formDataTypes';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
@@ -102,10 +96,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
 
-  const formData = useAppSelector(
-    (state) => getFormDataForComponent(state.formData.formData, item.dataModelBindings),
-    shallowEqual,
-  );
+  const formData = node.getFormData();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
 
   const isValid = !node.hasValidationMessages('errors');

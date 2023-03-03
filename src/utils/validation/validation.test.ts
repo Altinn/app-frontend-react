@@ -33,15 +33,15 @@ const { nodesInLayouts } = _private;
 function toCollection(
   mockLayouts: ILayouts,
   repeatingGroups: IRepeatingGroups = {},
-  hidden: Set<string> = new Set<string>(),
+  hiddenFields: Set<string> = new Set<string>(),
 ) {
-  return nodesInLayouts(
-    mockLayouts,
-    Object.keys(mockLayouts)[0],
-    repeatingGroups,
-    hidden,
-    {},
-  ) as unknown as LayoutPages;
+  return nodesInLayouts(mockLayouts, Object.keys(mockLayouts)[0], repeatingGroups, {
+    instanceContext: null,
+    formData: {},
+    applicationSettings: null,
+    hiddenFields,
+    validations: {},
+  }) as unknown as LayoutPages;
 }
 
 function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {

@@ -7,12 +7,12 @@ import { asExpression } from 'src/features/expressions/validation';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { _private, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
-import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
 import type { IRepeatingGroups } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
 import type { LayoutNode, LayoutPages } from 'src/utils/layout/hierarchy';
+import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 
 const { nodesInLayouts } = _private;
 
@@ -47,11 +47,12 @@ describe('Expressions shared function tests', () => {
     it.each(folder.content)(
       '$name',
       ({ expression, expects, expectsFailure, context, layouts, dataModel, instance, frontendSettings }) => {
-        const dataSources: ContextDataSources = {
+        const dataSources: HierarchyDataSources = {
           formData: dataModel ? dot.dot(dataModel) : {},
           instanceContext: buildInstanceContext(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           hiddenFields: new Set<string>(),
+          validations: {},
         };
 
         const _layouts = convertLayouts(layouts);
@@ -65,8 +66,8 @@ describe('Expressions shared function tests', () => {
 
         const currentLayout = (context && context.currentLayout) || '';
         const rootCollection = expectsFailure
-          ? nodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources.hiddenFields, {})
-          : resolvedNodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources, {});
+          ? nodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources)
+          : resolvedNodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources);
         const component = findComponent(context, rootCollection);
 
         if (expectsFailure) {
@@ -137,11 +138,12 @@ describe('Expressions shared context tests', () => {
 
   describe.each(sharedTests.content)('$folderName', (folder) => {
     it.each(folder.content)('$name', ({ layouts, dataModel, instance, frontendSettings, expectedContexts }) => {
-      const dataSources: ContextDataSources = {
+      const dataSources: HierarchyDataSources = {
         formData: dataModel ? dot.dot(dataModel) : {},
         instanceContext: buildInstanceContext(instance),
         applicationSettings: frontendSettings || ({} as IApplicationSettings),
         hiddenFields: new Set(),
+        validations: {},
       };
 
       const foundContexts: SharedTestContextList[] = [];
@@ -152,8 +154,7 @@ describe('Expressions shared context tests', () => {
           { FormLayout: _layouts[key].data.layout },
           'FormLayout',
           repeatingGroups,
-          dataSources.hiddenFields,
-          {},
+          dataSources,
         );
         const layout = nodes.current();
         if (!layout) {

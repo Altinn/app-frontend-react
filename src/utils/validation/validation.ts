@@ -13,7 +13,7 @@ import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { convertDataBindingToModel, getFormDataFromFieldKey, getKeyWithoutIndex } from 'src/utils/databindings';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
-import { getFieldName, getFormDataForComponent } from 'src/utils/formComponentUtils';
+import { getFieldName } from 'src/utils/formComponentUtils';
 import { matchLayoutComponent } from 'src/utils/layout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
@@ -401,7 +401,7 @@ function validateFormComponentsForNodes(
     }
 
     if (node.item.type === 'Datepicker') {
-      const componentFormData = getFormDataForComponent(formData, node.item.dataModelBindings);
+      const componentFormData = node.getFormData();
       validations[node.item.id] = validateDatepickerFormData(componentFormData?.simpleBinding, node.item, language);
     }
   }
