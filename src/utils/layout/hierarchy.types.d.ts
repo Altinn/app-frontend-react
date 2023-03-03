@@ -75,3 +75,15 @@ export type AnyItem = HComponent | HGroups;
 export interface HierarchyDataSources extends ContextDataSources {
   validations: IValidations;
 }
+
+export type MaybeSpecificNodeFromType<Type> = Type extends ComponentExceptGroup
+  ? LayoutNode<HComponent<Type>>
+  : Type extends 'Group'
+  ? LayoutNode<HGroups>
+  : LayoutNode;
+
+export type MaybeSpecificNode<T> = T extends ILayoutComponent
+  ? T extends { type: infer Type }
+    ? MaybeSpecificNodeFromType<Type>
+    : LayoutNode
+  : LayoutNode;

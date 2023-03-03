@@ -9,10 +9,17 @@ import { getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import type { SummaryLookups } from 'src/components/summary/SummaryContext';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { IGridStyling, ILayoutComponent, ISelectionComponentProps, NumberFormatProps } from 'src/layout/layout';
+import type {
+  IGridStyling,
+  ILayoutComponent,
+  ISelectionComponent,
+  ISelectionComponentProps,
+  NumberFormatProps,
+} from 'src/layout/layout';
 import type { IPageBreak } from 'src/layout/layout.d';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
@@ -28,6 +35,74 @@ import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 export interface IComponentFormData {
   [binding: string]: string | undefined;
+}
+
+export function getOptionList(
+  component: ISelectionComponent,
+  { options, formData, textResources, repeatingGroups }: SummaryLookups,
+): IOption[] {
+  if (component.options) {
+    return component.options;
+  }
+  if (component.optionsId) {
+    const key = getOptionLookupKey({
+      id: component.optionsId,
+      mapping: component.mapping,
+    });
+    return options[key]?.options || [];
+  }
+  if (component.source) {
+    const relevantTextResource = textResources.find((e) => e.id === component.source?.label);
+    const reduxOptions =
+      relevantTextResource &&
+      setupSourceOptions({
+        source: component.source,
+        relevantTextResource,
+        relevantFormData: getRelevantFormDataForOptionSource(formData, component.source),
+        repeatingGroups,
+        dataSources: {
+          dataModel: formData,
+        },
+      });
+    return reduxOptions || [];
+  }
+
+  return [];
+}
+
+/**
+ * Utility function meant to convert a value for a selection component to a label/text used in Summary
+ *
+ * Expected to be called from:
+ * @see LayoutComponent.getSummaryData
+ */
+export function selectedValueToSummaryText(component: ISelectionComponent, value: string, lookups: SummaryLookups) {
+  const optionList = getOptionList(component, lookups);
+  const label = optionList.find((option) => option.value === value)?.label;
+
+  if (!label) {
+    return value;
+  }
+
+  return getTextResourceByKey(label, lookups.textResources) || value;
+}
+
+/**
+ * Utility function meant to convert multiple values for a multi-selection component to an object used in Summary
+ *
+ * Expected to be called from:
+ * @see LayoutComponent.getSummaryData
+ */
+export function commaSeparatedToSummaryValues(component: ISelectionComponent, value: string, lookups: SummaryLookups) {
+  const optionList = getOptionList(component, lookups);
+  const split = value.split(',');
+  const out: { [key: string]: string } = {};
+  split?.forEach((part) => {
+    const textKey = optionList.find((option) => option.value === part)?.label || '';
+    out[part] = getTextResourceByKey(textKey, lookups.textResources) || part;
+  });
+
+  return out;
 }
 
 /**

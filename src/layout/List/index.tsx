@@ -3,6 +3,7 @@ import React from 'react';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class List extends FormComponent<'List'> {
   render(props: PropsFromGenericComponent<'List'>): JSX.Element | null {
@@ -11,5 +12,15 @@ export class List extends FormComponent<'List'> {
 
   renderWithLabel(): boolean {
     return false;
+  }
+
+  getDisplayData(_props: SummaryRendererProps<'List'>): string {
+    // PRIORITY: Implement
+    return '';
+  }
+
+  renderSummary(_props: SummaryRendererProps<'List'>): JSX.Element | null {
+    // PRIORITY: Implement
+    return null;
   }
 }

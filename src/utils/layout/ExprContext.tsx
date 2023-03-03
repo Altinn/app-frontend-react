@@ -2,21 +2,10 @@ import React, { useContext, useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { dataSourcesFromState, resolvedNodesInLayouts, rewriteTextResourceBindings } from 'src/utils/layout/hierarchy';
-import type { ComponentExceptGroup, ILayoutComponent } from 'src/layout/layout';
-import type { LayoutNode, LayoutPages } from 'src/utils/layout/hierarchy';
-import type { HComponent, HGroups } from 'src/utils/layout/hierarchy.types';
+import type { LayoutPages } from 'src/utils/layout/hierarchy';
+import type { MaybeSpecificNode } from 'src/utils/layout/hierarchy.types';
 
 export const ExprContext = React.createContext<LayoutPages | undefined>(undefined);
-
-type MaybeSpecificItem<T> = T extends ILayoutComponent
-  ? T extends { type: infer Type }
-    ? Type extends ComponentExceptGroup
-      ? LayoutNode<HComponent<Type>>
-      : Type extends 'Group'
-      ? LayoutNode<HGroups>
-      : LayoutNode
-    : LayoutNode
-  : LayoutNode;
 
 /**
  * React hook used for getting a memoized LayoutPages object where you can look up components.
@@ -69,7 +58,7 @@ export const useExprContext = () => useContext(ExprContext);
  *    belongs to. If you only provide 'currentValue', and the component is still inside a repeating group, most likely
  *    you'll get the first row item as a result.
  */
-export function useResolvedNode<T>(selector: string | undefined | T): MaybeSpecificItem<T> | undefined {
+export function useResolvedNode<T>(selector: string | undefined | T): MaybeSpecificNode<T> | undefined {
   const context = useExprContext();
 
   if (typeof selector === 'string') {
