@@ -14,15 +14,7 @@ describe('MultipleChoiceSummary', () => {
 
 function render(props: Partial<IMultipleChoiceSummaryProps> = {}) {
   const defaultProps: IMultipleChoiceSummaryProps = {
-    formData: {
-      1: 'This is a text',
-      2: 'This is another text',
-    },
-    label: 'TestLabel',
-    hasValidationMessages: false,
-    changeText: 'Endre',
-    onChangeClick: jest.fn(),
-    readOnlyComponent: false,
+    formData: ['This is a text', 'This is another text'],
   };
 
   return rtlRender(

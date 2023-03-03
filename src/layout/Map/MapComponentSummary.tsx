@@ -7,12 +7,12 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/sharedLanguage';
 import { parseLocation } from 'src/layout/Map/MapComponent';
 import { markerIcon } from 'src/layout/Map/MapIcons';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutCompMap } from 'src/layout/Map/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
 export interface IMapComponentSummary {
-  component: ExprUnresolved<ILayoutCompMap>;
   formData: any;
+  targetNode: LayoutNode<HComponent<'Map'>>;
 }
 
 export const useStyles = makeStyles(() => ({
@@ -28,9 +28,9 @@ export const useStyles = makeStyles(() => ({
   },
 }));
 
-export function MapComponentSummary({ component, formData }: IMapComponentSummary) {
+export function MapComponentSummary({ targetNode, formData }: IMapComponentSummary) {
   const classes = useStyles();
-  const layers = component.layers;
+  const layers = targetNode.item.layers;
   const location = formData ? parseLocation(formData) : undefined;
   const language = useAppSelector((state) => state.language.language);
   if (!language) {

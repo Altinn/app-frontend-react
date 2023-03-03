@@ -18,7 +18,7 @@ import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
-export function renderLayoutComponent(node: LayoutNode) {
+export function renderLayoutNode(node: LayoutNode) {
   if (node.item.type === 'Group') {
     const isRepeatingGroup = node.item.maxCount && node.item.maxCount > 1;
     if (isRepeatingGroup) {
@@ -43,8 +43,8 @@ export function renderLayoutComponent(node: LayoutNode) {
     return (
       <DisplayGroupContainer
         key={node.item.id}
-        id={node.item.id}
-        renderLayoutComponent={renderLayoutComponent}
+        groupNode={node}
+        renderLayoutNode={renderLayoutNode}
       />
     );
   }
@@ -53,7 +53,7 @@ export function renderLayoutComponent(node: LayoutNode) {
     return (
       <SummaryComponent
         key={node.item.id}
-        id={node.item.id}
+        summaryNode={node as LayoutNode<HComponent<'Summary'>>}
       />
     );
   }
@@ -107,7 +107,7 @@ export function Form() {
         spacing={3}
         alignItems='flex-start'
       >
-        {mainNodes.map((n) => renderLayoutComponent(n))}
+        {mainNodes.map((n) => renderLayoutNode(n))}
         <Grid
           item={true}
           xs={12}

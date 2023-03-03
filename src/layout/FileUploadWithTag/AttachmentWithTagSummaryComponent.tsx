@@ -5,13 +5,12 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { getOptionLookupKey } from 'src/utils/options';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { IAttachment } from 'src/shared/resources/attachments';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
 export interface IAttachmentWithTagSummaryComponent {
-  componentRef: string;
-  component: ExprUnresolved<ILayoutCompFileUploadWithTag>;
+  targetNode: LayoutNode<HComponent<'FileUploadWithTag'>>;
 }
 
 const useStyles = makeStyles({
@@ -28,9 +27,10 @@ const useStyles = makeStyles({
   },
 });
 
-export function AttachmentWithTagSummaryComponent({ componentRef, component }: IAttachmentWithTagSummaryComponent) {
+export function AttachmentWithTagSummaryComponent({ targetNode }: IAttachmentWithTagSummaryComponent) {
   const classes = useStyles();
-  const attachments: IAttachment[] | undefined = useAppSelector((state) => state.attachments.attachments[componentRef]);
+  const component = targetNode.item;
+  const attachments: IAttachment[] | undefined = useAppSelector((state) => state.attachments.attachments[component.id]);
   const textResources = useAppSelector((state) => state.textResources.resources);
   const language = useAppSelector((state) => state.language.language);
   const options = useAppSelector(

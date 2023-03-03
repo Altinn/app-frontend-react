@@ -6,20 +6,12 @@ import cn from 'classnames';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutComponentOrGroup } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
-export type ComponentFromSummary = ExprUnresolved<ILayoutComponentOrGroup> & {
-  formData?: any;
-  parentGroup?: string;
-};
-
 export interface IDisplayGroupContainer {
-  id: string;
-  renderLayoutComponent: (node: LayoutNode) => JSX.Element | null;
+  groupNode: LayoutNode;
+  renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
 const useStyles = makeStyles({
@@ -33,12 +25,11 @@ const useStyles = makeStyles({
   },
 });
 
-export function DisplayGroupContainer({ id, renderLayoutComponent }: IDisplayGroupContainer) {
-  const node = useResolvedNode(id);
-  const container = node?.item;
+export function DisplayGroupContainer({ groupNode, renderLayoutNode }: IDisplayGroupContainer) {
+  const container = groupNode.item;
 
   const GetHiddenSelector = makeGetHidden();
-  const hidden: boolean = useAppSelector((state) => GetHiddenSelector(state, { id }));
+  const hidden: boolean = useAppSelector((state) => GetHiddenSelector(state, { id: container.id }));
   const classes = useStyles();
   const title = useAppSelector((state) => {
     const titleKey = container?.textResourceBindings?.title;
@@ -56,7 +47,7 @@ export function DisplayGroupContainer({ id, renderLayoutComponent }: IDisplayGro
     <Grid
       container={true}
       item={true}
-      id={id}
+      id={container.id}
       className={cn(classes.groupContainer, pageBreakStyles(container.pageBreak))}
       spacing={3}
       alignItems='flex-start'
@@ -75,7 +66,7 @@ export function DisplayGroupContainer({ id, renderLayoutComponent }: IDisplayGro
           </Typography>
         </Grid>
       )}
-      {node?.children().map((component) => renderLayoutComponent(component))}
+      {groupNode.children().map((n) => renderLayoutNode(n))}
     </Grid>
   );
 }

@@ -7,11 +7,13 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { renderWithProviders } from 'src/testUtils';
-import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { ILayoutComponent } from 'src/layout/layout';
 import type { IValidations } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
 describe('SummaryComponent', () => {
   const defaultId = 'default';
@@ -113,28 +115,31 @@ describe('SummaryComponent', () => {
     });
   });
 
-  const renderHelper = (
-    extendProps: Partial<ISummaryComponent>,
-    validations: IValidations = {},
-    mockLayout = layoutMock(),
-  ) => {
-    return renderWithProviders(
-      <SummaryComponent
-        id={defaultId}
-        pageRef={pageId}
-        {...extendProps}
-      />,
-      {
-        preloadedState: {
-          ...getInitialStateMock(),
-          formLayout: mockLayout,
-          formValidations: {
-            validations,
-            error: null,
-            invalidDataTypes: [],
-          },
+  const renderHelper = (props: { componentRef: string }, validations: IValidations = {}, mockLayout = layoutMock()) => {
+    function Wrapper() {
+      const node = useResolvedNode('mySummary') as LayoutNode<HComponent<'Summary'>>;
+
+      return <SummaryComponent summaryNode={node} />;
+    }
+
+    const layoutPage = mockLayout.layouts && mockLayout.layouts[pageId];
+    layoutPage?.push({
+      type: 'Summary',
+      id: 'mySummary',
+      componentRef: props.componentRef,
+      pageRef: pageId,
+    });
+
+    return renderWithProviders(<Wrapper />, {
+      preloadedState: {
+        ...getInitialStateMock(),
+        formLayout: mockLayout,
+        formValidations: {
+          validations,
+          error: null,
+          invalidDataTypes: [],
         },
       },
-    );
+    });
   };
 });

@@ -5,14 +5,15 @@ import cn from 'classnames';
 
 import { EditButton } from 'src/components/summary/EditButton';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import type { ILayoutCompSummary } from 'src/layout/Summary/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
-export interface SummaryBoilerplateProps extends Omit<ILayoutCompSummary, 'type' | 'id'> {
-  hasValidationMessages?: boolean;
+export interface SummaryBoilerplateProps {
   onChangeClick: () => void;
   changeText: string | null;
   label: any;
-  readOnlyComponent?: boolean;
+  summaryNode: LayoutNode<HComponent<'Summary'>>;
+  targetNode: LayoutNode;
 }
 
 const useStyles = makeStyles({
@@ -32,14 +33,16 @@ const useStyles = makeStyles({
   },
 });
 export function SummaryBoilerplate({
-  hasValidationMessages,
   onChangeClick,
   changeText,
   label,
-  readOnlyComponent,
-  display,
+  summaryNode,
+  targetNode,
 }: SummaryBoilerplateProps) {
   const classes = useStyles();
+  const display = summaryNode.item.display;
+  const readOnlyComponent = targetNode.item.readOnly === true;
+  const hasValidationMessages = targetNode.hasValidationMessages();
   const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;
   return (
     <>

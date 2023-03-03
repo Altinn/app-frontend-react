@@ -8,28 +8,20 @@ import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { SummaryComponentSwitch } from 'src/components/summary/SummaryComponentSwitch';
-import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ComponentType } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { makeGetHidden } from 'src/selectors/getLayoutData';
-import {
-  componentHasValidationMessages,
-  getComponentValidations,
-  getDisplayFormDataForComponent,
-  pageBreakStyles,
-} from 'src/utils/formComponentUtils';
+import { getDisplayFormDataForComponent, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
-import type { ILayoutCompSummary } from 'src/layout/Summary/types';
-import type { IComponentValidations, IRuntimeState } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
-export interface ISummaryComponent extends Omit<ExprUnresolved<ILayoutCompSummary>, 'type'> {
-  formData?: any;
+export interface ISummaryComponent {
+  formData?: any; // PRIORITY: Find out if we can omit this, and let every summary component figure itself out
+  summaryNode: LayoutNode<HComponent<'Summary'>>;
 }
 
 const useStyles = makeStyles({
@@ -47,20 +39,11 @@ const useStyles = makeStyles({
   },
 });
 
-export function SummaryComponent(_props: ISummaryComponent) {
-  const { id, grid, componentRef, display, ...groupProps } = _props;
-  const { pageRef, formData } = _props;
+export function SummaryComponent({ formData, summaryNode }: ISummaryComponent) {
+  const { id, grid, componentRef, display } = summaryNode.item;
+  const { pageRef } = summaryNode.item;
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const GetHiddenSelector = makeGetHidden();
-  const [componentValidations, setComponentValidations] = React.useState<IComponentValidations>({});
-  const [hasValidationMessages, setHasValidationMessages] = React.useState(false);
-  const hidden = useAppSelector((state) => {
-    if (GetHiddenSelector(state, { id })) {
-      return true;
-    }
-    return !!(componentRef && GetHiddenSelector(state, { id: componentRef }));
-  });
   const summaryPageName = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const changeText = useAppSelector(
     (state) =>
@@ -73,25 +56,12 @@ export function SummaryComponent(_props: ISummaryComponent) {
         true,
       ),
   );
-  const formValidations = useAppSelector((state) => state.formValidations.validations);
-  const layout = useAppSelector((state) =>
-    state.formLayout.layouts && pageRef ? state.formLayout.layouts[pageRef] : undefined,
-  );
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
-  const formComponentNode = useResolvedNode(componentRef);
-  const formComponent = formComponentNode?.item;
-  const summaryComponent = useResolvedNode(id)?.item;
-  const layoutComponent = formComponentNode?.getComponent();
-  const formComponentLegacy = useAppSelector(
-    (state) =>
-      (state.formLayout.layouts &&
-        pageRef &&
-        formComponent &&
-        state.formLayout.layouts[pageRef]?.find(
-          (c) => c.id === formComponent.baseComponentId || c.id === formComponent.id,
-        )) ||
-      undefined,
-  );
+
+  const summaryItem = summaryNode.item;
+  const targetNode = useResolvedNode(componentRef);
+  const targetItem = targetNode?.item;
+  const targetComponent = targetNode?.getComponent();
 
   const goToCorrectPageLinkText = useAppSelector((state) => {
     return (
@@ -106,15 +76,15 @@ export function SummaryComponent(_props: ISummaryComponent) {
     );
   });
   const calculatedFormData = useAppSelector((state) => {
-    if (!formComponent) {
+    if (!targetItem) {
       return undefined;
     }
-    if (formComponent.type === 'Group') {
+    if (targetItem.type === 'Group') {
       return undefined;
     }
     if (
-      (formComponent.type === 'FileUpload' || formComponent.type === 'FileUploadWithTag') &&
-      Object.keys(formComponent.dataModelBindings || {}).length === 0
+      (targetItem.type === 'FileUpload' || targetItem.type === 'FileUploadWithTag') &&
+      Object.keys(targetItem.dataModelBindings || {}).length === 0
     ) {
       return undefined;
     }
@@ -123,7 +93,7 @@ export function SummaryComponent(_props: ISummaryComponent) {
       getDisplayFormDataForComponent(
         state.formData.formData,
         attachments,
-        formComponent,
+        targetItem,
         state.textResources.resources,
         state.optionState.options,
         state.formLayout.uiConfig.repeatingGroups,
@@ -131,8 +101,9 @@ export function SummaryComponent(_props: ISummaryComponent) {
       )
     );
   }, shallowEqual);
+
   const label = useAppSelector((state) => {
-    const titleKey = formComponent?.textResourceBindings?.title;
+    const titleKey = targetItem?.textResourceBindings?.title;
     if (titleKey) {
       return (
         state.language.language &&
@@ -156,16 +127,7 @@ export function SummaryComponent(_props: ISummaryComponent) {
     );
   };
 
-  React.useEffect(() => {
-    if (formComponent && formComponent.type !== 'Group') {
-      const validations =
-        (componentRef && pageRef && getComponentValidations(formValidations, componentRef, pageRef)) || undefined;
-      setComponentValidations(validations || {});
-      setHasValidationMessages(componentHasValidationMessages(validations));
-    }
-  }, [formValidations, layout, pageRef, formComponent, componentRef]);
-
-  if (hidden || !formComponent || !formComponentLegacy) {
+  if (!targetNode || !targetItem || targetNode.isHidden()) {
     return null;
   }
 
@@ -174,30 +136,32 @@ export function SummaryComponent(_props: ISummaryComponent) {
     changeText,
   };
 
-  if (formComponentLegacy?.type === 'Group' && (!formComponentLegacy.maxCount || formComponentLegacy.maxCount <= 1)) {
-    // Display children as summary components
-    return (
-      <DisplayGroupContainer
-        key={id}
-        id={id}
-        renderLayoutComponent={(child) => (
-          <SummaryComponent
-            key={`__summary__${child.item.id}`}
-            id={`__summary__${child.item.id}`}
-            componentRef={child.item.id}
-            pageRef={groupProps.pageRef}
-            largeGroup={groupProps.largeGroup}
-            display={display}
-          />
-        )}
-      />
-    );
-  } else if (layoutComponent?.getComponentType() === ComponentType.Presentation) {
+  // PRIORITY: Check to make sure we can treat non-repeating groups the same as repeating groups
+  // if (targetItem?.type === 'Group' && (!targetItem.maxCount || targetItem.maxCount <= 1)) {
+  //   // Non-repeating group: display children as summary components
+  //   return (
+  //     <DisplayGroupContainer
+  //       key={id}
+  //       groupNode={targetNode}
+  //       renderLayoutNode={(child) => (
+  //         <SummaryComponent
+  //           key={`__summary__${child.item.id}`}
+  //           // summaryNode={}
+  //           id={`__summary__${child.item.id}`}
+  //           componentRef={child.item.id}
+  //           pageRef={groupProps.pageRef}
+  //           largeGroup={groupProps.largeGroup}
+  //         />
+  //       )}
+  //     />
+  //   );
+  // } else
+  if (targetComponent?.getComponentType() === ComponentType.Presentation) {
     // Render non-input components as normal
-    return <GenericComponent node={formComponentNode as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>} />;
+    return <GenericComponent node={targetNode as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>} />;
   }
 
-  const displayGrid = display && display.useComponentGrid ? formComponent?.grid : grid;
+  const displayGrid = summaryItem.display && summaryItem.display.useComponentGrid ? targetItem?.grid : grid;
   return (
     <Grid
       item={true}
@@ -207,7 +171,7 @@ export function SummaryComponent(_props: ISummaryComponent) {
       lg={displayGrid?.lg || false}
       xl={displayGrid?.xl || false}
       data-testid={`summary-${id}`}
-      className={cn(pageBreakStyles(summaryComponent?.pageBreak ?? formComponent?.pageBreak))}
+      className={cn(pageBreakStyles(summaryItem.pageBreak ?? targetItem?.pageBreak))}
     >
       <Grid
         container={true}
@@ -216,46 +180,42 @@ export function SummaryComponent(_props: ISummaryComponent) {
         })}
       >
         <SummaryComponentSwitch
-          id={id}
+          summaryNode={summaryNode}
+          targetNode={targetNode}
           change={change}
-          formComponent={formComponentLegacy}
           label={label}
-          hasValidationMessages={hasValidationMessages}
           formData={calculatedFormData}
-          componentRef={componentRef}
-          groupProps={groupProps}
-          display={display}
         />
-        {hasValidationMessages && !display?.hideValidationMessages && (
-          <Grid
-            container={true}
-            style={{ paddingTop: '12px' }}
-            spacing={2}
-          >
-            {Object.keys(componentValidations).map((binding: string) =>
-              componentValidations[binding]?.errors?.map((validationText: string) => (
-                <ErrorPaper
-                  key={`key-${validationText}`}
-                  message={validationText}
-                />
-              )),
-            )}
+        {targetNode?.hasValidationMessages('errors') &&
+          targetItem.type !== 'Group' &&
+          !display?.hideValidationMessages && (
             <Grid
-              item={true}
-              xs={12}
+              container={true}
+              style={{ paddingTop: '12px' }}
+              spacing={2}
             >
-              {!display?.hideChangeButton && (
-                <button
-                  className={classes.link}
-                  onClick={onChangeClick}
-                  type='button'
-                >
-                  {goToCorrectPageLinkText}
-                </button>
-              )}
+              {targetNode?.getUnifiedValidations().errors?.map((error: string) => (
+                <ErrorPaper
+                  key={`key-${error}`}
+                  message={error}
+                />
+              ))}
+              <Grid
+                item={true}
+                xs={12}
+              >
+                {!display?.hideChangeButton && (
+                  <button
+                    className={classes.link}
+                    onClick={onChangeClick}
+                    type='button'
+                  >
+                    {goToCorrectPageLinkText}
+                  </button>
+                )}
+              </Grid>
             </Grid>
-          </Grid>
-        )}
+          )}
       </Grid>
     </Grid>
   );

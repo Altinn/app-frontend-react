@@ -26,8 +26,8 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
   if (node.item.type === 'Group') {
     return (
       <DisplayGroupContainer
-        id={node.item.id}
-        renderLayoutComponent={(child) => (
+        groupNode={node}
+        renderLayoutNode={(child) => (
           <PDFComponent
             key={child.item.id}
             node={child}
@@ -38,9 +38,10 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
   } else if (node.item.type === 'Summary') {
     return (
       <SummaryComponent
-        {...node.item}
-        display={{ hideChangeButton: true, hideValidationMessages: true }}
-        grid={{ xs: 12 }}
+        summaryNode={node as LayoutNode<HComponent<'Summary'>>}
+        // PRIORITY: Either inject display/grid overrides, or change the CSS to work better in print mode
+        // display={{ hideChangeButton: true, hideValidationMessages: true }}
+        // grid={{ xs: 12 }}
       />
     );
   } else if (layoutComponent?.getComponentType() === ComponentType.Presentation) {

@@ -6,7 +6,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
-import { renderLayoutComponent } from 'src/features/form/containers/Form';
+import { renderLayoutNode } from 'src/features/form/containers/Form';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromKey, getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
@@ -164,7 +164,7 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
                 ))}
               </ul>
             </Grid>
-            {nodes.map((n) => renderLayoutComponent(n))}
+            {nodes.map((n) => renderLayoutNode(n))}
           </Grid>
         </Panel>
       </FullWidthWrapper>

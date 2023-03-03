@@ -8,27 +8,23 @@ import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { EditButton } from 'src/components/summary/EditButton';
 import { GroupInputSummary } from 'src/components/summary/GroupInputSummary';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
-import { renderLayoutComponent } from 'src/features/form/containers/Form';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getDisplayFormDataForComponent } from 'src/utils/formComponentUtils';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { SummaryDisplayProperties } from 'src/layout/Summary/types';
 import type { IRuntimeState } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent, HGroups } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryGroupComponent {
-  pageRef?: string;
-  componentRef?: string;
   changeText: string | null;
   onChangeClick: () => void;
-  largeGroup?: boolean;
-  display?: SummaryDisplayProperties;
   excludedChildren?: string[];
+  summaryNode: LayoutNode<HComponent<'Summary'>>;
+  targetNode: LayoutNode<HGroups>;
 }
 
 const gridStyle = {
@@ -73,19 +69,11 @@ const useStyles = makeStyles({
   },
 });
 
-export function SummaryGroupComponent({
-  pageRef,
-  componentRef,
-  largeGroup,
-  onChangeClick,
-  changeText,
-  display,
-  excludedChildren,
-}: ISummaryGroupComponent) {
+export function SummaryGroupComponent({ onChangeClick, changeText, summaryNode, targetNode }: ISummaryGroupComponent) {
   const classes = useStyles();
-
-  const node = useResolvedNode(componentRef);
-  const textResourceBindings = node?.item.textResourceBindings;
+  const textResourceBindings = targetNode.item.textResourceBindings;
+  const excludedChildren = summaryNode.item.excludedChildren;
+  const display = summaryNode.item.display;
 
   const removeExcludedChildren = (n: LayoutNode) =>
     !excludedChildren ||
@@ -97,7 +85,7 @@ export function SummaryGroupComponent({
   const language = useAppSelector((state) => state.language.language);
   const options = useAppSelector((state) => state.optionState.options);
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
-  const validations = useAppSelector((state) => state.formValidations.validations);
+  const groupHasErrors = targetNode.hasDeepValidationMessages();
 
   const title = React.useMemo(() => {
     if (textResources && textResourceBindings) {
@@ -112,30 +100,17 @@ export function SummaryGroupComponent({
     return '';
   }, [textResources, textResourceBindings, language]);
 
-  const groupHasErrors = React.useMemo(() => {
-    if (!largeGroup && node && pageRef) {
-      return node.flat(true).some((child) =>
-        Object.keys(validations[pageRef]?.[child.item.id] || {}).some((bindingKey: string) => {
-          const length = validations[pageRef][child.item.id][bindingKey]?.errors?.length;
-          return length && length > 0;
-        }),
-      );
-    }
-
-    return false;
-  }, [node, largeGroup, pageRef, validations]);
-
   const createRepeatingGroupSummaryComponents = () => {
-    if (!node || !('rows' in node.item)) {
+    if (!targetNode || !('rows' in targetNode.item)) {
       return [];
     }
 
     const componentArray: JSX.Element[] = [];
-    for (const row of node.item.rows) {
+    for (const row of targetNode.item.rows) {
       if (!row) {
         continue;
       }
-      const childSummaryComponents = node
+      const childSummaryComponents = targetNode
         .children(undefined, row.index)
         .filter(removeExcludedChildren)
         .filter((node) => node.getComponent()?.getComponentType() === ComponentType.Form)
@@ -154,6 +129,8 @@ export function SummaryGroupComponent({
           );
 
           return (
+            // PRIORITY: Find out if this can be replaced by just calling SummaryComponent
+            // again, or using a simpler component
             <GroupInputSummary
               key={n.item.id}
               componentId={n.item.id}
@@ -176,18 +153,19 @@ export function SummaryGroupComponent({
   };
 
   const createRepeatingGroupSummaryForLargeGroups = () => {
-    if (!node || !('rows' in node.item)) {
+    if (!targetNode || !('rows' in targetNode.item)) {
       return;
     }
 
     const componentArray: JSX.Element[] = [];
-    for (const row of node.item.rows) {
+    for (const row of targetNode.item.rows) {
       if (!row) {
         continue;
       }
 
+      // PRIORITY: Remove this
       const groupContainer = {
-        ...node.item,
+        ...targetNode.item,
         children: [],
       } as ExprUnresolved<ILayoutGroup>;
 
@@ -240,17 +218,32 @@ export function SummaryGroupComponent({
         // PRIORITY: Find a way to avoid faking this
         <DisplayGroupContainer
           key={`${groupContainer.id}-summary`}
-          id={`${groupContainer.id}-${row.index}-summary`}
+          groupNode={targetNode}
+          // id={`${groupContainer.id}-${row.index}-summary`}
           // components={childSummaryComponents}
           // container={groupContainer}
-          renderLayoutComponent={renderLayoutComponent}
+          renderLayoutNode={(n) => {
+            if (n.isHidden()) {
+              return null;
+            }
+
+            return (
+              <Grid
+                item
+                xs={12}
+              >
+                TODO: Here comes {n.item.id}
+              </Grid>
+            );
+            // return <SummaryComponent summaryNode={summaryNode} />;
+          }}
         />,
       );
     }
     return componentArray;
   };
 
-  const renderComponents = largeGroup
+  const renderComponents = summaryNode.item.largeGroup
     ? createRepeatingGroupSummaryForLargeGroups()
     : createRepeatingGroupSummaryComponents();
 
@@ -260,7 +253,7 @@ export function SummaryGroupComponent({
 
   const isEmpty = renderComponents?.length <= 0;
 
-  if (!isEmpty && largeGroup) {
+  if (!isEmpty && summaryNode.item.largeGroup) {
     // Tricking our return type to be JSX.Element. Apparently, returning an array causes problems elsewhere.
     return renderComponents as unknown as JSX.Element;
   }

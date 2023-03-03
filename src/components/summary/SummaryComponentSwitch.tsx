@@ -7,125 +7,74 @@ import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSumma
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayoutComponent } from 'src/layout/layout';
-import type { ILayoutCompSummary } from 'src/layout/Summary/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent, HGroups } from 'src/utils/layout/hierarchy.types';
 
-export interface ISummaryComponentSwitch extends Omit<ILayoutCompSummary, 'type'> {
+export interface ISummaryComponentSwitch {
   change: {
     onChangeClick: () => void;
     changeText: string | null;
   };
-  formComponent?: ExprUnresolved<ILayoutComponent | ILayoutGroup>;
-  hasValidationMessages?: boolean;
+  summaryNode: LayoutNode<HComponent<'Summary'>>;
+  targetNode: LayoutNode;
   label?: JSX.Element | JSX.Element[] | null | undefined;
   formData?: any;
-  groupProps?: {
-    pageRef?: string;
-    largeGroup?: boolean;
-  };
 }
 
-export function SummaryComponentSwitch({
-  change,
-  formComponent,
-  label,
-  componentRef,
-  hasValidationMessages,
-  formData,
-  groupProps = {},
-  display,
-}: ISummaryComponentSwitch) {
-  const resolved = useResolvedNode(formComponent)?.item;
-
-  if (!formComponent) {
-    return null;
-  }
-
-  const hasDataBindings = Object.keys(formComponent.dataModelBindings || {}).length === 0;
-
-  if (hasDataBindings && formComponent.type === 'FileUpload' && componentRef) {
-    return (
-      <>
-        <SummaryBoilerplate
-          {...change}
-          label={label}
-          hasValidationMessages={hasValidationMessages}
-          display={display}
-        />
-        <AttachmentSummaryComponent componentRef={componentRef} />
-      </>
-    );
-  }
-
-  if (hasDataBindings && formComponent.type === 'FileUploadWithTag' && componentRef) {
-    return (
-      <>
-        <SummaryBoilerplate
-          {...change}
-          label={label}
-          hasValidationMessages={hasValidationMessages}
-          display={display}
-        />
-        <AttachmentWithTagSummaryComponent
-          componentRef={componentRef}
-          component={formComponent}
-        />
-      </>
-    );
-  }
-
-  if (formComponent.type === 'Group') {
+export function SummaryComponentSwitch({ change, summaryNode, targetNode, label, formData }: ISummaryComponentSwitch) {
+  if (targetNode.item.type === 'Group') {
+    const correctNode = targetNode as LayoutNode<HGroups>;
     return (
       <SummaryGroupComponent
         {...change}
-        {...groupProps}
-        componentRef={componentRef}
-        display={display}
+        summaryNode={summaryNode}
+        targetNode={correctNode}
       />
-    );
-  }
-
-  if (formComponent.type === 'Checkboxes' && typeof formData !== 'string') {
-    return (
-      <MultipleChoiceSummary
-        {...change}
-        label={label}
-        hasValidationMessages={!!hasValidationMessages}
-        formData={formData}
-        readOnlyComponent={resolved?.readOnly}
-        display={display}
-      />
-    );
-  }
-
-  if (formComponent.type === 'Map') {
-    return (
-      <>
-        <SummaryBoilerplate
-          {...change}
-          label={label}
-          hasValidationMessages={!!hasValidationMessages}
-          display={display}
-        />
-        <MapComponentSummary
-          component={formComponent}
-          formData={formData}
-        />
-      </>
     );
   }
 
   return (
-    <SingleInputSummary
-      {...change}
-      label={label}
-      hasValidationMessages={!!hasValidationMessages}
-      formData={formData}
-      readOnlyComponent={resolved?.readOnly}
-      display={display}
-    />
+    <>
+      <SummaryBoilerplate
+        {...change}
+        label={label}
+        summaryNode={summaryNode}
+        targetNode={targetNode}
+      />
+      <InnerSwitch
+        targetNode={targetNode}
+        formData={formData}
+      />
+    </>
   );
+}
+
+function InnerSwitch({ targetNode, formData }: Pick<ISummaryComponentSwitch, 'targetNode' | 'formData'>) {
+  const hasDataBindings = Object.keys(targetNode.item.dataModelBindings || {}).length === 0;
+
+  if (hasDataBindings && targetNode.item.type === 'FileUpload') {
+    const correctNode = targetNode as LayoutNode<HComponent<'FileUpload'>>;
+    return <AttachmentSummaryComponent targetNode={correctNode} />;
+  }
+
+  if (hasDataBindings && targetNode.item.type === 'FileUploadWithTag') {
+    const correctNode = targetNode as LayoutNode<HComponent<'FileUploadWithTag'>>;
+    return <AttachmentWithTagSummaryComponent targetNode={correctNode} />;
+  }
+
+  if (targetNode.item.type === 'Checkboxes' && typeof formData !== 'string') {
+    return <MultipleChoiceSummary formData={formData} />;
+  }
+
+  if (targetNode.item.type === 'Map') {
+    const correctNode = targetNode as LayoutNode<HComponent<'Map'>>;
+    return (
+      <MapComponentSummary
+        formData={formData}
+        targetNode={correctNode}
+      />
+    );
+  }
+
+  return <SingleInputSummary formData={formData} />;
 }

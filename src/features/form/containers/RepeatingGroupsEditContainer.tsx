@@ -5,7 +5,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { renderLayoutComponent } from 'src/features/form/containers/Form';
+import { renderLayoutNode } from 'src/features/form/containers/Form';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
@@ -195,7 +195,7 @@ export function RepeatingGroupsEditContainer({
             if (!n) {
               return null;
             }
-            return renderLayoutComponent(n);
+            return renderLayoutNode(n);
           })}
         </Grid>
         <Grid item={true}>
