@@ -11,7 +11,6 @@ import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
 export interface IMapComponentSummary {
-  formData: any;
   targetNode: LayoutNode<HComponent<'Map'>>;
 }
 
@@ -28,9 +27,10 @@ export const useStyles = makeStyles(() => ({
   },
 }));
 
-export function MapComponentSummary({ targetNode, formData }: IMapComponentSummary) {
+export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
   const classes = useStyles();
   const layers = targetNode.item.layers;
+  const formData = undefined; // PRIORITY: Find form data for component
   const location = formData ? parseLocation(formData) : undefined;
   const language = useAppSelector((state) => state.language.language);
   if (!language) {

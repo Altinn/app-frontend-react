@@ -18,10 +18,9 @@ export interface ISummaryComponentSwitch {
   summaryNode: LayoutNode<HComponent<'Summary'>>;
   targetNode: LayoutNode;
   label?: JSX.Element | JSX.Element[] | null | undefined;
-  formData?: any;
 }
 
-export function SummaryComponentSwitch({ change, summaryNode, targetNode, label, formData }: ISummaryComponentSwitch) {
+export function SummaryComponentSwitch({ change, summaryNode, targetNode, label }: ISummaryComponentSwitch) {
   if (targetNode.item.type === 'Group') {
     const correctNode = targetNode as LayoutNode<HGroups>;
     return (
@@ -41,15 +40,12 @@ export function SummaryComponentSwitch({ change, summaryNode, targetNode, label,
         summaryNode={summaryNode}
         targetNode={targetNode}
       />
-      <InnerSwitch
-        targetNode={targetNode}
-        formData={formData}
-      />
+      <InnerSwitch targetNode={targetNode} />
     </>
   );
 }
 
-function InnerSwitch({ targetNode, formData }: Pick<ISummaryComponentSwitch, 'targetNode' | 'formData'>) {
+function InnerSwitch({ targetNode }: { targetNode: LayoutNode }) {
   const hasDataBindings = Object.keys(targetNode.item.dataModelBindings || {}).length === 0;
 
   if (hasDataBindings && targetNode.item.type === 'FileUpload') {
@@ -62,19 +58,15 @@ function InnerSwitch({ targetNode, formData }: Pick<ISummaryComponentSwitch, 'ta
     return <AttachmentWithTagSummaryComponent targetNode={correctNode} />;
   }
 
-  if (targetNode.item.type === 'Checkboxes' && typeof formData !== 'string') {
-    return <MultipleChoiceSummary formData={formData} />;
+  if (targetNode.item.type === 'Checkboxes') {
+    const correctNode = targetNode as LayoutNode<HComponent<'Checkboxes'>>;
+    return <MultipleChoiceSummary targetNode={correctNode} />;
   }
 
   if (targetNode.item.type === 'Map') {
     const correctNode = targetNode as LayoutNode<HComponent<'Map'>>;
-    return (
-      <MapComponentSummary
-        formData={formData}
-        targetNode={correctNode}
-      />
-    );
+    return <MapComponentSummary targetNode={correctNode} />;
   }
 
-  return <SingleInputSummary formData={formData} />;
+  return <SingleInputSummary targetNode={targetNode} />;
 }

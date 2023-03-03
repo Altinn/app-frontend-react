@@ -1,19 +1,17 @@
-import { useEffect, useState } from 'react';
+import type { IFormData } from 'src/features/form/data';
 
-import type { IFormDataState } from 'src/features/form/data';
-
-export const useDisplayData = ({ formData }: Partial<IFormDataState> | { formData: string | string[] }) => {
-  const [displayData, setDisplayData] = useState<string | undefined>('');
-  useEffect(() => {
-    if (formData && typeof formData === 'object') {
-      let displayString = '';
-      Object.keys(formData).forEach((key, index) => {
-        displayString += `${index > 0 ? ' ' : ''}${formData[key]}`;
-      });
-      setDisplayData(displayString.trim().length > 0 ? displayString : undefined);
-    } else {
-      setDisplayData(formData && formData.length > 0 ? formData : undefined);
+/**
+ * @deprecated Do not use. Prefer to let components themselves figure out how to display form data
+ */
+export const useDisplayData = ({ formData }: { formData: IFormData | string | string[] | undefined }) => {
+  if (formData) {
+    if (typeof formData === 'object') {
+      const displayString = Object.values(formData).join(' ').trim();
+      return displayString.length > 0 ? displayString : undefined;
     }
-  }, [formData, setDisplayData]);
-  return displayData;
+
+    return formData;
+  }
+
+  return undefined;
 };

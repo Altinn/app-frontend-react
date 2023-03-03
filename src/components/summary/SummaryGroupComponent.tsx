@@ -11,11 +11,7 @@ import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroup
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { getDisplayFormDataForComponent } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { IRuntimeState } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { HComponent, HGroups } from 'src/utils/layout/hierarchy.types';
 
@@ -79,12 +75,8 @@ export function SummaryGroupComponent({ onChangeClick, changeText, summaryNode, 
     !excludedChildren ||
     (!excludedChildren.includes(n.item.id) && !excludedChildren.includes(`${n.item.baseComponentId}`));
 
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const formData = useAppSelector((state) => state.formData.formData);
   const textResources = useAppSelector((state) => state.textResources.resources);
   const language = useAppSelector((state) => state.language.language);
-  const options = useAppSelector((state) => state.optionState.options);
-  const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
   const groupHasErrors = targetNode.hasDeepValidationMessages();
 
   const title = React.useMemo(() => {
@@ -118,24 +110,12 @@ export function SummaryGroupComponent({ onChangeClick, changeText, summaryNode, 
           if (n.isHidden()) {
             return;
           }
-
-          const formDataForComponent = getDisplayFormDataForComponent(
-            formData,
-            attachments,
-            n.item,
-            textResources,
-            options,
-            repeatingGroups,
-          );
-
           return (
             // PRIORITY: Find out if this can be replaced by just calling SummaryComponent
             // again, or using a simpler component
             <GroupInputSummary
               key={n.item.id}
-              componentId={n.item.id}
-              formData={formDataForComponent}
-              textResources={textResources}
+              targetNode={n}
             />
           );
         });
@@ -157,90 +137,30 @@ export function SummaryGroupComponent({ onChangeClick, changeText, summaryNode, 
       return;
     }
 
-    const componentArray: JSX.Element[] = [];
-    for (const row of targetNode.item.rows) {
-      if (!row) {
-        continue;
-      }
-
-      // PRIORITY: Remove this
-      const groupContainer = {
-        ...targetNode.item,
-        children: [],
-      } as ExprUnresolved<ILayoutGroup>;
-
-      /*
-      const childSummaryComponents: ComponentFromSummary[] = [];
-      node
-        .children(undefined, row.index)
-        .filter(removeExcludedChildren)
-        .forEach((n) => {
+    return [
+      <DisplayGroupContainer
+        key={`${targetNode.item.id}-summary`}
+        groupNode={targetNode}
+        // id={`${groupContainer.id}-${row.index}-summary`}
+        // components={childSummaryComponents}
+        // container={groupContainer}
+        renderLayoutNode={(n) => {
           if (n.isHidden()) {
-            return;
+            return null;
           }
 
-          const summaryId = `${n.item.id}-summary${n.item.type === 'Group' ? '-group' : ''}`;
-          const groupDataModelBinding = node?.item.dataModelBindings?.group?.replace(/\[\d+]/g, '');
-          let formDataForComponent: any;
-          if (n.item.type !== 'Group') {
-            formDataForComponent = getFormDataForComponentInRepeatingGroup(
-              formData,
-              attachments,
-              n.item,
-              row.index,
-              groupDataModelBinding,
-              textResources,
-              options,
-              repeatingGroups,
-            );
-          }
-          groupContainer.children.push(summaryId);
-
-          const summaryComponent: ComponentFromSummary = {
-            id: summaryId,
-            type: 'Summary',
-            componentRef: n.item.id,
-            pageRef: pageRef,
-            dataModelBindings: {},
-            textResourceBindings: {},
-            readOnly: false,
-            required: false,
-            formData: formDataForComponent,
-            display,
-            excludedChildren,
-          };
-
-          childSummaryComponents.push(summaryComponent);
-        });
-       */
-
-      componentArray.push(
-        // PRIORITY: Find a way to avoid faking this
-        <DisplayGroupContainer
-          key={`${groupContainer.id}-summary`}
-          groupNode={targetNode}
-          // id={`${groupContainer.id}-${row.index}-summary`}
-          // components={childSummaryComponents}
-          // container={groupContainer}
-          renderLayoutNode={(n) => {
-            if (n.isHidden()) {
-              return null;
-            }
-
-            return (
-              <Grid
-                item
-                xs={12}
-              >
-                TODO: Here comes {n.item.id}
-              </Grid>
-            );
-            // return <SummaryComponent summaryNode={summaryNode} />;
-          }}
-        />,
-      );
-    }
-    return componentArray;
+          return (
+            <Grid
+              item
+              xs={12}
+            >
+              TODO: Here comes {n.item.id}
+            </Grid>
+          );
+          // return <SummaryComponent summaryNode={summaryNode} />;
+        }}
+      />,
+    ];
   };
 
   const renderComponents = summaryNode.item.largeGroup

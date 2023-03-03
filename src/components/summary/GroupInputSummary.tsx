@@ -5,14 +5,11 @@ import { makeStyles, Typography } from '@material-ui/core';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { useDisplayData } from 'src/components/hooks/useDisplayData';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ITextResource } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
-export interface ISingleInputSummary {
-  componentId: string;
-  formData: any;
-  textResources: ITextResource[];
+export interface IGroupInputSummary {
+  targetNode: LayoutNode;
 }
 
 const useStyles = makeStyles({
@@ -28,13 +25,13 @@ const useStyles = makeStyles({
   },
 });
 
-export function GroupInputSummary({ componentId, formData, textResources }: ISingleInputSummary) {
+export function GroupInputSummary({ targetNode }: IGroupInputSummary) {
+  const formData = undefined; // PRIORITY: Find form data for component
   const displayData = useDisplayData({ formData });
   const classes = useStyles();
   const language = useAppSelector((state) => state.language.language);
-
-  const node = useResolvedNode(componentId);
-  const textBindings = node?.item.textResourceBindings;
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const textBindings = targetNode.item.textResourceBindings;
 
   return (
     <Typography variant='body1'>

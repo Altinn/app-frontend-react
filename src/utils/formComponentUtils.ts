@@ -28,46 +28,18 @@ import type {
   IRepeatingGroups,
   ITextResource,
   ITextResourceBindings,
-  IValidations,
 } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { AnyItem } from 'src/utils/layout/hierarchy.types';
-
-/**
- * @deprecated
- * @see LayoutNode.hasValidationMessages
- * @see LayoutNode.hasDeepValidationMessages
- */
-export const componentHasValidationMessages = (componentValidations: IComponentValidations | undefined) => {
-  if (!componentValidations) {
-    return false;
-  }
-  return Object.keys(componentValidations).some((key: string) => {
-    const bindings = componentValidations[key] || {};
-    return Object.keys(bindings).some((validationKey) => {
-      const messages = bindings && bindings[validationKey];
-      return messages && messages.length > 0;
-    });
-  });
-};
-
-/**
- * @deprecated
- * @see LayoutNode.hasValidationMessages
- * @see LayoutNode.hasDeepValidationMessages
- */
-export const getComponentValidations = (validations: IValidations, componentId: string, pageId: string) => {
-  if (validations[pageId]) {
-    return validations[pageId][componentId];
-  }
-
-  return undefined;
-};
 
 export interface IComponentFormData {
   [binding: string]: string | undefined;
 }
 
+/**
+ * PRIORITY: Remove this, rewrite into each component
+ * @deprecated Move this into the node hierarchy?
+ */
 export const getFormDataForComponent = (formData: IFormData, dataModelBindings: IDataModelBindings | undefined) => {
   if (!dataModelBindings) {
     return {} as IComponentFormData;
@@ -85,6 +57,10 @@ export const getFormDataForComponent = (formData: IFormData, dataModelBindings: 
   return formDataObj;
 };
 
+/**
+ * PRIORITY: Remove this, rewrite into each component
+ * @deprecated
+ */
 export const getDisplayFormDataForComponent = (
   formData: IFormData,
   attachments: IAttachments,
@@ -134,6 +110,10 @@ export const getDisplayFormDataForComponent = (
   return formDataObj;
 };
 
+/**
+ * PRIORITY: Remove this
+ * @deprecated
+ */
 export const getDisplayFormData = (
   dataModelBinding: string | undefined,
   component: ExprUnresolved<ILayoutComponent | ILayoutGroup> | AnyItem,
@@ -271,6 +251,7 @@ export const getDisplayFormData = (
 };
 
 /**
+ * PRIORITY: Remove this
  * @deprecated
  */
 export const getFormDataForComponentInRepeatingGroup = (

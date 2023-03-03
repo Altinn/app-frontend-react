@@ -5,9 +5,10 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { useDisplayData } from 'src/components/hooks/useDisplayData';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 export interface ISingleInputSummary {
-  formData: any;
+  targetNode: LayoutNode;
 }
 
 const useStyles = makeStyles({
@@ -25,8 +26,9 @@ const useStyles = makeStyles({
   },
 });
 
-export function SingleInputSummary({ formData }: ISingleInputSummary) {
+export function SingleInputSummary({ targetNode }: ISingleInputSummary) {
   const classes = useStyles();
+  const formData = undefined; // PRIORITY: Find form data for component
   const displayData = useDisplayData({ formData });
   const language = useAppSelector((state) => state.language.language);
 

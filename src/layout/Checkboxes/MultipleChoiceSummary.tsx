@@ -2,8 +2,11 @@ import React from 'react';
 
 import { Grid, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { HComponent } from 'src/utils/layout/hierarchy.types';
+
 export interface IMultipleChoiceSummaryProps {
-  formData: string[];
+  targetNode: LayoutNode<HComponent<'Checkboxes'>>;
 }
 
 const useStyles = makeStyles({
@@ -24,8 +27,11 @@ const useStyles = makeStyles({
   },
 });
 
-export function MultipleChoiceSummary({ formData }: IMultipleChoiceSummaryProps) {
+export function MultipleChoiceSummary({ targetNode }: IMultipleChoiceSummaryProps) {
   const classes = useStyles();
+
+  // PRIORITY: Find form data for component, check that it's string[]
+  const formData: string[] = [];
 
   return (
     <Grid

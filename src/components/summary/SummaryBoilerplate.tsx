@@ -44,6 +44,7 @@ export function SummaryBoilerplate({
   const readOnlyComponent = targetNode.item.readOnly === true;
   const hasValidationMessages = targetNode.hasValidationMessages();
   const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;
+
   return (
     <>
       <Grid

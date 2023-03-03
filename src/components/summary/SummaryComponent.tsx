@@ -1,5 +1,4 @@
 import React from 'react';
-import { shallowEqual } from 'react-redux';
 
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
@@ -11,16 +10,14 @@ import { SummaryComponentSwitch } from 'src/components/summary/SummaryComponentS
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ComponentType } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { getDisplayFormDataForComponent, pageBreakStyles } from 'src/utils/formComponentUtils';
+import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
-import type { IRuntimeState } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryComponent {
-  formData?: any; // PRIORITY: Find out if we can omit this, and let every summary component figure itself out
   summaryNode: LayoutNode<HComponent<'Summary'>>;
 }
 
@@ -39,7 +36,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function SummaryComponent({ formData, summaryNode }: ISummaryComponent) {
+export function SummaryComponent({ summaryNode }: ISummaryComponent) {
   const { id, grid, componentRef, display } = summaryNode.item;
   const { pageRef } = summaryNode.item;
   const classes = useStyles();
@@ -56,7 +53,6 @@ export function SummaryComponent({ formData, summaryNode }: ISummaryComponent) {
         true,
       ),
   );
-  const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
 
   const summaryItem = summaryNode.item;
   const targetNode = useResolvedNode(componentRef);
@@ -75,32 +71,6 @@ export function SummaryComponent({ formData, summaryNode }: ISummaryComponent) {
       )
     );
   });
-  const calculatedFormData = useAppSelector((state) => {
-    if (!targetItem) {
-      return undefined;
-    }
-    if (targetItem.type === 'Group') {
-      return undefined;
-    }
-    if (
-      (targetItem.type === 'FileUpload' || targetItem.type === 'FileUploadWithTag') &&
-      Object.keys(targetItem.dataModelBindings || {}).length === 0
-    ) {
-      return undefined;
-    }
-    return (
-      formData ||
-      getDisplayFormDataForComponent(
-        state.formData.formData,
-        attachments,
-        targetItem,
-        state.textResources.resources,
-        state.optionState.options,
-        state.formLayout.uiConfig.repeatingGroups,
-        true,
-      )
-    );
-  }, shallowEqual);
 
   const label = useAppSelector((state) => {
     const titleKey = targetItem?.textResourceBindings?.title;
@@ -184,7 +154,6 @@ export function SummaryComponent({ formData, summaryNode }: ISummaryComponent) {
           targetNode={targetNode}
           change={change}
           label={label}
-          formData={calculatedFormData}
         />
         {targetNode?.hasValidationMessages('errors') &&
           targetItem.type !== 'Group' &&
