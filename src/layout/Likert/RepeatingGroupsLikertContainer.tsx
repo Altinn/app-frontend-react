@@ -15,6 +15,7 @@ import { LayoutStyle } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getOptionLookupKey } from 'src/utils/options';
+import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { HComponent } from 'src/utils/layout/hierarchy.types';
@@ -149,11 +150,12 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
               }
 
               return (
-                <GenericComponent
+                <GenericLikertComponent
                   key={comp.item.id}
-                  node={comp as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>}
-                  // PRIORITY: Figure out how to override these:
-                  layout={LayoutStyle.Table}
+                  node={comp as LayoutNode<HComponent<'Likert'>>}
+                  overrideItemProps={{
+                    layout: LayoutStyle.Table,
+                  }}
                 />
               );
             })}
@@ -163,3 +165,10 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
     </>
   );
 };
+
+/**
+ * This hack is needed because React + TypeScript does not infer the generic type from other parameters.
+ */
+function GenericLikertComponent(props: IGenericComponentProps<'Likert'>) {
+  return <GenericComponent {...props} />;
+}

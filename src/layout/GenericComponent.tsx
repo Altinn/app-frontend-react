@@ -27,13 +27,12 @@ import type { ISingleFieldValidation } from 'src/features/form/data/formDataType
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentExceptGroupAndSummary, IGridStyling } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { LayoutStyle } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { HComponent } from 'src/utils/layout/hierarchy.types';
 
 export interface IGenericComponentProps<Type extends ComponentExceptGroupAndSummary> {
   node: LayoutNode<HComponent<Type>>;
-  layout?: LayoutStyle; // PRIORITY: Get rid of this (support overriding properties instead)
+  overrideItemProps?: Partial<Omit<HComponent<Type>, 'id'>>;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -84,10 +83,17 @@ const useStyles = makeStyles((theme) => ({
 
 export function GenericComponent<Type extends ComponentExceptGroupAndSummary = ComponentExceptGroupAndSummary>({
   node,
-  layout,
+  overrideItemProps,
 }: IGenericComponentProps<Type>) {
-  const item = node.item;
+  let item = node.item;
   const id = item.id;
+
+  if (overrideItemProps) {
+    item = {
+      ...item,
+      ...overrideItemProps,
+    };
+  }
 
   const dispatch = useAppDispatch();
   const classes = useStyles();
@@ -97,7 +103,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
   const hidden = node.isHidden();
 
   const formData = useAppSelector(
-    (state) => getFormDataForComponent(state.formData.formData, item?.dataModelBindings),
+    (state) => getFormDataForComponent(state.formData.formData, item.dataModelBindings),
     shallowEqual,
   );
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -107,7 +113,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
   const textResources = useAppSelector((state) => state.textResources.resources);
 
   const texts = useAppSelector((state) =>
-    selectComponentTexts(state.textResources.resources, item?.textResourceBindings),
+    selectComponentTexts(state.textResources.resources, item.textResourceBindings),
   );
 
   const shouldFocus = useAppSelector((state) => GetFocusSelector(state, { id }));
@@ -118,11 +124,11 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
-      grid: item?.grid,
+      grid: item.grid,
       id,
-      baseComponentId: item?.baseComponentId,
+      baseComponentId: item.baseComponentId,
     }),
-    [item?.baseComponentId, item?.grid, id],
+    [item.baseComponentId, item.grid, id],
   );
 
   React.useLayoutEffect(() => {
@@ -147,7 +153,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
   const handleDataChange: IComponentProps['handleDataChange'] = (value, options = {}) => {
     const { key = 'simpleBinding', validate = true } = options;
 
-    if (!item?.dataModelBindings || !item?.dataModelBindings[key]) {
+    if (!item.dataModelBindings || !item.dataModelBindings[key]) {
       return;
     }
 
@@ -184,7 +190,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
   if (!layoutComponent) {
     return (
       <div>
-        Unknown component type: {item?.type}
+        Unknown component type: {item.type}
         <br />
         Valid component types: {Object.keys(components).join(', ')}
       </div>
@@ -200,14 +206,14 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
       helpText={texts.help}
       language={language}
       id={id}
-      readOnly={item?.readOnly}
-      required={item?.required}
-      labelSettings={item?.labelSettings}
+      readOnly={item.readOnly}
+      required={item.required}
+      labelSettings={item.labelSettings}
     />
   );
 
   const RenderDescription = () => {
-    if (!item?.textResourceBindings?.description) {
+    if (!item.textResourceBindings?.description) {
       return null;
     }
 
@@ -229,9 +235,9 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
         helpText={texts.help}
         language={language}
         id={id}
-        required={item?.required}
-        labelSettings={item?.labelSettings}
-        layout={layout}
+        required={item.required}
+        labelSettings={item.labelSettings}
+        layout={('layout' in item && item.layout) || undefined}
       />
     );
   };
@@ -294,7 +300,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
           'a-form-group',
           classes.container,
           gridToClasses(item.grid?.labelGrid, classes),
-          pageBreakStyles(item?.pageBreak),
+          pageBreakStyles(item.pageBreak),
         )}
         alignItems='baseline'
       >

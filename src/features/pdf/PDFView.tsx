@@ -47,8 +47,9 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
     return (
       <GenericComponent
         node={node as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>}
-        // PRIORITY: Add support for overriding properties
-        // grid={{ xs: 12 }}
+        overrideItemProps={{
+          grid: { xs: 12 },
+        }}
       />
     );
   } else {
