@@ -127,7 +127,7 @@ export function SummaryComponent({ formData, summaryNode }: ISummaryComponent) {
     );
   };
 
-  if (!targetNode || !targetItem || targetNode.isHidden()) {
+  if (!targetNode || !targetItem || targetNode.isHidden() || targetItem.type === 'Summary') {
     return null;
   }
 
