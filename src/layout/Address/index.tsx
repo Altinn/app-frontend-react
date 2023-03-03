@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
-import { LayoutComponent } from 'src/layout/LayoutComponent';
+import { FormComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export class Address extends LayoutComponent<'AddressComponent'> {
+export class Address extends FormComponent<'AddressComponent'> {
   render(props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null {
     return <AddressComponent {...props} />;
   }

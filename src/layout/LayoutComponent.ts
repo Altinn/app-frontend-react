@@ -2,7 +2,7 @@ import { ComponentType } from 'src/layout/index';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 
-export abstract class LayoutComponent<Type extends ComponentExceptGroupAndSummary> {
+abstract class AnyComponent<Type extends ComponentExceptGroupAndSummary> {
   /**
    * Given properties from GenericComponent, render this layout component
    */
@@ -35,9 +35,30 @@ export abstract class LayoutComponent<Type extends ComponentExceptGroupAndSummar
 
   /**
    * Is this a form component that has formData and should be displayed differently in summary/pdf?
-   * Purly presentational components with no interaction should override and return ComponentType.Presentation.
+   * Purely presentational components with no interaction should override and return ComponentType.Presentation.
    */
-  getComponentType(): ComponentType {
-    return ComponentType.Form;
-  }
+  abstract getComponentType(): ComponentType;
 }
+
+export abstract class PresentationComponent<Type extends ComponentExceptGroupAndSummary> extends AnyComponent<Type> {
+  readonly getComponentType = (): ComponentType => {
+    return ComponentType.Presentation;
+  };
+}
+
+export abstract class FormComponent<Type extends ComponentExceptGroupAndSummary> extends AnyComponent<Type> {
+  readonly getComponentType = (): ComponentType => {
+    return ComponentType.Form;
+  };
+}
+
+export abstract class ActionComponent<Type extends ComponentExceptGroupAndSummary> extends AnyComponent<Type> {
+  readonly getComponentType = (): ComponentType => {
+    return ComponentType.Action;
+  };
+}
+
+export type LayoutComponent<Type extends ComponentExceptGroupAndSummary> =
+  | PresentationComponent<Type>
+  | FormComponent<Type>
+  | ActionComponent<Type>;

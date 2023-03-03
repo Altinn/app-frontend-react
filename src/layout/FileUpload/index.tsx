@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
-import { LayoutComponent } from 'src/layout/LayoutComponent';
+import { FormComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export class FileUpload extends LayoutComponent<'FileUpload'> {
+export class FileUpload extends FormComponent<'FileUpload'> {
   render(props: PropsFromGenericComponent<'FileUpload'>): JSX.Element | null {
     return <FileUploadComponent {...props} />;
   }

@@ -99,13 +99,13 @@ export const FormComponentContext = createContext<IFormComponentContext>({
 });
 
 /**
- * This enum is used to distinguish purly presentational components
+ * This enum is used to distinguish purely presentational components
  * from interactive form components that can have formData etc.
  */
 export enum ComponentType {
   Presentation = 'presentation',
   Form = 'form',
-  Button = 'button',
+  Action = 'action',
 }
 
 export function getLayoutComponentObject<T extends string | undefined | ComponentExceptGroupAndSummary>(
