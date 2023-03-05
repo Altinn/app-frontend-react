@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
 import { Button, ButtonSize, ButtonVariant } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
@@ -45,7 +45,6 @@ const getValidationMethod = (container: ExprResolved<ILayoutGroup> | ExprUnresol
 export function GroupContainer({ id, container, components }: IGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
   const renderComponents: ExprUnresolved<ILayoutComponent>[] = JSON.parse(JSON.stringify(components));
-
   const node = useResolvedNode(id);
   const resolvedTextBindings = node?.item.textResourceBindings;
   const edit = node?.item.type === 'Group' ? node.item.edit : undefined;
@@ -63,6 +62,8 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.multiPageIndex) ??
       -1,
   );
+
+  const myRef = useRef<any>(null);
 
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
 
@@ -134,14 +135,43 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     }
   }, [dispatch, id, edit?.mode, repeatingGroupIndex, setMultiPageIndex]);
 
+  //WCAG: Find the first focusable element in table and focus on it
+  const isFocusable = (item: any) => {
+    if (item.tabIndex < 0) {
+      return false;
+    }
+    console.log(item.tagName);
+    switch (item.tagName) {
+      case 'A':
+        return !!item.href;
+      case 'INPUT':
+        return item.type !== 'hidden' && !item.disabled;
+      case 'SELECT':
+      case 'TEXTAREA':
+      case 'BUTTON':
+        return !item.disabled;
+      default:
+        return false;
+    }
+  };
+
   React.useEffect(() => {
     const { edit } = container;
     if (!edit) {
       return;
     }
-
     if (edit.openByDefault && repeatingGroupIndex === -1) {
       onClickAdd();
+    }
+
+    const findFirstFocusableElement = (container: any) => {
+      return Array.from(container.getElementsByTagName('*')).find(isFocusable);
+    };
+    if (myRef.current) {
+      console.log(myRef);
+      const firstFocusableChild: any = findFirstFocusableElement(myRef.current);
+      console.log(firstFocusableChild);
+      firstFocusableChild && firstFocusableChild.focus();
     }
   }, [container, onClickAdd, repeatingGroupIndex]);
 
@@ -199,10 +229,13 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     );
   }
 
+  // console.log(id);
+
   return (
     <Grid
       container={true}
       item={true}
+      ref={myRef}
     >
       {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
@@ -235,6 +268,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
         editIndex < 0 &&
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) &&
         addButton()}
+
       <ConditionalWrapper
         condition={!isNested}
         wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
