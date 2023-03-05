@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { Button } from '@digdir/design-system-react';
-import { Grid, IconButton, makeStyles } from '@material-ui/core';
+import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
+import { Grid, makeStyles } from '@material-ui/core';
+import { Delete } from '@navikt/ds-icons';
 import classNames from 'classnames';
 
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
@@ -123,14 +124,16 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
               />
             )}
             <div>
-              <IconButton
-                classes={{ root: classes.deleteButton }}
+              <Button
+                // classes={{ root: classes.deleteButton }}
                 onClick={() => handleDeleteFile()}
-                tabIndex={0}
+                variant={ButtonVariant.Quiet}
+                color={ButtonColor.Secondary}
+                icon={<Delete aria-hidden={true} />}
+                iconPlacement='right'
               >
                 {getLanguageFromKey('general.delete', props.language)}
-                <i className='ai ai-trash' />
-              </IconButton>
+              </Button>
             </div>
           </div>
         </Grid>
