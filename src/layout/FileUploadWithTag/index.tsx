@@ -6,6 +6,7 @@ import {
   attachmentNamesFromUuids,
   extractListFromBinding,
 } from 'src/layout/FileUpload/shared/summary';
+import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -38,8 +39,7 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> {
     return this.useSummaryData(node).join(', ');
   }
 
-  renderSummary(_props: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return <span>Nothing implemented yet</span>;
+  renderSummary({ targetNode }: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {
+    return <AttachmentWithTagSummaryComponent targetNode={targetNode} />;
   }
 }

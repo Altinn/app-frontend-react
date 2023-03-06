@@ -3,12 +3,10 @@ import React from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useDisplayData } from 'src/components/hooks/useDisplayData';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 export interface ISingleInputSummary {
-  targetNode: LayoutNode;
+  formDataAsString: string | undefined;
 }
 
 const useStyles = makeStyles({
@@ -26,10 +24,8 @@ const useStyles = makeStyles({
   },
 });
 
-export function SingleInputSummary({ targetNode }: ISingleInputSummary) {
+export function SingleInputSummary({ formDataAsString }: ISingleInputSummary) {
   const classes = useStyles();
-  const formData = undefined; // PRIORITY: Find form data for component
-  const displayData = useDisplayData({ formData });
   const language = useAppSelector((state) => state.language.language);
 
   return (
@@ -38,12 +34,12 @@ export function SingleInputSummary({ targetNode }: ISingleInputSummary) {
       xs={12}
       data-testid={'single-input-summary'}
     >
-      {typeof displayData !== 'undefined' ? (
+      {formDataAsString ? (
         <Typography
           className={classes.data}
           variant='body1'
         >
-          {displayData}
+          {formDataAsString}
         </Typography>
       ) : (
         <Typography

@@ -97,6 +97,7 @@ export function SummaryComponent({ summaryNode }: ISummaryComponent) {
   };
 
   if (!targetNode || !targetItem || targetNode.isHidden() || targetItem.type === 'Summary') {
+    // TODO: Show info to developers if target node is not found?
     return null;
   }
 
@@ -106,25 +107,7 @@ export function SummaryComponent({ summaryNode }: ISummaryComponent) {
   };
 
   // PRIORITY: Check to make sure we can treat non-repeating groups the same as repeating groups
-  // if (targetItem?.type === 'Group' && (!targetItem.maxCount || targetItem.maxCount <= 1)) {
-  //   // Non-repeating group: display children as summary components
-  //   return (
-  //     <DisplayGroupContainer
-  //       key={id}
-  //       groupNode={targetNode}
-  //       renderLayoutNode={(child) => (
-  //         <SummaryComponent
-  //           key={`__summary__${child.item.id}`}
-  //           // summaryNode={}
-  //           id={`__summary__${child.item.id}`}
-  //           componentRef={child.item.id}
-  //           pageRef={groupProps.pageRef}
-  //           largeGroup={groupProps.largeGroup}
-  //         />
-  //       )}
-  //     />
-  //   );
-  // } else
+  // PRIORITY: Figure out if SummaryComponentSwitch can render this instead of us doing it directly
   if (targetComponent?.getComponentType() === ComponentType.Presentation) {
     // Render non-input components as normal
     return <GenericComponent node={targetNode as LayoutNodeFromType<ComponentExceptGroupAndSummary>} />;

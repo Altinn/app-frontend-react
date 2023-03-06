@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { useCommaSeparatedOptionsToText } from 'src/utils/formComponentUtils';
@@ -27,8 +28,8 @@ export class MultipleSelect extends FormComponent<'MultipleSelect'> {
     return Object.values(this.useSummaryData(node)).join(', ');
   }
 
-  renderSummary(_props: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return <span>Nothing implemented yet</span>;
+  renderSummary({ targetNode }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
+    const formData = this.useSummaryData(targetNode);
+    return <MultipleChoiceSummary formData={formData} />;
   }
 }

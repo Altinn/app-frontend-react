@@ -3,6 +3,7 @@ import React from 'react';
 import { formatNumericText } from '@altinn/altinn-design-system';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { SingleInputSummary } from 'src/components/summary/SingleInputSummary';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -30,8 +31,8 @@ export class Input extends FormComponent<'Input'> {
     return text;
   }
 
-  renderSummary(_props: SummaryRendererProps<'Input'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return <span>Nothing implemented yet</span>;
+  renderSummary({ targetNode }: SummaryRendererProps<'Input'>): JSX.Element | null {
+    const displayData = this.useDisplayData(targetNode);
+    return <SingleInputSummary formDataAsString={displayData} />;
   }
 }

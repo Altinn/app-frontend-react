@@ -2,6 +2,7 @@ import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
+import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { useCommaSeparatedOptionsToText } from 'src/utils/formComponentUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -29,7 +30,8 @@ export class Checkboxes extends FormComponent<'Checkboxes'> {
     return Object.values(this.useSummaryData(node)).join(', ');
   }
 
-  renderSummary(_props: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
-    return <span>Not implemented</span>;
+  renderSummary({ targetNode }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
+    const formData = this.useSummaryData(targetNode);
+    return <MultipleChoiceSummary formData={formData} />;
   }
 }

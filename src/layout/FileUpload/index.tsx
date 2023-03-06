@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import {
   attachmentNamesFromComponentId,
@@ -38,8 +39,7 @@ export class FileUpload extends FormComponent<'FileUpload'> {
     return this.useSummaryData(node).join(', ');
   }
 
-  renderSummary(_props: SummaryRendererProps<'FileUpload'>): JSX.Element | null {
-    // PRIORITY: Implement this
-    return <span>Not implemented</span>;
+  renderSummary({ targetNode }: SummaryRendererProps<'FileUpload'>): JSX.Element | null {
+    return <AttachmentSummaryComponent targetNode={targetNode} />;
   }
 }

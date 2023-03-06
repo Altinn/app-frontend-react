@@ -1,7 +1,9 @@
 import React from 'react';
 
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { MapComponent } from 'src/layout/Map/MapComponent';
+import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -11,13 +13,16 @@ export class Map extends FormComponent<'Map'> {
     return <MapComponent {...props} />;
   }
 
-  useDisplayData(_node: LayoutNodeFromType<'Map'>): string {
-    // PRIORITY: Implement
-    return '';
+  useDisplayData(node: LayoutNodeFromType<'Map'>): string {
+    const formData = useAppSelector((state) => state.formData.formData);
+    if (!node.item.dataModelBindings?.simpleBinding) {
+      return '';
+    }
+
+    return formData[node.item.dataModelBindings.simpleBinding] || '';
   }
 
-  renderSummary(_props: SummaryRendererProps<'Map'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return null;
+  renderSummary({ targetNode }: SummaryRendererProps<'Map'>): JSX.Element | null {
+    return <MapComponentSummary targetNode={targetNode} />;
   }
 }

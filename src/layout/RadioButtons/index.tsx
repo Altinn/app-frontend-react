@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { SingleInputSummary } from 'src/components/summary/SingleInputSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { useSelectedValueToText } from 'src/utils/formComponentUtils';
@@ -25,8 +26,8 @@ export class RadioButtons extends FormComponent<'RadioButtons'> {
     return useSelectedValueToText(node.item, value) || '';
   }
 
-  renderSummary(_props: SummaryRendererProps<'RadioButtons'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return <span>Nothing implemented yet</span>;
+  renderSummary({ targetNode }: SummaryRendererProps<'RadioButtons'>): JSX.Element | null {
+    const displayData = this.useDisplayData(targetNode);
+    return <SingleInputSummary formDataAsString={displayData} />;
   }
 }

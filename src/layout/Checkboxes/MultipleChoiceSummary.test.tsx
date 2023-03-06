@@ -14,7 +14,7 @@ describe('MultipleChoiceSummary', () => {
 
 function render(props: Partial<IMultipleChoiceSummaryProps> = {}) {
   const defaultProps: IMultipleChoiceSummaryProps = {
-    formData: ['This is a text', 'This is another text'],
+    formData: { 'some-key': 'This is a text', 'some-other-key': 'This is another text' },
   };
 
   return rtlRender(

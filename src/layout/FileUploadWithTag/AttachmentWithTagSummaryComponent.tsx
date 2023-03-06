@@ -27,6 +27,7 @@ const useStyles = makeStyles({
 });
 
 export function AttachmentWithTagSummaryComponent({ targetNode }: IAttachmentWithTagSummaryComponent) {
+  // PRIORITY: Find out if summary data from the component class is needed here at all?
   const classes = useStyles();
   const component = targetNode.item;
   const attachments: IAttachment[] | undefined = useAppSelector((state) => state.attachments.attachments[component.id]);

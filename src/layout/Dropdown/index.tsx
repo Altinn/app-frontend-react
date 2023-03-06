@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { SingleInputSummary } from 'src/components/summary/SingleInputSummary';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { useSelectedValueToText } from 'src/utils/formComponentUtils';
@@ -23,8 +24,8 @@ export class Dropdown extends FormComponent<'Dropdown'> {
     return useSelectedValueToText(node.item, value) || '';
   }
 
-  renderSummary(_props: SummaryRendererProps<'Dropdown'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return <span>Not implemented</span>;
+  renderSummary({ targetNode }: SummaryRendererProps<'Dropdown'>): JSX.Element | null {
+    const displayData = this.useDisplayData(targetNode);
+    return <SingleInputSummary formDataAsString={displayData} />;
   }
 }

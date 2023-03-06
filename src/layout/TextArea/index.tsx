@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { SingleInputSummary } from 'src/components/summary/SingleInputSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -21,8 +22,8 @@ export class TextArea extends FormComponent<'TextArea'> {
     return formData[node.item.dataModelBindings.simpleBinding] || '';
   }
 
-  renderSummary(_props: SummaryRendererProps<'TextArea'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return <span>Nothing implemented yet</span>;
+  renderSummary({ targetNode }: SummaryRendererProps<'TextArea'>): JSX.Element | null {
+    const displayData = this.useDisplayData(targetNode);
+    return <SingleInputSummary formDataAsString={displayData} />;
   }
 }

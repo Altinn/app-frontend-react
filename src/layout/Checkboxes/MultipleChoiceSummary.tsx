@@ -2,10 +2,8 @@ import React from 'react';
 
 import { Grid, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-
 export interface IMultipleChoiceSummaryProps {
-  targetNode: LayoutNodeFromType<'Checkboxes'>;
+  formData: { [key: string]: string };
 }
 
 const useStyles = makeStyles({
@@ -26,11 +24,8 @@ const useStyles = makeStyles({
   },
 });
 
-export function MultipleChoiceSummary({ targetNode }: IMultipleChoiceSummaryProps) {
+export function MultipleChoiceSummary({ formData }: IMultipleChoiceSummaryProps) {
   const classes = useStyles();
-
-  // PRIORITY: Find form data for component, check that it's string[]
-  const formData: string[] = [];
 
   return (
     <Grid
@@ -39,19 +34,18 @@ export function MultipleChoiceSummary({ targetNode }: IMultipleChoiceSummaryProp
       data-testid={'multiple-choice-summary'}
     >
       <List classes={{ root: classes.list }}>
-        {formData &&
-          Object.keys(formData).map((key) => (
-            <ListItem
-              key={key}
-              classes={{ root: classes.listItem }}
-            >
-              <ListItemText
-                id={key}
-                primaryTypographyProps={{ classes: { root: classes.data } }}
-                primary={formData[key]}
-              />
-            </ListItem>
-          ))}
+        {Object.keys(formData).map((key) => (
+          <ListItem
+            key={key}
+            classes={{ root: classes.listItem }}
+          >
+            <ListItemText
+              id={key}
+              primaryTypographyProps={{ classes: { root: classes.data } }}
+              primary={formData[key]}
+            />
+          </ListItem>
+        ))}
       </List>
     </Grid>
   );

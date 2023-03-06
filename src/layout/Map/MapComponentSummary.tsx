@@ -29,7 +29,7 @@ export const useStyles = makeStyles(() => ({
 export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
   const classes = useStyles();
   const layers = targetNode.item.layers;
-  const formData = undefined; // PRIORITY: Find form data for component
+  const formData = targetNode.getComponent().useDisplayData(targetNode);
   const location = formData ? parseLocation(formData) : undefined;
   const language = useAppSelector((state) => state.language.language);
   if (!language) {

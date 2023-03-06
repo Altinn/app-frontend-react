@@ -58,18 +58,15 @@ export abstract class FormComponent<Type extends ComponentExceptGroupAndSummary>
   };
 
   /**
-   * Given a node (with group-index-aware data model bindings) and some form data, this method should return
-   * a proper 'value' for the current component/node. This is the same value as is passed to renderSummary().
+   * Given a node (with group-index-aware data model bindings), this method should return a proper 'value' for the
+   * current component/node. This value will be used to display form data in a repeating group table, and might also
+   * be useful when rendering a Summary for the node.
    */
   abstract useDisplayData(node: LayoutNodeFromType<Type>): string;
 
   /**
-   * Given some SummaryData, render a summary for this component. For most components, this will either:
-   *  1. Return a null (indicating that it's not possible to summarize the value in this component, or that it cannot
-   *     possibly have a value attached to it). This is used for static components such as Header, Paragraph, Button.
-   *     Hint: Your component is probably a PresentationLayoutComponent. Inherit that instead to avoid having to
-   *     implement this.
-   *  2. Return a <StringSummary node={node} data={data} />, for when the summary can be simply rendered as a string.
+   * Render a summary for this component. For most components, this will return a:
+   * <SingleInputSummary formDataAsString={displayData} />
    */
   abstract renderSummary(props: SummaryRendererProps<Type>): JSX.Element | null;
 }
