@@ -2,6 +2,7 @@ import type React from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
 
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
 import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
@@ -9,7 +10,6 @@ import { getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { SummaryLookups } from 'src/components/summary/SummaryContext';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutGroup } from 'src/layout/Group/types';
@@ -37,10 +37,13 @@ export interface IComponentFormData {
   [binding: string]: string | undefined;
 }
 
-export function getOptionList(
-  component: ISelectionComponent,
-  { options, formData, textResources, repeatingGroups }: SummaryLookups,
-): IOption[] {
+// PRIORITY: Rewrite to use node instead of component props?
+export function useOptionList(component: ISelectionComponent): IOption[] {
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const formData = useAppSelector((state) => state.formData.formData);
+  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
+  const options = useAppSelector((state) => state.optionState.options);
+
   if (component.options) {
     return component.options;
   }
@@ -74,32 +77,34 @@ export function getOptionList(
  * Utility function meant to convert a value for a selection component to a label/text used in Summary
  *
  * Expected to be called from:
- * @see LayoutComponent.getSummaryData
+ * @see FormComponent.useDisplayData
  */
-export function selectedValueToSummaryText(component: ISelectionComponent, value: string, lookups: SummaryLookups) {
-  const optionList = getOptionList(component, lookups);
+export function useSelectedValueToText(component: ISelectionComponent, value: string) {
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const optionList = useOptionList(component);
   const label = optionList.find((option) => option.value === value)?.label;
 
   if (!label) {
     return value;
   }
 
-  return getTextResourceByKey(label, lookups.textResources) || value;
+  return getTextResourceByKey(label, textResources) || value;
 }
 
 /**
  * Utility function meant to convert multiple values for a multi-selection component to an object used in Summary
  *
  * Expected to be called from:
- * @see LayoutComponent.getSummaryData
+ * @see FormComponent.useDisplayData
  */
-export function commaSeparatedToSummaryValues(component: ISelectionComponent, value: string, lookups: SummaryLookups) {
-  const optionList = getOptionList(component, lookups);
+export function useCommaSeparatedOptionsToText(component: ISelectionComponent, value: string) {
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const optionList = useOptionList(component);
   const split = value.split(',');
   const out: { [key: string]: string } = {};
   split?.forEach((part) => {
     const textKey = optionList.find((option) => option.value === part)?.label || '';
-    out[part] = getTextResourceByKey(textKey, lookups.textResources) || part;
+    out[part] = getTextResourceByKey(textKey, textResources) || part;
   });
 
   return out;

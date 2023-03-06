@@ -8,21 +8,21 @@ import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSumm
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent, HGroups } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryComponentSwitch {
   change: {
     onChangeClick: () => void;
     changeText: string | null;
   };
-  summaryNode: LayoutNode<HComponent<'Summary'>>;
+  summaryNode: LayoutNodeFromType<'Summary'>;
   targetNode: LayoutNode;
   label?: JSX.Element | JSX.Element[] | null | undefined;
 }
 
 export function SummaryComponentSwitch({ change, summaryNode, targetNode, label }: ISummaryComponentSwitch) {
   if (targetNode.item.type === 'Group') {
-    const correctNode = targetNode as LayoutNode<HGroups>;
+    const correctNode = targetNode as LayoutNodeFromType<'Group'>;
     return (
       <SummaryGroupComponent
         {...change}
@@ -48,23 +48,24 @@ export function SummaryComponentSwitch({ change, summaryNode, targetNode, label 
 function InnerSwitch({ targetNode }: { targetNode: LayoutNode }) {
   const hasDataBindings = Object.keys(targetNode.item.dataModelBindings || {}).length === 0;
 
+  // PRIORITY: Figure out if we can do some type narrowing in LayoutNode to avoid casting this value
   if (hasDataBindings && targetNode.item.type === 'FileUpload') {
-    const correctNode = targetNode as LayoutNode<HComponent<'FileUpload'>>;
+    const correctNode = targetNode as LayoutNodeFromType<'FileUpload'>;
     return <AttachmentSummaryComponent targetNode={correctNode} />;
   }
 
   if (hasDataBindings && targetNode.item.type === 'FileUploadWithTag') {
-    const correctNode = targetNode as LayoutNode<HComponent<'FileUploadWithTag'>>;
+    const correctNode = targetNode as LayoutNodeFromType<'FileUploadWithTag'>;
     return <AttachmentWithTagSummaryComponent targetNode={correctNode} />;
   }
 
   if (targetNode.item.type === 'Checkboxes') {
-    const correctNode = targetNode as LayoutNode<HComponent<'Checkboxes'>>;
+    const correctNode = targetNode as LayoutNodeFromType<'Checkboxes'>;
     return <MultipleChoiceSummary targetNode={correctNode} />;
   }
 
   if (targetNode.item.type === 'Map') {
-    const correctNode = targetNode as LayoutNode<HComponent<'Map'>>;
+    const correctNode = targetNode as LayoutNodeFromType<'Map'>;
     return <MapComponentSummary targetNode={correctNode} />;
   }
 

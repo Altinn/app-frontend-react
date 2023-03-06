@@ -16,7 +16,7 @@ import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/validation/validation';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export function renderLayoutNode(node: LayoutNode) {
   if (node.item.type === 'Group') {
@@ -53,7 +53,7 @@ export function renderLayoutNode(node: LayoutNode) {
     return (
       <SummaryComponent
         key={node.item.id}
-        summaryNode={node as LayoutNode<HComponent<'Summary'>>}
+        summaryNode={node as LayoutNodeFromType<'Summary'>}
       />
     );
   }
@@ -61,7 +61,7 @@ export function renderLayoutNode(node: LayoutNode) {
   return (
     <GenericComponent
       key={node.item.id}
-      node={node as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>}
+      node={node as LayoutNodeFromType<ComponentExceptGroupAndSummary>}
     />
   );
 }

@@ -8,8 +8,7 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { SummaryGroupComponent } from 'src/components/summary/SummaryGroupComponent';
 import { renderWithProviders } from 'src/testUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent, HGroups } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 describe('SummaryGroupComponent', () => {
   let mockHandleDataChange: () => void;
@@ -137,8 +136,8 @@ describe('SummaryGroupComponent', () => {
 
   function renderSummaryGroupComponent() {
     function Wrapper() {
-      const summaryNode = useResolvedNode('mySummary') as LayoutNode<HComponent<'Summary'>>;
-      const groupNode = useResolvedNode('groupComponent') as LayoutNode<HGroups>;
+      const summaryNode = useResolvedNode('mySummary') as LayoutNodeFromType<'Summary'>;
+      const groupNode = useResolvedNode('groupComponent') as LayoutNodeFromType<'Group'>;
 
       return (
         <SummaryGroupComponent

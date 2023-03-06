@@ -4,6 +4,7 @@ import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export class Custom extends FormComponent<'Custom'> {
   render(props: PropsFromGenericComponent<'Custom'>): JSX.Element | null {
@@ -14,7 +15,7 @@ export class Custom extends FormComponent<'Custom'> {
     return false;
   }
 
-  getDisplayData(_props: SummaryRendererProps<'Custom'>): string {
+  useDisplayData(_node: LayoutNodeFromType<'Custom'>): string {
     // PRIORITY: Implement
     return '';
   }

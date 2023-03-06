@@ -7,11 +7,10 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/sharedLanguage';
 import { parseLocation } from 'src/layout/Map/MapComponent';
 import { markerIcon } from 'src/layout/Map/MapIcons';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface IMapComponentSummary {
-  targetNode: LayoutNode<HComponent<'Map'>>;
+  targetNode: LayoutNodeFromType<'Map'>;
 }
 
 export const useStyles = makeStyles(() => ({

@@ -13,7 +13,7 @@ import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 interface PDFViewProps {
   appName: string;
@@ -38,7 +38,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
   } else if (node.item.type === 'Summary') {
     return (
       <SummaryComponent
-        summaryNode={node as LayoutNode<HComponent<'Summary'>>}
+        summaryNode={node as LayoutNodeFromType<'Summary'>}
         // PRIORITY: Either inject display/grid overrides, or change the CSS to work better in print mode
         // display={{ hideChangeButton: true, hideValidationMessages: true }}
         // grid={{ xs: 12 }}
@@ -47,7 +47,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
   } else if (layoutComponent?.getComponentType() === ComponentType.Presentation) {
     return (
       <GenericComponent
-        node={node as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>}
+        node={node as LayoutNodeFromType<ComponentExceptGroupAndSummary>}
         overrideItemProps={{
           grid: { xs: 12 },
         }}

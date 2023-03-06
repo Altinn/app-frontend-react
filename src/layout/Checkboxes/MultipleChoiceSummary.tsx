@@ -2,11 +2,10 @@ import React from 'react';
 
 import { Grid, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface IMultipleChoiceSummaryProps {
-  targetNode: LayoutNode<HComponent<'Checkboxes'>>;
+  targetNode: LayoutNodeFromType<'Checkboxes'>;
 }
 
 const useStyles = makeStyles({

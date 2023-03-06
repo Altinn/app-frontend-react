@@ -7,6 +7,7 @@ import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
+import type { ComponentClassMap } from 'src/layout';
 import type {
   IDataModelBindings,
   ILayout,
@@ -14,6 +15,7 @@ import type {
   ILayoutComponentOrGroup,
   ILayouts,
 } from 'src/layout/layout';
+import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -684,8 +686,10 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
   /**
    * Gets the LayoutComponent object, a toolbox for this specific component
    */
-  public getComponent() {
-    return getLayoutComponentObject(this.item.type);
+  public getComponent(): Item['type'] extends keyof ComponentClassMap
+    ? ComponentClassMap[Item['type']]
+    : LayoutComponent | undefined {
+    return getLayoutComponentObject(this.item.type as any);
   }
 
   /**

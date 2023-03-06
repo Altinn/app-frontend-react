@@ -14,11 +14,10 @@ import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryComponent {
-  summaryNode: LayoutNode<HComponent<'Summary'>>;
+  summaryNode: LayoutNodeFromType<'Summary'>;
 }
 
 const useStyles = makeStyles({
@@ -128,7 +127,7 @@ export function SummaryComponent({ summaryNode }: ISummaryComponent) {
   // } else
   if (targetComponent?.getComponentType() === ComponentType.Presentation) {
     // Render non-input components as normal
-    return <GenericComponent node={targetNode as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>} />;
+    return <GenericComponent node={targetNode as LayoutNodeFromType<ComponentExceptGroupAndSummary>} />;
   }
 
   const displayGrid = summaryItem.display && summaryItem.display.useComponentGrid ? targetItem?.grid : grid;

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import {
   attachmentNamesFromComponentId,
@@ -9,6 +10,7 @@ import {
 import { FormComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export class FileUpload extends FormComponent<'FileUpload'> {
   render(props: PropsFromGenericComponent<'FileUpload'>): JSX.Element | null {
@@ -19,17 +21,25 @@ export class FileUpload extends FormComponent<'FileUpload'> {
     return false;
   }
 
-  getDisplayData({ targetNode, lookups }: SummaryRendererProps<'FileUpload'>): string[] {
-    const listBinding = targetNode.item.dataModelBindings?.list;
+  private useSummaryData(node: LayoutNodeFromType<'FileUpload'>): string[] {
+    const formData = useAppSelector((state) => state.formData.formData);
+    const attachments = useAppSelector((state) => state.attachments.attachments);
+
+    const listBinding = node.item.dataModelBindings?.list;
     if (listBinding) {
-      const values = extractListFromBinding(lookups.formData, listBinding);
-      return attachmentNamesFromUuids(targetNode.item.id, values, lookups.attachments);
+      const values = extractListFromBinding(formData, listBinding);
+      return attachmentNamesFromUuids(node.item.id, values, attachments);
     }
 
-    return attachmentNamesFromComponentId(targetNode.item.id, lookups.attachments);
+    return attachmentNamesFromComponentId(node.item.id, attachments);
+  }
+
+  useDisplayData(node: LayoutNodeFromType<'FileUpload'>): string {
+    return this.useSummaryData(node).join(', ');
   }
 
   renderSummary(_props: SummaryRendererProps<'FileUpload'>): JSX.Element | null {
+    // PRIORITY: Implement this
     return <span>Not implemented</span>;
   }
 }

@@ -12,8 +12,7 @@ import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { ILayoutComponent } from 'src/layout/layout';
 import type { IValidations } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 describe('SummaryComponent', () => {
   const defaultId = 'default';
@@ -117,7 +116,7 @@ describe('SummaryComponent', () => {
 
   const renderHelper = (props: { componentRef: string }, validations: IValidations = {}, mockLayout = layoutMock()) => {
     function Wrapper() {
-      const node = useResolvedNode('mySummary') as LayoutNode<HComponent<'Summary'>>;
+      const node = useResolvedNode('mySummary') as LayoutNodeFromType<'Summary'>;
 
       return <SummaryComponent summaryNode={node} />;
     }

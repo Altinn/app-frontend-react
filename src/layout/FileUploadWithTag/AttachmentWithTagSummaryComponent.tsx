@@ -6,11 +6,10 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IAttachment } from 'src/shared/resources/attachments';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface IAttachmentWithTagSummaryComponent {
-  targetNode: LayoutNode<HComponent<'FileUploadWithTag'>>;
+  targetNode: LayoutNodeFromType<'FileUploadWithTag'>;
 }
 
 const useStyles = makeStyles({

@@ -4,6 +4,7 @@ import { FormComponent } from 'src/layout/LayoutComponent';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export class List extends FormComponent<'List'> {
   render(props: PropsFromGenericComponent<'List'>): JSX.Element | null {
@@ -14,7 +15,7 @@ export class List extends FormComponent<'List'> {
     return false;
   }
 
-  getDisplayData(_props: SummaryRendererProps<'List'>): string {
+  useDisplayData(_node: LayoutNodeFromType<'List'>): string {
     // PRIORITY: Implement
     return '';
   }

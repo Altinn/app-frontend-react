@@ -6,13 +6,13 @@ import cn from 'classnames';
 import { EditButton } from 'src/components/summary/EditButton';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface SummaryBoilerplateProps {
   onChangeClick: () => void;
   changeText: string | null;
   label: any;
-  summaryNode: LayoutNode<HComponent<'Summary'>>;
+  summaryNode: LayoutNodeFromType<'Summary'>;
   targetNode: LayoutNode;
 }
 

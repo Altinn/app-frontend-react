@@ -13,14 +13,14 @@ import { ComponentType } from 'src/layout';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent, HGroups } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryGroupComponent {
   changeText: string | null;
   onChangeClick: () => void;
   excludedChildren?: string[];
-  summaryNode: LayoutNode<HComponent<'Summary'>>;
-  targetNode: LayoutNode<HGroups>;
+  summaryNode: LayoutNodeFromType<'Summary'>;
+  targetNode: LayoutNodeFromType<'Group'>;
 }
 
 const gridStyle = {

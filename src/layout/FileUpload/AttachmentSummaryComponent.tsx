@@ -5,11 +5,10 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import type { IAttachment } from 'src/shared/resources/attachments';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface IAttachmentSummaryComponent {
-  targetNode: LayoutNode<HComponent<'FileUpload'>>;
+  targetNode: LayoutNodeFromType<'FileUpload'>;
 }
 
 const useStyles = makeStyles({

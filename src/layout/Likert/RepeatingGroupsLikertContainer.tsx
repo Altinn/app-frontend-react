@@ -17,8 +17,7 @@ import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 type RepeatingGroupsLikertContainerProps = {
   id: string;
@@ -28,9 +27,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
   const textResources = useAppSelector((state) => state.textResources.resources);
 
   const node = useResolvedNode(id);
-  const firstLikertChild = node?.children((item) => item.type === 'Likert') as
-    | LayoutNode<HComponent<'Likert'>>
-    | undefined;
+  const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNodeFromType<'Likert'> | undefined;
   const { optionsId, mapping, source, options } = firstLikertChild?.item || {};
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
   const apiOptions = useGetOptions({ optionsId, mapping, source });
@@ -97,7 +94,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
             return (
               <GenericComponent
                 key={comp.item.id}
-                node={comp as LayoutNode<HComponent<ComponentExceptGroupAndSummary>>}
+                node={comp as LayoutNodeFromType<ComponentExceptGroupAndSummary>}
               />
             );
           })}
@@ -152,7 +149,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
               return (
                 <GenericLikertComponent
                   key={comp.item.id}
-                  node={comp as LayoutNode<HComponent<'Likert'>>}
+                  node={comp as LayoutNodeFromType<'Likert'>}
                   overrideItemProps={{
                     layout: LayoutStyle.Table,
                   }}

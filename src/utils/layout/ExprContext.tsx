@@ -3,7 +3,7 @@ import React, { useContext, useMemo } from 'react';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { dataSourcesFromState, resolvedNodesInLayouts, rewriteTextResourceBindings } from 'src/utils/layout/hierarchy';
 import type { LayoutPages } from 'src/utils/layout/hierarchy';
-import type { MaybeSpecificNode } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromObj } from 'src/utils/layout/hierarchy.types';
 
 export const ExprContext = React.createContext<LayoutPages | undefined>(undefined);
 
@@ -58,7 +58,7 @@ export const useExprContext = () => useContext(ExprContext);
  *    belongs to. If you only provide 'currentValue', and the component is still inside a repeating group, most likely
  *    you'll get the first row item as a result.
  */
-export function useResolvedNode<T>(selector: string | undefined | T): MaybeSpecificNode<T> | undefined {
+export function useResolvedNode<T>(selector: string | undefined | T): LayoutNodeFromObj<T> | undefined {
   const context = useExprContext();
 
   if (typeof selector === 'string') {

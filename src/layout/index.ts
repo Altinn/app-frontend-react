@@ -33,9 +33,7 @@ import type { IComponentValidations } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
-export const components: {
-  [Type in ComponentExceptGroupAndSummary]: LayoutComponent<Type>;
-} = {
+export const components = {
   AddressComponent: new Address(),
   AttachmentList: new AttachmentList(),
   Button: new Button(),
@@ -61,6 +59,21 @@ export const components: {
   RadioButtons: new RadioButtons(),
   TextArea: new TextArea(),
   List: new List(),
+};
+
+export type ComponentClassMap = typeof components;
+
+// noinspection JSUnusedLocalSymbols
+/**
+ * This type is only used to make sure all components exist and are correct in the list above. If any component is
+ * missing above, this type will give you an error.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const _componentsTypeCheck: {
+  [Type in ComponentExceptGroupAndSummary]: LayoutComponent<Type>;
+} = {
+  ...components,
 };
 
 export interface IComponentProps {
@@ -108,9 +121,9 @@ export enum ComponentType {
   Action = 'action',
 }
 
-export function getLayoutComponentObject<T extends string | undefined | ComponentExceptGroupAndSummary>(
+export function getLayoutComponentObject<T extends string | undefined | keyof ComponentClassMap>(
   type: T,
-): T extends ComponentExceptGroupAndSummary ? LayoutComponent<T> : undefined {
+): T extends keyof ComponentClassMap ? ComponentClassMap[T] : undefined {
   if (type && type in components) {
     return components[type as keyof typeof components] as any;
   }

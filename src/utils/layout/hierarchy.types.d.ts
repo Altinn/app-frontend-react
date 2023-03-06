@@ -3,7 +3,12 @@ import type { DeepPartial } from 'utility-types';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentExceptGroup, IDataModelBindings, ILayoutComponentExact } from 'src/layout/layout';
+import type {
+  ComponentExceptGroup,
+  IDataModelBindings,
+  ILayoutComponent,
+  ILayoutComponentExact,
+} from 'src/layout/layout';
 import type { IValidations } from 'src/types';
 import type { LayoutNode, LayoutPage } from 'src/utils/layout/hierarchy';
 
@@ -76,14 +81,14 @@ export interface HierarchyDataSources extends ContextDataSources {
   validations: IValidations;
 }
 
-export type MaybeSpecificNodeFromType<Type> = Type extends ComponentExceptGroup
+export type LayoutNodeFromType<Type> = Type extends ComponentExceptGroup
   ? LayoutNode<HComponent<Type>>
   : Type extends 'Group'
-  ? LayoutNode<HGroups>
+  ? LayoutNode<HNonRepGroup | HRepGroup>
   : LayoutNode;
 
-export type MaybeSpecificNode<T> = T extends ILayoutComponent
+export type LayoutNodeFromObj<T> = T extends ILayoutComponent
   ? T extends { type: infer Type }
-    ? MaybeSpecificNodeFromType<Type>
+    ? LayoutNodeFromType<Type>
     : LayoutNode
   : LayoutNode;

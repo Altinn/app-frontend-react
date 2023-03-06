@@ -9,8 +9,7 @@ import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { RootState } from 'src/store';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 describe('AttachmentWithTagSummaryComponent', () => {
   const attachmentName = 'attachment-name-1';
@@ -138,7 +137,7 @@ describe('AttachmentWithTagSummaryComponent', () => {
 
   const renderHelper = (options: ExprUnresolved<ILayoutCompFileUploadWithTag>, extendState?: Partial<RootState>) => {
     function Wrapper() {
-      const node = useResolvedNode('FileUploadWithTag') as LayoutNode<HComponent<'FileUploadWithTag'>>;
+      const node = useResolvedNode('FileUploadWithTag') as LayoutNodeFromType<'FileUploadWithTag'>;
       return <AttachmentWithTagSummaryComponent targetNode={node} />;
     }
 

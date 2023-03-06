@@ -21,11 +21,10 @@ import type { ISingleFieldValidation } from 'src/features/form/data/formDataType
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentExceptGroupAndSummary, IGridStyling } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { HComponent, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface IGenericComponentProps<Type extends ComponentExceptGroupAndSummary> {
-  node: LayoutNode<HComponent<Type>>;
+  node: LayoutNodeFromType<Type>;
   overrideItemProps?: Partial<Omit<HComponent<Type>, 'id'>>;
 }
 
@@ -177,7 +176,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
     );
   };
 
-  const layoutComponent = node?.getComponent() as LayoutComponent<Type> | undefined;
+  const layoutComponent = node?.getComponent() as unknown as LayoutComponent<Type> | undefined;
   if (!layoutComponent) {
     return (
       <div>
