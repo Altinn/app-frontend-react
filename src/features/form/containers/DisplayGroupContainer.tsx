@@ -4,13 +4,13 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 export interface IDisplayGroupContainer {
   groupNode: LayoutNode;
+  onlyRowIndex?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -25,21 +25,18 @@ const useStyles = makeStyles({
   },
 });
 
-export function DisplayGroupContainer({ groupNode, renderLayoutNode }: IDisplayGroupContainer) {
+export function DisplayGroupContainer({ groupNode, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
   const container = groupNode.item;
-
-  const GetHiddenSelector = makeGetHidden();
-  const hidden: boolean = useAppSelector((state) => GetHiddenSelector(state, { id: container.id }));
   const classes = useStyles();
   const title = useAppSelector((state) => {
-    const titleKey = container?.textResourceBindings?.title;
+    const titleKey = container.textResourceBindings?.title;
     if (titleKey && state.language.language) {
       return getTextFromAppOrDefault(titleKey, state.textResources.resources, state.language.language, [], true);
     }
     return undefined;
   });
 
-  if (hidden || !container) {
+  if (groupNode.isHidden()) {
     return null;
   }
 
@@ -66,7 +63,7 @@ export function DisplayGroupContainer({ groupNode, renderLayoutNode }: IDisplayG
           </Typography>
         </Grid>
       )}
-      {groupNode.children().map((n) => renderLayoutNode(n))}
+      {groupNode.children(undefined, onlyRowIndex).map((n) => renderLayoutNode(n))}
     </Grid>
   );
 }

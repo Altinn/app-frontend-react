@@ -1,3 +1,6 @@
+import React from 'react';
+
+import { SummaryItemCompact } from 'src/components/summary/SummaryItemCompact';
 import { ComponentType } from 'src/layout/index';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentExceptGroupAndSummary, ComponentTypes } from 'src/layout/layout';
@@ -59,8 +62,10 @@ export abstract class FormComponent<Type extends ComponentExceptGroupAndSummary>
 
   /**
    * Given a node (with group-index-aware data model bindings), this method should return a proper 'value' for the
-   * current component/node. This value will be used to display form data in a repeating group table, and might also
-   * be useful when rendering a Summary for the node.
+   * current component/node. This value will be used to display form data in a repeating group table, and when rendering
+   * a Summary for the node inside a repeating group. It will probably also be useful when implementing renderSummary().
+   * @see renderSummary
+   * @see renderCompactSummary
    */
   abstract useDisplayData(node: LayoutNodeFromType<Type>): string;
 
@@ -69,6 +74,20 @@ export abstract class FormComponent<Type extends ComponentExceptGroupAndSummary>
    * <SingleInputSummary formDataAsString={displayData} />
    */
   abstract renderSummary(props: SummaryRendererProps<Type>): JSX.Element | null;
+
+  /**
+   * When rendering a summary of a repeating group with `largeGroup: false`, every FormComponent inside each row is
+   * rendered in a compact way. The default
+   */
+  public renderCompactSummary({ targetNode }: SummaryRendererProps<Type>): JSX.Element | null {
+    const displayData = this.useDisplayData(targetNode);
+    return (
+      <SummaryItemCompact
+        targetNode={targetNode}
+        displayData={displayData}
+      />
+    );
+  }
 }
 
 export abstract class ActionComponent<Type extends ComponentExceptGroupAndSummary> extends AnyComponent<Type> {

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { SummaryBoilerplate } from 'src/components/summary/SummaryBoilerplate';
 import { SummaryGroupComponent } from 'src/components/summary/SummaryGroupComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
@@ -51,6 +52,5 @@ export function SummaryComponentSwitch({ change, summaryNode, targetNode, label,
     );
   }
 
-  // PRIORITY: Figure out what to do here? Render GenericComponent?
-  throw new Error('TODO: Implement');
+  return <GenericComponent node={targetNode as LayoutNodeFromType<ComponentExceptGroupAndSummary>} />;
 }

@@ -8,12 +8,10 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { SummaryComponentSwitch } from 'src/components/summary/SummaryComponentSwitch';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { ComponentType } from 'src/layout';
-import { GenericComponent } from 'src/layout/GenericComponent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ComponentExceptGroupAndSummary, IGrid } from 'src/layout/layout';
+import type { IGrid } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -62,7 +60,6 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   const summaryItem = summaryNode.item;
   const targetNode = useResolvedNode(overrides?.targetNode || componentRef);
   const targetItem = targetNode?.item;
-  const targetComponent = targetNode?.getComponent();
 
   const goToCorrectPageLinkText = useAppSelector((state) => {
     return (
@@ -111,13 +108,6 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
     onChangeClick,
     changeText,
   };
-
-  // PRIORITY: Check to make sure we can treat non-repeating groups the same as repeating groups
-  // PRIORITY: Figure out if SummaryComponentSwitch can render this instead of us doing it directly
-  if (targetComponent?.getComponentType() === ComponentType.Presentation) {
-    // Render non-input components as normal
-    return <GenericComponent node={targetNode as LayoutNodeFromType<ComponentExceptGroupAndSummary>} />;
-  }
 
   const displayGrid =
     summaryItem.display && summaryItem.display.useComponentGrid

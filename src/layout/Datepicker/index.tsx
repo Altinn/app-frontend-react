@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { SingleInputSummary } from 'src/components/summary/SingleInputSummary';
+import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { getDateFormat } from 'src/utils/dateHelpers';
@@ -28,6 +28,6 @@ export class Datepicker extends FormComponent<'Datepicker'> {
 
   renderSummary({ targetNode }: SummaryRendererProps<'Datepicker'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
-    return <SingleInputSummary formDataAsString={displayData} />;
+    return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }

@@ -3,13 +3,13 @@ import React from 'react';
 import { makeStyles, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useDisplayData } from 'src/components/hooks/useDisplayData';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
-export interface IGroupInputSummary {
+export interface ICompactSummaryItem {
   targetNode: LayoutNode;
+  displayData: string;
 }
 
 const useStyles = makeStyles({
@@ -25,9 +25,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function GroupInputSummary({ targetNode }: IGroupInputSummary) {
-  const formData = undefined; // PRIORITY: Find form data for component
-  const displayData = useDisplayData({ formData });
+export function SummaryItemCompact({ targetNode, displayData }: ICompactSummaryItem) {
   const classes = useStyles();
   const language = useAppSelector((state) => state.language.language);
   const textResources = useAppSelector((state) => state.textResources.resources);
@@ -39,7 +37,7 @@ export function GroupInputSummary({ targetNode }: IGroupInputSummary) {
         {textBindings && getTextFromAppOrDefault(textBindings.title, textResources, {}, [], false)}
         {' : '}
       </span>
-      {typeof displayData !== 'undefined' ? (
+      {displayData ? (
         <span className={classes.data}>{displayData}</span>
       ) : (
         <span className={classes.emptyField}>{getLanguageFromKey('general.empty_summary', language || {})}</span>

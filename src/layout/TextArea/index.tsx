@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { SingleInputSummary } from 'src/components/summary/SingleInputSummary';
+import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -24,6 +24,6 @@ export class TextArea extends FormComponent<'TextArea'> {
 
   renderSummary({ targetNode }: SummaryRendererProps<'TextArea'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
-    return <SingleInputSummary formDataAsString={displayData} />;
+    return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }

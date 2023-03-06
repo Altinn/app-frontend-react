@@ -6,14 +6,15 @@ import cn from 'classnames';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { EditButton } from 'src/components/summary/EditButton';
-import { GroupInputSummary } from 'src/components/summary/GroupInputSummary';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
+import { FormComponent } from 'src/layout/LayoutComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
+import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -79,9 +80,9 @@ export function SummaryGroupComponent({
   const excludedChildren = summaryNode.item.excludedChildren;
   const display = summaryNode.item.display;
 
-  const removeExcludedChildren = (n: LayoutNode) =>
-    !excludedChildren ||
-    (!excludedChildren.includes(n.item.id) && !excludedChildren.includes(`${n.item.baseComponentId}`));
+  const inExcludedChildren = (n: LayoutNode) =>
+    excludedChildren &&
+    (excludedChildren.includes(n.item.id) || excludedChildren.includes(`${n.item.baseComponentId}`));
 
   const textResources = useAppSelector((state) => state.textResources.resources);
   const language = useAppSelector((state) => state.language.language);
@@ -100,83 +101,51 @@ export function SummaryGroupComponent({
     return '';
   }, [textResources, textResourceBindings, language]);
 
-  const createRepeatingGroupSummaryComponents = () => {
-    if (!targetNode || !('rows' in targetNode.item)) {
-      return [];
-    }
-
-    const componentArray: JSX.Element[] = [];
+  const rowIndexes: (number | undefined)[] = [];
+  if ('rows' in targetNode.item) {
     for (const row of targetNode.item.rows) {
-      if (!row) {
-        continue;
-      }
-      const childSummaryComponents = targetNode
-        .children(undefined, row.index)
-        .filter(removeExcludedChildren)
-        .filter((node) => node.getComponent()?.getComponentType() === ComponentType.Form)
-        .map((n) => {
-          if (n.isHidden()) {
-            return;
-          }
-          return (
-            // PRIORITY: Find out if this can be replaced by just calling SummaryComponent
-            // again, or using a simpler component
-            <GroupInputSummary
-              key={n.item.id}
-              targetNode={n}
-            />
-          );
-        });
-      componentArray.push(
-        <div
-          key={row.index}
-          className={classes.border}
-        >
-          {childSummaryComponents}
-        </div>,
-      );
+      row && rowIndexes.push(row.index);
     }
-
-    return componentArray;
-  };
-
-  const createRepeatingGroupSummaryForLargeGroups = () => {
-    if (!targetNode || !('rows' in targetNode.item)) {
-      return;
-    }
-
-    return [
-      <DisplayGroupContainer
-        key={`${targetNode.item.id}-summary`}
-        groupNode={targetNode}
-        renderLayoutNode={(n) => (
-          <SummaryComponent
-            summaryNode={summaryNode}
-            overrides={{
-              targetNode: n,
-              grid: {},
-              largeGroup: false,
-            }}
-          />
-        )}
-      />,
-    ];
-  };
-
-  const renderComponents =
-    summaryNode.item.largeGroup && overrides?.largeGroup !== false
-      ? createRepeatingGroupSummaryForLargeGroups()
-      : createRepeatingGroupSummaryComponents();
-
-  if (!language || !renderComponents) {
-    return null;
+  } else {
+    // This trick makes non-repeating groups work (they don't have any rows)
+    rowIndexes.push(undefined);
   }
 
-  const isEmpty = renderComponents?.length <= 0;
+  if (summaryNode.item.largeGroup && overrides?.largeGroup !== false) {
+    return (
+      <>
+        {rowIndexes.map((idx) => {
+          return (
+            <DisplayGroupContainer
+              key={`${targetNode.item.id}-${idx}-summary`}
+              groupNode={targetNode}
+              onlyRowIndex={idx}
+              renderLayoutNode={(n) => {
+                if (inExcludedChildren(n) || n.isHidden()) {
+                  return null;
+                }
 
-  if (!isEmpty && summaryNode.item.largeGroup) {
-    // Tricking our return type to be JSX.Element. Apparently, returning an array causes problems elsewhere.
-    return renderComponents as unknown as JSX.Element;
+                return (
+                  <SummaryComponent
+                    key={n.item.id}
+                    summaryNode={summaryNode}
+                    overrides={{
+                      targetNode: n,
+                      grid: {},
+                      largeGroup: false,
+                    }}
+                  />
+                );
+              }}
+            />
+          );
+        })}
+      </>
+    );
+  }
+
+  if (!language) {
+    return null;
   }
 
   return (
@@ -212,7 +181,7 @@ export function SummaryGroupComponent({
           item
           xs={12}
         >
-          {isEmpty ? (
+          {rowIndexes.length === 0 ? (
             <Typography
               variant='body1'
               className={classes.emptyField}
@@ -221,7 +190,35 @@ export function SummaryGroupComponent({
               {getLanguageFromKey('general.empty_summary', language)}
             </Typography>
           ) : (
-            renderComponents
+            rowIndexes.map((idx) => {
+              const childSummaryComponents = targetNode
+                .children(undefined, idx)
+                .filter((n) => !inExcludedChildren(n))
+                .filter((node) => node.getComponent()?.getComponentType() === ComponentType.Form)
+                .map((child) => {
+                  const component = child.getComponent();
+                  if (child.isHidden() || !(component instanceof FormComponent)) {
+                    return;
+                  }
+                  const RenderCompactSummary = component.renderCompactSummary.bind(component);
+                  return (
+                    <RenderCompactSummary
+                      key={child.item.id}
+                      targetNode={child as LayoutNodeFromType<ComponentExceptGroupAndSummary>}
+                      summaryNode={summaryNode}
+                    />
+                  );
+                });
+
+              return (
+                <div
+                  key={`row-${idx}`}
+                  className={classes.border}
+                >
+                  {childSummaryComponents}
+                </div>
+              );
+            })
           )}
         </Grid>
       </Grid>

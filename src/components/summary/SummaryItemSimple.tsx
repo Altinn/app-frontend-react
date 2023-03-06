@@ -5,7 +5,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 
-export interface ISingleInputSummary {
+export interface ISummaryItemSimple {
   formDataAsString: string | undefined;
 }
 
@@ -24,7 +24,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function SingleInputSummary({ formDataAsString }: ISingleInputSummary) {
+export function SummaryItemSimple({ formDataAsString }: ISummaryItemSimple) {
   const classes = useStyles();
   const language = useAppSelector((state) => state.language.language);
 
