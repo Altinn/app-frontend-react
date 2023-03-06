@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { Grid, makeStyles } from '@material-ui/core';
-import { Delete } from '@navikt/ds-icons';
+import { Delete, Success } from '@navikt/ds-icons';
 import classNames from 'classnames';
 
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
@@ -100,14 +100,13 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           className={classes.textContainer}
           style={{ flexShrink: 0 }}
         >
-          <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             {props.attachment.uploaded && (
               <div style={{ marginLeft: '0.9375rem', marginRight: '0.9375rem' }}>
                 {!props.mobileView
                   ? getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)
                   : undefined}
-                <i
-                  className='ai ai-check-circle'
+                <Success
                   role='img'
                   aria-hidden={!props.mobileView}
                   aria-label={getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)}
