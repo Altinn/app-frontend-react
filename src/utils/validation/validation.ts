@@ -562,7 +562,7 @@ export function validateComponentSpecificValidations(
  * @param error the AJV validation error object
  * @returns a value indicating if the provided error is a "oneOf" error.
  */
-export const isOneOfError = (error: AjvCore.ErrorObject<string, Record<string, any>, unknown>): boolean => {
+export const isOneOfError = (error: AjvCore.ErrorObject): boolean => {
   return error.keyword === 'oneOf' || error.params?.type === 'null';
 };
 
