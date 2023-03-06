@@ -137,22 +137,15 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
 
   //WCAG: Find the first focusable element in table and focus on it
   const isFocusable = (item: any) => {
+    const tagName = item.tagName.toLowerCase();
+    const focusableElements = ['a', 'input', 'select', 'textarea'];
+    const isAvailable = item.type !== 'hidden' || !item.disabled || (item.type === 'a' && !!item.href);
+
     if (item.tabIndex < 0) {
       return false;
     }
-    console.log(item.tagName);
-    switch (item.tagName) {
-      case 'A':
-        return !!item.href;
-      case 'INPUT':
-        return item.type !== 'hidden' && !item.disabled;
-      case 'SELECT':
-      case 'TEXTAREA':
-      case 'BUTTON':
-        return !item.disabled;
-      default:
-        return false;
-    }
+
+    return focusableElements.includes(tagName) && isAvailable;
   };
 
   React.useEffect(() => {
@@ -182,7 +175,8 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
   }, [edit?.multiPage, multiPageIndex, setMultiPageIndex]);
 
   const onKeypressAdd = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+    const allowedKeys = ['Enter', ' ', 'Spacebar'];
+    if (allowedKeys.includes(event.key)) {
       onClickAdd();
     }
   };
