@@ -7,20 +7,22 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { EditButton } from 'src/components/summary/EditButton';
 import { GroupInputSummary } from 'src/components/summary/GroupInputSummary';
+import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryGroupComponent {
   changeText: string | null;
   onChangeClick: () => void;
-  excludedChildren?: string[];
   summaryNode: LayoutNodeFromType<'Summary'>;
   targetNode: LayoutNodeFromType<'Group'>;
+  overrides?: ISummaryComponent['overrides'];
 }
 
 const gridStyle = {
@@ -65,7 +67,13 @@ const useStyles = makeStyles({
   },
 });
 
-export function SummaryGroupComponent({ onChangeClick, changeText, summaryNode, targetNode }: ISummaryGroupComponent) {
+export function SummaryGroupComponent({
+  onChangeClick,
+  changeText,
+  summaryNode,
+  targetNode,
+  overrides,
+}: ISummaryGroupComponent) {
   const classes = useStyles();
   const textResourceBindings = targetNode.item.textResourceBindings;
   const excludedChildren = summaryNode.item.excludedChildren;
@@ -141,31 +149,24 @@ export function SummaryGroupComponent({ onChangeClick, changeText, summaryNode, 
       <DisplayGroupContainer
         key={`${targetNode.item.id}-summary`}
         groupNode={targetNode}
-        // id={`${groupContainer.id}-${row.index}-summary`}
-        // components={childSummaryComponents}
-        // container={groupContainer}
-        renderLayoutNode={(n) => {
-          if (n.isHidden()) {
-            return null;
-          }
-
-          return (
-            <Grid
-              item
-              xs={12}
-            >
-              TODO: Here comes {n.item.id}
-            </Grid>
-          );
-          // return <SummaryComponent summaryNode={summaryNode} />;
-        }}
+        renderLayoutNode={(n) => (
+          <SummaryComponent
+            summaryNode={summaryNode}
+            overrides={{
+              targetNode: n,
+              grid: {},
+              largeGroup: false,
+            }}
+          />
+        )}
       />,
     ];
   };
 
-  const renderComponents = summaryNode.item.largeGroup
-    ? createRepeatingGroupSummaryForLargeGroups()
-    : createRepeatingGroupSummaryComponents();
+  const renderComponents =
+    summaryNode.item.largeGroup && overrides?.largeGroup !== false
+      ? createRepeatingGroupSummaryForLargeGroups()
+      : createRepeatingGroupSummaryComponents();
 
   if (!language || !renderComponents) {
     return null;

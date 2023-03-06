@@ -13,11 +13,17 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
+import type { ComponentExceptGroupAndSummary, IGrid } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryComponent {
   summaryNode: LayoutNodeFromType<'Summary'>;
+  overrides?: {
+    targetNode?: LayoutNode;
+    grid?: IGrid;
+    largeGroup?: boolean;
+  };
 }
 
 const useStyles = makeStyles({
@@ -35,7 +41,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function SummaryComponent({ summaryNode }: ISummaryComponent) {
+export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) {
   const { id, grid, componentRef, display } = summaryNode.item;
   const { pageRef } = summaryNode.item;
   const classes = useStyles();
@@ -54,7 +60,7 @@ export function SummaryComponent({ summaryNode }: ISummaryComponent) {
   );
 
   const summaryItem = summaryNode.item;
-  const targetNode = useResolvedNode(componentRef);
+  const targetNode = useResolvedNode(overrides?.targetNode || componentRef);
   const targetItem = targetNode?.item;
   const targetComponent = targetNode?.getComponent();
 
@@ -113,7 +119,11 @@ export function SummaryComponent({ summaryNode }: ISummaryComponent) {
     return <GenericComponent node={targetNode as LayoutNodeFromType<ComponentExceptGroupAndSummary>} />;
   }
 
-  const displayGrid = summaryItem.display && summaryItem.display.useComponentGrid ? targetItem?.grid : grid;
+  const displayGrid =
+    summaryItem.display && summaryItem.display.useComponentGrid
+      ? overrides?.grid || targetItem?.grid
+      : overrides?.grid || grid;
+
   return (
     <Grid
       item={true}
@@ -136,6 +146,7 @@ export function SummaryComponent({ summaryNode }: ISummaryComponent) {
           targetNode={targetNode}
           change={change}
           label={label}
+          overrides={overrides}
         />
         {targetNode?.hasValidationMessages('errors') &&
           targetItem.type !== 'Group' &&

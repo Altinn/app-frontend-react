@@ -39,9 +39,11 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
     return (
       <SummaryComponent
         summaryNode={node as LayoutNodeFromType<'Summary'>}
-        // PRIORITY: Either inject display/grid overrides, or change the CSS to work better in print mode
-        // display={{ hideChangeButton: true, hideValidationMessages: true }}
-        // grid={{ xs: 12 }}
+        overrides={{
+          grid: { xs: 12 },
+          // PRIORITY: Support overriding 'display'
+          // display={{ hideChangeButton: true, hideValidationMessages: true }}
+        }}
       />
     );
   } else if (layoutComponent?.getComponentType() === ComponentType.Presentation) {
