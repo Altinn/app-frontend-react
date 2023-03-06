@@ -176,7 +176,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
     );
   };
 
-  const layoutComponent = node?.getComponent() as unknown as LayoutComponent<Type> | undefined;
+  const layoutComponent = node.getComponent() as unknown as LayoutComponent<Type> | undefined;
   if (!layoutComponent) {
     return (
       <div>
@@ -270,11 +270,6 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
         <RenderComponent {...componentProps} />
       </FormComponentContext.Provider>
     );
-  }
-
-  if (!item || !node) {
-    // PRIORITY: Be more graceful
-    throw new Error(`Component not found: ${id}`);
   }
 
   return (
