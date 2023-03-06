@@ -223,15 +223,9 @@ describe('RepeatingGroupTable', () => {
 
   const render = (props: Partial<IRepeatingGroupTableProps> = {}, newLayout?: ILayoutState) => {
     const allProps: IRepeatingGroupTableProps = {
-      attachments: attachments,
-      language: language,
-      textResources: textResources,
       editIndex: -1,
-      formData: data,
       id: group.id,
-      options: {},
       repeatingGroupIndex: repeatingGroupIndex,
-      repeatingGroups: layout.uiConfig.repeatingGroups,
       deleting: false,
       onClickRemove: jest.fn(),
       setEditIndex: jest.fn(),
@@ -243,6 +237,7 @@ describe('RepeatingGroupTable', () => {
     preloadedState.attachments.attachments = attachments;
     preloadedState.textResources.resources = textResources;
     preloadedState.formData.formData = data;
+    preloadedState.language.language = language;
 
     const { container } = renderWithProviders(<RepeatingGroupTable {...allProps} />, { preloadedState });
 

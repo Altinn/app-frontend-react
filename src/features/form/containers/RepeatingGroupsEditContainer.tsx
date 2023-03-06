@@ -5,20 +5,17 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { renderLayoutNode } from 'src/features/form/containers/Form';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGroupEditProperties } from 'src/layout/Group/types';
-import type { ITextResource } from 'src/types';
-import type { ILanguage } from 'src/types/shared';
 
 export interface IRepeatingGroupsEditContainer {
   id: string;
   className?: string;
-  language: ILanguage;
-  textResources: ITextResource[];
   deleting?: boolean;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;
@@ -63,8 +60,6 @@ const useStyles = makeStyles({
 export function RepeatingGroupsEditContainer({
   id,
   className,
-  language,
-  textResources,
   deleting,
   editIndex,
   setEditIndex,
@@ -76,6 +71,8 @@ export function RepeatingGroupsEditContainer({
   filteredIndexes,
 }: IRepeatingGroupsEditContainer): JSX.Element | null {
   const classes = useStyles();
+  const language = useAppSelector((state) => state.language.language);
+  const textResources = useAppSelector((state) => state.textResources.resources);
   const node = useResolvedNode(id);
   const group = node?.item;
   if (!group || !node || group.type !== 'Group' || !('rows' in group)) {
@@ -132,7 +129,7 @@ export function RepeatingGroupsEditContainer({
 
   const hideTable = edit.mode === 'hideTable' || edit.mode === 'showAll';
 
-  if (!row) {
+  if (!row || !language) {
     return null;
   }
 

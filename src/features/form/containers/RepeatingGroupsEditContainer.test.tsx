@@ -102,8 +102,6 @@ describe('RepeatingGroupsEditContainer', () => {
   const render = (props: Partial<IRepeatingGroupsEditContainer> = {}) => {
     const allProps: IRepeatingGroupsEditContainer = {
       id: 'multipageGroup',
-      language: language,
-      textResources: textResources,
       editIndex: 1,
       repeatingGroupIndex: repeatingGroupIndex,
       setEditIndex: jest.fn(),

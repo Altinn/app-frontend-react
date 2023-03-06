@@ -6,38 +6,29 @@ import { createTheme, makeStyles, useMediaQuery } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { FormComponent } from 'src/layout/LayoutComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { getFormDataForComponentInRepeatingGroup, getTextResource } from 'src/utils/formComponentUtils';
+import { getTextAlignment, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/form/data';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayoutCompInput } from 'src/layout/Input/types';
-import type { ILayoutComponent } from 'src/layout/layout';
-import type { IAttachments } from 'src/shared/resources/attachments';
-import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings } from 'src/types';
+import type { ITextResource, ITextResourceBindings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 export interface IRepeatingGroupTableRowProps {
   id: string;
   className?: string;
-  repeatingGroups: IRepeatingGroups | null;
-  formData: IFormData;
-  attachments: IAttachments;
-  options: IOptions;
-  textResources: ITextResource[];
-  language: ILanguage;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;
   onClickRemove: (groupIndex: number) => void;
   deleting: boolean;
   index: number;
   rowHasErrors: boolean;
-  tableNodes: LayoutNode[];
+  getTableNodes: (index: number) => LayoutNode[] | undefined;
   onEditClick: () => void;
   mobileView: boolean;
   deleteFunctionality?: {
@@ -115,37 +106,22 @@ function getEditButtonText(
     : getLanguageFromKey('general.edit_alt', language);
 }
 
-function getTextAlignment(component: ExprUnresolved<ILayoutComponent> | AnyItem): 'left' | 'center' | 'right' {
-  const formatting = (component as ILayoutCompInput).formatting;
-  if (formatting && formatting.align) {
-    return formatting.align;
-  }
-  if (formatting && formatting.number) {
-    return 'right';
-  }
-  return 'left';
-}
-
 export function RepeatingGroupTableRow({
   id,
   className,
   editIndex,
-  formData,
-  attachments,
-  options,
-  textResources,
-  language,
-  repeatingGroups,
   deleting,
   index,
   rowHasErrors,
-  tableNodes,
+  getTableNodes,
   onEditClick,
   mobileView,
   deleteFunctionality,
-}: IRepeatingGroupTableRowProps): JSX.Element {
+}: IRepeatingGroupTableRowProps): JSX.Element | null {
   const classes = useStyles();
   const mobileViewSmall = useMediaQuery('(max-width:768px)');
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const language = useAppSelector((state) => state.language.language);
 
   const { popoverOpen, popoverPanelIndex, onDeleteClick, setPopoverOpen, onPopoverDeleteClick, onOpenChange } =
     deleteFunctionality || {};
@@ -163,16 +139,16 @@ export function RepeatingGroupTableRow({
     ...expressionsForRow?.textResourceBindings,
   } as ExprResolved<ILayoutGroup['textResourceBindings']>;
 
-  const getFormDataForItem = (item: AnyItem): string => {
-    return getFormDataForComponentInRepeatingGroup(
-      formData,
-      attachments,
-      item,
-      textResources,
-      options,
-      repeatingGroups,
-    );
-  };
+  const tableNodes = getTableNodes(index) || [];
+  const displayData = tableNodes.map((node) => {
+    const component = node.getComponent();
+    return component instanceof FormComponent ? component.useDisplayData(node as any) : '';
+  });
+  const firstCellData = displayData.find((c) => !!c);
+
+  if (!language) {
+    return null;
+  }
 
   const isEditingRow = index === editIndex;
 
@@ -181,9 +157,6 @@ export function RepeatingGroupTableRow({
     : getEditButtonText(language, editIndex === index, textResources, resolvedTextBindings);
 
   const deleteButtonText = getLanguageFromKey('general.delete', language);
-
-  const firstItem = tableNodes[0]?.item;
-  const firstCellData = firstItem && getFormDataForItem(firstItem);
 
   return (
     <TableRow
@@ -196,12 +169,12 @@ export function RepeatingGroupTableRow({
       )}
     >
       {!mobileView ? (
-        tableNodes.map((n) => (
+        tableNodes.map((n, idx) => (
           <TableCell
             key={`${n.item.id}-${index}`}
             style={{ textAlign: getTextAlignment(n.item) }}
           >
-            <span className={classes.contentFormatting}>{!isEditingRow ? getFormDataForItem(n.item) : null}</span>
+            <span className={classes.contentFormatting}>{isEditingRow ? null : displayData[idx]}</span>
           </TableCell>
         ))
       ) : (
@@ -213,7 +186,7 @@ export function RepeatingGroupTableRow({
                   <b className={classes.contentFormatting}>
                     {getTextResource(getTableTitle(n.item.textResourceBindings || {}), textResources)}:
                   </b>
-                  <span className={classes.contentFormatting}>{getFormDataForItem(n.item)}</span>
+                  <span className={classes.contentFormatting}>{displayData[i]}</span>
                   {i < length - 1 && <div style={{ height: 8 }} />}
                 </React.Fragment>
               )

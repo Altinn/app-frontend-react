@@ -16,6 +16,13 @@ export class List extends FormComponent<'List'> {
   }
 
   useDisplayData(_node: LayoutNodeFromType<'List'>): string {
+    // Note to self: This was in formComponentUtils:
+    // Object.keys(component.dataModelBindings).forEach((key: any) => {
+    //   const binding = component.dataModelBindings && component.dataModelBindings[key];
+    //   if (component.type == 'List' && component.bindingToShowInSummary !== binding) {
+    //     return;
+    //   }
+
     // PRIORITY: Implement
     return '';
   }

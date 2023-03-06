@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@altinn/alti
 import { createTheme, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import {
   fullWidthWrapper,
   xPaddingLarge,
@@ -15,25 +16,13 @@ import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGr
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import { getTextResource } from 'src/utils/formComponentUtils';
+import { getTextAlignment, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/form/data';
-import type { ILayoutComponent } from 'src/layout/layout';
-import type { IAttachments } from 'src/shared/resources/attachments';
-import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings } from 'src/types';
-import type { ILanguage } from 'src/types/shared';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
+import type { ITextResourceBindings } from 'src/types';
 
 export interface IRepeatingGroupTableProps {
   id: string;
   repeatingGroupIndex: number;
-  repeatingGroups: IRepeatingGroups | null;
-  formData: IFormData;
-  attachments: IAttachments;
-  options: IOptions;
-  textResources: ITextResource[];
-  language: ILanguage;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;
   onClickRemove: (groupIndex: number) => void;
@@ -139,30 +128,10 @@ function getTableTitle(textResourceBindings: ITextResourceBindings) {
   return '';
 }
 
-function getTextAlignment(component: ExprUnresolved<ILayoutComponent> | AnyItem): 'left' | 'center' | 'right' {
-  if (component.type !== 'Input') {
-    return 'left';
-  }
-  const formatting = component.formatting;
-  if (formatting && formatting.align) {
-    return formatting.align;
-  }
-  if (formatting && formatting.number) {
-    return 'right';
-  }
-  return 'left';
-}
-
 export function RepeatingGroupTable({
   id,
   repeatingGroupIndex,
   editIndex,
-  formData,
-  attachments,
-  options,
-  textResources,
-  language,
-  repeatingGroups,
   setEditIndex,
   onClickRemove,
   setMultiPageIndex,
@@ -172,21 +141,26 @@ export function RepeatingGroupTable({
 }: IRepeatingGroupTableProps): JSX.Element | null {
   const classes = useStyles();
   const mobileView = useMediaQuery('(max-width:992px)');
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const language = useAppSelector((state) => state.language.language);
 
   const node = useResolvedNode(id);
   const container = node?.item.type === 'Group' && 'rows' in node.item ? node.item : undefined;
   const edit = container?.edit;
 
-  const tableNodes = node?.children(undefined, 0).filter((child) => {
-    if (container?.tableHeaders) {
-      const { id, baseComponentId } = child.item;
-      return !!(
-        container.tableHeaders.includes(id) ||
-        (baseComponentId && container.tableHeaders.includes(baseComponentId))
-      );
-    }
-    return child.getComponent()?.getComponentType() === ComponentType.Form;
-  });
+  const getTableNodes = (rowIndex: number) =>
+    node?.children(undefined, rowIndex).filter((child) => {
+      if (container?.tableHeaders) {
+        const { id, baseComponentId } = child.item;
+        return !!(
+          container.tableHeaders.includes(id) ||
+          (baseComponentId && container.tableHeaders.includes(baseComponentId))
+        );
+      }
+      return child.getComponent()?.getComponentType() === ComponentType.Form;
+    });
+
+  const tableNodes = getTableNodes(0);
 
   // Values adjusted for filter
   const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
@@ -247,8 +221,6 @@ export function RepeatingGroupTable({
           setEditIndex={setEditIndex}
           repeatingGroupIndex={repeatingGroupIndex}
           id={id}
-          language={language}
-          textResources={textResources}
           multiPageIndex={multiPageIndex}
           setMultiPageIndex={setMultiPageIndex}
           filteredIndexes={filteredIndexes}
@@ -257,7 +229,7 @@ export function RepeatingGroupTable({
     );
   };
 
-  if (!tableNodes || !tableNodes.length || !node || !container) {
+  if (!tableNodes || !tableNodes.length || !node || !container || !language) {
     return null;
   }
 
@@ -322,19 +294,13 @@ export function RepeatingGroupTable({
                     className={cn({
                       [classes.editingRow]: isEditingRow,
                     })}
-                    repeatingGroups={repeatingGroups}
-                    formData={formData}
-                    attachments={attachments}
-                    options={options}
-                    textResources={textResources}
-                    language={language}
                     editIndex={editIndex}
                     setEditIndex={setEditIndex}
                     onClickRemove={onClickRemove}
                     deleting={deleting}
                     index={index}
                     rowHasErrors={rowHasErrors}
-                    tableNodes={tableNodes}
+                    getTableNodes={getTableNodes}
                     onEditClick={() => handleEditClick(index)}
                     mobileView={mobileView}
                     deleteFunctionality={{

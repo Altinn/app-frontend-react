@@ -56,11 +56,9 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
       -1,
   );
 
-  const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
   const language = useAppSelector((state) => state.language.language);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const formData = useAppSelector((state) => state.formData.formData);
-  const options = useAppSelector((state) => state.optionState.options);
   const textResources = useAppSelector((state) => state.textResources.resources);
   const repeatingGroupIndex = repeatingGroups && repeatingGroups[id] ? repeatingGroups[id].index : -1;
 
@@ -152,7 +150,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     }
   };
 
-  if (!language || !repeatingGroups || !node || node.isHidden() || node.item.type !== 'Group') {
+  if (!repeatingGroups || !node || node.isHidden() || node.item.type !== 'Group') {
     return null;
   }
 
@@ -173,20 +171,14 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     >
       {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
-          attachments={attachments}
           editIndex={editIndex}
-          formData={formData}
           id={id}
-          language={language}
-          options={options}
           repeatingGroupIndex={repeatingGroupIndex}
-          repeatingGroups={repeatingGroups}
           deleting={deletingIndexes.includes(repeatingGroupIndex)}
           setEditIndex={setEditIndex}
           onClickRemove={onClickRemove}
           setMultiPageIndex={setMultiPageIndex}
           multiPageIndex={multiPageIndex}
-          textResources={textResources}
           filteredIndexes={filteredIndexList}
         />
       )}
@@ -206,8 +198,6 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
               setEditIndex={setEditIndex}
               repeatingGroupIndex={repeatingGroupIndex}
               id={id}
-              language={language}
-              textResources={textResources}
               multiPageIndex={multiPageIndex}
               setMultiPageIndex={setMultiPageIndex}
               filteredIndexes={filteredIndexList}
@@ -231,9 +221,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
                       editIndex={index}
                       repeatingGroupIndex={repeatingGroupIndex}
                       id={id}
-                      language={language}
                       deleting={deletingIndexes.includes(index)}
-                      textResources={textResources}
                       setEditIndex={setEditIndex}
                       onClickRemove={onClickRemove}
                       forceHideSaveButton={true}

@@ -16,6 +16,12 @@ export class Address extends FormComponent<'AddressComponent'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'AddressComponent'>): string {
+    // Note to self, this was in formComponentUtils:
+    // let dataModelBinding =
+    //   component.type === 'AddressComponent'
+    //     ? component.dataModelBindings?.address
+    //     : component.dataModelBindings?.simpleBinding;
+
     // PRIORITY: Implement
     return '';
   }
