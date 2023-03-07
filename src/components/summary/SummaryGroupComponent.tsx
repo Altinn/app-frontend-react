@@ -107,7 +107,9 @@ export function SummaryGroupComponent({
       row && rowIndexes.push(row.index);
     }
   } else {
-    // This trick makes non-repeating groups work (they don't have any rows)
+    // This trick makes non-repeating groups work in Summary as well. They don't have any rows, but if we add this
+    // to rowIndexes we'll make our later code call groupNode.children() once with rowIndex `undefined`, which retrieves
+    // all the non-repeating children and renders a group summary as if it was a repeating group with one row.
     rowIndexes.push(undefined);
   }
 
