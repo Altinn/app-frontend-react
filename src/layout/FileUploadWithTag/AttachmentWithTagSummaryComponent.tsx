@@ -4,8 +4,8 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { getOptionLookupKey } from 'src/utils/options';
-import type { IAttachment } from 'src/shared/resources/attachments';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface IAttachmentWithTagSummaryComponent {
@@ -27,10 +27,9 @@ const useStyles = makeStyles({
 });
 
 export function AttachmentWithTagSummaryComponent({ targetNode }: IAttachmentWithTagSummaryComponent) {
-  // PRIORITY: Find out if summary data from the component class is needed here at all?
   const classes = useStyles();
   const component = targetNode.item;
-  const attachments: IAttachment[] | undefined = useAppSelector((state) => state.attachments.attachments[component.id]);
+  const attachments = useUploaderSummaryData(targetNode);
   const textResources = useAppSelector((state) => state.textResources.resources);
   const language = useAppSelector((state) => state.language.language);
   const options = useAppSelector(
@@ -50,14 +49,13 @@ export function AttachmentWithTagSummaryComponent({ targetNode }: IAttachmentWit
     const optionsTagLabel = getOptionsTagLabel(attachment);
     return textResources?.find(({ id }) => id === optionsTagLabel)?.value || optionsTagLabel;
   };
-  const isEmpty = !attachments || attachments.length < 1;
   return (
     <Grid
       item
       xs={12}
       data-testid={'attachment-with-tag-summary'}
     >
-      {isEmpty ? (
+      {attachments.length === 0 ? (
         <Typography
           variant='body1'
           className={classes.emptyField}
@@ -66,7 +64,7 @@ export function AttachmentWithTagSummaryComponent({ targetNode }: IAttachmentWit
           {getLanguageFromKey('general.empty_summary', language || {})}
         </Typography>
       ) : (
-        attachments?.map((attachment) => (
+        attachments.map((attachment) => (
           <Grid
             container={true}
             className={classes.row}

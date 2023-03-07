@@ -1,5 +1,7 @@
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import type { IFormData } from 'src/features/form/data';
-import type { IAttachments } from 'src/shared/resources/attachments';
+import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export function extractListFromBinding(formData: IFormData, listBinding: string): string[] {
   return Object.keys(formData)
@@ -7,7 +9,7 @@ export function extractListFromBinding(formData: IFormData, listBinding: string)
     .map((key) => formData[key]);
 }
 
-export function attachmentNamesFromUuids(componentId: string, uuids: string[], attachments: IAttachments): string[] {
+export function attachmentsFromUuids(componentId: string, uuids: string[], attachments: IAttachments): IAttachment[] {
   if (!uuids.length) {
     return [];
   }
@@ -18,20 +20,33 @@ export function attachmentNamesFromUuids(componentId: string, uuids: string[], a
       if (attachmentsForComponent) {
         const foundAttachment = attachmentsForComponent.find((a) => a.id === uuid);
         if (foundAttachment && foundAttachment.name) {
-          return foundAttachment.name;
+          return foundAttachment;
         }
       }
 
-      return '';
+      return null;
     })
-    .filter((name) => name !== '');
+    .filter((a) => a !== null) as IAttachment[];
 }
 
-export function attachmentNamesFromComponentId(componentId: string, attachments: IAttachments): string[] {
+export function attachmentsFromComponentId(componentId: string, attachments: IAttachments): IAttachment[] {
   const foundAttachments = attachments[componentId];
   if (foundAttachments) {
-    return foundAttachments.map((a) => a.name).filter((name) => !!name) as string[];
+    return foundAttachments.filter((a) => !!a.name);
   }
 
   return [];
+}
+
+export function useUploaderSummaryData(node: LayoutNodeFromType<'FileUpload' | 'FileUploadWithTag'>): IAttachment[] {
+  const formData = useAppSelector((state) => state.formData.formData);
+  const attachments = useAppSelector((state) => state.attachments.attachments);
+
+  const listBinding = node.item.dataModelBindings?.list;
+  if (listBinding) {
+    const values = extractListFromBinding(formData, listBinding);
+    return attachmentsFromUuids(node.item.id, values, attachments);
+  }
+
+  return attachmentsFromComponentId(node.item.id, attachments);
 }
