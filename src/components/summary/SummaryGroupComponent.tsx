@@ -113,13 +113,14 @@ export function SummaryGroupComponent({
     rowIndexes.push(undefined);
   }
 
-  if (summaryNode.item.largeGroup && overrides?.largeGroup !== false) {
+  if (summaryNode.item.largeGroup && overrides?.largeGroup !== false && rowIndexes.length) {
     return (
       <>
         {rowIndexes.map((idx) => {
           return (
             <DisplayGroupContainer
-              key={`${targetNode.item.id}-${idx}-summary`}
+              key={`summary-${targetNode.item.id}-${idx}`}
+              id={`summary-${targetNode.item.id}-${idx}`}
               groupNode={targetNode}
               onlyRowIndex={idx}
               renderLayoutNode={(n) => {

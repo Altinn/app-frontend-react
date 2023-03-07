@@ -123,7 +123,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
       md={displayGrid?.md || false}
       lg={displayGrid?.lg || false}
       xl={displayGrid?.xl || false}
-      data-testid={`summary-${id}`}
+      data-testid={`summary-${overrides?.targetNode?.item.id || id}`}
       className={cn(pageBreakStyles(summaryItem.pageBreak ?? targetItem?.pageBreak))}
     >
       <Grid

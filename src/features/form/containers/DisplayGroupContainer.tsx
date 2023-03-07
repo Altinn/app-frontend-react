@@ -10,6 +10,7 @@ import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 export interface IDisplayGroupContainer {
   groupNode: LayoutNode;
+  id?: string;
   onlyRowIndex?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
@@ -25,7 +26,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function DisplayGroupContainer({ groupNode, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
+export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
   const container = groupNode.item;
   const classes = useStyles();
   const title = useAppSelector((state) => {
@@ -44,7 +45,7 @@ export function DisplayGroupContainer({ groupNode, onlyRowIndex, renderLayoutNod
     <Grid
       container={true}
       item={true}
-      id={container.id}
+      id={id || container.id}
       className={cn(classes.groupContainer, pageBreakStyles(container.pageBreak))}
       spacing={3}
       alignItems='flex-start'

@@ -32,7 +32,7 @@ export function SummaryItemSimple({ formDataAsString }: ISummaryItemSimple) {
     <Grid
       item
       xs={12}
-      data-testid={'single-input-summary'}
+      data-testid={'summary-item-simple'}
     >
       {formDataAsString ? (
         <Typography

@@ -32,7 +32,10 @@ export function SummaryItemCompact({ targetNode, displayData }: ICompactSummaryI
   const textBindings = targetNode.item.textResourceBindings;
 
   return (
-    <Typography variant='body1'>
+    <Typography
+      variant='body1'
+      data-testid={'summary-item-compact'}
+    >
       <span>
         {textBindings && getTextFromAppOrDefault(textBindings.title, textResources, {}, [], false)}
         {' : '}
