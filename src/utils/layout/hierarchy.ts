@@ -132,7 +132,7 @@ type HierarchyWithRows = HComponent | HNonRepGroup | HRepGroup;
  */
 function layoutAsHierarchyWithRows(formLayout: ILayout, repeatingGroups: IRepeatingGroups | null): HierarchyWithRows[] {
   const rewriteDataModelBindings = (
-    main: HNonRepGroup,
+    main: HNonRepGroup | HRepGroup,
     child: HNonRepGroup | HComponent,
     newChild: HComponentInRepGroup,
     parent: HierarchyParent | undefined,
@@ -180,6 +180,8 @@ function layoutAsHierarchyWithRows(formLayout: ILayout, repeatingGroups: IRepeat
     newChild.mapping = newMapping;
   };
 
+  const repGroups: { [id: string]: HRepGroup } = {};
+  const groupReferences: HNonRepGroup[] = [];
   const recurse = (main: ILayoutComponent | HNonRepGroup | HComponentInRepGroup, parent?: HierarchyParent) => {
     if (main.type === 'Group' && main.maxCount && main.maxCount > 1) {
       const rows: HRepGroup['rows'] = [];
@@ -213,13 +215,55 @@ function layoutAsHierarchyWithRows(formLayout: ILayout, repeatingGroups: IRepeat
 
       const out: HRepGroup = { ...main, rows };
       delete out['childComponents'];
+      repGroups[main.id] = out;
       return out;
+    } else if (main.type === 'Group' && main.panel && main.panel.groupReference?.group) {
+      // We need to iterate once more for group references to work, as we don't know if the references group has had
+      // their data model bindings mapped yet.
+      groupReferences.push(main);
     }
 
     return main as HComponentInRepGroup;
   };
 
-  return layoutAsHierarchy(formLayout).map((child) => recurse(child));
+  const resolveGroupReferences = () => {
+    for (const main of groupReferences) {
+      const reference = main.panel?.groupReference?.group;
+      const referencedGroup = reference ? repGroups[reference] : undefined;
+      const referencedGroupState = reference && repeatingGroups ? repeatingGroups[reference] : undefined;
+      if (!reference || !referencedGroup || !referencedGroupState) {
+        // TODO: Show validations like these to the app developers more clearly
+        console.warn(
+          'Found panel with groupReference (',
+          main.id,
+          ') that references a non-existing or non-repeating group (',
+          main.panel?.groupReference?.group,
+          ')',
+        );
+        continue;
+      }
+      main.childComponents = main.childComponents.map((child) => {
+        const nextIndex = referencedGroupState.index + 1;
+        const newChild: HComponentInRepGroup = {
+          ...JSON.parse(JSON.stringify(child)),
+          id: `${child.id}-${nextIndex}`,
+          baseComponentId: child.id,
+        };
+
+        if (child.dataModelBindings) {
+          rewriteDataModelBindings(referencedGroup, child, newChild, undefined, nextIndex);
+        }
+
+        rewriteMappingReferences(newChild, undefined, nextIndex);
+
+        return newChild;
+      });
+    }
+  };
+
+  const out = layoutAsHierarchy(formLayout).map((child) => recurse(child));
+  groupReferences.length && resolveGroupReferences();
+  return out;
 }
 
 /**

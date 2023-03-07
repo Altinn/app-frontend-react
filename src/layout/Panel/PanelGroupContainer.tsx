@@ -11,11 +11,13 @@ import { SuccessIconButton } from 'src/components/SuccessIconButton';
 import { FullWidthGroupWrapper } from 'src/features/form/components/FullWidthGroupWrapper';
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { getVariant } from 'src/features/form/components/Panel';
+import { renderLayoutNode } from 'src/features/form/containers/Form';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface IPanelGroupContainerProps {
   id: string;
@@ -51,12 +53,10 @@ function CustomIcon({ iconUrl, iconAlt, size }: ICustomIconProps) {
 export function PanelGroupContainer({ id }: IPanelGroupContainerProps) {
   const dispatch = useAppDispatch();
   const GetHiddenSelector = makeGetHidden();
-  const node = useResolvedNode(id);
-  const container = node?.item.type === 'Group' && node.item.panel ? node.item : undefined;
+  const node = useResolvedNode(id) as LayoutNodeFromType<'Group'>;
+  const container = node.item.panel ? node.item : undefined;
   const [open, setOpen] = useState<boolean>(!container?.panel?.groupReference);
   const language = useAppSelector((state) => state.language.language);
-  // const textResources = useAppSelector((state) => state.textResources.resources);
-  // const hiddenFields = useAppSelector((state) => state.formLayout.uiConfig.hiddenFields);
   const hidden = useAppSelector((state) => GetHiddenSelector(state, { id }));
   const textResourceBindings = node?.item.textResourceBindings;
 
@@ -71,12 +71,10 @@ export function PanelGroupContainer({ id }: IPanelGroupContainerProps) {
     (state) =>
       textResourceBindings?.add_label && getTextResource(textResourceBindings.add_label, state.textResources.resources),
   );
-  // const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups) || {};
   const { iconUrl, iconAlt } = container?.panel || {};
   const fullWidth = !container?.baseComponentId;
   const repGroupReference = container?.panel?.groupReference;
   const referencedGroupNode = repGroupReference ? node?.top.findById(repGroupReference.group) : undefined;
-  // const referencedGroupIndex = referencedGroupNode ? repeatingGroups[referencedGroupNode.item.id].index : -1;
 
   const handleSave = () => {
     setOpen(false);
@@ -149,38 +147,25 @@ export function PanelGroupContainer({ id }: IPanelGroupContainerProps) {
                     {body}
                   </Grid>
 
-                  {/*{referencedGroupNode &&*/}
-                  {/*  // PRIORITY: Implement support for simulating a new row*/}
-                  {/*  // PRIORITY: Add test case for filling out a new row in panel, not saving it, and midway through*/}
+                  {/*  // TODO: Add test case for filling out a new row in panel, not saving it, and midway through*/}
                   {/*  // adding a new row to the references group. This would show you the not-yet-completed data,*/}
                   {/*  // breaking the illusion. We should fix this by either:*/}
                   {/*  // 1. Keeping the row data in limbo until we save (why do we suddenly have a real save button?*/}
                   {/*  //    we don't have that anywhere else?)*/}
                   {/*  // 2. Actually add a real row to the group when you start filling out stuff.*/}
-                  {/*  createRepeatingGroupComponentsForIndex({*/}
-                  {/*    container: referencedGroup,*/}
-                  {/*    renderComponents:*/}
-                  {/*      components || referencedGroup.children.map((id) => getLayoutComponentById(id, layouts)),*/}
-                  {/*    textResources,*/}
-                  {/*    index: referencedGroupIndex + 1,*/}
-                  {/*    hiddenFields,*/}
-                  {/*  }).map((component) => {*/}
-                  {/*    return renderLayoutComponent(component, layout);*/}
-                  {/*  })}*/}
-
-                  {/*{!referencedGroupNode &&*/}
-                  {/*  components.map((component) => {*/}
-                  {/*    return renderLayoutComponent(component, layout);*/}
-                  {/*  })}*/}
-
-                  {referencedGroupNode && (
-                    <Grid item>
-                      <SuccessIconButton
-                        id={`save-reference-button-${container.id}`}
-                        label={getLanguageFromKey('general.save', language)}
-                        onClick={handleSave}
-                      />
-                    </Grid>
+                  {referencedGroupNode ? (
+                    <>
+                      {node.children().map((child) => renderLayoutNode(child))}
+                      <Grid item>
+                        <SuccessIconButton
+                          id={`save-reference-button-${container.id}`}
+                          label={getLanguageFromKey('general.save', language)}
+                          onClick={handleSave}
+                        />
+                      </Grid>
+                    </>
+                  ) : (
+                    node.children().map((child) => renderLayoutNode(child))
                   )}
                 </Grid>
               </Panel>
