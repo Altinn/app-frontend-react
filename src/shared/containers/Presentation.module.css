@@ -1,0 +1,43 @@
+.container {
+  --modal-padding-x: 24px;
+  --modal-padding-y: 24px;
+  --page-max-width: none;
+  --page-padding-x: 24px;
+
+  padding-bottom: 1rem;
+}
+
+@media only screen and (min-width: 768px) {
+  .container {
+    --modal-padding-x: 84px;
+    --modal-padding-y: 36px;
+  }
+}
+
+@media only screen and (min-width: 992px) {
+  .container {
+    --modal-padding-x: 96px;
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  .container {
+    --page-max-width: 1056px;
+    --page-padding-x: 0;
+  }
+}
+
+.page {
+  max-width: var(--page-max-width);
+  padding: 0 var(--page-padding-x);
+  margin: 0 auto;
+}
+
+.modal {
+  background-color: white;
+  box-shadow: 1px 1px 4px 0 rgb(137 137 137 / 50%);
+}
+
+.modalBody {
+  padding: var(--modal-padding-y) var(--modal-padding-x);
+}
