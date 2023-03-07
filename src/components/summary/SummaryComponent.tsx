@@ -12,6 +12,7 @@ import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IGrid } from 'src/layout/layout';
+import type { SummaryDisplayProperties } from 'src/layout/Summary/types';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -21,6 +22,7 @@ export interface ISummaryComponent {
     targetNode?: LayoutNode;
     grid?: IGrid;
     largeGroup?: boolean;
+    display?: SummaryDisplayProperties;
   };
 }
 
@@ -40,8 +42,9 @@ const useStyles = makeStyles({
 });
 
 export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) {
-  const { id, grid, componentRef, display } = summaryNode.item;
+  const { id, grid, componentRef } = summaryNode.item;
   const { pageRef } = summaryNode.item;
+  const display = overrides?.display || summaryNode.item.display;
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const summaryPageName = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -110,9 +113,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   };
 
   const displayGrid =
-    summaryItem.display && summaryItem.display.useComponentGrid
-      ? overrides?.grid || targetItem?.grid
-      : overrides?.grid || grid;
+    display && display.useComponentGrid ? overrides?.grid || targetItem?.grid : overrides?.grid || grid;
 
   return (
     <Grid

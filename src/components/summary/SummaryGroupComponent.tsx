@@ -78,7 +78,7 @@ export function SummaryGroupComponent({
   const classes = useStyles();
   const textResourceBindings = targetNode.item.textResourceBindings;
   const excludedChildren = summaryNode.item.excludedChildren;
-  const display = summaryNode.item.display;
+  const display = overrides?.display || summaryNode.item.display;
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren &&
@@ -130,6 +130,7 @@ export function SummaryGroupComponent({
                     key={n.item.id}
                     summaryNode={summaryNode}
                     overrides={{
+                      ...overrides,
                       targetNode: n,
                       grid: {},
                       largeGroup: false,

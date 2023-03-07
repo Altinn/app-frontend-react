@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import { EditButton } from 'src/components/summary/EditButton';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
+import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -14,6 +15,7 @@ export interface SummaryBoilerplateProps {
   label: any;
   summaryNode: LayoutNodeFromType<'Summary'>;
   targetNode: LayoutNode;
+  overrides: ISummaryComponent['overrides'];
 }
 
 const useStyles = makeStyles({
@@ -38,9 +40,10 @@ export function SummaryBoilerplate({
   label,
   summaryNode,
   targetNode,
+  overrides,
 }: SummaryBoilerplateProps) {
   const classes = useStyles();
-  const display = summaryNode.item.display;
+  const display = overrides?.display || summaryNode.item.display;
   const readOnlyComponent = targetNode.item.readOnly === true;
   const hasValidationMessages = targetNode.hasValidationMessages();
   const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;

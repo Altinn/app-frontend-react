@@ -43,6 +43,7 @@ export function SummaryComponentSwitch({ change, summaryNode, targetNode, label,
           label={label}
           summaryNode={summaryNode}
           targetNode={targetNode}
+          overrides={overrides}
         />
         <RenderSummary
           summaryNode={summaryNode}

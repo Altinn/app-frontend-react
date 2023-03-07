@@ -41,8 +41,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
         summaryNode={node as LayoutNodeFromType<'Summary'>}
         overrides={{
           grid: { xs: 12 },
-          // PRIORITY: Support overriding 'display'
-          // display={{ hideChangeButton: true, hideValidationMessages: true }}
+          display: { hideChangeButton: true, hideValidationMessages: true },
         }}
       />
     );
