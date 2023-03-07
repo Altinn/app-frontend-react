@@ -55,6 +55,7 @@ export const initialState: ILayoutState = {
     },
     pageTriggers: [],
     keepScrollPos: undefined,
+    expandedWidth: false,
     excludePageFromPdf: null,
     excludeComponentFromPdf: null,
     pdfLayoutName: undefined,
@@ -352,6 +353,11 @@ export const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutSt
         state.layouts = { ...state.layouts, ...action.payload };
       },
     }),
+    toggleExpandedWidth: mkAction<void>({
+      reducer: (state) => {
+        state.uiConfig.expandedWidth = !state.uiConfig.expandedWidth;
+      },
+    }),
   },
 }));
 
@@ -359,20 +365,22 @@ const updateCommonPageSettings = (
   state: ILayoutState,
   page: Pick<
     IPagesSettings,
-    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers' | 'pdfLayoutName'
+    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'showExpandWidthButton' | 'triggers' | 'pdfLayoutName'
   >,
 ) => {
   const {
     hideCloseButton = state.uiConfig.hideCloseButton,
     showLanguageSelector = state.uiConfig.showLanguageSelector,
     showProgress = state.uiConfig.showProgress,
+    showExpandWidthButton = state.uiConfig.showExpandWidthButton,
     triggers = state.uiConfig.pageTriggers,
     pdfLayoutName = state.uiConfig.pdfLayoutName,
   } = page;
 
   state.uiConfig.hideCloseButton = hideCloseButton;
-  state.uiConfig.showProgress = showProgress;
   state.uiConfig.showLanguageSelector = showLanguageSelector;
+  state.uiConfig.showProgress = showProgress;
+  state.uiConfig.showExpandWidthButton = showExpandWidthButton;
   state.uiConfig.pageTriggers = triggers;
   state.uiConfig.pdfLayoutName = pdfLayoutName;
 };

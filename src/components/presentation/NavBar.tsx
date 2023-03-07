@@ -1,10 +1,13 @@
 import React from 'react';
 
-import { Box, useTheme } from '@material-ui/core';
+import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
+import { Close, FullscreenEnter, FullscreenExit, Left } from '@navikt/ds-icons';
 
+import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { CloseButton } from 'src/components/presentation/CloseButton';
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
+import css from 'src/components/presentation/NavBar.module.css';
+import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 
 export interface INavBarProps {
@@ -13,51 +16,68 @@ export interface INavBarProps {
   showBackArrow?: boolean;
 }
 
-export const NavBar = (props: INavBarProps) => {
-  const hideCloseButton = useAppSelector((state) => state.formLayout.uiConfig.hideCloseButton);
-  const language = useAppSelector((state) => state.language.language || {});
-  const theme = useTheme();
+const expandIconStyle = { transform: 'rotate(45deg)' };
 
-  const showLanguageSelector = useAppSelector((state) => state.formLayout.uiConfig.showLanguageSelector);
+export const NavBar = (props: INavBarProps) => {
+  const dispatch = useAppDispatch();
+  const language = useAppSelector((state) => state.language.language || {});
+  const { hideCloseButton, showLanguageSelector, showExpandWidthButton, expandedWidth } = useAppSelector(
+    (state) => state.formLayout.uiConfig,
+  );
+
+  const handleExpand = React.useCallback(() => {
+    dispatch(FormLayoutActions.toggleExpandedWidth());
+  }, [dispatch]);
+
   return (
-    <Box
-      component={'nav'}
-      aria-label={getLanguageFromKey('navigation.main', language)}
-      width={'100%'}
-      display='flex'
-      justifyContent={'space-between'}
-      alignItems={'flex-end'}
-      className='mt-3'
-    >
+    <nav className={css.nav}>
       <div>
         {props.showBackArrow && (
-          <button
-            data-testid='altinn-back-button'
-            type='button'
-            className='a-modal-back a-js-tabable-popover'
-            aria-label={getLanguageFromKey('general.back', language)}
+          <Button
+            data-testid='form-back-button'
             onClick={props.handleBack}
-          >
-            <span className='ai-stack'>
-              <i
-                style={{ marginTop: -2, marginLeft: -1 }}
-                className={`ai-stack-1x ai ${theme.direction === 'rtl' ? 'ai-arrowright' : 'ai-back'}`}
-                aria-hidden='true'
-              />
-            </span>
-            <span className='sr-only'>{getLanguageFromKey('general.back', language)}</span>
-          </button>
+            variant={ButtonVariant.Quiet}
+            color={ButtonColor.Secondary}
+            icon={<Left aria-label={getLanguageFromKey('general.back', language)} />}
+          />
         )}
       </div>
 
-      <Box
-        display='flex'
-        alignItems={'end'}
-      >
+      <div className={css.wrapper}>
         {showLanguageSelector && <LanguageSelector />}
 
-        {!hideCloseButton && <CloseButton handleClose={props.handleClose} />}
-      </Box>
-    </Box>
+        {showExpandWidthButton && (
+          <Button
+            data-testid='form-expand-button'
+            onClick={handleExpand}
+            variant={ButtonVariant.Quiet}
+            color={ButtonColor.Secondary}
+            icon={
+              expandedWidth ? (
+                <FullscreenExit
+                  style={expandIconStyle}
+                  aria-label={getLanguageFromKey('general.expand_form', language)}
+                />
+              ) : (
+                <FullscreenEnter
+                  style={expandIconStyle}
+                  aria-label={getLanguageFromKey('general.expand_form', language)}
+                />
+              )
+            }
+          />
+        )}
+
+        {!hideCloseButton && (
+          <Button
+            data-testid='form-close-button'
+            onClick={props.handleClose}
+            variant={ButtonVariant.Quiet}
+            color={ButtonColor.Secondary}
+            icon={<Close aria-label={getLanguageFromKey('general.close_schema', language)} />}
+          />
+        )}
+      </div>
+    </nav>
   );
 };
