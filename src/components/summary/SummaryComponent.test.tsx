@@ -15,13 +15,12 @@ import type { IValidations } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 describe('SummaryComponent', () => {
-  const defaultId = 'default';
   const pageId = 'FormLayout';
   const layoutMock = (): ILayoutState =>
     getFormLayoutStateMock({
       layouts: {
         [pageId]: [
-          ...[defaultId, 'Group', 'FileUpload', 'FileUploadWithTag', 'Checkboxes'].map(
+          ...['Input', 'Group', 'FileUpload', 'FileUploadWithTag', 'Checkboxes'].map(
             (t) =>
               ({
                 id: t,
@@ -52,15 +51,15 @@ describe('SummaryComponent', () => {
     expect(screen.getByTestId('multiple-choice-summary')).toBeInTheDocument();
   });
   test('should render default', () => {
-    renderHelper({ componentRef: defaultId });
-    expect(screen.getByTestId('single-input-summary')).toBeInTheDocument();
+    renderHelper({ componentRef: 'Input' });
+    expect(screen.getByTestId('summary-item-simple')).toBeInTheDocument();
   });
   test('should render with validation message', () => {
     renderHelper(
-      { componentRef: defaultId },
+      { componentRef: 'Input' },
       {
         [pageId]: {
-          [defaultId]: {
+          ['Input']: {
             simpleBinding: {
               errors: ['Error message'],
               warnings: [],
@@ -75,8 +74,8 @@ describe('SummaryComponent', () => {
     const otherLayout = {
       ...layoutMock(),
     };
-    otherLayout.uiConfig.hiddenFields = [defaultId];
-    const { container } = renderHelper({ componentRef: defaultId }, {}, otherLayout);
+    otherLayout.uiConfig.hiddenFields = ['Input'];
+    const { container } = renderHelper({ componentRef: 'Input' }, {}, otherLayout);
     expect(container.firstChild).toBeNull();
     expect(container.childElementCount).toBe(0);
   });
@@ -94,7 +93,7 @@ describe('SummaryComponent', () => {
       };
     }
 
-    renderHelper({ componentRef: defaultId }, {}, otherLayout);
+    renderHelper({ componentRef: 'Input' }, {}, otherLayout);
     expect(screen.getByText('default title')).toBeInTheDocument();
   });
 
@@ -104,13 +103,13 @@ describe('SummaryComponent', () => {
       ...layoutMock(),
     };
     otherLayout.uiConfig.currentView = 'otherPage';
-    const theRender = renderHelper({ componentRef: defaultId }, {}, otherLayout);
+    const theRender = renderHelper({ componentRef: 'Input' }, {}, otherLayout);
     const button = theRender.container.querySelector<HTMLButtonElement>('button');
     button && fireEvent.click(button);
     expect(spy).toHaveBeenCalledWith({
       newView: pageId,
       returnToView: 'otherPage',
-      focusComponentId: defaultId,
+      focusComponentId: 'Input',
     });
   });
 

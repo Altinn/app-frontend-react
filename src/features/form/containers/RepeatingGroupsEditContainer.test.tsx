@@ -18,7 +18,7 @@ import type { ILanguage, ITextResource } from 'src/types/shared';
 const user = userEvent.setup();
 
 describe('RepeatingGroupsEditContainer', () => {
-  const multiPageGroup = getMultiPageGroupMock();
+  const multiPageGroup = getMultiPageGroupMock('group');
   const language: ILanguage = {
     general: {
       delete: 'Delete',
@@ -101,7 +101,7 @@ describe('RepeatingGroupsEditContainer', () => {
 
   const render = (props: Partial<IRepeatingGroupsEditContainer> = {}) => {
     const allProps: IRepeatingGroupsEditContainer = {
-      id: 'multipageGroup',
+      id: 'group',
       editIndex: 1,
       repeatingGroupIndex: repeatingGroupIndex,
       setEditIndex: jest.fn(),

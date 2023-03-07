@@ -1040,7 +1040,7 @@ describe('utils > validation', () => {
       hiddenFields = [],
       repeatingGroups = {},
     }: Partial<RenderWith>) => {
-      const layout = toCollection({ FormLayout: formLayout }, repeatingGroups).current();
+      const layout = toCollection({ FormLayout: formLayout }, repeatingGroups, new Set(hiddenFields)).current();
       if (!layout) {
         throw new Error('No layout found - check your test data!');
       }

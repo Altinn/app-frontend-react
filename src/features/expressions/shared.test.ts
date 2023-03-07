@@ -77,7 +77,6 @@ describe('Expressions shared function tests', () => {
           }).toThrow(expectsFailure);
         } else {
           // Simulate what happens in checkIfConditionalRulesShouldRunSaga()
-          const newHiddenFields = new Set<string>();
           for (const layoutKey of Object.keys(rootCollection.all())) {
             const layout = rootCollection.findLayout(layoutKey);
             if (!layout) {
@@ -86,7 +85,7 @@ describe('Expressions shared function tests', () => {
 
             for (const node of layout.flat(true)) {
               if (node.isHidden()) {
-                newHiddenFields.add(node.item.id);
+                dataSources.hiddenFields.add(node.item.id);
               }
             }
             if (layouts && layouts[layoutKey].data.hidden) {
@@ -94,14 +93,14 @@ describe('Expressions shared function tests', () => {
               const isHidden = evalExpr(hiddenExpr, layout, dataSources);
               if (isHidden) {
                 for (const hiddenComponent of layout.flat(true)) {
-                  newHiddenFields.add(hiddenComponent.item.id);
+                  dataSources.hiddenFields.add(hiddenComponent.item.id);
                 }
               }
             }
           }
 
           const expr = asExpression(expression) as Expression;
-          expect(evalExpr(expr, component, { ...dataSources, hiddenFields: newHiddenFields })).toEqual(expects);
+          expect(evalExpr(expr, component, dataSources)).toEqual(expects);
         }
       },
     );

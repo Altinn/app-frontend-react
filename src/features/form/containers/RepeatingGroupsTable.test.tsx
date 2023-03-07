@@ -57,7 +57,9 @@ const getLayout = (
 };
 
 describe('RepeatingGroupTable', () => {
-  const group: ExprUnresolved<ILayoutGroup> = getFormLayoutGroupMock({});
+  const group: ExprUnresolved<ILayoutGroup> = getFormLayoutGroupMock({
+    id: 'mock-container-id',
+  });
   const language: ILanguage = {
     general: {
       delete: 'Delete',
@@ -151,6 +153,7 @@ describe('RepeatingGroupTable', () => {
   describe('popOver warning', () => {
     beforeEach(() => {
       const group: ExprUnresolved<ILayoutGroup> = getFormLayoutGroupMock({
+        id: 'mock-container-id',
         edit: { alertOnDelete: true },
       });
       const layout = getLayout(group, components);
