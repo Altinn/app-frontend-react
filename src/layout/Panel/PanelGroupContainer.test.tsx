@@ -157,6 +157,15 @@ const render = ({ container, components, customState }: TestProps) => {
   const formLayout = preloadedState.formLayout.layouts && preloadedState.formLayout.layouts['FormLayout'];
   container && formLayout?.push(container);
   formLayout?.push(...(components || []));
+  formLayout?.push({
+    id: 'referencedGroup',
+    type: 'Group',
+    dataModelBindings: {
+      group: 'RefGroup',
+    },
+    maxCount: 99,
+    children: [],
+  });
 
   renderWithProviders(<PanelGroupContainer id={'group'} />, { preloadedState });
 };
