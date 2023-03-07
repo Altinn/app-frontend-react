@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -15,13 +16,13 @@ export class Custom extends FormComponent<'Custom'> {
     return false;
   }
 
-  useDisplayData(_node: LayoutNodeFromType<'Custom'>): string {
-    // PRIORITY: Implement
-    return '';
+  useDisplayData(node: LayoutNodeFromType<'Custom'>): string {
+    const data = node.getFormData();
+    return Object.values(data).join(', ');
   }
 
-  renderSummary(_props: SummaryRendererProps<'Custom'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return null;
+  renderSummary({ targetNode }: SummaryRendererProps<'Custom'>): JSX.Element | null {
+    const displayData = this.useDisplayData(targetNode);
+    return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }

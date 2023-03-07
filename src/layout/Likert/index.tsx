@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LayoutStyle } from 'src/types';
@@ -32,8 +33,8 @@ export class Likert extends FormComponent<'Likert'> {
     return useSelectedValueToText(node.item, value) || '';
   }
 
-  renderSummary(_props: SummaryRendererProps<'Likert'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return <span>Nothing implemented yet</span>;
+  renderSummary({ targetNode }: SummaryRendererProps<'Likert'>): JSX.Element | null {
+    const displayData = this.useDisplayData(targetNode);
+    return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }

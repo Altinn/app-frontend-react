@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -15,20 +16,20 @@ export class List extends FormComponent<'List'> {
     return false;
   }
 
-  useDisplayData(_node: LayoutNodeFromType<'List'>): string {
-    // Note to self: This was in formComponentUtils:
-    // Object.keys(component.dataModelBindings).forEach((key: any) => {
-    //   const binding = component.dataModelBindings && component.dataModelBindings[key];
-    //   if (component.type == 'List' && component.bindingToShowInSummary !== binding) {
-    //     return;
-    //   }
+  useDisplayData(node: LayoutNodeFromType<'List'>): string {
+    const formData = node.getFormData();
+    const dmBindings = node.item.dataModelBindings;
+    for (const [key, binding] of Object.entries(dmBindings || {})) {
+      if (binding == node.item.bindingToShowInSummary) {
+        return formData[key] || '';
+      }
+    }
 
-    // PRIORITY: Implement
     return '';
   }
 
-  renderSummary(_props: SummaryRendererProps<'List'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return null;
+  renderSummary({ targetNode }: SummaryRendererProps<'List'>): JSX.Element | null {
+    const displayData = this.useDisplayData(targetNode);
+    return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }

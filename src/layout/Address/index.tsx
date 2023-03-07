@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -16,18 +17,12 @@ export class Address extends FormComponent<'AddressComponent'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'AddressComponent'>): string {
-    // Note to self, this was in formComponentUtils:
-    // let dataModelBinding =
-    //   component.type === 'AddressComponent'
-    //     ? component.dataModelBindings?.address
-    //     : component.dataModelBindings?.simpleBinding;
-
-    // PRIORITY: Implement
-    return '';
+    const data = node.getFormData();
+    return Object.values(data).join(' ');
   }
 
-  renderSummary(_props: SummaryRendererProps<'AddressComponent'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return null;
+  renderSummary({ targetNode }: SummaryRendererProps<'AddressComponent'>): JSX.Element | null {
+    const data = this.useDisplayData(targetNode);
+    return <SummaryItemSimple formDataAsString={data} />;
   }
 }
