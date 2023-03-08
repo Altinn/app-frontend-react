@@ -321,14 +321,13 @@ export function validateFormComponents(
   attachments: IAttachments,
   nodeLayout: LayoutPages,
   layoutOrder: string[],
-  formData: IFormData,
   language: ILanguage,
 ) {
   const validations: IValidations = {};
   const layouts = nodeLayout.all();
   for (const id of Object.keys(layouts)) {
     if (layoutOrder.includes(id)) {
-      validations[id] = validateFormComponentsForNodes(attachments, layouts[id], formData, language);
+      validations[id] = validateFormComponentsForNodes(attachments, layouts[id], language);
     }
   }
 
@@ -341,7 +340,6 @@ export function validateFormComponents(
 function validateFormComponentsForNodes(
   attachments: IAttachments,
   nodes: LayoutPage | LayoutNode,
-  formData: IFormData,
   language: ILanguage,
   onlyInRowIndex?: number,
 ): ILayoutValidations {
@@ -1263,7 +1261,7 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
   });
   const validator = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
   const emptyFieldsValidations = validateEmptyFieldsForNodes(formData, node, language, textResources, onlyInRowIndex);
-  const componentValidations = validateFormComponentsForNodes(attachments, node, formData, language, onlyInRowIndex);
+  const componentValidations = validateFormComponentsForNodes(attachments, node, language, onlyInRowIndex);
   const formDataValidations = validateFormDataForLayout(
     jsonFormData,
     node,

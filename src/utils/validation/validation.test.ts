@@ -756,7 +756,6 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
-        mockFormData,
         mockLanguage.language,
       );
 
@@ -782,7 +781,6 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
-        mockFormData,
         mockLanguage.language,
       );
 
@@ -816,7 +814,6 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout),
         Object.keys(mockLayout),
-        mockFormData,
         mockLanguage.language,
       );
 
@@ -843,7 +840,6 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout, {}, new Set(['componentId_4'])),
         Object.keys(mockLayout),
-        mockFormData,
         mockLanguage.language,
       );
 
@@ -870,7 +866,6 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout),
         [],
-        mockFormData,
         mockLanguage.language,
       );
 

@@ -60,7 +60,6 @@ export function runClientSideValidation(state: IRuntimeState): ValidationResult 
     state.attachments.attachments,
     layouts,
     layoutOrder,
-    state.formData.formData,
     state.language.language,
   );
   out.emptyFieldsValidations = validateEmptyFields(
