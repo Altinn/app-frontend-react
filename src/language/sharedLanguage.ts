@@ -138,8 +138,6 @@ export function getTextResourceByKey<T extends string | undefined>(
  * @param dataSources the data sources
  * @param repeatingGroups the repeating groups
  * @returns a new array with replaced values.
- *
- * @deprecated Move this functionality to the node hierarchy?
  */
 export function replaceTextResourceParams(
   textResources: ITextResource[],
