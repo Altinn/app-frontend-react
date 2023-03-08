@@ -292,7 +292,7 @@ export function SummaryGroupComponent({
           />
         )}
       </div>
-      <>
+      <div style={{ width: '100%' }}>
         {isEmpty ? (
           <Typography
             variant='body1'
@@ -304,7 +304,7 @@ export function SummaryGroupComponent({
         ) : (
           renderComponents
         )}
-      </>
+      </div>
 
       {groupHasErrors && !display?.hideValidationMessages && (
         <Grid
