@@ -213,7 +213,6 @@ export function FileUploadWithTagComponent({
 
   return (
     <div
-      className='container'
       id={`altinn-fileuploader-${id}`}
       style={{ padding: '0px' }}
     >

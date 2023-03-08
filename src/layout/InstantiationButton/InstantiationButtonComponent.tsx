@@ -16,18 +16,16 @@ const rowStyle = {
 
 export function InstantiationButtonComponent({ text, ...props }: IInstantiationButtonComponentProps) {
   return (
-    <div className='container pl-0'>
+    <div
+      className='a-btn-group'
+      style={btnGroupStyle}
+    >
       <div
-        className='a-btn-group'
-        style={btnGroupStyle}
+        className='row'
+        style={rowStyle}
       >
-        <div
-          className='row'
-          style={rowStyle}
-        >
-          <div className='pl-0 a-btn-sm-fullwidth'>
-            <InstantiationButton {...props}>{text}</InstantiationButton>
-          </div>
+        <div className='pl-0 a-btn-sm-fullwidth'>
+          <InstantiationButton {...props}>{text}</InstantiationButton>
         </div>
       </div>
     </div>

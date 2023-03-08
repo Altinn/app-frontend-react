@@ -321,7 +321,6 @@ export function FileUploadComponent({
 
   return (
     <div
-      className='container'
       id={`altinn-fileuploader-${id}`}
       style={{ padding: '0px' }}
     >

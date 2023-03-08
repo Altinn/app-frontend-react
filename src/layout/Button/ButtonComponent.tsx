@@ -28,11 +28,9 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
     }
 
     return (
-      <div className='container pl-0'>
-        <div className={css['button-group']}>
-          <div className={css['button-row']}>
-            <GenericButton {...props}>{props.text}</GenericButton>
-          </div>
+      <div className={css['button-group']}>
+        <div className={css['button-row']}>
+          <GenericButton {...props}>{props.text}</GenericButton>
         </div>
       </div>
     );
@@ -59,28 +57,26 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
   };
   const busyWithId = savingId || submittingId || '';
   return (
-    <div className='container pl-0'>
-      <div className={css['button-group']}>
-        <div className={css['button-row']}>
-          {autoSave === false && ( // can this be removed from the component?
-            <SaveButton
-              onClick={saveFormData}
-              id='saveBtn'
-              busyWithId={busyWithId}
-              language={props.language}
-            >
-              {getLanguageFromKey('general.save', props.language)}
-            </SaveButton>
-          )}
-          <SubmitButton
-            onClick={() => submitTask({ componentId: props.id })}
-            id={props.id}
-            language={props.language}
+    <div className={css['button-group']}>
+      <div className={css['button-row']}>
+        {autoSave === false && ( // can this be removed from the component?
+          <SaveButton
+            onClick={saveFormData}
+            id='saveBtn'
             busyWithId={busyWithId}
+            language={props.language}
           >
-            {props.text}
-          </SubmitButton>
-        </div>
+            {getLanguageFromKey('general.save', props.language)}
+          </SaveButton>
+        )}
+        <SubmitButton
+          onClick={() => submitTask({ componentId: props.id })}
+          id={props.id}
+          language={props.language}
+          busyWithId={busyWithId}
+        >
+          {props.text}
+        </SubmitButton>
       </div>
     </div>
   );
