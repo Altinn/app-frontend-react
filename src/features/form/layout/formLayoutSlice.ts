@@ -140,6 +140,10 @@ export const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutSt
             }
           }
         }
+        state.uiConfig.showExpandWidthButton = settings?.pages.showExpandWidthButton;
+        state.uiConfig.expandedWidth = settings?.pages.showExpandWidthButton ? state.uiConfig.expandedWidth : false;
+
+        state.uiConfig.pdfLayoutName = settings?.pages.pdfLayoutName;
         state.uiConfig.excludeComponentFromPdf = settings?.components?.excludeFromPdf ?? [];
         state.uiConfig.excludePageFromPdf = settings?.pages?.excludeFromPdf ?? [];
       },
@@ -363,29 +367,19 @@ export const formLayoutSlice = createSagaSlice((mkAction: MkActionType<ILayoutSt
 
 const updateCommonPageSettings = (
   state: ILayoutState,
-  page: Pick<
-    IPagesSettings,
-    'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'showExpandWidthButton' | 'triggers' | 'pdfLayoutName'
-  >,
+  page: Pick<IPagesSettings, 'hideCloseButton' | 'showLanguageSelector' | 'showProgress' | 'triggers'>,
 ) => {
   const {
     hideCloseButton = state.uiConfig.hideCloseButton,
     showLanguageSelector = state.uiConfig.showLanguageSelector,
     showProgress = state.uiConfig.showProgress,
-    showExpandWidthButton = state.uiConfig.showExpandWidthButton,
     triggers = state.uiConfig.pageTriggers,
-    pdfLayoutName = state.uiConfig.pdfLayoutName,
   } = page;
 
   state.uiConfig.hideCloseButton = hideCloseButton;
   state.uiConfig.showLanguageSelector = showLanguageSelector;
   state.uiConfig.showProgress = showProgress;
-  state.uiConfig.showExpandWidthButton = showExpandWidthButton;
   state.uiConfig.pageTriggers = triggers;
-  state.uiConfig.pdfLayoutName = pdfLayoutName;
-
-  // Reset expanded state if no longer available
-  state.uiConfig.expandedWidth = showExpandWidthButton ? state.uiConfig.expandedWidth : false;
 };
 
 export const FormLayoutActions = formLayoutSlice.actions;
