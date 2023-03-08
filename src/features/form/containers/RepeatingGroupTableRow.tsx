@@ -175,7 +175,7 @@ export function RepeatingGroupTableRow({
           </TableCell>
         ))
       ) : (
-        <TableCell>
+        <TableCell className={css.mobileTableCell}>
           {tableComponents.map((component, i, { length }) => {
             const componentNode = node?.children(
               (c) => c.baseComponentId === component.baseComponentId || c.baseComponentId === component.id,
@@ -274,7 +274,7 @@ export function RepeatingGroupTableRow({
         </>
       ) : (
         <TableCell
-          className={css.buttonCell}
+          className={cn(css.buttonCell, css.mobileTableCell)}
           style={{ verticalAlign: 'top' }}
         >
           <div className={css.buttonInCellWrapper}>

@@ -133,3 +133,8 @@ button.tableButton {
   border-right: 2px dotted var(--repeating-group-edit-border-color);
   border-left: 2px dotted var(--repeating-group-edit-border-color);
 }
+
+.mobileTableCell {
+  padding-top: var(--table-input-margin);
+  padding-bottom: var(--table-input-margin);
+}

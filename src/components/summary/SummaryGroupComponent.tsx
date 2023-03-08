@@ -47,6 +47,12 @@ const useStyles = makeStyles({
       pageBreakInside: 'avoid',
     },
   },
+  container: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   label: {
     fontWeight: 500,
     fontSize: '1.125rem',
@@ -267,50 +273,39 @@ export function SummaryGroupComponent({
 
   return (
     <>
-      <Grid
-        container={true}
+      <div
+        className={classes.container}
         data-testid={'summary-group-component'}
       >
-        <Grid
-          item={true}
-          xs={10}
+        <Typography
+          variant='body1'
+          className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
+          component='span'
         >
+          {title}
+        </Typography>
+
+        {!display?.hideChangeButton && (
+          <EditButton
+            onClick={onChangeClick}
+            editText={changeText}
+          />
+        )}
+      </div>
+      <>
+        {isEmpty ? (
           <Typography
             variant='body1'
-            className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
-            component='span'
+            className={classes.emptyField}
+            component='p'
           >
-            {title}
+            {getLanguageFromKey('general.empty_summary', language)}
           </Typography>
-        </Grid>
-        <Grid
-          item
-          xs={2}
-        >
-          {!display?.hideChangeButton && (
-            <EditButton
-              onClick={onChangeClick}
-              editText={changeText}
-            />
-          )}
-        </Grid>
-        <Grid
-          item
-          xs={12}
-        >
-          {isEmpty ? (
-            <Typography
-              variant='body1'
-              className={classes.emptyField}
-              component='p'
-            >
-              {getLanguageFromKey('general.empty_summary', language)}
-            </Typography>
-          ) : (
-            renderComponents
-          )}
-        </Grid>
-      </Grid>
+        ) : (
+          renderComponents
+        )}
+      </>
+
       {groupHasErrors && !display?.hideValidationMessages && (
         <Grid
           container={true}
