@@ -1,5 +1,7 @@
 import React from 'react';
 
+import cn from 'classnames';
+
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
@@ -85,15 +87,8 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
     : AltinnAppTheme.altinnPalette.primary.greyLight;
   document.body.style.background = backgroundColor;
 
-  const expandedWidthStyles = (
-    expandedWidth ? { '--page-max-width': 'none', '--page-padding-x': '24px' } : {}
-  ) as React.CSSProperties;
-
   return (
-    <div
-      className={css.container}
-      style={{ ...expandedWidthStyles }}
-    >
+    <div className={cn(css.container, { [css.expanded]: expandedWidth })}>
       <AltinnAppHeader
         party={party || undefined}
         userParty={userParty}

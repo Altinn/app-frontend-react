@@ -1,21 +1,15 @@
 import React, { useState } from 'react';
 
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@altinn/altinn-design-system';
-import { createTheme, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
+import { useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
-import {
-  fullWidthWrapper,
-  xPaddingLarge,
-  xPaddingMedium,
-  xPaddingSmall,
-} from 'src/features/form/components/FullWidthWrapper';
+import css from 'src/features/form/containers/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGroupTableRow';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
 import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
-import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { createRepeatingGroupComponents } from 'src/utils/formLayout';
 import { setupGroupComponents } from 'src/utils/layout';
@@ -55,92 +49,6 @@ export interface IRepeatingGroupTableProps {
   deleting: boolean;
   filteredIndexes?: number[] | null;
 }
-
-const theme = createTheme(AltinnAppTheme);
-
-const cellMargin = 15;
-const useStyles = makeStyles({
-  fullWidthWrapper,
-  groupContainer: {
-    overflowX: 'auto',
-    marginBottom: 15,
-
-    // Line up content with page
-    '& > table > tbody > tr > td:first-child, & > table > thead > tr > th:first-child': {
-      paddingLeft: xPaddingSmall - cellMargin,
-      '@media (min-width: 768px)': {
-        paddingLeft: xPaddingMedium - cellMargin,
-      },
-      '@media (min-width: 992px)': {
-        paddingLeft: xPaddingLarge - cellMargin,
-      },
-    },
-    '& > table > tbody > tr > td:last-child, & > table > thead > tr > th:last-child': {
-      paddingRight: xPaddingSmall - cellMargin,
-      '@media (min-width: 768px)': {
-        paddingRight: xPaddingMedium - cellMargin,
-      },
-      '@media (min-width: 992px)': {
-        paddingRight: xPaddingLarge - cellMargin,
-      },
-    },
-  },
-  nestedGroupContainer: {
-    overflowX: 'auto',
-    margin: '0 0 15px 0',
-    width: '100%',
-  },
-  tableEmpty: {
-    margin: 0,
-  },
-  editingBorder: {
-    width: 'calc(100% - 2px)',
-    margin: '0 auto',
-    '& $editContainerRow': {
-      borderRight: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-      borderLeft: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-    },
-    '& $editingRow': {
-      borderRight: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-      borderLeft: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-    },
-  },
-  editContainerRow: {
-    borderTop: `1px solid ${theme.altinnPalette.primary.blueLight}`,
-    borderBottom: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-    '& > td > div': {
-      margin: 0,
-    },
-  },
-  editingRow: {
-    borderTop: `2px dotted ${theme.altinnPalette.primary.blueMedium}`,
-    backgroundColor: '#f1fbff',
-    '& > td': {
-      borderBottom: 0,
-    },
-  },
-  visuallyHidden: {
-    border: 0,
-    padding: 0,
-    margin: 0,
-    position: 'absolute',
-    height: '1px',
-    width: '1px',
-    overflow: 'hidden',
-    clip: 'rect(1px 1px 1px 1px)',
-    clipPath: 'inset(50%)',
-    whiteSpace: 'nowrap',
-  },
-  contentFormatting: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: '-webkit-box',
-    WebkitLineClamp: 2,
-    lineClamp: 2,
-    WebkitBoxOrient: 'vertical',
-    wordBreak: 'break-word',
-  },
-});
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
   if (textResourceBindings.tableTitle) {
@@ -190,7 +98,6 @@ export function RepeatingGroupTable({
   deleting,
   filteredIndexes,
 }: IRepeatingGroupTableProps): JSX.Element {
-  const classes = useStyles();
   const mobileView = useMediaQuery('(max-width:992px)');
 
   const node = useResolvedNode(id);
@@ -322,21 +229,18 @@ export function RepeatingGroupTable({
   };
 
   return (
-    <Grid
-      container={true}
-      item={true}
+    <div
       data-testid={`group-${id}`}
       id={`group-${id}`}
       className={cn({
-        [classes.fullWidthWrapper]: !isNested,
-        [classes.groupContainer]: !isNested,
-        [classes.nestedGroupContainer]: isNested,
-        [classes.tableEmpty]: isEmpty,
+        [css.groupContainer]: !isNested,
+        [css.nestedGroupContainer]: isNested,
+        [css.tableEmpty]: isEmpty,
       })}
     >
       <Table
         id={`group-${id}-table`}
-        className={cn({ [classes.editingBorder]: isNested })}
+        className={cn({ [css.editingBorder]: isNested })}
       >
         {showTableHeader && !mobileView && (
           <TableHeader id={`group-${id}-table-header`}>
@@ -346,7 +250,7 @@ export function RepeatingGroupTable({
                   style={{ textAlign: getTextAlignment(component) }}
                   key={component.id}
                 >
-                  <span className={classes.contentFormatting}>
+                  <span className={css.contentFormatting}>
                     {getTextResource(
                       getTableTitle(tableNodes[tableComponentIndex]?.item.textResourceBindings || {}),
                       textResources,
@@ -355,11 +259,11 @@ export function RepeatingGroupTable({
                 </TableCell>
               ))}
               <TableCell style={{ padding: 0, paddingRight: '10px' }}>
-                <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
+                <span className={css.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
               </TableCell>
               {displayDeleteColumn && (
                 <TableCell style={{ padding: 0 }}>
-                  <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
+                  <span className={css.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
                 </TableCell>
               )}
             </TableRow>
@@ -384,7 +288,7 @@ export function RepeatingGroupTable({
                   <RepeatingGroupTableRow
                     id={id}
                     className={cn({
-                      [classes.editingRow]: isEditingRow,
+                      [css.editingRow]: isEditingRow,
                     })}
                     container={container}
                     components={components}
@@ -415,7 +319,7 @@ export function RepeatingGroupTable({
                   {isEditingRow && (
                     <TableRow
                       key={`edit-container-${index}`}
-                      className={classes.editContainerRow}
+                      className={css.editContainerRow}
                     >
                       <TableCell
                         style={{ padding: 0, borderTop: 0 }}
@@ -430,6 +334,6 @@ export function RepeatingGroupTable({
             })}
         </TableBody>
       </Table>
-    </Grid>
+    </div>
   );
 }

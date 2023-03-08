@@ -1,30 +1,10 @@
 .container {
-  --modal-padding-x: 24px;
-  --modal-padding-y: 24px;
-  --page-max-width: none;
-  --page-padding-x: 24px;
-
   padding-bottom: 1rem;
 }
 
-@media only screen and (min-width: 768px) {
-  .container {
-    --modal-padding-x: 84px;
-    --modal-padding-y: 36px;
-  }
-}
-
-@media only screen and (min-width: 992px) {
-  .container {
-    --modal-padding-x: 96px;
-  }
-}
-
-@media only screen and (min-width: 1200px) {
-  .container {
-    --page-max-width: 1056px;
-    --page-padding-x: 0;
-  }
+.expanded {
+  --page-max-width: none;
+  --page-padding-x: 24px;
 }
 
 .page {

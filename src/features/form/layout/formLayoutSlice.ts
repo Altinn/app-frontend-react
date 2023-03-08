@@ -383,6 +383,9 @@ const updateCommonPageSettings = (
   state.uiConfig.showExpandWidthButton = showExpandWidthButton;
   state.uiConfig.pageTriggers = triggers;
   state.uiConfig.pdfLayoutName = pdfLayoutName;
+
+  // Reset expanded state if no longer available
+  state.uiConfig.expandedWidth = showExpandWidthButton ? state.uiConfig.expandedWidth : false;
 };
 
 export const FormLayoutActions = formLayoutSlice.actions;

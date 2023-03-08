@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
+import css from 'src/features/form/containers/RepeatingGroup.module.css';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
-import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 import { renderGenericComponent } from 'src/utils/layout';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
@@ -14,7 +14,6 @@ import type { IGroupEditProperties, ILayoutGroup } from 'src/layout/Group/types'
 import type { ComponentInGroup, ILayout } from 'src/layout/layout';
 import type { ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
-
 export interface IRepeatingGroupsEditContainer {
   id: string;
   className?: string;
@@ -34,36 +33,6 @@ export interface IRepeatingGroupsEditContainer {
   filteredIndexes?: number[] | null;
 }
 
-const useStyles = makeStyles({
-  editContainer: {
-    backgroundColor: '#f1fbff',
-    width: '100%',
-    display: 'inline-block',
-    padding: '12px 24px',
-    '@media (min-width: 768px)': {
-      padding: '24px 84px',
-    },
-    '@media (min-width: 992px)': {
-      padding: '36px 96px',
-    },
-  },
-  nestedEditContainer: {
-    backgroundColor: '#f1fbff',
-    width: '100%',
-    display: 'inline-block',
-    padding: '12px 24px',
-  },
-  hideTable: {
-    borderTop: `2px dotted ${AltinnStudioTheme.altinnPalette.primary.blueMedium}`,
-    borderBottom: `2px dotted ${AltinnStudioTheme.altinnPalette.primary.blueMedium}`,
-    marginBottom: '-2px',
-  },
-  nestedHideTable: {
-    borderRight: `2px dotted ${AltinnStudioTheme.altinnPalette.primary.blueMedium}`,
-    borderLeft: `2px dotted ${AltinnStudioTheme.altinnPalette.primary.blueMedium}`,
-  },
-});
-
 export function RepeatingGroupsEditContainer({
   id,
   className,
@@ -82,7 +51,6 @@ export function RepeatingGroupsEditContainer({
   setMultiPageIndex,
   filteredIndexes,
 }: IRepeatingGroupsEditContainer): JSX.Element | null {
-  const classes = useStyles();
   const group = useResolvedNode(container)?.item;
   if (!group) {
     return null;
@@ -141,8 +109,8 @@ export function RepeatingGroupsEditContainer({
     <div
       id={`group-edit-container-${id}-${editIndex}`}
       className={cn(
-        isNested ? classes.nestedEditContainer : classes.editContainer,
-        { [classes.hideTable]: hideTable, [classes.nestedHideTable]: hideTable && isNested },
+        isNested ? css.nestedEditContainer : css.editContainer,
+        { [css.hideTable]: hideTable, [css.nestedHideTable]: hideTable && isNested },
         className,
       )}
       style={{ marginBottom: isNested && edit?.mode === 'showAll' ? 15 : undefined }}
