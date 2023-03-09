@@ -99,7 +99,7 @@ export function RepeatingGroupsEditContainer({
       return;
     }
 
-    const isFocusable = (element: FocusableHTMLElement) => {
+    const isFocusable = (element: FocusableHTMLElement): boolean => {
       const tagName = element.tagName.toLowerCase();
       const focusableElements = ['a', 'input', 'select', 'textarea', 'button'];
 
