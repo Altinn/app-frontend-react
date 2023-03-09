@@ -32,9 +32,9 @@ export class AppFrontend {
   public designSystemPanel = '[data-testid="panel-content-wrapper"]';
 
   public helpText = {
-    open: '.reg-help-outline',
-    close: '.reg-help-filled',
-    alert: 'div[role="alert"]',
+    open: 'button[aria-expanded=false]',
+    close: 'button[aria-expanded=true]',
+    alert: 'div[role="dialog"]',
   };
 
   public navMenu = '#navigation-menu';
@@ -154,7 +154,7 @@ export class AppFrontend {
     summaryText: '#send-in-text',
     next: `button:contains("${texts.next}")`,
     back: `button:contains("${texts.back}")`,
-    mainGroupSummary: '[id^="mainGroup-"][id$="-summary"]',
+    mainGroupSummary: '[data-testid="summary-summary-1"] [data-testid="display-group-container"]',
     mainGroupTableBody: '#group-mainGroup-table-body',
     options: '#reduxOptions',
     tableErrors: '[data-testid=group-table-errors]',

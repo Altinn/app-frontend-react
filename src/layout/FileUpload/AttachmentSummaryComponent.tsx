@@ -4,31 +4,32 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import type { IAttachment } from 'src/shared/resources/attachments';
+import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface IAttachmentSummaryComponent {
-  componentRef: string;
+  targetNode: LayoutNodeFromType<'FileUpload'>;
 }
 
 const useStyles = makeStyles({
   emptyField: {
     fontStyle: 'italic',
     fontSize: '1rem',
+    lineHeight: 1.6875,
   },
 });
 
-export function AttachmentSummaryComponent({ componentRef }: IAttachmentSummaryComponent) {
+export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryComponent) {
   const classes = useStyles();
-  const attachments: IAttachment[] | undefined = useAppSelector((state) => state.attachments.attachments[componentRef]);
+  const attachments = useUploaderSummaryData(targetNode);
   const language = useAppSelector((state) => state.language.language);
-  const isEmpty = !attachments || attachments.length < 1;
   return (
     <Grid
       item
       xs={12}
       data-testid={'attachment-summary-component'}
     >
-      {isEmpty ? (
+      {attachments.length === 0 ? (
         <Typography
           variant='body1'
           className={classes.emptyField}
@@ -37,16 +38,14 @@ export function AttachmentSummaryComponent({ componentRef }: IAttachmentSummaryC
           {getLanguageFromKey('general.empty_summary', language || {})}
         </Typography>
       ) : (
-        attachments.map((attachment) => {
-          return (
-            <Typography
-              key={attachment.id}
-              variant='body1'
-            >
-              {attachment.name}
-            </Typography>
-          );
-        })
+        attachments.map((attachment) => (
+          <Typography
+            key={attachment.id}
+            variant='body1'
+          >
+            {attachment.name}
+          </Typography>
+        ))
       )}
     </Grid>
   );

@@ -213,9 +213,9 @@ export function nn() {
       show_deleted: 'Vis sletta',
       show_sub_unit: 'Vis undereiningar',
     },
-    popover: {
-      popover_button_helptext: 'Hjelp',
-      popover_open: 'Popover open',
+    helptext: {
+      button_title: 'Hjelp',
+      button_title_prefix: 'Hjelpetekst for',
     },
     receipt: {
       attachments: 'Vedlegg',
@@ -254,8 +254,8 @@ export function nn() {
       generic_field: 'dette feltet',
     },
     validation_errors: {
-      min: 'Minste gyldige verdi er {0}',
-      max: 'Største gyldige verdi er {0}',
+      min: 'Minste gyldige tall er {0}',
+      max: 'Største gyldige tall er {0}',
       minLength: 'Bruk {0} eller fleire teikn',
       maxLength: 'Bruk {0} eller færre teikn',
       length: 'Antall tillatne teikn er {0}',
