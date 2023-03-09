@@ -6,13 +6,12 @@ import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGro
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { StyledRadio } from 'src/layout/RadioButtons/StyledRadio';
 import { LayoutStyle } from 'src/types';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
+import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
-import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
-export const LikertComponent = (props: IRadioButtonsContainerProps) => {
-  const { layout } = props;
+export const LikertComponent = (props: PropsFromGenericComponent<'Likert'>) => {
+  const { layout } = props.node.item;
   const useRadioProps = useRadioButtons(props);
 
   if (layout === LayoutStyle.Table) {
@@ -33,7 +32,7 @@ export const LikertComponent = (props: IRadioButtonsContainerProps) => {
 };
 
 const RadioGroupTableRow = ({
-  id,
+  node,
   selected,
   handleChange,
   calculatedOptions,
@@ -41,8 +40,8 @@ const RadioGroupTableRow = ({
   componentValidations,
   legend,
 }: IControlledRadioGroupProps) => {
-  const node = useResolvedNode(id);
-  const groupContainerId = node?.closest((n) => n.type === 'Group')?.item.id;
+  const id = node.item.id;
+  const groupContainerId = node.closest((n) => n.type === 'Group')?.item.id;
   const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
   return (

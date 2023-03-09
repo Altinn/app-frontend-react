@@ -129,8 +129,7 @@ type AllComponents = Map[ComponentTypes];
 
 export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
 export type ComponentExceptGroupAndSummary = Exclude<ComponentExceptGroup, 'Summary'>;
-export type RenderableGenericComponent = ILayoutComponent<ComponentExceptGroupAndSummary>;
-export type ComponentInGroup = RenderableGenericComponent | ILayoutGroup;
+export type ComponentInGroup = ILayoutComponent | ILayoutGroup;
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify
@@ -141,6 +140,10 @@ export type ComponentInGroup = RenderableGenericComponent | ILayoutGroup;
  * Or a component of a specific known type (gives you more valid options):
  *
  *  const myImageComponent:ILayoutComponent<'Image'> = ...
+ *
+ * @deprecated
+ * @see AnyItem
+ * @see LayoutNode
  */
 export type ILayoutComponent<Type extends ComponentExceptGroup = ComponentExceptGroup> = Extract<
   AllComponents,

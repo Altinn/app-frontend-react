@@ -6,7 +6,7 @@ import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentExceptGroupAndSummary, ComponentTypes } from 'src/layout/layout';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
-abstract class AnyComponent<Type extends ComponentExceptGroupAndSummary> {
+abstract class AnyComponent<Type extends ComponentTypes> {
   /**
    * Given properties from GenericComponent, render this layout component
    */
@@ -96,7 +96,14 @@ export abstract class ActionComponent<Type extends ComponentExceptGroupAndSummar
   };
 }
 
+export abstract class ContainerComponent<Type extends ComponentExceptGroupAndSummary> extends FormComponent<Type> {
+  readonly getComponentType = (): ComponentType => {
+    return ComponentType.Container;
+  };
+}
+
 export type LayoutComponent<Type extends ComponentExceptGroupAndSummary = ComponentExceptGroupAndSummary> =
   | PresentationComponent<Type>
   | FormComponent<Type>
-  | ActionComponent<Type>;
+  | ActionComponent<Type>
+  | ContainerComponent<Type>;

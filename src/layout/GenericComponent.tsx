@@ -256,10 +256,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
 
   const componentProps = {
     ...fixedComponentProps,
-    // TODO: Pass on the node object instead of all the properties in it. This could work fairly simply for most
-    // components, but breaks hard on Button and FileUploadWithTag (and possibly more), as they have deep/complex
-    // logic that continues to pass on these properties downstream.
-    ...item,
+    node,
   } as unknown as PropsFromGenericComponent<Type>;
 
   const showValidationMessages = hasValidationMessages && layoutComponent.renderDefaultValidations();

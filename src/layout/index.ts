@@ -26,12 +26,12 @@ import { Paragraph } from 'src/layout/Paragraph/index';
 import { PrintButton } from 'src/layout/PrintButton/index';
 import { RadioButtons } from 'src/layout/RadioButtons/index';
 import { TextArea } from 'src/layout/TextArea/index';
-import type { ExprResolved } from 'src/features/expressions/types';
-import type { ComponentExceptGroup, ComponentExceptGroupAndSummary, IGrid, ILayoutComponent } from 'src/layout/layout';
+import type { ComponentExceptGroupAndSummary, ComponentTypes, IGrid } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentValidations } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export const components = {
   AddressComponent: new Address(),
@@ -96,8 +96,9 @@ export interface IComponentProps {
   componentValidations?: IComponentValidations;
 }
 
-export type PropsFromGenericComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = IComponentProps &
-  ExprResolved<Omit<ILayoutComponent<T>, 'type'>>;
+export interface PropsFromGenericComponent<T extends ComponentTypes = ComponentTypes> extends IComponentProps {
+  node: LayoutNodeFromType<T>;
+}
 
 export interface IFormComponentContext {
   grid?: IGrid;
@@ -119,6 +120,7 @@ export enum ComponentType {
   Presentation = 'presentation',
   Form = 'form',
   Action = 'action',
+  Container = 'container',
 }
 
 export function getLayoutComponentObject<T extends string | undefined | keyof ComponentClassMap>(
