@@ -26,12 +26,12 @@ import { Paragraph } from 'src/layout/Paragraph/index';
 import { PrintButton } from 'src/layout/PrintButton/index';
 import { RadioButtons } from 'src/layout/RadioButtons/index';
 import { TextArea } from 'src/layout/TextArea/index';
-import type { ComponentExceptGroupAndSummary, ComponentTypes, IGrid } from 'src/layout/layout';
+import type { ComponentExceptGroupAndSummary, IGrid } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentValidations } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { HComponent, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export const components = {
   AddressComponent: new Address(),
@@ -96,8 +96,10 @@ export interface IComponentProps {
   componentValidations?: IComponentValidations;
 }
 
-export interface PropsFromGenericComponent<T extends ComponentTypes = ComponentTypes> extends IComponentProps {
+export interface PropsFromGenericComponent<T extends ComponentExceptGroupAndSummary = ComponentExceptGroupAndSummary>
+  extends IComponentProps {
   node: LayoutNodeFromType<T>;
+  overrideItemProps?: Partial<Omit<HComponent<T>, 'id'>>;
 }
 
 export interface IFormComponentContext {

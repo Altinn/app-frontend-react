@@ -257,6 +257,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
   const componentProps = {
     ...fixedComponentProps,
     node,
+    overrideItemProps,
   } as unknown as PropsFromGenericComponent<Type>;
 
   const showValidationMessages = hasValidationMessages && layoutComponent.renderDefaultValidations();

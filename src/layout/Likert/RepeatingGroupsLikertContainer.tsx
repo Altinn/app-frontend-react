@@ -15,6 +15,7 @@ import { LayoutStyle } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getOptionLookupKey } from 'src/utils/options';
+import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -145,13 +146,16 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
                 return;
               }
 
+              const override: IGenericComponentProps<'Likert'>['overrideItemProps'] = {
+                layout: LayoutStyle.Table,
+              };
+
               return (
-                <LikertContextWrapper
+                <GenericComponent
                   key={comp.item.id}
-                  layout={LayoutStyle.Table}
-                >
-                  <GenericComponent node={comp as LayoutNodeFromType<'Likert'>} />
-                </LikertContextWrapper>
+                  node={comp as LayoutNodeFromType<'Likert'>}
+                  overrideItemProps={override}
+                />
               );
             })}
           </AltinnTableBody>
@@ -160,15 +164,3 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
     </>
   );
 };
-
-const LikertContext = React.createContext<LayoutStyle | undefined>(undefined);
-
-interface LikertContextProps extends React.PropsWithChildren {
-  layout?: LayoutStyle;
-}
-
-export function LikertContextWrapper(props: LikertContextProps) {
-  return <LikertContext.Provider value={props.layout}>{props.children}</LikertContext.Provider>;
-}
-
-export const useLikertContext = () => React.useContext(LikertContext);

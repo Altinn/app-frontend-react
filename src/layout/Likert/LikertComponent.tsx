@@ -2,7 +2,6 @@ import React from 'react';
 
 import { TableCell, TableRow, Typography } from '@material-ui/core';
 
-import { useLikertContext } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { StyledRadio } from 'src/layout/RadioButtons/StyledRadio';
@@ -15,8 +14,8 @@ export const LikertComponent = (props: PropsFromGenericComponent<'Likert'>) => {
   const useRadioProps = useRadioButtons(props);
 
   const nodeLayout = props.node.item.layout;
-  const contextLayout = useLikertContext();
-  const actualLayout = contextLayout || nodeLayout;
+  const overriddenLayout = props.overrideItemProps?.layout;
+  const actualLayout = overriddenLayout || nodeLayout;
 
   if (actualLayout === LayoutStyle.Table) {
     return (
