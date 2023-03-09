@@ -39,7 +39,8 @@ export const NavBar = (props: INavBarProps) => {
             onClick={props.handleBack}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}
-            icon={<Left aria-label={getLanguageFromKey('general.back', language)} />}
+            aria-label={getLanguageFromKey('general.back', language)}
+            icon={<Left aria-hidden />}
           />
         )}
       </div>
@@ -54,16 +55,17 @@ export const NavBar = (props: INavBarProps) => {
             onClick={handleExpand}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}
+            aria-label={getLanguageFromKey('general.expand_form', language)}
             icon={
               expandedWidth ? (
                 <FullscreenExit
                   style={expandIconStyle}
-                  aria-label={getLanguageFromKey('general.expand_form', language)}
+                  aria-hidden
                 />
               ) : (
                 <FullscreenEnter
                   style={expandIconStyle}
-                  aria-label={getLanguageFromKey('general.expand_form', language)}
+                  aria-hidden
                 />
               )
             }
@@ -77,7 +79,8 @@ export const NavBar = (props: INavBarProps) => {
             onClick={props.handleClose}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}
-            icon={<Close aria-label={getLanguageFromKey('general.close_schema', language)} />}
+            aria-label={getLanguageFromKey('general.close_schema', language)}
+            icon={<Close aria-hidden />}
           />
         )}
       </div>
