@@ -15,7 +15,6 @@ import { LayoutStyle } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getOptionLookupKey } from 'src/utils/options';
-import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -147,13 +146,12 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
               }
 
               return (
-                <GenericLikertComponent
+                <LikertContextWrapper
                   key={comp.item.id}
-                  node={comp as LayoutNodeFromType<'Likert'>}
-                  overrideItemProps={{
-                    layout: LayoutStyle.Table,
-                  }}
-                />
+                  layout={LayoutStyle.Table}
+                >
+                  <GenericComponent node={comp as LayoutNodeFromType<'Likert'>} />
+                </LikertContextWrapper>
               );
             })}
           </AltinnTableBody>
@@ -163,9 +161,14 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
   );
 };
 
-/**
- * This hack is needed because React + TypeScript does not infer the generic type from other parameters.
- */
-function GenericLikertComponent(props: IGenericComponentProps<'Likert'>) {
-  return <GenericComponent {...props} />;
+const LikertContext = React.createContext<LayoutStyle | undefined>(undefined);
+
+interface LikertContextProps extends React.PropsWithChildren {
+  layout?: LayoutStyle;
 }
+
+export function LikertContextWrapper(props: LikertContextProps) {
+  return <LikertContext.Provider value={props.layout}>{props.children}</LikertContext.Provider>;
+}
+
+export const useLikertContext = () => React.useContext(LikertContext);
