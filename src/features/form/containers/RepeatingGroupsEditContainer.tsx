@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { Grid, makeStyles } from '@material-ui/core';
@@ -84,6 +84,19 @@ export function RepeatingGroupsEditContainer({
 }: IRepeatingGroupsEditContainer): JSX.Element | null {
   const classes = useStyles();
   const group = useResolvedNode(container)?.item;
+
+  const gridRef = useRef<any>(null);
+
+  useEffect(() => {
+    const findFirstFocusableElement = (container: any) => {
+      return Array.from(container.getElementsByTagName('*')).find(isFocusable);
+    };
+    if (gridRef.current) {
+      const firstFocusableChild: any = findFirstFocusableElement(gridRef.current);
+      firstFocusableChild && firstFocusableChild.focus();
+    }
+  }, [repeatingGroupDeepCopyComponents]);
+
   if (!group) {
     return null;
   }
@@ -91,6 +104,19 @@ export function RepeatingGroupsEditContainer({
   const textsForRow = 'rows' in group ? group.rows[editIndex]?.groupExpressions?.textResourceBindings : undefined;
   const editForRow = 'rows' in group ? group.rows[editIndex]?.groupExpressions?.edit : undefined;
   const editForGroup = group.type === 'Group' ? group.edit : undefined;
+
+  //WCAG: Find the first focusable element in table and focus on it
+  const isFocusable = (item: any) => {
+    const tagName = item.tagName.toLowerCase();
+    const focusableElements = ['a', 'input', 'select', 'textarea', 'button'];
+    const isAvailable = item.type !== 'hidden' || !item.disabled || (item.type === 'a' && !!item.href);
+
+    if (item.tabIndex < 0) {
+      return false;
+    }
+
+    return focusableElements.includes(tagName) && isAvailable;
+  };
 
   const texts = {
     ...group.textResourceBindings,
@@ -182,6 +208,7 @@ export function RepeatingGroupsEditContainer({
           alignItems='flex-start'
           item={true}
           spacing={3}
+          ref={gridRef}
         >
           {repeatingGroupDeepCopyComponents[editIndex]?.map((component) => {
             if (

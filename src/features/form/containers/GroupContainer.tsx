@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { Button, ButtonSize, ButtonVariant } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
@@ -63,7 +63,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       -1,
   );
 
-  const myRef = useRef<any>(null);
+  // const myRef = useRef<any>(null);
 
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
 
@@ -135,19 +135,6 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     }
   }, [dispatch, id, edit?.mode, repeatingGroupIndex, setMultiPageIndex]);
 
-  //WCAG: Find the first focusable element in table and focus on it
-  const isFocusable = (item: any) => {
-    const tagName = item.tagName.toLowerCase();
-    const focusableElements = ['a', 'input', 'select', 'textarea'];
-    const isAvailable = item.type !== 'hidden' || !item.disabled || (item.type === 'a' && !!item.href);
-
-    if (item.tabIndex < 0) {
-      return false;
-    }
-
-    return focusableElements.includes(tagName) && isAvailable;
-  };
-
   React.useEffect(() => {
     const { edit } = container;
     if (!edit) {
@@ -155,16 +142,6 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     }
     if (edit.openByDefault && repeatingGroupIndex === -1) {
       onClickAdd();
-    }
-
-    const findFirstFocusableElement = (container: any) => {
-      return Array.from(container.getElementsByTagName('*')).find(isFocusable);
-    };
-    if (myRef.current) {
-      console.log(myRef);
-      const firstFocusableChild: any = findFirstFocusableElement(myRef.current);
-      console.log(firstFocusableChild);
-      firstFocusableChild && firstFocusableChild.focus();
     }
   }, [container, onClickAdd, repeatingGroupIndex]);
 
@@ -229,7 +206,6 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     <Grid
       container={true}
       item={true}
-      ref={myRef}
     >
       {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
@@ -262,7 +238,6 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
         editIndex < 0 &&
         repeatingGroupIndex + 1 < (container.maxCount === undefined ? -99 : container.maxCount) &&
         addButton()}
-
       <ConditionalWrapper
         condition={!isNested}
         wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
@@ -283,7 +258,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
               setMultiPageIndex={setMultiPageIndex}
               filteredIndexes={filteredIndexList}
             />
-          )}
+          )}{' '}
           {edit?.mode === 'showAll' &&
             // Generate array of length repeatingGroupIndex and iterate over indexes
             Array(repeatingGroupIndex + 1)
