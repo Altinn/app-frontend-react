@@ -63,8 +63,6 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       -1,
   );
 
-  // const myRef = useRef<any>(null);
-
   const attachments = useAppSelector((state: IRuntimeState) => state.attachments.attachments);
 
   const validations = useAppSelector((state) => state.formValidations.validations);
