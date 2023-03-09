@@ -2,6 +2,7 @@ import React from 'react';
 
 import { SummaryItemCompact } from 'src/components/summary/SummaryItemCompact';
 import { ComponentType } from 'src/layout/index';
+import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -53,6 +54,11 @@ export abstract class PresentationComponent<Type extends ComponentTypes> extends
 export interface SummaryRendererProps<Type extends ComponentTypes> {
   summaryNode: LayoutNodeFromType<'Summary'>;
   targetNode: LayoutNodeFromType<Type>;
+  change?: {
+    onChangeClick: () => void;
+    changeText: string | null;
+  };
+  overrides?: ISummaryComponent['overrides'];
 }
 
 export abstract class FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
@@ -74,6 +80,14 @@ export abstract class FormComponent<Type extends ComponentTypes> extends AnyComp
    * <SingleInputSummary formDataAsString={displayData} />
    */
   abstract renderSummary(props: SummaryRendererProps<Type>): JSX.Element | null;
+
+  /**
+   * Lets you control if the component renders something like <SummaryBoilerplate /> first, or if the Summary should
+   * handle that for you.
+   */
+  renderSummaryBoilerplate(): boolean {
+    return true;
+  }
 
   /**
    * When rendering a summary of a repeating group with `largeGroup: false`, every FormComponent inside each row is

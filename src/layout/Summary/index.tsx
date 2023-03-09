@@ -3,8 +3,6 @@ import React from 'react';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export class Summary extends ContainerComponent<'Summary'> {
   directRender(): boolean {
@@ -20,13 +18,13 @@ export class Summary extends ContainerComponent<'Summary'> {
     );
   }
 
-  renderSummary(_props: SummaryRendererProps<'Summary'>): JSX.Element | null {
-    // PRIORITY: Implement? Rendering summary in summary should not do anything. Maybe we should print an error.
+  renderSummary(): JSX.Element | null {
+    // If the code ever ends up with a Summary component referencing another Summary component, we should not end up
+    // in an infinite loop by rendering them all. This is usually stopped early in <SummaryComponent />.
     return null;
   }
 
-  useDisplayData(_node: LayoutNodeFromType<'Summary'>): string {
-    // PRIORITY: Implement?
+  useDisplayData(): string {
     return '';
   }
 }

@@ -1,10 +1,10 @@
 import React from 'react';
 
+import { SummaryGroupComponent } from 'src/components/summary/SummaryGroupComponent';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export class Group extends ContainerComponent<'Group'> {
   directRender(): boolean {
@@ -15,13 +15,22 @@ export class Group extends ContainerComponent<'Group'> {
     return <GroupRenderer {...props} />;
   }
 
-  renderSummary(_props: SummaryRendererProps<'Group'>): JSX.Element | null {
-    // PRIORITY: Implement
-    throw new Error('Not implemented');
+  renderSummary({ change, summaryNode, targetNode, overrides }: SummaryRendererProps<'Group'>): JSX.Element | null {
+    return (
+      <SummaryGroupComponent
+        {...change}
+        summaryNode={summaryNode}
+        targetNode={targetNode}
+        overrides={overrides}
+      />
+    );
   }
 
-  useDisplayData(_node: LayoutNodeFromType<'Group'>): string {
-    // PRIORITY: Implement
+  renderSummaryBoilerplate(): boolean {
+    return false;
+  }
+
+  useDisplayData(): string {
     return '';
   }
 }

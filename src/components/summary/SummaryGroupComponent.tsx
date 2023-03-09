@@ -18,8 +18,8 @@ import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryGroupComponent {
-  changeText: string | null;
-  onChangeClick: () => void;
+  changeText?: string | null;
+  onChangeClick?: () => void;
   summaryNode: LayoutNodeFromType<'Summary'>;
   targetNode: LayoutNodeFromType<'Group'>;
   overrides?: ISummaryComponent['overrides'];
@@ -174,12 +174,12 @@ export function SummaryGroupComponent({
           item
           xs={2}
         >
-          {!display?.hideChangeButton && (
+          {!display?.hideChangeButton && onChangeClick && changeText ? (
             <EditButton
               onClick={onChangeClick}
               editText={changeText}
             />
-          )}
+          ) : null}
         </Grid>
         <Grid
           item
@@ -210,6 +210,7 @@ export function SummaryGroupComponent({
                       key={child.item.id}
                       targetNode={child as any}
                       summaryNode={summaryNode}
+                      overrides={{}}
                     />
                   );
                 });
