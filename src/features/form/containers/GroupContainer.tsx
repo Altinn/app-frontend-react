@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 import { Button, ButtonSize, ButtonVariant } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
@@ -133,7 +133,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     }
   }, [dispatch, id, edit?.mode, repeatingGroupIndex, setMultiPageIndex]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const { edit } = container;
     if (!edit) {
       return;
@@ -143,20 +143,20 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     }
   }, [container, onClickAdd, repeatingGroupIndex]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (edit?.multiPage && multiPageIndex < 0) {
       setMultiPageIndex(0);
     }
   }, [edit?.multiPage, multiPageIndex, setMultiPageIndex]);
 
-  const onKeypressAdd = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-    const allowedKeys = ['Enter', ' ', 'Spacebar'];
-    if (allowedKeys.includes(event.key)) {
+  const onKeypressAdd = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
+    const allowedKeys = ['enter', ' ', 'spacebar'];
+    if (allowedKeys.includes(event.key.toLowerCase())) {
       onClickAdd();
     }
   };
 
-  const onClickRemove = (groupIndex: number) => {
+  const onClickRemove = (groupIndex: number): void => {
     dispatch(
       FormLayoutActions.updateRepeatingGroups({
         layoutElementId: id,
@@ -166,7 +166,7 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
     );
   };
 
-  const setEditIndex = (index: number, forceValidation?: boolean) => {
+  const setEditIndex = (index: number, forceValidation?: boolean): void => {
     dispatch(
       FormLayoutActions.updateRepeatingGroupsEditIndex({
         group: id,
@@ -197,8 +197,6 @@ export function GroupContainer({ id, container, components }: IGroupProps): JSX.
       </>
     );
   }
-
-  // console.log(id);
 
   return (
     <Grid

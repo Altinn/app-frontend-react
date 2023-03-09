@@ -15,6 +15,13 @@ import type { ComponentInGroup, ILayout } from 'src/layout/layout';
 import type { ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
+type FocusableHTMLElement = HTMLElement &
+  HTMLButtonElement &
+  HTMLInputElement &
+  HTMLSelectElement &
+  HTMLTextAreaElement &
+  HTMLAnchorElement;
+
 export interface IRepeatingGroupsEditContainer {
   id: string;
   className?: string;
@@ -85,16 +92,40 @@ export function RepeatingGroupsEditContainer({
   const classes = useStyles();
   const group = useResolvedNode(container)?.item;
 
-  const gridRef = useRef<any>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    const findFirstFocusableElement = (container: any) => {
-      return Array.from(container.getElementsByTagName('*')).find(isFocusable);
-    };
-    if (gridRef.current) {
-      const firstFocusableChild: any = findFirstFocusableElement(gridRef.current);
-      firstFocusableChild && firstFocusableChild.focus();
+  useEffect((): void => {
+    if (!gridRef.current) {
+      return;
     }
+
+    const isFocusable = (element: FocusableHTMLElement) => {
+      const tagName = element.tagName.toLowerCase();
+      const focusableElements = ['a', 'input', 'select', 'textarea', 'button'];
+
+      if (element.tabIndex < 0) {
+        return false;
+      }
+
+      const isAvailable =
+        element.type !== 'hidden' || !element.disabled || (element.type.toLowerCase() === 'a' && !!element.href);
+
+      return focusableElements.includes(tagName) && isAvailable;
+    };
+
+    const findFirstFocusableElement = (container: HTMLElement): FocusableHTMLElement | undefined => {
+      return Array.from(container.getElementsByTagName('*')).find(isFocusable) as FocusableHTMLElement;
+    };
+
+    const firstFocusableChild = findFirstFocusableElement(gridRef.current);
+
+    if (firstFocusableChild) {
+      firstFocusableChild.focus();
+    }
+    /*
+     * Depend on repeatingGroupDeepCopyComponents because renderGenericComponent method is invoked
+     * and generic components are rendered, hence we need to find the first focusable element once again.
+     */
   }, [repeatingGroupDeepCopyComponents]);
 
   if (!group) {
@@ -104,19 +135,6 @@ export function RepeatingGroupsEditContainer({
   const textsForRow = 'rows' in group ? group.rows[editIndex]?.groupExpressions?.textResourceBindings : undefined;
   const editForRow = 'rows' in group ? group.rows[editIndex]?.groupExpressions?.edit : undefined;
   const editForGroup = group.type === 'Group' ? group.edit : undefined;
-
-  //WCAG: Find the first focusable element in table and focus on it
-  const isFocusable = (item: any) => {
-    const tagName = item.tagName.toLowerCase();
-    const focusableElements = ['a', 'input', 'select', 'textarea', 'button'];
-    const isAvailable = item.type !== 'hidden' || !item.disabled || (item.type === 'a' && !!item.href);
-
-    if (item.tabIndex < 0) {
-      return false;
-    }
-
-    return focusableElements.includes(tagName) && isAvailable;
-  };
 
   const texts = {
     ...group.textResourceBindings,
