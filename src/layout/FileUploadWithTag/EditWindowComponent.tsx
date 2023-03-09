@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { Grid, makeStyles } from '@material-ui/core';
-import { Delete, Success } from '@navikt/ds-icons';
+import { CheckmarkCircleFillIcon, TrashIcon } from '@navikt/aksel-icons';
 import classNames from 'classnames';
 
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
@@ -106,10 +106,11 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
                 {!props.mobileView
                   ? getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)
                   : undefined}
-                <Success
+                <CheckmarkCircleFillIcon
                   role='img'
                   aria-hidden={!props.mobileView}
                   aria-label={getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)}
+                  style={{ marginLeft: '0.2rem', fontSize: '1.3rem' }}
                 />
               </div>
             )}
@@ -128,7 +129,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
                 onClick={() => handleDeleteFile()}
                 variant={ButtonVariant.Quiet}
                 color={ButtonColor.Secondary}
-                icon={<Delete aria-hidden={true} />}
+                icon={<TrashIcon aria-hidden={true} />}
                 iconPlacement='right'
               >
                 {getLanguageFromKey('general.delete', props.language)}
