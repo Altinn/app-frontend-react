@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useCommaSeparatedOptionsToText } from 'src/common/hooks/useCommaSeparatedOptionsToText';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
-import { useCommaSeparatedOptionsToText } from 'src/utils/formComponentUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';

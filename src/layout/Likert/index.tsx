@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useSelectedValueToText } from 'src/common/hooks/useSelectedValueToText';
 import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LayoutStyle } from 'src/types';
-import { useSelectedValueToText } from 'src/utils/formComponentUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
