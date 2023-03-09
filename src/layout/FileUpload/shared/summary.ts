@@ -14,19 +14,20 @@ export function attachmentsFromUuids(componentId: string, uuids: string[], attac
     return [];
   }
 
-  return uuids
-    .map((uuid) => {
-      const attachmentsForComponent = attachments[componentId];
-      if (attachmentsForComponent) {
-        const foundAttachment = attachmentsForComponent.find((a) => a.id === uuid);
-        if (foundAttachment && foundAttachment.name) {
-          return foundAttachment;
-        }
-      }
+  const attachmentsForComponent = attachments[componentId];
+  if (!attachmentsForComponent) {
+    return [];
+  }
 
-      return null;
-    })
-    .filter((a) => a !== null) as IAttachment[];
+  const componentAttachments: IAttachment[] = [];
+  for (const uuid of uuids) {
+    const foundAttachment = attachmentsForComponent.find((a) => a.id === uuid);
+    if (foundAttachment?.name) {
+      componentAttachments.push(foundAttachment);
+    }
+  }
+
+  return componentAttachments;
 }
 
 export function attachmentsFromComponentId(componentId: string, attachments: IAttachments): IAttachment[] {
