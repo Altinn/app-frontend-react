@@ -35,6 +35,7 @@ export const NavBar = (props: INavBarProps) => {
         {props.showBackArrow && (
           <Button
             data-testid='form-back-button'
+            className={css.buttonMargin}
             onClick={props.handleBack}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}
@@ -49,6 +50,7 @@ export const NavBar = (props: INavBarProps) => {
         {showExpandWidthButton && (
           <Button
             data-testid='form-expand-button'
+            className={css.buttonMargin}
             onClick={handleExpand}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}
@@ -71,6 +73,7 @@ export const NavBar = (props: INavBarProps) => {
         {!hideCloseButton && (
           <Button
             data-testid='form-close-button'
+            className={css.buttonMargin}
             onClick={props.handleClose}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}
