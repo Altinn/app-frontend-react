@@ -299,8 +299,12 @@ export function FileList(props: FileListProps): JSX.Element | null {
                     colSpan={!props.mobileView ? 5 : undefined}
                   >
                     <EditWindowComponent
-                      // TODO: Avoid tricking the type-system and either pass in required props or make them optional
-                      {...({} as PropsFromGenericComponent<'FileUploadWithTag'>)}
+                      handleDataChange={props.handleDataChange}
+                      formData={props.formData}
+                      label={props.label}
+                      legend={props.legend}
+                      shouldFocus={props.shouldFocus}
+                      text={props.text}
                       node={props.node}
                       attachment={props.attachments[index]}
                       attachmentValidations={[
