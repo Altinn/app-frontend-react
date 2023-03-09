@@ -128,7 +128,6 @@ export type ComponentTypes = keyof Map;
 type AllComponents = Map[ComponentTypes];
 
 export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
-export type ComponentExceptGroupAndSummary = Exclude<ComponentExceptGroup, 'Summary'>;
 export type ComponentInGroup = ILayoutComponent | ILayoutGroup;
 
 /**
@@ -153,7 +152,7 @@ export type ILayoutComponent<Type extends ComponentExceptGroup = ComponentExcept
 /**
  * Alternative version of the one above
  */
-export type ILayoutComponentExact<Type extends ComponentExceptGroup> = Map[Type];
+export type ILayoutComponentExact<Type extends ComponentTypes> = Map[Type];
 
 export type ILayoutComponentOrGroup = ILayoutGroup | ILayoutComponent;
 

@@ -16,7 +16,6 @@ import { getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
-import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 type RepeatingGroupsLikertContainerProps = {
@@ -94,7 +93,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
             return (
               <GenericComponent
                 key={comp.item.id}
-                node={comp as LayoutNodeFromType<ComponentExceptGroupAndSummary>}
+                node={comp}
               />
             );
           })}

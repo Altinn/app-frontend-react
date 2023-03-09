@@ -5,7 +5,6 @@ import { SummaryGroupComponent } from 'src/components/summary/SummaryGroupCompon
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
-import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -47,11 +46,11 @@ export function SummaryComponentSwitch({ change, summaryNode, targetNode, label,
         />
         <RenderSummary
           summaryNode={summaryNode}
-          targetNode={targetNode as LayoutNodeFromType<ComponentExceptGroupAndSummary>}
+          targetNode={targetNode as any}
         />
       </>
     );
   }
 
-  return <GenericComponent node={targetNode as LayoutNodeFromType<ComponentExceptGroupAndSummary>} />;
+  return <GenericComponent node={targetNode} />;
 }

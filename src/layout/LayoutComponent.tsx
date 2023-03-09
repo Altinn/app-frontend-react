@@ -3,7 +3,7 @@ import React from 'react';
 import { SummaryItemCompact } from 'src/components/summary/SummaryItemCompact';
 import { ComponentType } from 'src/layout/index';
 import type { PropsFromGenericComponent } from 'src/layout/index';
-import type { ComponentExceptGroupAndSummary, ComponentTypes } from 'src/layout/layout';
+import type { ComponentTypes } from 'src/layout/layout';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 abstract class AnyComponent<Type extends ComponentTypes> {
@@ -44,7 +44,7 @@ abstract class AnyComponent<Type extends ComponentTypes> {
   abstract getComponentType(): ComponentType;
 }
 
-export abstract class PresentationComponent<Type extends ComponentExceptGroupAndSummary> extends AnyComponent<Type> {
+export abstract class PresentationComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
   readonly getComponentType = (): ComponentType => {
     return ComponentType.Presentation;
   };
@@ -55,7 +55,7 @@ export interface SummaryRendererProps<Type extends ComponentTypes> {
   targetNode: LayoutNodeFromType<Type>;
 }
 
-export abstract class FormComponent<Type extends ComponentExceptGroupAndSummary> extends AnyComponent<Type> {
+export abstract class FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
   readonly getComponentType = (): ComponentType => {
     return ComponentType.Form;
   };
@@ -90,19 +90,19 @@ export abstract class FormComponent<Type extends ComponentExceptGroupAndSummary>
   }
 }
 
-export abstract class ActionComponent<Type extends ComponentExceptGroupAndSummary> extends AnyComponent<Type> {
+export abstract class ActionComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
   readonly getComponentType = (): ComponentType => {
     return ComponentType.Action;
   };
 }
 
-export abstract class ContainerComponent<Type extends ComponentExceptGroupAndSummary> extends FormComponent<Type> {
+export abstract class ContainerComponent<Type extends ComponentTypes> extends FormComponent<Type> {
   readonly getComponentType = (): ComponentType => {
     return ComponentType.Container;
   };
 }
 
-export type LayoutComponent<Type extends ComponentExceptGroupAndSummary = ComponentExceptGroupAndSummary> =
+export type LayoutComponent<Type extends ComponentTypes = ComponentTypes> =
   | PresentationComponent<Type>
   | FormComponent<Type>
   | ActionComponent<Type>

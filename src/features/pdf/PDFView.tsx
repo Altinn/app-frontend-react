@@ -11,7 +11,6 @@ import { ComponentType } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -48,7 +47,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
   } else if (layoutComponent?.getComponentType() === ComponentType.Presentation) {
     return (
       <GenericComponent
-        node={node as LayoutNodeFromType<ComponentExceptGroupAndSummary>}
+        node={node}
         overrideItemProps={{
           grid: { xs: 12 },
         }}

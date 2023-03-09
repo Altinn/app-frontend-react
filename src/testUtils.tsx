@@ -11,11 +11,11 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { setupStore } from 'src/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
-import type { ComponentExceptGroupAndSummary, ILayoutComponent } from 'src/layout/layout';
+import type { ComponentTypes } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/store';
 import type { IRuntimeState } from 'src/types';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: PreloadedState<RootState>;
@@ -47,16 +47,16 @@ export const renderWithProviders = (
   };
 };
 
-export interface RenderGenericComponentTestProps<T extends ComponentExceptGroupAndSummary> {
+export interface RenderGenericComponentTestProps<T extends ComponentTypes> {
   type: T;
   renderer: (props: PropsFromGenericComponent<T>) => JSX.Element;
-  component?: Partial<ExprResolved<ILayoutComponent<T>>>;
+  component?: Partial<AnyItem<T>>;
   genericProps?: Partial<PropsFromGenericComponent<T>>;
   manipulateState?: (state: IRuntimeState) => void;
   manipulateStore?: (store: ReturnType<typeof setupStore>) => void;
 }
 
-export function renderGenericComponentTest<T extends ComponentExceptGroupAndSummary>({
+export function renderGenericComponentTest<T extends ComponentTypes>({
   type,
   renderer,
   component,
