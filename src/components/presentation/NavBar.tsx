@@ -30,7 +30,10 @@ export const NavBar = (props: INavBarProps) => {
   }, [dispatch]);
 
   return (
-    <nav className={css.nav}>
+    <nav
+      className={css.nav}
+      aria-label={getLanguageFromKey('navigation.main', language)}
+    >
       <div>
         {props.showBackArrow && (
           <Button
