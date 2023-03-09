@@ -34,11 +34,6 @@ const useStyles = makeStyles({
     marginTop: '12px',
     marginBottom: '12px',
   },
-  deleteButton: {
-    padding: '0px',
-    color: 'black',
-    justifyContent: 'left',
-  },
   select: {
     fontSize: '1rem',
     '&:focus': {
@@ -125,7 +120,6 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
             )}
             <div>
               <Button
-                // classes={{ root: classes.deleteButton }}
                 onClick={() => handleDeleteFile()}
                 variant={ButtonVariant.Quiet}
                 color={ButtonColor.Secondary}
