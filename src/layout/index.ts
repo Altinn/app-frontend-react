@@ -128,9 +128,7 @@ export enum ComponentType {
   Container = 'container',
 }
 
-export function getLayoutComponentObject<T extends string | undefined | keyof ComponentClassMap>(
-  type: T,
-): T extends keyof ComponentClassMap ? ComponentClassMap[T] : undefined {
+export function getLayoutComponentObject<T extends keyof ComponentClassMap>(type: T): ComponentClassMap[T] {
   if (type && type in components) {
     return components[type as keyof typeof components] as any;
   }

@@ -20,8 +20,6 @@ interface PDFViewProps {
 }
 
 const PDFComponent = ({ node }: { node: LayoutNode }) => {
-  const layoutComponent = node.getComponent();
-
   if (node.item.type === 'Group') {
     return (
       <DisplayGroupContainer
@@ -44,7 +42,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
         }}
       />
     );
-  } else if (layoutComponent?.getComponentType() === ComponentType.Presentation) {
+  } else if (node.getComponent().getComponentType() === ComponentType.Presentation) {
     return (
       <GenericComponent
         node={node}
