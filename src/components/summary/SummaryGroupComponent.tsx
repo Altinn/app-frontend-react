@@ -274,37 +274,36 @@ export function SummaryGroupComponent({
 
   return (
     <>
-      <div
-        className={classes.container}
-        data-testid={'summary-group-component'}
-      >
-        <Typography
-          variant='body1'
-          className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
-          component='span'
-        >
-          {title}
-        </Typography>
-
-        {!display?.hideChangeButton && (
-          <EditButton
-            onClick={onChangeClick}
-            editText={changeText}
-          />
-        )}
-      </div>
-      <div style={{ width: '100%' }}>
-        {isEmpty ? (
+      <div data-testid={'summary-group-component'}>
+        <div className={classes.container}>
           <Typography
             variant='body1'
-            className={classes.emptyField}
-            component='p'
+            className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
+            component='span'
           >
-            {getLanguageFromKey('general.empty_summary', language)}
+            {title}
           </Typography>
-        ) : (
-          renderComponents
-        )}
+
+          {!display?.hideChangeButton && (
+            <EditButton
+              onClick={onChangeClick}
+              editText={changeText}
+            />
+          )}
+        </div>
+        <div style={{ width: '100%' }}>
+          {isEmpty ? (
+            <Typography
+              variant='body1'
+              className={classes.emptyField}
+              component='p'
+            >
+              {getLanguageFromKey('general.empty_summary', language)}
+            </Typography>
+          ) : (
+            renderComponents
+          )}
+        </div>
       </div>
 
       {groupHasErrors && !display?.hideValidationMessages && (
