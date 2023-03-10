@@ -153,7 +153,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
               disabled={saveIsDisabled}
               className={classNames(classes.select, 'custom-select a-custom-select', {
                 'validation-error': props.attachmentValidations.filter((i) => i.id === props.attachment.id).length > 0,
-                'disabled !important': props.attachment.updating ? true : readOnly,
+                'disabled !important': props.attachment.updating || readOnly,
               })}
               onChange={(e) => props.onDropdownDataChange(props.attachment.id, e.target.value)}
               onBlur={(e) => props.onDropdownDataChange(props.attachment.id, e.target.value)}
