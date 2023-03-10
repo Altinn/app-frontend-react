@@ -41,7 +41,7 @@ export function AttachmentListComponent({ node, text }: IAttachmentListProps) {
         className='attachmentList-title'
         component='span'
       >
-        {text || ''}
+        {text}
       </Typography>
       <AltinnAttachment attachments={attachments} />
     </Grid>
