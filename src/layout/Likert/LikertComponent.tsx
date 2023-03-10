@@ -72,7 +72,11 @@ const RadioGroupTableRow = ({
               checked={isChecked}
               onChange={handleChange}
               value={option.value}
-              label={option.label}
+              label={
+                <span>
+                  <RenderLegend /> {option.label}
+                </span>
+              }
               hideLabel={true}
               name={rowLabelId}
               radioId={inputId}
