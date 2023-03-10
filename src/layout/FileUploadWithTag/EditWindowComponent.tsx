@@ -122,7 +122,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
               <Button
                 onClick={() => handleDeleteFile()}
                 variant={ButtonVariant.Quiet}
-                color={ButtonColor.Secondary}
+                color={ButtonColor.Danger}
                 icon={<TrashIcon aria-hidden={true} />}
                 iconPlacement='right'
               >

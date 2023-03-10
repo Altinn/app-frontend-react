@@ -3,7 +3,6 @@ import { isMobile } from 'react-device-detect';
 import type { FileRejection } from 'react-dropzone';
 
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { TrashIcon } from '@navikt/aksel-icons';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
@@ -217,7 +216,7 @@ export function FileUploadComponent({
             {mobileView
               ? getLanguageFromKey('general.delete', language)
               : getLanguageFromKey('form_filler.file_uploader_list_delete', language)}
-            <TrashIcon />
+            <i className='ai ai-trash' />
           </>
         )}
       </div>
