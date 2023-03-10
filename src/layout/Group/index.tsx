@@ -15,10 +15,17 @@ export class Group extends ContainerComponent<'Group'> {
     return <GroupRenderer {...props} />;
   }
 
-  renderSummary({ change, summaryNode, targetNode, overrides }: SummaryRendererProps<'Group'>): JSX.Element | null {
+  renderSummary({
+    onChangeClick,
+    changeText,
+    summaryNode,
+    targetNode,
+    overrides,
+  }: SummaryRendererProps<'Group'>): JSX.Element | null {
     return (
       <SummaryGroupComponent
-        {...change}
+        onChangeClick={onChangeClick}
+        changeText={changeText}
         summaryNode={summaryNode}
         targetNode={targetNode}
         overrides={overrides}

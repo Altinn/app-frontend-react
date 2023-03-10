@@ -18,8 +18,8 @@ import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface ISummaryGroupComponent {
-  changeText?: string | null;
-  onChangeClick?: () => void;
+  changeText: string | null;
+  onChangeClick: () => void;
   summaryNode: LayoutNodeFromType<'Summary'>;
   targetNode: LayoutNodeFromType<'Group'>;
   overrides?: ISummaryComponent['overrides'];
@@ -174,7 +174,7 @@ export function SummaryGroupComponent({
           item
           xs={2}
         >
-          {!display?.hideChangeButton && onChangeClick && changeText ? (
+          {!display?.hideChangeButton ? (
             <EditButton
               onClick={onChangeClick}
               editText={changeText}
@@ -207,6 +207,8 @@ export function SummaryGroupComponent({
                   const RenderCompactSummary = component.renderCompactSummary.bind(component);
                   return (
                     <RenderCompactSummary
+                      onChangeClick={onChangeClick}
+                      changeText={changeText}
                       key={child.item.id}
                       targetNode={child as any}
                       summaryNode={summaryNode}

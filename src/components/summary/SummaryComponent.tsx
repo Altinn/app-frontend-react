@@ -109,11 +109,6 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
     return null;
   }
 
-  const change = {
-    onChangeClick,
-    changeText,
-  };
-
   const displayGrid =
     display && display.useComponentGrid ? overrides?.grid || targetItem?.grid : overrides?.grid || grid;
 
@@ -141,7 +136,8 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
           <>
             {component.renderSummaryBoilerplate() ? (
               <SummaryBoilerplate
-                {...change}
+                onChangeClick={onChangeClick}
+                changeText={changeText}
                 label={label}
                 summaryNode={summaryNode}
                 targetNode={targetNode}
@@ -149,7 +145,8 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
               />
             ) : null}
             <RenderSummary
-              {...change}
+              onChangeClick={onChangeClick}
+              changeText={changeText}
               summaryNode={summaryNode}
               targetNode={targetNode as any}
               overrides={overrides}

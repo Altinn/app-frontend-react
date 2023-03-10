@@ -54,10 +54,8 @@ export abstract class PresentationComponent<Type extends ComponentTypes> extends
 export interface SummaryRendererProps<Type extends ComponentTypes> {
   summaryNode: LayoutNodeFromType<'Summary'>;
   targetNode: LayoutNodeFromType<Type>;
-  change?: {
-    onChangeClick: () => void;
-    changeText: string | null;
-  };
+  onChangeClick: () => void;
+  changeText: string | null;
   overrides?: ISummaryComponent['overrides'];
 }
 
