@@ -7,6 +7,7 @@ import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { LayoutStyle } from 'src/types';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
@@ -44,6 +45,8 @@ const RadioGroupTableRow = ({
   legend,
   isValid,
 }: IControlledRadioGroupProps) => {
+  const node = useResolvedNode(id);
+  const groupContainerId = node?.closest((n) => n.type === 'Group')?.item.id;
   const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
   return (

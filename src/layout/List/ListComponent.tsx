@@ -16,9 +16,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IListProps = PropsFromGenericComponent<'List'>;
 
 const defaultDataList: any[] = [];
-export interface rowValue {
-  [key: string]: string;
-}
 
 export const ListComponent = ({
   tableHeaders,
@@ -26,6 +23,7 @@ export const ListComponent = ({
   pagination,
   formData,
   handleDataChange,
+  getTextResourceAsString,
   sortableColumns,
   tableHeadersMobile,
   language,
@@ -52,6 +50,11 @@ export const ListComponent = ({
       handleDataChange(selectedValue[key], { key: key });
     }
   };
+
+  const tableHeadersValues = { ...tableHeaders };
+  for (const key in tableHeaders) {
+    tableHeadersValues[key] = getTextResourceAsString(tableHeaders[key]);
+  }
 
   const selectedRow: Record<string, string> = React.useMemo(() => {
     let matchRow: boolean[] = [];
@@ -119,7 +122,7 @@ export const ListComponent = ({
 
   const config: ResponsiveTableConfig<Record<string, string>> = {
     rows: calculatedDataList,
-    headers: tableHeaders,
+    headers: tableHeadersValues,
     showColumnsMobile: tableHeadersMobile,
     columnSort: {
       onSortChange: ({ column, next, previous }) => {
