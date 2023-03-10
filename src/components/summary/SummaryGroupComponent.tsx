@@ -274,7 +274,10 @@ export function SummaryGroupComponent({
 
   return (
     <>
-      <div data-testid={'summary-group-component'}>
+      <div
+        data-testid={'summary-group-component'}
+        style={{ width: '100%' }}
+      >
         <div className={classes.container}>
           <Typography
             variant='body1'
