@@ -9,6 +9,7 @@ import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import { LayoutStyle } from 'src/types';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
+import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 
@@ -44,6 +45,7 @@ const RadioGroupTableRow = ({
   componentValidations,
   legend,
   isValid,
+  text,
 }: IControlledRadioGroupProps) => {
   const node = useResolvedNode(id);
   const groupContainerId = node?.closest((n) => n.type === 'Group')?.item.id;
@@ -62,6 +64,7 @@ const RadioGroupTableRow = ({
         </Typography>
       </th>
       {calculatedOptions?.map((option, colIndex) => {
+        const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
         const inputId = `${id}-${colIndex}`;
         const isChecked = selected === option.value;
         return (
@@ -72,14 +75,11 @@ const RadioGroupTableRow = ({
             onBlur={handleBlur}
           >
             <RadioButton
+              aria-labelledby={`${rowLabelId} ${colLabelId}`}
               checked={isChecked}
               onChange={handleChange}
               value={option.value}
-              label={
-                <span>
-                  <RenderLegend /> {option.label}
-                </span>
-              }
+              label={`${getPlainTextFromNode(text)} ${option.label}`}
               hideLabel={true}
               name={rowLabelId}
               radioId={inputId}

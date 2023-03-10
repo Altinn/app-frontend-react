@@ -249,6 +249,7 @@ export function GenericComponent<Type extends ComponentExceptGroupAndSummary = C
     language,
     shouldFocus,
     text: texts.title,
+    texts,
     label: RenderLabel,
     legend: RenderLegend,
     componentValidations,
