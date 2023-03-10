@@ -4,6 +4,7 @@ exports[`SummaryGroupComponent SummaryGroupComponent -- should match snapshot 1`
 <DocumentFragment>
   <div
     data-testid="summary-group-component"
+    style="width: 100%;"
   >
     <div
       class="makeStyles-container-2"
@@ -46,6 +47,7 @@ exports[`SummaryGroupComponent SummaryGroupComponent -- should match snapshot 1`
       >
         <p
           class="MuiTypography-root MuiTypography-body1"
+          data-testid="summary-item-compact"
         >
           <span>
             <span>
@@ -61,6 +63,7 @@ exports[`SummaryGroupComponent SummaryGroupComponent -- should match snapshot 1`
         </p>
         <p
           class="MuiTypography-root MuiTypography-body1"
+          data-testid="summary-item-compact"
         >
           <span>
             <span>

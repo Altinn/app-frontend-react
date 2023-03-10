@@ -4,43 +4,19 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@altinn/alti
 import { useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import css from 'src/features/form/containers/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGroupTableRow';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
-import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
-import { getTextResource } from 'src/utils/formComponentUtils';
-import { createRepeatingGroupComponents } from 'src/utils/formLayout';
-import { setupGroupComponents } from 'src/utils/layout';
+import { getTextAlignment, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import { componentHasValidations, repeatingGroupHasValidations } from 'src/utils/validation/validation';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/form/data';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentInGroup, ILayout, ILayoutComponent } from 'src/layout/layout';
-import type { IAttachments } from 'src/shared/resources/attachments';
-import type { IOptions, IRepeatingGroups, ITextResource, ITextResourceBindings, IValidations } from 'src/types';
-import type { ILanguage } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
+import type { ITextResourceBindings } from 'src/types';
 
 export interface IRepeatingGroupTableProps {
   id: string;
-  container: ExprUnresolved<ILayoutGroup>;
-  components: ExprUnresolved<ComponentInGroup>[];
   repeatingGroupIndex: number;
-  repeatingGroups: IRepeatingGroups | null;
-  repeatingGroupDeepCopyComponents: ExprUnresolved<ComponentInGroup>[][];
-  hiddenFields: string[];
-  formData: IFormData;
-  attachments: IAttachments;
-  options: IOptions;
-  textResources: ITextResource[];
-  language: ILanguage;
-  currentView: string;
-  layout: ILayout | null;
-  validations: IValidations;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;
   onClickRemove: (groupIndex: number) => void;
@@ -60,62 +36,38 @@ function getTableTitle(textResourceBindings: ITextResourceBindings) {
   return '';
 }
 
-function getTextAlignment(component: ExprUnresolved<ILayoutComponent> | AnyItem): 'left' | 'center' | 'right' {
-  if (component.type !== 'Input') {
-    return 'left';
-  }
-  const formatting = component.formatting;
-  if (formatting && formatting.align) {
-    return formatting.align;
-  }
-  if (formatting && formatting.number) {
-    return 'right';
-  }
-  return 'left';
-}
-
 export function RepeatingGroupTable({
   id,
-  container,
-  components,
   repeatingGroupIndex,
-  repeatingGroupDeepCopyComponents,
   editIndex,
-  formData,
-  attachments,
-  options,
-  textResources,
-  currentView,
-  hiddenFields,
-  language,
-  layout,
-  repeatingGroups,
-  validations,
   setEditIndex,
   onClickRemove,
   setMultiPageIndex,
   multiPageIndex,
   deleting,
   filteredIndexes,
-}: IRepeatingGroupTableProps): JSX.Element {
+}: IRepeatingGroupTableProps): JSX.Element | null {
   const mobileView = useMediaQuery('(max-width:992px)');
+  const textResources = useAppSelector((state) => state.textResources.resources);
+  const language = useAppSelector((state) => state.language.language);
 
   const node = useResolvedNode(id);
-  const edit = node?.item.type === 'Group' ? node.item.edit : undefined;
-  const tableHeaderComponentIds = container.tableHeaders || components.map((c) => c.baseComponentId || c.id) || [];
+  const container = node?.item.type === 'Group' && 'rows' in node.item ? node.item : undefined;
+  const edit = container?.edit;
 
-  const componentsDeepCopy: ExprUnresolved<ILayoutComponent>[] = JSON.parse(JSON.stringify(components));
-  const tableComponents: ExprUnresolved<ILayoutComponent>[] = componentsDeepCopy.filter((component) => {
-    const layoutComponent = getLayoutComponentObject(component.type);
-    if (layoutComponent?.getComponentType() !== ComponentType.Form) {
-      return false;
-    }
-    const childId = component.baseComponentId || component.id;
-    return tableHeaderComponentIds.includes(childId);
-  });
-  const tableNodes = tableComponents
-    .map((c) => node?.children((i) => i.baseComponentId === c.baseComponentId || i.baseComponentId === c.id))
-    .filter((child) => !!child) as LayoutNode[];
+  const getTableNodes = (rowIndex: number) =>
+    node?.children(undefined, rowIndex).filter((child) => {
+      if (container?.tableHeaders) {
+        const { id, baseComponentId } = child.item;
+        return !!(
+          container.tableHeaders.includes(id) ||
+          (baseComponentId && container.tableHeaders.includes(baseComponentId))
+        );
+      }
+      return child.getComponent()?.getComponentType() === ComponentType.Form;
+    });
+
+  const tableNodes = getTableNodes(0);
 
   // Values adjusted for filter
   const numRows = filteredIndexes ? filteredIndexes.length : repeatingGroupIndex + 1;
@@ -134,7 +86,7 @@ export function RepeatingGroupTable({
   }
   const displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);
 
-  const isNested = typeof container.baseComponentId === 'string';
+  const isNested = typeof container?.baseComponentId === 'string';
 
   const onOpenChange = (index: number) => {
     if (index == popoverPanelIndex && popoverOpen) {
@@ -168,58 +120,14 @@ export function RepeatingGroupTable({
     }
   };
 
-  const childElementHasErrors = (element: ExprUnresolved<ILayoutGroup | ILayoutComponent>, index: number) => {
-    if (element.type === 'Group') {
-      return childGroupHasErrors(element, index);
-    }
-    return componentHasValidations(validations, currentView, `${element.id}`);
-  };
-
-  const childGroupHasErrors = (childGroup: ExprUnresolved<ILayoutGroup>, index: number) => {
-    if (!repeatingGroups || !layout) {
-      return;
-    }
-
-    const childGroupIndex = repeatingGroups[childGroup.id]?.index;
-    const childGroupComponents = layout.filter(
-      (childElement) => childGroup.children?.indexOf(childElement.id) > -1,
-    ) as ExprUnresolved<ComponentInGroup>[];
-    const childRenderComponents = setupGroupComponents(
-      childGroupComponents,
-      childGroup.dataModelBindings?.group,
-      index,
-    );
-    const deepCopyComponents = createRepeatingGroupComponents(
-      childGroup,
-      childRenderComponents,
-      childGroupIndex,
-      textResources,
-      hiddenFields,
-    );
-    return repeatingGroupHasValidations(
-      childGroup,
-      deepCopyComponents,
-      validations,
-      currentView,
-      repeatingGroups,
-      layout,
-      hiddenFields,
-    );
-  };
-
   const renderRepeatingGroupsEditContainer = () => {
     return (
       editIndex >= 0 && (
         <RepeatingGroupsEditContainer
-          container={container}
           editIndex={editIndex}
           setEditIndex={setEditIndex}
           repeatingGroupIndex={repeatingGroupIndex}
           id={id}
-          language={language}
-          textResources={textResources}
-          layout={layout}
-          repeatingGroupDeepCopyComponents={repeatingGroupDeepCopyComponents}
           multiPageIndex={multiPageIndex}
           setMultiPageIndex={setMultiPageIndex}
           filteredIndexes={filteredIndexes}
@@ -227,6 +135,10 @@ export function RepeatingGroupTable({
       )
     );
   };
+
+  if (!tableNodes || !tableNodes.length || !node || !container || !language) {
+    return null;
+  }
 
   return (
     <div
@@ -245,16 +157,13 @@ export function RepeatingGroupTable({
         {showTableHeader && !mobileView && (
           <TableHeader id={`group-${id}-table-header`}>
             <TableRow>
-              {tableComponents.map((component, tableComponentIndex) => (
+              {tableNodes?.map((n) => (
                 <TableCell
-                  style={{ textAlign: getTextAlignment(component) }}
-                  key={component.id}
+                  style={{ textAlign: getTextAlignment(n.item) }}
+                  key={n.item.id}
                 >
                   <span className={css.contentFormatting}>
-                    {getTextResource(
-                      getTableTitle(tableNodes[tableComponentIndex]?.item.textResourceBindings || {}),
-                      textResources,
-                    )}
+                    {getTextResource(getTableTitle(n.item.textResourceBindings || {}), textResources)}
                   </span>
                 </TableCell>
               ))}
@@ -272,9 +181,8 @@ export function RepeatingGroupTable({
         <TableBody id={`group-${id}-table-body`}>
           {repeatingGroupIndex >= 0 &&
             [...Array(repeatingGroupIndex + 1)].map((_x: any, index: number) => {
-              const rowHasErrors = repeatingGroupDeepCopyComponents[index].some((component) =>
-                childElementHasErrors(component, index),
-              );
+              const children = node.children(undefined, index);
+              const rowHasErrors = !!children.find((c) => c.hasValidationMessages());
 
               // Check if filter is applied and includes specified index.
               if (filteredIndexes && !filteredIndexes.includes(index)) {
@@ -290,21 +198,13 @@ export function RepeatingGroupTable({
                     className={cn({
                       [css.editingRow]: isEditingRow,
                     })}
-                    container={container}
-                    components={components}
-                    repeatingGroups={repeatingGroups}
-                    formData={formData}
-                    attachments={attachments}
-                    options={options}
-                    textResources={textResources}
-                    language={language}
                     editIndex={editIndex}
                     setEditIndex={setEditIndex}
                     onClickRemove={onClickRemove}
                     deleting={deleting}
                     index={index}
                     rowHasErrors={rowHasErrors}
-                    tableComponents={tableComponents}
+                    getTableNodes={getTableNodes}
                     onEditClick={() => handleEditClick(index)}
                     mobileView={mobileView}
                     deleteFunctionality={{
@@ -323,7 +223,7 @@ export function RepeatingGroupTable({
                     >
                       <TableCell
                         style={{ padding: 0, borderTop: 0 }}
-                        colSpan={mobileView ? 2 : tableComponents.length + 1 + Number(displayDeleteColumn)}
+                        colSpan={mobileView ? 2 : tableNodes.length + 1 + Number(displayDeleteColumn)}
                       >
                         {renderRepeatingGroupsEditContainer()}
                       </TableCell>
