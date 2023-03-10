@@ -8,6 +8,7 @@ import type { RenderOptions } from '@testing-library/react';
 import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { DataModelSchemaContextWrapper } from 'src/common/hooks/useDataModelSchema';
 import { setupStore } from 'src/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
@@ -32,7 +33,9 @@ export const renderWithProviders = (
     return (
       <MuiThemeProvider theme={theme}>
         <Provider store={store}>
-          <ExprContextWrapper>{children}</ExprContextWrapper>
+          <ExprContextWrapper>
+            <DataModelSchemaContextWrapper>{children}</DataModelSchemaContextWrapper>
+          </ExprContextWrapper>
         </Provider>
       </MuiThemeProvider>
     );

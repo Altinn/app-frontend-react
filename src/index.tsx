@@ -6,6 +6,7 @@ import { HashRouter } from 'react-router-dom';
 import { AppWrapper } from '@altinn/altinn-design-system';
 
 import { App } from 'src/App';
+import { DataModelSchemaContextWrapper } from 'src/common/hooks/useDataModelSchema';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { initSagas } from 'src/sagas';
@@ -25,7 +26,9 @@ root?.render(
         <ThemeWrapper>
           <ErrorBoundary>
             <ExprContextWrapper>
-              <App />
+              <DataModelSchemaContextWrapper>
+                <App />
+              </DataModelSchemaContextWrapper>
             </ExprContextWrapper>
           </ErrorBoundary>
         </ThemeWrapper>
