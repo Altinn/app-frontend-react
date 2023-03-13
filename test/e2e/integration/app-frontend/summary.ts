@@ -374,7 +374,7 @@ describe('Summary', () => {
 
     cy.get(appFrontend.group.prefill['liten']).click({ force: true }).blur();
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get(appFrontend.group.showGroupToContinue).get('label').click();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     // Add data
     cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
