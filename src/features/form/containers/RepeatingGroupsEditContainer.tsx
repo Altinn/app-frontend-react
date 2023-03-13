@@ -6,9 +6,9 @@ import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { renderLayoutNode } from 'src/features/form/containers/Form';
 import css from 'src/features/form/containers/RepeatingGroup.module.css';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGroupEditProperties } from 'src/layout/Group/types';
@@ -160,7 +160,12 @@ export function RepeatingGroupsEditContainer({
             if (!n) {
               return null;
             }
-            return renderLayoutNode(n);
+            return (
+              <GenericComponent
+                key={n.item.id}
+                node={n}
+              />
+            );
           })}
         </Grid>
         <Grid item={true}>

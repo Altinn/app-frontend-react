@@ -14,7 +14,6 @@ import { FormComponent } from 'src/layout/LayoutComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
-import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -174,12 +173,12 @@ export function SummaryGroupComponent({
             {title}
           </Typography>
 
-          {!display?.hideChangeButton && (
+          {!display?.hideChangeButton ? (
             <EditButton
               onClick={onChangeClick}
               editText={changeText}
             />
-          )}
+          ) : null}
         </div>
         <div style={{ width: '100%' }}>
           {rowIndexes.length === 0 ? (
@@ -195,7 +194,7 @@ export function SummaryGroupComponent({
               const childSummaryComponents = targetNode
                 .children(undefined, idx)
                 .filter((n) => !inExcludedChildren(n))
-                .filter((node) => node.getComponent()?.getComponentType() === ComponentType.Form)
+                .filter((node) => node.getComponent().getComponentType() === ComponentType.Form)
                 .map((child) => {
                   const component = child.getComponent();
                   if (child.isHidden() || !(component instanceof FormComponent)) {
@@ -204,9 +203,12 @@ export function SummaryGroupComponent({
                   const RenderCompactSummary = component.renderCompactSummary.bind(component);
                   return (
                     <RenderCompactSummary
+                      onChangeClick={onChangeClick}
+                      changeText={changeText}
                       key={child.item.id}
-                      targetNode={child as LayoutNodeFromType<ComponentExceptGroupAndSummary>}
+                      targetNode={child as any}
                       summaryNode={summaryNode}
+                      overrides={{}}
                     />
                   );
                 });
