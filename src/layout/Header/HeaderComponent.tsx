@@ -3,6 +3,7 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 
 import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
+import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IHeaderProps = PropsFromGenericComponent<'Header'>;
@@ -59,7 +60,8 @@ export const HeaderSize = ({ id, size, text }: IHeaderSizeProps) => {
   }
 };
 
-export const HeaderComponent = ({ id, size, text, textResourceBindings, language, getTextResource }: IHeaderProps) => {
+export const HeaderComponent = ({ node, text, language, getTextResource }: IHeaderProps) => {
+  const { id, size, textResourceBindings } = node.item;
   return (
     <Grid
       container={true}
@@ -81,6 +83,7 @@ export const HeaderComponent = ({ id, size, text, textResourceBindings, language
           <HelpTextContainer
             language={language}
             helpText={getTextResource(textResourceBindings.help)}
+            title={getPlainTextFromNode(text)}
           />
         </Grid>
       )}

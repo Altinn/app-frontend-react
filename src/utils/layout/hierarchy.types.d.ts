@@ -1,9 +1,17 @@
 import type { DeepPartial } from 'utility-types';
 
+import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutGridHierarchy } from 'src/layout/Grid/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentExceptGroup, IDataModelBindings, ILayoutComponentExact } from 'src/layout/layout';
+import type {
+  ComponentExceptGroup,
+  ComponentTypes,
+  IDataModelBindings,
+  ILayoutComponent,
+  ILayoutComponentExact,
+} from 'src/layout/layout';
+import type { IValidations } from 'src/types';
 import type { LayoutNode, LayoutPage } from 'src/utils/layout/hierarchy';
 
 /**
@@ -32,14 +40,15 @@ export interface HRepGroupExtensions {
 /**
  * A component inside a repeating group (it has some extensions)
  */
-export type HComponentInRepGroup = HComponent & HRepGroupExtensions;
+export type HComponentInRepGroup<T extends ComponentExceptGroup = ComponentExceptGroup> = HComponent<T> &
+  HRepGroupExtensions;
 
 /**
  * A row object for a repeating group
  */
 export type HRepGroupRow = {
   index: number;
-  items: HRepGroupChildren[];
+  items: HRepGroupChild[];
 
   // If this object is present, it contains a subset of the Group layout object, where some expressions may be resolved
   // in the context of the current repeating group row.
@@ -57,7 +66,7 @@ export type HRepGroup = Omit<HGroup, 'children'> &
 /**
  * Types of possible components inside repeating group rows
  */
-export type HRepGroupChildren = HComponentInRepGroup | HNonRepGroup | HRepGroup;
+export type HRepGroupChild = (HComponent | HNonRepGroup | HRepGroup) & HRepGroupExtensions;
 
 /**
  * Any parent object of a LayoutNode (with for example repeating groups, the parent can be the group node, but above
@@ -65,8 +74,30 @@ export type HRepGroupChildren = HComponentInRepGroup | HNonRepGroup | HRepGroup;
  */
 export type ParentNode = LayoutNode | LayoutPage;
 
+export type HGroups = HNonRepGroup | HRepGroup;
+
 /**
  * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
  * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
  */
-export type AnyItem = HComponent | HComponentInRepGroup | HNonRepGroup | HRepGroup;
+export type AnyItem<T extends ComponentTypes = ComponentTypes> = T extends 'Group'
+  ? HGroups
+  : T extends ComponentExceptGroup
+  ? HComponent<T> | HComponentInRepGroup<T>
+  : HComponent | HComponentInRepGroup | HGroups;
+
+export interface HierarchyDataSources extends ContextDataSources {
+  validations: IValidations;
+}
+
+export type LayoutNodeFromType<Type> = Type extends ComponentExceptGroup
+  ? LayoutNode<HComponent<Type> | HComponentInRepGroup<Type>>
+  : Type extends 'Group'
+  ? LayoutNode<HGroups>
+  : LayoutNode;
+
+export type LayoutNodeFromObj<T> = T extends ILayoutComponent
+  ? T extends { type: infer Type }
+    ? LayoutNodeFromType<Type>
+    : LayoutNode
+  : LayoutNode;

@@ -5,6 +5,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
+import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
@@ -44,14 +45,11 @@ const useStyles = makeStyles({
   },
 });
 
-export function ParagraphComponent(props: IParagraphProps) {
+export function ParagraphComponent({ node, getTextResourceAsString, language }: IParagraphProps) {
+  const { id, textResourceBindings } = node.item;
   const classes = useStyles();
 
-  const text = getParsedLanguageFromText(
-    props.getTextResourceAsString(props?.textResourceBindings?.title ?? ''),
-    {},
-    false,
-  );
+  const text = getParsedLanguageFromText(getTextResourceAsString(textResourceBindings?.title ?? ''), {}, false);
 
   return (
     <Grid
@@ -62,21 +60,22 @@ export function ParagraphComponent(props: IParagraphProps) {
       <Grid item={true}>
         <Typography
           component={'div'}
-          id={props.id}
-          data-testid={`paragraph-component-${props.id}`}
+          id={id}
+          data-testid={`paragraph-component-${id}`}
           className={`${classes.spacing} ${classes.typography}`}
         >
           {text}
         </Typography>
       </Grid>
-      {props.textResourceBindings?.help && (
+      {textResourceBindings?.help && (
         <Grid
           item={true}
           className={classes.spacing}
         >
           <HelpTextContainer
-            language={props.language}
-            helpText={props.getTextResource(props.textResourceBindings.help)}
+            language={language}
+            helpText={getTextResourceAsString(textResourceBindings.help)}
+            title={getPlainTextFromNode(text)}
           />
         </Grid>
       )}

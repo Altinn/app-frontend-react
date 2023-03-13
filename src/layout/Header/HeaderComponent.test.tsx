@@ -1,61 +1,68 @@
 import React from 'react';
 
-import { fireEvent, render as rtlRender, screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import ResizeObserverModule from 'resize-observer-polyfill';
 
 import { HeaderComponent } from 'src/layout/Header/HeaderComponent';
-import type { IHeaderProps } from 'src/layout/Header/HeaderComponent';
+import { renderGenericComponentTest } from 'src/testUtils';
+import type { RenderGenericComponentTestProps } from 'src/testUtils';
 
-const render = (props = {}) => {
-  const allProps = {
-    id: 'id',
-    text: 'text',
-    getTextResource: (key: string) => key,
-    language: {},
-    textResourceBindings: {},
-    ...props,
-  } as IHeaderProps;
+(global as any).ResizeObserver = ResizeObserverModule;
 
-  rtlRender(<HeaderComponent {...allProps} />);
+const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Header'>> = {}) => {
+  renderGenericComponentTest({
+    type: 'Header',
+    renderer: (props) => <HeaderComponent {...props} />,
+    component: {
+      textResourceBindings: {},
+      ...component,
+    },
+    genericProps: {
+      text: 'text',
+      getTextResource: (key: string) => key,
+      language: {},
+      ...genericProps,
+    },
+  });
 };
-
 describe('HeaderComponent', () => {
   it('should render <h2> when size is "L"', () => {
-    render({ size: 'L' });
+    render({ component: { size: 'L' } });
 
     const header = screen.getByRole('heading', { level: 2 });
     expect(header).toBeInTheDocument();
   });
 
   it('should render <h2> when size is "h2"', () => {
-    render({ size: 'h2' });
+    render({ component: { size: 'h2' } });
 
     const header = screen.getByRole('heading', { level: 2 });
     expect(header).toBeInTheDocument();
   });
 
   it('should render <h3> when size is "M"', () => {
-    render({ size: 'M' });
+    render({ component: { size: 'M' } });
 
     const header = screen.getByRole('heading', { level: 3 });
     expect(header).toBeInTheDocument();
   });
 
   it('should render <h3> when size is "h3"', () => {
-    render({ size: 'h3' });
+    render({ component: { size: 'h3' } });
 
     const header = screen.getByRole('heading', { level: 3 });
     expect(header).toBeInTheDocument();
   });
 
   it('should render <h4> when size is "S"', () => {
-    render({ size: 'S' });
+    render({ component: { size: 'S' } });
 
     const header = screen.getByRole('heading', { level: 4 });
     expect(header).toBeInTheDocument();
   });
 
   it('should render <h4> when size is "h4"', () => {
-    render({ size: 'h4' });
+    render({ component: { size: 'h4' } });
 
     const header = screen.getByRole('heading', { level: 4 });
     expect(header).toBeInTheDocument();
@@ -72,7 +79,7 @@ describe('HeaderComponent', () => {
     render();
 
     const helpButton = screen.queryByRole('button', {
-      name: /popover\.popover_button_helptext/i,
+      name: /helptext\.button_title/i,
     });
 
     expect(helpButton).not.toBeInTheDocument();
@@ -80,13 +87,15 @@ describe('HeaderComponent', () => {
 
   it('should render help button when help text is defined', () => {
     render({
-      textResourceBindings: {
-        help: 'this is the help text',
+      component: {
+        textResourceBindings: {
+          help: 'this is the help text',
+        },
       },
     });
 
     const helpButton = screen.getByRole('button', {
-      name: /popover\.popover_button_helptext/i,
+      name: /helptext\.button_title/i,
     });
 
     expect(helpButton).toBeInTheDocument();
@@ -95,21 +104,21 @@ describe('HeaderComponent', () => {
   it('should show and hide help text when clicking help button', async () => {
     const helpText = 'this is the help text';
     render({
-      textResourceBindings: {
-        help: helpText,
+      component: {
+        textResourceBindings: {
+          help: helpText,
+        },
       },
     });
 
     const helpButton = screen.getByRole('button', {
-      name: /popover\.popover_button_helptext/i,
+      name: /helptext\.button_title/i,
     });
 
     expect(screen.queryByText(helpText)).not.toBeInTheDocument();
     fireEvent.click(helpButton);
     expect(screen.getByText(helpText)).toBeInTheDocument();
     fireEvent.click(helpButton);
-
-    await waitForElementToBeRemoved(() => screen.queryByText(helpText));
 
     expect(screen.queryByText(helpText)).not.toBeInTheDocument();
   });

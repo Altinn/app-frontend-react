@@ -19,30 +19,29 @@ describe('Summary', () => {
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
 
     // Verify empty summary components
-    cy.get('[data-testid=summary-summary-2] > div > [data-testid=single-input-summary]')
-      .should('exist')
-      .and('be.visible')
-      .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get('[data-testid=summary-summary-4] > div > [data-testid=single-input-summary]')
-      .should('exist')
-      .and('be.visible')
-      .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get('[data-testid=summary-summary-5] > div > [data-testid=attachment-summary-component]')
-      .should('exist')
-      .and('be.visible')
-      .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get('[data-testid=summary-summary-6] > div > [data-testid=attachment-with-tag-summary]')
-      .should('exist')
-      .and('be.visible')
-      .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get('[data-testid=summary-__summary__reference] > div > [data-testid=single-input-summary]')
-      .should('exist')
-      .and('be.visible')
-      .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get('[data-testid=summary-__summary__reference2] > div > [data-testid=single-input-summary]')
-      .should('exist')
-      .and('be.visible')
-      .and('contain.text', 'Du har ikke lagt inn informasjon her');
+    cy.get('[data-testid=summary-summary-2] > div > [data-testid=summary-item-simple]').should(
+      'contain.text',
+      'Du har ikke lagt inn informasjon her',
+    );
+    cy.get('[data-testid=summary-summary-4] > div > [data-testid=summary-item-simple]').should(
+      'contain.text',
+      'Du har ikke lagt inn informasjon her',
+    );
+    cy.get('[data-testid=summary-summary-5] > div > [data-testid=attachment-summary-component]').should(
+      'contain.text',
+      'Du har ikke lagt inn informasjon her',
+    );
+    cy.get('[data-testid=summary-summary-6] > div > [data-testid=attachment-with-tag-summary]').should(
+      'contain.text',
+      'Du har ikke lagt inn informasjon her',
+    );
+    cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
+      .and('have.length', 3)
+      .then((items) => {
+        cy.wrap(items).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Altinn');
+        cy.wrap(items).eq(1).should('contain.text', 'Referanse : Du har ikke lagt inn informasjon her');
+        cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Du har ikke lagt inn informasjon her');
+      });
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
     cy.gotoAndComplete('changename');
@@ -133,26 +132,17 @@ describe('Summary', () => {
     cy.get('[data-testid=summary-summary-1]').should('not.exist');
 
     // Test summary of non-repeating group
-    cy.get('#reference-group').should('exist').and('be.visible');
-    cy.get('#reference-group > div').eq(0).should('contain.text', 'Referanser');
-    cy.get('#reference-group > [data-testid=summary-__summary__sources]').should('exist').and('be.visible');
-    cy.get('#reference-group > [data-testid=summary-__summary__reference]').should('exist').and('be.visible');
-    cy.get('#reference-group > [data-testid=summary-__summary__reference2]').should('exist').and('be.visible');
-
-    // Test mapped options in summary
-
-    cy.get('[data-testid=summary-__summary__reference]').should('exist').and('be.visible');
-    cy.get('[data-testid=summary-__summary__reference2]').should('exist').and('be.visible');
-
     cy.get(appFrontend.navMenu).find('li > button').first().click();
     cy.get('#reference').should('exist').and('be.visible').select('Ola Nordmann');
     cy.get('#reference2').should('exist').and('be.visible').select('Ole');
-    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get('[data-testid=summary-__summary__reference]')
-      .should('exist')
-      .and('be.visible')
-      .and('contain.text', 'Ola Nordmann');
-    cy.get('[data-testid=summary-__summary__reference2]').should('exist').and('be.visible').and('contain.text', 'Ole');
+    cy.get(appFrontend.navMenu).find('li > button').last().click();
+    cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
+      .and('have.length', 3)
+      .then((items) => {
+        cy.wrap(items).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Altinn');
+        cy.wrap(items).eq(1).should('contain.text', 'Referanse : Ola Nordmann');
+        cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Ole');
+      });
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
     cy.intercept('GET', '**/options/*').as('getOptions');
@@ -160,24 +150,28 @@ describe('Summary', () => {
     cy.wait(['@getOptions', '@getOptions']);
     cy.get('#reference').should('exist').and('be.visible').select('Sophie Salt');
     cy.get('#reference2').should('exist').and('be.visible').select('Dole');
-    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get('[data-testid=summary-__summary__reference]')
-      .should('exist')
-      .and('be.visible')
-      .and('contain.text', 'Sophie Salt');
-    cy.get('[data-testid=summary-__summary__reference2]').should('exist').and('be.visible').and('contain.text', 'Dole');
+    cy.get(appFrontend.navMenu).find('li > button').last().click();
+    cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
+      .and('have.length', 3)
+      .then((items) => {
+        cy.wrap(items).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Digitaliseringsdirektoratet');
+        cy.wrap(items).eq(1).should('contain.text', 'Referanse : Sophie Salt');
+        cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Dole');
+      });
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
     cy.get('#sources').should('exist').and('be.visible').select('Annet');
     cy.wait(['@getOptions', '@getOptions']);
     cy.get('#reference').should('exist').and('be.visible').select('Test');
     cy.get('#reference2').should('exist').and('be.visible').select('Doffen');
-    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get('[data-testid=summary-__summary__reference]').should('exist').and('be.visible').and('contain.text', 'Test');
-    cy.get('[data-testid=summary-__summary__reference2]')
-      .should('exist')
-      .and('be.visible')
-      .and('contain.text', 'Doffen');
+    cy.get(appFrontend.navMenu).find('li > button').last().click();
+    cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
+      .and('have.length', 3)
+      .then((items) => {
+        cy.wrap(items).eq(0).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
+        cy.wrap(items).eq(1).should('contain.text', 'Referanse : Test');
+        cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Doffen');
+      });
   });
 
   it('is possible to view summary of repeating group', () => {
@@ -220,9 +214,11 @@ describe('Summary', () => {
         cy.wrap(item).eq(6).should('contain.text', 'Digitaliseringsdirektoratet');
         cy.wrap(item).eq(7).should('contain.text', 'Sophie Salt');
 
-        // Go back to the repeating group in order to set nested options
-        cy.wrap(item).eq(5).find('button').first().should('contain.text', texts.change).click();
+        cy.wrap(item).eq(5).find('button').first().should('contain.text', texts.change);
       });
+
+    // Go back to the repeating group in order to set nested options
+    cy.get(appFrontend.group.mainGroupSummary).first().children(mui.gridItem).eq(5).find('button').first().click();
 
     // Check to show a couple of nested options, then go back to the summary
     cy.get(appFrontend.group.row(0).editBtn).click();
@@ -280,24 +276,24 @@ describe('Summary', () => {
     }
 
     const regularRow = {
-      'currentValue-[idx]-summary': true,
-      'newValue-[idx]-summary': true,
-      'mainUploaderSingle-[idx]-summary': true,
-      'mainUploaderMulti-[idx]-summary': true,
-      'subGroup-[idx]-summary-group': true,
+      'currentValue-[idx]': true,
+      'newValue-[idx]': true,
+      'mainUploaderSingle-[idx]': true,
+      'mainUploaderMulti-[idx]': true,
+      'subGroup-[idx]': true,
     };
 
     // Rows that come from prefill have their uploaders removed, so these should be hidden
     const prefillRow = {
       ...regularRow,
-      'mainUploaderSingle-[idx]-summary': false,
-      'mainUploaderMulti-[idx]-summary': false,
+      'mainUploaderSingle-[idx]': false,
+      'mainUploaderMulti-[idx]': false,
     };
 
     // Rows that come from prefill AND have a 'currentValue' above 100 have their subGroup removed
     const prefillRowAbove100 = {
       ...prefillRow,
-      'subGroup-[idx]-summary-group': false,
+      'subGroup-[idx]': false,
     };
 
     cy.get(appFrontend.group.mainGroupSummary).should('have.length', 4);
@@ -313,33 +309,31 @@ describe('Summary', () => {
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.navMenu).find('li > button').last().click();
-    cy.get('#mainGroup-4-summary > [data-testid=summary-currentValue-4-summary] > div')
+    cy.get('#summary-mainGroup-4 > [data-testid=summary-currentValue-4] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
       .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get('#mainGroup-4-summary > [data-testid=summary-newValue-4-summary] > div')
+    cy.get('#summary-mainGroup-4 > [data-testid=summary-newValue-4] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
       .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get('#mainGroup-4-summary > [data-testid=summary-mainUploaderSingle-4-summary] > div')
+    cy.get('#summary-mainGroup-4 > [data-testid=summary-mainUploaderSingle-4] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
       .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get('#mainGroup-4-summary > [data-testid=summary-mainUploaderMulti-4-summary] > div')
+    cy.get('#summary-mainGroup-4 > [data-testid=summary-mainUploaderMulti-4] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
       .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get(
-      '#mainGroup-4-summary > [data-testid=summary-subGroup-4-summary-group] > div > [data-testid=summary-group-component]',
-    )
+    cy.get('#summary-mainGroup-4 > [data-testid=summary-subGroup-4] > div > [data-testid=summary-group-component]')
       .children()
       .last()
       .first()
@@ -350,13 +344,13 @@ describe('Summary', () => {
       .and('contain.text', 'Vis tillegg : Du har ikke lagt inn informasjon her')
       .and('contain.text', 'Referanse : Du har ikke lagt inn informasjon her')
       .and('contain.text', 'Skjul kommentar felt : Du har ikke lagt inn informasjon her');
-    cy.get('#mainGroup-4-summary > [data-testid=summary-source-4-summary] > div')
+    cy.get('#summary-mainGroup-4 > [data-testid=summary-source-4] > div')
       .children()
       .last()
       .should('exist')
       .and('be.visible')
       .and('contain.text', 'Du har ikke lagt inn informasjon her');
-    cy.get('#mainGroup-4-summary > [data-testid=summary-reference-4-summary] > div')
+    cy.get('#summary-mainGroup-4 > [data-testid=summary-reference-4] > div')
       .children()
       .last()
       .should('exist')
@@ -399,9 +393,7 @@ describe('Summary', () => {
 
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     //Skjul kommentar felt
-    cy.get(
-      '#mainGroup-0-summary > [data-testid=summary-subGroup-0-summary-group] > div > [data-testid=summary-group-component]',
-    )
+    cy.get('#summary-mainGroup-0 > [data-testid=summary-subGroup-0] > div > [data-testid=summary-group-component]')
       .children()
       .last()
       .children()
@@ -413,9 +405,7 @@ describe('Summary', () => {
       .and('contain.text', 'Vis tillegg : Du har ikke lagt inn informasjon her')
       .and('contain.text', 'Referanse : Du har ikke lagt inn informasjon her')
       .and('not.contain.text', 'Skjul kommentar felt');
-    cy.get(
-      '#mainGroup-0-summary > [data-testid=summary-subGroup-0-summary-group] > div > [data-testid=summary-group-component]',
-    )
+    cy.get('#summary-mainGroup-0 > [data-testid=summary-subGroup-0] > div > [data-testid=summary-group-component]')
       .children()
       .last()
       .children()
@@ -427,9 +417,7 @@ describe('Summary', () => {
       .and('contain.text', 'Vis tillegg : Du har ikke lagt inn informasjon her')
       .and('contain.text', 'Referanse : Du har ikke lagt inn informasjon her')
       .and('not.contain.text', 'Skjul kommentar felt');
-    cy.get(
-      '#mainGroup-0-summary > [data-testid=summary-subGroup-0-summary-group] > div > [data-testid=summary-group-component]',
-    )
+    cy.get('#summary-mainGroup-0 > [data-testid=summary-subGroup-0] > div > [data-testid=summary-group-component]')
       .children()
       .last()
       .children()
@@ -450,8 +438,8 @@ describe('Summary', () => {
     for (const trigger of triggerVariations) {
       injectExtraPageAndSetTriggers(trigger);
 
-      const newFirstNameSummary = '[data-testid=summary-summary-2] > div > [data-testid=single-input-summary]';
-      const sourcesSummary = '[data-testid=summary-__summary__sources]';
+      const newFirstNameSummary = '[data-testid=summary-summary-2] > div > [data-testid=summary-item-simple]';
+      const exampleSummary = '[data-testid=summary-summary-reference]';
 
       cy.get(appFrontend.navMenu).find('li > button').first().click();
       cy.get(appFrontend.changeOfName.newFirstName).clear().type(`Hello world`).blur();
@@ -487,14 +475,14 @@ describe('Summary', () => {
 
       // Going back to the first page via an 'edit' button and navigating to the summary page again. Also testing
       // that the back to summary button goes away when navigating via the navMenu instead.
-      cy.get(sourcesSummary).find('button').click();
+      cy.get(exampleSummary).find('button').click();
       cy.get(appFrontend.backToSummaryButton).should('exist');
       cy.get(appFrontend.navMenu).find('li > button').last().click();
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');
       cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
       assertErrorReport();
-      cy.get(sourcesSummary).find('button').click();
+      cy.get(exampleSummary).find('button').click();
       assertErrorReport();
       cy.get(appFrontend.backToSummaryButton).should('exist').click();
       cy.get(appFrontend.backToSummaryButton).should('not.exist');

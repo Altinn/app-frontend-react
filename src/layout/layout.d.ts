@@ -83,7 +83,7 @@ export interface IComponentRadioOrCheckbox<T extends Extract<ComponentTypes, 'Ra
   layout?: LayoutStyle;
 }
 
-type NumberFormatProps = Exclude<Parameters<typeof TextField>[0]['formatting'], undefined>['number'];
+export type NumberFormatProps = Exclude<Parameters<typeof TextField>[0]['formatting'], undefined>['number'];
 
 export interface IInputFormatting {
   number?: NumberFormatProps;
@@ -130,9 +130,7 @@ export type ComponentTypes = keyof Map;
 type AllComponents = Map[ComponentTypes];
 
 export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
-export type ComponentExceptGroupAndSummary = Exclude<ComponentExceptGroup, 'Summary'>;
-export type RenderableGenericComponent = ILayoutComponent<ComponentExceptGroupAndSummary>;
-export type ComponentInGroup = RenderableGenericComponent | ILayoutGroup;
+export type ComponentInGroup = ILayoutComponent | ILayoutGroup;
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify
@@ -143,6 +141,10 @@ export type ComponentInGroup = RenderableGenericComponent | ILayoutGroup;
  * Or a component of a specific known type (gives you more valid options):
  *
  *  const myImageComponent:ILayoutComponent<'Image'> = ...
+ *
+ * @deprecated
+ * @see AnyItem
+ * @see LayoutNode
  */
 export type ILayoutComponent<Type extends ComponentExceptGroup = ComponentExceptGroup> = Extract<
   AllComponents,
@@ -152,7 +154,7 @@ export type ILayoutComponent<Type extends ComponentExceptGroup = ComponentExcept
 /**
  * Alternative version of the one above
  */
-export type ILayoutComponentExact<Type extends ComponentExceptGroup> = Map[Type];
+export type ILayoutComponentExact<Type extends ComponentTypes> = Map[Type];
 
 export type ILayoutComponentOrGroup = ILayoutGroup | ILayoutComponent;
 

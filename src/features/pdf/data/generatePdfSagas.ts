@@ -4,8 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { PDF_LAYOUT_NAME, PdfActions } from 'src/features/pdf/data/pdfSlice';
-import { ComponentType } from 'src/layout';
-import { getLayoutComponentObject } from 'src/layout/LayoutComponent';
+import { ComponentType, getLayoutComponentObject } from 'src/layout';
 import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
@@ -23,7 +22,7 @@ import { getPdfFormatUrl } from 'src/utils/urls/appUrlHelper';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IPdfFormat, IPdfMethod } from 'src/features/pdf/data/types';
 import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
-import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
+import type { ILayout, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types.d';
 import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { ILayoutSets, IRuntimeState, IUiConfig } from 'src/types';
@@ -76,7 +75,11 @@ function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, lay
     .map(([pageRef, component]) => {
       const layoutComponent = getLayoutComponentObject(component.type);
 
-      if (component.type === 'Group' || layoutComponent?.getComponentType() === ComponentType.Form) {
+      if (
+        component.type === 'Group' ||
+        layoutComponent.getComponentType() === ComponentType.Form ||
+        layoutComponent.getComponentType() === ComponentType.Presentation
+      ) {
         return {
           id: `__pdf__${component.id}`,
           type: 'Summary',
@@ -84,12 +87,6 @@ function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, lay
           pageRef,
           excludedChildren: pdfFormat?.excludedComponents,
         } as ExprUnresolved<ILayoutCompSummary>;
-      }
-      if (layoutComponent?.getComponentType() === ComponentType.Presentation) {
-        return {
-          ...component,
-          id: `__pdf__${component.id}`,
-        } as ExprUnresolved<ILayoutComponent>;
       }
       return null;
     })
@@ -112,7 +109,7 @@ function* generatePdfSaga(): SagaIterator {
     if (method == 'auto') {
       // Automatic layout
       const pdfLayout = generateAutomaticLayout(pdfFormat, uiConfig, layouts);
-      yield put(FormLayoutActions.updateLayout({ [PDF_LAYOUT_NAME]: pdfLayout }));
+      yield put(FormLayoutActions.updateLayouts({ [PDF_LAYOUT_NAME]: pdfLayout }));
     }
 
     yield put(PdfActions.generateFulfilled());
