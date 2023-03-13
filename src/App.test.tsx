@@ -36,16 +36,14 @@ describe('App', () => {
     allowAnonymous = undefined;
   });
 
-  const ProvidedRouter = ({ locationPath }) => {
-    return (
-      <MemoryRouter
-        basename={'/ttd/test'}
-        initialEntries={[`/ttd/test${locationPath}`]}
-      >
-        <App />
-      </MemoryRouter>
-    );
-  };
+  const ProvidedRouter = ({ locationPath }) => (
+    <MemoryRouter
+      basename={'/ttd/test'}
+      initialEntries={[`/ttd/test${locationPath}`]}
+    >
+      <App />
+    </MemoryRouter>
+  );
 
   const render = ({ locationPath }: { locationPath: string }) => {
     const commonState = { isDone: null, error: null };
@@ -77,9 +75,7 @@ describe('App', () => {
   };
   it('should get to the presentation component on an instance api', () => {
     mockAllowAnonymousState(false);
-    (axios.get as jest.Mock).mockImplementation(() => {
-      return {};
-    });
+    (axios.get as jest.Mock).mockImplementation(() => ({}));
     const locationPath = `/instance/${mockInstanceId}`;
     render({
       locationPath,

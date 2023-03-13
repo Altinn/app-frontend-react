@@ -24,9 +24,9 @@ export function* startInitialInfoTaskQueueSaga(): SagaIterator {
 
   yield put(IsLoadingActions.startDataTaskIsLoading());
 
-  const textResourcesWithVariables = textResources.filter((resource) => {
-    return resource.variables && resource.variables.length > 0;
-  });
+  const textResourcesWithVariables = textResources.filter(
+    (resource) => resource.variables && resource.variables.length > 0,
+  );
   if (textResourcesWithVariables && textResourcesWithVariables.length > 0) {
     const dataElements: string[] = [];
     textResourcesWithVariables.forEach((resource) => {

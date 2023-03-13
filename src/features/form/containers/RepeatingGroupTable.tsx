@@ -189,12 +189,10 @@ export function RepeatingGroupTable({
     }
   };
 
-  const handlePopoverDeleteClick = (index: number) => {
-    return () => {
-      onClickRemove(index);
-      onOpenChange(index);
-      setPopoverOpen(false);
-    };
+  const handlePopoverDeleteClick = (index: number) => () => {
+    onClickRemove(index);
+    onOpenChange(index);
+    setPopoverOpen(false);
   };
 
   const handleDeleteClick = (index: number) => {
@@ -213,21 +211,18 @@ export function RepeatingGroupTable({
     }
   };
 
-  const renderRepeatingGroupsEditContainer = () => {
-    return (
-      editIndex >= 0 && (
-        <RepeatingGroupsEditContainer
-          editIndex={editIndex}
-          setEditIndex={setEditIndex}
-          repeatingGroupIndex={repeatingGroupIndex}
-          id={id}
-          multiPageIndex={multiPageIndex}
-          setMultiPageIndex={setMultiPageIndex}
-          filteredIndexes={filteredIndexes}
-        />
-      )
+  const renderRepeatingGroupsEditContainer = () =>
+    editIndex >= 0 && (
+      <RepeatingGroupsEditContainer
+        editIndex={editIndex}
+        setEditIndex={setEditIndex}
+        repeatingGroupIndex={repeatingGroupIndex}
+        id={id}
+        multiPageIndex={multiPageIndex}
+        setMultiPageIndex={setMultiPageIndex}
+        filteredIndexes={filteredIndexes}
+      />
     );
-  };
 
   if (!tableNodes || !tableNodes.length || !node || !container || !language) {
     return null;

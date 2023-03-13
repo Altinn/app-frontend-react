@@ -201,11 +201,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           }}
         >
           {renderValidationMessages(
-            props.attachmentValidations
-              .filter((i) => i.id === props.attachment.id)
-              .map((e) => {
-                return e.message;
-              }),
+            props.attachmentValidations.filter((i) => i.id === props.attachment.id).map((e) => e.message),
             `attachment-error-${props.attachment.id}`,
             'error',
           )}

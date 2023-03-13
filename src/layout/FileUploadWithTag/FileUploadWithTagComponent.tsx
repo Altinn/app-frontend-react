@@ -146,9 +146,7 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
     }
   };
 
-  const shouldShowFileUpload = (): boolean => {
-    return attachments.length < maxNumberOfAttachments;
-  };
+  const shouldShowFileUpload = (): boolean => attachments.length < maxNumberOfAttachments;
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     const newFiles: IAttachment[] = [];
