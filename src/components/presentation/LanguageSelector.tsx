@@ -15,34 +15,37 @@ export const LanguageSelector = () => {
   const selectedAppLanguage = useAppSelector(appLanguageStateSelector);
   const textResources = useAppSelector((state) => state.textResources.resources);
 
-  const { isSuccess, data, isLoading } = useGetAppLanguageQuery();
+  const { data: appLanguages, isError: appLanguageError } = useGetAppLanguageQuery();
   const dispatch = useAppDispatch();
 
-  const handleAppLanguageChange = React.useCallback(
-    (languageCode: string) => {
-      dispatch(LanguageActions.updateSelectedAppLanguage({ selected: languageCode }));
-    },
-    [dispatch],
-  );
+  const handleAppLanguageChange = (languageCode: string) => {
+    dispatch(LanguageActions.updateSelectedAppLanguage({ selected: languageCode }));
+  };
 
-  if (isLoading || !language) {
-    return <AltinnSpinner />;
-  }
-
-  if (!isSuccess) {
+  if (appLanguageError) {
     console.error('Failed to load app languages.');
     return null;
   }
 
-  return (
-    <Select
-      label={getTextFromAppOrDefault('language.selector.label', textResources, language, undefined, true)}
-      options={data.map((lang) => ({
-        value: lang.language,
-        label: getTextFromAppOrDefault(`language.full_name.${lang.language}`, textResources, language, undefined, true),
-      }))}
-      onChange={(value) => handleAppLanguageChange(value)}
-      value={selectedAppLanguage}
-    />
-  );
+  if (appLanguages && language) {
+    return (
+      <Select
+        label={getTextFromAppOrDefault('language.selector.label', textResources, language, undefined, true)}
+        options={appLanguages.map((lang) => ({
+          value: lang.language,
+          label: getTextFromAppOrDefault(
+            `language.full_name.${lang.language}`,
+            textResources,
+            language,
+            undefined,
+            true,
+          ),
+        }))}
+        onChange={(value) => handleAppLanguageChange(value)}
+        value={selectedAppLanguage}
+      />
+    );
+  }
+
+  return <AltinnSpinner />;
 };

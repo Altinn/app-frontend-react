@@ -4,7 +4,7 @@ import { AppBar } from '@material-ui/core';
 
 import { AltinnLogo } from 'src/components/AltinnLogo';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
-import css from 'src/components/organisms/AltinnAppHeader.module.css';
+import classes from 'src/components/organisms/AltinnAppHeader.module.css';
 import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { renderPartyName } from 'src/utils/party';
@@ -30,7 +30,7 @@ export const AltinnAppHeader = ({
   <AppBar
     data-testid='AltinnAppHeader'
     position='relative'
-    classes={{ root: css.appBar }}
+    classes={{ root: classes.appBar }}
     style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
   >
     <LandmarkShortcuts
@@ -41,15 +41,15 @@ export const AltinnAppHeader = ({
         },
       ]}
     />
-    <div className={css.container}>
+    <div className={classes.container}>
       <AltinnLogo color={logoColor} />
-      <div className={css.wrapper}>
+      <div className={classes.wrapper}>
         {party && userParty && party.partyId === userParty.partyId && (
-          <span className={css.appBarText}>{renderPartyName(userParty)}</span>
+          <span className={classes.appBarText}>{renderPartyName(userParty)}</span>
         )}
         {party && userParty && party.partyId !== userParty.partyId && (
           <>
-            <span className={css.appBarText}>
+            <span className={classes.appBarText}>
               {renderPartyName(userParty)} for {renderPartyName(party)}
             </span>
           </>

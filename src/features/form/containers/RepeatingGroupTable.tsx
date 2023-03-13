@@ -5,7 +5,7 @@ import { useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import css from 'src/features/form/containers/RepeatingGroup.module.css';
+import classes from 'src/features/form/containers/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGroupTableRow';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
@@ -145,14 +145,14 @@ export function RepeatingGroupTable({
       data-testid={`group-${id}`}
       id={`group-${id}`}
       className={cn({
-        [css.groupContainer]: !isNested,
-        [css.nestedGroupContainer]: isNested,
-        [css.tableEmpty]: isEmpty,
+        [classes.groupContainer]: !isNested,
+        [classes.nestedGroupContainer]: isNested,
+        [classes.tableEmpty]: isEmpty,
       })}
     >
       <Table
         id={`group-${id}-table`}
-        className={cn({ [css.editingBorder]: isNested })}
+        className={cn({ [classes.editingBorder]: isNested })}
       >
         {showTableHeader && !mobileView && (
           <TableHeader id={`group-${id}-table-header`}>
@@ -162,17 +162,17 @@ export function RepeatingGroupTable({
                   style={{ textAlign: getTextAlignment(n.item) }}
                   key={n.item.id}
                 >
-                  <span className={css.contentFormatting}>
+                  <span className={classes.contentFormatting}>
                     {getTextResource(getTableTitle(n.item.textResourceBindings || {}), textResources)}
                   </span>
                 </TableCell>
               ))}
               <TableCell style={{ padding: 0, paddingRight: '10px' }}>
-                <span className={css.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
+                <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
               </TableCell>
               {displayDeleteColumn && (
                 <TableCell style={{ padding: 0 }}>
-                  <span className={css.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
+                  <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
                 </TableCell>
               )}
             </TableRow>
@@ -196,7 +196,7 @@ export function RepeatingGroupTable({
                   <RepeatingGroupTableRow
                     id={id}
                     className={cn({
-                      [css.editingRow]: isEditingRow,
+                      [classes.editingRow]: isEditingRow,
                     })}
                     editIndex={editIndex}
                     setEditIndex={setEditIndex}
@@ -219,7 +219,7 @@ export function RepeatingGroupTable({
                   {isEditingRow && (
                     <TableRow
                       key={`edit-container-${index}`}
-                      className={css.editContainerRow}
+                      className={classes.editContainerRow}
                     >
                       <TableCell
                         style={{ padding: 0, borderTop: 0 }}

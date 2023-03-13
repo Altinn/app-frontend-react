@@ -6,7 +6,7 @@ import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import css from 'src/features/form/containers/RepeatingGroup.module.css';
+import classes from 'src/features/form/containers/RepeatingGroup.module.css';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
@@ -105,8 +105,8 @@ export function RepeatingGroupsEditContainer({
     <div
       id={`group-edit-container-${id}-${editIndex}`}
       className={cn(
-        isNested ? css.nestedEditContainer : css.editContainer,
-        { [css.hideTable]: hideTable, [css.nestedHideTable]: hideTable && isNested },
+        isNested ? classes.nestedEditContainer : classes.editContainer,
+        { [classes.hideTable]: hideTable, [classes.nestedHideTable]: hideTable && isNested },
         className,
       )}
       style={{ marginBottom: isNested && edit?.mode === 'showAll' ? 15 : undefined }}

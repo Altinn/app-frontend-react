@@ -2,7 +2,7 @@ import React from 'react';
 
 import classNames from 'classnames';
 
-import css from 'src/features/form/components/MessageBanner.module.css';
+import classes from 'src/features/form/components/MessageBanner.module.css';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import type { ILanguage } from 'src/types/shared';
 
@@ -14,7 +14,7 @@ interface IMessageBannerProps {
 
 export const MessageBanner = ({ language, error, messageKey }: IMessageBannerProps) => (
   <div
-    className={classNames(css.banner, error ? css.error : css.default)}
+    className={classNames(classes.banner, error ? classes.error : classes.default)}
     data-testid='MessageBanner-container'
   >
     <span>{getLanguageFromKey(messageKey, language)}</span>

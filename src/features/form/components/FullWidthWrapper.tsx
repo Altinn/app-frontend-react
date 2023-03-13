@@ -3,7 +3,7 @@ import type { HTMLProps } from 'react';
 
 import cn from 'classnames';
 
-import css from 'src/features/form/components/FullWidthWrapper.module.css';
+import classes from 'src/features/form/components/FullWidthWrapper.module.css';
 
 export interface IFullWidthWrapperProps extends HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
@@ -19,7 +19,7 @@ export const FullWidthWrapper = ({
 }: IFullWidthWrapperProps) => (
   <div
     {...containerProps}
-    className={cn(css.fullWidth, { [css.consumeBottomPadding]: isOnBottom }, className)}
+    className={cn(classes.fullWidth, { [classes.consumeBottomPadding]: isOnBottom }, className)}
     data-testid='fullWidthWrapper'
   >
     {children}

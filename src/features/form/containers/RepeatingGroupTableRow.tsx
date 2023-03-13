@@ -8,7 +8,7 @@ import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import css from 'src/features/form/containers/RepeatingGroup.module.css';
+import classes from 'src/features/form/containers/RepeatingGroup.module.css';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { getTextAlignment, getTextResource } from 'src/utils/formComponentUtils';
@@ -124,7 +124,7 @@ export function RepeatingGroupTableRow({
       key={`repeating-group-row-${index}`}
       className={cn(
         {
-          [css.tableRowError]: rowHasErrors,
+          [classes.tableRowError]: rowHasErrors,
         },
         className,
       )}
@@ -135,19 +135,19 @@ export function RepeatingGroupTableRow({
             key={`${n.item.id}-${index}`}
             style={{ textAlign: getTextAlignment(n.item) }}
           >
-            <span className={css.contentFormatting}>{isEditingRow ? null : displayData[idx]}</span>
+            <span className={classes.contentFormatting}>{isEditingRow ? null : displayData[idx]}</span>
           </TableCell>
         ))
       ) : (
-        <TableCell className={css.mobileTableCell}>
+        <TableCell className={classes.mobileTableCell}>
           {tableNodes.map((n, i, { length }) => {
             return (
               !isEditingRow && (
                 <React.Fragment key={`${n.item.id}-${index}`}>
-                  <b className={css.contentFormatting}>
+                  <b className={classes.contentFormatting}>
                     {getTextResource(getTableTitle(n.item.textResourceBindings || {}), textResources)}:
                   </b>
-                  <span className={css.contentFormatting}>{displayData[i]}</span>
+                  <span className={classes.contentFormatting}>{displayData[i]}</span>
                   {i < length - 1 && <div style={{ height: 8 }} />}
                 </React.Fragment>
               )
@@ -159,10 +159,10 @@ export function RepeatingGroupTableRow({
         <>
           <TableCell
             key={`edit-${index}`}
-            className={css.buttonCell}
+            className={classes.buttonCell}
             colSpan={edit?.deleteButton === false ? 2 : 1}
           >
-            <div className={css.buttonInCellWrapper}>
+            <div className={classes.buttonInCellWrapper}>
               <Button
                 aria-expanded={isEditingRow}
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
@@ -173,7 +173,7 @@ export function RepeatingGroupTableRow({
                 onClick={onEditClick}
                 aria-label={`${editButtonText} ${firstCellData}`}
                 data-testid='edit-button'
-                className={css.tableButton}
+                className={classes.tableButton}
               >
                 {editButtonText}
               </Button>
@@ -188,12 +188,12 @@ export function RepeatingGroupTableRow({
                 key={`delete-${index}`}
                 className={cn(
                   {
-                    [css.popoverCurrentCell]: index == popoverPanelIndex,
+                    [classes.popoverCurrentCell]: index == popoverPanelIndex,
                   },
-                  css.buttonCell,
+                  classes.buttonCell,
                 )}
               >
-                <div className={css.buttonInCellWrapper}>
+                <div className={classes.buttonInCellWrapper}>
                   {(() => {
                     const deleteButton = (
                       <Button
@@ -205,7 +205,7 @@ export function RepeatingGroupTableRow({
                         onClick={onDeleteClick}
                         aria-label={`${deleteButtonText}-${firstCellData}`}
                         data-testid='delete-button'
-                        className={css.tableButton}
+                        className={classes.tableButton}
                       >
                         {deleteButtonText}
                       </Button>
@@ -235,10 +235,10 @@ export function RepeatingGroupTableRow({
         </>
       ) : (
         <TableCell
-          className={cn(css.buttonCell, css.mobileTableCell)}
+          className={cn(classes.buttonCell, classes.mobileTableCell)}
           style={{ verticalAlign: 'top' }}
         >
-          <div className={css.buttonInCellWrapper}>
+          <div className={classes.buttonInCellWrapper}>
             <Button
               aria-expanded={isEditingRow}
               aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
@@ -249,7 +249,7 @@ export function RepeatingGroupTableRow({
               onClick={onEditClick}
               aria-label={`${editButtonText} ${firstCellData}`}
               data-testid='edit-button'
-              className={css.tableButton}
+              className={classes.tableButton}
             >
               {(isEditingRow || !mobileViewSmall) && editButtonText}
             </Button>
@@ -271,7 +271,7 @@ export function RepeatingGroupTableRow({
                         onClick={onDeleteClick}
                         aria-label={`${deleteButtonText}-${firstCellData}`}
                         data-testid='delete-button'
-                        className={css.tableButton}
+                        className={classes.tableButton}
                       >
                         {(isEditingRow || !mobileViewSmall) && deleteButtonText}
                       </Button>

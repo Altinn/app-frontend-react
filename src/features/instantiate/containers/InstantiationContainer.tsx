@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { Footer } from 'src/features/footer/Footer';
-import css from 'src/features/instantiate/containers/InstantiationContainer.module.css';
+import classes from 'src/features/instantiate/containers/InstantiationContainer.module.css';
 import { AltinnAppHeader } from 'src/shared/components/altinnAppHeader';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
@@ -23,7 +23,7 @@ export function InstantiationContainer({ children, type }: IInstantiateContainer
   }
 
   return (
-    <div className={css.container}>
+    <div className={classes.container}>
       <AltinnAppHeader
         language={language}
         profile={profile}

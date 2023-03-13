@@ -6,7 +6,7 @@ import { Close, FullscreenEnter, FullscreenExit, Left } from '@navikt/ds-icons';
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { LanguageSelector } from 'src/components/presentation/LanguageSelector';
-import css from 'src/components/presentation/NavBar.module.css';
+import classes from 'src/components/presentation/NavBar.module.css';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 
@@ -25,20 +25,20 @@ export const NavBar = (props: INavBarProps) => {
     (state) => state.formLayout.uiConfig,
   );
 
-  const handleExpand = React.useCallback(() => {
+  const handleExpand = () => {
     dispatch(FormLayoutActions.toggleExpandedWidth());
-  }, [dispatch]);
+  };
 
   return (
     <nav
-      className={css.nav}
+      className={classes.nav}
       aria-label={getLanguageFromKey('navigation.main', language)}
     >
       <div>
         {props.showBackArrow && (
           <Button
             data-testid='form-back-button'
-            className={css.buttonMargin}
+            className={classes.buttonMargin}
             onClick={props.handleBack}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}
@@ -48,13 +48,13 @@ export const NavBar = (props: INavBarProps) => {
         )}
       </div>
 
-      <div className={css.wrapper}>
+      <div className={classes.wrapper}>
         {showLanguageSelector && <LanguageSelector />}
 
         {showExpandWidthButton && (
           <Button
             data-testid='form-expand-button'
-            className={css.buttonMargin}
+            className={classes.buttonMargin}
             onClick={handleExpand}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}
@@ -78,7 +78,7 @@ export const NavBar = (props: INavBarProps) => {
         {!hideCloseButton && (
           <Button
             data-testid='form-close-button'
-            className={css.buttonMargin}
+            className={classes.buttonMargin}
             onClick={props.handleClose}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}

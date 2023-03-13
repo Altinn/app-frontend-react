@@ -12,7 +12,7 @@ import { Footer } from 'src/features/footer/Footer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
-import css from 'src/shared/containers/Presentation.module.css';
+import classes from 'src/shared/containers/Presentation.module.css';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { getNextView } from 'src/utils/formLayout';
@@ -88,7 +88,7 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
   document.body.style.background = backgroundColor;
 
   return (
-    <div className={cn(css.container, { [css.expanded]: expandedWidth })}>
+    <div className={cn(classes.container, { [classes.expanded]: expandedWidth })}>
       <AltinnAppHeader
         party={party || undefined}
         userParty={userParty}
@@ -96,7 +96,7 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
         headerBackgroundColor={backgroundColor}
         language={language}
       />
-      <main className={css.page}>
+      <main className={classes.page}>
         {isProcessStepsArchived && instance?.status?.substatus && (
           <AltinnSubstatusPaper
             label={getTextResourceByKey(instance.status.substatus.label, textResources)}
@@ -112,10 +112,10 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
         />
         <section
           id='main-content'
-          className={css.modal}
+          className={classes.modal}
         >
           <Header {...props} />
-          <div className={css.modalBody}>{props.children}</div>
+          <div className={classes.modalBody}>{props.children}</div>
         </section>
       </main>
       <Footer />
