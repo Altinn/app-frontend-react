@@ -20,25 +20,28 @@ const defaultOptions: IOption[] = [];
 const defaultSelectedOptions: string[] = [];
 
 export const CheckboxContainerComponent = ({
-  id,
-  options,
-  optionsId,
+  node,
   formData,
-  preselectedOptionIndex,
+  text,
+  isValid,
+  language,
   handleDataChange,
-  layout,
-  readOnly,
   getTextResourceAsString,
   getTextResource,
-  textResourceBindings,
-  mapping,
-  text,
-  labelSettings,
-  required,
-  language,
-  source,
-  isValid,
 }: ICheckboxContainerProps) => {
+  const {
+    id,
+    options,
+    optionsId,
+    preselectedOptionIndex,
+    layout,
+    readOnly,
+    mapping,
+    source,
+    textResourceBindings,
+    required,
+    labelSettings,
+  } = node.item;
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions = apiOptions || options || defaultOptions;
   const hasSelectedInitial = React.useRef(false);

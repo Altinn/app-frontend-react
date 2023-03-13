@@ -20,23 +20,20 @@ export interface IControlledRadioGroupProps extends IRadioButtonsContainerProps 
 }
 
 export const ControlledRadioGroup = ({
-  id,
-  layout,
   getTextResourceAsString,
+  node,
   getTextResource,
-  textResourceBindings,
   fetchingOptions,
   selected,
-  readOnly,
   text,
-  required,
-  labelSettings,
   language,
   handleBlur,
   handleChangeRadioGroup,
   calculatedOptions,
   isValid,
 }: IControlledRadioGroupProps) => {
+  const { id, layout, readOnly, textResourceBindings, required, labelSettings } = node.item;
+
   const labelText = (
     <span style={{ wordBreak: 'break-word' }}>
       {text}
