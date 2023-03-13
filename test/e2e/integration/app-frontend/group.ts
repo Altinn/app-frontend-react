@@ -233,7 +233,7 @@ describe('Group', () => {
       for (const item of items) {
         cy.get(appFrontend.group.prefill[item]).click({ force: true }).blur();
       }
-      cy.get(appFrontend.nextButton).click();
+      cy.get(appFrontend.nextButton).focus().click();
     }
 
     clickOnPrefills('liten');
