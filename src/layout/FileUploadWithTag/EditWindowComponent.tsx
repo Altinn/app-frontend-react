@@ -9,6 +9,7 @@ import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { FileName } from 'src/layout/FileUpload/shared/render';
+import css from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { renderValidationMessages } from 'src/utils/render';
@@ -95,7 +96,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           className={classes.textContainer}
           style={{ flexShrink: 0 }}
         >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className={css.iconButtonWrapper}>
             {props.attachment.uploaded && (
               <div style={{ marginLeft: '0.9375rem', marginRight: '0.9375rem' }}>
                 {!props.mobileView
@@ -105,7 +106,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
                   role='img'
                   aria-hidden={!props.mobileView}
                   aria-label={getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)}
-                  style={{ marginLeft: '0.2rem', fontSize: '1.3rem' }}
+                  className={css.checkMark}
                 />
               </div>
             )}
