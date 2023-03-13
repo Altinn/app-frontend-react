@@ -95,7 +95,7 @@ export class AppFrontend {
     oldFullName: '#changeNameFrom',
     newFullName: '#changeNameTo_æøå',
     confirmChangeName: '#confirmChangeName',
-    reasons: '#reason',
+    reasons: '#reason > fieldset',
     reference: '#reference',
     reference2: '#reference2',
     dateOfEffect: '#dateOfEffect',

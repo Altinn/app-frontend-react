@@ -126,7 +126,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('label').click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
 
-    cy.get(appFrontend.changeOfName.newMiddleName).type('checkbox_readOnly');
+    cy.get(appFrontend.changeOfName.newMiddleName).type('checkbox_readOnly').blur();
 
     cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('label').click(); // No effect
 
