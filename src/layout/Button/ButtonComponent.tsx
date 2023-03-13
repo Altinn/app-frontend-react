@@ -19,7 +19,6 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
   const autoSave = useAppSelector((state) => state.formLayout.uiConfig.autoSave);
   const submittingId = useAppSelector((state) => state.formData.submittingId);
   const savingId = useAppSelector((state) => state.formData.savingId);
-  const ignoreWarnings = useAppSelector((state) => state.formData.ignoreWarnings);
   const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process.currentTask?.altinnTaskType);
   if (mode && !(mode === 'save' || mode === 'submit')) {
     const GenericButton = getComponentFromMode(mode);
@@ -37,7 +36,6 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
       </div>
     );
   }
-
   const saveFormData = () => {
     dispatch(FormDataActions.submit({ componentId: 'saveBtn' }));
   };
@@ -49,7 +47,7 @@ export const ButtonComponent = ({ mode, ...props }: IButtonProvidedProps) => {
         FormDataActions.submit({
           url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
           apiMode: 'Complete',
-          stopWithWarnings: !ignoreWarnings,
+          stopWithWarnings: false,
           componentId,
         }),
       );
