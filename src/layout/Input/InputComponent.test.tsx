@@ -103,7 +103,7 @@ describe('InputComponent', () => {
 
     expect(inputComponent).toHaveValue(finalValueFormatted);
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith(finalValuePlainText);
+    expect(handleDataChange).toHaveBeenCalledWith(finalValuePlainText, { validate: true });
   });
 
   it('should show aria-describedby if textResourceBindings.description is present', () => {

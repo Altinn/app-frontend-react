@@ -134,7 +134,7 @@ describe('DropdownComponent', () => {
 
     await act(() => fireEvent.blur(select));
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);
   });
 
