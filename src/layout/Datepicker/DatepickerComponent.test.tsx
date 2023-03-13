@@ -2,12 +2,10 @@ import React from 'react';
 
 import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { PreloadedState } from 'redux';
 
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
-import { mockComponentProps, mockMediaQuery, renderWithProviders } from 'src/testUtils';
-import type { IDatepickerProps } from 'src/layout/Datepicker/DatepickerComponent';
-import type { RootState } from 'src/store';
+import { mockMediaQuery, renderGenericComponentTest } from 'src/testUtils';
+import type { RenderGenericComponentTestProps } from 'src/testUtils';
 
 // Mock dateformat
 jest.mock('src/utils/dateHelpers', () => {
@@ -18,16 +16,16 @@ jest.mock('src/utils/dateHelpers', () => {
   };
 });
 
-const render = (props: Partial<IDatepickerProps> = {}, customState: PreloadedState<RootState> = {}) => {
-  const allProps: IDatepickerProps = {
-    ...mockComponentProps,
-    minDate: '1900-01-01T12:00:00.000Z',
-    maxDate: '2100-01-01T12:00:00.000Z',
-    ...props,
-  };
-
-  renderWithProviders(<DatepickerComponent {...allProps} />, {
-    preloadedState: customState,
+const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Datepicker'>> = {}) => {
+  renderGenericComponentTest({
+    type: 'Datepicker',
+    renderer: (props) => <DatepickerComponent {...props} />,
+    component: {
+      minDate: '1900-01-01T12:00:00.000Z',
+      maxDate: '2100-01-01T12:00:00.000Z',
+      ...component,
+    },
+    genericProps,
   });
 };
 
@@ -93,7 +91,7 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange when clicking date in calendar', async () => {
     const handleDataChange = jest.fn();
-    render({ handleDataChange });
+    render({ genericProps: { handleDataChange } });
 
     await act(() => userEvent.click(getOpenCalendarButton()));
     await act(() => userEvent.click(getCalendarDayButton('15')));
@@ -108,7 +106,7 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange without skipping validation if date is cleared', async () => {
     const handleDataChange = jest.fn();
-    render({ handleDataChange, formData: { simpleBinding: '2022-12-31' } });
+    render({ genericProps: { handleDataChange, formData: { simpleBinding: '2022-12-31' } } });
 
     const inputField = screen.getByRole('textbox');
 
@@ -123,7 +121,7 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange with formatted value (timestamp=true) without skipping validation if date is valid', async () => {
     const handleDataChange = jest.fn();
-    render({ handleDataChange, timeStamp: true });
+    render({ genericProps: { handleDataChange }, component: { timeStamp: true } });
 
     const inputField = screen.getByRole('textbox');
 
@@ -140,7 +138,7 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange with formatted value (timestamp=false) without skipping validation if date is valid', async () => {
     const handleDataChange = jest.fn();
-    render({ handleDataChange, timeStamp: false });
+    render({ genericProps: { handleDataChange }, component: { timeStamp: false } });
 
     const inputField = screen.getByRole('textbox');
 
@@ -155,7 +153,7 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange with formatted value (timestamp=undefined) without skipping validation if date is valid', async () => {
     const handleDataChange = jest.fn();
-    render({ handleDataChange, timeStamp: undefined });
+    render({ genericProps: { handleDataChange }, component: { timeStamp: undefined } });
 
     const inputField = screen.getByRole('textbox');
 
@@ -172,7 +170,7 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange without skipping validation if date is invalid but finished filling out', async () => {
     const handleDataChange = jest.fn();
-    render({ handleDataChange });
+    render({ genericProps: { handleDataChange } });
 
     const inputField = screen.getByRole('textbox');
 
@@ -187,7 +185,7 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange with skipValidation=true if not finished filling out the date', async () => {
     const handleDataChange = jest.fn();
-    render({ handleDataChange });
+    render({ genericProps: { handleDataChange } });
 
     const inputField = screen.getByRole('textbox');
     await act(async () => {
@@ -201,15 +199,17 @@ describe('DatepickerComponent', () => {
 
   it('should have aria-describedby if textResourceBindings.description is present', () => {
     render({
-      textResourceBindings: { description: 'description' },
-      id: 'test-id',
+      component: {
+        textResourceBindings: { description: 'description' },
+        id: 'test-id',
+      },
     });
     const inputField = screen.getByRole('textbox');
     expect(inputField).toHaveAttribute('aria-describedby', 'description-test-id');
   });
 
   it('should not have aria-describedby if textResources.description does not exist', () => {
-    render({ textResourceBindings: {}, id: 'test-id' });
+    render({ component: { textResourceBindings: {}, id: 'test-id' } });
     const inputField = screen.getByRole('textbox');
     expect(inputField).not.toHaveAttribute('aria-describedby');
   });
