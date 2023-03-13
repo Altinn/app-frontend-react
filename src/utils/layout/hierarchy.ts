@@ -1,13 +1,34 @@
 import type { $Values } from 'utility-types';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { getLayoutComponentObject } from 'src/layout';
+import { isGridComponent } from 'src/layout/Grid/tools';
 import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
-import type { IMapping, IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
+import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
+import type { ComponentClassMap } from 'src/layout';
+import type { ILayoutCompGrid, ILayoutGridHierarchy } from 'src/layout/Grid/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
+import type {
+  IDataModelBindings,
+  ILayout,
+  ILayoutComponent,
+  ILayoutComponentOrGroup,
+  ILayouts,
+} from 'src/layout/layout';
+import type { LayoutComponent } from 'src/layout/LayoutComponent';
+import type {
+  IComponentBindingValidation,
+  IComponentValidations,
+  IMapping,
+  IRepeatingGroups,
+  IRuntimeState,
+  ITextResource,
+  ValidationKeyOrAny,
+} from 'src/types';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type {
   AnyItem,
   HComponent,
@@ -824,7 +845,7 @@ function nodesInLayout(
         recurse(component.childComponents, group);
         root._addChild(group);
       } else if (component.type === 'Grid') {
-        const grid = new LayoutNode(component, parent, root, rowIndex);
+        const grid = new LayoutNode(component, parent, root, dataSources, rowIndex);
         for (const row of component.rows) {
           for (const cell of row.cells) {
             if (isGridComponent(cell)) {
