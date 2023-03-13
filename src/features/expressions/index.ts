@@ -518,14 +518,22 @@ export const ExprTypes: {
       if (typeof arg === 'boolean') {
         return arg;
       }
-      if (arg === 'true') return true;
-      if (arg === 'false') return false;
+      if (arg === 'true') {
+        return true;
+      }
+      if (arg === 'false') {
+        return false;
+      }
 
       if (typeof arg === 'string' || typeof arg === 'number' || typeof arg === 'bigint') {
         const num = typeof arg === 'string' ? asNumber(arg) : arg;
         if (num !== undefined) {
-          if (num === 1) return true;
-          if (num === 0) return false;
+          if (num === 1) {
+            return true;
+          }
+          if (num === 0) {
+            return false;
+          }
         }
       }
 
@@ -541,9 +549,15 @@ export const ExprTypes: {
       }
 
       // Always lowercase these values, to make comparisons case-insensitive
-      if (arg.toLowerCase() === 'null') return null;
-      if (arg.toLowerCase() === 'false') return 'false';
-      if (arg.toLowerCase() === 'true') return 'true';
+      if (arg.toLowerCase() === 'null') {
+        return null;
+      }
+      if (arg.toLowerCase() === 'false') {
+        return 'false';
+      }
+      if (arg.toLowerCase() === 'true') {
+        return 'true';
+      }
 
       return `${arg}`;
     },

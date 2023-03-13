@@ -20,7 +20,9 @@ describe('App', () => {
   useAppSelector.mockImplementation((arg: ((state: IRuntimeState) => unknown) | 'allowAnonymousSelector') => {
     if (arg === 'allowAnonymousSelector') {
       return getAllowAnonymous();
-    } else return actualUseAppSelector(arg);
+    } else {
+      return actualUseAppSelector(arg);
+    }
   });
   const makeGetAllowAnonymousSelector = jest.spyOn(anonymousSelector, 'makeGetAllowAnonymousSelector');
   let allowAnonymous: boolean | undefined = undefined;

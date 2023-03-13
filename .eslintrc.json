@@ -52,6 +52,7 @@
     "schemas/**/*.json"
   ],
   "rules": {
+    "curly": ["error", "all"],
     "no-console": [
       "warn",
       {
