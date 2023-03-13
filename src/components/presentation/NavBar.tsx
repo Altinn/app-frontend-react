@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { Close, FullscreenEnter, FullscreenExit, Left } from '@navikt/ds-icons';
+import cn from 'classnames';
 
 import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
@@ -54,7 +55,7 @@ export const NavBar = (props: INavBarProps) => {
         {showExpandWidthButton && (
           <Button
             data-testid='form-expand-button'
-            className={classes.buttonMargin}
+            className={cn(classes.buttonMargin, { [classes.hideExpandButtonMaxWidth]: !expandedWidth })}
             onClick={handleExpand}
             variant={ButtonVariant.Quiet}
             color={ButtonColor.Secondary}
