@@ -84,7 +84,7 @@ describe('DropdownComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('sweden');
+    expect(handleDataChange).toHaveBeenCalledWith('sweden', { validate: true });
   });
 
   it('should show as disabled when readOnly is true', () => {
@@ -114,7 +114,7 @@ describe('DropdownComponent', () => {
       handleDataChange,
     });
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
@@ -125,7 +125,7 @@ describe('DropdownComponent', () => {
       handleDataChange,
     });
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     const select = screen.getByRole('combobox');
 
     await act(() => user.click(select));
@@ -175,7 +175,7 @@ describe('DropdownComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for first');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true });
 
     await act(() =>
       user.selectOptions(screen.getByRole('combobox'), [
@@ -187,7 +187,7 @@ describe('DropdownComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for second');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);
   });
 });

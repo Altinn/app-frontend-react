@@ -71,7 +71,7 @@ describe('InputComponent', () => {
     });
 
     expect(inputComponent).toHaveValue(typedValue);
-    expect(handleDataChange).toHaveBeenCalledWith(typedValue);
+    expect(handleDataChange).toHaveBeenCalledWith(typedValue, { validate: true });
   });
 
   it('should render input with formatted number when this is specified', async () => {
