@@ -93,7 +93,7 @@ export interface IComponentProps {
   language: ILanguage;
   shouldFocus: boolean;
   text: React.ReactNode | string;
-  texts: {
+  texts?: {
     [textResourceKey: string]: React.ReactNode;
   };
   label: () => JSX.Element;
