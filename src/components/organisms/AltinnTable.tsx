@@ -15,7 +15,7 @@ export interface IAltinnTableProps extends StyleProps {
 const useStyles = makeStyles(() => {
   return {
     table: ({ tableLayout = 'fixed', wordBreak = 'break-word' }: StyleProps) => ({
-      tableLayout: tableLayout,
+      tableLayout,
       marginBottom: '12px',
       wordBreak,
     }),

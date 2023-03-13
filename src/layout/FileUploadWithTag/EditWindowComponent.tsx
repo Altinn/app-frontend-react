@@ -70,7 +70,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
         attachment: props.attachment,
         componentId: id,
         attachmentType: baseComponentId || id,
-        dataModelBindings: dataModelBindings,
+        dataModelBindings,
       }),
     );
     props.setEditIndex(-1);

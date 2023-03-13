@@ -46,9 +46,9 @@ export function splitDashedKey(componentId: string): SplitKey {
       const stringDepth = depth.join('-').toString();
       return {
         baseComponentId: [...parts, toConsider].join('-'),
-        stringDepth: stringDepth,
+        stringDepth,
         stringDepthWithLeadingDash: stringDepth ? `-${stringDepth}` : '',
-        depth: depth,
+        depth,
       };
     }
   }

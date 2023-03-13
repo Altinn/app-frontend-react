@@ -342,10 +342,10 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
 
       {shouldShowFileUpload() &&
         AttachmentsCounter({
-          language: language,
+          language,
           currentNumberOfAttachments: attachments.length,
-          minNumberOfAttachments: minNumberOfAttachments,
-          maxNumberOfAttachments: maxNumberOfAttachments,
+          minNumberOfAttachments,
+          maxNumberOfAttachments,
         })}
 
       {validationMessages.simpleBinding?.errors &&
@@ -355,10 +355,10 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
       <FileList />
       {!shouldShowFileUpload() &&
         AttachmentsCounter({
-          language: language,
+          language,
           currentNumberOfAttachments: attachments.length,
-          minNumberOfAttachments: minNumberOfAttachments,
-          maxNumberOfAttachments: maxNumberOfAttachments,
+          minNumberOfAttachments,
+          maxNumberOfAttachments,
         })}
 
       {validationMessages.simpleBinding?.errors &&

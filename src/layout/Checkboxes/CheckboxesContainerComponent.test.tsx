@@ -72,7 +72,7 @@ const render = ({ component, genericProps, optionState }: Props = {}) => {
 
 const getCheckbox = ({ name, isChecked = false }) => {
   return screen.getByRole('checkbox', {
-    name: name,
+    name,
     checked: isChecked,
   });
 };

@@ -53,6 +53,7 @@
   ],
   "rules": {
     "curly": ["error", "all"],
+    "object-shorthand": ["error", "always"],
     "no-console": [
       "warn",
       {

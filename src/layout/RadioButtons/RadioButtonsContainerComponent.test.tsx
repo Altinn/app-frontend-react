@@ -73,7 +73,7 @@ const render = ({
 
 const getRadio = ({ name, isChecked = false }) => {
   return screen.getByRole('radio', {
-    name: name,
+    name,
     checked: isChecked,
   });
 };

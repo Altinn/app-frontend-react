@@ -392,7 +392,7 @@ export const ExprFunctions = {
     lastArgSpreads: true,
   }),
   if: defineFunc({
-    impl: function (...args): any {
+    impl(...args): any {
       const [condition, result] = args;
       if (condition === true) {
         return result;
@@ -416,7 +416,7 @@ export const ExprFunctions = {
     returns: ExprVal.Any,
   }),
   instanceContext: defineFunc({
-    impl: function (key): string | null {
+    impl(key): string | null {
       if (key === null || instanceContextKeys[key] !== true) {
         throw new LookupNotFound(this, `Unknown Instance context property ${key}`);
       }
@@ -427,7 +427,7 @@ export const ExprFunctions = {
     returns: ExprVal.String,
   }),
   frontendSettings: defineFunc({
-    impl: function (key): any {
+    impl(key): any {
       if (key === null) {
         throw new LookupNotFound(this, `Value cannot be null. (Parameter 'key')`);
       }
@@ -438,7 +438,7 @@ export const ExprFunctions = {
     returns: ExprVal.Any,
   }),
   component: defineFunc({
-    impl: function (id): any {
+    impl(id): any {
       if (id === null) {
         throw new LookupNotFound(this, `Cannot lookup component null`);
       }
@@ -469,7 +469,7 @@ export const ExprFunctions = {
     returns: ExprVal.Any,
   }),
   dataModel: defineFunc({
-    impl: function (path): any {
+    impl(path): any {
       if (path === null) {
         throw new LookupNotFound(this, `Cannot lookup dataModel null`);
       }
@@ -514,7 +514,7 @@ export const ExprTypes: {
   [ExprVal.Boolean]: {
     nullable: true,
     accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
-    impl: function (arg) {
+    impl(arg) {
       if (typeof arg === 'boolean') {
         return arg;
       }
@@ -543,7 +543,7 @@ export const ExprTypes: {
   [ExprVal.String]: {
     nullable: true,
     accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
-    impl: function (arg) {
+    impl(arg) {
       if (['number', 'bigint', 'boolean'].includes(typeof arg)) {
         return JSON.stringify(arg);
       }
@@ -565,7 +565,7 @@ export const ExprTypes: {
   [ExprVal.Number]: {
     nullable: true,
     accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
-    impl: function (arg) {
+    impl(arg) {
       if (typeof arg === 'number' || typeof arg === 'bigint') {
         return arg as number;
       }

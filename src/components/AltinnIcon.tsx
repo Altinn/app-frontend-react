@@ -30,8 +30,8 @@ export const AltinnIcon = ({
         color: isActive ? isActiveIconColor : iconColor,
         fontSize: iconSize,
         fontWeight: weight,
-        margin: margin,
-        padding: padding,
+        margin,
+        padding,
       }}
     />
   );
