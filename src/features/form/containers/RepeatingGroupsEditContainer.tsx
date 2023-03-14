@@ -69,7 +69,7 @@ export function RepeatingGroupsEditContainer({
   );
 }
 
-export function RepeatingGroupsEditContainerInternal({
+function RepeatingGroupsEditContainerInternal({
   id,
   className,
   deleting,
