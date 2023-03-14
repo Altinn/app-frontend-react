@@ -12,9 +12,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@altinn/altinn-design-system@npm:0.27.5":
-  version: 0.27.5
-  resolution: "@altinn/altinn-design-system@npm:0.27.5"
+"@altinn/altinn-design-system@npm:0.27.6":
+  version: 0.27.6
+  resolution: "@altinn/altinn-design-system@npm:0.27.6"
   dependencies:
     "@altinn/figma-design-tokens": ^6.0.1
     "@navikt/ds-icons": ^2.0.0
@@ -25,7 +25,7 @@ __metadata:
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
-  checksum: 19abedbdb39df5a9fe633dadb78d7407b465422ac398df75661a373a9ba53e731c2b7f799c79de30905c44e1755e6f0f1fc04d192bd6fa7c7b7aaf4d360b215c
+  checksum: 72c411faeec64503678cd8932d008ce7036297974a78d9a3808bc1a308fdbd49c2cbfddd286397c769dc10368569b5f2a971b8265e8f896e4244ce1742cd429e
   languageName: node
   linkType: hard
 
@@ -3668,6 +3668,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@navikt/aksel-icons@npm:^2.7.3":
+  version: 2.7.3
+  resolution: "@navikt/aksel-icons@npm:2.7.3"
+  checksum: f8a64e488ef83487a34294b2c46671ee4e659c55af83259a9f49fb148fd51e88744262ec2c639be700099fdbb439a0a48e60c51c6db84da8712b0d409003aac8
+  languageName: node
+  linkType: hard
+
 "@navikt/ds-icons@npm:^2.0.0":
   version: 2.0.6
   resolution: "@navikt/ds-icons@npm:2.0.6"
@@ -5573,7 +5580,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "app-frontend-react@workspace:."
   dependencies:
-    "@altinn/altinn-design-system": 0.27.5
+    "@altinn/altinn-design-system": 0.27.6
     "@babel/core": 7.21.0
     "@babel/polyfill": 7.12.1
     "@babel/preset-env": 7.20.2
@@ -5583,6 +5590,7 @@ __metadata:
     "@material-ui/core": 4.12.4
     "@material-ui/icons": 4.11.3
     "@material-ui/pickers": 3.3.10
+    "@navikt/aksel-icons": ^2.7.3
     "@pmmmwh/react-refresh-webpack-plugin": 0.5.10
     "@reduxjs/toolkit": 1.9.3
     "@testing-library/cypress": 9.0.0
