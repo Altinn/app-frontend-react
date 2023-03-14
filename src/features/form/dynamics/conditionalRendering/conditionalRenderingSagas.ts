@@ -97,7 +97,7 @@ export function* checkIfConditionalRulesShouldRunSaga({
               yield put(
                 ValidationActions.runSingleFieldValidation({
                   componentId,
-                  layoutId,
+                  layoutId: node.top.top?.myKey ?? 'unknown',
                   dataModelBinding,
                 }),
               );
