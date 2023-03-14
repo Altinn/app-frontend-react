@@ -55,7 +55,7 @@ describe('Summary', () => {
         cy.wrap(summary)
           .children()
           .contains(mui.gridContainer, 'Til:')
-          .children(mui.gridItem)
+          .children()
           .then((items) => {
             cy.wrap(items).should('contain.text', 'a a');
             cy.wrap(items).find('button').should('not.exist');
@@ -65,7 +65,7 @@ describe('Summary', () => {
           .siblings()
           .contains(mui.gridContainer, texts.dateOfEffect)
           .then((summaryDate) => {
-            cy.wrap(summaryDate).children(mui.gridItem).find('button').should('exist').and('be.visible').click();
+            cy.wrap(summaryDate).children().find('button').should('exist').and('be.visible').click();
             cy.get(appFrontend.changeOfName.dateOfEffect).clear();
             cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
             cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
@@ -213,9 +213,11 @@ describe('Summary', () => {
         cy.wrap(item).eq(6).should('contain.text', 'Digitaliseringsdirektoratet');
         cy.wrap(item).eq(7).should('contain.text', 'Sophie Salt');
 
-        // Go back to the repeating group in order to set nested options
-        cy.wrap(item).eq(5).find('button').first().should('contain.text', texts.change).click();
+        cy.wrap(item).eq(5).find('button').first().should('contain.text', texts.change);
       });
+
+    // Go back to the repeating group in order to set nested options
+    cy.get(appFrontend.group.mainGroupSummary).first().children(mui.gridItem).eq(5).find('button').first().click();
 
     // Check to show a couple of nested options, then go back to the summary
     cy.get(appFrontend.group.row(0).editBtn).click();

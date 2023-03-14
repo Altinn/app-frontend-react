@@ -14,7 +14,6 @@ import { FormComponent } from 'src/layout/LayoutComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
-import type { ComponentExceptGroupAndSummary } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -39,6 +38,12 @@ const useStyles = makeStyles({
     '@media print': {
       pageBreakInside: 'avoid',
     },
+  },
+  container: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   label: {
     fontWeight: 500,
@@ -155,14 +160,11 @@ export function SummaryGroupComponent({
 
   return (
     <>
-      <Grid
-        container={true}
+      <div
         data-testid={'summary-group-component'}
+        style={{ width: '100%' }}
       >
-        <Grid
-          item={true}
-          xs={10}
-        >
+        <div className={classes.container}>
           <Typography
             variant='body1'
             className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
@@ -170,22 +172,15 @@ export function SummaryGroupComponent({
           >
             {title}
           </Typography>
-        </Grid>
-        <Grid
-          item
-          xs={2}
-        >
-          {!display?.hideChangeButton && (
+
+          {!display?.hideChangeButton ? (
             <EditButton
               onClick={onChangeClick}
               editText={changeText}
             />
-          )}
-        </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+          ) : null}
+        </div>
+        <div style={{ width: '100%' }}>
           {rowIndexes.length === 0 ? (
             <Typography
               variant='body1'
@@ -199,7 +194,7 @@ export function SummaryGroupComponent({
               const childSummaryComponents = targetNode
                 .children(undefined, idx)
                 .filter((n) => !inExcludedChildren(n))
-                .filter((node) => node.getComponent()?.getComponentType() === ComponentType.Form)
+                .filter((node) => node.getComponent().getComponentType() === ComponentType.Form)
                 .map((child) => {
                   const component = child.getComponent();
                   if (child.isHidden() || !(component instanceof FormComponent)) {
@@ -208,9 +203,12 @@ export function SummaryGroupComponent({
                   const RenderCompactSummary = component.renderCompactSummary.bind(component);
                   return (
                     <RenderCompactSummary
+                      onChangeClick={onChangeClick}
+                      changeText={changeText}
                       key={child.item.id}
-                      targetNode={child as LayoutNodeFromType<ComponentExceptGroupAndSummary>}
+                      targetNode={child as any}
                       summaryNode={summaryNode}
+                      overrides={{}}
                     />
                   );
                 });
@@ -225,8 +223,9 @@ export function SummaryGroupComponent({
               );
             })
           )}
-        </Grid>
-      </Grid>
+        </div>
+      </div>
+
       {groupHasErrors && !display?.hideValidationMessages && (
         <Grid
           container={true}

@@ -19,8 +19,8 @@ export class AppFrontend {
   //Common
   public loadingAnimation = 'rect[role="presentation"]';
   public header = '.a-modal-header';
-  public closeButton = '.a-modal-close-icon';
-  public backButton = '.a-modal-back';
+  public closeButton = '[data-testid="form-close-button"]';
+  public backButton = '[data-testid="form-back-button"]';
   public attachmentIcon = '.reg-attachment';
   public sendinButton = '#sendInButton';
   public instantiationButton = '#instantiation-button';
@@ -34,7 +34,7 @@ export class AppFrontend {
   public helpText = {
     open: 'button[aria-expanded=false]',
     close: 'button[aria-expanded=true]',
-    alert: 'div[role="dialog"]',
+    alert: 'div[role="tooltip"]',
   };
 
   public navMenu = '#navigation-menu';
