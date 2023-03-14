@@ -39,6 +39,12 @@ const useStyles = makeStyles({
       pageBreakInside: 'avoid',
     },
   },
+  container: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   label: {
     fontWeight: 500,
     fontSize: '1.125rem',
@@ -116,34 +122,32 @@ export function SummaryGroupComponent({
   if (summaryNode.item.largeGroup && overrides?.largeGroup !== false && rowIndexes.length) {
     return (
       <>
-        {rowIndexes.map((idx) => {
-          return (
-            <DisplayGroupContainer
-              key={`summary-${targetNode.item.id}-${idx}`}
-              id={`summary-${targetNode.item.id}-${idx}`}
-              groupNode={targetNode}
-              onlyRowIndex={idx}
-              renderLayoutNode={(n) => {
-                if (inExcludedChildren(n) || n.isHidden()) {
-                  return null;
-                }
+        {rowIndexes.map((idx) => (
+          <DisplayGroupContainer
+            key={`summary-${targetNode.item.id}-${idx}`}
+            id={`summary-${targetNode.item.id}-${idx}`}
+            groupNode={targetNode}
+            onlyRowIndex={idx}
+            renderLayoutNode={(n) => {
+              if (inExcludedChildren(n) || n.isHidden()) {
+                return null;
+              }
 
-                return (
-                  <SummaryComponent
-                    key={n.item.id}
-                    summaryNode={summaryNode}
-                    overrides={{
-                      ...overrides,
-                      targetNode: n,
-                      grid: {},
-                      largeGroup: false,
-                    }}
-                  />
-                );
-              }}
-            />
-          );
-        })}
+              return (
+                <SummaryComponent
+                  key={n.item.id}
+                  summaryNode={summaryNode}
+                  overrides={{
+                    ...overrides,
+                    targetNode: n,
+                    grid: {},
+                    largeGroup: false,
+                  }}
+                />
+              );
+            }}
+          />
+        ))}
       </>
     );
   }
@@ -154,14 +158,11 @@ export function SummaryGroupComponent({
 
   return (
     <>
-      <Grid
-        container={true}
+      <div
         data-testid={'summary-group-component'}
+        style={{ width: '100%' }}
       >
-        <Grid
-          item={true}
-          xs={10}
-        >
+        <div className={classes.container}>
           <Typography
             variant='body1'
             className={cn(classes.label, groupHasErrors && !display?.hideValidationMessages && classes.labelWithError)}
@@ -169,22 +170,15 @@ export function SummaryGroupComponent({
           >
             {title}
           </Typography>
-        </Grid>
-        <Grid
-          item
-          xs={2}
-        >
+
           {!display?.hideChangeButton ? (
             <EditButton
               onClick={onChangeClick}
               editText={changeText}
             />
           ) : null}
-        </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+        </div>
+        <div style={{ width: '100%' }}>
           {rowIndexes.length === 0 ? (
             <Typography
               variant='body1'
@@ -227,8 +221,9 @@ export function SummaryGroupComponent({
               );
             })
           )}
-        </Grid>
-      </Grid>
+        </div>
+      </div>
+
       {groupHasErrors && !display?.hideValidationMessages && (
         <Grid
           container={true}

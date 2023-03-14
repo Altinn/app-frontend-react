@@ -97,7 +97,7 @@ export function DropzoneComponent({
           return (
             <div
               {...getRootProps({
-                onClick: onClick,
+                onClick,
               })}
               style={styles}
               id={`altinn-drop-zone-${id}`}
@@ -111,7 +111,7 @@ export function DropzoneComponent({
                 {...getInputProps()}
                 id={id}
               />
-              <div className='container'>
+              <div>
                 <div
                   className='col text-center icon'
                   style={{ marginTop: '2.1875rem' }}

@@ -146,9 +146,7 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
     }
   };
 
-  const shouldShowFileUpload = (): boolean => {
-    return attachments.length < maxNumberOfAttachments;
-  };
+  const shouldShowFileUpload = (): boolean => attachments.length < maxNumberOfAttachments;
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     const newFiles: IAttachment[] = [];
@@ -211,7 +209,6 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
 
   return (
     <div
-      className='container'
       id={`altinn-fileuploader-${id}`}
       style={{ padding: '0px' }}
     >
@@ -233,10 +230,10 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
 
       {shouldShowFileUpload() &&
         AttachmentsCounter({
-          language: language,
+          language,
           currentNumberOfAttachments: attachments.length,
-          minNumberOfAttachments: minNumberOfAttachments,
-          maxNumberOfAttachments: maxNumberOfAttachments,
+          minNumberOfAttachments,
+          maxNumberOfAttachments,
         })}
 
       {hasValidationMessages && shouldShowFileUpload() && renderValidationMessagesForComponent(validationMessages, id)}
@@ -265,10 +262,10 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
 
       {!shouldShowFileUpload() &&
         AttachmentsCounter({
-          language: language,
+          language,
           currentNumberOfAttachments: attachments.length,
-          minNumberOfAttachments: minNumberOfAttachments,
-          maxNumberOfAttachments: maxNumberOfAttachments,
+          minNumberOfAttachments,
+          maxNumberOfAttachments,
         })}
 
       {hasValidationMessages && !shouldShowFileUpload() && renderValidationMessagesForComponent(validationMessages, id)}
