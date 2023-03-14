@@ -120,9 +120,8 @@ function RepeatingGroupsEditContainerInternal({
       return focusableElements.includes(tagName) && isAvailable;
     };
 
-    const findFirstFocusableElement = (container: HTMLElement): FocusableHTMLElement | undefined => {
-      return Array.from(container.getElementsByTagName('*')).find(isFocusable) as FocusableHTMLElement;
-    };
+    const findFirstFocusableElement = (container: HTMLElement): FocusableHTMLElement | undefined =>
+      Array.from(container.getElementsByTagName('*')).find(isFocusable) as FocusableHTMLElement;
 
     const firstFocusableChild = findFirstFocusableElement(gridRef.current);
 
