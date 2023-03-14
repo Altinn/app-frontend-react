@@ -128,8 +128,7 @@ function RepeatingGroupsEditContainerInternal({
       firstFocusableChild.focus();
     }
     /*
-     * Depend on group because renderLayoutNode method is invoked when group.rows[editIndex].items changes
-     * and generic components are rendered, hence we need to find the first focusable element once again.
+     * Depend on rowItems because generic components are rendered when rowItems change.
      */
   }, [editIndex, rowItems]);
 
