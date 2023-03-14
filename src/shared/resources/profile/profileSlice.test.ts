@@ -5,8 +5,8 @@ import type { IAltinnWindow } from 'src/types';
 
 describe('profileSlice', () => {
   beforeEach(() => {
-    const altinnWinow = window as any as IAltinnWindow;
-    altinnWinow.localStorage = createStorageMock();
+    const altinnWinow = window as Window as IAltinnWindow;
+    Object.defineProperty(altinnWinow, 'localStorage', { value: createStorageMock() });
     altinnWinow.app = 'test-app';
   });
   afterEach(() => {
