@@ -233,8 +233,6 @@ describe('Summary', () => {
       // See https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1321920974
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true }).blur();
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true }).blur();
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(200);
     } else {
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true });
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true });
