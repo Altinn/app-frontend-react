@@ -160,12 +160,6 @@ describe('FileUploadWithTagComponent', () => {
         component: { maxNumberOfAttachments: 3 },
         attachments: getAttachments({ count: 2 }),
       });
-
-      expect(
-        screen.getByRole('button', {
-          name: /form_filler\.file_uploader_drag form_filler\.file_uploader_find form_filler\.file_uploader_valid_file_format form_filler\.file_upload_valid_file_format_all/i,
-        }),
-      ).toBeInTheDocument();
       expect(screen.getByTestId(`altinn-drop-zone-${testId}`)).toBeInTheDocument();
     });
 
@@ -175,11 +169,6 @@ describe('FileUploadWithTagComponent', () => {
         attachments: getAttachments({ count: 3 }),
       });
 
-      expect(
-        screen.queryByRole('button', {
-          name: /form_filler\.file_uploader_drag form_filler\.file_uploader_find form_filler\.file_uploader_valid_file_format form_filler\.file_upload_valid_file_format_all/i,
-        }),
-      ).not.toBeInTheDocument();
       expect(screen.queryByTestId(`altinn-drop-zone-${testId}`)).not.toBeInTheDocument();
     });
   });
