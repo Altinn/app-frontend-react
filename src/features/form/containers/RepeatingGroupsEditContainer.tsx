@@ -101,7 +101,9 @@ export function RepeatingGroupsEditContainerInternal({
   const prevGroupRowItems = useRef<HRepGroupChild[] | undefined>(undefined);
 
   useEffect((): void => {
-    if (!gridRef.current || JSON.stringify(prevGroupRowItems.current) === JSON.stringify(rowItems)) return;
+    if (!gridRef.current || JSON.stringify(prevGroupRowItems.current) === JSON.stringify(rowItems)) {
+      return;
+    }
     prevGroupRowItems.current = rowItems;
 
     const isFocusable = (element: FocusableHTMLElement): boolean => {
