@@ -30,8 +30,8 @@ interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
   optionState?: IOptionsState;
 }
 
-const render = ({ component, genericProps, optionState }: Props = {}) => {
-  return renderGenericComponentTest({
+const render = ({ component, genericProps, optionState }: Props = {}) =>
+  renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
     component: {
@@ -68,14 +68,12 @@ const render = ({ component, genericProps, optionState }: Props = {}) => {
       };
     },
   });
-};
 
-const getCheckbox = ({ name, isChecked = false }) => {
-  return screen.getByRole('checkbox', {
-    name: name,
+const getCheckbox = ({ name, isChecked = false }) =>
+  screen.getByRole('checkbox', {
+    name,
     checked: isChecked,
   });
-};
 
 describe('CheckboxContainerComponent', () => {
   jest.useFakeTimers();
@@ -101,7 +99,7 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(handleChange).toHaveBeenCalledWith('sweden');
+    expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
@@ -175,7 +173,7 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
+    expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
   });
 
   it('should call handleDataChange with updated values when deselecting item', async () => {
@@ -199,7 +197,7 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith('norway');
+    expect(handleChange).toHaveBeenCalledWith('norway', { validate: true });
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
@@ -223,7 +221,7 @@ describe('CheckboxContainerComponent', () => {
 
     await act(() => fireEvent.blur(denmark));
 
-    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
+    expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
@@ -265,7 +263,7 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith('denmark');
+    expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
   });
 
   it('should show spinner while waiting for options', () => {
@@ -367,6 +365,6 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for second');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
   });
 });

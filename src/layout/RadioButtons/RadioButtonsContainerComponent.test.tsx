@@ -30,8 +30,8 @@ const render = ({
   component,
   genericProps,
   manipulateState,
-}: Partial<RenderGenericComponentTestProps<'RadioButtons'>> = {}) => {
-  return renderGenericComponentTest({
+}: Partial<RenderGenericComponentTestProps<'RadioButtons'>> = {}) =>
+  renderGenericComponentTest({
     type: 'RadioButtons',
     renderer: (props) => <RadioButtonContainerComponent {...props} />,
     component: {
@@ -69,14 +69,12 @@ const render = ({
           };
         },
   });
-};
 
-const getRadio = ({ name, isChecked = false }) => {
-  return screen.getByRole('radio', {
-    name: name,
+const getRadio = ({ name, isChecked = false }) =>
+  screen.getByRole('radio', {
+    name,
     checked: isChecked,
   });
-};
 
 describe('RadioButtonsContainerComponent', () => {
   jest.useFakeTimers();
@@ -102,7 +100,7 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
-    expect(handleChange).toHaveBeenCalledWith('sweden');
+    expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
@@ -156,7 +154,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(handleChange).not.toHaveBeenCalled();
     jest.runOnlyPendingTimers();
-    expect(handleChange).toHaveBeenCalledWith('denmark');
+    expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
@@ -180,7 +178,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     fireEvent.blur(denmark);
 
-    expect(handleChange).toHaveBeenCalledWith('denmark');
+    expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
@@ -314,6 +312,6 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(handleDataChange).not.toHaveBeenCalled();
     jest.runOnlyPendingTimers();
-    expect(handleDataChange).toHaveBeenCalledWith('Value for first');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true });
   });
 });
