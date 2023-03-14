@@ -77,7 +77,9 @@ export const CheckboxContainerComponent = ({
 
   const handleChange = (checkedItems: string[]) => {
     const checkedItemsString = checkedItems.join(',');
-    if (checkedItemsString !== value) setValue(checkedItems.join(','));
+    if (checkedItemsString !== value) {
+      setValue(checkedItems.join(','));
+    }
   };
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
