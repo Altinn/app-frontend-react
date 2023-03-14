@@ -233,8 +233,7 @@ describe('Group', () => {
       for (const item of items) {
         cy.get(appFrontend.group.prefill[item]).click({ force: true });
       }
-      // workaround for waiting untill the inputed data has been saved. Intercepting the PUT request does not work
-      // untill the enpoints response status code 200 It currently returns 303, which cy.intercept counts as a failure.
+      // workaround for waiting untill the inputed data has been saved.
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(200);
       cy.get(appFrontend.nextButton).click();

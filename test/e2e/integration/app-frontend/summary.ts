@@ -224,19 +224,13 @@ describe('Summary', () => {
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedDynamics).click({ force: true });
 
-    const workAroundSlowSave = JSON.parse('true');
-    if (workAroundSlowSave) {
-      // Blurring each of these works around a problem where clicking these too fast will overwrite the immedateState
-      // value in useDelayedSaveState(). This is a fundamental problem with the useDelayedSaveState() functionality,
-      // and in the future we should fix this properly by simplifying to save data immediately in the redux state
-      // but delay the PUT request instead.
-      // See https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1321920974
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true }).blur();
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true }).blur();
-    } else {
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true });
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true });
-    }
+    // Blurring each of these works around a problem where clicking these too fast will overwrite the immedateState
+    // value in useDelayedSaveState(). This is a fundamental problem with the useDelayedSaveState() functionality,
+    // and in the future we should fix this properly by simplifying to save data immediately in the redux state
+    // but delay the PUT request instead.
+    // See https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1321920974
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true }).blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true }).blur();
 
     cy.get(appFrontend.group.row(0).nestedGroup.saveBtn).click();
     cy.get(appFrontend.group.saveMainGroup).click();
