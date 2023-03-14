@@ -176,3 +176,27 @@ export const mockComponentProps: IComponentProps & { id: string } = {
   },
   text: undefined,
 };
+
+export const createStorageMock = (): Storage => {
+  let storage: Record<string, string> = {};
+  return {
+    setItem: (key, value) => {
+      console.log('key Halle:', key);
+      storage[key] = value || '';
+    },
+    getItem: (key) => (key in storage ? storage[key] : null),
+    clear: () => {
+      storage = {};
+    },
+    removeItem: (key) => {
+      delete storage[key];
+    },
+    get length() {
+      return Object.keys(storage).length;
+    },
+    key: (i) => {
+      const keys = Object.keys(storage);
+      return keys[i] || null;
+    },
+  };
+};
