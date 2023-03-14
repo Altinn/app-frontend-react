@@ -1,11 +1,13 @@
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { initialState, ProfileActions, profileSlice } from 'src/shared/resources/profile/profileSlice';
 import { createStorageMock } from 'src/testUtils';
+import type { IAltinnWindow } from 'src/types';
 
 describe('profileSlice', () => {
   beforeEach(() => {
-    window.localStorage = createStorageMock();
-    window.app = 'test-app';
+    const altinnWinow = window as any as IAltinnWindow;
+    altinnWinow.localStorage = createStorageMock();
+    altinnWinow.app = 'test-app';
   });
   afterEach(() => {
     window.localStorage.clear();
@@ -29,5 +31,13 @@ describe('profileSlice', () => {
     );
     expect(window.localStorage.getItem('selectedAppLanguagetest-app12345')).toEqual('po');
     expect(nextState.selectedAppLanguage).toEqual('po');
+  });
+  it('should use selected app language from localstorage if it exists for user', () => {
+    window.localStorage.setItem('selectedAppLanguagetest-app12345', 'nn');
+    const nextState = profileSlice.reducer(
+      initialState,
+      ProfileActions.fetchFulfilled({ profile: getProfileStateMock().profile }),
+    );
+    expect(nextState.selectedAppLanguage).toEqual('nn');
   });
 });
