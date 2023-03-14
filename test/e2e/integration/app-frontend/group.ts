@@ -231,9 +231,14 @@ describe('Group', () => {
     function clickOnPrefills(...items: (keyof typeof appFrontend.group.prefill)[]) {
       cy.get(appFrontend.prevButton).click();
       for (const item of items) {
-        cy.get(appFrontend.group.prefill[item]).click({ force: true }).blur();
+        cy.get(appFrontend.group.prefill[item]).click({ force: true });
       }
-      cy.get(appFrontend.nextButton).focus().click();
+      // workaround for waiting untill the inputed data has been saved. Intercepting the PUT request does not work
+      // untill the enpoints response status code returns a version 200. It currently returns 303, which cy.intercept
+      // counts as a failure.
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(200);
+      cy.get(appFrontend.nextButton).click();
     }
 
     clickOnPrefills('liten');
