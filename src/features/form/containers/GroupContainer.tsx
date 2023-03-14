@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Button, ButtonSize, ButtonVariant } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
@@ -46,7 +46,6 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     (state: IRuntimeState) =>
       (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.editIndex) ?? -1,
   );
-  const editIndex2 = useMemo(() => editIndex, [editIndex]);
 
   const deletingIndexes = useAppSelector(
     (state: IRuntimeState) =>
@@ -177,7 +176,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     >
       {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
-          editIndex={editIndex2}
+          editIndex={editIndex}
           id={id}
           repeatingGroupIndex={repeatingGroupIndex}
           deleting={deletingIndexes.includes(repeatingGroupIndex)}
@@ -208,7 +207,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
               setMultiPageIndex={setMultiPageIndex}
               filteredIndexes={filteredIndexList}
             />
-          )}{' '}
+          )}
           {edit?.mode === 'showAll' &&
             // Generate array of length repeatingGroupIndex and iterate over indexes
             Array(repeatingGroupIndex + 1)
