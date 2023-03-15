@@ -228,14 +228,13 @@ describe('Group', () => {
     cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
     expectRows();
 
+    cy.intercept('PUT', '**/instances/*/*/data/*').as('updateInstance');
     function clickOnPrefills(...items: (keyof typeof appFrontend.group.prefill)[]) {
       cy.get(appFrontend.prevButton).click();
       for (const item of items) {
         cy.get(appFrontend.group.prefill[item]).click({ force: true });
       }
-      // workaround for waiting untill the inputed data has been saved.
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(200);
+      cy.wait('@updateInstance');
       cy.get(appFrontend.nextButton).click();
     }
 

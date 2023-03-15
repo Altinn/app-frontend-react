@@ -226,17 +226,15 @@ describe('Summary', () => {
 
     const workAroundSlowSave = JSON.parse('true');
     if (workAroundSlowSave) {
+      cy.intercept('PUT', '**/instances/*/*/data/*').as('updateInstance');
       // Blurring each of these works around a problem where clicking these too fast will overwrite the immedateState
       // value in useDelayedSaveState(). This is a fundamental problem with the useDelayedSaveState() functionality,
       // and in the future we should fix this properly by simplifying to save data immediately in the redux state
       // but delay the PUT request instead.
       // See https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1321920974
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true }).blur();
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(200);
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true }).blur();
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(200);
+      cy.wait('@updateInstance');
     } else {
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true });
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true });
