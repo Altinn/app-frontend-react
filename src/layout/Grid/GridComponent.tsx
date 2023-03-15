@@ -75,19 +75,13 @@ export function GridComponent({ node }: PropsFromGenericComponent<'Grid'>) {
                     {cell.text}
                   </CellWithText>
                 );
-              } else if (cell && 'id' in cell && typeof cell.id === 'string') {
-                return (
-                  <CellWithComponent
-                    key={cell.id}
-                    id={cell.id}
-                    className={className}
-                  />
-                );
               }
 
+              const componentId = cell && 'id' in cell && typeof cell.id === 'string' ? cell.id : undefined;
               return (
-                <TableCell
-                  key={`${rowIdx}-${cellIdx}`}
+                <CellWithComponent
+                  key={componentId || `${rowIdx}-${cellIdx}`}
+                  id={componentId}
                   className={className}
                 />
               );
@@ -125,12 +119,12 @@ interface CellProps {
 }
 
 interface CellWithComponentProps extends CellProps {
-  id: string;
+  id?: string;
 }
 
 function CellWithComponent({ id, className }: CellWithComponentProps) {
   const node = useResolvedNode(id);
-  if (node) {
+  if (node && !node.isHidden()) {
     return (
       <TableCell className={className}>
         <GenericComponent

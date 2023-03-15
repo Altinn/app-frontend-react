@@ -3,5 +3,5 @@
 .rowReadOnly th {
   /* TODO: Use design tokens here instead? */
   /*background-color: var(--component-input-read_only_info-color-background-default);*/
-  background-color: #fbf6bd;
+  background-color: #fff4b4;
 }
