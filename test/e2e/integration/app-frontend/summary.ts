@@ -233,6 +233,7 @@ describe('Summary', () => {
       // but delay the PUT request instead.
       // See https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1321920974
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check({ force: true }).blur();
+      cy.wait('@updateInstance');
       cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check({ force: true }).blur();
       cy.wait('@updateInstance');
     } else {
