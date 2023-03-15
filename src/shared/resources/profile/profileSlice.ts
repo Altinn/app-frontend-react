@@ -26,7 +26,7 @@ export const initialState: IProfileState = {
       language: 'nb',
     },
   } as IProfile,
-  selectedAppLanguage: '',
+  selectedAppLanguage: localStorage.getItem(getLanguageStorageKey(undefined)) ?? '',
   error: null,
 };
 
