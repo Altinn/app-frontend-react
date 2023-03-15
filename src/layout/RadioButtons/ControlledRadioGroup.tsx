@@ -78,7 +78,7 @@ export const ControlledRadioGroup = ({
             onChange={handleChangeRadioGroup}
             items={calculatedOptions.map((option) => ({
               value: option.value,
-              checkboxId: `${id}-${option.label}`,
+              checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
               label: getTextResourceAsString(option.label),
               helpText: option.helpText && getTextResourceAsString(option.helpText),
             }))}

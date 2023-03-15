@@ -130,7 +130,7 @@ export const CheckboxContainerComponent = ({
         }
         items={calculatedOptions.map((option) => ({
           name: option.value,
-          checkboxId: `${id}-${option.label}`,
+          checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
           checked: selected.includes(option.value),
           label: getTextResourceAsString(option.label),
           helpText: option.helpText && getTextResourceAsString(option.helpText),
