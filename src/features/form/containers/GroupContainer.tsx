@@ -111,13 +111,10 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
   }, [dispatch, id, edit?.mode, repeatingGroupIndex, setMultiPageIndex]);
 
   useEffect(() => {
-    if (!edit) {
-      return;
-    }
-    if (edit.openByDefault && repeatingGroupIndex === -1) {
+    if (edit?.openByDefault && repeatingGroupIndex === -1) {
       onClickAdd();
     }
-  }, [edit, onClickAdd, repeatingGroupIndex]);
+  }, [edit?.openByDefault, onClickAdd, repeatingGroupIndex]);
 
   useEffect(() => {
     if (edit?.multiPage && multiPageIndex < 0) {
