@@ -2,16 +2,10 @@ import React from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
-import { makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import {
-  FullWidthWrapper,
-  xPaddingLarge,
-  xPaddingMedium,
-  xPaddingSmall,
-} from 'src/features/form/components/FullWidthWrapper';
+import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
@@ -19,32 +13,9 @@ import { LayoutPage } from 'src/utils/layout/hierarchy';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRow } from 'src/layout/Grid/types';
 
-const useStyles = makeStyles({
-  // PRIORITY: Contribute these back to the FullWidthWrapper, or rewrite it to a css module
-  fullWidthFirst: {
-    paddingLeft: xPaddingSmall,
-    '@media (min-width: 768px)': {
-      paddingLeft: xPaddingMedium,
-    },
-    '@media (min-width: 992px)': {
-      paddingLeft: xPaddingLarge,
-    },
-  },
-  fullWidthLast: {
-    paddingRight: xPaddingSmall,
-    '@media (min-width: 768px)': {
-      paddingRight: xPaddingMedium,
-    },
-    '@media (min-width: 992px)': {
-      paddingRight: xPaddingLarge,
-    },
-  },
-});
-
 export function GridComponent({ node }: PropsFromGenericComponent<'Grid'>) {
   const { rows } = node.item;
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
-  const classes = useStyles();
 
   return (
     <ConditionalWrapper
@@ -62,8 +33,8 @@ export function GridComponent({ node }: PropsFromGenericComponent<'Grid'>) {
               const isFirst = cellIdx === 0;
               const isLast = cellIdx === row.cells.length - 1;
               const className = cn({
-                [classes.fullWidthFirst]: isFirst,
-                [classes.fullWidthLast]: isLast,
+                [css.fullWidthCellFirst]: isFirst,
+                [css.fullWidthCellLast]: isLast,
               });
 
               if (cell && 'text' in cell) {
