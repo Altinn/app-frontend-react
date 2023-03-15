@@ -31,6 +31,7 @@ export const ControlledRadioGroup = ({
   handleBlur,
   handleChange,
   calculatedOptions,
+  overrideDisplay,
 }: IControlledRadioGroupProps) => {
   const { id, layout, readOnly } = node.item;
   const classes = useRadioStyles();
@@ -65,7 +66,11 @@ export const ControlledRadioGroup = ({
                 tabIndex={-1}
                 control={<StyledRadio />}
                 disabled={readOnly}
-                label={getTextResource(option.label)}
+                label={
+                  overrideDisplay?.renderCheckboxRadioLabelsWhenOnlyOne === false && calculatedOptions.length === 1
+                    ? undefined
+                    : getTextResource(option.label)
+                }
                 value={option.value}
                 classes={{ root: cn(classes.formControl) }}
               />

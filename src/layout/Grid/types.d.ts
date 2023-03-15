@@ -1,5 +1,7 @@
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { ComponentExceptGroupAndSummary, ILayoutCompBase, ILayoutComponent } from 'src/layout/layout';
+import type { ILayoutCompBase, ILayoutComponent } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 export interface GridCellOptions {
   header?: boolean; // TODO: Support expressions here?
@@ -27,4 +29,4 @@ export interface ILayoutCompGrid<C = GridComponentRef> extends ILayoutCompBase<'
 // TODO: Restrict this to only allow component types that work inside a grid
 export type ComponentInGrid = ExprResolved<Exclude<ILayoutComponent, ILayoutCompGrid>>;
 
-export type ILayoutGridHierarchy = ExprResolved<ILayoutCompGrid<ComponentExceptGroupAndSummary>>;
+export type ILayoutGridHierarchy = ExprResolved<ILayoutCompGrid<LayoutNode<Exclude<AnyItem, { type: 'Grid' }>>>>;

@@ -29,6 +29,7 @@ import { PrintButton } from 'src/layout/PrintButton/index';
 import { RadioButtons } from 'src/layout/RadioButtons/index';
 import { Summary } from 'src/layout/Summary';
 import { TextArea } from 'src/layout/TextArea/index';
+import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentTypes, IGrid } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentValidations } from 'src/types';
@@ -95,8 +96,8 @@ export interface IComponentProps {
   language: ILanguage;
   shouldFocus: boolean;
   text: React.ReactNode | string;
-  label: () => JSX.Element;
-  legend: () => JSX.Element;
+  label: () => JSX.Element | null;
+  legend: () => JSX.Element | null;
   formData: IComponentFormData;
   isValid?: boolean;
   componentValidations?: IComponentValidations;
@@ -105,6 +106,7 @@ export interface IComponentProps {
 export interface PropsFromGenericComponent<T extends ComponentTypes = ComponentTypes> extends IComponentProps {
   node: LayoutNodeFromType<T>;
   overrideItemProps?: Partial<Omit<AnyItem<T>, 'id'>>;
+  overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
 }
 
 export interface IFormComponentContext {

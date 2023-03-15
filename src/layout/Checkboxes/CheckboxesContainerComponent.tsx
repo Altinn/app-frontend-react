@@ -86,6 +86,7 @@ export const CheckboxContainerComponent = ({
   legend,
   getTextResourceAsString,
   getTextResource,
+  overrideDisplay,
 }: ICheckboxContainerProps) => {
   const classes = useStyles();
   const { id, options, optionsId, preselectedOptionIndex, layout, readOnly, mapping, source } = node.item;
@@ -184,7 +185,11 @@ export const CheckboxContainerComponent = ({
                     label={getTextResourceAsString(option.label)}
                   />
                 }
-                label={getTextResource(option.label)}
+                label={
+                  overrideDisplay?.renderCheckboxRadioLabelsWhenOnlyOne === false && calculatedOptions.length === 1
+                    ? undefined
+                    : getTextResource(option.label)
+                }
               />
             ))}
           </>
