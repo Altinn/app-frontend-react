@@ -1,17 +1,27 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import classes from 'src/features/form/containers/RepeatingGroup.module.css';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGroupEditProperties } from 'src/layout/Group/types';
+import type { ILanguage } from 'src/types/shared';
+import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { AnyItem, HRepGroup, HRepGroupChild, HRepGroupRow } from 'src/utils/layout/hierarchy.types';
+
+type FocusableHTMLElement = HTMLElement &
+  HTMLButtonElement &
+  HTMLInputElement &
+  HTMLSelectElement &
+  HTMLTextAreaElement &
+  HTMLAnchorElement;
 
 export interface IRepeatingGroupsEditContainer {
   id: string;
@@ -27,37 +37,39 @@ export interface IRepeatingGroupsEditContainer {
   filteredIndexes?: number[] | null;
 }
 
-const useStyles = makeStyles({
-  editContainer: {
-    backgroundColor: '#f1fbff',
-    width: '100%',
-    display: 'inline-block',
-    padding: '12px 24px',
-    '@media (min-width: 768px)': {
-      padding: '24px 84px',
-    },
-    '@media (min-width: 992px)': {
-      padding: '36px 96px',
-    },
-  },
-  nestedEditContainer: {
-    backgroundColor: '#f1fbff',
-    width: '100%',
-    display: 'inline-block',
-    padding: '12px 24px',
-  },
-  hideTable: {
-    borderTop: `2px dotted ${AltinnStudioTheme.altinnPalette.primary.blueMedium}`,
-    borderBottom: `2px dotted ${AltinnStudioTheme.altinnPalette.primary.blueMedium}`,
-    marginBottom: '-2px',
-  },
-  nestedHideTable: {
-    borderRight: `2px dotted ${AltinnStudioTheme.altinnPalette.primary.blueMedium}`,
-    borderLeft: `2px dotted ${AltinnStudioTheme.altinnPalette.primary.blueMedium}`,
-  },
-});
-
 export function RepeatingGroupsEditContainer({
+  id,
+  editIndex,
+  ...props
+}: IRepeatingGroupsEditContainer): JSX.Element | null {
+  const language = useAppSelector((state) => state.language.language);
+  const node = useResolvedNode(id);
+  const group = node?.item;
+
+  if (!group || !node || group.type !== 'Group' || !('rows' in group)) {
+    return null;
+  }
+
+  const row = group.rows[editIndex];
+
+  if (!row || !language) {
+    return null;
+  }
+
+  return (
+    <RepeatingGroupsEditContainerInternal
+      id={id}
+      editIndex={editIndex}
+      group={group}
+      row={row}
+      node={node}
+      language={language}
+      {...props}
+    />
+  );
+}
+
+function RepeatingGroupsEditContainerInternal({
   id,
   className,
   deleting,
@@ -69,20 +81,57 @@ export function RepeatingGroupsEditContainer({
   multiPageIndex,
   setMultiPageIndex,
   filteredIndexes,
-}: IRepeatingGroupsEditContainer): JSX.Element | null {
-  const classes = useStyles();
-  const language = useAppSelector((state) => state.language.language);
+  group,
+  row,
+  node,
+  language,
+}: IRepeatingGroupsEditContainer & {
+  group: HRepGroup;
+  row: HRepGroupRow;
+  node: LayoutNode<AnyItem>;
+  language: ILanguage;
+}): JSX.Element | null {
   const textResources = useAppSelector((state) => state.textResources.resources);
-  const node = useResolvedNode(id);
-  const group = node?.item;
-  if (!group || !node || group.type !== 'Group' || !('rows' in group)) {
-    return null;
-  }
-
-  const row = group.rows[editIndex];
   const textsForRow = row?.groupExpressions?.textResourceBindings;
   const editForRow = row?.groupExpressions?.edit;
   const editForGroup = group.edit;
+  const rowItems = row.items;
+
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const prevGroupRowItems = useRef<HRepGroupChild[] | undefined>(undefined);
+
+  useEffect((): void => {
+    if (!gridRef.current || JSON.stringify(prevGroupRowItems.current) === JSON.stringify(rowItems)) {
+      return;
+    }
+    prevGroupRowItems.current = rowItems;
+
+    const isFocusable = (element: FocusableHTMLElement): boolean => {
+      const tagName = element.tagName.toLowerCase();
+      const focusableElements = ['a', 'input', 'select', 'textarea', 'button'];
+
+      if (element.tabIndex < 0) {
+        return false;
+      }
+
+      const isAvailable =
+        element.type !== 'hidden' || !element.disabled || (element.type.toLowerCase() === 'a' && !!element.href);
+
+      return focusableElements.includes(tagName) && isAvailable;
+    };
+
+    const findFirstFocusableElement = (container: HTMLElement): FocusableHTMLElement | undefined =>
+      Array.from(container.getElementsByTagName('*')).find(isFocusable) as FocusableHTMLElement;
+
+    const firstFocusableChild = findFirstFocusableElement(gridRef.current);
+
+    if (firstFocusableChild) {
+      firstFocusableChild.focus();
+    }
+    /*
+     * Depend on rowItems because generic components are rendered when rowItems change.
+     */
+  }, [editIndex, rowItems]);
 
   const texts = {
     ...group.textResourceBindings,
@@ -122,16 +171,33 @@ export function RepeatingGroupsEditContainer({
     }
   };
 
+  const getGenericComponentsToRender = (): (JSX.Element | null)[] =>
+    rowItems.map((component): JSX.Element | null => {
+      const isMultiPage =
+        edit?.multiPage &&
+        typeof multiPageIndex === 'number' &&
+        multiPageIndex > -1 &&
+        component.multiPageIndex !== multiPageIndex;
+
+      if (isMultiPage) {
+        return null;
+      }
+
+      const nodeToRender = node.top.findById(component.id);
+      return nodeToRender ? (
+        <GenericComponent
+          node={nodeToRender}
+          key={nodeToRender.item.id}
+        />
+      ) : null;
+    });
+
   const isNested = typeof group.baseComponentId === 'string';
   const saveButtonVisible =
     !forceHideSaveButton && (edit?.saveButton !== false || (edit.saveAndNextButton === true && nextIndex === null));
   const saveAndNextButtonVisible = !forceHideSaveButton && edit.saveAndNextButton === true && nextIndex !== null;
 
   const hideTable = edit.mode === 'hideTable' || edit.mode === 'showAll';
-
-  if (!row || !language) {
-    return null;
-  }
 
   return (
     <div
@@ -178,27 +244,9 @@ export function RepeatingGroupsEditContainer({
           alignItems='flex-start'
           item={true}
           spacing={3}
+          ref={gridRef}
         >
-          {row.items.map((component) => {
-            if (
-              edit?.multiPage &&
-              typeof multiPageIndex === 'number' &&
-              multiPageIndex > -1 &&
-              component.multiPageIndex !== multiPageIndex
-            ) {
-              return null;
-            }
-            const n = node?.top.findById(component.id);
-            if (!n) {
-              return null;
-            }
-            return (
-              <GenericComponent
-                key={n.item.id}
-                node={n}
-              />
-            );
-          })}
+          {getGenericComponentsToRender()}
         </Grid>
         <Grid item={true}>
           {edit?.multiPage && (
@@ -210,7 +258,7 @@ export function RepeatingGroupsEditContainer({
             >
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > 0 &&
-                row.items.filter((n) => n.multiPageIndex === multiPageIndex - 1).length > 0 && (
+                rowItems.filter((n) => n.multiPageIndex === multiPageIndex - 1).length > 0 && (
                   <Grid item={true}>
                     <Button
                       icon={<Back aria-hidden='true' />}
@@ -224,7 +272,7 @@ export function RepeatingGroupsEditContainer({
                 )}
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > -1 &&
-                row.items.filter((n) => n.multiPageIndex === multiPageIndex + 1).length > 0 && (
+                rowItems.filter((n) => n.multiPageIndex === multiPageIndex + 1).length > 0 && (
                   <Grid item={true}>
                     <Button
                       icon={<Next aria-hidden='true' />}

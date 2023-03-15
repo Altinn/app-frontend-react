@@ -249,13 +249,9 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     );
   };
 
-  const getTextResourceWrapper = (key: string) => {
-    return getTextResource(key, textResources);
-  };
+  const getTextResourceWrapper = (key: string) => getTextResource(key, textResources);
 
-  const getTextResourceAsString = (key: string) => {
-    return getTextResourceByKey(key, textResources);
-  };
+  const getTextResourceAsString = (key: string) => getTextResourceByKey(key, textResources);
 
   const fixedComponentProps: IComponentProps = {
     handleDataChange,

@@ -102,15 +102,13 @@ export const mockMediaQuery = (maxWidth: number) => {
       configurable: true,
       value: width,
     });
-    window.matchMedia = jest.fn().mockImplementation((query: string) => {
-      return {
-        matches: width <= maxWidth,
-        media: query,
-        onchange: null,
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-      };
-    });
+    window.matchMedia = jest.fn().mockImplementation((query: string) => ({
+      matches: width <= maxWidth,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    }));
   };
 
   return { setScreenWidth };
@@ -131,14 +129,12 @@ export function MemoryRouterWithRedirectingRoot({
   to,
   children,
 }: MemoryRouterWithRedirectingRootParams) {
-  const Relocate = ({ navPath }) => {
-    return (
-      <Navigate
-        to={navPath}
-        replace
-      />
-    );
-  };
+  const Relocate = ({ navPath }) => (
+    <Navigate
+      to={navPath}
+      replace
+    />
+  );
   return (
     <MemoryRouter
       initialEntries={initialEntries.map((e) => `${basename}${e}`)}
@@ -179,4 +175,27 @@ export const mockComponentProps: IComponentProps & { id: string } = {
     throw new Error('Rendered mock legend, override this yourself');
   },
   text: undefined,
+};
+
+export const createStorageMock = (): Storage => {
+  let storage: Record<string, string> = {};
+  return {
+    setItem: (key, value) => {
+      storage[key] = value || '';
+    },
+    getItem: (key) => (key in storage ? storage[key] : null),
+    clear: () => {
+      storage = {};
+    },
+    removeItem: (key) => {
+      delete storage[key];
+    },
+    get length() {
+      return Object.keys(storage).length;
+    },
+    key: (i) => {
+      const keys = Object.keys(storage);
+      return keys[i] || null;
+    },
+  };
 };
