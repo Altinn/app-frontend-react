@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { _private } from 'src/utils/layout/hierarchy';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutNodeFromObj } from 'src/utils/layout/hierarchy.types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -16,7 +15,7 @@ export const ExprContext = React.createContext<LayoutPages | undefined>(undefine
  * @see useResolvedNode
  */
 function useLayoutsAsNodes(): LayoutPages | undefined {
-  return useAppSelector((state) => resolvedLayoutsFromState(state));
+  return _private.useResolvedExpressions();
 }
 
 export const ExprContextWrapper = (props: React.PropsWithChildren) => {
