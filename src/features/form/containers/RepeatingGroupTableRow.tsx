@@ -101,10 +101,9 @@ export function RepeatingGroupTableRow({
   } as ExprResolved<ILayoutGroup['textResourceBindings']>;
 
   const tableNodes = getTableNodes(index) || [];
-  const displayData = tableNodes.map((node) => {
-    const component = node.getComponent();
-    return component instanceof FormComponent ? component.useDisplayData(node as any) : '';
-  });
+  const displayData = tableNodes.map((node) =>
+    node.def instanceof FormComponent ? node.def.useDisplayData(node as any) : '',
+  );
   const firstCellData = displayData.find((c) => !!c);
 
   if (!language) {

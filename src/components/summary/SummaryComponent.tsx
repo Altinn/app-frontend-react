@@ -111,7 +111,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   const displayGrid =
     display && display.useComponentGrid ? overrides?.grid || targetItem?.grid : overrides?.grid || grid;
 
-  const component = targetNode.getComponent();
+  const component = targetNode.def;
   const RenderSummary = component instanceof FormComponent ? component.renderSummary.bind(component) : null;
 
   return (
