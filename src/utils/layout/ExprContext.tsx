@@ -1,7 +1,7 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { dataSourcesFromState, resolvedNodesInLayouts, rewriteTextResourceBindings } from 'src/utils/layout/hierarchy';
+import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutNodeFromObj } from 'src/utils/layout/hierarchy.types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -16,22 +16,7 @@ export const ExprContext = React.createContext<LayoutPages | undefined>(undefine
  * @see useResolvedNode
  */
 function useLayoutsAsNodes(): LayoutPages | undefined {
-  const dataSources = useAppSelector((state) => dataSourcesFromState(state));
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const current = useAppSelector((state) => state.formLayout.uiConfig.currentView);
-  const textResources = useAppSelector((state) => state.textResources.resources);
-
-  return useMemo(() => {
-    if (!layouts || !current || !repeatingGroups) {
-      return undefined;
-    }
-
-    const resolved = resolvedNodesInLayouts(layouts, current, repeatingGroups, dataSources);
-    rewriteTextResourceBindings(resolved, textResources);
-
-    return resolved;
-  }, [layouts, current, repeatingGroups, dataSources, textResources]);
+  return useAppSelector((state) => resolvedLayoutsFromState(state));
 }
 
 export const ExprContextWrapper = (props: React.PropsWithChildren) => {
