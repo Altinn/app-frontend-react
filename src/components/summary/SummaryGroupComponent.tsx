@@ -14,8 +14,8 @@ import { FormComponent } from 'src/layout/LayoutComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface ISummaryGroupComponent {
   changeText: string | null;

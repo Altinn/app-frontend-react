@@ -6,8 +6,8 @@ import cn from 'classnames';
 import { EditButton } from 'src/components/summary/EditButton';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface SummaryBoilerplateProps {
   onChangeClick: () => void;

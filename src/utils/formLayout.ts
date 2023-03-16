@@ -10,7 +10,8 @@ import type {
   IOptionsChosen,
   IRepeatingGroups,
 } from 'src/types';
-import type { LayoutNode, LayoutPage } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 interface SplitKey {
   baseComponentId: string;

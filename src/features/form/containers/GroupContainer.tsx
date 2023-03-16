@@ -18,7 +18,7 @@ import { getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { IRuntimeState } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGroupProps {
   id: string;

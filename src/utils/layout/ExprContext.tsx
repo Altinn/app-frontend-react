@@ -1,14 +1,10 @@
 import React, { useContext, useMemo } from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import {
-  dataSourcesFromState,
-  LayoutNode,
-  resolvedNodesInLayouts,
-  rewriteTextResourceBindings,
-} from 'src/utils/layout/hierarchy';
-import type { LayoutPages } from 'src/utils/layout/hierarchy';
+import { dataSourcesFromState, resolvedNodesInLayouts, rewriteTextResourceBindings } from 'src/utils/layout/hierarchy';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutNodeFromObj } from 'src/utils/layout/hierarchy.types';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export const ExprContext = React.createContext<LayoutPages | undefined>(undefined);
 

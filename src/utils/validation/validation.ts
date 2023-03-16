@@ -41,7 +41,10 @@ import type {
   IValidations,
 } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
-import type { LayoutNode, LayoutObject, LayoutPage, LayoutPages } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutObject } from 'src/utils/layout/LayoutObject';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export interface ISchemaValidators {
   [id: string]: ISchemaValidator;

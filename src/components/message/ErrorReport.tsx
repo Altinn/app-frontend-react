@@ -12,7 +12,7 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { FlatError } from 'src/utils/validation/validation';
 
 export interface IErrorReportProps {

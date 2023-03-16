@@ -21,8 +21,8 @@ import type { ISingleFieldValidation } from 'src/features/form/data/formDataType
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes, IGridStyling } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGenericComponentProps<Type extends ComponentTypes> {
   node: LayoutNode | LayoutNodeFromType<Type>;
