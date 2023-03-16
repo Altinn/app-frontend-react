@@ -429,13 +429,17 @@ export class LayoutPage implements LayoutObject {
  * instance of a component inside a repeating group), finding other components near it.
  */
 export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject {
+  public readonly def: Item['type'] extends keyof ComponentClassMap ? ComponentClassMap[Item['type']] : LayoutComponent;
+
   public constructor(
     public item: Item,
     public parent: ParentNode,
     public top: LayoutPage,
     private readonly dataSources: HierarchyDataSources,
     public readonly rowIndex?: number,
-  ) {}
+  ) {
+    this.def = getLayoutComponentObject(item.type as any);
+  }
 
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
@@ -725,15 +729,6 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
     }
 
     return validations[type] || [];
-  }
-
-  /**
-   * Gets the LayoutComponent object, a toolbox for this specific component
-   */
-  public getComponent(): Item['type'] extends keyof ComponentClassMap
-    ? ComponentClassMap[Item['type']]
-    : LayoutComponent {
-    return getLayoutComponentObject(this.item.type as any);
   }
 
   /**

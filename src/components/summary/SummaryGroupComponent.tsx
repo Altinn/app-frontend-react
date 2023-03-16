@@ -192,13 +192,12 @@ export function SummaryGroupComponent({
               const childSummaryComponents = targetNode
                 .children(undefined, idx)
                 .filter((n) => !inExcludedChildren(n))
-                .filter((node) => node.getComponent().getComponentType() === ComponentType.Form)
+                .filter((node) => node.def.getType() === ComponentType.Form)
                 .map((child) => {
-                  const component = child.getComponent();
-                  if (child.isHidden() || !(component instanceof FormComponent)) {
+                  if (child.isHidden() || !(child.def instanceof FormComponent)) {
                     return;
                   }
-                  const RenderCompactSummary = component.renderCompactSummary.bind(component);
+                  const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def);
                   return (
                     <RenderCompactSummary
                       onChangeClick={onChangeClick}
