@@ -1,5 +1,8 @@
+import { useMemo } from 'react';
+
 import type { $Values } from 'utility-types';
 
+import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { getLayoutComponentObject } from 'src/layout';
 import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
@@ -853,7 +856,7 @@ function resolvedNodesInLayouts(
 ) {
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
-  const layoutsCopy: ILayouts = JSON.parse(JSON.stringify(layouts || {}));
+  const layoutsCopy: ILayouts = structuredClone(layouts || {});
   const unresolved = nodesInLayouts(layoutsCopy, currentLayout, repeatingGroups, dataSources);
 
   const config = {
@@ -1052,20 +1055,64 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
   };
 }
 
-export function resolvedLayoutsFromState(state: IRuntimeState): LayoutPages | undefined {
-  if (!state.formLayout || !state.formLayout.uiConfig?.currentView || !state.formLayout.uiConfig.repeatingGroups) {
+function innerResolvedLayoutsFromState(
+  layouts: ILayouts | null,
+  currentView: string | undefined,
+  repeatingGroups: IRepeatingGroups | null,
+  dataSources: HierarchyDataSources,
+  textResources: ITextResource[],
+): LayoutPages | undefined {
+  if (!layouts || !currentView || !repeatingGroups) {
     return undefined;
   }
 
-  const resolved = resolvedNodesInLayouts(
+  const resolved = resolvedNodesInLayouts(layouts, currentView, repeatingGroups, dataSources);
+  rewriteTextResourceBindings(resolved, textResources);
+
+  return resolved;
+}
+
+export function resolvedLayoutsFromState(state: IRuntimeState) {
+  return innerResolvedLayoutsFromState(
     state.formLayout.layouts,
     state.formLayout.uiConfig.currentView,
     state.formLayout.uiConfig.repeatingGroups,
     dataSourcesFromState(state),
+    state.textResources.resources,
   );
-  rewriteTextResourceBindings(resolved, state.textResources.resources);
+}
 
-  return resolved;
+/**
+ * This is a more efficient, memoized version of what happens above. This will only be used from ExprContext,
+ * and trades verbosity and code duplication for performance and caching.
+ */
+function useResolvedExpressions() {
+  const state = useAppSelector((state) => state);
+  const instance = state.instanceData?.instance;
+  const formData = state.formData.formData;
+  const applicationSettings = state.applicationSettings.applicationSettings;
+  const hiddenFields = state.formLayout.uiConfig.hiddenFields;
+  const validations = state.formValidations.validations;
+  const layouts = state.formLayout.layouts;
+  const currentView = state.formLayout.uiConfig.currentView;
+  const repeatingGroups = state.formLayout.uiConfig.repeatingGroups;
+  const textResources = state.textResources.resources;
+
+  const dataSources: HierarchyDataSources = useMemo(
+    () => ({
+      formData,
+      applicationSettings,
+      instanceContext: buildInstanceContext(instance),
+      hiddenFields: new Set(hiddenFields),
+      validations,
+    }),
+    [formData, applicationSettings, instance, hiddenFields, validations],
+  );
+
+  return useMemo(
+    () => innerResolvedLayoutsFromState(layouts, currentView, repeatingGroups, dataSources, textResources),
+    [layouts, currentView, repeatingGroups, dataSources, textResources],
+  );
 }
 
 /**
@@ -1083,4 +1130,5 @@ export const _private = {
   nodesInLayout,
   nodesInLayouts,
   resolvedNodesInLayouts,
+  useResolvedExpressions,
 };
