@@ -12,7 +12,7 @@ These instructions will get you run the integration tests on altinn-app-frontend
     yarn --immutable # only needed first time, or when dependencies are updated
 ```
 
-If you are running locally you need a copy of [altinn-studio](https://github.com/altinn/altinn-studio). - Make sure you have followed instructions on [running apps locally](https://github.com/Altinn/altinn-studio/blob/5c05d4c32be1b24ddd5af9ddd661b2c78f65aad4/LOCALAPP.md).
+If you are running locally you need a copy of [app-localtest](https://github.com/Altinn/app-localtest). - Make sure you have followed instructions on [running apps locally](https://github.com/Altinn/app-localtest/blob/main/README.md).
 
 ### Running tests against a remote environment
 
@@ -34,8 +34,9 @@ Other remote environments could also be used (see `e2e/config/*.json`).
 
 1. Clone the apps (
    [ttd/frontend-test](https://dev.altinn.studio/repos/ttd/frontend-test),
-   [ttd/anonymous-stateless-app](https://dev.altinn.studio/repos/ttd/anonymous-stateless-app) and
-   [ttd/stateless-app](https://dev.altinn.studio/repos/ttd/stateless-app)
+   [ttd/anonymous-stateless-app](https://dev.altinn.studio/repos/ttd/anonymous-stateless-app),
+   [ttd/stateless-app](https://dev.altinn.studio/repos/ttd/stateless-app), and
+   [ttd/signing-test](https://dev.altinn.studio/repos/ttd/signing-test)
    ) to be tested.
 
 2. Create (or update) `.env` file with the correct paths (see `template.env`)
