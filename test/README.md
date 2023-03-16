@@ -14,23 +14,7 @@ These instructions will get you run the integration tests on altinn-app-frontend
 
 If you are running locally you need a copy of [altinn-studio](https://github.com/altinn/altinn-studio). - Make sure you have followed instructions on [running apps locally](https://github.com/Altinn/altinn-studio/blob/5c05d4c32be1b24ddd5af9ddd661b2c78f65aad4/LOCALAPP.md).
 
-### Test data prerequisite
-
-1. For running the test against remote test environments like AT, TT02, test user has to be created. You won't need
-   these if you intend to only run the tests against your local setup.
-
-Create a new file name `cypress.env.json` in the root folder with a username and password:
-
-```json
-{
-  "testUserName": "",
-  "testUserPwd": ""
-}
-```
-
 ### Running tests against a remote environment
-
-Be sure to supply credentials to `cypress.env.json` as described above.
 
 1. Start your local development server for `app-frontend-react`:
 
@@ -41,7 +25,7 @@ Be sure to supply credentials to `cypress.env.json` as described above.
 2. Run the tests against a remote environment:
 
 ```cmd
-    yarn run cy:test:all -e environment=at21
+    yarn run cy:test:all -e environment=tt02
 ```
 
 Other remote environments could also be used (see `e2e/config/*.json`).
