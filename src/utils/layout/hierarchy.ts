@@ -844,11 +844,8 @@ function nodesInLayouts(
 /**
  * This is the same tool as the one above, but additionally it will iterate each component/group in the layout
  * and resolve all expressions for it.
- *
- * @deprecated Do not use directly. Use ExprContext instead, as it provides
- *   resolved layouts. In sagas, use ResolvedNodesSelector
  */
-export function resolvedNodesInLayouts(
+function resolvedNodesInLayouts(
   layouts: ILayouts | null,
   currentLayout: string,
   repeatingGroups: IRepeatingGroups | null,
@@ -921,7 +918,7 @@ export function resolvedNodesInLayouts(
  * @see replaceTextResourceParams
  * @ßee getVariableTextKeysForRepeatingGroupComponent
  */
-export function rewriteTextResourceBindings(collection: LayoutPages, textResources: ITextResource[]) {
+function rewriteTextResourceBindings(collection: LayoutPages, textResources: ITextResource[]) {
   for (const layout of Object.values(collection.all())) {
     for (const node of layout.flat(true)) {
       if (!node.item.textResourceBindings || node.rowIndex === undefined) {
@@ -1055,7 +1052,11 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
   };
 }
 
-export function resolvedLayoutsFromState(state: IRuntimeState): LayoutPages {
+export function resolvedLayoutsFromState(state: IRuntimeState): LayoutPages | undefined {
+  if (!state.formLayout || !state.formLayout.uiConfig?.currentView || !state.formLayout.uiConfig.repeatingGroups) {
+    return undefined;
+  }
+
   const resolved = resolvedNodesInLayouts(
     state.formLayout.layouts,
     state.formLayout.uiConfig.currentView,
@@ -1081,4 +1082,5 @@ export const _private = {
   layoutAsHierarchyWithRows,
   nodesInLayout,
   nodesInLayouts,
+  resolvedNodesInLayouts,
 };

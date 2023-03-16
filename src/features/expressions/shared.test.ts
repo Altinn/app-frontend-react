@@ -6,7 +6,7 @@ import { convertLayouts, getSharedTests } from 'src/features/expressions/shared'
 import { asExpression } from 'src/features/expressions/validation';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
-import { _private, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
+import { _private } from 'src/utils/layout/hierarchy';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
 import type { IRepeatingGroups } from 'src/types';
@@ -14,7 +14,7 @@ import type { IApplicationSettings } from 'src/types/shared';
 import type { LayoutNode, LayoutPages } from 'src/utils/layout/hierarchy';
 import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 
-const { nodesInLayouts } = _private;
+const { nodesInLayouts, resolvedNodesInLayouts } = _private;
 
 function findComponent(context: FunctionTest['context'], collection: LayoutPages<any>) {
   const { component, rowIndices } = context || { component: 'no-component' };
