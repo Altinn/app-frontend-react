@@ -27,6 +27,7 @@ export const CheckboxContainerComponent = ({
   language,
   handleDataChange,
   getTextResource,
+  getTextResourceAsString,
 }: ICheckboxContainerProps) => {
   const {
     id,
@@ -118,7 +119,7 @@ export const CheckboxContainerComponent = ({
         legend={labelText}
         description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
         error={!isValid}
-        helpText={textResourceBindings?.help && getTextResource(textResourceBindings.help)}
+        helpText={textResourceBindings?.help && getTextResourceAsString(textResourceBindings.help)}
         variant={
           shouldUseRowLayout({
             layout,
@@ -132,7 +133,7 @@ export const CheckboxContainerComponent = ({
           checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
           checked: selected.includes(option.value),
           label: getTextResource(option.label),
-          helpText: option.helpText && getTextResource(option.helpText),
+          helpText: option.helpText && getTextResourceAsString(option.helpText),
         }))}
       />
     </div>
