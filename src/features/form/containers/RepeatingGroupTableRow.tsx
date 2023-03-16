@@ -88,7 +88,7 @@ export function RepeatingGroupTableRow({
     deleteFunctionality || {};
 
   const node = useResolvedNode(id);
-  const group = node?.item.type === 'Group' && 'rows' in node.item ? node.item : undefined;
+  const group = node?.isRepGroup() ? node.item : undefined;
   const row = group?.rows[index] ? group.rows[index] : undefined;
   const expressionsForRow = row && row.groupExpressions;
   const edit = {

@@ -9,6 +9,7 @@ import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
 import type { ComponentClassMap } from 'src/layout';
 import type {
+  ComponentTypes,
   IDataModelBindings,
   ILayout,
   ILayoutComponent,
@@ -35,6 +36,7 @@ import type {
   HRepGroup,
   HRepGroupChild,
   HRepGroupExtensions,
+  LayoutNodeFromType,
   ParentNode,
 } from 'src/utils/layout/hierarchy.types';
 
@@ -441,6 +443,18 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
     this.def = getLayoutComponentObject(item.type as any);
   }
 
+  public isType<T extends ComponentTypes>(type: T): this is LayoutNodeFromType<T> {
+    return this.item.type === type;
+  }
+
+  public isRepGroup(): this is LayoutNode<HRepGroup> {
+    return this.item.type === 'Group' && 'rows' in this.item;
+  }
+
+  public isNonRepGroup(): this is LayoutNode<HNonRepGroup> {
+    return this.item.type === 'Group' && !('rows' in this.item);
+  }
+
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
@@ -481,7 +495,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
 
   private childrenIdsAsList(onlyInRowIndex?: number) {
     let list: AnyItem[] = [];
-    if (this.item.type === 'Group' && 'rows' in this.item) {
+    if (this.isRepGroup()) {
       if (typeof onlyInRowIndex === 'number') {
         list = this.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || [];
       } else {
@@ -490,7 +504,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
           .map((r) => r && r.items)
           .flat() as AnyItem[];
       }
-    } else if (this.item.type === 'Group' && 'childComponents' in this.item) {
+    } else if (this.isNonRepGroup()) {
       list = this.item.childComponents;
     }
 
@@ -626,7 +640,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
         break;
       }
 
-      const arrayIndex = ours.parentIndex === lastIdx && this.item.type === 'Group' ? rowIndex : ours.arrayIndex;
+      const arrayIndex = ours.parentIndex === lastIdx && this.isRepGroup() ? rowIndex : ours.arrayIndex;
 
       if (arrayIndex === undefined) {
         continue;

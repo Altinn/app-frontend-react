@@ -52,7 +52,7 @@ export function RepeatingGroupTable({
   const language = useAppSelector((state) => state.language.language);
 
   const node = useResolvedNode(id);
-  const container = node?.item.type === 'Group' && 'rows' in node.item ? node.item : undefined;
+  const container = node?.isRepGroup() ? node.item : undefined;
   const edit = container?.edit;
 
   const getTableNodes = (rowIndex: number) =>
