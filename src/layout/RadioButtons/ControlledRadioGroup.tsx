@@ -20,7 +20,6 @@ export interface IControlledRadioGroupProps extends IRadioButtonsContainerProps 
 }
 
 export const ControlledRadioGroup = ({
-  getTextResourceAsString,
   node,
   getTextResource,
   fetchingOptions,
@@ -65,7 +64,7 @@ export const ControlledRadioGroup = ({
             description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
             value={selected}
             error={!isValid}
-            helpText={textResourceBindings?.help && getTextResourceAsString(textResourceBindings.help)}
+            helpText={textResourceBindings?.help && getTextResource(textResourceBindings.help)}
             disabled={readOnly}
             variant={
               shouldUseRowLayout({
@@ -79,8 +78,8 @@ export const ControlledRadioGroup = ({
             items={calculatedOptions.map((option) => ({
               value: option.value,
               checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
-              label: getTextResourceAsString(option.label),
-              helpText: option.helpText && getTextResourceAsString(option.helpText),
+              label: getTextResource(option.label),
+              helpText: option.helpText && getTextResource(option.helpText),
             }))}
           />
         </div>
