@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
@@ -15,6 +15,7 @@ interface Props extends Partial<RenderGenericComponentTestProps<'NavigationBar'>
 }
 
 const render = ({ dispatch = jest.fn() }: Props = {}) => {
+  const user = userEvent.setup();
   renderGenericComponentTest({
     type: 'NavigationBar',
     renderer: (props) => <NavigationBarComponent {...props} />,
@@ -120,6 +121,8 @@ const render = ({ dispatch = jest.fn() }: Props = {}) => {
       store.dispatch = dispatch;
     },
   });
+
+  return { user };
 };
 
 describe('NavigationBar', () => {
@@ -142,11 +145,11 @@ describe('NavigationBar', () => {
 
     it('should dispatch action when navigating to another page', async () => {
       const dispatchMock = jest.fn();
-      render({ dispatch: dispatchMock });
+      const { user } = render({ dispatch: dispatchMock });
 
       const btn = screen.getByText(/3\. page3/i);
 
-      await act(() => userEvent.click(btn));
+      await user.click(btn);
 
       expect(dispatchMock).toHaveBeenCalledWith({
         payload: {
@@ -159,14 +162,12 @@ describe('NavigationBar', () => {
 
     it('should not dispatch action when navigating to the same page', async () => {
       const dispatchMock = jest.fn();
-      render({ dispatch: dispatchMock });
+      const { user } = render({ dispatch: dispatchMock });
 
-      await act(() =>
-        userEvent.click(
-          screen.getByRole('button', {
-            name: /1\. page1/i,
-          }),
-        ),
+      await user.click(
+        screen.getByRole('button', {
+          name: /1\. page1/i,
+        }),
       );
 
       expect(dispatchMock).not.toHaveBeenCalled();
@@ -179,13 +180,13 @@ describe('NavigationBar', () => {
     });
 
     it('should automatically focus the first item in the navigation menu when it is displayed', async () => {
-      render();
+      const { user } = render();
 
       const toggleButton = screen.getByRole('button', {
         name: /1\/3 page1/i,
       });
 
-      await act(() => userEvent.click(toggleButton));
+      await user.click(toggleButton);
 
       const firstNavButton = screen.getByRole('button', {
         name: /1\. page1/i,
@@ -196,22 +197,18 @@ describe('NavigationBar', () => {
 
     it('should dispatch action when navigating to another page', async () => {
       const dispatchMock = jest.fn();
-      render({ dispatch: dispatchMock });
+      const { user } = render({ dispatch: dispatchMock });
 
-      await act(() =>
-        userEvent.click(
-          screen.getByRole('button', {
-            name: /1\/3 page1/i,
-          }),
-        ),
+      await user.click(
+        screen.getByRole('button', {
+          name: /1\/3 page1/i,
+        }),
       );
 
-      await act(() =>
-        userEvent.click(
-          screen.getByRole('button', {
-            name: /3\. page3/i,
-          }),
-        ),
+      await user.click(
+        screen.getByRole('button', {
+          name: /3\. page3/i,
+        }),
       );
 
       expect(dispatchMock).toHaveBeenCalledWith({
@@ -225,22 +222,18 @@ describe('NavigationBar', () => {
 
     it('should not dispatch action when navigating to the same page', async () => {
       const dispatchMock = jest.fn();
-      render({ dispatch: dispatchMock });
+      const { user } = render({ dispatch: dispatchMock });
 
-      await act(() =>
-        userEvent.click(
-          screen.getByRole('button', {
-            name: /1\/3 page1/i,
-          }),
-        ),
+      await user.click(
+        screen.getByRole('button', {
+          name: /1\/3 page1/i,
+        }),
       );
 
-      await act(() =>
-        userEvent.click(
-          screen.getByRole('button', {
-            name: /1\. page1/i,
-          }),
-        ),
+      user.click(
+        screen.getByRole('button', {
+          name: /1\. page1/i,
+        }),
       );
 
       expect(dispatchMock).not.toHaveBeenCalled();

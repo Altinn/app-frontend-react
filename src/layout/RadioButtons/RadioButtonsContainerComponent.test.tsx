@@ -77,7 +77,9 @@ const getRadio = ({ name, isChecked = false }) =>
   });
 
 describe('RadioButtonsContainerComponent', () => {
-  jest.useFakeTimers();
+  act(() => {
+    jest.useFakeTimers();
+  });
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -191,10 +193,8 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.focus(getRadio({ name: 'Denmark' }));
-      fireEvent.blur(getRadio({ name: 'Denmark' }));
-    });
+    await fireEvent.focus(getRadio({ name: 'Denmark' }));
+    await fireEvent.blur(getRadio({ name: 'Denmark' }));
 
     expect(handleChange).not.toHaveBeenCalled();
   });
@@ -206,7 +206,7 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
   it('should not show spinner when options are present', () => {
@@ -227,8 +227,10 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
@@ -249,8 +251,10 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
@@ -272,8 +276,10 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 
@@ -284,8 +290,10 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 

@@ -167,7 +167,7 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    await act(() => user.click(getCheckbox({ name: 'Denmark' })));
+    await await user.click(getCheckbox({ name: 'Denmark' }));
 
     expect(handleChange).not.toHaveBeenCalled();
 
@@ -191,7 +191,7 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark', isChecked: true })).toBeInTheDocument();
 
-    await act(() => user.click(getCheckbox({ name: 'Denmark', isChecked: true })));
+    await user.click(getCheckbox({ name: 'Denmark', isChecked: true }));
 
     expect(handleChange).not.toHaveBeenCalled();
 
@@ -215,11 +215,11 @@ describe('CheckboxContainerComponent', () => {
 
     expect(denmark).toBeInTheDocument();
 
-    await act(() => user.click(denmark));
+    await user.click(denmark);
 
     expect(handleChange).not.toHaveBeenCalled();
 
-    await act(() => fireEvent.blur(denmark));
+    await fireEvent.blur(denmark);
 
     expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
   });
@@ -234,10 +234,8 @@ describe('CheckboxContainerComponent', () => {
 
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    await act(() => {
-      fireEvent.focus(getCheckbox({ name: 'Denmark' }));
-      fireEvent.blur(getCheckbox({ name: 'Denmark' }));
-    });
+    await fireEvent.focus(getCheckbox({ name: 'Denmark' }));
+    await fireEvent.blur(getCheckbox({ name: 'Denmark' }));
 
     expect(handleChange).not.toHaveBeenCalled();
   });
@@ -257,7 +255,7 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'Sweden' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
-    await act(() => user.click(getCheckbox({ name: 'Denmark' })));
+    await user.click(getCheckbox({ name: 'Denmark' }));
 
     expect(handleChange).not.toHaveBeenCalled();
 
@@ -273,7 +271,7 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
   it('should show items in a row when layout is "row" and options count is 3', () => {
@@ -284,8 +282,9 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
@@ -304,8 +303,10 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
@@ -325,8 +326,10 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 
@@ -337,8 +340,10 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 
@@ -359,7 +364,7 @@ describe('CheckboxContainerComponent', () => {
     expect(getCheckbox({ name: 'The value from the group is: Label for first' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'The value from the group is: Label for second' })).toBeInTheDocument();
 
-    await act(() => user.click(getCheckbox({ name: 'The value from the group is: Label for second' })));
+    await user.click(getCheckbox({ name: 'The value from the group is: Label for second' }));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 

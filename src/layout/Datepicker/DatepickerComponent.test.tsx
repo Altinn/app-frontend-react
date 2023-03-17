@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
@@ -15,6 +15,7 @@ jest.mock('src/utils/dateHelpers', () => ({
 }));
 
 const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Datepicker'>> = {}) => {
+  const user = userEvent.setup();
   renderGenericComponentTest({
     type: 'Datepicker',
     renderer: (props) => <DatepickerComponent {...props} />,
@@ -25,6 +26,8 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
     },
     genericProps,
   });
+
+  return { user };
 };
 
 const currentYearNumeric = new Date().toLocaleDateString(navigator.language, {
@@ -57,11 +60,11 @@ describe('DatepickerComponent', () => {
 
   it('should not show calendar initially, and show calendar when clicking calendar button', async () => {
     jest.spyOn(console, 'error').mockImplementation();
-    render();
+    const { user } = render();
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
 
-    await act(() => userEvent.click(getOpenCalendarButton()));
+    await user.click(getOpenCalendarButton());
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -75,11 +78,11 @@ describe('DatepickerComponent', () => {
 
   it('should not show calendar initially, and show calendar in a dialog when clicking calendar button, and screen size is mobile sized', async () => {
     setScreenWidth(400);
-    render();
+    const { user } = render();
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
 
-    await act(() => userEvent.click(getOpenCalendarButton()));
+    await user.click(getOpenCalendarButton());
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.getAllByRole('dialog')[0]).toBeInTheDocument();
@@ -87,10 +90,10 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange when clicking date in calendar', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange } });
+    const { user } = render({ genericProps: { handleDataChange } });
 
-    await act(() => userEvent.click(getOpenCalendarButton()));
-    await act(() => userEvent.click(getCalendarDayButton('15')));
+    await user.click(getOpenCalendarButton());
+    await user.click(getCalendarDayButton('15'));
 
     expect(handleDataChange).toHaveBeenCalledWith(
       // Ignore TZ part of timestamp to avoid test failing when this changes
@@ -102,14 +105,12 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange without skipping validation if date is cleared', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange, formData: { simpleBinding: '2022-12-31' } } });
+    const { user } = render({ genericProps: { handleDataChange, formData: { simpleBinding: '2022-12-31' } } });
 
     const inputField = screen.getByRole('textbox');
 
-    await act(async () => {
-      await userEvent.clear(inputField);
-      fireEvent.blur(inputField);
-    });
+    await user.clear(inputField);
+    await user.tab();
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('', { validate: true });
@@ -117,15 +118,12 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange with formatted value (timestamp=true) without skipping validation if date is valid', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange }, component: { timeStamp: true } });
+    const { user } = render({ genericProps: { handleDataChange }, component: { timeStamp: true } });
 
     const inputField = screen.getByRole('textbox');
 
-    await act(async () => {
-      await userEvent.type(inputField, '31122022');
-      fireEvent.blur(inputField);
-    });
-
+    await user.type(inputField, '31122022');
+    await user.tab();
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'), {
       validate: true,
@@ -134,14 +132,12 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange with formatted value (timestamp=false) without skipping validation if date is valid', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange }, component: { timeStamp: false } });
+    const { user } = render({ genericProps: { handleDataChange }, component: { timeStamp: false } });
 
     const inputField = screen.getByRole('textbox');
 
-    await act(async () => {
-      await userEvent.type(inputField, '31122022');
-      fireEvent.blur(inputField);
-    });
+    await user.type(inputField, '31122022');
+    await user.tab();
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('2022-12-31', { validate: true });
@@ -149,14 +145,12 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange with formatted value (timestamp=undefined) without skipping validation if date is valid', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange }, component: { timeStamp: undefined } });
+    const { user } = render({ genericProps: { handleDataChange }, component: { timeStamp: undefined } });
 
     const inputField = screen.getByRole('textbox');
 
-    await act(async () => {
-      await userEvent.type(inputField, '31122022');
-      fireEvent.blur(inputField);
-    });
+    await user.type(inputField, '31122022');
+    await user.tab();
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'), {
@@ -166,14 +160,12 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange without skipping validation if date is invalid but finished filling out', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange } });
+    const { user } = render({ genericProps: { handleDataChange } });
 
     const inputField = screen.getByRole('textbox');
 
-    await act(async () => {
-      await userEvent.type(inputField, '12345678');
-      fireEvent.blur(inputField);
-    });
+    await user.type(inputField, '12345678');
+    await user.tab();
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('12.34.5678', { validate: true });
@@ -181,13 +173,12 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange with skipValidation=true if not finished filling out the date', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange } });
+    const { user } = render({ genericProps: { handleDataChange } });
 
     const inputField = screen.getByRole('textbox');
-    await act(async () => {
-      await userEvent.type(inputField, `1234`);
-      fireEvent.blur(inputField);
-    });
+
+    await user.type(inputField, `1234`);
+    await user.tab();
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('12.34.____', { validate: false });

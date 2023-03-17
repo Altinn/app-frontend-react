@@ -1,7 +1,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
@@ -79,9 +79,9 @@ describe('ConfirmPage', () => {
     expect(dispatch).toHaveBeenCalledTimes(0);
     expect(screen.queryByText(loadingText)).not.toBeInTheDocument();
     expect(submitBtn).toBeInTheDocument();
-    await act(() => userEvent.click(submitBtn));
+    await userEvent.click(submitBtn);
 
-    expect(screen.queryByText(submitBtnText)).toBeInTheDocument();
+    expect(screen.getByText(submitBtnText)).toBeInTheDocument();
     expect(screen.getByText(loadingText)).toBeInTheDocument();
     expect(dispatch).toHaveBeenCalledTimes(0);
   });

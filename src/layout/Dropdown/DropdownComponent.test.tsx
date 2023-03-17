@@ -60,7 +60,9 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
 };
 
 describe('DropdownComponent', () => {
-  jest.useFakeTimers();
+  act(() => {
+    jest.useFakeTimers();
+  });
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -77,7 +79,7 @@ describe('DropdownComponent', () => {
       },
     });
 
-    await act(() => user.selectOptions(screen.getByRole('combobox'), [screen.getByText('Sweden')]));
+    await user.selectOptions(screen.getByRole('combobox'), [screen.getByText('Sweden')]);
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
@@ -139,11 +141,11 @@ describe('DropdownComponent', () => {
     expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     const select = screen.getByRole('combobox');
 
-    await act(() => user.click(select));
+    await user.click(select);
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
-    await act(() => fireEvent.blur(select));
+    await fireEvent.blur(select);
 
     expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);
@@ -156,7 +158,7 @@ describe('DropdownComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
   it('should not show spinner when options are present', () => {

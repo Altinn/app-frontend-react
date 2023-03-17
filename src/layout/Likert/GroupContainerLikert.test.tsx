@@ -13,7 +13,9 @@ import {
 } from 'src/layout/Likert/GroupContainerLikertTestUtils';
 
 describe('GroupContainerLikert', () => {
-  jest.useFakeTimers();
+  act(() => {
+    jest.useFakeTimers();
+  });
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -143,14 +145,14 @@ describe('GroupContainerLikert', () => {
 
       mockStoreDispatch.mockClear();
       expect(btn1).not.toBeChecked();
-      await act(() => user.click(btn1));
+      await user.click(btn1);
       expect(mockStoreDispatch).not.toHaveBeenCalled();
       jest.runOnlyPendingTimers();
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1'));
 
       mockStoreDispatch.mockClear();
       expect(btn2).not.toBeChecked();
-      await act(() => user.click(btn2));
+      await user.click(btn2);
       expect(mockStoreDispatch).not.toHaveBeenCalledTimes(2);
       jest.runOnlyPendingTimers();
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3'));
@@ -237,7 +239,7 @@ describe('GroupContainerLikert', () => {
       });
 
       expect(btn1).not.toBeChecked();
-      await act(() => user.click(btn1));
+      await user.click(btn1);
       expect(mockStoreDispatch).not.toHaveBeenCalled();
       jest.runOnlyPendingTimers();
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(0, '1'));
@@ -252,7 +254,7 @@ describe('GroupContainerLikert', () => {
       });
 
       expect(btn2).not.toBeChecked();
-      await act(() => user.click(btn2));
+      await user.click(btn2);
       expect(mockStoreDispatch).not.toHaveBeenCalledTimes(2);
       jest.runOnlyPendingTimers();
       expect(mockStoreDispatch).toHaveBeenCalledWith(createFormDataUpdateAction(1, '3'));

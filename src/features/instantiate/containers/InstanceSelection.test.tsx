@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import type { Store } from 'redux';
@@ -45,10 +45,12 @@ describe('InstanceSelection', () => {
   });
 
   it('should show full size table for larger devices', () => {
+    // eslint-disable-next-line testing-library/render-result-naming-convention
     const rendered = renderInstanceSelection(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });
+    // eslint-disable-next-line
     const altinnTable = rendered.container.querySelector('#instance-selection-table');
     expect(altinnTable).not.toBeNull();
   });
@@ -56,25 +58,27 @@ describe('InstanceSelection', () => {
   it('should display mobile table for smaller devices', () => {
     // Set screen size to mobile
     setScreenWidth(600);
+    // eslint-disable-next-line testing-library/render-result-naming-convention
     const rendered = renderInstanceSelection(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });
+    // eslint-disable-next-line
     const altinnMobileTable = rendered.container.querySelector('#instance-selection-mobile-table');
     expect(altinnMobileTable).not.toBeNull();
   });
 
   it('should display active instances', async () => {
-    const rendered = renderInstanceSelection(mockStore, {
+    renderInstanceSelection(mockStore, {
       instances: mockActiveInstances,
       onNewInstance: mockStartNewInstance,
     });
 
-    const firstInstanceChangedBy = await rendered.findByText(mockActiveInstances[0].lastChangedBy);
-    const secondInstanceChangedBy = await rendered.findByText(mockActiveInstances[1].lastChangedBy);
+    const firstInstanceChangedBy = await screen.findByText(mockActiveInstances[0].lastChangedBy);
+    const secondInstanceChangedBy = await screen.findByText(mockActiveInstances[1].lastChangedBy);
 
-    const firstInstanceLastChanged = await rendered.findByText('10/05/2021');
-    const secondInstanceLastChanged = await rendered.findByText('05/13/2021');
+    const firstInstanceLastChanged = await screen.findByText('10/05/2021');
+    const secondInstanceLastChanged = await screen.findByText('05/13/2021');
 
     expect(firstInstanceChangedBy).not.toBeNull();
     expect(secondInstanceChangedBy).not.toBeNull();
@@ -89,7 +93,7 @@ describe('InstanceSelection', () => {
       onNewInstance: mockStartNewInstance,
     });
 
-    await act(() => user.click(screen.getByText(/start på nytt/i)));
+    await user.click(screen.getByText(/start på nytt/i));
     expect(mockStartNewInstance).toBeCalledTimes(1);
   });
 
@@ -107,7 +111,7 @@ describe('InstanceSelection', () => {
       name: /fortsett her/i,
     });
 
-    await act(() => user.click(button));
+    await user.click(button);
     expect(window.location.href).toBe('https://local.altinn.cloud/ttd/test#/instance/some-id');
   });
 
@@ -128,7 +132,7 @@ describe('InstanceSelection', () => {
       name: /fortsett her-05\/13\/2021/i,
     });
 
-    await act(() => user.click(button));
+    await user.click(button);
     expect(window.location.href).toBe('https://local.altinn.cloud/ttd/test#/instance/some-other-id');
   });
 });

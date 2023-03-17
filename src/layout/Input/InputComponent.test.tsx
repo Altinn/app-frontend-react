@@ -8,7 +8,9 @@ import { renderGenericComponentTest } from 'src/testUtils';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
 
 describe('InputComponent', () => {
-  jest.useFakeTimers();
+  act(() => {
+    jest.useFakeTimers();
+  });
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -43,7 +45,7 @@ describe('InputComponent', () => {
     render();
     const inputComponent = screen.getByRole('textbox');
 
-    await act(() => user.type(inputComponent, typedValue));
+    await user.type(inputComponent, typedValue);
 
     expect(inputComponent).toHaveValue(typedValue);
   });
@@ -54,7 +56,7 @@ describe('InputComponent', () => {
     render({ genericProps: { handleDataChange } });
     const inputComponent = screen.getByRole('textbox');
 
-    await act(() => user.type(inputComponent, typedValue));
+    await user.type(inputComponent, typedValue);
 
     expect(inputComponent).toHaveValue(typedValue);
     expect(handleDataChange).not.toHaveBeenCalled();
