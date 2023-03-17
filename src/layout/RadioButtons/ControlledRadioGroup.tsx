@@ -22,7 +22,6 @@ export interface IControlledRadioGroupProps extends IRadioButtonsContainerProps 
 export const ControlledRadioGroup = ({
   node,
   getTextResource,
-  getTextResourceAsString,
   fetchingOptions,
   selected,
   text,

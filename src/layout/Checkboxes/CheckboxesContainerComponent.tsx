@@ -27,7 +27,6 @@ export const CheckboxContainerComponent = ({
   language,
   handleDataChange,
   getTextResource,
-  getTextResourceAsString,
 }: ICheckboxContainerProps) => {
   const {
     id,
