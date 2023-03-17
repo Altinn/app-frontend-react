@@ -5,22 +5,24 @@ import type { SagaIterator } from 'redux-saga';
 import { layoutSetsSelector } from 'src/selectors/simpleSelectors';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
+import { getPermissionsFromProcess } from 'src/shared/resources/process/getProcessState/getProcessStateSagas';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { httpPut } from 'src/utils/network/sharedNetworking';
 import { getProcessNextUrl } from 'src/utils/urls/appUrlHelper';
 import type { IInstanceDataState } from 'src/shared/resources/instanceData';
-import type { ICompleteProcessFulfilled } from 'src/shared/resources/process';
+import type { ICompleteProcess, IProcessPermissions } from 'src/shared/resources/process';
 import type { IRuntimeState } from 'src/types';
 import type { IProcess } from 'src/types/shared';
 
 const instanceDataSelector = (state: IRuntimeState) => state.instanceData;
 
-export function* completeProcessSaga(action: PayloadAction<ICompleteProcessFulfilled | undefined>): SagaIterator {
+export function* completeProcessSaga(action: PayloadAction<ICompleteProcess | undefined>): SagaIterator {
   const taskId = action.payload?.taskId;
   try {
     const result: IProcess = yield call(httpPut, getProcessNextUrl(taskId), null);
+    const permissions: IProcessPermissions = yield call(getPermissionsFromProcess, result);
     if (!result) {
       throw new Error('Error: no process returned.');
     }
@@ -29,6 +31,7 @@ export function* completeProcessSaga(action: PayloadAction<ICompleteProcessFulfi
         ProcessActions.completeFulfilled({
           processStep: ProcessTaskType.Archived,
           taskId: null,
+          ...permissions,
         }),
       );
     } else {
@@ -36,6 +39,7 @@ export function* completeProcessSaga(action: PayloadAction<ICompleteProcessFulfi
         ProcessActions.completeFulfilled({
           processStep: result.currentTask?.altinnTaskType as ProcessTaskType,
           taskId: result.currentTask?.elementId,
+          ...permissions,
         }),
       );
       const layoutSets = yield select(layoutSetsSelector);

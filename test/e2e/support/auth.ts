@@ -1,3 +1,5 @@
+import type { IProcessPermissions } from 'src/shared/resources/process';
+
 export type user = 'default' | 'manager' | 'accountant' | 'auditor';
 
 type UserInfo = {
@@ -94,4 +96,55 @@ Cypress.Commands.add('switchUser', (user: user) => {
   logout();
   login(user);
   cy.reload();
+});
+
+function getPermissions(format: string): IProcessPermissions {
+  const permissions: IProcessPermissions = {
+    read: false,
+    write: false,
+    actions: {
+      instantiate: false,
+      confirm: false,
+      sign: false,
+      reject: false,
+    },
+  };
+  for (const i of format) {
+    switch (i) {
+      case 'r':
+        permissions.read = true;
+        break;
+      case 'w':
+        permissions.write = true;
+        break;
+      case 'i':
+        permissions.actions.instantiate = true;
+        break;
+      case 'c':
+        permissions.actions.confirm = true;
+        break;
+      case 's':
+        permissions.actions.sign = true;
+        break;
+      case 'j':
+        permissions.actions.reject = true;
+        break;
+    }
+  }
+  return permissions;
+}
+
+Cypress.Commands.add('interceptPermissions', (permissionFormat: string) => {
+  const permissions = getPermissions(permissionFormat);
+  const interceptor = (req) => {
+    req.on('response', (res) => {
+      if (res.body.currentTask) {
+        res.body.currentTask.read = permissions.read;
+        res.body.currentTask.write = permissions.write;
+        res.body.currentTask.actions = permissions.actions;
+      }
+    });
+  };
+  cy.intercept({ method: 'GET', url: '**/process', middleware: true }, interceptor).as('getProcess');
+  cy.intercept({ method: 'PUT', url: '**/process/next', middleware: true }, interceptor).as('processNext');
 });

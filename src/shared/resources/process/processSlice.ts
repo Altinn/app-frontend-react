@@ -7,6 +7,7 @@ import { getProcessStateSaga } from 'src/shared/resources/process/getProcessStat
 import { getTasksSaga } from 'src/shared/resources/process/getTasks/getTasksSagas';
 import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
 import type {
+  ICompleteProcess,
   ICompleteProcessFulfilled,
   ICompleteProcessRejected,
   IGetProcessStateFulfilled,
@@ -20,14 +21,26 @@ const initialState: IProcessState = {
   taskType: null,
   error: null,
   taskId: undefined,
+  read: null,
+  write: null,
+  actions: {
+    instantiate: null,
+    confirm: null,
+    sign: null,
+    reject: null,
+  },
 };
 
 const genericFulfilledReducer = (
   state: WritableDraft<IProcessState>,
   action: PayloadAction<IGetProcessStateFulfilled>,
 ) => {
-  state.taskType = action.payload.processStep;
-  state.taskId = action.payload.taskId;
+  const { processStep, taskId, read, write, actions } = action.payload;
+  state.taskType = processStep;
+  state.taskId = taskId;
+  state.read = read;
+  state.write = write;
+  state.actions = actions;
   state.error = null;
 };
 
@@ -61,7 +74,7 @@ export const processSlice = createSagaSlice((mkAction: MkActionType<IProcessStat
         state.error = action.payload.error;
       },
     }),
-    complete: mkAction<ICompleteProcessFulfilled | undefined>({
+    complete: mkAction<ICompleteProcess | undefined>({
       takeLatest: completeProcessSaga,
     }),
     completeFulfilled: mkAction<ICompleteProcessFulfilled>({

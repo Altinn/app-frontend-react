@@ -121,6 +121,7 @@ declare global {
 
       switchUser(user: user): any;
       assertUser(user: user): any;
+      interceptPermissions(permissionFormat: string): void;
     }
   }
 }
