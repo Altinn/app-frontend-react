@@ -123,6 +123,14 @@ export function SummaryGroupComponent({
     return (
       <>
         {rowIndexes.map((idx) => {
+          if (
+            idx !== undefined &&
+            'rows' in targetNode.item &&
+            targetNode.item.rows[idx]?.groupExpressions?.hiddenRow
+          ) {
+            return null;
+          }
+
           return (
             <DisplayGroupContainer
               key={`summary-${targetNode.item.id}-${idx}`}
