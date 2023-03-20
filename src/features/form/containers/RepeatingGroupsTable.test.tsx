@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ResizeObserverModule from 'resize-observer-polyfill';
 
@@ -168,11 +168,11 @@ describe('RepeatingGroupTable', () => {
 
       render({}, layout);
 
-      await user.click(screen.getAllByRole('button', { name: /delete/i })[0]);
+      await act(() => user.click(screen.getAllByRole('button', { name: /delete/i })[0]));
 
       expect(screen.getByText('Are you sure you want to delete this row?')).toBeInTheDocument();
 
-      await user.click(screen.getAllByRole('button', { name: /delete/i })[0]);
+      await act(() => user.click(screen.getAllByRole('button', { name: /delete/i })[0]));
 
       expect(screen.queryByText('Are you sure you want to delete this row?')).not.toBeInTheDocument();
     });
@@ -188,7 +188,7 @@ describe('RepeatingGroupTable', () => {
       const onClickRemove = jest.fn();
       render({ onClickRemove });
 
-      await user.click(screen.getAllByRole('button', { name: /delete/i })[0]);
+      await act(() => user.click(screen.getAllByRole('button', { name: /delete/i })[0]));
 
       expect(onClickRemove).toBeCalledTimes(1);
     });
@@ -197,7 +197,7 @@ describe('RepeatingGroupTable', () => {
       const setEditIndex = jest.fn();
       render({ setEditIndex });
 
-      await user.click(screen.getAllByRole('button', { name: /edit/i })[0]);
+      await act(() => user.click(screen.getAllByRole('button', { name: /edit/i })[0]));
 
       expect(setEditIndex).toBeCalledTimes(1);
     });

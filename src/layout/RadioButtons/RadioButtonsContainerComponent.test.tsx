@@ -77,9 +77,8 @@ const getRadio = ({ name, isChecked = false }) =>
   });
 
 describe('RadioButtonsContainerComponent', () => {
-  act(() => {
-    jest.useFakeTimers();
-  });
+  jest.useFakeTimers();
+
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -193,8 +192,11 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
-    await fireEvent.focus(getRadio({ name: 'Denmark' }));
-    await fireEvent.blur(getRadio({ name: 'Denmark' }));
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      fireEvent.focus(getRadio({ name: 'Denmark' }));
+      fireEvent.blur(getRadio({ name: 'Denmark' }));
+    });
 
     expect(handleChange).not.toHaveBeenCalled();
   });

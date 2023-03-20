@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
@@ -107,7 +107,7 @@ describe('PanelGroupContainer', () => {
     // save should not be present when panel is closed
     expect(screen.queryByText('Lagre')).not.toBeInTheDocument();
 
-    await user.click(screen.getByText('Add new item'));
+    await act(() => user.click(screen.getByText('Add new item')));
 
     // save should appear and add should be hidden
     expect(screen.getByText('Lagre')).toBeInTheDocument();
@@ -115,7 +115,7 @@ describe('PanelGroupContainer', () => {
     expect(screen.queryByText('Add new item')).not.toBeInTheDocument();
 
     // pressing save should close panel and show add button again
-    await user.click(screen.getByText('Lagre'));
+    await act(() => user.click(screen.getByText('Lagre')));
 
     expect(screen.getByText('Add new item')).toBeInTheDocument();
   });

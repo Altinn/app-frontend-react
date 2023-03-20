@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
@@ -20,7 +20,7 @@ describe('AltinnPartySearch', () => {
       name: /party_selection\.search_placeholder/i,
     });
 
-    await user.type(input, 'Hello world');
+    await act(() => user.type(input, 'Hello world'));
 
     expect(handleSearchChange).toHaveBeenCalledWith('Hello world');
   });

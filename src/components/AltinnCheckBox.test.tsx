@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createTheme, MuiThemeProvider } from '@material-ui/core';
-import { render as rtlRender, screen } from '@testing-library/react';
+import { act, render as rtlRender, screen } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 
 import { AltinnCheckBox } from 'src/components/AltinnCheckBox';
@@ -28,7 +28,7 @@ describe('AltinnCheckBox', () => {
     render({ onChangeFunction: handleChange });
 
     const checkbox = screen.getByRole('checkbox');
-    await user.click(checkbox);
+    await act(() => user.click(checkbox));
 
     expect(handleChange).toHaveBeenCalled();
   });
@@ -42,7 +42,7 @@ describe('AltinnCheckBox', () => {
 
     const checkbox = screen.getByRole('checkbox');
 
-    await user.click(checkbox);
+    await act(() => user.click(checkbox));
     expect(handleChange).not.toHaveBeenCalled();
   });
 
@@ -51,8 +51,10 @@ describe('AltinnCheckBox', () => {
     const handleChange = jest.fn();
     render({ onKeyPressFunction: handleChange });
 
-    await user.tab();
-    await user.keyboard('{enter}');
+    await act(async () => {
+      await user.tab();
+      await user.keyboard('{enter}');
+    });
 
     expect(handleChange).toHaveBeenCalled();
   });
@@ -62,8 +64,10 @@ describe('AltinnCheckBox', () => {
     const handleChange = jest.fn();
     render({ onKeyPressFunction: handleChange, disabled: true });
 
-    await user.tab();
-    await user.keyboard('{enter}');
+    await act(async () => {
+      await user.tab();
+      await user.keyboard('{enter}');
+    });
 
     expect(handleChange).not.toHaveBeenCalled();
   });

@@ -26,7 +26,7 @@ describe('AltinnInput', () => {
       name: /inputlabel/i,
     });
 
-    await act(async () => await user.type(input, 'input-text'));
+    await act(() => user.type(input, 'input-text'));
 
     await waitFor(() => expect(input).toHaveFocus());
     await waitFor(() => expect(input).toHaveValue('input-text'));

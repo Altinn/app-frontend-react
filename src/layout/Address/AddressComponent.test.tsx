@@ -163,8 +163,11 @@ describe('AddressComponent', () => {
     });
 
     const address = getAddressField();
-    await user.type(address, 'Slottsplassen 1');
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.type(address, 'Slottsplassen 1');
+      await user.tab();
+    });
 
     expect(handleDataChange).toHaveBeenCalledWith('Slottsplassen 1', {
       key: 'address',
@@ -189,8 +192,11 @@ describe('AddressComponent', () => {
 
     const address = getAddressField();
 
-    await user.type(address, 'Slottsplassen 1');
-    await user.tab(address);
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.type(address, 'Slottsplassen 1');
+      await user.tab();
+    });
 
     expect(handleDataChange).not.toHaveBeenCalled();
   });
@@ -212,8 +218,11 @@ describe('AddressComponent', () => {
 
     const field = getZipCodeField({ required: true });
 
-    await user.type(field, '1');
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.type(field, '1');
+      await user.tab();
+    });
 
     const errorMessage = screen.getByText(/address_component\.validation_error_zipcode/i);
 
@@ -271,9 +280,12 @@ describe('AddressComponent', () => {
     });
 
     const field = getZipCodeField({ required: true });
-    await user.clear(field);
-    await user.type(field, '0001');
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.clear(field);
+      await user.type(field, '0001');
+      await user.tab();
+    });
 
     expect(handleDataChange).toHaveBeenCalledWith('0001', { key: 'zipCode' });
   });
@@ -296,8 +308,11 @@ describe('AddressComponent', () => {
 
     const field = getZipCodeField();
 
-    await user.clear(field);
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.clear(field);
+      await user.tab();
+    });
 
     expect(handleDataChange).toHaveBeenCalledWith('', { key: 'zipCode' });
     expect(handleDataChange).toHaveBeenCalledWith('', { key: 'postPlace' });

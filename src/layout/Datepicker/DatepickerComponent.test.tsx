@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
@@ -64,7 +64,7 @@ describe('DatepickerComponent', () => {
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
 
-    await user.click(getOpenCalendarButton());
+    await act(() => user.click(getOpenCalendarButton()));
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('DatepickerComponent', () => {
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
 
-    await user.click(getOpenCalendarButton());
+    await act(() => user.click(getOpenCalendarButton()));
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.getAllByRole('dialog')[0]).toBeInTheDocument();
@@ -92,8 +92,8 @@ describe('DatepickerComponent', () => {
     const handleDataChange = jest.fn();
     const { user } = render({ genericProps: { handleDataChange } });
 
-    await user.click(getOpenCalendarButton());
-    await user.click(getCalendarDayButton('15'));
+    await act(() => user.click(getOpenCalendarButton()));
+    await act(() => user.click(getCalendarDayButton('15')));
 
     expect(handleDataChange).toHaveBeenCalledWith(
       // Ignore TZ part of timestamp to avoid test failing when this changes
@@ -109,8 +109,11 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await user.clear(inputField);
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.clear(inputField);
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('', { validate: true });
@@ -122,8 +125,12 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await user.type(inputField, '31122022');
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.type(inputField, '31122022');
+      fireEvent.blur(inputField);
+    });
+
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'), {
       validate: true,
@@ -136,8 +143,11 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await user.type(inputField, '31122022');
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.type(inputField, '31122022');
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('2022-12-31', { validate: true });
@@ -149,8 +159,11 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await user.type(inputField, '31122022');
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.type(inputField, '31122022');
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'), {
@@ -164,8 +177,11 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await user.type(inputField, '12345678');
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.type(inputField, '12345678');
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('12.34.5678', { validate: true });
@@ -177,8 +193,11 @@ describe('DatepickerComponent', () => {
 
     const inputField = screen.getByRole('textbox');
 
-    await user.type(inputField, `1234`);
-    await user.tab();
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      await user.type(inputField, `1234`);
+      fireEvent.blur(inputField);
+    });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
     expect(handleDataChange).toHaveBeenCalledWith('12.34.____', { validate: false });

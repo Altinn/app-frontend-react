@@ -60,9 +60,8 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
 };
 
 describe('DropdownComponent', () => {
-  act(() => {
-    jest.useFakeTimers();
-  });
+  jest.useFakeTimers();
+
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -79,7 +78,7 @@ describe('DropdownComponent', () => {
       },
     });
 
-    await user.selectOptions(screen.getByRole('combobox'), [screen.getByText('Sweden')]);
+    await act(() => user.selectOptions(screen.getByRole('combobox'), [screen.getByText('Sweden')]));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
@@ -141,11 +140,12 @@ describe('DropdownComponent', () => {
     expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     const select = screen.getByRole('combobox');
 
-    await user.click(select);
+    await act(() => user.click(select));
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
-    await fireEvent.blur(select);
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(() => fireEvent.blur(select));
 
     expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);

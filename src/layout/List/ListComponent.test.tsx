@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
@@ -50,9 +50,7 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
 };
 
 describe('ListComponent', () => {
-  act(() => {
-    jest.useFakeTimers();
-  });
+  jest.useFakeTimers();
 
   it('should render rows that is sent in but not rows that is not sent in', async () => {
     render();

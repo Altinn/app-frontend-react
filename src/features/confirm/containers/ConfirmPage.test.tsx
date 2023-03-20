@@ -1,7 +1,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
@@ -59,6 +59,7 @@ describe('ConfirmPage', () => {
   });
 
   it('should show loading when clicking submit', async () => {
+    const user = userEvent.setup();
     const { store } = renderWithProviders(
       <MemoryRouter>
         <ConfirmPage {...props} />
@@ -79,7 +80,7 @@ describe('ConfirmPage', () => {
     expect(dispatch).toHaveBeenCalledTimes(0);
     expect(screen.queryByText(loadingText)).not.toBeInTheDocument();
     expect(submitBtn).toBeInTheDocument();
-    await userEvent.click(submitBtn);
+    await act(() => user.click(submitBtn));
 
     expect(screen.getByText(submitBtnText)).toBeInTheDocument();
     expect(screen.getByText(loadingText)).toBeInTheDocument();
