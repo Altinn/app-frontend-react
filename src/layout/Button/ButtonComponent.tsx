@@ -31,7 +31,9 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process.currentTask?.altinnTaskType);
   const { actions, write } = useAppSelector((state) => state.process);
 
-  const disabled = (currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions.confirm);
+  const disabled =
+    (currentTaskType === 'data' && write === false) ||
+    (currentTaskType === 'confirmation' && actions?.confirm === false);
 
   if (mode && !(mode === 'save' || mode === 'submit')) {
     const GenericButton = getComponentFromMode(mode);

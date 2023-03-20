@@ -1,12 +1,11 @@
 import { call, delay, put, select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { getPermissionsFromProcess } from 'src/shared/resources/process/getProcessState/getProcessStateSagas';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getProcessStateUrl } from 'src/utils/urls/appUrlHelper';
-import type { IProcessPermissions, IProcessState } from 'src/shared/resources/process';
+import type { IProcessState } from 'src/shared/resources/process';
 import type { IRuntimeState } from 'src/types';
 import type { IProcess } from 'src/types/shared';
 
@@ -32,6 +31,9 @@ export function* getUpdatedProcess(): SagaIterator {
       return {
         state: currentProcessState.taskType,
         taskId: currentProcessState.taskId,
+        read: currentProcessState.read,
+        write: currentProcessState.write,
+        actions: currentProcessState.actions,
       };
     }
 
@@ -46,18 +48,22 @@ export function* getUpdatedProcess(): SagaIterator {
   return {
     state: currentProcessState.taskType,
     taskId: currentProcessState.taskId,
+    read: currentProcessState.read,
+    write: currentProcessState.write,
+    actions: currentProcessState.actions,
   };
 }
 
 export function* checkProcessUpdated(): SagaIterator {
   try {
     const process = yield call(getUpdatedProcess);
-    const permissions: IProcessPermissions = yield call(getPermissionsFromProcess, process);
     yield put(
       ProcessActions.getFulfilled({
         processStep: process.state,
         taskId: process.taskId,
-        ...permissions,
+        read: process.read,
+        write: process.write,
+        actions: process.actions,
       }),
     );
   } catch (error) {

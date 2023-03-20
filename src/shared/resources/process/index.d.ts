@@ -8,14 +8,14 @@ export type IProcessState = {
 } & IProcessPermissions;
 
 export type IProcessPermissions = {
-  read: boolean | null;
-  write: boolean | null;
-  actions: IProcessActions;
+  read?: boolean | null;
+  write?: boolean | null;
+  actions?: IProcessActions | null;
 };
 
 export type IProcessAction = 'instantiate' | 'confirm' | 'sign' | 'reject';
 export type IProcessActions = {
-  [k in IProcessAction]: boolean | null;
+  [k in IProcessAction]?: boolean | null;
 };
 
 export interface IGetTasksFulfilled {

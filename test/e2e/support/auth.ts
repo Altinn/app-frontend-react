@@ -118,25 +118,30 @@ function getPermissions(format: string): IProcessPermissions {
         permissions.write = true;
         break;
       case 'i':
-        permissions.actions.instantiate = true;
+        permissions.actions = { ...permissions.actions, instantiate: true };
         break;
       case 'c':
-        permissions.actions.confirm = true;
+        permissions.actions = { ...permissions.actions, confirm: true };
         break;
       case 's':
-        permissions.actions.sign = true;
+        permissions.actions = { ...permissions.actions, sign: true };
         break;
       case 'j':
-        permissions.actions.reject = true;
+        permissions.actions = { ...permissions.actions, reject: true };
         break;
     }
   }
   return permissions;
 }
 
-Cypress.Commands.add('interceptPermissions', (permissionFormat: string) => {
-  const permissions = getPermissions(permissionFormat);
+Cypress.Commands.add('setPermissions', (permissionFormat: string) => {
+  Cypress.env('authPermissions', permissionFormat);
+});
+
+Cypress.Commands.add('interceptPermissions', () => {
   const interceptor = (req) => {
+    const permissionFormat = Cypress.env('authPermissions') ?? '';
+    const permissions = getPermissions(permissionFormat);
     req.on('response', (res) => {
       if (res.body.currentTask) {
         res.body.currentTask.read = permissions.read;
@@ -145,6 +150,6 @@ Cypress.Commands.add('interceptPermissions', (permissionFormat: string) => {
       }
     });
   };
-  cy.intercept({ method: 'GET', url: '**/process', middleware: true }, interceptor).as('getProcess');
-  cy.intercept({ method: 'PUT', url: '**/process/next', middleware: true }, interceptor).as('processNext');
+  cy.intercept({ method: 'GET', url: '**/process' }, interceptor).as('getProcess');
+  cy.intercept({ method: 'PUT', url: '**/process/next' }, interceptor).as('processNext');
 });

@@ -44,5 +44,4 @@ export interface IGetApplicationMetadataRejected {
 export interface IBackendFeaturesState {
   footer: boolean;
   multiPartSave: boolean;
-  actionPermissions: boolean;
 }

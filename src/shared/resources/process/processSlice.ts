@@ -23,12 +23,7 @@ const initialState: IProcessState = {
   taskId: undefined,
   read: null,
   write: null,
-  actions: {
-    instantiate: null,
-    confirm: null,
-    sign: null,
-    reject: null,
-  },
+  actions: null,
 };
 
 const genericFulfilledReducer = (
