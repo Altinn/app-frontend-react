@@ -219,6 +219,7 @@ describe('CheckboxContainerComponent', () => {
 
     expect(handleChange).not.toHaveBeenCalled();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => fireEvent.blur(denmark));
 
     expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
@@ -234,6 +235,7 @@ describe('CheckboxContainerComponent', () => {
 
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => {
       fireEvent.focus(getCheckbox({ name: 'Denmark' }));
       fireEvent.blur(getCheckbox({ name: 'Denmark' }));
@@ -273,7 +275,7 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
   it('should show items in a row when layout is "row" and options count is 3', () => {
@@ -284,9 +286,8 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    // eslint-disable-next-line
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a row when layout is not defined, and options count is 2', () => {
@@ -304,9 +305,8 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    // eslint-disable-next-line
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a column when layout is "column" and options count is 2 ', () => {
@@ -325,9 +325,8 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    // eslint-disable-next-line
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: column;');
   });
 
   it('should show items in a columns when layout is not defined, and options count is 3', () => {
@@ -337,9 +336,8 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    // eslint-disable-next-line
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: column;');
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
