@@ -26,6 +26,7 @@ import { Panel } from 'src/layout/Panel/index';
 import { Paragraph } from 'src/layout/Paragraph/index';
 import { PrintButton } from 'src/layout/PrintButton/index';
 import { RadioButtons } from 'src/layout/RadioButtons/index';
+import { SigningButtons } from 'src/layout/SigningButtons/index';
 import { Summary } from 'src/layout/Summary';
 import { TextArea } from 'src/layout/TextArea/index';
 import type { ComponentTypes, IGrid } from 'src/layout/layout';
@@ -62,6 +63,7 @@ export const components = {
   TextArea: new TextArea(),
   List: new List(),
   Group: new Group(),
+  SigningButtons: new SigningButtons(),
   Summary: new Summary(),
 };
 

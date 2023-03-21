@@ -59,7 +59,7 @@ export function* checkProcessUpdated(): SagaIterator {
     const process = yield call(getUpdatedProcess);
     yield put(
       ProcessActions.getFulfilled({
-        processStep: process.state,
+        taskType: process.state,
         taskId: process.taskId,
         read: process.read,
         write: process.write,

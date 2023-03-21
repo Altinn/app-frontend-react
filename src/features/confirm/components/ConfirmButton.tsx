@@ -5,7 +5,6 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
-import { ProcessTaskType } from 'src/types';
 import { httpGet } from 'src/utils/network/networking';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { getValidationUrl } from 'src/utils/urls/appUrlHelper';
@@ -30,12 +29,7 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
           }),
         );
         if (data.length === 0) {
-          dispatch(
-            ProcessActions.complete({
-              taskId: '',
-              processStep: ProcessTaskType.Unknown,
-            }),
-          );
+          dispatch(ProcessActions.complete());
         }
       })
       .finally(() => {

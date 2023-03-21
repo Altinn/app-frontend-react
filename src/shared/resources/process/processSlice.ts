@@ -30,8 +30,8 @@ const genericFulfilledReducer = (
   state: WritableDraft<IProcessState>,
   action: PayloadAction<IGetProcessStateFulfilled>,
 ) => {
-  const { processStep, taskId, read, write, actions } = action.payload;
-  state.taskType = processStep;
+  const { taskType, taskId, read, write, actions } = action.payload;
+  state.taskType = taskType;
   state.taskId = taskId;
   state.read = read;
   state.write = write;

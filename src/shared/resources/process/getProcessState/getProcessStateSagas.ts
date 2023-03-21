@@ -13,7 +13,7 @@ export function* getProcessStateSaga(): SagaIterator {
     if (!processState) {
       yield put(
         ProcessActions.getFulfilled({
-          processStep: ProcessTaskType.Unknown,
+          taskType: ProcessTaskType.Unknown,
           taskId: null,
           read: null,
           write: null,
@@ -23,7 +23,7 @@ export function* getProcessStateSaga(): SagaIterator {
     } else if (processState.ended) {
       yield put(
         ProcessActions.getFulfilled({
-          processStep: ProcessTaskType.Archived,
+          taskType: ProcessTaskType.Archived,
           taskId: null,
           read: null,
           write: null,
@@ -33,7 +33,7 @@ export function* getProcessStateSaga(): SagaIterator {
     } else {
       yield put(
         ProcessActions.getFulfilled({
-          processStep: processState.currentTask?.altinnTaskType as ProcessTaskType,
+          taskType: processState.currentTask?.altinnTaskType as ProcessTaskType,
           taskId: processState.currentTask?.elementId || null,
           read: processState.currentTask?.read,
           write: processState.currentTask?.write,

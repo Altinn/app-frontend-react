@@ -19,15 +19,17 @@ const instanceDataSelector = (state: IRuntimeState) => state.instanceData;
 
 export function* completeProcessSaga(action: PayloadAction<ICompleteProcess | undefined>): SagaIterator {
   const taskId = action.payload?.taskId;
+  const userAction = action.payload?.action;
+  const body = userAction ? { action: userAction } : null;
   try {
-    const result: IProcess = yield call(httpPut, getProcessNextUrl(taskId), null);
+    const result: IProcess = yield call(httpPut, getProcessNextUrl(taskId), body);
     if (!result) {
       throw new Error('Error: no process returned.');
     }
     if (result.ended) {
       yield put(
         ProcessActions.completeFulfilled({
-          processStep: ProcessTaskType.Archived,
+          taskType: ProcessTaskType.Archived,
           taskId: null,
           read: null,
           write: null,
@@ -37,7 +39,7 @@ export function* completeProcessSaga(action: PayloadAction<ICompleteProcess | un
     } else {
       yield put(
         ProcessActions.completeFulfilled({
-          processStep: result.currentTask?.altinnTaskType as ProcessTaskType,
+          taskType: result.currentTask?.altinnTaskType as ProcessTaskType,
           taskId: result.currentTask?.elementId,
           read: result.currentTask?.read,
           write: result.currentTask?.write,

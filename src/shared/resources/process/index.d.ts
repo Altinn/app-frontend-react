@@ -19,17 +19,20 @@ export type IProcessActions = {
 };
 
 export interface IGetTasksFulfilled {
-  processStep?: ProcessTaskType;
+  taskType?: ProcessTaskType;
   tasks?: string[];
   task?: string;
 }
 
 export type ICompleteProcess = {
-  processStep: ProcessTaskType;
-  taskId: string | null | undefined;
+  taskId?: string | null;
+  action?: IProcessAction;
 };
 
-export type ICompleteProcessFulfilled = ICompleteProcess & IProcessPermissions;
+export type ICompleteProcessFulfilled = {
+  taskId: string | null | undefined;
+  taskType: ProcessTaskType;
+} & IProcessPermissions;
 
 export type IGetProcessStateFulfilled = ICompleteProcessFulfilled;
 
