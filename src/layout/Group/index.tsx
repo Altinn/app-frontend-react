@@ -2,9 +2,11 @@ import React from 'react';
 
 import { SummaryGroupComponent } from 'src/components/summary/SummaryGroupComponent';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
+import { processNonRepeating, processRepeating } from 'src/layout/Group/hierarchy';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { HierarchyContext, ProcessorResult, UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
 
 export class Group extends ContainerComponent<'Group'> {
   directRender(): boolean {
@@ -39,5 +41,23 @@ export class Group extends ContainerComponent<'Group'> {
 
   useDisplayData(): string {
     return '';
+  }
+
+  hierarchyStage1(item: UnprocessedItem<'Group'>): string[] {
+    const claimed: string[] = [];
+    for (const id of item.children) {
+      const [, childId] = item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
+      claimed.push(childId);
+    }
+    return claimed;
+  }
+
+  hierarchyStage2(ctx: HierarchyContext): ProcessorResult<'Group'> {
+    const item = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
+    const isRepeating = item.maxCount && item.maxCount >= 1;
+    if (isRepeating) {
+      return processRepeating(ctx);
+    }
+    return processNonRepeating(ctx);
   }
 }

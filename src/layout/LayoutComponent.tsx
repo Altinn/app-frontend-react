@@ -6,6 +6,7 @@ import type { ISummaryComponent } from 'src/components/summary/SummaryComponent'
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { HierarchyContext, ProcessorResult, UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
 
 abstract class AnyComponent<Type extends ComponentTypes> {
   /**
@@ -41,8 +42,25 @@ abstract class AnyComponent<Type extends ComponentTypes> {
   /**
    * Is this a form component that has formData and should be displayed differently in summary/pdf?
    * Purely presentational components with no interaction should override and return ComponentType.Presentation.
+   * You can alternatively use the 'instanceof' operator for this.
    */
   abstract getType(): ComponentType;
+
+  /**
+   * Performs stage 1 of the hierarchy generation process
+   * @see HierarchyGenerator
+   */
+  hierarchyStage1(_item: UnprocessedItem<Type>): string[] {
+    return [];
+  }
+
+  /**
+   * Performs stage 2 of the hierarchy generation process
+   * @see HierarchyGenerator
+   */
+  hierarchyStage2(ctx: HierarchyContext): ProcessorResult<Type> {
+    return (props) => ctx.generator.makeNode(props);
+  }
 }
 
 export abstract class PresentationComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
@@ -58,9 +76,6 @@ export interface SummaryRendererProps<Type extends ComponentTypes> {
 }
 
 export abstract class FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  /**
-   * Get the component type. You can alternatively use the 'instanceof' operator for this
-   */
   readonly getType = (): ComponentType => ComponentType.Form;
 
   /**
