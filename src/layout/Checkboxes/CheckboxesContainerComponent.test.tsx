@@ -30,8 +30,8 @@ interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
   optionState?: IOptionsState;
 }
 
-const render = ({ component, genericProps, optionState }: Props = {}) => {
-  return renderGenericComponentTest({
+const render = ({ component, genericProps, optionState }: Props = {}) =>
+  renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
     component: {
@@ -68,14 +68,12 @@ const render = ({ component, genericProps, optionState }: Props = {}) => {
       };
     },
   });
-};
 
-const getCheckbox = ({ name, isChecked = false }) => {
-  return screen.getByRole('checkbox', {
-    name: name,
+const getCheckbox = ({ name, isChecked = false }) =>
+  screen.getByRole('checkbox', {
+    name,
     checked: isChecked,
   });
-};
 
 describe('CheckboxContainerComponent', () => {
   jest.useFakeTimers();
@@ -101,7 +99,7 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(handleChange).toHaveBeenCalledWith('sweden');
+    expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
@@ -175,7 +173,7 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
+    expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
   });
 
   it('should call handleDataChange with updated values when deselecting item', async () => {
@@ -199,7 +197,7 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith('norway');
+    expect(handleChange).toHaveBeenCalledWith('norway', { validate: true });
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
@@ -221,9 +219,10 @@ describe('CheckboxContainerComponent', () => {
 
     expect(handleChange).not.toHaveBeenCalled();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => fireEvent.blur(denmark));
 
-    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
+    expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
@@ -236,6 +235,7 @@ describe('CheckboxContainerComponent', () => {
 
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => {
       fireEvent.focus(getCheckbox({ name: 'Denmark' }));
       fireEvent.blur(getCheckbox({ name: 'Denmark' }));
@@ -265,7 +265,7 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith('denmark');
+    expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
   });
 
   it('should show spinner while waiting for options', () => {
@@ -275,7 +275,7 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
   it('should show items in a row when layout is "row" and options count is 3', () => {
@@ -286,8 +286,9 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
@@ -306,8 +307,10 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
@@ -327,8 +330,10 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 
@@ -339,8 +344,10 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 
@@ -367,6 +374,6 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for second');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
   });
 });

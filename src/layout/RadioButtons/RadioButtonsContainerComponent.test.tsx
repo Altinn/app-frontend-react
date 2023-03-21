@@ -30,8 +30,8 @@ const render = ({
   component,
   genericProps,
   manipulateState,
-}: Partial<RenderGenericComponentTestProps<'RadioButtons'>> = {}) => {
-  return renderGenericComponentTest({
+}: Partial<RenderGenericComponentTestProps<'RadioButtons'>> = {}) =>
+  renderGenericComponentTest({
     type: 'RadioButtons',
     renderer: (props) => <RadioButtonContainerComponent {...props} />,
     component: {
@@ -69,17 +69,16 @@ const render = ({
           };
         },
   });
-};
 
-const getRadio = ({ name, isChecked = false }) => {
-  return screen.getByRole('radio', {
-    name: name,
+const getRadio = ({ name, isChecked = false }) =>
+  screen.getByRole('radio', {
+    name,
     checked: isChecked,
   });
-};
 
 describe('RadioButtonsContainerComponent', () => {
   jest.useFakeTimers();
+
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -102,7 +101,7 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
-    expect(handleChange).toHaveBeenCalledWith('sweden');
+    expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
@@ -156,7 +155,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(handleChange).not.toHaveBeenCalled();
     jest.runOnlyPendingTimers();
-    expect(handleChange).toHaveBeenCalledWith('denmark');
+    expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
@@ -180,7 +179,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     fireEvent.blur(denmark);
 
-    expect(handleChange).toHaveBeenCalledWith('denmark');
+    expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
@@ -193,6 +192,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       fireEvent.focus(getRadio({ name: 'Denmark' }));
       fireEvent.blur(getRadio({ name: 'Denmark' }));
@@ -208,7 +208,7 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
   it('should not show spinner when options are present', () => {
@@ -229,8 +229,10 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
@@ -251,8 +253,10 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
   });
 
@@ -274,8 +278,10 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 
@@ -286,8 +292,10 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
 
+    // eslint-disable-next-line
     expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
   });
 
@@ -314,6 +322,6 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(handleDataChange).not.toHaveBeenCalled();
     jest.runOnlyPendingTimers();
-    expect(handleDataChange).toHaveBeenCalledWith('Value for first');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true });
   });
 });

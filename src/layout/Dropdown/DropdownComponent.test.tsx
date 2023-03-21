@@ -61,6 +61,7 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
 
 describe('DropdownComponent', () => {
   jest.useFakeTimers();
+
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -83,7 +84,7 @@ describe('DropdownComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('sweden');
+    expect(handleDataChange).toHaveBeenCalledWith('sweden', { validate: true });
   });
 
   it('should show as disabled when readOnly is true', () => {
@@ -121,7 +122,7 @@ describe('DropdownComponent', () => {
       },
     });
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
@@ -136,16 +137,17 @@ describe('DropdownComponent', () => {
       },
     });
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     const select = screen.getByRole('combobox');
 
     await act(() => user.click(select));
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => fireEvent.blur(select));
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);
   });
 
@@ -156,7 +158,7 @@ describe('DropdownComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
   it('should not show spinner when options are present', () => {
@@ -194,7 +196,7 @@ describe('DropdownComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for first');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true });
 
     await act(() =>
       user.selectOptions(screen.getByRole('combobox'), [
@@ -206,7 +208,7 @@ describe('DropdownComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for second');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);
   });
 });
