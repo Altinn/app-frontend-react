@@ -78,6 +78,7 @@ const getRadio = ({ name, isChecked = false }) =>
 
 describe('RadioButtonsContainerComponent', () => {
   jest.useFakeTimers();
+
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -191,6 +192,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       fireEvent.focus(getRadio({ name: 'Denmark' }));
       fireEvent.blur(getRadio({ name: 'Denmark' }));
@@ -206,7 +208,7 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
   it('should not show spinner when options are present', () => {
