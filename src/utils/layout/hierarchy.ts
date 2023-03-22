@@ -19,7 +19,6 @@ import type {
   ILayoutComponentOrGroup,
   ILayouts,
 } from 'src/layout/layout';
-import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -41,6 +40,7 @@ import type {
   HRepGroupExtensions,
   LayoutNodeFromType,
   ParentNode,
+  TypeFromAnyItem,
 } from 'src/utils/layout/hierarchy.types';
 
 /**
@@ -433,8 +433,10 @@ export class LayoutPage implements LayoutObject {
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject {
-  public readonly def: Item['type'] extends keyof ComponentClassMap ? ComponentClassMap[Item['type']] : LayoutComponent;
+export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTypes = TypeFromAnyItem<Item>>
+  implements LayoutObject
+{
+  public readonly def: ComponentClassMap[Type];
 
   public constructor(
     public item: Item,
@@ -450,11 +452,11 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
     return this.item.type === type;
   }
 
-  public isRepGroup(): this is LayoutNode<HRepGroup> {
+  public isRepGroup(): this is LayoutNode<HRepGroup, 'Group'> {
     return this.item.type === 'Group' && 'rows' in this.item;
   }
 
-  public isNonRepGroup(): this is LayoutNode<HNonRepGroup> {
+  public isNonRepGroup(): this is LayoutNode<HNonRepGroup, 'Group'> {
     return this.item.type === 'Group' && !('rows' in this.item);
   }
 

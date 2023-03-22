@@ -37,16 +37,10 @@ abstract class AnyComponent<Type extends ComponentTypes> {
   renderDefaultValidations(): boolean {
     return true;
   }
-
-  /**
-   * Is this a form component that has formData and should be displayed differently in summary/pdf?
-   * Purely presentational components with no interaction should override and return ComponentType.Presentation.
-   */
-  abstract getType(): ComponentType;
 }
 
 export abstract class PresentationComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  readonly getType = (): ComponentType => ComponentType.Presentation;
+  readonly type = ComponentType.Presentation;
 }
 
 export interface SummaryRendererProps<Type extends ComponentTypes> {
@@ -57,12 +51,7 @@ export interface SummaryRendererProps<Type extends ComponentTypes> {
   overrides?: ISummaryComponent['overrides'];
 }
 
-export abstract class FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  /**
-   * Get the component type. You can alternatively use the 'instanceof' operator for this
-   */
-  readonly getType = (): ComponentType => ComponentType.Form;
-
+abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
   /**
    * Given a node (with group-index-aware data model bindings), this method should return a proper 'value' for the
    * current component/node. This value will be used to display form data in a repeating group table, and when rendering
@@ -102,11 +91,15 @@ export abstract class FormComponent<Type extends ComponentTypes> extends AnyComp
 }
 
 export abstract class ActionComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  readonly getType = (): ComponentType => ComponentType.Action;
+  readonly type = ComponentType.Action;
 }
 
-export abstract class ContainerComponent<Type extends ComponentTypes> extends FormComponent<Type> {
-  readonly getType = (): ComponentType => ComponentType.Container;
+export abstract class FormComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
+  readonly type = ComponentType.Form;
+}
+
+export abstract class ContainerComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
+  readonly type = ComponentType.Container;
 }
 
 export type LayoutComponent<Type extends ComponentTypes = ComponentTypes> =

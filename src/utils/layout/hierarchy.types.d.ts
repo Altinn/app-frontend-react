@@ -83,14 +83,16 @@ export type AnyItem<T extends ComponentTypes = ComponentTypes> = T extends 'Grou
   ? HComponent<T> | HComponentInRepGroup<T>
   : HComponent | HComponentInRepGroup | HGroups;
 
+export type TypeFromAnyItem<T extends AnyItem> = T extends AnyItem<infer Type> ? Type : ComponentTypes;
+
 export interface HierarchyDataSources extends ContextDataSources {
   validations: IValidations;
 }
 
 export type LayoutNodeFromType<Type> = Type extends ComponentExceptGroup
-  ? LayoutNode<HComponent<Type> | HComponentInRepGroup<Type>>
+  ? LayoutNode<HComponent<Type> | HComponentInRepGroup<Type>, Type>
   : Type extends 'Group'
-  ? LayoutNode<HGroups>
+  ? LayoutNode<HGroups, 'Group'>
   : LayoutNode;
 
 export type LayoutNodeFromObj<T> = T extends ILayoutComponent
