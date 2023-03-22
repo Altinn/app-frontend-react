@@ -39,8 +39,11 @@ describe('Receipt', () => {
   });
 
   it('Custom receipt shows as expected', () => {
+    let settingsCount = 0;
+    let layoutCount = 0;
     cy.intercept('**/layoutsettings/**', (req) => {
       req.on('response', (res) => {
+        settingsCount++;
         // Layout settings is returned as text/plain for some reason
         const settings = JSON.parse(res.body);
         settings.receiptLayoutName = 'receipt';
@@ -49,15 +52,17 @@ describe('Receipt', () => {
     }).as('LayoutSettings');
     cy.intercept('**/layouts/**', (req) => {
       req.on('response', (res) => {
+        layoutCount++;
         // Layouts are returned as text/plain for some reason
         const layouts = JSON.parse(res.body);
         layouts.receipt = { data: { layout: customReceipt } };
         res.body = JSON.stringify(layouts);
       });
-    });
+    }).as('FormLayout');
     cy.goto('confirm', 'with-data');
     cy.get(appFrontend.confirm.sendIn).should('be.visible').click();
 
+    cy.get(appFrontend.receipt.container).should('not.exist');
     cy.get('[data-testId=custom-receipt]').should('exist').and('be.visible');
     cy.get('#form-content-r-instance').should('exist').and('be.visible');
     cy.get('#form-content-r-header').should('exist').and('be.visible').and('contain.text', 'Custom kvittering');
@@ -71,5 +76,24 @@ describe('Receipt', () => {
       .find('[data-testId=attachment-list]')
       .children()
       .should('have.length', 5);
+
+    /*
+      Verify that layout and settings are not fetched on refresh
+      This is a limitation with the current implementation that
+      causes the custom receipt to not show on refresh.
+    */
+
+    let settingsBeforeRefreshCount, layoutBeforeRefreshCount;
+    cy.wrap({}).then(() => {
+      settingsBeforeRefreshCount = settingsCount;
+      layoutBeforeRefreshCount = layoutCount;
+    });
+    cy.reloadAndWait().then(() => {
+      expect(settingsCount).to.eq(settingsBeforeRefreshCount);
+      expect(layoutCount).to.eq(layoutBeforeRefreshCount);
+    });
+
+    cy.get('[data-testId=custom-receipt]').should('not.exist');
+    cy.get(appFrontend.receipt.container).should('exist').and('be.visible');
   });
 });
