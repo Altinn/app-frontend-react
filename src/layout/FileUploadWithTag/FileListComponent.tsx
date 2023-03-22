@@ -1,8 +1,9 @@
 import React from 'react';
 
+import { Button, ButtonColor, ButtonSize, ButtonVariant } from '@digdir/design-system-react';
 import {
   Grid,
-  IconButton,
+  // IconButton,
   makeStyles,
   Table,
   TableBody,
@@ -11,11 +12,13 @@ import {
   TableHead,
   TableRow,
 } from '@material-ui/core';
+import { PencilIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { FileName } from 'src/layout/FileUpload/shared/render';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
+import css from 'src/layout/FileUploadWithTag/FileListComponent.module.css';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -88,7 +91,7 @@ const useStyles = makeStyles({
   tableBody: {
     '& tr': {
       '& td': {
-        padding: '0px',
+        padding: '4px',
         paddingLeft: '6px',
         fontSize: '12px',
         whiteSpace: 'nowrap',
@@ -106,14 +109,14 @@ const useStyles = makeStyles({
     fontSize: '0.875rem !important',
     fontWeight: '800 !important' as any,
   },
-  editTextContainer: {
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    color: '#000',
-    fontWeight: '500 !important' as any,
-    fontSize: '0.75rem',
-  },
+  // editTextContainer: {
+  //   whiteSpace: 'nowrap',
+  //   textOverflow: 'ellipsis',
+  //   overflow: 'hidden',
+  //   color: '#000',
+  //   fontWeight: '500 !important' as any,
+  //   fontSize: '0.75rem',
+  // },
   textContainer: {
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
@@ -278,15 +281,18 @@ export function FileList(props: FileListProps): JSX.Element | null {
                       align='right'
                       key={`edit-${index}`}
                     >
-                      <IconButton
-                        style={{ color: 'black' }}
+                      <Button
+                        size={ButtonSize.Small}
+                        variant={ButtonVariant.Quiet}
+                        color={ButtonColor.Secondary}
                         onClick={() => props.onEdit(index)}
-                        tabIndex={0}
-                        className={classes.editTextContainer}
+                        icon={<PencilIcon />}
+                        iconPlacement='right'
+                        // fullWidth={true}
+                        className={css.customStyleEditButton}
                       >
                         {getLanguageFromKey('general.edit_alt', props.language)}
-                        <i className={`fa fa-editing-file ${classes.editIcon}`} />
-                      </IconButton>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );

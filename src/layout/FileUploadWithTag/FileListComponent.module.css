@@ -1,0 +1,5 @@
+.customStyleEditButton {
+  display: inline-block !important;
+  /* --component-button-size-height-small: 20rem; */
+  box-shadow: 2px;
+}
