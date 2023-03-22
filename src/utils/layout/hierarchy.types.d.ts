@@ -1,7 +1,8 @@
-import type { DeepPartial } from 'utility-types';
+import type { $Keys, DeepPartial, PickByValue } from 'utility-types';
 
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
+import type { ComponentClassMapTypes, ComponentType } from 'src/layout';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type {
   ComponentExceptGroup,
@@ -99,4 +100,10 @@ export type LayoutNodeFromObj<T> = T extends ILayoutComponent
   ? T extends { type: infer Type }
     ? LayoutNodeFromType<Type>
     : LayoutNode
+  : LayoutNode;
+
+export type TypesFromType<Type extends ComponentType> = $Keys<PickByValue<ComponentClassMapTypes, Type>>;
+
+export type LayoutNodeFromComponentType<Type> = Type extends ComponentType
+  ? LayoutNodeFromType<TypesFromType<Type>>
   : LayoutNode;

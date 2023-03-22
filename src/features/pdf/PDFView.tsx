@@ -41,7 +41,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
         }}
       />
     );
-  } else if (node.def.type === ComponentType.Presentation) {
+  } else if (node.isComponentType(ComponentType.Presentation)) {
     return (
       <GenericComponent
         node={node}

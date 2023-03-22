@@ -10,7 +10,6 @@ import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
@@ -192,9 +191,9 @@ export function SummaryGroupComponent({
               const childSummaryComponents = targetNode
                 .children(undefined, idx)
                 .filter((n) => !inExcludedChildren(n))
-                .filter((node) => node.def.type === ComponentType.Form)
+                .filter((node) => node.isComponentType(ComponentType.Form))
                 .map((child) => {
-                  if (child.isHidden() || !(child.def instanceof FormComponent)) {
+                  if (child.isHidden() || !child.isComponentType(ComponentType.Form)) {
                     return;
                   }
                   const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def);

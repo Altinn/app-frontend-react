@@ -10,7 +10,7 @@ import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
-import type { ComponentClassMap } from 'src/layout';
+import type { ComponentClassMap, ComponentType } from 'src/layout';
 import type {
   ComponentTypes,
   IDataModelBindings,
@@ -38,6 +38,7 @@ import type {
   HRepGroup,
   HRepGroupChild,
   HRepGroupExtensions,
+  LayoutNodeFromComponentType,
   LayoutNodeFromType,
   ParentNode,
   TypeFromAnyItem,
@@ -450,6 +451,10 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
 
   public isType<T extends ComponentTypes>(type: T): this is LayoutNodeFromType<T> {
     return this.item.type === type;
+  }
+
+  public isComponentType<T extends ComponentType>(type: T): this is LayoutNodeFromComponentType<T> {
+    return this.def.type === type;
   }
 
   public isRepGroup(): this is LayoutNode<HRepGroup, 'Group'> {

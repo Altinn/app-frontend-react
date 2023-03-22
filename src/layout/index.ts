@@ -66,6 +66,9 @@ export const components = {
 };
 
 export type ComponentClassMap = typeof components;
+export type ComponentClassMapTypes = {
+  [K in keyof ComponentClassMap]: ComponentClassMap[K]['type'];
+};
 
 // noinspection JSUnusedLocalSymbols
 /**
