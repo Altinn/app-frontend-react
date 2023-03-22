@@ -9,7 +9,7 @@ import { EditButton } from 'src/components/summary/EditButton';
 import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { ComponentType } from 'src/layout';
+import { ComponentType } from 'src/layout/LayoutComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';

@@ -1,11 +1,21 @@
 import React from 'react';
 
 import { SummaryItemCompact } from 'src/components/summary/SummaryItemCompact';
-import { ComponentType } from 'src/layout/index';
 import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+
+/**
+ * This enum is used to distinguish purely presentational components
+ * from interactive form components that can have formData etc.
+ */
+export enum ComponentType {
+  Presentation = 'presentation',
+  Form = 'form',
+  Action = 'action',
+  Container = 'container',
+}
 
 abstract class AnyComponent<Type extends ComponentTypes> {
   /**

@@ -9,7 +9,7 @@ import classes from 'src/features/form/containers/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGroupTableRow';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { ComponentType } from 'src/layout';
+import { ComponentType } from 'src/layout/LayoutComponent';
 import { getTextAlignment, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ITextResourceBindings } from 'src/types';

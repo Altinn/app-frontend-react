@@ -2,7 +2,7 @@ import type { $Keys, DeepPartial, PickByValue } from 'utility-types';
 
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { ComponentClassMapTypes, ComponentType } from 'src/layout';
+import type { ComponentClassMapTypes } from 'src/layout';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type {
   ComponentExceptGroup,
@@ -11,6 +11,7 @@ import type {
   ILayoutComponent,
   ILayoutComponentExact,
 } from 'src/layout/layout';
+import type { ComponentType } from 'src/layout/LayoutComponent';
 import type { IValidations } from 'src/types';
 import type { LayoutNode, LayoutPage } from 'src/utils/layout/hierarchy';
 

@@ -10,7 +10,7 @@ import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
-import type { ComponentClassMap, ComponentType } from 'src/layout';
+import type { ComponentClassMap } from 'src/layout';
 import type {
   ComponentTypes,
   IDataModelBindings,
@@ -19,6 +19,7 @@ import type {
   ILayoutComponentOrGroup,
   ILayouts,
 } from 'src/layout/layout';
+import type { ComponentType } from 'src/layout/LayoutComponent';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
