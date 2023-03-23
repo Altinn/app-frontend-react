@@ -384,11 +384,13 @@ describe('Summary', () => {
 
     cy.get(appFrontend.group.comments).type('first comment').blur();
     cy.get(appFrontend.group.saveSubGroup).should('be.visible').click().should('not.exist');
-    cy.get(appFrontend.group.addNewItemSubGroup).should('exist').and('be.visible').focus().click();
+    cy.get(appFrontend.group.addNewItemSubGroup).should('exist');
+    cy.get(appFrontend.group.addNewItemSubGroup).click();
 
     cy.get(appFrontend.group.comments).type('second comment').blur();
     cy.get(appFrontend.group.saveSubGroup).should('be.visible').click().should('not.exist');
-    cy.get(appFrontend.group.addNewItemSubGroup).should('exist').and('be.visible').focus().click();
+    cy.get(appFrontend.group.addNewItemSubGroup).should('exist');
+    cy.get(appFrontend.group.addNewItemSubGroup).click();
 
     cy.get(appFrontend.group.comments).type('third comment').blur();
     cy.get(appFrontend.group.saveSubGroup).should('be.visible').click().should('not.exist');
