@@ -144,7 +144,8 @@ describe('Group', () => {
 
       cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
 
-      cy.get(appFrontend.group.addNewItem).should('exist').and('be.visible').focus().click();
+      cy.get(appFrontend.group.addNewItem).should('exist');
+      cy.get(appFrontend.group.addNewItem).click();
       cy.get(appFrontend.group.currentValue).should('be.visible').type('123').blur();
       cy.get(appFrontend.group.newValue).should('be.visible').type('1').blur();
       cy.get(appFrontend.group.saveMainGroup).focus().should('be.visible').click();
