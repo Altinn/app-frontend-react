@@ -78,6 +78,7 @@ const getRadio = ({ name, isChecked = false }) =>
 
 describe('RadioButtonsContainerComponent', () => {
   jest.useFakeTimers();
+
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -191,6 +192,7 @@ describe('RadioButtonsContainerComponent', () => {
 
     expect(getRadio({ name: 'Denmark' })).toBeInTheDocument();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       fireEvent.focus(getRadio({ name: 'Denmark' }));
       fireEvent.blur(getRadio({ name: 'Denmark' }));
@@ -206,7 +208,7 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
   it('should not show spinner when options are present', () => {
@@ -220,20 +222,18 @@ describe('RadioButtonsContainerComponent', () => {
   });
 
   it('should show items in a row when layout is "row" and options count is 3', () => {
-    const { container } = render({
+    render({
       component: {
         optionsId: 'countries',
         layout: LayoutStyle.Row,
       },
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a row when layout is not defined, and options count is 2', () => {
-    const { container } = render({
+    render({
       component: {
         optionsId: 'countries',
       },
@@ -249,13 +249,11 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a column when layout is "column" and options count is 2 ', () => {
-    const { container } = render({
+    render({
       component: {
         optionsId: 'countries',
         layout: LayoutStyle.Column,
@@ -272,21 +270,17 @@ describe('RadioButtonsContainerComponent', () => {
       },
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: column;');
   });
 
   it('should show items in a columns when layout is not defined, and options count is 3', () => {
-    const { container } = render({
+    render({
       component: {
         optionsId: 'countries',
       },
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    expect(screen.queryByRole('radiogroup')).toHaveStyle('flex-direction: column;');
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
