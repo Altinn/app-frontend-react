@@ -274,6 +274,15 @@ export interface IInstanceContext {
   instanceOwnerPartyType: InstanceOwnerPartyType;
 }
 
+export type IAuthContext = {
+  read: boolean;
+  write: boolean;
+  instantiate: boolean;
+  confirm: boolean;
+  sign: boolean;
+  reject: boolean;
+};
+
 export type HTMLAutoCompleteValues =
   | 'on'
   | 'off'

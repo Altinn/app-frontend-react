@@ -4,6 +4,7 @@ import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression } from 'src/features/expressions/validation';
+import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { _private, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
@@ -46,12 +47,23 @@ describe('Expressions shared function tests', () => {
   describe.each(sharedTests.content)('Function: $folderName', (folder) => {
     it.each(folder.content)(
       '$name',
-      ({ expression, expects, expectsFailure, context, layouts, dataModel, instance, frontendSettings }) => {
+      ({
+        expression,
+        expects,
+        expectsFailure,
+        context,
+        layouts,
+        dataModel,
+        instance,
+        permissions,
+        frontendSettings,
+      }) => {
         const dataSources: HierarchyDataSources = {
           formData: dataModel ? dot.dot(dataModel) : {},
           instanceContext: buildInstanceContext(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           hiddenFields: new Set<string>(),
+          authContext: buildAuthContext(permissions),
           validations: {},
         };
 
@@ -136,38 +148,42 @@ describe('Expressions shared context tests', () => {
   }
 
   describe.each(sharedTests.content)('$folderName', (folder) => {
-    it.each(folder.content)('$name', ({ layouts, dataModel, instance, frontendSettings, expectedContexts }) => {
-      const dataSources: HierarchyDataSources = {
-        formData: dataModel ? dot.dot(dataModel) : {},
-        instanceContext: buildInstanceContext(instance),
-        applicationSettings: frontendSettings || ({} as IApplicationSettings),
-        hiddenFields: new Set(),
-        validations: {},
-      };
+    it.each(folder.content)(
+      '$name',
+      ({ layouts, dataModel, instance, frontendSettings, permissions, expectedContexts }) => {
+        const dataSources: HierarchyDataSources = {
+          formData: dataModel ? dot.dot(dataModel) : {},
+          instanceContext: buildInstanceContext(instance),
+          applicationSettings: frontendSettings || ({} as IApplicationSettings),
+          hiddenFields: new Set(),
+          authContext: buildAuthContext(permissions),
+          validations: {},
+        };
 
-      const foundContexts: SharedTestContextList[] = [];
-      const _layouts = layouts || {};
-      for (const key of Object.keys(_layouts)) {
-        const repeatingGroups = getRepeatingGroups(_layouts[key].data.layout, dataSources.formData);
-        const nodes = nodesInLayouts(
-          { FormLayout: _layouts[key].data.layout },
-          'FormLayout',
-          repeatingGroups,
-          dataSources,
-        );
-        const layout = nodes.current();
-        if (!layout) {
-          throw new Error('No layout found - check your test data!');
+        const foundContexts: SharedTestContextList[] = [];
+        const _layouts = layouts || {};
+        for (const key of Object.keys(_layouts)) {
+          const repeatingGroups = getRepeatingGroups(_layouts[key].data.layout, dataSources.formData);
+          const nodes = nodesInLayouts(
+            { FormLayout: _layouts[key].data.layout },
+            'FormLayout',
+            repeatingGroups,
+            dataSources,
+          );
+          const layout = nodes.current();
+          if (!layout) {
+            throw new Error('No layout found - check your test data!');
+          }
+
+          foundContexts.push({
+            component: key,
+            currentLayout: key,
+            children: layout.children().map((child) => recurse(child, key)),
+          });
         }
 
-        foundContexts.push({
-          component: key,
-          currentLayout: key,
-          children: layout.children().map((child) => recurse(child, key)),
-        });
-      }
-
-      expect(foundContexts.sort(contextSorter)).toEqual(expectedContexts.sort(contextSorter));
-    });
+        expect(foundContexts.sort(contextSorter)).toEqual(expectedContexts.sort(contextSorter));
+      },
+    );
   });
 });

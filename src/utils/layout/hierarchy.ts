@@ -2,6 +2,7 @@ import type { $Values } from 'utility-types';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { getLayoutComponentObject } from 'src/layout';
+import { buildAuthContext } from 'src/utils/authContext';
 import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
@@ -1042,6 +1043,7 @@ export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources
     applicationSettings: state.applicationSettings.applicationSettings,
     instanceContext: buildInstanceContext(state.instanceData?.instance),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
+    authContext: buildAuthContext(state.process),
     validations: state.formValidations.validations,
   };
 }

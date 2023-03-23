@@ -26,7 +26,7 @@ import type {
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutComponent } from 'src/layout/layout';
 import type { IAltinnWindow } from 'src/types';
-import type { IInstanceContext } from 'src/types/shared';
+import type { IAuthContext, IInstanceContext } from 'src/types/shared';
 
 export interface EvalExprOptions {
   config?: ExprConfig;
@@ -309,6 +309,15 @@ const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
   instanceOwnerPartyType: true,
 };
 
+const authContextKeys: { [key in keyof IAuthContext]: true } = {
+  read: true,
+  write: true,
+  instantiate: true,
+  confirm: true,
+  sign: true,
+  reject: true,
+};
+
 /**
  * All the functions available to execute inside expressions
  */
@@ -436,6 +445,17 @@ export const ExprFunctions = {
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.Any,
+  }),
+  authContext: defineFunc({
+    impl(key): boolean | null {
+      if (key === null || authContextKeys[key] !== true) {
+        throw new LookupNotFound(this, `Unknown auth context property ${key}`);
+      }
+
+      return this.dataSources.authContext?.[key] ?? null;
+    },
+    args: [ExprVal.String] as const,
+    returns: ExprVal.Boolean,
   }),
   component: defineFunc({
     impl(id): any {

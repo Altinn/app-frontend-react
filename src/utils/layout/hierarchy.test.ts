@@ -130,6 +130,7 @@ describe('Hierarchical layout tools', () => {
     },
     applicationSettings: {},
     hiddenFields: new Set(),
+    authContext: null,
     validations: {},
   };
 
@@ -536,6 +537,7 @@ describe('Hierarchical layout tools', () => {
       },
       applicationSettings: {},
       hiddenFields: new Set(),
+      authContext: null,
       validations: {},
     };
 

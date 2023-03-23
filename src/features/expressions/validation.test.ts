@@ -53,6 +53,7 @@ function evalAllExpressions(layouts: Layouts) {
     applicationSettings: {} as any,
     instanceContext: {} as any,
     hiddenFields: new Set(),
+    authContext: null,
     validations: {},
   };
   const nodes = nodesInLayouts(convertLayouts(layouts), Object.keys(layouts)[0], repeatingGroups, dataSources);

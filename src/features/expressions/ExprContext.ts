@@ -4,13 +4,14 @@ import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
-import type { IApplicationSettings, IInstanceContext } from 'src/types/shared';
+import type { IApplicationSettings, IAuthContext, IInstanceContext } from 'src/types/shared';
 import type { LayoutNode, LayoutPage } from 'src/utils/layout/hierarchy';
 
 export interface ContextDataSources {
   instanceContext: IInstanceContext | null;
   applicationSettings: IApplicationSettings | null;
   formData: IFormData;
+  authContext: IAuthContext | null;
   hiddenFields: Set<string>;
 }
 
