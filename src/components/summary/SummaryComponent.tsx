@@ -9,7 +9,6 @@ import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { SummaryBoilerplate } from 'src/components/summary/SummaryBoilerplate';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
@@ -112,7 +111,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
     display && display.useComponentGrid ? overrides?.grid || targetItem?.grid : overrides?.grid || grid;
 
   const component = targetNode.def;
-  const RenderSummary = component instanceof FormComponent ? component.renderSummary.bind(component) : null;
+  const RenderSummary = 'renderSummary' in component ? component.renderSummary.bind(component) : null;
 
   return (
     <Grid
@@ -131,7 +130,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
           [classes.border]: !display?.hideBottomBorder,
         })}
       >
-        {RenderSummary && component instanceof FormComponent ? (
+        {RenderSummary && 'renderSummaryBoilerplate' in component ? (
           <>
             {component.renderSummaryBoilerplate() ? (
               <SummaryBoilerplate

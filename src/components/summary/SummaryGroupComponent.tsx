@@ -191,7 +191,6 @@ export function SummaryGroupComponent({
               const childSummaryComponents = targetNode
                 .children(undefined, idx)
                 .filter((n) => !inExcludedChildren(n))
-                .filter((node) => node.isComponentType(ComponentType.Form))
                 .map((child) => {
                   if (child.isHidden() || !child.isComponentType(ComponentType.Form)) {
                     return;

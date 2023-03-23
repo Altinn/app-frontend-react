@@ -10,7 +10,6 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import classes from 'src/features/form/containers/RepeatingGroup.module.css';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { getTextAlignment, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
@@ -102,7 +101,7 @@ export function RepeatingGroupTableRow({
 
   const tableNodes = getTableNodes(index) || [];
   const displayData = tableNodes.map((node) =>
-    node.def instanceof FormComponent ? node.def.useDisplayData(node as any) : '',
+    'useDisplayData' in node.def ? node.def.useDisplayData(node as any) : '',
   );
   const firstCellData = displayData.find((c) => !!c);
 
