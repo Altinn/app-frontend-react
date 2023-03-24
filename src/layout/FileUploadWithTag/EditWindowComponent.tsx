@@ -135,7 +135,14 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
         </Grid>
       </Grid>
       <Grid>
-        {textResourceBindings?.tagTitle && <h6>{props.getTextResource(textResourceBindings?.tagTitle)}</h6>}
+        {textResourceBindings?.tagTitle && (
+          <label
+            className={css.label}
+            htmlFor={`attachment-tag-dropdown-${props.attachment.id}`}
+          >
+            {props.getTextResource(textResourceBindings?.tagTitle)}
+          </label>
+        )}
         <Grid
           container={true}
           spacing={1}

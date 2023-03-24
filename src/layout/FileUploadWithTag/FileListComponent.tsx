@@ -1,17 +1,7 @@
 import React from 'react';
 
 import { Button, ButtonColor, ButtonSize, ButtonVariant } from '@digdir/design-system-react';
-import {
-  Grid,
-  // IconButton,
-  makeStyles,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@material-ui/core';
+import { Grid, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import { PencilIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
