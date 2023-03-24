@@ -27,6 +27,7 @@ export const CheckboxContainerComponent = ({
   language,
   handleDataChange,
   getTextResource,
+  overrideDisplay,
 }: ICheckboxContainerProps) => {
   const {
     id,
@@ -115,7 +116,7 @@ export const CheckboxContainerComponent = ({
         compact={false}
         disabled={readOnly}
         onChange={(values) => handleChange(values)}
-        legend={labelText}
+        legend={overrideDisplay?.renderLegend ? labelText : null}
         description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
         error={!isValid}
         helpText={textResourceBindings?.help && getTextResource(textResourceBindings.help)}
@@ -131,7 +132,10 @@ export const CheckboxContainerComponent = ({
           name: option.value,
           checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
           checked: selected.includes(option.value),
-          label: getTextResource(option.label),
+          label:
+            overrideDisplay?.renderCheckboxRadioLabelsWhenOnlyOne === false && calculatedOptions.length === 1
+              ? null
+              : getTextResource(option.label),
           helpText: option.helpText && getTextResource(option.helpText),
         }))}
       />

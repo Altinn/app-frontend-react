@@ -30,6 +30,7 @@ export const ControlledRadioGroup = ({
   handleChangeRadioGroup,
   calculatedOptions,
   isValid,
+  overrideDisplay,
 }: IControlledRadioGroupProps) => {
   const { id, layout, readOnly, textResourceBindings, required, labelSettings } = node.item;
 
@@ -60,7 +61,7 @@ export const ControlledRadioGroup = ({
           <RadioGroup
             name={id}
             aria-labelledby={`${id}-label`}
-            legend={labelText}
+            legend={overrideDisplay?.renderLegend ? labelText : null}
             description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
             value={selected}
             error={!isValid}
@@ -78,7 +79,10 @@ export const ControlledRadioGroup = ({
             items={calculatedOptions.map((option) => ({
               value: option.value,
               checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
-              label: getTextResource(option.label),
+              label:
+                overrideDisplay?.renderCheckboxRadioLabelsWhenOnlyOne === false && calculatedOptions.length === 1
+                  ? null
+                  : getTextResource(option.label),
               helpText: option.helpText && getTextResource(option.helpText),
             }))}
           />
