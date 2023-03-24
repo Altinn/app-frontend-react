@@ -262,6 +262,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     language,
     shouldFocus,
     text: texts.title,
+    texts,
     label: RenderLabel,
     legend: RenderLegend,
     componentValidations,

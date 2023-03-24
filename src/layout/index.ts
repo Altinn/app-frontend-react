@@ -96,6 +96,9 @@ export interface IComponentProps {
   language: ILanguage;
   shouldFocus: boolean;
   text: React.ReactNode | string;
+  texts?: {
+    [textResourceKey: string]: React.ReactNode;
+  };
   label: () => JSX.Element | null;
   legend: () => JSX.Element | null;
   formData: IComponentFormData;
