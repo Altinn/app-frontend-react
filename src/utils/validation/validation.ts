@@ -293,7 +293,10 @@ export function validateEmptyField(
   if (!node.item.dataModelBindings) {
     return null;
   }
-  const fieldKeys = Object.keys(node.item.dataModelBindings) as (keyof IDataModelBindings)[];
+  let fieldKeys = Object.keys(node.item.dataModelBindings) as (keyof IDataModelBindings)[];
+  if (node.item.type === 'List') {
+    fieldKeys = ['simpleBinding'];
+  }
   const componentValidations: IComponentValidations = {};
   fieldKeys.forEach((fieldKey) => {
     const value = getFormDataFromFieldKey(fieldKey, node.item.dataModelBindings, formData);
