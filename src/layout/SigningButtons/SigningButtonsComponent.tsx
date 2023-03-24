@@ -56,6 +56,7 @@ export function SigningButtonsComponent({ node }: ISigningButtons) {
       <div className={classes.buttonWrapper}>
         {props.showRejectButton && (
           <Button
+            id={`reject-${props.id}`}
             variant={ButtonVariant.Outline}
             disabled={rejectDisabled}
             onClick={handleReject}
@@ -64,6 +65,7 @@ export function SigningButtonsComponent({ node }: ISigningButtons) {
           </Button>
         )}
         <Button
+          id={`sign-${props.id}`}
           color={ButtonColor.Success}
           disabled={signDisabled}
           onClick={handleSign}

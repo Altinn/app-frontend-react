@@ -221,9 +221,11 @@ export class AppFrontend {
   public signingTest = {
     incomeField: '#Input-income',
     submitButton: '#Button-submit',
-    confirmButton: '#Button-confirm',
+    signingButton: '#sign-SigningButtons',
     managerConfirmPanel: '#form-content-Panel-confirm1',
     auditorConfirmPanel: '#form-content-Panel-confirm2',
+    sentToAuditor: '#form-content-Header-noaccess',
+    noAccessPanel: '#form-content-Panel-noaccess',
   };
 }
 
