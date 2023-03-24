@@ -94,19 +94,6 @@ const useStyles = makeStyles({
       },
     },
   },
-  editIcon: {
-    paddingLeft: '6px',
-    fontSize: '0.875rem !important',
-    fontWeight: '800 !important' as any,
-  },
-  // editTextContainer: {
-  //   whiteSpace: 'nowrap',
-  //   textOverflow: 'ellipsis',
-  //   overflow: 'hidden',
-  //   color: '#000',
-  //   fontWeight: '500 !important' as any,
-  //   fontSize: '0.75rem',
-  // },
   textContainer: {
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
@@ -278,7 +265,6 @@ export function FileList(props: FileListProps): JSX.Element | null {
                         onClick={() => props.onEdit(index)}
                         icon={<PencilIcon />}
                         iconPlacement='right'
-                        // fullWidth={true}
                         className={css.customStyleEditButton}
                       >
                         {getLanguageFromKey('general.edit_alt', props.language)}
