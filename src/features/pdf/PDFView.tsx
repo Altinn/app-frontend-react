@@ -11,7 +11,7 @@ import { ComponentType } from 'src/layout/LayoutComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface PDFViewProps {
   appName: string;

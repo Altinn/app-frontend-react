@@ -14,8 +14,8 @@ import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IGrid } from 'src/layout/layout';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/types';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface ISummaryComponent {
   summaryNode: LayoutNodeFromType<'Summary'>;

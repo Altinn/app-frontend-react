@@ -13,8 +13,8 @@ import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGroupEditProperties } from 'src/layout/Group/types';
 import type { ILanguage } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { AnyItem, HRepGroup, HRepGroupChild, HRepGroupRow } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type FocusableHTMLElement = HTMLElement &
   HTMLButtonElement &

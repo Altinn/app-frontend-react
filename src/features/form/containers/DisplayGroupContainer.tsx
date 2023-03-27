@@ -6,7 +6,7 @@ import cn from 'classnames';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayGroupContainer {
   groupNode: LayoutNode;

@@ -16,7 +16,7 @@ import type { ExprConfig, ExprUnresolved } from 'src/features/expressions/types'
 import type { IFormData } from 'src/features/form/data';
 import type { ICheckIfConditionalRulesShouldRun, IConditionalRenderingRules } from 'src/features/form/dynamics';
 import type { IHiddenLayoutsExpressions, IRuntimeState, IUiConfig, IValidations } from 'src/types';
-import type { LayoutPages } from 'src/utils/layout/hierarchy';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export const ConditionalRenderingSelector = (store: IRuntimeState) => store.formDynamics.conditionalRendering;
 export const FormDataSelector = (state: IRuntimeState) => state.formData.formData;

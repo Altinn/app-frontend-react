@@ -69,7 +69,7 @@ import type {
   IValidationIssue,
   IValidations,
 } from 'src/types';
-import type { LayoutPages } from 'src/utils/layout/hierarchy';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
 export const selectFormData = (state: IRuntimeState) => state.formData;
