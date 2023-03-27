@@ -16,10 +16,10 @@ import { PartyActions } from 'src/shared/resources/party/partySlice';
 import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 import { watchStartInitialInfoTaskQueueSaga } from 'src/shared/resources/queue/infoTask/infoTaskQueueSaga';
 import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import { profileApiUrl } from 'src/utils/urls/appUrlHelper';
 import type { IQueueError, IQueueState } from 'src/shared/resources/queue';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 const commonState = { isDone: null, error: null };
 export const initialState: IQueueState = {

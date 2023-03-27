@@ -1,7 +1,7 @@
 import { fetchRuleModelSaga } from 'src/features/form/rules/fetch/fetchRulesSagas';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type { IFetchRuleModelFulfilled, IFetchRuleModelRejected, IFormRuleState } from 'src/features/form/rules';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 const initialState: IFormRuleState = {
   model: [],

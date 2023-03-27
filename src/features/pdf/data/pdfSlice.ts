@@ -1,8 +1,8 @@
 import { watchInitialPdfSaga, watchPdfPreviewSaga, watchPdfReadySaga } from 'src/features/pdf/data/generatePdfSagas';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type { IPdfActionRejected, IPdfFormatFulfilled, IPdfState } from 'src/features/pdf/data/types';
 import type { IPdfMethodFulfilled } from 'src/features/pdf/data/types.d';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 export const initialState: IPdfState = {
   readyForPrint: false,

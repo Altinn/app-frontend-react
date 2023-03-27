@@ -6,8 +6,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { AltinnLogo } from 'src/components/AltinnLogo';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { renderParty } from 'src/shared/resources/utils/party';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
+import { renderParty } from 'src/utils/party';
 import { returnUrlToAllSchemas, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
 import type { ILanguage, IProfile } from 'src/types/shared';
 

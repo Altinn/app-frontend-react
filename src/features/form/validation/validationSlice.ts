@@ -1,7 +1,7 @@
 import { runSingleFieldValidationSaga } from 'src/features/form/validation/singleField/singleFieldValidationSagas';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type { IComponentValidations, IValidations } from 'src/types';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 export interface IValidationState {
   validations: IValidations;

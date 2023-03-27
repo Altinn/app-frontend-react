@@ -2,9 +2,9 @@ import React from 'react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { useSelectedValueToText } from 'src/common/hooks/useSelectedValueToText';
-import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
+import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { LayoutStyle } from 'src/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';

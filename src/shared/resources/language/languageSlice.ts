@@ -2,9 +2,9 @@ import { call, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { fetchLanguageSaga, watchFetchLanguageSaga } from 'src/shared/resources/language/fetch/fetchLanguageSagas';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type { ILanguage } from 'src/types/shared';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 export interface IFetchLanguageFulfilled {
   language: ILanguage;

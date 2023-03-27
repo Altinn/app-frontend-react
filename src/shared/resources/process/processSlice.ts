@@ -5,7 +5,7 @@ import { checkProcessUpdated } from 'src/shared/resources/process/checkProcessUp
 import { completeProcessSaga } from 'src/shared/resources/process/completeProcess/completeProcessSagas';
 import { getProcessStateSaga } from 'src/shared/resources/process/getProcessState/getProcessStateSagas';
 import { getTasksSaga } from 'src/shared/resources/process/getTasks/getTasksSagas';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type {
   ICompleteProcessFulfilled,
   ICompleteProcessRejected,
@@ -14,7 +14,7 @@ import type {
   IGetTasksFulfilled,
   IProcessState,
 } from 'src/shared/resources/process';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 const initialState: IProcessState = {
   taskType: null,

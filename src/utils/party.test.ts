@@ -1,6 +1,6 @@
-import { renderParty } from 'src/shared/resources/utils/party';
+import { renderParty } from 'src/utils/party';
 
-describe('sharedResources/utils/party', () => {
+describe('party', () => {
   let mockProfile: any;
   beforeEach(() => {
     mockProfile = {

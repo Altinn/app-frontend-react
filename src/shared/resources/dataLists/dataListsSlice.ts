@@ -1,5 +1,5 @@
 import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/shared/resources/dataLists/fetchDataListsSaga';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type {
   IDataListsState,
   IFetchDataListsFulfilledAction,
@@ -11,7 +11,7 @@ import type {
   ISetDataListsWithIndexIndicators,
   ISetSort,
 } from 'src/shared/resources/dataLists';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 const initialState: IDataListsState = {
   dataLists: {},

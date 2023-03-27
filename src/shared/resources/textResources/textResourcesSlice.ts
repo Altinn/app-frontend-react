@@ -3,7 +3,7 @@ import {
   replaceTextResourcesSaga,
   watchReplaceTextResourcesSaga,
 } from 'src/shared/resources/textResources/replace/replaceTextResourcesSagas';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type {
   IFetchTextResourcesFulfilled,
   IFetchTextResourcesRejected,
@@ -11,7 +11,7 @@ import type {
   IReplaceTextResourcesRejected,
   ITextResourcesState,
 } from 'src/shared/resources/textResources';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 const initialState: ITextResourcesState = {
   language: null,

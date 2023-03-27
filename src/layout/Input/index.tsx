@@ -3,9 +3,9 @@ import React from 'react';
 import { formatNumericText } from '@altinn/altinn-design-system';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
+import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NumberFormatProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';

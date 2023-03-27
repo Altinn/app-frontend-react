@@ -3,9 +3,9 @@ import React from 'react';
 import { makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
-import { EditButton } from 'src/components/summary/EditButton';
+import { EditButton } from 'src/layout/Summary/EditButton';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
-import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
+import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 

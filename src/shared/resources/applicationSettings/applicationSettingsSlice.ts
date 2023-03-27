@@ -1,11 +1,11 @@
 import { getApplicationSettings } from 'src/shared/resources/applicationSettings/fetch/fetchApplicationSettingsSaga';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type {
   IFetchApplicationSettingsFulfilled,
   IFetchApplicationSettingsRejected,
 } from 'src/shared/resources/applicationSettings/applicationSettingsTypes';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
 import type { IApplicationSettings } from 'src/types/shared';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 export interface IApplicationSettingsState {
   applicationSettings: IApplicationSettings | null;

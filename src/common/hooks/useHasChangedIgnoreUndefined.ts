@@ -1,5 +1,13 @@
 import { useEffect, useRef } from 'react';
 
+const usePrevious = (value: any) => {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+};
+
 export const useHasChangedIgnoreUndefined = (val: any) => {
   const stringifiedVal = JSON.stringify(val);
   const prevVal = usePrevious(stringifiedVal);
@@ -7,12 +15,4 @@ export const useHasChangedIgnoreUndefined = (val: any) => {
     return false;
   }
   return prevVal !== stringifiedVal;
-};
-
-export const usePrevious = (value: any) => {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
 };

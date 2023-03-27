@@ -1,11 +1,11 @@
 import { getApplicationMetadata } from 'src/shared/resources/applicationMetadata/sagas/get';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type {
   IApplicationMetadataState,
   IGetApplicationMetadataFulfilled,
   IGetApplicationMetadataRejected,
 } from 'src/shared/resources/applicationMetadata';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 const initialState: IApplicationMetadataState = {
   applicationMetadata: null,

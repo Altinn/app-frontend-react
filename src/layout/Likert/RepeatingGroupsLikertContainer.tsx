@@ -4,8 +4,8 @@ import { Grid, TableCell, Typography } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useGetOptions } from 'src/common/hooks/useGetOptions';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { useGetOptions } from 'src/components/hooks';
 import { AltinnTableBody } from 'src/components/molecules/AltinnTableBody';
 import { AltinnTableHeader } from 'src/components/molecules/AltinnTableHeader';
 import { AltinnTableRow } from 'src/components/molecules/AltinnTableRow';

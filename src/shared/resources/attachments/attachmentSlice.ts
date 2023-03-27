@@ -2,7 +2,7 @@ import { deleteAttachmentSaga } from 'src/shared/resources/attachments/delete/de
 import { watchMapAttachmentsSaga } from 'src/shared/resources/attachments/map/mapAttachmentsSagas';
 import { updateAttachmentSaga } from 'src/shared/resources/attachments/update/updateAttachmentSagas';
 import { uploadAttachmentSaga } from 'src/shared/resources/attachments/upload/uploadAttachmentSagas';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type {
   IDeleteAttachmentAction,
   IDeleteAttachmentActionFulfilled,
@@ -23,7 +23,7 @@ import type {
   IUploadAttachmentActionFulfilled,
   IUploadAttachmentActionRejected,
 } from 'src/shared/resources/attachments/upload/uploadAttachmentActions';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 const initialState: IAttachmentState = {
   attachments: {},

@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { useHasChangedIgnoreUndefined } from 'src/common/hooks';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useDelayedSavedState } from 'src/common/hooks/useDelayedSavedState';
+import { useGetOptions } from 'src/common/hooks/useGetOptions';
+import { useHasChangedIgnoreUndefined } from 'src/common/hooks/useHasChangedIgnoreUndefined';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { useGetOptions } from 'src/components/hooks';
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { Select } from 'src/components/Select';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';

@@ -7,7 +7,7 @@ import { checkIfRuleShouldRunSaga } from 'src/features/form/rules/check/checkRul
 import { checkIfDataListShouldRefetchSaga } from 'src/shared/resources/dataLists/fetchDataListsSaga';
 import { checkIfOptionsShouldRefetchSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
-import { createSagaSlice } from 'src/shared/resources/utils/sagaSlice';
+import { createSagaSlice } from 'src/utils/sagaSlice';
 import type { IFormData, IFormDataState } from 'src/features/form/data';
 import type {
   IDeleteAttachmentReference,
@@ -19,7 +19,7 @@ import type {
   IUpdateFormData,
   IUpdateFormDataFulfilled,
 } from 'src/features/form/data/formDataTypes';
-import type { MkActionType } from 'src/shared/resources/utils/sagaSlice';
+import type { MkActionType } from 'src/utils/sagaSlice';
 
 export const initialState: IFormDataState = {
   formData: {},

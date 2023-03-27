@@ -5,14 +5,14 @@ import cn from 'classnames';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
-import { EditButton } from 'src/components/summary/EditButton';
-import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout/LayoutComponent';
+import { EditButton } from 'src/layout/Summary/EditButton';
+import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
+import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
