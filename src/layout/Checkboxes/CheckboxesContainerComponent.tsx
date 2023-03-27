@@ -116,7 +116,7 @@ export const CheckboxContainerComponent = ({
         compact={false}
         disabled={readOnly}
         onChange={(values) => handleChange(values)}
-        legend={overrideDisplay?.renderLegend ? labelText : null}
+        legend={overrideDisplay?.renderLegend === false ? null : labelText}
         description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
         error={!isValid}
         helpText={textResourceBindings?.help && getTextResource(textResourceBindings.help)}

@@ -61,7 +61,7 @@ export const ControlledRadioGroup = ({
           <RadioGroup
             name={id}
             aria-labelledby={`${id}-label`}
-            legend={overrideDisplay?.renderLegend ? labelText : null}
+            legend={overrideDisplay?.renderLegend === false ? null : labelText}
             description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
             value={selected}
             error={!isValid}
