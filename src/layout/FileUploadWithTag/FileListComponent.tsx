@@ -263,7 +263,7 @@ export function FileList(props: FileListProps): JSX.Element | null {
                         variant={ButtonVariant.Quiet}
                         color={ButtonColor.Secondary}
                         onClick={() => props.onEdit(index)}
-                        icon={<PencilIcon title='' />}
+                        icon={<PencilIcon title={getLanguageFromKey('general.edit_alt', props.language)} />}
                         iconPlacement='right'
                         className={css.customStyleEditButton}
                       >
