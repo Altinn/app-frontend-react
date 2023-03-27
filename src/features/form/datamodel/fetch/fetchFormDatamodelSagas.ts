@@ -1,15 +1,15 @@
 import { all, call, put, select, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { ApplicationMetadataActions } from 'src/features/applicationMetadata/applicationMetadataSlice';
 import { DataModelActions } from 'src/features/form/datamodel/datamodelSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
-import { QueueActions } from 'src/features/queue/queueSlice';
+import { ApplicationMetadataActions } from 'src/shared/resources/applicationMetadata/applicationMetadataSlice';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getCurrentDataTypeForApplication, isStatelessApp } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getJsonSchemaUrl } from 'src/utils/urls/appUrlHelper';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 

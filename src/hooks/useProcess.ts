@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
-import { ProcessActions } from 'src/features/process/processSlice';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
+import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
+import { ProcessActions } from 'src/shared/resources/process/processSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 

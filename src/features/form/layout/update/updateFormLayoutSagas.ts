@@ -3,14 +3,14 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
-import { OptionsActions } from 'src/features/options/optionsSlice';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
+import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
+import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { Triggers } from 'src/types';
 import {
   getCurrentDataTypeForApplication,
@@ -44,11 +44,6 @@ import {
   removeGroupValidationsByIndex,
   validateGroup,
 } from 'src/utils/validation/validation';
-import type { IAttachmentState } from 'src/features/attachments';
-import type {
-  IDeleteAttachmentActionFulfilled,
-  IDeleteAttachmentActionRejected,
-} from 'src/features/attachments/delete/deleteAttachmentActions';
 import type { IFormDataState } from 'src/features/form/data';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type {
@@ -61,6 +56,11 @@ import type {
 } from 'src/features/form/layout/formLayoutTypes';
 import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { IAttachmentState } from 'src/shared/resources/attachments';
+import type {
+  IDeleteAttachmentActionFulfilled,
+  IDeleteAttachmentActionRejected,
+} from 'src/shared/resources/attachments/delete/deleteAttachmentActions';
 import type {
   IFileUploadersWithTag,
   IOptions,

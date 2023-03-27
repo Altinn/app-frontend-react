@@ -2,7 +2,7 @@ import React from 'react';
 
 import { FooterGenericLink } from 'src/features/footer/components/shared/FooterGenericLink';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getTextResourceByKey } from 'src/language/language';
+import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IFooterPhoneComponent } from 'src/features/footer/components/Phone/types';
 

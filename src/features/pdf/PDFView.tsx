@@ -2,7 +2,6 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { PDF_LAYOUT_NAME } from 'src/features/pdf/data/pdfSlice';
 import classes from 'src/features/pdf/PDFView.module.css';
@@ -10,6 +9,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { ComponentType } from 'src/layout/LayoutComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 

@@ -9,9 +9,9 @@ import {
   SelectAttachments,
   SelectFormData,
 } from 'src/features/form/data/update/updateFormDataSagas';
-import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IDeleteAttachmentReference } from 'src/features/form/data/formDataTypes';
 import type { IDataModelBindings } from 'src/layout/layout';
+import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type { IRuntimeState } from 'src/types';
 
 describe('updateFormDataSagas', () => {

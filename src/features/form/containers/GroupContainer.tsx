@@ -11,7 +11,7 @@ import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroup
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey, getTextResourceByKey } from 'src/language/language';
+import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { Triggers } from 'src/types';
 import { getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';

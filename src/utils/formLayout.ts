@@ -1,8 +1,8 @@
-import type { IAttachmentState } from 'src/features/attachments';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { IGroupEditProperties, IGroupFilter, ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentTypes, ILayout, ILayoutComponent } from 'src/layout/layout';
+import type { IAttachmentState } from 'src/shared/resources/attachments';
 import type {
   IFileUploadersWithTag,
   ILayoutNavigation,

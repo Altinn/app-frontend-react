@@ -1,4 +1,4 @@
-import { replaceTextResourceParams } from 'src/language/language';
+import { replaceTextResourceParams } from 'src/language/sharedLanguage';
 import {
   getBaseGroupDataModelBindingFromKeyWithIndexIndicators,
   getGroupDataModelBinding,

@@ -3,11 +3,11 @@ import React from 'react';
 import { Select } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { ProfileActions } from 'src/features/profile/profileSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { useGetAppLanguageQuery } from 'src/services/LanguageApi';
+import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 
 export const LanguageSelector = () => {

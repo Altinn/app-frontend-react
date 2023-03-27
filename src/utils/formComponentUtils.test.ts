@@ -1,6 +1,6 @@
 import parseHtmlToReact from 'html-react-parser';
 
-import { parseOptions } from 'src/language/language';
+import { parseOptions } from 'src/language/sharedLanguage';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import {
   atleastOneTagExists,
@@ -13,8 +13,8 @@ import {
   selectComponentTexts,
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
-import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IGridStyling } from 'src/layout/layout';
+import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type { ITextResource } from 'src/types';
 
 describe('formComponentUtils', () => {

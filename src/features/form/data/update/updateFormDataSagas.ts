@@ -14,9 +14,9 @@ import {
   validateComponentFormData,
   validateComponentSpecificValidations,
 } from 'src/utils/validation/validation';
-import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/form/data';
 import type { IDeleteAttachmentReference, IUpdateFormData } from 'src/features/form/data/formDataTypes';
+import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IRuntimeState } from 'src/types';
 
 export function* updateFormDataSaga({

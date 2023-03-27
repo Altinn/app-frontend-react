@@ -7,7 +7,7 @@ import cn from 'classnames';
 
 import classes from 'src/features/form/containers/RepeatingGroup.module.css';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey, getTextResourceByKey } from 'src/language/language';
+import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';

@@ -1,4 +1,4 @@
-import { getTextResourceByKey } from 'src/language/language';
+import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import type { IValidations } from 'src/types';
 
 export function getMockValidationState(withFixed = false): IValidations {

@@ -8,9 +8,9 @@ import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapDataElementValidationToRedux, mergeValidationObjects } from 'src/utils/validation/validation';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IRunSingleFieldValidation } from 'src/features/form/validation/validationSlice';
 import type { ILayouts } from 'src/layout/layout';
+import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { ILayoutSets, IRuntimeState, ITextResource, IValidationIssue, IValidations } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 

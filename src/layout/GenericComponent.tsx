@@ -11,7 +11,7 @@ import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getTextResourceByKey } from 'src/language/language';
+import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { components, FormComponentContext } from 'src/layout/index';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';

@@ -13,13 +13,13 @@ import {
 } from '@material-ui/core';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
-import { getLanguageFromKey } from 'src/language/language';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { FileName } from 'src/layout/FileUpload/shared/render';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
-import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IOption } from 'src/types';
 
 const useStyles = makeStyles({

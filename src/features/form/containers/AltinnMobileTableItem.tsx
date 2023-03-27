@@ -16,7 +16,7 @@ import { Delete as DeleteIcon, Edit as EditIcon, Warning as WarningIcon } from '
 import cn from 'classnames';
 
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { getLanguageFromKey } from 'src/language/language';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';

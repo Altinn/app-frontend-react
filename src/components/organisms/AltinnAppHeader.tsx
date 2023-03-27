@@ -6,7 +6,7 @@ import { AltinnLogo } from 'src/components/AltinnLogo';
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import classes from 'src/components/organisms/AltinnAppHeader.module.css';
 import { AltinnAppHeaderMenu } from 'src/components/organisms/AltinnAppHeaderMenu';
-import { getLanguageFromKey } from 'src/language/language';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { renderPartyName } from 'src/utils/party';
 import type { ILanguage, IParty } from 'src/types/shared';
 

@@ -3,7 +3,7 @@ import { makeGetHasErrorsSelector } from 'src/selectors/getErrors';
 import type { IFormDataState } from 'src/features/form/data';
 import type { IFormDynamicState } from 'src/features/form/dynamics';
 import type { IFormRuleState } from 'src/features/form/rules';
-import type { ITextResourcesState } from 'src/features/textResources';
+import type { ITextResourcesState } from 'src/shared/resources/textResources';
 
 describe('selectors > getErrors', () => {
   it('should return true if error is present', () => {

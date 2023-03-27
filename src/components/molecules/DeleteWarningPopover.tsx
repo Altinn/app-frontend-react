@@ -4,7 +4,7 @@ import { PanelVariant, PopoverPanel } from '@altinn/altinn-design-system';
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { makeStyles } from '@material-ui/core';
 
-import { getLanguageFromKey } from 'src/language/language';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import type { ILanguage } from 'src/types/shared';
 
 const useStyles = makeStyles({

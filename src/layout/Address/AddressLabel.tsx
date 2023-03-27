@@ -2,7 +2,7 @@ import React from 'react';
 
 import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
 import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';
-import { getLanguageFromKey } from 'src/language/language';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import type { ILabelSettings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 

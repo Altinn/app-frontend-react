@@ -5,8 +5,6 @@ import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { DataModelActions } from 'src/features/form/datamodel/datamodelSlice';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import {
   appMetaDataSelector,
@@ -15,6 +13,8 @@ import {
   layoutSetsSelector,
   processStateSelector,
 } from 'src/selectors/simpleSelectors';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
 import { putWithoutConfig } from 'src/utils/network/networking';
@@ -26,8 +26,8 @@ import {
   invalidateCookieUrl,
   redirectToUpgrade,
 } from 'src/utils/urls/appUrlHelper';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { IProcessState } from 'src/features/process';
+import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
+import type { IProcessState } from 'src/shared/resources/process';
 import type { ILayoutSets } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 

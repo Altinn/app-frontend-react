@@ -10,8 +10,6 @@ import {
 } from 'src/features/form/data/fetch/fetchFormDataSagas';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { DataModelActions } from 'src/features/form/datamodel/datamodelSlice';
-import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
-import { QueueActions } from 'src/features/queue/queueSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import {
   appMetaDataSelector,
@@ -20,10 +18,12 @@ import {
   layoutSetsSelector,
   processStateSelector,
 } from 'src/selectors/simpleSelectors';
+import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
+import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getCurrentTaskDataElementId, getDataTypeByLayoutSetId } from 'src/utils/appMetadata';
 import * as networking from 'src/utils/network/sharedNetworking';
 import * as appUrlHelper from 'src/utils/urls/appUrlHelper';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { ILayoutSets } from 'src/types';
 import type { IApplication } from 'src/types/shared';
 
