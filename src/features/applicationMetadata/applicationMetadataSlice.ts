@@ -1,11 +1,11 @@
 import { getApplicationMetadata } from 'src/features/applicationMetadata/sagas/get';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IApplicationMetadataState,
   IGetApplicationMetadataFulfilled,
   IGetApplicationMetadataRejected,
 } from 'src/features/applicationMetadata/index';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IApplicationMetadataState = {
   applicationMetadata: null,

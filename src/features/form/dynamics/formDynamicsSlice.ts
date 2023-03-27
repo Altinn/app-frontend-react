@@ -6,14 +6,14 @@ import { checkIfConditionalRulesShouldRunSaga } from 'src/features/form/dynamics
 import { fetchDynamicsSaga } from 'src/features/form/dynamics/fetch/fetchFormDynamicsSagas';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { FormRulesActions } from 'src/features/form/rules/rulesSlice';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   ICheckIfConditionalRulesShouldRun,
   IFetchServiceConfigFulfilled,
   IFetchServiceConfigRejected,
   IFormDynamicState,
 } from 'src/features/form/dynamics';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IFormDynamicState = {
   ruleConnection: {},

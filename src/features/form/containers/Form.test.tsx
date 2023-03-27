@@ -10,7 +10,7 @@ import { Form } from 'src/features/form/containers/Form';
 import { MemoryRouterWithRedirectingRoot, renderWithProviders } from 'src/testUtils';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayout, ILayoutComponent, ILayoutEntry } from 'src/layout/layout';
-import type { RootState } from 'src/store';
+import type { RootState } from 'src/redux/store';
 
 describe('Form', () => {
   const mockComponents: ILayout = [

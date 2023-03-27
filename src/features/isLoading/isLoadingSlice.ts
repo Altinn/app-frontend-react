@@ -1,7 +1,7 @@
 import { watcherFinishDataTaskIsloadingSaga } from 'src/features/isLoading/dataTask/dataTaskIsLoadingSagas';
 import { watcherFinishStatelessIsLoadingSaga } from 'src/features/isLoading/stateless/statelessIsLoadingSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 export interface IIsLoadingState {
   dataTask: boolean | null;

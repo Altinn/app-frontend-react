@@ -7,7 +7,7 @@ import { checkIfRuleShouldRunSaga } from 'src/features/form/rules/check/checkRul
 import { checkIfDataListShouldRefetchSaga } from 'src/features/lists/fetchDataListsSaga';
 import { checkIfOptionsShouldRefetchSaga } from 'src/features/options/fetch/fetchOptionsSagas';
 import { ProcessActions } from 'src/features/process/processSlice';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { IFormData, IFormDataState } from 'src/features/form/data';
 import type {
   IDeleteAttachmentReference,
@@ -19,7 +19,7 @@ import type {
   IUpdateFormData,
   IUpdateFormDataFulfilled,
 } from 'src/features/form/data/formDataTypes';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 export const initialState: IFormDataState = {
   formData: {},

@@ -1,7 +1,7 @@
 import { fetchOrgsSaga } from 'src/features/orgs/fetch/fetchOrgsSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { IFetchOrgsFulfilled, IFetchOrgsRejected, IOrgsState } from 'src/features/orgs/index';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IOrgsState = {
   allOrgs: null,

@@ -1,5 +1,5 @@
 import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/features/lists/fetchDataListsSaga';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IDataListsState,
   IFetchDataListsFulfilledAction,
@@ -11,7 +11,7 @@ import type {
   ISetDataListsWithIndexIndicators,
   ISetSort,
 } from 'src/features/lists/index';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IDataListsState = {
   dataLists: {},

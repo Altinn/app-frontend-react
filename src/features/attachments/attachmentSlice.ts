@@ -2,7 +2,7 @@ import { deleteAttachmentSaga } from 'src/features/attachments/delete/deleteAtta
 import { watchMapAttachmentsSaga } from 'src/features/attachments/map/mapAttachmentsSagas';
 import { updateAttachmentSaga } from 'src/features/attachments/update/updateAttachmentSagas';
 import { uploadAttachmentSaga } from 'src/features/attachments/upload/uploadAttachmentSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IDeleteAttachmentAction,
   IDeleteAttachmentActionFulfilled,
@@ -23,7 +23,7 @@ import type {
   IUploadAttachmentActionFulfilled,
   IUploadAttachmentActionRejected,
 } from 'src/features/attachments/upload/uploadAttachmentActions';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IAttachmentState = {
   attachments: {},

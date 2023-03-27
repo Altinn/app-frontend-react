@@ -4,7 +4,7 @@ import type Ajv from 'ajv/dist/core';
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
-import type { RootState } from 'src/store';
+import type { RootState } from 'src/redux/store';
 
 export interface IAltinnWindow extends Window {
   app: string;

@@ -11,7 +11,7 @@ import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IRepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
 import type { ILayout, ILayoutComponent } from 'src/layout/layout';
-import type { RootState } from 'src/store';
+import type { RootState } from 'src/redux/store';
 import type { IOption } from 'src/types';
 import type { ILanguage, ITextResource } from 'src/types/shared';
 

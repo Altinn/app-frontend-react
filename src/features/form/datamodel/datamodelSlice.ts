@@ -1,7 +1,7 @@
 import { watchFetchJsonSchemaSaga } from 'src/features/form/datamodel/fetch/fetchFormDatamodelSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { IDataModelState, IFetchJsonSchemaFulfilled, IFetchJsonSchemaRejected } from 'src/features/form/datamodel';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IDataModelState = {
   schemas: {},

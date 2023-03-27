@@ -1,12 +1,12 @@
 import { getInstanceDataSaga } from 'src/features/instanceData/get/getInstanceDataSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IGetInstanceData,
   IGetInstanceDataFulfilled,
   IGetInstanceDataRejected,
   IInstanceDataState,
 } from 'src/features/instanceData/index';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IInstanceDataState = {
   instance: null,

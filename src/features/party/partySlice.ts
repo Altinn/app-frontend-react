@@ -1,6 +1,6 @@
 import { getCurrentPartySaga, getPartiesSaga } from 'src/features/party/getParties/getPartiesSagas';
 import { selectPartySaga } from 'src/features/party/selectParty/selectPartySagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IGetPartiesFulfilled,
   IGetPartiesRejected,
@@ -9,7 +9,7 @@ import type {
   ISelectPartyFulfilled,
   ISelectPartyRejected,
 } from 'src/features/party/index';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IPartyState = {
   parties: null,

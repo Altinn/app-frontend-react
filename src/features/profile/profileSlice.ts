@@ -2,16 +2,16 @@ import { put } from 'redux-saga/effects';
 
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { fetchProfileSaga } from 'src/features/profile/fetch/fetchProfileSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IFetchProfile,
   IFetchProfileFulfilled,
   IFetchProfileRejected,
   IProfileState,
 } from 'src/features/profile/index';
+import type { MkActionType } from 'src/redux/sagaSlice';
 import type { IAltinnWindow } from 'src/types';
 import type { IProfile } from 'src/types/shared';
-import type { MkActionType } from 'src/utils/sagaSlice';
 
 export interface IUpdateSelectedAppLanguage {
   selected: string;

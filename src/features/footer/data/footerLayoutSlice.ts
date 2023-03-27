@@ -1,11 +1,11 @@
 import { fetchFooterLayoutSaga } from 'src/features/footer/data/fetchFooterLayoutSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IFetchFooterLayoutFulfilled,
   IFooterLayoutActionRejected,
   IFooterLayoutState,
 } from 'src/features/footer/data/types';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 export const initialState: IFooterLayoutState = {
   footerLayout: null,

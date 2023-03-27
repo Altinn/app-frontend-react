@@ -6,7 +6,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { setupStore } from 'src/store';
+import { setupStore } from 'src/redux/store';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormDataState } from 'src/features/form/data';

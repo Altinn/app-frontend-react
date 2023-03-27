@@ -16,10 +16,10 @@ import { PdfActions } from 'src/features/pdf/data/pdfSlice';
 import { ProfileActions } from 'src/features/profile/profileSlice';
 import { watchStartInitialInfoTaskQueueSaga } from 'src/features/queue/infoTask/infoTaskQueueSaga';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import { profileApiUrl } from 'src/utils/urls/appUrlHelper';
 import type { IQueueError, IQueueState } from 'src/features/queue/index';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const commonState = { isDone: null, error: null };
 export const initialState: IQueueState = {

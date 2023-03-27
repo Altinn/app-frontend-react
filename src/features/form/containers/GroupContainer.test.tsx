@@ -8,7 +8,7 @@ import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { GroupContainer } from 'src/features/form/containers/GroupContainer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
-import { setupStore } from 'src/store';
+import { setupStore } from 'src/redux/store';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
 import { Triggers } from 'src/types';
 import type { ExprUnresolved } from 'src/features/expressions/types';

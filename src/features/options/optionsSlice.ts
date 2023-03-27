@@ -1,5 +1,5 @@
 import { fetchOptionsSaga, watchFinishedLoadingSaga } from 'src/features/options/fetch/fetchOptionsSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IFetchingOptionsAction,
   IFetchOptionsFulfilledAction,
@@ -8,7 +8,7 @@ import type {
   ISetOptions,
   ISetOptionsWithIndexIndicators,
 } from 'src/features/options/index';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IOptionsState = {
   options: {},

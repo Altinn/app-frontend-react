@@ -1,11 +1,11 @@
 import { getApplicationSettings } from 'src/features/applicationSettings/fetch/fetchApplicationSettingsSaga';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IFetchApplicationSettingsFulfilled,
   IFetchApplicationSettingsRejected,
 } from 'src/features/applicationSettings/applicationSettingsTypes';
+import type { MkActionType } from 'src/redux/sagaSlice';
 import type { IApplicationSettings } from 'src/types/shared';
-import type { MkActionType } from 'src/utils/sagaSlice';
 
 export interface IApplicationSettingsState {
   applicationSettings: IApplicationSettings | null;

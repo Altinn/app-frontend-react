@@ -3,7 +3,7 @@ import {
   replaceTextResourcesSaga,
   watchReplaceTextResourcesSaga,
 } from 'src/features/textResources/replace/replaceTextResourcesSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IFetchTextResourcesFulfilled,
   IFetchTextResourcesRejected,
@@ -11,7 +11,7 @@ import type {
   IReplaceTextResourcesRejected,
   ITextResourcesState,
 } from 'src/features/textResources/index';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: ITextResourcesState = {
   language: null,

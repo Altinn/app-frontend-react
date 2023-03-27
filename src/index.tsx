@@ -12,8 +12,8 @@ import { AppWrapper } from '@altinn/altinn-design-system';
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
-import { initSagas } from 'src/sagas';
-import { store } from 'src/store';
+import { initSagas } from 'src/redux/sagas';
+import { store } from 'src/redux/store';
 import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 import 'src/index.css';

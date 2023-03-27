@@ -5,7 +5,7 @@ import { checkProcessUpdated } from 'src/features/process/checkProcessUpdated/ch
 import { completeProcessSaga } from 'src/features/process/completeProcess/completeProcessSagas';
 import { getProcessStateSaga } from 'src/features/process/getProcessState/getProcessStateSagas';
 import { getTasksSaga } from 'src/features/process/getTasks/getTasksSagas';
-import { createSagaSlice } from 'src/utils/sagaSlice';
+import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   ICompleteProcessFulfilled,
   ICompleteProcessRejected,
@@ -14,7 +14,7 @@ import type {
   IGetTasksFulfilled,
   IProcessState,
 } from 'src/features/process/index';
-import type { MkActionType } from 'src/utils/sagaSlice';
+import type { MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IProcessState = {
   taskType: null,

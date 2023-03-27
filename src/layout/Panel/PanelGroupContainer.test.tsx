@@ -10,7 +10,7 @@ import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout } from 'src/layout/layout';
-import type { RootState } from 'src/store';
+import type { RootState } from 'src/redux/store';
 
 describe('PanelGroupContainer', () => {
   const initialState = getInitialStateMock();
