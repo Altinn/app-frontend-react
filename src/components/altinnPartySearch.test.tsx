@@ -5,9 +5,9 @@ import userEvent from '@testing-library/user-event';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
-import { AltinnPartySearch } from 'src/shared/components/altinnPartySearch';
+import { AltinnPartySearch } from 'src/components/altinnPartySearch';
 import { renderWithProviders } from 'src/testUtils';
-import type { IAltinnPartySearchProps } from 'src/shared/components/altinnPartySearch';
+import type { IAltinnPartySearchProps } from 'src/components/altinnPartySearch';
 
 const user = userEvent.setup();
 

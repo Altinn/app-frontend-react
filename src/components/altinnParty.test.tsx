@@ -6,9 +6,9 @@ import userEvent from '@testing-library/user-event';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
-import { AltinnParty } from 'src/shared/components/altinnParty';
+import { AltinnParty } from 'src/components/altinnParty';
 import { renderWithProviders } from 'src/testUtils';
-import type { IAltinnPartyProps } from 'src/shared/components/altinnParty';
+import type { IAltinnPartyProps } from 'src/components/altinnParty';
 
 const user = userEvent.setup();
 

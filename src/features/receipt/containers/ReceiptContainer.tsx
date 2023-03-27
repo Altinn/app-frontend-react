@@ -6,12 +6,12 @@ import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIcon
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
+import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { CustomReceipt } from 'src/features/customReceipt/containers/CustomReceipt';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
