@@ -3,9 +3,9 @@ import React from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout/LayoutComponent';
 import { EditButton } from 'src/layout/Summary/EditButton';

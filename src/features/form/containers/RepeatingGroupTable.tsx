@@ -4,10 +4,10 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@altinn/alti
 import { useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import classes from 'src/features/form/containers/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/features/form/containers/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/features/form/containers/RepeatingGroupTableRow';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ComponentType } from 'src/layout/LayoutComponent';
 import { getTextAlignment, getTextResource } from 'src/utils/formComponentUtils';

@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import { Panel } from '@altinn/altinn-design-system';
 import { Grid } from '@material-ui/core';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { EditIconButton } from 'src/components/EditIconButton';
 import { SuccessIconButton } from 'src/components/SuccessIconButton';
@@ -12,6 +10,8 @@ import { FullWidthGroupWrapper } from 'src/features/form/components/FullWidthGro
 import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
 import { getVariant } from 'src/features/form/components/Panel';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { makeGetHidden } from 'src/selectors/getLayoutData';

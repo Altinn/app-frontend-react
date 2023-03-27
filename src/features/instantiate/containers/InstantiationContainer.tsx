@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { Footer } from 'src/features/footer/Footer';
 import classes from 'src/features/instantiate/containers/InstantiationContainer.module.css';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { AltinnAppHeader } from 'src/shared/components/altinnAppHeader';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';

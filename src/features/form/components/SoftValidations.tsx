@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { Panel } from 'src/features/form/components/Panel';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ILanguage, ITextResource } from 'src/types/shared';
 

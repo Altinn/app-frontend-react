@@ -1,9 +1,9 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
 import { useInstantiateWithPrefillMutation } from 'src/services/InstancesApi';
 import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';

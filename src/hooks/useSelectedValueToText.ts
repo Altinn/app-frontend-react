@@ -1,5 +1,5 @@
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useOptionList } from 'src/common/hooks/useOptionList';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useOptionList } from 'src/hooks/useOptionList';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import type { ISelectionComponent } from 'src/layout/layout';
 

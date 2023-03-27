@@ -4,13 +4,13 @@ import { shallowEqual } from 'react-redux';
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { Description } from 'src/features/form/components/Description';
 import { Label } from 'src/features/form/components/Label';
 import { Legend } from 'src/features/form/components/Legend';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { components, FormComponentContext } from 'src/layout/index';
 import { makeGetFocus } from 'src/selectors/getLayoutData';

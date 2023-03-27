@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 
 import moment from 'moment';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useInstanceIdParams } from 'src/common/hooks/useInstanceIdParams';
 import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIconReceipt';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
 import { CustomReceipt } from 'src/features/customReceipt/containers/CustomReceipt';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';

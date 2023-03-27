@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 
 import type { $Values } from 'utility-types';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
 import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
 import { DataBinding } from 'src/utils/databindings/DataBinding';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';

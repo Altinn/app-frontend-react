@@ -2,9 +2,9 @@ import React from 'react';
 
 import Grid from '@material-ui/core/Grid';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorReport } from 'src/components/message/ErrorReport';
 import { MessageBanner } from 'src/features/form/components/MessageBanner';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';

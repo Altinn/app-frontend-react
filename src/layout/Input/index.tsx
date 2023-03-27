@@ -2,7 +2,7 @@ import React from 'react';
 
 import { formatNumericText } from '@altinn/altinn-design-system';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';

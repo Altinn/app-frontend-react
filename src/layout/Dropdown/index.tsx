@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useSelectedValueToText } from 'src/common/hooks/useSelectedValueToText';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';

@@ -3,10 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 
 import cn from 'classnames';
 
-import { useApiErrorCheck } from 'src/common/hooks/useApiErrorCheck';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useInstanceIdParams } from 'src/common/hooks/useInstanceIdParams';
-import { useProcess } from 'src/common/hooks/useProcess';
 import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
@@ -15,6 +11,10 @@ import { Form } from 'src/features/form/containers/Form';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
 import { ReceiptContainer } from 'src/features/receipt/containers/ReceiptContainer';
+import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
+import { useProcess } from 'src/hooks/useProcess';
 import { PresentationComponent } from 'src/shared/containers/Presentation';
 import classes from 'src/shared/containers/ProcessWrapper.module.css';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';

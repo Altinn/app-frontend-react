@@ -1,4 +1,4 @@
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { makeGetHasErrorsSelector } from 'src/selectors/getErrors';
 
 export function useApiErrorCheck() {

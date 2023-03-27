@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Grid, makeStyles, Paper, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnCollapsableList } from 'src/components/AltinnCollapsableList';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import type { IParty } from 'src/types/shared';
 

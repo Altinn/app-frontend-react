@@ -6,9 +6,9 @@ import { useMediaQuery } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import classes from 'src/features/form/containers/RepeatingGroup.module.css';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getTextAlignment, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';

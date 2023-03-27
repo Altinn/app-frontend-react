@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';

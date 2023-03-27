@@ -3,10 +3,10 @@ import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { SummaryBoilerplate } from 'src/layout/Summary/SummaryBoilerplate';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';

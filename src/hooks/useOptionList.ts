@@ -1,4 +1,4 @@
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import type { ISelectionComponent } from 'src/layout/layout';
 import type { IOption } from 'src/types';

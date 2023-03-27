@@ -1,4 +1,4 @@
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IFormData } from 'src/features/form/data';
 import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';

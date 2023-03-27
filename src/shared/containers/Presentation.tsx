@@ -2,14 +2,14 @@ import React from 'react';
 
 import cn from 'classnames';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
 import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
 import { Footer } from 'src/features/footer/Footer';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
 import classes from 'src/shared/containers/Presentation.module.css';

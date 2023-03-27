@@ -4,12 +4,12 @@ import { useMatch } from 'react-router-dom';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnCheckBox } from 'src/components/AltinnCheckBox';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { AltinnParty } from 'src/shared/components/altinnParty';
 import { AltinnPartySearch } from 'src/shared/components/altinnPartySearch';

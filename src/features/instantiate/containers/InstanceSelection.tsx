@@ -4,13 +4,13 @@ import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react'
 import { Grid, TableCell, Typography, useMediaQuery } from '@material-ui/core';
 import { Edit as EditIcon } from '@navikt/ds-icons';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnMobileTable } from 'src/components/molecules/AltinnMobileTable';
 import { AltinnTableBody } from 'src/components/molecules/AltinnTableBody';
 import { AltinnTableHeader } from 'src/components/molecules/AltinnTableHeader';
 import { AltinnTableRow } from 'src/components/molecules/AltinnTableRow';
 import { AltinnTable } from 'src/components/organisms/AltinnTable';
 import { AltinnMobileTableItem } from 'src/features/form/containers/AltinnMobileTableItem';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';

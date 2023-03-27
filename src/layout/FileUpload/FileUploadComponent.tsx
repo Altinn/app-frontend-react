@@ -5,9 +5,9 @@ import type { FileRejection } from 'react-dropzone';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { v4 as uuidv4 } from 'uuid';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnLoader } from 'src/components/AltinnLoader';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { DropzoneComponent } from 'src/layout/FileUpload/shared/DropzoneComponent';
 import { handleRejectedFiles } from 'src/layout/FileUpload/shared/handleRejectedFiles';

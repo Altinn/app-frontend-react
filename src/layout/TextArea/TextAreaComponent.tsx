@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useDelayedSavedState } from 'src/common/hooks/useDelayedSavedState';
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/styles/shared.css';

@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Select } from '@digdir/design-system-react';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { useGetAppLanguageQuery } from 'src/services/LanguageApi';
 import { ProfileActions } from 'src/shared/resources/profile/profileSlice';

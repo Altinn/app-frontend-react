@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Grid, makeStyles } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnInput } from 'src/components/AltinnInput';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 
 const useStyles = makeStyles((theme) => ({

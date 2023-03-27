@@ -2,13 +2,13 @@ import React from 'react';
 
 import { CheckboxGroup, CheckboxGroupVariant } from '@digdir/design-system-react';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useDelayedSavedState } from 'src/common/hooks/useDelayedSavedState';
-import { useGetOptions } from 'src/common/hooks/useGetOptions';
-import { useHasChangedIgnoreUndefined } from 'src/common/hooks/useHasChangedIgnoreUndefined';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
 import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
+import { useGetOptions } from 'src/hooks/useGetOptions';
+import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';

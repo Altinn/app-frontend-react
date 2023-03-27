@@ -4,7 +4,7 @@ import { Route, useLocation } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 
 import { instanceIdExample } from 'src/__mocks__/mocks';
-import { useInstanceIdParams } from 'src/common/hooks/useInstanceIdParams';
+import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { MemoryRouterWithRedirectingRoot } from 'src/testUtils';
 
 const TestComponent = () => {

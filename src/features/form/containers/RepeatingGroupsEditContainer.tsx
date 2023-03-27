@@ -5,8 +5,8 @@ import { Grid } from '@material-ui/core';
 import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
 import cn from 'classnames';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import classes from 'src/features/form/containers/RepeatingGroup.module.css';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { makeStyles, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';

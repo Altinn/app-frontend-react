@@ -3,7 +3,7 @@ import React from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';

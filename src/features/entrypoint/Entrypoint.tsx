@@ -3,8 +3,6 @@ import { Navigate } from 'react-router-dom';
 
 import type { AxiosError } from 'axios';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { Form } from 'src/features/form/containers/Form';
@@ -13,6 +11,8 @@ import { InstanceSelection } from 'src/features/instantiate/containers/InstanceS
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { PresentationComponent } from 'src/shared/containers/Presentation';
 import { QueueActions } from 'src/shared/resources/queue/queueSlice';

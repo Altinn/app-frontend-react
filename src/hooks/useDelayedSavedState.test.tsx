@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { useDelayedSavedState } from 'src/common/hooks/useDelayedSavedState';
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 
 test('should debounce input by default', async () => {
   const handleDataChangeMock = jest.fn();

@@ -5,8 +5,8 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { CheckmarkCircleFillIcon, TrashIcon } from '@navikt/aksel-icons';
 import classNames from 'classnames';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
 import { AltinnLoader } from 'src/components/AltinnLoader';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { FileName } from 'src/layout/FileUpload/shared/render';
 import css from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
