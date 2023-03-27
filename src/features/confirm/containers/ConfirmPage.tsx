@@ -6,7 +6,7 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnConfirmSummaryObject';
 import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ITextResource } from 'src/types';
 import type { IInstance, ILanguage, IParty } from 'src/types/shared';
 

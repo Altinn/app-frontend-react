@@ -10,7 +10,7 @@ import type {
   ISetDataListsPageSize,
   ISetDataListsWithIndexIndicators,
   ISetSort,
-} from 'src/shared/resources/dataLists';
+} from 'src/shared/resources/dataLists/index';
 import type { MkActionType } from 'src/utils/sagaSlice';
 
 const initialState: IDataListsState = {

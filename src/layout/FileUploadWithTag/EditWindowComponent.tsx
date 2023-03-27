@@ -6,15 +6,15 @@ import { CheckmarkCircleFillIcon, TrashIcon } from '@navikt/aksel-icons';
 import classNames from 'classnames';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
+import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { FileName } from 'src/layout/FileUpload/shared/render';
 import css from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
-import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { renderValidationMessages } from 'src/utils/render';
+import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IOption } from 'src/types';
 
 const useStyles = makeStyles({

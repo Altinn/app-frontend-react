@@ -3,9 +3,9 @@ import React from 'react';
 import { createTheme, MuiThemeProvider, Typography } from '@material-ui/core';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import { ProcessActions } from 'src/features/process/processSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 
