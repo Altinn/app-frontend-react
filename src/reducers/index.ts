@@ -14,6 +14,7 @@ import { instanceDataSlice } from 'src/features/instanceData/instanceDataSlice';
 import { instantiationSlice } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { isLoadingSlice } from 'src/features/isLoading/isLoadingSlice';
 import { languageSlice } from 'src/features/language/languageSlice';
+import { dataListsSlice } from 'src/features/lists/dataListsSlice';
 import { optionsSlice } from 'src/features/options/optionsSlice';
 import { orgsSlice } from 'src/features/orgs/orgsSlice';
 import { partySlice } from 'src/features/party/partySlice';
@@ -23,7 +24,6 @@ import { profileSlice } from 'src/features/profile/profileSlice';
 import { queueSlice } from 'src/features/queue/queueSlice';
 import { textResourcesSlice } from 'src/features/textResources/textResourcesSlice';
 import { appApi } from 'src/services/AppApi';
-import { dataListsSlice } from 'src/shared/resources/dataLists/dataListsSlice';
 
 const reducers = {
   [applicationMetadataSlice.name]: applicationMetadataSlice.reducer,

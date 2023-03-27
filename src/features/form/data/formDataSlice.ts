@@ -4,9 +4,9 @@ import { fetchFormDataSaga, watchFetchFormDataInitialSaga } from 'src/features/f
 import { autoSaveSaga, saveFormDataSaga, submitFormSaga } from 'src/features/form/data/submit/submitFormDataSagas';
 import { deleteAttachmentReferenceSaga, updateFormDataSaga } from 'src/features/form/data/update/updateFormDataSagas';
 import { checkIfRuleShouldRunSaga } from 'src/features/form/rules/check/checkRulesSagas';
+import { checkIfDataListShouldRefetchSaga } from 'src/features/lists/fetchDataListsSaga';
 import { checkIfOptionsShouldRefetchSaga } from 'src/features/options/fetch/fetchOptionsSagas';
 import { ProcessActions } from 'src/features/process/processSlice';
-import { checkIfDataListShouldRefetchSaga } from 'src/shared/resources/dataLists/fetchDataListsSaga';
 import { createSagaSlice } from 'src/utils/sagaSlice';
 import type { IFormData, IFormDataState } from 'src/features/form/data';
 import type {

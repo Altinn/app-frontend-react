@@ -1,4 +1,4 @@
-import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/shared/resources/dataLists/fetchDataListsSaga';
+import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/features/lists/fetchDataListsSaga';
 import { createSagaSlice } from 'src/utils/sagaSlice';
 import type {
   IDataListsState,
@@ -10,7 +10,7 @@ import type {
   ISetDataListsPageSize,
   ISetDataListsWithIndexIndicators,
   ISetSort,
-} from 'src/shared/resources/dataLists/index';
+} from 'src/features/lists/index';
 import type { MkActionType } from 'src/utils/sagaSlice';
 
 const initialState: IDataListsState = {
