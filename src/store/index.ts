@@ -4,8 +4,8 @@ import createSagaMiddleware from 'redux-saga';
 import type { PreloadedState } from 'redux';
 import type { SagaMiddleware } from 'redux-saga';
 
-import { combinedReducers } from 'src/reducers';
 import { appApi } from 'src/services/AppApi';
+import { combinedReducers } from 'src/store/reducers';
 import type { IAltinnWindow } from 'src/types';
 
 export const sagaMiddleware: SagaMiddleware<any> = createSagaMiddleware();
