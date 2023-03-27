@@ -15,10 +15,19 @@ describe('Group', () => {
   };
 
   it('Dynamics on group', () => {
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'Group') {
+        component.tableHeaders = [];
+      }
+    });
+
     init();
     cy.get(appFrontend.group.addNewItem).should('not.exist');
     cy.get(appFrontend.group.showGroupToContinue).find('input').check({ force: true });
-    cy.get(appFrontend.group.addNewItem).should('exist').and('be.visible');
+    cy.get(appFrontend.group.addNewItem).click();
+
+    // Make sure group is still visible even without table headers
+    cy.get(appFrontend.group.currentValue).should('be.visible');
   });
 
   [true, false].forEach((openByDefault) => {
