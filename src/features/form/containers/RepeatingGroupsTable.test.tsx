@@ -8,6 +8,7 @@ import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { RepeatingGroupTable } from 'src/features/form/containers/RepeatingGroupTable';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
+import type { IAttachments } from 'src/features/attachments';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IRepeatingGroupTableProps } from 'src/features/form/containers/RepeatingGroupTable';
 import type { IFormData } from 'src/features/form/data';
@@ -15,7 +16,6 @@ import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';
-import type { IAttachments } from 'src/shared/resources/attachments';
 import type { IOption, ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 

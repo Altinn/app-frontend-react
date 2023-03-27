@@ -4,6 +4,7 @@ import { expectSaga } from 'redux-saga-test-plan';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
@@ -20,16 +21,15 @@ import {
   updateRepeatingGroupsSaga,
 } from 'src/features/form/layout/update/updateFormLayoutSagas';
 import { ValidationActions } from 'src/features/form/validation/validationSlice';
+import { OptionsActions } from 'src/features/options/optionsSlice';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { AttachmentActions } from 'src/shared/resources/attachments/attachmentSlice';
-import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IAttachment } from 'src/features/attachments';
 import type {
   ICalculatePageOrderAndMoveToNextPage,
   IUpdateRepeatingGroups,
 } from 'src/features/form/layout/formLayoutTypes';
 import type { IDataModelBindings } from 'src/layout/layout';
-import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
-import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IRuntimeState } from 'src/types';
 
 describe('updateLayoutSagas', () => {

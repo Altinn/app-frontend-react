@@ -2,7 +2,7 @@ import React from 'react';
 
 import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/language';
 import { getHostname } from 'src/utils/urls/appUrlHelper';
 
 export function NoValidPartiesError() {

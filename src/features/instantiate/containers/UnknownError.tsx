@@ -2,7 +2,7 @@ import React from 'react';
 
 import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/language';
 
 export function UnknownError() {
   const language = useAppSelector((state) => state.language.language);

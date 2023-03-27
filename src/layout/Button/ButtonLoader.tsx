@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey } from 'src/language/language';
 import classes from 'src/layout/Button/ButtonLoader.module.css';
 import type { ILanguage } from 'src/types/shared';
 

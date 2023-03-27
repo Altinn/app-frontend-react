@@ -9,10 +9,10 @@ import { AltinnTableBody } from 'src/components/molecules/AltinnTableBody';
 import { AltinnTableHeader } from 'src/components/molecules/AltinnTableHeader';
 import { AltinnTableRow } from 'src/components/molecules/AltinnTableRow';
 import { AltinnTable } from 'src/components/organisms/AltinnTable';
+import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { AltinnMobileTableItem } from 'src/features/form/containers/AltinnMobileTableItem';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
+import { getLanguageFromKey } from 'src/language/language';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
 import type { ISimpleInstance } from 'src/types';
 

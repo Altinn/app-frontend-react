@@ -2,11 +2,11 @@ import { call, put, select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormDynamicsActions } from 'src/features/form/dynamics/formDynamicsSlice';
-import { QueueActions } from 'src/shared/resources/queue/queueSlice';
+import { QueueActions } from 'src/features/queue/queueSlice';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getFetchFormDynamicsUrl } from 'src/utils/urls/appUrlHelper';
-import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ILayoutSets, IRuntimeState } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 

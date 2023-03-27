@@ -7,7 +7,7 @@ import moment from 'moment';
 import type { Options } from 'ajv';
 import type * as AjvCore from 'ajv/dist/core';
 
-import { getLanguageFromKey, getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey, getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/language';
 import { Severity } from 'src/types';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
@@ -16,6 +16,7 @@ import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { matchLayoutComponent } from 'src/utils/layout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
+import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/form/data';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
@@ -27,7 +28,6 @@ import type {
   ILayoutComponentOrGroup,
   ILayouts,
 } from 'src/layout/layout';
-import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentBindingValidation,
   IComponentValidations,

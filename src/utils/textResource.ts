@@ -1,4 +1,4 @@
-import { getParsedLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { getParsedLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/language';
 import type { ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 

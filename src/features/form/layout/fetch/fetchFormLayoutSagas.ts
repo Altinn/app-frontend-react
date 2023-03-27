@@ -4,14 +4,14 @@ import type { SagaIterator } from 'redux-saga';
 import { preProcessItem, preProcessLayout } from 'src/features/expressions/validation';
 import { FormDataActions } from 'src/features/form/data/formDataSlice';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { QueueActions } from 'src/features/queue/queueSlice';
 import { components } from 'src/layout';
-import { QueueActions } from 'src/shared/resources/queue/queueSlice';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ExprObjConfig, ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { ComponentTypes, ILayout, ILayouts } from 'src/layout/layout';
-import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { IHiddenLayoutsExpressions, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 

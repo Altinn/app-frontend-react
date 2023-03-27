@@ -3,10 +3,10 @@ import React from 'react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
-import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { ErrorPaper } from 'src/components/error/ErrorPaper';
 import { DisplayGroupContainer } from 'src/features/form/containers/DisplayGroupContainer';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey } from 'src/language/language';
 import { ComponentType } from 'src/layout/LayoutComponent';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';

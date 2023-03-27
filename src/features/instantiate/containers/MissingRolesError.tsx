@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey, getParsedLanguageFromKey, getParsedLanguageFromText } from 'src/language/sharedLanguage';
+import { getLanguageFromKey, getParsedLanguageFromKey, getParsedLanguageFromText } from 'src/language/language';
 import { getHostname } from 'src/utils/urls/appUrlHelper';
 
 export function MissingRolesError() {

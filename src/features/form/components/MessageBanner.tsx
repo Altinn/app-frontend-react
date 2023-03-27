@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import classes from 'src/features/form/components/MessageBanner.module.css';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey } from 'src/language/language';
 import type { ILanguage } from 'src/types/shared';
 
 interface IMessageBannerProps {

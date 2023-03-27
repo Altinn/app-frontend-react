@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getTextResourceByKey } from 'src/language/sharedLanguage';
+import { getTextResourceByKey } from 'src/language/language';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ITextResource, ITextResourceBindings } from 'src/types';
 

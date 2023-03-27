@@ -8,7 +8,7 @@ import * as complexSchema from 'src/__mocks__/json-schema/complex.json';
 import * as oneOfOnRootSchema from 'src/__mocks__/json-schema/one-of-on-root.json';
 import * as refOnRootSchema from 'src/__mocks__/json-schema/ref-on-root.json';
 import { getMockValidationState } from 'src/__mocks__/validationStateMock';
-import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/language';
 import { Severity } from 'src/types';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { _private } from 'src/utils/layout/hierarchy';

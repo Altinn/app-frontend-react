@@ -2,8 +2,8 @@ import { call, put, select } from 'redux-saga/effects';
 import type { AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
+import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { httpPost, putWithoutConfig } from 'src/utils/network/networking';
 import { getCreateInstancesUrl, invalidateCookieUrl, redirectToUpgrade } from 'src/utils/urls/appUrlHelper';
 import type { IRuntimeState } from 'src/types';

@@ -4,7 +4,7 @@ import { Map } from '@altinn/altinn-design-system';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/language';
 import { parseLocation } from 'src/layout/Map/MapComponent';
 import { markerIcon } from 'src/layout/Map/MapIcons';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';

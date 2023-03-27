@@ -7,7 +7,7 @@ import type { PropsFromGenericComponent } from '..';
 
 import { AltinnSummaryTable } from 'src/components/molecules/AltinnSummaryTable';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey } from 'src/language/language';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import type { IRuntimeState } from 'src/types';
 import type { IAltinnOrgs, IInstance, ILanguage, IParty, IProfile } from 'src/types/shared';

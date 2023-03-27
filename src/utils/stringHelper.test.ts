@@ -1,4 +1,4 @@
-import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
+import { getParsedLanguageFromText } from 'src/language/language';
 import { capitalizeName, getPlainTextFromNode } from 'src/utils/stringHelper';
 
 describe('stringHelper', () => {

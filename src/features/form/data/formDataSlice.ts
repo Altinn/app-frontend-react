@@ -1,14 +1,13 @@
 import type { AnyAction } from 'redux';
 
+import { checkIfDataListShouldRefetchSaga } from 'src/features/dataLists/fetchDataListsSaga';
 import { fetchFormDataSaga, watchFetchFormDataInitialSaga } from 'src/features/form/data/fetch/fetchFormDataSagas';
 import { autoSaveSaga, saveFormDataSaga, submitFormSaga } from 'src/features/form/data/submit/submitFormDataSagas';
 import { deleteAttachmentReferenceSaga, updateFormDataSaga } from 'src/features/form/data/update/updateFormDataSagas';
 import { checkIfRuleShouldRunSaga } from 'src/features/form/rules/check/checkRulesSagas';
-import { checkIfDataListShouldRefetchSaga } from 'src/shared/resources/dataLists/fetchDataListsSaga';
-import { checkIfOptionsShouldRefetchSaga } from 'src/shared/resources/options/fetch/fetchOptionsSagas';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
+import { checkIfOptionsShouldRefetchSaga } from 'src/features/options/fetch/fetchOptionsSagas';
+import { ProcessActions } from 'src/features/process/processSlice';
 import { createSagaSlice } from 'src/utils/sagaSlice';
-import type { IFormData, IFormDataState } from 'src/features/form/data';
 import type {
   IDeleteAttachmentReference,
   IFetchFormData,
@@ -19,6 +18,7 @@ import type {
   IUpdateFormData,
   IUpdateFormDataFulfilled,
 } from 'src/features/form/data/formDataTypes';
+import type { IFormData, IFormDataState } from 'src/features/form/data/index';
 import type { MkActionType } from 'src/utils/sagaSlice';
 
 export const initialState: IFormDataState = {

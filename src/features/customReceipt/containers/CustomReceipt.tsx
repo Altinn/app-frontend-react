@@ -2,10 +2,10 @@ import React from 'react';
 
 import Grid from '@material-ui/core/Grid';
 
-import { ErrorReport } from 'src/components/message/ErrorReport';
+import { ErrorReport } from 'src/components/error/ErrorReport';
+import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { extractBottomButtons } from 'src/utils/formLayout';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getFormHasErrors } from 'src/utils/validation/validation';

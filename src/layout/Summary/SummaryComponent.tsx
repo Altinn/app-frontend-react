@@ -3,7 +3,7 @@ import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
-import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { ErrorPaper } from 'src/components/error/ErrorPaper';
 import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';

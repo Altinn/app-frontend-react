@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey } from 'src/language/language';
 import type { ILanguage } from 'src/types/shared';
 
 export interface IRequiredIndicatorProps {

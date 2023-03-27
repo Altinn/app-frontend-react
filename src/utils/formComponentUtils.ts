@@ -1,13 +1,13 @@
 import type React from 'react';
 
-import { getLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/language';
 import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import type { IAttachment } from 'src/features/attachments';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGridStyling } from 'src/layout/layout';
 import type { IPageBreak } from 'src/layout/layout.d';
-import type { IAttachment } from 'src/shared/resources/attachments';
 import type { IComponentValidations, ITextResource, ITextResourceBindings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { AnyItem } from 'src/utils/layout/hierarchy.types';
