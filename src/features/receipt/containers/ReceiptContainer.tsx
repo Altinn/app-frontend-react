@@ -10,22 +10,24 @@ import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoade
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
 import { CustomReceipt } from 'src/features/customReceipt/containers/CustomReceipt';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { getAppOwner, getLanguageFromKey } from 'src/language/sharedLanguage';
 import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
 import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
-import type { IAttachment, IParty } from 'src/types/shared';
+import type { ITextResource } from 'src/types';
+import type { IAltinnOrgs, IAttachment, ILanguage, IParty } from 'src/types/shared';
 
 export const returnInstanceMetaDataObject = (
-  orgsData: any,
-  languageData: any,
-  instanceOwnerParty: any,
+  orgsData: IAltinnOrgs,
+  languageData: ILanguage,
+  textResources: ITextResource[],
+  instanceOwnerParty: IParty | undefined,
   instanceGuid: string,
   userLanguageString: string,
   lastChangedDateTime: string,
-  org: any,
+  org: string,
 ) => {
   const obj: any = {};
 
@@ -39,8 +41,9 @@ export const returnInstanceMetaDataObject = (
   }
   obj[getLanguageFromKey('receipt.sender', languageData)] = sender;
 
-  if (orgsData[org]) {
-    obj[getLanguageFromKey('receipt.receiver', languageData)] = orgsData[org].name[userLanguageString];
+  const receiver = getAppOwner(textResources, orgsData, org, userLanguageString);
+  if (receiver) {
+    obj[getLanguageFromKey('receipt.receiver', languageData)] = receiver;
   } else {
     // This is only related to testing in Altinn Studio Dev
     obj[getLanguageFromKey('receipt.receiver', languageData)] = 'Error: Receiver org not found';
@@ -95,7 +98,8 @@ export const ReceiptContainer = () => {
 
       const obj = returnInstanceMetaDataObject(
         allOrgs,
-        language,
+        language ?? {},
+        textResources,
         instanceOwnerParty,
         instanceGuid,
         userLanguage,
@@ -104,7 +108,7 @@ export const ReceiptContainer = () => {
       );
       setInstanceMetaObject(obj);
     }
-  }, [allOrgs, parties, instance, lastChangedDateTime, language, instanceGuid, userLanguage]);
+  }, [allOrgs, parties, instance, lastChangedDateTime, language, instanceGuid, userLanguage, textResources]);
 
   useEffect(() => {
     if (instance && instance.data && applicationMetadata) {
