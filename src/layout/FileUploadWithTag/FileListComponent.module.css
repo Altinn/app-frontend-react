@@ -61,7 +61,7 @@
 .tableHeader tr th {
   padding: 4px 4px 4px 6px;
   font-size: 0.875rem;
-  font-family: Altinn-DIN;
+  font-family: 'Altinn-DIN';
   font-weight: 500 !important;
   color: #000;
 }
@@ -72,7 +72,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  font-family: Altinn-DIN;
+  font-family: 'Altinn-DIN';
   font-weight: 400;
   border-bottom: 1px dotted var(--file-list-border-color);
   color: #000;
