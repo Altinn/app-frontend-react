@@ -15,7 +15,7 @@ export function useDelayedSavedState(
   saveAfter?: number | boolean,
 ): DelayedSavedStateRetVal {
   const [immediateState, _setImmediateState] = useState(formValue);
-  const immediateStatePrevRef = useRef([formValue, performance.now()]);
+  const immediateStatePrevRef = useRef<[string | undefined, number] | undefined>(undefined);
   const immediateStateRef = useRef(formValue);
   const [saveNextChangeImmediately, setSaveNextChangeImmediately] = useState(false);
   const [skipNextValidation, setSkipNextValidation] = useState(false);
@@ -38,6 +38,7 @@ export function useDelayedSavedState(
 
       const shouldValidate = !skipNextValidation && !skipValidation;
       handleDataChange(value, { validate: shouldValidate });
+      immediateStatePrevRef.current = undefined;
 
       if (skipNextValidation) {
         setSkipNextValidation(false);
@@ -68,9 +69,9 @@ export function useDelayedSavedState(
     if (formValue === immediateStateRef.current) {
       return;
     }
-    if (formValue === immediateStatePrevRef.current[0]) {
-      const change =
-        typeof immediateStatePrevRef.current[1] === 'number' ? immediateStatePrevRef.current[1] : performance.now();
+    const prev = immediateStatePrevRef.current;
+    if (prev && formValue === prev[0]) {
+      const change = typeof prev[1] === 'number' ? prev[1] : performance.now();
       const timeSinceChange = performance.now() - change;
       if (timeSinceChange < saveAfterMs) {
         return;
