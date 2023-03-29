@@ -1,17 +1,13 @@
 import React from 'react';
-import Select from 'react-select';
-import type { MultiValue } from 'react-select';
+
+import { Select } from '@digdir/design-system-react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { useGetOptions } from 'src/components/hooks';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IOption } from 'src/types';
 
 import 'src/layout/MultipleSelect/MultipleSelect.css';
-
-const multipleSelectCssPrefix = 'multipleSelect';
-const invalidBorderColor = '#D5203B !important';
 
 export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
 
@@ -26,39 +22,35 @@ export function MultipleSelectComponent({
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions =
     (apiOptions || options)?.map((option) => ({
-      label: getTextResourceAsString(option.label),
+      label: getTextResourceAsString(option.label) ?? option.value,
       value: option.value,
     })) || [];
   const language = useAppSelector((state) => state.language.language);
+
+  const { value, setValue /*, saveValue*/ } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
 
   if (!language) {
     return null;
   }
 
-  const handleChange = (newValue: MultiValue<IOption>) => {
-    handleDataChange(newValue.map((option) => option.value).join(','));
+  const handleChange = (values: string[]) => {
+    setValue(values.join(','));
   };
+
+  const selectedValues = calculatedOptions
+    ?.filter((option) => value?.split(',').includes(option.value))
+    .map((option) => option.value);
 
   return (
     <Select
       options={calculatedOptions}
-      isMulti
+      multiple
       inputId={id}
-      isDisabled={readOnly}
-      noOptionsMessage={() => getLanguageFromKey('multiple_select_component.no_options', language)}
-      placeholder={getLanguageFromKey('multiple_select_component.placeholder', language)}
-      classNamePrefix={multipleSelectCssPrefix}
-      className={multipleSelectCssPrefix}
-      styles={{
-        control: (base) => ({
-          ...base,
-          ...controlStylesHasError(!isValid),
-        }),
-      }}
+      disabled={readOnly}
+      error={!isValid}
       onChange={handleChange}
-      value={calculatedOptions?.filter((option) => formData?.simpleBinding?.split(',').includes(option.value))}
+      //onBlur(saveValue)
+      value={selectedValues}
     />
   );
 }
-
-const controlStylesHasError = (hasError) => (hasError ? { borderColor: invalidBorderColor } : {});
