@@ -1096,6 +1096,7 @@ function useResolvedExpressions() {
   const state = useAppSelector((state) => state);
   const instance = state.instanceData?.instance;
   const formData = state.formData.formData;
+  const process = state.process;
   const applicationSettings = state.applicationSettings.applicationSettings;
   const hiddenFields = state.formLayout.uiConfig.hiddenFields;
   const validations = state.formValidations.validations;
@@ -1109,10 +1110,11 @@ function useResolvedExpressions() {
       formData,
       applicationSettings,
       instanceContext: buildInstanceContext(instance),
+      authContext: buildAuthContext(process),
       hiddenFields: new Set(hiddenFields),
       validations,
     }),
-    [formData, applicationSettings, instance, hiddenFields, validations],
+    [formData, applicationSettings, instance, process, hiddenFields, validations],
   );
 
   return useMemo(
