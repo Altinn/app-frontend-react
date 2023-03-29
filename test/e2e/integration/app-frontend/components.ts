@@ -30,7 +30,7 @@ describe('UI Components', () => {
   it('is possible to upload and delete attachments', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
-    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf');
+    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');

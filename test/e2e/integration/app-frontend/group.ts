@@ -17,7 +17,7 @@ describe('Group', () => {
   it('Dynamics on group', () => {
     init();
     cy.get(appFrontend.group.addNewItem).should('not.exist');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.addNewItem).should('exist').and('be.visible');
   });
 
@@ -30,7 +30,7 @@ describe('Group', () => {
       });
       init();
 
-      cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+      cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
       cy.addItemToGroup(1, 2, 'automation', openByDefault);
       cy.get(appFrontend.group.mainGroup)
         .find(mui.tableBody)
@@ -85,7 +85,7 @@ describe('Group', () => {
 
   it('Calculation on Item in Main Group should update value', () => {
     init();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.currentValue).should('be.visible').type('1337').blur();
     // DataProcessingHandler.cs for frontend-test changes 1337 to 1338.
@@ -95,7 +95,7 @@ describe('Group', () => {
 
   it('Validation on group', () => {
     init();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.currentValue).should('be.visible').type('1').blur();
     cy.get(appFrontend.group.newValue).should('be.visible').type('0').blur();
@@ -142,7 +142,7 @@ describe('Group', () => {
       });
       init();
 
-      cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+      cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
 
       cy.get(appFrontend.group.addNewItem).click();
       cy.get(appFrontend.group.currentValue).should('be.visible').type('123').blur();
@@ -192,7 +192,7 @@ describe('Group', () => {
 
   it('should support panel group adding item to referenced group', () => {
     init();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.secondGroup_add).click();
     cy.get(appFrontend.group.secondGroup_add_to_reference_group).click();
     cy.get(appFrontend.group.secondGroup_currentValue).should('be.visible').type('1').blur();
@@ -226,32 +226,34 @@ describe('Group', () => {
         });
     };
 
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     expectRows();
 
-    cy.intercept('PUT', '**/instances/*/*/data/*').as('updateInstance');
-    function clickOnPrefills(...items: (keyof typeof appFrontend.group.prefill)[]) {
+    function checkPrefills(items: { [key in keyof typeof appFrontend.group.prefill]?: boolean }) {
       cy.get(appFrontend.prevButton).click();
-      for (const item of items) {
-        cy.get(appFrontend.group.prefill[item]).click();
+      for (const item of Object.keys(items)) {
+        if (items[item] === true) {
+          cy.get(appFrontend.group.prefill[item]).dsCheck();
+        } else {
+          cy.get(appFrontend.group.prefill[item]).dsUncheck();
+        }
       }
-      cy.wait('@updateInstance');
       cy.get(appFrontend.nextButton).click();
     }
 
-    clickOnPrefills('liten');
+    checkPrefills({ liten: true });
     expectRows(['NOK 1', 'NOK 5']);
 
-    clickOnPrefills('middels', 'svaer');
+    checkPrefills({ middels: true, svaer: true });
     expectRows(['NOK 1', 'NOK 5'], ['NOK 120', 'NOK 350'], ['NOK 80 323', 'NOK 123 455']);
 
-    clickOnPrefills('middels', 'svaer');
+    checkPrefills({ middels: false, svaer: false });
     expectRows(['NOK 1', 'NOK 5']);
 
-    clickOnPrefills('enorm', 'liten');
+    checkPrefills({ enorm: true, liten: false });
     expectRows(['NOK 9 872 345', 'NOK 18 872 345']);
 
-    clickOnPrefills('liten');
+    checkPrefills({ liten: true });
     expectRows(['NOK 9 872 345', 'NOK 18 872 345'], ['NOK 1', 'NOK 5']);
 
     cy.get(appFrontend.group.row(0).editBtn).should('have.text', 'Se innhold');
@@ -275,7 +277,7 @@ describe('Group', () => {
     });
     init();
 
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.addNewItem).click();
 
     cy.get(appFrontend.group.saveMainGroup).click();
@@ -305,7 +307,7 @@ describe('Group', () => {
     init();
 
     cy.intercept('PUT', '**/instances/*/*/data/*').as('updateInstance');
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.wait('@updateInstance');
 
     ['first' as const, 'last' as const, true, false].forEach((openByDefault) => {
@@ -396,7 +398,7 @@ describe('Group', () => {
     init();
 
     // Add test-data and verify
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.addItemToGroup(1, 2, 'automation');
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)

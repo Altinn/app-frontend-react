@@ -25,7 +25,7 @@ describe('Dynamics', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').type('test').blur();
     cy.get(appFrontend.changeOfName.newLastName).should('be.visible').type('test').blur();
-    cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check();
+    cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').dsCheck();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
   });
 

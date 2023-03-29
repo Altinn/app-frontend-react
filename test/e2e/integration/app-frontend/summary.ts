@@ -67,7 +67,7 @@ describe('Summary', () => {
           .then((summaryDate) => {
             cy.wrap(summaryDate).children().find('button').should('exist').and('be.visible').click();
             cy.get(appFrontend.changeOfName.dateOfEffect).clear();
-            cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf');
+            cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
             cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
               force: true,
             });
@@ -132,8 +132,8 @@ describe('Summary', () => {
 
     // Test summary of non-repeating group
     cy.get(appFrontend.navMenu).find('li > button').first().click();
-    cy.get('#reference').should('exist').and('be.visible').select('Ola Nordmann');
-    cy.get('#reference2').should('exist').and('be.visible').select('Ole');
+    cy.get('#reference').select('Ola Nordmann');
+    cy.get('#reference2').select('Ole');
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
@@ -144,11 +144,9 @@ describe('Summary', () => {
       });
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
-    cy.intercept('GET', '**/options/*').as('getOptions');
-    cy.get('#sources').should('exist').and('be.visible').select('Digitaliseringsdirektoratet');
-    cy.wait(['@getOptions', '@getOptions']);
-    cy.get('#reference').should('exist').and('be.visible').select('Sophie Salt');
-    cy.get('#reference2').should('exist').and('be.visible').select('Dole');
+    cy.get('#sources').select('Digitaliseringsdirektoratet').blur();
+    cy.get('#reference').select('Sophie Salt').blur();
+    cy.get('#reference2').select('Dole').blur();
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
@@ -159,10 +157,9 @@ describe('Summary', () => {
       });
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
-    cy.get('#sources').should('exist').and('be.visible').select('Annet');
-    cy.wait(['@getOptions', '@getOptions']);
-    cy.get('#reference').should('exist').and('be.visible').select('Test');
-    cy.get('#reference2').should('exist').and('be.visible').select('Doffen');
+    cy.get('#sources').select('Annet').blur();
+    cy.get('#reference').select('Test').blur();
+    cy.get('#reference2').select('Doffen').blur();
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
@@ -178,7 +175,7 @@ describe('Summary', () => {
 
     // Verify empty group summary
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-group-component] > div')
       .last()
@@ -222,24 +219,10 @@ describe('Summary', () => {
     // Check to show a couple of nested options, then go back to the summary
     cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
-    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedDynamics).click();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedDynamics).dsCheck();
 
-    const workAroundSlowSave = JSON.parse('true');
-    if (workAroundSlowSave) {
-      cy.intercept('PUT', '**/instances/*/*/data/*').as('updateInstance');
-      // Blurring each of these works around a problem where clicking these too fast will overwrite the immedateState
-      // value in useDelayedSaveState(). This is a fundamental problem with the useDelayedSaveState() functionality,
-      // and in the future we should fix this properly by simplifying to save data immediately in the redux state
-      // but delay the PUT request instead.
-      // See https://github.com/Altinn/app-frontend-react/issues/339#issuecomment-1321920974
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check().blur();
-      cy.wait('@updateInstance');
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check().blur();
-      cy.wait('@updateInstance');
-    } else {
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).check();
-      cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).check();
-    }
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[1]).dsCheck();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).nestedOptions[2]).dsCheck();
 
     cy.get(appFrontend.group.row(0).nestedGroup.saveBtn).click();
     cy.get(appFrontend.group.saveMainGroup).click();
@@ -258,9 +241,9 @@ describe('Summary', () => {
       });
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
-    cy.get(appFrontend.group.prefill.liten).click().blur();
-    cy.get(appFrontend.group.prefill.middels).click().blur();
-    cy.get(appFrontend.group.prefill.svaer).click().blur();
+    cy.get(appFrontend.group.prefill.liten).dsCheck();
+    cy.get(appFrontend.group.prefill.middels).dsCheck();
+    cy.get(appFrontend.group.prefill.svaer).dsCheck();
     cy.get(appFrontend.navMenu).find('li > button').last().click();
 
     function assertSummaryItem(groupRow: number, items: { [key: string]: boolean }) {
@@ -362,7 +345,7 @@ describe('Summary', () => {
     // Hiding the group should hide the group summary as well
     cy.get('[data-testid=summary-summary-1]').should('be.visible');
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get(appFrontend.group.showGroupToContinue).find('input[type=checkbox]').uncheck();
+    cy.get(appFrontend.group.showGroupToContinue).find('input[type=checkbox]').dsUncheck();
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-summary-1]').should('not.exist');
   });
@@ -375,9 +358,9 @@ describe('Summary', () => {
     });
     cy.goto('group');
 
-    cy.get(appFrontend.group.prefill['liten']).click().blur();
+    cy.get(appFrontend.group.prefill['liten']).dsCheck();
     cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
-    cy.get(appFrontend.group.showGroupToContinue).find('input').check();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     // Add data
     cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
