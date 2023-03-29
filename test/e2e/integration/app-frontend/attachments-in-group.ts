@@ -37,7 +37,7 @@ describe('Repeating group attachments', () => {
   beforeEach(() => {
     cy.goto('group');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.group.showGroupToContinue).should('be.visible').find('input').check({ force: true });
+    cy.get(appFrontend.group.showGroupToContinue).should('be.visible').find('input').check();
     addNewRow();
     gotoSecondPage();
   });
@@ -63,7 +63,7 @@ describe('Repeating group attachments', () => {
 
   const uploadFile = ({ item, idx, fileName, verifyTableRow, tableRow, secondPage = false }: IUploadFileArgs) => {
     cy.get(item.dropZoneContainer).should('be.visible');
-    cy.get(item.dropZone).selectFile(makeTestFile(fileName), { force: true });
+    cy.get(item.dropZone).selectFile(makeTestFile(fileName));
 
     const attachment = item.attachments(idx);
     if (attachment.tagSelector !== undefined && attachment.tagSave !== undefined) {

@@ -42,7 +42,7 @@ describe('Validation', () => {
 
     cy.get(appFrontend.changeOfName.newMiddleName).should('be.visible').focus().type('Some middle name').blur();
 
-    cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check({ force: true });
+    cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check();
     cy.get(appFrontend.changeOfName.reasonRelationship).should('be.visible').click().type('test');
     cy.get(appFrontend.changeOfName.dateOfEffect)
       .siblings()
@@ -118,7 +118,7 @@ describe('Validation', () => {
   it('Page validation on clicking next', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').clear().type('test').blur();
-    cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check({ force: true });
+    cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check();
     cy.intercept('GET', '**/validate').as('validateData');
     cy.get(appFrontend.nextButton).should('be.visible').scrollIntoView();
     cy.get(appFrontend.nextButton).should('be.inViewport');
@@ -174,7 +174,7 @@ describe('Validation', () => {
 
   it('Validation on uploaded attachment type', () => {
     cy.goto('changename');
-    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.png', { force: true });
+    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.png');
     cy.get(appFrontend.fieldValidationError.replace('field', appFrontend.changeOfName.upload.substring(1)))
       .should('exist')
       .should('be.visible')
@@ -183,7 +183,7 @@ describe('Validation', () => {
 
   it('Validation on uploaded attachment type with tag', () => {
     cy.goto('changename');
-    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click({ multiple: true });
     cy.get(appFrontend.changeOfName.uploadWithTag.error)
       .should('exist')
@@ -221,7 +221,7 @@ describe('Validation', () => {
     // Init and add data to group
     cy.goto('group');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.group.showGroupToContinue).should('be.visible').find('input').check({ force: true });
+    cy.get(appFrontend.group.showGroupToContinue).should('be.visible').find('input').check();
     cy.get(appFrontend.group.addNewItem).should('be.visible').click();
     cy.get(appFrontend.group.currentValue).should('be.visible').type('123');
     cy.get(appFrontend.group.newValue).should('be.visible').type('321');
@@ -240,7 +240,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('exist').should('be.visible');
 
     // Hide field that contains validation error and verify validation messages are gone
-    cy.get(appFrontend.group.hideCommentField).should('be.visible').find('input').check({ force: true });
+    cy.get(appFrontend.group.hideCommentField).should('be.visible').find('input').check();
     cy.get(appFrontend.group.comments).should('not.exist');
     cy.get(appFrontend.fieldValidationError.replace('field', 'comments')).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');

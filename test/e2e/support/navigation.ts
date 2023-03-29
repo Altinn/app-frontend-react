@@ -117,7 +117,7 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
       .then(() => {
         cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').type('a').blur();
         cy.get(appFrontend.changeOfName.newLastName).should('be.visible').type('a').blur();
-        cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check({ force: true });
+        cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check();
         cy.get(appFrontend.changeOfName.reasonRelationship).should('be.visible').click().type('test');
         cy.get(appFrontend.changeOfName.dateOfEffect)
           .siblings()
@@ -126,7 +126,7 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
           .then(() => {
             cy.get(mui.selectedDate).should('be.visible').click();
           });
-        cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+        cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf');
         cy.get(appFrontend.nextButton).click();
       });
   },
@@ -139,7 +139,7 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
     });
 
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.group.showGroupToContinue).should('be.visible').find('input').check({ force: true });
+    cy.get(appFrontend.group.showGroupToContinue).should('be.visible').find('input').check();
     cy.addItemToGroup(1, 2, 'automation');
     cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
@@ -156,7 +156,6 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).editBtn).click();
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.dropZone).selectFile(
       mkFile('attachment-in-nested.pdf'),
-      { force: true },
     );
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector || 'nothing')
       .should('be.visible')
