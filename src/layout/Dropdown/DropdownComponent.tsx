@@ -1,11 +1,12 @@
 import React from 'react';
 
+import { Select } from '@digdir/design-system-react';
+
 import { useHasChangedIgnoreUndefined } from 'src/common/hooks';
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { useGetOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import { Select } from 'src/components/Select';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -25,7 +26,7 @@ export function DropdownComponent({
   const hasSelectedInitial = React.useRef(false);
   const optionsHasChanged = useHasChangedIgnoreUndefined(options);
 
-  const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
+  const { value, setValue /*, saveValue*/ } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
 
   React.useEffect(() => {
     const shouldSelectOptionAutomatically =
@@ -50,19 +51,15 @@ export function DropdownComponent({
     }
   }, [optionsHasChanged, formData, setValue]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setValue(event.target.value);
-  };
-
   return (
     <>
       {fetchingOptions ? (
         <AltinnSpinner />
       ) : (
         <Select
-          id={id}
-          onChange={handleChange}
-          onBlur={saveValue}
+          inputId={id}
+          onChange={setValue}
+          //onBlur={saveValue}
           value={value}
           disabled={readOnly}
           error={!isValid}
