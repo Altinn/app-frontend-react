@@ -123,14 +123,14 @@ describe('Multipart save', () => {
     // Checking the checkbox should update with a 'null' previous value
     const root = 'Endringsmelding-grp-9786';
     const showGroupKey = `${root}.Avgiver-grp-9787.KontaktpersonEPost-datadef-27688.value`;
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck().blur();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     expectSave(showGroupKey, 'Ja', null);
 
     // And then unchecking it should do the inverse
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsUncheck().blur();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsUncheck();
     expectSave(showGroupKey, undefined, 'Ja');
 
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck().blur();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     expectSave(showGroupKey, 'Ja', null);
 
     const groupKey = `${root}.OversiktOverEndringene-grp-9788`;
@@ -176,22 +176,22 @@ describe('Multipart save', () => {
     cy.get(appFrontend.group.comments).type('third comment in first row').blur();
     expectSave(`${groupKey}[0].${subGroupKey}[1].${commentKey}`, 'third comment in first row', null);
 
-    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedDynamics).click().blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedDynamics).dsCheck();
     expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptionsToggle`, 'Ja', null);
 
-    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[2]).dsCheck().blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[2]).dsCheck();
     expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, 'o111', null);
 
-    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[1]).dsCheck().blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[1]).dsCheck();
     expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, ['o111', 'o1'], ['o111']);
 
-    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[0]).dsCheck().blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[0]).dsCheck();
     expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, ['o111', 'o1', 'o11'], ['o111', 'o1']);
 
-    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[2]).dsUncheck().blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[2]).dsUncheck();
     expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, ['o1', 'o11'], ['o111', 'o1', 'o11']);
 
-    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[1]).dsUncheck().blur();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).nestedOptions[1]).dsUncheck();
     expectSave(`${groupKey}[0].${subGroupKey}[1].extraOptions`, ['o11'], ['o1', 'o11']);
 
     cy.get(appFrontend.group.saveSubGroup).click();
