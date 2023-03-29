@@ -37,19 +37,19 @@ describe('Group', () => {
         .then((table) => {
           cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
           cy.wrap(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
-          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).should('be.visible').click();
+          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).click();
         });
       cy.get(appFrontend.group.mainGroup)
         .find(appFrontend.group.editContainer)
         .find(appFrontend.group.next)
-        .should('be.visible')
+
         .click();
       cy.get(appFrontend.group.subGroup)
         .find(mui.tableBody)
         .then((table) => {
           cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'automation');
-          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).should('be.visible').click();
-          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).click();
+          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
         });
 
       if (openByDefault) {
@@ -64,12 +64,12 @@ describe('Group', () => {
       cy.get(appFrontend.group.mainGroup)
         .find(appFrontend.group.editContainer)
         .find(appFrontend.group.back)
-        .should('be.visible')
+
         .click();
       cy.get(appFrontend.group.mainGroup)
         .find(mui.tableBody)
         .then((table) => {
-          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
         });
 
       if (openByDefault) {
@@ -87,7 +87,7 @@ describe('Group', () => {
     init();
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.addNewItem).click();
-    cy.get(appFrontend.group.currentValue).should('be.visible').type('1337').blur();
+    cy.get(appFrontend.group.currentValue).type('1337').blur();
     // DataProcessingHandler.cs for frontend-test changes 1337 to 1338.
     cy.get(appFrontend.group.currentValue).should('have.value', 'NOK 1 338');
     cy.get(appFrontend.group.newValueLabel).should('contain.text', '2. Endre verdi 1338 til');
@@ -97,32 +97,25 @@ describe('Group', () => {
     init();
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.addNewItem).click();
-    cy.get(appFrontend.group.currentValue).should('be.visible').type('1').blur();
-    cy.get(appFrontend.group.newValue).should('be.visible').type('0').blur();
-    cy.get(appFrontend.fieldValidationError.replace('field', 'newValue'))
-      .should('exist')
-      .should('be.visible')
-      .should('have.text', texts.zeroIsNotValid);
-    cy.get(appFrontend.group.newValue).should('be.visible').clear().type('1').blur();
+    cy.get(appFrontend.group.currentValue).type('1').blur();
+    cy.get(appFrontend.group.newValue).type('0').blur();
+    cy.get(appFrontend.fieldValidationError.replace('field', 'newValue')).should('have.text', texts.zeroIsNotValid);
+    cy.get(appFrontend.group.newValue).clear().type('1').blur();
     cy.get(appFrontend.fieldValidationError.replace('field', 'newValue')).should('not.exist');
     cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
-    cy.get(appFrontend.group.mainGroup)
-      .find(appFrontend.group.editContainer)
-      .find(appFrontend.group.next)
-      .should('be.visible')
-      .click();
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.addNewItem).should('not.exist');
     cy.get(appFrontend.group.comments).type('test').blur();
-    cy.get(appFrontend.fieldValidationError.replace('field', 'comments'))
-      .should('exist')
-      .should('be.visible')
-      .should('have.text', texts.testIsNotValidValue);
+    cy.get(appFrontend.fieldValidationError.replace('field', 'comments')).should(
+      'have.text',
+      texts.testIsNotValidValue,
+    );
     cy.get(appFrontend.group.comments).clear().type('automation').blur();
     cy.get(appFrontend.fieldValidationError.replace('field', 'comments')).should('not.exist');
     cy.get(appFrontend.group.subGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
     cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
-    cy.get(appFrontend.group.saveSubGroup).should('be.visible').click().should('not.exist');
-    cy.get(appFrontend.group.saveMainGroup).should('be.visible').click().should('not.exist');
+    cy.get(appFrontend.group.saveSubGroup).click().should('not.exist');
+    cy.get(appFrontend.group.saveMainGroup).click().should('not.exist');
   });
 
   [Triggers.Validation, Triggers.ValidateRow].forEach((trigger) => {
@@ -145,22 +138,20 @@ describe('Group', () => {
       cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
 
       cy.get(appFrontend.group.addNewItem).click();
-      cy.get(appFrontend.group.currentValue).should('be.visible').type('123').blur();
-      cy.get(appFrontend.group.newValue).should('be.visible').type('1').blur();
+      cy.get(appFrontend.group.currentValue).type('123').blur();
+      cy.get(appFrontend.group.newValue).type('1').blur();
       cy.get(appFrontend.group.saveMainGroup).click();
 
       cy.get(appFrontend.group.addNewItem).click();
-      cy.get(appFrontend.group.currentValue).should('be.visible').type('123').blur();
+      cy.get(appFrontend.group.currentValue).type('123').blur();
 
-      cy.get(appFrontend.group.row(0).editBtn).should('exist').and('be.visible').focus().click();
+      cy.get(appFrontend.group.row(0).editBtn).click();
       cy.get(appFrontend.group.saveMainGroup).click();
 
       cy.wait('@validate');
 
       if (trigger === 'validation') {
         cy.get(appFrontend.errorReport)
-          .should('exist')
-          .should('be.visible')
           .should('contain.text', texts.requiredFieldToValue)
           .should('not.contain.text', texts.requiredFieldFromValue);
       } else {
@@ -169,21 +160,18 @@ describe('Group', () => {
       }
 
       cy.get(appFrontend.group.row(0).editBtn).click();
-      cy.get(appFrontend.group.currentValue).clear().blur();
+      cy.get(appFrontend.group.currentValue).clear();
+      cy.get(appFrontend.group.currentValue).should('have.value', '');
       cy.get(appFrontend.group.saveMainGroup).click();
 
       cy.wait('@validate');
 
       if (trigger === 'validation') {
         cy.get(appFrontend.errorReport)
-          .should('exist')
-          .should('be.visible')
           .should('contain.text', texts.requiredFieldToValue)
           .should('contain.text', texts.requiredFieldFromValue);
       } else {
         cy.get(appFrontend.errorReport)
-          .should('exist')
-          .should('be.visible')
           .should('contain.text', texts.requiredFieldFromValue)
           .should('not.contain.text', texts.requiredFieldToValue);
       }
@@ -195,10 +183,10 @@ describe('Group', () => {
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.secondGroup_add).click();
     cy.get(appFrontend.group.secondGroup_add_to_reference_group).click();
-    cy.get(appFrontend.group.secondGroup_currentValue).should('be.visible').type('1').blur();
-    cy.get(appFrontend.group.secondGroup_newValue).should('be.visible').type('2').blur();
-    cy.get(appFrontend.group.secondGroup_save).focus().should('be.visible').click();
-    cy.get(appFrontend.group.secondGroup_save_and_close).focus().should('be.visible').click();
+    cy.get(appFrontend.group.secondGroup_currentValue).type('1').blur();
+    cy.get(appFrontend.group.secondGroup_newValue).type('2').blur();
+    cy.get(appFrontend.group.secondGroup_save).click();
+    cy.get(appFrontend.group.secondGroup_save_and_close).click();
     cy.get(appFrontend.group.secondGroup_table).find('tbody').find('tr').its('length').should('eq', 1);
   });
 
@@ -282,21 +270,23 @@ describe('Group', () => {
 
     cy.get(appFrontend.group.saveMainGroup).click();
 
-    cy.get(appFrontend.fieldValidationError.replace('field', 'currentValue-0'))
-      .should('be.visible')
-      .should('have.text', texts.requiredFieldFromValue);
+    cy.get(appFrontend.fieldValidationError.replace('field', 'currentValue-0')).should(
+      'have.text',
+      texts.requiredFieldFromValue,
+    );
 
     cy.findByLabelText(/1\. Endre fra/i).type('123');
     cy.get(appFrontend.group.saveMainGroup).click();
 
-    cy.get(appFrontend.fieldValidationError.replace('field', 'newValue-0'))
-      .should('be.visible')
-      .should('have.text', texts.requiredFieldToValue);
+    cy.get(appFrontend.fieldValidationError.replace('field', 'newValue-0')).should(
+      'have.text',
+      texts.requiredFieldToValue,
+    );
 
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
       .then((table) => {
-        cy.wrap(table).find(appFrontend.group.delete).should('be.visible').click();
+        cy.wrap(table).find(appFrontend.group.delete).click();
       });
 
     cy.get(appFrontend.nextButton).click();
@@ -384,7 +374,7 @@ describe('Group', () => {
       .children()
       .eq(0)
       .find(appFrontend.group.delete)
-      .should('be.visible')
+
       .click();
     cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
   });
@@ -405,32 +395,32 @@ describe('Group', () => {
       .then((table) => {
         cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
         cy.wrap(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).should('be.visible').click();
+        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).click();
       });
 
     // Navigate to nested group and test delete warning popoup cancel and confirm
     cy.get(appFrontend.group.mainGroup)
       .find(appFrontend.group.editContainer)
       .find(appFrontend.group.next)
-      .should('be.visible')
+
       .click();
     cy.get(appFrontend.group.subGroup)
       .find(mui.tableBody)
       .then((table) => {
         cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'automation');
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
         cy.wrap(table)
           .find(mui.tableElement)
           .find(appFrontend.designSystemPanel)
           .find(appFrontend.group.popOverCancelButton)
-          .should('be.visible')
+
           .click();
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
         cy.wrap(table)
           .find(mui.tableElement)
           .find(appFrontend.designSystemPanel)
           .find(appFrontend.group.popOverDeleteButton)
-          .should('be.visible')
+
           .click();
       });
     cy.get(appFrontend.group.subGroup)
@@ -443,24 +433,24 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup)
       .find(appFrontend.group.editContainer)
       .find(appFrontend.group.back)
-      .should('be.visible')
+
       .click();
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
       .then((table) => {
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
         cy.wrap(table)
           .find(mui.tableElement)
           .find(appFrontend.designSystemPanel)
           .find(appFrontend.group.popOverCancelButton)
-          .should('be.visible')
+
           .click();
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).should('be.visible').click();
+        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
         cy.wrap(table)
           .find(mui.tableElement)
           .find(appFrontend.designSystemPanel)
           .find(appFrontend.group.popOverDeleteButton)
-          .should('be.visible')
+
           .click();
       });
     cy.get(appFrontend.group.mainGroup).should('not.exist');

@@ -145,18 +145,18 @@ describe('Multipart save', () => {
       expectSave(`${groupKey}[${index}].${subGroupKey}[0].source`, 'altinn', null);
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.back).click();
 
-      cy.get(appFrontend.group.currentValue).should('be.visible').type(oldValue).blur();
+      cy.get(appFrontend.group.currentValue).type(oldValue).blur();
       expectSave(`${groupKey}[${index}].${currentValueKey}`, oldValue, null);
 
-      cy.get(appFrontend.group.newValue).should('be.visible').type(newValue).blur();
+      cy.get(appFrontend.group.newValue).type(newValue).blur();
       expectSave(`${groupKey}[${index}].${newValueKey}`, newValue, null);
 
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.next).click();
-      cy.get(appFrontend.group.comments).should('be.visible').type(comment).blur();
+      cy.get(appFrontend.group.comments).type(comment).blur();
       expectSave(`${groupKey}[${index}].${subGroupKey}[0].${commentKey}`, comment, null);
 
-      cy.get(appFrontend.group.saveSubGroup).should('be.visible').click().should('not.exist');
-      cy.get(appFrontend.group.saveMainGroup).should('be.visible').click().should('not.exist');
+      cy.get(appFrontend.group.saveSubGroup).click().should('not.exist');
+      cy.get(appFrontend.group.saveMainGroup).click().should('not.exist');
     }
 
     // Add some rows to the group

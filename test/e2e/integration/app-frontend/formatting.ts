@@ -11,7 +11,7 @@ describe('Formatting', () => {
       .parent()
       .should('have.css', 'border-bottom', '1px dashed rgb(148, 148, 148)');
     cy.get(appFrontend.changeOfName.mobilenummer)
-      .should('be.visible')
+
       .type('44444444')
       .should('have.value', '+47 444 44 444');
     cy.gotoAndComplete('changename');
