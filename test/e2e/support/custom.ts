@@ -8,11 +8,15 @@ Cypress.Commands.add('isVisible', { prevSubject: true }, (subject) => {
 Cypress.Commands.add('dsCheck', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
   if (subject && !subject.is(':checked')) {
     cy.wrap(subject).parent().click();
+  } else {
+    throw new Error('Tried unchecking a checked radio/checkbox');
   }
 });
 
 Cypress.Commands.add('dsUncheck', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
   if (subject && subject.is(':checked')) {
     cy.wrap(subject).parent().click();
+  } else {
+    throw new Error('Tried unchecking an unchecked radio/checkbox');
   }
 });
