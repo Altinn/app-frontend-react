@@ -179,8 +179,7 @@ describe('Summary', () => {
     cy.gotoAndComplete('group');
 
     cy.get(appFrontend.group.mainGroupSummary)
-
-      .and('have.length', 1)
+      .should('have.length', 1)
       .first()
       .children(mui.gridItem)
       .should('have.length', 8)
@@ -221,8 +220,7 @@ describe('Summary', () => {
     cy.get(appFrontend.backToSummaryButton).click();
 
     cy.get(appFrontend.group.mainGroupSummary)
-
-      .and('have.length', 1)
+      .should('have.length', 1)
       .first()
       .children(mui.gridItem)
       .should('have.length', 8)
