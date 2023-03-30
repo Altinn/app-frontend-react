@@ -65,7 +65,7 @@ describe('Group', () => {
         cy.get(appFrontend.group.subGroup).find(mui.tableElement).eq(0).should('not.contain.text', 'automation');
         cy.get(appFrontend.group.comments).should('be.visible');
       } else {
-        cy.get(appFrontend.group.subGroup).should('not.exist');
+        cy.get(appFrontend.group.subGroup).find(mui.tableElement).should('have.length', 0);
         cy.get(appFrontend.group.addNewItemSubGroup).should('have.length', 1);
         cy.get(appFrontend.group.comments).should('not.exist');
       }
@@ -85,7 +85,7 @@ describe('Group', () => {
         cy.get(appFrontend.group.saveMainGroup).should('be.visible');
         cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length.greaterThan', 0);
       } else {
-        cy.get(appFrontend.group.mainGroup).should('not.exist');
+        cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
         cy.get(appFrontend.group.saveMainGroup).should('not.exist');
         cy.get(appFrontend.group.addNewItem).should('have.length', 1);
       }
@@ -203,7 +203,7 @@ describe('Group', () => {
     init();
     const expectRows = (...rows) => {
       if (!rows.length) {
-        cy.get(appFrontend.group.mainGroup).should('not.exist');
+        cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
         return;
       }
       cy.get(appFrontend.group.mainGroup)
@@ -328,7 +328,7 @@ describe('Group', () => {
           .should('exist')
           .and('be.visible');
       } else if (!openByDefault) {
-        cy.get(appFrontend.group.mainGroupTableBody).should('not.exist');
+        cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
       }
     });
 
@@ -462,6 +462,6 @@ describe('Group', () => {
 
           .click();
       });
-    cy.get(appFrontend.group.mainGroup).should('not.exist');
+    cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
   });
 });
