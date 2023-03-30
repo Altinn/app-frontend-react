@@ -1,4 +1,4 @@
-import { all, call, put, select } from 'redux-saga/effects';
+import { all, call, cancelled, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
@@ -269,8 +269,6 @@ interface SaveDataParams {
 }
 
 export function* saveStatelessData({ field, componentId }: SaveDataParams) {
-  yield call(waitForSaving);
-
   const state: IRuntimeState = yield select();
   const model = getModelToSave(state);
   const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
@@ -292,10 +290,27 @@ export function* saveStatelessData({ field, componentId }: SaveDataParams) {
     layoutSets: state.formLayout.layoutsets,
   });
   if (currentDataType) {
-    const response = yield call(httpPost, getStatelessFormDataUrl(currentDataType, allowAnonymous), { headers }, model);
-    const formData = convertModelToDataBinding(response?.data);
-    yield put(FormDataActions.fetchFulfilled({ formData }));
-    yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
+    const abortController = new AbortController();
+    try {
+      const response = yield call(
+        httpPost,
+        getStatelessFormDataUrl(currentDataType, allowAnonymous),
+        {
+          headers,
+          signal: abortController.signal,
+        },
+        model,
+      );
+      const formData = convertModelToDataBinding(response?.data);
+      yield put(FormDataActions.fetchFulfilled({ formData }));
+      yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
+    } finally {
+      if (yield cancelled()) {
+        // If the saga were cancelled (takeLatest), we would abort the HTTP request/promise
+        // to ensure we do not update the redux-state with staled data.
+        abortController.abort();
+      }
+    }
   }
 
   yield put(FormDataActions.savingEnded({ model: state.formData.formData }));
