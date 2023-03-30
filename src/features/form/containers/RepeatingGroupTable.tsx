@@ -154,7 +154,14 @@ export function RepeatingGroupTable({
         {showTableHeader && !mobileView && (
           <TableHeader id={`group-${id}-table-header`}>
             <TableRow className={classes.repeatingGroupRow}>
-              <TableCell className={classes.tablePaddingCell} />
+              {!isNested && (
+                <TableCell
+                  aria-hidden={true}
+                  className={classes.tablePaddingCell}
+                >
+                  <span className={classes.visuallyHidden}>padding</span>
+                </TableCell>
+              )}
               {tableNodes?.map((n) => (
                 <TableCell
                   key={n.item.id}
@@ -180,7 +187,14 @@ export function RepeatingGroupTable({
                   <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
                 </TableCell>
               )}
-              <TableCell className={classes.tablePaddingCell} />
+              {!isNested && (
+                <TableCell
+                  aria-hidden={true}
+                  className={classes.tablePaddingCell}
+                >
+                  <span className={classes.visuallyHidden}>padding</span>
+                </TableCell>
+              )}
             </TableRow>
           </TableHeader>
         )}
@@ -236,7 +250,7 @@ export function RepeatingGroupTable({
                     >
                       <TableCell
                         style={{ padding: 0, borderTop: 0 }}
-                        colSpan={mobileView ? 2 : tableNodes.length + 3 + Number(displayDeleteColumn)}
+                        colSpan={mobileView ? 2 : tableNodes.length + 4 + Number(displayDeleteColumn)}
                       >
                         {renderRepeatingGroupsEditContainer()}
                       </TableCell>

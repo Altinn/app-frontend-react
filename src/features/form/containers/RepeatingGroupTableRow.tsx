@@ -106,6 +106,7 @@ export function RepeatingGroupTableRow({
     'useDisplayData' in node.def ? node.def.useDisplayData(node as any) : '',
   );
   const firstCellData = displayData.find((c) => !!c);
+  const isNested = typeof group?.baseComponentId === 'string';
 
   if (!language) {
     return null;
@@ -131,7 +132,12 @@ export function RepeatingGroupTableRow({
     >
       {!mobileView ? (
         <>
-          <TableCell className={classes.tablePaddingCell} />
+          {!isNested && (
+            <TableCell
+              className={classes.tablePaddingCell}
+              aria-hidden={true}
+            />
+          )}
           {tableNodes.map((n, idx) => (
             <TableCell key={`${n.item.id}-${index}`}>
               <span
@@ -236,7 +242,12 @@ export function RepeatingGroupTableRow({
                 </div>
               </TableCell>
             )}
-          <TableCell className={classes.tablePaddingCell} />
+          {!isNested && (
+            <TableCell
+              className={classes.tablePaddingCell}
+              aria-hidden={true}
+            />
+          )}
         </>
       ) : (
         <TableCell
