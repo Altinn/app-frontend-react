@@ -68,7 +68,10 @@ export type SliceReducers<T extends { name: string; reducer: R }[], R = T[number
     : never;
 };
 
-export const rootSagas: Saga[] = [];
+export let rootSagas: Saga[] = [];
+export const resetRootSagas = () => {
+  rootSagas = [];
+};
 
 function asArray<T>(input: T | T[]): T[] {
   return Array.isArray(input) ? input : [input];

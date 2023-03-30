@@ -23,6 +23,7 @@ import { profileSlice } from 'src/features/profile/profileSlice';
 import { queueSlice } from 'src/features/queue/queueSlice';
 import { textResourcesSlice } from 'src/features/textResources/textResourcesSlice';
 import { validationSlice } from 'src/features/validation/validationSlice';
+import { resetRootSagas } from 'src/redux/sagaSlice';
 import { appApi } from 'src/services/AppApi';
 import type { SliceReducers } from 'src/redux/sagaSlice';
 
@@ -59,6 +60,8 @@ type ReturnTypes<T extends Array<() => unknown>> = {
 type Whatever = SliceReducers<ReturnTypes<typeof slices>>;
 
 const reducers = () => {
+  resetRootSagas();
+
   const out = {
     [appApi.reducerPath]: appApi.reducer,
   };
