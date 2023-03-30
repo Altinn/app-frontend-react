@@ -30,14 +30,16 @@ export function MultipleSelectComponent({
   }
 
   const calculatedOptions: MultiSelectOption[] =
-    (apiOptions || options)?.map((option) => {
-      const label = getTextResourceAsString(option.label) ?? option.value;
-      return {
-        label,
-        value: option.value,
-        deleteButtonLabel: `${getLanguageFromKey('general.delete', language)} ${label}`,
-      };
-    }) || [];
+    (apiOptions || options)
+      ?.filter((option, index, array) => !array.slice(0, index).find((found) => found.value === option.value))
+      .map((option) => {
+        const label = getTextResourceAsString(option.label) ?? option.value;
+        return {
+          label,
+          value: option.value,
+          deleteButtonLabel: `${getLanguageFromKey('general.delete', language)} ${label}`,
+        };
+      }) || [];
 
   const handleChange = (values: string[]) => {
     setValue(values.join(','));

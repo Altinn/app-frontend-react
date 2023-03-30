@@ -134,6 +134,11 @@ declare global {
        * Uncheck a checkbox/radio from the design system. See the comment above for dsCheck()
        */
       dsUncheck(): Chainable<null>;
+
+      /**
+       * Select from a dropdown in the design system
+       */
+      dsSelect(name: string): Chainable<null>;
     }
   }
 }

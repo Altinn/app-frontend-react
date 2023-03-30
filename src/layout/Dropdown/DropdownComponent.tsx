@@ -20,7 +20,9 @@ export function DropdownComponent({
   getTextResourceAsString,
 }: IDropdownProps) {
   const { optionsId, preselectedOptionIndex, id, readOnly, mapping, source } = node.item;
-  const options = useGetOptions({ optionsId, mapping, source });
+  const options = useGetOptions({ optionsId, mapping, source })?.filter(
+    (option, index, array) => !array.slice(0, index).find((found) => found.value === option.value),
+  );
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const hasSelectedInitial = React.useRef(false);
@@ -65,7 +67,7 @@ export function DropdownComponent({
           error={!isValid}
           options={
             options?.map((option) => ({
-              label: getTextResourceAsString(option.label) ?? '',
+              label: getTextResourceAsString(option.label) ?? option.value,
               value: option.value,
             })) || []
           }
