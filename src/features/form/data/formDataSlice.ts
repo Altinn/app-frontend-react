@@ -121,7 +121,10 @@ export const formDataSlice = createSagaSlice((mkAction: MkActionType<IFormDataSt
         state.error = error;
       },
     }),
-    save: mkAction<ISaveAction>({
+    saveEvery: mkAction<ISaveAction>({
+      takeEvery: saveFormDataSaga,
+    }),
+    saveLatest: mkAction<ISaveAction>({
       takeLatest: saveFormDataSaga,
     }),
     deleteAttachmentReference: mkAction<IDeleteAttachmentReference>({

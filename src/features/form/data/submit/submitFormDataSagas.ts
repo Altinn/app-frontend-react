@@ -26,10 +26,12 @@ import {
 import type { IFormData } from 'src/features/form/data';
 import type { ISubmitDataAction, IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
 import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { IRuntimeState, IRuntimeStore, IUiConfig, IValidationIssue } from 'src/types';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const UIConfigSelector: (store: IRuntimeStore) => IUiConfig = (store: IRuntimeStore) => store.formLayout.uiConfig;
+const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
 
 export function* submitFormSaga({
   payload: { apiMode, stopWithWarnings },
@@ -324,8 +326,16 @@ export function* autoSaveSaga({
   }
 
   const uiConfig: IUiConfig = yield select(UIConfigSelector);
-  if (uiConfig.autoSave !== false) {
-    // undefined should default to auto save
-    yield put(FormDataActions.save({ field, componentId, singleFieldValidation }));
+  const applicationMetadata: IApplicationMetadata = yield select(getApplicationMetaData);
+
+  // undefined should default to auto save
+  const shouldAutoSave = uiConfig.autoSave !== false;
+
+  if (shouldAutoSave) {
+    if (isStatelessApp(applicationMetadata)) {
+      yield put(FormDataActions.saveLatest({ field, componentId, singleFieldValidation }));
+    } else {
+      yield put(FormDataActions.saveEvery({ field, componentId, singleFieldValidation }));
+    }
   }
 }
