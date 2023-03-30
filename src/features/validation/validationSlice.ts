@@ -1,6 +1,6 @@
 import { runSingleFieldValidationSaga } from 'src/features/validation/singleFieldValidationSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { MkActionType } from 'src/redux/sagaSlice';
+import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 import type { IComponentValidations, IValidations } from 'src/types';
 
 export interface IValidationState {
@@ -36,46 +36,50 @@ export const initialState: IValidationState = {
   invalidDataTypes: [],
 };
 
-export const validationSlice = createSagaSlice((mkAction: MkActionType<IValidationState>) => ({
-  name: 'formValidations',
-  initialState,
-  actions: {
-    runSingleFieldValidation: mkAction<IRunSingleFieldValidation>({
-      takeLatest: runSingleFieldValidationSaga,
-    }),
-    runSingleFieldValidationFulfilled: mkAction<IUpdateValidations>({
-      reducer: (state, action) => {
-        const { validations } = action.payload;
-        state.validations = validations;
-      },
-    }),
-    runSingleFieldValidationRejected: mkAction<IValidationActionRejected>({
-      reducer: (state, action) => {
-        if (action.payload.error) {
-          const { error } = action.payload;
-          state.error = error;
-        }
-      },
-    }),
-    updateComponentValidations: mkAction<IUpdateComponentValidations>({
-      reducer: (state, action) => {
-        const { layoutId, validations, componentId, invalidDataTypes } = action.payload;
+export let ValidationActions: ActionsFromSlice<typeof validationSlice>;
+export const validationSlice = () => {
+  const slice = createSagaSlice((mkAction: MkActionType<IValidationState>) => ({
+    name: 'formValidations',
+    initialState,
+    actions: {
+      runSingleFieldValidation: mkAction<IRunSingleFieldValidation>({
+        takeLatest: runSingleFieldValidationSaga,
+      }),
+      runSingleFieldValidationFulfilled: mkAction<IUpdateValidations>({
+        reducer: (state, action) => {
+          const { validations } = action.payload;
+          state.validations = validations;
+        },
+      }),
+      runSingleFieldValidationRejected: mkAction<IValidationActionRejected>({
+        reducer: (state, action) => {
+          if (action.payload.error) {
+            const { error } = action.payload;
+            state.error = error;
+          }
+        },
+      }),
+      updateComponentValidations: mkAction<IUpdateComponentValidations>({
+        reducer: (state, action) => {
+          const { layoutId, validations, componentId, invalidDataTypes } = action.payload;
 
-        if (!state.validations[layoutId]) {
-          state.validations[layoutId] = {};
-        }
+          if (!state.validations[layoutId]) {
+            state.validations[layoutId] = {};
+          }
 
-        state.validations[layoutId][componentId] = validations;
-        state.invalidDataTypes = invalidDataTypes || [];
-      },
-    }),
-    updateValidations: mkAction<IUpdateValidations>({
-      reducer: (state, action) => {
-        const { validations } = action.payload;
-        state.validations = validations;
-      },
-    }),
-  },
-}));
+          state.validations[layoutId][componentId] = validations;
+          state.invalidDataTypes = invalidDataTypes || [];
+        },
+      }),
+      updateValidations: mkAction<IUpdateValidations>({
+        reducer: (state, action) => {
+          const { validations } = action.payload;
+          state.validations = validations;
+        },
+      }),
+    },
+  }));
 
-export const ValidationActions = validationSlice.actions;
+  ValidationActions = slice.actions;
+  return slice;
+};

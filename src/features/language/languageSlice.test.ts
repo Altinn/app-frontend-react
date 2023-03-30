@@ -2,13 +2,14 @@ import { initialState, LanguageActions, languageSlice } from 'src/features/langu
 import type { ILanguageState } from 'src/features/language/languageSlice';
 
 describe('languageSlice', () => {
+  const slice = languageSlice();
   let state: ILanguageState;
   beforeEach(() => {
     state = initialState;
   });
 
   it('handles fetchLanguageFulfilled action', () => {
-    const nextState = languageSlice.reducer(
+    const nextState = slice.reducer(
       state,
       LanguageActions.fetchLanguageFulfilled({
         language: {
@@ -22,7 +23,7 @@ describe('languageSlice', () => {
 
   it('handles fetchLanguageRejected action', () => {
     const errorMessage = 'This is an error';
-    const nextState = languageSlice.reducer(
+    const nextState = slice.reducer(
       state,
       LanguageActions.fetchLanguageRejected({
         error: new Error(errorMessage),

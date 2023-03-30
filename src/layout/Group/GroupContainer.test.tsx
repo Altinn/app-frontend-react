@@ -139,7 +139,7 @@ function render({ container = mockContainer }: IRender = {}) {
     textResources: mockTextResources,
   });
 
-  const mockStore = setupStore(preloadedState);
+  const mockStore = setupStore(preloadedState).store;
 
   mockStore.dispatch = jest.fn();
 

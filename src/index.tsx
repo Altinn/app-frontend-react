@@ -13,27 +13,30 @@ import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { initSagas } from 'src/redux/sagas';
-import { store } from 'src/redux/store';
+import { setupStore } from 'src/redux/store';
 import { ExprContextWrapper } from 'src/utils/layout/ExprContext';
 
 import 'src/index.css';
 
-initSagas();
+document.addEventListener('DOMContentLoaded', () => {
+  const { store, sagaMiddleware } = setupStore();
+  initSagas(sagaMiddleware);
 
-const container = document.getElementById('root');
-const root = container && createRoot(container);
-root?.render(
-  <Provider store={store}>
-    <HashRouter>
-      <AppWrapper>
-        <ThemeWrapper>
-          <ErrorBoundary>
-            <ExprContextWrapper>
-              <App />
-            </ExprContextWrapper>
-          </ErrorBoundary>
-        </ThemeWrapper>
-      </AppWrapper>
-    </HashRouter>
-  </Provider>,
-);
+  const container = document.getElementById('root');
+  const root = container && createRoot(container);
+  root?.render(
+    <Provider store={store}>
+      <HashRouter>
+        <AppWrapper>
+          <ThemeWrapper>
+            <ErrorBoundary>
+              <ExprContextWrapper>
+                <App />
+              </ExprContextWrapper>
+            </ErrorBoundary>
+          </ThemeWrapper>
+        </AppWrapper>
+      </HashRouter>
+    </Provider>,
+  );
+});

@@ -9,7 +9,7 @@ import type {
   ISelectPartyFulfilled,
   ISelectPartyRejected,
 } from 'src/features/party/index';
-import type { MkActionType } from 'src/redux/sagaSlice';
+import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IPartyState = {
   parties: null,
@@ -17,40 +17,44 @@ const initialState: IPartyState = {
   error: null,
 };
 
-export const partySlice = createSagaSlice((mkAction: MkActionType<IPartyState>) => ({
-  name: 'party',
-  initialState,
-  actions: {
-    getParties: mkAction<void>({
-      takeLatest: getPartiesSaga,
-    }),
-    getCurrentParty: mkAction<void>({
-      takeLatest: getCurrentPartySaga,
-    }),
-    getPartiesFulfilled: mkAction<IGetPartiesFulfilled>({
-      reducer: (state, action) => {
-        state.parties = action.payload.parties;
-      },
-    }),
-    getPartiesRejected: mkAction<IGetPartiesRejected>({
-      reducer: (state, action) => {
-        state.error = action.payload.error;
-      },
-    }),
-    selectParty: mkAction<ISelectParty>({
-      takeLatest: selectPartySaga,
-    }),
-    selectPartyFulfilled: mkAction<ISelectPartyFulfilled>({
-      reducer: (state, action) => {
-        state.selectedParty = action.payload.party;
-      },
-    }),
-    selectPartyRejected: mkAction<ISelectPartyRejected>({
-      reducer: (state, action) => {
-        state.error = action.payload.error;
-      },
-    }),
-  },
-}));
+export let PartyActions: ActionsFromSlice<typeof partySlice>;
+export const partySlice = () => {
+  const slice = createSagaSlice((mkAction: MkActionType<IPartyState>) => ({
+    name: 'party',
+    initialState,
+    actions: {
+      getParties: mkAction<void>({
+        takeLatest: getPartiesSaga,
+      }),
+      getCurrentParty: mkAction<void>({
+        takeLatest: getCurrentPartySaga,
+      }),
+      getPartiesFulfilled: mkAction<IGetPartiesFulfilled>({
+        reducer: (state, action) => {
+          state.parties = action.payload.parties;
+        },
+      }),
+      getPartiesRejected: mkAction<IGetPartiesRejected>({
+        reducer: (state, action) => {
+          state.error = action.payload.error;
+        },
+      }),
+      selectParty: mkAction<ISelectParty>({
+        takeLatest: selectPartySaga,
+      }),
+      selectPartyFulfilled: mkAction<ISelectPartyFulfilled>({
+        reducer: (state, action) => {
+          state.selectedParty = action.payload.party;
+        },
+      }),
+      selectPartyRejected: mkAction<ISelectPartyRejected>({
+        reducer: (state, action) => {
+          state.error = action.payload.error;
+        },
+      }),
+    },
+  }));
 
-export const PartyActions = partySlice.actions;
+  PartyActions = slice.actions;
+  return slice;
+};

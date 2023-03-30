@@ -1,4 +1,4 @@
-import { initialState, ValidationActions, validationSlice as slice } from 'src/features/validation/validationSlice';
+import { initialState, ValidationActions, validationSlice } from 'src/features/validation/validationSlice';
 import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { IComponentValidations, IValidations } from 'src/types';
 
@@ -6,6 +6,8 @@ describe('validationSlice', () => {
   let state: IValidationState;
   let mockValidations: IValidations;
   let mockError: Error;
+
+  const slice = validationSlice();
 
   beforeEach(() => {
     state = initialState;

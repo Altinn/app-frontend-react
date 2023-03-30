@@ -3,7 +3,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { fetchLanguageSaga, watchFetchLanguageSaga } from 'src/features/language/fetch/fetchLanguageSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { MkActionType } from 'src/redux/sagaSlice';
+import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 import type { ILanguage } from 'src/types/shared';
 
 export interface IFetchLanguageFulfilled {
@@ -24,33 +24,37 @@ export const initialState: ILanguageState = {
   error: null,
 };
 
-export const languageSlice = createSagaSlice((mkAction: MkActionType<ILanguageState>) => ({
-  name: 'language',
-  initialState,
-  actions: {
-    fetchLanguage: mkAction<void>({
-      saga: () => watchFetchLanguageSaga,
-    }),
-    fetchDefaultLanguage: mkAction<void>({
-      saga: (name) =>
-        function* (): SagaIterator {
-          yield take(name);
-          yield call(fetchLanguageSaga, true);
+export let LanguageActions: ActionsFromSlice<typeof languageSlice>;
+export const languageSlice = () => {
+  const slice = createSagaSlice((mkAction: MkActionType<ILanguageState>) => ({
+    name: 'language',
+    initialState,
+    actions: {
+      fetchLanguage: mkAction<void>({
+        saga: () => watchFetchLanguageSaga,
+      }),
+      fetchDefaultLanguage: mkAction<void>({
+        saga: (name) =>
+          function* (): SagaIterator {
+            yield take(name);
+            yield call(fetchLanguageSaga, true);
+          },
+      }),
+      fetchLanguageFulfilled: mkAction<IFetchLanguageFulfilled>({
+        reducer: (state, action) => {
+          const { language } = action.payload;
+          state.language = language;
         },
-    }),
-    fetchLanguageFulfilled: mkAction<IFetchLanguageFulfilled>({
-      reducer: (state, action) => {
-        const { language } = action.payload;
-        state.language = language;
-      },
-    }),
-    fetchLanguageRejected: mkAction<IFetchLanguageRejected>({
-      reducer: (state, action) => {
-        const { error } = action.payload;
-        state.error = error;
-      },
-    }),
-  },
-}));
+      }),
+      fetchLanguageRejected: mkAction<IFetchLanguageRejected>({
+        reducer: (state, action) => {
+          const { error } = action.payload;
+          state.error = error;
+        },
+      }),
+    },
+  }));
 
-export const LanguageActions = languageSlice.actions;
+  LanguageActions = slice.actions;
+  return slice;
+};

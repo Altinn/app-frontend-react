@@ -5,32 +5,36 @@ import type {
   IGetApplicationMetadataFulfilled,
   IGetApplicationMetadataRejected,
 } from 'src/features/applicationMetadata/index';
-import type { MkActionType } from 'src/redux/sagaSlice';
+import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IApplicationMetadataState = {
   applicationMetadata: null,
   error: null,
 };
 
-export const applicationMetadataSlice = createSagaSlice((mkAction: MkActionType<IApplicationMetadataState>) => ({
-  name: 'applicationMetadata',
-  initialState,
-  actions: {
-    get: mkAction<void>({
-      takeLatest: getApplicationMetadataSaga,
-    }),
-    getFulfilled: mkAction<IGetApplicationMetadataFulfilled>({
-      reducer: (state, action) => {
-        state.applicationMetadata = action.payload.applicationMetadata;
-        state.error = null;
-      },
-    }),
-    getRejected: mkAction<IGetApplicationMetadataRejected>({
-      reducer: (state, action) => {
-        state.error = action.payload.error;
-      },
-    }),
-  },
-}));
+export let ApplicationMetadataActions: ActionsFromSlice<typeof applicationMetadataSlice>;
+export const applicationMetadataSlice = () => {
+  const slice = createSagaSlice((mkAction: MkActionType<IApplicationMetadataState>) => ({
+    name: 'applicationMetadata',
+    initialState,
+    actions: {
+      get: mkAction<void>({
+        takeLatest: getApplicationMetadataSaga,
+      }),
+      getFulfilled: mkAction<IGetApplicationMetadataFulfilled>({
+        reducer: (state, action) => {
+          state.applicationMetadata = action.payload.applicationMetadata;
+          state.error = null;
+        },
+      }),
+      getRejected: mkAction<IGetApplicationMetadataRejected>({
+        reducer: (state, action) => {
+          state.error = action.payload.error;
+        },
+      }),
+    },
+  }));
 
-export const ApplicationMetadataActions = applicationMetadataSlice.actions;
+  ApplicationMetadataActions = slice.actions;
+  return slice;
+};

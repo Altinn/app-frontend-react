@@ -24,7 +24,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
 
 export const renderWithProviders = (
   component: any,
-  { preloadedState = {}, store = setupStore(preloadedState), ...renderOptions }: ExtendedRenderOptions = {},
+  { preloadedState = {}, store = setupStore(preloadedState).store, ...renderOptions }: ExtendedRenderOptions = {},
 ) => {
   function Wrapper({ children }: React.PropsWithChildren) {
     const theme = createTheme(AltinnAppTheme);
@@ -53,7 +53,7 @@ export interface RenderGenericComponentTestProps<T extends ComponentTypes> {
   component?: Partial<AnyItem<T>>;
   genericProps?: Partial<PropsFromGenericComponent<T>>;
   manipulateState?: (state: IRuntimeState) => void;
-  manipulateStore?: (store: ReturnType<typeof setupStore>) => void;
+  manipulateStore?: (store: ReturnType<typeof setupStore>['store']) => void;
 }
 
 export function renderGenericComponentTest<T extends ComponentTypes>({
@@ -87,7 +87,7 @@ export function renderGenericComponentTest<T extends ComponentTypes>({
   manipulateState && manipulateState(preloadedState);
   preloadedState.formLayout.layouts?.FormLayout?.push(realComponentDef);
 
-  const store = setupStore(preloadedState);
+  const { store } = setupStore(preloadedState);
   manipulateStore && manipulateStore(store);
 
   return {

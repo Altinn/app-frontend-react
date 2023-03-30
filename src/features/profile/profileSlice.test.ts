@@ -4,6 +4,7 @@ import { createStorageMock } from 'src/testUtils';
 import type { IAltinnWindow } from 'src/types';
 
 describe('profileSlice', () => {
+  const slice = profileSlice();
   beforeEach(() => {
     const altinnWinow = window as Window as IAltinnWindow;
     Object.defineProperty(altinnWinow, 'localStorage', { value: createStorageMock() });
@@ -13,7 +14,7 @@ describe('profileSlice', () => {
     window.localStorage.clear();
   });
   it('should set selected app language for user when no userId', () => {
-    const nextState = profileSlice.reducer(
+    const nextState = slice.reducer(
       initialState,
       ProfileActions.updateSelectedAppLanguage({
         selected: 'en',
@@ -23,7 +24,7 @@ describe('profileSlice', () => {
     expect(nextState.selectedAppLanguage).toEqual('en');
   });
   it('should set selected app language for user with userId', () => {
-    const nextState = profileSlice.reducer(
+    const nextState = slice.reducer(
       getProfileStateMock(),
       ProfileActions.updateSelectedAppLanguage({
         selected: 'po',
@@ -34,7 +35,7 @@ describe('profileSlice', () => {
   });
   it('should use selected app language from localstorage if it exists for user', () => {
     window.localStorage.setItem('selectedAppLanguagetest-app12345', 'nn');
-    const nextState = profileSlice.reducer(
+    const nextState = slice.reducer(
       initialState,
       ProfileActions.fetchFulfilled({ profile: getProfileStateMock().profile }),
     );

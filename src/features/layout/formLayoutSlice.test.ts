@@ -2,13 +2,15 @@ import { FormLayoutActions, formLayoutSlice, initialState } from 'src/features/l
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 
 describe('layoutSlice', () => {
+  const slice = formLayoutSlice();
+
   describe('fetchLayoutFulfilled', () => {
     const layouts = {};
     const navigationConfig = {};
     const hiddenLayoutsExpressions = {};
 
     it('should set layout state accordingly', () => {
-      const nextState = formLayoutSlice.reducer(
+      const nextState = slice.reducer(
         initialState,
         FormLayoutActions.fetchFulfilled({
           layouts,
@@ -34,7 +36,7 @@ describe('layoutSlice', () => {
           },
         },
       };
-      const nextState = formLayoutSlice.reducer(
+      const nextState = slice.reducer(
         stateWithRepGroups,
         FormLayoutActions.fetchFulfilled({
           layouts,
@@ -51,7 +53,7 @@ describe('layoutSlice', () => {
         ...initialState,
         error: new Error('mock'),
       };
-      const nextState = formLayoutSlice.reducer(
+      const nextState = slice.reducer(
         stateWithError,
         FormLayoutActions.fetchFulfilled({
           layouts,
@@ -72,7 +74,7 @@ describe('layoutSlice', () => {
         },
         receiptLayoutName: 'receipt',
       };
-      const nextState = formLayoutSlice.reducer(
+      const nextState = slice.reducer(
         initialState,
         FormLayoutActions.fetchSettingsFulfilled({
           settings,
@@ -92,7 +94,7 @@ describe('layoutSlice', () => {
         },
         receiptLayoutName: 'receipt',
       };
-      const nextState = formLayoutSlice.reducer(
+      const nextState = slice.reducer(
         {
           ...initialState,
           uiConfig: {
@@ -118,7 +120,7 @@ describe('layoutSlice', () => {
         },
         receiptLayoutName: 'receipt',
       };
-      const nextState = formLayoutSlice.reducer(
+      const nextState = slice.reducer(
         {
           ...initialState,
           uiConfig: {

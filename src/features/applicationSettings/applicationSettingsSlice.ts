@@ -4,7 +4,7 @@ import type {
   IFetchApplicationSettingsFulfilled,
   IFetchApplicationSettingsRejected,
 } from 'src/features/applicationSettings/applicationSettingsTypes';
-import type { MkActionType } from 'src/redux/sagaSlice';
+import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 import type { IApplicationSettings } from 'src/types/shared';
 
 export interface IApplicationSettingsState {
@@ -17,26 +17,30 @@ export const initialState: IApplicationSettingsState = {
   error: null,
 };
 
-export const applicationSettingsSlice = createSagaSlice((mkAction: MkActionType<IApplicationSettingsState>) => ({
-  name: 'applicationSettings',
-  initialState,
-  actions: {
-    fetchApplicationSettings: mkAction<void>({
-      takeLatest: getApplicationSettings,
-    }),
-    fetchApplicationSettingsFulfilled: mkAction<IFetchApplicationSettingsFulfilled>({
-      reducer: (state, action) => {
-        const { settings } = action.payload;
-        state.applicationSettings = settings;
-      },
-    }),
-    fetchApplicationSettingsRejected: mkAction<IFetchApplicationSettingsRejected>({
-      reducer: (state, action) => {
-        const { error } = action.payload;
-        state.error = error;
-      },
-    }),
-  },
-}));
+export let ApplicationSettingsActions: ActionsFromSlice<typeof applicationSettingsSlice>;
+export const applicationSettingsSlice = () => {
+  const slice = createSagaSlice((mkAction: MkActionType<IApplicationSettingsState>) => ({
+    name: 'applicationSettings',
+    initialState,
+    actions: {
+      fetchApplicationSettings: mkAction<void>({
+        takeLatest: getApplicationSettings,
+      }),
+      fetchApplicationSettingsFulfilled: mkAction<IFetchApplicationSettingsFulfilled>({
+        reducer: (state, action) => {
+          const { settings } = action.payload;
+          state.applicationSettings = settings;
+        },
+      }),
+      fetchApplicationSettingsRejected: mkAction<IFetchApplicationSettingsRejected>({
+        reducer: (state, action) => {
+          const { error } = action.payload;
+          state.error = error;
+        },
+      }),
+    },
+  }));
 
-export const ApplicationSettingsActions = applicationSettingsSlice.actions;
+  ApplicationSettingsActions = slice.actions;
+  return slice;
+};

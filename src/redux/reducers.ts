@@ -24,32 +24,51 @@ import { queueSlice } from 'src/features/queue/queueSlice';
 import { textResourcesSlice } from 'src/features/textResources/textResourcesSlice';
 import { validationSlice } from 'src/features/validation/validationSlice';
 import { appApi } from 'src/services/AppApi';
+import type { SliceReducers } from 'src/redux/sagaSlice';
 
-const reducers = {
-  [applicationMetadataSlice.name]: applicationMetadataSlice.reducer,
-  [attachmentSlice.name]: attachmentSlice.reducer,
-  [formDataSlice.name]: formDataSlice.reducer,
-  [formDataModelSlice.name]: formDataModelSlice.reducer,
-  [formDynamicsSlice.name]: formDynamicsSlice.reducer,
-  [formLayoutSlice.name]: formLayoutSlice.reducer,
-  [formRulesSlice.name]: formRulesSlice.reducer,
-  [footerLayoutSlice.name]: footerLayoutSlice.reducer,
-  [validationSlice.name]: validationSlice.reducer,
-  [instanceDataSlice.name]: instanceDataSlice.reducer,
-  [instantiationSlice.name]: instantiationSlice.reducer,
-  [isLoadingSlice.name]: isLoadingSlice.reducer,
-  [languageSlice.name]: languageSlice.reducer,
-  [orgsSlice.name]: orgsSlice.reducer,
-  [partySlice.name]: partySlice.reducer,
-  [pdfSlice.name]: pdfSlice.reducer,
-  [processSlice.name]: processSlice.reducer,
-  [profileSlice.name]: profileSlice.reducer,
-  [queueSlice.name]: queueSlice.reducer,
-  [textResourcesSlice.name]: textResourcesSlice.reducer,
-  [optionsSlice.name]: optionsSlice.reducer,
-  [dataListsSlice.name]: dataListsSlice.reducer,
-  [applicationSettingsSlice.name]: applicationSettingsSlice.reducer,
-  [appApi.reducerPath]: appApi.reducer,
+const slices = [
+  applicationMetadataSlice,
+  applicationSettingsSlice,
+  attachmentSlice,
+  dataListsSlice,
+  footerLayoutSlice,
+  formDataModelSlice,
+  formDataSlice,
+  formDynamicsSlice,
+  formLayoutSlice,
+  formRulesSlice,
+  instanceDataSlice,
+  instantiationSlice,
+  isLoadingSlice,
+  languageSlice,
+  optionsSlice,
+  orgsSlice,
+  partySlice,
+  pdfSlice,
+  processSlice,
+  profileSlice,
+  queueSlice,
+  textResourcesSlice,
+  validationSlice,
+];
+
+type ReturnTypes<T extends Array<() => unknown>> = {
+  [K in keyof T]: ReturnType<T[K]>;
 };
 
-export const combinedReducers = combineReducers(reducers);
+type Whatever = SliceReducers<ReturnTypes<typeof slices>>;
+
+const reducers = () => {
+  const out = {
+    [appApi.reducerPath]: appApi.reducer,
+  };
+
+  for (const slice of slices) {
+    const result = slice();
+    out[result.name] = result.reducer;
+  }
+
+  return out as typeof out & Whatever;
+};
+
+export const combinedReducers = () => combineReducers(reducers());

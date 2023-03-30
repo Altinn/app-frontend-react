@@ -1,6 +1,6 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import { takeEvery, takeLatest } from 'redux-saga/effects';
-import type { CaseReducer, CreateSliceOptions, PayloadAction, Slice } from '@reduxjs/toolkit';
+import type { CaseReducer, CaseReducerActions, CreateSliceOptions, PayloadAction, Slice } from '@reduxjs/toolkit';
 import type { WritableDraft } from 'immer/dist/types/types-external';
 import type { SagaIterator } from 'redux-saga';
 
@@ -55,6 +55,18 @@ export type SagaSliceProps<
 export type MkActionType<State> = <Payload = void, Out extends SagaAction<Payload, State> = SagaAction<Payload, State>>(
   action: Out,
 ) => Out;
+
+export type ActionsFromSlice<T extends () => Slice> = T extends () => Slice<any, infer Actions, infer Name>
+  ? CaseReducerActions<Actions, Name>
+  : never;
+
+export type SliceReducers<T extends { name: string; reducer: R }[], R = T[number]['reducer']> = {
+  [Name in T[number]['name']]: Extract<T[number], { name: Name }> extends infer Match
+    ? Match extends { reducer: R }
+      ? Match['reducer']
+      : never
+    : never;
+};
 
 export const rootSagas: Saga[] = [];
 

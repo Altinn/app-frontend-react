@@ -13,7 +13,7 @@ import type {
   IFetchServiceConfigRejected,
   IFormDynamicState,
 } from 'src/features/dynamics/index';
-import type { MkActionType } from 'src/redux/sagaSlice';
+import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IFormDynamicState = {
   ruleConnection: {},
@@ -22,43 +22,47 @@ const initialState: IFormDynamicState = {
   error: null,
 };
 
-export const formDynamicsSlice = createSagaSlice((mkAction: MkActionType<IFormDynamicState>) => ({
-  name: 'formDynamics',
-  initialState,
-  actions: {
-    checkIfConditionalRulesShouldRun: mkAction<ICheckIfConditionalRulesShouldRun>({
-      takeLatest: checkIfConditionalRulesShouldRunSaga,
-      saga: () =>
-        function* (): SagaIterator {
-          while (true) {
-            yield all([
-              take(FormLayoutActions.fetchFulfilled),
-              take(FormDataActions.fetchFulfilled),
-              take(FormDynamicsActions.fetchFulfilled),
-              take(FormRulesActions.fetchFulfilled),
-              take(FormLayoutActions.updateRepeatingGroupsFulfilled),
-            ]);
-            yield call(checkIfConditionalRulesShouldRunSaga, { type: '', payload: {} });
-          }
+export let FormDynamicsActions: ActionsFromSlice<typeof formDynamicsSlice>;
+export const formDynamicsSlice = () => {
+  const slice = createSagaSlice((mkAction: MkActionType<IFormDynamicState>) => ({
+    name: 'formDynamics',
+    initialState,
+    actions: {
+      checkIfConditionalRulesShouldRun: mkAction<ICheckIfConditionalRulesShouldRun>({
+        takeLatest: checkIfConditionalRulesShouldRunSaga,
+        saga: () =>
+          function* (): SagaIterator {
+            while (true) {
+              yield all([
+                take(FormLayoutActions.fetchFulfilled),
+                take(FormDataActions.fetchFulfilled),
+                take(FormDynamicsActions.fetchFulfilled),
+                take(FormRulesActions.fetchFulfilled),
+                take(FormLayoutActions.updateRepeatingGroupsFulfilled),
+              ]);
+              yield call(checkIfConditionalRulesShouldRunSaga, { type: '', payload: {} });
+            }
+          },
+      }),
+      fetch: mkAction<IFetchServiceConfigFulfilled | undefined>({
+        takeLatest: fetchDynamicsSaga,
+      }),
+      fetchFulfilled: mkAction<IFetchServiceConfigFulfilled>({
+        reducer: (state, action) => {
+          state.apis = action.payload.apis;
+          state.ruleConnection = action.payload.ruleConnection;
+          state.conditionalRendering = action.payload.conditionalRendering;
+          state.error = null;
         },
-    }),
-    fetch: mkAction<IFetchServiceConfigFulfilled | undefined>({
-      takeLatest: fetchDynamicsSaga,
-    }),
-    fetchFulfilled: mkAction<IFetchServiceConfigFulfilled>({
-      reducer: (state, action) => {
-        state.apis = action.payload.apis;
-        state.ruleConnection = action.payload.ruleConnection;
-        state.conditionalRendering = action.payload.conditionalRendering;
-        state.error = null;
-      },
-    }),
-    fetchRejected: mkAction<IFetchServiceConfigRejected>({
-      reducer: (state, action) => {
-        state.error = action.payload.error;
-      },
-    }),
-  },
-}));
+      }),
+      fetchRejected: mkAction<IFetchServiceConfigRejected>({
+        reducer: (state, action) => {
+          state.error = action.payload.error;
+        },
+      }),
+    },
+  }));
 
-export const FormDynamicsActions = formDynamicsSlice.actions;
+  FormDynamicsActions = slice.actions;
+  return slice;
+};

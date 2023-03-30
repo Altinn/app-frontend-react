@@ -35,7 +35,7 @@ describe('InstantiateContainer', () => {
   const render = (initialState: Partial<IRuntimeState> = {}) => {
     const theme = createTheme(AltinnAppTheme);
     const stateMock = getInitialStateMock(initialState);
-    const mockStore = setupStore(stateMock);
+    const mockStore = setupStore(stateMock).store;
     mockStore.dispatch = jest.fn();
     const { store } = renderWithProviders(
       <MuiThemeProvider theme={theme}>

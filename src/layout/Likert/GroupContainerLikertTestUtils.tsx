@@ -234,7 +234,7 @@ export const render = ({
     },
   });
 
-  const mockStore = setupStore(preloadedState);
+  const mockStore = setupStore(preloadedState).store;
   const mockStoreDispatch = jest.fn();
   mockStore.dispatch = mockStoreDispatch;
   setScreenWidth(mobileView ? 600 : 1200);

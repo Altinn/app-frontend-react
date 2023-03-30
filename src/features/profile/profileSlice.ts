@@ -9,7 +9,7 @@ import type {
   IFetchProfileRejected,
   IProfileState,
 } from 'src/features/profile/index';
-import type { MkActionType } from 'src/redux/sagaSlice';
+import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 import type { IAltinnWindow } from 'src/types';
 import type { IProfile } from 'src/types/shared';
 
@@ -30,35 +30,39 @@ export const initialState: IProfileState = {
   error: null,
 };
 
-export const profileSlice = createSagaSlice((mkAction: MkActionType<IProfileState>) => ({
-  name: 'profile',
-  initialState,
-  actions: {
-    fetch: mkAction<IFetchProfile>({
-      takeLatest: fetchProfileSaga,
-    }),
-    fetchFulfilled: mkAction<IFetchProfileFulfilled>({
-      reducer: (state, action) => {
-        state.profile = action.payload.profile;
-        state.selectedAppLanguage = localStorage.getItem(getLanguageStorageKey(state.profile.userId)) ?? '';
-      },
-    }),
-    fetchRejected: mkAction<IFetchProfileRejected>({
-      reducer: (state, action) => {
-        state.error = action.payload.error;
-      },
-    }),
-    updateSelectedAppLanguage: mkAction<IUpdateSelectedAppLanguage>({
-      *takeLatest() {
-        yield put(OptionsActions.fetch());
-      },
-      reducer: (state, action) => {
-        const { selected } = action.payload;
-        localStorage.setItem(getLanguageStorageKey(state.profile.userId), selected);
-        state.selectedAppLanguage = selected;
-      },
-    }),
-  },
-}));
+export let ProfileActions: ActionsFromSlice<typeof profileSlice>;
+export const profileSlice = () => {
+  const slice = createSagaSlice((mkAction: MkActionType<IProfileState>) => ({
+    name: 'profile',
+    initialState,
+    actions: {
+      fetch: mkAction<IFetchProfile>({
+        takeLatest: fetchProfileSaga,
+      }),
+      fetchFulfilled: mkAction<IFetchProfileFulfilled>({
+        reducer: (state, action) => {
+          state.profile = action.payload.profile;
+          state.selectedAppLanguage = localStorage.getItem(getLanguageStorageKey(state.profile.userId)) ?? '';
+        },
+      }),
+      fetchRejected: mkAction<IFetchProfileRejected>({
+        reducer: (state, action) => {
+          state.error = action.payload.error;
+        },
+      }),
+      updateSelectedAppLanguage: mkAction<IUpdateSelectedAppLanguage>({
+        *takeLatest() {
+          yield put(OptionsActions.fetch());
+        },
+        reducer: (state, action) => {
+          const { selected } = action.payload;
+          localStorage.setItem(getLanguageStorageKey(state.profile.userId), selected);
+          state.selectedAppLanguage = selected;
+        },
+      }),
+    },
+  }));
 
-export const ProfileActions = profileSlice.actions;
+  ProfileActions = slice.actions;
+  return slice;
+};

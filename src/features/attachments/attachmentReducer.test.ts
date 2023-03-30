@@ -2,6 +2,8 @@ import { AttachmentActions, attachmentSlice } from 'src/features/attachments/att
 import type { IAttachment, IAttachmentState } from 'src/features/attachments/index';
 
 describe('attachmentReducer', () => {
+  const slice = attachmentSlice();
+
   it('should set deleting to true when deleteAttachment action is received', () => {
     const state: IAttachmentState = {
       attachments: {
@@ -18,7 +20,7 @@ describe('attachmentReducer', () => {
         ],
       },
     };
-    const newState = attachmentSlice.reducer(
+    const newState = slice.reducer(
       state,
       AttachmentActions.deleteAttachment({
         attachment: {
@@ -49,7 +51,7 @@ describe('attachmentReducer', () => {
         ],
       },
     };
-    const newState = attachmentSlice.reducer(
+    const newState = slice.reducer(
       state,
       AttachmentActions.deleteAttachmentRejected({
         attachment: {
@@ -88,7 +90,7 @@ describe('attachmentReducer', () => {
         ],
       },
     };
-    const newState = attachmentSlice.reducer(
+    const newState = slice.reducer(
       state,
       AttachmentActions.deleteAttachmentFulfilled({
         attachmentId: 'someId',

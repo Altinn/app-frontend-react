@@ -30,13 +30,14 @@ export const testState: IDataListsState = {
 };
 
 describe('languageSlice', () => {
+  const slice = dataListsSlice();
   let state: IDataListsState;
   beforeEach(() => {
     state = testState;
   });
 
   it('handles fetchLanguageFulfilled action', () => {
-    const nextState = dataListsSlice.reducer(
+    const nextState = slice.reducer(
       state,
       DataListsActions.fetchFulfilled({
         key: 'countries',
@@ -52,7 +53,7 @@ describe('languageSlice', () => {
 
   it('handles fetchLanguageRejected action', () => {
     const errorMessage = 'This is an error';
-    const nextState = dataListsSlice.reducer(
+    const nextState = slice.reducer(
       state,
       DataListsActions.fetchRejected({
         key: 'countries',
@@ -64,7 +65,7 @@ describe('languageSlice', () => {
   });
 
   it('Check if the sort values is changed to the right values in the dataListState when setSort is called', () => {
-    const nextState = dataListsSlice.reducer(
+    const nextState = slice.reducer(
       state,
       DataListsActions.setSort({ key: 'countries', sortColumn: 'Population', sortDirection: SortDirection.Descending }),
     );
@@ -73,16 +74,13 @@ describe('languageSlice', () => {
   });
 
   it('Check if the size and pageNumber is changed to the right values in the dataListState when setPageSize is called', () => {
-    const nextState = dataListsSlice.reducer(state, DataListsActions.setPageSize({ key: 'countries', size: 5 }));
+    const nextState = slice.reducer(state, DataListsActions.setPageSize({ key: 'countries', size: 5 }));
     expect(nextState.dataLists['countries'].size).toBe(5);
     expect(nextState.dataLists['countries'].pageNumber).toBe(0);
   });
 
   it('Check if pageNumber is changed to the right value in the dataListState when setPageNumber is called', () => {
-    const nextState = dataListsSlice.reducer(
-      state,
-      DataListsActions.setPageNumber({ key: 'countries', pageNumber: 2 }),
-    );
+    const nextState = slice.reducer(state, DataListsActions.setPageNumber({ key: 'countries', pageNumber: 2 }));
     expect(nextState.dataLists['countries'].pageNumber).toBe(2);
   });
 });

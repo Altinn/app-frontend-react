@@ -1,6 +1,6 @@
 import {
   ApplicationSettingsActions,
-  applicationSettingsSlice as slice,
+  applicationSettingsSlice,
   initialState,
 } from 'src/features/applicationSettings/applicationSettingsSlice';
 import type { IApplicationSettingsState } from 'src/features/applicationSettings/applicationSettingsSlice';
@@ -10,6 +10,7 @@ import type {
 } from 'src/features/applicationSettings/applicationSettingsTypes';
 
 describe('applicationSettingsSlice', () => {
+  const slice = applicationSettingsSlice();
   let state: IApplicationSettingsState;
   beforeAll(() => {
     state = initialState;
