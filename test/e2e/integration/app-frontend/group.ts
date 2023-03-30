@@ -35,8 +35,8 @@ describe('Group', () => {
       cy.get(appFrontend.group.mainGroup)
         .find(mui.tableBody)
         .then((table) => {
-          cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
-          cy.wrap(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
+          cy.wrap(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 1');
+          cy.wrap(table).find(mui.tableElement).eq(2).invoke('text').should('equal', 'NOK 2');
           cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).should('be.visible').click();
         });
       cy.get(appFrontend.group.mainGroup)
@@ -219,8 +219,8 @@ describe('Group', () => {
           }
           let index = 0;
           for (const row of rows) {
-            cy.wrap(table).find('tr').eq(index).find('td').eq(0).should('contain.text', row[0]);
-            cy.wrap(table).find('tr').eq(index).find('td').eq(1).should('contain.text', row[1]);
+            cy.wrap(table).find('tr').eq(index).find('td').eq(1).should('contain.text', row[0]);
+            cy.wrap(table).find('tr').eq(index).find('td').eq(2).should('contain.text', row[1]);
             index++;
           }
         });
@@ -401,8 +401,8 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
       .then((table) => {
-        cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
-        cy.wrap(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
+        cy.wrap(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 1');
+        cy.wrap(table).find(mui.tableElement).eq(2).invoke('text').should('equal', 'NOK 2');
         cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).should('be.visible').click();
       });
 
