@@ -26,7 +26,7 @@ export function DropdownComponent({
   const hasSelectedInitial = React.useRef(false);
   const optionsHasChanged = useHasChangedIgnoreUndefined(options);
 
-  const { value, setValue /*, saveValue*/ } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
+  const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 2000);
 
   React.useEffect(() => {
     const shouldSelectOptionAutomatically =
@@ -59,7 +59,7 @@ export function DropdownComponent({
         <Select
           inputId={id}
           onChange={setValue}
-          //onBlur={saveValue}
+          onBlur={saveValue}
           value={value}
           disabled={readOnly}
           error={!isValid}

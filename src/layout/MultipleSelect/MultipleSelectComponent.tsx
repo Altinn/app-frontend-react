@@ -1,10 +1,12 @@
 import React from 'react';
 
 import { Select } from '@digdir/design-system-react';
+import type { MultiSelectOption } from '@digdir/design-system-react';
 
 import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { useGetOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/layout/MultipleSelect/MultipleSelect.css';
@@ -20,18 +22,22 @@ export function MultipleSelectComponent({
 }: IMultipleSelectProps) {
   const { options, optionsId, mapping, source, id, readOnly } = node.item;
   const apiOptions = useGetOptions({ optionsId, mapping, source });
-  const calculatedOptions =
-    (apiOptions || options)?.map((option) => ({
-      label: getTextResourceAsString(option.label) ?? option.value,
-      value: option.value,
-    })) || [];
   const language = useAppSelector((state) => state.language.language);
-
-  const { value, setValue /*, saveValue*/ } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
+  const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
 
   if (!language) {
     return null;
   }
+
+  const calculatedOptions: MultiSelectOption[] =
+    (apiOptions || options)?.map((option) => {
+      const label = getTextResourceAsString(option.label) ?? option.value;
+      return {
+        label,
+        value: option.value,
+        deleteButtonLabel: `${getLanguageFromKey('general.delete', language)} ${label}`,
+      };
+    }) || [];
 
   const handleChange = (values: string[]) => {
     setValue(values.join(','));
@@ -44,12 +50,13 @@ export function MultipleSelectComponent({
   return (
     <Select
       options={calculatedOptions}
+      deleteButtonLabel={getLanguageFromKey('general.delete', language)}
       multiple
       inputId={id}
       disabled={readOnly}
       error={!isValid}
       onChange={handleChange}
-      //onBlur(saveValue)
+      onBlur={saveValue}
       value={selectedValues}
     />
   );
