@@ -7,6 +7,7 @@
   margin-bottom: 15px;
 }
 
+/*
 .groupContainer > table > tbody > tr > td:first-child,
 .groupContainer > table > thead > tr > th:first-child {
   padding-left: calc(var(--modal-padding-x) - var(--table-input-margin));
@@ -16,6 +17,7 @@
 .groupContainer > table > thead > tr > th:last-child {
   padding-right: calc(var(--modal-padding-x) - var(--table-input-margin));
 }
+*/
 
 .nestedGroupContainer {
   overflow-x: auto;
@@ -70,14 +72,38 @@
 }
 
 .contentFormatting {
+  --cell-max-number-of-lines: 2;
+  --cell-text-alignment: left;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
   word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--cell-max-number-of-lines);
+  line-clamp: var(--cell-max-number-of-lines);
+  text-align: var(--cell-text-alignment);
 }
+
+.tableCellFormatting {
+  --cell-width: auto;
+  width: var(--cell-width);
+  padding: 1px !important;
+}
+
+.tablePaddingCell {
+  width: calc(var(--modal-padding-x) - var(--table-input-margin));
+}
+/*
+.tableCellFormatting:first-child {
+  --first-cell-width: calc(15% + var(--modal-padding-x) - var(--table-input-margin));
+  width: calc(var(--first-cell-width));
+}
+
+.tableCellFormatting:last-child {
+  --last-cell-width: calc(var(--cell-width) + var(--modal-padding-x) - var(--table-input-margin));
+  width: var(--last-cell-width);
+}
+*/
 
 .popoverCurrentCell {
   z-index: 1;

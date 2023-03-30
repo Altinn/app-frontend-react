@@ -10,10 +10,11 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import classes from 'src/features/form/containers/RepeatingGroup.module.css';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
-import { getTextAlignment, getTextResource } from 'src/utils/formComponentUtils';
+import { getColumnStylesRepeatingGroups, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { ITableColumnFormatting } from 'src/layout/layout';
 import type { ITextResource, ITextResourceBindings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
@@ -90,6 +91,7 @@ export function RepeatingGroupTableRow({
   const group = node?.isRepGroup() ? node.item : undefined;
   const row = group?.rows[index] ? group.rows[index] : undefined;
   const expressionsForRow = row && row.groupExpressions;
+  const columnSettings = group?.tableColumns as ITableColumnFormatting;
   const edit = {
     ...group?.edit,
     ...expressionsForRow?.edit,
@@ -128,14 +130,19 @@ export function RepeatingGroupTableRow({
       )}
     >
       {!mobileView ? (
-        tableNodes.map((n, idx) => (
-          <TableCell
-            key={`${n.item.id}-${index}`}
-            style={{ textAlign: getTextAlignment(n.item) }}
-          >
-            <span className={classes.contentFormatting}>{isEditingRow ? null : displayData[idx]}</span>
-          </TableCell>
-        ))
+        <>
+          <TableCell className={classes.tablePaddingCell} />
+          {tableNodes.map((n, idx) => (
+            <TableCell key={`${n.item.id}-${index}`}>
+              <span
+                className={classes.contentFormatting}
+                style={getColumnStylesRepeatingGroups(n.item, columnSettings)}
+              >
+                {isEditingRow ? null : displayData[idx]}
+              </span>
+            </TableCell>
+          ))}
+        </>
       ) : (
         <TableCell className={classes.mobileTableCell}>
           {tableNodes.map(
@@ -229,6 +236,7 @@ export function RepeatingGroupTableRow({
                 </div>
               </TableCell>
             )}
+          <TableCell className={classes.tablePaddingCell} />
         </>
       ) : (
         <TableCell
