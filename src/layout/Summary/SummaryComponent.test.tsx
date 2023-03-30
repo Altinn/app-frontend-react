@@ -100,17 +100,17 @@ describe('SummaryComponent', () => {
   });
 
   test('should respond to on change click', () => {
-    const spy = jest.spyOn(FormLayoutActions, 'updateCurrentView');
-    const otherLayout = {
-      ...layoutMock(),
-    };
+    const otherLayout = { ...layoutMock() };
     otherLayout.uiConfig.currentView = 'otherPage';
-    // eslint-disable-next-line testing-library/render-result-naming-convention
-    const theRender = renderHelper({ componentRef: 'Input' }, {}, otherLayout);
 
-    // eslint-disable-next-line
-    const button = theRender.container.querySelector<HTMLButtonElement>('button');
+    renderHelper({ componentRef: 'Input' }, {}, otherLayout);
+
+    const spy = jest.spyOn(FormLayoutActions, 'updateCurrentView');
+    const button = screen.getByRole('button');
+
+    expect(spy).toHaveBeenCalledTimes(0);
     button && fireEvent.click(button);
+    expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith({
       newView: pageId,
       returnToView: 'otherPage',
