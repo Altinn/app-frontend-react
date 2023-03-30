@@ -1,4 +1,4 @@
-import { fetchOrgsSaga } from 'src/features/orgs/fetch/fetchOrgsSagas';
+import { fetchOrgsSaga } from 'src/features/orgs/fetchOrgsSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { IFetchOrgsFulfilled, IFetchOrgsRejected, IOrgsState } from 'src/features/orgs/index';
 import type { MkActionType } from 'src/redux/sagaSlice';

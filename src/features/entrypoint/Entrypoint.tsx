@@ -4,14 +4,14 @@ import { Navigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 
 import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
+import { Form } from 'src/components/form/Form';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
-import { Form } from 'src/features/form/containers/Form';
-import { ValidationActions } from 'src/features/form/validation/validationSlice';
 import { InstanceSelection } from 'src/features/instantiate/containers/InstanceSelection';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { QueueActions } from 'src/features/queue/queueSlice';
+import { ValidationActions } from 'src/features/validation/validationSlice';
 import { PresentationComponent } from 'src/features/wrappers/Presentation';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';

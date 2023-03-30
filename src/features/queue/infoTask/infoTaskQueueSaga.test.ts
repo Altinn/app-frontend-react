@@ -3,7 +3,7 @@ import { expectSaga } from 'redux-saga-test-plan';
 
 import { applicationMetadataMock } from 'src/__mocks__/applicationMetadataMock';
 import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
-import { FormDataActions } from 'src/features/form/data/formDataSlice';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import {
   ApplicationMetadataSelector,

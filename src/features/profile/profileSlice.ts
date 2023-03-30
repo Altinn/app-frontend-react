@@ -1,7 +1,7 @@
 import { put } from 'redux-saga/effects';
 
 import { OptionsActions } from 'src/features/options/optionsSlice';
-import { fetchProfileSaga } from 'src/features/profile/fetch/fetchProfileSagas';
+import { fetchProfileSaga } from 'src/features/profile/fetchProfileSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IFetchProfile,

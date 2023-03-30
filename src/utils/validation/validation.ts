@@ -18,7 +18,7 @@ import { matchLayoutComponent } from 'src/utils/layout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type {

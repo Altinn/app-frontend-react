@@ -4,7 +4,7 @@ import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { ValidationActions } from 'src/features/form/validation/validationSlice';
+import { ValidationActions } from 'src/features/validation/validationSlice';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { httpDelete, httpPost } from 'src/utils/network/networking';
 import { selectNotNull } from 'src/utils/sagas';

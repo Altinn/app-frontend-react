@@ -3,7 +3,7 @@ import React from 'react';
 import { Grid, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import cn from 'classnames';
 
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FormDataActions } from 'src/features/form/data/formDataSlice';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';

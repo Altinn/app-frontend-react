@@ -10,8 +10,8 @@ import { getDataListLookupKey, getDataListLookupKeys } from 'src/utils/dataList'
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { selectNotNull } from 'src/utils/sagas';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
-import type { IFormData } from 'src/features/form/data';
-import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
+import type { IFormData } from 'src/features/formData';
+import type { IUpdateFormDataFulfilled } from 'src/features/formData/formDataTypes';
 import type { IDataList, IDataLists, IDataListsMetaData, IFetchSpecificDataListSaga } from 'src/features/lists/index';
 import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';

@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 import type { IBackendFeaturesState } from 'src/features/applicationMetadata';
-import type { IFormData } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
 
 const appFrontend = new AppFrontend();
 

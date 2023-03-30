@@ -1,12 +1,12 @@
 import { all, call, put, select, take, takeLatest } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { replaceTextResourceParams } from 'src/language/sharedLanguage';
 import { buildInstanceContext } from 'src/utils/instanceContext';
-import type { IFormData } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
 import type { ITextResourcesState } from 'src/features/textResources';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import type { IApplicationSettings, IDataSources, IInstance, IInstanceContext, ITextResource } from 'src/types/shared';

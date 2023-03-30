@@ -1,4 +1,4 @@
-import { instantiationSaga } from 'src/features/instantiate/instantiation/sagas/instantiate';
+import { instantiationSaga } from 'src/features/instantiate/instantiation/instantiationSaga';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IInstantiateFulfilled,

@@ -2,7 +2,7 @@ import { all, call, put, select, take, takeLatest } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
 import { ApplicationMetadataActions } from 'src/features/applicationMetadata/applicationMetadataSlice';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProfileActions } from 'src/features/profile/profileSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';

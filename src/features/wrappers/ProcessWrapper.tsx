@@ -4,14 +4,14 @@ import { useSearchParams } from 'react-router-dom';
 import cn from 'classnames';
 
 import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
+import { Form } from 'src/components/form/Form';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { Confirm } from 'src/features/confirm/containers/Confirm';
 import { Feedback } from 'src/features/feedback/Feedback';
-import { Form } from 'src/features/form/containers/Form';
 import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { PDFView } from 'src/features/pdf/PDFView';
-import { ReceiptContainer } from 'src/features/receipt/containers/ReceiptContainer';
+import { ReceiptContainer } from 'src/features/receipt/ReceiptContainer';
 import { PresentationComponent } from 'src/features/wrappers/Presentation';
 import classes from 'src/features/wrappers/ProcessWrapper.module.css';
 import { useApiErrorCheck } from 'src/hooks/useApiErrorCheck';

@@ -1,4 +1,4 @@
-import { getApplicationSettings } from 'src/features/applicationSettings/fetch/fetchApplicationSettingsSaga';
+import { getApplicationSettings } from 'src/features/applicationSettings/fetchApplicationSettingsSaga';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IFetchApplicationSettingsFulfilled,

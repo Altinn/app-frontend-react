@@ -3,8 +3,8 @@ import React from 'react';
 import { CheckboxGroup, CheckboxGroupVariant } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { OptionalIndicator } from 'src/features/form/components/OptionalIndicator';
-import { RequiredIndicator } from 'src/features/form/components/RequiredIndicator';
+import { OptionalIndicator } from 'src/components/form/OptionalIndicator';
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useGetOptions } from 'src/hooks/useGetOptions';

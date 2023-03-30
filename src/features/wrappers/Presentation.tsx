@@ -7,7 +7,7 @@ import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
 import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
 import { Footer } from 'src/features/footer/Footer';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import classes from 'src/features/wrappers/Presentation.module.css';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';

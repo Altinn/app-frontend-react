@@ -1,8 +1,8 @@
 import { take } from 'redux-saga/effects';
 import { testSaga } from 'redux-saga-test-plan';
 
-import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import {
   replaceTextResourcesSaga,
   watchReplaceTextResourcesSaga,

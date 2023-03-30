@@ -1,4 +1,4 @@
-import { getInstanceDataSaga } from 'src/features/instanceData/get/getInstanceDataSagas';
+import { getInstanceDataSaga } from 'src/features/instanceData/getInstanceDataSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IGetInstanceData,

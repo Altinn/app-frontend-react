@@ -1,6 +1,6 @@
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
-import type { IFormData } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export function extractListFromBinding(formData: IFormData, listBinding: string): string[] {

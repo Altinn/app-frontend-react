@@ -4,10 +4,10 @@ import { Grid, TableCell, Typography } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { AltinnTableBody } from 'src/components/molecules/AltinnTableBody';
-import { AltinnTableHeader } from 'src/components/molecules/AltinnTableHeader';
-import { AltinnTableRow } from 'src/components/molecules/AltinnTableRow';
 import { AltinnTable } from 'src/components/organisms/AltinnTable';
+import { AltinnTableBody } from 'src/components/table/AltinnTableBody';
+import { AltinnTableHeader } from 'src/components/table/AltinnTableHeader';
+import { AltinnTableRow } from 'src/components/table/AltinnTableRow';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useGetOptions } from 'src/hooks/useGetOptions';
 import { GenericComponent } from 'src/layout/GenericComponent';

@@ -4,8 +4,8 @@ import type { AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { ValidationActions } from 'src/features/form/validation/validationSlice';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { ValidationActions } from 'src/features/validation/validationSlice';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { httpDelete } from 'src/utils/network/networking';
 import { dataElementUrl } from 'src/utils/urls/appUrlHelper';

@@ -12,7 +12,7 @@ import {
   SelectInstance,
   SelectInstanceData,
 } from 'src/features/attachments/map/mapAttachmentsSagas';
-import { selectFormLayouts } from 'src/features/form/layout/update/updateFormLayoutSagas';
+import { selectFormLayouts } from 'src/features/layout/update/updateFormLayoutSagas';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';

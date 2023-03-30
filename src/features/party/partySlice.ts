@@ -1,5 +1,5 @@
-import { getCurrentPartySaga, getPartiesSaga } from 'src/features/party/getParties/getPartiesSagas';
-import { selectPartySaga } from 'src/features/party/selectParty/selectPartySagas';
+import { getCurrentPartySaga, getPartiesSaga } from 'src/features/party/getPartiesSagas';
+import { selectPartySaga } from 'src/features/party/selectPartySagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IGetPartiesFulfilled,

@@ -14,8 +14,8 @@ import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getOptionLookupKey, getOptionLookupKeys } from 'src/utils/options';
 import { selectNotNull } from 'src/utils/sagas';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
-import type { IFormData } from 'src/features/form/data';
-import type { IUpdateFormDataFulfilled } from 'src/features/form/data/formDataTypes';
+import type { IFormData } from 'src/features/formData';
+import type { IUpdateFormDataFulfilled } from 'src/features/formData/formDataTypes';
 import type { ILayouts, ISelectionComponentProps } from 'src/layout/layout';
 import type {
   IFetchSpecificOptionSaga,

@@ -1,10 +1,10 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { WritableDraft } from 'immer/dist/types/types-external';
 
-import { checkProcessUpdated } from 'src/features/process/checkProcessUpdated/checkProcessUpdatedSagas';
-import { completeProcessSaga } from 'src/features/process/completeProcess/completeProcessSagas';
-import { getProcessStateSaga } from 'src/features/process/getProcessState/getProcessStateSagas';
-import { getTasksSaga } from 'src/features/process/getTasks/getTasksSagas';
+import { checkProcessUpdated } from 'src/features/process/checkProcessUpdatedSagas';
+import { completeProcessSaga } from 'src/features/process/completeProcessSagas';
+import { getProcessStateSaga } from 'src/features/process/getProcessStateSagas';
+import { getTasksSaga } from 'src/features/process/getTasksSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   ICompleteProcessFulfilled,
