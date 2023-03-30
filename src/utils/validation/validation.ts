@@ -874,6 +874,7 @@ export function findComponentFromValidationIssue(
         if (
           validation.field &&
           componentCandidate.dataModelBindings &&
+          componentCandidate.dataModelBindings[dataModelBindingKey] &&
           componentCandidate.dataModelBindings[dataModelBindingKey].toLowerCase() === fieldToCheck
         ) {
           found = true;
