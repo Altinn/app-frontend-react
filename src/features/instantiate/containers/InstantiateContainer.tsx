@@ -3,11 +3,11 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 import { AltinnContentIconFormData } from 'src/components/atoms/AltinnContentIconFormData';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
+import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import { InstantiateValidationError } from 'src/features/instantiate/containers/InstantiateValidationError';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import { PresentationComponent } from 'src/features/wrappers/Presentation';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';

@@ -5,7 +5,7 @@ import { FormControl, FormLabel } from '@material-ui/core';
 import cn from 'classnames';
 import type { ChangeProps, ResponsiveTableConfig, SortProps } from '@altinn/altinn-design-system';
 
-import { DataListsActions } from 'src/features/lists/dataListsSlice';
+import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useGetDataList } from 'src/hooks/useGetDataList';

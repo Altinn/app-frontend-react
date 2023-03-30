@@ -1,7 +1,7 @@
 import { SortDirection } from '@altinn/altinn-design-system';
 
-import { DataListsActions, dataListsSlice } from 'src/features/lists/dataListsSlice';
-import type { IDataListsState } from 'src/features/lists/index';
+import { DataListsActions, dataListsSlice } from 'src/features/dataLists/dataListsSlice';
+import type { IDataListsState } from 'src/features/dataLists/index';
 const countries = [
   { Name: 'Norway', Population: 5, HighestMountain: 2469 },
   { Name: 'Sweden', Population: 10, HighestMountain: 1738 },

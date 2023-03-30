@@ -3,16 +3,21 @@ import { call, fork, put, race, select, take } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
-import { DataListsActions } from 'src/features/lists/dataListsSlice';
+import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { listStateSelector } from 'src/selectors/dataListStateSelector';
 import { getDataListLookupKey, getDataListLookupKeys } from 'src/utils/dataList';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { selectNotNull } from 'src/utils/sagas';
 import { getDataListsUrl } from 'src/utils/urls/appUrlHelper';
+import type {
+  IDataList,
+  IDataLists,
+  IDataListsMetaData,
+  IFetchSpecificDataListSaga,
+} from 'src/features/dataLists/index';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormDataFulfilled } from 'src/features/formData/formDataTypes';
-import type { IDataList, IDataLists, IDataListsMetaData, IFetchSpecificDataListSaga } from 'src/features/lists/index';
 import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 

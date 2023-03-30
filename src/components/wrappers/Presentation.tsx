@@ -6,9 +6,9 @@ import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPa
 import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
 import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
+import classes from 'src/components/wrappers/Presentation.module.css';
 import { Footer } from 'src/features/footer/Footer';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import classes from 'src/features/wrappers/Presentation.module.css';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';

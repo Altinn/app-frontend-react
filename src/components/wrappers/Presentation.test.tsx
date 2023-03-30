@@ -6,13 +6,13 @@ import axios from 'axios';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
-import { PresentationComponent } from 'src/features/wrappers/Presentation';
+import { PresentationComponent } from 'src/components/wrappers/Presentation';
 import { renderWithProviders } from 'src/testUtils';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
-import type { IPresentationProvidedProps } from 'src/features/wrappers/Presentation';
+import type { IPresentationProvidedProps } from 'src/components/wrappers/Presentation';
 
 jest.mock('axios');
 

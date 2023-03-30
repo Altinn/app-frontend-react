@@ -1,10 +1,10 @@
 import type { AnyAction } from 'redux';
 
+import { checkIfDataListShouldRefetchSaga } from 'src/features/dataLists/fetchDataListsSaga';
 import { fetchFormDataSaga, watchFetchFormDataInitialSaga } from 'src/features/formData/fetch/fetchFormDataSagas';
 import { autoSaveSaga, saveFormDataSaga, submitFormSaga } from 'src/features/formData/submit/submitFormDataSagas';
 import { deleteAttachmentReferenceSaga, updateFormDataSaga } from 'src/features/formData/update/updateFormDataSagas';
 import { checkIfRuleShouldRunSaga } from 'src/features/formRules/checkRulesSagas';
-import { checkIfDataListShouldRefetchSaga } from 'src/features/lists/fetchDataListsSaga';
 import { checkIfOptionsShouldRefetchSaga } from 'src/features/options/fetch/fetchOptionsSagas';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';

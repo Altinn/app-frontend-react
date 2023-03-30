@@ -1,12 +1,12 @@
 import { all, call, put, race, select, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
+import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
 import { LanguageActions } from 'src/features/language/languageSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { DataListsActions } from 'src/features/lists/dataListsSlice';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { OrgsActions } from 'src/features/orgs/orgsSlice';
 import { PartyActions } from 'src/features/party/partySlice';

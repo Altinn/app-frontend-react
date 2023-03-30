@@ -1,4 +1,4 @@
-import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/features/lists/fetchDataListsSaga';
+import { fetchDataListsSaga, watchFinishedLoadingSaga } from 'src/features/dataLists/fetchDataListsSaga';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
   IDataListsState,
@@ -10,7 +10,7 @@ import type {
   ISetDataListsPageSize,
   ISetDataListsWithIndexIndicators,
   ISetSort,
-} from 'src/features/lists/index';
+} from 'src/features/dataLists/index';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 const initialState: IDataListsState = {

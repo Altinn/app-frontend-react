@@ -4,7 +4,7 @@ import {
   keyHasIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
-import type { IDataListsMetaData } from 'src/features/lists';
+import type { IDataListsMetaData } from 'src/features/dataLists';
 import type { IMapping, IRepeatingGroups } from 'src/types';
 
 interface IGetDataListLookupKeysParam extends IDataListsMetaData {

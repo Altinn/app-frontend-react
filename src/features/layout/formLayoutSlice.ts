@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
+import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { checkIfConditionalRulesShouldRunSaga } from 'src/features/dynamics/conditionalRenderingSagas';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import {
@@ -20,7 +21,6 @@ import {
   watchInitialCalculatePageOrderAndMoveToNextPageSaga,
   watchMapFileUploaderWithTagSaga,
 } from 'src/features/layout/update/updateFormLayoutSagas';
-import { DataListsActions } from 'src/features/lists/dataListsSlice';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { replaceTextResourcesSaga } from 'src/features/textResources/replace/replaceTextResourcesSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
