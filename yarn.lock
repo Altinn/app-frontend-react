@@ -2661,18 +2661,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/design-system-react@npm:0.9.0":
-  version: 0.9.0
-  resolution: "@digdir/design-system-react@npm:0.9.0"
+"@digdir/design-system-react@npm:0.10.2":
+  version: 0.10.2
+  resolution: "@digdir/design-system-react@npm:0.10.2"
   dependencies:
     "@altinn/figma-design-tokens": ^6.0.1
     "@floating-ui/react": 0.17.0
     "@navikt/ds-icons": ^2.3.0
-    react-number-format: ^5.1.3
+    react-number-format: ^5.1.4
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 7669fa3491b6cbed6891db120eb6852d7e36fb0b9412f31bd225f184a894b06f9e87b29548ba1b5bb6b4281a0627e341d50b44396b865bc562850eed8d45f77a
+  checksum: 7c37ccdfcb58109683ad640b79c8c83453e600e2fe62f209f127f2b36e659c38e1c7c0ff42b07e573720d8d78656c869594c97b3c975a756f4b9c9dfbf4e368f
   languageName: node
   linkType: hard
 
@@ -5453,7 +5453,7 @@ __metadata:
     "@babel/runtime": ^7.21.0
     "@babel/runtime-corejs3": ^7.21.0
     "@date-io/moment": 1.3.13
-    "@digdir/design-system-react": 0.9.0
+    "@digdir/design-system-react": 0.10.2
     "@material-ui/core": 4.12.4
     "@material-ui/icons": 4.11.3
     "@material-ui/pickers": 3.3.10
@@ -13299,15 +13299,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-number-format@npm:^5.1.3":
-  version: 5.1.3
-  resolution: "react-number-format@npm:5.1.3"
+"react-number-format@npm:^5.1.4":
+  version: 5.1.4
+  resolution: "react-number-format@npm:5.1.4"
   dependencies:
     prop-types: ^15.7.2
   peerDependencies:
-    react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^18.0.0
-    react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^18.0.0
-  checksum: 354481a3ce15520d3e786f790a84a0363a94c56034519c6e2248d8f277095b696f31204a46745d3c64869559b7a81ba39ab9ad46c6582f762255f81d5c5d2e95
+    react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 770a1e86cd05d9df28aa5e6a12c5731351dd4a301464edd0ac5dcbc68d2f07eae37781ff14f6153566cbb7cccb28f13f0826d1844600d25ae6e12da060814282
   languageName: node
   linkType: hard
 
