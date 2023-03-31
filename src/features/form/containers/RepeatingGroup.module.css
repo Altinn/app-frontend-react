@@ -7,7 +7,6 @@
   margin-bottom: 15px;
 }
 
-/*
 .groupContainer > table > tbody > tr > td:first-child,
 .groupContainer > table > thead > tr > th:first-child {
   padding-left: calc(var(--modal-padding-x) - var(--table-input-margin));
@@ -17,7 +16,6 @@
 .groupContainer > table > thead > tr > th:last-child {
   padding-right: calc(var(--modal-padding-x) - var(--table-input-margin));
 }
-*/
 
 .nestedGroupContainer {
   overflow-x: auto;
@@ -87,23 +85,15 @@
 .tableCellFormatting {
   --cell-width: auto;
   width: var(--cell-width);
-  padding: 1px !important;
 }
 
-.tablePaddingCell {
-  width: calc(var(--modal-padding-x) - var(--table-input-margin));
-}
-/*
 .tableCellFormatting:first-child {
-  --first-cell-width: calc(15% + var(--modal-padding-x) - var(--table-input-margin));
-  width: calc(var(--first-cell-width));
+  width: calc(var(--cell-width) + 8.15%);
 }
 
 .tableCellFormatting:last-child {
-  --last-cell-width: calc(var(--cell-width) + var(--modal-padding-x) - var(--table-input-margin));
-  width: var(--last-cell-width);
+  width: calc(var(--cell-width) + 8.15%);
 }
-*/
 
 .popoverCurrentCell {
   z-index: 1;
