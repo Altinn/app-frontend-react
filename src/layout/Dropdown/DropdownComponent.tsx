@@ -7,7 +7,7 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { useGetOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
-import { getOptionLookupKey } from 'src/utils/options';
+import { duplicateOptionFilter, getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
@@ -20,9 +20,7 @@ export function DropdownComponent({
   getTextResourceAsString,
 }: IDropdownProps) {
   const { optionsId, preselectedOptionIndex, id, readOnly, mapping, source } = node.item;
-  const options = useGetOptions({ optionsId, mapping, source })?.filter(
-    (option, index, array) => !array.slice(0, index).find((found) => found.value === option.value),
-  );
+  const options = useGetOptions({ optionsId, mapping, source })?.filter(duplicateOptionFilter);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const hasSelectedInitial = React.useRef(false);

@@ -7,6 +7,7 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { useGetOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { duplicateOptionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/layout/MultipleSelect/MultipleSelect.css';
@@ -30,16 +31,14 @@ export function MultipleSelectComponent({
   }
 
   const calculatedOptions: MultiSelectOption[] =
-    (apiOptions || options)
-      ?.filter((option, index, array) => !array.slice(0, index).find((found) => found.value === option.value))
-      .map((option) => {
-        const label = getTextResourceAsString(option.label) ?? option.value;
-        return {
-          label,
-          value: option.value,
-          deleteButtonLabel: `${getLanguageFromKey('general.delete', language)} ${label}`,
-        };
-      }) || [];
+    (apiOptions || options)?.filter(duplicateOptionFilter).map((option) => {
+      const label = getTextResourceAsString(option.label) ?? option.value;
+      return {
+        label,
+        value: option.value,
+        deleteButtonLabel: `${getLanguageFromKey('general.delete', language)} ${label}`,
+      };
+    }) || [];
 
   const handleChange = (values: string[]) => {
     setValue(values.join(','));
