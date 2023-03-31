@@ -273,7 +273,8 @@ export function getColumnStylesRepeatingGroups(tableHeader, columnSettings?: ITa
 }
 
 export function getColumnStyles(columnSettings: ITableColumnProperties) {
-  const lineClampToggle = !columnSettings.textOverflow?.lineWrap ? 0 : 1;
+  const lineClampToggle =
+    columnSettings.textOverflow?.lineWrap || columnSettings.textOverflow?.lineWrap === undefined ? 1 : 0;
 
   const columnStyleVariables = {
     '--cell-max-number-of-lines': (columnSettings.textOverflow?.maxHeight ?? 2) * lineClampToggle,

@@ -87,6 +87,9 @@
   width: var(--cell-width);
 }
 
+/* The width here should be: calc(var(--cell-width) + var(--modal-padding-x) - var(--table-input-margin));
+   Adding 8.15% is a workaround for calc not working with both percentages and pixels inside a cell element.
+*/
 .tableCellFormatting:first-child {
   width: calc(var(--cell-width) + 8.15%);
 }
