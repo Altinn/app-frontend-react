@@ -562,7 +562,6 @@
       }
     },
     "groupPanelOptions": {
-      "additionalProperties": false,
       "allOf": [{
         "$ref": "#/definitions/panelComponent"
       }],
