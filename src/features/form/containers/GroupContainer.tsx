@@ -37,7 +37,6 @@ const getValidationMethod = (node: LayoutNode | undefined) => {
 
 export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
-
   const node = useResolvedNode(id);
   const resolvedTextBindings = node?.item.textResourceBindings;
   const edit = node?.isType('Group') ? node.item.edit : undefined;
@@ -46,7 +45,6 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     (state: IRuntimeState) =>
       (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.editIndex) ?? -1,
   );
-
   const deletingIndexes = useAppSelector(
     (state: IRuntimeState) =>
       (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.deletingIndex) ?? [],
@@ -166,6 +164,13 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     );
   }
 
+  const displayBtn = () =>
+    edit?.mode !== 'showAll' &&
+    edit?.addButton !== false &&
+    'maxCount' in node.item &&
+    repeatingGroupIndex + 1 < (node.item.maxCount === undefined ? -99 : node.item.maxCount) &&
+    (editIndex < 0 || edit?.showAddButton === true);
+
   return (
     <Grid
       container={true}
@@ -184,10 +189,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
           filteredIndexes={filteredIndexList}
         />
       )}
-      {edit?.mode !== 'showAll' &&
-        edit?.addButton !== false &&
-        editIndex < 0 &&
-        repeatingGroupIndex + 1 < (node.item.maxCount === undefined ? -99 : node.item.maxCount) && <AddButton />}
+      {displayBtn() && <AddButton />}
       <ConditionalWrapper
         condition={!isNested}
         wrapper={(children) => <FullWidthWrapper>{children}</FullWidthWrapper>}
