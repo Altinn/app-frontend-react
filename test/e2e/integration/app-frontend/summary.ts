@@ -126,8 +126,8 @@ describe('Summary', () => {
 
     // Test summary of non-repeating group
     cy.get(appFrontend.navMenu).find('li > button').first().click();
-    cy.get('#reference').select('Ola Nordmann');
-    cy.get('#reference2').select('Ole');
+    cy.get('#reference').dsSelect('Ola Nordmann');
+    cy.get('#reference2').dsSelect('Ole');
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
@@ -138,9 +138,9 @@ describe('Summary', () => {
       });
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
-    cy.get('#sources').select('Digitaliseringsdirektoratet').blur();
-    cy.get('#reference').select('Sophie Salt').blur();
-    cy.get('#reference2').select('Dole').blur();
+    cy.get('#sources').dsSelect('Digitaliseringsdirektoratet');
+    cy.get('#reference').dsSelect('Sophie Salt');
+    cy.get('#reference2').dsSelect('Dole');
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
@@ -151,9 +151,9 @@ describe('Summary', () => {
       });
 
     cy.get(appFrontend.navMenu).find('li > button').first().click();
-    cy.get('#sources').select('Annet').blur();
-    cy.get('#reference').select('Test').blur();
-    cy.get('#reference2').select('Doffen').blur();
+    cy.get('#sources').dsSelect('Annet');
+    cy.get('#reference').dsSelect('Test');
+    cy.get('#reference2').dsSelect('Doffen');
     cy.get(appFrontend.navMenu).find('li > button').last().click();
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
@@ -399,7 +399,7 @@ describe('Summary', () => {
       cy.get(appFrontend.navMenu).find('li > button').first().click();
       cy.get(appFrontend.changeOfName.newFirstName).clear().type(`Hello world`).blur();
       cy.get(appFrontend.changeOfName.newLastName).clear().blur();
-      cy.get(appFrontend.changeOfName.sources).should('have.value', 'altinn');
+      cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
       cy.get(appFrontend.nextButton).click();
 
       if (trigger === undefined) {

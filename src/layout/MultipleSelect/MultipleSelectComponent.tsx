@@ -50,6 +50,8 @@ export function MultipleSelectComponent({
 
   return (
     <Select
+      label={getLanguageFromKey('general.choose', language)}
+      hideLabel={true}
       options={calculatedOptions}
       deleteButtonLabel={getLanguageFromKey('general.delete', language)}
       multiple

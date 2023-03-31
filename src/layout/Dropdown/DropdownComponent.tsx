@@ -7,6 +7,7 @@ import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { useGetOptions } from 'src/components/hooks';
 import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { duplicateOptionFilter, getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -20,6 +21,7 @@ export function DropdownComponent({
   getTextResourceAsString,
 }: IDropdownProps) {
   const { optionsId, preselectedOptionIndex, id, readOnly, mapping, source } = node.item;
+  const language = useAppSelector((state) => state.language.language);
   const options = useGetOptions({ optionsId, mapping, source })?.filter(duplicateOptionFilter);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
@@ -53,10 +55,12 @@ export function DropdownComponent({
 
   return (
     <>
-      {fetchingOptions ? (
+      {fetchingOptions || !language ? (
         <AltinnSpinner />
       ) : (
         <Select
+          label={getLanguageFromKey('general.choose', language)}
+          hideLabel={true}
           inputId={id}
           onChange={setValue}
           onBlur={saveValue}
