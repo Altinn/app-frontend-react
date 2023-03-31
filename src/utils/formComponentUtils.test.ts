@@ -389,11 +389,6 @@ describe('formComponentUtils', () => {
     });
   });
   describe('getColumnStylesRepeatingGroups', () => {
-    it('should return undefined if columnSettings is not provided', () => {
-      const tableHeader = { baseComponentId: 'headerName' };
-      expect(getColumnStylesRepeatingGroups(tableHeader)).toBeUndefined();
-    });
-
     it('should return undefined if columnSettings does not contain specified baseComponentId', () => {
       const tableHeader = { baseComponentId: 'headerName1' };
       const columnSettings = { headerName2: { width: '100px' } };

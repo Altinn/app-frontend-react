@@ -260,7 +260,7 @@ export function getTextAlignment(component: AnyItem): 'left' | 'center' | 'right
   return 'left';
 }
 
-export function getColumnStylesRepeatingGroups(tableHeader, columnSettings?: ITableColumnFormatting) {
+export function getColumnStylesRepeatingGroups(tableHeader, columnSettings: ITableColumnFormatting) {
   const column = columnSettings && columnSettings[tableHeader.baseComponentId];
   if (!column) {
     return;
