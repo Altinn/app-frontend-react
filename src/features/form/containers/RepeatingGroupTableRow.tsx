@@ -130,18 +130,16 @@ export function RepeatingGroupTableRow({
       )}
     >
       {!mobileView ? (
-        <>
-          {tableNodes.map((n, idx) => (
-            <TableCell key={`${n.item.id}-${index}`}>
-              <span
-                className={classes.contentFormatting}
-                style={getColumnStylesRepeatingGroups(n.item, columnSettings)}
-              >
-                {isEditingRow ? null : displayData[idx]}
-              </span>
-            </TableCell>
-          ))}
-        </>
+        tableNodes.map((n, idx) => (
+          <TableCell key={`${n.item.id}-${index}`}>
+            <span
+              className={classes.contentFormatting}
+              style={getColumnStylesRepeatingGroups(n.item, columnSettings)}
+            >
+              {isEditingRow ? null : displayData[idx]}
+            </span>
+          </TableCell>
+        ))
       ) : (
         <TableCell className={classes.mobileTableCell}>
           {tableNodes.map(
