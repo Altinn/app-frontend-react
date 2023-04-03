@@ -148,7 +148,33 @@ export class HierarchyGenerator {
     }
 
     this.claims[claim.childId] = this.claims[claim.childId] || new Set();
-    this.claims[claim.childId].add(claim.parentId);
+    const parents = this.claims[claim.childId];
+
+    if (!parents.has(claim.parentId) && parents.size > 0) {
+      /**
+       * TODO: Remove this to support multiple components claiming the same children. This could be useful for groups
+       * with panel references, or repeating groups where you'd want to have one group with a filter and another one
+       * with another filter (and still share the same children). However, in order to support this we need to get rid
+       * of our limiting component id suffix (such as `currentValue-1` for the second row, because the `currentValue`
+       * component could be claimed by multiple parents that each might want to create multiple instances of it).
+       * If we go down this route, we also have to make sure Studio and app-lib-dotnet supports such configuration.
+       * We might also want to support relative data model bindings, in order to support components that can be added
+       * to different repeating (or non-repeating) groups with different data model bindings (but with the same base
+       * model in place).
+       * @see https://altinndevops.slack.com/archives/CDU1S3NLW/p1679044199116669
+       */
+      console.warn(
+        'Component',
+        claim.parentId,
+        'tried to claim',
+        claim.childId,
+        'as a child, but that child is already claimed by',
+        parents.values(),
+      );
+      return;
+    }
+
+    parents.add(claim.parentId);
     this.unclaimed.delete(claim.childId);
   }
 
