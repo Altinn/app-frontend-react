@@ -432,9 +432,9 @@ describe('Hierarchical layout tools', () => {
     if (group2?.isRepGroup()) {
       expect(group2.item.rows[0]?.items[1].item.hidden).toEqual(true);
       expect(group2.item.rows[0]?.items[2].item.hidden).toEqual(true);
-      const group2n = group2.item.rows[0]?.items[2].item;
-      if (group2n?.type === 'Group' && 'rows' in group2n) {
-        expect(group2n.rows[0]?.items[1].item.hidden).toEqual(true);
+      const group2n = group2.item.rows[0]?.items[2];
+      if (group2n?.isRepGroup()) {
+        expect(group2n.item.rows[0]?.items[1].item.hidden).toEqual(true);
       } else {
         expect(false).toEqual(true);
       }

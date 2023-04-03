@@ -2,12 +2,12 @@ import React from 'react';
 
 import { Select } from '@digdir/design-system-react';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { ProfileActions } from 'src/features/profile/profileSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { useGetAppLanguageQuery } from 'src/services/LanguageApi';
-import { ProfileActions } from 'src/shared/resources/profile/profileSlice';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 
 export const LanguageSelector = () => {
@@ -29,21 +29,23 @@ export const LanguageSelector = () => {
 
   if (appLanguages && language) {
     return (
-      <Select
-        label={getTextFromAppOrDefault('language.selector.label', textResources, language, undefined, true)}
-        options={appLanguages.map((lang) => ({
-          value: lang.language,
-          label: getTextFromAppOrDefault(
-            `language.full_name.${lang.language}`,
-            textResources,
-            language,
-            undefined,
-            true,
-          ),
-        }))}
-        onChange={(value) => handleAppLanguageChange(value)}
-        value={selectedAppLanguage}
-      />
+      <div style={{ minWidth: 150 }}>
+        <Select
+          label={getTextFromAppOrDefault('language.selector.label', textResources, language, undefined, true)}
+          options={appLanguages.map((lang) => ({
+            value: lang.language,
+            label: getTextFromAppOrDefault(
+              `language.full_name.${lang.language}`,
+              textResources,
+              language,
+              undefined,
+              true,
+            ),
+          }))}
+          onChange={(value) => handleAppLanguageChange(value)}
+          value={selectedAppLanguage}
+        />
+      </div>
     );
   }
 

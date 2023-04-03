@@ -1,12 +1,22 @@
 import React from 'react';
 
-import { SummaryItemCompact } from 'src/components/summary/SummaryItemCompact';
-import { ComponentType } from 'src/layout/index';
-import type { ISummaryComponent } from 'src/components/summary/SummaryComponent';
+import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
+import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { HierarchyContext, ProcessorResult, UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
+
+/**
+ * This enum is used to distinguish purely presentational components
+ * from interactive form components that can have formData etc.
+ */
+export enum ComponentType {
+  Presentation = 'presentation',
+  Form = 'form',
+  Action = 'action',
+  Container = 'container',
+}
 
 abstract class AnyComponent<Type extends ComponentTypes> {
   /**
@@ -40,13 +50,6 @@ abstract class AnyComponent<Type extends ComponentTypes> {
   }
 
   /**
-   * Is this a form component that has formData and should be displayed differently in summary/pdf?
-   * Purely presentational components with no interaction should override and return ComponentType.Presentation.
-   * You can alternatively use the 'instanceof' operator for this.
-   */
-  abstract getType(): ComponentType;
-
-  /**
    * Performs stage 1 of the hierarchy generation process
    * @see HierarchyGenerator
    */
@@ -64,7 +67,7 @@ abstract class AnyComponent<Type extends ComponentTypes> {
 }
 
 export abstract class PresentationComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  readonly getType = (): ComponentType => ComponentType.Presentation;
+  readonly type = ComponentType.Presentation;
 }
 
 export interface SummaryRendererProps<Type extends ComponentTypes> {
@@ -75,9 +78,7 @@ export interface SummaryRendererProps<Type extends ComponentTypes> {
   overrides?: ISummaryComponent['overrides'];
 }
 
-export abstract class FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  readonly getType = (): ComponentType => ComponentType.Form;
-
+abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
   /**
    * Given a node (with group-index-aware data model bindings), this method should return a proper 'value' for the
    * current component/node. This value will be used to display form data in a repeating group table, and when rendering
@@ -117,11 +118,15 @@ export abstract class FormComponent<Type extends ComponentTypes> extends AnyComp
 }
 
 export abstract class ActionComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  readonly getType = (): ComponentType => ComponentType.Action;
+  readonly type = ComponentType.Action;
 }
 
-export abstract class ContainerComponent<Type extends ComponentTypes> extends FormComponent<Type> {
-  readonly getType = (): ComponentType => ComponentType.Container;
+export abstract class FormComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
+  readonly type = ComponentType.Form;
+}
+
+export abstract class ContainerComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
+  readonly type = ComponentType.Container;
 }
 
 export type LayoutComponent<Type extends ComponentTypes = ComponentTypes> =

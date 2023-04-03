@@ -16,8 +16,9 @@ import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { matchLayoutComponent } from 'src/utils/layout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
+import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type {
@@ -27,7 +28,6 @@ import type {
   ILayoutComponentOrGroup,
   ILayouts,
 } from 'src/layout/layout';
-import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -848,6 +848,7 @@ export function findComponentFromValidationIssue(
         if (
           validation.field &&
           componentCandidate.dataModelBindings &&
+          componentCandidate.dataModelBindings[dataModelBindingKey] &&
           componentCandidate.dataModelBindings[dataModelBindingKey].toLowerCase() === fieldToCheck
         ) {
           found = true;

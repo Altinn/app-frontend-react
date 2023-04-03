@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';

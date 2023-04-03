@@ -3,7 +3,7 @@ import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ComponentClassMap } from 'src/layout';
 import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
-import type { LayoutComponent } from 'src/layout/LayoutComponent';
+import type { ComponentType } from 'src/layout/LayoutComponent';
 import type { IComponentBindingValidation, IComponentValidations, ValidationKeyOrAny } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type {
@@ -12,8 +12,10 @@ import type {
   HierarchyDataSources,
   HNonRepGroup,
   HRepGroup,
+  LayoutNodeFromComponentType,
   LayoutNodeFromType,
   ParentNode,
+  TypeFromAnyItem,
 } from 'src/utils/layout/hierarchy.types';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 
@@ -21,8 +23,10 @@ import type { LayoutObject } from 'src/utils/layout/LayoutObject';
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject {
-  public readonly def: Item['type'] extends keyof ComponentClassMap ? ComponentClassMap[Item['type']] : LayoutComponent;
+export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTypes = TypeFromAnyItem<Item>>
+  implements LayoutObject
+{
+  public readonly def: ComponentClassMap[Type];
 
   public constructor(
     public item: Item,
@@ -38,11 +42,15 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
     return this.item.type === type;
   }
 
-  public isRepGroup(): this is LayoutNode<HRepGroup> {
+  public isComponentType<T extends ComponentType>(type: T): this is LayoutNodeFromComponentType<T> {
+    return this.def.type === type;
+  }
+
+  public isRepGroup(): this is LayoutNode<HRepGroup, 'Group'> {
     return this.item.type === 'Group' && 'rows' in this.item;
   }
 
-  public isNonRepGroup(): this is LayoutNode<HNonRepGroup> {
+  public isNonRepGroup(): this is LayoutNode<HNonRepGroup, 'Group'> {
     return this.item.type === 'Group' && !('rows' in this.item);
   }
 
@@ -162,29 +170,25 @@ export class LayoutNode<Item extends AnyItem = AnyItem> implements LayoutObject 
    * Checks if this field should be hidden. This also takes into account the group this component is in, so the
    * methods returns true if the component is inside a hidden group.
    */
-  public isHidden(): boolean {
-    const hiddenList = this.dataSources.hiddenFields;
-    if (this.item.hidden === true || hiddenList.has(this.item.id)) {
-      return true;
-    }
+  public isHidden(respectLegacy = true): boolean {
+    const hiddenList = respectLegacy ? this.dataSources.hiddenFields : new Set();
+
     if (this.item.baseComponentId && hiddenList.has(this.item.baseComponentId)) {
       return true;
     }
 
-    const parentGroups = this.parents(
-      (parent) => parent instanceof LayoutNode && parent.item.type === 'Group',
-    ) as LayoutNode[];
+    if (this.item.hidden === true || hiddenList.has(this.item.id)) {
+      return true;
+    }
 
-    for (const parent of parentGroups) {
-      if (parent.item.hidden === true || hiddenList.has(parent.item.id)) {
-        return true;
-      }
-      if (parent.item.baseComponentId && hiddenList.has(parent.item.baseComponentId)) {
+    if (this.parent.item.type === 'Group' && 'rows' in this.parent.item && typeof this.rowIndex === 'number') {
+      const isHiddenRow = this.parent.item.rows[this.rowIndex]?.groupExpressions?.hiddenRow;
+      if (isHiddenRow) {
         return true;
       }
     }
 
-    return false;
+    return !!(this.parent instanceof LayoutNode && this.parent.isHidden(respectLegacy));
   }
 
   private firstDataModelBinding() {
