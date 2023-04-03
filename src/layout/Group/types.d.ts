@@ -17,7 +17,7 @@ export interface IGroupEditProperties {
   openByDefault?: boolean | 'first' | 'last';
   alertOnDelete?: ExprVal.Boolean;
   saveAndNextButton?: ExprVal.Boolean;
-  showAddButton?: ExprVal.Boolean;
+  alwaysShowAddButton?: ExprVal.Boolean;
 }
 
 export interface ILayoutGroup extends ILayoutCompBase<'Group'> {

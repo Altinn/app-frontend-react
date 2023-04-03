@@ -31,10 +31,10 @@ describe('Group', () => {
   });
 
   [true, false].forEach((alwaysShowAddButton) => {
-    it(`Add items on main group when showAddButton = ${alwaysShowAddButton}`, () => {
+    it(`Add items on main group when AlwaysShowAddButton = ${alwaysShowAddButton}`, () => {
       cy.interceptLayout('group', (component) => {
         if (component.type === 'Group' && component.edit && component.id === 'mainGroup') {
-          component.edit.showAddButton = alwaysShowAddButton;
+          component.edit.alwaysShowAddButton = alwaysShowAddButton;
           component.maxCount = 2;
         }
       });
