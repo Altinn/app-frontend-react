@@ -2,16 +2,16 @@ import React from 'react';
 
 import { ButtonVariant } from '@digdir/design-system-react';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { ProcessActions } from 'src/features/process/processSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { WrappedButton } from 'src/layout/Button/WrappedButton';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { ProcessTaskType } from 'src/types';
 import type { IButtonProvidedProps } from 'src/layout/Button/ButtonComponent';
 
 export const GoToTaskButton = ({ children, ...props }: React.PropsWithChildren<IButtonProvidedProps>) => {
   const dispatch = useAppDispatch();
-  const taskId = props.node.item.type === 'Button' ? props.node.item.taskId : undefined;
+  const taskId = props.node.isType('Button') ? props.node.item.taskId : undefined;
   const availableProcessTasks = useAppSelector((state) => state.process.availableNextTasks);
   const canGoToTask = availableProcessTasks && availableProcessTasks.includes(taskId || '');
   const navigateToTask = () => {

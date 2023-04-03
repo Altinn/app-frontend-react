@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { useHasChangedIgnoreUndefined } from 'src/common/hooks';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { useGetOptions } from 'src/components/hooks';
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
 import { Select } from 'src/components/Select';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
+import { useGetOptions } from 'src/hooks/useGetOptions';
+import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -68,7 +68,7 @@ export function DropdownComponent({
           error={!isValid}
           options={
             options?.map((option) => ({
-              label: getTextResourceAsString(option.label),
+              label: getTextResourceAsString(option.label) ?? '',
               value: option.value,
             })) || []
           }

@@ -1,6 +1,6 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import type { IBackendFeaturesState } from 'src/shared/resources/applicationMetadata';
+import type { IBackendFeaturesState } from 'src/features/applicationMetadata';
 
 const appFrontend = new AppFrontend();
 

@@ -28,9 +28,7 @@ describe('Calculate Page Order', () => {
 
     cy.goto('group');
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.group.showGroupToContinue).then((checkbox) => {
-      cy.wrap(checkbox).should('be.visible').find('input').check();
-    });
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
 
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
 
@@ -114,7 +112,7 @@ describe('Calculate Page Order', () => {
     cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
 
-    cy.get(appFrontend.group.prefill.stor).click();
+    cy.get(appFrontend.group.prefill.stor).dsCheck();
     cy.get(appFrontend.nextButton).click();
 
     // Both pages the 'repeating' and 'hide' pages are now hidden
