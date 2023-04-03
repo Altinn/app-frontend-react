@@ -30,21 +30,17 @@ describe('Group', () => {
     cy.get(appFrontend.group.currentValue).should('be.visible');
   });
 
-  [true, false].forEach((showAddButton) => {
-    it(`Add items on main group when showAddButton = ${showAddButton ? 'true' : 'false'}`, () => {
+  [true, false].forEach((alwaysShowAddButton) => {
+    it(`Add items on main group when showAddButton = ${alwaysShowAddButton}`, () => {
       cy.interceptLayout('group', (component) => {
-        if (
-          component.type === 'Group' &&
-          component.edit &&
-          typeof (component.edit.showAddButton && component.maxCount) !== 'undefined'
-        ) {
-          component.edit.showAddButton = showAddButton;
+        if (component.type === 'Group' && component.edit && component.id === 'mainGroup') {
+          component.edit.showAddButton = alwaysShowAddButton;
           component.maxCount = 2;
         }
       });
       init();
       cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
-      if (showAddButton) {
+      if (alwaysShowAddButton) {
         cy.get(appFrontend.group.addNewItem).click();
         cy.get(appFrontend.group.mainGroup).should('exist');
         cy.get(appFrontend.group.addNewItem).click();
