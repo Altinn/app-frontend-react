@@ -5,10 +5,10 @@ import { Button, ButtonColor, ButtonVariant, ErrorMessage } from '@digdir/design
 
 import type { PropsFromGenericComponent } from '..';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { ProcessActions } from 'src/features/process/processSlice';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import classes from 'src/layout/SigningButtons/SigningButtonsComponent.module.css';
-import { ProcessActions } from 'src/shared/resources/process/processSlice';
 import { getTextResource } from 'src/utils/formComponentUtils';
 
 export type ISigningButtons = PropsFromGenericComponent<'SigningButtons'>;

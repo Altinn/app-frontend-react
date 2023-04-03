@@ -1,5 +1,5 @@
 import { ProcessTaskType } from 'src/types';
-import type { IProcessActions, IProcessState } from 'src/shared/resources/process';
+import type { IProcessActions, IProcessState } from 'src/features/process';
 
 export function getProcessStateMock(
   processState: Omit<Partial<IProcessState>, 'actions'> & { actions?: Partial<IProcessActions> } = {},

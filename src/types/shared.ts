@@ -1,4 +1,4 @@
-import type { IProcessPermissions } from 'src/shared/resources/process';
+import type { IProcessPermissions } from 'src/features/process';
 
 export interface IAltinnWindow extends Window {
   org: string;

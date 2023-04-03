@@ -1,4 +1,4 @@
-import type { IProcessPermissions, IProcessState } from 'src/shared/resources/process';
+import type { IProcessPermissions, IProcessState } from 'src/features/process';
 import type { IAuthContext } from 'src/types/shared';
 
 export function buildAuthContext(process: IProcessState | IProcessPermissions | undefined): IAuthContext {

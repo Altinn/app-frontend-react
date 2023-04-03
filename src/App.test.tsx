@@ -8,7 +8,7 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
 import { getProcessStateMock } from 'src/__mocks__/processMock';
 import { App } from 'src/App';
-import * as appSelector from 'src/common/hooks/useAppSelector';
+import * as appSelector from 'src/hooks/useAppSelector';
 import * as anonymousSelector from 'src/selectors/getAllowAnonymous';
 import { renderWithProviders } from 'src/testUtils';
 import type { IRuntimeState } from 'src/types';
