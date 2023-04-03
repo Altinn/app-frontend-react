@@ -12,7 +12,9 @@ import {
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
-import { dataSourcesFromState, LayoutNode, LayoutPage, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { dataSourcesFromState, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ExprConfig,
@@ -611,14 +613,14 @@ export const ExprTypes: {
 
   const state = (window as unknown as IAltinnWindow).reduxStore.getState();
   const nodes = resolvedLayoutsFromState(state);
-  let layout: LayoutPage | LayoutNode | undefined = nodes.current();
+  let layout: LayoutPage | LayoutNode | undefined = nodes?.current();
   if (!layout) {
     console.error('Unable to find current page/layout');
     return;
   }
 
   if (forComponentId) {
-    const foundNode = nodes.findById(forComponentId);
+    const foundNode = nodes?.findById(forComponentId);
     if (!foundNode) {
       console.error('Unable to find component with id', forComponentId);
       console.error(
@@ -673,6 +675,11 @@ export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
 
 export const ExprConfigForGroup: ExprObjConfig<ILayoutGroup> = {
   ...ExprConfigForComponent,
+  hiddenRow: {
+    returnType: ExprVal.Boolean,
+    defaultValue: false,
+    resolvePerRow: true,
+  },
   textResourceBindings: {
     [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
       returnType: ExprVal.String,
