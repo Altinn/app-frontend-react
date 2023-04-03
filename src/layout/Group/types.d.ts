@@ -1,6 +1,6 @@
 import type { ExprVal } from 'src/features/expressions/types';
 import type { ILayoutCompBase } from 'src/layout/layout';
-import type { IGroupPanel } from 'src/layout/Panel/types';
+import type { ILayoutCompPanelBase } from 'src/layout/Panel/types';
 
 export interface IGroupFilter {
   key: string;
@@ -30,4 +30,12 @@ export interface ILayoutGroup extends ILayoutCompBase<'Group'> {
 
 export interface IDataModelBindingsForGroup {
   group: string;
+}
+
+export interface IGroupPanel extends ILayoutCompPanelBase {
+  iconUrl?: string;
+  iconAlt?: string;
+  groupReference?: {
+    group: string;
+  };
 }
