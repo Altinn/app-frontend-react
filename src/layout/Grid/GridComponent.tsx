@@ -5,11 +5,11 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/desi
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
+import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import { LayoutPage } from 'src/utils/layout/hierarchy';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRow } from 'src/layout/Grid/types';
 

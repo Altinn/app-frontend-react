@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { isGridComponent } from 'src/layout/Grid/tools';
 import { INDEX_KEY_INDICATOR_REGEX } from 'src/utils/databindings';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
@@ -9,6 +10,8 @@ import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
+import type { ILayoutCompGrid, ILayoutGridHierarchy } from 'src/layout/Grid/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
 import type { IMapping, IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
 import type {
