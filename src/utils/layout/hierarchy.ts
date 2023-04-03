@@ -10,8 +10,8 @@ import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
 import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 
-/*
-PRIORITY: Implement groupReference functionality again
+/* *
+// PRIORITY: Implement groupReference functionality again
 function layoutAsHierarchyWithRows(formLayout: ILayout, repeatingGroups: IRepeatingGroups | null): HierarchyWithRows[] {
   const repGroups: { [id: string]: HRepGroup } = {};
   const groupReferences: HNonRepGroup[] = [];
@@ -64,7 +64,7 @@ function layoutAsHierarchyWithRows(formLayout: ILayout, repeatingGroups: IRepeat
   const out = layoutAsHierarchy(formLayout).map((child) => recurse(child));
   groupReferences.length && resolveGroupReferences();
   return out;
-}*/
+} /* */
 
 /**
  * The same as the function above, but takes multiple layouts and returns a collection

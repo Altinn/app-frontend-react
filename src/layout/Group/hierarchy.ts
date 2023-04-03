@@ -1,4 +1,5 @@
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
+import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { HRepGroup, HRepGroupChild, HRepGroupRow } from 'src/utils/layout/hierarchy.types';
 import type {
   ChildFactoryProps,
@@ -9,87 +10,114 @@ import type {
 } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-/**
- * Process non-repeating group. These are fairly simple, and just copy create regular LayoutNode objects for its
- * children.
- */
-export const processNonRepeating =
-  (ctx: HierarchyContext): ProcessorResult<'Group'> =>
-  (props) => {
-    const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
-
-    delete (props.item as any)['children'];
-    const me = ctx.generator.makeNode(props);
-
-    const childNodes: LayoutNode[] = [];
-    for (const id of prototype.children) {
-      const [, childId] = me.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
-      childNodes.push(
-        ctx.generator.newChild({
-          ctx,
-          parent: me,
-          childId,
-        }),
-      );
+export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'> {
+  stage1(item): void {
+    for (const id of item.children) {
+      const [, childId] = item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
+      this.generator.claimChild({ childId, parentId: item.id });
     }
 
-    if (me.isNonRepGroup()) {
-      me.item.childComponents = childNodes;
+    if (item.panel?.groupReference) {
+      // PRIORITY: Indicate to later repeating groups that we'd like to have our children inside them
+    }
+  }
+
+  stage2(ctx): ProcessorResult<'Group'> {
+    const item = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
+    if (item.panel?.groupReference) {
+      // PRIORITY: Implement
+      // return this.processPanelReference();
     }
 
-    return me;
-  };
+    const isRepeating = item.maxCount && item.maxCount >= 1;
+    if (isRepeating) {
+      return this.processRepeating(ctx);
+    }
+    return this.processNonRepeating(ctx);
+  }
 
-/**
- * Repeating groups are more complex, as they need to rewrite data model bindings, mapping, etc in their children.
- * Also, child components are repeated for each row (row = each group in the repeating structure).
- */
-export const processRepeating =
-  (ctx: HierarchyContext): ProcessorResult<'Group'> =>
-  (props) => {
-    const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
+  /**
+   * Process non-repeating group. These are fairly simple, and just copy create regular LayoutNode objects for its
+   * children.
+   */
+  private processNonRepeating(ctx: HierarchyContext): ProcessorResult<'Group'> {
+    return (props) => {
+      const prototype = this.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
 
-    delete (props.item as any)['children'];
-    const me = ctx.generator.makeNode(props);
+      delete (props.item as any)['children'];
+      const me = this.generator.makeNode(props);
 
-    const rows: HRepGroupRow[] = [];
-    const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
-      (ctx.generator.repeatingGroups || {})[props.item.id]?.index,
-      props.item.edit,
-    );
-
-    for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {
-      const rowChildren: LayoutNode<HRepGroupChild>[] = [];
-
+      const childNodes: LayoutNode[] = [];
       for (const id of prototype.children) {
-        const [multiPageIndex, childId] = props.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
-        rowChildren.push(
-          ctx.generator.newChild({
+        const [, childId] = me.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
+        childNodes.push(
+          this.generator.newChild({
             ctx,
-            childId,
             parent: me,
-            rowIndex,
-            directMutators: [addMultiPageIndex(multiPageIndex)],
-            recursiveMutators: [
-              mutateComponentId(rowIndex),
-              mutateDataModelBindings(props, rowIndex),
-              mutateMapping(ctx, rowIndex),
-            ],
+            childId,
           }),
         );
       }
 
-      rows.push({
-        index: rowIndex,
-        items: rowChildren,
-      });
-    }
+      if (me.isNonRepGroup()) {
+        me.item.childComponents = childNodes;
+      }
 
-    const repItem = props.item as unknown as HRepGroup;
-    repItem.rows = rows;
+      return me;
+    };
+  }
 
-    return me;
-  };
+  /**
+   * Repeating groups are more complex, as they need to rewrite data model bindings, mapping, etc in their children.
+   * Also, child components are repeated for each row (row = each group in the repeating structure).
+   */
+  private processRepeating(ctx: HierarchyContext): ProcessorResult<'Group'> {
+    return (props) => {
+      const prototype = this.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
+
+      delete (props.item as any)['children'];
+      const me = this.generator.makeNode(props);
+
+      const rows: HRepGroupRow[] = [];
+      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
+        (this.generator.repeatingGroups || {})[props.item.id]?.index,
+        props.item.edit,
+      );
+
+      for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {
+        const rowChildren: LayoutNode<HRepGroupChild>[] = [];
+
+        for (const id of prototype.children) {
+          const [multiPageIndex, childId] = props.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
+          rowChildren.push(
+            this.generator.newChild({
+              ctx,
+              childId,
+              parent: me,
+              rowIndex,
+              directMutators: [addMultiPageIndex(multiPageIndex)],
+              recursiveMutators: [
+                mutateComponentId(rowIndex),
+                mutateDataModelBindings(props, rowIndex),
+                mutateMapping(ctx, rowIndex),
+              ],
+            }),
+          );
+        }
+
+        rows.push({
+          index: rowIndex,
+          items: rowChildren,
+        });
+      }
+
+      const repItem = props.item as unknown as HRepGroup;
+      repItem.rows = rows;
+
+      return me;
+    };
+  }
+}
 
 const addMultiPageIndex: (multiPageIndex: string | undefined) => ChildMutator = (multiPageIndex) => (item) => {
   if (multiPageIndex !== undefined) {

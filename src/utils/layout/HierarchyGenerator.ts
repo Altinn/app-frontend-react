@@ -30,7 +30,6 @@ export type HierarchyContext = {
   id: string;
   depth: number; // Starts at 1
   mutators: ChildMutator[];
-  generator: HierarchyGenerator;
 };
 
 export interface NewChildProps extends CommonChildFactoryProps {
@@ -117,6 +116,7 @@ export interface NewChildProps extends CommonChildFactoryProps {
 export class HierarchyGenerator {
   private allIds: Set<string>;
   private map: { [id: string]: UnprocessedItem } = {};
+  private instances: { [type: string]: ComponentHierarchyGenerator<any> } = {};
   private unclaimed: Set<string>;
   private claims: { [childId: string]: Set<string> } = {};
 
@@ -135,7 +135,10 @@ export class HierarchyGenerator {
     }
   }
 
-  private claimChild(claim: Required<Claim>): void {
+  /**
+   * Claim another component as a child
+   */
+  claimChild(claim: Required<Claim>): void {
     if (!this.allIds.has(claim.childId)) {
       console.warn(
         'Component',
@@ -209,11 +212,10 @@ export class HierarchyGenerator {
       mutator(clone);
     }
 
-    const def = getLayoutComponentObject(clone.type as T);
-    const factory: ProcessorResult = def.hierarchyStage2({
+    const instance = this.instances[clone.type];
+    const factory: ProcessorResult = instance.stage2({
       id: childId,
       depth: ctx.depth + 1,
-      generator: this,
       mutators: [...ctx.mutators, ...recursiveMutators],
     });
 
@@ -246,41 +248,63 @@ export class HierarchyGenerator {
    * Runs the generator for this given layout, and return the top-level page
    */
   run(): LayoutPage {
-    const skipped = new Set<string>();
-
     // Stage 1
     for (const item of this.layout) {
       const ro = Object.freeze(structuredClone(item));
       const def = getLayoutComponentObject(item.type);
       if (!def) {
         console.warn(`A component with id '${item.id}' was defined with an unknown component type '${item.type}'`);
-        skipped.add(item.id);
         continue;
       }
-      const claims = def.hierarchyStage1(ro);
-      for (const childId of claims) {
-        this.claimChild({ childId, parentId: item.id });
+      if (!this.instances[ro.type]) {
+        this.instances[ro.type] = def.hierarchyGenerator(this);
       }
+      const instance = this.instances[ro.type];
+      instance.stage1(ro);
     }
 
     // Stage 2
     for (const id of this.unclaimed.values()) {
-      if (skipped.has(id)) {
+      const item = structuredClone(this.map[id]);
+      if (!this.instances[item.type]) {
         continue;
       }
-      const item = structuredClone(this.map[id]);
-      const def = getLayoutComponentObject(item.type);
+      const instance = this.instances[item.type];
       const ctx: HierarchyContext = {
         id,
         depth: 1,
         mutators: [],
-        generator: this,
       };
-      const processor = def.hierarchyStage2(ctx) as ProcessorResult;
+      const processor = instance.stage2(ctx);
       processor({ item: this.map[id], parent: this.top });
     }
 
     return this.top;
+  }
+}
+
+/**
+ * This class should be implemented in components that interacts with the hierarchy generation process. For simple
+ * components that has no need to claim children or manipulate them, SimpleComponentHierarchyGenerator will
+ * most likely suffice.
+ */
+export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
+  constructor(protected generator: HierarchyGenerator) {}
+
+  abstract stage1(item: UnprocessedItem<Type>): void;
+  abstract stage2(ctx: HierarchyContext): ProcessorResult<Type>;
+}
+
+/**
+ * Most simple components does not need to claim any children, so they can use this standard implementation
+ */
+export class SimpleComponentHierarchyGenerator<Type extends ComponentTypes> extends ComponentHierarchyGenerator<Type> {
+  stage1() {
+    return undefined;
+  }
+
+  stage2() {
+    return (props) => this.generator.makeNode(props);
   }
 }
 

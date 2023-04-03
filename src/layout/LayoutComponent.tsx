@@ -1,11 +1,12 @@
 import React from 'react';
 
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
+import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { HierarchyContext, ProcessorResult, UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
+import type { ComponentHierarchyGenerator, HierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 /**
  * This enum is used to distinguish purely presentational components
@@ -50,19 +51,11 @@ abstract class AnyComponent<Type extends ComponentTypes> {
   }
 
   /**
-   * Performs stage 1 of the hierarchy generation process
+   * Returns a new instance of a class to perform the component hierarchy generation process
    * @see HierarchyGenerator
    */
-  hierarchyStage1(_item: UnprocessedItem<Type>): string[] {
-    return [];
-  }
-
-  /**
-   * Performs stage 2 of the hierarchy generation process
-   * @see HierarchyGenerator
-   */
-  hierarchyStage2(ctx: HierarchyContext): ProcessorResult<Type> {
-    return (props) => ctx.generator.makeNode(props);
+  hierarchyGenerator(generator: HierarchyGenerator): ComponentHierarchyGenerator<Type> {
+    return new SimpleComponentHierarchyGenerator(generator);
   }
 }
 
