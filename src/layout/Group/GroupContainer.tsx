@@ -169,7 +169,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     edit?.addButton !== false &&
     'maxCount' in node.item &&
     repeatingGroupIndex + 1 < (node.item.maxCount === undefined ? -99 : node.item.maxCount) &&
-    (editIndex < 0 || edit?.showAddButton === true);
+    (editIndex < 0 || edit?.alwaysShowAddButton === true);
 
   return (
     <Grid
