@@ -3,9 +3,9 @@ import React from 'react';
 import { Select } from '@digdir/design-system-react';
 import type { MultiSelectOption } from '@digdir/design-system-react';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useGetOptions } from 'src/components/hooks';
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
+import { useGetOptions } from 'src/hooks/useGetOptions';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { duplicateOptionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
