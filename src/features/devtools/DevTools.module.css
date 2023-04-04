@@ -26,11 +26,14 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  touch-action: none;
 }
 
-.dots {
-  width: 30px;
-  border-top: 5px dotted #efefef;
+.handle::before {
+  color: white;
+  content: '•••';
+  line-height: 10px;
+  height: 10px;
 }
 
 .panelContent {

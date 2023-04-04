@@ -38,6 +38,22 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
     document.body.addEventListener('mouseup', onMouseUp, { once: true });
   };
 
+  const resizeHandlerMobile = (touchStartEvent: React.TouchEvent) => {
+    touchStartEvent.preventDefault();
+    const startHeight = clampHeight(height);
+    const startPosition = touchStartEvent.touches[0].screenY;
+
+    function onTouchMove(touchMoveEvent) {
+      setHeight(() => clampHeight(startHeight + startPosition - touchMoveEvent.touches[0].screenY));
+    }
+    function onTouchEnd() {
+      document.body.removeEventListener('touchmove', onTouchMove);
+    }
+
+    document.body.addEventListener('touchmove', onTouchMove);
+    document.body.addEventListener('touchend', onTouchEnd, { once: true });
+  };
+
   return (
     <>
       <div
@@ -55,9 +71,8 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
             role='separator'
             className={classes.handle}
             onMouseDown={resizeHandler}
-          >
-            <div className={classes.dots} />
-          </div>
+            onTouchStart={resizeHandlerMobile}
+          />
           <div className={classes.panelContent}>
             <div className={classes.header}>
               <h2>Utviklerverktøy</h2>
