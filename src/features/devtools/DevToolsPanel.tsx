@@ -8,6 +8,10 @@ import { Close } from '@navikt/ds-icons';
 import { PDFPreviewButton } from 'src/features/devtools/components/PDFPreviewButton';
 import classes from 'src/features/devtools/DevTools.module.css';
 
+function clampHeight(height: number): number {
+  return Math.min(Math.max(height, 10), window.innerHeight);
+}
+
 interface IDevToolsPanelProps {
   isOpen: boolean;
   close: () => void;
@@ -19,11 +23,11 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
 
   const resizeHandler = (mouseDownEvent: React.MouseEvent) => {
     mouseDownEvent.preventDefault();
-    const startHeight = height;
+    const startHeight = clampHeight(height);
     const startPosition = mouseDownEvent.screenY;
 
     function onMouseMove(mouseMoveEvent) {
-      setHeight(() => startHeight + startPosition - mouseMoveEvent.screenY);
+      setHeight(() => clampHeight(startHeight + startPosition - mouseMoveEvent.screenY));
     }
     function onMouseUp() {
       document.body.removeEventListener('mousemove', onMouseMove);
