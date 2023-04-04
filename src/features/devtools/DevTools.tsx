@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { OpenDevToolsButton } from 'src/features/devtools/components/OpenDevToolsButton/OpenDevToolsButton';
 import { DevToolsPanel } from 'src/features/devtools/DevToolsPanel';
 
 const devToolsEnabled = window.location.hostname === 'local.altinn.cloud';
@@ -25,12 +26,18 @@ export const DevTools = ({ children }: IDevToolsProps) => {
 
   if (devToolsEnabled) {
     return (
-      <DevToolsPanel
-        isOpen={panelOpen}
-        close={() => setPanelOpen(false)}
-      >
-        {children}
-      </DevToolsPanel>
+      <>
+        <OpenDevToolsButton
+          isHidden={panelOpen}
+          onClick={() => setPanelOpen(true)}
+        />
+        <DevToolsPanel
+          isOpen={panelOpen}
+          close={() => setPanelOpen(false)}
+        >
+          {children}
+        </DevToolsPanel>
+      </>
     );
   }
   return <>{children}</>;

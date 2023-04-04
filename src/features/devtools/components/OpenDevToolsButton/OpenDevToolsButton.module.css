@@ -1,0 +1,27 @@
+.devToolsButton {
+  z-index: 10000;
+  position: fixed;
+  padding: 10px 0 10px 10px;
+  bottom: 20px;
+  right: -3px;
+}
+
+.devToolsButton > button {
+  transform: translateX(30px);
+  transition: transform 0.2s;
+}
+
+.devToolsButton:hover > button,
+.devToolsButton:active > button {
+  transform: translateX(0px);
+}
+
+.hidden {
+  display: none;
+}
+
+@media print {
+  .devToolsButton {
+    display: none;
+  }
+}
