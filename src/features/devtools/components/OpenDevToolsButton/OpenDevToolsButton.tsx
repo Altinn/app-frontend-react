@@ -14,6 +14,7 @@ interface IOpenDevToolsButtonProps {
 export const OpenDevToolsButton = ({ isHidden, onClick }: IOpenDevToolsButtonProps) => (
   <div className={cn(classes.devToolsButton, { [classes.hidden]: isHidden })}>
     <Button
+      tabIndex={-1}
       variant={ButtonVariant.Outline}
       color={ButtonColor.Secondary}
       onClick={onClick}
