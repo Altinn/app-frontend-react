@@ -24,7 +24,6 @@ export interface ChildFactoryProps<T extends ComponentTypes> extends CommonChild
 
 export type ChildFactory<T extends ComponentTypes> = (props: ChildFactoryProps<T>) => LayoutNode;
 export type ChildMutator = (item: UnprocessedItem | AnyItem) => void;
-export type ProcessorResult<T extends ComponentTypes = ComponentTypes> = ChildFactory<T>;
 
 export type HierarchyContext = {
   id: string;
@@ -33,6 +32,7 @@ export type HierarchyContext = {
 };
 
 export interface NewChildProps extends CommonChildFactoryProps {
+  overrideParentId?: string;
   childId: string;
   directMutators?: ChildMutator[];
   recursiveMutators?: ChildMutator[];
@@ -189,6 +189,7 @@ export class HierarchyGenerator {
     ctx,
     childId,
     parent,
+    overrideParentId,
     rowIndex,
     directMutators = [],
     recursiveMutators = [],
@@ -200,7 +201,11 @@ export class HierarchyGenerator {
       throw new Error(`Tried to create a new child object for unclaimed '${childId}'`);
     }
 
-    const parentId = parent.item.baseComponentId || parent.item.id;
+    if (parent instanceof LayoutPage) {
+      throw new Error(`Tried to create a new child object for '${childId}' which is not claimed by any parent`);
+    }
+
+    const parentId = overrideParentId || parent.item.baseComponentId || parent.item.id;
     if (!parentId || !this.claims[childId].has(parentId)) {
       throw new Error(`Tried to create a new child object for '${childId}' which is not claimed by '${parentId}'`);
     }
@@ -213,7 +218,7 @@ export class HierarchyGenerator {
     }
 
     const instance = this.instances[clone.type];
-    const factory: ProcessorResult = instance.stage2({
+    const factory: ChildFactory<T> = instance.stage2({
       id: childId,
       depth: ctx.depth + 1,
       mutators: [...ctx.mutators, ...recursiveMutators],
@@ -275,7 +280,7 @@ export class HierarchyGenerator {
         depth: 1,
         mutators: [],
       };
-      const processor = instance.stage2(ctx);
+      const processor = instance.stage2(ctx) as ChildFactory<ComponentTypes>;
       processor({ item: this.map[id], parent: this.top });
     }
 
@@ -292,7 +297,7 @@ export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
   constructor(protected generator: HierarchyGenerator) {}
 
   abstract stage1(item: UnprocessedItem<Type>): void;
-  abstract stage2(ctx: HierarchyContext): ProcessorResult<Type>;
+  abstract stage2(ctx: HierarchyContext): ChildFactory<Type>;
 }
 
 /**
@@ -303,7 +308,7 @@ export class SimpleComponentHierarchyGenerator<Type extends ComponentTypes> exte
     return undefined;
   }
 
-  stage2() {
+  stage2(): ChildFactory<Type> {
     return (props) => this.generator.makeNode(props);
   }
 }

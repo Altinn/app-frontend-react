@@ -10,62 +10,6 @@ import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
 import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 
-/* *
-// PRIORITY: Implement groupReference functionality again
-function layoutAsHierarchyWithRows(formLayout: ILayout, repeatingGroups: IRepeatingGroups | null): HierarchyWithRows[] {
-  const repGroups: { [id: string]: HRepGroup } = {};
-  const groupReferences: HNonRepGroup[] = [];
-  const recurse = (main: HTmpItem, parent?: HierarchyParent) => {
-    if (main.type === 'Group' && main.panel && main.panel.groupReference?.group) {
-      // We need to iterate once more for group references to work, as we don't know if the references group has had
-      // their data model bindings mapped yet.
-      groupReferences.push(main);
-    }
-
-    return main as HComponentInRepGroup;
-  };
-
-  const resolveGroupReferences = () => {
-    for (const main of groupReferences) {
-      const reference = main.panel?.groupReference?.group;
-      const referencedGroup = reference ? repGroups[reference] : undefined;
-      const referencedGroupState = reference && repeatingGroups ? repeatingGroups[reference] : undefined;
-      if (!reference || !referencedGroup || !referencedGroupState) {
-        // TODO: Show validations like these to the app developers more clearly
-        console.warn(
-          'Found panel with groupReference (',
-          main.id,
-          ') that references a non-existing or non-repeating group (',
-          main.panel?.groupReference?.group,
-          ')',
-        );
-        continue;
-      }
-
-      main.childComponents = main.childComponents.map((child) => {
-        const nextIndex = referencedGroupState.index + 1;
-        const newChild: HComponentInRepGroup = {
-          ...structuredClone(child),
-          id: `${child.id}-${nextIndex}`,
-          baseComponentId: child.id,
-        };
-
-        if (child.dataModelBindings) {
-          rewriteDataModelBindings(referencedGroup, child, newChild, undefined, nextIndex);
-        }
-
-        rewriteMappingReferences(newChild, undefined, nextIndex);
-
-        return newChild;
-      });
-    }
-  };
-
-  const out = layoutAsHierarchy(formLayout).map((child) => recurse(child));
-  groupReferences.length && resolveGroupReferences();
-  return out;
-} /* */
-
 /**
  * The same as the function above, but takes multiple layouts and returns a collection
  */

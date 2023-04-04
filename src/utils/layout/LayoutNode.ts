@@ -47,11 +47,11 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   }
 
   public isRepGroup(): this is LayoutNode<HRepGroup, 'Group'> {
-    return this.item.type === 'Group' && 'rows' in this.item;
+    return this.item.type === 'Group' && typeof this.item.maxCount === 'number' && this.item.maxCount > 1;
   }
 
   public isNonRepGroup(): this is LayoutNode<HNonRepGroup, 'Group'> {
-    return this.item.type === 'Group' && !('rows' in this.item);
+    return this.item.type === 'Group' && (!this.item.maxCount || this.item.maxCount <= 1);
   }
 
   /**
