@@ -27,7 +27,11 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
     const startHeight = clampHeight(height);
     const startPosition = mouseDownEvent.screenY;
 
-    function onMouseMove(mouseMoveEvent) {
+    function onMouseMove(mouseMoveEvent: MouseEvent) {
+      if (mouseMoveEvent.buttons < 1) {
+        onMouseUp();
+        return;
+      }
       setHeight(() => clampHeight(startHeight + startPosition - mouseMoveEvent.screenY));
     }
     function onMouseUp() {
@@ -43,7 +47,7 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
     const startHeight = clampHeight(height);
     const startPosition = touchStartEvent.touches[0].screenY;
 
-    function onTouchMove(touchMoveEvent) {
+    function onTouchMove(touchMoveEvent: TouchEvent) {
       setHeight(() => clampHeight(startHeight + startPosition - touchMoveEvent.touches[0].screenY));
     }
     function onTouchEnd() {
