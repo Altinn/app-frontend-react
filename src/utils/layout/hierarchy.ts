@@ -3,38 +3,16 @@ import { useMemo } from 'react';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { buildInstanceContext } from 'src/utils/instanceContext';
-import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
+import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState, ITextResource } from 'src/types';
 import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 /**
- * The same as the function above, but takes multiple layouts and returns a collection
- */
-function nodesInLayouts(
-  layouts: ILayouts | undefined | null,
-  currentView: string,
-  repeatingGroups: IRepeatingGroups | null,
-  dataSources: HierarchyDataSources,
-): LayoutPages {
-  const nodes = {};
-
-  const _layouts = layouts || {};
-  for (const key of Object.keys(_layouts)) {
-    const layout = _layouts[key];
-    if (layout && repeatingGroups) {
-      nodes[key] = generateHierarchy(layout, repeatingGroups, dataSources);
-    }
-  }
-
-  return new LayoutPages(currentView as keyof typeof nodes, nodes);
-}
-
-/**
- * This is the same tool as the one above, but additionally it will iterate each component/group in the layout
- * and resolve all expressions for it.
+ * This will generate an entire layout hierarchy, iterate each
+ * component/group in the layout and resolve all expressions for them.
  */
 function resolvedNodesInLayouts(
   layouts: ILayouts | null,
@@ -44,8 +22,8 @@ function resolvedNodesInLayouts(
 ) {
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
-  const layoutsCopy: ILayouts = structuredClone(layouts || {});
-  const unresolved = nodesInLayouts(layoutsCopy, currentLayout, repeatingGroups, dataSources);
+  const layoutsCopy: ILayouts = layouts ? structuredClone(layouts) : {};
+  const unresolved = generateEntireHierarchy(layoutsCopy, currentLayout, repeatingGroups, dataSources);
 
   const config = {
     ...ExprConfigForComponent,
@@ -221,7 +199,6 @@ export const ResolvedNodesSelector = (state: IRuntimeState) => resolvedLayoutsFr
  * Exported only for testing. Please do not use!
  */
 export const _private = {
-  nodesInLayouts,
   resolvedNodesInLayouts,
   useResolvedExpressions,
 };

@@ -1,8 +1,9 @@
 import { getLayoutComponentObject } from 'src/layout';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ComponentTypes, ILayout, ILayoutComponentExact } from 'src/layout/layout';
+import type { ComponentTypes, ILayout, ILayoutComponentExact, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -120,20 +121,15 @@ export class HierarchyGenerator {
   private unclaimed: Set<string>;
   private claims: { [childId: string]: Set<string> } = {};
 
+  private top: LayoutPage;
+  private layout: ILayout;
+  public readonly pages: { [layoutKey: string]: LayoutPage } = {};
+
   constructor(
-    private layout: ILayout,
-    public readonly repeatingGroups: IRepeatingGroups,
+    private readonly layouts: ILayouts,
+    public readonly repeatingGroups: IRepeatingGroups | null,
     public readonly dataSources: HierarchyDataSources,
-    public readonly top: LayoutPage,
-  ) {
-    this.allIds = new Set();
-    this.unclaimed = new Set();
-    for (const component of structuredClone(layout)) {
-      this.allIds.add(component.id);
-      this.unclaimed.add(component.id);
-      this.map[component.id] = component;
-    }
-  }
+  ) {}
 
   /**
    * Claim another component as a child
@@ -252,7 +248,7 @@ export class HierarchyGenerator {
   /**
    * Runs the generator for this given layout, and return the top-level page
    */
-  run(): LayoutPage {
+  private processPage() {
     // Stage 1
     for (const item of this.layout) {
       const ro = Object.freeze(structuredClone(item));
@@ -283,8 +279,32 @@ export class HierarchyGenerator {
       const processor = instance.stage2(ctx) as ChildFactory<ComponentTypes>;
       processor({ item: this.map[id], parent: this.top });
     }
+  }
 
-    return this.top;
+  /**
+   * Runs the generator for all layouts
+   * @see generateHierarchy
+   * @see generateEntireHierarchy
+   */
+  run() {
+    for (const layoutKey of Object.keys(this.layouts)) {
+      const layout = this.layouts[layoutKey];
+      if (layout) {
+        this.allIds = new Set();
+        this.unclaimed = new Set();
+        this.layout = layout;
+        this.top = new LayoutPage();
+
+        for (const component of layout) {
+          this.allIds.add(component.id);
+          this.unclaimed.add(component.id);
+          this.map[component.id] = component;
+        }
+
+        this.processPage();
+        this.pages[layoutKey] = this.top;
+      }
+    }
   }
 }
 
@@ -318,5 +338,21 @@ export function generateHierarchy(
   repeatingGroups: IRepeatingGroups,
   dataSources: HierarchyDataSources,
 ): LayoutPage {
-  return new HierarchyGenerator(layout, repeatingGroups, dataSources, new LayoutPage()).run();
+  const clone = structuredClone({ FormLayout: layout }) as ILayouts;
+  const generator = new HierarchyGenerator(clone, repeatingGroups, dataSources);
+  generator.run();
+
+  return generator.pages.FormLayout;
+}
+
+export function generateEntireHierarchy(
+  layouts: ILayouts,
+  currentView: string,
+  repeatingGroups: IRepeatingGroups | null,
+  dataSources: HierarchyDataSources,
+): LayoutPages {
+  const generator = new HierarchyGenerator(layouts, repeatingGroups, dataSources);
+  generator.run();
+
+  return new LayoutPages(currentView as keyof typeof generator.pages, generator.pages);
 }
