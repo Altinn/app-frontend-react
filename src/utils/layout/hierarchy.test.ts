@@ -9,7 +9,7 @@ import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompHeader } from 'src/layout/Header/types';
 import type { ILayoutCompInput } from 'src/layout/Input/types';
-import type { ILayout } from 'src/layout/layout';
+import type { ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IValidations } from 'src/types';
 import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 
@@ -603,5 +603,89 @@ describe('Hierarchical layout tools', () => {
       'group2_input-2',
       'group2_input-3',
     ]);
+  });
+
+  describe('panel with group reference', () => {
+    const pageWithMainGroup: ILayout = [
+      {
+        id: 'mainGroup',
+        type: 'Group',
+        children: ['child'],
+        maxCount: 3,
+        dataModelBindings: { group: 'MyModel.MainGroup' },
+      },
+      {
+        id: 'child',
+        type: 'Input',
+        dataModelBindings: { simpleBinding: 'MyModel.MainGroup.Child' },
+      },
+    ];
+
+    const pageWithPanelRef: ILayout = [
+      {
+        id: 'groupWithPanel',
+        type: 'Group',
+        children: ['panelChild'],
+        panel: {
+          groupReference: { group: 'mainGroup' },
+        },
+      },
+      {
+        id: 'panelChild',
+        type: 'Input',
+        dataModelBindings: { simpleBinding: 'MyModel.MainGroup.Child' },
+      },
+    ];
+
+    it.each([
+      {
+        name: 'group with panel reference defined on the page before the referenced group',
+        layouts: {
+          page1: pageWithPanelRef,
+          page2: pageWithMainGroup,
+        },
+      },
+      {
+        name: 'group with panel reference defined on the page after the referenced group',
+        layouts: {
+          page1: pageWithMainGroup,
+          page2: pageWithPanelRef,
+        },
+      },
+      {
+        name: 'group with panel reference defined after, on the same page as the referenced group',
+        layouts: {
+          page1: [...pageWithMainGroup, ...pageWithPanelRef],
+        },
+      },
+      {
+        name: 'group with panel reference defined before, on the same page as the referenced group',
+        layouts: {
+          page1: [...pageWithPanelRef, ...pageWithMainGroup],
+        },
+      },
+      {
+        name: 'group with panel reference defined after, on the page before the referenced group, in reverse order',
+        layouts: {
+          page1: [...pageWithMainGroup.reverse(), ...pageWithPanelRef.reverse()],
+        },
+      },
+    ])('$name', ({ layouts }) => {
+      const state = getInitialStateMock();
+      state.formLayout.layouts = layouts as ILayouts;
+      state.formLayout.uiConfig.repeatingGroups = {
+        mainGroup: {
+          index: 2,
+        },
+      };
+      state.formLayout.uiConfig.currentView = 'page1';
+      const resolved = resolvedLayoutsFromState(state);
+      const dataBindingFor = (id: string) => resolved?.findById(id)?.item.dataModelBindings?.simpleBinding;
+
+      expect(dataBindingFor('child-2')).toEqual('MyModel.MainGroup[2].Child');
+      expect(resolved?.findById('child-3')).toBeUndefined();
+      expect(resolved?.findById('panelChild-2')).toBeUndefined();
+      expect(dataBindingFor('panelChild-3')).toEqual('MyModel.MainGroup[3].Child');
+    });
   });
 });
