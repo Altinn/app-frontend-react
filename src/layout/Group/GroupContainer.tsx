@@ -4,6 +4,7 @@ import { Button, ButtonSize, ButtonVariant } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import { Add as AddIcon } from '@navikt/ds-icons';
 
+import { AltinnLoader } from 'src/components/AltinnLoader';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
@@ -19,7 +20,6 @@ import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { IRuntimeState } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-
 export interface IGroupProps {
   id: string;
 }
@@ -93,11 +93,17 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
       fullWidth
       disabled={isLoading || false}
     >
-      {isLoading //Not finish
-        ? 'Laster'
-        : `${getLanguageFromKey('general.add_new', language ?? {})} ${
+      {isLoading && (
+        <AltinnLoader
+          style={{ position: 'absolute' }}
+          srContent={`${getLanguageFromKey('general.add_new', language ?? {})} ${
             resolvedTextBindings?.add_button ? getTextResourceByKey(resolvedTextBindings.add_button, textResources) : ''
           }`}
+        />
+      )}
+      {`${getLanguageFromKey('general.add_new', language ?? {})} ${
+        resolvedTextBindings?.add_button ? getTextResourceByKey(resolvedTextBindings.add_button, textResources) : ''
+      }`}
     </Button>
   );
 
