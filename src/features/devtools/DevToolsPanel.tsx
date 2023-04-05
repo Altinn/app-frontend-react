@@ -5,8 +5,7 @@ import type { ReactNode } from 'react';
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { Close } from '@navikt/ds-icons';
 
-import { DevNavigationButtons } from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons';
-import { PDFPreviewButton } from 'src/features/devtools/components/PDFPreviewButton/PDFPreviewButton';
+import { LayoutInspector } from 'src/features/devtools/components/LayoutInspector/LayoutInspector';
 import classes from 'src/features/devtools/DevTools.module.css';
 
 function clampHeight(height: number): number {
@@ -61,6 +60,7 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
   return (
     <>
       <div
+        id='appContainer'
         className={classes.appContainer}
         style={{ paddingBottom: isOpen ? height : 0 }}
       >
@@ -89,8 +89,9 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
               />
             </div>
             <div className={classes.controlsWrapper}>
-              <PDFPreviewButton />
-              <DevNavigationButtons />
+              {/*<PDFPreviewButton />
+              <DevNavigationButtons />*/}
+              <LayoutInspector />
             </div>
           </div>
         </div>

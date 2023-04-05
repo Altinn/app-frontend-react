@@ -1,0 +1,27 @@
+.container {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  background-color: #333;
+}
+
+.item {
+  padding: 0 6px;
+  color: white;
+  list-style: none;
+}
+
+.item:hover {
+  background-color: #555;
+}
+
+.componentType {
+}
+
+.componentId {
+  text-align: center;
+  vertical-align: middle;
+  margin-left: 12px;
+  color: #eee;
+  font-size: 0.8rem;
+}

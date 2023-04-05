@@ -47,6 +47,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
     <Grid
       item={true}
       xs={12}
+      data-componentId={node?.item.baseComponentId ?? node?.item.id}
     >
       {title && (
         <Typography
