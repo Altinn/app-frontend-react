@@ -125,16 +125,13 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   public children(matching: undefined, onlyInRowIndex?: number): LayoutNode[];
   public children(matching?: (item: AnyItem) => boolean, onlyInRowIndex?: number): any {
     const list = this.childrenAsList(onlyInRowIndex);
-
     if (!matching) {
       return list;
     }
 
-    if (typeof list !== 'undefined') {
-      for (const node of list) {
-        if (matching(node.item)) {
-          return node;
-        }
+    for (const node of list) {
+      if (matching(node.item)) {
+        return node;
       }
     }
 
