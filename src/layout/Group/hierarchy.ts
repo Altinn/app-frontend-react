@@ -52,7 +52,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       return this.processPanelReference(ctx);
     }
 
-    const isRepeating = item.maxCount && item.maxCount >= 1;
+    const isRepeating = item.maxCount && item.maxCount > 1;
     if (isRepeating) {
       return this.processRepeating(ctx);
     }
