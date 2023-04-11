@@ -191,10 +191,15 @@ export class HierarchyGenerator {
     rowIndex,
     directMutators = [],
     recursiveMutators = [],
-  }: NewChildProps): LayoutNode {
+  }: NewChildProps): LayoutNode | undefined {
+    const parentId = overrideParentId || parent.item.baseComponentId || parent.item.id;
+    const fullParentId = `${parentPage}/${parentId}`;
     const fullChildId = `${childPage}/${childId}`;
     if (!this.map[fullChildId]) {
-      throw new Error(`Tried to create a new child object for non-existing child '${fullChildId}'`);
+      console.warn(
+        `The component '${fullParentId}' tried to claim '${fullChildId}' as its child, but that component does not exist`,
+      );
+      return undefined;
     }
     if (!this.claims[fullChildId]) {
       throw new Error(`Tried to create a new child object for unclaimed '${fullChildId}'`);
@@ -204,8 +209,6 @@ export class HierarchyGenerator {
       throw new Error(`Tried to create a new child object for '${fullChildId}' which is not claimed by any parent`);
     }
 
-    const parentId = overrideParentId || parent.item.baseComponentId || parent.item.id;
-    const fullParentId = `${parentPage}/${parentId}`;
     if (!parentId || !this.claims[fullChildId].has(fullParentId)) {
       throw new Error(
         `Tried to create a new child object for '${fullChildId}' which is not claimed by '${fullParentId}'`,

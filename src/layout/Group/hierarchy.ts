@@ -113,13 +113,12 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       const childNodes: LayoutNode[] = [];
       for (const id of prototype.children) {
         const [, childId] = me.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
-        childNodes.push(
-          this.generator.newChild({
-            ctx,
-            parent: me,
-            childId,
-          }),
-        );
+        const child = this.generator.newChild({
+          ctx,
+          parent: me,
+          childId,
+        });
+        child && childNodes.push(child);
       }
 
       if (me.isNonRepGroup()) {
@@ -150,20 +149,19 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
 
         for (const id of prototype.children) {
           const [multiPageIndex, childId] = props.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
-          rowChildren.push(
-            this.generator.newChild({
-              ctx,
-              childId,
-              parent: me,
-              rowIndex,
-              directMutators: [addMultiPageIndex(multiPageIndex)],
-              recursiveMutators: [
-                mutateComponentId(rowIndex),
-                mutateDataModelBindings(props, rowIndex),
-                mutateMapping(ctx, rowIndex),
-              ],
-            }),
-          );
+          const child = this.generator.newChild({
+            ctx,
+            childId,
+            parent: me,
+            rowIndex,
+            directMutators: [addMultiPageIndex(multiPageIndex)],
+            recursiveMutators: [
+              mutateComponentId(rowIndex),
+              mutateDataModelBindings(props, rowIndex),
+              mutateMapping(ctx, rowIndex),
+            ],
+          });
+          child && rowChildren.push(child);
         }
 
         rows.push({
@@ -179,23 +177,22 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
 
         for (const id of ref.children) {
           const [multiPageIndex, childId] = ref.multiPage ? id.split(':', 2) : [undefined, id];
-          nextChildren.push(
-            this.generator.newChild({
-              ctx,
-              childPage: ref.childPage,
-              childId,
-              parentPage: ref.parentPage,
-              parent: me,
-              overrideParentId: ref.parentId,
-              rowIndex: nextIndex,
-              directMutators: [addMultiPageIndex(multiPageIndex)],
-              recursiveMutators: [
-                mutateComponentId(nextIndex),
-                mutateDataModelBindings(props, nextIndex),
-                mutateMapping(ctx, nextIndex),
-              ],
-            }),
-          );
+          const child = this.generator.newChild({
+            ctx,
+            childPage: ref.childPage,
+            childId,
+            parentPage: ref.parentPage,
+            parent: me,
+            overrideParentId: ref.parentId,
+            rowIndex: nextIndex,
+            directMutators: [addMultiPageIndex(multiPageIndex)],
+            recursiveMutators: [
+              mutateComponentId(nextIndex),
+              mutateDataModelBindings(props, nextIndex),
+              mutateMapping(ctx, nextIndex),
+            ],
+          });
+          child && nextChildren.push(child);
         }
 
         ref.nextChildren = nextChildren;
