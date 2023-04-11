@@ -63,8 +63,13 @@ function evalAllExpressions(layouts: Layouts) {
   );
   for (const page of Object.values(nodes.all())) {
     for (const node of page.flat(true)) {
+      const input = { ...node.item };
+      delete input['children'];
+      delete input['rows'];
+      delete input['childComponents'];
+
       evalExprInObj({
-        input: node.item,
+        input,
         node,
         config: {
           ...ExprConfigForComponent,
