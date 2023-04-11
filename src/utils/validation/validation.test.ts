@@ -9,6 +9,7 @@ import * as oneOfOnRootSchema from 'src/__mocks__/json-schema/one-of-on-root.jso
 import * as refOnRootSchema from 'src/__mocks__/json-schema/ref-on-root.json';
 import { getMockValidationState } from 'src/__mocks__/validationStateMock';
 import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { getLayoutComponentObject } from 'src/layout';
 import { Severity } from 'src/types';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
@@ -32,13 +33,19 @@ function toCollection(
   repeatingGroups: IRepeatingGroups = {},
   hiddenFields: Set<string> = new Set<string>(),
 ) {
-  return generateEntireHierarchy(mockLayouts, Object.keys(mockLayouts)[0], repeatingGroups, {
-    instanceContext: null,
-    formData: {},
-    applicationSettings: null,
-    hiddenFields,
-    validations: {},
-  });
+  return generateEntireHierarchy(
+    mockLayouts,
+    Object.keys(mockLayouts)[0],
+    repeatingGroups,
+    {
+      instanceContext: null,
+      formData: {},
+      applicationSettings: null,
+      hiddenFields,
+      validations: {},
+    },
+    getLayoutComponentObject,
+  );
 }
 
 function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {

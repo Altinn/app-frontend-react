@@ -1,6 +1,7 @@
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions/index';
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression, preProcessLayout } from 'src/features/expressions/validation';
+import { getLayoutComponentObject } from 'src/layout';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { Layouts } from 'src/features/expressions/shared';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
@@ -53,7 +54,13 @@ function evalAllExpressions(layouts: Layouts) {
     hiddenFields: new Set(),
     validations: {},
   };
-  const nodes = generateEntireHierarchy(convertLayouts(layouts), Object.keys(layouts)[0], repeatingGroups, dataSources);
+  const nodes = generateEntireHierarchy(
+    convertLayouts(layouts),
+    Object.keys(layouts)[0],
+    repeatingGroups,
+    dataSources,
+    getLayoutComponentObject,
+  );
   for (const page of Object.values(nodes.all())) {
     for (const node of page.flat(true)) {
       evalExprInObj({

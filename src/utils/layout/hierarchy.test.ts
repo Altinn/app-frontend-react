@@ -1,4 +1,5 @@
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { getLayoutComponentObject } from 'src/layout';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { _private, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
@@ -195,12 +196,12 @@ describe('Hierarchical layout tools', () => {
       root._addChild(top1);
       root._addChild(top2);
 
-      const result = generateHierarchy([components.top1, components.top2], {}, dataSources);
+      const result = generateHierarchy([components.top1, components.top2], {}, dataSources, getLayoutComponentObject);
       expect(result).toEqual(root);
     });
 
     it('should resolve a complex layout without groups', () => {
-      const nodes = generateHierarchy(layout, repeatingGroups, dataSources);
+      const nodes = generateHierarchy(layout, repeatingGroups, dataSources, getLayoutComponentObject);
       const flatNoGroups = nodes.flat(false);
       expect(flatNoGroups.map((n) => n.item.id)).toEqual([
         // Top-level nodes:
@@ -229,7 +230,7 @@ describe('Hierarchical layout tools', () => {
     });
 
     it('should resolve a complex layout with groups', () => {
-      const nodes = generateHierarchy(layout, repeatingGroups, dataSources);
+      const nodes = generateHierarchy(layout, repeatingGroups, dataSources, getLayoutComponentObject);
       const flatWithGroups = nodes.flat(true);
       expect(flatWithGroups.map((n) => n.item.id).sort()).toEqual(
         [
@@ -263,7 +264,7 @@ describe('Hierarchical layout tools', () => {
     });
 
     it('should enable traversal of layout', () => {
-      const nodes = generateHierarchy(layout, manyRepeatingGroups, dataSources);
+      const nodes = generateHierarchy(layout, manyRepeatingGroups, dataSources, getLayoutComponentObject);
       const flatWithGroups = nodes.flat(true);
       const deepComponent = flatWithGroups.find((node) => node.item.id === `${components.group2nh.id}-2-2`);
       expect(deepComponent?.item.id).toEqual(`${components.group2nh.id}-2-2`);
@@ -371,7 +372,12 @@ describe('Hierarchical layout tools', () => {
           dataModelBindings: { simpleBinding: 'Group.Title' },
         },
       ];
-      const nodes = generateHierarchy(layout, getRepeatingGroups(layout, dataModel), dataSources);
+      const nodes = generateHierarchy(
+        layout,
+        getRepeatingGroups(layout, dataModel),
+        dataSources,
+        getLayoutComponentObject,
+      );
 
       expect(nodes.findAllById('g1c').length).toEqual(3);
       expect(nodes.findAllById('g2c').length).toEqual(3);
@@ -452,8 +458,8 @@ describe('Hierarchical layout tools', () => {
     ];
 
     const layouts = {
-      l1: generateHierarchy(layout1, {}, dataSources),
-      l2: generateHierarchy(layout2, {}, dataSources),
+      l1: generateHierarchy(layout1, {}, dataSources, getLayoutComponentObject),
+      l2: generateHierarchy(layout2, {}, dataSources, getLayoutComponentObject),
     };
 
     const collection1 = new LayoutPages('l1', layouts);
@@ -483,7 +489,7 @@ describe('Hierarchical layout tools', () => {
   });
 
   describe('transposeDataModel', () => {
-    const nodes = generateHierarchy(layout, manyRepeatingGroups, dataSources);
+    const nodes = generateHierarchy(layout, manyRepeatingGroups, dataSources, getLayoutComponentObject);
     const inputNode = nodes.findById(`${components.group2ni.id}-2-2`);
     const topHeaderNode = nodes.findById(components.top1.id);
 
@@ -547,7 +553,12 @@ describe('Hierarchical layout tools', () => {
         },
       },
     };
-    const page = generateHierarchy(layout, manyRepeatingGroups, { ...dataSources, validations });
+    const page = generateHierarchy(
+      layout,
+      manyRepeatingGroups,
+      { ...dataSources, validations },
+      getLayoutComponentObject,
+    );
     page.registerCollection('formLayout', new LayoutPages<any>());
     const nestedNode = page.findById(nestedId);
     const topHeaderNode = page.findById(components.top1.id);

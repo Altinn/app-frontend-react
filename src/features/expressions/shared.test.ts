@@ -4,6 +4,7 @@ import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression } from 'src/features/expressions/validation';
+import { getLayoutComponentObject } from 'src/layout';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { _private } from 'src/utils/layout/hierarchy';
@@ -68,7 +69,7 @@ describe('Expressions shared function tests', () => {
 
         const currentLayout = (context && context.currentLayout) || '';
         const rootCollection = expectsFailure
-          ? generateEntireHierarchy(_layouts, currentLayout, repeatingGroups, dataSources)
+          ? generateEntireHierarchy(_layouts, currentLayout, repeatingGroups, dataSources, getLayoutComponentObject)
           : resolvedNodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources);
         const component = findComponent(context, rootCollection);
 
@@ -151,7 +152,12 @@ describe('Expressions shared context tests', () => {
       const _layouts = layouts || {};
       for (const key of Object.keys(_layouts)) {
         const repeatingGroups = getRepeatingGroups(_layouts[key].data.layout, dataSources.formData);
-        const layout = generateHierarchy(_layouts[key].data.layout, repeatingGroups, dataSources);
+        const layout = generateHierarchy(
+          _layouts[key].data.layout,
+          repeatingGroups,
+          dataSources,
+          getLayoutComponentObject,
+        );
 
         foundContexts.push({
           component: key,

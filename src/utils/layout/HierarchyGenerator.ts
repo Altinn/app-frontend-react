@@ -1,8 +1,8 @@
-import { getLayoutComponentObject } from 'src/layout';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { ExprUnresolved } from 'src/features/expressions/types';
+import type { DefGetter } from 'src/layout';
 import type { ComponentTypes, ILayout, ILayoutComponentExact, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -134,6 +134,7 @@ export class HierarchyGenerator {
     private readonly layouts: ILayouts,
     public readonly repeatingGroups: IRepeatingGroups | null,
     public readonly dataSources: HierarchyDataSources,
+    private getLayoutComponentObject: DefGetter,
   ) {}
 
   /**
@@ -275,7 +276,7 @@ export class HierarchyGenerator {
    */
   private getInstance(type: ComponentTypes) {
     if (!this.instances[type]) {
-      const def = getLayoutComponentObject(type);
+      const def = this.getLayoutComponentObject(type);
       if (!def) {
         console.warn(`No component definition found for type '${type}'`);
         return;
@@ -385,9 +386,10 @@ export function generateHierarchy(
   layout: ILayout,
   repeatingGroups: IRepeatingGroups,
   dataSources: HierarchyDataSources,
+  getLayoutComponentObject: DefGetter,
 ): LayoutPage {
   const clone = structuredClone({ FormLayout: layout }) as ILayouts;
-  const generator = new HierarchyGenerator(clone, repeatingGroups, dataSources);
+  const generator = new HierarchyGenerator(clone, repeatingGroups, dataSources, getLayoutComponentObject);
   generator.run();
 
   return generator.pages.FormLayout;
@@ -398,8 +400,9 @@ export function generateEntireHierarchy(
   currentView: string,
   repeatingGroups: IRepeatingGroups | null,
   dataSources: HierarchyDataSources,
+  getLayoutComponentObject: DefGetter,
 ): LayoutPages {
-  const generator = new HierarchyGenerator(layouts, repeatingGroups, dataSources);
+  const generator = new HierarchyGenerator(layouts, repeatingGroups, dataSources, getLayoutComponentObject);
   generator.run();
 
   return new LayoutPages(currentView as keyof typeof generator.pages, generator.pages);

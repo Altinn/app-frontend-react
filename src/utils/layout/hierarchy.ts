@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { getLayoutComponentObject } from 'src/layout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -23,7 +24,13 @@ function resolvedNodesInLayouts(
   // A full copy is needed here because formLayout comes from the redux store, and in production code (not the
   // development server!) the properties are not mutable (but we have to mutate them below).
   const layoutsCopy: ILayouts = layouts ? structuredClone(layouts) : {};
-  const unresolved = generateEntireHierarchy(layoutsCopy, currentLayout, repeatingGroups, dataSources);
+  const unresolved = generateEntireHierarchy(
+    layoutsCopy,
+    currentLayout,
+    repeatingGroups,
+    dataSources,
+    getLayoutComponentObject,
+  );
 
   const config = {
     ...ExprConfigForComponent,
