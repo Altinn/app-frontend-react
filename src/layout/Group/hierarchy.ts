@@ -72,20 +72,24 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
         throw new Error(`Group ${props.item.id} is a panel reference but does not reference a group`);
       }
 
-      const ref = this.groupPanelRefs[groupId];
-      if (!ref) {
-        throw new Error(
-          `Group panel ${props.item.id} references group ${groupId} which does not have a reference entry`,
-        );
-      }
+      this.generator.addStage3Callback(() => {
+        const ref = this.groupPanelRefs[groupId];
+        if (!ref) {
+          throw new Error(
+            `Group panel ${props.item.id} references group ${groupId} which does not have a reference entry`,
+          );
+        }
 
-      if (!ref.nextChildren) {
-        throw new Error(`Group panel ${props.item.id} references group ${groupId} which did not generate nextChildren`);
-      }
+        if (!ref.nextChildren) {
+          throw new Error(
+            `Group panel ${props.item.id} references group ${groupId} which did not generate nextChildren`,
+          );
+        }
 
-      if (me.isNonRepGroup()) {
-        me.item.childComponents = ref.nextChildren;
-      }
+        if (me.isNonRepGroup()) {
+          me.item.childComponents = ref.nextChildren;
+        }
+      });
 
       return me;
     };

@@ -121,6 +121,8 @@ export class HierarchyGenerator {
   private unclaimed: Set<string>;
   private claims: { [childId: string]: Set<string> } = {};
 
+  private stage3callbacks: (() => void)[] = [];
+
   private top: LayoutPage;
   private layout: ILayout;
   public readonly pages: { [layoutKey: string]: LayoutPage } = {};
@@ -246,31 +248,46 @@ export class HierarchyGenerator {
   }
 
   /**
+   * Adds a callback to be run after stage 1 and 2 has been completed (for all pages)
+   */
+  addStage3Callback(callback: () => void) {
+    this.stage3callbacks.push(callback);
+  }
+
+  /**
+   * Gets the ComponentHierarchyGenerator instance for a given component type
+   */
+  private getInstance(type: ComponentTypes) {
+    if (!this.instances[type]) {
+      const def = getLayoutComponentObject(type);
+      if (!def) {
+        console.warn(`No component definition found for type '${type}'`);
+        return;
+      }
+      this.instances[type] = def.hierarchyGenerator(this);
+    }
+
+    return this.instances[type];
+  }
+
+  /**
    * Runs the generator for this given layout, and return the top-level page
    */
   private processPage() {
     // Stage 1
     for (const item of this.layout) {
       const ro = Object.freeze(structuredClone(item));
-      const def = getLayoutComponentObject(item.type);
-      if (!def) {
-        console.warn(`A component with id '${item.id}' was defined with an unknown component type '${item.type}'`);
-        continue;
-      }
-      if (!this.instances[ro.type]) {
-        this.instances[ro.type] = def.hierarchyGenerator(this);
-      }
-      const instance = this.instances[ro.type];
-      instance.stage1(ro);
+      const instance = this.getInstance(ro.type);
+      instance?.stage1(ro);
     }
 
     // Stage 2
     for (const id of this.unclaimed.values()) {
       const item = structuredClone(this.map[id]);
-      if (!this.instances[item.type]) {
+      const instance = this.getInstance(item.type);
+      if (!instance) {
         continue;
       }
-      const instance = this.instances[item.type];
       const ctx: HierarchyContext = {
         id,
         depth: 1,
@@ -304,6 +321,11 @@ export class HierarchyGenerator {
         this.processPage();
         this.pages[layoutKey] = this.top;
       }
+    }
+
+    // Stage 3
+    for (const callback of this.stage3callbacks) {
+      callback();
     }
   }
 }
