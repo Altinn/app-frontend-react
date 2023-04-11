@@ -34,7 +34,9 @@ export type HierarchyContext = {
 
 export interface NewChildProps extends CommonChildFactoryProps {
   overrideParentId?: string;
+  childPage?: string;
   childId: string;
+  parentPage?: string;
   directMutators?: ChildMutator[];
   recursiveMutators?: ChildMutator[];
   ctx: HierarchyContext;
@@ -115,16 +117,17 @@ export interface NewChildProps extends CommonChildFactoryProps {
  *
  */
 export class HierarchyGenerator {
-  private allIds: Set<string>;
-  private map: { [id: string]: UnprocessedItem } = {};
+  private allIds: Set<string> = new Set();
+  private map: { [fullId: string]: UnprocessedItem } = {};
   private instances: { [type: string]: ComponentHierarchyGenerator<any> } = {};
-  private unclaimed: Set<string>;
-  private claims: { [childId: string]: Set<string> } = {};
+  private unclaimed: Set<string> = new Set();
+  private claims: { [fullChildId: string]: Set<string> } = {};
 
   private stage3callbacks: (() => void)[] = [];
 
   private top: LayoutPage;
-  private layout: ILayout;
+  public topKey: string;
+
   public readonly pages: { [layoutKey: string]: LayoutPage } = {};
 
   constructor(
@@ -137,21 +140,19 @@ export class HierarchyGenerator {
    * Claim another component as a child
    */
   claimChild(claim: Required<Claim>): void {
-    if (!this.allIds.has(claim.childId)) {
+    const fullChildId = `${this.topKey}/${claim.childId}`;
+    const fullParentId = `${this.topKey}/${claim.parentId}`;
+    if (!this.allIds.has(fullChildId)) {
       console.warn(
-        'Component',
-        claim.parentId,
-        'tried to claim',
-        claim.childId,
-        'as a child, but a component with that ID is not defined',
+        `Component ${fullParentId} tried to claim ${fullChildId} as a child, but a component with that ID is not defined`,
       );
       return;
     }
 
-    this.claims[claim.childId] = this.claims[claim.childId] || new Set();
-    const parents = this.claims[claim.childId];
+    this.claims[fullChildId] = this.claims[fullChildId] || new Set();
+    const parents = this.claims[fullChildId];
 
-    if (!parents.has(claim.parentId) && parents.size > 0) {
+    if (!parents.has(fullParentId) && parents.size > 0) {
       /**
        * TODO: Remove this to support multiple components claiming the same children. This could be useful for groups
        * with panel references, or repeating groups where you'd want to have one group with a filter and another one
@@ -165,18 +166,14 @@ export class HierarchyGenerator {
        * @see https://altinndevops.slack.com/archives/CDU1S3NLW/p1679044199116669
        */
       console.warn(
-        'Component',
-        claim.parentId,
-        'tried to claim',
-        claim.childId,
-        'as a child, but that child is already claimed by',
+        `Component ${fullParentId} tried to claim ${fullChildId} as a child, but that child is already claimed by`,
         parents.values(),
       );
       return;
     }
 
-    parents.add(claim.parentId);
-    this.unclaimed.delete(claim.childId);
+    parents.add(fullParentId);
+    this.unclaimed.delete(fullChildId);
   }
 
   /**
@@ -185,30 +182,36 @@ export class HierarchyGenerator {
    */
   newChild<T extends ComponentTypes>({
     ctx,
+    childPage = this.topKey,
     childId,
+    parentPage = this.topKey,
     parent,
     overrideParentId,
     rowIndex,
     directMutators = [],
     recursiveMutators = [],
   }: NewChildProps): LayoutNode {
-    if (!this.map[childId]) {
-      throw new Error(`Tried to create a new child object for non-existing child '${childId}'`);
+    const fullChildId = `${childPage}/${childId}`;
+    if (!this.map[fullChildId]) {
+      throw new Error(`Tried to create a new child object for non-existing child '${fullChildId}'`);
     }
-    if (!this.claims[childId]) {
-      throw new Error(`Tried to create a new child object for unclaimed '${childId}'`);
+    if (!this.claims[fullChildId]) {
+      throw new Error(`Tried to create a new child object for unclaimed '${fullChildId}'`);
     }
 
     if (parent instanceof LayoutPage) {
-      throw new Error(`Tried to create a new child object for '${childId}' which is not claimed by any parent`);
+      throw new Error(`Tried to create a new child object for '${fullChildId}' which is not claimed by any parent`);
     }
 
     const parentId = overrideParentId || parent.item.baseComponentId || parent.item.id;
-    if (!parentId || !this.claims[childId].has(parentId)) {
-      throw new Error(`Tried to create a new child object for '${childId}' which is not claimed by '${parentId}'`);
+    const fullParentId = `${parentPage}/${parentId}`;
+    if (!parentId || !this.claims[fullChildId].has(fullParentId)) {
+      throw new Error(
+        `Tried to create a new child object for '${fullChildId}' which is not claimed by '${fullParentId}'`,
+      );
     }
 
-    const clone = structuredClone(this.map[childId]) as UnprocessedItem<T>;
+    const clone = structuredClone(this.map[fullChildId]) as UnprocessedItem<T>;
 
     const allMutators = [...ctx.mutators, ...directMutators, ...recursiveMutators];
     for (const mutator of allMutators) {
@@ -244,7 +247,20 @@ export class HierarchyGenerator {
    * useful when looking into the base definition/prototype of a component.
    */
   prototype(id: string): UnprocessedItem | undefined {
-    return Object.freeze(structuredClone(this.map[id]));
+    const currenPageId = `${this.topKey}/${id}`;
+    if (this.map[currenPageId]) {
+      // Tries the current page first, to keep backwards compatibility
+      return Object.freeze(structuredClone(this.map[currenPageId]));
+    }
+
+    for (const layoutKey of Object.keys(this.layouts)) {
+      const fullId = `${layoutKey}/${id}`;
+      if (this.map[fullId]) {
+        return Object.freeze(structuredClone(this.map[fullId]));
+      }
+    }
+
+    return undefined;
   }
 
   /**
@@ -271,55 +287,65 @@ export class HierarchyGenerator {
   }
 
   /**
-   * Runs the generator for this given layout, and return the top-level page
-   */
-  private processPage() {
-    // Stage 1
-    for (const item of this.layout) {
-      const ro = Object.freeze(structuredClone(item));
-      const instance = this.getInstance(ro.type);
-      instance?.stage1(ro);
-    }
-
-    // Stage 2
-    for (const id of this.unclaimed.values()) {
-      const item = structuredClone(this.map[id]);
-      const instance = this.getInstance(item.type);
-      if (!instance) {
-        continue;
-      }
-      const ctx: HierarchyContext = {
-        id,
-        depth: 1,
-        mutators: [],
-      };
-      const processor = instance.stage2(ctx) as ChildFactory<ComponentTypes>;
-      processor({ item: this.map[id], parent: this.top });
-    }
-  }
-
-  /**
    * Runs the generator for all layouts
    * @see generateHierarchy
    * @see generateEntireHierarchy
    */
   run() {
+    // Initialization and mapping
+    for (const layoutKey of Object.keys(this.layouts)) {
+      const layout = this.layouts[layoutKey];
+      for (const component of layout || []) {
+        const fullId = `${layoutKey}/${component.id}`;
+        this.allIds.add(fullId);
+        this.unclaimed.add(fullId);
+        this.map[fullId] = component;
+      }
+    }
+
+    // Stage 1
     for (const layoutKey of Object.keys(this.layouts)) {
       const layout = this.layouts[layoutKey];
       if (layout) {
-        this.allIds = new Set();
-        this.unclaimed = new Set();
-        this.layout = layout;
         this.top = new LayoutPage();
+        this.topKey = layoutKey;
 
-        for (const component of layout) {
-          this.allIds.add(component.id);
-          this.unclaimed.add(component.id);
-          this.map[component.id] = component;
+        for (const item of layout) {
+          const ro = Object.freeze(structuredClone(item));
+          const instance = this.getInstance(ro.type);
+          instance?.stage1(ro);
         }
 
-        this.processPage();
         this.pages[layoutKey] = this.top;
+      }
+    }
+
+    // Stage 2
+    for (const layoutKey of Object.keys(this.layouts)) {
+      const layout = this.layouts[layoutKey];
+      if (layout) {
+        this.top = this.pages[layoutKey];
+        this.topKey = layoutKey;
+
+        for (const fullId of this.unclaimed.values()) {
+          if (!fullId.startsWith(`${layoutKey}/`)) {
+            continue;
+          }
+
+          const plainId = fullId.substring(layoutKey.length + 1);
+          const item = structuredClone(this.map[fullId]);
+          const instance = this.getInstance(item.type);
+          if (!instance) {
+            continue;
+          }
+          const ctx: HierarchyContext = {
+            id: plainId,
+            depth: 1,
+            mutators: [],
+          };
+          const processor = instance.stage2(ctx) as ChildFactory<ComponentTypes>;
+          processor({ item, parent: this.top });
+        }
       }
     }
 

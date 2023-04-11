@@ -11,8 +11,10 @@ import type {
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface GroupPanelRef {
+  childPage: string;
   multiPage: boolean | undefined;
   children: string[];
+  parentPage: string;
   parentId: string;
   nextChildren?: LayoutNode<HRepGroupChild>[];
 }
@@ -35,8 +37,10 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       }
 
       this.groupPanelRefs[groupId] = {
+        childPage: this.generator.topKey,
         multiPage: item.edit?.multiPage,
         children: item.children,
+        parentPage: this.generator.topKey,
         parentId: item.id,
       };
     }
@@ -178,7 +182,9 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
           nextChildren.push(
             this.generator.newChild({
               ctx,
+              childPage: ref.childPage,
               childId,
+              parentPage: ref.parentPage,
               parent: me,
               overrideParentId: ref.parentId,
               rowIndex: nextIndex,
