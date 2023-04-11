@@ -5,8 +5,8 @@ import type { ReactNode } from 'react';
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { Close } from '@navikt/ds-icons';
 
-import { LayoutInspector } from 'src/features/devtools/components/LayoutInspector/LayoutInspector';
 import classes from 'src/features/devtools/DevTools.module.css';
+import { DevToolsControls } from 'src/features/devtools/DevToolsControls';
 
 function clampHeight(height: number): number {
   return Math.min(Math.max(height, 10), window.innerHeight);
@@ -78,8 +78,7 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
             onTouchStart={resizeHandlerMobile}
           />
           <div className={classes.panelContent}>
-            <div className={classes.header}>
-              <h2>Utviklerverktøy</h2>
+            <div className={classes.closeButton}>
               <Button
                 onClick={close}
                 variant={ButtonVariant.Quiet}
@@ -88,11 +87,7 @@ export const DevToolsPanel = ({ isOpen, close, children }: IDevToolsPanelProps) 
                 icon={<Close aria-hidden />}
               />
             </div>
-            <div className={classes.controlsWrapper}>
-              {/*<PDFPreviewButton />
-              <DevNavigationButtons />*/}
-              <LayoutInspector />
-            </div>
+            <DevToolsControls />
           </div>
         </div>
       )}

@@ -1,27 +1,30 @@
 .container {
-  flex: 1;
+  height: 100%;
   overflow-y: auto;
   width: 100%;
-  background-color: #333;
 }
 
 .item {
   padding: 0 6px;
-  color: white;
   list-style: none;
 }
 
+.item span {
+  cursor: default;
+}
+
 .item:hover {
-  background-color: #555;
+  background-color: #ccc;
 }
 
 .componentType {
+  font-weight: bold;
 }
 
 .componentId {
   text-align: center;
   vertical-align: middle;
   margin-left: 12px;
-  color: #eee;
+  color: #333;
   font-size: 0.8rem;
 }
