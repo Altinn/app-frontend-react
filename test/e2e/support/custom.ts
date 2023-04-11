@@ -23,3 +23,8 @@ Cypress.Commands.add('dsSelect', { prevSubject: true }, (subject: JQueryWithSele
   cy.get('body').click();
   cy.wrap(subject);
 });
+
+Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
+  // eslint-disable-next-line cypress/unsafe-to-chain-command
+  cy.wrap(subject).click().should('not.exist');
+});

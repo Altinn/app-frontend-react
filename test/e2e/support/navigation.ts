@@ -113,17 +113,13 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
   },
   changename: () => {
     cy.get(appFrontend.changeOfName.currentName).then(() => {
-      cy.get(appFrontend.changeOfName.newFirstName).type('a').blur();
-      cy.get(appFrontend.changeOfName.newLastName).type('a').blur();
+      cy.get(appFrontend.changeOfName.newFirstName).type('a');
+      cy.get(appFrontend.changeOfName.newLastName).type('a');
       cy.get(appFrontend.changeOfName.confirmChangeName).find('input').dsCheck();
-      cy.get(appFrontend.changeOfName.reasonRelationship).click().type('test');
-      cy.get(appFrontend.changeOfName.dateOfEffect)
-        .siblings()
-        .children(mui.buttonIcon)
-        .click()
-        .then(() => {
-          cy.get(mui.selectedDate).click();
-        });
+      cy.get(appFrontend.changeOfName.reasonRelationship).click();
+      cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
+      cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
+      cy.get(mui.selectedDate).click();
       cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
       cy.get(appFrontend.nextButton).click();
     });
@@ -170,7 +166,7 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
     cy.get('#source-0').dsSelect('Digitaliseringsdirektoratet');
     cy.get('#reference-0').dsSelect('Sophie Salt');
 
-    cy.get(appFrontend.group.saveMainGroup).click().should('not.exist');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.group.sendersName).type('automation');
