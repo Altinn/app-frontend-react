@@ -231,9 +231,10 @@ const mutateDataModelBindings: (props: ChildFactoryProps<'Group'>, rowIndex: num
 
 const mutateMapping: (ctx: HierarchyContext, rowIndex: number) => ChildMutator = (ctx, rowIndex) => (item) => {
   if ('mapping' in item && item.mapping) {
+    const depthMarker = ctx.depth - 1;
     for (const key of Object.keys(item.mapping)) {
       const value = item.mapping[key];
-      const newKey = key.replace(`[{${ctx.depth}}]`, `[${rowIndex}]`);
+      const newKey = key.replace(`[{${depthMarker}}]`, `[${rowIndex}]`);
       delete item.mapping[key];
       item.mapping[newKey] = value;
     }
