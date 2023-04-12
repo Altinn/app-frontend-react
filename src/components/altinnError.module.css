@@ -1,0 +1,22 @@
+.contentMargin {
+  margin-bottom: 24px;
+}
+.statusCode {
+  font-size: 0.875rem;
+}
+.articleText {
+  font-size: 1.125rem;
+}
+
+.title {
+  font-weight: 500;
+  color: #022f51;
+}
+
+.imageContainer {
+  margin: 65px 0 0 10px;
+}
+
+.gridContainer {
+  max-width: 750px;
+}
