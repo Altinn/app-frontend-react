@@ -98,7 +98,7 @@ export function PanelGroupContainer({ id }: IPanelGroupContainerProps) {
   return (
     <Grid
       item={true}
-      data-componentId={node.item.baseComponentId ?? node.item.id}
+      data-componentid={node.item.baseComponentId ?? node.item.id}
     >
       <ConditionalWrapper
         condition={fullWidth}

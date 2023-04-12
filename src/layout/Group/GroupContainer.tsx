@@ -170,7 +170,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     <Grid
       container={true}
       item={true}
-      data-componentId={node.item.baseComponentId ?? node.item.id}
+      data-componentid={node.item.baseComponentId ?? node.item.id}
     >
       {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
