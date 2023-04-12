@@ -1,0 +1,13 @@
+.border {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--file-list-border-color);
+}
+
+.link {
+  background: none;
+  border: none;
+  border-bottom: 2px solid var(--file-list-border-color);
+  cursor: pointer;
+  padding-left: 0px;
+}
