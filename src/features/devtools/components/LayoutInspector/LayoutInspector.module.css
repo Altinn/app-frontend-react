@@ -4,12 +4,20 @@
   width: 100%;
 }
 
-.item {
+.list {
   padding: 0 6px;
-  list-style: none;
+  display: table;
+  width: 100%;
+}
+
+.item {
+  display: table-row;
+  font-family: monospace;
+  font-size: 0.8rem;
 }
 
 .item span {
+  display: table-cell;
   cursor: default;
 }
 
@@ -18,13 +26,14 @@
 }
 
 .componentType {
+  width: 1px;
   font-weight: bold;
 }
 
 .componentId {
-  text-align: center;
-  vertical-align: middle;
-  margin-left: 12px;
-  color: #333;
-  font-size: 0.8rem;
+  padding-left: 16px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 0;
 }

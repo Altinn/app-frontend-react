@@ -47,7 +47,7 @@ export const LayoutInspectorItem = ({ component }: ILayoutInspectorItemProps) =>
       onMouseLeave={onMouseLeave}
     >
       <span className={classes.componentType}>{component.type}</span>
-      <span className={classes.componentId}>{component.id}</span>
+      <span className={classes.componentId}>id: &quot;{component.id}&quot;</span>
     </li>
   );
 };

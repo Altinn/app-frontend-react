@@ -12,7 +12,7 @@ export const LayoutInspector = () => {
 
   return (
     <div className={classes.container}>
-      <ul>
+      <ul className={classes.list}>
         {currentLayout?.map((component) => (
           <LayoutInspectorItem
             key={component.id}
