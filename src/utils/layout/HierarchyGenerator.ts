@@ -210,9 +210,12 @@ export class HierarchyGenerator {
     }
 
     if (!parentId || !this.claims[fullChildId].has(fullParentId)) {
-      throw new Error(
-        `Tried to create a new child object for '${fullChildId}' which is not claimed by '${fullParentId}'`,
+      const claimedBy = [...this.claims[fullChildId].values()].join(', ');
+      console.warn(
+        `Tried to create a new child object for '${fullChildId}' which is ` +
+          `not claimed by '${fullParentId}' (but it is claimed by ${claimedBy})`,
       );
+      return undefined;
     }
 
     const clone = structuredClone(this.map[fullChildId]) as UnprocessedItem<T>;
@@ -222,7 +225,11 @@ export class HierarchyGenerator {
       mutator(clone);
     }
 
-    const instance = this.instances[clone.type];
+    const instance = this.getInstance(clone.type);
+    if (!instance) {
+      return undefined;
+    }
+
     const factory: ChildFactory<T> = instance.stage2({
       id: childId,
       depth: ctx.depth + 1,
