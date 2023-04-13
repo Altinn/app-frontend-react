@@ -30,6 +30,30 @@ describe('Group', () => {
     cy.get(appFrontend.group.currentValue).should('be.visible');
   });
 
+  [true, false].forEach((alwaysShowAddButton) => {
+    it(`Add items on main group when AlwaysShowAddButton = ${alwaysShowAddButton}`, () => {
+      cy.interceptLayout('group', (component) => {
+        if (component.type === 'Group' && component.edit && component.id === 'mainGroup') {
+          component.edit.alwaysShowAddButton = alwaysShowAddButton;
+          component.maxCount = 2;
+        }
+      });
+      init();
+      cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+      if (alwaysShowAddButton) {
+        cy.get(appFrontend.group.addNewItem).click();
+        cy.get(appFrontend.group.mainGroup).should('exist');
+        cy.get(appFrontend.group.addNewItem).click();
+        cy.get(appFrontend.group.mainGroup).should('exist');
+        cy.get(appFrontend.group.addNewItem).should('not.exist');
+      } else {
+        cy.get(appFrontend.group.addNewItem).click();
+        cy.get(appFrontend.group.mainGroup).should('exist');
+        cy.get(appFrontend.group.addNewItem).should('not.exist');
+      }
+    });
+  });
+
   [true, false].forEach((openByDefault) => {
     it(`Add and delete items on main and nested group (openByDefault = ${openByDefault ? 'true' : 'false'})`, () => {
       cy.interceptLayout('group', (component) => {
@@ -219,7 +243,7 @@ describe('Group', () => {
           }
           let index = 0;
           for (const row of rows) {
-            cy.wrap(table).find('tr').eq(index).find('td').eq(0).should('contain.text', row[0]);
+            cy.wrap(table).find('tr').eq(index).find('td').first().should('contain.text', row[0]);
             cy.wrap(table).find('tr').eq(index).find('td').eq(1).should('contain.text', row[1]);
             index++;
           }
