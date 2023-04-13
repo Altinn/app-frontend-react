@@ -1,8 +1,5 @@
 import React from 'react';
 
-// import { Grid, makeStyles, Typography } from '@material-ui/core';
-import { Grid } from '@material-ui/core';
-
 import classes from 'src/components/altinnError.module.css';
 import { altinnAppsIllustrationHelpCircleSvgUrl } from 'src/utils/urls/urlHelper';
 
@@ -27,15 +24,11 @@ export const AltinnError = ({
   imageAlt,
   imageUrl,
 }: IAltinnErrorProps) => (
-  <Grid
+  <div
     data-testid='AltinnError'
-    container={true}
-    className={classes.gridContainer}
+    className={classes.flexContainer}
   >
-    <Grid
-      item={true}
-      md={8}
-    >
+    <div className={classes.contentContainer}>
       <div className={classes.contentMargin}>
         <span className={classes.statusCode}>{statusCode}</span>
       </div>
@@ -53,17 +46,12 @@ export const AltinnError = ({
       <div>
         <span>{urlTextSuffix}</span>
       </div>
-    </Grid>
-    <Grid
-      item={true}
-      md={4}
-    >
-      <div className={classes.imageContainer}>
-        <img
-          alt={imageAlt ? imageAlt : 'Altinn Help Illustration'}
-          src={imageUrl ? imageUrl : altinnAppsIllustrationHelpCircleSvgUrl}
-        />
-      </div>
-    </Grid>
-  </Grid>
+    </div>
+    <div className={classes.imageContainer}>
+      <img
+        alt={imageAlt ? imageAlt : 'Altinn Help Illustration'}
+        src={imageUrl ? imageUrl : altinnAppsIllustrationHelpCircleSvgUrl}
+      />
+    </div>
+  </div>
 );

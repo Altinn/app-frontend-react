@@ -1,3 +1,12 @@
+.flexContainer {
+  display: flex;
+  max-width: 750px;
+  flex-wrap: wrap;
+}
+
+.contentContainer {
+  flex: 8;
+}
 .contentMargin {
   margin-bottom: 24px;
 }
@@ -7,16 +16,21 @@
 .articleText {
   font-size: 1.125rem;
 }
-
 .title {
   font-weight: 500;
   color: #022f51;
 }
 
 .imageContainer {
+  flex: 4;
   margin: 65px 0 0 10px;
 }
 
-.gridContainer {
-  max-width: 750px;
+@media (max-width: 1025px) {
+  .flexContainer {
+    flex-direction: column;
+  }
+  .imageContainer {
+    margin-top: 24px;
+  }
 }
