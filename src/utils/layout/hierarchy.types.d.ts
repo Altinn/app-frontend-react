@@ -99,7 +99,9 @@ export interface HierarchyDataSources extends ContextDataSources {
   validations: IValidations;
 }
 
-export type LayoutNodeFromType<Type> = Type extends ComponentExceptGroup
+export type LayoutNodeFromType<Type> = Type extends 'Grid'
+  ? LayoutNode<ILayoutGridHierarchy>
+  : Type extends ComponentExceptGroup
   ? LayoutNode<HComponent<Type> | HComponentInRepGroup<Type>, Type>
   : Type extends 'Group'
   ? LayoutNode<HGroups, 'Group'>

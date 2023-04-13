@@ -8,10 +8,10 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRow } from 'src/layout/Grid/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function GridComponent({ node }: PropsFromGenericComponent<'Grid'>) {
   const { rows } = node.item;
@@ -48,11 +48,12 @@ export function GridComponent({ node }: PropsFromGenericComponent<'Grid'>) {
                 );
               }
 
-              const componentId = cell && 'id' in cell && typeof cell.id === 'string' ? cell.id : undefined;
+              const node = cell?.node as LayoutNode;
+              const componentId = node?.item.id;
               return (
                 <CellWithComponent
                   key={componentId || `${rowIdx}-${cellIdx}`}
-                  id={componentId}
+                  node={node}
                   className={className}
                 />
               );
@@ -90,11 +91,10 @@ interface CellProps {
 }
 
 interface CellWithComponentProps extends CellProps {
-  id?: string;
+  node?: LayoutNode;
 }
 
-function CellWithComponent({ id, className }: CellWithComponentProps) {
-  const node = useResolvedNode(id);
+function CellWithComponent({ node, className }: CellWithComponentProps) {
   if (node && !node.isHidden()) {
     return (
       <TableCell className={className}>
