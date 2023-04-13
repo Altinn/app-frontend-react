@@ -30,7 +30,7 @@ export interface IGenericComponentProps<Type extends ComponentTypes> {
   overrideDisplay?: {
     renderLabel?: false;
     renderLegend?: false;
-    renderCheckboxRadioLabelsWhenOnlyOne?: false;
+    renderedInTable?: true;
   };
 }
 

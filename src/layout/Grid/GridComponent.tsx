@@ -121,7 +121,7 @@ function CellWithComponent({ node, className }: CellWithComponentProps) {
           overrideDisplay={{
             renderLabel: false,
             renderLegend: false,
-            renderCheckboxRadioLabelsWhenOnlyOne: false,
+            renderedInTable: true,
           }}
         />
       </TableCell>

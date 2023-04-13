@@ -31,6 +31,7 @@ export const ControlledRadioGroup = ({
   calculatedOptions,
   isValid,
   overrideDisplay,
+  getTextResourceAsString,
 }: IControlledRadioGroupProps) => {
   const { id, layout, readOnly, textResourceBindings, required, labelSettings } = node.item;
 
@@ -49,6 +50,8 @@ export const ControlledRadioGroup = ({
     </span>
   );
 
+  const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1;
+
   return (
     <div>
       {fetchingOptions ? (
@@ -65,6 +68,7 @@ export const ControlledRadioGroup = ({
             description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
             value={selected}
             error={!isValid}
+            fieldSetProps={{ 'aria-label': getTextResourceAsString(textResourceBindings?.title) }}
             helpText={textResourceBindings?.help && getTextResource(textResourceBindings.help)}
             disabled={readOnly}
             variant={
@@ -79,10 +83,8 @@ export const ControlledRadioGroup = ({
             items={calculatedOptions.map((option) => ({
               value: option.value,
               checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
-              label:
-                overrideDisplay?.renderCheckboxRadioLabelsWhenOnlyOne === false && calculatedOptions.length === 1
-                  ? null
-                  : getTextResource(option.label),
+              hideLabel,
+              label: hideLabel ? getTextResourceAsString(option.label) : getTextResource(option.label),
               helpText: option.helpText && getTextResource(option.helpText),
             }))}
           />
