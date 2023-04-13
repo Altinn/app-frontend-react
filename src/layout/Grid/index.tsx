@@ -26,4 +26,8 @@ export class Grid extends ContainerComponent<'Grid'> {
   hierarchyGenerator(generator: HierarchyGenerator): ComponentHierarchyGenerator<'Grid'> {
     return new GridHierarchyGenerator(generator);
   }
+
+  canRenderInTable(): boolean {
+    return false;
+  }
 }
