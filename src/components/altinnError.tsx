@@ -30,7 +30,12 @@ export const AltinnError = ({
   >
     <div className={classes.contentContainer}>
       <div className={classes.contentMargin}>
-        <span className={classes.statusCode}>{statusCode}</span>
+        <span
+          data-testid='StatusCode'
+          className={classes.statusCode}
+        >
+          {statusCode}
+        </span>
       </div>
       <div className={classes.contentMargin}>
         <h1 className={classes.title}>{title}</h1>
