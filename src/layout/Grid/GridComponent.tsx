@@ -23,43 +23,61 @@ export function GridComponent({ node }: PropsFromGenericComponent<'Grid'>) {
       wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
     >
       <Table>
-        {rows.map((row, rowIdx) => (
-          <Row
-            key={rowIdx}
-            header={row.header}
-            readOnly={row.readOnly}
-          >
-            {row.cells.map((cell, cellIdx) => {
-              const isFirst = cellIdx === 0;
-              const isLast = cellIdx === row.cells.length - 1;
-              const className = cn({
-                [css.fullWidthCellFirst]: isFirst,
-                [css.fullWidthCellLast]: isLast,
-              });
+        {rows.map((row, rowIdx) => {
+          let atLeastNoneNodeExists = false;
+          const allCellsAreHidden = row.cells.every((cell) => {
+            const node = cell && 'node' in cell && (cell?.node as LayoutNode);
+            if (node && typeof node === 'object') {
+              atLeastNoneNodeExists = true;
+              return node.isHidden();
+            }
 
-              if (cell && 'text' in cell) {
+            // Non-component cells always collapse and hide if components in other cells are hidden
+            return true;
+          });
+
+          if (atLeastNoneNodeExists && allCellsAreHidden) {
+            return null;
+          }
+
+          return (
+            <Row
+              key={rowIdx}
+              header={row.header}
+              readOnly={row.readOnly}
+            >
+              {row.cells.map((cell, cellIdx) => {
+                const isFirst = cellIdx === 0;
+                const isLast = cellIdx === row.cells.length - 1;
+                const className = cn({
+                  [css.fullWidthCellFirst]: isFirst,
+                  [css.fullWidthCellLast]: isLast,
+                });
+
+                if (cell && 'text' in cell) {
+                  return (
+                    <CellWithText
+                      key={cell.text}
+                      className={className}
+                    >
+                      {cell.text}
+                    </CellWithText>
+                  );
+                }
+
+                const node = cell?.node as LayoutNode;
+                const componentId = node?.item.id;
                 return (
-                  <CellWithText
-                    key={cell.text}
+                  <CellWithComponent
+                    key={componentId || `${rowIdx}-${cellIdx}`}
+                    node={node}
                     className={className}
-                  >
-                    {cell.text}
-                  </CellWithText>
+                  />
                 );
-              }
-
-              const node = cell?.node as LayoutNode;
-              const componentId = node?.item.id;
-              return (
-                <CellWithComponent
-                  key={componentId || `${rowIdx}-${cellIdx}`}
-                  node={node}
-                  className={className}
-                />
-              );
-            })}
-          </Row>
-        ))}
+              })}
+            </Row>
+          );
+        })}
       </Table>
     </ConditionalWrapper>
   );
