@@ -23,13 +23,17 @@ import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 export type HComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = T extends 'Grid'
   ? ILayoutGridHierarchy
   : ExprResolved<ILayoutComponentExact<T>>;
-export type HGroup = ExprResolved<ILayoutGroup>;
+
+/**
+ * Base type used for repeating group and non-repeating groups
+ */
+type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children'>;
 
 /**
  * Definition of a non-repeating group inside a hierarchy structure
  */
-export type HNonRepGroup = Omit<HGroup, 'children'> & {
-  childComponents: (HComponent | HNonRepGroup)[];
+export type HNonRepGroup = HGroup & {
+  childComponents: LayoutNode<HComponent | HGroups>[];
 };
 
 /**
@@ -51,7 +55,7 @@ export type HComponentInRepGroup<T extends ComponentExceptGroup = ComponentExcep
  */
 export type HRepGroupRow = {
   index: number;
-  items: HRepGroupChild[];
+  items: LayoutNode<HRepGroupChild>[];
 
   // If this object is present, it contains a subset of the Group layout object, where some expressions may be resolved
   // in the context of the current repeating group row.
@@ -61,7 +65,7 @@ export type HRepGroupRow = {
 /**
  * Definition of a repeating group component inside a hierarchy structure
  */
-export type HRepGroup = Omit<HGroup, 'children'> &
+export type HRepGroup = HGroup &
   HRepGroupExtensions & {
     rows: (HRepGroupRow | undefined)[];
   };
