@@ -5,9 +5,9 @@
 }
 
 .fullWidthCellFirst {
-  padding-left: var(--modal-padding-x);
+  padding-left: var(--modal-padding-x) !important;
 }
 
 .fullWidthCellLast {
-  padding-right: var(--modal-padding-x);
+  padding-right: var(--modal-padding-x) !important;
 }
