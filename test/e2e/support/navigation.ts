@@ -23,6 +23,10 @@ const validMinimalData = {
     tittel: 'Endring av navn',
     gruppeid: '9308',
     Radioknapp: '1',
+    'GridData.TotalGjeld': '1000000',
+    'GridData.Bolig.Prosent': '80',
+    'GridData.Studie.Prosent': '15',
+    'GridData.Kredittkort.Prosent': '5',
     'Innledning-grp-9309.gruppeid': '9309',
     'Innledning-grp-9309.Signerer-grp-9320.gruppeid': '9320',
     'Innledning-grp-9309.Signerer-grp-9320.SignererEkstraReferanseAltinn-datadef-34751.orid': '34751',
@@ -123,6 +127,10 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
       cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
       cy.get(appFrontend.nextButton).clickAndGone();
       cy.get(appFrontend.nextButton).clickAndGone();
+      cy.get(appFrontend.grid.totalAmount).type('1000000');
+      cy.get(appFrontend.grid.bolig.percent).type('80');
+      cy.get(appFrontend.grid.studie.percent).type('15');
+      cy.get(appFrontend.grid.kredittkort.percent).type('5');
     });
   },
   group: () => {

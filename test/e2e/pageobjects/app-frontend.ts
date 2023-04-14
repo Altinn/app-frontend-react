@@ -49,6 +49,19 @@ export class AppFrontend {
   public prevButton = `[data-testid=NavigationButtons] button:contains("${texts.prev}")`;
   public backToSummaryButton = `[data-testid=NavigationButtons] button:contains("${texts.backToSummary}")`;
 
+  public grid = {
+    totalAmount: '#gjeld',
+    bolig: {
+      percent: '#fordeling-bolig',
+    },
+    studie: {
+      percent: '#fordeling-studie',
+    },
+    kredittkort: {
+      percent: '#fordeling-kredittkort',
+    },
+  };
+
   //Receipt
   public receipt = {
     container: '#ReceiptContainer',
