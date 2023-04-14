@@ -32,6 +32,7 @@ interface ISelectProps {
   error?: boolean;
   fullWidth?: boolean;
   className?: string;
+  ariaLabel?: string;
 }
 
 export const Select = ({
@@ -44,6 +45,7 @@ export const Select = ({
   error = false,
   fullWidth = false,
   className,
+  ariaLabel,
 }: ISelectProps) => {
   const classes = useStyles();
   return (
@@ -63,6 +65,7 @@ export const Select = ({
       )}
       onChange={onChange}
       onBlur={onBlur}
+      aria-label={ariaLabel}
     >
       <option style={optionStyle} />
       {options.map((option, index) => (

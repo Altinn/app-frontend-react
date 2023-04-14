@@ -16,9 +16,10 @@ export function DropdownComponent({
   formData,
   handleDataChange,
   isValid,
+  overrideDisplay,
   getTextResourceAsString,
 }: IDropdownProps) {
-  const { optionsId, preselectedOptionIndex, id, readOnly, mapping, source } = node.item;
+  const { optionsId, preselectedOptionIndex, id, readOnly, mapping, source, textResourceBindings } = node.item;
   const options = useGetOptions({ optionsId, mapping, source });
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
@@ -71,6 +72,9 @@ export function DropdownComponent({
               label: getTextResourceAsString(option.label) ?? '',
               value: option.value,
             })) || []
+          }
+          ariaLabel={
+            overrideDisplay?.renderedInTable ? getTextResourceAsString(textResourceBindings?.title) : undefined
           }
         />
       )}

@@ -21,8 +21,9 @@ export function MultipleSelectComponent({
   getTextResourceAsString,
   formData,
   isValid,
+  overrideDisplay,
 }: IMultipleSelectProps) {
-  const { options, optionsId, mapping, source, id, readOnly } = node.item;
+  const { options, optionsId, mapping, source, id, readOnly, textResourceBindings } = node.item;
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions =
     (apiOptions || options)?.map((option) => ({
@@ -57,6 +58,7 @@ export function MultipleSelectComponent({
       }}
       onChange={handleChange}
       value={calculatedOptions?.filter((option) => formData?.simpleBinding?.split(',').includes(option.value))}
+      aria-label={overrideDisplay?.renderedInTable ? getTextResourceAsString(textResourceBindings?.title) : undefined}
     />
   );
 }
