@@ -13,7 +13,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRow } from 'src/layout/Grid/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function GridComponent({ node }: PropsFromGenericComponent<'Grid'>) {
+export function GridComponent({ node, getTextResource }: PropsFromGenericComponent<'Grid'>) {
   const { rows } = node.item;
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
 
@@ -60,7 +60,7 @@ export function GridComponent({ node }: PropsFromGenericComponent<'Grid'>) {
                       key={cell.text}
                       className={className}
                     >
-                      {cell.text}
+                      {getTextResource(cell.text)}
                     </CellWithText>
                   );
                 }
