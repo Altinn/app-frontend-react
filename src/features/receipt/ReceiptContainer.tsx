@@ -12,7 +12,7 @@ import { CustomReceipt } from 'src/features/receipt/CustomReceipt';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
-import { getAppOwner, getLanguageFromKey } from 'src/language/sharedLanguage';
+import { getAppReceiver, getLanguageFromKey } from 'src/language/sharedLanguage';
 import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
@@ -41,7 +41,7 @@ export const returnInstanceMetaDataObject = (
   }
   obj[getLanguageFromKey('receipt.sender', languageData)] = sender;
 
-  const receiver = getAppOwner(textResources, orgsData, org, userLanguageString);
+  const receiver = getAppReceiver(textResources, orgsData, org, userLanguageString);
   if (receiver) {
     obj[getLanguageFromKey('receipt.receiver', languageData)] = receiver;
   } else {
