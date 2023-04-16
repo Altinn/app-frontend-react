@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { makeStyles, Typography } from '@material-ui/core';
 import cn from 'classnames';
 
 import { EditButton } from 'src/layout/Summary/EditButton';
-import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
+import classes from 'src/layout/Summary/SummaryBoilerplate.module.css';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -18,28 +17,6 @@ export interface SummaryBoilerplateProps {
   overrides: ISummaryComponent['overrides'];
 }
 
-const useStyles = makeStyles({
-  container: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  label: {
-    fontWeight: 500,
-    fontSize: '1.125rem',
-    '& p': {
-      fontWeight: 500,
-      fontSize: '1.125rem',
-    },
-  },
-  labelWithError: {
-    color: AltinnAppTheme.altinnPalette.primary.red,
-    '& p': {
-      color: AltinnAppTheme.altinnPalette.primary.red,
-    },
-  },
-});
 export function SummaryBoilerplate({
   onChangeClick,
   changeText,
@@ -48,7 +25,6 @@ export function SummaryBoilerplate({
   targetNode,
   overrides,
 }: SummaryBoilerplateProps) {
-  const classes = useStyles();
   const display = overrides?.display || summaryNode.item.display;
   const readOnlyComponent = targetNode.item.readOnly === true;
   const hasValidationMessages = targetNode.hasValidationMessages();
@@ -57,16 +33,14 @@ export function SummaryBoilerplate({
   return (
     <>
       <div className={classes.container}>
-        <Typography
-          variant='body1'
-          className={cn(hasValidationMessages && !display?.hideValidationMessages && classes.labelWithError)}
-          component='span'
+        <span
+          className={cn(classes.label, hasValidationMessages && !display?.hideValidationMessages && classes.labelError)}
           {...(hasValidationMessages && {
             'data-testid': 'has-validation-message',
           })}
         >
           {label}
-        </Typography>
+        </span>
 
         {shouldShowChangeButton && (
           <EditButton
