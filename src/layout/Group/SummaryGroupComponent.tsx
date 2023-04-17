@@ -67,7 +67,7 @@ export function SummaryGroupComponent({
     rowIndexes.push(undefined);
   }
 
-  if (!summaryNode.item.largeGroup && overrides?.largeGroup !== false && rowIndexes.length) {
+  if (summaryNode.item.largeGroup && overrides?.largeGroup !== false && rowIndexes.length) {
     return (
       <>
         {rowIndexes.map((idx) => {
