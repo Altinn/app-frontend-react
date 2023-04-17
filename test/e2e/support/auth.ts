@@ -141,6 +141,7 @@ Cypress.Commands.add('setPermissions', (permissionFormat: string) => {
 Cypress.Commands.add('interceptPermissions', () => {
   const interceptor = (req) => {
     const permissionFormat = Cypress.env('authPermissions') ?? '';
+    console.log(permissionFormat);
     const permissions = getPermissions(permissionFormat);
     req.on('response', (res) => {
       if (res.body.currentTask) {
@@ -151,5 +152,5 @@ Cypress.Commands.add('interceptPermissions', () => {
     });
   };
   cy.intercept({ method: 'GET', url: '**/process' }, interceptor).as('getProcess');
-  cy.intercept({ method: 'PUT', url: '**/process/next' }, interceptor).as('processNext');
+  cy.intercept({ method: 'PUT', url: '**/process/next*' }, interceptor).as('processNext');
 });
