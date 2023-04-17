@@ -53,7 +53,7 @@ export const SplitView = ({ direction, children }: SplitViewProps) => {
       style={{ flexDirection: direction }}
     >
       {childArray.map((child, index, { length }) => (
-        <>
+        <React.Fragment key={index}>
           <div
             ref={panelRefs[index]}
             className={classes.panel}
@@ -71,7 +71,7 @@ export const SplitView = ({ direction, children }: SplitViewProps) => {
               <div className={classes.handle} />
             </div>
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
   );
