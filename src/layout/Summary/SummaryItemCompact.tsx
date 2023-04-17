@@ -1,6 +1,5 @@
 import React from 'react';
 
-// import { makeStyles, Typography } from '@material-ui/core';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import classes from 'src/layout/Summary/SummaryItemCompact.module.css';
