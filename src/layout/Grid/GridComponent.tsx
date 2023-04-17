@@ -2,6 +2,7 @@ import React from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
+import { Grid, useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
@@ -15,10 +16,16 @@ import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function GridComponent({ node, getTextResource }: PropsFromGenericComponent<'Grid'>) {
+export function GridComponent(props: PropsFromGenericComponent<'Grid'>) {
+  const { node, getTextResource } = props;
   const { rows } = node.item;
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
+  const isMobile = useMediaQuery('(max-width:768px)');
+
+  if (isMobile) {
+    return <MobileGrid {...props} />;
+  }
 
   return (
     <ConditionalWrapper
@@ -168,4 +175,41 @@ function isRowHidden(row: GridRow<GridComponent>) {
   });
 
   return atLeastNoneNodeExists && allCellsAreHidden;
+}
+
+function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
+  return (
+    <Grid
+      id={node.item.id}
+      container={true}
+      item={true}
+      spacing={3}
+      alignItems='flex-start'
+    >
+      {node.item.rows.map((row, rowIdx) =>
+        isRowHidden(row) || row.header || row.readOnly ? null : (
+          <>
+            {row.cells.map((cell, cellIdx) => {
+              if (!cell || 'text' in cell) {
+                return null;
+              }
+
+              const node = cell?.node as LayoutNode;
+              const componentId = node?.item.id;
+              if (!node || node.isHidden()) {
+                return null;
+              }
+
+              return (
+                <GenericComponent
+                  key={componentId || `${rowIdx}-${cellIdx}`}
+                  node={node}
+                />
+              );
+            })}
+          </>
+        ),
+      )}
+    </Grid>
+  );
 }
