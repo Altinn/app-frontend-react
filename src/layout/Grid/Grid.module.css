@@ -4,11 +4,11 @@
   background-color: var(--component-input-read_only_info-color-background-default);
 }
 
-.fullWidthCellFirst {
+tr > .fullWidthCellFirst {
   padding-left: calc(var(--modal-padding-x) - var(--table-input-margin));
 }
 
-.fullWidthCellLast {
+tr > .fullWidthCellLast {
   padding-right: calc(var(--modal-padding-x) - var(--table-input-margin));
 }
 
