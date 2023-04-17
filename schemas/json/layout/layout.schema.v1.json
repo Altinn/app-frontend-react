@@ -488,6 +488,7 @@
             "anyOf": [
               { "$ref": "#/definitions/gridCellText" },
               { "$ref": "#/definitions/gridCellComponent" },
+              { "$ref": "#/definitions/tableColumnOptions" },
               { "type": "null", "title": "Empty cell" }
             ]
           }
@@ -503,6 +504,7 @@
           "type": "string"
         }
       },
+      "$ref": "#/definitions/tableColumnOptions",
       "required": ["text"]
     },
     "gridCellComponent": {
@@ -513,6 +515,7 @@
           "type": "string"
         }
       },
+      "$ref": "#/definitions/tableColumnOptions",
       "required": ["component"]
     },
     "groupComponent": {
@@ -689,7 +692,12 @@
           "description": "Width of cell in % or 'auto'. Defaults to 'auto'",
           "type": "string",
           "pattern": "^([0-9]{1,2}%|100%|auto)$"
-        },
+        }
+      },
+      "$ref": "#/definitions/tableColumnTextOptions"
+    },
+    "tableColumnTextOptions": {
+      "properties": {
         "alignText": {
           "title": "Align Text",
           "description": "Choose text alignment between 'left', 'center', or 'right' for text in table cells. Defaults to 'left' for text and 'right' for numbers.",

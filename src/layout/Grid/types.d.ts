@@ -14,13 +14,19 @@ type GridComponentType = GridComponentRef | GridComponent;
 
 export interface GridText {
   text: string;
+  alignText?: 'left' | 'center' | 'right';
+  textOverflow?: {
+    lineWrap?: boolean;
+    maxHeight?: number;
+  };
 }
 
 export type GridCell<C extends GridComponentType = GridComponentRef> = C | GridText | null;
 
-export interface GridRow<C extends GridComponentType = GridComponentRef> extends GridCellOptions {
+export interface GridRow<C extends GridComponentType = GridComponentRef> {
   header?: boolean;
   readOnly?: boolean;
+  columnOptions?: ITableColumnProperties;
   cells: GridCell<C>[];
 }
 
