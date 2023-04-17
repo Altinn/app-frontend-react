@@ -11,7 +11,7 @@ import css from 'src/layout/Grid/Grid.module.css';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridRow } from 'src/layout/Grid/types';
+import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -26,24 +26,8 @@ export function GridComponent({ node, getTextResource }: PropsFromGenericCompone
       wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
     >
       <Table id={node.item.id}>
-        {rows.map((row, rowIdx) => {
-          let atLeastNoneNodeExists = false;
-          const allCellsAreHidden = row.cells.every((cell) => {
-            const node = cell && 'node' in cell && (cell?.node as LayoutNode);
-            if (node && typeof node === 'object') {
-              atLeastNoneNodeExists = true;
-              return node.isHidden();
-            }
-
-            // Non-component cells always collapse and hide if components in other cells are hidden
-            return true;
-          });
-
-          if (atLeastNoneNodeExists && allCellsAreHidden) {
-            return null;
-          }
-
-          return (
+        {rows.map((row, rowIdx) =>
+          isRowHidden(row) ? null : (
             <Row
               key={rowIdx}
               header={row.header}
@@ -92,8 +76,8 @@ export function GridComponent({ node, getTextResource }: PropsFromGenericCompone
                 );
               })}
             </Row>
-          );
-        })}
+          ),
+        )}
       </Table>
     </ConditionalWrapper>
   );
@@ -104,7 +88,6 @@ type RowProps = PropsWithChildren<Pick<GridRow<any>, 'header' | 'readOnly'>>;
 function Row({ header, readOnly, children }: RowProps) {
   const className = readOnly ? css.rowReadOnly : undefined;
 
-  // PRIORITY: Do not duplicate TableHeader/TableBody elements?
   if (header) {
     return (
       <TableHeader>
@@ -169,4 +152,20 @@ function CellWithText({ children, className, columnStyleOptions }: CellWithTextP
       </span>
     </TableCell>
   );
+}
+
+function isRowHidden(row: GridRow<GridComponent>) {
+  let atLeastNoneNodeExists = false;
+  const allCellsAreHidden = row.cells.every((cell) => {
+    const node = cell && 'node' in cell && (cell?.node as LayoutNode);
+    if (node && typeof node === 'object') {
+      atLeastNoneNodeExists = true;
+      return node.isHidden();
+    }
+
+    // Non-component cells always collapse and hide if components in other cells are hidden
+    return true;
+  });
+
+  return atLeastNoneNodeExists && allCellsAreHidden;
 }
