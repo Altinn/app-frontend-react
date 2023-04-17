@@ -1,4 +1,7 @@
+import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
+
+const appFrontend = new AppFrontend();
 
 Cypress.Commands.add('isVisible', { prevSubject: true }, (subject) => {
   const isVisible = (elem) => !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
@@ -20,4 +23,8 @@ Cypress.Commands.add('dsUncheck', { prevSubject: true }, (subject: JQueryWithSel
 Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
   // eslint-disable-next-line cypress/unsafe-to-chain-command
   cy.wrap(subject).click().should('not.exist');
+});
+
+Cypress.Commands.add('navPage', (page: string) => {
+  cy.get(appFrontend.navMenu).findByText(new RegExp(`^[0-9]+. ${page}$`));
 });

@@ -51,6 +51,7 @@ export class AppFrontend {
 
   public grid = {
     totalAmount: '#gjeld',
+    totalPercent: '#fordeling-total',
     bolig: {
       percent: '#fordeling-bolig',
     },

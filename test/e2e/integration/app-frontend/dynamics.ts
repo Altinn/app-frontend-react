@@ -28,7 +28,10 @@ describe('Dynamics', () => {
         component.hidden = ['equals', 'hideFirstName', ['component', 'newLastName']];
       }
     });
-    cy.goto('changename');
+    cy.gotoAndComplete('changename');
+    cy.get(appFrontend.navMenuButtons).first().click();
+    cy.get(appFrontend.changeOfName.newFirstName).clear();
+    cy.get(appFrontend.changeOfName.newLastName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).type('test');
     cy.get(appFrontend.errorReport).should('contain.text', texts.testIsNotValidValue);
     cy.get(appFrontend.changeOfName.newLastName).type('hideFirstName');

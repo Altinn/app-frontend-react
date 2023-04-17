@@ -126,6 +126,18 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
   },
   changename: () => {
     cy.get(appFrontend.changeOfName.currentName).then(() => {
+      // Fill out the grid first. There are other pages with elements that trigger validation, so filling out the grid
+      // first will avoid a lingering validation error on the grid page. A real developer and app would probably not
+      // make this mistake in designing their form.
+      cy.navPage('grid').click();
+      cy.get(appFrontend.grid.totalAmount).type('1000000');
+      cy.get(appFrontend.grid.bolig.percent).type('80');
+      cy.get(appFrontend.grid.studie.percent).type('15');
+      cy.get(appFrontend.grid.kredittkort.percent).type('5');
+      cy.get(appFrontend.grid.totalPercent).focus();
+      cy.get(appFrontend.grid.totalPercent).should('have.value', '100 %');
+
+      cy.navPage('form').click();
       cy.get(appFrontend.changeOfName.newFirstName).type('a');
       cy.get(appFrontend.changeOfName.newLastName).type('a');
       cy.get(appFrontend.changeOfName.confirmChangeName).find('input').dsCheck();
@@ -134,12 +146,6 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
       cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
       cy.get(mui.selectedDate).click();
       cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
-      cy.get(appFrontend.nextButton).clickAndGone();
-      cy.get(appFrontend.nextButton).clickAndGone();
-      cy.get(appFrontend.grid.totalAmount).type('1000000');
-      cy.get(appFrontend.grid.bolig.percent).type('80');
-      cy.get(appFrontend.grid.studie.percent).type('15');
-      cy.get(appFrontend.grid.kredittkort.percent).type('5');
     });
   },
   group: () => {
