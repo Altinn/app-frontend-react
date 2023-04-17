@@ -50,6 +50,10 @@ export class AppFrontend {
   public backToSummaryButton = `[data-testid=NavigationButtons] button:contains("${texts.backToSummary}")`;
 
   public grid = {
+    grid: '#page3-grid',
+    gridWithAll: '#all-grid-components',
+    showGridWithAll: '#show-all-components',
+    hasCreditCard: '#has-credit-card',
     totalAmount: '#gjeld',
     totalPercent: '#fordeling-total',
     bolig: {

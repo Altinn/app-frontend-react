@@ -25,7 +25,7 @@ export function GridComponent({ node, getTextResource }: PropsFromGenericCompone
       condition={shouldHaveFullWidth}
       wrapper={(child) => <FullWidthWrapper>{child}</FullWidthWrapper>}
     >
-      <Table>
+      <Table id={node.item.id}>
         {rows.map((row, rowIdx) => {
           let atLeastNoneNodeExists = false;
           const allCellsAreHidden = row.cells.every((cell) => {
