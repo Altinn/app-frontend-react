@@ -14,7 +14,7 @@ export const LayoutInspector = () => {
   const currentLayout = layouts?.[currentView];
 
   return (
-    <SplitView direction='column'>
+    <SplitView direction='row'>
       <div className={classes.container}>
         <ul className={classes.list}>
           {currentLayout?.map((component) => (

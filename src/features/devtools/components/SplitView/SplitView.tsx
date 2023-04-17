@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-import React, { Children, useEffect } from 'react';
+import React, { Children, createRef, useEffect, useState } from 'react';
 
 import classes from 'src/features/devtools/components/SplitView/SplitView.module.css';
 
@@ -10,43 +10,42 @@ interface SplitViewProps {
 
 export const SplitView = ({ direction, children }: SplitViewProps) => {
   const childArray = Children.toArray(children);
-  const [sizes, setSizes] = React.useState<number[]>(childArray.map(() => 1 / childArray.length));
-
-  // TODO: fix
-  useEffect(() => {
-    setSizes(childArray.map(() => 1 / childArray.length));
-  }, [childArray]);
-
+  const nPanels = childArray.length;
   const isRow = direction === 'row';
-  const sizeKey = isRow ? 'maxWidth' : 'maxHeight';
+  const [panelRefs, setPanelRefs] = useState<React.RefObject<HTMLDivElement>[]>([]);
+  const [sizes, setSizes] = useState<number[]>(Array(childArray.length - 1).fill(100));
 
-  function resizeHandler(index: number, mouseDownEvent: React.MouseEvent) {
-    mouseDownEvent.preventDefault();
-    const startSizes = [...sizes];
-    const startPosition = isRow ? mouseDownEvent.screenX : mouseDownEvent.screenY;
+  useEffect(() => {
+    setPanelRefs((refs) =>
+      Array(nPanels)
+        .fill(null)
+        .map((_, i) => refs[i] || createRef()),
+    );
+  }, [nPanels]);
 
-    function onMouseMove(mouseMoveEvent: MouseEvent) {
-      if (mouseMoveEvent.buttons < 1) {
-        onMouseUp();
-        return;
-      }
-      const position = isRow ? mouseMoveEvent.screenX : mouseMoveEvent.screenY;
-      const delta = position - startPosition;
-      const totalSize = startSizes.reduce((a, b) => a + b);
-      const size = startSizes[index];
-      const newSize = size + (delta / (isRow ? window.innerWidth : window.innerHeight)) * totalSize;
-      const newSizes = [...startSizes];
-      newSizes[index] = newSize;
-      setSizes(newSizes);
-    }
+  // onMouseDown event that handles resizing the panels
+  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+    event.preventDefault();
+    const { screenX: screenX1, screenY: screenY1 } = event;
+    const startSize = panelRefs[index + 1].current?.getBoundingClientRect()[isRow ? 'width' : 'height'] ?? sizes[index];
 
-    function onMouseUp() {
-      document.body.removeEventListener('mousemove', onMouseMove);
-    }
+    const handleMouseMove = (event: MouseEvent) => {
+      event.preventDefault();
+      const { screenX: screenX2, screenY: screenY2 } = event;
+      const delta = isRow ? screenX2 - screenX1 : screenY2 - screenY1;
+      const nextSizes = [...sizes];
+      nextSizes[index] = startSize - delta;
+      setSizes(nextSizes);
+    };
 
-    document.body.addEventListener('mousemove', onMouseMove);
-    document.body.addEventListener('mouseup', onMouseUp, { once: true });
-  }
+    const handleMouseUp = () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp, { once: true });
+  };
 
   return (
     <div
@@ -56,15 +55,16 @@ export const SplitView = ({ direction, children }: SplitViewProps) => {
       {childArray.map((child, index, { length }) => (
         <>
           <div
+            ref={panelRefs[index]}
             className={classes.panel}
-            style={{ [sizeKey]: index < length - 1 ? `${(sizes[index] * 100).toFixed(2)}%` : undefined }}
+            style={{ flexBasis: index > 0 ? `${sizes[index - 1]}px` : 0, flexGrow: index === 0 ? 1 : 0 }}
           >
             {child}
           </div>
           {index < length - 1 && (
             <div
+              onMouseDown={(event) => handleMouseDown(event, index)}
               role='separator'
-              onMouseDown={(e) => resizeHandler(index, e)}
               className={classes.separator}
               style={{ cursor: isRow ? 'ew-resize' : 'ns-resize', flexDirection: direction }}
             >
