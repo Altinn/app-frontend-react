@@ -26,13 +26,13 @@ export const SplitView = ({ direction, children }: SplitViewProps) => {
   // onMouseDown event that handles resizing the panels
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     event.preventDefault();
-    const { screenX: screenX1, screenY: screenY1 } = event;
+    const { screenX: x1, screenY: y1 } = event;
     const startSize = panelRefs[index + 1].current?.getBoundingClientRect()[isRow ? 'width' : 'height'] ?? sizes[index];
 
     const handleMouseMove = (event: MouseEvent) => {
       event.preventDefault();
-      const { screenX: screenX2, screenY: screenY2 } = event;
-      const delta = isRow ? screenX2 - screenX1 : screenY2 - screenY1;
+      const { screenX: x2, screenY: y2 } = event;
+      const delta = isRow ? x2 - x1 : y2 - y1;
       const nextSizes = [...sizes];
       nextSizes[index] = startSize - delta;
       setSizes(nextSizes);
