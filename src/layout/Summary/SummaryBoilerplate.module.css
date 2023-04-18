@@ -5,7 +5,7 @@
   justify-content: space-between;
 }
 .label {
-  font-weight: 500;
+  font-weight: 400;
 }
 .labelError,
 .labelError p {

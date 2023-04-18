@@ -2,12 +2,14 @@
   display: flex;
   max-width: 750px;
   flex-wrap: wrap;
+  gap: 10px;
 }
 
 .contentContainer {
-  flex: 8;
+  max-width: 500px;
 }
 .contentMargin {
+  display: block;
   margin-bottom: 24px;
 }
 .statusCode {
@@ -22,15 +24,5 @@
 }
 
 .imageContainer {
-  flex: 4;
-  margin: 65px 0 0 10px;
-}
-
-@media (max-width: 1025px) {
-  .flexContainer {
-    flex-direction: column;
-  }
-  .imageContainer {
-    margin-top: 24px;
-  }
+  align-self: flex-end;
 }

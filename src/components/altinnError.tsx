@@ -29,24 +29,16 @@ export const AltinnError = ({
     className={classes.flexContainer}
   >
     <div className={classes.contentContainer}>
-      <div className={classes.contentMargin}>
-        <span
-          data-testid='StatusCode'
-          className={classes.statusCode}
-        >
-          {statusCode}
-        </span>
-      </div>
-      <div className={classes.contentMargin}>
-        <h1 className={classes.title}>{title}</h1>
-      </div>
-      <div className={classes.contentMargin}>
-        <p className={classes.articleText}>{content}</p>
-      </div>
+      <span
+        data-testid='StatusCode'
+        className={` ${classes.statusCode} ${classes.contentMargin}`}
+      >
+        {statusCode}
+      </span>
+      <h1 className={`${classes.title} ${classes.contentMargin}`}>{title}</h1>
+      <p className={`${classes.articleText} ${classes.contentMargin}`}>{content}</p>
       <div>
-        <span>
-          <a href={url}>{urlText}</a>
-        </span>
+        <a href={url}>{urlText}</a>
       </div>
       <div>
         <span>{urlTextSuffix}</span>
@@ -54,8 +46,8 @@ export const AltinnError = ({
     </div>
     <div className={classes.imageContainer}>
       <img
-        alt={imageAlt ? imageAlt : 'Altinn Help Illustration'}
-        src={imageUrl ? imageUrl : altinnAppsIllustrationHelpCircleSvgUrl}
+        alt={imageAlt || 'Altinn Help Illustration'}
+        src={imageUrl || altinnAppsIllustrationHelpCircleSvgUrl}
       />
     </div>
   </div>

@@ -31,24 +31,22 @@ export function SummaryBoilerplate({
   const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;
 
   return (
-    <>
-      <div className={classes.container}>
-        <span
-          className={cn(classes.label, hasValidationMessages && !display?.hideValidationMessages && classes.labelError)}
-          {...(hasValidationMessages && {
-            'data-testid': 'has-validation-message',
-          })}
-        >
-          {label}
-        </span>
+    <div className={classes.container}>
+      <span
+        className={cn(classes.label, hasValidationMessages && !display?.hideValidationMessages && classes.labelError)}
+        {...(hasValidationMessages && {
+          'data-testid': 'has-validation-message',
+        })}
+      >
+        {label}
+      </span>
 
-        {shouldShowChangeButton && (
-          <EditButton
-            onClick={onChangeClick}
-            editText={changeText}
-          />
-        )}
-      </div>
-    </>
+      {shouldShowChangeButton && (
+        <EditButton
+          onClick={onChangeClick}
+          editText={changeText}
+        />
+      )}
+    </div>
   );
 }
