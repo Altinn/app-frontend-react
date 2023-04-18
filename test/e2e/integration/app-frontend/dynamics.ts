@@ -29,7 +29,7 @@ describe('Dynamics', () => {
       }
     });
     cy.gotoAndComplete('changename');
-    cy.get(appFrontend.navMenuButtons).first().click();
+    cy.navPage('form').click();
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newLastName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).type('test');
@@ -71,25 +71,25 @@ describe('Dynamics', () => {
     cy.goto('changename');
 
     // Make sure the summary page can be hidden
-    cy.get(appFrontend.navMenu).find('li > button').should('have.length', 3);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 3);
     cy.get(appFrontend.changeOfName.newFirstName).type('hideSummary');
-    cy.get(appFrontend.navMenu).find('li > button').should('have.length', 2);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 2);
 
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newLastName).should('be.visible');
-    cy.get(appFrontend.navMenu).find('li > button').should('have.length', 3);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 3);
 
     // Typing 1234 into the field should hide the last name component
-    cy.get(appFrontend.navMenu).find('li > button').eq(1).click();
+    cy.navPage('summary').click();
     cy.get('#testInputOnSummary').clear();
     cy.get('#testInputOnSummary').type('1234');
-    cy.get(appFrontend.navMenu).find('li > button').first().click();
+    cy.navPage('form').click();
     cy.get(appFrontend.changeOfName.newLastName).should('not.exist');
 
     // But hiding the summary page should hide the input there, making the last name component show up again (since
     // the value found in the component lookup is null now)
     cy.get(appFrontend.changeOfName.newFirstName).type('hideSummary');
     cy.get(appFrontend.changeOfName.newLastName).should('be.visible');
-    cy.get(appFrontend.navMenu).find('li > button').should('have.length', 2);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 2);
   });
 });
