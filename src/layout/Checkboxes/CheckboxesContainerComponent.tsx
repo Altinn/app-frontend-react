@@ -122,7 +122,11 @@ export const CheckboxContainerComponent = ({
         legend={overrideDisplay?.renderLegend === false ? null : labelText}
         description={textResourceBindings?.description && getTextResource(textResourceBindings.description)}
         error={!isValid}
-        fieldSetProps={{ 'aria-label': getTextResourceAsString(textResourceBindings?.title) }}
+        fieldSetProps={{
+          'aria-label': overrideDisplay?.renderedInTable
+            ? getTextResourceAsString(textResourceBindings?.title)
+            : undefined,
+        }}
         helpText={textResourceBindings?.help && getTextResource(textResourceBindings.help)}
         variant={
           shouldUseRowLayout({
