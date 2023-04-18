@@ -26,5 +26,14 @@ Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWith
 });
 
 Cypress.Commands.add('navPage', (page: string) => {
-  cy.get(appFrontend.navMenu).findByText(new RegExp(`^[0-9]+. ${page}$`));
+  cy.window().then((win) => {
+    const regex = new RegExp(`^[0-9]+. ${page}$`);
+
+    if (win.innerWidth > 768) {
+      cy.get(appFrontend.navMenu).findByText(regex);
+    } else {
+      cy.get('nav[data-testid=NavigationBar] button').should('have.attr', 'aria-expanded', 'false').click();
+      cy.get(appFrontend.navMenu).findByText(regex);
+    }
+  });
 });
