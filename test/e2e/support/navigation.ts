@@ -146,6 +146,8 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
       cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
       cy.get(mui.selectedDate).click();
       cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+
+      cy.navPage('grid').click();
     });
   },
   group: () => {
