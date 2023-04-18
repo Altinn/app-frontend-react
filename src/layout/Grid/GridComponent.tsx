@@ -9,10 +9,11 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
+import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridComponent, GridRow } from 'src/layout/Grid/types';
+import type { GridRow } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -34,7 +35,7 @@ export function GridComponent(props: PropsFromGenericComponent<'Grid'>) {
     >
       <Table id={node.item.id}>
         {rows.map((row, rowIdx) =>
-          isRowHidden(row) ? null : (
+          isGridRowHidden(row) ? null : (
             <Row
               key={rowIdx}
               header={row.header}
@@ -161,22 +162,6 @@ function CellWithText({ children, className, columnStyleOptions }: CellWithTextP
   );
 }
 
-function isRowHidden(row: GridRow<GridComponent>) {
-  let atLeastNoneNodeExists = false;
-  const allCellsAreHidden = row.cells.every((cell) => {
-    const node = cell && 'node' in cell && (cell?.node as LayoutNode);
-    if (node && typeof node === 'object') {
-      atLeastNoneNodeExists = true;
-      return node.isHidden();
-    }
-
-    // Non-component cells always collapse and hide if components in other cells are hidden
-    return true;
-  });
-
-  return atLeastNoneNodeExists && allCellsAreHidden;
-}
-
 function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
   return (
     <Grid
@@ -186,30 +171,14 @@ function MobileGrid({ node }: PropsFromGenericComponent<'Grid'>) {
       spacing={3}
       alignItems='flex-start'
     >
-      {node.item.rows.map((row, rowIdx) =>
-        isRowHidden(row) || row.header || row.readOnly ? null : (
-          <>
-            {row.cells.map((cell, cellIdx) => {
-              if (!cell || 'text' in cell) {
-                return null;
-              }
-
-              const node = cell?.node as LayoutNode;
-              const componentId = node?.item.id;
-              if (!node || node.isHidden()) {
-                return null;
-              }
-
-              return (
-                <GenericComponent
-                  key={componentId || `${rowIdx}-${cellIdx}`}
-                  node={node}
-                />
-              );
-            })}
-          </>
-        ),
-      )}
+      {nodesFromGrid(node)
+        .filter((child) => !child.isHidden())
+        .map((child) => (
+          <GenericComponent
+            key={child.item.id}
+            node={child}
+          />
+        ))}
     </Grid>
   );
 }
