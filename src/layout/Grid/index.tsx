@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { GridComponent } from 'src/layout/Grid/GridComponent';
+import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -13,13 +14,15 @@ export class Grid extends ContainerComponent<'Grid'> {
     return <GridComponent {...props} />;
   }
 
-  renderSummary(_props: SummaryRendererProps<'Grid'>): JSX.Element | null {
-    // PRIORITY: Implement
-    return null;
+  renderSummary(props: SummaryRendererProps<'Grid'>): JSX.Element | null {
+    return <GridSummaryComponent {...props} />;
+  }
+
+  renderSummaryBoilerplate(): boolean {
+    return false;
   }
 
   useDisplayData(_node: LayoutNodeFromType<'Grid'>): string {
-    // PRIORITY: Implement
     return '';
   }
 
