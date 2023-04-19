@@ -14,7 +14,6 @@ import { getColumnStylesRepeatingGroups, getTextResource } from 'src/utils/formC
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ITableColumnFormatting } from 'src/layout/layout';
 import type { ITextResource, ITextResourceBindings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -95,7 +94,7 @@ export function RepeatingGroupTableRow({
   const group = node?.isRepGroup() ? node.item : undefined;
   const row = group?.rows[index] ? group.rows[index] : undefined;
   const expressionsForRow = row && row.groupExpressions;
-  const columnSettings = group?.tableColumns as ITableColumnFormatting;
+  const columnSettings = group?.tableColumns;
   const edit = {
     ...group?.edit,
     ...expressionsForRow?.edit,
