@@ -81,12 +81,21 @@ export function RepeatingGroupTable({
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const showDeleteButtonColumns = new Set<boolean>();
+  const showEditButtonColumns = new Set<boolean>();
   if (node?.item.type === 'Group' && 'rows' in node.item) {
     for (const row of node.item.rows) {
       showDeleteButtonColumns.add(row?.groupExpressions?.edit?.deleteButton !== false);
+      showEditButtonColumns.add(row?.groupExpressions?.edit?.editButton !== false);
     }
   }
-  const displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);
+  let displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);
+  let displayEditColumn = showEditButtonColumns.has(true) || !showEditButtonColumns.has(false);
+  if (edit?.editButton === false) {
+    displayEditColumn = false;
+  }
+  if (edit?.deleteButton === false) {
+    displayDeleteColumn = false;
+  }
 
   const isNested = typeof container?.baseComponentId === 'string';
 
@@ -168,12 +177,11 @@ export function RepeatingGroupTable({
                   </span>
                 </TableCell>
               ))}
-              <TableCell
-                style={{ padding: 0, paddingRight: '10px' }}
-                colSpan={displayDeleteColumn ? 1 : 2}
-              >
-                <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
-              </TableCell>
+              {displayEditColumn && (
+                <TableCell style={{ padding: 0, paddingRight: '10px' }}>
+                  <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
+                </TableCell>
+              )}
               {displayDeleteColumn && (
                 <TableCell style={{ padding: 0 }}>
                   <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
@@ -226,6 +234,8 @@ export function RepeatingGroupTable({
                       onPopoverDeleteClick: handlePopoverDeleteClick,
                       onOpenChange,
                     }}
+                    displayDeleteColumn={displayDeleteColumn}
+                    displayEditColumn={displayEditColumn}
                   />
                   {isEditingRow && (
                     <TableRow
@@ -234,7 +244,11 @@ export function RepeatingGroupTable({
                     >
                       <TableCell
                         style={{ padding: 0, borderTop: 0 }}
-                        colSpan={mobileView ? 2 : tableNodes.length + 4 + Number(displayDeleteColumn)}
+                        colSpan={
+                          mobileView
+                            ? 2
+                            : tableNodes.length + 3 + (displayEditColumn ? 1 : 0) + (displayDeleteColumn ? 1 : 0)
+                        }
                       >
                         {renderRepeatingGroupsEditContainer()}
                       </TableCell>

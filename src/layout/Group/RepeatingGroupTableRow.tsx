@@ -39,6 +39,8 @@ export interface IRepeatingGroupTableRowProps {
     onOpenChange: (index: number) => void;
     onPopoverDeleteClick: (index: number) => () => void;
   };
+  displayEditColumn: boolean;
+  displayDeleteColumn: boolean;
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
@@ -79,6 +81,8 @@ export function RepeatingGroupTableRow({
   onEditClick,
   mobileView,
   deleteFunctionality,
+  displayEditColumn,
+  displayDeleteColumn,
 }: IRepeatingGroupTableRowProps): JSX.Element | null {
   const mobileViewSmall = useMediaQuery('(max-width:768px)');
   const textResources = useAppSelector((state) => state.textResources.resources);
@@ -158,28 +162,36 @@ export function RepeatingGroupTableRow({
       )}
       {!mobileView ? (
         <>
-          <TableCell
-            key={`edit-${index}`}
-            className={classes.buttonCell}
-            colSpan={edit?.deleteButton === false ? 2 : 1}
-          >
-            <div className={classes.buttonInCellWrapper}>
-              <Button
-                aria-expanded={isEditingRow}
-                aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-                variant={ButtonVariant.Quiet}
-                color={ButtonColor.Secondary}
-                icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
-                iconPlacement='right'
-                onClick={onEditClick}
-                aria-label={`${editButtonText} ${firstCellData}`}
-                data-testid='edit-button'
-                className={classes.tableButton}
-              >
-                {editButtonText}
-              </Button>
-            </div>
-          </TableCell>
+          {edit?.editButton === false && edit?.deleteButton === false && (displayEditColumn || displayDeleteColumn) ? (
+            <TableCell
+              key={`editDelete-${index}`}
+              colSpan={displayEditColumn && displayDeleteColumn ? 2 : 1}
+            />
+          ) : null}
+          {edit?.editButton !== false && (
+            <TableCell
+              key={`edit-${index}`}
+              className={classes.buttonCell}
+              colSpan={displayDeleteColumn && edit?.deleteButton === false ? 2 : 1}
+            >
+              <div className={classes.buttonInCellWrapper}>
+                <Button
+                  aria-expanded={isEditingRow}
+                  aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
+                  variant={ButtonVariant.Quiet}
+                  color={ButtonColor.Secondary}
+                  icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
+                  iconPlacement='right'
+                  onClick={onEditClick}
+                  aria-label={`${editButtonText} ${firstCellData}`}
+                  data-testid='edit-button'
+                  className={classes.tableButton}
+                >
+                  {editButtonText}
+                </Button>
+              </div>
+            </TableCell>
+          )}
           {edit?.deleteButton !== false &&
             setPopoverOpen &&
             onOpenChange &&
@@ -193,6 +205,7 @@ export function RepeatingGroupTableRow({
                   },
                   classes.buttonCell,
                 )}
+                colSpan={displayEditColumn && edit?.editButton === false ? 2 : 1}
               >
                 <div className={classes.buttonInCellWrapper}>
                   {(() => {
@@ -240,20 +253,22 @@ export function RepeatingGroupTableRow({
           style={{ verticalAlign: 'top' }}
         >
           <div className={classes.buttonInCellWrapper}>
-            <Button
-              aria-expanded={isEditingRow}
-              aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-              variant={ButtonVariant.Quiet}
-              color={ButtonColor.Secondary}
-              icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
-              iconPlacement='right'
-              onClick={onEditClick}
-              aria-label={`${editButtonText} ${firstCellData}`}
-              data-testid='edit-button'
-              className={classes.tableButton}
-            >
-              {(isEditingRow || !mobileViewSmall) && editButtonText}
-            </Button>
+            {edit?.editButton !== false && (
+              <Button
+                aria-expanded={isEditingRow}
+                aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
+                variant={ButtonVariant.Quiet}
+                color={ButtonColor.Secondary}
+                icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
+                iconPlacement='right'
+                onClick={onEditClick}
+                aria-label={`${editButtonText} ${firstCellData}`}
+                data-testid='edit-button'
+                className={classes.tableButton}
+              >
+                {(isEditingRow || !mobileViewSmall) && editButtonText}
+              </Button>
+            )}
             {edit?.deleteButton !== false &&
               setPopoverOpen &&
               onOpenChange &&

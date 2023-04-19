@@ -13,6 +13,7 @@ export interface IGroupEditProperties {
   addButton?: ExprVal.Boolean;
   saveButton?: ExprVal.Boolean;
   deleteButton?: ExprVal.Boolean;
+  editButton?: ExprVal.Boolean;
   multiPage?: boolean;
   openByDefault?: boolean | 'first' | 'last';
   alertOnDelete?: ExprVal.Boolean;
