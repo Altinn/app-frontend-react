@@ -1,0 +1,25 @@
+.editBtn {
+  grid-area: btn;
+}
+
+.label {
+  font-weight: 400;
+  grid-area: label;
+  grid: 1/-1;
+}
+.labelError,
+.labelError p {
+  color: #d5203b;
+}
+
+.summary {
+  grid-area: summary;
+}
+.container {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'label btn'
+    'summary summary';
+}
