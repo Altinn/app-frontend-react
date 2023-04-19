@@ -31,6 +31,11 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process.currentTask?.altinnTaskType);
   const { actions, write } = useAppSelector((state) => state.process);
 
+  /**
+   * For backwards compatibility where there was no information about permissions,
+   * write and confirm needs to be implicitly true.
+   * This is not necessary for the signing button where an updated backend is required.
+   */
   const disabled =
     (currentTaskType === 'data' && write === false) ||
     (currentTaskType === 'confirmation' && actions?.confirm === false);
