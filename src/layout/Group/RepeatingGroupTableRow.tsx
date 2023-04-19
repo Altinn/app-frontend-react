@@ -17,7 +17,6 @@ import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ITextResource, ITextResourceBindings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
-import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupTableRowProps {
@@ -136,7 +135,7 @@ export function RepeatingGroupTableRow({
     >
       {!mobileView ? (
         tableNodes.map((n, idx) =>
-          shouldEditInTable(n.item, columnSettings) ? (
+          shouldEditInTable(n, columnSettings) ? (
             <TableCell key={n.item.id}>
               <GenericComponent
                 node={n}
@@ -170,7 +169,7 @@ export function RepeatingGroupTableRow({
             {tableNodes.map(
               (n, i, { length }) =>
                 !isEditingRow &&
-                (shouldEditInTable(n.item, columnSettings) ? (
+                (shouldEditInTable(n, columnSettings) ? (
                   <Grid
                     container={true}
                     item={true}
@@ -360,11 +359,11 @@ export function RepeatingGroupTableRow({
   );
 }
 
-export function shouldEditInTable(tableItem: AnyItem, columnSettings: ILayoutGroup['tableColumns']) {
-  const column = columnSettings && columnSettings[tableItem.baseComponentId || tableItem.id];
-  if (!column) {
-    return false;
+export function shouldEditInTable(tableNode: LayoutNode, columnSettings: ILayoutGroup['tableColumns']) {
+  const column = columnSettings && columnSettings[tableNode.item.baseComponentId || tableNode.item.id];
+  if (column && column.editInTable) {
+    return tableNode.def.canRenderInTable();
   }
 
-  return column.editInTable === true;
+  return false;
 }
