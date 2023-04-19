@@ -145,6 +145,9 @@ export function RepeatingGroupTableRow({
                   renderLabel: false,
                   renderLegend: false,
                 }}
+                overrideItemProps={{
+                  grid: {},
+                }}
               />
             </TableCell>
           ) : (
@@ -173,7 +176,12 @@ export function RepeatingGroupTableRow({
                     item={true}
                     key={n.item.id}
                   >
-                    <GenericComponent node={n} />
+                    <GenericComponent
+                      node={n}
+                      overrideItemProps={{
+                        grid: {},
+                      }}
+                    />
                   </Grid>
                 ) : (
                   <Grid
