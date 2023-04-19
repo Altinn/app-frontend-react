@@ -13,8 +13,7 @@ import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGroupEditProperties } from 'src/layout/Group/types';
 import type { ILanguage } from 'src/types/shared';
-import type { AnyItem, HRepGroup, HRepGroupRow } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { HRepGroup, HRepGroupRow } from 'src/utils/layout/hierarchy.types';
 
 type FocusableHTMLElement = HTMLElement &
   HTMLButtonElement &
@@ -67,7 +66,6 @@ export function RepeatingGroupsEditContainer({
       editIndex={editIndex}
       group={group}
       row={row}
-      node={node}
       language={language}
       {...props}
     />
@@ -88,20 +86,18 @@ function RepeatingGroupsEditContainerInternal({
   filteredIndexes,
   group,
   row,
-  node,
   language,
 }: IRepeatingGroupsEditContainer & {
   group: HRepGroup;
   row: HRepGroupRow;
-  node: LayoutNode<AnyItem>;
   language: ILanguage;
 }): JSX.Element | null {
   const textResources = useAppSelector((state) => state.textResources.resources);
   const textsForRow = row?.groupExpressions?.textResourceBindings;
   const editForRow = row?.groupExpressions?.edit;
   const editForGroup = group.edit;
-  const rowItems = row.items.map((n) => n.item);
-  const rowItemIds = rowItems.map((i) => i.id);
+  const rowItems = row.items;
+  const rowItemIds = rowItems.map((i) => i.item.id);
 
   const gridRef = useRef<HTMLDivElement | null>(null);
   const prevGroupRowItems = useRef<string[] | undefined>(undefined);
@@ -178,24 +174,23 @@ function RepeatingGroupsEditContainerInternal({
   };
 
   const getGenericComponentsToRender = (): (JSX.Element | null)[] =>
-    rowItems.map((component): JSX.Element | null => {
+    rowItems.map((node): JSX.Element | null => {
       const isMultiPage =
         edit?.multiPage &&
         typeof multiPageIndex === 'number' &&
         multiPageIndex > -1 &&
-        component.multiPageIndex !== multiPageIndex;
+        node.item.multiPageIndex !== multiPageIndex;
 
       if (isMultiPage) {
         return null;
       }
 
-      const nodeToRender = node.top.findById(component.id);
-      return nodeToRender ? (
+      return (
         <GenericComponent
-          node={nodeToRender}
-          key={nodeToRender.item.id}
+          node={node}
+          key={node.item.id}
         />
-      ) : null;
+      );
     });
 
   const isNested = typeof group.baseComponentId === 'string';
@@ -264,7 +259,7 @@ function RepeatingGroupsEditContainerInternal({
             >
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > 0 &&
-                rowItems.filter((n) => n.multiPageIndex === multiPageIndex - 1).length > 0 && (
+                rowItems.filter((n) => n.item.multiPageIndex === multiPageIndex - 1).length > 0 && (
                   <Grid item={true}>
                     <Button
                       icon={<Back aria-hidden='true' />}
@@ -278,7 +273,7 @@ function RepeatingGroupsEditContainerInternal({
                 )}
               {typeof multiPageIndex === 'number' &&
                 multiPageIndex > -1 &&
-                rowItems.filter((n) => n.multiPageIndex === multiPageIndex + 1).length > 0 && (
+                rowItems.filter((n) => n.item.multiPageIndex === multiPageIndex + 1).length > 0 && (
                   <Grid item={true}>
                     <Button
                       icon={<Next aria-hidden='true' />}
