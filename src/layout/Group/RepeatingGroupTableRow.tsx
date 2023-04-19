@@ -2,13 +2,14 @@ import React from 'react';
 
 import { TableCell, TableRow } from '@altinn/altinn-design-system';
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
-import { useMediaQuery } from '@material-ui/core';
+import { Grid, useMediaQuery } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { getColumnStylesRepeatingGroups, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
@@ -16,6 +17,7 @@ import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ITextResource, ITextResourceBindings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupTableRowProps {
@@ -133,30 +135,61 @@ export function RepeatingGroupTableRow({
       )}
     >
       {!mobileView ? (
-        tableNodes.map((n, idx) => (
-          <TableCell key={`${n.item.id}-${index}`}>
-            <span
-              className={classes.contentFormatting}
-              style={getColumnStylesRepeatingGroups(n.item, columnSettings)}
-            >
-              {isEditingRow ? null : displayData[idx]}
-            </span>
-          </TableCell>
-        ))
+        tableNodes.map((n, idx) =>
+          shouldEditInTable(n.item, columnSettings) ? (
+            <TableCell key={n.item.id}>
+              <GenericComponent
+                node={n}
+                overrideDisplay={{
+                  renderedInTable: true,
+                  renderLabel: false,
+                  renderLegend: false,
+                }}
+              />
+            </TableCell>
+          ) : (
+            <TableCell key={`${n.item.id}-${index}`}>
+              <span
+                className={classes.contentFormatting}
+                style={getColumnStylesRepeatingGroups(n.item, columnSettings)}
+              >
+                {isEditingRow ? null : displayData[idx]}
+              </span>
+            </TableCell>
+          ),
+        )
       ) : (
         <TableCell className={classes.mobileTableCell}>
-          {tableNodes.map(
-            (n, i, { length }) =>
-              !isEditingRow && (
-                <React.Fragment key={`${n.item.id}-${index}`}>
-                  <b className={classes.contentFormatting}>
-                    {getTextResource(getTableTitle(n.item.textResourceBindings || {}), textResources)}:
-                  </b>
-                  <span className={classes.contentFormatting}>{displayData[i]}</span>
-                  {i < length - 1 && <div style={{ height: 8 }} />}
-                </React.Fragment>
-              ),
-          )}
+          <Grid
+            container={true}
+            spacing={3}
+          >
+            {tableNodes.map(
+              (n, i, { length }) =>
+                !isEditingRow &&
+                (shouldEditInTable(n.item, columnSettings) ? (
+                  <Grid
+                    container={true}
+                    item={true}
+                    key={n.item.id}
+                  >
+                    <GenericComponent node={n} />
+                  </Grid>
+                ) : (
+                  <Grid
+                    container={true}
+                    item={true}
+                    key={n.item.id}
+                  >
+                    <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
+                      {getTextResource(getTableTitle(n.item.textResourceBindings || {}), textResources)}:
+                    </b>
+                    <span className={classes.contentFormatting}>{displayData[i]}</span>
+                    {i < length - 1 && <div style={{ height: 8 }} />}
+                  </Grid>
+                )),
+            )}
+          </Grid>
         </TableCell>
       )}
       {!mobileView ? (
@@ -317,4 +350,13 @@ export function RepeatingGroupTableRow({
       )}
     </TableRow>
   );
+}
+
+export function shouldEditInTable(tableItem: AnyItem, columnSettings: ILayoutGroup['tableColumns']) {
+  const column = columnSettings && columnSettings[tableItem.baseComponentId || tableItem.id];
+  if (!column) {
+    return false;
+  }
+
+  return column.editInTable === true;
 }
