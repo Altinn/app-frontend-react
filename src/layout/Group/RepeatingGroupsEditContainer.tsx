@@ -96,6 +96,10 @@ function RepeatingGroupsEditContainerInternal({
   const textsForRow = row?.groupExpressions?.textResourceBindings;
   const editForRow = row?.groupExpressions?.edit;
   const editForGroup = group.edit;
+  const edit = {
+    ...editForGroup,
+    ...editForRow,
+  } as ExprResolved<IGroupEditProperties>;
   const rowItems = row.items;
   const rowItemIds = rowItems.map((i) => i.item.id);
 
@@ -140,11 +144,6 @@ function RepeatingGroupsEditContainerInternal({
     ...textsForRow,
   };
 
-  const edit = {
-    ...editForGroup,
-    ...editForRow,
-  } as ExprResolved<IGroupEditProperties>;
-
   let nextIndex: number | null = null;
   if (filteredIndexes) {
     const filteredIndex = filteredIndexes.indexOf(editIndex);
@@ -175,13 +174,22 @@ function RepeatingGroupsEditContainerInternal({
 
   const getGenericComponentsToRender = (): (JSX.Element | null)[] =>
     rowItems.map((node): JSX.Element | null => {
-      const isMultiPage =
+      const isOnOtherMultiPage =
         edit?.multiPage &&
         typeof multiPageIndex === 'number' &&
         multiPageIndex > -1 &&
         node.item.multiPageIndex !== multiPageIndex;
 
-      if (isMultiPage) {
+      if (isOnOtherMultiPage) {
+        return null;
+      }
+
+      if (
+        group.tableColumns &&
+        node.item.baseComponentId &&
+        group.tableColumns[node.item.baseComponentId] &&
+        group.tableColumns[node.item.baseComponentId].showInExpandedEdit === false
+      ) {
         return null;
       }
 

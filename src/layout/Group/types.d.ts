@@ -33,6 +33,7 @@ export interface ILayoutGroup extends ILayoutCompBase<'Group'> {
 
 export interface IGroupColumnFormatting extends ITableColumnProperties {
   editInTable?: boolean;
+  showInExpandedEdit?: boolean;
 }
 
 export interface IDataModelBindingsForGroup {
