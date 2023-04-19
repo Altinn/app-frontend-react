@@ -724,6 +724,10 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
         group.editIndex = filteredIndexList ? filteredIndexList.at(-1) : group.index;
       }
     }
+    if (container && group.index === -1 && container.edit?.openByDefault) {
+      group.editIndex = 0;
+      group.index = 0;
+    }
   });
 
   // preserve current edit and multipage index if still valid
