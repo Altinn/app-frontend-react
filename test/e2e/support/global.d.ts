@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { user } from 'test/e2e/support/auth';
 
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutComponentOrGroup } from 'src/layout/layout';
+import type { ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
 
 export type FrontendTestTask = 'message' | 'changename' | 'group' | 'likert' | 'datalist' | 'confirm';
@@ -120,8 +120,18 @@ declare global {
        */
       interceptLayout(
         taskName: FrontendTestTask | string,
-        mutator: (component: ExprUnresolved<ILayoutComponentOrGroup>) => void,
+        mutator?: (component: ExprUnresolved<ILayoutComponentOrGroup>) => void,
         wholeLayoutMutator?: (layoutSet: any) => void,
+      ): Chainable<null>;
+
+      /**
+       * The same as the above, but instead of intercepting the layout, it will fetch the current layout from redux
+       * and apply the mutator to it. This is useful if you want to make changes to the layout after it has been
+       * fetched. This performs the same actions as changing properties in the layout via the developer tools.
+       */
+      changeLayout(
+        mutator?: (component: ExprUnresolved<ILayoutComponentOrGroup>) => void,
+        allLayoutsMutator?: (layouts: ILayouts) => void,
       ): Chainable<null>;
 
       switchUser(user: user): any;
