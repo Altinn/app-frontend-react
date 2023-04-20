@@ -111,7 +111,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     if (!edit?.alwaysShowAddButton || edit?.mode === 'showAll') {
       dispatch(FormLayoutActions.updateRepeatingGroups({ layoutElementId: id }));
     }
-    if (edit?.mode !== 'showAll') {
+    if (edit?.mode !== 'showAll' && edit?.mode !== 'onlyTable') {
       dispatch(
         FormLayoutActions.updateRepeatingGroupsEditIndex({
           group: id,
@@ -192,7 +192,10 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
       item={true}
       data-componentid={node.item.baseComponentId ?? node.item.id}
     >
-      {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) && (
+      {(!edit?.mode ||
+        edit?.mode === 'showTable' ||
+        edit?.mode === 'onlyTable' ||
+        (edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
           editIndex={editIndex}
           id={id}

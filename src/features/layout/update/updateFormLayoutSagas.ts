@@ -738,6 +738,12 @@ export function* initRepeatingGroupsSaga(): SagaIterator {
       if (currentGroup.multiPageIndex !== undefined) {
         newGroup.multiPageIndex = currentGroup.multiPageIndex;
       }
+      if (currentGroup.index > newGroup.index) {
+        // A user might have clicked the 'add' button multiple times without having started to fill out every new row
+        // yet. We need to preserve the index of the last row that was added so that the user can continue to fill out
+        // the form from where they left off.
+        newGroup.index = currentGroup.index;
+      }
     });
   yield put(
     FormLayoutActions.updateRepeatingGroupsFulfilled({

@@ -207,7 +207,7 @@ export function RepeatingGroupTableRow({
               colSpan={displayEditColumn && displayDeleteColumn ? 2 : 1}
             />
           ) : null}
-          {edit?.editButton !== false && (
+          {edit?.editButton !== false && displayEditColumn && (
             <TableCell
               key={`edit-${index}`}
               className={classes.buttonCell}
@@ -232,6 +232,7 @@ export function RepeatingGroupTableRow({
             </TableCell>
           )}
           {edit?.deleteButton !== false &&
+            displayDeleteColumn &&
             setPopoverOpen &&
             onOpenChange &&
             onPopoverDeleteClick &&

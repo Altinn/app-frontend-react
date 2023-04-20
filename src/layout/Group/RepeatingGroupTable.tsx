@@ -96,6 +96,9 @@ export function RepeatingGroupTable({
   if (edit?.deleteButton === false) {
     displayDeleteColumn = false;
   }
+  if (edit?.mode === 'onlyTable') {
+    displayEditColumn = false;
+  }
 
   const isNested = typeof container?.baseComponentId === 'string';
 
@@ -130,7 +133,8 @@ export function RepeatingGroupTable({
   };
 
   const renderRepeatingGroupsEditContainer = () =>
-    editIndex >= 0 && (
+    editIndex >= 0 &&
+    edit?.mode !== 'onlyTable' && (
       <RepeatingGroupsEditContainer
         editIndex={editIndex}
         setEditIndex={setEditIndex}
@@ -208,7 +212,7 @@ export function RepeatingGroupTable({
                 return null;
               }
 
-              const isEditingRow = index === editIndex;
+              const isEditingRow = index === editIndex && edit?.mode !== 'onlyTable';
 
               return (
                 <React.Fragment key={index}>

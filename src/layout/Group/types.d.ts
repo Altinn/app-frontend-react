@@ -8,7 +8,7 @@ export interface IGroupFilter {
 }
 
 export interface IGroupEditProperties {
-  mode?: 'hideTable' | 'showTable' | 'showAll' | 'likert';
+  mode?: 'hideTable' | 'showTable' | 'showAll' | 'onlyTable' | 'likert';
   filter?: IGroupFilter[];
   addButton?: ExprVal.Boolean;
   saveButton?: ExprVal.Boolean;

@@ -564,5 +564,37 @@ describe('Group', () => {
 
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.currentValue).should('not.exist');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.newValue).should('not.exist');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    cy.changeLayout((component) => {
+      if (component.type === 'Group' && component.tableColumns && component.edit && component.id === 'mainGroup') {
+        component.edit.mode = 'onlyTable';
+
+        // This has no effect, as the edit button is always hidden when editing always is done in table. Still, we
+        // set it to false to make sure that functionality works as intended without setting this to false.
+        component.edit.editButton = true;
+
+        // This also should not have any effect, but since we are in 'onlyTable' mode, the add button should always
+        // be visible anyway. That's because when we add a new row, we never enter 'edit mode', because the row is
+        // just present in the table, ready for editing.
+        component.edit.alwaysShowAddButton = false;
+      }
+    });
+
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.editContainer).should('not.exist');
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
+
+    for (const extraRows of [6, 7]) {
+      cy.get(appFrontend.group.addNewItem).click();
+      cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', extraRows);
+    }
+
+    // Typing into the second to last row
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(5).find(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(5).find(appFrontend.group.newValue).type('2');
+
+    // This should not change the maximum number of rows
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 7);
   });
 });
