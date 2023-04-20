@@ -496,14 +496,15 @@ describe('Group', () => {
   });
 
   it('should be able to edit components directly in the table', () => {
-    cy.interceptLayout('group', (component) => {
+    cy.goto('group');
+    cy.navPage('prefill').should('be.visible');
+    cy.changeLayout((component) => {
       if (component.type === 'Group' && component.tableColumns && component.edit && component.id === 'mainGroup') {
         component.tableColumns['currentValue'].editInTable = true;
         component.tableColumns['newValue'].editInTable = true;
         component.edit.editButton = false;
       }
     });
-    cy.goto('group');
 
     cy.navPage('prefill').click();
     cy.get(appFrontend.group.prefill.liten).dsCheck();
@@ -534,15 +535,34 @@ describe('Group', () => {
     cy.get(appFrontend.group.edit).should('not.exist');
     cy.get(appFrontend.group.addNewItem).click();
 
-    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5); // PRIORITY: Should be 4 when in editInTable mode
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(3).find(appFrontend.group.currentValue).type('123');
-    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(3).find(appFrontend.group.newValue).type('123');
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(3).find(appFrontend.group.newValue).type('456');
 
-    cy.get(appFrontend.group.saveMainGroup).click(); // PRIORITY: Should not exist when in editInTable mode
+    cy.get(appFrontend.group.editContainer).find(appFrontend.group.currentValue).should('have.value', 'NOK 123');
+    cy.get(appFrontend.group.editContainer).find(appFrontend.group.newValue).should('have.value', 'NOK 456');
+
+    // This does not exist later, when we enter 'onlyTable' mode
+    cy.get(appFrontend.group.saveMainGroup).click();
 
     cy.get(appFrontend.group.edit).should('not.exist');
     cy.get(appFrontend.group.delete).should('have.length', 1);
     cy.get(appFrontend.group.delete).click();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
+
+    cy.changeLayout((component) => {
+      if (component.type === 'Group' && component.tableColumns && component.edit && component.id === 'mainGroup') {
+        component.tableColumns['currentValue'].showInExpandedEdit = false;
+        component.tableColumns['newValue'].showInExpandedEdit = false;
+      }
+    });
+
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(3).find(appFrontend.group.currentValue).type('789');
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(3).find(appFrontend.group.newValue).type('987');
+
+    cy.get(appFrontend.group.editContainer).find(appFrontend.group.currentValue).should('not.exist');
+    cy.get(appFrontend.group.editContainer).find(appFrontend.group.newValue).should('not.exist');
   });
 });
