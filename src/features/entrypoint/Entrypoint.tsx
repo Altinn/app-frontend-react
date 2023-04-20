@@ -27,19 +27,22 @@ import type { ShowTypes } from 'src/features/applicationMetadata';
 
 const titleKey = 'instantiate.starting';
 
-export function Entrypoint({ allowAnonymous }: any) {
+type EntrypointProps = {
+  allowAnonymous: boolean;
+};
+export function Entrypoint({ allowAnonymous }: EntrypointProps) {
   const [action, setAction] = React.useState<ShowTypes | null>(null);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
 
   const {
     data: partyValidation,
-    mutate: validateParty,
+    mutateAsync: validatePartyMutate,
     isError: hasPartyValidationError,
   } = usePartyValidationMutation();
 
   const { data: activeInstances, isError: hasActiveInstancesError } = useActiveInstancesQuery(
     selectedParty?.partyId || '',
-    action === 'select-instance' && !!partyValidation?.valid && !!selectedParty,
+    !!selectedParty?.partyId,
   );
 
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata?.applicationMetadata);
@@ -72,8 +75,8 @@ export function Entrypoint({ allowAnonymous }: any) {
       return;
     }
 
-    validateParty(selectedParty.partyId);
-  }, [selectedParty, validateParty]);
+    validatePartyMutate(selectedParty.partyId);
+  }, [selectedParty, validatePartyMutate]);
 
   React.useEffect(() => {
     // If user comes back to entrypoint from an active instance we need to clear validation messages

@@ -20,7 +20,6 @@ import { useUpdatePdfState } from 'src/hooks/useUpdatePdfState';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { makeGetHasErrorsSelector } from 'src/selectors/getErrors';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
-import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IApplicationSettings } from 'src/types/shared';
 
 export const App = () => {
@@ -69,12 +68,7 @@ export const App = () => {
   }
 
   if (componentIsReady) {
-    return (
-      <AppInternal
-        applicationMetadata={applicationMetadata}
-        applicationSettings={applicationSettings}
-      />
-    );
+    return <AppInternal applicationSettings={applicationSettings} />;
   }
 
   return null;
@@ -82,10 +76,9 @@ export const App = () => {
 
 type AppInternalProps = {
   applicationSettings: IApplicationSettings;
-  applicationMetadata: IApplicationMetadata;
 };
 
-const AppInternal = ({ applicationSettings, applicationMetadata }: AppInternalProps): JSX.Element | null => {
+const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | null => {
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous: boolean = useAppSelector(allowAnonymousSelector);
 
@@ -102,12 +95,7 @@ const AppInternal = ({ applicationSettings, applicationMetadata }: AppInternalPr
       <Routes>
         <Route
           path='/'
-          element={
-            <Entrypoint
-              allowAnonymous={allowAnonymous}
-              applicationMetadata={applicationMetadata}
-            />
-          }
+          element={<Entrypoint allowAnonymous={allowAnonymous} />}
         />
         <Route
           path='/partyselection/*'
