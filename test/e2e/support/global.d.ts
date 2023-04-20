@@ -32,6 +32,11 @@ declare global {
       gotoAndComplete(target: FrontendTestTask, mode: GotoMode = 'fast'): Chainable<Element>;
 
       /**
+       * Finds a navigation menu element with the specified text/page name
+       */
+      navPage(page: string): Chainable<Element>;
+
+      /**
        * Send in the form just completed by gotoAndComplete(), and wait for the next task to render
        */
       sendIn(target?: FrontendTestTask): Chainable<Element>;
