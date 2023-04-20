@@ -10,10 +10,12 @@ enum ServerStateCacheKey {
   GetOrganizations = 'fetchOrganizations',
 }
 
+const extractOrgsFromServerResponse = (response: { orgs: IAltinnOrgs }): IAltinnOrgs => response.orgs;
+
 export const useOrgsQuery = (): UseQueryResult<IAltinnOrgs> => {
   const dispatch = useAppDispatch();
   const { fetchOrgs } = useAppQueriesContext();
-  return useQuery([ServerStateCacheKey.GetOrganizations], fetchOrgs, {
+  return useQuery([ServerStateCacheKey.GetOrganizations], () => fetchOrgs().then(extractOrgsFromServerResponse), {
     onSuccess: (orgs) => {
       // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(OrgsActions.fetchFulfilled({ orgs }));

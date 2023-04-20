@@ -31,7 +31,7 @@ export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooter
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
 
-export const fetchOrgs = (): Promise<IAltinnOrgs> =>
+export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
   httpGet(orgsListUrl, {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });

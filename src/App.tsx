@@ -28,7 +28,7 @@ export const App = () => {
   const { data: applicationMetadata, isError: hasApplicationMetadataError } = useApplicationMetadataQuery();
   const { data: layoutSets, isError: hasLayoutSetError } = useLayoutSetsQuery();
   const { data: orgs, isError: hasOrgsError } = useOrgsQuery();
-  const { isError: hasFooterError } = useFooterLayoutQuery(!!applicationMetadata?.features?.footer);
+  useFooterLayoutQuery(!!applicationMetadata?.features?.footer);
 
   const { isError: hasProfileError } = useProfileQuery();
   const { isError: hasCurrentPartyError } = useCurrentPartyQuery();
@@ -39,7 +39,6 @@ export const App = () => {
     hasApplicationMetadataError ||
     hasLayoutSetError ||
     hasOrgsError ||
-    hasFooterError ||
     hasProfileError ||
     hasCurrentPartyError;
 
