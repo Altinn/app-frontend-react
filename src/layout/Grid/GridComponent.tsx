@@ -54,13 +54,11 @@ export function GridComponent(props: PropsFromGenericComponent<'Grid'>) {
                 }
 
                 if (cell && 'text' in cell) {
-                  const textCellSettings = columnSettings[cellIdx] ?? {};
-                  if (cell?.alignText) {
-                    textCellSettings.alignText = cell?.alignText;
-                  }
-                  if (cell?.textOverflow) {
-                    textCellSettings.textOverflow = cell?.textOverflow;
-                  }
+                  let textCellSettings: ITableColumnProperties = columnSettings[cellIdx]
+                    ? structuredClone(columnSettings[cellIdx])
+                    : {};
+                  textCellSettings = { ...textCellSettings, ...cell };
+
                   return (
                     <CellWithText
                       key={cell.text}
