@@ -4,7 +4,7 @@ import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
 
 export const usePartyValidationMutation = () => {
   const { doPartyValidation } = useAppQueriesContext();
-  return useMutation((partyId: string) => doPartyValidation(partyId), {
+  return useMutation((partyId: string) => doPartyValidation(partyId).then((response) => response.data), {
     onError: (error: Error) => {
       console.warn(error);
       throw new Error('Server did not respond with party validation');

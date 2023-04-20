@@ -3,7 +3,7 @@ import React from 'react';
 import { createStrictContext } from 'src/utils/createStrictContext';
 import type * as queries from 'src/queries/queries';
 
-type AppQueriesContext = typeof queries;
+export type AppQueriesContext = typeof queries;
 
 const [AppQueriesProvider, useAppQueriesContext] = createStrictContext<AppQueriesContext>();
 

@@ -10,10 +10,10 @@ enum ServerStateCacheKey {
   GetActiveInstances = 'getActiveInstances',
 }
 
-export const useActiveInstancesQuery = (partyId: string, enabled?: boolean): UseQueryResult<ISimpleInstance[]> => {
+export const useActiveInstancesQuery = (partyId?: string, enabled?: boolean): UseQueryResult<ISimpleInstance[]> => {
   const dispatch = useAppDispatch();
   const { fetchActiveInstances } = useAppQueriesContext();
-  return useQuery([ServerStateCacheKey.GetActiveInstances], () => fetchActiveInstances(partyId), {
+  return useQuery([ServerStateCacheKey.GetActiveInstances], () => fetchActiveInstances(partyId || ''), {
     enabled,
     onSuccess: (instanceData) => {
       dispatch(InstanceDataActions.getFulfilled({ instanceData }));

@@ -22,7 +22,10 @@ import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
 import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
+import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ShowTypes } from 'src/features/applicationMetadata';
+
+const titleKey = 'instantiate.starting';
 
 export function Entrypoint({ allowAnonymous }: any) {
   const [action, setAction] = React.useState<ShowTypes | null>(null);
@@ -36,7 +39,7 @@ export function Entrypoint({ allowAnonymous }: any) {
 
   const { data: activeInstances, isError: hasActiveInstancesError } = useActiveInstancesQuery(
     selectedParty?.partyId || '',
-    action === 'select-instance' && !!partyValidation?.data.valid && !!selectedParty,
+    action === 'select-instance' && !!partyValidation?.valid && !!selectedParty,
   );
 
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata?.applicationMetadata);
@@ -44,6 +47,18 @@ export function Entrypoint({ allowAnonymous }: any) {
   const formDataError = useAppSelector((state) => state.formData.error);
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
+
+  const titleText = useAppSelector((state) => {
+    const text = getTextFromAppOrDefault(
+      titleKey,
+      state.textResources.resources,
+      state.language.language || {},
+      [],
+      true,
+    );
+    return text === titleKey ? '' : text;
+  });
+
   const dispatch = useAppDispatch();
 
   const componentHasErrors = hasPartyValidationError || hasActiveInstancesError;
@@ -80,8 +95,8 @@ export function Entrypoint({ allowAnonymous }: any) {
     return <UnknownError />;
   }
 
-  if (partyValidation?.data.isValid === false) {
-    if (partyValidation.data.validParties?.length === 0) {
+  if (partyValidation?.isValid === false) {
+    if (partyValidation.validParties?.length === 0) {
       return <NoValidPartiesError />;
     }
     return <Navigate to={`/partyselection/${HttpStatusCodes.Forbidden}`} />;
@@ -96,12 +111,12 @@ export function Entrypoint({ allowAnonymous }: any) {
   }
 
   // regular view with instance
-  if (action === 'new-instance' && partyValidation?.data.valid) {
+  if (action === 'new-instance' && partyValidation?.valid) {
     return <InstantiateContainer />;
   }
 
-  if (action === 'select-instance' && partyValidation?.data.valid && activeInstances !== null) {
-    if (activeInstances && activeInstances.length === 0) {
+  if (action === 'select-instance' && partyValidation?.valid && activeInstances !== undefined) {
+    if (activeInstances?.length === 0) {
       // no existing instances exist, we start instantiation
       return <InstantiateContainer />;
     }
@@ -123,7 +138,7 @@ export function Entrypoint({ allowAnonymous }: any) {
   }
 
   // stateless view
-  if (isStatelessApp(applicationMetadata) && (allowAnonymous || partyValidation?.data.valid)) {
+  if (isStatelessApp(applicationMetadata) && (allowAnonymous || partyValidation?.valid)) {
     if (statelessLoading === null) {
       dispatch(QueueActions.startInitialStatelessQueue());
     }
@@ -144,7 +159,7 @@ export function Entrypoint({ allowAnonymous }: any) {
 
   return (
     <PresentationComponent
-      header=''
+      header={titleText}
       type={ProcessTaskType.Unknown}
     >
       <AltinnContentLoader
