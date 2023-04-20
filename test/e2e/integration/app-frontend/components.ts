@@ -80,12 +80,11 @@ describe('UI Components', () => {
     cy.get('[data-testid="NavigationBar"]').find('button:contains("form")').should('not.exist');
     cy.get('[data-testid="NavigationBar"]').find('button:contains("summary")').should('be.visible');
     cy.viewport('macbook-16');
-    cy.interceptLayout('changename', (component) => {
+    cy.changeLayout((component) => {
       if (component.type === 'NavigationBar') {
         component.compact = true;
       }
     });
-    cy.reload();
     cy.get(appFrontend.navMenu).should('not.exist');
     cy.get('[data-testid="NavigationBar"]').find('button:contains("form")').should('not.exist');
     cy.get('[data-testid="NavigationBar"]').find('button:contains("summary")').should('be.visible');
