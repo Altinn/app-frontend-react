@@ -36,13 +36,14 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
 
   const {
     data: partyValidation,
-    mutateAsync: validatePartyMutate,
+    mutate: validatePartyMutate,
     isError: hasPartyValidationError,
   } = usePartyValidationMutation();
 
+  const shouldFetchActiveInstances = action === 'select-instance' && partyValidation?.valid && selectedParty;
   const { data: activeInstances, isError: hasActiveInstancesError } = useActiveInstancesQuery(
     selectedParty?.partyId || '',
-    !!selectedParty?.partyId,
+    shouldFetchActiveInstances,
   );
 
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata?.applicationMetadata);
@@ -98,7 +99,7 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
     return <UnknownError />;
   }
 
-  if (partyValidation?.isValid === false) {
+  if (partyValidation?.valid === false) {
     if (partyValidation.validParties?.length === 0) {
       return <NoValidPartiesError />;
     }
