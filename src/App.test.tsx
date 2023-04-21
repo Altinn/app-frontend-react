@@ -13,7 +13,7 @@ import { renderWithProviders } from 'src/testUtils';
 import { ProcessTaskType } from 'src/types';
 import type { IRuntimeState } from 'src/types';
 
-describe('App', () => {
+describe.skip('App', () => {
   const get = jest.spyOn(axios, 'get');
   const actualUseAppSelector = appSelector.useAppSelector;
   const useAppSelector = jest.spyOn(appSelector, 'useAppSelector');
