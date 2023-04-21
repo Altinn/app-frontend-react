@@ -40,7 +40,7 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
     isError: hasPartyValidationError,
   } = usePartyValidationMutation();
 
-  const shouldFetchActiveInstances = action === 'select-instance' && partyValidation?.valid && selectedParty;
+  const shouldFetchActiveInstances = !!(action === 'select-instance' && partyValidation?.valid && selectedParty);
   const { data: activeInstances, isError: hasActiveInstancesError } = useActiveInstancesQuery(
     selectedParty?.partyId || '',
     shouldFetchActiveInstances,
