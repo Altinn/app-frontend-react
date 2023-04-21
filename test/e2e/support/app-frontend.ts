@@ -102,3 +102,13 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
     });
   });
 });
+
+Cypress.Commands.add('interceptPageOrder', (mutator) => {
+  cy.intercept({ method: 'POST', url: '**/pages/order*' }, (req) => {
+    req.reply((res) => {
+      const order = res.body;
+      mutator(order);
+      res.send(order);
+    });
+  });
+});

@@ -134,6 +134,11 @@ declare global {
         allLayoutsMutator?: (layouts: ILayouts) => void,
       ): Chainable<null>;
 
+      /**
+       * Intercept the page order and make changes to it.
+       */
+      interceptPageOrder(mutator: (order: string[]) => void): Chainable<null>;
+
       switchUser(user: user): any;
       assertUser(user: user): any;
 
