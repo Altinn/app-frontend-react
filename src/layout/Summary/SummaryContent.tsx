@@ -14,7 +14,7 @@ export interface SummaryContentProps {
   changeText: string | null;
   label: React.ReactNode;
   summaryNode: LayoutNodeFromType<'Summary'>;
-  targetNode: LayoutNode | any;
+  targetNode: LayoutNode;
   overrides: ISummaryComponent['overrides'];
   RenderSummary: React.ElementType;
 }
@@ -32,7 +32,8 @@ export function SummaryContent({
   const readOnlyComponent = targetNode.item.readOnly === true;
   const hasValidationMessages = targetNode.hasValidationMessages();
   const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;
-  const displaySummaryBoilerPlate = targetNode.def.renderSummaryBoilerplate();
+  const displaySummaryBoilerPlate =
+    'renderSummaryBoilerplate' in targetNode.def && targetNode.def.renderSummaryBoilerplate();
 
   return (
     <div className={classes.container}>
@@ -51,7 +52,7 @@ export function SummaryContent({
           onChangeClick={onChangeClick}
           changeText={changeText}
           summaryNode={summaryNode}
-          targetNode={targetNode as any}
+          targetNode={targetNode}
           overrides={overrides}
         />
       </span>
