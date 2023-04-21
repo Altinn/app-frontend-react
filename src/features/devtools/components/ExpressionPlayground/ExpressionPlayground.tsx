@@ -46,16 +46,16 @@ export const ExpressionPlayground = () => {
         const nodes = resolvedLayoutsFromState(state);
         let layout: LayoutPage | LayoutNode | undefined = nodes?.current();
         if (!layout) {
-          throw new Error('Unable to find current page/layout');
+          throw new Error('Fant ikke nåværende side/layout');
         }
 
         if (forComponentId) {
           const foundNode = nodes?.findById(forComponentId);
           if (!foundNode) {
             throw new Error(`
-              Unable to find component with id:  
+              Fant ingen komponent med id:
               ${forComponentId}\n
-              Available components on the current page: 
+              Tilgjengelige komponenter på nåværende side:
              ${layout?.flat(true).map((c) => c.item.id)}
             `);
           }
