@@ -1,6 +1,7 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
+import { secondaryGroup } from 'test/e2e/support/secondary-group';
 
 import { Triggers } from 'src/types';
 
@@ -507,83 +508,29 @@ describe('Group', () => {
         }
       },
       (layoutset) => {
-        layoutset['repeating2'] = {
-          data: {
-            layout: [
-              {
-                id: 'mainGroup2',
-                type: 'Group',
-                children: ['currentValue2', 'newValue2'],
-                maxCount: 999,
-                dataModelBindings: {
-                  group: 'Endringsmelding-grp-9786.OversiktOverEndringene-grp-9788',
-                },
-                textResourceBindings: {
-                  title: 'Group title',
-                },
-                edit: {
-                  mode: 'showTable',
-                  deleteButton: false,
-                  openByDefault: 'first',
-                },
-              },
-              {
-                id: 'currentValue2',
-                type: 'Input',
-                textResourceBindings: {
-                  title: '37131.SkattemeldingEndringEtterFristOpprinneligBelopdatadef37131.Label',
-                },
-                dataModelBindings: {
-                  simpleBinding:
-                    'Endringsmelding-grp-9786.OversiktOverEndringene-grp-9788.SkattemeldingEndringEtterFristOpprinneligBelop-datadef-37131.value',
-                },
-                required: false,
-                readOnly: ['dataModel', 'Endringsmelding-grp-9786.OversiktOverEndringene-grp-9788.isPrefill'],
-                labelSettings: {
-                  optionalIndicator: false,
-                },
-                grid: {
-                  md: 6,
-                },
-                formatting: {
-                  number: {
-                    thousandSeparator: ' ',
-                    prefix: 'NOK ',
-                    allowNegative: false,
-                  },
-                  align: 'right',
-                },
-              },
-              {
-                id: 'newValue2',
-                type: 'Input',
-                textResourceBindings: {
-                  title: '37132.SkattemeldingEndringEtterFristNyttBelopdatadef37132.Label',
-                },
-                dataModelBindings: {
-                  simpleBinding:
-                    'Endringsmelding-grp-9786.OversiktOverEndringene-grp-9788.SkattemeldingEndringEtterFristNyttBelop-datadef-37132.value',
-                },
-                required: false,
-                readOnly: ['dataModel', 'Endringsmelding-grp-9786.OversiktOverEndringene-grp-9788.isPrefill'],
-                grid: {
-                  md: 6,
-                },
-                formatting: {
-                  number: {
-                    thousandSeparator: ' ',
-                    prefix: 'NOK ',
-                    allowNegative: false,
-                  },
-                  align: 'right',
-                },
-                triggers: ['validation'],
-              },
-            ],
-          },
-        };
+        layoutset['repeating2'] = secondaryGroup;
       },
     );
     init();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+
+    cy.get(appFrontend.group.currentValue).type('10');
+    cy.get(appFrontend.group.newValue).type('20');
+    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('40');
+    cy.get(appFrontend.group.newValue).type('60');
+    cy.get(appFrontend.group.saveMainGroup).click();
+
+    cy.navPage('repeating2').click();
+    cy.get(appFrontend.group.currentValue).should('have.value', 'NOK 10');
+    cy.get(appFrontend.group.newValue).should('have.value', 'NOK 20');
+
+    cy.get('#group-mainGroup2')
+      .find(mui.tableBody)
+      .then((table) => {
+        cy.wrap(table).find(mui.tableElement).eq(3).invoke('text').should('equal', 'NOK 40');
+        cy.wrap(table).find(mui.tableElement).eq(4).invoke('text').should('equal', 'NOK 60');
+      });
   });
 });
