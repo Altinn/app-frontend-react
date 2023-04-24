@@ -82,8 +82,8 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
     }
   }, [appOwner, appName]);
 
-  const shouldWaitForProfile = allowAnonymous === false ? profile !== undefined : true;
-  const isReadyToRenderRoutes = allowAnonymous !== undefined && shouldWaitForProfile;
+  const shouldWaitForProfile = allowAnonymous === false && profile === undefined;
+  const isReadyToRenderRoutes = allowAnonymous !== undefined && (shouldWaitForProfile ? profile !== undefined : true);
   if (isReadyToRenderRoutes) {
     return (
       <>
