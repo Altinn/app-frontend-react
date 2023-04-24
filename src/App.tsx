@@ -45,20 +45,6 @@ export const App = () => {
   const hasErrorSelector = makeGetHasErrorsSelector();
   const hasApiErrors: boolean = useAppSelector(hasErrorSelector);
 
-  const appName = useAppSelector(selectAppName);
-  const appOwner = useAppSelector(selectAppOwner);
-
-  // Set the title of the app
-  React.useEffect(() => {
-    if (appName && appOwner) {
-      document.title = `${appName} • ${appOwner}`;
-    } else if (appName && !appOwner) {
-      document.title = appName;
-    } else if (!appName && appOwner) {
-      document.title = appOwner;
-    }
-  }, [appOwner, appName]);
-
   React.useEffect(() => {
     dispatch(QueueActions.startInitialAppTaskQueue());
   }, [dispatch]);
@@ -81,9 +67,22 @@ type AppInternalProps = {
 const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | null => {
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous: boolean = useAppSelector(allowAnonymousSelector);
+  const appName = useAppSelector(selectAppName);
+  const appOwner = useAppSelector(selectAppOwner);
 
   useKeepAlive(applicationSettings.appOidcProvider, allowAnonymous);
   useUpdatePdfState(allowAnonymous);
+
+  // Set the title of the app
+  React.useEffect(() => {
+    if (appName && appOwner) {
+      document.title = `${appName} • ${appOwner}`;
+    } else if (appName && !appOwner) {
+      document.title = appName;
+    } else if (!appName && appOwner) {
+      document.title = appOwner;
+    }
+  }, [appOwner, appName]);
 
   // Ready to be rendered once allowAnonymous value has been determined
   const isPageReadyToRender = allowAnonymous !== undefined;
