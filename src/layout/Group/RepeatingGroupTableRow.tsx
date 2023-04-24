@@ -135,7 +135,7 @@ export function RepeatingGroupTableRow({
     >
       {!mobileView ? (
         tableNodes.map((n, idx) =>
-          shouldEditInTable(n, columnSettings) ? (
+          shouldEditInTable(edit, n, columnSettings) ? (
             <TableCell key={n.item.id}>
               <GenericComponent
                 node={n}
@@ -169,7 +169,7 @@ export function RepeatingGroupTableRow({
             {tableNodes.map(
               (n, i, { length }) =>
                 !isEditingRow &&
-                (shouldEditInTable(n, columnSettings) ? (
+                (shouldEditInTable(edit, n, columnSettings) ? (
                   <Grid
                     container={true}
                     item={true}
@@ -360,7 +360,15 @@ export function RepeatingGroupTableRow({
   );
 }
 
-export function shouldEditInTable(tableNode: LayoutNode, columnSettings: ILayoutGroup['tableColumns']) {
+export function shouldEditInTable(
+  groupEdit: ExprResolved<ILayoutGroup['edit']>,
+  tableNode: LayoutNode,
+  columnSettings: ILayoutGroup['tableColumns'],
+) {
+  if (groupEdit?.mode === 'onlyTable') {
+    return tableNode.def.canRenderInTable();
+  }
+
   const column = columnSettings && columnSettings[tableNode.item.baseComponentId || tableNode.item.id];
   if (column && column.editInTable) {
     return tableNode.def.canRenderInTable();
