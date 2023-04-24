@@ -296,28 +296,57 @@ export function validateEmptyField(
   if (!node.item.dataModelBindings) {
     return null;
   }
-  const fieldKeys = Object.keys(node.item.dataModelBindings) as (keyof IDataModelBindings)[];
   const componentValidations: IComponentValidations = {};
-  fieldKeys.forEach((fieldKey) => {
-    const value = getFormDataFromFieldKey(fieldKey, node.item.dataModelBindings, formData);
-    if (!value && fieldKey) {
-      const errors: string[] = [];
-      const warnings: string[] = [];
-      const fieldName = getFieldName(
-        node.item.textResourceBindings,
-        textResources,
-        language,
-        fieldKey !== 'simpleBinding' ? fieldKey : undefined,
-      );
-      errors.push(getParsedLanguageFromKey('form_filler.error_required', language, [fieldName], true));
+  const fieldKeys = Object.keys(node.item.dataModelBindings) as (keyof IDataModelBindings)[];
+  if (node.item.type === 'List') {
+    validateEmptyFieldsListComponent(fieldKeys, node, formData, textResources, language, componentValidations);
+  } else {
+    fieldKeys.forEach((fieldKey) => {
+      const value = getFormDataFromFieldKey(fieldKey, node.item.dataModelBindings, formData);
+      if (!value && fieldKey) {
+        const errors: string[] = [];
+        const warnings: string[] = [];
+        const fieldName = getFieldName(
+          node.item.textResourceBindings,
+          textResources,
+          language,
+          fieldKey !== 'simpleBinding' ? fieldKey : undefined,
+        );
+        errors.push(getParsedLanguageFromKey('form_filler.error_required', language, [fieldName], true));
 
-      componentValidations[fieldKey] = { errors, warnings };
-    }
-  });
+        componentValidations[fieldKey] = { errors, warnings };
+      }
+    });
+  }
   if (Object.keys(componentValidations).length > 0) {
     return componentValidations;
   }
   return null;
+}
+
+export function validateEmptyFieldsListComponent(
+  fieldKeys: string[],
+  node: LayoutNode,
+  formData: any,
+  textResources: ITextResource[],
+  language: ILanguage,
+  componentValidations: IComponentValidations,
+) {
+  let isErrorInList = false;
+  fieldKeys.forEach((fieldKey) => {
+    const value = getFormDataFromFieldKey(fieldKey, node.item.dataModelBindings, formData);
+    if (!value && fieldKey) {
+      isErrorInList = true;
+    }
+  });
+  if (isErrorInList) {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    const fieldName = getFieldName(node.item.textResourceBindings, textResources, language, undefined);
+    errors.push(getParsedLanguageFromKey('form_filler.error_required', language, [fieldName], true));
+
+    componentValidations['simpleBinding'] = { errors, warnings };
+  }
 }
 
 export function validateFormComponents(
@@ -904,6 +933,17 @@ export function mapDataElementValidationToRedux(
     return validationResult;
   }
   validations.forEach((validation) => {
+    if (validation.code == 'required' && validation.code != validation.description) {
+      // Ignore required validations from backend. They will be duplicated by frontend running the same logic.
+      // verify that code != description because user validations always have code == description
+      // and we don't want issues in case someone wants to set additional required validations in backend
+      // and uses "required" as a key.
+
+      // Using "required" as key will likeliy be OK in the future, if we manage to inteligently deduplicate
+      // errors with a shared code. (eg, only display one error with code "required" per component)
+      return;
+    }
+
     // for each validation, map to correct component and field key
     const layoutIds = findLayoutIdsFromValidationIssue(layouts || {}, validation);
     if (layoutIds.length === 0) {
