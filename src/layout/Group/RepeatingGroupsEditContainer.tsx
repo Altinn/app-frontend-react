@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
@@ -9,18 +9,12 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
+import { useFocusOnFirstComponentIn } from 'src/layout/Group/useFocusOnFirstComponentIn';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGroupEditProperties } from 'src/layout/Group/types';
 import type { ILanguage } from 'src/types/shared';
 import type { HRepGroup, HRepGroupRow } from 'src/utils/layout/hierarchy.types';
-
-type FocusableHTMLElement = HTMLElement &
-  HTMLButtonElement &
-  HTMLInputElement &
-  HTMLSelectElement &
-  HTMLTextAreaElement &
-  HTMLAnchorElement;
 
 export interface IRepeatingGroupsEditContainer {
   id: string;
@@ -101,43 +95,7 @@ function RepeatingGroupsEditContainerInternal({
     ...editForRow,
   } as ExprResolved<IGroupEditProperties>;
   const rowItems = row.items;
-  const rowItemIds = rowItems.map((i) => i.item.id);
-
-  const gridRef = useRef<HTMLDivElement | null>(null);
-  const prevGroupRowItems = useRef<string[] | undefined>(undefined);
-
-  useEffect((): void => {
-    if (!gridRef.current || JSON.stringify(prevGroupRowItems.current) === JSON.stringify(rowItemIds)) {
-      return;
-    }
-    prevGroupRowItems.current = rowItemIds;
-
-    const isFocusable = (element: FocusableHTMLElement): boolean => {
-      const tagName = element.tagName.toLowerCase();
-      const focusableElements = ['a', 'input', 'select', 'textarea', 'button'];
-
-      if (element.tabIndex < 0) {
-        return false;
-      }
-
-      const isAvailable =
-        element.type !== 'hidden' || !element.disabled || (element.type.toLowerCase() === 'a' && !!element.href);
-
-      return focusableElements.includes(tagName) && isAvailable;
-    };
-
-    const findFirstFocusableElement = (container: HTMLElement): FocusableHTMLElement | undefined =>
-      Array.from(container.getElementsByTagName('*')).find(isFocusable) as FocusableHTMLElement;
-
-    const firstFocusableChild = findFirstFocusableElement(gridRef.current);
-
-    if (firstFocusableChild) {
-      firstFocusableChild.focus();
-    }
-    /*
-     * Depend on rowItems because generic components are rendered when rowItems change.
-     */
-  }, [editIndex, rowItemIds]);
+  const gridRef = useFocusOnFirstComponentIn<HTMLDivElement>(row, editIndex);
 
   const texts = {
     ...group.textResourceBindings,
