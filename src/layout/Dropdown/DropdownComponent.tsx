@@ -8,7 +8,7 @@ import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { duplicateOptionFilter, getOptionLookupKey } from 'src/utils/options';
+import { duplicateOptionFilter, formatLabelForSelect, getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
@@ -22,6 +22,7 @@ export function DropdownComponent({
 }: IDropdownProps) {
   const { optionsId, preselectedOptionIndex, id, readOnly, mapping, source } = node.item;
   const language = useAppSelector((state) => state.language.language);
+  const textResources = useAppSelector((state) => state.textResources.resources);
   const options = useGetOptions({ optionsId, mapping, source })?.filter(duplicateOptionFilter);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
@@ -70,6 +71,7 @@ export function DropdownComponent({
           options={
             options?.map((option) => ({
               label: getTextResourceAsString(option.label) ?? option.value,
+              formattedLabel: formatLabelForSelect(option, textResources),
               value: option.value,
             })) || []
           }

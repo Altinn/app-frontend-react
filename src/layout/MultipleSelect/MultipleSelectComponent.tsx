@@ -7,7 +7,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useGetOptions } from 'src/hooks/useGetOptions';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { duplicateOptionFilter } from 'src/utils/options';
+import { duplicateOptionFilter, formatLabelForSelect } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/layout/MultipleSelect/MultipleSelect.css';
@@ -25,6 +25,7 @@ export function MultipleSelectComponent({
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const language = useAppSelector((state) => state.language.language);
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
+  const textResources = useAppSelector((state) => state.textResources.resources);
 
   if (!language) {
     return null;
@@ -35,6 +36,7 @@ export function MultipleSelectComponent({
       const label = getTextResourceAsString(option.label) ?? option.value;
       return {
         label,
+        formattedLabel: formatLabelForSelect(option, textResources),
         value: option.value,
         deleteButtonLabel: `${getLanguageFromKey('general.delete', language)} ${label}`,
       };

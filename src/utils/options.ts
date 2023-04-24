@@ -1,4 +1,8 @@
-import { replaceTextResourceParams } from 'src/language/sharedLanguage';
+import {
+  getParsedLanguageFromText,
+  getTextResourceByKey,
+  replaceTextResourceParams,
+} from 'src/language/sharedLanguage';
 import {
   getBaseGroupDataModelBindingFromKeyWithIndexIndicators,
   getGroupDataModelBinding,
@@ -211,4 +215,14 @@ export function duplicateOptionFilter(currentOption: IOption, currentIndex: numb
     }
   }
   return true;
+}
+
+export function formatLabelForSelect(option: IOption, textResources: ITextResource[]): React.ReactNode {
+  const label = getTextResourceByKey(option.label, textResources) ?? option.value;
+  if (option.description) {
+    const description = getTextResourceByKey(option.description, textResources);
+    return getParsedLanguageFromText(`<b>${label}</b><br><span>${description}</span>`);
+  } else {
+    return getParsedLanguageFromText(`<span>${option.label}</span>`);
+  }
 }
