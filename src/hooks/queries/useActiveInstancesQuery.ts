@@ -5,6 +5,7 @@ import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
 import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { ISimpleInstance } from 'src/types';
+import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 enum ServerStateCacheKey {
   GetActiveInstances = 'getActiveInstances',
@@ -18,7 +19,7 @@ export const useActiveInstancesQuery = (partyId?: string, enabled?: boolean): Us
     onSuccess: (instanceData) => {
       dispatch(InstanceDataActions.getFulfilled({ instanceData }));
     },
-    onError: (error: Error) => {
+    onError: (error: HttpClientError) => {
       console.warn(error);
       throw new Error('Server did not return active instances');
     },

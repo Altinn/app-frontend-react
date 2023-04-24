@@ -5,6 +5,7 @@ import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
 import { OrgsActions } from 'src/features/orgs/orgsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import type { IAltinnOrgs } from 'src/types/shared';
+import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 enum ServerStateCacheKey {
   GetOrganizations = 'fetchOrganizations',
@@ -20,7 +21,7 @@ export const useOrgsQuery = (): UseQueryResult<IAltinnOrgs> => {
       // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(OrgsActions.fetchFulfilled({ orgs }));
     },
-    onError: (error: Error) => {
+    onError: (error: HttpClientError) => {
       // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       OrgsActions.fetchRejected({ error });
     },

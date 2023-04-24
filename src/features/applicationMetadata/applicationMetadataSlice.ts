@@ -23,7 +23,7 @@ export const applicationMetadataSlice = () => {
       }),
       getFulfilled: mkAction<IGetApplicationMetadataFulfilled>({
         reducer: (state, action) => {
-          state.applicationMetadata = action.payload.applicationMetadata;
+          state.applicationMetadata = { ...action.payload.applicationMetadata, features: { footer: true } };
           state.error = null;
         },
       }),

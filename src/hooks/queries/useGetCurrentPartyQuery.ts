@@ -5,6 +5,7 @@ import { PartyActions } from 'src/features/party/partySlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 enum ServerStateCacheKey {
   UseCurrentParty = 'fetchUseCurrentParty',
@@ -23,7 +24,7 @@ export const useCurrentPartyQuery = () => {
         dispatch(PartyActions.getPartiesFulfilled({ parties: [currentParty] }));
       }
     },
-    onError: (error: Error) => {
+    onError: (error: HttpClientError) => {
       // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(QueueActions.userTaskQueueError({ error }));
     },
