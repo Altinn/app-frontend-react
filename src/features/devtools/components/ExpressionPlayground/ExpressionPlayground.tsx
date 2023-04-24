@@ -21,63 +21,64 @@ export const ExpressionPlayground = () => {
   const formData = useAppSelector((state) => state.formData.formData);
 
   useEffect(() => {
-    if (input.length > 0) {
+    if (input.length <= 0) {
+      setOutput('');
+      setIsError(false);
+      return;
+    }
+
+    try {
+      let maybeExpression: string;
       try {
-        let maybeExpression: string;
-        try {
-          maybeExpression = JSON.parse(input);
-        } catch (e) {
-          if (e instanceof Error) {
-            throw new Error(`Ugyldig JSON: ${e.message}`);
-          } else {
-            throw new Error('Ugyldig JSON');
-          }
+        maybeExpression = JSON.parse(input);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new Error(`Ugyldig JSON: ${e.message}`);
+        } else {
+          throw new Error('Ugyldig JSON');
         }
-        const forComponentId = null;
+      }
+      const forComponentId = null;
 
-        const config: ExprConfig<ExprVal.Any> = {
-          returnType: ExprVal.Any,
-          defaultValue: null,
-          resolvePerRow: false,
-          errorAsException: true,
-        };
+      const config: ExprConfig<ExprVal.Any> = {
+        returnType: ExprVal.Any,
+        defaultValue: null,
+        resolvePerRow: false,
+        errorAsException: true,
+      };
 
-        const expr = asExpression(maybeExpression, config);
-        if (!expr) {
-          throw new Error('Ugyldig uttrykk');
-        }
+      const expr = asExpression(maybeExpression, config);
+      if (!expr) {
+        throw new Error('Ugyldig uttrykk');
+      }
 
-        const state = (window as unknown as IAltinnWindow).reduxStore.getState();
-        const nodes = resolvedLayoutsFromState(state);
-        let layout: LayoutPage | LayoutNode | undefined = nodes?.current();
-        if (!layout) {
-          throw new Error('Fant ikke nåværende side/layout');
-        }
+      const state = (window as unknown as IAltinnWindow).reduxStore.getState();
+      const nodes = resolvedLayoutsFromState(state);
+      let layout: LayoutPage | LayoutNode | undefined = nodes?.current();
+      if (!layout) {
+        throw new Error('Fant ikke nåværende side/layout');
+      }
 
-        if (forComponentId) {
-          const foundNode = nodes?.findById(forComponentId);
-          if (!foundNode) {
-            throw new Error(`
+      if (forComponentId) {
+        const foundNode = nodes?.findById(forComponentId);
+        if (!foundNode) {
+          throw new Error(`
               Fant ingen komponent med id:
               ${forComponentId}\n
               Tilgjengelige komponenter på nåværende side:
              ${layout?.flat(true).map((c) => c.item.id)}
             `);
-          }
-          layout = foundNode;
         }
-
-        const dataSources = dataSourcesFromState(state);
-        const out = evalExpr(expr as Expression, layout, dataSources, { config });
-        setOutput(out);
-        setIsError(false);
-      } catch (e) {
-        setOutput(e.message);
-        setIsError(true);
+        layout = foundNode;
       }
-    } else {
-      setOutput('');
+
+      const dataSources = dataSourcesFromState(state);
+      const out = evalExpr(expr as Expression, layout, dataSources, { config });
+      setOutput(out);
       setIsError(false);
+    } catch (e) {
+      setOutput(e.message);
+      setIsError(true);
     }
   }, [input, formData]);
 
