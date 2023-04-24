@@ -27,7 +27,11 @@ export const ExpressionPlayground = () => {
         try {
           maybeExpression = JSON.parse(input);
         } catch (e) {
-          throw new Error('Ugyldig JSON');
+          if (e instanceof Error) {
+            throw new Error(`Ugyldig JSON: ${e.message}`);
+          } else {
+            throw new Error('Ugyldig JSON');
+          }
         }
         const forComponentId = null;
 
@@ -35,6 +39,7 @@ export const ExpressionPlayground = () => {
           returnType: ExprVal.Any,
           defaultValue: null,
           resolvePerRow: false,
+          errorAsException: true,
         };
 
         const expr = asExpression(maybeExpression, config);
