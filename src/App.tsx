@@ -29,10 +29,10 @@ export const App = () => {
   const { data: orgs, isError: hasOrgsError } = useOrgsQuery();
   useFooterLayoutQuery(!!applicationMetadata?.features?.footer);
 
-  const { isError: hasProfileError } = useProfileQuery();
+  const { isLoading: isLoadingProfile, isError: hasProfileError } = useProfileQuery();
   const { isError: hasCurrentPartyError } = useCurrentPartyQuery();
 
-  const componentIsReady = applicationSettings && applicationMetadata && layoutSets && orgs;
+  const componentIsReady = applicationSettings && applicationMetadata && layoutSets && orgs && !isLoadingProfile;
   const componentHasError =
     hasApplicationSettingsError ||
     hasApplicationMetadataError ||
