@@ -11,11 +11,12 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 enum ServerStateCacheKey {
   GetUserProfile = 'fetchUserProfile',
 }
-export const useProfileQuery = (): UseQueryResult<IProfile> => {
+export const useProfileQuery = (enabled: boolean): UseQueryResult<IProfile> => {
   const dispatch = useAppDispatch();
 
   const { fetchUserProfile } = useAppQueriesContext();
   return useQuery([ServerStateCacheKey.GetUserProfile], fetchUserProfile, {
+    enabled,
     onSuccess: (profile) => {
       dispatch(ProfileActions.fetchFulfilled({ profile }));
     },

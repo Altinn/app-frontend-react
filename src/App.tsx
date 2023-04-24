@@ -29,17 +29,9 @@ export const App = () => {
   const { data: orgs, isError: hasOrgsError } = useOrgsQuery();
   useFooterLayoutQuery(!!applicationMetadata?.features?.footer);
 
-  const { isLoading: isLoadingProfile, isError: hasProfileError } = useProfileQuery();
-  const { isError: hasCurrentPartyError } = useCurrentPartyQuery();
-
-  const componentIsReady = applicationSettings && applicationMetadata && layoutSets && orgs && !isLoadingProfile;
+  const componentIsReady = applicationSettings && applicationMetadata && layoutSets && orgs;
   const componentHasError =
-    hasApplicationSettingsError ||
-    hasApplicationMetadataError ||
-    hasLayoutSetError ||
-    hasOrgsError ||
-    hasProfileError ||
-    hasCurrentPartyError;
+    hasApplicationSettingsError || hasApplicationMetadataError || hasLayoutSetError || hasOrgsError;
 
   const dispatch = useAppDispatch();
   const hasErrorSelector = makeGetHasErrorsSelector();
@@ -67,11 +59,17 @@ type AppInternalProps = {
 const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | null => {
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous: boolean = useAppSelector(allowAnonymousSelector);
+
+  const { isError: hasProfileError } = useProfileQuery(allowAnonymous === false);
+  const { isError: hasCurrentPartyError } = useCurrentPartyQuery(allowAnonymous === false);
+
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
 
   useKeepAlive(applicationSettings.appOidcProvider, allowAnonymous);
   useUpdatePdfState(allowAnonymous);
+
+  const hasComponentError = hasProfileError || hasCurrentPartyError;
 
   // Set the title of the app
   React.useEffect(() => {
@@ -84,27 +82,31 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
     }
   }, [appOwner, appName]);
 
-  // Ready to be rendered once allowAnonymous value has been determined
-  const isPageReadyToRender = allowAnonymous !== undefined;
-  if (!isPageReadyToRender) {
-    return null;
+  const isReadyToRenderRoutes = allowAnonymous !== undefined;
+  if (isReadyToRenderRoutes) {
+    return (
+      <>
+        <Routes>
+          <Route
+            path='/'
+            element={<Entrypoint allowAnonymous={allowAnonymous} />}
+          />
+          <Route
+            path='/partyselection/*'
+            element={<PartySelection />}
+          />
+          <Route
+            path='/instance/:partyId/:instanceGuid'
+            element={<ProcessWrapper />}
+          />
+        </Routes>
+      </>
+    );
   }
-  return (
-    <>
-      <Routes>
-        <Route
-          path='/'
-          element={<Entrypoint allowAnonymous={allowAnonymous} />}
-        />
-        <Route
-          path='/partyselection/*'
-          element={<PartySelection />}
-        />
-        <Route
-          path='/instance/:partyId/:instanceGuid'
-          element={<ProcessWrapper />}
-        />
-      </Routes>
-    </>
-  );
+
+  if (hasComponentError) {
+    return <UnknownError />;
+  }
+
+  return null;
 };

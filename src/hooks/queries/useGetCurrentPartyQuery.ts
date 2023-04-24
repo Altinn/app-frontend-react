@@ -11,12 +11,13 @@ enum ServerStateCacheKey {
   UseCurrentParty = 'fetchUseCurrentParty',
 }
 
-export const useCurrentPartyQuery = () => {
+export const useCurrentPartyQuery = (enabled: boolean) => {
   const dispatch = useAppDispatch();
   const parties = useAppSelector((state) => state.party.parties);
 
   const { fetchCurrentParty } = useAppQueriesContext();
   return useQuery([ServerStateCacheKey.UseCurrentParty], fetchCurrentParty, {
+    enabled,
     onSuccess: (currentParty) => {
       // Update the Redux Store ensures that legacy code has access to the data without using the Tanstack Query Cache
       dispatch(PartyActions.selectPartyFulfilled({ party: currentParty }));
