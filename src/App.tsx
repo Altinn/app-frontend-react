@@ -60,7 +60,7 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous: boolean = useAppSelector(allowAnonymousSelector);
 
-  const { isError: hasProfileError } = useProfileQuery(allowAnonymous === false);
+  const { data: profile, isError: hasProfileError } = useProfileQuery(allowAnonymous === false);
   const { isError: hasCurrentPartyError } = useCurrentPartyQuery(allowAnonymous === false);
 
   const appName = useAppSelector(selectAppName);
@@ -82,7 +82,8 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
     }
   }, [appOwner, appName]);
 
-  const isReadyToRenderRoutes = allowAnonymous !== undefined;
+  const shouldWaitForProfile = allowAnonymous === false && profile === undefined;
+  const isReadyToRenderRoutes = allowAnonymous !== undefined && shouldWaitForProfile;
   if (isReadyToRenderRoutes) {
     return (
       <>
