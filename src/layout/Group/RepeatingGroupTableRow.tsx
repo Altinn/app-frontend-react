@@ -11,6 +11,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
+import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { getColumnStylesRepeatingGroups, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
@@ -87,6 +88,7 @@ export function RepeatingGroupTableRow({
   const mobileViewSmall = useMediaQuery('(max-width:768px)');
   const textResources = useAppSelector((state) => state.textResources.resources);
   const language = useAppSelector((state) => state.language.language);
+  const { refSetter } = useRepeatingGroupsFocusContext();
 
   const { popoverOpen, popoverPanelIndex, onDeleteClick, setPopoverOpen, onPopoverDeleteClick, onOpenChange } =
     deleteFunctionality || {};
@@ -137,17 +139,19 @@ export function RepeatingGroupTableRow({
         tableNodes.map((n, idx) =>
           shouldEditInTable(edit, n, columnSettings) ? (
             <TableCell key={n.item.id}>
-              <GenericComponent
-                node={n}
-                overrideDisplay={{
-                  renderedInTable: true,
-                  renderLabel: false,
-                  renderLegend: false,
-                }}
-                overrideItemProps={{
-                  grid: {},
-                }}
-              />
+              <div ref={(ref) => refSetter && refSetter(index, `component-${n.item.id}`, ref)}>
+                <GenericComponent
+                  node={n}
+                  overrideDisplay={{
+                    renderedInTable: true,
+                    renderLabel: false,
+                    renderLegend: false,
+                  }}
+                  overrideItemProps={{
+                    grid: {},
+                  }}
+                />
+              </div>
             </TableCell>
           ) : (
             <TableCell key={`${n.item.id}-${index}`}>
@@ -174,6 +178,7 @@ export function RepeatingGroupTableRow({
                     container={true}
                     item={true}
                     key={n.item.id}
+                    ref={(ref) => refSetter && refSetter(index, `component-${n.item.id}`, ref)}
                   >
                     <GenericComponent
                       node={n}

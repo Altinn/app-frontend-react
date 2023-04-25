@@ -9,7 +9,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
-import { useFocusOnFirstComponentIn } from 'src/layout/Group/useFocusOnFirstComponentIn';
+import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IGroupEditProperties } from 'src/layout/Group/types';
@@ -95,7 +95,7 @@ function RepeatingGroupsEditContainerInternal({
     ...editForRow,
   } as ExprResolved<IGroupEditProperties>;
   const rowItems = row.items;
-  const gridRef = useFocusOnFirstComponentIn<HTMLDivElement>(row, editIndex);
+  const { refSetter } = useRepeatingGroupsFocusContext();
 
   const texts = {
     ...group.textResourceBindings,
@@ -211,7 +211,7 @@ function RepeatingGroupsEditContainerInternal({
           alignItems='flex-start'
           item={true}
           spacing={3}
-          ref={gridRef}
+          ref={(n) => refSetter && refSetter(editIndex, 'editContainer', n)}
         >
           {getGenericComponentsToRender()}
         </Grid>

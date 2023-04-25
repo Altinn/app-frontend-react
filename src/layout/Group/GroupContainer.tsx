@@ -12,6 +12,7 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
+import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { Triggers } from 'src/types';
@@ -37,6 +38,7 @@ const getValidationMethod = (node: LayoutNode | undefined) => {
 
 export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
+  const { triggerFocus } = useRepeatingGroupsFocusContext();
   const node = useResolvedNode(id);
   const resolvedTextBindings = node?.item.textResourceBindings;
   const edit = node?.isType('Group') ? node.item.edit : undefined;
@@ -122,7 +124,9 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
       );
       setMultiPageIndex(0);
     }
-  }, [dispatch, id, edit?.mode, edit?.alwaysShowAddButton, node, repeatingGroupIndex, setMultiPageIndex]);
+
+    triggerFocus(repeatingGroupIndex + 1);
+  }, [dispatch, id, edit?.mode, edit?.alwaysShowAddButton, node, repeatingGroupIndex, setMultiPageIndex, triggerFocus]);
 
   useEffect(() => {
     if (edit?.openByDefault && repeatingGroupIndex === -1) {
