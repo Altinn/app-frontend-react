@@ -9,6 +9,7 @@ import {
   getLayoutSetsUrl,
   getPartyValidationUrl,
   profileApiUrl,
+  refreshJwtTokenUrl,
 } from 'src/utils/urls/appUrlHelper';
 import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
@@ -37,3 +38,5 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
   });
 
 export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
+
+export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
