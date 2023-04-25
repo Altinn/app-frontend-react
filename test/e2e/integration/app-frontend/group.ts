@@ -496,7 +496,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
   });
 
-  it.only('Filling out part of the group data in different pages with openByDefault true and first', () => {
+  it('Filling out part of the group data in different pages with openByDefault true and first', () => {
     cy.interceptPageOrder((order) => {
       order.splice(2, 0, 'repeating2');
     });
