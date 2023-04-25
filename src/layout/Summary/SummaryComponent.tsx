@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
@@ -8,7 +8,8 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { SummaryBoilerplate } from 'src/layout/Summary/SummaryBoilerplate';
+import classes from 'src/layout/Summary/SummaryComponent.module.css';
+import { SummaryContent } from 'src/layout/Summary/SummaryContent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
@@ -16,7 +17,6 @@ import type { IGrid } from 'src/layout/layout';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-
 export interface ISummaryComponent {
   summaryNode: LayoutNodeFromType<'Summary'>;
   overrides?: {
@@ -27,26 +27,10 @@ export interface ISummaryComponent {
   };
 }
 
-const useStyles = makeStyles({
-  border: {
-    marginBottom: 10,
-    paddingBottom: 10,
-    borderBottom: '1px dashed #008FD6',
-  },
-  link: {
-    background: 'none',
-    border: 'none',
-    borderBottom: '2px solid #008FD6',
-    cursor: 'pointer',
-    paddingLeft: 0,
-  },
-});
-
 export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) {
   const { id, grid, componentRef } = summaryNode.item;
   const { pageRef } = summaryNode.item;
   const display = overrides?.display || summaryNode.item.display;
-  const classes = useStyles();
   const dispatch = useAppDispatch();
   const summaryPageName = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const changeText = useAppSelector(
@@ -132,25 +116,15 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
         })}
       >
         {RenderSummary && 'renderSummaryBoilerplate' in component ? (
-          <>
-            {component.renderSummaryBoilerplate() ? (
-              <SummaryBoilerplate
-                onChangeClick={onChangeClick}
-                changeText={changeText}
-                label={label}
-                summaryNode={summaryNode}
-                targetNode={targetNode}
-                overrides={overrides}
-              />
-            ) : null}
-            <RenderSummary
-              onChangeClick={onChangeClick}
-              changeText={changeText}
-              summaryNode={summaryNode}
-              targetNode={targetNode as any}
-              overrides={overrides}
-            />
-          </>
+          <SummaryContent
+            onChangeClick={onChangeClick}
+            changeText={changeText}
+            label={label}
+            summaryNode={summaryNode}
+            targetNode={targetNode}
+            overrides={overrides}
+            RenderSummary={RenderSummary}
+          />
         ) : (
           <GenericComponent node={targetNode} />
         )}
