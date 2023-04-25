@@ -28,12 +28,12 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
 export const renderWithProviders = (
   component: any,
   { preloadedState = {}, store = setupStore(preloadedState).store, ...renderOptions }: ExtendedRenderOptions = {},
-  quires?: Partial<AppQueriesContext>,
+  queries?: Partial<AppQueriesContext>,
 ) => {
   function Wrapper({ children }: React.PropsWithChildren) {
     const theme = createTheme(AltinnAppTheme);
 
-    const mockedQuires = {
+    const mockedQueries = {
       doPartyValidation: () => Promise.resolve({ data: { isValid: true, validParties: [] } }),
       fetchActiveInstances: () => Promise.resolve([]),
       fetchApplicationMetadata: () => Promise.resolve({}),
@@ -43,7 +43,7 @@ export const renderWithProviders = (
       fetchLayoutSets: () => Promise.resolve([]),
       fetchOrgs: () => Promise.resolve({}),
       fetchUserProfile: () => Promise.resolve({}),
-      ...quires,
+      ...queries,
     } as AppQueriesContext;
 
     const client = new QueryClient({
@@ -62,7 +62,7 @@ export const renderWithProviders = (
     });
     return (
       <QueryClientProvider client={client}>
-        <AppQueriesContextProvider {...mockedQuires}>
+        <AppQueriesContextProvider {...mockedQueries}>
           <MuiThemeProvider theme={theme}>
             <Provider store={store}>
               <ExprContextWrapper>{children}</ExprContextWrapper>
