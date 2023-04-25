@@ -6,25 +6,18 @@ const appFrontend = new AppFrontend();
 describe('Dynamics', () => {
   it('Show and hide confirm name change checkbox on changing firstname', () => {
     cy.goto('changename');
-    cy.get(appFrontend.changeOfName.newFirstName)
-
-      .type('test')
-      .then(() => {
-        cy.get(appFrontend.changeOfName.newMiddleName).focus();
-        cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible');
-      });
-    cy.get(appFrontend.changeOfName.newFirstName)
-      .clear()
-      .then(() => {
-        cy.get(appFrontend.changeOfName.newMiddleName).focus();
-        cy.get(appFrontend.changeOfName.confirmChangeName).should('not.exist');
-      });
+    cy.get(appFrontend.changeOfName.newFirstName).type('test');
+    cy.get(appFrontend.changeOfName.newMiddleName).focus();
+    cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible');
+    cy.get(appFrontend.changeOfName.newFirstName).clear();
+    cy.get(appFrontend.changeOfName.newMiddleName).focus();
+    cy.get(appFrontend.changeOfName.confirmChangeName).should('not.exist');
   });
 
   it('Show and hide name change reasons radio buttons', () => {
     cy.goto('changename');
-    cy.get(appFrontend.changeOfName.newFirstName).type('test').blur();
-    cy.get(appFrontend.changeOfName.newLastName).type('test').blur();
+    cy.get(appFrontend.changeOfName.newFirstName).type('test');
+    cy.get(appFrontend.changeOfName.newLastName).type('test');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').dsCheck();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
   });
@@ -75,24 +68,25 @@ describe('Dynamics', () => {
     cy.goto('changename');
 
     // Make sure the summary page can be hidden
-    cy.get(appFrontend.navMenu).find('li > button').should('have.length', 2);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 2);
     cy.get(appFrontend.changeOfName.newFirstName).type('hideSummary');
-    cy.get(appFrontend.navMenu).find('li > button').should('have.length', 1);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 1);
 
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newLastName).should('be.visible');
-    cy.get(appFrontend.navMenu).find('li > button').should('have.length', 2);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 2);
 
     // Typing 1234 into the field should hide the last name component
-    cy.get(appFrontend.navMenu).find('li > button').last().click();
-    cy.get('#testInputOnSummary').clear().type('1234');
-    cy.get(appFrontend.navMenu).find('li > button').first().click();
+    cy.navPage('summary').click();
+    cy.get('#testInputOnSummary').clear();
+    cy.get('#testInputOnSummary').type('1234');
+    cy.navPage('form').click();
     cy.get(appFrontend.changeOfName.newLastName).should('not.exist');
 
     // But hiding the summary page should hide the input there, making the last name component show up again (since
     // the value found in the component lookup is null now)
     cy.get(appFrontend.changeOfName.newFirstName).type('hideSummary');
     cy.get(appFrontend.changeOfName.newLastName).should('be.visible');
-    cy.get(appFrontend.navMenu).find('li > button').should('have.length', 1);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 1);
   });
 });

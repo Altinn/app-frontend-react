@@ -89,6 +89,7 @@ export interface INavigationConfig {
 export interface IOption {
   label: string;
   value: any;
+  description?: string;
   helpText?: string;
 }
 
@@ -122,6 +123,7 @@ export interface IRepeatingGroup {
   editIndex?: number;
   deletingIndex?: number[];
   multiPageIndex?: number;
+  isLoading?: boolean;
 }
 
 export interface IRepeatingGroups {
