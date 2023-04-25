@@ -76,7 +76,7 @@ export function DropdownComponent({
               value: option.value,
             })) || []
           }
-          ariaLabel={
+          aria-label={
             overrideDisplay?.renderedInTable ? getTextResourceAsString(textResourceBindings?.title) : undefined
           }
         />
