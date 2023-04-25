@@ -18,6 +18,7 @@ export const useRefreshJwtTokenQuery = (
   options: {
     enabled: boolean;
     refetchOnWindowFocus: boolean;
+    refetchInterval: number;
   },
 ): UseQueryResult<void> => {
   const { fetchRefreshJwtToken } = useAppQueriesContext();
