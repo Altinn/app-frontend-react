@@ -18,7 +18,6 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useKeepAlive } from 'src/hooks/useKeepAlive';
 import { useUpdatePdfState } from 'src/hooks/useUpdatePdfState';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-import { makeGetHasErrorsSelector } from 'src/selectors/getErrors';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import type { IApplicationSettings } from 'src/types/shared';
 
@@ -34,14 +33,12 @@ export const App = () => {
     hasApplicationSettingsError || hasApplicationMetadataError || hasLayoutSetError || hasOrgsError;
 
   const dispatch = useAppDispatch();
-  const hasErrorSelector = makeGetHasErrorsSelector();
-  const hasApiErrors: boolean = useAppSelector(hasErrorSelector);
 
   React.useEffect(() => {
     dispatch(QueueActions.startInitialAppTaskQueue());
   }, [dispatch]);
 
-  if (hasApiErrors || componentHasError) {
+  if (componentHasError) {
     return <UnknownError />;
   }
 
@@ -60,7 +57,7 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous: boolean = useAppSelector(allowAnonymousSelector);
 
-  const { data: profile, isError: hasProfileError } = useProfileQuery(allowAnonymous === false);
+  const { isError: hasProfileError } = useProfileQuery(allowAnonymous === false);
   const { isError: hasCurrentPartyError } = useCurrentPartyQuery(allowAnonymous === false);
 
   const appName = useAppSelector(selectAppName);
@@ -82,8 +79,7 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
     }
   }, [appOwner, appName]);
 
-  const shouldWaitForProfile = allowAnonymous === false && profile === undefined;
-  const isReadyToRenderRoutes = allowAnonymous !== undefined && (shouldWaitForProfile ? profile !== undefined : true);
+  const isReadyToRenderRoutes = allowAnonymous !== undefined;
   if (isReadyToRenderRoutes) {
     return (
       <>
