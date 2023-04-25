@@ -1,11 +1,5 @@
 .container {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.buttonWrapper {
-  display: flex;
   flex-direction: row;
   gap: 1rem;
   margin-top: 1rem;

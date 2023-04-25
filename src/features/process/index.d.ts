@@ -13,9 +13,9 @@ export type IProcessPermissions = {
   actions?: IProcessActions | null;
 };
 
-export type IProcessAction = 'instantiate' | 'confirm' | 'sign' | 'reject';
+export type IProcessAction = 'instantiate' | 'confirm' | 'sign' | 'reject'; // Is this necessary to specify? Is instantiate even a valid user action?
 export type IProcessActions = {
-  [k in IProcessAction]?: boolean | null;
+  [k in IProcessAction]?: boolean;
 };
 
 export interface IGetTasksFulfilled {

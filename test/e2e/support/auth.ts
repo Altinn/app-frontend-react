@@ -141,7 +141,6 @@ Cypress.Commands.add('setPermissions', (permissionFormat: string) => {
 Cypress.Commands.add('interceptPermissions', () => {
   const interceptor = (req) => {
     const permissionFormat = Cypress.env('authPermissions') ?? '';
-    console.log(permissionFormat);
     const permissions = getPermissions(permissionFormat);
     req.on('response', (res) => {
       if (res.body.currentTask) {

@@ -1,6 +1,7 @@
 import { createContext } from 'react';
 import type React from 'react';
 
+import { ActionButton } from 'src/layout/ActionButton/index';
 import { Address } from 'src/layout/Address/index';
 import { AttachmentList } from 'src/layout/AttachmentList/index';
 import { Button } from 'src/layout/Button/index';
@@ -26,7 +27,6 @@ import { Panel } from 'src/layout/Panel/index';
 import { Paragraph } from 'src/layout/Paragraph/index';
 import { PrintButton } from 'src/layout/PrintButton/index';
 import { RadioButtons } from 'src/layout/RadioButtons/index';
-import { SigningButtons } from 'src/layout/SigningButtons/index';
 import { Summary } from 'src/layout/Summary';
 import { TextArea } from 'src/layout/TextArea/index';
 import type { ComponentTypes, IGrid } from 'src/layout/layout';
@@ -37,6 +37,7 @@ import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export const components = {
+  ActionButton: new ActionButton(),
   AddressComponent: new Address(),
   AttachmentList: new AttachmentList(),
   Button: new Button(),
@@ -63,7 +64,6 @@ export const components = {
   TextArea: new TextArea(),
   List: new List(),
   Group: new Group(),
-  SigningButtons: new SigningButtons(),
   Summary: new Summary(),
 };
 

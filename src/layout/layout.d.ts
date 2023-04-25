@@ -2,6 +2,7 @@ import type { TextField } from '@digdir/design-system-react';
 import type { GridSize } from '@material-ui/core';
 
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
+import type { ILayoutCompActionButton } from 'src/layout/ActionButton/types';
 import type { IDataModelBindingsForAddress, ILayoutCompAddress } from 'src/layout/Address/types';
 import type { ILayoutCompAttachmentList } from 'src/layout/AttachmentList/types';
 import type { ILayoutCompButton } from 'src/layout/Button/types';
@@ -27,7 +28,6 @@ import type { ILayoutCompPanel } from 'src/layout/Panel/types';
 import type { ILayoutCompParagraph } from 'src/layout/Paragraph/types';
 import type { ILayoutCompPrintButton } from 'src/layout/PrintButton/types';
 import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
-import type { ILayoutCompSignButtons } from 'src/layout/SigningButtons/types';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { ILayoutCompTextArea } from 'src/layout/TextArea/types';
 import type { ILabelSettings, IMapping, IOption, IOptionSource, LayoutStyle, Triggers } from 'src/types';
@@ -109,6 +109,7 @@ export interface ITableColumnProperties {
  * type (ex. ILayoutCompTextArea), or ILayoutComponent<'TextArea'>.
  */
 interface Map {
+  ActionButton: ILayoutCompActionButton;
   AddressComponent: ILayoutCompAddress;
   AttachmentList: ILayoutCompAttachmentList;
   Button: ILayoutCompButton;
@@ -134,7 +135,6 @@ interface Map {
   Paragraph: ILayoutCompParagraph;
   PrintButton: ILayoutCompPrintButton;
   RadioButtons: ILayoutCompRadioButtons;
-  SigningButtons: ILayoutCompSignButtons;
   Summary: ILayoutCompSummary;
   TextArea: ILayoutCompTextArea;
 }

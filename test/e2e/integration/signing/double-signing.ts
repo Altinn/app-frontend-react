@@ -1,11 +1,20 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
+import type { IBackendFeaturesState } from 'src/features/applicationMetadata';
+
 const appFrontend = new AppFrontend();
 
 describe('Double signing', () => {
   beforeEach(() => {
     cy.intercept('**/active', []).as('noActiveInstances');
     cy.intercept('POST', `**/instances?instanceOwnerPartyId*`).as('createInstance');
+    cy.intercept('GET', '**/applicationmetadata', (req) => {
+      req.on('response', (res) => {
+        res.body.features = {
+          processActions: true,
+        } as IBackendFeaturesState;
+      });
+    });
     cy.interceptPermissions();
   });
 

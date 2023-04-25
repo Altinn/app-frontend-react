@@ -29,16 +29,14 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const submittingId = useAppSelector((state) => state.formData.submittingId);
   const savingId = useAppSelector((state) => state.formData.savingId);
   const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process.currentTask?.altinnTaskType);
+  const processActionsFeature = useAppSelector(
+    (state) => state.applicationMetadata.applicationMetadata?.features?.processActions,
+  );
   const { actions, write } = useAppSelector((state) => state.process);
 
-  /**
-   * For backwards compatibility where there was no information about permissions,
-   * write and confirm needs to be implicitly true.
-   * This is not necessary for the signing button where an updated backend is required.
-   */
   const disabled =
-    (currentTaskType === 'data' && write === false) ||
-    (currentTaskType === 'confirmation' && actions?.confirm === false);
+    processActionsFeature &&
+    ((currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm));
 
   if (mode && !(mode === 'save' || mode === 'submit')) {
     const GenericButton = getComponentFromMode(mode);
