@@ -89,6 +89,7 @@ export const ControlledRadioGroup = ({
               checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
               hideLabel,
               label: hideLabel ? getTextResourceAsString(option.label) : getTextResource(option.label),
+              description: getTextResource(option.description),
               helpText: option.helpText && getTextResource(option.helpText),
             }))}
           />

@@ -142,6 +142,7 @@ export const CheckboxContainerComponent = ({
           checked: selected.includes(option.value),
           hideLabel,
           label: hideLabel ? getTextResourceAsString(option.label) : getTextResource(option.label),
+          description: getTextResource(option.description),
           helpText: option.helpText && getTextResource(option.helpText),
         }))}
       />
