@@ -223,6 +223,6 @@ export function formatLabelForSelect(option: IOption, textResources: ITextResour
     const description = getTextResourceByKey(option.description, textResources);
     return getParsedLanguageFromText(`<b>${label}</b><br><span>${description}</span>`);
   } else {
-    return getParsedLanguageFromText(`<span>${option.label}</span>`);
+    return getParsedLanguageFromText(`<span>${label}</span>`);
   }
 }
