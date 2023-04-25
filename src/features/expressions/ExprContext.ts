@@ -12,7 +12,7 @@ export interface ContextDataSources {
   instanceContext: IInstanceContext | null;
   applicationSettings: IApplicationSettings | null;
   formData: IFormData;
-  authContext: IAuthContext | null;
+  authContext: Partial<IAuthContext> | null;
   hiddenFields: Set<string>;
 }
 

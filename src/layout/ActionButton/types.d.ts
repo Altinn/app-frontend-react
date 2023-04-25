@@ -1,8 +1,8 @@
-import type { IProcessAction } from 'src/features/process';
 import type { ILayoutCompBase } from 'src/layout/layout';
+import type { IActionType } from 'src/types/shared';
 
 export interface ILayoutCompActionButton extends ILayoutCompBase<'ActionButton'> {
-  action: IProcessAction;
+  action: IActionType;
   buttonStyle: ActionButtonStyle;
 }
 

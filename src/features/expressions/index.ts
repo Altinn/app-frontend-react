@@ -454,7 +454,7 @@ export const ExprFunctions = {
         throw new LookupNotFound(this, `Unknown auth context property ${key}`);
       }
 
-      return this.dataSources.authContext?.[key] ?? null;
+      return Boolean(this.dataSources.authContext?.[key]);
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.Boolean,

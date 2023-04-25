@@ -1,6 +1,12 @@
 {
   "name": "Read/Sign",
-  "expression": ["and", ["authContext", "read"], ["not", ["authContext", "write"]], ["authContext", "sign"], ["not", ["authContext", "reject"]]],
+  "expression": [
+    "and",
+    ["authContext", "read"],
+    ["not", ["authContext", "write"]],
+    ["authContext", "sign"],
+    ["not", ["authContext", "reject"]]
+  ],
   "expects": true,
   "permissions": {
     "read": true,
@@ -8,8 +14,7 @@
     "actions": {
       "instantiate": true,
       "confirm": false,
-      "sign": true,
-      "reject": false
+      "sign": true
     }
   }
 }

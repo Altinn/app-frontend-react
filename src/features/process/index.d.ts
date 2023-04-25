@@ -1,4 +1,5 @@
 import type { ProcessTaskType } from 'src/types';
+import type { IActionType } from 'src/types/shared';
 
 export type IProcessState = {
   availableNextTasks?: string[];
@@ -13,9 +14,8 @@ export type IProcessPermissions = {
   actions?: IProcessActions | null;
 };
 
-export type IProcessAction = 'instantiate' | 'confirm' | 'sign' | 'reject'; // Is this necessary to specify? Is instantiate even a valid user action?
 export type IProcessActions = {
-  [k in IProcessAction]?: boolean;
+  [k in IActionType]?: boolean;
 };
 
 export interface IGetTasksFulfilled {
@@ -26,7 +26,7 @@ export interface IGetTasksFulfilled {
 
 export type ICompleteProcess = {
   taskId?: string | null;
-  action?: IProcessAction;
+  action?: IActionType;
 };
 
 export type ICompleteProcessFulfilled = {

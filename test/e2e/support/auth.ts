@@ -102,12 +102,7 @@ function getPermissions(format: string): IProcessPermissions {
   const permissions: IProcessPermissions = {
     read: false,
     write: false,
-    actions: {
-      instantiate: false,
-      confirm: false,
-      sign: false,
-      reject: false,
-    },
+    actions: {},
   };
   for (const i of format) {
     switch (i) {
