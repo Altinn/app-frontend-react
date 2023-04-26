@@ -65,17 +65,27 @@ export function RepeatingGroupTable({
     ? structuredClone(container.tableColumns)
     : ({} as ITableColumnFormatting);
 
-  const getTableNodes = (rowIndex: number) =>
-    node?.children(undefined, rowIndex).filter((child) => {
-      if (container?.tableHeaders) {
+  const getTableNodes = (rowIndex: number) => {
+    const tableHeaders = container?.tableHeaders;
+    const nodes = node?.children(undefined, rowIndex).filter((child) => {
+      if (tableHeaders) {
         const { id, baseComponentId } = child.item;
-        return !!(
-          container.tableHeaders.includes(id) ||
-          (baseComponentId && container.tableHeaders.includes(baseComponentId))
-        );
+        return !!(tableHeaders.includes(id) || (baseComponentId && tableHeaders.includes(baseComponentId)));
       }
       return child.isComponentType(ComponentType.Form);
     });
+
+    // Sort using the order from tableHeaders
+    if (tableHeaders) {
+      nodes?.sort((a, b) => {
+        const aIndex = tableHeaders.indexOf(a.item.baseComponentId || a.item.id);
+        const bIndex = tableHeaders.indexOf(b.item.baseComponentId || b.item.id);
+        return aIndex - bIndex;
+      });
+    }
+
+    return nodes;
+  };
 
   const tableNodes = getTableNodes(0);
 
