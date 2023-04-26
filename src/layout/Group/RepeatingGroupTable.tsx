@@ -13,7 +13,7 @@ import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow'
 import { ComponentType } from 'src/layout/LayoutComponent';
 import { getColumnStylesRepeatingGroups, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { GridRow } from 'src/layout/Grid/types';
+import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting } from 'src/layout/layout';
 import type { ITextResourceBindings } from 'src/types';
 
@@ -27,8 +27,8 @@ export interface IRepeatingGroupTableProps {
   multiPageIndex?: number;
   deleting: boolean;
   filteredIndexes?: number[] | null;
-  gridRowsBefore?: GridRow[];
-  gridRowsAfter?: GridRow[];
+  gridRowsBefore?: GridRow<GridComponent>[];
+  gridRowsAfter?: GridRow<GridComponent>[];
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {

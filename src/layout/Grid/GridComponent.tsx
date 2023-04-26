@@ -15,11 +15,11 @@ import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridRow } from 'src/layout/Grid/types';
+import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function GridComponent(props: PropsFromGenericComponent<'Grid'>) {
+export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { node } = props;
   const { rows } = node.item;
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
@@ -49,7 +49,7 @@ export function GridComponent(props: PropsFromGenericComponent<'Grid'>) {
 }
 
 interface GridRowProps {
-  row: GridRow;
+  row: GridRow<GridComponent>;
   mutableColumnSettings: ITableColumnFormatting;
 }
 
