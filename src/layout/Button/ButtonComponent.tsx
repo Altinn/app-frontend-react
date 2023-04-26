@@ -67,7 +67,11 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
           }),
         );
       } else {
-        dispatch(ProcessActions.complete());
+        if (processActionsFeature) {
+          dispatch(ProcessActions.complete({ action: 'confirm' }));
+        } else {
+          dispatch(ProcessActions.complete());
+        }
       }
     }
   };
