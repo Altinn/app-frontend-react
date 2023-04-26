@@ -17,17 +17,17 @@ import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { Triggers } from 'src/types';
 import { getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { IRuntimeState } from 'src/types';
+import type { HRepGroup } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export interface IGroupProps {
-  id: string;
+  node: LayoutNode<HRepGroup, 'Group'>;
 }
 
-const getValidationMethod = (node: LayoutNode | undefined) => {
+const getValidationMethod = (node: LayoutNode) => {
   // Validation for whole group takes precedent over single-row validation if both are present.
-  const triggers = node?.item.triggers;
+  const triggers = node.item.triggers;
   if (triggers && triggers.includes(Triggers.Validation)) {
     return Triggers.Validation;
   }
@@ -36,12 +36,12 @@ const getValidationMethod = (node: LayoutNode | undefined) => {
   }
 };
 
-export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
+export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const node = useResolvedNode(id);
-  const resolvedTextBindings = node?.item.textResourceBindings;
-  const edit = node?.isType('Group') ? node.item.edit : undefined;
+  const resolvedTextBindings = node.item.textResourceBindings;
+  const id = node.item.id;
+  const edit = node.item.edit;
   const isLoading = useAppSelector(
     (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.isLoading,
   );
@@ -174,7 +174,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     return null;
   }
 
-  const isNested = typeof node?.item.baseComponentId === 'string';
+  const isNested = typeof node.item.baseComponentId === 'string';
 
   if (edit?.mode === 'likert') {
     return (
@@ -210,6 +210,8 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
           setMultiPageIndex={setMultiPageIndex}
           multiPageIndex={multiPageIndex}
           filteredIndexes={filteredIndexList}
+          gridRowsBefore={node.item.gridRowsBefore}
+          gridRowsAfter={node.item.gridRowsAfter}
         />
       )}
       {edit?.mode !== 'showAll' && displayBtn && <AddButton />}

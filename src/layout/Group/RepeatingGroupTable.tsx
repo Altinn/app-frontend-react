@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@altinn/altinn-design-system';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
 import { useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow';
 import { ComponentType } from 'src/layout/LayoutComponent';
 import { getColumnStylesRepeatingGroups, getTextResource } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import type { GridRow } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting } from 'src/layout/layout';
 import type { ITextResourceBindings } from 'src/types';
 
@@ -25,6 +27,8 @@ export interface IRepeatingGroupTableProps {
   multiPageIndex?: number;
   deleting: boolean;
   filteredIndexes?: number[] | null;
+  gridRowsBefore?: GridRow[];
+  gridRowsAfter?: GridRow[];
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
@@ -47,6 +51,8 @@ export function RepeatingGroupTable({
   multiPageIndex,
   deleting,
   filteredIndexes,
+  gridRowsBefore,
+  gridRowsAfter,
 }: IRepeatingGroupTableProps): JSX.Element | null {
   const mobileView = useMediaQuery('(max-width:992px)');
   const textResources = useAppSelector((state) => state.textResources.resources);
@@ -164,6 +170,13 @@ export function RepeatingGroupTable({
         id={`group-${id}-table`}
         className={cn({ [classes.editingBorder]: isNested }, classes.repeatingGroupTable)}
       >
+        {gridRowsBefore?.map((row, index) => (
+          <GridRowRenderer
+            key={`gridBefore-${index}`}
+            row={row}
+            mutableColumnSettings={{}}
+          />
+        ))}
         {showTableHeader && !mobileView && (
           <TableHeader id={`group-${id}-table-header`}>
             <TableRow className={classes.repeatingGroupRow}>
@@ -262,6 +275,13 @@ export function RepeatingGroupTable({
               );
             })}
         </TableBody>
+        {gridRowsAfter?.map((row, index) => (
+          <GridRowRenderer
+            key={`gridAfter-${index}`}
+            row={row}
+            mutableColumnSettings={{}}
+          />
+        ))}
       </Table>
     </div>
   );

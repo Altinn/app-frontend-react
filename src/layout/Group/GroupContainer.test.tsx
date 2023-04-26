@@ -11,6 +11,7 @@ import { GroupContainer } from 'src/layout/Group/GroupContainer';
 import { setupStore } from 'src/redux/store';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
 import { Triggers } from 'src/types';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type {
   IUpdateRepeatingGroupsEditIndex,
@@ -23,6 +24,15 @@ const mockContainer = getFormLayoutGroupMock();
 
 interface IRender {
   container?: ExprUnresolved<ILayoutGroup>;
+}
+
+export function GroupContainerTester(props: { id: string }) {
+  const node = useResolvedNode(props.id);
+  if (!node || !node.isRepGroup()) {
+    throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
+  }
+
+  return <GroupContainer node={node} />;
 }
 
 function render({ container = mockContainer }: IRender = {}) {
@@ -135,15 +145,7 @@ function render({ container = mockContainer }: IRender = {}) {
 
   mockStore.dispatch = jest.fn();
 
-  const { store } = renderWithProviders(
-    <GroupContainer
-      id={container.id}
-      key='testKey'
-    />,
-    {
-      store: mockStore,
-    },
-  );
+  const { store } = renderWithProviders(<GroupContainerTester id={container?.id} />, { store: mockStore });
 
   return store;
 }
