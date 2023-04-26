@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { ErrorMessage } from '@digdir/design-system-react';
-
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -97,17 +95,6 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
           {props.text}
         </SubmitButton>
       </div>
-      {disabled && (
-        <div style={{ marginTop: '-0.5rem' }}>
-          <ErrorMessage>
-            {currentTaskType === 'data'
-              ? 'Du mangler rettigheter til å sende inn.'
-              : currentTaskType === 'confirmation'
-              ? 'Du mangler rettigheter til å bekrefte.'
-              : 'Du mangler rettigheter til å fullføre steget.'}
-          </ErrorMessage>
-        </div>
-      )}
     </>
   );
 };
