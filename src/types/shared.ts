@@ -274,7 +274,7 @@ export interface IInstanceContext {
   instanceOwnerPartyType: InstanceOwnerPartyType;
 }
 
-export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject'; // Should this be typed at all? Or just a string?
+export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject';
 
 export type IAuthContext = {
   read: boolean;
