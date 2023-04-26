@@ -61,7 +61,9 @@ export function RepeatingGroupTable({
   const node = useResolvedNode(id);
   const container = node?.isRepGroup() ? node.item : undefined;
   const edit = container?.edit;
-  const columnSettings = container?.tableColumns as ITableColumnFormatting;
+  const columnSettings = container?.tableColumns
+    ? structuredClone(container.tableColumns)
+    : ({} as ITableColumnFormatting);
 
   const getTableNodes = (rowIndex: number) =>
     node?.children(undefined, rowIndex).filter((child) => {
@@ -176,7 +178,7 @@ export function RepeatingGroupTable({
           <GridRowRenderer
             key={`gridBefore-${index}`}
             row={{ ...row, cells: [...row.cells, ...extraCells] }}
-            mutableColumnSettings={{}}
+            mutableColumnSettings={columnSettings}
           />
         ))}
         {showTableHeader && !mobileView && (
@@ -281,7 +283,7 @@ export function RepeatingGroupTable({
           <GridRowRenderer
             key={`gridAfter-${index}`}
             row={{ ...row, cells: [...row.cells, ...extraCells] }}
-            mutableColumnSettings={{}}
+            mutableColumnSettings={columnSettings}
           />
         ))}
       </Table>
