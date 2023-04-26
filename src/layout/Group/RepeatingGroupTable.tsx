@@ -27,8 +27,8 @@ export interface IRepeatingGroupTableProps {
   multiPageIndex?: number;
   deleting: boolean;
   filteredIndexes?: number[] | null;
-  gridRowsBefore?: GridRow<GridComponent>[];
-  gridRowsAfter?: GridRow<GridComponent>[];
+  rowsBefore?: GridRow<GridComponent>[];
+  rowsAfter?: GridRow<GridComponent>[];
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
@@ -51,8 +51,8 @@ export function RepeatingGroupTable({
   multiPageIndex,
   deleting,
   filteredIndexes,
-  gridRowsBefore,
-  gridRowsAfter,
+  rowsBefore,
+  rowsAfter,
 }: IRepeatingGroupTableProps): JSX.Element | null {
   const mobileView = useMediaQuery('(max-width:992px)');
   const textResources = useAppSelector((state) => state.textResources.resources);
@@ -174,7 +174,7 @@ export function RepeatingGroupTable({
         id={`group-${id}-table`}
         className={cn({ [classes.editingBorder]: isNested }, classes.repeatingGroupTable)}
       >
-        {gridRowsBefore?.map((row, index) => (
+        {rowsBefore?.map((row, index) => (
           <GridRowRenderer
             key={`gridBefore-${index}`}
             row={{ ...row, cells: [...row.cells, ...extraCells] }}
@@ -279,7 +279,7 @@ export function RepeatingGroupTable({
               );
             })}
         </TableBody>
-        {gridRowsAfter?.map((row, index) => (
+        {rowsAfter?.map((row, index) => (
           <GridRowRenderer
             key={`gridAfter-${index}`}
             row={{ ...row, cells: [...row.cells, ...extraCells] }}

@@ -43,8 +43,8 @@ function resolvedNodesInLayouts(
       delete input['children'];
       delete input['rows'];
       delete input['childComponents'];
-      delete input['gridRowsAfter'];
-      delete input['gridRowsBefore'];
+      delete input['rowsAfter'];
+      delete input['rowsBefore'];
 
       const resolvedItem = evalExprInObj({
         input,

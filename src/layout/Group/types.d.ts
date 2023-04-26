@@ -30,8 +30,8 @@ export interface ILayoutGroup extends ILayoutCompBase<'Group'> {
   edit?: IGroupEditProperties;
   panel?: IGroupPanel;
   hiddenRow?: ExprVal.Boolean;
-  gridRowsBefore?: GridRow[];
-  gridRowsAfter?: GridRow[];
+  rowsBefore?: GridRow[];
+  rowsAfter?: GridRow[];
 }
 
 export interface IGroupColumnFormatting extends ITableColumnProperties {

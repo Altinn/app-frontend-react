@@ -27,9 +27,9 @@ export type HComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = 
 /**
  * Base type used for repeating group and non-repeating groups
  */
-type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children' | 'gridRowsBefore' | 'gridRowsAfter'> & {
-  gridRowsBefore?: GridRow<GridComponent>[];
-  gridRowsAfter?: GridRow<GridComponent>[];
+type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children' | 'rowsBefore' | 'rowsAfter'> & {
+  rowsBefore?: GridRow<GridComponent>[];
+  rowsAfter?: GridRow<GridComponent>[];
 };
 
 /**

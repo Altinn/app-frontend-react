@@ -210,8 +210,8 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
           setMultiPageIndex={setMultiPageIndex}
           multiPageIndex={multiPageIndex}
           filteredIndexes={filteredIndexList}
-          gridRowsBefore={node.item.gridRowsBefore}
-          gridRowsAfter={node.item.gridRowsAfter}
+          rowsBefore={node.item.rowsBefore}
+          rowsAfter={node.item.rowsAfter}
         />
       )}
       {edit?.mode !== 'showAll' && displayBtn && <AddButton />}

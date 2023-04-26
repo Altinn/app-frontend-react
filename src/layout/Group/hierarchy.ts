@@ -53,7 +53,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       };
     }
 
-    for (const rows of [item.gridRowsBefore, item.gridRowsAfter]) {
+    for (const rows of [item.rowsBefore, item.rowsAfter]) {
       if (rows) {
         this.innerGrid.stage1({
           id: item.id,
@@ -215,7 +215,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
         ref.nextChildren = nextChildren;
       }
 
-      for (const gridRows of [me.item.gridRowsBefore, me.item.gridRowsAfter]) {
+      for (const gridRows of [me.item.rowsBefore, me.item.rowsAfter]) {
         if (gridRows) {
           this.innerGrid.stage2Rows(ctx, me, gridRows);
         }
