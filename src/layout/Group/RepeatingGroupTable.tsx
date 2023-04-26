@@ -156,6 +156,8 @@ export function RepeatingGroupTable({
     return null;
   }
 
+  const extraCells = [...(displayEditColumn ? [null] : []), ...(displayDeleteColumn ? [null] : [])];
+
   return (
     <div
       data-testid={`group-${id}`}
@@ -173,7 +175,7 @@ export function RepeatingGroupTable({
         {gridRowsBefore?.map((row, index) => (
           <GridRowRenderer
             key={`gridBefore-${index}`}
-            row={row}
+            row={{ ...row, cells: [...row.cells, ...extraCells] }}
             mutableColumnSettings={{}}
           />
         ))}
@@ -278,7 +280,7 @@ export function RepeatingGroupTable({
         {gridRowsAfter?.map((row, index) => (
           <GridRowRenderer
             key={`gridAfter-${index}`}
-            row={row}
+            row={{ ...row, cells: [...row.cells, ...extraCells] }}
             mutableColumnSettings={{}}
           />
         ))}
