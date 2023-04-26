@@ -18,7 +18,6 @@ export function nodesFromGrid(grid: LayoutNodeFromType<'Grid'>): LayoutNode[] {
     }
   }
 
-  console.log('Nodes in grid', out, grid.item.id);
   return out;
 }
 
