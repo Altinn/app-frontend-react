@@ -82,7 +82,7 @@ export function GridRowRenderer(props: GridRowProps) {
 
           return (
             <CellWithText
-              key={cell.text}
+              key={`${cell.text}/${cellIdx}`}
               className={className}
               columnStyleOptions={textCellSettings}
             >
@@ -95,7 +95,7 @@ export function GridRowRenderer(props: GridRowProps) {
         const componentId = node?.item.id;
         return (
           <CellWithComponent
-            key={componentId}
+            key={`${componentId}/${cellIdx}`}
             node={node}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
