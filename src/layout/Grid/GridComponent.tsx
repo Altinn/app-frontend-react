@@ -53,8 +53,7 @@ interface GridRowProps {
   mutableColumnSettings: ITableColumnFormatting;
 }
 
-export function GridRowRenderer(props: GridRowProps) {
-  const { row, mutableColumnSettings } = props;
+export function GridRowRenderer({ row, mutableColumnSettings }: GridRowProps) {
   const textResources = useAppSelector((state) => state.textResources.resources);
 
   return isGridRowHidden(row) ? null : (

@@ -184,13 +184,14 @@ export function RepeatingGroupTable({
         id={`group-${id}-table`}
         className={cn({ [classes.editingBorder]: isNested }, classes.repeatingGroupTable)}
       >
-        {rowsBefore?.map((row, index) => (
-          <GridRowRenderer
-            key={`gridBefore-${index}`}
-            row={{ ...row, cells: [...row.cells, ...extraCells] }}
-            mutableColumnSettings={columnSettings}
-          />
-        ))}
+        {!isEmpty &&
+          rowsBefore?.map((row, index) => (
+            <GridRowRenderer
+              key={`gridBefore-${index}`}
+              row={{ ...row, cells: [...row.cells, ...extraCells] }}
+              mutableColumnSettings={columnSettings}
+            />
+          ))}
         {showTableHeader && !mobileView && (
           <TableHeader id={`group-${id}-table-header`}>
             <TableRow className={classes.repeatingGroupRow}>
@@ -289,13 +290,14 @@ export function RepeatingGroupTable({
               );
             })}
         </TableBody>
-        {rowsAfter?.map((row, index) => (
-          <GridRowRenderer
-            key={`gridAfter-${index}`}
-            row={{ ...row, cells: [...row.cells, ...extraCells] }}
-            mutableColumnSettings={columnSettings}
-          />
-        ))}
+        {!isEmpty &&
+          rowsAfter?.map((row, index) => (
+            <GridRowRenderer
+              key={`gridAfter-${index}`}
+              row={{ ...row, cells: [...row.cells, ...extraCells] }}
+              mutableColumnSettings={columnSettings}
+            />
+          ))}
       </Table>
     </div>
   );
