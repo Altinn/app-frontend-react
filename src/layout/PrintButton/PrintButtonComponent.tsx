@@ -2,12 +2,19 @@ import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import type { PropsFromGenericComponent } from '..';
 
-export const PrintButtonComponent = () => {
-  const textResources = useAppSelector((state) => state.textResources.resources);
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
+
+export const PrintButtonComponent = (props: PropsFromGenericComponent<'PrintButton'>) => {
   const language = useAppSelector((state) => state.language.language);
+
+  if (!language) {
+    return null;
+  }
+
+  const text = props.text ?? getLanguageFromKey('general.print_button_text', language);
 
   return (
     <Button
@@ -15,7 +22,7 @@ export const PrintButtonComponent = () => {
       color={ButtonColor.Primary}
       onClick={window.print}
     >
-      {language && getTextFromAppOrDefault('general.print_button_text', textResources, language, undefined, true)}
+      {text}
     </Button>
   );
 };
