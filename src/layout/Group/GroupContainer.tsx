@@ -18,7 +18,6 @@ import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroup
 import { Triggers } from 'src/types';
 import { getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { IRuntimeState } from 'src/types';
 import type { HRepGroup } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export interface IGroupProps {
@@ -42,29 +41,18 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
   const edit = node.item.edit;
-  const isLoading = useAppSelector(
-    (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.isLoading,
+  const groupState = useAppSelector(
+    (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id],
   );
-
-  const editIndex = useAppSelector(
-    (state: IRuntimeState) =>
-      (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.editIndex) ?? -1,
-  );
-  const deletingIndexes = useAppSelector(
-    (state: IRuntimeState) =>
-      (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.deletingIndex) ?? [],
-  );
-  const multiPageIndex = useAppSelector(
-    (state: IRuntimeState) =>
-      (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.multiPageIndex) ??
-      -1,
-  );
+  const isLoading = groupState?.isLoading;
+  const editIndex = groupState?.editIndex ?? -1;
+  const deletingIndexes = groupState?.deletingIndex ?? [];
+  const multiPageIndex = groupState?.multiPageIndex ?? -1;
+  const repeatingGroupIndex = groupState?.index ?? -1;
 
   const language = useAppSelector((state) => state.language.language);
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const formData = useAppSelector((state) => state.formData.formData);
   const textResources = useAppSelector((state) => state.textResources.resources);
-  const repeatingGroupIndex = repeatingGroups && repeatingGroups[id] ? repeatingGroups[id].index : -1;
 
   const filteredIndexList = React.useMemo(
     () => getRepeatingGroupFilteredIndices(formData, edit?.filter),
@@ -170,18 +158,14 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     }
   };
 
-  if (!repeatingGroups || !node || node.isHidden() || node.item.type !== 'Group') {
+  if (!groupState || node.isHidden() || node.item.type !== 'Group') {
     return null;
   }
 
   const isNested = typeof node.item.baseComponentId === 'string';
 
   if (edit?.mode === 'likert') {
-    return (
-      <>
-        <RepeatingGroupsLikertContainer id={id} />
-      </>
-    );
+    return <RepeatingGroupsLikertContainer id={id} />;
   }
 
   const displayBtn =
