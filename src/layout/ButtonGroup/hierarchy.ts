@@ -1,35 +1,26 @@
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { ButtonGroupChildType } from 'src/layout/ButtonGroup/types';
 import type { ChildFactory, HierarchyContext, UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type IButtonComponentTypes = { [key in ButtonGroupChildType]: true };
-
-const ButtonComponentTypes: IButtonComponentTypes = {
-  Button: true,
-  NavigationButtons: true,
-  InstantiationButton: true,
-  PrintButton: true,
-};
-
 export class ButtonGroupHierarchyGenerator extends ComponentHierarchyGenerator<'ButtonGroup'> {
-  private isButton(childId: string, outputWarning = true): boolean {
+  private canRenderInButtonGroup(childId: string, outputWarning = true): boolean {
     const prototype = this.generator.prototype(childId);
+    const def = prototype && this.generator.getLayoutComponentObject(prototype.type);
 
-    if (outputWarning && prototype && !ButtonComponentTypes[prototype.type]) {
+    if (outputWarning && prototype && !def?.canRenderInButtonGroup()) {
       console.warn(
         `ButtonGroup component included a component '${childId}', which ` +
           `is a '${prototype.type}' and cannot be rendered in a button group.`,
       );
     }
 
-    return typeof prototype !== 'undefined' && ButtonComponentTypes[prototype.type];
+    return def?.canRenderInButtonGroup() === true;
   }
 
   stage1(item: UnprocessedItem<'ButtonGroup'>): void {
     for (const childId of item.children) {
       if (childId) {
-        if (!this.isButton(childId)) {
+        if (!this.canRenderInButtonGroup(childId)) {
           continue;
         }
 
@@ -49,6 +40,10 @@ export class ButtonGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
 
       const childNodes: LayoutNode[] = [];
       for (const childId of prototype.children) {
+        if (!this.canRenderInButtonGroup(childId, false)) {
+          continue;
+        }
+
         const child = this.generator.newChild({
           ctx,
           parent: me,

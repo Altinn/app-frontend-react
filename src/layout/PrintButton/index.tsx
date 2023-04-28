@@ -10,6 +10,10 @@ export class PrintButton extends ActionComponent<'PrintButton'> {
     return <PrintButtonComponent {...props} />;
   }
 
+  canRenderInButtonGroup(): boolean {
+    return true;
+  }
+
   renderWithLabel(): boolean {
     return false;
   }
