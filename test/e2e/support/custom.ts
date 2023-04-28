@@ -1,9 +1,5 @@
-import escapeRegexp from 'escape-string-regexp';
-
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
-
-const appFrontend = new AppFrontend();
 
 Cypress.Commands.add('isVisible', { prevSubject: true }, (subject) => {
   const isVisible = (elem) => !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
@@ -37,26 +33,42 @@ Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWith
   cy.wrap(subject).click().should('not.exist');
 });
 
-Cypress.Commands.add('navPage', (page: string) => {
-  cy.log(`Getting navigation page: ${page}`);
-  cy.window().then((win) => {
-    // Escape page in regex to avoid special characters
-    const regex = new RegExp(`^[0-9]+. ${escapeRegexp(page)}$`);
+Cypress.Commands.addQuery('navPage', function (page) {
+  const width = Cypress.config().viewportWidth;
+  const appFrontend = new AppFrontend();
+  const getButtons = cy.now('get', appFrontend.navMenuButtons) as () => JQueryWithSelector;
+  const getMobileButton = cy.now('get', 'nav[data-testid=NavigationBar] button') as () => JQueryWithSelector;
 
-    if (win.innerWidth <= 768) {
-      cy.get('nav[data-testid=NavigationBar] button').should('have.attr', 'aria-expanded', 'false').click();
+  return () => {
+    if (width <= 768) {
+      const mobileBtn = getMobileButton();
+      if (mobileBtn.attr('aria-expanded') === 'false') {
+        mobileBtn.click();
+      }
     }
 
-    cy.get(appFrontend.navMenuButtons).then((buttons) => {
-      for (const button of buttons) {
-        if (regex.test(button.innerText)) {
-          cy.wrap(button);
-          return;
-        }
+    const buttons = getButtons();
+    const buttonNames: string[] = [];
+    let out: HTMLElement | undefined;
+
+    buttons.each((_, button) => {
+      const name = button.innerText.trim().replace(/^[0-9]+\. /g, '');
+      buttonNames.push(name);
+      if (name === page) {
+        out = button;
+        return false;
       }
-      throw new Error(`Could not find navigation page: ${page}`);
     });
-  });
+
+    if (out) {
+      // JQuery supports passing an HTMLElement to $(), but Cypress does not type it as such.
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return cy.$$(out);
+    }
+
+    throw new Error(`Found no navigation page with name: ${page} (found: ${buttonNames.join(', ')})`);
+  };
 });
 
 Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
