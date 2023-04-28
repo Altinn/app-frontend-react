@@ -858,7 +858,7 @@
           "type": "string",
           "title": "Action",
           "description": "The action to be triggered when the button is clicked.",
-          "enum": ["sign, confirm, reject"]
+          "examples": ["sign, confirm, reject"]
         },
         "buttonStyle": {
           "type": "string",
