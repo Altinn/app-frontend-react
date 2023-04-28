@@ -44,9 +44,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
 
     return (
       <div className={classes['button-group']}>
-        <div className={classes['button-row']}>
-          <GenericButton {...props}>{props.text}</GenericButton>
-        </div>
+        <GenericButton {...props}>{props.text}</GenericButton>
       </div>
     );
   }
@@ -66,7 +64,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
             componentId,
           }),
         );
-      } else {
+      } else if (currentTaskType === 'confirmation') {
         if (processActionsFeature) {
           dispatch(ProcessActions.complete({ action: 'confirm' }));
         } else {
@@ -85,6 +83,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
             id='saveBtn'
             busyWithId={busyWithId}
             language={props.language}
+            disabled={disabled}
           >
             {getLanguageFromKey('general.save', props.language)}
           </SaveButton>
