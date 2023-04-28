@@ -2,6 +2,7 @@ import type { TextField } from '@digdir/design-system-react';
 import type { GridSize } from '@material-ui/core';
 
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
+import type { ILayoutCompActionButton } from 'src/layout/ActionButton/types';
 import type { IDataModelBindingsForAddress, ILayoutCompAddress } from 'src/layout/Address/types';
 import type { ILayoutCompAttachmentList } from 'src/layout/AttachmentList/types';
 import type { ILayoutCompButton } from 'src/layout/Button/types';
@@ -91,8 +92,8 @@ export interface IInputFormatting {
   align?: 'right' | 'center' | 'left';
 }
 
-export interface ITableColumnFormatting {
-  [key: string]: ITableColumnProperties;
+export interface ITableColumnFormatting<T extends ITableColumnProperties = ITableColumnProperties> {
+  [key: string]: T;
 }
 
 export interface ITableColumnProperties {
@@ -110,6 +111,7 @@ export interface ITableColumnProperties {
  * type (ex. ILayoutCompTextArea), or ILayoutComponent<'TextArea'>.
  */
 interface Map {
+  ActionButton: ILayoutCompActionButton;
   AddressComponent: ILayoutCompAddress;
   AttachmentList: ILayoutCompAttachmentList;
   Button: ILayoutCompButton;
