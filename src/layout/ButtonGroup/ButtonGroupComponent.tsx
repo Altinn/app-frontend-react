@@ -4,6 +4,7 @@ import { Grid } from '@material-ui/core';
 
 import type { PropsFromGenericComponent } from '..';
 
+import classes from 'src/layout/ButtonGroup/ButtonGroupComponent.module.css';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -13,13 +14,18 @@ export function ButtonGroupComponent(props: PropsFromGenericComponent<'ButtonGro
     <Grid
       item
       container
+      className={classes.container}
     >
       {childNodes.map((n: LayoutNode) => (
-        <GenericComponent
+        <div
           key={n.item.id}
-          node={n}
-          overrideDisplay={{ directRender: true }}
-        />
+          data-componentid={n.item.baseComponentId ?? n.item.id}
+        >
+          <GenericComponent
+            node={n}
+            overrideDisplay={{ directRender: true }}
+          />
+        </div>
       ))}
     </Grid>
   );
