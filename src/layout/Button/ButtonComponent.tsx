@@ -37,6 +37,8 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     processActionsFeature &&
     ((currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm));
 
+  const parentIsPage = node.parent instanceof LayoutPage;
+
   if (mode && !(mode === 'save' || mode === 'submit')) {
     const GenericButton = getComponentFromMode(mode);
     if (!GenericButton) {
@@ -44,7 +46,10 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     }
 
     return (
-      <div className={classes['button-group']}>
+      <div
+        className={classes.container}
+        style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
+      >
         <GenericButton {...props}>{props.text}</GenericButton>
       </div>
     );
@@ -73,7 +78,6 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     }
   };
   const busyWithId = savingId || submittingId || '';
-  const parentIsPage = node.parent instanceof LayoutPage;
   return (
     <div
       className={classes.container}
