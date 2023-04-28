@@ -42,7 +42,7 @@
           "type": "string",
           "title": "Type",
           "description": "The component type.",
-          "enum": ["AddressComponent", "AttachmentList", "Button", "Checkboxes", "Custom", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Group", "Header", "Image", "Input", "InstanceInformation", "InstantiationButton", "Likert","List", "MultipleSelect", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
+          "enum": ["AddressComponent", "AttachmentList", "Button", "Checkboxes", "Custom", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Grid", "Group", "Header", "Image", "Input", "InstanceInformation", "InstantiationButton", "Likert","List", "MultipleSelect", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
         },
         "required": {
           "title": "Required",
@@ -130,6 +130,7 @@
         { "if": {"properties": {"type": { "const": "Dropdown"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
         { "if": {"properties": {"type": { "const": "FileUpload"}}}, "then": { "$ref": "#/definitions/fileUploadComponent"}},
         { "if": {"properties": {"type": { "const": "FileUploadWithTag"}}}, "then": { "$ref": "#/definitions/fileUploadWithTagComponent"}},
+        { "if": {"properties": {"type": { "const": "Grid"}}}, "then": { "$ref": "#/definitions/gridComponent"}},
         { "if": {"properties": {"type": { "const": "Group"}}}, "then": { "$ref": "#/definitions/groupComponent"}},
         { "if": {"properties": {"type": { "const": "Image"}}}, "then": { "$ref": "#/definitions/imageComponent"}},
         { "if": {"properties": {"type": { "const": "Input"}}}, "then": { "$ref": "#/definitions/inputComponent"}},
@@ -452,6 +453,71 @@
         }
       }
     },
+    "gridComponent": {
+      "properties": {
+        "rows": {
+          "title": "Rows",
+          "description": "An array of rows to be rendered in the grid.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/gridRow"
+          }
+        }
+      },
+      "required": ["rows"]
+    },
+    "gridRow": {
+      "properties": {
+        "header": {
+          "title": "Header?",
+          "description": "A boolean indicating if the row should be a header row",
+          "type": "boolean",
+          "default": false
+        },
+        "readOnly": {
+          "title": "Read only?",
+          "description": "A boolean indicating if the row should be a read only row (yellow background)",
+          "type": "boolean",
+          "default": false
+        },
+        "cells": {
+          "title": "Grid row cells",
+          "description": "An array of cells to be rendered in the row",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "#/definitions/gridCellText" },
+              { "$ref": "#/definitions/gridCellComponent" },
+              { "$ref": "#/definitions/tableColumnOptions" },
+              { "type": "null", "title": "Empty cell" }
+            ]
+          }
+        }
+      },
+      "required": ["cells"]
+    },
+    "gridCellText": {
+      "properties": {
+        "text": {
+          "title": "Text",
+          "description": "The text or text resource ID to be rendered in the cell",
+          "type": "string"
+        }
+      },
+      "$ref": "#/definitions/tableColumnOptions",
+      "required": ["text"]
+    },
+    "gridCellComponent": {
+      "properties": {
+        "component": {
+          "title": "Component ID",
+          "description": "The ID of the component to be rendered in the cell",
+          "type": "string"
+        }
+      },
+      "$ref": "#/definitions/tableColumnOptions",
+      "required": ["component"]
+    },
     "groupComponent": {
       "properties": {
         "children": {
@@ -497,10 +563,30 @@
           "title": "Table Columns",
           "description": "An object containing key-value pairs where the key is a table header and the value is an object containing settings for the headers column",
           "type": "object",
-          "patternProperties": {
-            ".*": {
-              "$ref": "#/definitions/tableColumnOptions"
-            }
+          "additionalProperties": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/definitions/tableColumnOptions"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "editInTable": {
+                    "title": "Edit in table",
+                    "description": "Boolean to decide whether the component should be editable in table view",
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "showInExpandedEdit": {
+                    "title": "Show in expanded edit",
+                    "description": "Boolean to decide whether the component should be shown in the expanded edit view",
+                    "default": true,
+                    "type": "boolean"
+                  }
+                }
+              }
+            ]
           }
         }
       },
@@ -512,7 +598,7 @@
           "title": "Edit mode",
           "description": "Mode for how repeating group table is displayed in edit mode",
           "type": "string",
-          "enum": ["hideTable", "likert", "showAll", "showTable"]
+          "enum": ["hideTable", "likert", "showAll", "showTable", "onlyTable"]
         },
         "filter": {
           "title": "Filter",
@@ -524,17 +610,22 @@
         },
         "saveButton": {
           "title": "Save button",
-          "description": "Boolean or expression indicating whether save button should be shown or not in edit mode of repeating group item.",
+          "description": "Boolean or expression indicating whether save button should be shown or not for a given row",
           "$ref": "expression.schema.v1.json#/definitions/boolean"
         },
         "saveAndNextButton": {
           "title": "Save and open next button",
-          "description": "Boolean or expression indicating whether save and go to next button should be shown or not in addition to save and close button in edit mode of repeating group item.",
+          "description": "Boolean or expression indicating whether save and go to next button should be shown or not in addition to save and close button",
           "$ref": "expression.schema.v1.json#/definitions/boolean"
         },
         "deleteButton": {
           "title": "Delete button",
-          "description": "Boolean or expression indicating whether delete button should be shown or not in edit mode of repeating group item.",
+          "description": "Boolean or expression indicating whether delete button should be shown or not for a given row",
+          "$ref": "expression.schema.v1.json#/definitions/boolean"
+        },
+        "editButton": {
+          "title": "Edit button",
+          "description": "Boolean or expression indicating whether edit button should be shown or not for a given row",
           "$ref": "expression.schema.v1.json#/definitions/boolean"
         },
         "multiPage": {
@@ -620,13 +711,25 @@
       "title": "Column options",
       "description": "Column options for specified header.",
       "type": "object",
-      "properties": {
-        "width":{
-          "title": "Width",
-          "description": "Width of cell in % or 'auto'. Defaults to 'auto'",
-          "type": "string",
-          "pattern": "^([0-9]{1,2}%|100%|auto)$"
+      "allOf": [
+        {
+          "$ref": "#/definitions/tableColumnTextOptions"
         },
+        {
+          "type": "object",
+          "properties": {
+            "width":{
+              "title": "Width",
+              "description": "Width of cell in % or 'auto'. Defaults to 'auto'",
+              "type": "string",
+              "pattern": "^([0-9]{1,2}%|100%|auto)$"
+            }
+          }
+        }
+      ]
+    },
+    "tableColumnTextOptions": {
+      "properties": {
         "alignText": {
           "title": "Align Text",
           "description": "Choose text alignment between 'left', 'center', or 'right' for text in table cells. Defaults to 'left' for text and 'right' for numbers.",
