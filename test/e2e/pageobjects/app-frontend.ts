@@ -44,6 +44,7 @@ export class AppFrontend {
   public navMenu = '#navigation-menu';
   public navMenuButtons = '#navigation-menu li > button';
   public navMenuCurrent = '#navigation-menu li > button[aria-current=page]';
+  public navMobileMenu = 'nav[data-testid=NavigationBar] button';
   public navButtons = '[data-testid=NavigationButtons]';
   public startAgain = '#startAgain';
   public nextButton = `[data-testid=NavigationButtons] button:contains("${texts.next}")`;
