@@ -1,3 +1,5 @@
+import escapeRegex from 'escape-string-regexp';
+
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
 
@@ -37,8 +39,8 @@ Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWith
 
 Cypress.Commands.add('navPage', (page: string) => {
   cy.window().then((win) => {
-    const pageNoSpecialChars = page.replace(/[^a-zA-Z0-9 ]/g, '.');
-    const regex = new RegExp(`^([0-9]+. )?${pageNoSpecialChars}$`);
+    const pageAsRegex = escapeRegex(page);
+    const regex = new RegExp(`^([0-9]+. )?${pageAsRegex}$`);
 
     if (win.innerWidth <= 768) {
       cy.get(appFrontend.navMobileMenu).should('have.attr', 'aria-expanded', 'false').click();
