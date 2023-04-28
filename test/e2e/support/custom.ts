@@ -1,3 +1,5 @@
+import escapeRegexp from 'escape-string-regexp';
+
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
 
@@ -9,18 +11,21 @@ Cypress.Commands.add('isVisible', { prevSubject: true }, (subject) => {
 });
 
 Cypress.Commands.add('dsCheck', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
+  cy.log('Checking');
   if (subject && !subject.is(':checked')) {
     cy.wrap(subject).parent().click();
   }
 });
 
 Cypress.Commands.add('dsUncheck', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
+  cy.log('Unchecking');
   if (subject && subject.is(':checked')) {
     cy.wrap(subject).parent().click();
   }
 });
 
 Cypress.Commands.add('dsSelect', { prevSubject: true }, (subject: JQueryWithSelector | undefined, name) => {
+  cy.log(`Selecting ${name}`);
   cy.wrap(subject).click();
   cy.wrap(subject).parents('[data-testid="select-root"]').findByRole('option', { name }).click();
   cy.get('body').click();
@@ -33,14 +38,42 @@ Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWith
 });
 
 Cypress.Commands.add('navPage', (page: string) => {
+  cy.log(`Getting navigation page: ${page}`);
   cy.window().then((win) => {
-    const regex = new RegExp(`^[0-9]+. ${page}$`);
+    // Escape page in regex to avoid special characters
+    const regex = new RegExp(`^[0-9]+. ${escapeRegexp(page)}$`);
 
-    if (win.innerWidth > 768) {
-      cy.get(appFrontend.navMenu).findByText(regex);
-    } else {
+    if (win.innerWidth <= 768) {
       cy.get('nav[data-testid=NavigationBar] button').should('have.attr', 'aria-expanded', 'false').click();
-      cy.get(appFrontend.navMenu).findByText(regex);
     }
+
+    cy.get(appFrontend.navMenuButtons).then((buttons) => {
+      for (const button of buttons) {
+        if (regex.test(button.innerText)) {
+          cy.wrap(button);
+          return;
+        }
+      }
+      throw new Error(`Could not find navigation page: ${page}`);
+    });
   });
+});
+
+Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
+  cy.log('Clearing number formatted input field');
+  if (!subject) {
+    throw new Error('Subject is undefined');
+  }
+
+  // Since we cannot use {selectall} on number formatted input fields, because react-number-format messes with
+  // our selection, we need to delete the content by moving to the start of the input field and deleting one
+  // character at a time.
+  const strLength = subject.val()?.toString().length;
+  const del = new Array(strLength).fill('{del}').join('');
+
+  // We also add {moveToStart} multiple times to ensure that we are at the start of the input field, as
+  // react-number-format messes with our cursor position here as well.
+  const moveToStart = new Array(5).fill('{moveToStart}').join('');
+
+  cy.wrap(subject).type(`${moveToStart}${del}`);
 });
