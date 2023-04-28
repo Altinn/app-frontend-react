@@ -64,12 +64,10 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
             componentId,
           }),
         );
-      } else if (currentTaskType === 'confirmation') {
-        if (processActionsFeature) {
-          dispatch(ProcessActions.complete({ action: 'confirm' }));
-        } else {
-          dispatch(ProcessActions.complete());
-        }
+      } else if (currentTaskType === 'confirmation' && processActionsFeature) {
+        dispatch(ProcessActions.complete({ action: 'confirm' }));
+      } else {
+        dispatch(ProcessActions.complete());
       }
     }
   };
