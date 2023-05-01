@@ -17,11 +17,14 @@ export class Datepicker extends FormComponent<'Datepicker'> {
 
   useDisplayData(node: LayoutNodeFromType<'Datepicker'>): string {
     const formData = useAppSelector((state) => state.formData.formData);
+    const language = useAppSelector(
+      (state) => state.profile.selectedAppLanguage || state.profile.profile.profileSettingPreference.language,
+    );
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    const dateFormat = getDateFormat(node.item.format);
+    const dateFormat = getDateFormat(node.item.format, language);
     const data = formData[node.item.dataModelBindings?.simpleBinding] || '';
     return formatISOString(data, dateFormat) ?? data;
   }

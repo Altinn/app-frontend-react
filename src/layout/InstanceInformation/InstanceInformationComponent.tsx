@@ -51,12 +51,16 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const instance: IInstance | null = useAppSelector((state: IRuntimeState) => state.instanceData.instance);
   const parties: IParty[] | null = useAppSelector((state: IRuntimeState) => state.party.parties);
   const language: ILanguage | null = useAppSelector((state) => state.language.language);
+  const profileLanguage = useAppSelector(
+    (state) => state.profile.selectedAppLanguage || state.profile.profile.profileSettingPreference.language,
+  );
   const appReceiver = useAppSelector(selectAppReceiver);
 
   const instanceOwnerParty =
     instance && parties?.find((party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId);
 
-  const instanceDateSent = dateSent !== false && Moment(instance?.lastChanged).format(getDateFormat());
+  const instanceDateSent =
+    dateSent !== false && Moment(instance?.lastChanged).format(getDateFormat(undefined, profileLanguage));
 
   const instanceSender =
     sender !== false &&
