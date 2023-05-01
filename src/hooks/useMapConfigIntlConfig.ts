@@ -1,30 +1,54 @@
 import { useAppSelector } from 'src/hooks/useAppSelector';
 
-useAppSelector;
-
 export const useMapConfigIntlConfig = (value: string | undefined, formatting) => {
   const lang = useAppSelector((state) => state.textResources.language);
-  // const intlFormat = formatting.intlFormat;
-  console.log(value);
-  console.log(formatting);
+
+  type FormattingResult = {
+    thousandSeparator: string | undefined;
+    decimalSeparator: string | undefined;
+    suffix: string | undefined;
+    prefix: string | undefined;
+  };
+
+  if (!formatting?.currency && !formatting?.unit) {
+    return formatting;
+  }
+
   const formatNumber = (locale: string, number: string, formatType) => {
     const options = formatting.currency
       ? { style: 'currency', currency: formatting.currency }
       : { style: 'unit', unit: formatting.unit };
 
     const intlFormatting = new Intl.NumberFormat(locale, options).formatToParts(parseFloat(number));
-    console.log(intlFormatting); //group: thousandSeparator, decimal: decimalSeparator, currency: prefix, unit: suffix
 
-    // const formatKey = Object.keys(formatType)[0];
-    // const formatKeyValue = Object.values(formatType)[0];
-    // const options = { style: formatKey, [formatKey]: formatKeyValue };
+    const intlResult: FormattingResult = {
+      thousandSeparator: undefined,
+      decimalSeparator: undefined,
+      prefix: undefined,
+      suffix: undefined,
+    };
 
-    // const intlFormatting = new Intl.NumberFormat(locale, options).format(parseFloat(number));
+    intlFormatting.forEach((part) => {
+      if (part.type === 'group') {
+        intlResult.thousandSeparator = part.value;
+      }
+      if (part.type === 'decimal') {
+        intlResult.decimalSeparator = part.value;
+      }
+      if (part.type === 'currency') {
+        intlResult.prefix = `${part.value.toUpperCase()} `;
+      }
+      if (part.type === 'unit') {
+        intlResult.suffix = ` ${part.value.toUpperCase()}`;
+      }
+    });
+
+    formatType.number = Object.assign(intlResult, formatType.number);
+    return formatType;
   };
 
-  if ((formatting.currency || formatting.unit) && value) {
-    console.log('he');
-    formatNumber(lang || 'nb', value, formatting);
+  if (value) {
+    return formatNumber(lang || 'nb', value, formatting);
   }
 };
 
