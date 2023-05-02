@@ -85,6 +85,8 @@ export interface IComponentRadioOrCheckbox<T extends Extract<ComponentTypes, 'Ra
 export type NumberFormatProps = Exclude<Parameters<typeof TextField>[0]['formatting'], undefined>['number'];
 
 export interface IInputFormatting {
+  currency?: string;
+  unit?: string;
   number?: NumberFormatProps;
   align?: 'right' | 'center' | 'left';
 }

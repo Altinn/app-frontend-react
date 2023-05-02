@@ -4,7 +4,7 @@ import { SearchField } from '@altinn/altinn-design-system';
 import { TextField } from '@digdir/design-system-react';
 
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
-import { useMapConfigIntlConfig } from 'src/hooks/useMapConfigIntlConfig';
+import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting } from 'src/layout/layout';
 
@@ -19,7 +19,7 @@ export function InputComponent({ node, isValid, formData, handleDataChange }: II
     saveWhileTyping,
   );
 
-  const reactNumberFormatConfig = useMapConfigIntlConfig(value, formatting);
+  const reactNumberFormatConfig = useMapToReactNumberConfig(value, formatting as IInputFormatting);
 
   const handleChange = (e) => setValue(e.target.value);
 
