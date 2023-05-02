@@ -8,6 +8,7 @@ import type { PropsFromGenericComponent } from '..';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { selectAppReceiver } from 'src/selectors/language';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import type { IRuntimeState } from 'src/types';
@@ -51,9 +52,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const instance: IInstance | null = useAppSelector((state: IRuntimeState) => state.instanceData.instance);
   const parties: IParty[] | null = useAppSelector((state: IRuntimeState) => state.party.parties);
   const language: ILanguage | null = useAppSelector((state) => state.language.language);
-  const profileLanguage = useAppSelector(
-    (state) => state.profile.selectedAppLanguage || state.profile.profile.profileSettingPreference.language,
-  );
+  const profileLanguage = useAppSelector(appLanguageStateSelector);
   const appReceiver = useAppSelector(selectAppReceiver);
 
   const instanceOwnerParty =
