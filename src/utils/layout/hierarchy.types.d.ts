@@ -4,7 +4,7 @@ import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ComponentClassMapTypes } from 'src/layout';
 import type { ILayoutCompButtonGroupInHierarchy } from 'src/layout/ButtonGroup/types';
-import type { ILayoutGridHierarchy } from 'src/layout/Grid/types';
+import type { GridComponent, GridRow, ILayoutGridHierarchy } from 'src/layout/Grid/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type {
   ComponentExceptGroup,
@@ -30,7 +30,10 @@ export type HComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = 
 /**
  * Base type used for repeating group and non-repeating groups
  */
-type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children'>;
+type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children' | 'rowsBefore' | 'rowsAfter'> & {
+  rowsBefore?: GridRow<GridComponent>[];
+  rowsAfter?: GridRow<GridComponent>[];
+};
 
 /**
  * Definition of a non-repeating group inside a hierarchy structure
