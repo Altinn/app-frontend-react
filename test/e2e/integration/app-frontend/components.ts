@@ -171,5 +171,15 @@ describe('UI Components', () => {
       cy.get(appFrontend.nextButton).should('be.visible');
       cy.get('button#toNextTask').should('be.visible');
     });
+
+    // Check that the buttons are moved inside the error paper
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.errorReport).within(() => {
+      cy.get('#form-content-button-group-1').within(() => {
+        cy.get(appFrontend.printButton).should('be.visible');
+        cy.get(appFrontend.nextButton).should('be.visible');
+        cy.get('button#toNextTask').should('be.visible');
+      });
+    });
   });
 });
