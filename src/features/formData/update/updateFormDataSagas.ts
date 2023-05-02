@@ -143,7 +143,7 @@ export function* deleteAttachmentReferenceSaga({
     );
 
     yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
-    yield put(FormDataActions.save({ componentId }));
+    yield put(FormDataActions.saveEvery({ componentId }));
   } catch (err) {
     console.error(err);
   }
