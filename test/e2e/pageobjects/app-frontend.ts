@@ -167,6 +167,7 @@ export class AppFrontend {
     uploadedTable: '#altinn-file-listfileUpload-changename',
     uploadSuccess: '.ai-check-circle',
     uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
+    componentSummary: '[data-testid="summary-item-simple"]',
   };
 
   //group - task 3
