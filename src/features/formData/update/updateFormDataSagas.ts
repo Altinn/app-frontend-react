@@ -90,7 +90,14 @@ function* runValidations(field: string, data: any, componentId: string | undefin
   );
 
   const componentValidations = validationResult?.validations[layoutId][componentId];
-  const componentSpecificValidations = validateComponentSpecificValidations(data, component, state.language.language);
+
+  const profileLanguage = state.profile.selectedAppLanguage || state.profile.profile.profileSettingPreference.language;
+  const componentSpecificValidations = validateComponentSpecificValidations(
+    data,
+    component,
+    state.language.language,
+    profileLanguage,
+  );
   const mergedValidations = mergeComponentValidations(componentValidations ?? {}, componentSpecificValidations);
 
   const invalidDataComponents = state.formValidations.invalidDataTypes || [];
@@ -136,7 +143,7 @@ export function* deleteAttachmentReferenceSaga({
     );
 
     yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
-    yield put(FormDataActions.save({ componentId }));
+    yield put(FormDataActions.saveEvery({ componentId }));
   } catch (err) {
     console.error(err);
   }
