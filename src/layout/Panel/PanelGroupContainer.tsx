@@ -57,12 +57,18 @@ export const PanelGroupContainer = ({ node }: PanelGroupConatinerProps) => {
           showIcon={node.item.panel?.showIcon}
           variant={getVariant({ variant: node.item.panel?.variant })}
         >
-          {node.children().map((child) => (
-            <GenericComponent
-              key={node.item.id}
-              node={child}
-            />
-          ))}
+          <Grid
+            container={true}
+            spacing={3}
+            data-testid='panel-group-container'
+          >
+            {node.children().map((child) => (
+              <GenericComponent
+                key={node.item.id}
+                node={child}
+              />
+            ))}
+          </Grid>
         </Panel>
       </ConditionalWrapper>
     </Grid>
