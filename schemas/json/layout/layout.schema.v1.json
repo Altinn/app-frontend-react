@@ -938,7 +938,8 @@
         "unit": {
           "title": "Language-sensitive number formatting based on unit",
           "type": "string",
-          "description": "Enables unit (suffix) along with thousand and decimal separators to be language sensitive based on selected app language. They are configured in number property. Note: parts that already exist in number property are not overridden by this prop."
+          "description": "Enables unit (suffix) along with thousand and decimal separators to be language sensitive based on selected app language. They are configured in number property. Note: parts that already exist in number property are not overridden by this prop.",
+          "enum": ["celsius","centimeter","day","degree","foot","gram","hectare","hour","inch","kilogram","kilometer","liter","meter","milliliter","millimeter","millisecond","minute","month","percent","second","week","year"]
         },
         "number": {
           "$ref": "https://altinncdn.no/schemas/json/component/number-format.schema.v1.json"
