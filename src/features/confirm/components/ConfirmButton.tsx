@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
@@ -15,6 +15,7 @@ import type { ILanguage } from 'src/types/shared';
 
 export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string; language: ILanguage }) => {
   const textResources = useAppSelector((state) => state.textResources.resources);
+  const busyWithId = useAppSelector((state) => state.process.completingId);
   const processActionsFeature = useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata?.features?.processActions,
   );
@@ -23,30 +24,24 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
 
   const dispatch = useAppDispatch();
   const { instanceId } = window as Window as IAltinnWindow;
-  const [busyWithId, setBusyWithId] = useState('');
 
   const handleConfirmClick = () => {
     if (!disabled) {
-      setBusyWithId(props.id);
-      httpGet(getValidationUrl(instanceId))
-        .then((data: any) => {
-          const mappedValidations = mapDataElementValidationToRedux(data, {}, textResources);
-          dispatch(
-            ValidationActions.updateValidations({
-              validations: mappedValidations,
-            }),
-          );
-          if (data.length === 0) {
-            if (processActionsFeature) {
-              dispatch(ProcessActions.complete({ action: 'confirm' }));
-            } else {
-              dispatch(ProcessActions.complete());
-            }
+      httpGet(getValidationUrl(instanceId)).then((data: any) => {
+        const mappedValidations = mapDataElementValidationToRedux(data, {}, textResources);
+        dispatch(
+          ValidationActions.updateValidations({
+            validations: mappedValidations,
+          }),
+        );
+        if (data.length === 0) {
+          if (processActionsFeature) {
+            dispatch(ProcessActions.complete({ componentId: props.id, action: 'confirm' }));
+          } else {
+            dispatch(ProcessActions.complete({ componentId: props.id }));
           }
-        })
-        .finally(() => {
-          setBusyWithId('');
-        });
+        }
+      });
     }
   };
 
