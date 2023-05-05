@@ -972,7 +972,7 @@
         "align": {
           "type": "string",
           "title": "Align input",
-          "description": "The alignment for Input field (eg. right aligning a series of numbers). Right align is set as default",
+          "description": "The alignment for Input field (eg. right aligning a series of numbers).",
           "enum": [ "left", "center", "right"]
         }
       }

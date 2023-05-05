@@ -20,7 +20,6 @@ export function InputComponent({ node, isValid, formData, handleDataChange }: II
   );
 
   const reactNumberFormatConfig = useMapToReactNumberConfig(value, formatting as IInputFormatting);
-
   const handleChange = (e) => setValue(e.target.value);
 
   return (
