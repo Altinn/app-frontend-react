@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
@@ -15,7 +15,8 @@ import type { ILanguage } from 'src/types/shared';
 
 export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string; language: ILanguage }) => {
   const textResources = useAppSelector((state) => state.textResources.resources);
-  const busyWithId = useAppSelector((state) => state.process.completingId);
+  const confirmingId = useAppSelector((state) => state.process.completingId);
+  const [validateId, setValidateId] = useState<string | null>(null);
   const processActionsFeature = useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata?.features?.processActions,
   );
@@ -27,23 +28,30 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
 
   const handleConfirmClick = () => {
     if (!disabled) {
-      httpGet(getValidationUrl(instanceId)).then((data: any) => {
-        const mappedValidations = mapDataElementValidationToRedux(data, {}, textResources);
-        dispatch(
-          ValidationActions.updateValidations({
-            validations: mappedValidations,
-          }),
-        );
-        if (data.length === 0) {
-          if (processActionsFeature) {
-            dispatch(ProcessActions.complete({ componentId: props.id, action: 'confirm' }));
-          } else {
-            dispatch(ProcessActions.complete({ componentId: props.id }));
+      setValidateId(props.id);
+      httpGet(getValidationUrl(instanceId))
+        .then((data: any) => {
+          const mappedValidations = mapDataElementValidationToRedux(data, {}, textResources);
+          dispatch(
+            ValidationActions.updateValidations({
+              validations: mappedValidations,
+            }),
+          );
+          if (data.length === 0) {
+            if (processActionsFeature) {
+              dispatch(ProcessActions.complete({ componentId: props.id, action: 'confirm' }));
+            } else {
+              dispatch(ProcessActions.complete({ componentId: props.id }));
+            }
           }
-        }
-      });
+        })
+        .finally(() => {
+          setValidateId(null);
+        });
     }
   };
+
+  const busyWithId = confirmingId || validateId || null;
 
   return (
     <div style={{ marginTop: 'var(--button-margin-top)' }}>
