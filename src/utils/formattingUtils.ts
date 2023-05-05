@@ -18,16 +18,22 @@ export type UnitFormattingOptions = {
 export const formatNumber = (
   number: string,
   locale: string | null,
-  options: CurrencyFormattingOptions | UnitFormattingOptions,
+  options: CurrencyFormattingOptions | UnitFormattingOptions | undefined,
+  position: string | undefined,
 ): FormattingResult => {
-  const intlFormatting = new Intl.NumberFormat(locale || 'nb', options).formatToParts(parseFloat(number));
-
-  const intlResult: FormattingResult = {
+  const defaultFormat: FormattingResult = {
     thousandSeparator: undefined,
     decimalSeparator: undefined,
     prefix: undefined,
     suffix: undefined,
   };
+
+  if (!options) {
+    return defaultFormat;
+  }
+
+  const intlFormatting = new Intl.NumberFormat(locale || 'nb', options).formatToParts(parseFloat(number));
+  const intlResult = defaultFormat;
 
   intlFormatting.forEach((part) => {
     if (part.type === 'group') {
@@ -37,10 +43,10 @@ export const formatNumber = (
       intlResult.decimalSeparator = part.value;
     }
     if (part.type === 'currency') {
-      intlResult.prefix = `${part.value} `;
+      position === 'suffix' ? (intlResult.suffix = ` ${part.value}`) : (intlResult.prefix = `${part.value} `);
     }
     if (part.type === 'unit') {
-      intlResult.suffix = ` ${part.value}`;
+      position === 'prefix' ? (intlResult.prefix = `${part.value} `) : (intlResult.suffix = ` ${part.value}`);
     }
   });
   return intlResult;

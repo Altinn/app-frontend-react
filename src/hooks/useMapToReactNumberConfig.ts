@@ -11,10 +11,22 @@ export const useMapToReactNumberConfig = (value: string | undefined, formatting:
     return formatting;
   }
 
-  const options = formatting.currency
-    ? ({ style: 'currency', currency: formatting.currency } as CurrencyFormattingOptions)
-    : ({ style: 'unit', unit: formatting.unit } as UnitFormattingOptions);
+  const createOptions = (config: IInputFormatting) => {
+    if (config.currency) {
+      return { style: 'currency', currency: config.currency.valuta } as CurrencyFormattingOptions;
+    }
+    if (config.unit) {
+      return { style: 'unit', unit: config.unit.unitType } as UnitFormattingOptions;
+    }
+    return undefined;
+  };
 
-  const numberFormatResult = { ...formatNumber(value, appLanguage, options), ...formatting.number };
+  const position: string | undefined = formatting?.currency?.position || formatting?.unit?.position || undefined;
+
+  const numberFormatResult = {
+    ...formatNumber(value, appLanguage, createOptions(formatting), position),
+    ...formatting.number,
+  };
+
   return { ...formatting, number: numberFormatResult };
 };
