@@ -4,7 +4,10 @@ import { formatNumber } from 'src/utils/formattingUtils';
 import type { IInputFormatting } from 'src/layout/layout';
 import type { CurrencyFormattingOptions, UnitFormattingOptions } from 'src/utils/formattingUtils';
 
-export const useMapToReactNumberConfig = (value: string | undefined, formatting: IInputFormatting) => {
+export const useMapToReactNumberConfig = (
+  value: string | undefined,
+  formatting: IInputFormatting,
+): IInputFormatting => {
   const appLanguage = useAppSelector(appLanguageStateSelector);
 
   if ((!formatting?.currency && !formatting?.unit) || !value) {
@@ -20,7 +23,7 @@ export const useMapToReactNumberConfig = (value: string | undefined, formatting:
     }
     return undefined;
   };
-
+  // Check if position has been configured in dynamic formatting. Either prefix or suffix of currency/unit
   const position: string | undefined = formatting?.currency?.position || formatting?.unit?.position || undefined;
 
   const numberFormatResult = {

@@ -18,7 +18,6 @@ export function InputComponent({ node, isValid, formData, handleDataChange }: II
     formData?.simpleBinding ?? '',
     saveWhileTyping,
   );
-
   const reactNumberFormatConfig = useMapToReactNumberConfig(value, formatting as IInputFormatting);
   const handleChange = (e) => setValue(e.target.value);
 
@@ -45,7 +44,7 @@ export function InputComponent({ node, isValid, formData, handleDataChange }: II
           required={required}
           value={value}
           aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
-          formatting={reactNumberFormatConfig as IInputFormatting}
+          formatting={reactNumberFormatConfig}
           autoComplete={autocomplete}
         />
       )}
