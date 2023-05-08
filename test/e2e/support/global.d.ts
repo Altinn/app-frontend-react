@@ -159,6 +159,11 @@ declare global {
        * Shortcut for clicking an element and waiting for it to disappear
        */
       clickAndGone(): Chainable<null>;
+
+      /**
+       * Replace all non-breaking spaces with normal spaces in the subject
+       */
+      assertTextWithoutWhiteSpaces(expectedText: string): Chainable<null>;
     }
   }
 }
