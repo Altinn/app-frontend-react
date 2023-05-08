@@ -63,7 +63,7 @@ describe('UI Components', () => {
 
   it('is possible to navigate between pages using navigation bar', () => {
     cy.goto('changename');
-    cy.get(appFrontend.navMenuButtons).should('have.length', 2);
+    cy.get(appFrontend.navMenuButtons).should('have.length', 3);
     cy.navPage('form')
       .should('have.attr', 'aria-current', 'page')
       .and('have.css', 'background-color', 'rgb(2, 47, 81)');
@@ -156,5 +156,50 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.reasons).findByText('Dette er en beskrivelse.').should('be.visible');
     cy.get(appFrontend.changeOfName.reasons).findByRole('button').click();
     cy.get(appFrontend.changeOfName.reasons).findByText('Dette er en hjelpetekst.').should('be.visible');
+  });
+
+  it('should render components as summary', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+    cy.get(appFrontend.changeOfName.newFirstName).blur();
+
+    cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
+    cy.get(appFrontend.changeOfName.newLastName).blur();
+
+    cy.get(appFrontend.changeOfName.newMiddleName).type('Larsen');
+    cy.get(appFrontend.changeOfName.newMiddleName).blur();
+
+    cy.get(appFrontend.changeOfName.address.street_name).type('Testveien 1');
+    cy.get(appFrontend.changeOfName.address.street_name).blur();
+
+    cy.get(appFrontend.changeOfName.componentSummary).contains('Per');
+    cy.get(appFrontend.changeOfName.componentSummary).contains('Larsen');
+    cy.get(appFrontend.changeOfName.componentSummary).contains('Hansen');
+    cy.get(appFrontend.changeOfName.componentSummary).contains('Testveien 1');
+  });
+
+  it('button group with navigation, printbutton and go-to-task', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+    cy.get(appFrontend.changeOfName.newFirstName).blur();
+    cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
+    cy.get(appFrontend.changeOfName.newLastName).blur();
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
+
+    cy.get('#form-content-button-group-1').within(() => {
+      cy.get(appFrontend.printButton).should('be.visible');
+      cy.get(appFrontend.nextButton).should('be.visible');
+      cy.get('button#toNextTask').should('be.visible');
+    });
+
+    // Check that the buttons are moved inside the error paper
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.errorReport).within(() => {
+      cy.get('#form-content-button-group-1').within(() => {
+        cy.get(appFrontend.printButton).should('be.visible');
+        cy.get(appFrontend.nextButton).should('be.visible');
+        cy.get('button#toNextTask').should('be.visible');
+      });
+    });
   });
 });

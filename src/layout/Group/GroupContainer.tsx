@@ -12,21 +12,21 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
+import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { Triggers } from 'src/types';
 import { getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { IRuntimeState } from 'src/types';
+import type { HRepGroup } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export interface IGroupProps {
-  id: string;
+  node: LayoutNode<HRepGroup, 'Group'>;
 }
 
-const getValidationMethod = (node: LayoutNode | undefined) => {
+const getValidationMethod = (node: LayoutNode) => {
   // Validation for whole group takes precedent over single-row validation if both are present.
-  const triggers = node?.item.triggers;
+  const triggers = node.item.triggers;
   if (triggers && triggers.includes(Triggers.Validation)) {
     return Triggers.Validation;
   }
@@ -35,34 +35,24 @@ const getValidationMethod = (node: LayoutNode | undefined) => {
   }
 };
 
-export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
+export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
-  const node = useResolvedNode(id);
-  const resolvedTextBindings = node?.item.textResourceBindings;
-  const edit = node?.isType('Group') ? node.item.edit : undefined;
-  const isLoading = useAppSelector(
-    (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.isLoading,
+  const { triggerFocus } = useRepeatingGroupsFocusContext();
+  const resolvedTextBindings = node.item.textResourceBindings;
+  const id = node.item.id;
+  const edit = node.item.edit;
+  const groupState = useAppSelector(
+    (state) => state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id],
   );
-
-  const editIndex = useAppSelector(
-    (state: IRuntimeState) =>
-      (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.editIndex) ?? -1,
-  );
-  const deletingIndexes = useAppSelector(
-    (state: IRuntimeState) =>
-      (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.deletingIndex) ?? [],
-  );
-  const multiPageIndex = useAppSelector(
-    (state: IRuntimeState) =>
-      (state.formLayout.uiConfig.repeatingGroups && state.formLayout.uiConfig.repeatingGroups[id]?.multiPageIndex) ??
-      -1,
-  );
+  const isLoading = groupState?.isLoading;
+  const editIndex = groupState?.editIndex ?? -1;
+  const deletingIndexes = groupState?.deletingIndex ?? [];
+  const multiPageIndex = groupState?.multiPageIndex ?? -1;
+  const repeatingGroupIndex = groupState?.index ?? -1;
 
   const language = useAppSelector((state) => state.language.language);
-  const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const formData = useAppSelector((state) => state.formData.formData);
   const textResources = useAppSelector((state) => state.textResources.resources);
-  const repeatingGroupIndex = repeatingGroups && repeatingGroups[id] ? repeatingGroups[id].index : -1;
 
   const filteredIndexList = React.useMemo(
     () => getRepeatingGroupFilteredIndices(formData, edit?.filter),
@@ -111,7 +101,7 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     if (!edit?.alwaysShowAddButton || edit?.mode === 'showAll') {
       dispatch(FormLayoutActions.updateRepeatingGroups({ layoutElementId: id }));
     }
-    if (edit?.mode !== 'showAll') {
+    if (edit?.mode !== 'showAll' && edit?.mode !== 'onlyTable') {
       dispatch(
         FormLayoutActions.updateRepeatingGroupsEditIndex({
           group: id,
@@ -122,7 +112,9 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
       );
       setMultiPageIndex(0);
     }
-  }, [dispatch, id, edit?.mode, edit?.alwaysShowAddButton, node, repeatingGroupIndex, setMultiPageIndex]);
+
+    triggerFocus(repeatingGroupIndex + 1);
+  }, [dispatch, id, edit?.mode, edit?.alwaysShowAddButton, node, repeatingGroupIndex, setMultiPageIndex, triggerFocus]);
 
   useEffect(() => {
     if (edit?.openByDefault && repeatingGroupIndex === -1) {
@@ -166,18 +158,14 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
     }
   };
 
-  if (!repeatingGroups || !node || node.isHidden() || node.item.type !== 'Group') {
+  if (!groupState || node.isHidden() || node.item.type !== 'Group') {
     return null;
   }
 
-  const isNested = typeof node?.item.baseComponentId === 'string';
+  const isNested = typeof node.item.baseComponentId === 'string';
 
   if (edit?.mode === 'likert') {
-    return (
-      <>
-        <RepeatingGroupsLikertContainer id={id} />
-      </>
-    );
+    return <RepeatingGroupsLikertContainer id={id} />;
   }
 
   const displayBtn =
@@ -192,7 +180,10 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
       item={true}
       data-componentid={node.item.baseComponentId ?? node.item.id}
     >
-      {(!edit?.mode || edit?.mode === 'showTable' || (edit?.mode === 'hideTable' && editIndex < 0)) && (
+      {(!edit?.mode ||
+        edit?.mode === 'showTable' ||
+        edit?.mode === 'onlyTable' ||
+        (edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
           editIndex={editIndex}
           id={id}
@@ -203,6 +194,8 @@ export function GroupContainer({ id }: IGroupProps): JSX.Element | null {
           setMultiPageIndex={setMultiPageIndex}
           multiPageIndex={multiPageIndex}
           filteredIndexes={filteredIndexList}
+          rowsBefore={node.item.rowsBefore}
+          rowsAfter={node.item.rowsAfter}
         />
       )}
       {edit?.mode !== 'showAll' && displayBtn && <AddButton />}

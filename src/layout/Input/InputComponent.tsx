@@ -10,7 +10,14 @@ import type { IInputFormatting } from 'src/layout/layout';
 
 export type IInputProps = PropsFromGenericComponent<'Input'>;
 
-export function InputComponent({ node, isValid, formData, handleDataChange }: IInputProps) {
+export function InputComponent({
+  node,
+  isValid,
+  formData,
+  handleDataChange,
+  overrideDisplay,
+  getTextResourceAsString,
+}: IInputProps) {
   const { id, readOnly, required, formatting, variant, textResourceBindings, saveWhileTyping, autocomplete } =
     node.item;
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
@@ -20,6 +27,9 @@ export function InputComponent({ node, isValid, formData, handleDataChange }: II
   );
   const reactNumberFormatConfig = useMapToReactNumberConfig(value, formatting as IInputFormatting);
   const handleChange = (e) => setValue(e.target.value);
+
+  const ariaLabel =
+    overrideDisplay?.renderedInTable === true ? getTextResourceAsString(textResourceBindings?.title) : undefined;
 
   return (
     <>
@@ -31,6 +41,7 @@ export function InputComponent({ node, isValid, formData, handleDataChange }: II
           onBlur={saveValue}
           onPaste={onPaste}
           disabled={readOnly}
+          aria-label={ariaLabel}
           aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
         ></SearchField>
       ) : (
@@ -43,6 +54,7 @@ export function InputComponent({ node, isValid, formData, handleDataChange }: II
           isValid={isValid}
           required={required}
           value={value}
+          aria-label={ariaLabel}
           aria-describedby={textResourceBindings?.description ? `description-${id}` : undefined}
           formatting={reactNumberFormatConfig}
           autoComplete={autocomplete}

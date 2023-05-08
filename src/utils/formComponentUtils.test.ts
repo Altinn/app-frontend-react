@@ -18,6 +18,7 @@ import {
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { ITextResource } from 'src/types';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 describe('formComponentUtils', () => {
   const mockTextResources: ITextResource[] = [
@@ -255,6 +256,8 @@ describe('formComponentUtils', () => {
       { input: 'SaaB', expected: 'SaaB' },
       { input: 'S.a.a.B', expected: 'S.a.a.B' },
       { input: '¿Cómo te llamas?', expected: '¿cómo te llamas?' },
+      { input: undefined, expected: undefined },
+      { input: '', expected: '' },
     ])('Should convert $input to $expected', ({ input, expected }) => {
       expect(smartLowerCaseFirst(input)).toEqual(expected);
     });
@@ -390,15 +393,15 @@ describe('formComponentUtils', () => {
   });
   describe('getColumnStylesRepeatingGroups', () => {
     it('should return undefined if columnSettings does not contain specified baseComponentId', () => {
-      const tableHeader = { baseComponentId: 'headerName1' };
+      const tableItem = { baseComponentId: 'headerName1' } as AnyItem;
       const columnSettings = { headerName2: { width: '100px' } };
-      expect(getColumnStylesRepeatingGroups(tableHeader, columnSettings)).toBeUndefined();
+      expect(getColumnStylesRepeatingGroups(tableItem, columnSettings)).toBeUndefined();
     });
 
     it('should set textAlignment to alignText property of columnSettings if present', () => {
-      const tableHeader = { baseComponentId: 'headerName1' };
+      const tableItem = { baseComponentId: 'headerName1' } as AnyItem;
       const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px', alignText: 'center' } };
-      const columnStyles = getColumnStylesRepeatingGroups(tableHeader, columnSettings);
+      const columnStyles = getColumnStylesRepeatingGroups(tableItem, columnSettings);
       expect(columnStyles).toEqual({
         '--cell-max-number-of-lines': 2,
         '--cell-text-alignment': 'center',
@@ -407,13 +410,14 @@ describe('formComponentUtils', () => {
     });
 
     it('should set textAlignment to getTextAlignment(tableHeader) if alignText is not present in columnSettings', () => {
-      const tableHeader = {
+      const tableItem: AnyItem = {
         baseComponentId: 'headerName1',
+        id: 'headerName1',
         type: 'Input',
-        formatting: { number: true },
+        formatting: { number: {} },
       };
       const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px' } };
-      const columnStyles = getColumnStylesRepeatingGroups(tableHeader, columnSettings);
+      const columnStyles = getColumnStylesRepeatingGroups(tableItem, columnSettings);
       expect(columnStyles).toEqual({
         '--cell-max-number-of-lines': 2,
         '--cell-text-alignment': 'right',
@@ -422,9 +426,9 @@ describe('formComponentUtils', () => {
     });
 
     it('should return columnStyles object if columnSettings is provided and contains specified baseComponentId', () => {
-      const tableHeader = { baseComponentId: 'headerName1' };
+      const tableItem = { baseComponentId: 'headerName1' } as AnyItem;
       const columnSettings: ITableColumnFormatting = { headerName1: { width: '100px' } };
-      const columnStyles = getColumnStylesRepeatingGroups(tableHeader, columnSettings);
+      const columnStyles = getColumnStylesRepeatingGroups(tableItem, columnSettings);
       expect(columnStyles).toBeDefined();
     });
   });

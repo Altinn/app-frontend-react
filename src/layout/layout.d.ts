@@ -2,15 +2,18 @@ import type { TextField } from '@digdir/design-system-react';
 import type { GridSize } from '@material-ui/core';
 
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
+import type { ILayoutCompActionButton } from 'src/layout/ActionButton/types';
 import type { IDataModelBindingsForAddress, ILayoutCompAddress } from 'src/layout/Address/types';
 import type { ILayoutCompAttachmentList } from 'src/layout/AttachmentList/types';
 import type { ILayoutCompButton } from 'src/layout/Button/types';
+import type { ILayoutCompButtonGroup } from 'src/layout/ButtonGroup/types';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
 import type { ILayoutCompCustom } from 'src/layout/Custom/types';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutCompDropdown } from 'src/layout/Dropdown/types';
 import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
 import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
+import type { ILayoutCompGrid } from 'src/layout/Grid/types';
 import type { IDataModelBindingsForGroup, ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompHeader } from 'src/layout/Header/types';
 import type { ILayoutCompImage } from 'src/layout/Image/types';
@@ -54,6 +57,7 @@ export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> extends
 export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes> extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings;
   readOnly?: ExprVal.Boolean;
+  renderAsSummary?: ExprVal.Boolean;
   required?: ExprVal.Boolean;
   hidden?: ExprVal.Boolean;
   textResourceBindings?: ITextResourceBindings;
@@ -101,8 +105,8 @@ export interface IInputFormatting {
   align?: 'right' | 'center' | 'left';
 }
 
-export interface ITableColumnFormatting {
-  [key: string]: ITableColumnProperties;
+export interface ITableColumnFormatting<T extends ITableColumnProperties = ITableColumnProperties> {
+  [key: string]: T;
 }
 
 export interface ITableColumnProperties {
@@ -120,15 +124,18 @@ export interface ITableColumnProperties {
  * type (ex. ILayoutCompTextArea), or ILayoutComponent<'TextArea'>.
  */
 interface Map {
+  ActionButton: ILayoutCompActionButton;
   AddressComponent: ILayoutCompAddress;
   AttachmentList: ILayoutCompAttachmentList;
   Button: ILayoutCompButton;
+  ButtonGroup: ILayoutCompButtonGroup;
   Checkboxes: ILayoutCompCheckboxes;
   Custom: ILayoutCompCustom;
   Datepicker: ILayoutCompDatepicker;
   Dropdown: ILayoutCompDropdown;
   FileUpload: ILayoutCompFileUpload;
   FileUploadWithTag: ILayoutCompFileUploadWithTag;
+  Grid: ILayoutCompGrid;
   Group: ILayoutGroup;
   Header: ILayoutCompHeader;
   Image: ILayoutCompImage;

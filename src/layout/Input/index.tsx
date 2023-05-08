@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { formatNumericText } from '@altinn/altinn-design-system';
+import { formatNumericText } from '@digdir/design-system-react';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';

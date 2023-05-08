@@ -9,6 +9,7 @@ import classes from 'src/layout/Button/ButtonComponent.module.css';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SaveButton } from 'src/layout/Button/SaveButton';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IAltinnWindow } from 'src/types';
 import type { HComponent } from 'src/utils/layout/hierarchy.types';
@@ -26,7 +27,19 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const autoSave = useAppSelector((state) => state.formLayout.uiConfig.autoSave);
   const submittingId = useAppSelector((state) => state.formData.submittingId);
   const savingId = useAppSelector((state) => state.formData.savingId);
+  const confirmingId = useAppSelector((state) => state.process.completingId);
   const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process.currentTask?.altinnTaskType);
+  const processActionsFeature = useAppSelector(
+    (state) => state.applicationMetadata.applicationMetadata?.features?.processActions,
+  );
+  const { actions, write } = useAppSelector((state) => state.process);
+
+  const disabled =
+    processActionsFeature &&
+    ((currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm));
+
+  const parentIsPage = node.parent instanceof LayoutPage;
+
   if (mode && !(mode === 'save' || mode === 'submit')) {
     const GenericButton = getComponentFromMode(mode);
     if (!GenericButton) {
@@ -34,10 +47,11 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     }
 
     return (
-      <div className={classes['button-group']}>
-        <div className={classes['button-row']}>
-          <GenericButton {...props}>{props.text}</GenericButton>
-        </div>
+      <div
+        className={classes.container}
+        style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
+      >
+        <GenericButton {...props}>{props.text}</GenericButton>
       </div>
     );
   }
@@ -46,29 +60,37 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   };
 
   const submitTask = ({ componentId }: { componentId: string }) => {
-    const { org, app, instanceId } = window as Window as IAltinnWindow;
-    if (currentTaskType === 'data') {
-      dispatch(
-        FormDataActions.submit({
-          url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
-          apiMode: 'Complete',
-          stopWithWarnings: false,
-          componentId,
-        }),
-      );
-    } else {
-      dispatch(ProcessActions.complete());
+    if (!disabled) {
+      const { org, app, instanceId } = window as Window as IAltinnWindow;
+      if (currentTaskType === 'data') {
+        dispatch(
+          FormDataActions.submit({
+            url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
+            apiMode: 'Complete',
+            stopWithWarnings: false,
+            componentId,
+          }),
+        );
+      } else if (currentTaskType === 'confirmation' && processActionsFeature) {
+        dispatch(ProcessActions.complete({ componentId, action: 'confirm' }));
+      } else {
+        dispatch(ProcessActions.complete({ componentId }));
+      }
     }
   };
-  const busyWithId = savingId || submittingId || '';
+  const busyWithId = savingId || submittingId || confirmingId || '';
   return (
-    <div className={classes['button-group']}>
+    <div
+      className={classes.container}
+      style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
+    >
       {autoSave === false && ( // can this be removed from the component?
         <SaveButton
           onClick={saveFormData}
           id='saveBtn'
           busyWithId={busyWithId}
           language={props.language}
+          disabled={disabled}
         >
           {getLanguageFromKey('general.save', props.language)}
         </SaveButton>
@@ -78,6 +100,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
         id={id}
         language={props.language}
         busyWithId={busyWithId}
+        disabled={disabled}
       >
         {props.text}
       </SubmitButton>

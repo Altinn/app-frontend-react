@@ -7,6 +7,7 @@ import { getProcessStateSaga } from 'src/features/process/getProcessStateSagas';
 import { getTasksSaga } from 'src/features/process/getTasksSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type {
+  ICompleteProcess,
   ICompleteProcessFulfilled,
   ICompleteProcessRejected,
   IGetProcessStateFulfilled,
@@ -20,14 +21,22 @@ const initialState: IProcessState = {
   taskType: null,
   error: null,
   taskId: undefined,
+  read: null,
+  write: null,
+  actions: null,
+  completingId: null,
 };
 
 const genericFulfilledReducer = (
   state: WritableDraft<IProcessState>,
   action: PayloadAction<IGetProcessStateFulfilled>,
 ) => {
-  state.taskType = action.payload.processStep;
-  state.taskId = action.payload.taskId;
+  const { taskType, taskId, read, write, actions } = action.payload;
+  state.taskType = taskType;
+  state.taskId = taskId;
+  state.read = read;
+  state.write = write;
+  state.actions = actions;
   state.error = null;
 };
 
@@ -63,16 +72,23 @@ export const processSlice = () => {
           state.error = action.payload.error;
         },
       }),
-      complete: mkAction<ICompleteProcessFulfilled | undefined>({
+      complete: mkAction<ICompleteProcess | undefined>({
         takeLatest: completeProcessSaga,
+        reducer: (state, action) => {
+          state.completingId = action.payload?.componentId ?? null;
+        },
       }),
       completeFulfilled: mkAction<ICompleteProcessFulfilled>({
         takeLatest: getTasksSaga,
-        reducer: genericFulfilledReducer,
+        reducer: (state, action) => {
+          genericFulfilledReducer(state, action);
+          state.completingId = null;
+        },
       }),
       completeRejected: mkAction<ICompleteProcessRejected>({
         reducer: (state, action) => {
           state.error = action.payload.error;
+          state.completingId = null;
         },
       }),
       checkIfUpdated: mkAction<void>({

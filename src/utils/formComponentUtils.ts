@@ -168,6 +168,9 @@ export function getFieldName(
  * Un-uppercase the first letter of a string
  */
 export function lowerCaseFirst(text: string, firstLetterIndex = 0): string {
+  if (text.length <= firstLetterIndex) {
+    return text;
+  }
   if (firstLetterIndex > 0) {
     return (
       text.substring(0, firstLetterIndex) + text[firstLetterIndex].toLowerCase() + text.substring(firstLetterIndex + 1)
@@ -183,6 +186,10 @@ export function lowerCaseFirst(text: string, firstLetterIndex = 0): string {
 export function smartLowerCaseFirst(text: string | undefined): string | undefined {
   if (text === undefined) {
     return undefined;
+  }
+
+  if (text.length === 0) {
+    return text;
   }
 
   const uc = text.toUpperCase();
@@ -260,14 +267,13 @@ export function getTextAlignment(component: AnyItem): 'left' | 'center' | 'right
   return 'left';
 }
 
-export function getColumnStylesRepeatingGroups(tableHeader, columnSettings: ITableColumnFormatting) {
-  const column = columnSettings && columnSettings[tableHeader.baseComponentId];
+export function getColumnStylesRepeatingGroups(tableItem: AnyItem, columnSettings: ITableColumnFormatting | undefined) {
+  const column = columnSettings && columnSettings[tableItem.baseComponentId || tableItem.id];
   if (!column) {
     return;
   }
 
-  const textAlignment = column.alignText ?? getTextAlignment(tableHeader);
-  column.alignText = textAlignment;
+  column.alignText = column.alignText ?? getTextAlignment(tableItem);
 
   return getColumnStyles(column);
 }
@@ -276,10 +282,19 @@ export function getColumnStyles(columnSettings: ITableColumnProperties) {
   const lineClampToggle =
     columnSettings.textOverflow?.lineWrap || columnSettings.textOverflow?.lineWrap === undefined ? 1 : 0;
 
+  let width: string | number | undefined = columnSettings.width ?? 'auto';
+  const widthPercentage = Number(width.substring(0, width.length - 1));
+  if (width.charAt(width.length - 1) === '%' && widthPercentage) {
+    // 16.3% of the tables width is dedicated to padding. Therefore we need multiply every configured
+    // width with 0.837 in order to allow the user to specify column widths that sum up to 100% without
+    // the total width exceeding 100% of the tables width in css.
+    width = `${widthPercentage * 0.837}%`;
+  }
+
   const columnStyleVariables = {
     '--cell-max-number-of-lines': (columnSettings.textOverflow?.maxHeight ?? 2) * lineClampToggle,
     '--cell-text-alignment': columnSettings.alignText,
-    '--cell-width': columnSettings.width,
+    '--cell-width': width,
   };
 
   return columnStyleVariables as React.CSSProperties;

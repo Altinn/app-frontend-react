@@ -9,7 +9,15 @@ export class NavigationButtons extends ActionComponent<'NavigationButtons'> {
     return <NavigationButtonsComponent {...props} />;
   }
 
+  canRenderInButtonGroup(): boolean {
+    return true;
+  }
+
   renderWithLabel(): boolean {
+    return false;
+  }
+
+  canRenderInTable(): boolean {
     return false;
   }
 }
