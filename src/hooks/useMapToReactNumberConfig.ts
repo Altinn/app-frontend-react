@@ -4,10 +4,10 @@ import { formatNumber } from 'src/utils/formattingUtils';
 import type { IInputFormatting } from 'src/layout/layout';
 import type { CurrencyFormattingOptions, UnitFormattingOptions } from 'src/utils/formattingUtils';
 
-export const useMapToReactNumberConfig = (value: string | undefined, formatting: IInputFormatting) => {
+export const useMapToReactNumberConfig = (value = '', formatting: IInputFormatting) => {
   const appLanguage = useAppSelector(appLanguageStateSelector);
 
-  if ((!formatting?.currency && !formatting?.unit) || !value) {
+  if (!formatting?.currency && !formatting?.unit) {
     return formatting;
   }
 
