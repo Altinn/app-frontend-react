@@ -20,12 +20,12 @@ export function useOptionList(component: ISelectionComponent): IOption[] {
     return options[key]?.options || [];
   }
   if (component.source) {
-    const relevantTextResource = textResources.find((e) => e.id === component.source?.label);
+    const relevantTextResourceLabel = textResources.find((e) => e.id === component.source?.label);
     const reduxOptions =
-      relevantTextResource &&
+      relevantTextResourceLabel &&
       setupSourceOptions({
         source: component.source,
-        relevantTextResource,
+        relevantTextResources: { label: relevantTextResourceLabel },
         relevantFormData: getRelevantFormDataForOptionSource(formData, component.source),
         repeatingGroups,
         dataSources: {
