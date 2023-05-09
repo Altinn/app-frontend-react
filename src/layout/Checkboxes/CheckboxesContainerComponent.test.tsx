@@ -361,11 +361,15 @@ describe('CheckboxContainerComponent', () => {
     expect(screen.getByText('Description: The value from the group is: Label for first')).toBeInTheDocument();
     expect(screen.getByText('Description: The value from the group is: Label for second')).toBeInTheDocument();
 
- await user.click(screen.getByRole('button', { name: 'Help text for The value from the group is: Label for first' }))
- expect(screen.getByText('Help Text: The value from the group is: Label for first')).toBeInTheDocument();
-  
- await user.click(screen.getByRole('button', { name: 'Help text for The value from the group is: Label for second' }));
- expect(screen.getByText('Help Text: The value from the group is: Label for second')).toBeInTheDocument();
+    await act(() =>
+      user.click(screen.getByRole('button', { name: 'Help text for The value from the group is: Label for first' })),
+    );
+    expect(screen.getByText('Help Text: The value from the group is: Label for first')).toBeInTheDocument();
+
+    await act(() =>
+      user.click(screen.getByRole('button', { name: 'Help text for The value from the group is: Label for second' })),
+    );
+    expect(screen.getByText('Help Text: The value from the group is: Label for second')).toBeInTheDocument();
 
     await act(() => user.click(getCheckbox({ name: 'The value from the group is: Label for second' })));
 
