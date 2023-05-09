@@ -66,42 +66,42 @@ describe('Formatting', () => {
       cy.get(appFrontend.group.currentValue).type('10000');
       if (dynamicFormatting.valuta && dynamicFormatting.position === 'prefix') {
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('kr 10 000');
-        changeLang();
+        changeToEnglishLang();
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('NOK 10,000');
         cy.get(appFrontend.group.saveMainGroup).click();
         cy.findByText('NOK 10,000');
       }
       if (dynamicFormatting.valuta && dynamicFormatting.position === 'suffix') {
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('10 000 kr');
-        changeLang();
+        changeToEnglishLang();
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('10,000 NOK');
         cy.get(appFrontend.group.saveMainGroup).click();
         cy.findByText('10,000 NOK');
       }
       if (dynamicFormatting.valuta && !dynamicFormatting.position) {
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('kr 10 000');
-        changeLang();
+        changeToEnglishLang();
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('NOK 10,000');
         cy.get(appFrontend.group.saveMainGroup).click();
         cy.findByText('NOK 10,000');
       }
       if (dynamicFormatting.unitType && dynamicFormatting.position === 'prefix') {
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('kg 10 000');
-        changeLang();
+        changeToEnglishLang();
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('kg 10,000');
         cy.get(appFrontend.group.saveMainGroup).click();
         cy.findByText('kg 10,000');
       }
       if (dynamicFormatting.unitType && !dynamicFormatting.position) {
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('10 000 kg');
-        changeLang();
+        changeToEnglishLang();
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('10,000 kg');
         cy.get(appFrontend.group.saveMainGroup).click();
         cy.findByText('10,000 kg');
       }
       if (dynamicFormatting.number) {
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('SEK 10 000');
-        changeLang();
+        changeToEnglishLang();
         cy.get(appFrontend.group.currentValue).assertTextWithoutWhiteSpaces('SEK 10,000');
         cy.get(appFrontend.group.saveMainGroup).click();
         cy.findByText('SEK 10,000');
