@@ -41,7 +41,7 @@ describe('Formatting', () => {
       cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
       cy.get(appFrontend.group.addNewItem).click();
     };
-    const changeToEnglishLang= () => {
+    const changeToEnglishLang = () => {
       cy.findByRole('combobox', { name: 'Språk' }).click();
       cy.findByRole('option', { name: 'Engelsk' }).click();
     };
