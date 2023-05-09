@@ -25,7 +25,7 @@ export function InputComponent({
     formData?.simpleBinding ?? '',
     saveWhileTyping,
   );
-  const reactNumberFormatConfig = useMapToReactNumberConfig(value, formatting as IInputFormatting);
+  const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting, value);
   const handleChange = (e) => setValue(e.target.value);
 
   const ariaLabel =

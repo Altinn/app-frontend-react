@@ -3,7 +3,7 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 const appFrontend = new AppFrontend();
 
 describe('Formatting', () => {
-  it.skip('Number formatting', () => {
+  it('Number formatting', () => {
     cy.goto('changename');
     cy.get('#form-content-newFirstName').siblings().should('have.class', 'MuiGrid-grid-md-6');
     cy.get('#form-content-newFirstName')
@@ -44,6 +44,7 @@ describe('Formatting', () => {
     it('Dynamic number formatting', () => {
       cy.interceptLayout('group', (component) => {
         if (component.type === 'Input' && component.formatting) {
+          delete component.formatting.number;
           if (dynamicFormatting.valuta) {
             component.formatting.currency = dynamicFormatting;
           }

@@ -32,7 +32,7 @@ export const formatNumber = (
     return defaultFormat;
   }
 
-  const intlFormatting = new Intl.NumberFormat(locale || 'nb', options).formatToParts(parseFloat(number));
+  const intlFormatting = new Intl.NumberFormat(locale ?? 'nb', options).formatToParts(parseFloat(number));
   const intlResult = defaultFormat;
 
   intlFormatting.forEach((part) => {

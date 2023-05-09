@@ -25,7 +25,7 @@ export class Input extends FormComponent<'Input'> {
 
     const text = formData[node.item.dataModelBindings.simpleBinding] || '';
 
-    const numberFormatting = useMapToReactNumberConfig(text, node.item.formatting as IInputFormatting);
+    const numberFormatting = useMapToReactNumberConfig(node.item.formatting as IInputFormatting, text);
 
     if (numberFormatting?.number) {
       return formatNumericText(text, numberFormatting.number);
