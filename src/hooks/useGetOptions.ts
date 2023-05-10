@@ -26,11 +26,13 @@ export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsPara
   );
   const instance = useAppSelector((state) => state.instanceData.instance);
   const relevantTextResources: IOptionResources = useAppSelector((state) => {
+    const { label, description, helpText } = source || {};
     const resources = state.textResources.resources;
+    const findResourceById = (id?: string) => resources.find((resource) => resource.id === id);
     return {
-      label: source && resources.find((e) => e.id === source.label),
-      description: source && resources.find((e) => e.id === source.description),
-      helpText: source && resources.find((e) => e.id === source.helpText),
+      label: findResourceById(label),
+      description: findResourceById(description),
+      helpText: findResourceById(helpText),
     };
   }, shallowEqual);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);

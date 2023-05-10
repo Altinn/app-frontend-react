@@ -143,8 +143,8 @@ export function setupSourceOptions({
       const option: IOption = {
         value: replaceOptionDataField(relevantFormData, source.value, i),
         label: replacedOptionLabels[i + 1].value,
-        description: replacedOptionDescriptions[i + 1]?.value ?? undefined,
-        helpText: replacedOptionLabelsHelpTexts[i + 1]?.value ?? undefined,
+        description: replacedOptionDescriptions[i + 1]?.value,
+        helpText: replacedOptionLabelsHelpTexts[i + 1]?.value,
       };
       options.push(option);
     }

@@ -20,7 +20,9 @@ export function useOptionList(component: ISelectionComponent): IOption[] {
     return options[key]?.options || [];
   }
   if (component.source) {
-    const relevantTextResourceLabel = textResources.find((resourceLabel) => resourceLabel.id === component.source?.label);
+    const relevantTextResourceLabel = textResources.find(
+      (resourceLabel) => resourceLabel.id === component.source?.label,
+    );
     const reduxOptions =
       relevantTextResourceLabel &&
       setupSourceOptions({
