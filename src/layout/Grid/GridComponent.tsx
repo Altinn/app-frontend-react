@@ -12,11 +12,11 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { node } = props;
@@ -24,6 +24,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useMediaQuery('(max-width:768px)');
+  const isNested = node.parent instanceof LayoutNode;
 
   if (isMobile) {
     return <MobileGrid {...props} />;
@@ -39,6 +40,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
           <GridRowRenderer
             key={rowIdx}
             row={row}
+            isNested={isNested}
             mutableColumnSettings={columnSettings}
           />
         ))}
@@ -49,10 +51,11 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
 
 interface GridRowProps {
   row: GridRow<GridComponent>;
+  isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
 }
 
-export function GridRowRenderer({ row, mutableColumnSettings }: GridRowProps) {
+export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps) {
   const { lang } = useLanguage();
 
   return isGridRowHidden(row) ? null : (
@@ -64,8 +67,8 @@ export function GridRowRenderer({ row, mutableColumnSettings }: GridRowProps) {
         const isFirst = cellIdx === 0;
         const isLast = cellIdx === row.cells.length - 1;
         const className = cn({
-          [css.fullWidthCellFirst]: isFirst,
-          [css.fullWidthCellLast]: isLast,
+          [css.fullWidthCellFirst]: isFirst && !isNested,
+          [css.fullWidthCellLast]: isLast && !isNested,
         });
 
         if (row.header && cell && 'columnOptions' in cell && cell.columnOptions) {
