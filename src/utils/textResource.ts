@@ -2,6 +2,10 @@ import { getParsedLanguageFromKey, getParsedLanguageFromText, getTextResourceByK
 import type { ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
+/**
+ * @deprecated Use lang() or langAsString() from useLanguage.ts instead
+ * @see useLanguage
+ */
 export function getTextFromAppOrDefault(
   key: string,
   textResources: ITextResource[],

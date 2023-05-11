@@ -23,33 +23,48 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   }
 });
 
-export function getLanguageFromKey(key: string | undefined, language: ILanguage) {
+/**
+ * @deprecated Use lang() from useLanguage.ts instead
+ * @see useLanguage
+ */
+export function getLanguageFromKey(key: string | undefined, language: ILanguage | null) {
   if (!key) {
     return key;
   }
-  const name = getNestedObject(language, key.split('.'));
+  const name = language ? getNestedObject(language, key.split('.')) : undefined;
   if (!name) {
     return key;
   }
   return name;
 }
 
-export function getNestedObject(nestedObj: any, pathArr: string[]) {
+function getNestedObject(nestedObj: any, pathArr: string[]) {
   return pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined), nestedObj);
 }
 
+export type LangParams = (string | undefined | number)[];
+
 // Example: {getParsedLanguageFromKey('marked.markdown', language, ['hei', 'sann'])}
+/**
+ * @deprecated Use lang() from useLanguage.ts instead
+ * @see useLanguage
+ */
 export function getParsedLanguageFromKey(
-  key: string,
-  language: ILanguage,
-  params?: any[],
+  key: string | undefined,
+  language: ILanguage | null,
+  params?: LangParams,
   stringOutput?: false,
-): JSX.Element;
-export function getParsedLanguageFromKey(key: string, language: ILanguage, params?: any[], stringOutput?: true): string;
+): JSX.Element | null;
 export function getParsedLanguageFromKey(
-  key: string,
-  language: ILanguage,
-  params?: any[],
+  key: string | undefined,
+  language: ILanguage | null,
+  params?: LangParams,
+  stringOutput?: true,
+): string;
+export function getParsedLanguageFromKey(
+  key: string | undefined,
+  language: ILanguage | null,
+  params?: LangParams,
   stringOutput?: boolean,
 ): any {
   const name = getLanguageFromKey(key, language);
@@ -103,17 +118,23 @@ const replaceRootTag = (domNode: any) => {
   }
 };
 
-const replaceParameters = (nameString: string | undefined, params: string[]) => {
+const replaceParameters = (nameString: string | undefined, params: LangParams) => {
   if (nameString === undefined) {
     return nameString;
   }
   let mutatingString = nameString;
-  params.forEach((param: string, index: number) => {
-    mutatingString = mutatingString.replaceAll(`{${index}}`, param);
+  params.forEach((param, index: number) => {
+    if (param !== undefined) {
+      mutatingString = mutatingString.replaceAll(`{${index}}`, `${param}`);
+    }
   });
   return mutatingString;
 };
 
+/**
+ * @deprecated Use lang() from useLanguage.ts instead
+ * @see useLanguage
+ */
 export function getTextResourceByKey<T extends string | undefined>(
   key: T,
   textResources: ITextResource[] | null,

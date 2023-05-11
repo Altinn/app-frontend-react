@@ -7,8 +7,7 @@ import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getTextResourceByKey } from 'src/language/sharedLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
@@ -54,7 +53,7 @@ interface GridRowProps {
 }
 
 export function GridRowRenderer({ row, mutableColumnSettings }: GridRowProps) {
-  const textResources = useAppSelector((state) => state.textResources.resources);
+  const { lang } = useLanguage();
 
   return isGridRowHidden(row) ? null : (
     <InternalRow
@@ -85,7 +84,7 @@ export function GridRowRenderer({ row, mutableColumnSettings }: GridRowProps) {
               className={className}
               columnStyleOptions={textCellSettings}
             >
-              {getTextResourceByKey(cell.text, textResources)}
+              {lang(cell.text)}
             </CellWithText>
           );
         }
