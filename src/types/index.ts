@@ -71,6 +71,7 @@ export interface IPagesSettings {
   showExpandWidthButton?: boolean;
   excludeFromPdf?: string[];
   pdfLayoutName?: string;
+  autoSaveBehavior?: 'onChangePage' | 'onChangeFormData';
 }
 
 export interface IComponentsSettings {
@@ -175,6 +176,7 @@ export interface IHiddenLayoutsExpressions {
 
 export interface IUiConfig {
   autoSave: boolean | null | undefined;
+  autoSaveBehavior?: 'onChangePage' | 'onChangeFormData';
   receiptLayoutName?: string;
   currentView: string;
   currentViewCacheKey?: string;

@@ -112,7 +112,7 @@ export const formDataSlice = () => {
           } else {
             state.formData[field] = data;
           }
-          if (!skipAutoSave) {
+          if (skipAutoSave) {
             state.unsavedChanges = true;
           }
         },

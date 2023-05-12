@@ -330,7 +330,7 @@ export function* autoSaveSaga({
   const applicationMetadata: IApplicationMetadata = yield select(getApplicationMetaData);
 
   // undefined should default to auto save
-  const shouldAutoSave = uiConfig.autoSave !== false;
+  const shouldAutoSave = uiConfig.autoSaveBehavior === 'onChangeFormData' && uiConfig.autoSave !== false;
 
   if (shouldAutoSave) {
     if (isStatelessApp(applicationMetadata)) {

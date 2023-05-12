@@ -6,6 +6,7 @@ import type { SagaIterator } from 'redux-saga';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { putFormData } from 'src/features/formData/submit/submitFormDataSagas';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
@@ -67,6 +68,8 @@ import type {
   IOptions,
   IRepeatingGroups,
   IRuntimeState,
+  IRuntimeStore,
+  IUiConfig,
   IValidationIssue,
   IValidations,
 } from 'src/types';
@@ -279,13 +282,21 @@ export function* updateRepeatingGroupsSaga({
   }
 }
 
+const UIConfigSelector: (store: IRuntimeStore) => IUiConfig = (store: IRuntimeStore) => store.formLayout.uiConfig;
+
 export function* updateCurrentViewSaga({
   payload: { newView, runValidations, returnToView, skipPageCaching, keepScrollPos, focusComponentId },
 }: PayloadAction<IUpdateCurrentView>): SagaIterator {
   try {
-    // When triggering navigation to the next page, we need to make sure there are no unsaved changes. The action to
-    // save it should be triggered elsewhere, but we should wait until the state settles before navigating.
-    yield waitFor((state) => !state.formData.unsavedChanges);
+    const uiConfig: IUiConfig = yield select(UIConfigSelector);
+
+    if (uiConfig.autoSaveBehavior === 'onChangePage') {
+      yield call(putFormData, {});
+    } else {
+      // When triggering navigation to the next page, we need to make sure there are no unsaved changes. The action to
+      // save it should be triggered elsewhere, but we should wait until the state settles before navigating.
+      yield waitFor((state) => !state.formData.unsavedChanges);
+    }
 
     const state: IRuntimeState = yield select();
     const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
