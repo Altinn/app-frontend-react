@@ -27,19 +27,37 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
  * @deprecated Use lang() from useLanguage.ts instead
  * @see useLanguage
  */
-export function getLanguageFromKey(key: string | undefined, language: ILanguage | null) {
-  if (!key) {
+export function getLanguageFromKey<T extends string | undefined>(
+  key: T,
+  language: ILanguage | null,
+  allowObject: true,
+): string | T | ILanguage;
+export function getLanguageFromKey<T extends string | undefined>(key: T, language: ILanguage | null): string | T;
+export function getLanguageFromKey<T extends string | undefined>(
+  key: T,
+  language: ILanguage | null,
+  allowObject = false,
+) {
+  if (!key || !language) {
     return key;
   }
-  const name = language ? getNestedObject(language, key.split('.')) : undefined;
-  if (!name) {
+  const path = key.split('.');
+  const value = allowObject ? getNestedObject(language, path, true) : getNestedObject(language, path, false);
+  if (!value) {
     return key;
   }
-  return name;
+  return value;
 }
 
-function getNestedObject(nestedObj: any, pathArr: string[]) {
-  return pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined), nestedObj);
+function getNestedObject(nestedObj: ILanguage, pathArr: string[], allowObject: true): string | ILanguage;
+function getNestedObject(nestedObj: ILanguage, pathArr: string[], allowObject: false): string;
+function getNestedObject(nestedObj: ILanguage, pathArr: string[], allowObject = false) {
+  const out = pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined), nestedObj);
+  if (out && (allowObject || typeof out !== 'object')) {
+    return out;
+  }
+
+  return '';
 }
 
 export type LangParams = (string | undefined | number)[];
@@ -77,7 +95,7 @@ export function getParsedLanguageFromKey(
 }
 
 export const getParsedLanguageFromText = (
-  text: string,
+  text: string | undefined,
   purifyOptions?: {
     allowedTags?: string[];
     allowedAttr?: string[];
@@ -85,7 +103,7 @@ export const getParsedLanguageFromText = (
   },
   inline = true,
 ) => {
-  const dirty = marked.parse(text);
+  const dirty = marked.parse(text || '');
   const actualOptions: DOMPurify.Config = {};
   if (purifyOptions?.allowedTags) {
     actualOptions.ALLOWED_TAGS = purifyOptions.allowedTags;

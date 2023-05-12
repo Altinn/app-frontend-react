@@ -4,6 +4,7 @@ import { Pagination, ResponsiveTable, SortDirection } from '@altinn/altinn-desig
 import { FormControl, FormLabel } from '@material-ui/core';
 import cn from 'classnames';
 import type { ChangeProps, ResponsiveTableConfig, SortProps } from '@altinn/altinn-design-system';
+import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -109,7 +110,7 @@ export const ListComponent = ({
           onRowsPerPageChange={handleChangeRowsPerPage}
           currentPage={currentPage}
           setCurrentPage={handleChangeCurrentPage}
-          descriptionTexts={getLanguageFromKey('list_component', language)}
+          descriptionTexts={getLanguageFromKey('list_component', language, true) as unknown as DescriptionText}
         />
       );
     } else {
