@@ -13,6 +13,7 @@ import classes from 'src/layout/Panel/Panel.module.css';
 import { selectComponentTexts } from 'src/utils/formComponentUtils';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+
 interface PanelGroupConatinerProps {
   node: LayoutNodeFromType<'Group'>;
 }
@@ -65,6 +66,7 @@ export const PanelGroupContainer = ({ node }: PanelGroupConatinerProps) => {
             spacing={3}
             data-testid='panel-group-container'
           >
+            {texts.body && <div className={classes.panelBodyText}>{texts.body}</div>}
             {node.children().map((child) => (
               <GenericComponent
                 key={node.item.id}

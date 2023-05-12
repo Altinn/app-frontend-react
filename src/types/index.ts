@@ -102,6 +102,8 @@ export interface IOptionSource {
   group: string;
   label: string;
   value: string;
+  description?: string;
+  helpText?: string;
 }
 
 export interface IOptionsActualData {
