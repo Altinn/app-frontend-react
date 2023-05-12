@@ -72,7 +72,6 @@ function RepeatingGroupsEditContainerInternal({
   deleting,
   editIndex,
   setEditIndex,
-  repeatingGroupIndex,
   onClickRemove,
   forceHideSaveButton,
   multiPageIndex,
@@ -96,10 +95,16 @@ function RepeatingGroupsEditContainerInternal({
   } as ExprResolved<IGroupEditProperties>;
   const rowItems = row.items;
   const { refSetter } = useRepeatingGroupsFocusContext();
-
   const texts = {
     ...group.textResourceBindings,
     ...textsForRow,
+  };
+
+  const displayedRepeatingGroups = group.rows.filter((group) => group && !group.groupExpressions?.hiddenRow);
+
+  const nextDisplayedIndex = () => {
+    const currentDisplayedIndex = displayedRepeatingGroups.indexOf(row);
+    return displayedRepeatingGroups[currentDisplayedIndex + 1]?.index ?? null;
   };
 
   let nextIndex: number | null = null;
@@ -107,7 +112,7 @@ function RepeatingGroupsEditContainerInternal({
     const filteredIndex = filteredIndexes.indexOf(editIndex);
     nextIndex = filteredIndexes.slice(filteredIndex).length > 1 ? filteredIndexes[filteredIndex + 1] : null;
   } else {
-    nextIndex = editIndex < repeatingGroupIndex ? editIndex + 1 : null;
+    nextIndex = nextDisplayedIndex();
   }
 
   const saveClicked = () => {
