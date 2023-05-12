@@ -1,4 +1,5 @@
 import { getParsedLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
+import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 import type { ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
@@ -7,21 +8,21 @@ import type { ILanguage } from 'src/types/shared';
  * @see useLanguage
  */
 export function getTextFromAppOrDefault(
-  key: string,
+  key: string | ValidLanguageKey,
   textResources: ITextResource[],
   language: ILanguage,
   params?: string[],
   stringOutput?: false,
 ): JSX.Element | JSX.Element[];
 export function getTextFromAppOrDefault(
-  key: string,
+  key: string | ValidLanguageKey,
   textResources: ITextResource[],
   language: ILanguage,
   params?: string[],
   stringOutput?: true,
 ): string;
 export function getTextFromAppOrDefault(
-  key: string,
+  key: string | ValidLanguageKey,
   textResources: ITextResource[],
   language: ILanguage,
   params?: string[],
@@ -36,6 +37,6 @@ export function getTextFromAppOrDefault(
   }
 
   return stringOutput
-    ? getParsedLanguageFromKey(key, language, params, true)
-    : getParsedLanguageFromKey(key, language, params, false);
+    ? getParsedLanguageFromKey(key as ValidLanguageKey, language, params, true)
+    : getParsedLanguageFromKey(key as ValidLanguageKey, language, params, false);
 }

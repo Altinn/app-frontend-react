@@ -3,6 +3,7 @@ import parseHtmlToReact from 'html-react-parser';
 import { marked } from 'marked';
 import type { HTMLReactParserOptions } from 'html-react-parser';
 
+import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 import type { IAltinnOrgs, IApplication, IDataSources, ILanguage, ITextResource } from 'src/types/shared';
 
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
@@ -27,37 +28,20 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
  * @deprecated Use lang() from useLanguage.ts instead
  * @see useLanguage
  */
-export function getLanguageFromKey<T extends string | undefined>(
-  key: T,
-  language: ILanguage | null,
-  allowObject: true,
-): string | T | ILanguage;
-export function getLanguageFromKey<T extends string | undefined>(key: T, language: ILanguage | null): string | T;
-export function getLanguageFromKey<T extends string | undefined>(
-  key: T,
-  language: ILanguage | null,
-  allowObject = false,
-) {
+export function getLanguageFromKey<T extends ValidLanguageKey | undefined>(key: T, language: ILanguage | null) {
   if (!key || !language) {
     return key;
   }
   const path = key.split('.');
-  const value = allowObject ? getNestedObject(language, path, true) : getNestedObject(language, path, false);
-  if (!value) {
+  const value = getNestedObject(language, path);
+  if (!value || typeof value === 'object') {
     return key;
   }
   return value;
 }
 
-function getNestedObject(nestedObj: ILanguage, pathArr: string[], allowObject: true): string | ILanguage;
-function getNestedObject(nestedObj: ILanguage, pathArr: string[], allowObject: false): string;
-function getNestedObject(nestedObj: ILanguage, pathArr: string[], allowObject = false) {
-  const out = pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined), nestedObj);
-  if (out && (allowObject || typeof out !== 'object')) {
-    return out;
-  }
-
-  return '';
+function getNestedObject(nestedObj: ILanguage, pathArr: string[]) {
+  return pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined), nestedObj);
 }
 
 export type LangParams = (string | undefined | number)[];
@@ -68,19 +52,19 @@ export type LangParams = (string | undefined | number)[];
  * @see useLanguage
  */
 export function getParsedLanguageFromKey(
-  key: string | undefined,
+  key: ValidLanguageKey | undefined,
   language: ILanguage | null,
   params?: LangParams,
   stringOutput?: false,
 ): JSX.Element | null;
 export function getParsedLanguageFromKey(
-  key: string | undefined,
+  key: ValidLanguageKey | undefined,
   language: ILanguage | null,
   params?: LangParams,
   stringOutput?: true,
 ): string;
 export function getParsedLanguageFromKey(
-  key: string | undefined,
+  key: ValidLanguageKey | undefined,
   language: ILanguage | null,
   params?: LangParams,
   stringOutput?: boolean,

@@ -10,7 +10,6 @@ import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useGetDataList } from 'src/hooks/useGetDataList';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { useRadioStyles } from 'src/layout/RadioButtons/radioButtonsUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -110,7 +109,7 @@ export const ListComponent = ({
           onRowsPerPageChange={handleChangeRowsPerPage}
           currentPage={currentPage}
           setCurrentPage={handleChangeCurrentPage}
-          descriptionTexts={getLanguageFromKey('list_component', language, true) as unknown as DescriptionText}
+          descriptionTexts={language['list_component'] as DescriptionText}
         />
       );
     } else {

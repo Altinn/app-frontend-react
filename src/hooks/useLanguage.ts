@@ -43,7 +43,7 @@ export function useLanguage(): IUseLanguage {
         return getParsedLanguageFromText(textResource);
       }
 
-      return getParsedLanguageFromKey(key, language, params, false);
+      return getParsedLanguageFromKey(key as ValidLanguageKey, language, params, false);
     },
     langAsString: (key, params) => {
       const textResource = getTextResourceByKey(key, textResources);
@@ -51,7 +51,7 @@ export function useLanguage(): IUseLanguage {
         return textResource;
       }
 
-      return getParsedLanguageFromKey(key, language, params, true);
+      return getParsedLanguageFromKey(key as ValidLanguageKey, language, params, true);
     },
   };
 }
