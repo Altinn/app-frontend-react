@@ -22,7 +22,6 @@ export interface IRepeatingGroupsEditContainer {
   deleting?: boolean;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;
-  repeatingGroupIndex: number;
   onClickRemove?: (groupIndex: number) => void;
   forceHideSaveButton?: boolean;
   multiPageIndex?: number;
@@ -72,7 +71,6 @@ function RepeatingGroupsEditContainerInternal({
   deleting,
   editIndex,
   setEditIndex,
-  repeatingGroupIndex,
   onClickRemove,
   forceHideSaveButton,
   multiPageIndex,
@@ -101,12 +99,11 @@ function RepeatingGroupsEditContainerInternal({
     ...textsForRow,
   };
 
-  const nextDisplayedIndex = () => {
-    const displayedRepeatingGroups = group.rows.filter((group) => group && !group.groupExpressions?.hiddenRow);
-    const currentRow = displayedRepeatingGroups.indexOf(row);
-    const nextRow = displayedRepeatingGroups[currentRow + 1]?.index ?? currentRow + 1;
-    repeatingGroupIndex = displayedRepeatingGroups.length - 1;
-    return currentRow < repeatingGroupIndex ? nextRow : null;
+  const nextDisplayedGroup = () => {
+    const nextDisplayedIndex = group.rows.findIndex(
+      (group, idx) => idx > editIndex && group && !group.groupExpressions?.hiddenRow,
+    );
+    return nextDisplayedIndex > -1 ? nextDisplayedIndex : null;
   };
 
   let nextIndex: number | null = null;
@@ -114,7 +111,7 @@ function RepeatingGroupsEditContainerInternal({
     const filteredIndex = filteredIndexes.indexOf(editIndex);
     nextIndex = filteredIndexes.slice(filteredIndex).length > 1 ? filteredIndexes[filteredIndex + 1] : null;
   } else {
-    nextIndex = nextDisplayedIndex();
+    nextIndex = nextDisplayedGroup();
   }
 
   const saveClicked = () => {
