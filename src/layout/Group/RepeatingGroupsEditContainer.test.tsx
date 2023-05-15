@@ -89,8 +89,6 @@ describe('RepeatingGroupsEditContainer', () => {
   ];
   const layout: ILayout = [multiPageGroup, ...components];
 
-  const repeatingGroupIndex = 3;
-
   it('calls setEditIndex when save and open next is pressed when edit.saveAndNextButton is true', async () => {
     const setEditIndex = jest.fn();
     const setMultiPageIndex = jest.fn();
@@ -105,7 +103,6 @@ describe('RepeatingGroupsEditContainer', () => {
   const render = (props: Partial<IRepeatingGroupsEditContainer> = {}) => {
     const allProps: Omit<IRepeatingGroupsEditContainer, 'node'> = {
       editIndex: 1,
-      repeatingGroupIndex,
       setEditIndex: jest.fn(),
       onClickRemove: jest.fn(),
       ...props,

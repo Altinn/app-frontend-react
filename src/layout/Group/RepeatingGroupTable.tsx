@@ -161,7 +161,6 @@ export function RepeatingGroupTable({
         node={node}
         editIndex={editIndex}
         setEditIndex={setEditIndex}
-        repeatingGroupIndex={repeatingGroupIndex}
         multiPageIndex={multiPageIndex}
         setMultiPageIndex={setMultiPageIndex}
         filteredIndexes={filteredIndexes}
