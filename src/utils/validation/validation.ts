@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 import Ajv2020 from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
+import addAdditionalFormats from 'ajv-formats-draft2019';
 import dot from 'dot-object';
 import JsonPointer from 'jsonpointer';
 import moment from 'moment';
@@ -19,6 +20,7 @@ import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
+import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type {
@@ -92,6 +94,7 @@ export function createValidator(schema: any): ISchemaValidator {
     ajv = new Ajv(ajvOptions);
   }
   addFormats(ajv);
+  addAdditionalFormats(ajv);
   ajv.addFormat('year', /^\d{4}$/);
   ajv.addFormat('year-month', /^\d{4}-(0[1-9]|1[0-2])$/);
   ajv.addSchema(schema, 'schema');
@@ -553,7 +556,7 @@ export function validateComponentFormData(
           errorMessage = getTextResourceByKey(fieldSchema.errorMessage, textResources);
         } else {
           errorMessage = getParsedLanguageFromKey(
-            `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}`,
+            `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
             language,
             [errorParams],
             true,
@@ -721,7 +724,7 @@ function validateFormDataForLayout(
       errorMessage = getTextResourceByKey(fieldSchema.errorMessage, textResources);
     } else {
       errorMessage = getParsedLanguageFromKey(
-        `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}`,
+        `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
         language,
         [errorParams],
         true,
