@@ -5437,6 +5437,7 @@ __metadata:
     jsonpointer: 5.0.1
     lint-staged: 13.2.2
     marked: 5.0.2
+    marked-mangle: ^1.0.1
     mime: 3.0.0
     mini-css-extract-plugin: 2.7.5
     moment: 2.29.4
@@ -11601,6 +11602,15 @@ __metadata:
   dependencies:
     tmpl: 1.0.5
   checksum: b38a025a12c8146d6eeea5a7f2bf27d51d8ad6064da8ca9405fcf7bf9b54acd43e3b30ddd7abb9b1bfa4ddb266019133313482570ddb207de568f71ecfcf6060
+  languageName: node
+  linkType: hard
+
+"marked-mangle@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "marked-mangle@npm:1.0.1"
+  peerDependencies:
+    marked: ^4 || ^5
+  checksum: 7ebdd69eb41907a865141e7cce1cd8c5c24dd6955c63aaf5299710aba2935abdfbca1b1ea0ff30cf527ff20a940c3b5a9311fca9abb84f4d294767b0435213fe
   languageName: node
   linkType: hard
 

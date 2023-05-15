@@ -1,9 +1,12 @@
 import DOMPurify from 'dompurify';
 import parseHtmlToReact from 'html-react-parser';
 import { marked } from 'marked';
+import { mangle } from 'marked-mangle';
 import type { HTMLReactParserOptions } from 'html-react-parser';
 
 import type { IAltinnOrgs, IApplication, IDataSources, ILanguage, ITextResource } from 'src/types/shared';
+
+marked.use(mangle());
 
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.tagName === 'A') {
