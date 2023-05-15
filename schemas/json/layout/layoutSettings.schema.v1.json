@@ -104,7 +104,7 @@
     },
     "autoSaveBehavior": {
       "additionalProperties": false,
-      "description": "An attribute specifying when the application will save form data. onChangeForm saves on every interaction with form elements. onChangePage saves on every page change.",
+      "description": "An attribute specifying when the application will save form data. onChangeFormData saves on every interaction with form elements. onChangePage saves on every page change.",
       "type": "string"
     }
   }
