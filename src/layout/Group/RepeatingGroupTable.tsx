@@ -88,6 +88,11 @@ export function RepeatingGroupTable({
     return nodes;
   };
 
+  const rowData = (rowIndex: number): string => {
+    const data = getTableNodes(rowIndex)?.map((node) => node.getFormData());
+    return JSON.stringify(data);
+  };
+
   const tableNodes = getTableNodes(0);
 
   // Values adjusted for filter
@@ -243,7 +248,7 @@ export function RepeatingGroupTable({
               const isEditingRow = index === editIndex && edit?.mode !== 'onlyTable';
 
               return (
-                <React.Fragment key={index}>
+                <React.Fragment key={`${index}/${rowData(index)}`}>
                   <RepeatingGroupTableRow
                     node={node}
                     className={cn({
