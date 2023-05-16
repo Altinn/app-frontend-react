@@ -84,17 +84,12 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
       {isLoading && (
         <AltinnLoader
           style={{ position: 'absolute' }}
-          srContent={`${langAsString('general.add_new')} ${
-            resolvedTextBindings?.add_button ? langAsString(resolvedTextBindings.add_button) : ''
-          }`}
+          srContent={`${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button) ?? ''}`}
         />
       )}
       {resolvedTextBindings?.custom_add_new
         ? langAsString(resolvedTextBindings.custom_add_new)
-        : `
-      ${langAsString('general.add_new')} ${
-            resolvedTextBindings?.add_button ? langAsString(resolvedTextBindings.add_button) : ''
-          }`}
+        : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button) ?? ''}`}
     </Button>
   );
 
