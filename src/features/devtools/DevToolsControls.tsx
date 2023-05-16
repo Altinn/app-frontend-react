@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Tabs } from '@digdir/design-system-react';
 
+import { DevHiddenFunctionality } from 'src/features/devtools/components/DevHiddenFunctionality/DevHiddenFunctionality';
 import { DevNavigationButtons } from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons';
 import { ExpressionPlayground } from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground';
 import { LayoutInspector } from 'src/features/devtools/components/LayoutInspector/LayoutInspector';
@@ -19,6 +20,7 @@ export const DevToolsControls = () => (
             <div className={classes.page}>
               <PDFPreviewButton />
               <DevNavigationButtons />
+              <DevHiddenFunctionality />
               <PermissionsEditor />
             </div>
           ),

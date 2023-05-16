@@ -19,7 +19,9 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       attachments: {},
     },
     devTools: {
+      isOpen: false,
       pdfPreview: false,
+      hiddenComponents: 'hide',
     },
     formData: getFormDataStateMock(),
     formDataModel: {

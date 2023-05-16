@@ -167,8 +167,11 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
    * Checks if this field should be hidden. This also takes into account the group this component is in, so the
    * methods returns true if the component is inside a hidden group.
    */
-  public isHidden(respectLegacy = true): boolean {
+  public isHidden(respectLegacy = true, respectDevTools = true): boolean {
     const hiddenList = respectLegacy ? this.dataSources.hiddenFields : new Set();
+    if (respectDevTools && this.dataSources.devTools.isOpen && this.dataSources.devTools.hiddenComponents !== 'hide') {
+      return false;
+    }
 
     if (this.item.baseComponentId && hiddenList.has(this.item.baseComponentId)) {
       return true;
@@ -185,7 +188,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
       }
     }
 
-    return !!(this.parent instanceof LayoutNode && this.parent.isHidden(respectLegacy));
+    return this.parent instanceof LayoutNode && this.parent.isHidden(respectLegacy);
   }
 
   private firstDataModelBinding() {

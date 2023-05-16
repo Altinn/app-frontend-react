@@ -6,6 +6,7 @@ import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 export const initialState: IDevToolsState = {
   isOpen: false,
   pdfPreview: false,
+  hiddenComponents: 'hide',
 };
 
 export let DevToolsActions: ActionsFromSlice<typeof devToolsSlice>;
@@ -31,6 +32,11 @@ export const devToolsSlice = () => {
         reducer: (state, action) => {
           const { preview } = action.payload;
           state.pdfPreview = preview;
+        },
+      }),
+      setShowHiddenComponents: mkAction<{ value: IDevToolsState['hiddenComponents'] }>({
+        reducer: (state, action) => {
+          state.hiddenComponents = action.payload.value;
         },
       }),
     },
