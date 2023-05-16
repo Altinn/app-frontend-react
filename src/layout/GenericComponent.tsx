@@ -11,7 +11,6 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useBindingSchema } from 'src/hooks/useBindingSchema';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { FormComponentContext } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -104,7 +103,6 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   const GetFocusSelector = makeGetFocus();
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
-  const resolvedBindings = useBindingSchema(item.dataModelBindings);
 
   const formData = node.getFormData();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
@@ -289,11 +287,6 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   if (layoutComponent.directRender(componentProps) || overrideDisplay?.directRender) {
     return (
       <FormComponentContext.Provider value={formComponentContext}>
-        {resolvedBindings ? (
-          <pre style={{ backgroundColor: '#aaa', fontSize: '0.75em' }}>
-            {JSON.stringify(resolvedBindings, undefined, 2)}
-          </pre>
-        ) : null}
         <RenderComponent {...componentProps} />
       </FormComponentContext.Provider>
     );
@@ -332,11 +325,6 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
           id={`form-content-${id}`}
           {...gridBreakpoints(item.grid?.innerGrid)}
         >
-          {resolvedBindings ? (
-            <pre style={{ backgroundColor: '#aaa', fontSize: '0.75em' }}>
-              {JSON.stringify(resolvedBindings, undefined, 2)}
-            </pre>
-          ) : null}
           <RenderComponent {...componentProps} />
           {showValidationMessages && renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
         </Grid>
