@@ -1,4 +1,19 @@
 @import 'src/styles/tjenester3.css';
+@import 'src/styles/font-faces.css';
+
+/* Font */
+
+:root {
+  font-family: 'Inter', sans-serif;
+}
+@supports (font-variation-settings: normal) {
+  @media only screen {
+    :root {
+      font-family: 'Inter var', sans-serif;
+      font-feature-settings: 'cv05';
+    }
+  }
+}
 
 /* Global variables */
 :root {
@@ -76,10 +91,6 @@ input:checked + .slider:before {
 
 input:focus + .slider {
   box-shadow: 0 0 1px #1eaef7;
-}
-
-p {
-  font-family: 'Altinn-DIN';
 }
 
 h2 {
