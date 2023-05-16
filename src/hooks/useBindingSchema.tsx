@@ -1,6 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { useDataModelSchema } from 'src/common/hooks/useDataModelSchema';
+import { useDataModelSchema } from 'src/hooks/useDataModelSchema';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 type AsSchema<T> = {

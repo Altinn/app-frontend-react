@@ -11,11 +11,11 @@ import { AppWrapper } from '@altinn/altinn-design-system';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { App } from 'src/App';
-import { DataModelSchemaContextWrapper } from 'src/common/hooks/useDataModelSchema';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
+import { DataModelSchemaContextWrapper } from 'src/hooks/useDataModelSchema';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';

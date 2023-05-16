@@ -103,7 +103,7 @@ export const getCurrentDataTypeId = (
   instance?: IInstance | null,
   layoutSets?: ILayoutSets | null,
 ) => {
-  const currentTaskId = instance?.process.currentTask?.elementId;
+  const currentTaskId = instance?.process?.currentTask?.elementId;
   if (currentTaskId === null || currentTaskId === undefined) {
     return undefined;
   }

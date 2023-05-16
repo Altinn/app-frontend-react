@@ -9,8 +9,8 @@ import type { RenderOptions } from '@testing-library/react';
 import type { PreloadedState } from 'redux';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { DataModelSchemaContextWrapper } from 'src/common/hooks/useDataModelSchema';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
+import { DataModelSchemaContextWrapper } from 'src/hooks/useDataModelSchema';
 import { setupStore } from 'src/redux/store';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';

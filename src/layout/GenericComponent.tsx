@@ -11,6 +11,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useBindingSchema } from 'src/hooks/useBindingSchema';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { FormComponentContext } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
