@@ -597,7 +597,7 @@ describe('Group', () => {
     cy.get(appFrontend.nextButton).click();
     cy.changeLayout((component) => {
       if (component.type === 'Group' && component.id === 'mainGroup' && component.textResourceBindings) {
-        component.textResourceBindings.custom_add_button = 'Hello World';
+        component.textResourceBindings.add_button_full = 'Hello World';
       }
     });
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();

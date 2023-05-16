@@ -50,7 +50,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const multiPageIndex = groupState?.multiPageIndex ?? -1;
   const repeatingGroupIndex = groupState?.index ?? -1;
   const formData = useAppSelector((state) => state.formData.formData);
-  const { langAsString } = useLanguage();
+  const { lang, langAsString } = useLanguage();
 
   const filteredIndexList = React.useMemo(
     () => getRepeatingGroupFilteredIndices(formData, edit?.filter),
@@ -85,14 +85,14 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
         <AltinnLoader
           style={{ position: 'absolute' }}
           srContent={
-            resolvedTextBindings?.custom_add_button
-              ? langAsString(resolvedTextBindings.custom_add_button)
+            resolvedTextBindings?.add_button_full
+              ? langAsString(resolvedTextBindings.add_button_full)
               : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button) ?? ''}`
           }
         />
       )}
-      {resolvedTextBindings?.custom_add_button
-        ? langAsString(resolvedTextBindings.custom_add_button)
+      {resolvedTextBindings?.add_button_full
+        ? lang(resolvedTextBindings.add_button_full)
         : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button) ?? ''}`}
     </Button>
   );
