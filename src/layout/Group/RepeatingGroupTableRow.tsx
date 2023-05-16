@@ -126,7 +126,7 @@ export function RepeatingGroupTableRow({
 
   return (
     <TableRow
-      key={`repeating-group-row-${index}-${displayData.join('|')}`}
+      key={`repeating-group-row-${index}`}
       className={cn(
         {
           [classes.tableRowError]: rowHasErrors,
