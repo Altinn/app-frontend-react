@@ -4,6 +4,7 @@ import type { IDevToolsState } from 'src/features/devtools/data/types.d';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 export const initialState: IDevToolsState = {
+  isOpen: false,
   pdfPreview: false,
 };
 
@@ -13,6 +14,16 @@ export const devToolsSlice = () => {
     name: 'devTools',
     initialState,
     actions: {
+      open: mkAction<void>({
+        reducer: (state) => {
+          state.isOpen = true;
+        },
+      }),
+      close: mkAction<void>({
+        reducer: (state) => {
+          state.isOpen = false;
+        },
+      }),
       previewPdf: mkAction<void>({
         takeEvery: previewPdfSaga,
       }),
