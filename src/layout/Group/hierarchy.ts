@@ -1,7 +1,8 @@
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
+import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { HRepGroupChild, HRepGroupRow } from 'src/utils/layout/hierarchy.types';
+import type { HRepGroupChild, HRepGroupRow, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type {
   ChildFactory,
   ChildFactoryProps,
@@ -75,13 +76,40 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
     return this.processNonRepeating(ctx);
   }
 
+  childrenFromNode(node: LayoutNodeFromType<'Group'>, onlyInRowIndex?: number): LayoutNode[] {
+    let list: LayoutNode[] = [];
+    if (node.isRepGroup()) {
+      if (node.item.rowsBefore) {
+        list.push(...node.item.rowsBefore.map(nodesFromGridRow).flat());
+      }
+
+      const maybeNodes =
+        typeof onlyInRowIndex === 'number'
+          ? node.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || []
+          : // Beware: In most cases this will just match the first row.
+            Object.values(node.item.rows)
+              .map((r) => r?.items)
+              .flat();
+
+      for (const node of maybeNodes) {
+        if (node) {
+          list.push(node);
+        }
+      }
+
+      if (node.item.rowsAfter) {
+        list.push(...node.item.rowsAfter.map(nodesFromGridRow).flat());
+      }
+    } else if (node.isNonRepGroup()) {
+      list = node.item.childComponents;
+    }
+
+    return list;
+  }
+
   /**
    * Process a group that references another (repeating) group. It should have its own children, but those children
    * will be resolved as references inside a simulated next-row of the referenced repeating group.
-   *
-   * TODO: This code requires that panel references are defined after the group they reference. The panel references
-   * should ideally resolve their children in a third stage, after all groups have been processed, but that would
-   * require a more complex implementation of the HierarchyGenerator.
    */
   private processPanelReference(ctx: HierarchyContext): ChildFactory<'Group'> {
     return (props) => {

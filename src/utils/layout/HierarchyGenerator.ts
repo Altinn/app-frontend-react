@@ -378,6 +378,7 @@ export class HierarchyGenerator {
 export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
   abstract stage1(generator: HierarchyGenerator, item: UnprocessedItem<Type>): void;
   abstract stage2(ctx: HierarchyContext): ChildFactory<Type>;
+  abstract childrenFromNode(node: LayoutNodeFromType<Type>, onlyInRowIndex?: number): LayoutNode[];
 }
 
 /**
@@ -390,6 +391,10 @@ export class SimpleComponentHierarchyGenerator<Type extends ComponentTypes> exte
 
   stage2(ctx): ChildFactory<Type> {
     return (props) => ctx.generator.makeNode(props);
+  }
+
+  childrenFromNode(): LayoutNode[] {
+    return [];
   }
 }
 

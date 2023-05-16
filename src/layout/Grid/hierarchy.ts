@@ -1,5 +1,7 @@
+import { nodesFromGrid } from 'src/layout/Grid/tools';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { GridComponent, GridRow } from 'src/layout/Grid/types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type {
   ChildFactory,
   HierarchyContext,
@@ -70,5 +72,9 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
         }
       }
     }
+  }
+
+  childrenFromNode(node: LayoutNodeFromType<'Grid'>): LayoutNode[] {
+    return nodesFromGrid(node);
   }
 }

@@ -19,6 +19,8 @@ export enum ComponentType {
   Container = 'container',
 }
 
+const defaultGenerator = new SimpleComponentHierarchyGenerator();
+
 abstract class AnyComponent<Type extends ComponentTypes> {
   /**
    * Given properties from GenericComponent, render this layout component
@@ -69,7 +71,7 @@ abstract class AnyComponent<Type extends ComponentTypes> {
    * @see HierarchyGenerator
    */
   hierarchyGenerator(): ComponentHierarchyGenerator<Type> {
-    return new SimpleComponentHierarchyGenerator();
+    return defaultGenerator;
   }
 }
 

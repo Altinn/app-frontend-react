@@ -1,4 +1,5 @@
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ChildFactory, HierarchyGenerator, UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -56,5 +57,9 @@ export class ButtonGroupHierarchyGenerator extends ComponentHierarchyGenerator<'
 
       return me;
     };
+  }
+
+  childrenFromNode(node: LayoutNodeFromType<'ButtonGroup'>): LayoutNode[] {
+    return node.item.childComponents;
   }
 }

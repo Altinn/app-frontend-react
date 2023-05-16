@@ -9,6 +9,8 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 export class Group extends ContainerComponent<'Group'> {
+  private _hierarchyGenerator = new GroupHierarchyGenerator();
+
   directRender(): boolean {
     return true;
   }
@@ -44,7 +46,7 @@ export class Group extends ContainerComponent<'Group'> {
   }
 
   hierarchyGenerator(): ComponentHierarchyGenerator<'Group'> {
-    return new GroupHierarchyGenerator();
+    return this._hierarchyGenerator;
   }
 
   canRenderInTable(): boolean {

@@ -17,6 +17,7 @@ import type {
   ParentNode,
   TypeFromAnyItem,
 } from 'src/utils/layout/hierarchy.types';
+import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 
 /**
@@ -93,26 +94,8 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   }
 
   private childrenAsList(onlyInRowIndex?: number): LayoutNode[] {
-    let list: LayoutNode[] = [];
-    if (this.isRepGroup()) {
-      const maybeNodes =
-        typeof onlyInRowIndex === 'number'
-          ? this.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || []
-          : // Beware: In most cases this will just match the first row.
-            Object.values(this.item.rows)
-              .map((r) => r?.items)
-              .flat();
-
-      for (const node of maybeNodes) {
-        if (node) {
-          list.push(node);
-        }
-      }
-    } else if (this.isNonRepGroup()) {
-      list = this.item.childComponents;
-    }
-
-    return list;
+    const hierarchy = this.def.hierarchyGenerator() as unknown as ComponentHierarchyGenerator<Type>;
+    return hierarchy.childrenFromNode(this as unknown as LayoutNodeFromType<Type>, onlyInRowIndex);
   }
 
   /**
