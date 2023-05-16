@@ -4,19 +4,19 @@ import { screen, within } from '@testing-library/react';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { GroupContainer } from 'src/features/form/containers/GroupContainer';
-import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { setupStore } from 'src/store';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { GroupContainerTester } from 'src/layout/Group/GroupContainerTestUtills';
+import { setupStore } from 'src/redux/store';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { IFormDataState } from 'src/features/form/data';
-import type { IUpdateFormData } from 'src/features/form/data/formDataTypes';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
-import type { IValidationState } from 'src/features/form/validation/validationSlice';
+import type { IFormDataState } from 'src/features/formData';
+import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
+import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
+import type { ITextResourcesState } from 'src/features/textResources';
+import type { IValidationState } from 'src/features/validation/validationSlice';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';
 import type { ILayoutCompLikert } from 'src/layout/Likert/types';
-import type { ITextResourcesState } from 'src/shared/resources/textResources';
 import type { ILayoutValidations, ITextResource } from 'src/types';
 
 export const defaultMockQuestions = [
@@ -29,15 +29,15 @@ const groupBinding = 'Questions';
 const answerBinding = 'Answer';
 const questionBinding = 'Question';
 
-export const generateMockFormData = (likertQuestions: IQuestion[]): Record<string, string> => {
-  return likertQuestions.reduce((formData, likertQuestion, index) => {
-    return {
+export const generateMockFormData = (likertQuestions: IQuestion[]): Record<string, string> =>
+  likertQuestions.reduce(
+    (formData, likertQuestion, index) => ({
       ...formData,
       [`${groupBinding}[${index}].${answerBinding}`]: likertQuestion.Answer,
       [`${groupBinding}[${index}].${questionBinding}`]: likertQuestion.Question,
-    };
-  }, {});
-};
+    }),
+    {},
+  );
 
 export const mockOptions = [
   {
@@ -66,134 +66,118 @@ export const questionsWithAnswers = ({ questions, selectedAnswers }) => {
 
 const createLikertContainer = (
   props: Partial<ExprUnresolved<ILayoutGroup>> | undefined,
-): ExprUnresolved<ILayoutGroup> => {
-  return {
-    id: 'likert-repeating-group-id',
-    type: 'Group',
-    children: ['field1'],
-    maxCount: 99,
-    dataModelBindings: {
-      group: groupBinding,
-    },
-    edit: {
-      mode: 'likert',
-    },
-    ...props,
-  };
-};
+): ExprUnresolved<ILayoutGroup> => ({
+  id: 'likert-repeating-group-id',
+  type: 'Group',
+  children: ['field1'],
+  maxCount: 99,
+  dataModelBindings: {
+    group: groupBinding,
+  },
+  edit: {
+    mode: 'likert',
+  },
+  ...props,
+});
 
 const createRadioButton = (
   props: Partial<ExprUnresolved<ILayoutCompLikert>> | undefined,
-): ExprUnresolved<ILayoutCompLikert> => {
-  return {
-    id: 'field1',
-    type: 'Likert',
-    dataModelBindings: {
-      simpleBinding: `${groupBinding}.${answerBinding}`,
-    },
-    textResourceBindings: {
-      title: 'likert-questions',
-    },
-    optionsId: 'option-test',
-    readOnly: false,
-    required: false,
-    disabled: false,
-    ...props,
-  };
-};
+): ExprUnresolved<ILayoutCompLikert> => ({
+  id: 'field1',
+  type: 'Likert',
+  dataModelBindings: {
+    simpleBinding: `${groupBinding}.${answerBinding}`,
+  },
+  textResourceBindings: {
+    title: 'likert-questions',
+  },
+  optionsId: 'option-test',
+  readOnly: false,
+  required: false,
+  disabled: false,
+  ...props,
+});
 
-export const createFormDataUpdateAction = (index: number, optionValue: string): PayloadAction<IUpdateFormData> => {
-  return {
-    payload: {
-      componentId: `field1-${index}`,
-      data: optionValue,
-      field: `Questions[${index}].Answer`,
-      skipValidation: false,
-    },
-    type: FormDataActions.update.type,
-  };
-};
+export const createFormDataUpdateAction = (index: number, optionValue: string): PayloadAction<IUpdateFormData> => ({
+  payload: {
+    componentId: `field1-${index}`,
+    data: optionValue,
+    field: `Questions[${index}].Answer`,
+    skipValidation: false,
+  },
+  type: FormDataActions.update.type,
+});
 
 const createLayout = (
   container: ExprUnresolved<ILayoutGroup>,
   components: ExprUnresolved<ILayoutComponent | ComponentInGroup>[],
   groupIndex: number,
-): ILayoutState => {
-  return {
-    error: null,
-    layoutsets: null,
-    layouts: {
-      FormLayout: [container, ...components],
+): ILayoutState => ({
+  error: null,
+  layoutsets: null,
+  layouts: {
+    FormLayout: [container, ...components],
+  },
+  uiConfig: {
+    hiddenFields: [],
+    repeatingGroups: {
+      'likert-repeating-group-id': {
+        index: groupIndex,
+        editIndex: -1,
+      },
     },
-    uiConfig: {
-      hiddenFields: [],
-      repeatingGroups: {
-        'likert-repeating-group-id': {
-          index: groupIndex,
-          editIndex: -1,
+    currentView: 'FormLayout',
+    focus: null,
+    autoSave: null,
+    fileUploadersWithTag: {},
+    navigationConfig: {},
+    tracks: {
+      order: null,
+      hidden: [],
+      hiddenExpr: {},
+    },
+    pageTriggers: [],
+    excludePageFromPdf: [],
+    excludeComponentFromPdf: [],
+  },
+});
+
+export const createFormError = (index: number): ILayoutValidations => ({
+  [`field1-${index}`]: {
+    simpleBinding: {
+      errors: ['Feltet er påkrevd'],
+      warnings: [],
+    },
+  },
+});
+
+const createFormValidationsForCurrentView = (validations: ILayoutValidations = {}): IValidationState => ({
+  error: null,
+  invalidDataTypes: [],
+  validations: { FormLayout: validations },
+});
+
+const createTextResource = (questions: IQuestion[], extraResources: ITextResource[]): ITextResourcesState => ({
+  resources: [
+    {
+      id: 'likert-questions',
+      value: '{0}',
+      variables: [
+        {
+          key: `${groupBinding}[{0}].${questionBinding}`,
+          dataSource: 'dataModel.default',
         },
-      },
-      currentView: 'FormLayout',
-      focus: null,
-      autoSave: null,
-      fileUploadersWithTag: {},
-      navigationConfig: {},
-      tracks: {
-        order: null,
-        hidden: [],
-        hiddenExpr: {},
-      },
-      pageTriggers: [],
-      excludePageFromPdf: [],
-      excludeComponentFromPdf: [],
+      ],
     },
-  };
-};
-
-export const createFormError = (index: number): ILayoutValidations => {
-  return {
-    [`field1-${index}`]: {
-      simpleBinding: {
-        errors: ['Feltet er påkrevd'],
-        warnings: [],
-      },
-    },
-  };
-};
-
-const createFormValidationsForCurrentView = (validations: ILayoutValidations = {}): IValidationState => {
-  return {
-    error: null,
-    invalidDataTypes: [],
-    validations: { FormLayout: validations },
-  };
-};
-
-const createTextResource = (questions: IQuestion[], extraResources: ITextResource[]): ITextResourcesState => {
-  return {
-    resources: [
-      {
-        id: 'likert-questions',
-        value: '{0}',
-        variables: [
-          {
-            key: `${groupBinding}[{0}].${questionBinding}`,
-            dataSource: 'dataModel.default',
-          },
-        ],
-      },
-      ...questions.map((question, index) => {
-        return {
-          id: `likert-questions-${index}`,
-          value: question.Question,
-        };
-      }),
-      ...extraResources,
-    ],
-    language: 'nb',
-    error: null,
-  };
-};
+    ...questions.map((question, index) => ({
+      id: `likert-questions-${index}`,
+      value: question.Question,
+    })),
+    ...extraResources,
+  ],
+  language: 'nb',
+  error: null,
+});
 
 const { setScreenWidth } = mockMediaQuery(992);
 
@@ -226,7 +210,6 @@ export const render = ({
     formData: generateMockFormData(mockQuestions),
     lastSavedFormData: {},
     error: null,
-    ignoreWarnings: false,
     submittingId: '',
     savingId: '',
     unsavedChanges: false,
@@ -251,11 +234,11 @@ export const render = ({
     },
   });
 
-  const mockStore = setupStore(preloadedState);
+  const mockStore = setupStore(preloadedState).store;
   const mockStoreDispatch = jest.fn();
   mockStore.dispatch = mockStoreDispatch;
   setScreenWidth(mobileView ? 600 : 1200);
-  renderWithProviders(<GroupContainer id={mockLikertContainer.id} />, {
+  renderWithProviders(<GroupContainerTester id={mockLikertContainer.id} />, {
     store: mockStore,
   });
 
@@ -283,9 +266,15 @@ export const validateRadioLayout = (questions: IQuestion[], mobileView = false) 
   }
 
   for (const question of questions) {
-    const row = screen.getByRole(mobileView ? 'radiogroup' : 'row', {
-      name: question.Question,
-    });
+    const row = mobileView
+      ? within(
+          screen.getByRole('group', {
+            name: question.Question,
+          }),
+        ).getByRole('radiogroup')
+      : screen.getByRole('row', {
+          name: question.Question,
+        });
 
     for (const option of mockOptions) {
       // Ideally we should use `getByRole` selector here, but the tests that use this function

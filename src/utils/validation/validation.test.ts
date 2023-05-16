@@ -9,9 +9,10 @@ import * as oneOfOnRootSchema from 'src/__mocks__/json-schema/one-of-on-root.jso
 import * as refOnRootSchema from 'src/__mocks__/json-schema/ref-on-root.json';
 import { getMockValidationState } from 'src/__mocks__/validationStateMock';
 import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { getLayoutComponentObject } from 'src/layout';
 import { Severity } from 'src/types';
 import { getRepeatingGroups } from 'src/utils/formLayout';
-import { _private } from 'src/utils/layout/hierarchy';
+import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import * as validation from 'src/utils/validation/validation';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
@@ -26,22 +27,26 @@ import type {
   IValidationIssue,
   IValidations,
 } from 'src/types';
-import type { LayoutPages } from 'src/utils/layout/hierarchy';
-
-const { nodesInLayouts } = _private;
 
 function toCollection(
   mockLayouts: ILayouts,
   repeatingGroups: IRepeatingGroups = {},
   hiddenFields: Set<string> = new Set<string>(),
 ) {
-  return nodesInLayouts(mockLayouts, Object.keys(mockLayouts)[0], repeatingGroups, {
-    instanceContext: null,
-    formData: {},
-    applicationSettings: null,
-    hiddenFields,
-    validations: {},
-  }) as unknown as LayoutPages;
+  return generateEntireHierarchy(
+    mockLayouts,
+    Object.keys(mockLayouts)[0],
+    repeatingGroups,
+    {
+      instanceContext: null,
+      formData: {},
+      applicationSettings: null,
+      hiddenFields,
+      authContext: null,
+      validations: {},
+    },
+    getLayoutComponentObject,
+  );
 }
 
 function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {
@@ -61,13 +66,11 @@ function toCollectionFromData(mockLayout: ILayouts, formDataAsObject: any) {
 }
 
 // Mock dateformat
-jest.mock('src/utils/dateHelpers', () => {
-  return {
-    __esModules: true,
-    ...jest.requireActual('src/utils/dateHelpers'),
-    getDateFormat: jest.fn(() => 'DD.MM.YYYY'),
-  };
-});
+jest.mock('src/utils/dateHelpers', () => ({
+  __esModules: true,
+  ...jest.requireActual('src/utils/dateHelpers'),
+  getDateFormat: jest.fn(() => 'DD.MM.YYYY'),
+}));
 
 describe('utils > validation', () => {
   let mockLayout: any;
@@ -757,6 +760,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
         mockLanguage.language,
+        'nb',
       );
 
       const mockResult = {
@@ -782,6 +786,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
         mockLanguage.language,
+        'nb',
       );
 
       const mockResult = {
@@ -815,6 +820,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout),
         Object.keys(mockLayout),
         mockLanguage.language,
+        'nb',
       );
 
       const mockResult = {
@@ -841,6 +847,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout, {}, new Set(['componentId_4'])),
         Object.keys(mockLayout),
         mockLanguage.language,
+        'nb',
       );
 
       const mockResult = {
@@ -867,6 +874,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout),
         [],
         mockLanguage.language,
+        'nb',
       );
 
       expect(componentSpecificValidations).toEqual({});
@@ -2497,6 +2505,7 @@ describe('utils > validation', () => {
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
+        'nb',
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2513,6 +2522,7 @@ describe('utils > validation', () => {
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
+        'nb',
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2529,6 +2539,7 @@ describe('utils > validation', () => {
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
+        'nb',
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2545,6 +2556,7 @@ describe('utils > validation', () => {
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
+        'nb',
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2561,6 +2573,7 @@ describe('utils > validation', () => {
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
+        'nb',
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2577,6 +2590,7 @@ describe('utils > validation', () => {
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
+        'nb',
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2593,6 +2607,7 @@ describe('utils > validation', () => {
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
+        'nb',
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2609,6 +2624,7 @@ describe('utils > validation', () => {
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
         mockLanguage.language,
+        'nb',
       );
 
       expect(validations.simpleBinding).toEqual({

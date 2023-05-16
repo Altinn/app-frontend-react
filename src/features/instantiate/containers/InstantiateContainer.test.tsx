@@ -7,7 +7,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
-import { setupStore } from 'src/store';
+import { setupStore } from 'src/redux/store';
 import { renderWithProviders } from 'src/testUtils';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -35,7 +35,7 @@ describe('InstantiateContainer', () => {
   const render = (initialState: Partial<IRuntimeState> = {}) => {
     const theme = createTheme(AltinnAppTheme);
     const stateMock = getInitialStateMock(initialState);
-    const mockStore = setupStore(stateMock);
+    const mockStore = setupStore(stateMock).store;
     mockStore.dispatch = jest.fn();
     const { store } = renderWithProviders(
       <MuiThemeProvider theme={theme}>
@@ -49,10 +49,13 @@ describe('InstantiateContainer', () => {
   };
 
   it('should show content loader on initial render and start instantiation if valid party', async () => {
+    // eslint-disable-next-line testing-library/render-result-naming-convention
     const mockDispatch = render();
 
     await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledWith(InstantiationActions.instantiate());
+    });
+    await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
@@ -68,6 +71,7 @@ describe('InstantiateContainer', () => {
   });
 
   it('should show header as "" when translations have not been initialized properly loader on initial render and start instantiation if valid party', async () => {
+    // eslint-disable-next-line testing-library/render-result-naming-convention
     const mockDispatch = render({
       language: {
         language: {
@@ -75,13 +79,14 @@ describe('InstantiateContainer', () => {
             starting: 'instantiate.starting',
           },
         },
-        selectedAppLanguage: '',
         error: null,
       },
     });
 
     await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledWith(InstantiationActions.instantiate());
+    });
+    await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
@@ -94,6 +99,7 @@ describe('InstantiateContainer', () => {
   });
 
   it('should not call InstantiationActions.instantiate when no selected party', async () => {
+    // eslint-disable-next-line testing-library/render-result-naming-convention
     const mockDispatch = render({
       party: {
         parties: [],

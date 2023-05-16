@@ -4,30 +4,36 @@ import { shallowEqual } from 'react-redux';
 import { Grid, makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useBindingSchema } from 'src/common/hooks/useBindingSchema';
-import { Description } from 'src/features/form/components/Description';
-import { Label } from 'src/features/form/components/Label';
-import { Legend } from 'src/features/form/components/Legend';
-import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { Description } from 'src/components/form/Description';
+import { Label } from 'src/components/form/Label';
+import { Legend } from 'src/components/form/Legend';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
-import { components, FormComponentContext } from 'src/layout/index';
+import { FormComponentContext } from 'src/layout/index';
+import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
 import { getTextResource, gridBreakpoints, pageBreakStyles, selectComponentTexts } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { ISingleFieldValidation } from 'src/features/form/data/formDataTypes';
+import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes, IGridStyling } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGenericComponentProps<Type extends ComponentTypes> {
   node: LayoutNode | LayoutNodeFromType<Type>;
   overrideItemProps?: Partial<Omit<AnyItem<Type>, 'id'>>;
+  overrideDisplay?: {
+    directRender?: true;
+    renderLabel?: false;
+    renderLegend?: false;
+    renderedInTable?: true;
+  };
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -79,6 +85,7 @@ const useStyles = makeStyles((theme) => ({
 export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   node,
   overrideItemProps,
+  overrideDisplay,
 }: IGenericComponentProps<Type>) {
   let item = node.item;
   const id = item.id;
@@ -179,31 +186,27 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     );
   };
 
-  const layoutComponent = node.getComponent() as unknown as LayoutComponent<Type> | undefined;
-  if (!layoutComponent) {
-    return (
-      <div>
-        Unknown component type: {item.type}
-        <br />
-        Valid component types: {Object.keys(components).join(', ')}
-      </div>
-    );
-  }
-
+  const layoutComponent = node.def as unknown as LayoutComponent<Type>;
   const RenderComponent = layoutComponent.render;
 
-  const RenderLabel = () => (
-    <Label
-      key={`label-${id}`}
-      labelText={texts.title}
-      helpText={texts.help}
-      language={language}
-      id={id}
-      readOnly={item.readOnly}
-      required={item.required}
-      labelSettings={item.labelSettings}
-    />
-  );
+  const RenderLabel = () => {
+    if (overrideDisplay?.renderLabel === false) {
+      return null;
+    }
+
+    return (
+      <Label
+        key={`label-${id}`}
+        labelText={texts.title}
+        helpText={texts.help}
+        language={language}
+        id={id}
+        readOnly={item.readOnly}
+        required={item.required}
+        labelSettings={item.labelSettings}
+      />
+    );
+  };
 
   const RenderDescription = () => {
     if (!item.textResourceBindings?.description) {
@@ -220,6 +223,10 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   };
 
   const RenderLegend = () => {
+    if (overrideDisplay?.renderLegend === false) {
+      return null;
+    }
+
     return (
       <Legend
         key={`legend-${id}`}
@@ -235,13 +242,9 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     );
   };
 
-  const getTextResourceWrapper = (key: string) => {
-    return getTextResource(key, textResources);
-  };
+  const getTextResourceWrapper = (key: string | undefined) => getTextResource(key, textResources);
 
-  const getTextResourceAsString = (key: string) => {
-    return getTextResourceByKey(key, textResources);
-  };
+  const getTextResourceAsString = (key: string | undefined) => getTextResourceByKey(key, textResources);
 
   const fixedComponentProps: IComponentProps = {
     handleDataChange,
@@ -252,20 +255,37 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     language,
     shouldFocus,
     text: texts.title,
+    texts,
     label: RenderLabel,
     legend: RenderLegend,
     componentValidations,
   };
 
-  const componentProps = {
+  const componentProps: PropsFromGenericComponent<Type> = {
     ...fixedComponentProps,
-    node,
+    node: node as unknown as LayoutNodeFromType<Type>,
     overrideItemProps,
-  } as unknown as PropsFromGenericComponent<Type>;
+    overrideDisplay,
+  };
 
   const showValidationMessages = hasValidationMessages && layoutComponent.renderDefaultValidations();
 
-  if (layoutComponent.directRender(componentProps)) {
+  if (node.item.renderAsSummary) {
+    const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
+
+    if (!RenderSummary) {
+      return null;
+    }
+
+    return (
+      <SummaryComponent
+        summaryNode={node as LayoutNodeFromType<'Summary'>}
+        overrides={{ display: { hideChangeButton: true } }}
+      />
+    );
+  }
+
+  if (layoutComponent.directRender(componentProps) || overrideDisplay?.directRender) {
     return (
       <FormComponentContext.Provider value={formComponentContext}>
         {resolvedBindings ? (
@@ -281,6 +301,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   return (
     <FormComponentContext.Provider value={formComponentContext}>
       <Grid
+        data-componentid={item.baseComponentId ?? item.id}
         ref={gridRef}
         item={true}
         container={true}
@@ -295,7 +316,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
         )}
         alignItems='baseline'
       >
-        {layoutComponent.renderWithLabel() && (
+        {layoutComponent.renderWithLabel() && overrideDisplay?.renderLabel !== false && (
           <Grid
             item={true}
             {...gridBreakpoints(item.grid?.labelGrid)}

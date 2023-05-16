@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { SummaryComponent } from 'src/components/summary/SummaryComponent';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
+import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class Summary extends ContainerComponent<'Summary'> {
@@ -26,5 +26,9 @@ export class Summary extends ContainerComponent<'Summary'> {
 
   useDisplayData(): string {
     return '';
+  }
+
+  canRenderInTable(): boolean {
+    return false;
   }
 }

@@ -1,58 +1,31 @@
 import React from 'react';
 
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { FullWidthWrapper } from 'src/features/form/components/FullWidthWrapper';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
+import classes from 'src/components/message/ErrorReport.module.css';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getParsedLanguageFromText } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getMappedErrors, getUnmappedErrors } from 'src/utils/validation/validation';
-import type { LayoutNode } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { FlatError } from 'src/utils/validation/validation';
 
 export interface IErrorReportProps {
   nodes: LayoutNode[];
 }
 
-const iconSize = 16;
-const ArrowForwardIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${iconSize}" style="position: relative; top: 2px">
-  <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+const ArrowForwardSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16px" style="position: relative; top: 2px">
+<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
 </svg>`;
-
-const useStyles = makeStyles((theme) => ({
-  errorList: {
-    listStylePosition: 'outside',
-    marginLeft: iconSize + theme.spacing(1),
-    listStyleImage: `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardIcon)}")`,
-    '& > li': {
-      marginBottom: theme.spacing(1),
-    },
-    '& > li > button': {
-      textAlign: 'left',
-      borderBottom: '2px solid transparent',
-    },
-    '& > li > button:hover': {
-      borderBottom: `2px solid black`,
-    },
-  },
-  buttonAsInvisibleLink: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    textDecoration: 'none',
-    display: 'inline',
-    margin: 0,
-    padding: 0,
-  },
-}));
+const listStyleImg = `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardSvg)}")`;
 
 export const ErrorReport = ({ nodes }: IErrorReportProps) => {
-  const classes = useStyles();
   const dispatch = useAppDispatch();
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const [errorsMapped, errorsUnmapped] = useAppSelector((state) => [
@@ -119,9 +92,8 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
     );
   };
 
-  const errorMessage = (message: string) => {
-    return message.includes(AsciiUnitSeparator) ? message.substring(message.indexOf(AsciiUnitSeparator) + 1) : message;
-  };
+  const errorMessage = (message: string) =>
+    message.includes(AsciiUnitSeparator) ? message.substring(message.indexOf(AsciiUnitSeparator) + 1) : message;
 
   return (
     <div data-testid='ErrorReport'>
@@ -142,15 +114,21 @@ export const ErrorReport = ({ nodes }: IErrorReportProps) => {
               xs={12}
             >
               <ul className={classes.errorList}>
-                {errorsUnmapped.map((error: string, index: number) => (
-                  <li key={`unmapped-${index}`}>
+                {errorsUnmapped.map((error: string) => (
+                  <li
+                    key={`unmapped-${error}`}
+                    style={{ listStyleImage: listStyleImg }}
+                  >
                     {getParsedLanguageFromText(error, {
                       disallowedTags: ['a'],
                     })}
                   </li>
                 ))}
                 {errorsMapped.map((error) => (
-                  <li key={`mapped-${error.componentId}`}>
+                  <li
+                    key={`mapped-${error.componentId}-${error.message}`}
+                    style={{ listStyleImage: listStyleImg }}
+                  >
                     <button
                       className={classes.buttonAsInvisibleLink}
                       onClick={handleErrorClick(error)}

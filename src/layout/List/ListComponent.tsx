@@ -4,13 +4,13 @@ import { Pagination, ResponsiveTable, SortDirection } from '@altinn/altinn-desig
 import { FormControl, FormLabel } from '@material-ui/core';
 import cn from 'classnames';
 import type { ChangeProps, ResponsiveTableConfig, SortProps } from '@altinn/altinn-design-system';
+import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
 
-import { useAppDispatch } from 'src/common/hooks/useAppDispatch';
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { useGetDataList } from 'src/components/hooks';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useGetDataList } from 'src/hooks/useGetDataList';
 import { useRadioStyles } from 'src/layout/RadioButtons/radioButtonsUtils';
-import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IListProps = PropsFromGenericComponent<'List'>;
@@ -44,13 +44,13 @@ export const ListComponent = ({
 
   const handleChange = ({ selectedValue: selectedValue }: ChangeProps<Record<string, string>>) => {
     for (const key in formData) {
-      handleDataChange(selectedValue[key], { key: key });
+      handleDataChange(selectedValue[key], { key });
     }
   };
 
   const tableHeadersValues = { ...tableHeaders };
   for (const key in tableHeaders) {
-    tableHeadersValues[key] = getTextResourceAsString(tableHeaders[key]);
+    tableHeadersValues[key] = getTextResourceAsString(tableHeaders[key]) ?? '';
   }
 
   const selectedRow: Record<string, string> = React.useMemo(() => {
@@ -109,7 +109,7 @@ export const ListComponent = ({
           onRowsPerPageChange={handleChangeRowsPerPage}
           currentPage={currentPage}
           setCurrentPage={handleChangeCurrentPage}
-          descriptionTexts={getLanguageFromKey('list_component', language)}
+          descriptionTexts={language['list_component'] as DescriptionText}
         />
       );
     } else {
@@ -123,7 +123,7 @@ export const ListComponent = ({
     showColumnsMobile: tableHeadersMobile,
     columnSort: {
       onSortChange: ({ column, next, previous }) => {
-        handleSortChange({ previous: previous, next: next, column: column });
+        handleSortChange({ previous, next, column });
       },
       sortable: sortableColumns ? sortableColumns : [],
       currentlySortedColumn: sortColumn,

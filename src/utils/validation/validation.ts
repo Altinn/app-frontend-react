@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 import Ajv2020 from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
+import addAdditionalFormats from 'ajv-formats-draft2019';
 import dot from 'dot-object';
 import JsonPointer from 'jsonpointer';
 import moment from 'moment';
@@ -16,8 +17,10 @@ import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { matchLayoutComponent } from 'src/utils/layout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
+import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
+import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type {
@@ -27,7 +30,6 @@ import type {
   ILayoutComponentOrGroup,
   ILayouts,
 } from 'src/layout/layout';
-import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
@@ -41,7 +43,10 @@ import type {
   IValidations,
 } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
-import type { LayoutNode, LayoutObject, LayoutPage, LayoutPages } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutObject } from 'src/utils/layout/LayoutObject';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export interface ISchemaValidators {
   [id: string]: ISchemaValidator;
@@ -89,6 +94,7 @@ export function createValidator(schema: any): ISchemaValidator {
     ajv = new Ajv(ajvOptions);
   }
   addFormats(ajv);
+  addAdditionalFormats(ajv);
   ajv.addFormat('year', /^\d{4}$/);
   ajv.addFormat('year-month', /^\d{4}-(0[1-9]|1[0-2])$/);
   ajv.addSchema(schema, 'schema');
@@ -293,28 +299,57 @@ export function validateEmptyField(
   if (!node.item.dataModelBindings) {
     return null;
   }
-  const fieldKeys = Object.keys(node.item.dataModelBindings) as (keyof IDataModelBindings)[];
   const componentValidations: IComponentValidations = {};
-  fieldKeys.forEach((fieldKey) => {
-    const value = getFormDataFromFieldKey(fieldKey, node.item.dataModelBindings, formData);
-    if (!value && fieldKey) {
-      const errors: string[] = [];
-      const warnings: string[] = [];
-      const fieldName = getFieldName(
-        node.item.textResourceBindings,
-        textResources,
-        language,
-        fieldKey !== 'simpleBinding' ? fieldKey : undefined,
-      );
-      errors.push(getParsedLanguageFromKey('form_filler.error_required', language, [fieldName], true));
+  const fieldKeys = Object.keys(node.item.dataModelBindings) as (keyof IDataModelBindings)[];
+  if (node.item.type === 'List') {
+    validateEmptyFieldsListComponent(fieldKeys, node, formData, textResources, language, componentValidations);
+  } else {
+    fieldKeys.forEach((fieldKey) => {
+      const value = getFormDataFromFieldKey(fieldKey, node.item.dataModelBindings, formData);
+      if (!value && fieldKey) {
+        const errors: string[] = [];
+        const warnings: string[] = [];
+        const fieldName = getFieldName(
+          node.item.textResourceBindings,
+          textResources,
+          language,
+          fieldKey !== 'simpleBinding' ? fieldKey : undefined,
+        );
+        errors.push(getParsedLanguageFromKey('form_filler.error_required', language, [fieldName], true));
 
-      componentValidations[fieldKey] = { errors, warnings };
-    }
-  });
+        componentValidations[fieldKey] = { errors, warnings };
+      }
+    });
+  }
   if (Object.keys(componentValidations).length > 0) {
     return componentValidations;
   }
   return null;
+}
+
+export function validateEmptyFieldsListComponent(
+  fieldKeys: string[],
+  node: LayoutNode,
+  formData: any,
+  textResources: ITextResource[],
+  language: ILanguage,
+  componentValidations: IComponentValidations,
+) {
+  let isErrorInList = false;
+  fieldKeys.forEach((fieldKey) => {
+    const value = getFormDataFromFieldKey(fieldKey, node.item.dataModelBindings, formData);
+    if (!value && fieldKey) {
+      isErrorInList = true;
+    }
+  });
+  if (isErrorInList) {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    const fieldName = getFieldName(node.item.textResourceBindings, textResources, language, undefined);
+    errors.push(getParsedLanguageFromKey('form_filler.error_required', language, [fieldName], true));
+
+    componentValidations['simpleBinding'] = { errors, warnings };
+  }
 }
 
 export function validateFormComponents(
@@ -322,12 +357,13 @@ export function validateFormComponents(
   nodeLayout: LayoutPages,
   layoutOrder: string[],
   language: ILanguage,
+  profileLanguage: string,
 ) {
   const validations: IValidations = {};
   const layouts = nodeLayout.all();
   for (const id of Object.keys(layouts)) {
     if (layoutOrder.includes(id)) {
-      validations[id] = validateFormComponentsForNodes(attachments, layouts[id], language);
+      validations[id] = validateFormComponentsForNodes(attachments, layouts[id], language, profileLanguage);
     }
   }
 
@@ -341,6 +377,7 @@ function validateFormComponentsForNodes(
   attachments: IAttachments,
   nodes: LayoutPage | LayoutNode,
   language: ILanguage,
+  profileLanguage: string,
   onlyInRowIndex?: number,
 ): ILayoutValidations {
   const validations: ILayoutValidations = {};
@@ -400,7 +437,12 @@ function validateFormComponentsForNodes(
 
     if (node.item.type === 'Datepicker') {
       const componentFormData = node.getFormData();
-      validations[node.item.id] = validateDatepickerFormData(componentFormData?.simpleBinding, node.item, language);
+      validations[node.item.id] = validateDatepickerFormData(
+        componentFormData?.simpleBinding,
+        node.item,
+        language,
+        profileLanguage,
+      );
     }
   }
 
@@ -425,10 +467,11 @@ export function validateDatepickerFormData(
   formData: string | null | undefined,
   component: ExprUnresolved<ILayoutCompDatepicker> | ExprResolved<ILayoutCompDatepicker>,
   language: ILanguage,
+  profileLanguage: string,
 ): IComponentValidations {
   const minDate = getDateConstraint(component.minDate, 'min');
   const maxDate = getDateConstraint(component.maxDate, 'max');
-  const format = getDateFormat(component.format);
+  const format = getDateFormat(component.format, profileLanguage);
 
   const validations: IComponentBindingValidation = { errors: [], warnings: [] };
   const date = formData ? moment(formData, moment.ISO_8601) : null;
@@ -491,9 +534,7 @@ export function validateComponentFormData(
 
   if (!valid) {
     validator.errors
-      ?.filter((error) => {
-        return processInstancePath(error.instancePath) === dataModelField && !isOneOfError(error);
-      })
+      ?.filter((error) => processInstancePath(error.instancePath) === dataModelField && !isOneOfError(error))
       .forEach((error) => {
         if (error.keyword === 'type' || error.keyword === 'format' || error.keyword === 'maximum') {
           validationResult.invalidDataTypes = true;
@@ -515,7 +556,7 @@ export function validateComponentFormData(
           errorMessage = getTextResourceByKey(fieldSchema.errorMessage, textResources);
         } else {
           errorMessage = getParsedLanguageFromKey(
-            `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}`,
+            `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
             language,
             [errorParams],
             true,
@@ -544,10 +585,11 @@ export function validateComponentSpecificValidations(
   formData: string | null | undefined,
   component: ExprUnresolved<ILayoutComponentOrGroup> | undefined,
   language: ILanguage,
+  profileLanguage: string,
 ): IComponentValidations {
   let customComponentValidations: IComponentValidations = {};
   if (component?.type === 'Datepicker') {
-    customComponentValidations = validateDatepickerFormData(formData, component, language);
+    customComponentValidations = validateDatepickerFormData(formData, component, language, profileLanguage);
   }
   return customComponentValidations;
 }
@@ -560,9 +602,8 @@ export function validateComponentSpecificValidations(
  * @param error the AJV validation error object
  * @returns a value indicating if the provided error is a "oneOf" error.
  */
-export const isOneOfError = (error: AjvCore.ErrorObject): boolean => {
-  return error.keyword === 'oneOf' || error.params?.type === 'null';
-};
+export const isOneOfError = (error: AjvCore.ErrorObject): boolean =>
+  error.keyword === 'oneOf' || error.params?.type === 'null';
 
 /**
  * Wrapper method around getSchemaPart for schemas made with our old generator tool
@@ -683,7 +724,7 @@ function validateFormDataForLayout(
       errorMessage = getTextResourceByKey(fieldSchema.errorMessage, textResources);
     } else {
       errorMessage = getParsedLanguageFromKey(
-        `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}`,
+        `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
         language,
         [errorParams],
         true,
@@ -738,9 +779,7 @@ function mapToComponentValidationsGivenComponent(
   validations: ILayoutValidations,
 ) {
   const dataModelBindings = component.dataModelBindings || {};
-  const fieldKey = Object.keys(dataModelBindings).find((name) => {
-    return dataModelBindings[name] === dataBinding;
-  });
+  const fieldKey = Object.keys(dataModelBindings).find((name) => dataModelBindings[name] === dataBinding);
 
   if (!fieldKey) {
     return;
@@ -762,11 +801,10 @@ export function mapToComponentValidationsGivenNode(
   let fieldKey: string | undefined = undefined;
   const component = node.flat(true, onlyInRowIndex).find((item) => {
     if (item.item.dataModelBindings) {
-      fieldKey = Object.keys(item.item.dataModelBindings).find((key) => {
-        return (
-          item.item.dataModelBindings && item.item.dataModelBindings[key].toLowerCase() === dataBinding.toLowerCase()
-        );
-      });
+      fieldKey = Object.keys(item.item.dataModelBindings).find(
+        (key) =>
+          item.item.dataModelBindings && item.item.dataModelBindings[key].toLowerCase() === dataBinding.toLowerCase(),
+      );
     }
     return !!fieldKey;
   });
@@ -790,8 +828,8 @@ export function canFormBeSaved(validationResult: IValidationResult | null, apiMo
   if (!validations || apiMode !== 'Complete') {
     return true;
   }
-  return Object.keys(validations).every((layoutId: string) => {
-    return Object.keys(validations[layoutId])?.every((componentId: string) => {
+  return Object.keys(validations).every((layoutId: string) =>
+    Object.keys(validations[layoutId])?.every((componentId: string) => {
       const componentValidations: IComponentValidations = validations[layoutId][componentId];
       if (componentValidations === null) {
         return true;
@@ -800,8 +838,8 @@ export function canFormBeSaved(validationResult: IValidationResult | null, apiMo
         const componentErrors = componentValidations[bindingKey]?.errors;
         return !componentErrors || componentErrors.length === 0;
       });
-    });
-  });
+    }),
+  );
 }
 
 export function findLayoutIdsFromValidationIssue(layouts: ILayouts, validationIssue: IValidationIssue): string[] {
@@ -851,6 +889,7 @@ export function findComponentFromValidationIssue(
         if (
           validation.field &&
           componentCandidate.dataModelBindings &&
+          componentCandidate.dataModelBindings[dataModelBindingKey] &&
           componentCandidate.dataModelBindings[dataModelBindingKey].toLowerCase() === fieldToCheck
         ) {
           found = true;
@@ -906,6 +945,17 @@ export function mapDataElementValidationToRedux(
     return validationResult;
   }
   validations.forEach((validation) => {
+    if (validation.code == 'required' && validation.code != validation.description) {
+      // Ignore required validations from backend. They will be duplicated by frontend running the same logic.
+      // verify that code != description because user validations always have code == description
+      // and we don't want issues in case someone wants to set additional required validations in backend
+      // and uses "required" as a key.
+
+      // Using "required" as key will likeliy be OK in the future, if we manage to inteligently deduplicate
+      // errors with a shared code. (eg, only display one error with code "required" per component)
+      return;
+    }
+
     // for each validation, map to correct component and field key
     const layoutIds = findLayoutIdsFromValidationIssue(layouts || {}, validation);
     if (layoutIds.length === 0) {
@@ -1104,17 +1154,17 @@ export function hasValidationsOfSeverity(validations: IValidations, severity: Se
     return false;
   }
 
-  return Object.keys(validations).some((layout) => {
-    return Object.keys(validations[layout]).some((componentKey: string) => {
-      return Object.keys(validations[layout][componentKey] || {}).some((bindingKey: string) => {
+  return Object.keys(validations).some((layout) =>
+    Object.keys(validations[layout]).some((componentKey: string) =>
+      Object.keys(validations[layout][componentKey] || {}).some((bindingKey: string) => {
         const binding = validations[layout][componentKey][bindingKey];
         if (severity === Severity.Error && binding?.errors && binding.errors.length > 0) {
           return true;
         }
         return severity === Severity.Warning && binding?.warnings && binding.warnings.length > 0;
-      });
-    });
-  });
+      }),
+    ),
+  );
 }
 
 export function mergeValidationObjects(...sources: (IValidations | null)[]): IValidations {
@@ -1228,9 +1278,7 @@ function removeFixedValidations(validations?: string[], fixed?: string[]): strin
     return validations;
   }
 
-  return validations?.filter((element) => {
-    return fixed.findIndex((fixedElement) => fixedElement === element) < 0;
-  });
+  return validations?.filter((element) => fixed.findIndex((fixedElement) => fixedElement === element) < 0);
 }
 
 /**
@@ -1242,6 +1290,7 @@ function removeFixedValidations(validations?: string[], fixed?: string[]): strin
  */
 export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIndex?: number): IValidations {
   const language = state.language.language;
+  const profileLanguage = state.profile.selectedAppLanguage || state.profile.profile.profileSettingPreference.language;
   const textResources = state.textResources.resources;
   const attachments = state.attachments.attachments;
   const formData = state.formData.formData;
@@ -1249,7 +1298,7 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
   const currentView = state.formLayout.uiConfig.currentView;
   const resolvedLayouts = ResolvedNodesSelector(state);
 
-  const node = resolvedLayouts.findById(groupId);
+  const node = resolvedLayouts?.findById(groupId);
   if (!node || !state.applicationMetadata.applicationMetadata || !language) {
     return {};
   }
@@ -1261,7 +1310,13 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
   });
   const validator = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
   const emptyFieldsValidations = validateEmptyFieldsForNodes(formData, node, language, textResources, onlyInRowIndex);
-  const componentValidations = validateFormComponentsForNodes(attachments, node, language, onlyInRowIndex);
+  const componentValidations = validateFormComponentsForNodes(
+    attachments,
+    node,
+    language,
+    profileLanguage,
+    onlyInRowIndex,
+  );
   const formDataValidations = validateFormDataForLayout(
     jsonFormData,
     node,

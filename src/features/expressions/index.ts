@@ -12,7 +12,9 @@ import {
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
-import { dataSourcesFromState, LayoutNode, LayoutPage, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { dataSourcesFromState, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
   ExprConfig,
@@ -26,7 +28,7 @@ import type {
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutComponent } from 'src/layout/layout';
 import type { IAltinnWindow } from 'src/types';
-import type { IInstanceContext } from 'src/types/shared';
+import type { IAuthContext, IInstanceContext } from 'src/types/shared';
 
 export interface EvalExprOptions {
   config?: ExprConfig;
@@ -201,7 +203,7 @@ export function evalExpr(
     } else {
       throw err;
     }
-    if (options && options.config) {
+    if (options && options.config && !options.config.errorAsException) {
       // When we know of a default value, we can safely print it as an error to the console and safely recover
       ctx.trace(err, {
         config: options.config,
@@ -309,6 +311,15 @@ const instanceContextKeys: { [key in keyof IInstanceContext]: true } = {
   instanceOwnerPartyType: true,
 };
 
+const authContextKeys: { [key in keyof IAuthContext]: true } = {
+  read: true,
+  write: true,
+  instantiate: true,
+  confirm: true,
+  sign: true,
+  reject: true,
+};
+
 /**
  * All the functions available to execute inside expressions
  */
@@ -392,7 +403,7 @@ export const ExprFunctions = {
     lastArgSpreads: true,
   }),
   if: defineFunc({
-    impl: function (...args): any {
+    impl(...args): any {
       const [condition, result] = args;
       if (condition === true) {
         return result;
@@ -416,7 +427,7 @@ export const ExprFunctions = {
     returns: ExprVal.Any,
   }),
   instanceContext: defineFunc({
-    impl: function (key): string | null {
+    impl(key): string | null {
       if (key === null || instanceContextKeys[key] !== true) {
         throw new LookupNotFound(this, `Unknown Instance context property ${key}`);
       }
@@ -427,7 +438,7 @@ export const ExprFunctions = {
     returns: ExprVal.String,
   }),
   frontendSettings: defineFunc({
-    impl: function (key): any {
+    impl(key): any {
       if (key === null) {
         throw new LookupNotFound(this, `Value cannot be null. (Parameter 'key')`);
       }
@@ -437,8 +448,19 @@ export const ExprFunctions = {
     args: [ExprVal.String] as const,
     returns: ExprVal.Any,
   }),
+  authContext: defineFunc({
+    impl(key): boolean | null {
+      if (key === null || authContextKeys[key] !== true) {
+        throw new LookupNotFound(this, `Unknown auth context property ${key}`);
+      }
+
+      return Boolean(this.dataSources.authContext?.[key]);
+    },
+    args: [ExprVal.String] as const,
+    returns: ExprVal.Boolean,
+  }),
   component: defineFunc({
-    impl: function (id): any {
+    impl(id): any {
       if (id === null) {
         throw new LookupNotFound(this, `Cannot lookup component null`);
       }
@@ -469,7 +491,7 @@ export const ExprFunctions = {
     returns: ExprVal.Any,
   }),
   dataModel: defineFunc({
-    impl: function (path): any {
+    impl(path): any {
       if (path === null) {
         throw new LookupNotFound(this, `Cannot lookup dataModel null`);
       }
@@ -514,18 +536,26 @@ export const ExprTypes: {
   [ExprVal.Boolean]: {
     nullable: true,
     accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
-    impl: function (arg) {
+    impl(arg) {
       if (typeof arg === 'boolean') {
         return arg;
       }
-      if (arg === 'true') return true;
-      if (arg === 'false') return false;
+      if (arg === 'true') {
+        return true;
+      }
+      if (arg === 'false') {
+        return false;
+      }
 
       if (typeof arg === 'string' || typeof arg === 'number' || typeof arg === 'bigint') {
         const num = typeof arg === 'string' ? asNumber(arg) : arg;
         if (num !== undefined) {
-          if (num === 1) return true;
-          if (num === 0) return false;
+          if (num === 1) {
+            return true;
+          }
+          if (num === 0) {
+            return false;
+          }
         }
       }
 
@@ -535,15 +565,21 @@ export const ExprTypes: {
   [ExprVal.String]: {
     nullable: true,
     accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
-    impl: function (arg) {
+    impl(arg) {
       if (['number', 'bigint', 'boolean'].includes(typeof arg)) {
         return JSON.stringify(arg);
       }
 
       // Always lowercase these values, to make comparisons case-insensitive
-      if (arg.toLowerCase() === 'null') return null;
-      if (arg.toLowerCase() === 'false') return 'false';
-      if (arg.toLowerCase() === 'true') return 'true';
+      if (arg.toLowerCase() === 'null') {
+        return null;
+      }
+      if (arg.toLowerCase() === 'false') {
+        return 'false';
+      }
+      if (arg.toLowerCase() === 'true') {
+        return 'true';
+      }
 
       return `${arg}`;
     },
@@ -551,7 +587,7 @@ export const ExprTypes: {
   [ExprVal.Number]: {
     nullable: true,
     accepts: [ExprVal.Boolean, ExprVal.String, ExprVal.Number, ExprVal.Any],
-    impl: function (arg) {
+    impl(arg) {
       if (typeof arg === 'number' || typeof arg === 'bigint') {
         return arg as number;
       }
@@ -597,14 +633,14 @@ export const ExprTypes: {
 
   const state = (window as unknown as IAltinnWindow).reduxStore.getState();
   const nodes = resolvedLayoutsFromState(state);
-  let layout: LayoutPage | LayoutNode | undefined = nodes.current();
+  let layout: LayoutPage | LayoutNode | undefined = nodes?.current();
   if (!layout) {
     console.error('Unable to find current page/layout');
     return;
   }
 
   if (forComponentId) {
-    const foundNode = nodes.findById(forComponentId);
+    const foundNode = nodes?.findById(forComponentId);
     if (!foundNode) {
       console.error('Unable to find component with id', forComponentId);
       console.error(
@@ -659,6 +695,11 @@ export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
 
 export const ExprConfigForGroup: ExprObjConfig<ILayoutGroup> = {
   ...ExprConfigForComponent,
+  hiddenRow: {
+    returnType: ExprVal.Boolean,
+    defaultValue: false,
+    resolvePerRow: true,
+  },
   textResourceBindings: {
     [CONFIG_FOR_ALL_VALUES_IN_OBJ]: {
       returnType: ExprVal.String,
@@ -698,6 +739,11 @@ export const ExprConfigForGroup: ExprObjConfig<ILayoutGroup> = {
       resolvePerRow: true,
     },
     saveButton: {
+      returnType: ExprVal.Boolean,
+      defaultValue: true,
+      resolvePerRow: true,
+    },
+    editButton: {
       returnType: ExprVal.Boolean,
       defaultValue: true,
       resolvePerRow: true,

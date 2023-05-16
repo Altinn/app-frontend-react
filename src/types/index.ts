@@ -2,9 +2,9 @@ import type { ToolkitStore } from '@reduxjs/toolkit/src/configureStore';
 import type Ajv from 'ajv/dist/core';
 
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/form/data';
-import type { IKeepComponentScrollPos } from 'src/features/form/layout/formLayoutTypes';
-import type { RootState } from 'src/store';
+import type { IFormData } from 'src/features/formData';
+import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
+import type { RootState } from 'src/redux/store';
 
 export interface IAltinnWindow extends Window {
   app: string;
@@ -68,6 +68,7 @@ export interface IPagesSettings {
   hideCloseButton?: boolean;
   showProgress?: boolean;
   showLanguageSelector?: boolean;
+  showExpandWidthButton?: boolean;
   excludeFromPdf?: string[];
   pdfLayoutName?: string;
 }
@@ -88,6 +89,8 @@ export interface INavigationConfig {
 export interface IOption {
   label: string;
   value: any;
+  description?: string;
+  helpText?: string;
 }
 
 export interface IOptions {
@@ -98,6 +101,8 @@ export interface IOptionSource {
   group: string;
   label: string;
   value: string;
+  description?: string;
+  helpText?: string;
 }
 
 export interface IOptionsActualData {
@@ -120,6 +125,7 @@ export interface IRepeatingGroup {
   editIndex?: number;
   deletingIndex?: number[];
   multiPageIndex?: number;
+  isLoading?: boolean;
 }
 
 export interface IRepeatingGroups {
@@ -153,7 +159,7 @@ export interface ITextResource {
 }
 
 export interface ITextResourceBindings {
-  [id: string]: string;
+  [id: string]: string | undefined;
 }
 
 export interface IValidationIssue {
@@ -188,6 +194,8 @@ export interface IUiConfig {
   hideCloseButton?: boolean;
   showLanguageSelector?: boolean;
   showProgress?: boolean;
+  showExpandWidthButton?: boolean;
+  expandedWidth?: boolean;
   keepScrollPos?: IKeepComponentScrollPos;
 }
 

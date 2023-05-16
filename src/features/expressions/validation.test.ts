@@ -1,15 +1,14 @@
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions/index';
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression, preProcessLayout } from 'src/features/expressions/validation';
-import { _private } from 'src/utils/layout/hierarchy';
+import { getLayoutComponentObject } from 'src/layout';
+import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { Layouts } from 'src/features/expressions/shared';
 import type { ExprResolved, ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponentOrGroup } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
-
-const { nodesInLayouts } = _private;
 
 function isRepeatingGroup(
   component?: ExprUnresolved<ILayoutComponentOrGroup> | ExprResolved<ILayoutComponentOrGroup>,
@@ -53,13 +52,25 @@ function evalAllExpressions(layouts: Layouts) {
     applicationSettings: {} as any,
     instanceContext: {} as any,
     hiddenFields: new Set(),
+    authContext: null,
     validations: {},
   };
-  const nodes = nodesInLayouts(convertLayouts(layouts), Object.keys(layouts)[0], repeatingGroups, dataSources);
+  const nodes = generateEntireHierarchy(
+    convertLayouts(layouts),
+    Object.keys(layouts)[0],
+    repeatingGroups,
+    dataSources,
+    getLayoutComponentObject,
+  );
   for (const page of Object.values(nodes.all())) {
     for (const node of page.flat(true)) {
+      const input = { ...node.item };
+      delete input['children'];
+      delete input['rows'];
+      delete input['childComponents'];
+
       evalExprInObj({
-        input: node.item,
+        input,
         node,
         config: {
           ...ExprConfigForComponent,
@@ -85,9 +96,7 @@ describe('Expression validation', () => {
       const warningsExpected = t.expectsWarnings || [];
       const logSpy = jest.spyOn(console, 'log');
       if (warningsExpected.length > 0) {
-        logSpy.mockImplementation(() => {
-          return undefined;
-        });
+        logSpy.mockImplementation(() => undefined);
       }
 
       const result: (typeof tests)['content'][number]['layouts'] = {};

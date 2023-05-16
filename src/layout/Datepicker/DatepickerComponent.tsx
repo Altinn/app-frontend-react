@@ -6,7 +6,8 @@ import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/picker
 import moment from 'moment';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
-import { useDelayedSavedState } from 'src/components/hooks/useDelayedSavedState';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -103,14 +104,24 @@ class AltinnMomentUtils extends MomentUtils {
 // We dont use the built-in validation for the 3rd party component, so it is always empty string
 const emptyString = '';
 
-export function DatepickerComponent({ node, language, formData, handleDataChange, isValid }: IDatepickerProps) {
+export function DatepickerComponent({
+  node,
+  language,
+  formData,
+  handleDataChange,
+  isValid,
+  overrideDisplay,
+  getTextResourceAsString,
+}: IDatepickerProps) {
   const classes = useStyles();
+  const profile = useAppSelector((state) => state.profile);
+  const languageLocale = profile.selectedAppLanguage || profile.profile.profileSettingPreference.language;
   const { minDate, maxDate, format, timeStamp = true, readOnly, required, id, textResourceBindings } = node.item;
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
 
-  const calculatedFormat = getDateFormat(format);
+  const calculatedFormat = getDateFormat(format, languageLocale);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -174,7 +185,7 @@ export function DatepickerComponent({ node, language, formData, handleDataChange
             InputProps={{
               disableUnderline: true,
               error: !isValid,
-              readOnly: readOnly,
+              readOnly,
               classes: {
                 root: classes.root + (!isValid ? ` ${classes.invalid}` : '') + (readOnly ? ' disabled' : ''),
                 input: classes.input,
@@ -182,6 +193,11 @@ export function DatepickerComponent({ node, language, formData, handleDataChange
               ...(textResourceBindings?.description && {
                 'aria-describedby': `description-${id}`,
               }),
+            }}
+            inputProps={{
+              'aria-label': overrideDisplay?.renderedInTable
+                ? getTextResourceAsString(textResourceBindings?.title)
+                : undefined,
             }}
             DialogProps={{ className: classes.dialog }}
             PopoverProps={{ className: classes.dialog }}

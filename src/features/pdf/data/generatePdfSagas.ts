@@ -1,30 +1,32 @@
 import { all, call, put, race, select, take } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormDataActions } from 'src/features/form/data/formDataSlice';
-import { FormLayoutActions } from 'src/features/form/layout/formLayoutSlice';
+import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
+import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
+import { IsLoadingActions } from 'src/features/isLoading/isLoadingSlice';
+import { LanguageActions } from 'src/features/language/languageSlice';
+import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { OptionsActions } from 'src/features/options/optionsSlice';
+import { OrgsActions } from 'src/features/orgs/orgsSlice';
+import { PartyActions } from 'src/features/party/partySlice';
 import { PDF_LAYOUT_NAME, PdfActions } from 'src/features/pdf/data/pdfSlice';
-import { ComponentType, getLayoutComponentObject } from 'src/layout';
-import { DataListsActions } from 'src/shared/resources/dataLists/dataListsSlice';
-import { InstanceDataActions } from 'src/shared/resources/instanceData/instanceDataSlice';
-import { IsLoadingActions } from 'src/shared/resources/isLoading/isLoadingSlice';
-import { LanguageActions } from 'src/shared/resources/language/languageSlice';
-import { OptionsActions } from 'src/shared/resources/options/optionsSlice';
-import { OrgsActions } from 'src/shared/resources/orgs/orgsSlice';
-import { PartyActions } from 'src/shared/resources/party/partySlice';
-import { QueueActions } from 'src/shared/resources/queue/queueSlice';
-import { TextResourcesActions } from 'src/shared/resources/textResources/textResourcesSlice';
+import { QueueActions } from 'src/features/queue/queueSlice';
+import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
+import { getLayoutComponentObject } from 'src/layout';
+import { ComponentType } from 'src/layout/LayoutComponent';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { topLevelComponents } from 'src/utils/formLayout';
 import { httpGet } from 'src/utils/network/networking';
 import { pdfPreviewMode, shouldGeneratePdf } from 'src/utils/pdf';
 import { getPdfFormatUrl } from 'src/utils/urls/appUrlHelper';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IPdfFormat, IPdfMethod } from 'src/features/pdf/data/types';
 import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
 import type { ILayout, ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types.d';
-import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
 import type { ILayoutSets, IRuntimeState, IUiConfig } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 
@@ -77,8 +79,8 @@ function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, lay
 
       if (
         component.type === 'Group' ||
-        layoutComponent.getComponentType() === ComponentType.Form ||
-        layoutComponent.getComponentType() === ComponentType.Presentation
+        layoutComponent.type === ComponentType.Form ||
+        layoutComponent.type === ComponentType.Presentation
       ) {
         return {
           id: `__pdf__${component.id}`,
@@ -181,16 +183,17 @@ export function* watchPdfReadySaga(): SagaIterator {
 
 export function* watchInitialPdfSaga(): SagaIterator {
   while (true) {
-    yield race([
-      all([
+    const { devTools } = yield race({
+      processTask: all([
         take(QueueActions.startInitialDataTaskQueueFulfilled),
         take(FormLayoutActions.fetchFulfilled),
         take(FormLayoutActions.fetchSettingsFulfilled),
         take(InstanceDataActions.getFulfilled),
       ]),
-      take(PdfActions.pdfStateChanged),
-    ]);
-    if (shouldGeneratePdf()) {
+      stateChanged: take(PdfActions.pdfStateChanged),
+      devTools: take(DevToolsActions.setPdfPreview),
+    });
+    if (devTools?.payload?.preview || shouldGeneratePdf()) {
       const layouts: ILayouts = yield select(layoutsSelector);
       const uiConfig: IUiConfig = yield select(uiConfigSelector);
       const customPdfLayout = uiConfig.pdfLayoutName ? layouts[uiConfig.pdfLayoutName] : undefined;

@@ -1,4 +1,8 @@
-import { replaceTextResourceParams } from 'src/language/sharedLanguage';
+import {
+  getParsedLanguageFromText,
+  getTextResourceByKey,
+  replaceTextResourceParams,
+} from 'src/language/sharedLanguage';
 import {
   getBaseGroupDataModelBindingFromKeyWithIndexIndicators,
   getGroupDataModelBinding,
@@ -6,7 +10,8 @@ import {
   keyHasIndexIndicators,
   replaceIndexIndicatorsWithIndexes,
 } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
+import type { IOptionResources } from 'src/hooks/useGetOptions';
 import type { ILayout } from 'src/layout/layout';
 import type {
   IMapping,
@@ -100,7 +105,7 @@ export function getRelevantFormDataForOptionSource(formData: IFormData, source: 
 
 interface ISetupSourceOptionsParams {
   source: IOptionSource;
-  relevantTextResource: ITextResource;
+  relevantTextResources: IOptionResources;
   relevantFormData: IFormData;
   repeatingGroups: IRepeatingGroups | null;
   dataSources: IDataSources;
@@ -111,16 +116,22 @@ interface ISetupSourceOptionsParams {
  */
 export function setupSourceOptions({
   source,
-  relevantTextResource,
+  relevantTextResources,
   relevantFormData,
   repeatingGroups,
   dataSources,
 }: ISetupSourceOptionsParams) {
-  const replacedOptionLabels = replaceTextResourceParams([relevantTextResource], dataSources, repeatingGroups);
+  const replacedOptionLabels = relevantTextResources.label
+    ? replaceTextResourceParams([relevantTextResources.label], dataSources, repeatingGroups)
+    : [];
+  const replacedOptionDescriptions = relevantTextResources.description
+    ? replaceTextResourceParams([relevantTextResources.description], dataSources, repeatingGroups)
+    : [];
+  const replacedOptionLabelsHelpTexts = relevantTextResources.helpText
+    ? replaceTextResourceParams([relevantTextResources.helpText], dataSources, repeatingGroups)
+    : [];
 
-  const repGroup = Object.values(repeatingGroups || {}).find((group) => {
-    return group.dataModelBinding === source.group;
-  });
+  const repGroup = Object.values(repeatingGroups || {}).find((group) => group.dataModelBinding === source.group);
 
   if (!repGroup) {
     return undefined;
@@ -130,8 +141,10 @@ export function setupSourceOptions({
   for (let i = 0; i <= repGroup.index; i++) {
     if (typeof replacedOptionLabels[i + 1]?.value !== 'undefined') {
       const option: IOption = {
-        label: replacedOptionLabels[i + 1].value,
         value: replaceOptionDataField(relevantFormData, source.value, i),
+        label: replacedOptionLabels[i + 1].value,
+        description: replacedOptionDescriptions[i + 1]?.value,
+        helpText: replacedOptionLabelsHelpTexts[i + 1]?.value,
       };
       options.push(option);
     }
@@ -167,9 +180,9 @@ export function removeGroupOptionsByIndex({
       newOptions[optionKey] = options[optionKey];
       return;
     }
-    const shouldBeDeleted = Object.keys(mapping).some((mappingKey) => {
-      return mappingKey.startsWith(`${groupDataBinding}[${index}]`);
-    });
+    const shouldBeDeleted = Object.keys(mapping).some((mappingKey) =>
+      mappingKey.startsWith(`${groupDataBinding}[${index}]`),
+    );
 
     if (shouldBeDeleted) {
       return;
@@ -182,9 +195,9 @@ export function removeGroupOptionsByIndex({
       };
       // the indexed to be deleted is lower than total indexes, shift all above
       for (let shiftIndex = index + 1; shiftIndex <= repeatingGroup.index + 1; shiftIndex++) {
-        const shouldBeShifted = Object.keys(mapping).filter((mappingKey) => {
-          return mappingKey.startsWith(`${groupDataBinding}[${shiftIndex}]`);
-        });
+        const shouldBeShifted = Object.keys(mapping).filter((mappingKey) =>
+          mappingKey.startsWith(`${groupDataBinding}[${shiftIndex}]`),
+        );
 
         shouldBeShifted?.forEach((key) => {
           const newKey = key.replace(`${groupDataBinding}[${shiftIndex}]`, `${groupDataBinding}[${shiftIndex - 1}]`);
@@ -204,4 +217,23 @@ export function removeGroupOptionsByIndex({
   });
 
   return newOptions;
+}
+
+export function duplicateOptionFilter(currentOption: IOption, currentIndex: number, options: IOption[]): boolean {
+  for (let i = 0; i < currentIndex; i++) {
+    if (currentOption.value === options[i].value) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function formatLabelForSelect(option: IOption, textResources: ITextResource[]): React.ReactNode {
+  const label = getTextResourceByKey(option.label, textResources) ?? option.value;
+  if (option.description) {
+    const description = getTextResourceByKey(option.description, textResources);
+    return getParsedLanguageFromText(`<b>${label}</b><br><span>${description}</span>`);
+  } else {
+    return getParsedLanguageFromText(`<span>${label}</span>`);
+  }
 }

@@ -16,29 +16,32 @@ describe('Stateless', () => {
     cy.get(appFrontend.closeButton).should('not.exist');
     cy.get(appFrontend.stateless.name).invoke('val').should('not.be.empty');
     cy.get(appFrontend.stateless.number).should('have.value', '1364');
-    cy.get(appFrontend.stateless.name).clear().type('test').blur();
+    cy.get(appFrontend.stateless.name).clear();
+    cy.get(appFrontend.stateless.name).type('test');
+    cy.get(appFrontend.stateless.name).blur();
     cy.get(appFrontend.stateless.name).should('have.value', 'automation');
     cy.get(appFrontend.header).should('contain.text', appFrontend.apps.stateless).and('contain.text', texts.ttd);
   });
 
   it('Dynamics in stateless app', () => {
-    cy.get(appFrontend.stateless.name).clear().type('automation').blur();
+    cy.get(appFrontend.stateless.name).clear();
+    cy.get(appFrontend.stateless.name).type('automation');
+    cy.get(appFrontend.stateless.name).blur();
     cy.get(appFrontend.stateless.idnummer2).should('exist').and('be.visible');
-    cy.get(appFrontend.stateless.name).clear().type('abc').blur();
+    cy.get(appFrontend.stateless.name).clear();
+    cy.get(appFrontend.stateless.name).type('abc');
+    cy.get(appFrontend.stateless.name).blur();
     cy.get(appFrontend.stateless.idnummer2).should('not.exist');
   });
 
   it('Logout from appfrontend', () => {
-    cy.get(appFrontend.profileIconButton).should('be.visible').click();
+    cy.get(appFrontend.profileIconButton).click();
     cy.get(appFrontend.logOut).should('be.visible');
     cy.get(appFrontend.logOutLink).should('exist').and('be.visible');
   });
 
   it('is possible to start app instance from stateless app', () => {
-    const userFirstName =
-      (Cypress.env('testUserName') || '').includes('external') && Cypress.env('environment') !== 'local'
-        ? Cypress.env('externalFistName')
-        : Cypress.env('firstName');
+    const userFirstName = Cypress.env('defaultFirstName');
     cy.startStateFullFromStateless();
     cy.get(appFrontend.stateless.name).should('have.value', userFirstName);
     cy.get(appFrontend.stateless.idnumber).should('have.value', '1364');

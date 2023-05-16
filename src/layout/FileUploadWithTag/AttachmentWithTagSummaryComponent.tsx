@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { getOptionLookupKey } from 'src/utils/options';
@@ -43,9 +43,8 @@ export function AttachmentWithTagSummaryComponent({ targetNode }: IAttachmentWit
       ]?.options,
   );
 
-  const getOptionsTagLabel = ({ tags }: { tags: string[] }) => {
-    return options?.find((option) => option.value === tags[0])?.label;
-  };
+  const getOptionsTagLabel = ({ tags }: { tags: string[] }) =>
+    options?.find((option) => option.value === tags[0])?.label;
   const tryToGetTextResource = (attachment) => {
     const optionsTagLabel = getOptionsTagLabel(attachment);
     return textResources?.find(({ id }) => id === optionsTagLabel)?.value || optionsTagLabel;

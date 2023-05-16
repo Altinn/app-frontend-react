@@ -2,11 +2,11 @@ import React from 'react';
 
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ProcessNavigation } from 'src/components/presentation/ProcessNavigation';
+import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnConfirmSummaryObject';
-import { ReadyForPrint } from 'src/shared/components/ReadyForPrint';
 import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { IApplicationMetadata } from 'src/shared/resources/applicationMetadata';
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ITextResource } from 'src/types';
 import type { IInstance, ILanguage, IParty } from 'src/types/shared';
 
@@ -29,9 +29,9 @@ export const ConfirmPage = ({
 }: IConfirmPageProps) => {
   const getInstanceMetaObject = () => {
     if (instance?.org && applicationMetadata) {
-      const instanceOwnerParty = parties?.find((party: IParty) => {
-        return party.partyId.toString() === instance.instanceOwner.partyId;
-      });
+      const instanceOwnerParty = parties?.find(
+        (party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId,
+      );
       return returnConfirmSummaryObject({
         languageData: language || undefined,
         instanceOwnerParty,

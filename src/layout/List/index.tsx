@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { SummaryItemSimple } from 'src/components/summary/SummaryItemSimple';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { ListComponent } from 'src/layout/List/ListComponent';
+import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -31,5 +31,9 @@ export class List extends FormComponent<'List'> {
   renderSummary({ targetNode }: SummaryRendererProps<'List'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
+  }
+
+  canRenderInTable(): boolean {
+    return false;
   }
 }

@@ -8,15 +8,14 @@ import { mockMediaQuery, renderGenericComponentTest } from 'src/testUtils';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
 
 // Mock dateformat
-jest.mock('src/utils/dateHelpers', () => {
-  return {
-    __esModules: true,
-    ...jest.requireActual('src/utils/dateHelpers'),
-    getDateFormat: jest.fn(() => 'DD.MM.YYYY'),
-  };
-});
+jest.mock('src/utils/dateHelpers', () => ({
+  __esModules: true,
+  ...jest.requireActual('src/utils/dateHelpers'),
+  getDateFormat: jest.fn(() => 'DD.MM.YYYY'),
+}));
 
 const render = ({ component, genericProps }: Partial<RenderGenericComponentTestProps<'Datepicker'>> = {}) => {
+  const user = userEvent.setup();
   renderGenericComponentTest({
     type: 'Datepicker',
     renderer: (props) => <DatepickerComponent {...props} />,
@@ -27,6 +26,8 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
     },
     genericProps,
   });
+
+  return { user };
 };
 
 const currentYearNumeric = new Date().toLocaleDateString(navigator.language, {
@@ -47,11 +48,9 @@ const getOpenCalendarButton = () =>
     name: /date_picker\.aria_label_icon/i,
   });
 
-const getCalendarDayButton = (dayNumber) => {
+const getCalendarDayButton = (dayNumber) =>
   // Getting by role would be better, but it is too slow, because of the big DOM that is generated
-  return screen.getByText(dayNumber);
-};
-
+  screen.getByText(dayNumber);
 const { setScreenWidth } = mockMediaQuery(600);
 
 describe('DatepickerComponent', () => {
@@ -61,11 +60,11 @@ describe('DatepickerComponent', () => {
 
   it('should not show calendar initially, and show calendar when clicking calendar button', async () => {
     jest.spyOn(console, 'error').mockImplementation();
-    render();
+    const { user } = render();
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
 
-    await act(() => userEvent.click(getOpenCalendarButton()));
+    await act(() => user.click(getOpenCalendarButton()));
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -79,11 +78,11 @@ describe('DatepickerComponent', () => {
 
   it('should not show calendar initially, and show calendar in a dialog when clicking calendar button, and screen size is mobile sized', async () => {
     setScreenWidth(400);
-    render();
+    const { user } = render();
 
     expect(getCalendarYearHeader('queryByRole')).not.toBeInTheDocument();
 
-    await act(() => userEvent.click(getOpenCalendarButton()));
+    await act(() => user.click(getOpenCalendarButton()));
 
     expect(getCalendarYearHeader()).toBeInTheDocument();
     expect(screen.getAllByRole('dialog')[0]).toBeInTheDocument();
@@ -91,100 +90,112 @@ describe('DatepickerComponent', () => {
 
   it('should call handleDataChange when clicking date in calendar', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange } });
+    const { user } = render({ genericProps: { handleDataChange } });
 
-    await act(() => userEvent.click(getOpenCalendarButton()));
-    await act(() => userEvent.click(getCalendarDayButton('15')));
+    await act(() => user.click(getOpenCalendarButton()));
+    await act(() => user.click(getCalendarDayButton('15')));
 
     expect(handleDataChange).toHaveBeenCalledWith(
       // Ignore TZ part of timestamp to avoid test failing when this changes
       // Calendar opens up on current year/month by default, so we need to cater for this in the expected output
       expect.stringContaining(`${currentYearNumeric}-${currentMonthNumeric}-15T12:00:00.000+`),
+      { validate: true },
     );
   });
 
   it('should call handleDataChange without skipping validation if date is cleared', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange, formData: { simpleBinding: '2022-12-31' } } });
+    const { user } = render({ genericProps: { handleDataChange, formData: { simpleBinding: '2022-12-31' } } });
 
     const inputField = screen.getByRole('textbox');
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
-      await userEvent.clear(inputField);
+      await user.clear(inputField);
       fireEvent.blur(inputField);
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('');
+    expect(handleDataChange).toHaveBeenCalledWith('', { validate: true });
   });
 
   it('should call handleDataChange with formatted value (timestamp=true) without skipping validation if date is valid', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange }, component: { timeStamp: true } });
+    const { user } = render({ genericProps: { handleDataChange }, component: { timeStamp: true } });
 
     const inputField = screen.getByRole('textbox');
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
-      await userEvent.type(inputField, '31122022');
+      await user.type(inputField, '31122022');
       fireEvent.blur(inputField);
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'));
+    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'), {
+      validate: true,
+    });
   });
 
   it('should call handleDataChange with formatted value (timestamp=false) without skipping validation if date is valid', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange }, component: { timeStamp: false } });
+    const { user } = render({ genericProps: { handleDataChange }, component: { timeStamp: false } });
 
     const inputField = screen.getByRole('textbox');
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
-      await userEvent.type(inputField, '31122022');
+      await user.type(inputField, '31122022');
       fireEvent.blur(inputField);
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('2022-12-31');
+    expect(handleDataChange).toHaveBeenCalledWith('2022-12-31', { validate: true });
   });
 
   it('should call handleDataChange with formatted value (timestamp=undefined) without skipping validation if date is valid', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange }, component: { timeStamp: undefined } });
+    const { user } = render({ genericProps: { handleDataChange }, component: { timeStamp: undefined } });
 
     const inputField = screen.getByRole('textbox');
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
-      await userEvent.type(inputField, '31122022');
+      await user.type(inputField, '31122022');
       fireEvent.blur(inputField);
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'));
+    expect(handleDataChange).toHaveBeenCalledWith(expect.stringContaining('2022-12-31T12:00:00.000+'), {
+      validate: true,
+    });
   });
 
   it('should call handleDataChange without skipping validation if date is invalid but finished filling out', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange } });
+    const { user } = render({ genericProps: { handleDataChange } });
 
     const inputField = screen.getByRole('textbox');
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
-      await userEvent.type(inputField, '12345678');
+      await user.type(inputField, '12345678');
       fireEvent.blur(inputField);
     });
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
-    expect(handleDataChange).toHaveBeenCalledWith('12.34.5678');
+    expect(handleDataChange).toHaveBeenCalledWith('12.34.5678', { validate: true });
   });
 
   it('should call handleDataChange with skipValidation=true if not finished filling out the date', async () => {
     const handleDataChange = jest.fn();
-    render({ genericProps: { handleDataChange } });
+    const { user } = render({ genericProps: { handleDataChange } });
 
     const inputField = screen.getByRole('textbox');
+
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
-      await userEvent.type(inputField, `1234`);
+      await user.type(inputField, `1234`);
       fireEvent.blur(inputField);
     });
 

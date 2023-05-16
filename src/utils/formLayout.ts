@@ -1,8 +1,8 @@
+import type { IAttachmentState } from 'src/features/attachments';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/form/data';
+import type { IFormData } from 'src/features/formData';
 import type { IGroupEditProperties, IGroupFilter, ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentTypes, ILayout, ILayoutComponent } from 'src/layout/layout';
-import type { IAttachmentState } from 'src/shared/resources/attachments';
+import type { ILayout, ILayoutComponent } from 'src/layout/layout';
 import type {
   IFileUploadersWithTag,
   ILayoutNavigation,
@@ -10,7 +10,8 @@ import type {
   IOptionsChosen,
   IRepeatingGroups,
 } from 'src/types';
-import type { LayoutNode, LayoutPage } from 'src/utils/layout/hierarchy';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 interface SplitKey {
   baseComponentId: string;
@@ -46,9 +47,9 @@ export function splitDashedKey(componentId: string): SplitKey {
       const stringDepth = depth.join('-').toString();
       return {
         baseComponentId: [...parts, toConsider].join('-'),
-        stringDepth: stringDepth,
+        stringDepth,
         stringDepthWithLeadingDash: stringDepth ? `-${stringDepth}` : '',
-        depth: depth,
+        depth,
       };
     }
   }
@@ -92,7 +93,9 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
     group.children?.forEach((childId: string) => {
       formLayout
         .filter((element) => {
-          if (element.type !== 'Group') return false;
+          if (element.type !== 'Group') {
+            return false;
+          }
           if (group.edit?.multiPage) {
             return childId.split(':')[1] === element.id;
           }
@@ -108,9 +111,7 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   filteredGroups.forEach((groupElement: ExprUnresolved<ILayoutGroup>) => {
     if (groupElement.maxCount && groupElement.maxCount > 1) {
       const groupFormData = Object.keys(formData)
-        .filter((key) => {
-          return groupElement.dataModelBindings?.group && key.startsWith(groupElement.dataModelBindings.group);
-        })
+        .filter((key) => groupElement.dataModelBindings?.group && key.startsWith(groupElement.dataModelBindings.group))
         .sort();
       if (groupFormData && groupFormData.length > 0) {
         const maxIndex = getMaxIndexInKeys(groupFormData);
@@ -204,9 +205,7 @@ function getIndexForNestedRepeatingGroup(
   }
   const indexedGroupBinding = groupBinding.replace(parentGroupBinding, `${parentGroupBinding}[${parentIndex}]`);
   const groupFormData = Object.keys(formData)
-    .filter((key) => {
-      return key.startsWith(indexedGroupBinding);
-    })
+    .filter((key) => key.startsWith(indexedGroupBinding))
     .sort();
   if (groupFormData && groupFormData.length > 0) {
     return getMaxIndexInKeys(groupFormData, true);
@@ -264,7 +263,7 @@ export function removeRepeatingGroupFromUIConfig(
 
 export const getRepeatingGroupStartStopIndex = (
   repeatingGroupIndex: number,
-  edit: ExprUnresolved<IGroupEditProperties> | undefined,
+  edit: Pick<IGroupEditProperties, 'filter'> | undefined,
 ) => {
   if (typeof repeatingGroupIndex === 'undefined') {
     return { startIndex: 0, stopIndex: -1 };
@@ -374,13 +373,11 @@ export function topLevelComponents(layout: ILayout) {
  * value is the input layout except for these extracted components.
  */
 export function extractBottomButtons(page: LayoutPage) {
-  const extract = new Set<ComponentTypes>(['NavigationButtons', 'Button', 'PrintButton']);
-
   const all = [...page.children()];
   const toMainLayout: LayoutNode[] = [];
   const toErrorReport: LayoutNode[] = [];
   for (const node of all.reverse()) {
-    if (extract.has(node.item.type) && toMainLayout.length === 0) {
+    if ((node.isType('ButtonGroup') || node.def.canRenderInButtonGroup()) && toMainLayout.length === 0) {
       toErrorReport.push(node);
     } else {
       toMainLayout.push(node);

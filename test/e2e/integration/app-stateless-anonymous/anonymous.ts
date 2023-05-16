@@ -6,7 +6,7 @@ const appFrontend = new AppFrontend();
 describe('Anonymous (stateless)', () => {
   beforeEach(() => {
     cy.intercept('**/api/layoutsettings/stateless').as('getLayoutStateless');
-    cy.startAppInstance(appFrontend.apps.anonymousStateless, true);
+    cy.startAppInstance(appFrontend.apps.anonymousStateless, null);
     cy.wait('@getLayoutStateless');
     cy.get(appFrontend.stateless.name).should('exist').and('be.visible');
   });
@@ -23,8 +23,18 @@ describe('Anonymous (stateless)', () => {
   });
 
   it('should trigger data processing on changes in form fields', () => {
-    cy.get(appFrontend.stateless.name).type('test').blur();
+    cy.get(appFrontend.stateless.name).type('test');
+    cy.get(appFrontend.stateless.name).blur();
     cy.get(appFrontend.stateless.name).should('have.value', 'automation');
     cy.get(appFrontend.stateless.idnummer2).should('have.value', '1234567890');
+  });
+
+  it('should cancel previous requests when changing answers', () => {
+    // Do not remove the delay, it's added to ensure that the test has time to cancel the request
+    cy.intercept('**/data/anonymous?dataType=default', { delay: 200 }).as('postDefault');
+    cy.get(appFrontend.stateless.name).type('test');
+    cy.get('label:contains("kvinne")').click();
+    cy.get('label:contains("mann")').click();
+    cy.get('@console.warn').should('have.been.calledWith', 'Request aborted due to saga cancellation');
   });
 });

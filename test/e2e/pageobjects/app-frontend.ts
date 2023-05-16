@@ -10,6 +10,9 @@ export class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/anonymous-stateless-app */
     anonymousStateless: 'anonymous-stateless-app',
+
+    /** @see https://dev.altinn.studio/repos/ttd/signing-test */
+    signingTest: 'signing-test',
   };
 
   //Start app instance page
@@ -19,17 +22,19 @@ export class AppFrontend {
   //Common
   public loadingAnimation = 'rect[role="presentation"]';
   public header = '.a-modal-header';
-  public closeButton = '.a-modal-close-icon';
-  public backButton = '.a-modal-back';
+  public closeButton = '[data-testid="form-close-button"]';
+  public backButton = '[data-testid="form-back-button"]';
   public attachmentIcon = '.reg-attachment';
   public sendinButton = '#sendInButton';
   public instantiationButton = '#instantiation-button';
   public errorReport = '[data-testid="ErrorReport"]';
   public altinnError = '[data-testid="AltinnError"]';
+  public instanceErrorCode = '[data-testid="StatusCode"]';
   public profileIconButton = '#profile-icon-button';
   public logOut = '#logout-menu-item';
   public logOutLink = 'a[href$="/ui/authentication/LogOut"]';
   public designSystemPanel = '[data-testid="panel-content-wrapper"]';
+  public printButton = 'button:contains("Print / Lagre PDF")';
 
   public helpText = {
     open: 'button[aria-expanded=false]',
@@ -40,11 +45,56 @@ export class AppFrontend {
   public navMenu = '#navigation-menu';
   public navMenuButtons = '#navigation-menu li > button';
   public navMenuCurrent = '#navigation-menu li > button[aria-current=page]';
+  public navMobileMenu = 'nav[data-testid=NavigationBar] button';
   public navButtons = '[data-testid=NavigationButtons]';
   public startAgain = '#startAgain';
   public nextButton = `[data-testid=NavigationButtons] button:contains("${texts.next}")`;
   public prevButton = `[data-testid=NavigationButtons] button:contains("${texts.prev}")`;
   public backToSummaryButton = `[data-testid=NavigationButtons] button:contains("${texts.backToSummary}")`;
+
+  public grid = {
+    grid: '#page3-grid',
+    gridWithAll: '#all-grid-components',
+    showGridWithAll: '#show-all-components',
+    hasCreditCard: '#has-credit-card',
+    totalAmount: '#gjeld',
+    totalPercent: '#fordeling-total',
+    bolig: {
+      percent: '#fordeling-bolig',
+      percentComponent: 'div[data-componentid="fordeling-bolig"]',
+      percentSummary: 'div[data-testid="summary-fordeling-bolig"]',
+      amount: '#belop-bolig',
+      amountComponent: 'div[data-componentid="belop-bolig"]',
+      amountSummary: 'div[data-testid="summary-belop-bolig"]',
+      verified: '#innhentet-bolig',
+      verifiedComponent: 'div[data-componentid="innhentet-bolig"]',
+      verifiedSummary: 'div[data-testid="summary-innhentet-bolig"]',
+    },
+    studie: {
+      percent: '#fordeling-studie',
+      percentComponent: 'div[data-componentid="fordeling-studie"]',
+      percentSummary: 'div[data-testid="summary-fordeling-studie"]',
+      amount: '#belop-studie',
+      amountComponent: 'div[data-componentid="belop-studie"]',
+      amountSummary: 'div[data-testid="summary-belop-studie"]',
+      verified: '#innhentet-studie',
+      verifiedComponent: 'div[data-componentid="innhentet-studie"]',
+      verifiedSummary: 'div[data-testid="summary-innhentet-studie"]',
+    },
+    kredittkort: {
+      percent: '#fordeling-kredittkort',
+      percentComponent: 'div[data-componentid="fordeling-kredittkort"]',
+      percentSummary: 'div[data-testid="summary-fordeling-kredittkort"]',
+      amount: '#belop-kredittkort',
+      amountComponent: 'div[data-componentid="belop-kredittkort"]',
+      amountSummary: 'div[data-testid="summary-belop-kredittkort"]',
+      verified: '#innhentet-kredittkort',
+      verifiedComponent: 'div[data-componentid="innhentet-kredittkort"]',
+      verifiedSummary: 'div[data-testid="summary-innhentet-kredittkort"]',
+    },
+    summary: 'div[data-testid="summary-summaryGrid1"]',
+    summaryAll: 'div[data-testid="summary-summaryGrid2"]',
+  };
 
   //Receipt
   public receipt = {
@@ -118,6 +168,7 @@ export class AppFrontend {
     uploadedTable: '#altinn-file-listfileUpload-changename',
     uploadSuccess: '.ai-check-circle',
     uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
+    componentSummary: '[data-testid="summary-item-simple"]',
   };
 
   //group - task 3
@@ -131,14 +182,15 @@ export class AppFrontend {
     },
     showGroupToContinue: '#showGroupToContinue',
     mainGroup: '#group-mainGroup',
-    secondGroup: '#group-group-2',
+    overflowGroup: '#group-mainGroup2',
+    secondGroup: '#group-group2',
     secondGroup_newValue: 'input[id^="group2-endre-til"]',
     secondGroup_currentValue: 'input[id^="group2-endre-fra"]',
-    secondGroup_add: '[id^="add-button-group-2"]',
+    secondGroup_add: '[id^="add-button-group2"]',
     secondGroup_add_to_reference_group: '[id^="add-reference-button-group-reference"]',
     secondGroup_save: '[id^="save-reference-button-group-reference"]',
-    secondGroup_save_and_close: '[id^="add-button-grp-group-2"]',
-    secondGroup_table: '[id^="group-group-2-table"]',
+    secondGroup_save_and_close: '[id^="add-button-grp-group2"]',
+    secondGroup_table: '[id^="group-group2-table"]',
     subGroup: '[id^="group-subGroup"]',
     currentValue: 'input[id^="currentValue"]',
     navigationBarButton: '#form-content-nav2 > div > nav > button',
@@ -149,20 +201,23 @@ export class AppFrontend {
     comments: 'input[id^="comments"]',
     saveSubGroup: 'button[id*="add-button-grp-subGroup"]',
     saveMainGroup: '#add-button-grp-mainGroup',
+    saveAndNextMainGroup: '#next-button-grp-mainGroup',
     editContainer: '[data-testid=group-edit-container]',
     sendersName: '#sendersName',
     summaryText: '#send-in-text',
     next: `button:contains("${texts.next}")`,
     back: `button:contains("${texts.back}")`,
-    mainGroupSummary: '[data-testid="summary-summary-1"] [data-testid="display-group-container"]',
+    mainGroupSummary: '[data-testid="summary-summary1"] [data-testid="display-group-container"]',
     mainGroupTableBody: '#group-mainGroup-table-body',
     options: '#reduxOptions',
+    hideRepeatingGroupRow: '#hideRepeatingGroupRow',
     tableErrors: '[data-testid=group-table-errors]',
     popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     edit: '[data-testid=edit-button]',
     delete: '[data-testid=delete-button]',
     hideCommentField: '[id^="hideComment"]',
+    hiddenRowsInfoMsg: '[data-componentid="info-msg"]',
     row: (idx: number) => ({
       uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3, 'untagged'),
       uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4, 'untagged'),
@@ -212,6 +267,16 @@ export class AppFrontend {
     table: '#instance-selection-table',
     tableBody: '#instance-selection-table-body',
     newInstance: '#new-instance-button',
+  };
+
+  public signingTest = {
+    incomeField: '#Input-income',
+    submitButton: '#Button-submit',
+    signingButton: '#action-button-SigningButton',
+    managerConfirmPanel: '#form-content-Panel-confirm1',
+    auditorConfirmPanel: '#form-content-Panel-confirm2',
+    sentToAuditor: '#form-content-Header-noaccess',
+    noAccessPanel: '#form-content-Panel-noaccess',
   };
 }
 

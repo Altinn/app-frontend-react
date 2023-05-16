@@ -4,6 +4,7 @@ import { getFormDataStateMock } from 'src/__mocks__/formDataStateMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
 import { partyMock } from 'src/__mocks__/partyMock';
+import { getProcessStateMock } from 'src/__mocks__/processMock';
 import { getProfileStateMock } from 'src/__mocks__/profileStateMock';
 import { getLanguageFromCode } from 'src/language/languages';
 import type { IRuntimeState } from 'src/types';
@@ -16,6 +17,9 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     },
     attachments: {
       attachments: {},
+    },
+    devTools: {
+      pdfPreview: false,
     },
     formData: getFormDataStateMock(),
     formDataModel: {
@@ -56,7 +60,6 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     },
     language: {
       language: getLanguageFromCode('nb'),
-      selectedAppLanguage: '',
       error: null,
     },
     organisationMetaData: {
@@ -86,11 +89,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
       method: null,
       error: null,
     },
-    process: {
-      error: null,
-      taskType: null,
-      taskId: null,
-    },
+    process: getProcessStateMock(),
     profile: getProfileStateMock(),
     queue: {
       appTask: { error: null, isDone: null },
@@ -105,6 +104,28 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
           id: 'option.from.rep.group.label',
           value: 'The value from the group is: {0}',
           unparsedValue: 'The value from the group is: {0}',
+          variables: [
+            {
+              dataSource: 'dataModel.skjema',
+              key: 'someGroup[{0}].labelField',
+            },
+          ],
+        },
+        {
+          id: 'option.from.rep.group.description',
+          value: 'Description: The value from the group is: {0}',
+          unparsedValue: 'Description: The value from the group is: {0}',
+          variables: [
+            {
+              dataSource: 'dataModel.skjema',
+              key: 'someGroup[{0}].labelField',
+            },
+          ],
+        },
+        {
+          id: 'option.from.rep.group.helpText',
+          value: 'Help Text: The value from the group is: {0}',
+          unparsedValue: 'Help Text: The value from the group is: {0}',
           variables: [
             {
               dataSource: 'dataModel.skjema',

@@ -4,17 +4,21 @@ import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression } from 'src/features/expressions/validation';
+import { getLayoutComponentObject } from 'src/layout';
+import { buildAuthContext } from 'src/utils/authContext';
 import { getRepeatingGroups, splitDashedKey } from 'src/utils/formLayout';
 import { buildInstanceContext } from 'src/utils/instanceContext';
-import { _private, resolvedNodesInLayouts } from 'src/utils/layout/hierarchy';
+import { _private } from 'src/utils/layout/hierarchy';
+import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
 import type { IRepeatingGroups } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
-import type { LayoutNode, LayoutPages } from 'src/utils/layout/hierarchy';
 import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
-const { nodesInLayouts } = _private;
+const { resolvedNodesInLayouts } = _private;
 
 function findComponent(context: FunctionTest['context'], collection: LayoutPages<any>) {
   const { component, rowIndices } = context || { component: 'no-component' };
@@ -27,7 +31,7 @@ function findComponent(context: FunctionTest['context'], collection: LayoutPages
   if (component && rowIndices && rowIndices.length) {
     const componentId2 = `${component}-${rowIndices.slice(0, rowIndices.length - 1).join('-')}`.replace(/-+$/, '');
     const foundMaybeGroup = collection.findById(componentId2);
-    if (foundMaybeGroup && foundMaybeGroup.item.type === 'Group') {
+    if (foundMaybeGroup && foundMaybeGroup.isRepGroup()) {
       // Special case for using a group component with a row index, looking up within the
       // group context, but actually pointing to a row inside the group. This is supported
       // in useExpressions() itself, but evalExpr() requires the context of an actual component
@@ -46,12 +50,23 @@ describe('Expressions shared function tests', () => {
   describe.each(sharedTests.content)('Function: $folderName', (folder) => {
     it.each(folder.content)(
       '$name',
-      ({ expression, expects, expectsFailure, context, layouts, dataModel, instance, frontendSettings }) => {
+      ({
+        expression,
+        expects,
+        expectsFailure,
+        context,
+        layouts,
+        dataModel,
+        instance,
+        permissions,
+        frontendSettings,
+      }) => {
         const dataSources: HierarchyDataSources = {
           formData: dataModel ? dot.dot(dataModel) : {},
           instanceContext: buildInstanceContext(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
           hiddenFields: new Set<string>(),
+          authContext: buildAuthContext(permissions),
           validations: {},
         };
 
@@ -66,7 +81,7 @@ describe('Expressions shared function tests', () => {
 
         const currentLayout = (context && context.currentLayout) || '';
         const rootCollection = expectsFailure
-          ? nodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources)
+          ? generateEntireHierarchy(_layouts, currentLayout, repeatingGroups, dataSources, getLayoutComponentObject)
           : resolvedNodesInLayouts(_layouts, currentLayout, repeatingGroups, dataSources);
         const component = findComponent(context, rootCollection);
 
@@ -136,38 +151,38 @@ describe('Expressions shared context tests', () => {
   }
 
   describe.each(sharedTests.content)('$folderName', (folder) => {
-    it.each(folder.content)('$name', ({ layouts, dataModel, instance, frontendSettings, expectedContexts }) => {
-      const dataSources: HierarchyDataSources = {
-        formData: dataModel ? dot.dot(dataModel) : {},
-        instanceContext: buildInstanceContext(instance),
-        applicationSettings: frontendSettings || ({} as IApplicationSettings),
-        hiddenFields: new Set(),
-        validations: {},
-      };
+    it.each(folder.content)(
+      '$name',
+      ({ layouts, dataModel, instance, frontendSettings, permissions, expectedContexts }) => {
+        const dataSources: HierarchyDataSources = {
+          formData: dataModel ? dot.dot(dataModel) : {},
+          instanceContext: buildInstanceContext(instance),
+          applicationSettings: frontendSettings || ({} as IApplicationSettings),
+          hiddenFields: new Set(),
+          authContext: buildAuthContext(permissions),
+          validations: {},
+        };
 
-      const foundContexts: SharedTestContextList[] = [];
-      const _layouts = layouts || {};
-      for (const key of Object.keys(_layouts)) {
-        const repeatingGroups = getRepeatingGroups(_layouts[key].data.layout, dataSources.formData);
-        const nodes = nodesInLayouts(
-          { FormLayout: _layouts[key].data.layout },
-          'FormLayout',
-          repeatingGroups,
-          dataSources,
-        );
-        const layout = nodes.current();
-        if (!layout) {
-          throw new Error('No layout found - check your test data!');
+        const foundContexts: SharedTestContextList[] = [];
+        const _layouts = layouts || {};
+        for (const key of Object.keys(_layouts)) {
+          const repeatingGroups = getRepeatingGroups(_layouts[key].data.layout, dataSources.formData);
+          const layout = generateHierarchy(
+            _layouts[key].data.layout,
+            repeatingGroups,
+            dataSources,
+            getLayoutComponentObject,
+          );
+
+          foundContexts.push({
+            component: key,
+            currentLayout: key,
+            children: layout.children().map((child) => recurse(child, key)),
+          });
         }
 
-        foundContexts.push({
-          component: key,
-          currentLayout: key,
-          children: layout.children().map((child) => recurse(child, key)),
-        });
-      }
-
-      expect(foundContexts.sort(contextSorter)).toEqual(expectedContexts.sort(contextSorter));
-    });
+        expect(foundContexts.sort(contextSorter)).toEqual(expectedContexts.sort(contextSorter));
+      },
+    );
   });
 });

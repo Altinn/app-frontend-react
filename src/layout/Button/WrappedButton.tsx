@@ -1,15 +1,14 @@
 import React from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
-import classNames from 'classnames';
 
 import { ButtonLoader } from 'src/layout/Button/ButtonLoader';
-import css from 'src/layout/Button/WrappedButton.module.css';
+import classes from 'src/layout/Button/WrappedButton.module.css';
 import type { ButtonLoaderProps } from 'src/layout/Button/ButtonLoader';
 
 export interface BaseButtonProps {
   onClick: (...args) => void;
-  busyWithId?: string;
+  busyWithId?: string | null;
   disabled?: boolean;
 }
 
@@ -41,23 +40,16 @@ export const WrappedButton = ({
     }
   };
   return (
-    <span
-      className={classNames(
-        css['wrapped-button'],
-        somethingIsLoading && css['wrapped-button--loading'],
-        thisIsLoading && css['wrapped-button--busy'],
-      )}
+    <Button
+      className={thisIsLoading ? classes.loading : undefined}
+      variant={variant}
+      color={color}
+      onClick={handleClick}
+      id={id}
+      disabled={disabled}
     >
-      <Button
-        variant={variant}
-        color={color}
-        onClick={handleClick}
-        id={id}
-        disabled={disabled}
-      >
-        {children}
-        {thisIsLoading && <ButtonLoader language={language} />}
-      </Button>
-    </span>
+      {children}
+      {thisIsLoading && <ButtonLoader language={language} />}
+    </Button>
   );
 };

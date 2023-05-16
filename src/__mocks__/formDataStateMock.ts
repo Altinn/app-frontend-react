@@ -1,4 +1,4 @@
-import type { IFormDataState } from 'src/features/form/data';
+import type { IFormDataState } from 'src/features/formData';
 
 export function getFormDataStateMock(customState?: Partial<IFormDataState>) {
   const formData: IFormDataState = {
@@ -17,7 +17,6 @@ export function getFormDataStateMock(customState?: Partial<IFormDataState>) {
     submittingId: '',
     unsavedChanges: false,
     saving: false,
-    ignoreWarnings: true,
   };
 
   return { ...formData, ...customState };

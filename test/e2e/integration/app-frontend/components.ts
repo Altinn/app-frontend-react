@@ -12,18 +12,16 @@ describe('UI Components', () => {
     cy.get(appFrontend.loadingAnimation).should('be.visible');
     cy.get(appFrontend.closeButton).should('be.visible');
     cy.get(appFrontend.header).should('contain.text', appFrontend.apps.frontendTest).and('contain.text', texts.ttd);
-    cy.get(appFrontend.message.logo)
-      .should('be.visible')
-      .then((image) => {
-        cy.wrap(image).find('img').should('have.attr', 'alt', 'Altinn logo');
-        cy.wrap(image)
-          .parentsUntil(appFrontend.message.logoFormContent)
-          .eq(1)
-          .should('have.css', 'justify-content', 'center');
-        cy.wrap(image).parent().siblings().find(appFrontend.helpText.open).click();
-        cy.get(appFrontend.helpText.alert).contains('Altinn logo').type('{esc}');
-        cy.get(appFrontend.helpText.alert).should('not.exist');
-      });
+    cy.get(appFrontend.message.logo).then((image) => {
+      cy.wrap(image).find('img').should('have.attr', 'alt', 'Altinn logo');
+      cy.wrap(image)
+        .parentsUntil(appFrontend.message.logoFormContent)
+        .eq(1)
+        .should('have.css', 'justify-content', 'center');
+      cy.wrap(image).parent().siblings().find(appFrontend.helpText.open).click();
+      cy.get(appFrontend.helpText.alert).contains('Altinn logo').type('{esc}');
+      cy.get(appFrontend.helpText.alert).should('not.exist');
+    });
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
   });
 
@@ -47,8 +45,8 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).should('be.visible').select('address');
-    cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).should('be.visible').click();
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+    cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploaded).then((table) => {
       cy.wrap(table).should('be.visible');
@@ -58,47 +56,35 @@ describe('UI Components', () => {
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow)
       .find('button:contains("Slett")')
-      .should('be.visible')
+
       .click();
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
   });
 
   it('is possible to navigate between pages using navigation bar', () => {
     cy.goto('changename');
-    cy.get(appFrontend.navMenu)
-      .should('be.visible')
-      .find('li > button')
-      .should('be.visible')
-      .and('have.length', 2)
-      .then((navButtons) => {
-        cy.wrap(navButtons)
-          .first()
-          .should('have.attr', 'aria-current', 'page')
-          .and('have.css', 'background-color', 'rgb(2, 47, 81)');
-        cy.wrap(navButtons).last().should('have.css', 'background-color', 'rgba(0, 0, 0, 0)').click();
-      });
-    cy.get(`${appFrontend.navMenu} li:first-child > button`).should('not.have.attr', 'aria-current', 'page');
-    cy.get(appFrontend.navMenu)
-      .find('li > button')
-      .then((navButtons) => {
-        cy.wrap(navButtons).should('be.visible');
-        cy.wrap(navButtons)
-          .last()
-          .should('have.attr', 'aria-current', 'page')
-          .and('have.css', 'background-color', 'rgb(2, 47, 81)');
-        cy.get(appFrontend.changeOfName.summaryNameChanges).should('be.visible');
-      });
+    cy.get(appFrontend.navMenuButtons).should('have.length', 3);
+    cy.navPage('form')
+      .should('have.attr', 'aria-current', 'page')
+      .and('have.css', 'background-color', 'rgb(2, 47, 81)');
+    cy.navPage('summary').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)');
+    cy.navPage('summary').click();
+    cy.navPage('form').should('not.have.attr', 'aria-current', 'page');
+    cy.navPage('summary')
+      .should('have.attr', 'aria-current', 'page')
+      .and('have.css', 'background-color', 'rgb(2, 47, 81)');
+    cy.get(appFrontend.changeOfName.summaryNameChanges).should('be.visible');
+
     cy.viewport('samsung-s10');
     cy.get(appFrontend.navMenu).should('not.exist');
     cy.get('[data-testid="NavigationBar"]').find('button:contains("form")').should('not.exist');
     cy.get('[data-testid="NavigationBar"]').find('button:contains("summary")').should('be.visible');
     cy.viewport('macbook-16');
-    cy.interceptLayout('changename', (component) => {
+    cy.changeLayout((component) => {
       if (component.type === 'NavigationBar') {
         component.compact = true;
       }
     });
-    cy.reload();
     cy.get(appFrontend.navMenu).should('not.exist');
     cy.get('[data-testid="NavigationBar"]').find('button:contains("form")').should('not.exist');
     cy.get('[data-testid="NavigationBar"]').find('button:contains("summary")').should('be.visible');
@@ -106,8 +92,10 @@ describe('UI Components', () => {
 
   it('address component fetches post place from zip code', () => {
     cy.goto('changename');
-    cy.get(appFrontend.changeOfName.address.street_name).should('be.visible').type('Sesame Street 1A').blur();
-    cy.get(appFrontend.changeOfName.address.zip_code).should('be.visible').type('0174').blur();
+    cy.get(appFrontend.changeOfName.address.street_name).type('Sesame Street 1A');
+    cy.get(appFrontend.changeOfName.address.street_name).blur();
+    cy.get(appFrontend.changeOfName.address.zip_code).type('0174');
+    cy.get(appFrontend.changeOfName.address.zip_code).blur();
     cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'OSLO');
   });
 
@@ -122,26 +110,96 @@ describe('UI Components', () => {
     });
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+    cy.get(appFrontend.changeOfName.newFirstName).blur();
     cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
-    cy.get(appFrontend.changeOfName.confirmChangeName).click();
+    cy.get(appFrontend.changeOfName.newLastName).blur();
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
 
     cy.get(appFrontend.changeOfName.newMiddleName).type('checkbox_readOnly');
-    cy.get(appFrontend.changeOfName.confirmChangeName).click(); // No effect
+    cy.get(appFrontend.changeOfName.newMiddleName).blur();
+
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click(); // No effect
 
     // Assert the last click had no effect
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
 
-    cy.get(appFrontend.changeOfName.reasons).findByText('Gårdsbruk').should('be.visible').click();
+    cy.get(appFrontend.changeOfName.reasons).findByText('Gårdsbruk').click();
 
-    cy.get(appFrontend.changeOfName.newMiddleName).clear().type('radio_readOnly');
-    cy.get(appFrontend.changeOfName.confirmChangeName).click();
+    cy.get(appFrontend.changeOfName.newMiddleName).clear();
+    cy.get(appFrontend.changeOfName.newMiddleName).type('radio_readOnly');
+    cy.get(appFrontend.changeOfName.newMiddleName).blur();
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.changeOfName.reasons).should('not.exist');
-    cy.get(appFrontend.changeOfName.confirmChangeName).click();
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
-    cy.get(appFrontend.changeOfName.reasons).findByText('Slektskap').should('be.visible').click(); // No effect
+    cy.get(appFrontend.changeOfName.reasons).findByText('Slektskap').click(); // No effect
 
     // Assert the last click had no effect
     cy.get('#form-content-reasonFarm3').should('be.visible');
+  });
+
+  it('description and helptext for options in radio and checkbox groups', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+    cy.get(appFrontend.changeOfName.newFirstName).blur();
+    cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
+    cy.get(appFrontend.changeOfName.newLastName).blur();
+
+    cy.get(appFrontend.changeOfName.confirmChangeName).findByText('Dette er en beskrivelse.').should('be.visible');
+    cy.get(appFrontend.changeOfName.confirmChangeName).findByRole('button').click();
+    cy.get(appFrontend.changeOfName.confirmChangeName).findByText('Dette er en hjelpetekst.').should('be.visible');
+
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
+    cy.get(appFrontend.changeOfName.reasons).should('be.visible');
+
+    cy.get(appFrontend.changeOfName.reasons).findByText('Dette er en beskrivelse.').should('be.visible');
+    cy.get(appFrontend.changeOfName.reasons).findByRole('button').click();
+    cy.get(appFrontend.changeOfName.reasons).findByText('Dette er en hjelpetekst.').should('be.visible');
+  });
+
+  it('should render components as summary', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+    cy.get(appFrontend.changeOfName.newFirstName).blur();
+
+    cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
+    cy.get(appFrontend.changeOfName.newLastName).blur();
+
+    cy.get(appFrontend.changeOfName.newMiddleName).type('Larsen');
+    cy.get(appFrontend.changeOfName.newMiddleName).blur();
+
+    cy.get(appFrontend.changeOfName.address.street_name).type('Testveien 1');
+    cy.get(appFrontend.changeOfName.address.street_name).blur();
+
+    cy.get(appFrontend.changeOfName.componentSummary).contains('Per');
+    cy.get(appFrontend.changeOfName.componentSummary).contains('Larsen');
+    cy.get(appFrontend.changeOfName.componentSummary).contains('Hansen');
+    cy.get(appFrontend.changeOfName.componentSummary).contains('Testveien 1');
+  });
+
+  it('button group with navigation, printbutton and go-to-task', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+    cy.get(appFrontend.changeOfName.newFirstName).blur();
+    cy.get(appFrontend.changeOfName.newLastName).type('Hansen');
+    cy.get(appFrontend.changeOfName.newLastName).blur();
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
+
+    cy.get('#form-content-button-group-1').within(() => {
+      cy.get(appFrontend.printButton).should('be.visible');
+      cy.get(appFrontend.nextButton).should('be.visible');
+      cy.get('button#toNextTask').should('be.visible');
+    });
+
+    // Check that the buttons are moved inside the error paper
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.errorReport).within(() => {
+      cy.get('#form-content-button-group-1').within(() => {
+        cy.get(appFrontend.printButton).should('be.visible');
+        cy.get(appFrontend.nextButton).should('be.visible');
+        cy.get('button#toNextTask').should('be.visible');
+      });
+    });
   });
 });

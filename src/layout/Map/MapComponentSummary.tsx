@@ -3,7 +3,7 @@ import React from 'react';
 import { Map } from '@altinn/altinn-design-system';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/sharedLanguage';
 import { parseLocation } from 'src/layout/Map/MapComponent';
 import { markerIcon } from 'src/layout/Map/MapIcons';
@@ -30,7 +30,7 @@ export const useStyles = makeStyles(() => ({
 export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
   const classes = useStyles();
   const layers = targetNode.item.layers;
-  const formData = targetNode.getComponent().useDisplayData(targetNode);
+  const formData = targetNode.def.useDisplayData(targetNode);
   const location = formData ? parseLocation(formData) : undefined;
   const language = useAppSelector((state) => state.language.language);
   if (!language) {

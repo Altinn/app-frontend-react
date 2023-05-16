@@ -23,6 +23,10 @@ const validMinimalData = {
     tittel: 'Endring av navn',
     gruppeid: '9308',
     Radioknapp: '1',
+    'GridData.TotalGjeld': '1000000',
+    'GridData.Bolig.Prosent': '80',
+    'GridData.Studie.Prosent': '15',
+    'GridData.Kredittkort.Prosent': '5',
     'Innledning-grp-9309.gruppeid': '9309',
     'Innledning-grp-9309.Signerer-grp-9320.gruppeid': '9320',
     'Innledning-grp-9309.Signerer-grp-9320.SignererEkstraReferanseAltinn-datadef-34751.orid': '34751',
@@ -80,7 +84,16 @@ const completeFormFast: { [key in FrontendTestTask]: () => void } = {
     completeFormSlow.message();
     genericSendIn();
   },
-  changename: () => endTaskWithData(validMinimalData.changename),
+  changename: () => {
+    // The GridData form values get loaded in and will overwrite the values we'll pass
+    // in here, so we need to wait for them to load in properly to continue
+    cy.waitUntil(() =>
+      cy
+        .getReduxState((state) => state.formData.formData)
+        .then((formData) => formData && Object.keys(formData).filter((key) => key.startsWith('GridData')).length > 0),
+    );
+    endTaskWithData(validMinimalData.changename);
+  },
   group: () => {
     endTaskWithData(validMinimalData.group);
   },
@@ -112,23 +125,30 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
     cy.get(appFrontend.closeButton).should('be.visible');
   },
   changename: () => {
-    cy.get(appFrontend.changeOfName.currentName)
-      .should('be.visible')
-      .then(() => {
-        cy.get(appFrontend.changeOfName.newFirstName).should('be.visible').type('a').blur();
-        cy.get(appFrontend.changeOfName.newLastName).should('be.visible').type('a').blur();
-        cy.get(appFrontend.changeOfName.confirmChangeName).should('be.visible').find('input').check();
-        cy.get(appFrontend.changeOfName.reasonRelationship).should('be.visible').click().type('test');
-        cy.get(appFrontend.changeOfName.dateOfEffect)
-          .siblings()
-          .children(mui.buttonIcon)
-          .click()
-          .then(() => {
-            cy.get(mui.selectedDate).should('be.visible').click();
-          });
-        cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
-        cy.get(appFrontend.nextButton).click();
-      });
+    cy.get(appFrontend.changeOfName.currentName).then(() => {
+      // Fill out the grid first. There are other pages with elements that trigger validation, so filling out the grid
+      // first will avoid a lingering validation error on the grid page. A real developer and app would probably not
+      // make this mistake in designing their form.
+      cy.navPage('grid').click();
+      cy.get(appFrontend.grid.totalAmount).type('1000000');
+      cy.get(appFrontend.grid.bolig.percent).type('80');
+      cy.get(appFrontend.grid.studie.percent).type('15');
+      cy.get(appFrontend.grid.kredittkort.percent).type('5');
+      cy.get(appFrontend.grid.totalPercent).focus();
+      cy.get(appFrontend.grid.totalPercent).should('have.value', '100 %');
+
+      cy.navPage('form').click();
+      cy.get(appFrontend.changeOfName.newFirstName).type('a');
+      cy.get(appFrontend.changeOfName.newLastName).type('a');
+      cy.get(appFrontend.changeOfName.confirmChangeName).find('input').dsCheck();
+      cy.get(appFrontend.changeOfName.reasonRelationship).click();
+      cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
+      cy.get(appFrontend.changeOfName.dateOfEffect).siblings().children(mui.buttonIcon).click();
+      cy.get(mui.selectedDate).click();
+      cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+
+      cy.navPage('grid').click();
+    });
   },
   group: () => {
     const mkFile = (fileName) => ({
@@ -139,9 +159,7 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
     });
 
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.group.showGroupToContinue).then((checkbox) => {
-      cy.wrap(checkbox).should('be.visible').find('input').check();
-    });
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.addItemToGroup(1, 2, 'automation');
     cy.get(appFrontend.group.row(0).editBtn).click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
@@ -160,27 +178,24 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
       mkFile('attachment-in-nested.pdf'),
       { force: true },
     );
-    cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector || 'nothing')
-      .should('be.visible')
-      .select('altinn');
+    cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector || 'nothing').select(
+      'altinn',
+    );
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSave || 'nothing').click();
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).uploadTagMulti.attachments(0).tagSelector || 'nothing').should(
       'not.exist',
     );
 
-    cy.intercept('GET', '**/options/*').as('getOptions');
-    cy.get('#nested-source-0-0').should('exist').and('be.visible').select('Annet');
-    cy.wait('@getOptions');
-    cy.get('#nested-reference-0-0').should('exist').and('be.visible').select('Test');
+    cy.get('#nested-source-0-0').dsSelect('Annet');
+    cy.get('#nested-reference-0-0').dsSelect('Test');
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
-    cy.get('#source-0').should('exist').and('be.visible').select('Digitaliseringsdirektoratet');
-    cy.wait(['@getOptions', '@getOptions']);
-    cy.get('#reference-0').should('exist').and('be.visible').select('Sophie Salt');
+    cy.get('#source-0').dsSelect('Digitaliseringsdirektoratet');
+    cy.get('#reference-0').dsSelect('Sophie Salt');
 
-    cy.get(appFrontend.group.saveMainGroup).should('be.visible').click().should('not.exist');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
     cy.get(appFrontend.nextButton).click();
-    cy.get(appFrontend.group.sendersName).should('be.visible').type('automation');
+    cy.get(appFrontend.group.sendersName).type('automation');
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.group.summaryText).should('be.visible');
   },
@@ -204,7 +219,7 @@ const sendInTask: { [key in FrontendTestTask]: () => void } = {
   likert: genericSendIn,
   datalist: genericSendIn,
   confirm: () => {
-    cy.get(appFrontend.confirm.sendIn).should('be.visible').click();
+    cy.get(appFrontend.confirm.sendIn).click();
     cy.get(appFrontend.confirm.sendIn).should('not.exist');
   },
 };

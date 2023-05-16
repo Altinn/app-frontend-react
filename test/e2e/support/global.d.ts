@@ -1,7 +1,9 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 
+import type { user } from 'test/e2e/support/auth';
+
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutComponentOrGroup } from 'src/layout/layout';
+import type { ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
 
 export type FrontendTestTask = 'message' | 'changename' | 'group' | 'likert' | 'datalist' | 'confirm';
@@ -30,6 +32,11 @@ declare global {
       gotoAndComplete(target: FrontendTestTask, mode: GotoMode = 'fast'): Chainable<Element>;
 
       /**
+       * Finds a navigation menu element with the specified text/page name
+       */
+      navPage(page: string): Chainable<Element>;
+
+      /**
        * Send in the form just completed by gotoAndComplete(), and wait for the next task to render
        */
       sendIn(target?: FrontendTestTask): Chainable<Element>;
@@ -43,7 +50,7 @@ declare global {
        * Start an app instance based on the environment selected
        * @example cy.startAppInstance('appName')
        */
-      startAppInstance(appName: string, anonymous?: boolean): Chainable<Element>;
+      startAppInstance(appName: string, user?: user | null): Chainable<Element>;
 
       /**
        * Add an item to group component with an item in nested group
@@ -113,9 +120,59 @@ declare global {
        */
       interceptLayout(
         taskName: FrontendTestTask | string,
-        mutator: (component: ExprUnresolved<ILayoutComponentOrGroup>) => void,
+        mutator?: (component: ExprUnresolved<ILayoutComponentOrGroup>) => void,
         wholeLayoutMutator?: (layoutSet: any) => void,
       ): Chainable<null>;
+
+      /**
+       * The same as the above, but instead of intercepting the layout, it will fetch the current layout from redux
+       * and apply the mutator to it. This is useful if you want to make changes to the layout after it has been
+       * fetched. This performs the same actions as changing properties in the layout via the developer tools.
+       */
+      changeLayout(
+        mutator?: (component: ExprUnresolved<ILayoutComponentOrGroup>) => void,
+        allLayoutsMutator?: (layouts: ILayouts) => void,
+      ): Chainable<null>;
+
+      switchUser(user: user): any;
+      assertUser(user: user): any;
+      interceptPermissions(): void;
+      setPermissions(permissionFormat: string): void;
+
+      /**
+       * Check a checkbox/radio from the design system.
+       * Our design system radios/checkboxes are a little special, as they hide the HTML input element and provide
+       * their own stylized variant. Cypress can't check/uncheck a hidden input field, and although we can tell
+       * cypress to force it, that just circumvents a lot of other checks that we want cypress to run.
+       */
+      dsCheck(): Chainable<null>;
+
+      /**
+       * Uncheck a checkbox/radio from the design system. See the comment above for dsCheck()
+       */
+      dsUncheck(): Chainable<null>;
+
+      /**
+       * Select from a dropdown in the design system
+       */
+      dsSelect(name: string): Chainable<null>;
+
+      /**
+       * Shortcut for clicking an element and waiting for it to disappear
+       */
+      clickAndGone(): Chainable<null>;
+
+      /**
+       * Replace all non-breaking spaces with normal spaces in the subject
+       */
+      assertTextWithoutWhiteSpaces(expectedText: string): Chainable<null>;
+      /**
+       * Input fields with number formatting have a problem with cypress, as the .clear() command does not always
+       * work. This command will forcibly clear the value of the input field, and should be used instead of .clear()
+       * for number formatted input fields. Changes can be reverted after this problem is fixed in react-number-format.
+       * @see https://github.com/s-yadav/react-number-format/issues/736
+       */
+      numberFormatClear(): Chainable<null>;
     }
   }
 }

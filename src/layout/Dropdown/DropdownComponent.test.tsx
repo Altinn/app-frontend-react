@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
@@ -61,6 +61,7 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
 
 describe('DropdownComponent', () => {
   jest.useFakeTimers();
+
   const user = userEvent.setup({
     advanceTimers: (time) => {
       act(() => {
@@ -77,13 +78,14 @@ describe('DropdownComponent', () => {
       },
     });
 
-    await act(() => user.selectOptions(screen.getByRole('combobox'), [screen.getByText('Sweden')]));
+    await act(() => user.click(screen.getByRole('combobox')));
+    await act(() => user.click(screen.getByText('Sweden')));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('sweden');
+    expect(handleDataChange).toHaveBeenCalledWith('sweden', { validate: true });
   });
 
   it('should show as disabled when readOnly is true', () => {
@@ -121,7 +123,7 @@ describe('DropdownComponent', () => {
       },
     });
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(1);
   });
 
@@ -136,16 +138,16 @@ describe('DropdownComponent', () => {
       },
     });
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     const select = screen.getByRole('combobox');
 
     await act(() => user.click(select));
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
-    await act(() => fireEvent.blur(select));
+    await act(() => user.tab());
 
-    expect(handleDataChange).toHaveBeenCalledWith('denmark');
+    expect(handleDataChange).toHaveBeenCalledWith('denmark', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);
   });
 
@@ -156,7 +158,7 @@ describe('DropdownComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
   it('should not show spinner when options are present', () => {
@@ -184,29 +186,23 @@ describe('DropdownComponent', () => {
       },
     });
 
-    await act(() =>
-      user.selectOptions(screen.getByRole('combobox'), [
-        screen.getByText('The value from the group is: Label for first'),
-      ]),
-    );
+    await act(() => user.click(screen.getByRole('combobox')));
+    await act(() => user.click(screen.getByText('The value from the group is: Label for first')));
 
     expect(handleDataChange).not.toHaveBeenCalled();
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for first');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for first', { validate: true });
 
-    await act(() =>
-      user.selectOptions(screen.getByRole('combobox'), [
-        screen.getByText('The value from the group is: Label for second'),
-      ]),
-    );
+    await act(() => user.click(screen.getByRole('combobox')));
+    await act(() => user.click(screen.getByText('The value from the group is: Label for second')));
 
     expect(handleDataChange).toHaveBeenCalledTimes(1);
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for second');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
     expect(handleDataChange).toHaveBeenCalledTimes(2);
   });
 });

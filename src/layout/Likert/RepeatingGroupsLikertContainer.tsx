@@ -3,13 +3,13 @@ import React from 'react';
 import { Grid, TableCell, Typography } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { useGetOptions } from 'src/components/hooks';
-import { AltinnTableBody } from 'src/components/molecules/AltinnTableBody';
-import { AltinnTableHeader } from 'src/components/molecules/AltinnTableHeader';
-import { AltinnTableRow } from 'src/components/molecules/AltinnTableRow';
 import { AltinnTable } from 'src/components/organisms/AltinnTable';
+import { AltinnTableBody } from 'src/components/table/AltinnTableBody';
+import { AltinnTableHeader } from 'src/components/table/AltinnTableHeader';
+import { AltinnTableRow } from 'src/components/table/AltinnTableRow';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useGetOptions } from 'src/hooks/useGetOptions';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutStyle } from 'src/types';
 import { getTextResource } from 'src/utils/formComponentUtils';
@@ -34,9 +34,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
 
-  const getText = (key: string | undefined) => {
-    return key ? getTextResource(key, textResources) : undefined;
-  };
+  const getText = (key: string | undefined) => (key ? getTextResource(key, textResources) : undefined);
 
   const title = getText(node?.item.textResourceBindings?.title);
   const description = getText(node?.item.textResourceBindings?.description);
@@ -49,6 +47,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
     <Grid
       item={true}
       xs={12}
+      data-componentid={node?.item.baseComponentId ?? node?.item.id}
     >
       {title && (
         <Typography
@@ -85,7 +84,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
           aria-describedby={(description && descriptionId) || undefined}
         >
           {node?.children().map((comp) => {
-            if (comp.item.type === 'Group' || comp.item.type === 'Summary') {
+            if (comp.isType('Group') || comp.isType('Summary')) {
               console.warn('Unexpected Group or Summary inside likert container', comp);
               return;
             }
@@ -140,7 +139,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
             padding={'dense'}
           >
             {node?.children().map((comp) => {
-              if (comp.item.type === 'Group' || comp.item.type === 'Summary') {
+              if (comp.isType('Group') || comp.isType('Summary')) {
                 console.warn('Unexpected Group or Summary inside likert container', comp);
                 return;
               }

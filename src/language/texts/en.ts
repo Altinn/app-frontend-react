@@ -1,5 +1,11 @@
 export function en() {
   return {
+    actions: {
+      sign: 'Sign',
+      confirm: 'Confirm',
+      reject: 'Reject',
+      instantiate: 'Instantiate',
+    },
     address_component: {
       address: 'Street Address',
       care_of: 'C/O or other additional address',
@@ -114,6 +120,7 @@ export function en() {
       empty_summary: 'You have not entered any information here',
       enabled: 'Enabled',
       error_message_with_colon: 'Error message:',
+      expand_form: 'Expand form',
       for: 'for',
       header_profile_icon_label: 'Profile icon button',
       label: 'Label',

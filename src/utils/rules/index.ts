@@ -1,6 +1,6 @@
-import type { IFormDataState } from 'src/features/form/data';
-import type { IRuleConnections } from 'src/features/form/dynamics';
-import type { IRuleModelFieldElement } from 'src/features/form/rules';
+import type { IRuleConnections } from 'src/features/dynamics';
+import type { IFormDataState } from 'src/features/formData';
+import type { IRuleModelFieldElement } from 'src/features/formRules';
 import type { ILayouts } from 'src/layout/layout';
 
 export function checkIfRuleShouldRun(
@@ -57,12 +57,11 @@ export function checkIfRuleShouldRun(
             }
             let ruleDataBindingKey: string | undefined = undefined;
             if (layoutElement.dataModelBindings) {
-              ruleDataBindingKey = Object.keys(layoutElement.dataModelBindings).find((dataBindingKey) => {
-                return (
+              ruleDataBindingKey = Object.keys(layoutElement.dataModelBindings).find(
+                (dataBindingKey) =>
                   layoutElement.dataModelBindings &&
-                  layoutElement.dataModelBindings[dataBindingKey] === connectionDef.outParams.outParam0
-                );
-              });
+                  layoutElement.dataModelBindings[dataBindingKey] === connectionDef.outParams.outParam0,
+              );
             }
 
             if (ruleDataBindingKey) {

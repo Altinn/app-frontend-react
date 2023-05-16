@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
 import { LayoutStyle } from 'src/types';
-import type { IOptionsState } from 'src/shared/resources/options';
+import type { IOptionsState } from 'src/features/options';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
 
 const threeOptions = [
@@ -30,8 +30,8 @@ interface Props extends Partial<RenderGenericComponentTestProps<'Checkboxes'>> {
   optionState?: IOptionsState;
 }
 
-const render = ({ component, genericProps, optionState }: Props = {}) => {
-  return renderGenericComponentTest({
+const render = ({ component, genericProps, optionState }: Props = {}) =>
+  renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
     component: {
@@ -68,14 +68,12 @@ const render = ({ component, genericProps, optionState }: Props = {}) => {
       };
     },
   });
-};
 
-const getCheckbox = ({ name, isChecked = false }) => {
-  return screen.getByRole('checkbox', {
-    name: name,
+const getCheckbox = ({ name, isChecked = false }) =>
+  screen.getByRole('checkbox', {
+    name,
     checked: isChecked,
   });
-};
 
 describe('CheckboxContainerComponent', () => {
   jest.useFakeTimers();
@@ -101,7 +99,7 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(handleChange).toHaveBeenCalledWith('sweden');
+    expect(handleChange).toHaveBeenCalledWith('sweden', { validate: true });
   });
 
   it('should not call handleDataChange when simpleBinding is set and preselectedOptionIndex', () => {
@@ -175,7 +173,7 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
+    expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
   });
 
   it('should call handleDataChange with updated values when deselecting item', async () => {
@@ -199,7 +197,7 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith('norway');
+    expect(handleChange).toHaveBeenCalledWith('norway', { validate: true });
   });
 
   it('should call handleDataChange instantly on blur when the value has changed', async () => {
@@ -221,9 +219,10 @@ describe('CheckboxContainerComponent', () => {
 
     expect(handleChange).not.toHaveBeenCalled();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => fireEvent.blur(denmark));
 
-    expect(handleChange).toHaveBeenCalledWith('norway,denmark');
+    expect(handleChange).toHaveBeenCalledWith('norway,denmark', { validate: true });
   });
 
   it('should not call handleDataChange on blur when the value is unchanged', async () => {
@@ -236,6 +235,7 @@ describe('CheckboxContainerComponent', () => {
 
     expect(getCheckbox({ name: 'Denmark' })).toBeInTheDocument();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => {
       fireEvent.focus(getCheckbox({ name: 'Denmark' }));
       fireEvent.blur(getCheckbox({ name: 'Denmark' }));
@@ -265,7 +265,7 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleChange).toHaveBeenCalledWith('denmark');
+    expect(handleChange).toHaveBeenCalledWith('denmark', { validate: true });
   });
 
   it('should show spinner while waiting for options', () => {
@@ -275,7 +275,7 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(screen.queryByTestId('altinn-spinner')).toBeInTheDocument();
+    expect(screen.getByTestId('altinn-spinner')).toBeInTheDocument();
   });
 
   it('should show items in a row when layout is "row" and options count is 3', () => {
@@ -286,9 +286,8 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    // eslint-disable-next-line
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a row when layout is not defined, and options count is 2', () => {
@@ -306,9 +305,8 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(1);
+    // eslint-disable-next-line
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: row;');
   });
 
   it('should show items in a column when layout is "column" and options count is 2 ', () => {
@@ -327,9 +325,8 @@ describe('CheckboxContainerComponent', () => {
       } as unknown as IOptionsState,
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    // eslint-disable-next-line
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: column;');
   });
 
   it('should show items in a columns when layout is not defined, and options count is 3', () => {
@@ -339,9 +336,8 @@ describe('CheckboxContainerComponent', () => {
       },
     });
 
-    expect(container.querySelectorAll('.MuiFormGroup-root').length).toBe(1);
-
-    expect(container.querySelectorAll('.MuiFormGroup-root.MuiFormGroup-row').length).toBe(0);
+    // eslint-disable-next-line
+    expect(container.querySelector('fieldset > div')).toHaveStyle('flex-direction: column;');
   });
 
   it('should present replaced label if setup with values from repeating group in redux and trigger handleDataChanged with replaced values', async () => {
@@ -353,6 +349,8 @@ describe('CheckboxContainerComponent', () => {
         source: {
           group: 'someGroup',
           label: 'option.from.rep.group.label',
+          description: 'option.from.rep.group.description',
+          helpText: 'option.from.rep.group.helpText',
           value: 'someGroup[{0}].valueField',
         },
       },
@@ -360,6 +358,18 @@ describe('CheckboxContainerComponent', () => {
 
     expect(getCheckbox({ name: 'The value from the group is: Label for first' })).toBeInTheDocument();
     expect(getCheckbox({ name: 'The value from the group is: Label for second' })).toBeInTheDocument();
+    expect(screen.getByText('Description: The value from the group is: Label for first')).toBeInTheDocument();
+    expect(screen.getByText('Description: The value from the group is: Label for second')).toBeInTheDocument();
+
+    await act(() =>
+      user.click(screen.getByRole('button', { name: 'Help text for The value from the group is: Label for first' })),
+    );
+    expect(screen.getByText('Help Text: The value from the group is: Label for first')).toBeInTheDocument();
+
+    await act(() =>
+      user.click(screen.getByRole('button', { name: 'Help text for The value from the group is: Label for second' })),
+    );
+    expect(screen.getByText('Help Text: The value from the group is: Label for second')).toBeInTheDocument();
 
     await act(() => user.click(getCheckbox({ name: 'The value from the group is: Label for second' })));
 
@@ -367,6 +377,6 @@ describe('CheckboxContainerComponent', () => {
 
     jest.runOnlyPendingTimers();
 
-    expect(handleDataChange).toHaveBeenCalledWith('Value for second');
+    expect(handleDataChange).toHaveBeenCalledWith('Value for second', { validate: true });
   });
 });

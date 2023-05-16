@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Grid, makeStyles } from '@material-ui/core';
 
-import { useAppSelector } from 'src/common/hooks/useAppSelector';
-import { HelpTextContainer } from 'src/features/form/components/HelpTextContainer';
+import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IAltinnWindow } from 'src/types';
 
@@ -15,7 +15,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function ImageComponent({ node, language, getTextResourceAsString }: IImageProps) {
+export function ImageComponent({ node, language, getTextResourceAsString, getTextResource }: IImageProps) {
   const { id, image, textResourceBindings } = node.item;
   const classes = useStyles();
   const languageKey = useAppSelector((state) => state.profile.profile?.profileSettingPreference.language || 'nb');
@@ -52,7 +52,7 @@ export function ImageComponent({ node, language, getTextResourceAsString }: IIma
               src={imgSrc}
               alt={altText}
               style={{
-                width: width,
+                width,
               }}
             />
           </object>
@@ -62,7 +62,7 @@ export function ImageComponent({ node, language, getTextResourceAsString }: IIma
             src={imgSrc}
             alt={altText}
             style={{
-              width: width,
+              width,
             }}
           />
         )}
@@ -74,7 +74,7 @@ export function ImageComponent({ node, language, getTextResourceAsString }: IIma
         >
           <HelpTextContainer
             language={language}
-            helpText={getTextResourceAsString(textResourceBindings.help)}
+            helpText={getTextResource(textResourceBindings.help)}
             title={altText}
           />
         </Grid>

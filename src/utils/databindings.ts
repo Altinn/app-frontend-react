@@ -1,10 +1,10 @@
 import { dot, object } from 'dot-object';
 
 import { getParentGroup } from 'src/utils/validation/validation';
-import type { IFormData } from 'src/features/form/data';
+import type { IAttachment, IAttachments } from 'src/features/attachments';
+import type { IFormData } from 'src/features/formData';
 import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
 import type { IDataModelBindings, ILayout } from 'src/layout/layout';
-import type { IAttachment, IAttachments } from 'src/shared/resources/attachments';
 import type { IMapping, IRepeatingGroup, IRepeatingGroups } from 'src/types';
 
 /**
@@ -73,9 +73,7 @@ export function keyHasIndexIndicators(key: string): boolean {
  *  SomeField.Group[0].SubGroup[1].Field
  */
 export function replaceIndexIndicatorsWithIndexes(key: string, indexes: number[] = []) {
-  return indexes.reduce((acc, index) => {
-    return acc.replace(INDEX_KEY_INDICATOR_REGEX, `[${index}]`);
-  }, key);
+  return indexes.reduce((acc, index) => acc.replace(INDEX_KEY_INDICATOR_REGEX, `[${index}]`), key);
 }
 
 /*

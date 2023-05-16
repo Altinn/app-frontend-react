@@ -1,5 +1,13 @@
-export function nn() {
+import type { FixedLanguageList } from 'src/language/languages';
+
+export function nn(): FixedLanguageList {
   return {
+    actions: {
+      sign: 'Signer',
+      confirm: 'Bekreft',
+      reject: 'Avslå',
+      instantiate: 'Instansier',
+    },
     address_component: {
       address: 'Gateadresse',
       care_of: 'C/O eller annan tilleggsadresse',
@@ -114,6 +122,7 @@ export function nn() {
       empty_summary: 'Du har ikkje lagt inn informasjon her',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
+      expand_form: 'Utvid skjema',
       for: 'for',
       header_profile_icon_label: 'Profil ikon knapp',
       label: 'Namn',

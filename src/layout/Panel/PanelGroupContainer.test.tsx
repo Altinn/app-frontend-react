@@ -1,16 +1,15 @@
 import React from 'react';
 
-import { act, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { PanelGroupContainer } from 'src/layout/Panel/PanelGroupContainer';
+import { PanelReferenceGroupContainer } from 'src/layout/Panel/PanelReferenceGroupContainer';
 import { renderWithProviders } from 'src/testUtils';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutState } from 'src/features/form/layout/formLayoutSlice';
+import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout } from 'src/layout/layout';
-import type { RootState } from 'src/store';
+import type { RootState } from 'src/redux/store';
 
 describe('PanelGroupContainer', () => {
   const initialState = getInitialStateMock();
@@ -18,6 +17,10 @@ describe('PanelGroupContainer', () => {
     id: 'group',
     type: 'Group',
     children: ['input1', 'input2'],
+    textResourceBindings: {
+      title: 'Title for PanelGoup',
+      body: 'Body for PanelGroup',
+    },
     panel: {
       variant: 'info',
     },
@@ -74,71 +77,30 @@ describe('PanelGroupContainer', () => {
       },
     });
 
-    const customIcon = await screen.queryByTestId('panel-group-container');
+    const customIcon = screen.queryByTestId('panel-group-container');
     expect(customIcon).toBeInTheDocument();
 
-    const firstInputTitle = await screen.queryByText('Title for first input');
+    const firstInputTitle = screen.queryByText('Title for first input');
     expect(firstInputTitle).toBeInTheDocument();
 
-    const secondInputTitle = await screen.queryByText('Title for second input');
+    const secondInputTitle = screen.queryByText('Title for second input');
     expect(secondInputTitle).toBeInTheDocument();
   });
 
-  it('should open panel when clicking add and close when clicking save,', async () => {
-    const containerWithNoChildrenWithGroupReference: ExprUnresolved<ILayoutGroup> = {
-      ...container,
-      textResourceBindings: {
-        add_label: 'Add new item',
-      },
-      panel: {
-        ...container.panel,
-        groupReference: {
-          group: 'referencedGroup',
-        },
-      },
-    };
-
-    render({
-      container: containerWithNoChildrenWithGroupReference,
-    });
-
-    const user = userEvent.setup();
-
-    // save should not be present when panel is closed
-    expect(await screen.queryByText('Lagre')).not.toBeInTheDocument();
-
-    await act(async () => user.click(await screen.getByText('Add new item')));
-
-    // save should appear and add should be hidden
-    expect(await screen.getByText('Lagre')).toBeInTheDocument();
-
-    expect(await screen.queryByText('Add new item')).not.toBeInTheDocument();
-
-    // pressing save should close panel and show add button again
-    await act(async () => user.click(await screen.getByText('Lagre')));
-
-    expect(await screen.getByText('Add new item')).toBeInTheDocument();
-  });
-
-  it('should display nothing if group is hidden', async () => {
-    const stateWithHidden: Partial<RootState> = {
-      formLayout: {
-        ...state,
-        uiConfig: {
-          ...state.uiConfig,
-          hiddenFields: ['group'],
-        },
-      },
-    };
-
+  it('should display title and body', async () => {
     render({
       container,
       components: groupComponents,
-      customState: stateWithHidden,
+      customState: {
+        formLayout: state,
+      },
     });
 
-    const customIcon = await screen.queryByTestId('panel-group-container');
-    expect(customIcon).not.toBeInTheDocument();
+    const title = screen.queryByText('Title for PanelGoup');
+    expect(title).toBeInTheDocument();
+
+    const body = screen.queryByText('Body for PanelGroup');
+    expect(body).toBeInTheDocument();
   });
 });
 
@@ -157,15 +119,6 @@ const render = ({ container, components, customState }: TestProps) => {
   const formLayout = preloadedState.formLayout.layouts && preloadedState.formLayout.layouts['FormLayout'];
   container && formLayout?.push(container);
   formLayout?.push(...(components || []));
-  formLayout?.push({
-    id: 'referencedGroup',
-    type: 'Group',
-    dataModelBindings: {
-      group: 'RefGroup',
-    },
-    maxCount: 99,
-    children: [],
-  });
 
-  renderWithProviders(<PanelGroupContainer id={'group'} />, { preloadedState });
+  renderWithProviders(<PanelReferenceGroupContainer id={'group'} />, { preloadedState });
 };
