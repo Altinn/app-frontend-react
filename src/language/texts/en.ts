@@ -98,7 +98,6 @@ export function en() {
       accessibility: 'Accessibility',
       add_connection: 'Add connection',
       add_new: 'Add new',
-      custom_add_button: '',
       add: 'Add',
       back: 'Back',
       cancel: 'Cancel',

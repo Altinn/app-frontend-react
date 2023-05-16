@@ -100,7 +100,6 @@ export function nn(): FixedLanguageList {
       accessibility: 'Tilgjengelegheit',
       add_connection: 'Legg til tilkobling',
       add_new: 'Legg til ny',
-      custom_add_button: '',
       add: 'Legg til',
       back: 'Attende',
       cancel: 'Avbryt',
