@@ -20,6 +20,7 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     },
     devTools: {
       isOpen: false,
+      hasBeenOpen: false,
       pdfPreview: false,
       hiddenComponents: 'hide',
     },
