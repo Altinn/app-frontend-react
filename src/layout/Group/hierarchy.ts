@@ -7,7 +7,6 @@ import type {
   ChildFactoryProps,
   ChildMutator,
   HierarchyContext,
-  HierarchyGenerator,
   UnprocessedItem,
 } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -25,37 +24,37 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
   private groupPanelRefs: { [key: string]: GroupPanelRef } = {};
   private innerGrid: GridHierarchyGenerator;
 
-  constructor(generator: HierarchyGenerator) {
-    super(generator);
-    this.innerGrid = new GridHierarchyGenerator(generator);
+  constructor() {
+    super();
+    this.innerGrid = new GridHierarchyGenerator();
   }
 
-  stage1(item: UnprocessedItem<'Group'>): void {
+  stage1(generator, item): void {
     for (const id of item.children) {
       const [, childId] = item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
-      this.generator.claimChild({ childId, parentId: item.id });
+      generator.claimChild({ childId, parentId: item.id });
     }
 
     if (item.panel?.groupReference?.group) {
       const groupId = item.panel.groupReference.group;
-      const groupPrototype = this.generator.prototype(groupId) as UnprocessedItem<'Group'>;
+      const groupPrototype = generator.prototype(groupId) as UnprocessedItem<'Group'>;
       if (!groupPrototype) {
         console.warn(`Group ${groupId} referenced by panel ${item.id} does not exist`);
         return;
       }
 
       this.groupPanelRefs[groupId] = {
-        childPage: this.generator.topKey,
+        childPage: generator.topKey,
         multiPage: item.edit?.multiPage,
         children: item.children,
-        parentPage: this.generator.topKey,
+        parentPage: generator.topKey,
         parentId: item.id,
       };
     }
 
     for (const rows of [item.rowsBefore, item.rowsAfter]) {
       if (rows) {
-        this.innerGrid.stage1({
+        this.innerGrid.stage1(generator, {
           id: item.id,
           rows,
         });
@@ -64,7 +63,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
   }
 
   stage2(ctx: HierarchyContext): ChildFactory<'Group'> {
-    const item = this.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
+    const item = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
     if (item.panel?.groupReference) {
       return this.processPanelReference(ctx);
     }
@@ -84,16 +83,16 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
    * should ideally resolve their children in a third stage, after all groups have been processed, but that would
    * require a more complex implementation of the HierarchyGenerator.
    */
-  private processPanelReference(_ctx: HierarchyContext): ChildFactory<'Group'> {
+  private processPanelReference(ctx: HierarchyContext): ChildFactory<'Group'> {
     return (props) => {
       delete (props.item as any)['children'];
-      const me = this.generator.makeNode(props);
+      const me = ctx.generator.makeNode(props);
       const groupId = props.item.panel?.groupReference?.group;
       if (!groupId) {
         throw new Error(`Group ${props.item.id} is a panel reference but does not reference a group`);
       }
 
-      this.generator.addStage3Callback(() => {
+      ctx.generator.addStage3Callback(() => {
         const ref = this.groupPanelRefs[groupId];
         if (!ref) {
           throw new Error(
@@ -122,15 +121,15 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
    */
   private processNonRepeating(ctx: HierarchyContext): ChildFactory<'Group'> {
     return (props) => {
-      const prototype = this.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
+      const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
 
       delete (props.item as any)['children'];
-      const me = this.generator.makeNode(props);
+      const me = ctx.generator.makeNode(props);
 
       const childNodes: LayoutNode[] = [];
       for (const id of prototype.children) {
         const [, childId] = me.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
-        const child = this.generator.newChild({
+        const child = ctx.generator.newChild({
           ctx,
           parent: me,
           childId,
@@ -152,13 +151,13 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
    */
   private processRepeating(ctx: HierarchyContext): ChildFactory<'Group'> {
     return (props) => {
-      const prototype = this.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
+      const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
 
       delete (props.item as any)['children'];
-      const me = this.generator.makeNode(props);
+      const me = ctx.generator.makeNode(props);
 
       const rows: HRepGroupRow[] = [];
-      const lastIndex = (this.generator.repeatingGroups || {})[props.item.id]?.index;
+      const lastIndex = (ctx.generator.repeatingGroups || {})[props.item.id]?.index;
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex, props.item.edit);
 
       for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {
@@ -166,7 +165,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
 
         for (const id of prototype.children) {
           const [multiPageIndex, childId] = props.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
-          const child = this.generator.newChild({
+          const child = ctx.generator.newChild({
             ctx,
             childId,
             parent: me,
@@ -194,7 +193,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
 
         for (const id of ref.children) {
           const [multiPageIndex, childId] = ref.multiPage ? id.split(':', 2) : [undefined, id];
-          const child = this.generator.newChild({
+          const child = ctx.generator.newChild({
             ctx,
             childPage: ref.childPage,
             childId,

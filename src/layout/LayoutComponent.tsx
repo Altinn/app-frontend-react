@@ -6,7 +6,7 @@ import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { ComponentHierarchyGenerator, HierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 /**
  * This enum is used to distinguish purely presentational components
@@ -68,8 +68,8 @@ abstract class AnyComponent<Type extends ComponentTypes> {
    * Returns a new instance of a class to perform the component hierarchy generation process
    * @see HierarchyGenerator
    */
-  hierarchyGenerator(generator: HierarchyGenerator): ComponentHierarchyGenerator<Type> {
-    return new SimpleComponentHierarchyGenerator(generator);
+  hierarchyGenerator(): ComponentHierarchyGenerator<Type> {
+    return new SimpleComponentHierarchyGenerator();
   }
 }
 

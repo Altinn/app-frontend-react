@@ -7,7 +7,7 @@ import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { ComponentHierarchyGenerator, HierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
 export class Grid extends ContainerComponent<'Grid'> {
   render(props: PropsFromGenericComponent<'Grid'>): JSX.Element | null {
@@ -26,8 +26,8 @@ export class Grid extends ContainerComponent<'Grid'> {
     return '';
   }
 
-  hierarchyGenerator(generator: HierarchyGenerator): ComponentHierarchyGenerator<'Grid'> {
-    return new GridHierarchyGenerator(generator);
+  hierarchyGenerator(): ComponentHierarchyGenerator<'Grid'> {
+    return new GridHierarchyGenerator();
   }
 
   canRenderInTable(): boolean {
