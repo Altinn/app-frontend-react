@@ -23,7 +23,7 @@ export const LayoutInspectorItem = ({ component, onClick }: ILayoutInspectorItem
       onClick={onClick}
     >
       <span className={classes.componentType}>{component.type}</span>
-      <span className={classes.componentId}>id: &quot;{component.id}&quot;</span>
+      <span className={classes.componentId}>{component.id}</span>
     </li>
   );
 };

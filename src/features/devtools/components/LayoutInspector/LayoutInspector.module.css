@@ -6,18 +6,24 @@
 
 .list {
   padding: 0 6px;
-  display: table;
   width: 100%;
+  list-style: none;
+}
+
+.list .list {
+  padding-left: 12px;
+}
+
+.list .repGroupRow .list {
+  padding-left: 24px;
 }
 
 .item {
-  display: table-row;
   font-family: monospace;
   font-size: 0.8rem;
 }
 
 .item span {
-  display: table-cell;
   cursor: default;
 }
 
@@ -36,6 +42,18 @@
   overflow: hidden;
   white-space: nowrap;
   max-width: 0;
+  font-style: italic;
+}
+
+.componentId:before {
+  content: '/ ';
+}
+
+.componentMetadata {
+  color: #333;
+  font-style: italic;
+  font-size: 0.8rem;
+  padding-left: 12px;
 }
 
 .properties {
