@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   buttonBase: {
     cursor: 'pointer',
     background: 'none',
-    font: 'inherit',
+    fontFamily: 'inherit',
     border: `2px solid ${theme.altinnPalette.primary.blueMedium}`,
     width: '100%',
     height: '100%',

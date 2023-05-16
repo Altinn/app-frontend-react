@@ -29,7 +29,7 @@ export const LanguageSelector = () => {
 
   if (appLanguages && language) {
     return (
-      <div style={{ minWidth: 150 }}>
+      <div style={{ minWidth: 160 }}>
         <Select
           label={getTextFromAppOrDefault('language.selector.label', textResources, language, undefined, true)}
           options={appLanguages.map((lang) => ({

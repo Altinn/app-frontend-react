@@ -48,19 +48,7 @@ export const AltinnAppTheme = {
   },
   typography: {
     htmlFontSize: 16,
-    // TODO: Change order when switching to 'Inter', that should be first
-    fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      'Altinn-DIN',
-      '"Segoe UI"',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"',
-    ].join(','),
+    fontFamily: 'inherit',
     h1: {
       fontSize: 36,
     },

@@ -4,7 +4,6 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
-import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -37,10 +36,6 @@ const useStyles = makeStyles({
     },
     '& h6': {
       margin: 0,
-    },
-    '& *': {
-      // TODO: Remove when switching to 'Inter'
-      fontFamily: AltinnAppTheme.typography.fontFamily,
     },
   },
 });

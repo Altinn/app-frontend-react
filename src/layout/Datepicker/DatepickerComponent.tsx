@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     boxSizing: 'border-box',
     height: '36px',
     fontSize: '1rem',
-    fontFamily: 'Altinn-DIN',
+    fontFamily: 'inherit',
     borderWidth: '2px',
     borderStyle: 'solid',
     borderRadius: 'var(--interactive_components-border_radius-normal)',
@@ -72,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
   },
   dialog: {
     '& *': {
-      fontFamily: 'Altinn-DIN',
+      fontFamily: 'inherit',
     },
     '& .MuiTypography-h4': {
       fontSize: '1.5rem',
