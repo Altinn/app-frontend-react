@@ -2,7 +2,6 @@
 @import 'src/styles/font-faces.css';
 
 /* Font */
-
 * {
   font-family: 'Inter', sans-serif;
   --font_family-default: 'Inter', sans-serif;
@@ -16,16 +15,14 @@
   text-align: left;
 }
 @supports (font-variation-settings: normal) {
-  @media only screen {
-    * {
-      font-family: 'Inter var', sans-serif;
-      --font_family-default: 'Inter var', sans-serif;
-      --font_family-heading: 'Inter var', sans-serif;
-      --font_family-ingress: 'Inter var', sans-serif;
-      --font_family-body: 'Inter var', sans-serif;
-      --font_family-label: 'Inter var', sans-serif;
-      font-feature-settings: 'cv05';
-    }
+  * {
+    font-family: 'Inter var', sans-serif;
+    --font_family-default: 'Inter var', sans-serif;
+    --font_family-heading: 'Inter var', sans-serif;
+    --font_family-ingress: 'Inter var', sans-serif;
+    --font_family-body: 'Inter var', sans-serif;
+    --font_family-label: 'Inter var', sans-serif;
+    font-feature-settings: 'cv05';
   }
 }
 
