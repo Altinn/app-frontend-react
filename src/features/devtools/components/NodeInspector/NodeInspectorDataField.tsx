@@ -1,12 +1,17 @@
 import React from 'react';
 
 import cn from 'classnames';
+import dot from 'dot-object';
 
 import classes from 'src/features/devtools/components/NodeInspector/NodeInspector.module.css';
 import { useNodeInspectorContext } from 'src/features/devtools/components/NodeInspector/NodeInspectorContext';
+import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
+import { DevToolsTab } from 'src/features/devtools/data/types';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface NodeInspectorDataFieldParams {
+  path: string[];
   property: string;
   value: unknown;
 }
@@ -15,11 +20,25 @@ interface ValueProps extends React.PropsWithChildren {
   property: string;
   className: string;
   collapsible?: boolean;
+  wasExpression?: unknown;
 }
 
-export function Value({ children, className, property, collapsible }: ValueProps) {
+export function Value({ children, className, property, collapsible, wasExpression }: ValueProps) {
   const [collapsed, setCollapsed] = React.useState(false);
   const extraClasses = { [classes.collapsed]: collapsed, [classes.collapsible]: collapsible };
+  const dispatch = useAppDispatch();
+  const context = useNodeInspectorContext();
+
+  const editExpression = () => {
+    dispatch(DevToolsActions.exprPlaygroundSetExpression({ expression: JSON.stringify(wasExpression) }));
+    dispatch(
+      DevToolsActions.exprPlaygroundSetContext({
+        forPage: context.node?.top.top.myKey,
+        forComponentId: context.node?.item.id,
+      }),
+    );
+    dispatch(DevToolsActions.setActiveTab({ tabName: DevToolsTab.Expressions }));
+  };
 
   return (
     <>
@@ -36,12 +55,28 @@ export function Value({ children, className, property, collapsible }: ValueProps
           property
         )}
       </dt>
-      {collapsed ? <dd className={cn(extraClasses)} /> : <dd className={cn(className, extraClasses)}>{children}</dd>}
+      {collapsed ? (
+        <dd className={cn(extraClasses)} />
+      ) : (
+        <>
+          {wasExpression ? (
+            <dd className={classes.typeExpression}>
+              Uttrykk:
+              <div className={classes.json}>
+                <button onClick={editExpression}>Rediger</button>
+                {JSON.stringify(wasExpression, null, 2)}
+              </div>
+              Ble evaluert til:
+            </dd>
+          ) : null}
+          <dd className={cn(className, extraClasses)}>{children}</dd>
+        </>
+      )}
     </>
   );
 }
 
-function ExpandObject(props: { property: string; object: object }) {
+function ExpandObject(props: { path: string[]; property: string; object: object }) {
   return (
     <Value
       property={props.property}
@@ -52,6 +87,7 @@ function ExpandObject(props: { property: string; object: object }) {
         {Object.keys(props.object).map((key) => (
           <NodeInspectorDataField
             key={key}
+            path={[...props.path, key]}
             property={key}
             value={props.object[key]}
           />
@@ -81,7 +117,7 @@ function OtherNode(props: { property: string; node: LayoutNode }) {
   );
 }
 
-function ExpandArray(props: { property: string; elements: unknown[] }) {
+function ExpandArray(props: { path: string[]; property: string; elements: unknown[] }) {
   return (
     <Value
       property={props.property}
@@ -92,6 +128,7 @@ function ExpandArray(props: { property: string; elements: unknown[] }) {
         {props.elements.map((element, index) => (
           <NodeInspectorDataField
             key={index}
+            path={[...props.path, `[${index}]`]}
             property={`[${index}]`}
             value={element}
           />
@@ -101,7 +138,9 @@ function ExpandArray(props: { property: string; elements: unknown[] }) {
   );
 }
 
-export function NodeInspectorDataField({ property, value }: NodeInspectorDataFieldParams) {
+export function NodeInspectorDataField({ path, property, value }: NodeInspectorDataFieldParams) {
+  const context = useNodeInspectorContext();
+
   if (value === null) {
     return (
       <Value
@@ -127,6 +166,7 @@ export function NodeInspectorDataField({ property, value }: NodeInspectorDataFie
   if (typeof value === 'object' && Array.isArray(value)) {
     return (
       <ExpandArray
+        path={path}
         property={property}
         elements={value}
       />
@@ -149,17 +189,22 @@ export function NodeInspectorDataField({ property, value }: NodeInspectorDataFie
   if (typeof value === 'object' && !Array.isArray(value)) {
     return (
       <ExpandObject
+        path={path}
         property={property}
         object={value}
       />
     );
   }
 
+  const originalValue = dot.pick(path.join('.'), context.node?.itemWithExpressions);
+  const isExpression = originalValue !== value && Array.isArray(originalValue);
+
   if (typeof value === 'string' && value.length < 35) {
     return (
       <Value
         property={property}
         className={classes.typeString}
+        wasExpression={isExpression ? originalValue : undefined}
       >
         {value}
       </Value>
@@ -171,6 +216,7 @@ export function NodeInspectorDataField({ property, value }: NodeInspectorDataFie
       <Value
         property={property}
         className={classes.typeLongString}
+        wasExpression={isExpression ? originalValue : undefined}
       >
         {value}
       </Value>
@@ -182,6 +228,7 @@ export function NodeInspectorDataField({ property, value }: NodeInspectorDataFie
       <Value
         property={property}
         className={classes.typeNumber}
+        wasExpression={isExpression ? originalValue : undefined}
       >
         {value}
       </Value>
@@ -193,6 +240,7 @@ export function NodeInspectorDataField({ property, value }: NodeInspectorDataFie
       <Value
         property={property}
         className={classes.typeBoolean}
+        wasExpression={isExpression ? originalValue : undefined}
       >
         {value ? 'true' : 'false'}
       </Value>

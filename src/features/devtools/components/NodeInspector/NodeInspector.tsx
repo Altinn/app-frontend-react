@@ -58,6 +58,7 @@ export const NodeInspector = () => {
           </div>
           <NodeInspectorContextProvider
             value={{
+              node: selectedNode,
               selectedNodeId: selectedId,
               selectNode: setSelected,
             }}

@@ -45,6 +45,7 @@ export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeIns
         return (
           <NodeInspectorDataField
             key={key}
+            path={[key]}
             property={key}
             value={value}
           />

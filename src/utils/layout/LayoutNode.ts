@@ -27,6 +27,7 @@ import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTypes = TypeFromAnyItem<Item>>
   implements LayoutObject
 {
+  public readonly itemWithExpressions: Item;
   public readonly def: ComponentClassMap[Type];
 
   public constructor(
@@ -36,6 +37,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     private readonly dataSources: HierarchyDataSources,
     public readonly rowIndex?: number,
   ) {
+    this.itemWithExpressions = structuredClone(this.item);
     this.def = getLayoutComponentObject(item.type as any);
   }
 

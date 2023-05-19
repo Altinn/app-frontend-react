@@ -6,6 +6,7 @@ import cn from 'classnames';
 import classes from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground.module.css';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
+import { DevToolsTab } from 'src/features/devtools/data/types';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
@@ -26,6 +27,7 @@ export const ExpressionPlayground = () => {
   const [output, setOutput] = React.useState('');
   const [isError, setIsError] = React.useState(false);
   const nodes = useExprContext();
+  const currentPage = nodes?.current()?.top.myKey;
   const dataSources = useAppSelector(dataSourcesFromState);
 
   useEffect(() => {
@@ -113,7 +115,27 @@ export const ExpressionPlayground = () => {
                 .flat()
                 .map((n) => ({ label: n.item.id, value: `${n.top.top.myKey}|${n.item.id}` }))}
             />
+            {forPage === currentPage && (
+              // eslint-disable-next-line jsx-a11y/anchor-is-valid
+              <a
+                href={'#'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(DevToolsActions.nodeInspectorSet({ selectedNodeId: forComponentId }));
+                  dispatch(DevToolsActions.setActiveTab({ tabName: DevToolsTab.Components }));
+                }}
+              >
+                Vis i komponent-utforskeren
+              </a>
+            )}
+            {forPage !== currentPage && (
+              <span>
+                Komponenten vises på siden <em>{forPage}</em>
+              </span>
+            )}
           </FieldSet>
+          <br />
+          <br />
           <FieldSet legend={'Dokumentasjon'}>
             Les mer om uttrykk{' '}
             <a

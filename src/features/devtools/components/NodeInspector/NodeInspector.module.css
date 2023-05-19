@@ -73,4 +73,13 @@ dd.typeUnknown {
   white-space: pre;
   font-family: monospace;
   background-color: #efefef;
+  position: relative;
+}
+
+.json > button {
+  font-family: unset;
+  white-space: unset;
+  position: absolute;
+  top: 6px;
+  right: 6px;
 }

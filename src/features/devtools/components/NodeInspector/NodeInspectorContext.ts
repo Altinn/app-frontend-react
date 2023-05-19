@@ -1,9 +1,12 @@
 import { createContext, useContext } from 'react';
 
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
 export type NodeInspectorContextValue =
   | {
       selectedNodeId: string | undefined;
       selectNode: (id: string) => void;
+      node: LayoutNode | undefined;
     }
   | undefined;
 
