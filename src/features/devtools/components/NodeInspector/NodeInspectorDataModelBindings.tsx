@@ -34,7 +34,9 @@ export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
             {dataModelBindings[key]}
             <br />
             <em>Resultat: </em>
-            {JSON.stringify(dot.pick(dataModelBindings[key], asObject) || null)}
+            <div className={classes.json}>
+              {JSON.stringify(dot.pick(dataModelBindings[key], asObject) || null, null, 2)}
+            </div>
             <br />
             <em>Datamodell: </em>
             <div className={classes.json}>{JSON.stringify(schema?.[key] || null, null, 2)}</div>
