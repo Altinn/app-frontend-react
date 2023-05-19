@@ -79,7 +79,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
   childrenFromNode(node: LayoutNodeFromType<'Group'>, onlyInRowIndex?: number): LayoutNode[] {
     let list: LayoutNode[] = [];
     if (node.isRepGroup()) {
-      if (node.item.rowsBefore) {
+      if (node.item.rowsBefore && onlyInRowIndex === undefined) {
         list.push(...node.item.rowsBefore.map(nodesFromGridRow).flat());
       }
 
@@ -97,7 +97,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
         }
       }
 
-      if (node.item.rowsAfter) {
+      if (node.item.rowsAfter && onlyInRowIndex === undefined) {
         list.push(...node.item.rowsAfter.map(nodesFromGridRow).flat());
       }
     } else if (node.isNonRepGroup()) {
