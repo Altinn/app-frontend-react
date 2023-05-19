@@ -73,6 +73,7 @@ export const LayoutInspector = () => {
             <LayoutInspectorItem
               key={component.id}
               component={component}
+              selected={selectedComponent === component.id}
               onClick={() => setSelectedComponent(component.id)}
             />
           ))}
