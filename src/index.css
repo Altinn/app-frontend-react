@@ -2,27 +2,33 @@
 @import 'src/styles/font-faces.css';
 
 /* Font */
-* {
+:root {
   font-family: 'Inter', sans-serif;
-  --font_family-default: 'Inter', sans-serif;
-  --font_family-heading: 'Inter', sans-serif;
-  --font_family-ingress: 'Inter', sans-serif;
-  --font_family-body: 'Inter', sans-serif;
-  --font_family-label: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: normal;
   line-height: 1.5;
   text-align: left;
 }
+/* Override design system default font */
+* {
+  --font_family-default: 'Inter', sans-serif;
+  --font_family-heading: 'Inter', sans-serif;
+  --font_family-ingress: 'Inter', sans-serif;
+  --font_family-body: 'Inter', sans-serif;
+  --font_family-label: 'Inter', sans-serif;
+}
 @supports (font-variation-settings: normal) {
-  * {
+  :root {
     font-family: 'Inter var', sans-serif;
+  }
+  /* Override design system default font */
+  * {
+    font-feature-settings: 'cv05';
     --font_family-default: 'Inter var', sans-serif;
     --font_family-heading: 'Inter var', sans-serif;
     --font_family-ingress: 'Inter var', sans-serif;
     --font_family-body: 'Inter var', sans-serif;
     --font_family-label: 'Inter var', sans-serif;
-    font-feature-settings: 'cv05';
   }
 }
 
