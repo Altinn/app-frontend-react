@@ -14,7 +14,9 @@ interface DefaultNodeInspectorParams {
 }
 
 export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeInspectorParams) {
-  const ignoredPropertiesFinal = new Set(['id', 'type'].concat(ignoredProperties ?? []));
+  const ignoredPropertiesFinal = new Set(
+    ['id', 'type', 'multiPageIndex', 'baseComponentId'].concat(ignoredProperties ?? []),
+  );
 
   return (
     <dl className={cn(classes.propertyList, classes.mainPropertyList)}>
