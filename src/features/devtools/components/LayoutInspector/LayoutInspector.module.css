@@ -21,6 +21,7 @@
 .item {
   font-family: monospace;
   font-size: 0.8rem;
+  position: relative;
 }
 
 .item span {
@@ -41,16 +42,10 @@
 }
 
 .componentId {
-  padding-left: 16px;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  position: absolute;
+  left: 180px;
   white-space: nowrap;
-  max-width: 0;
   font-style: italic;
-}
-
-.componentId:before {
-  content: '/ ';
 }
 
 .componentMetadata {
