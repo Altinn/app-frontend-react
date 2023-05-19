@@ -68,3 +68,9 @@ dd.typeNull {
 dd.typeUnknown {
   color: darkred;
 }
+
+.json {
+  white-space: pre;
+  font-family: monospace;
+  background-color: #efefef;
+}

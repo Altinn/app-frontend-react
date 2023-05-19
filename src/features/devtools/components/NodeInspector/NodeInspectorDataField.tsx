@@ -9,7 +9,6 @@ import { LayoutNode } from 'src/utils/layout/LayoutNode';
 interface NodeInspectorDataFieldParams {
   property: string;
   value: unknown;
-  expandObject?: boolean;
 }
 
 interface ValueProps extends React.PropsWithChildren {
@@ -18,7 +17,7 @@ interface ValueProps extends React.PropsWithChildren {
   collapsible?: boolean;
 }
 
-function Value({ children, className, property, collapsible }: ValueProps) {
+export function Value({ children, className, property, collapsible }: ValueProps) {
   const [collapsed, setCollapsed] = React.useState(false);
   const extraClasses = { [classes.collapsed]: collapsed, [classes.collapsible]: collapsible };
 
@@ -55,7 +54,6 @@ function ExpandObject(props: { property: string; object: object }) {
             key={key}
             property={key}
             value={props.object[key]}
-            expandObject={true}
           />
         ))}
       </dl>
@@ -96,7 +94,6 @@ function ExpandArray(props: { property: string; elements: unknown[] }) {
             key={index}
             property={`[${index}]`}
             value={element}
-            expandObject={true}
           />
         ))}
       </dl>
@@ -104,7 +101,7 @@ function ExpandArray(props: { property: string; elements: unknown[] }) {
   );
 }
 
-export function NodeInspectorDataField({ property, value, expandObject }: NodeInspectorDataFieldParams) {
+export function NodeInspectorDataField({ property, value }: NodeInspectorDataFieldParams) {
   if (value === null) {
     return (
       <Value
@@ -116,7 +113,18 @@ export function NodeInspectorDataField({ property, value, expandObject }: NodeIn
     );
   }
 
-  if (typeof value === 'object' && Array.isArray(value) && expandObject) {
+  if (typeof value === 'object' && Array.isArray(value) && value.length === 0) {
+    return (
+      <Value
+        property={property}
+        className={classes.typeString}
+      >
+        []
+      </Value>
+    );
+  }
+
+  if (typeof value === 'object' && Array.isArray(value)) {
     return (
       <ExpandArray
         property={property}
@@ -138,7 +146,7 @@ export function NodeInspectorDataField({ property, value, expandObject }: NodeIn
     return null;
   }
 
-  if (typeof value === 'object' && !Array.isArray(value) && expandObject) {
+  if (typeof value === 'object' && !Array.isArray(value)) {
     return (
       <ExpandObject
         property={property}
