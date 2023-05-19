@@ -16,6 +16,11 @@
   --font_family-ingress: 'Inter', sans-serif;
   --font_family-body: 'Inter', sans-serif;
   --font_family-label: 'Inter', sans-serif;
+
+  --component-panel-font_size-header-breakpoint_sm: 1.25rem;
+  --component-panel-font_size-header-breakpoint_md: 1.5rem;
+  --component-panel-font_size-header-breakpoint_lg: 1.75rem;
+  --component-panel-font_size-body-breakpoint_md: 1rem;
 }
 @supports (font-variation-settings: normal) {
   :root {
