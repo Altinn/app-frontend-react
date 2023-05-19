@@ -5,6 +5,7 @@ import { Close } from '@navikt/ds-icons';
 
 import reusedClasses from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { NodeHierarchy } from 'src/features/devtools/components/NodeInspector/NodeHierarchy';
+import { NodeInspectorContextProvider } from 'src/features/devtools/components/NodeInspector/NodeInspectorContext';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 
@@ -12,11 +13,11 @@ export const NodeInspector = () => {
   const pages = useExprContext();
   const currentPage = pages?.current();
   const currentPageKey = currentPage?.top.myKey;
-  const [selectedComponent, setSelected] = useState<string | null>(null);
-  const selectedNode = selectedComponent ? currentPage?.findById(selectedComponent) : undefined;
+  const [selectedId, setSelected] = useState<string | undefined>(undefined);
+  const selectedNode = selectedId ? currentPage?.findById(selectedId) : undefined;
 
   useEffect(() => {
-    setSelected(null);
+    setSelected(undefined);
   }, [currentPageKey]);
 
   return (
@@ -24,26 +25,30 @@ export const NodeInspector = () => {
       <div className={reusedClasses.container}>
         <NodeHierarchy
           nodes={currentPage?.children()}
+          selected={selectedId}
           onClick={setSelected}
         />
       </div>
-      {selectedComponent && (
+      {selectedId && selectedNode && (
         <div className={reusedClasses.properties}>
           <div className={reusedClasses.header}>
-            <h3>Egenskaper</h3>
+            <h3>Egenskaper for {selectedId}</h3>
             <Button
-              onClick={() => setSelected(null)}
+              onClick={() => setSelected(undefined)}
               variant={ButtonVariant.Quiet}
               color={ButtonColor.Secondary}
               aria-label={'close'}
               icon={<Close aria-hidden />}
             />
           </div>
-          <textarea
-            disabled={true}
-            // TODO: Implement
-            value={`TODO: Display some information about node ${selectedNode?.item.id}`}
-          />
+          <NodeInspectorContextProvider
+            value={{
+              selectedNodeId: selectedId,
+              selectNode: setSelected,
+            }}
+          >
+            {selectedNode.def.renderDevToolsInspector(selectedNode as any)}
+          </NodeInspectorContextProvider>
         </div>
       )}
     </SplitView>

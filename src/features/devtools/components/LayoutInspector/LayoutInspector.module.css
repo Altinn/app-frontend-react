@@ -27,6 +27,10 @@
   cursor: default;
 }
 
+.item.active {
+  background-color: #ddd;
+}
+
 .item:hover {
   background-color: #ccc;
 }
@@ -56,14 +60,18 @@
   padding-left: 12px;
 }
 
-.properties {
-  font-family: monospace;
+.properties,
+.richProperties {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   background: white;
   padding: 4px;
+}
+
+.properties {
+  font-family: monospace;
 }
 
 .properties > textarea {

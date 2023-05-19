@@ -10,23 +10,25 @@ import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-interface INodeHierarchyItemProps {
+interface Common {
+  selected: string | undefined;
+  onClick: (id: string) => void;
+}
+
+interface INodeHierarchyItemProps extends Common {
   node: LayoutNode;
-  onClick: (id: string) => void;
 }
 
-interface INodeHierarchyProps {
+interface INodeHierarchyProps extends Common {
   nodes: LayoutNode[] | undefined;
-  onClick: (id: string) => void;
 }
 
-interface IGridRowsRenderer {
+interface IGridRowsRenderer extends Common {
   rows: GridRow<GridComponent>[];
   text: string;
-  onClick: (id: string) => void;
 }
 
-const GridRows = ({ rows, onClick, text }: IGridRowsRenderer) => (
+const GridRows = ({ rows, onClick, text, selected }: IGridRowsRenderer) => (
   <>
     {rows.map((row, idx) => {
       const nodes = nodesFromGridRow(row);
@@ -39,6 +41,7 @@ const GridRows = ({ rows, onClick, text }: IGridRowsRenderer) => (
           {nodes.length > 0 ? (
             <NodeHierarchy
               nodes={nodes}
+              selected={selected}
               onClick={onClick}
             />
           ) : (
@@ -50,7 +53,7 @@ const GridRows = ({ rows, onClick, text }: IGridRowsRenderer) => (
   </>
 );
 
-export const NodeHierarchyItem = ({ node, onClick }: INodeHierarchyItemProps) => {
+export const NodeHierarchyItem = ({ node, onClick, selected }: INodeHierarchyItemProps) => {
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(node.item.id, false);
   const hasChildren = node.children().length > 0;
   const isRepGroup = node.isRepGroup();
@@ -58,7 +61,10 @@ export const NodeHierarchyItem = ({ node, onClick }: INodeHierarchyItemProps) =>
   return (
     <>
       <li
-        className={classes.item}
+        className={cn({
+          [classes.item]: true,
+          [classes.active]: node.item.id === selected,
+        })}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onClick={() => onClick(node.item.id)}
@@ -74,6 +80,7 @@ export const NodeHierarchyItem = ({ node, onClick }: INodeHierarchyItemProps) =>
         <li>
           <NodeHierarchy
             nodes={node.children()}
+            selected={selected}
             onClick={onClick}
           />
         </li>
@@ -83,6 +90,7 @@ export const NodeHierarchyItem = ({ node, onClick }: INodeHierarchyItemProps) =>
         <GridRows
           rows={node.item.rowsBefore}
           text={'rowsBefore'}
+          selected={selected}
           onClick={onClick}
         />
       )}
@@ -97,6 +105,7 @@ export const NodeHierarchyItem = ({ node, onClick }: INodeHierarchyItemProps) =>
             </span>
             <NodeHierarchy
               nodes={row?.items}
+              selected={selected}
               onClick={onClick}
             />
           </li>
@@ -105,6 +114,7 @@ export const NodeHierarchyItem = ({ node, onClick }: INodeHierarchyItemProps) =>
         <GridRows
           rows={node.item.rowsAfter}
           text={'rowsAfter'}
+          selected={selected}
           onClick={onClick}
         />
       )}
@@ -112,13 +122,14 @@ export const NodeHierarchyItem = ({ node, onClick }: INodeHierarchyItemProps) =>
   );
 };
 
-export function NodeHierarchy({ nodes, onClick }: INodeHierarchyProps) {
+export function NodeHierarchy({ nodes, selected, onClick }: INodeHierarchyProps) {
   return (
     <ul className={classes.list}>
       {nodes?.map((child) => (
         <NodeHierarchyItem
           key={child.item.id}
           node={child}
+          selected={selected}
           onClick={onClick}
         />
       ))}

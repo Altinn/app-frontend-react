@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { PropsFromGenericComponent } from 'src/layout/index';
@@ -26,6 +27,13 @@ abstract class AnyComponent<Type extends ComponentTypes> {
    * Given properties from GenericComponent, render this layout component
    */
   abstract render(props: PropsFromGenericComponent<Type>): JSX.Element | null;
+
+  /**
+   * Given a node, a list of the node's data, for display in the devtools node inspector
+   */
+  renderDevToolsInspector(node: LayoutNodeFromType<Type>): JSX.Element | null {
+    return <DefaultNodeInspector node={node} />;
+  }
 
   /**
    * Direct render? Override this and return true if you want GenericComponent to omit rendering grid,
