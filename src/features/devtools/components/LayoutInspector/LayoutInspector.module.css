@@ -96,6 +96,11 @@
   z-index: 10001;
 }
 
+.headerLink {
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+
 .error {
   color: red;
 }

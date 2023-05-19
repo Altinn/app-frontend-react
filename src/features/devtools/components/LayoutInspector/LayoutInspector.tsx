@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -8,8 +9,10 @@ import classes from 'src/features/devtools/components/LayoutInspector/LayoutInsp
 import { LayoutInspectorItem } from 'src/features/devtools/components/LayoutInspector/LayoutInspectorItem';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
+import { DevToolsTab } from 'src/features/devtools/data/types';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useExprContext } from 'src/utils/layout/ExprContext';
 
 export const LayoutInspector = () => {
   const selectedComponent = useAppSelector((state) => state.devTools.layoutInspector.selectedComponentId);
@@ -18,6 +21,7 @@ export const LayoutInspector = () => {
   const [componentProperties, setComponentProperties] = useState<string | null>(null);
   const [propertiesHaveChanged, setPropertiesHaveChanged] = useState(false);
   const [error, setError] = useState<boolean>(false);
+  const nodes = useExprContext();
 
   const dispatch = useDispatch();
   const setSelectedComponent = useCallback(
@@ -31,6 +35,7 @@ export const LayoutInspector = () => {
   );
 
   const currentLayout = layouts?.[currentView];
+  const matchingNodes = selectedComponent ? nodes?.findAllById(selectedComponent) || [] : [];
 
   useEffect(() => {
     setSelectedComponent(undefined);
@@ -75,6 +80,29 @@ export const LayoutInspector = () => {
     }, 2000);
   }
 
+  const NodeLink = ({ nodeId }: { nodeId: string }) => (
+    <div>
+      <a
+        href='#'
+        onClick={(e) => {
+          e.preventDefault();
+          dispatch(
+            DevToolsActions.nodeInspectorSet({
+              selectedNodeId: nodeId,
+            }),
+          );
+          dispatch(
+            DevToolsActions.setActiveTab({
+              tabName: DevToolsTab.Components,
+            }),
+          );
+        }}
+      >
+        Utforsk {nodeId} i komponenter-fanen
+      </a>
+    </div>
+  );
+
   return (
     <SplitView
       direction='row'
@@ -96,6 +124,15 @@ export const LayoutInspector = () => {
         <div className={classes.properties}>
           <div className={classes.header}>
             <h3>Egenskaper</h3>
+            <div className={classes.headerLink}>
+              {matchingNodes.length === 0 && 'Ingen aktive komponenter funnet'}
+              {matchingNodes.map((node) => (
+                <NodeLink
+                  key={node.item.id}
+                  nodeId={node.item.id}
+                />
+              ))}
+            </div>
             <Button
               onClick={() => setSelectedComponent(undefined)}
               variant={ButtonVariant.Quiet}

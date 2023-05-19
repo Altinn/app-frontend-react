@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useCallback, useEffect } from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
@@ -8,6 +9,7 @@ import { NodeHierarchy } from 'src/features/devtools/components/NodeInspector/No
 import { NodeInspectorContextProvider } from 'src/features/devtools/components/NodeInspector/NodeInspectorContext';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
+import { DevToolsTab } from 'src/features/devtools/data/types';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
@@ -48,6 +50,26 @@ export const NodeInspector = () => {
         <div className={reusedClasses.properties}>
           <div className={reusedClasses.header}>
             <h3>Egenskaper for {selectedId}</h3>
+            <div className={reusedClasses.headerLink}>
+              <a
+                href='#'
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(
+                    DevToolsActions.layoutInspectorSet({
+                      selectedComponentId: selectedNode?.item.baseComponentId || selectedNode?.item.id,
+                    }),
+                  );
+                  dispatch(
+                    DevToolsActions.setActiveTab({
+                      tabName: DevToolsTab.Layout,
+                    }),
+                  );
+                }}
+              >
+                Rediger konfigurasjonen i Layout-fanen
+              </a>
+            </div>
             <Button
               onClick={() => setSelected(undefined)}
               variant={ButtonVariant.Quiet}
