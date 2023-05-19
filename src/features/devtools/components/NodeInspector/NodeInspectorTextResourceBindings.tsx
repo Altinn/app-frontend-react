@@ -33,8 +33,12 @@ export function NodeInspectorTextResourceBindings({ textResourceBindings }: Prop
               <em>Råverdi:</em> {textResourceBindings[key]}
               <br />
               <em>Tekstressurs:</em> {inResources ? 'Ja' : 'Nei'}
-              <br />
-              <em>Resultat:</em> {langAsString(textResourceBindings[key])}
+              {inResources && (
+                <>
+                  <br />
+                  <em>Resultat:</em> {langAsString(textResourceBindings[key])}
+                </>
+              )}
             </Value>
           );
         })}
