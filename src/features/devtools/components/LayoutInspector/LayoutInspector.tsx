@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
@@ -7,24 +7,34 @@ import { Close } from '@navikt/ds-icons';
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { LayoutInspectorItem } from 'src/features/devtools/components/LayoutInspector/LayoutInspectorItem';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
+import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 
 export const LayoutInspector = () => {
+  const selectedComponent = useAppSelector((state) => state.devTools.layoutInspector.selectedComponentId);
   const { currentView } = useAppSelector((state) => state.formLayout.uiConfig);
   const layouts = useAppSelector((state) => state.formLayout.layouts);
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [componentProperties, setComponentProperties] = useState<string | null>(null);
   const [propertiesHaveChanged, setPropertiesHaveChanged] = useState(false);
   const [error, setError] = useState<boolean>(false);
 
   const dispatch = useDispatch();
+  const setSelectedComponent = useCallback(
+    (selectedComponentId: string | undefined) =>
+      dispatch(
+        DevToolsActions.layoutInspectorSet({
+          selectedComponentId,
+        }),
+      ),
+    [dispatch],
+  );
 
   const currentLayout = layouts?.[currentView];
 
   useEffect(() => {
-    setSelectedComponent(null);
-  }, [currentView]);
+    setSelectedComponent(undefined);
+  }, [setSelectedComponent, currentView]);
 
   useEffect(() => {
     if (selectedComponent) {
@@ -66,7 +76,10 @@ export const LayoutInspector = () => {
   }
 
   return (
-    <SplitView direction='row'>
+    <SplitView
+      direction='row'
+      sizes={[300]}
+    >
       <div className={classes.container}>
         <ul className={classes.list}>
           {currentLayout?.map((component) => (
@@ -84,7 +97,7 @@ export const LayoutInspector = () => {
           <div className={classes.header}>
             <h3>Egenskaper</h3>
             <Button
-              onClick={() => setSelectedComponent(null)}
+              onClick={() => setSelectedComponent(undefined)}
               variant={ButtonVariant.Quiet}
               color={ButtonColor.Secondary}
               aria-label={'close'}

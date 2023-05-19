@@ -5,25 +5,31 @@ import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground.module.css';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
+import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
+import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { dataSourcesFromState } from 'src/utils/layout/hierarchy';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+
 export const ExpressionPlayground = () => {
-  const [input, setInput] = React.useState('');
+  const input = useAppSelector((state) => state.devTools.exprPlayground.expression);
+  const forPage = useAppSelector((state) => state.devTools.exprPlayground.forPage);
+  const forComponentId = useAppSelector((state) => state.devTools.exprPlayground.forComponentId);
+  const dispatch = useAppDispatch();
+
   const [output, setOutput] = React.useState('');
-  const [forComponentId, setForComponentId] = React.useState<string | undefined>(undefined);
   const [isError, setIsError] = React.useState(false);
   const nodes = useExprContext();
   const dataSources = useAppSelector(dataSourcesFromState);
 
   useEffect(() => {
-    if (input.length <= 0) {
+    if (!input || input.length <= 0) {
       setOutput('');
       setIsError(false);
       return;
@@ -57,9 +63,8 @@ export const ExpressionPlayground = () => {
         throw new Error('Fant ikke nåværende side/layout');
       }
 
-      if (forComponentId) {
-        const [page, componentId] = forComponentId.split('|', 2);
-        const foundNode = nodes?.findLayout(page)?.findById(componentId);
+      if (forPage && forComponentId) {
+        const foundNode = nodes?.findLayout(forPage)?.findById(forComponentId);
         if (foundNode) {
           evalContext = foundNode;
         }
@@ -72,7 +77,7 @@ export const ExpressionPlayground = () => {
       setOutput(e.message);
       setIsError(true);
     }
-  }, [input, forComponentId, dataSources, nodes]);
+  }, [input, forPage, forComponentId, dataSources, nodes]);
 
   return (
     <div className={classes.container}>
@@ -84,7 +89,7 @@ export const ExpressionPlayground = () => {
           <textarea
             className={cn(classes.textbox, classes.input)}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => dispatch(DevToolsActions.exprPlaygroundSetExpression({ expression: e.target.value }))}
             placeholder={'Skriv inn et dynamisk uttrykk...\nEksempel: ["equals", ["component", "firstName"], "Ola"]'}
           />
           <textarea
@@ -98,8 +103,11 @@ export const ExpressionPlayground = () => {
         <div className={classes.rightColumn}>
           <FieldSet legend={'Kjør uttrykk i kontekst av komponent'}>
             <Select
-              value={forComponentId}
-              onChange={(value) => setForComponentId(value)}
+              value={`${forPage}|${forComponentId}`}
+              onChange={(value) => {
+                const [forPage, forComponentId] = value.split('|', 2);
+                dispatch(DevToolsActions.exprPlaygroundSetContext({ forPage, forComponentId }));
+              }}
               options={Object.values(nodes?.all() || [])
                 .map((page) => page.flat(true))
                 .flat()
