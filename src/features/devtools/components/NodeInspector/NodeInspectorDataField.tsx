@@ -7,6 +7,7 @@ import classes from 'src/features/devtools/components/NodeInspector/NodeInspecto
 import { useNodeInspectorContext } from 'src/features/devtools/components/NodeInspector/NodeInspectorContext';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
+import { canBeExpression } from 'src/features/expressions/validation';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -21,9 +22,10 @@ interface ValueProps extends React.PropsWithChildren {
   className: string;
   collapsible?: boolean;
   wasExpression?: unknown;
+  exprText?: string;
 }
 
-export function Value({ children, className, property, collapsible, wasExpression }: ValueProps) {
+export function Value({ children, className, property, collapsible, wasExpression, exprText }: ValueProps) {
   const [collapsed, setCollapsed] = React.useState(false);
   const extraClasses = { [classes.collapsed]: collapsed, [classes.collapsible]: collapsible };
   const dispatch = useAppDispatch();
@@ -69,7 +71,7 @@ export function Value({ children, className, property, collapsible, wasExpressio
                 <button onClick={editExpression}>Rediger</button>
                 {JSON.stringify(wasExpression, null, 2)}
               </div>
-              Ble evaluert til:
+              {exprText}
             </dd>
           ) : null}
           <dd className={cn(className, extraClasses)}>{children}</dd>
@@ -144,8 +146,26 @@ function ExpandArray(props: { path: string[]; property: string; elements: unknow
   );
 }
 
-export function NodeInspectorDataField({ path, property, value }: NodeInspectorDataFieldParams) {
-  const context = useNodeInspectorContext();
+export function NodeInspectorDataField({ path, property, value: inputValue }: NodeInspectorDataFieldParams) {
+  const { node } = useNodeInspectorContext();
+
+  let value = inputValue;
+  const preEvaluatedValue = dot.pick(path.join('.'), node?.itemWithExpressions);
+  const isExpression =
+    (preEvaluatedValue !== value && Array.isArray(preEvaluatedValue) && !Array.isArray(value)) ||
+    canBeExpression(value, true);
+
+  let exprText = 'Ble evaluert til:';
+  if (isExpression && node?.isRepGroup()) {
+    const firstRow = node.item.rows[0];
+    if (firstRow && firstRow.groupExpressions) {
+      const realValue = dot.pick(path.join('.'), firstRow.groupExpressions);
+      if (realValue !== undefined) {
+        value = realValue;
+        exprText = 'Ble evaluert til (for første rad):';
+      }
+    }
+  }
 
   if (value === null) {
     return (
@@ -169,13 +189,26 @@ export function NodeInspectorDataField({ path, property, value }: NodeInspectorD
     );
   }
 
-  if (typeof value === 'object' && Array.isArray(value)) {
+  if (typeof value === 'object' && Array.isArray(value) && !isExpression) {
     return (
       <ExpandArray
         path={path}
         property={property}
         elements={value}
       />
+    );
+  }
+
+  if (typeof value === 'object' && Array.isArray(value) && isExpression) {
+    return (
+      <Value
+        property={property}
+        className={classes.typeUnknown}
+        wasExpression={value}
+        exprText={exprText}
+      >
+        [uttrykk med ukjent verdi]
+      </Value>
     );
   }
 
@@ -202,15 +235,13 @@ export function NodeInspectorDataField({ path, property, value }: NodeInspectorD
     );
   }
 
-  const originalValue = dot.pick(path.join('.'), context.node?.itemWithExpressions);
-  const isExpression = originalValue !== value && Array.isArray(originalValue);
-
   if (typeof value === 'string' && value.length < 35) {
     return (
       <Value
         property={property}
         className={classes.typeString}
-        wasExpression={isExpression ? originalValue : undefined}
+        wasExpression={isExpression ? preEvaluatedValue : undefined}
+        exprText={exprText}
       >
         {value}
       </Value>
@@ -222,7 +253,8 @@ export function NodeInspectorDataField({ path, property, value }: NodeInspectorD
       <Value
         property={property}
         className={classes.typeLongString}
-        wasExpression={isExpression ? originalValue : undefined}
+        wasExpression={isExpression ? preEvaluatedValue : undefined}
+        exprText={exprText}
       >
         {value}
       </Value>
@@ -234,7 +266,8 @@ export function NodeInspectorDataField({ path, property, value }: NodeInspectorD
       <Value
         property={property}
         className={classes.typeNumber}
-        wasExpression={isExpression ? originalValue : undefined}
+        wasExpression={isExpression ? preEvaluatedValue : undefined}
+        exprText={exprText}
       >
         {value}
       </Value>
@@ -246,7 +279,8 @@ export function NodeInspectorDataField({ path, property, value }: NodeInspectorD
       <Value
         property={property}
         className={classes.typeBoolean}
-        wasExpression={isExpression ? originalValue : undefined}
+        wasExpression={isExpression ? preEvaluatedValue : undefined}
+        exprText={exprText}
       >
         {value ? 'true' : 'false'}
       </Value>

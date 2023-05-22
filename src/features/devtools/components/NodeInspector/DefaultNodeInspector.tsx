@@ -39,9 +39,15 @@ export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeIns
           return (
             <NodeInspectorTextResourceBindings
               key={key}
+              node={node}
               textResourceBindings={value}
             />
           );
+        }
+
+        if (node.isRepGroup() && key === 'rows') {
+          // Don't show rows for repeating groups, as they are extracted and shown in the inspector sidebar
+          return null;
         }
 
         return (
