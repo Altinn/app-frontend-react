@@ -1,12 +1,29 @@
 import React from 'react';
 
+import { Panel, PanelVariant } from '@altinn/altinn-design-system';
+
+import { useLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 
 export const IFrameComponent = ({ node, getTextResourceAsString }: IFrameComponentProps): JSX.Element => {
-  const { textResourceBindings } = node.item;
+  const { lang } = useLanguage();
 
+  const isSrcDocUnsupported = !('srcdoc' in document.createElement('iframe'));
+
+  if (isSrcDocUnsupported) {
+    return (
+      <Panel
+        variant={PanelVariant.Error}
+        title={lang('iframe_component.unsupported_browser_title')}
+      >
+        <p>{lang('iframe_component.unsupported_browser')}</p>
+      </Panel>
+    );
+  }
+
+  const { textResourceBindings } = node.item;
   const iFrameTitle = textResourceBindings?.title;
   const HTMLString = iFrameTitle ? getTextResourceAsString(iFrameTitle) : '';
 
@@ -18,6 +35,7 @@ export const IFrameComponent = ({ node, getTextResourceAsString }: IFrameCompone
   return (
     <iframe
       scrolling='no'
+      frameBorder={0}
       width='100%'
       srcDoc={HTMLString}
       title={iFrameTitle}
