@@ -145,7 +145,6 @@
         { "if": {"properties": {"type": { "const": "TextArea"}}}, "then": { "$ref": "#/definitions/textAreaComponent"}},
         { "if": {"properties": {"type": { "const": "InstanceInformation"}}}, "then": { "$ref": "#/definitions/instanceInformationComponent"}},
         { "if": {"properties": {"type": { "const": "InstantiationButton"}}}, "then": { "$ref": "#/definitions/instantiationButtonComponent"}},
-        { "if": {"properties": {"type": { "const": "IFrame"}}}, "then": { "$ref": "#/definitions/iFrameComponent"}},
         { "if": {"properties": {"type": { "const": "Likert"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
         { "if": {"properties": {"type": { "const": "MultipleSelect"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
         { "if": {"properties": {"type": { "const": "NavigationButtons"}}}, "then": { "$ref": "#/definitions/navigationButtonsComponent"}},
