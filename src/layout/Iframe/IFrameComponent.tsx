@@ -7,8 +7,8 @@ export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 export const IFrameComponent = ({ node, getTextResourceAsString }: IFrameComponentProps): JSX.Element => {
   const { textResourceBindings } = node.item;
 
-  const HTMLString = getTextResourceAsString(textResourceBindings?.title) ?? '';
-  const iFrameTitle = getTextResourceAsString(textResourceBindings?.iFrameTitle) ?? '';
+  const iFrameTitle = textResourceBindings?.title;
+  const HTMLString = iFrameTitle ? getTextResourceAsString(iFrameTitle) : '';
 
   // Resize the iframe to fit the content thats loaded inside it
   const adjustIFrameSize = (iframe: React.BaseSyntheticEvent): void => {
