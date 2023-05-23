@@ -31,9 +31,39 @@ function testChangeName() {
 
 function testGroup() {
   cy.wait('@getLayoutGroup');
+  cy.get(appFrontend.group.prefill.liten).dsCheck();
+  cy.get(appFrontend.group.prefill.middels).dsCheck();
+  cy.get(appFrontend.group.prefill.stor).dsCheck();
+  cy.get(appFrontend.group.prefill.svaer).dsCheck();
+  cy.get(appFrontend.group.prefill.enorm).dsCheck();
+
   cy.navPage('repeating').click();
   cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
   cy.addItemToGroup(1, 2, 'automation');
+
+  // Mobile tables always have two columns
+  ensureTableHasNumColumns(appFrontend.group.mainGroup, 2);
+  let editWas: any = {};
+  cy.changeLayout((component) => {
+    if (component.id === 'mainGroup' && component.type === 'Group' && component.edit) {
+      editWas = { ...component.edit };
+      component.edit.editButton = false;
+      component.edit.deleteButton = false;
+    }
+  });
+  ensureTableHasNumColumns(appFrontend.group.mainGroup, 2);
+  cy.changeLayout((component) => {
+    if (component.id === 'mainGroup' && component.type === 'Group' && component.edit) {
+      component.edit = { ...editWas };
+    }
+  });
+
+  cy.get(appFrontend.group.hideRepeatingGroupRow).numberFormatClear();
+  cy.get(appFrontend.group.hideRepeatingGroupRow).type('1000');
+
+  cy.navPage('repeating (store endringer)').click();
+  ensureTableHasNumColumns(appFrontend.group.overflowGroup, 2);
+
   cy.navPage('hide').click();
   cy.get(appFrontend.group.sendersName).type('automation');
   cy.get(appFrontend.navMenu).should('not.exist');
@@ -43,6 +73,18 @@ function testGroup() {
   cy.get(appFrontend.navMenu).find('li > button').last().click();
   cy.get(appFrontend.navMenu).should('not.exist');
   cy.sendIn();
+}
+
+function ensureTableHasNumColumns(tableContainer: string, numColumns: number) {
+  cy.get(tableContainer)
+    .find('table')
+    .first()
+    .find('tr')
+    .then((rows) => {
+      for (const row of rows) {
+        cy.wrap(row).find('td,th').should('have.length', numColumns);
+      }
+    });
 }
 
 function testLikert() {
