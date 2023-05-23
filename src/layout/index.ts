@@ -30,6 +30,7 @@ import { Panel } from 'src/layout/Panel/index';
 import { Paragraph } from 'src/layout/Paragraph/index';
 import { PrintButton } from 'src/layout/PrintButton/index';
 import { RadioButtons } from 'src/layout/RadioButtons/index';
+import { Redirect } from 'src/layout/Redirect';
 import { Summary } from 'src/layout/Summary';
 import { TextArea } from 'src/layout/TextArea/index';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
@@ -67,6 +68,7 @@ export const components = {
   Paragraph: new Paragraph(),
   PrintButton: new PrintButton(),
   RadioButtons: new RadioButtons(),
+  Redirect: new Redirect(),
   TextArea: new TextArea(),
   List: new List(),
   Group: new Group(),

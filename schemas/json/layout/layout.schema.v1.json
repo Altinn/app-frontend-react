@@ -42,7 +42,7 @@
           "type": "string",
           "title": "Type",
           "description": "The component type.",
-          "enum": ["ActionButton", "AddressComponent", "AttachmentList", "Button", "ButtonGroup", "Checkboxes", "Custom", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Grid", "Group", "Header", "Image", "Input", "InstanceInformation", "InstantiationButton", "IFrame", "Likert","List", "MultipleSelect", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons", "Summary", "TextArea"]
+          "enum": ["ActionButton", "AddressComponent", "AttachmentList", "Button", "ButtonGroup", "Checkboxes", "Custom", "Datepicker", "Dropdown", "FileUpload", "FileUploadWithTag", "Grid", "Group", "Header", "Image", "Input", "InstanceInformation", "InstantiationButton", "IFrame", "Likert","List", "MultipleSelect", "NavigationButtons", "NavigationBar", "Panel", "Paragraph", "PrintButton", "RadioButtons","Redirect", "Summary", "TextArea"]
         },
         "required": {
           "title": "Required",
@@ -150,6 +150,7 @@
         { "if": {"properties": {"type": { "const": "NavigationButtons"}}}, "then": { "$ref": "#/definitions/navigationButtonsComponent"}},
         { "if": {"properties": {"type": { "const": "NavigationBar"}}}, "then": { "$ref": "#/definitions/navigationBarComponent"}},
         { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "Redirect"}}}, "then": { "$ref": "#/definitions/redirectComponent"}},
         { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}},
         { "if": {"properties": {"type": { "const": "Header"}}}, "then": {"$ref": "#/definitions/headerComponent"}},
         { "if": {"properties": {"type": { "const": "Panel"}}}, "then": {"$ref": "#/definitions/panelComponent"}},
@@ -910,6 +911,22 @@
           "description": "Define the layout style for the options"
         }
       }
+    },
+    "redirectComponent": {
+      "properties": {
+        "style": {
+          "type": "string",
+          "title": "Style",
+          "description": "The style of the button",
+          "enum": ["primary", "secondary", "link"]
+        },
+        "openInNewTab": {
+          "type": "boolean",
+          "title": "Open in new tab",
+          "description": "Boolean value indicating if the link should be opened in a new tab. Defaults to false."
+        }
+      },
+      "required": ["style"]
     },
     "addressComponent": {
       "properties": {
