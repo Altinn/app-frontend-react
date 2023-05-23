@@ -403,12 +403,7 @@ describe('Group', () => {
     cy.reloadAndWait();
 
     // Test that deleting an item does not cause another group to open if there are more elements in the group
-    cy.get(appFrontend.group.mainGroupTableBody)
-      .children()
-      .eq(0)
-      .find(appFrontend.group.delete)
-
-      .click();
+    cy.get(appFrontend.group.mainGroupTableBody).children().eq(0).find(appFrontend.group.delete).click();
     cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
@@ -432,11 +427,7 @@ describe('Group', () => {
       });
 
     // Navigate to nested group and test delete warning popoup cancel and confirm
-    cy.get(appFrontend.group.mainGroup)
-      .find(appFrontend.group.editContainer)
-      .find(appFrontend.group.next)
-
-      .click();
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.subGroup)
       .find(mui.tableBody)
       .then((table) => {
@@ -446,14 +437,12 @@ describe('Group', () => {
           .find(mui.tableElement)
           .find(appFrontend.designSystemPanel)
           .find(appFrontend.group.popOverCancelButton)
-
           .click();
         cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
         cy.wrap(table)
           .find(mui.tableElement)
           .find(appFrontend.designSystemPanel)
           .find(appFrontend.group.popOverDeleteButton)
-
           .click();
       });
     cy.get(appFrontend.group.subGroup)
@@ -463,11 +452,7 @@ describe('Group', () => {
       .should('not.contain.text', 'automation');
 
     // Navigate to main group and test delete warning popup cancel and confirm
-    cy.get(appFrontend.group.mainGroup)
-      .find(appFrontend.group.editContainer)
-      .find(appFrontend.group.back)
-
-      .click();
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
       .then((table) => {
@@ -476,14 +461,12 @@ describe('Group', () => {
           .find(mui.tableElement)
           .find(appFrontend.designSystemPanel)
           .find(appFrontend.group.popOverCancelButton)
-
           .click();
         cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
         cy.wrap(table)
           .find(mui.tableElement)
           .find(appFrontend.designSystemPanel)
           .find(appFrontend.group.popOverDeleteButton)
-
           .click();
       });
     cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
