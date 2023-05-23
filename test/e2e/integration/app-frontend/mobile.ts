@@ -6,16 +6,24 @@ const appFrontend = new AppFrontend();
 const likertPage = new Likert();
 const dataListPage = new Datalist();
 
+type Mode = 'mobile' | 'tablet';
+
 describe('Mobile', () => {
-  beforeEach(() => {
+  it('is possible to submit app instance from mobile', () => {
     cy.viewport('samsung-s10');
+    testChangeName();
+    testGroup('mobile');
+    testLikert();
+    testList('mobile');
+    testConfirm();
   });
 
-  it('is possible to submit app instance from mobile', () => {
+  it('is possible to submit app instance a tablet', () => {
+    cy.viewport('ipad-2');
     testChangeName();
-    testGroup();
+    testGroup('tablet');
     testLikert();
-    testList();
+    testList('tablet');
     testConfirm();
   });
 });
@@ -29,7 +37,7 @@ function testChangeName() {
   cy.sendIn();
 }
 
-function testGroup() {
+function testGroup(mode: Mode) {
   cy.wait('@getLayoutGroup');
   cy.get(appFrontend.group.prefill.liten).dsCheck();
   cy.get(appFrontend.group.prefill.middels).dsCheck();
@@ -66,12 +74,17 @@ function testGroup() {
 
   cy.navPage('hide').click();
   cy.get(appFrontend.group.sendersName).type('automation');
-  cy.get(appFrontend.navMenu).should('not.exist');
-  cy.get(appFrontend.group.navigationBarButton).should('have.attr', 'aria-expanded', 'false').click();
-  cy.get(appFrontend.group.navigationBarButton).should('have.attr', 'aria-expanded', 'true');
-  cy.get(appFrontend.navMenu).should('be.visible');
-  cy.get(appFrontend.navMenu).find('li > button').last().click();
-  cy.get(appFrontend.navMenu).should('not.exist');
+
+  if (mode === 'mobile') {
+    cy.get(appFrontend.navMenu).should('not.exist');
+    cy.get(appFrontend.group.navigationBarButton).should('have.attr', 'aria-expanded', 'false').click();
+    cy.get(appFrontend.group.navigationBarButton).should('have.attr', 'aria-expanded', 'true');
+    cy.get(appFrontend.navMenu).should('be.visible');
+    cy.get(appFrontend.navMenu).find('li > button').last().click();
+    cy.get(appFrontend.navMenu).should('not.exist');
+  } else {
+    cy.navPage('summary').click();
+  }
   cy.sendIn();
 }
 
@@ -92,8 +105,12 @@ function testLikert() {
   cy.sendIn();
 }
 
-function testList() {
-  cy.get(dataListPage.tableBody).contains('Caroline').parent('div').parent('td').parent('tr').click();
+function testList(mode: Mode) {
+  if (mode === 'mobile') {
+    cy.get(dataListPage.tableBody).contains('Caroline').parent('div').parent('td').parent('tr').click();
+  } else {
+    cy.get(dataListPage.tableBody).contains('Caroline').parent('td').parent('tr').click();
+  }
   cy.get(appFrontend.nextButton).click();
   cy.sendIn();
 }
