@@ -11,6 +11,8 @@ import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComp
 import classes from 'src/layout/FileUploadWithTag/FileListComponent.module.css';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
+import { dataElementUrl } from 'src/utils/urls/appUrlHelper';
+import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/types';
@@ -77,6 +79,7 @@ export function FileList(props: FileListProps): JSX.Element | null {
               if (attachment.tags !== undefined && attachment.tags.length > 0 && props.editIndex !== index) {
                 const firstTag = attachment.tags[0];
                 const label = props.options?.find((option) => option.value === firstTag)?.label;
+                const url = makeUrlRelativeIfSameDomain(dataElementUrl(props.attachments[index].id));
 
                 return (
                   <TableRow
@@ -88,7 +91,10 @@ export function FileList(props: FileListProps): JSX.Element | null {
                       className={classes.textContainer}
                     >
                       <div style={{ minWidth: '0px' }}>
-                        <FileName>{props.attachments[index].name}</FileName>
+                        <FileName
+                          fileName={props.attachments[index].name || ''}
+                          url={url}
+                        />
                         {props.mobileView ? (
                           <div
                             style={{

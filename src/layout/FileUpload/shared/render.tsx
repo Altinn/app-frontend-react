@@ -1,25 +1,22 @@
 import React from 'react';
 
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import classes from 'src/layout/FileUpload/shared/render.module.css';
 import { getFileEnding, removeFileEnding } from 'src/utils/attachment';
 
-export const FileName = ({ children }: { children: string | undefined }) => (
-  <div
-    style={{
-      display: 'flex',
-    }}
+interface IFileNameProps {
+  fileName: string;
+  url: string;
+}
+
+export const FileName = (props: IFileNameProps) => (
+  <a
+    href={props.url}
+    className={classes.download}
   >
-    <div
-      style={{
-        textOverflow: 'ellipsis',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {removeFileEnding(children)}
-    </div>
-    <div>{getFileEnding(children)}</div>
-  </div>
+    <span className={classes.truncate}>{removeFileEnding(props.fileName)}</span>
+    <span className={classes.test}>{getFileEnding(props.fileName)}</span>
+  </a>
 );
 
 interface IAttachmentsCounterProps {

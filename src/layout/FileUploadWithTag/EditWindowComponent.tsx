@@ -12,6 +12,8 @@ import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { FileName } from 'src/layout/FileUpload/shared/render';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import { renderValidationMessages } from 'src/utils/render';
+import { dataElementUrl } from 'src/utils/urls/appUrlHelper';
+import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/types';
@@ -46,6 +48,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   };
 
   const saveIsDisabled = props.attachment.updating === true || props.attachment.uploaded === false || readOnly;
+  const url = makeUrlRelativeIfSameDomain(dataElementUrl(props.attachment.id));
 
   return (
     <div
@@ -63,7 +66,10 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           className={classes.textContainer}
           style={{ flexShrink: 1 }}
         >
-          <FileName>{props.attachment.name}</FileName>
+          <FileName
+            fileName={props.attachment.name || ''}
+            url={url}
+          />
         </Grid>
         <Grid
           className={classes.textContainer}

@@ -15,6 +15,8 @@ import { handleRejectedFiles } from 'src/layout/FileUpload/shared/handleRejected
 import { AttachmentsCounter, FileName } from 'src/layout/FileUpload/shared/render';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
+import { dataElementUrl } from 'src/utils/urls/appUrlHelper';
+import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IComponentValidations } from 'src/types';
@@ -139,15 +141,19 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     !mobileView ? (
       <th scope='col'>{getLanguageFromKey('form_filler.file_uploader_list_header_file_size', language)}</th>
     ) : null;
-  const NameCell = ({ attachment }: { attachment: { name?: string; size: number } }) => {
+  const NameCell = ({ attachment }: { attachment: { name?: string; size: number; id: string } }) => {
     const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${getLanguageFromKey(
       'form_filler.file_uploader_mb',
       language,
     )}`;
+    const url = makeUrlRelativeIfSameDomain(dataElementUrl(attachment.id));
     return (
       <>
         <td>
-          <FileName>{attachment.name}</FileName>
+          <FileName
+            fileName={attachment.name || ''}
+            url={url}
+          />
           {mobileView ? (
             <div
               style={{
