@@ -9,6 +9,7 @@ import { LayoutInspector } from 'src/features/devtools/components/LayoutInspecto
 import { NodeInspector } from 'src/features/devtools/components/NodeInspector/NodeInspector';
 import { PDFPreviewButton } from 'src/features/devtools/components/PDFPreviewButton/PDFPreviewButton';
 import { PermissionsEditor } from 'src/features/devtools/components/PermissionsEditor/PermissionsEditor';
+import { VersionSwitcher } from 'src/features/devtools/components/VersionSwitcher/VersionSwitcher';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import classes from 'src/features/devtools/DevTools.module.css';
@@ -35,6 +36,7 @@ export const DevToolsControls = () => {
                 <PDFPreviewButton />
                 <DevNavigationButtons />
                 <DevHiddenFunctionality />
+                <VersionSwitcher />
                 <PermissionsEditor />
               </div>
             ),
