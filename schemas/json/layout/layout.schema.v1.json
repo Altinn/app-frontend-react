@@ -1075,6 +1075,9 @@
         },
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
+        },
+        "maxLength": {
+          "$ref": "#/definitions/maxLength"
         }
       }
     },
@@ -1085,6 +1088,9 @@
         },
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
+        },
+        "maxLength": {
+          "$ref": "#/definitions/maxLength"
         }
       }
     },
@@ -1096,6 +1102,11 @@
         { "type": "boolean" },
         { "type": "number" }
       ]
+    },
+    "maxLength": {
+      "title": "Maximum length",
+      "description": "Maximum length of input field",
+      "type": "number"
     },
     "inputFormatting": {
       "type": "object",

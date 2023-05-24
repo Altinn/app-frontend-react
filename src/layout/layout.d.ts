@@ -58,6 +58,7 @@ export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> extends
 
 export interface ILayoutCompBase<Type extends ComponentTypes = ComponentTypes> extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings;
+  maxLength?: number;
   readOnly?: ExprVal.Boolean;
   renderAsSummary?: ExprVal.Boolean;
   required?: ExprVal.Boolean;

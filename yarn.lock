@@ -2625,18 +2625,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/design-system-react@npm:0.11.3":
-  version: 0.11.3
-  resolution: "@digdir/design-system-react@npm:0.11.3"
+"@digdir/design-system-react@npm:0.12.1":
+  version: 0.12.1
+  resolution: "@digdir/design-system-react@npm:0.12.1"
   dependencies:
     "@altinn/figma-design-tokens": ^6.0.1
+    "@digdir/design-system-tokens": ^0.1.1
     "@floating-ui/react": 0.17.0
     "@navikt/ds-icons": ^2.3.0
     react-number-format: ^5.1.4
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 302c2a9b51d599247f34dfba35d85ad988ab2a30a1161c766f24ea555651099495ae6a110b5ea0bd20e367ca2ca0d410fb382427faf2679d8afb6b416b67e275
+  checksum: c868f6690be009f57d05f9f319d0552310f225cd2d6a8cc23412c5a906722f3282984715d5e639333086b4819bf28cc9995c4113f31ef0a4a97833254a3000b2
+  languageName: node
+  linkType: hard
+
+"@digdir/design-system-tokens@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@digdir/design-system-tokens@npm:0.1.1"
+  checksum: b5f6a1b69958b85520e9b01620b355615ece2ec9fd67b0720e76cfdcfe5fbe421803386986b1c19777922aa0de91e7322a38aff69766bacbfbe692cdf7d48f0b
   languageName: node
   linkType: hard
 
@@ -5394,7 +5402,7 @@ __metadata:
     "@babel/runtime": ^7.21.0
     "@babel/runtime-corejs3": ^7.21.0
     "@date-io/moment": 1.3.13
-    "@digdir/design-system-react": 0.11.3
+    "@digdir/design-system-react": 0.12.1
     "@material-ui/core": 4.12.4
     "@material-ui/icons": 4.11.3
     "@material-ui/pickers": 3.3.10
