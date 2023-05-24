@@ -164,8 +164,61 @@ describe('Validation', () => {
 
   it('Client side validation from json schema', () => {
     cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).type('a');
+
+    // Tests regex validation in schema
     cy.get(appFrontend.changeOfName.newLastName).type('client');
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newLastName)).should('have.text', texts.clientSide);
+    cy.get(appFrontend.changeOfName.newLastName).clear();
+
+    // Tests max length validation in schema
+    cy.get(appFrontend.changeOfName.newMiddleName).type(
+      'very long middle name that is over 50 characters which is the limit',
+    );
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newMiddleName)).should(
+      'contain.text',
+      texts.clientSide,
+    );
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newMiddleName)).should(
+      'contain.text',
+      `The field value must be a string or array type with a maximum length of '50'`,
+    );
+
+    // Hiding the field should remove the validation
+    cy.get(appFrontend.changeOfName.newLastName).type('hideNext');
+    cy.get(appFrontend.changeOfName.newMiddleName).should('exist');
+    cy.changeLayout((component) => {
+      if (component.id === 'newMiddleName') {
+        component.hidden = ['equals', ['component', 'newLastName'], 'hideNext'];
+      }
+    });
+    cy.get(appFrontend.changeOfName.newMiddleName).should('not.exist');
+    cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.newMiddleName)).should('not.exist');
+
+    const expectedErrors = [
+      {
+        text: 'Bruk 60 eller færre tegn',
+        shouldFocus: 'changeNameTo_æøå',
+      },
+      {
+        text: 'Du må fylle ut dato for navneendring',
+        shouldFocus: 'dateOfEffect',
+      },
+      {
+        text: 'Du må fylle ut bekreftelse av navn',
+        shouldFocus: 'confirmChangeName',
+      },
+    ];
+
+    // Clicking the submit button should display all validation errors on the bottom, and clicking them
+    // should move focus to the correct elements in the form.
+    cy.get('#toNextTask').click();
+    cy.get(appFrontend.errorReport).find('li').should('have.length', expectedErrors.length);
+    for (const { text, shouldFocus } of expectedErrors) {
+      cy.get(appFrontend.errorReport).should('contain.text', text);
+      cy.get(`button:contains("${text}")`).click();
+      cy.focused().closest('[data-componentid]').should('have.attr', 'data-componentid', shouldFocus);
+    }
   });
 
   it('Task validation', () => {
