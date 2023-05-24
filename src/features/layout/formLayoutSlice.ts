@@ -14,7 +14,7 @@ import { updateFileUploaderWithTagEditIndexSaga } from 'src/features/layout/file
 import { watchMapFileUploaderWithTagSaga } from 'src/features/layout/fileUpload/watchMapFileUploaderWithTagSaga';
 import { initRepeatingGroupsSaga } from 'src/features/layout/repGroups/initRepeatingGroupsSaga';
 import { updateRepeatingGroupEditIndexSaga } from 'src/features/layout/repGroups/updateRepeatingGroupEditIndexSaga';
-import { updateRepeatingGroupsSaga } from 'src/features/layout/repGroups/updateRepeatingGroupsSaga';
+import { repGroupAddRowSaga, repGroupDeleteRowSaga } from 'src/features/layout/repGroups/updateRepeatingGroupsSaga';
 import {
   calculatePageOrderAndMoveToNextPageSaga,
   findAndMoveToNextVisibleLayout,
@@ -204,7 +204,13 @@ export const formLayoutSlice = () => {
         },
       }),
       updateRepeatingGroups: mkAction<LayoutTypes.IUpdateRepeatingGroups>({
-        takeLatest: updateRepeatingGroupsSaga,
+        *takeLatest({ type, payload: { layoutElementId, remove, index } }) {
+          if (remove && typeof index !== 'undefined') {
+            yield call(repGroupDeleteRowSaga, { type, payload: { groupId: layoutElementId, index } });
+          } else {
+            yield call(repGroupAddRowSaga, { type, payload: { groupId: layoutElementId } });
+          }
+        },
         reducer: (state, action) => {
           const { layoutElementId, remove, index } = action.payload;
           if (remove && typeof index !== 'undefined') {
