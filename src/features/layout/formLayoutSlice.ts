@@ -9,17 +9,17 @@ import {
   watchFetchFormLayoutSaga,
   watchFetchFormLayoutSettingsSaga,
 } from 'src/features/layout/fetch/fetchFormLayoutSagas';
+import { updateFileUploaderWithTagChosenOptionsSaga } from 'src/features/layout/fileUpload/updateFileUploaderWithTagChosenOptionsSaga';
+import { updateFileUploaderWithTagEditIndexSaga } from 'src/features/layout/fileUpload/updateFileUploaderWithTagEditIndexSaga';
+import { watchMapFileUploaderWithTagSaga } from 'src/features/layout/fileUpload/watchMapFileUploaderWithTagSaga';
+import { initRepeatingGroupsSaga } from 'src/features/layout/repGroups/initRepeatingGroupsSaga';
+import { updateRepeatingGroupEditIndexSaga } from 'src/features/layout/repGroups/updateRepeatingGroupEditIndexSaga';
+import { updateRepeatingGroupsSaga } from 'src/features/layout/repGroups/updateRepeatingGroupsSaga';
 import {
   calculatePageOrderAndMoveToNextPageSaga,
   findAndMoveToNextVisibleLayout,
-  initRepeatingGroupsSaga,
   updateCurrentViewSaga,
-  updateFileUploaderWithTagChosenOptionsSaga,
-  updateFileUploaderWithTagEditIndexSaga,
-  updateRepeatingGroupEditIndexSaga,
-  updateRepeatingGroupsSaga,
   watchInitialCalculatePageOrderAndMoveToNextPageSaga,
-  watchMapFileUploaderWithTagSaga,
 } from 'src/features/layout/update/updateFormLayoutSagas';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { replaceTextResourcesSaga } from 'src/features/textResources/replace/replaceTextResourcesSagas';
