@@ -2,11 +2,11 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 
-import { RedirectComponent } from 'src/layout/Redirect/RedirectComponent';
+import { LinkComponent } from 'src/layout/Link/LinkComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
-import type { RedirectStyle } from 'src/layout/Redirect/types';
+import type { LinkStyle } from 'src/layout/Link/types';
 
-describe('RedirectComponent', () => {
+describe('LinkComponent', () => {
   it('should render link when style is link', () => {
     render({ title: 'Some title', target: 'https://www.digdir.no', style: 'link' });
 
@@ -75,8 +75,8 @@ describe('RedirectComponent', () => {
 
 const render = ({ title, target, openInNewTab = false, style = 'primary' }) => {
   renderGenericComponentTest({
-    type: 'Redirect',
-    renderer: (props) => <RedirectComponent {...props} />,
+    type: 'Link',
+    renderer: (props) => <LinkComponent {...props} />,
     component: {
       id: 'some-id',
       textResourceBindings: {
@@ -84,7 +84,7 @@ const render = ({ title, target, openInNewTab = false, style = 'primary' }) => {
         target,
       },
       openInNewTab,
-      style: style as RedirectStyle,
+      style: style as LinkStyle,
     },
     genericProps: {
       getTextResourceAsString: (text) => text,

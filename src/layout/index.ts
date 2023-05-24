@@ -21,6 +21,7 @@ import { Input } from 'src/layout/Input/index';
 import { InstanceInformation } from 'src/layout/InstanceInformation/index';
 import { InstantiationButton } from 'src/layout/InstantiationButton/index';
 import { Likert } from 'src/layout/Likert/index';
+import { Link } from 'src/layout/Link';
 import { List } from 'src/layout/List/index';
 import { Map } from 'src/layout/Map/index';
 import { MultipleSelect } from 'src/layout/MultipleSelect/index';
@@ -30,7 +31,6 @@ import { Panel } from 'src/layout/Panel/index';
 import { Paragraph } from 'src/layout/Paragraph/index';
 import { PrintButton } from 'src/layout/PrintButton/index';
 import { RadioButtons } from 'src/layout/RadioButtons/index';
-import { Redirect } from 'src/layout/Redirect';
 import { Summary } from 'src/layout/Summary';
 import { TextArea } from 'src/layout/TextArea/index';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
@@ -60,6 +60,7 @@ export const components = {
   InstanceInformation: new InstanceInformation(),
   InstantiationButton: new InstantiationButton(),
   Likert: new Likert(),
+  Link: new Link(),
   Map: new Map(),
   MultipleSelect: new MultipleSelect(),
   NavigationBar: new NavigationBar(),
@@ -68,7 +69,6 @@ export const components = {
   Paragraph: new Paragraph(),
   PrintButton: new PrintButton(),
   RadioButtons: new RadioButtons(),
-  Redirect: new Redirect(),
   TextArea: new TextArea(),
   List: new List(),
   Group: new Group(),

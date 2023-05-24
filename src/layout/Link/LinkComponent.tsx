@@ -5,18 +5,18 @@ import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react'
 import type { PropsFromGenericComponent } from '..';
 
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { RedirectStyle } from 'src/layout/Redirect/types';
+import type { LinkStyle } from 'src/layout/Link/types';
 
 export const buttonStyles: {
-  [style in Exclude<RedirectStyle, 'link'>]: { color: ButtonColor; variant: ButtonVariant };
+  [style in Exclude<LinkStyle, 'link'>]: { color: ButtonColor; variant: ButtonVariant };
 } = {
   primary: { variant: ButtonVariant.Filled, color: ButtonColor.Success },
   secondary: { variant: ButtonVariant.Outline, color: ButtonColor.Primary },
 };
 
-export type IRedirectComponent = PropsFromGenericComponent<'Redirect'>;
+export type ILinkComponent = PropsFromGenericComponent<'Link'>;
 
-export function RedirectComponent({ node, getTextResourceAsString }: IRedirectComponent) {
+export function LinkComponent({ node, getTextResourceAsString }: ILinkComponent) {
   const { id, style, openInNewTab, textResourceBindings } = node.item;
   const title = getTextResourceAsString(textResourceBindings?.title);
   const target = getTextResourceAsString(textResourceBindings?.target);
@@ -26,7 +26,7 @@ export function RedirectComponent({ node, getTextResourceAsString }: IRedirectCo
     return (
       <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
         <a
-          id={`redirect-${id}`}
+          id={`link-${id}`}
           href={target}
           target={openInNewTab ? '_blank' : undefined}
           rel={openInNewTab ? 'noreferrer' : undefined}
@@ -40,7 +40,7 @@ export function RedirectComponent({ node, getTextResourceAsString }: IRedirectCo
 
     return (
       <Button
-        id={`redirect-${id}`}
+        id={`link-${id}`}
         style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
         color={color}
         variant={variant}

@@ -22,6 +22,7 @@ import type { ILayoutCompInput } from 'src/layout/Input/types';
 import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
 import type { ILayoutCompInstantiationButton } from 'src/layout/InstantiationButton/types';
 import type { ILayoutCompLikert } from 'src/layout/Likert/types';
+import type { ILayoutCompLink } from 'src/layout/Link/types';
 import type { IDataModelBindingsForList, ILayoutCompList } from 'src/layout/List/types';
 import type { ILayoutCompMap } from 'src/layout/Map/types';
 import type { ILayoutCompMultipleSelect } from 'src/layout/MultipleSelect/types';
@@ -31,7 +32,6 @@ import type { ILayoutCompPanel } from 'src/layout/Panel/types';
 import type { ILayoutCompParagraph } from 'src/layout/Paragraph/types';
 import type { ILayoutCompPrintButton } from 'src/layout/PrintButton/types';
 import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
-import type { ILayoutCompRedirect } from 'src/layout/Redirect/types';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { ILayoutCompTextArea } from 'src/layout/TextArea/types';
 import type { ILabelSettings, IMapping, IOption, IOptionSource, LayoutStyle, Triggers } from 'src/types';
@@ -145,6 +145,7 @@ interface Map {
   InstantiationButton: ILayoutCompInstantiationButton;
   InstanceInformation: ILayoutCompInstanceInformation;
   Likert: ILayoutCompLikert;
+  Link: ILayoutCompLink;
   List: ILayoutCompList;
   Map: ILayoutCompMap;
   MultipleSelect: ILayoutCompMultipleSelect;
@@ -154,7 +155,6 @@ interface Map {
   Paragraph: ILayoutCompParagraph;
   PrintButton: ILayoutCompPrintButton;
   RadioButtons: ILayoutCompRadioButtons;
-  Redirect: ILayoutCompRedirect;
   Summary: ILayoutCompSummary;
   TextArea: ILayoutCompTextArea;
 }
