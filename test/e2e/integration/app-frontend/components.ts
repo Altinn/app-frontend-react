@@ -212,7 +212,5 @@ describe('UI Components', () => {
     cy.get('#form-content-newFirstName').contains('Du har 0 tegn igjen');
     cy.get(appFrontend.changeOfName.newFirstName).type('r');
     cy.get('#form-content-newFirstName').contains('Du har overskredet maks antall tegn med 1');
-
-    cy.get(appFrontend.changeOfName.newFirstName).blur();
   });
 });
