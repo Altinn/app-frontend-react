@@ -47,7 +47,7 @@ describe('LinkComponent', () => {
     );
   });
 
-  it('should have correct button attributes when openInNewTab = true', () => {
+  it('button should call window.open() with correct arguments when openInNewTab = true', () => {
     global.open = jest.fn();
     render({
       title: 'Button to service',
@@ -60,7 +60,7 @@ describe('LinkComponent', () => {
     expect(global.open).toHaveBeenCalledWith('https://www.digdir.no/service', '_blank');
   });
 
-  it('should have correct button attributes when openInNewTab = false', () => {
+  it('button should call window.open() with correct arguments when openInNewTab = false', () => {
     global.open = jest.fn();
     render({
       title: 'Button to service',
