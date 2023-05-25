@@ -58,9 +58,7 @@ export function* repGroupDeleteRowSaga({
       },
     };
 
-    // TODO: May not exist, if nested
     const groupContainer = currentLayout.find((element) => element.id === groupId) as ILayoutGroup | undefined;
-
     const children = groupContainer?.children || [];
     const childGroups = currentLayout.filter((element) => {
       if (element.type !== 'Group') {
@@ -176,30 +174,17 @@ export function* repGroupDeleteRowSaga({
       );
       updatedRepeatingGroups[groupId].editIndex = -1;
 
-      yield put(
-        FormLayoutActions.updateRepeatingGroupsFulfilled({
-          repeatingGroups: updatedRepeatingGroups,
-        }),
-      );
+      yield put(FormLayoutActions.repGroupDeleteRowFulfilled({ updated: updatedRepeatingGroups }));
       yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
-      yield put(
-        AttachmentActions.mapAttachmentsFulfilled({
-          attachments: updatedAttachments,
-        }),
-      );
+      yield put(AttachmentActions.mapAttachmentsFulfilled({ attachments: updatedAttachments }));
       yield put(FormDataActions.saveEvery({}));
     } else {
-      yield put(
-        FormLayoutActions.updateRepeatingGroupsRemoveCancelled({
-          layoutElementId: groupId,
-          index,
-        }),
-      );
+      yield put(FormLayoutActions.repGroupDeleteRowCancelled({ groupId, index }));
     }
 
     yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
   } catch (error) {
-    yield put(FormLayoutActions.updateRepeatingGroupsRejected({ error }));
+    yield put(FormLayoutActions.repGroupDeleteRowRejected({ error }));
   }
 }
 
@@ -229,9 +214,7 @@ export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<{ gr
       },
     };
 
-    // TODO: May not exist, if nested
     const groupContainer = currentLayout.find((element) => element.id === groupId) as ILayoutGroup | undefined;
-
     const children = groupContainer?.children || [];
     const childGroups = currentLayout.filter((element) => {
       if (element.type !== 'Group') {
@@ -257,14 +240,10 @@ export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<{ gr
     });
 
     updatedRepeatingGroups[groupId].editIndex = newIndex;
-    yield put(
-      FormLayoutActions.updateRepeatingGroupsFulfilled({
-        repeatingGroups: updatedRepeatingGroups,
-      }),
-    );
 
+    yield put(FormLayoutActions.repGroupAddRowFulfilled({ updated: updatedRepeatingGroups }));
     yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
   } catch (error) {
-    yield put(FormLayoutActions.updateRepeatingGroupsRejected({ error }));
+    yield put(FormLayoutActions.repGroupAddRowRejected({ error }));
   }
 }

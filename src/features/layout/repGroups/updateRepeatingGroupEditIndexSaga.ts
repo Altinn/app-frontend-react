@@ -103,11 +103,7 @@ export function* updateRepeatingGroupEditIndexSaga({
 
       if (canFormBeSaved({ validations: rowValidations, invalidDataTypes: false }, 'Complete')) {
         if (shouldAddRow) {
-          yield put(
-            FormLayoutActions.updateRepeatingGroups({
-              layoutElementId: group,
-            }),
-          );
+          yield put(FormLayoutActions.repGroupAddRow({ groupId: group }));
         }
         yield put(
           FormLayoutActions.updateRepeatingGroupsEditIndexFulfilled({
@@ -125,11 +121,7 @@ export function* updateRepeatingGroupEditIndexSaga({
       }
     } else {
       if (shouldAddRow) {
-        yield put(
-          FormLayoutActions.updateRepeatingGroups({
-            layoutElementId: group,
-          }),
-        );
+        yield put(FormLayoutActions.repGroupAddRow({ groupId: group }));
       }
       yield put(
         FormLayoutActions.updateRepeatingGroupsEditIndexFulfilled({

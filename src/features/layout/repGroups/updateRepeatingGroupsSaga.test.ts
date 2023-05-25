@@ -71,7 +71,7 @@ describe('repGroupDeleteRowSaga', function () {
     };
 
     const action: Parameters<typeof repGroupDeleteRowSaga>[0] = {
-      type: FormLayoutActions.updateRepeatingGroups.type,
+      type: FormLayoutActions.repGroupDeleteRow.type,
       payload: {
         groupId: 'repeating-group',
         index: 0,
@@ -106,8 +106,8 @@ describe('repGroupDeleteRowSaga', function () {
       .put(ValidationActions.updateValidations({ validations: {} }))
       .put(OptionsActions.setOptions({ options: {} }))
       .put(
-        FormLayoutActions.updateRepeatingGroupsFulfilled({
-          repeatingGroups: {
+        FormLayoutActions.repGroupDeleteRowFulfilled({
+          updated: {
             'repeating-group': {
               index: -1,
               editIndex: -1,

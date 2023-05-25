@@ -100,10 +100,6 @@ export function* initRepeatingGroupsSaga({
         newGroup.index = currentGroup.index;
       }
     });
-  yield put(
-    FormLayoutActions.updateRepeatingGroupsFulfilled({
-      repeatingGroups: newGroups,
-    }),
-  );
+  yield put(FormLayoutActions.initRepeatingGroupsFulfilled({ updated: newGroups }));
   yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
 }
