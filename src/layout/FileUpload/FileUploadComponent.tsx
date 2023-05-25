@@ -218,42 +218,14 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
             marginBottom: '1rem',
             marginRight: '1.0rem',
           }}
-          srContent={getLanguageFromKey('general.loading', language)}
+          srContent={langAsString('general.loading')}
         />
-      ) : mobileView ? (
-        lang('general.delete')
       ) : (
-        lang('form_filler.file_uploader_list_delete')
+        !mobileView && lang('form_filler.file_uploader_list_delete')
       )}
     </Button>
-
-    // <div
-    //   onClick={handleDeleteFile.bind(this, index)}
-    //   onKeyPress={handleDeleteKeypress.bind(this, index)}
-    //   tabIndex={0}
-    //   role='button'
-    //   data-testid={`attachment-delete-${index}`}
-    //   aria-label={getLanguageFromKey('general.delete', language)}
-    // >
-    //   {attachment.deleting ? (
-    //     <AltinnLoader
-    //       id='loader-delete'
-    //       style={{
-    //         marginBottom: '1rem',
-    //         marginRight: '1.0rem',
-    //       }}
-    //       srContent={getLanguageFromKey('general.loading', language)}
-    //     />
-    //   ) : (
-    //     <>
-    //       {mobileView
-    //         ? getLanguageFromKey('general.delete', language)
-    //         : getLanguageFromKey('form_filler.file_uploader_list_delete', language)}
-    //       <i className='ai ai-trash' />
-    //     </>
-    //   )}
-    // </div>
   );
+
   const FileList = (): JSX.Element | null => {
     if (!attachments?.length) {
       return null;

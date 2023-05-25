@@ -5,6 +5,7 @@ import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow 
 import { CheckmarkCircleFillIcon, PencilIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/shared/AttachmentFileName';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
@@ -14,6 +15,7 @@ import { atleastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/types';
+
 export interface FileListProps extends PropsFromGenericComponent<'FileUploadWithTag'> {
   attachments: IAttachment[];
   editIndex: number;
@@ -32,10 +34,11 @@ export interface FileListProps extends PropsFromGenericComponent<'FileUploadWith
 export const bytesInOneMB = 1048576;
 
 export function FileList(props: FileListProps): JSX.Element | null {
+  const { lang, langAsString } = useLanguage();
+
   if (!props.attachments || props.attachments.length === 0) {
     return null;
   }
-
   const { textResourceBindings } = props.node.item;
 
   return (
@@ -99,7 +102,9 @@ export function FileList(props: FileListProps): JSX.Element | null {
                               <div>
                                 {(attachment.size / bytesInOneMB).toFixed(2)}{' '}
                                 {getLanguageFromKey('form_filler.file_uploader_mb', props.language)}
-                                <CheckmarkCircleFillIcon />
+                                <CheckmarkCircleFillIcon
+                                  aria-label={langAsString('form_filler.file_uploader_list_status_done')}
+                                />
                                 {/* <i
                                   className='ai ai-check-circle'
                                   role='img'
@@ -129,9 +134,8 @@ export function FileList(props: FileListProps): JSX.Element | null {
                     </TableCell>
                     {!props.mobileView ? (
                       <TableCell key={`attachment-size-${index}`}>
-                        {`${(attachment.size / bytesInOneMB).toFixed(2)} ${getLanguageFromKey(
+                        {`${(attachment.size / bytesInOneMB).toFixed(2)} ${langAsString(
                           'form_filler.file_uploader_mb',
-                          props.language,
                         )}`}
                       </TableCell>
                     ) : null}
@@ -139,8 +143,8 @@ export function FileList(props: FileListProps): JSX.Element | null {
                       <TableCell key={`attachment-status-${index}`}>
                         {attachment.uploaded ? (
                           <div>
-                            {getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)}
-                            <CheckmarkCircleFillIcon />
+                            {lang('form_filler.file_uploader_list_status_done')}
+                            <CheckmarkCircleFillIcon aria-hidden={true} />
                             {/* <i className='ai ai-check-circle' /> */}
                           </div>
                         ) : (
@@ -167,7 +171,7 @@ export function FileList(props: FileListProps): JSX.Element | null {
                         icon={<PencilIcon aria-hidden={true} />}
                         iconPlacement='right'
                       >
-                        {getLanguageFromKey('general.edit_alt', props.language)}
+                        {!props.mobileView && lang('general.edit_alt')}
                       </Button>
                     </TableCell>
                   </TableRow>
