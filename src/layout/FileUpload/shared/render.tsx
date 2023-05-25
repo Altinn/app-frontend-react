@@ -1,23 +1,6 @@
 import React from 'react';
 
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import classes from 'src/layout/FileUpload/shared/render.module.css';
-import { getFileEnding, removeFileEnding } from 'src/utils/attachment';
-
-interface IFileNameProps {
-  fileName: string;
-  url: string;
-}
-
-export const FileName = (props: IFileNameProps) => (
-  <a
-    href={props.url}
-    className={classes.download}
-  >
-    <span className={classes.truncate}>{removeFileEnding(props.fileName)}</span>
-    <span className={classes.test}>{getFileEnding(props.fileName)}</span>
-  </a>
-);
 
 interface IAttachmentsCounterProps {
   language: any;

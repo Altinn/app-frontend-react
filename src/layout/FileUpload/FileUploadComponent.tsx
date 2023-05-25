@@ -2,21 +2,24 @@ import React from 'react';
 import { isMobile } from 'react-device-detect';
 import type { FileRejection } from 'react-dropzone';
 
+import { Button } from '@digdir/design-system-react';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { CheckmarkCircleFillIcon, TrashIcon } from '@navikt/aksel-icons';
 import { v4 as uuidv4 } from 'uuid';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
+import { AttachmentFileName } from 'src/layout/FileUpload/shared/AttachmentFileName';
 import { DropzoneComponent } from 'src/layout/FileUpload/shared/DropzoneComponent';
 import { handleRejectedFiles } from 'src/layout/FileUpload/shared/handleRejectedFiles';
-import { AttachmentsCounter, FileName } from 'src/layout/FileUpload/shared/render';
+import { AttachmentsCounter } from 'src/layout/FileUpload/shared/render';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import { dataElementUrl } from 'src/utils/urls/appUrlHelper';
-import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IComponentValidations } from 'src/types';
@@ -47,7 +50,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
   const attachments = useAppSelector((state) => state.attachments.attachments[id] || emptyArray);
-
+  const { lang, langAsString } = useLanguage();
   const getComponentValidations = (): IComponentValidations => {
     const validationMessages = {
       simpleBinding: {
@@ -141,18 +144,17 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     !mobileView ? (
       <th scope='col'>{getLanguageFromKey('form_filler.file_uploader_list_header_file_size', language)}</th>
     ) : null;
-  const NameCell = ({ attachment }: { attachment: { name?: string; size: number; id: string } }) => {
+  const NameCell = ({ attachment }: { attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'> }) => {
     const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${getLanguageFromKey(
       'form_filler.file_uploader_mb',
       language,
     )}`;
-    const url = makeUrlRelativeIfSameDomain(dataElementUrl(attachment.id));
     return (
       <>
         <td>
-          <FileName
-            fileName={attachment.name || ''}
-            url={url}
+          <AttachmentFileName
+            attachment={attachment}
+            mobileView={mobileView}
           />
           {mobileView ? (
             <div
@@ -177,13 +179,14 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     return uploaded ? (
       <div>
         {mobileView ? null : status}
-        <i
+        <CheckmarkCircleFillIcon />
+        {/* <i
           aria-hidden={!mobileView}
           aria-label={status}
           role='img'
           className='ai ai-check-circle'
           style={mobileView ? { marginLeft: '10px' } : {}}
-        />
+        /> */}
       </div>
     ) : (
       <AltinnLoader
@@ -197,13 +200,16 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     );
   };
   const DeleteCellContent = ({ attachment, index }: { attachment: { deleting: boolean }; index: number }) => (
-    <div
+    <Button
+      size='small'
+      variant='quiet'
+      color='danger'
       onClick={handleDeleteFile.bind(this, index)}
       onKeyPress={handleDeleteKeypress.bind(this, index)}
-      tabIndex={0}
-      role='button'
+      icon={<TrashIcon aria-hidden={true} />}
+      iconPlacement='right'
       data-testid={`attachment-delete-${index}`}
-      aria-label={getLanguageFromKey('general.delete', language)}
+      aria-label={langAsString('general.delete')}
     >
       {attachment.deleting ? (
         <AltinnLoader
@@ -214,15 +220,39 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
           }}
           srContent={getLanguageFromKey('general.loading', language)}
         />
+      ) : mobileView ? (
+        lang('general.delete')
       ) : (
-        <>
-          {mobileView
-            ? getLanguageFromKey('general.delete', language)
-            : getLanguageFromKey('form_filler.file_uploader_list_delete', language)}
-          <i className='ai ai-trash' />
-        </>
+        lang('form_filler.file_uploader_list_delete')
       )}
-    </div>
+    </Button>
+
+    // <div
+    //   onClick={handleDeleteFile.bind(this, index)}
+    //   onKeyPress={handleDeleteKeypress.bind(this, index)}
+    //   tabIndex={0}
+    //   role='button'
+    //   data-testid={`attachment-delete-${index}`}
+    //   aria-label={getLanguageFromKey('general.delete', language)}
+    // >
+    //   {attachment.deleting ? (
+    //     <AltinnLoader
+    //       id='loader-delete'
+    //       style={{
+    //         marginBottom: '1rem',
+    //         marginRight: '1.0rem',
+    //       }}
+    //       srContent={getLanguageFromKey('general.loading', language)}
+    //     />
+    //   ) : (
+    //     <>
+    //       {mobileView
+    //         ? getLanguageFromKey('general.delete', language)
+    //         : getLanguageFromKey('form_filler.file_uploader_list_delete', language)}
+    //       <i className='ai ai-trash' />
+    //     </>
+    //   )}
+    // </div>
   );
   const FileList = (): JSX.Element | null => {
     if (!attachments?.length) {
@@ -233,10 +263,10 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
         id={`altinn-file-list${id}`}
         data-testid={id}
       >
-        <table className='file-upload-table'>
+        <table className={classes.fileUploadTable}>
           <thead>
             <tr
-              className='blue-underline'
+              className={classes.blueUnderline}
               id='altinn-file-list-row-header'
             >
               <th
@@ -258,7 +288,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
             {attachments.map((attachment, index: number) => (
               <tr
                 key={attachment.id}
-                className='blue-underline-dotted'
+                className={classes.blueUnderlineDotted}
                 id={`altinn-file-list-row-${attachment.id}`}
                 tabIndex={0}
               >
@@ -300,7 +330,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     ) {
       return (
         <button
-          className='file-upload-button blue-underline'
+          className={`${classes.fileUploadButton} ${classes.blueUnderline}`}
           onClick={updateShowFileUpload}
           type='button'
         >

@@ -2,17 +2,15 @@ import React from 'react';
 
 import { Button, ButtonColor, ButtonSize, ButtonVariant } from '@digdir/design-system-react';
 import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
-import { PencilIcon } from '@navikt/aksel-icons';
+import { CheckmarkCircleFillIcon, PencilIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { FileName } from 'src/layout/FileUpload/shared/render';
+import { AttachmentFileName } from 'src/layout/FileUpload/shared/AttachmentFileName';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import classes from 'src/layout/FileUploadWithTag/FileListComponent.module.css';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
-import { dataElementUrl } from 'src/utils/urls/appUrlHelper';
-import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/types';
@@ -79,21 +77,17 @@ export function FileList(props: FileListProps): JSX.Element | null {
               if (attachment.tags !== undefined && attachment.tags.length > 0 && props.editIndex !== index) {
                 const firstTag = attachment.tags[0];
                 const label = props.options?.find((option) => option.value === firstTag)?.label;
-                const url = makeUrlRelativeIfSameDomain(dataElementUrl(props.attachments[index].id));
 
                 return (
                   <TableRow
                     key={`altinn-file-list-row-${attachment.id}`}
                     className={props.mobileView ? classes.mobileTableRow : ''}
                   >
-                    <TableCell
-                      key={`attachment-name-${index}`}
-                      className={classes.textContainer}
-                    >
+                    <TableCell key={`attachment-name-${index}`}>
                       <div style={{ minWidth: '0px' }}>
-                        <FileName
-                          fileName={props.attachments[index].name || ''}
-                          url={url}
+                        <AttachmentFileName
+                          attachment={props.attachments[index]}
+                          mobileView={props.mobileView}
                         />
                         {props.mobileView ? (
                           <div
@@ -105,7 +99,8 @@ export function FileList(props: FileListProps): JSX.Element | null {
                               <div>
                                 {(attachment.size / bytesInOneMB).toFixed(2)}{' '}
                                 {getLanguageFromKey('form_filler.file_uploader_mb', props.language)}
-                                <i
+                                <CheckmarkCircleFillIcon />
+                                {/* <i
                                   className='ai ai-check-circle'
                                   role='img'
                                   aria-label={getLanguageFromKey(
@@ -113,7 +108,7 @@ export function FileList(props: FileListProps): JSX.Element | null {
                                     props.language,
                                   )}
                                   style={{ marginLeft: '10px' }}
-                                />
+                                /> */}
                               </div>
                             ) : (
                               <AltinnLoader
@@ -129,17 +124,11 @@ export function FileList(props: FileListProps): JSX.Element | null {
                         ) : null}
                       </div>
                     </TableCell>
-                    <TableCell
-                      key={`attachment-tag-${index}`}
-                      className={classes.textContainer}
-                    >
+                    <TableCell key={`attachment-tag-${index}`}>
                       {label && props.getTextResourceAsString(label)}
                     </TableCell>
                     {!props.mobileView ? (
-                      <TableCell
-                        key={`attachment-size-${index}`}
-                        className={classes.textContainer}
-                      >
+                      <TableCell key={`attachment-size-${index}`}>
                         {`${(attachment.size / bytesInOneMB).toFixed(2)} ${getLanguageFromKey(
                           'form_filler.file_uploader_mb',
                           props.language,
@@ -147,14 +136,12 @@ export function FileList(props: FileListProps): JSX.Element | null {
                       </TableCell>
                     ) : null}
                     {!props.mobileView ? (
-                      <TableCell
-                        key={`attachment-status-${index}`}
-                        className={classes.textContainer}
-                      >
+                      <TableCell key={`attachment-status-${index}`}>
                         {attachment.uploaded ? (
                           <div>
                             {getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)}
-                            <i className='ai ai-check-circle' />
+                            <CheckmarkCircleFillIcon />
+                            {/* <i className='ai ai-check-circle' /> */}
                           </div>
                         ) : (
                           <AltinnLoader
@@ -179,7 +166,6 @@ export function FileList(props: FileListProps): JSX.Element | null {
                         onClick={() => props.onEdit(index)}
                         icon={<PencilIcon aria-hidden={true} />}
                         iconPlacement='right'
-                        className={classes.customStyleEditButton}
                       >
                         {getLanguageFromKey('general.edit_alt', props.language)}
                       </Button>

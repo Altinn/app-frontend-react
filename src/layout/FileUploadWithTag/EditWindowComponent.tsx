@@ -9,11 +9,9 @@ import { AltinnLoader } from 'src/components/AltinnLoader';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
-import { FileName } from 'src/layout/FileUpload/shared/render';
+import { AttachmentFileName } from 'src/layout/FileUpload/shared/AttachmentFileName';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import { renderValidationMessages } from 'src/utils/render';
-import { dataElementUrl } from 'src/utils/urls/appUrlHelper';
-import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/types';
@@ -48,7 +46,6 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   };
 
   const saveIsDisabled = props.attachment.updating === true || props.attachment.uploaded === false || readOnly;
-  const url = makeUrlRelativeIfSameDomain(dataElementUrl(props.attachment.id));
 
   return (
     <div
@@ -66,9 +63,9 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           className={classes.textContainer}
           style={{ flexShrink: 1 }}
         >
-          <FileName
-            fileName={props.attachment.name || ''}
-            url={url}
+          <AttachmentFileName
+            attachment={props.attachment}
+            mobileView={props.mobileView}
           />
         </Grid>
         <Grid
