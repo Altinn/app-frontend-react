@@ -13,8 +13,9 @@ import { updateFileUploaderWithTagChosenOptionsSaga } from 'src/features/layout/
 import { updateFileUploaderWithTagEditIndexSaga } from 'src/features/layout/fileUpload/updateFileUploaderWithTagEditIndexSaga';
 import { watchMapFileUploaderWithTagSaga } from 'src/features/layout/fileUpload/watchMapFileUploaderWithTagSaga';
 import { initRepeatingGroupsSaga } from 'src/features/layout/repGroups/initRepeatingGroupsSaga';
+import { repGroupAddRowSaga } from 'src/features/layout/repGroups/repGroupAddRowSaga';
+import { repGroupDeleteRowSaga } from 'src/features/layout/repGroups/repGroupDeleteRowSaga';
 import { updateRepeatingGroupEditIndexSaga } from 'src/features/layout/repGroups/updateRepeatingGroupEditIndexSaga';
-import { repGroupAddRowSaga, repGroupDeleteRowSaga } from 'src/features/layout/repGroups/updateRepeatingGroupsSaga';
 import {
   calculatePageOrderAndMoveToNextPageSaga,
   findAndMoveToNextVisibleLayout,

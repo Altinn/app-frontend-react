@@ -6,7 +6,7 @@ import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { repGroupDeleteRowSaga } from 'src/features/layout/repGroups/updateRepeatingGroupsSaga';
+import { repGroupDeleteRowSaga } from 'src/features/layout/repGroups/repGroupDeleteRowSaga';
 import {
   selectAttachmentState,
   selectFormData,
