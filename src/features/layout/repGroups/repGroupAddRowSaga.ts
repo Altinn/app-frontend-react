@@ -60,8 +60,6 @@ export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<{ gr
       };
     });
 
-    updatedRepeatingGroups[groupId].editIndex = newIndex;
-
     yield put(FormLayoutActions.repGroupAddRowFulfilled({ updated: updatedRepeatingGroups }));
     yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
   } catch (error) {
