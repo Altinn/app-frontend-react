@@ -63,5 +63,10 @@ const FileExtensionIcon = ({ fileEnding, className }: FileExtensionIconProps) =>
   };
 
   const IconComponent = iconMap[fileEnding] || FileIcon;
-  return <IconComponent className={className} />;
+  return (
+    <IconComponent
+      className={className}
+      aria-hidden={true}
+    />
+  );
 };
