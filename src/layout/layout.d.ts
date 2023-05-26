@@ -16,20 +16,7 @@ export interface ILayouts {
   [id: string]: ILayout | undefined;
 }
 
-/**
- * These keys are not defined anywhere in the actual form layout files, but have been snuck in here for convenience at
- * some point. They should instead be moved to IComponentProps or somewhere else, as they are computed values set in
- * app-frontend at some point, and not something the server-side sends us. Leaving them here as typings break without
- * them, but exposing them in a separate interface in order to make it clear these are on shaky ground.
- */
-interface NotInLayout {
-  // These will be set if the component is inside a repeating group
-  baseComponentId?: string;
-  baseDataModelBindings?: IDataModelBindings;
-  multiPageIndex?: number;
-}
-
-export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> extends NotInLayout {
+export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> {
   id: string;
   type: T;
 }

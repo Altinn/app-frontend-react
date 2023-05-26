@@ -1,10 +1,10 @@
 import type { DeepPartial } from 'utility-types';
 
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
-import type { GridComponent, GridRow, GridRow } from 'src/layout/Grid/types';
+import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { ILayoutCompBase, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { ILayoutCompPanelBase } from 'src/layout/Panel/types';
-import type { HComponent } from 'src/utils/layout/hierarchy.types';
+import type { HComponent, HierarchyExtensions } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGroupFilter {
@@ -58,10 +58,12 @@ export interface IGroupPanel extends ILayoutCompPanelBase {
 /**
  * Base type used for repeating group and non-repeating groups
  */
-type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children' | 'rowsBefore' | 'rowsAfter'> & {
-  rowsBefore?: GridRow<GridComponent>[];
-  rowsAfter?: GridRow<GridComponent>[];
-};
+type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children' | 'rowsBefore' | 'rowsAfter'> &
+  HierarchyExtensions & {
+    rowsBefore?: GridRow<GridComponent>[];
+    rowsAfter?: GridRow<GridComponent>[];
+  };
+
 /**
  * Definition of a non-repeating group inside a hierarchy structure
  */
