@@ -9,11 +9,6 @@ export function useDoNotPromptForParty(): boolean | null {
     return null;
   }
 
-  // Navigate to party selection which will say there are no valid parties
-  if (parties.length === 0) {
-    return false;
-  }
-
   // No point in prompting if there is only one party
   if (parties.length === 1) {
     return true;
