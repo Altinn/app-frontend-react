@@ -55,6 +55,7 @@ export const textResourcesSlice = () => {
             yield takeLatest(FormDataActions.updateFulfilled, replaceTextResourcesSaga);
             yield takeLatest(FormDataActions.setFulfilled, replaceTextResourcesSaga);
             yield takeLatest(TextResourcesActions.fetchFulfilled, replaceTextResourcesSaga);
+            yield takeLatest(FormLayoutActions.initRepeatingGroupsFulfilled, replaceTextResourcesSaga);
           },
       }),
       replaceFulfilled: mkAction<IReplaceTextResourcesFulfilled>({
