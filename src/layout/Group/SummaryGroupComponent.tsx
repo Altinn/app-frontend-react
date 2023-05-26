@@ -12,7 +12,7 @@ import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { HNonRepGroup, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface ISummaryGroupComponent {
@@ -79,7 +79,7 @@ export function SummaryGroupComponent({
             <DisplayGroupContainer
               key={`summary-${targetNode.item.id}-${idx}`}
               id={`summary-${targetNode.item.id}-${idx}`}
-              groupNode={targetNode}
+              groupNode={targetNode as LayoutNode<HNonRepGroup, 'Group'>}
               onlyRowIndex={idx}
               renderLayoutNode={(n) => {
                 if (inExcludedChildren(n) || n.isHidden()) {
