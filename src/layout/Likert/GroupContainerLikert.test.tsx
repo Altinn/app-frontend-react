@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event';
 import {
   createFormDataUpdateAction,
   createFormError,
+  defaultMockOptions,
   defaultMockQuestions,
-  mockOptions,
   questionsWithAnswers,
   render,
   validateRadioLayout,
@@ -28,7 +28,7 @@ describe('GroupContainerLikert', () => {
       render({
         radioButtonProps: {
           optionsId: 'non-existing-options-id',
-          options: mockOptions,
+          options: defaultMockOptions,
         },
       });
       validateTableLayout(defaultMockQuestions);
@@ -181,6 +181,25 @@ describe('GroupContainerLikert', () => {
       }));
       render({ mockQuestions, extraTextResources });
       validateTableLayout(defaultMockQuestions);
+      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Bra' });
+      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Ok' });
+      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Dårlig' });
+    });
+
+    it('should support nested binding for options label in data model', async () => {
+      const extraTextResources = defaultMockOptions.map((option, i) => ({
+        value: option.label,
+        id: `nested-option-binding-${i}`,
+      }));
+      const mockOptions = defaultMockOptions.map((question, i) => ({
+        ...question,
+        Question: `nested-option-binding-${i}`,
+      }));
+      render({ mockOptions, extraTextResources });
+      validateTableLayout(defaultMockQuestions);
+      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Bra' });
+      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Ok' });
+      screen.getByRole('radio', { name: 'Hvordan trives du på skolen? Dårlig' });
     });
 
     it('should render error message', async () => {
