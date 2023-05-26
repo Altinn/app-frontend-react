@@ -187,30 +187,29 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     );
   };
   const DeleteCellContent = ({ attachment, index }: { attachment: { deleting: boolean }; index: number }) => (
-    <Button
-      size='small'
-      variant='quiet'
-      color='danger'
-      onClick={handleDeleteFile.bind(this, index)}
-      onKeyPress={handleDeleteKeypress.bind(this, index)}
-      icon={<TrashIcon aria-hidden={true} />}
-      iconPlacement='right'
-      data-testid={`attachment-delete-${index}`}
-      aria-label={langAsString('general.delete')}
-    >
+    <>
       {attachment.deleting ? (
         <AltinnLoader
           id='loader-delete'
-          style={{
-            marginBottom: '1rem',
-            marginRight: '1.0rem',
-          }}
+          className={classes.deleteLoader}
           srContent={langAsString('general.loading')}
         />
       ) : (
-        !mobileView && lang('form_filler.file_uploader_list_delete')
+        <Button
+          size='small'
+          variant='quiet'
+          color='danger'
+          onClick={handleDeleteFile.bind(this, index)}
+          onKeyPress={handleDeleteKeypress.bind(this, index)}
+          icon={<TrashIcon aria-hidden={true} />}
+          iconPlacement='right'
+          data-testid={`attachment-delete-${index}`}
+          aria-label={langAsString('general.delete')}
+        >
+          {!mobileView && lang('form_filler.file_uploader_list_delete')}
+        </Button>
       )}
-    </Button>
+    </>
   );
 
   const FileList = (): JSX.Element | null => {
