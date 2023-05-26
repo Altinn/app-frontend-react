@@ -31,6 +31,13 @@
   margin-top: 1.5rem;
   border-spacing: 0 0.75rem;
   table-layout: fixed;
+  box-shadow: none;
+}
+
+.fileStatus {
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .fileUploadButton {

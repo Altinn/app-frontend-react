@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/shared/AttachmentFileName';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import { renderValidationMessages } from 'src/utils/render';
@@ -32,6 +32,7 @@ export interface EditWindowProps extends PropsFromGenericComponent<'FileUploadWi
 export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   const dispatch = useAppDispatch();
   const { id, baseComponentId, dataModelBindings, readOnly, textResourceBindings } = props.node.item;
+  const { lang, langAsString } = useLanguage();
 
   const handleDeleteFile = () => {
     dispatch(
@@ -75,13 +76,11 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           <div className={classes.iconButtonWrapper}>
             {props.attachment.uploaded && (
               <div style={{ marginLeft: '0.9375rem', marginRight: '0.9375rem' }}>
-                {!props.mobileView
-                  ? getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)
-                  : undefined}
+                {!props.mobileView ? lang('form_filler.file_uploader_list_status_done') : undefined}
                 <CheckmarkCircleFillIcon
                   role='img'
                   aria-hidden={!props.mobileView}
-                  aria-label={getLanguageFromKey('form_filler.file_uploader_list_status_done', props.language)}
+                  aria-label={langAsString('form_filler.file_uploader_list_status_done')}
                   className={classes.checkMark}
                 />
               </div>
@@ -92,7 +91,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
                 style={{
                   width: '80px',
                 }}
-                srContent={getLanguageFromKey('general.loading', props.language)}
+                srContent={langAsString('general.loading')}
               />
             )}
             <div>
@@ -103,7 +102,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
                 icon={<TrashIcon aria-hidden={true} />}
                 iconPlacement='right'
               >
-                {getLanguageFromKey('general.delete', props.language)}
+                {!props.mobileView && lang('general.delete')}
               </Button>
             </div>
           </div>
@@ -156,7 +155,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
             {props.attachment.updating ? (
               <AltinnLoader
                 id={`attachment-loader-update-${props.attachment.id}`}
-                srContent={getLanguageFromKey('general.loading', props.language)}
+                srContent={langAsString('general.loading')}
                 style={{
                   height: '30px',
                   padding: '7px 34px 5px 28px',
@@ -168,7 +167,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
                 id={`attachment-save-tag-button-${props.attachment.id}`}
                 disabled={saveIsDisabled}
               >
-                {getLanguageFromKey('general.save', props.language)}
+                {lang('general.save')}
               </Button>
             )}
           </Grid>

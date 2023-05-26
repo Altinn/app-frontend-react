@@ -12,7 +12,6 @@ import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { AttachmentFileName } from 'src/layout/FileUpload/shared/AttachmentFileName';
 import { DropzoneComponent } from 'src/layout/FileUpload/shared/DropzoneComponent';
@@ -76,13 +75,9 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     if (totalAttachments > maxNumberOfAttachments) {
       // if the user adds more attachments than max, all should be ignored
       setValidations([
-        `${getLanguageFromKey(
+        `${langAsString(
           'form_filler.file_uploader_validation_error_exceeds_max_files_1',
-          language,
-        )} ${maxNumberOfAttachments} ${getLanguageFromKey(
-          'form_filler.file_uploader_validation_error_exceeds_max_files_2',
-          language,
-        )}`,
+        )} ${maxNumberOfAttachments} ${langAsString('form_filler.file_uploader_validation_error_exceeds_max_files_2')}`,
       ]);
     } else {
       // we should upload all files, if any rejected files we should display an error
@@ -141,13 +136,10 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     );
   };
   const NonMobileColumnHeader = () =>
-    !mobileView ? (
-      <th scope='col'>{getLanguageFromKey('form_filler.file_uploader_list_header_file_size', language)}</th>
-    ) : null;
+    !mobileView ? <th scope='col'>{lang('form_filler.file_uploader_list_header_file_size')}</th> : null;
   const NameCell = ({ attachment }: { attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'> }) => {
-    const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${getLanguageFromKey(
+    const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${langAsString(
       'form_filler.file_uploader_mb',
-      language,
     )}`;
     return (
       <>
@@ -173,20 +165,18 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
   const StatusCellContent = ({ attachment }: { attachment: { uploaded: boolean } }) => {
     const { uploaded } = attachment;
     const status = attachment.uploaded
-      ? getLanguageFromKey('form_filler.file_uploader_list_status_done', language)
-      : getLanguageFromKey('general.loading', language);
+      ? langAsString('form_filler.file_uploader_list_status_done')
+      : langAsString('general.loading');
 
     return uploaded ? (
-      <div>
+      <div className={classes.fileStatus}>
         {mobileView ? null : status}
-        <CheckmarkCircleFillIcon />
-        {/* <i
+        <CheckmarkCircleFillIcon
+          style={mobileView ? { margin: 'auto' } : {}}
           aria-hidden={!mobileView}
           aria-label={status}
           role='img'
-          className='ai ai-check-circle'
-          style={mobileView ? { marginLeft: '10px' } : {}}
-        /> */}
+        />
       </div>
     ) : (
       <AltinnLoader
@@ -243,16 +233,22 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
             >
               <th
                 scope='col'
-                style={mobileView ? { width: '65%' } : {}}
+                // style={mobileView ? { width: '30%' } : {}}
               >
-                {getLanguageFromKey('form_filler.file_uploader_list_header_name', language)}
+                {lang('form_filler.file_uploader_list_header_name')}
               </th>
               <NonMobileColumnHeader />
-              <th scope='col'>{getLanguageFromKey('form_filler.file_uploader_list_header_status', language)}</th>
-              <th scope='col'>
-                <p className='sr-only'>
-                  {getLanguageFromKey('form_filler.file_uploader_list_header_delete_sr', language)}
-                </p>
+              <th
+                scope='col'
+                style={mobileView ? { textAlign: 'center' } : {}}
+              >
+                {lang('form_filler.file_uploader_list_header_status')}
+              </th>
+              <th
+                scope='col'
+                style={!mobileView ? { width: '30%' } : {}}
+              >
+                <p className='sr-only'>{lang('form_filler.file_uploader_list_header_delete_sr')}</p>
               </th>
             </tr>
           </thead>
@@ -306,7 +302,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
           onClick={updateShowFileUpload}
           type='button'
         >
-          {getLanguageFromKey('form_filler.file_uploader_add_attachment', language)}
+          {lang('form_filler.file_uploader_add_attachment')}
         </button>
       );
     }
