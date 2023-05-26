@@ -324,7 +324,6 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
         <DropzoneComponent
           id={id}
           isMobile={isMobile}
-          language={language}
           maxFileSizeInMB={maxFileSizeInMB}
           readOnly={!!readOnly}
           onClick={handleClick}
