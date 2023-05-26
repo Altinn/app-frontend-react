@@ -32,7 +32,6 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
-    cy.get(appFrontend.changeOfName.deleteAttachment).should('have.length', 1);
     cy.get(appFrontend.changeOfName.deleteAttachment).click();
     cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
   });

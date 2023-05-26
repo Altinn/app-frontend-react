@@ -126,10 +126,10 @@ export function DropzoneComponent({
                       lang('form_filler.file_uploader_upload')
                     ) : (
                       <>
-                        {lang('form_filler.file_uploader_drag')}
+                        {langAsString('form_filler.file_uploader_drag')}
                         <span className={`${classes.fileUploadTextBold} ${classes.blueUnderLine}`}>
                           {' '}
-                          {lang('form_filler.file_uploader_find')}
+                          {langAsString('form_filler.file_uploader_find')}
                         </span>
                       </>
                     )}
@@ -140,10 +140,10 @@ export function DropzoneComponent({
                     id={formatLabelId}
                     className={classes.fileUploadText}
                   >
-                    {lang('form_filler.file_uploader_valid_file_format')}
+                    {langAsString('form_filler.file_uploader_valid_file_format')}
                     {hasCustomFileEndings
                       ? ` ${validFileEndings}`
-                      : ` ${lang('form_filler.file_upload_valid_file_format_all')}`}
+                      : ` ${langAsString('form_filler.file_upload_valid_file_format_all')}`}
                   </span>
                 </div>
               </div>

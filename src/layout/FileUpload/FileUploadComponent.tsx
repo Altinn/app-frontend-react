@@ -169,6 +169,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
       <div className={classes.fileStatus}>
         {mobileView ? null : status}
         <CheckmarkCircleFillIcon
+          data-testid='checkmark-success'
           style={mobileView ? { margin: 'auto' } : {}}
           aria-hidden={!mobileView}
           aria-label={status}
@@ -221,7 +222,10 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
         id={`altinn-file-list${id}`}
         data-testid={id}
       >
-        <table className={classes.fileUploadTable}>
+        <table
+          className={classes.fileUploadTable}
+          data-testid='file-upload-table'
+        >
           <thead>
             <tr
               className={classes.blueUnderline}
