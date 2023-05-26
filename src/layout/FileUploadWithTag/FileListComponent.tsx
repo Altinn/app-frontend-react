@@ -130,7 +130,6 @@ export function FileList(props: FileListProps): JSX.Element | null {
                           <div className={classes.fileStatus}>
                             {lang('form_filler.file_uploader_list_status_done')}
                             <CheckmarkCircleFillIcon aria-hidden={true} />
-                            {/* <i className='ai ai-check-circle' /> */}
                           </div>
                         ) : (
                           <AltinnLoader

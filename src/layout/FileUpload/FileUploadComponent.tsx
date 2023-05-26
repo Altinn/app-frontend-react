@@ -23,8 +23,6 @@ import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IComponentValidations } from 'src/types';
 
-import 'src/layout/FileUpload/FileUploadComponent.css';
-
 export type IFileUploadProps = PropsFromGenericComponent<'FileUpload'>;
 
 export const bytesInOneMB = 1048576;
@@ -233,7 +231,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
             >
               <th
                 scope='col'
-                // style={mobileView ? { width: '30%' } : {}}
+                style={!mobileView ? { width: '30%' } : {}}
               >
                 {lang('form_filler.file_uploader_list_header_name')}
               </th>
