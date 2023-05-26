@@ -280,7 +280,15 @@ export function* updateRepeatingGroupsSaga({
 }
 
 export function* updateCurrentViewSaga({
-  payload: { newView, runValidations, returnToView, skipPageCaching, keepScrollPos, focusComponentId },
+  payload: {
+    newView,
+    runValidations,
+    returnToView,
+    skipPageCaching,
+    keepScrollPos,
+    focusComponentId,
+    allowNavigationToHidden,
+  },
 }: PayloadAction<IUpdateCurrentView>): SagaIterator {
   try {
     // When triggering navigation to the next page, we need to make sure there are no unsaved changes. The action to
@@ -296,7 +304,7 @@ export function* updateCurrentViewSaga({
     }
     const currentViewCacheKey = viewCacheKey || instanceId;
 
-    if (visibleLayouts && !visibleLayouts.includes(newView)) {
+    if (visibleLayouts && !visibleLayouts.includes(newView) && allowNavigationToHidden !== true) {
       yield put(
         FormLayoutActions.updateCurrentViewRejected({
           error: null,
@@ -735,9 +743,14 @@ export function* initRepeatingGroupsSaga({
     .forEach((key) => {
       const currentGroup = currentGroups[key];
       const newGroup = newGroups[key];
-      if (currentGroup.editIndex !== undefined && newGroup.index >= currentGroup.editIndex) {
-        newGroup.editIndex = currentGroups[key].editIndex;
+
+      // We add +1 to the index because it's entirely valid (and common) to be editing the last row in a group (bacause
+      // that's what happens when you click the 'add' button). If we didn't add +1 here, the user could be editing the
+      // last row in a group, and a server-sent change could cause the editing mode to disappear.
+      if (currentGroup.editIndex !== undefined && newGroup.index + 1 >= currentGroup.editIndex) {
+        newGroup.editIndex = currentGroup.editIndex;
       }
+
       if (currentGroup.multiPageIndex !== undefined) {
         newGroup.multiPageIndex = currentGroup.multiPageIndex;
       }

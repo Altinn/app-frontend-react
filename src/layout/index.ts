@@ -15,11 +15,13 @@ import { FileUploadWithTag } from 'src/layout/FileUploadWithTag/index';
 import { Grid } from 'src/layout/Grid';
 import { Group } from 'src/layout/Group';
 import { Header } from 'src/layout/Header/index';
+import { IFrame } from 'src/layout/Iframe';
 import { Image } from 'src/layout/Image/index';
 import { Input } from 'src/layout/Input/index';
 import { InstanceInformation } from 'src/layout/InstanceInformation/index';
 import { InstantiationButton } from 'src/layout/InstantiationButton/index';
 import { Likert } from 'src/layout/Likert/index';
+import { Link } from 'src/layout/Link';
 import { List } from 'src/layout/List/index';
 import { Map } from 'src/layout/Map/index';
 import { MultipleSelect } from 'src/layout/MultipleSelect/index';
@@ -58,6 +60,7 @@ export const components = {
   InstanceInformation: new InstanceInformation(),
   InstantiationButton: new InstantiationButton(),
   Likert: new Likert(),
+  Link: new Link(),
   Map: new Map(),
   MultipleSelect: new MultipleSelect(),
   NavigationBar: new NavigationBar(),
@@ -70,6 +73,7 @@ export const components = {
   List: new List(),
   Group: new Group(),
   Summary: new Summary(),
+  IFrame: new IFrame(),
 };
 
 export type ComponentClassMap = typeof components;

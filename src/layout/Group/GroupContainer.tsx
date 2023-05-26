@@ -10,16 +10,16 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { Triggers } from 'src/types';
 import { getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { HRepGroup } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export interface IGroupProps {
   node: LayoutNode<HRepGroup, 'Group'>;
 }
@@ -49,10 +49,8 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const deletingIndexes = groupState?.deletingIndex ?? [];
   const multiPageIndex = groupState?.multiPageIndex ?? -1;
   const repeatingGroupIndex = groupState?.index ?? -1;
-
-  const language = useAppSelector((state) => state.language.language);
   const formData = useAppSelector((state) => state.formData.formData);
-  const textResources = useAppSelector((state) => state.textResources.resources);
+  const { lang, langAsString } = useLanguage();
 
   const filteredIndexList = React.useMemo(
     () => getRepeatingGroupFilteredIndices(formData, edit?.filter),
@@ -86,14 +84,16 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
       {isLoading && (
         <AltinnLoader
           style={{ position: 'absolute' }}
-          srContent={`${getLanguageFromKey('general.add_new', language ?? {})} ${
-            resolvedTextBindings?.add_button ? getTextResourceByKey(resolvedTextBindings.add_button, textResources) : ''
-          }`}
+          srContent={
+            resolvedTextBindings?.add_button_full
+              ? langAsString(resolvedTextBindings.add_button_full)
+              : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button) ?? ''}`
+          }
         />
       )}
-      {`${getLanguageFromKey('general.add_new', language ?? {})} ${
-        resolvedTextBindings?.add_button ? getTextResourceByKey(resolvedTextBindings.add_button, textResources) : ''
-      }`}
+      {resolvedTextBindings?.add_button_full
+        ? lang(resolvedTextBindings.add_button_full)
+        : `${langAsString('general.add_new')} ${langAsString(resolvedTextBindings?.add_button) ?? ''}`}
     </Button>
   );
 
@@ -168,7 +168,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     return null;
   }
 
-  const isNested = typeof node.item.baseComponentId === 'string';
+  const isNested = node.parent instanceof LayoutNode;
 
   if (edit?.mode === 'likert') {
     return <RepeatingGroupsLikertContainer id={id} />;
@@ -184,15 +184,15 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     <Grid
       container={true}
       item={true}
-      data-componentid={node.item.baseComponentId ?? node.item.id}
+      data-componentid={node.item.id}
     >
       {(!edit?.mode ||
         edit?.mode === 'showTable' ||
         edit?.mode === 'onlyTable' ||
         (edit?.mode === 'hideTable' && editIndex < 0)) && (
         <RepeatingGroupTable
+          node={node}
           editIndex={editIndex}
-          id={id}
           repeatingGroupIndex={repeatingGroupIndex}
           deleting={deletingIndexes.includes(repeatingGroupIndex)}
           setEditIndex={setEditIndex}
@@ -212,9 +212,9 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
         <>
           {editIndex >= 0 && edit?.mode === 'hideTable' && (
             <RepeatingGroupsEditContainer
+              node={node}
               editIndex={editIndex}
               setEditIndex={setEditIndex}
-              id={id}
               multiPageIndex={multiPageIndex}
               setMultiPageIndex={setMultiPageIndex}
               filteredIndexes={filteredIndexList}
@@ -235,8 +235,8 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
                     style={{ width: '100%', marginBottom: !isNested && index == repeatingGroupIndex ? 15 : 0 }}
                   >
                     <RepeatingGroupsEditContainer
+                      node={node}
                       editIndex={index}
-                      id={id}
                       deleting={deletingIndexes.includes(index)}
                       setEditIndex={setEditIndex}
                       onClickRemove={handleOnRemoveClick}

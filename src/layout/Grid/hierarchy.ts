@@ -1,12 +1,20 @@
+import { nodesFromGrid } from 'src/layout/Grid/tools';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { GridComponent, GridRow } from 'src/layout/Grid/types';
-import type { ChildFactory, HierarchyContext, UnprocessedItem } from 'src/utils/layout/HierarchyGenerator';
+import type { ITextResource } from 'src/types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type {
+  ChildFactory,
+  HierarchyContext,
+  HierarchyGenerator,
+  UnprocessedItem,
+} from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> {
-  private canRenderInTable(childId: string, outputWarning = true): boolean {
-    const prototype = this.generator.prototype(childId);
-    const def = prototype && this.generator.getLayoutComponentObject(prototype.type);
+  private canRenderInTable(generator: HierarchyGenerator, childId: string, outputWarning = true): boolean {
+    const prototype = generator.prototype(childId);
+    const def = prototype && generator.getLayoutComponentObject(prototype.type);
 
     if (outputWarning && prototype && def?.canRenderInTable() === false) {
       console.warn(
@@ -18,16 +26,16 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
     return def?.canRenderInTable() === true;
   }
 
-  stage1(item: Pick<UnprocessedItem<'Grid'>, 'rows' | 'id'>): void {
+  stage1(generator, item: Pick<UnprocessedItem<'Grid'>, 'rows' | 'id'>): void {
     for (const row of item.rows) {
       for (const cell of row.cells) {
         if (cell && 'component' in cell) {
           const childId = cell.component;
-          if (!this.canRenderInTable(childId)) {
+          if (!this.canRenderInTable(generator, childId)) {
             continue;
           }
 
-          this.generator.claimChild({
+          generator.claimChild({
             childId,
             parentId: item.id,
           });
@@ -38,7 +46,7 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
 
   stage2(ctx: HierarchyContext): ChildFactory<'Grid'> {
     return (props) => {
-      const me = this.generator.makeNode(props);
+      const me = ctx.generator.makeNode(props);
       this.stage2Rows(ctx, me, me.item.rows);
       return me;
     };
@@ -49,12 +57,12 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
       for (const cell of row.cells) {
         if (cell && 'component' in cell) {
           const childId = cell.component as string;
-          if (!this.canRenderInTable(childId, false)) {
+          if (!this.canRenderInTable(ctx.generator, childId, false)) {
             delete cell['component'];
             continue;
           }
 
-          const node = this.generator.newChild({
+          const node = ctx.generator.newChild({
             ctx,
             childId,
             parent: me,
@@ -65,5 +73,28 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
         }
       }
     }
+  }
+
+  childrenFromNode(node: LayoutNodeFromType<'Grid'>): LayoutNode[] {
+    return nodesFromGrid(node);
+  }
+
+  rewriteTextBindingsForRows(node: LayoutNode, rows: GridRow<GridComponent>[], textResources: ITextResource[]) {
+    if (node.rowIndex === undefined) {
+      return;
+    }
+
+    for (const row of rows) {
+      for (const cell of row.cells) {
+        if (cell && 'text' in cell && this.textResourceHasRepeatingGroupVariable(cell.text, textResources)) {
+          cell.text = `${cell.text}-${node.rowIndex}`;
+        }
+      }
+    }
+  }
+
+  rewriteTextBindings(node: LayoutNodeFromType<'Grid'>, textResources: ITextResource[]) {
+    super.rewriteTextBindings(node, textResources);
+    this.rewriteTextBindingsForRows(node, node.item.rows, textResources);
   }
 }

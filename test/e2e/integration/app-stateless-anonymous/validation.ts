@@ -13,12 +13,11 @@ describe('Validation in anonymous stateless app', () => {
     cy.get(appFrontend.stateless.name).invoke('val').should('be.empty');
     cy.get(appFrontend.navButtons).contains('button', 'next').click();
 
-    const nameError = appFrontend.fieldValidationError.replace('field', appFrontend.stateless.name.substring(1));
+    const nameError = appFrontend.fieldValidation(appFrontend.stateless.name);
 
     cy.get(appFrontend.stateless.name).should('be.visible');
     cy.get(nameError).should('have.text', texts.requiredFieldName);
     cy.get(appFrontend.errorReport)
-
       .should('be.inViewport')
       .should('contain.text', texts.errorReport)
       .should('contain.text', texts.requiredFieldName);

@@ -6,19 +6,22 @@ import cn from 'classnames';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
+import { nodesFromGridRows } from 'src/layout/Grid/tools';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow';
 import { ComponentType } from 'src/layout/LayoutComponent';
 import { getColumnStylesRepeatingGroups, getTextResource } from 'src/utils/formComponentUtils';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting } from 'src/layout/layout';
 import type { ITextResourceBindings } from 'src/types';
+import type { HRepGroup } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupTableProps {
-  id: string;
+  node: LayoutNode<HRepGroup, 'Group'>;
   repeatingGroupIndex: number;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;
@@ -42,7 +45,7 @@ function getTableTitle(textResourceBindings: ITextResourceBindings) {
 }
 
 export function RepeatingGroupTable({
-  id,
+  node,
   repeatingGroupIndex,
   editIndex,
   setEditIndex,
@@ -58,16 +61,16 @@ export function RepeatingGroupTable({
   const textResources = useAppSelector((state) => state.textResources.resources);
   const language = useAppSelector((state) => state.language.language);
 
-  const node = useResolvedNode(id);
-  const container = node?.isRepGroup() ? node.item : undefined;
-  const edit = container?.edit;
-  const columnSettings = container?.tableColumns
+  const id = node.item.id;
+  const container = node.item;
+  const edit = container.edit;
+  const columnSettings = container.tableColumns
     ? structuredClone(container.tableColumns)
     : ({} as ITableColumnFormatting);
 
   const getTableNodes = (rowIndex: number) => {
     const tableHeaders = container?.tableHeaders;
-    const nodes = node?.children(undefined, rowIndex).filter((child) => {
+    const nodes = node.children(undefined, rowIndex).filter((child) => {
       if (tableHeaders) {
         const { id, baseComponentId } = child.item;
         return !!(tableHeaders.includes(id) || (baseComponentId && tableHeaders.includes(baseComponentId)));
@@ -100,11 +103,9 @@ export function RepeatingGroupTable({
 
   const showDeleteButtonColumns = new Set<boolean>();
   const showEditButtonColumns = new Set<boolean>();
-  if (node?.item.type === 'Group' && 'rows' in node.item) {
-    for (const row of node.item.rows) {
-      showDeleteButtonColumns.add(row?.groupExpressions?.edit?.deleteButton !== false);
-      showEditButtonColumns.add(row?.groupExpressions?.edit?.editButton !== false);
-    }
+  for (const row of node.item.rows) {
+    showDeleteButtonColumns.add(row?.groupExpressions?.edit?.deleteButton !== false);
+    showEditButtonColumns.add(row?.groupExpressions?.edit?.editButton !== false);
   }
   let displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);
   let displayEditColumn = showEditButtonColumns.has(true) || !showEditButtonColumns.has(false);
@@ -154,20 +155,63 @@ export function RepeatingGroupTable({
     editIndex >= 0 &&
     edit?.mode !== 'onlyTable' && (
       <RepeatingGroupsEditContainer
+        node={node}
         editIndex={editIndex}
         setEditIndex={setEditIndex}
-        id={id}
         multiPageIndex={multiPageIndex}
         setMultiPageIndex={setMultiPageIndex}
         filteredIndexes={filteredIndexes}
       />
     );
 
-  if (!tableNodes || !node || !container || !language) {
+  if (!tableNodes || !language) {
     return null;
   }
 
   const extraCells = [...(displayEditColumn ? [null] : []), ...(displayDeleteColumn ? [null] : [])];
+
+  function RenderExtraRows({ rows, where }: { rows: GridRow<GridComponent>[] | undefined; where: 'Before' | 'After' }) {
+    if (isEmpty || !rows) {
+      return null;
+    }
+
+    if (mobileView) {
+      const nodes = nodesFromGridRows(rows).filter((child) => !child.isHidden());
+      if (!nodes) {
+        return null;
+      }
+
+      return (
+        <TableBody>
+          <TableRow>
+            <TableCell className={classes.mobileTableCell}>
+              {nodes.map((child) => (
+                <GenericComponent
+                  key={child.item.id}
+                  node={child}
+                />
+              ))}
+            </TableCell>
+            {/* One extra cell to make place for edit/delete buttons */}
+            <TableCell className={classes.mobileTableCell} />
+          </TableRow>
+        </TableBody>
+      );
+    }
+
+    return (
+      <>
+        {rows.map((row, index) => (
+          <GridRowRenderer
+            key={`grid${where}-${index}`}
+            row={{ ...row, cells: [...row.cells, ...extraCells] }}
+            isNested={isNested}
+            mutableColumnSettings={columnSettings}
+          />
+        ))}
+      </>
+    );
+  }
 
   return (
     <div
@@ -183,15 +227,10 @@ export function RepeatingGroupTable({
         id={`group-${id}-table`}
         className={cn({ [classes.editingBorder]: isNested }, classes.repeatingGroupTable)}
       >
-        {!isEmpty &&
-          rowsBefore?.map((row, index) => (
-            <GridRowRenderer
-              key={`gridBefore-${index}`}
-              row={{ ...row, cells: [...row.cells, ...extraCells] }}
-              isNested={isNested}
-              mutableColumnSettings={columnSettings}
-            />
-          ))}
+        <RenderExtraRows
+          rows={rowsBefore}
+          where={'Before'}
+        />
         {showTableHeader && !mobileView && (
           <TableHeader id={`group-${id}-table-header`}>
             <TableRow className={classes.repeatingGroupRow}>
@@ -245,7 +284,7 @@ export function RepeatingGroupTable({
               return (
                 <React.Fragment key={index}>
                   <RepeatingGroupTableRow
-                    id={id}
+                    node={node}
                     className={cn({
                       [classes.editingRow]: isEditingRow,
                     })}
@@ -290,15 +329,10 @@ export function RepeatingGroupTable({
               );
             })}
         </TableBody>
-        {!isEmpty &&
-          rowsAfter?.map((row, index) => (
-            <GridRowRenderer
-              key={`gridAfter-${index}`}
-              row={{ ...row, cells: [...row.cells, ...extraCells] }}
-              isNested={isNested}
-              mutableColumnSettings={columnSettings}
-            />
-          ))}
+        <RenderExtraRows
+          rows={rowsAfter}
+          where={'After'}
+        />
       </Table>
     </div>
   );
