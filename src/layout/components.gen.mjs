@@ -39,14 +39,17 @@ const lines = [
   '',
 ];
 
-const fileExists = fs.existsSync('src/layout/components.ts');
-if (fileExists) {
-  const content = fs.readFileSync('src/layout/components.ts', 'utf-8').toString();
+try {
+  const fd = fs.openSync('src/layout/components.ts', 'r+');
+  const content = fs.readFileSync(fd, 'utf-8').toString();
   if (content !== lines.join('\n')) {
     console.log('Regenerated src/layout/components.ts');
-    fs.writeFileSync('src/layout/components.ts', lines.join('\n'));
+    fs.ftruncateSync(fd, 0);
+    fs.writeSync(fd, lines.join('\n'), 0, 'utf-8');
   }
-} else {
+} catch (e) {
+  // File does not exist
+  const fd = fs.openSync('src/layout/components.ts', 'w');
   console.log('Created src/layout/components.ts');
-  fs.writeFileSync('src/layout/components.ts', lines.join('\n'));
+  fs.writeFileSync(fd, lines.join('\n'));
 }
