@@ -38,7 +38,6 @@ function render({ container = mockContainer }: IRender = {}) {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field2',
@@ -51,7 +50,6 @@ function render({ container = mockContainer }: IRender = {}) {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field3',
@@ -64,7 +62,6 @@ function render({ container = mockContainer }: IRender = {}) {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field4',
@@ -77,7 +74,6 @@ function render({ container = mockContainer }: IRender = {}) {
       },
       readOnly: false,
       required: false,
-      disabled: false,
       options: [{ value: 'option.value', label: 'option.label' }],
     },
   ];

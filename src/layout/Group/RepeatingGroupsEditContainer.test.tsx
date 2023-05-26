@@ -44,7 +44,6 @@ describe('RepeatingGroupsEditContainer', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field2',
@@ -57,7 +56,6 @@ describe('RepeatingGroupsEditContainer', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field3',
@@ -70,7 +68,6 @@ describe('RepeatingGroupsEditContainer', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field4',

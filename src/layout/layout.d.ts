@@ -23,9 +23,7 @@ export interface ILayouts {
  * them, but exposing them in a separate interface in order to make it clear these are on shaky ground.
  */
 interface NotInLayout {
-  disabled?: boolean;
-
-  // These may be set if the component is inside a repeating group
+  // These will be set if the component is inside a repeating group
   baseComponentId?: string;
   baseDataModelBindings?: IDataModelBindings;
   multiPageIndex?: number;

@@ -88,7 +88,6 @@ describe('RepeatingGroupTable', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field2',
@@ -101,7 +100,6 @@ describe('RepeatingGroupTable', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field3',
@@ -114,7 +112,6 @@ describe('RepeatingGroupTable', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field4',
@@ -127,7 +124,6 @@ describe('RepeatingGroupTable', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
       options,
     } as ExprUnresolved<ILayoutCompCheckboxes>,
   ];
