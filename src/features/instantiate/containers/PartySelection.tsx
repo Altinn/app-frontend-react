@@ -1,5 +1,5 @@
-import React from 'react';
-import { useMatch } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useMatch, useNavigate } from 'react-router-dom';
 
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
@@ -18,7 +18,7 @@ import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { capitalizeName } from 'src/utils/stringHelper';
-import type { IParty } from 'src/types/shared';
+import type { IAltinnWindow, IParty } from 'src/types/shared';
 
 const useStyles = makeStyles((theme) => ({
   partySelectionTitle: {
@@ -85,15 +85,23 @@ export const PartySelection = () => {
   const [showSubUnits, setShowSubUnits] = React.useState(true);
   const [showDeleted, setShowDeleted] = React.useState(false);
 
-  React.useEffect(() => {
-    dispatch(PartyActions.getParties());
-  }, [dispatch]);
+  const [hasSelected, setHasSelected] = React.useState(false);
+  const navigate = useNavigate();
 
   const onSelectParty = (party: IParty) => {
-    dispatch(PartyActions.selectParty({ party, redirect: true }));
+    dispatch(PartyActions.selectPartyFulfilled({ party: null }));
+    setHasSelected(true);
+    dispatch(PartyActions.selectParty({ party }));
     // Clear any previous instantiation errors.
     dispatch(InstantiationActions.instantiateRejected({ error: null }));
   };
+
+  const { org, app } = window as Window as IAltinnWindow;
+  useEffect(() => {
+    if (selectedParty && hasSelected) {
+      navigate('/');
+    }
+  }, [selectedParty, hasSelected, navigate, org, app]);
 
   function renderParties() {
     if (!parties || !appMetadata) {

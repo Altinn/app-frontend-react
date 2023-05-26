@@ -16,11 +16,10 @@ export interface IGetPartiesRejected {
 
 export interface ISelectParty {
   party: IParty;
-  redirect: boolean;
 }
 
 export interface ISelectPartyFulfilled {
-  party: IParty;
+  party: IParty | null;
 }
 
 export interface ISelectPartyRejected {

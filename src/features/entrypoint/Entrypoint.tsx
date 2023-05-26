@@ -18,6 +18,7 @@ import { usePartyValidationMutation } from 'src/hooks/mutations/usePartyValidati
 import { useActiveInstancesQuery } from 'src/hooks/queries/useActiveInstancesQuery';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useDoNotPromptForParty } from 'src/hooks/useDoNotPromptForParty';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
@@ -56,6 +57,7 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
   const formDataError = useAppSelector((state) => state.formData.error);
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
+  const doNotPromptForParty = useDoNotPromptForParty();
 
   const titleText = useAppSelector((state) => {
     const text = getTextFromAppOrDefault(
@@ -102,6 +104,10 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
 
   if (componentHasErrors) {
     return <UnknownError />;
+  }
+
+  if (doNotPromptForParty === false && !selectedParty) {
+    return <Navigate to={'/partyselection/'} />;
   }
 
   if (partyValidation?.valid === false) {
