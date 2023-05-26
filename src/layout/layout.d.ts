@@ -16,11 +16,13 @@ import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/
 import type { ILayoutCompGrid } from 'src/layout/Grid/types';
 import type { IDataModelBindingsForGroup, ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompHeader } from 'src/layout/Header/types';
+import type { ILayoutCompIFrame } from 'src/layout/Iframe/types';
 import type { ILayoutCompImage } from 'src/layout/Image/types';
 import type { ILayoutCompInput } from 'src/layout/Input/types';
 import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
 import type { ILayoutCompInstantiationButton } from 'src/layout/InstantiationButton/types';
 import type { ILayoutCompLikert } from 'src/layout/Likert/types';
+import type { ILayoutCompLink } from 'src/layout/Link/types';
 import type { IDataModelBindingsForList, ILayoutCompList } from 'src/layout/List/types';
 import type { ILayoutCompMap } from 'src/layout/Map/types';
 import type { ILayoutCompMultipleSelect } from 'src/layout/MultipleSelect/types';
@@ -46,6 +48,7 @@ export interface ILayouts {
  */
 interface NotInLayout {
   baseComponentId?: string;
+  multiPageIndex?: number;
   disabled?: boolean;
 }
 
@@ -136,11 +139,13 @@ interface Map {
   Grid: ILayoutCompGrid;
   Group: ILayoutGroup;
   Header: ILayoutCompHeader;
+  IFrame: ILayoutCompIFrame;
   Image: ILayoutCompImage;
   Input: ILayoutCompInput;
   InstantiationButton: ILayoutCompInstantiationButton;
   InstanceInformation: ILayoutCompInstanceInformation;
   Likert: ILayoutCompLikert;
+  Link: ILayoutCompLink;
   List: ILayoutCompList;
   Map: ILayoutCompMap;
   MultipleSelect: ILayoutCompMultipleSelect;

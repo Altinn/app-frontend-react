@@ -65,21 +65,13 @@ describe('Group', () => {
 
       cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
       cy.addItemToGroup(1, 2, 'automation', openByDefault);
-      cy.get(appFrontend.group.mainGroup)
-        .find(mui.tableBody)
-        .then((table) => {
-          cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
-          cy.wrap(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
-          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).click();
-        });
+      cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').first().should('have.text', 'NOK 1');
+      cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').eq(1).should('have.text', 'NOK 2');
+      cy.get(appFrontend.group.mainGroup).find(appFrontend.group.edit).click();
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
-      cy.get(appFrontend.group.subGroup)
-        .find(mui.tableBody)
-        .then((table) => {
-          cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'automation');
-          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).click();
-          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
-        });
+      cy.get(appFrontend.group.subGroup).find('td').first().invoke('text').should('equal', 'automation');
+      cy.get(appFrontend.group.subGroup).find(appFrontend.group.edit).click();
+      cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
 
       if (openByDefault) {
         cy.get(appFrontend.group.subGroup).find(mui.tableElement).eq(0).should('not.contain.text', 'automation');
@@ -91,11 +83,7 @@ describe('Group', () => {
       }
 
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
-      cy.get(appFrontend.group.mainGroup)
-        .find(mui.tableBody)
-        .then((table) => {
-          cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
-        });
+      cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
 
       if (openByDefault) {
         cy.get(appFrontend.group.saveMainGroup).should('be.visible');
@@ -124,22 +112,19 @@ describe('Group', () => {
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.currentValue).type('1');
     cy.get(appFrontend.group.newValue).type('0');
-    cy.get(appFrontend.fieldValidationError.replace('field', 'newValue')).should('have.text', texts.zeroIsNotValid);
+    cy.get(appFrontend.fieldValidation('newValue')).should('have.text', texts.zeroIsNotValid);
     cy.get(appFrontend.group.newValue).clear();
     cy.get(appFrontend.group.newValue).type('1');
-    cy.get(appFrontend.fieldValidationError.replace('field', 'newValue')).should('not.exist');
+    cy.get(appFrontend.fieldValidation('newValue')).should('not.exist');
     cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.addNewItem).should('not.exist');
     cy.get(appFrontend.group.comments).type('test');
     cy.get(appFrontend.group.comments).blur();
-    cy.get(appFrontend.fieldValidationError.replace('field', 'comments')).should(
-      'have.text',
-      texts.testIsNotValidValue,
-    );
+    cy.get(appFrontend.fieldValidation('comments')).should('have.text', texts.testIsNotValidValue);
     cy.get(appFrontend.group.comments).clear();
     cy.get(appFrontend.group.comments).type('automation');
-    cy.get(appFrontend.fieldValidationError.replace('field', 'comments')).should('not.exist');
+    cy.get(appFrontend.fieldValidation('comments')).should('not.exist');
     cy.get(appFrontend.group.subGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
     cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
     cy.get(appFrontend.group.saveSubGroup).clickAndGone();
@@ -303,18 +288,12 @@ describe('Group', () => {
 
     cy.get(appFrontend.group.saveMainGroup).click();
 
-    cy.get(appFrontend.fieldValidationError.replace('field', 'currentValue-0')).should(
-      'have.text',
-      texts.requiredFieldFromValue,
-    );
+    cy.get(appFrontend.fieldValidation('currentValue-0')).should('have.text', texts.requiredFieldFromValue);
 
     cy.findByLabelText(/1\. Endre fra/i).type('123');
     cy.get(appFrontend.group.saveMainGroup).click();
 
-    cy.get(appFrontend.fieldValidationError.replace('field', 'newValue-0')).should(
-      'have.text',
-      texts.requiredFieldToValue,
-    );
+    cy.get(appFrontend.fieldValidation('newValue-0')).should('have.text', texts.requiredFieldToValue);
 
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
@@ -403,12 +382,7 @@ describe('Group', () => {
     cy.reloadAndWait();
 
     // Test that deleting an item does not cause another group to open if there are more elements in the group
-    cy.get(appFrontend.group.mainGroupTableBody)
-      .children()
-      .eq(0)
-      .find(appFrontend.group.delete)
-
-      .click();
+    cy.get(appFrontend.group.mainGroupTableBody).children().eq(0).find(appFrontend.group.delete).click();
     cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
@@ -423,69 +397,40 @@ describe('Group', () => {
     // Add test-data and verify
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.addItemToGroup(1, 2, 'automation');
-    cy.get(appFrontend.group.mainGroup)
-      .find(mui.tableBody)
-      .then((table) => {
-        cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'NOK 1');
-        cy.wrap(table).find(mui.tableElement).eq(1).invoke('text').should('equal', 'NOK 2');
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.edit).click();
-      });
+    cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').first().should('have.text', 'NOK 1');
+    cy.get(appFrontend.group.mainGroup).find('tbody > tr > td').eq(1).should('have.text', 'NOK 2');
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.edit).click();
 
     // Navigate to nested group and test delete warning popoup cancel and confirm
-    cy.get(appFrontend.group.mainGroup)
-      .find(appFrontend.group.editContainer)
-      .find(appFrontend.group.next)
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
 
+    cy.get(appFrontend.group.subGroup).find('tbody > tr > td').first().should('have.text', 'automation');
+    cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
+    cy.get(appFrontend.group.subGroup)
+      .find(appFrontend.designSystemPanel)
+      .find(appFrontend.group.popOverCancelButton)
       .click();
+    cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
     cy.get(appFrontend.group.subGroup)
-      .find(mui.tableBody)
-      .then((table) => {
-        cy.wrap(table).find(mui.tableElement).first().invoke('text').should('equal', 'automation');
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
-        cy.wrap(table)
-          .find(mui.tableElement)
-          .find(appFrontend.designSystemPanel)
-          .find(appFrontend.group.popOverCancelButton)
+      .find(appFrontend.designSystemPanel)
+      .find(appFrontend.group.popOverDeleteButton)
+      .click();
 
-          .click();
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
-        cy.wrap(table)
-          .find(mui.tableElement)
-          .find(appFrontend.designSystemPanel)
-          .find(appFrontend.group.popOverDeleteButton)
-
-          .click();
-      });
-    cy.get(appFrontend.group.subGroup)
-      .find(mui.tableBody)
-      .find(mui.tableElement)
-      .eq(0)
-      .should('not.contain.text', 'automation');
+    cy.get(appFrontend.group.subGroup).find('tbody > tr > td').eq(0).should('not.contain.text', 'automation');
 
     // Navigate to main group and test delete warning popup cancel and confirm
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
     cy.get(appFrontend.group.mainGroup)
-      .find(appFrontend.group.editContainer)
-      .find(appFrontend.group.back)
-
+      .find(appFrontend.designSystemPanel)
+      .find(appFrontend.group.popOverCancelButton)
       .click();
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
     cy.get(appFrontend.group.mainGroup)
-      .find(mui.tableBody)
-      .then((table) => {
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
-        cy.wrap(table)
-          .find(mui.tableElement)
-          .find(appFrontend.designSystemPanel)
-          .find(appFrontend.group.popOverCancelButton)
+      .find(appFrontend.designSystemPanel)
+      .find(appFrontend.group.popOverDeleteButton)
+      .click();
 
-          .click();
-        cy.wrap(table).find(mui.tableElement).find(appFrontend.group.delete).click();
-        cy.wrap(table)
-          .find(mui.tableElement)
-          .find(appFrontend.designSystemPanel)
-          .find(appFrontend.group.popOverDeleteButton)
-
-          .click();
-      });
     cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
   });
 
