@@ -5,6 +5,7 @@ import type { PropsFromGenericComponent } from '..';
 import { ButtonGroupComponent } from 'src/layout/ButtonGroup/ButtonGroupComponent';
 import { ButtonGroupHierarchyGenerator } from 'src/layout/ButtonGroup/hierarchy';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
+import type { ILayoutCompButtonGroup, ILayoutCompButtonGroupInHierarchy } from 'src/layout/ButtonGroup/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 
@@ -31,3 +32,11 @@ export class ButtonGroup extends ContainerComponent<'ButtonGroup'> {
     return false;
   }
 }
+
+export const Config = {
+  def: new ButtonGroup(),
+  types: {
+    layout: {} as unknown as ILayoutCompButtonGroup,
+    node: {} as unknown as ILayoutCompButtonGroupInHierarchy,
+  },
+};

@@ -2,7 +2,9 @@ import React from 'react';
 
 import { IFrameComponent } from 'src/layout/IFrame/IFrameComponent';
 import { PresentationComponent } from 'src/layout/LayoutComponent';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type { IFrameComponentProps } from 'src/layout/IFrame/IFrameComponent';
+import type { ILayoutCompIFrame } from 'src/layout/IFrame/types';
 
 export class IFrame extends PresentationComponent<'IFrame'> {
   render(props: IFrameComponentProps): JSX.Element | null {
@@ -13,3 +15,11 @@ export class IFrame extends PresentationComponent<'IFrame'> {
     return false;
   }
 }
+
+export const Config = {
+  def: new IFrame(),
+  types: {
+    layout: {} as unknown as ILayoutCompIFrame,
+    node: {} as unknown as ExprResolved<ILayoutCompIFrame>,
+  },
+};

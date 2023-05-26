@@ -2,7 +2,9 @@ import React from 'react';
 
 import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 
 export class Summary extends ContainerComponent<'Summary'> {
   directRender(): boolean {
@@ -32,3 +34,11 @@ export class Summary extends ContainerComponent<'Summary'> {
     return false;
   }
 }
+
+export const Config = {
+  def: new Summary(),
+  types: {
+    layout: {} as unknown as ILayoutCompSummary,
+    node: {} as unknown as ExprResolved<ILayoutCompSummary>,
+  },
+};

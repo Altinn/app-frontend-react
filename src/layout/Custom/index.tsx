@@ -3,7 +3,9 @@ import React from 'react';
 import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { ILayoutCompCustom } from 'src/layout/Custom/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -26,3 +28,11 @@ export class Custom extends FormComponent<'Custom'> {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }
+
+export const Config = {
+  def: new Custom(),
+  types: {
+    layout: {} as unknown as ILayoutCompCustom,
+    node: {} as unknown as ExprResolved<ILayoutCompCustom>,
+  },
+};

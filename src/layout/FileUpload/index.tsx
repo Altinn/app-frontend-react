@@ -4,7 +4,9 @@ import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSumm
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { FormComponent } from 'src/layout/LayoutComponent';
+import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
@@ -31,3 +33,11 @@ export class FileUpload extends FormComponent<'FileUpload'> {
     return false;
   }
 }
+
+export const Config = {
+  def: new FileUpload(),
+  types: {
+    layout: {} as unknown as ILayoutCompFileUpload,
+    node: {} as unknown as ExprResolved<ILayoutCompFileUpload>,
+  },
+};
