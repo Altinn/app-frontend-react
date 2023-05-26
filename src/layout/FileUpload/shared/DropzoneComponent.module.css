@@ -1,7 +1,15 @@
+.fileUploadWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .fileUploadTextBold {
   font-weight: bold;
   font-size: 1rem;
   margin-bottom: 0.375rem;
+}
+.blueUnderLine {
   border-bottom: 2px solid #1eadf7 !important;
 }
 

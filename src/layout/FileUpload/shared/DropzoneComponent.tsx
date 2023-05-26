@@ -113,9 +113,9 @@ export function DropzoneComponent({
                 {...getInputProps()}
                 id={id}
               />
-              <div className='container'>
+              <div className={`container ${classes.fileUploadWrapper}`}>
                 <div className='col text-center icon'>
-                  <i className='ai ai-upload' />
+                  <i className='ai ai-upload ai-lg' />
                 </div>
                 <div className='col text-center'>
                   <span
@@ -123,12 +123,13 @@ export function DropzoneComponent({
                     className={`${classes.fileUploadTextBold}`}
                   >
                     {isMobile ? (
-                      <>{lang('form_filler.file_uploader_upload')}</>
+                      lang('form_filler.file_uploader_upload')
                     ) : (
                       <>
                         {lang('form_filler.file_uploader_drag')}
-                        <span className={`${classes.fileUploadTextBold}`}>
-                          {` ${lang('form_filler.file_uploader_find')}`}
+                        <span className={`${classes.fileUploadTextBold} ${classes.blueUnderLine}`}>
+                          {' '}
+                          {lang('form_filler.file_uploader_find')}
                         </span>
                       </>
                     )}

@@ -1,5 +1,4 @@
 import React from 'react';
-import { isMobile } from 'react-device-detect';
 import type { FileRejection } from 'react-dropzone';
 
 import useMediaQuery from '@material-ui/core/useMediaQuery';
@@ -211,7 +210,7 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
       {shouldShowFileUpload() && (
         <DropzoneComponent
           id={id}
-          isMobile={isMobile}
+          isMobile={mobileView}
           maxFileSizeInMB={maxFileSizeInMB}
           readOnly={!!readOnly}
           onClick={handleClick}

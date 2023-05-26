@@ -1,5 +1,4 @@
 import React from 'react';
-import { isMobile } from 'react-device-detect';
 import type { FileRejection } from 'react-dropzone';
 
 import { Button } from '@digdir/design-system-react';
@@ -323,7 +322,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
       {shouldShowFileUpload() && (
         <DropzoneComponent
           id={id}
-          isMobile={isMobile}
+          isMobile={mobileView}
           maxFileSizeInMB={maxFileSizeInMB}
           readOnly={!!readOnly}
           onClick={handleClick}
