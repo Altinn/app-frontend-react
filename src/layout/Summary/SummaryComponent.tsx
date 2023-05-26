@@ -96,6 +96,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
 
   const component = targetNode.def;
   const RenderSummary = 'renderSummary' in component ? component.renderSummary.bind(component) : null;
+  const shouldShowBorder = 'renderSummaryBoilerplate' in component && component?.renderSummaryBoilerplate();
 
   return (
     <Grid
@@ -112,7 +113,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
       <Grid
         container={true}
         className={cn({
-          [classes.border]: !display?.hideBottomBorder,
+          [classes.border]: !display?.hideBottomBorder && shouldShowBorder,
         })}
       >
         {RenderSummary && 'renderSummaryBoilerplate' in component ? (
