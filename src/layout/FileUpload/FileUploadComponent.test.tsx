@@ -17,11 +17,7 @@ describe('FileUploadComponent', () => {
       attachments: getAttachments({ count: 2 }),
     });
 
-    expect(
-      screen.getByRole('button', {
-        name: /form_filler\.file_uploader_add_attachment/i,
-      }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('add-more-attachments-button')).toBeInTheDocument();
     expect(screen.getByText(/form_filler\.file_uploader_number_of_files 2\/3\./i)).toBeInTheDocument();
   });
 
@@ -31,11 +27,7 @@ describe('FileUploadComponent', () => {
       attachments: getAttachments({ count: 3 }),
     });
 
-    expect(
-      screen.queryByRole('button', {
-        name: /form_filler\.file_uploader_add_attachment/i,
-      }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('add-more-attachments-button')).not.toBeInTheDocument();
     expect(screen.getByText(/form_filler\.file_uploader_number_of_files 3\/3\./i)).toBeInTheDocument();
   });
 
@@ -46,7 +38,7 @@ describe('FileUploadComponent', () => {
 
       render({ attachments });
 
-      expect(screen.getByText(/general\.loading/i)).toBeInTheDocument();
+      expect(screen.getByTestId('altinn-loader')).toBeInTheDocument();
     });
 
     it('should not show loading when file uploaded=true', () => {
@@ -64,7 +56,7 @@ describe('FileUploadComponent', () => {
 
       render({ attachments });
 
-      expect(screen.getByText(/general\.loading/i)).toBeInTheDocument();
+      expect(screen.getByTestId('altinn-loader')).toBeInTheDocument();
     });
 
     it('should not show loading when file deleting=false', () => {
