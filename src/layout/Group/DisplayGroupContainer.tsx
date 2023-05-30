@@ -8,11 +8,11 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { pageBreakStyles, selectComponentTexts } from 'src/utils/formComponentUtils';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { HNonRepGroup } from 'src/utils/layout/hierarchy.types';
+import type { HGroups } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayGroupContainer {
-  groupNode: LayoutNode<HNonRepGroup, 'Group'>;
+  groupNode: LayoutNode<HGroups, 'Group'>;
   id?: string;
   onlyRowIndex?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;

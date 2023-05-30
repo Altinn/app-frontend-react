@@ -7,8 +7,6 @@ import { RepeatingGroupsFocusProvider } from 'src/layout/Group/RepeatingGroupsFo
 import { PanelGroupContainer } from 'src/layout/Panel/PanelGroupContainer';
 import { PanelReferenceGroupContainer } from 'src/layout/Panel/PanelReferenceGroupContainer';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { HNonRepGroup } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type GroupRendererProps = PropsFromGenericComponent<'Group'>;
 
@@ -46,16 +44,22 @@ export function GroupRenderer({ node }: GroupRendererProps) {
   }
 
   // Treat as regular components
-  return (
-    <DisplayGroupContainer
-      key={node.item.id}
-      groupNode={node as LayoutNode<HNonRepGroup, 'Group'>}
-      renderLayoutNode={(n) => (
-        <GenericComponent
-          key={n.item.id}
-          node={n}
-        />
-      )}
-    />
-  );
+  if (node.isNonRepGroup()) {
+    return (
+      <DisplayGroupContainer
+        key={node.item.id}
+        groupNode={node}
+        renderLayoutNode={(n) => (
+          <GenericComponent
+            key={n.item.id}
+            node={n}
+          />
+        )}
+      />
+    );
+  }
+
+  // Invalid configuration
+  console.warn(`Group ${node.item.id} has an invalid configuration.`);
+  return null;
 }

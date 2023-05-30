@@ -11,7 +11,6 @@ import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
 import { ComponentType } from 'src/layout/LayoutComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { useExprContext } from 'src/utils/layout/ExprContext';
-import type { HNonRepGroup } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface PDFViewProps {
@@ -20,10 +19,10 @@ interface PDFViewProps {
 }
 
 const PDFComponent = ({ node }: { node: LayoutNode }) => {
-  if (node.isType('Group')) {
+  if (node.isNonRepGroup()) {
     return (
       <DisplayGroupContainer
-        groupNode={node as LayoutNode<HNonRepGroup, 'Group'>}
+        groupNode={node}
         renderLayoutNode={(child) => (
           <PDFComponent
             key={child.item.id}
