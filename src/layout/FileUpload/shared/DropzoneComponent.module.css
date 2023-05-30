@@ -1,3 +1,8 @@
+.uploadIcon {
+  font-size: 3rem !important;
+  margin-bottom: 15px;
+}
+
 .fileUploadWrapper {
   display: flex;
   flex-direction: column;

@@ -115,7 +115,7 @@ export function DropzoneComponent({
               />
               <div className={`container ${classes.fileUploadWrapper}`}>
                 <div className='col text-center icon'>
-                  <i className='ai ai-upload ai-lg' />
+                  <i className={`ai ai-upload ${classes.uploadIcon}`} />
                 </div>
                 <div className='col text-center'>
                   <span
