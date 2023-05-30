@@ -5,6 +5,7 @@ import { useCommaSeparatedOptionsToText } from 'src/hooks/useCommaSeparatedOptio
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -40,6 +41,7 @@ export const Config = {
   def: new MultipleSelect(),
   types: {
     layout: {} as unknown as ILayoutCompMultipleSelect,
-    node: {} as unknown as ExprResolved<ILayoutCompMultipleSelect>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompMultipleSelect>,
+    nodeObj: LayoutNode,
   },
 };

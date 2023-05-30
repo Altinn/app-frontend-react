@@ -7,6 +7,7 @@ import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompInput } from 'src/layout/Input/types';
@@ -46,6 +47,7 @@ export const Config = {
   def: new Input(),
   types: {
     layout: {} as unknown as ILayoutCompInput,
-    node: {} as unknown as ExprResolved<ILayoutCompInput>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompInput>,
+    nodeObj: LayoutNode,
   },
 };

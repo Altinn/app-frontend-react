@@ -4,6 +4,7 @@ import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompGrid, ILayoutGridHierarchy } from 'src/layout/Grid/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -42,6 +43,7 @@ export const Config = {
   def: new Grid(),
   types: {
     layout: {} as unknown as ILayoutCompGrid,
-    node: {} as unknown as ILayoutGridHierarchy,
+    nodeItem: {} as unknown as ILayoutGridHierarchy,
+    nodeObj: LayoutNode,
   },
 };

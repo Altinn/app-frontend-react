@@ -2,6 +2,7 @@ import React from 'react';
 
 import { ActionComponent } from 'src/layout/LayoutComponent';
 import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompNavButtons } from 'src/layout/NavigationButtons/types';
@@ -28,6 +29,7 @@ export const Config = {
   def: new NavigationButtons(),
   types: {
     layout: {} as unknown as ILayoutCompNavButtons,
-    node: {} as unknown as ExprResolved<ILayoutCompNavButtons>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompNavButtons>,
+    nodeObj: LayoutNode,
   },
 };

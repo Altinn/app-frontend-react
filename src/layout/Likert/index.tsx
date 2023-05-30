@@ -6,6 +6,7 @@ import { FormComponent } from 'src/layout/LayoutComponent';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { LayoutStyle } from 'src/types';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -49,6 +50,7 @@ export const Config = {
   def: new Likert(),
   types: {
     layout: {} as unknown as ILayoutCompLikert,
-    node: {} as unknown as ExprResolved<ILayoutCompLikert>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompLikert>,
+    nodeObj: LayoutNode,
   },
 };

@@ -3,6 +3,7 @@ import React from 'react';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompAddress } from 'src/layout/Address/types';
@@ -37,6 +38,7 @@ export const Config = {
   def: new Address(),
   types: {
     layout: {} as unknown as ILayoutCompAddress,
-    node: {} as unknown as ExprResolved<ILayoutCompAddress>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompAddress>,
+    nodeObj: LayoutNode,
   },
 };

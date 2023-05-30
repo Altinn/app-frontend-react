@@ -2,6 +2,7 @@ import React from 'react';
 
 import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 import { ActionComponent } from 'src/layout/LayoutComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompInstantiationButton } from 'src/layout/InstantiationButton/types';
@@ -24,6 +25,7 @@ export const Config = {
   def: new InstantiationButton(),
   types: {
     layout: {} as unknown as ILayoutCompInstantiationButton,
-    node: {} as unknown as ExprResolved<ILayoutCompInstantiationButton>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompInstantiationButton>,
+    nodeObj: LayoutNode,
   },
 };

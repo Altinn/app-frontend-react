@@ -4,6 +4,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { MapComponent } from 'src/layout/Map/MapComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -37,6 +38,7 @@ export const Config = {
   def: new Map(),
   types: {
     layout: {} as unknown as ILayoutCompMap,
-    node: {} as unknown as ExprResolved<ILayoutCompMap>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompMap>,
+    nodeObj: typeof LayoutNode,
   },
 };

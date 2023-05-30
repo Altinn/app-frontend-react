@@ -2,6 +2,7 @@ import React from 'react';
 
 import { ActionComponent } from 'src/layout/LayoutComponent';
 import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompNavBar } from 'src/layout/NavigationBar/types';
@@ -24,6 +25,7 @@ export const Config = {
   def: new NavigationBar(),
   types: {
     layout: {} as unknown as ILayoutCompNavBar,
-    node: {} as unknown as ExprResolved<ILayoutCompNavBar>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompNavBar>,
+    nodeObj: LayoutNode,
   },
 };

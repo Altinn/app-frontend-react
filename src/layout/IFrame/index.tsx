@@ -2,6 +2,7 @@ import React from 'react';
 
 import { IFrameComponent } from 'src/layout/IFrame/IFrameComponent';
 import { PresentationComponent } from 'src/layout/LayoutComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IFrameComponentProps } from 'src/layout/IFrame/IFrameComponent';
 import type { ILayoutCompIFrame } from 'src/layout/IFrame/types';
@@ -20,6 +21,7 @@ export const Config = {
   def: new IFrame(),
   types: {
     layout: {} as unknown as ILayoutCompIFrame,
-    node: {} as unknown as ExprResolved<ILayoutCompIFrame>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompIFrame>,
+    nodeObj: LayoutNode,
   },
 };

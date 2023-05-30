@@ -7,6 +7,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
@@ -40,6 +41,7 @@ export const Config = {
   def: new Datepicker(),
   types: {
     layout: {} as unknown as ILayoutCompDatepicker,
-    node: {} as unknown as ExprResolved<ILayoutCompDatepicker>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompDatepicker>,
+    nodeObj: LayoutNode,
   },
 };

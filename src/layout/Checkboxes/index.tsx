@@ -5,6 +5,7 @@ import { useCommaSeparatedOptionsToText } from 'src/hooks/useCommaSeparatedOptio
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
@@ -42,6 +43,7 @@ export const Config = {
   def: new Checkboxes(),
   types: {
     layout: {} as unknown as ILayoutCompCheckboxes,
-    node: {} as unknown as ExprResolved<ILayoutCompCheckboxes>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompCheckboxes>,
+    nodeObj: LayoutNode,
   },
 };

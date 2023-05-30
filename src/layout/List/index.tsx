@@ -3,6 +3,7 @@ import React from 'react';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -44,6 +45,7 @@ export const Config = {
   def: new List(),
   types: {
     layout: {} as unknown as ILayoutCompList,
-    node: {} as unknown as ExprResolved<ILayoutCompList>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompList>,
+    nodeObj: LayoutNode,
   },
 };

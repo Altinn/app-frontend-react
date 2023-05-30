@@ -2,6 +2,7 @@ import React from 'react';
 
 import { InstanceInformationComponent } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { PresentationComponent } from 'src/layout/LayoutComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompInstanceInformation } from 'src/layout/InstanceInformation/types';
@@ -20,6 +21,7 @@ export const Config = {
   def: new InstanceInformation(),
   types: {
     layout: {} as unknown as ILayoutCompInstanceInformation,
-    node: {} as unknown as ExprResolved<ILayoutCompInstanceInformation>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompInstanceInformation>,
+    nodeObj: LayoutNode,
   },
 };

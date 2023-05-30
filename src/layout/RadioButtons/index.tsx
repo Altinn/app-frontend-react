@@ -5,6 +5,7 @@ import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -38,6 +39,7 @@ export const Config = {
   def: new RadioButtons(),
   types: {
     layout: {} as unknown as ILayoutCompRadioButtons,
-    node: {} as unknown as ExprResolved<ILayoutCompRadioButtons>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompRadioButtons>,
+    nodeObj: LayoutNode,
   },
 };

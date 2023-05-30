@@ -2,6 +2,7 @@ import React from 'react';
 
 import { ButtonComponent } from 'src/layout/Button/ButtonComponent';
 import { ActionComponent } from 'src/layout/LayoutComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompButton } from 'src/layout/Button/types';
@@ -24,6 +25,7 @@ export const Config = {
   def: new Button(),
   types: {
     layout: {} as unknown as ILayoutCompButton,
-    node: {} as unknown as ExprResolved<ILayoutCompButton>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompButton>,
+    nodeObj: LayoutNode,
   },
 };

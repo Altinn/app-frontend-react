@@ -2,6 +2,7 @@ import React from 'react';
 
 import { HeaderComponent } from 'src/layout/Header/HeaderComponent';
 import { PresentationComponent } from 'src/layout/LayoutComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompHeader } from 'src/layout/Header/types';
@@ -20,6 +21,7 @@ export const Config = {
   def: new Header(),
   types: {
     layout: {} as unknown as ILayoutCompHeader,
-    node: {} as unknown as ExprResolved<ILayoutCompHeader>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompHeader>,
+    nodeObj: LayoutNode,
   },
 };

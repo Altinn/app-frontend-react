@@ -4,6 +4,7 @@ import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
@@ -38,6 +39,7 @@ export const Config = {
   def: new FileUploadWithTag(),
   types: {
     layout: {} as unknown as ILayoutCompFileUploadWithTag,
-    node: {} as unknown as ExprResolved<ILayoutCompFileUploadWithTag>,
+    nodeItem: {} as unknown as ExprResolved<ILayoutCompFileUploadWithTag>,
+    nodeObj: LayoutNode,
   },
 };
