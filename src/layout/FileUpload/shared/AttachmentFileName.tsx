@@ -36,6 +36,7 @@ export const AttachmentFileName = ({
           <a
             href={url}
             className={`${classes.download} ${classes.primaryColor}`}
+            data-testid={`attachment-download`}
           >
             {fileName}
           </a>

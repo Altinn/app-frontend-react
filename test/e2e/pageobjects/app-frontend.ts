@@ -164,6 +164,7 @@ export class AppFrontend {
     uploadingAnimation: '#loader-upload',
     deleteAttachment: '[data-testid^="attachment-delete"]',
     uploadedTable: '#altinn-file-listfileUpload-changename',
+    downloadAttachment: '[data-testid="attachment-download"]',
     uploadSuccess: '[data-testid="checkmark-success"]',
     uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
     componentSummary: '[data-testid="summary-item-simple"]',
