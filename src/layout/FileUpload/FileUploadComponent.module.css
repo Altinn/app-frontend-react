@@ -6,13 +6,11 @@
   border-bottom: 1px dotted #1eadf7;
 }
 
-.fileUploadTable > thead > tr > th {
-  font-size: 0.875rem;
-}
 .fileUploadTable > tbody > tr > td {
   padding: 10px 4px 10px 6px;
 }
 .fileUploadTable > thead > tr > th {
+  font-size: 0.875rem;
   padding: 4px 4px 4px 6px;
 }
 

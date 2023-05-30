@@ -134,31 +134,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
   };
   const NonMobileColumnHeader = () =>
     !mobileView ? <th scope='col'>{lang('form_filler.file_uploader_list_header_file_size')}</th> : null;
-  const NameCell = ({ attachment }: { attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'> }) => {
-    const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${langAsString(
-      'form_filler.file_uploader_mb',
-    )}`;
-    return (
-      <>
-        <td>
-          <AttachmentFileName
-            attachment={attachment}
-            mobileView={mobileView}
-          />
-          {mobileView ? (
-            <div
-              style={{
-                color: AltinnAppTheme.altinnPalette.primary.grey,
-              }}
-            >
-              {readableSize}
-            </div>
-          ) : null}
-        </td>
-        {!mobileView ? <td>{readableSize}</td> : null}
-      </>
-    );
-  };
+
   const StatusCellContent = ({ attachment }: { attachment: { uploaded: boolean } }) => {
     const { uploaded } = attachment;
     const status = attachment.uploaded
@@ -260,7 +236,10 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
                 id={`altinn-file-list-row-${attachment.id}`}
                 tabIndex={0}
               >
-                <NameCell attachment={attachment} />
+                <NameCell
+                  attachment={attachment}
+                  mobileView={mobileView}
+                />
                 <td>
                   <StatusCellContent attachment={attachment} />
                 </td>
@@ -367,3 +346,35 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     </div>
   );
 }
+
+const NameCell = ({
+  mobileView,
+  attachment,
+}: {
+  mobileView: boolean;
+  attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'>;
+}) => {
+  const { langAsString } = useLanguage();
+  const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${langAsString('form_filler.file_uploader_mb')}`;
+
+  return (
+    <>
+      <td>
+        <AttachmentFileName
+          attachment={attachment}
+          mobileView={mobileView}
+        />
+        {mobileView ? (
+          <div
+            style={{
+              color: AltinnAppTheme.altinnPalette.primary.grey,
+            }}
+          >
+            {readableSize}
+          </div>
+        ) : null}
+      </td>
+      {!mobileView ? <td>{readableSize}</td> : null}
+    </>
+  );
+};
