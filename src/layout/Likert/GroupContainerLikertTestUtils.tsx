@@ -247,7 +247,7 @@ export const render = ({
   return { mockStoreDispatch };
 };
 
-export const validateTableLayout = (questions: IQuestion[]) => {
+export const validateTableLayout = (questions: IQuestion[], options: IOption[]) => {
   screen.getByRole('table');
 
   for (const option of defaultMockOptions) {
@@ -257,10 +257,10 @@ export const validateTableLayout = (questions: IQuestion[]) => {
     expect(columnHeader).toBeInTheDocument();
   }
 
-  validateRadioLayout(questions);
+  validateRadioLayout(questions, options);
 };
 
-export const validateRadioLayout = (questions: IQuestion[], mobileView = false) => {
+export const validateRadioLayout = (questions: IQuestion[], options: IOption[], mobileView = false) => {
   if (mobileView) {
     expect(screen.getAllByRole('radiogroup')).toHaveLength(questions.length);
   } else {
@@ -278,7 +278,7 @@ export const validateRadioLayout = (questions: IQuestion[], mobileView = false) 
           name: question.Question,
         });
 
-    for (const option of defaultMockOptions) {
+    for (const option of options) {
       // Ideally we should use `getByRole` selector here, but the tests that use this function
       // generates a DOM of several hundred nodes, and `getByRole` is quite slow since it has to traverse
       // the entire tree. Doing that in a loop (within another loop) on hundreds of nodes is not a good idea.
