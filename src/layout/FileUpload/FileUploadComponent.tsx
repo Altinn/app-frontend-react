@@ -301,7 +301,6 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
           className={`${classes.fileUploadButton} ${classes.blueUnderline}`}
           onClick={updateShowFileUpload}
           type='button'
-          data-testid='add-more-attachments-button'
         >
           {lang('form_filler.file_uploader_add_attachment')}
         </button>

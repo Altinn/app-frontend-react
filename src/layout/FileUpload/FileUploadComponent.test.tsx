@@ -17,7 +17,11 @@ describe('FileUploadComponent', () => {
       attachments: getAttachments({ count: 2 }),
     });
 
-    expect(screen.getByTestId('add-more-attachments-button')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'Legg til flere vedlegg',
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/form_filler\.file_uploader_number_of_files 2\/3\./i)).toBeInTheDocument();
   });
 
@@ -27,7 +31,11 @@ describe('FileUploadComponent', () => {
       attachments: getAttachments({ count: 3 }),
     });
 
-    expect(screen.queryByTestId('add-more-attachments-button')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: 'Legg til flere vedlegg',
+      }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText(/form_filler\.file_uploader_number_of_files 3\/3\./i)).toBeInTheDocument();
   });
 
@@ -38,7 +46,7 @@ describe('FileUploadComponent', () => {
 
       render({ attachments });
 
-      expect(screen.getByTestId('altinn-loader')).toBeInTheDocument();
+      expect(screen.getByText('Laster innhold')).toBeInTheDocument();
     });
 
     it('should not show loading when file uploaded=true', () => {
@@ -47,7 +55,7 @@ describe('FileUploadComponent', () => {
 
       render({ attachments });
 
-      expect(screen.queryByText(/general\.loading/i)).not.toBeInTheDocument();
+      expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
     });
 
     it('should show loading when file deleting=true', () => {
@@ -56,7 +64,7 @@ describe('FileUploadComponent', () => {
 
       render({ attachments });
 
-      expect(screen.getByTestId('altinn-loader')).toBeInTheDocument();
+      expect(screen.getByText('Laster innhold')).toBeInTheDocument();
     });
 
     it('should not show loading when file deleting=false', () => {
@@ -65,7 +73,7 @@ describe('FileUploadComponent', () => {
 
       render({ attachments });
 
-      expect(screen.queryByText(/general\.loading/i)).not.toBeInTheDocument();
+      expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
     });
   });
 

@@ -17,7 +17,6 @@ export function AltinnLoader(props: IAltinnLoaderProps) {
       aria-live='polite'
       className={`a-loader ${props.className || ''}`}
       id={props.id || 'altinn-loader'}
-      data-testid={'altinn-loader'}
       style={props.style}
     >
       <div className='loader loader-ellipsis' />
