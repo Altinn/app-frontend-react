@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 import type React from 'react';
 
-import { components } from 'src/layout/components';
+import { ComponentConfigs } from 'src/layout/components';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentTypes, IGrid } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
@@ -10,7 +10,10 @@ import type { ILanguage } from 'src/types/shared';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
-export type ComponentClassMap = typeof components;
+export type ComponentClassMap = {
+  [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
+};
+
 export type ComponentClassMapTypes = {
   [K in keyof ComponentClassMap]: ComponentClassMap[K]['type'];
 };
@@ -23,9 +26,9 @@ export type ComponentClassMapTypes = {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const _componentsTypeCheck: {
-  [Type in ComponentTypes]: LayoutComponent<Type>;
+  [Type in ComponentTypes]: { def: LayoutComponent<Type> };
 } = {
-  ...components,
+  ...ComponentConfigs,
 };
 
 export interface IComponentProps {
@@ -70,8 +73,8 @@ export const FormComponentContext = createContext<IFormComponentContext>({
 });
 
 export function getLayoutComponentObject<T extends keyof ComponentClassMap>(type: T): ComponentClassMap[T] {
-  if (type && type in components) {
-    return components[type as keyof typeof components] as any;
+  if (type && type in ComponentConfigs) {
+    return ComponentConfigs[type as keyof typeof ComponentConfigs].def as any;
   }
   return undefined as any;
 }

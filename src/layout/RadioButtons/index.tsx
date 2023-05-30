@@ -5,12 +5,12 @@ import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends FormComponent<'RadioButtons'> {
   render(props: PropsFromGenericComponent<'RadioButtons'>): JSX.Element | null {
@@ -37,9 +37,10 @@ export class RadioButtons extends FormComponent<'RadioButtons'> {
 
 export const Config = {
   def: new RadioButtons(),
-  types: {
-    layout: {} as unknown as ILayoutCompRadioButtons,
-    nodeItem: {} as unknown as ExprResolved<ILayoutCompRadioButtons>,
-    nodeObj: LayoutNode,
-  },
+};
+
+export type TypeConfig = {
+  layout: ILayoutCompRadioButtons;
+  nodeItem: ExprResolved<ILayoutCompRadioButtons>;
+  nodeObj: LayoutNode;
 };

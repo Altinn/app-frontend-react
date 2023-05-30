@@ -5,12 +5,12 @@ import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompDropdown } from 'src/layout/Dropdown/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Dropdown extends FormComponent<'Dropdown'> {
   render(props: PropsFromGenericComponent<'Dropdown'>): JSX.Element | null {
@@ -35,9 +35,10 @@ export class Dropdown extends FormComponent<'Dropdown'> {
 
 export const Config = {
   def: new Dropdown(),
-  types: {
-    layout: {} as unknown as ILayoutCompDropdown,
-    nodeItem: {} as unknown as ExprResolved<ILayoutCompDropdown>,
-    nodeObj: LayoutNode,
-  },
+};
+
+export type TypeConfig = {
+  layout: ILayoutCompDropdown;
+  nodeItem: ExprResolved<ILayoutCompDropdown>;
+  nodeObj: LayoutNode;
 };

@@ -4,7 +4,7 @@ import type { GridSize } from '@material-ui/core';
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { IDataModelBindingsForAddress } from 'src/layout/Address/types';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
-import type { ComponentLayoutTypeMap, ComponentNodeItemMap, components } from 'src/layout/components';
+import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components';
 import type { ILayoutCompDropdown } from 'src/layout/Dropdown/types';
 import type { IDataModelBindingsForGroup, ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompLikert } from 'src/layout/Likert/types';
@@ -89,7 +89,7 @@ export interface ITableColumnProperties {
  * type (ex. ILayoutCompTextArea), or ILayoutComponent<'TextArea'>.
  */
 
-export type ComponentTypes = keyof ComponentLayoutTypeMap & keyof ComponentNodeItemMap & keyof typeof components;
+export type ComponentTypes = keyof typeof ComponentConfigs & keyof ComponentTypeConfigs;
 type AllComponents = ComponentLayoutTypeMap[ComponentTypes];
 
 export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;

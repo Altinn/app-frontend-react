@@ -4,12 +4,12 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ILayoutCompTextArea } from 'src/layout/TextArea/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TextArea extends FormComponent<'TextArea'> {
   render(props: PropsFromGenericComponent<'TextArea'>): JSX.Element | null {
@@ -33,9 +33,10 @@ export class TextArea extends FormComponent<'TextArea'> {
 
 export const Config = {
   def: new TextArea(),
-  types: {
-    layout: {} as unknown as ILayoutCompTextArea,
-    nodeItem: {} as unknown as ExprResolved<ILayoutCompTextArea>,
-    nodeObj: LayoutNode,
-  },
+};
+
+export type TypeConfig = {
+  layout: ILayoutCompTextArea;
+  nodeItem: ExprResolved<ILayoutCompTextArea>;
+  nodeObj: LayoutNode;
 };

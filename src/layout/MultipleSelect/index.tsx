@@ -5,12 +5,12 @@ import { useCommaSeparatedOptionsToText } from 'src/hooks/useCommaSeparatedOptio
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ILayoutCompMultipleSelect } from 'src/layout/MultipleSelect/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends FormComponent<'MultipleSelect'> {
   render(props: PropsFromGenericComponent<'MultipleSelect'>): JSX.Element | null {
@@ -39,9 +39,10 @@ export class MultipleSelect extends FormComponent<'MultipleSelect'> {
 
 export const Config = {
   def: new MultipleSelect(),
-  types: {
-    layout: {} as unknown as ILayoutCompMultipleSelect,
-    nodeItem: {} as unknown as ExprResolved<ILayoutCompMultipleSelect>,
-    nodeObj: LayoutNode,
-  },
+};
+
+export type TypeConfig = {
+  layout: ILayoutCompMultipleSelect;
+  nodeItem: ExprResolved<ILayoutCompMultipleSelect>;
+  nodeObj: LayoutNode;
 };

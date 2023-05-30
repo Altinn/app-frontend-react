@@ -7,13 +7,13 @@ import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompInput } from 'src/layout/Input/types';
 import type { IInputFormatting } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Input extends FormComponent<'Input'> {
   render(props: PropsFromGenericComponent<'Input'>): JSX.Element | null {
@@ -45,9 +45,10 @@ export class Input extends FormComponent<'Input'> {
 
 export const Config = {
   def: new Input(),
-  types: {
-    layout: {} as unknown as ILayoutCompInput,
-    nodeItem: {} as unknown as ExprResolved<ILayoutCompInput>,
-    nodeObj: LayoutNode,
-  },
+};
+
+export type TypeConfig = {
+  layout: ILayoutCompInput;
+  nodeItem: ExprResolved<ILayoutCompInput>;
+  nodeObj: LayoutNode;
 };

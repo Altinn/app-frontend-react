@@ -3,7 +3,7 @@ import type { $Keys, PickByValue } from 'utility-types';
 import type { IDevToolsState } from 'src/features/devtools/data/types';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ComponentClassMapTypes } from 'src/layout';
-import type { ComponentNodeItemMap } from 'src/layout/components';
+import type { ComponentTypeConfigs } from 'src/layout/components';
 import type { ComponentExceptGroup, ComponentTypes, IDataModelBindings, ILayoutComponent } from 'src/layout/layout';
 import type { ComponentType } from 'src/layout/LayoutComponent';
 import type { IValidations } from 'src/types';
@@ -29,7 +29,8 @@ export type HComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = 
  * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
  * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
  */
-export type AnyItem<T extends ComponentTypes = ComponentTypes> = ComponentNodeItemMap[T] & HierarchyExtensions;
+export type AnyItem<T extends ComponentTypes = ComponentTypes> = ComponentTypeConfigs[T]['nodeItem'] &
+  HierarchyExtensions;
 
 /**
  * Any parent object of a LayoutNode (with for example repeating groups, the parent can be the group node, but above
