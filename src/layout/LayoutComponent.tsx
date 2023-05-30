@@ -4,6 +4,7 @@ import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspe
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ComponentTypeConfigs } from 'src/layout/components';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -90,7 +91,7 @@ abstract class AnyComponent<Type extends ComponentTypes> {
     top: LayoutPage,
     dataSources: HierarchyDataSources,
     rowIndex?: number,
-  ): LayoutNode {
+  ): ComponentTypeConfigs[Type]['nodeObj'] {
     return new LayoutNode(item, parent, top, dataSources, rowIndex);
   }
 }
