@@ -9,7 +9,7 @@ import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { pageBreakStyles, selectComponentTexts } from 'src/utils/formComponentUtils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { HGroups } from 'src/layout/Group/types';
 
 const H = ({ level, children, ...props }) => {
   switch (level) {
@@ -32,7 +32,7 @@ const H = ({ level, children, ...props }) => {
 };
 
 export interface IDisplayGroupContainer {
-  groupNode: LayoutNodeFromType<'Group'>;
+  groupNode: LayoutNode<HGroups, 'Group'>;
   id?: string;
   onlyRowIndex?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
