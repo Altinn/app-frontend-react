@@ -525,6 +525,7 @@ export const ExprFunctions = {
       return Math.round(number);
     },
     args: [ExprVal.Number, ExprVal.Number] as const,
+    minArguments: 1,
     returns: ExprVal.Number,
   }),
   text: defineFunc({
