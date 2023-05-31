@@ -41,7 +41,7 @@
   "definitions": {
     "any": {
       "title": "Any expression",
-      "oneOf": [
+      "anyOf": [
         { "type": "null", "title": "Null/missing value" },
         { "$ref": "#/definitions/strict-string" },
         { "$ref": "#/definitions/strict-boolean" },
@@ -51,7 +51,7 @@
     },
     "string": {
       "title": "Any expression returning string",
-      "oneOf": [
+      "anyOf": [
         { "type": "null", "title": "Null/missing value" },
         { "$ref": "#/definitions/strict-string" },
         { "$ref": "#/definitions/func-if" },
@@ -61,7 +61,7 @@
     },
     "strict-string": {
       "title": "Any expression returning string (strict)",
-      "oneOf": [
+      "anyOf": [
         { "type": "string", "title": "String constant" },
         { "$ref": "#/definitions/func-component" },
         { "$ref": "#/definitions/func-dataModel" },
@@ -77,7 +77,7 @@
     },
     "boolean": {
       "title": "Any expression returning boolean",
-      "oneOf": [
+      "anyOf": [
         { "type": "null", "title": "Null/missing value" },
         { "$ref": "#/definitions/strict-boolean" },
         { "$ref": "#/definitions/func-if" },
@@ -87,7 +87,7 @@
     },
     "strict-boolean": {
       "title": "Any expression returning boolean (strict)",
-      "oneOf": [
+      "anyOf": [
         { "type": "boolean", "title": "Boolean constant" },
         { "$ref": "#/definitions/func-equals" },
         { "$ref": "#/definitions/func-notEquals" },
@@ -108,7 +108,7 @@
     },
     "number": {
       "title": "Any expression returning a number",
-      "oneOf": [
+      "anyOf": [
         { "type": "null", "title": "Null/missing value" },
         { "$ref": "#/definitions/strict-number" },
         { "$ref": "#/definitions/func-if" },
@@ -117,7 +117,7 @@
     },
     "strict-number": {
       "title": "Any expression returning a number (strict)",
-      "oneOf": [
+      "anyOf": [
         { "type": "number", "title": "Numeric constant" },
         { "$ref": "#/definitions/func-stringLength" }
       ]
@@ -125,7 +125,7 @@
     "func-if": {
       "title": "If/else conditional expression",
       "description": "This function will evaluate and return the result of either branch. If else is not given, null will be returned instead.",
-      "oneOf": [
+      "anyOf": [
         { "$ref": "#/definitions/func-if-with-else" },
         { "$ref": "#/definitions/func-if-without-else" }
       ]

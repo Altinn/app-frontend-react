@@ -30,14 +30,14 @@ describe('expression schema tests', () => {
         // At least one of the definitions should be a match
         const allTypes: any[] = [];
         for (const type of ['number', 'string', 'boolean']) {
-          allTypes.push(...expressionSchema.definitions[`strict-${type}`].oneOf);
+          allTypes.push(...expressionSchema.definitions[`strict-${type}`].anyOf);
         }
         expect(allTypes).toContainEqual({
           $ref: `#/definitions/func-${name}`,
         });
       } else {
         const returnString = exprValToString(returns);
-        expect(expressionSchema.definitions[`strict-${returnString}`].oneOf).toContainEqual({
+        expect(expressionSchema.definitions[`strict-${returnString}`].anyOf).toContainEqual({
           $ref: `#/definitions/func-${name}`,
         });
       }
@@ -113,6 +113,11 @@ describe('expression schema tests', () => {
       }
     },
   );
+
+  it('invalid functions should not validate', () => {
+    const valid = validate(['invalid_function']);
+    expect(valid).toBe(false);
+  });
 });
 
 function exprValToString(val: ExprVal): string {
