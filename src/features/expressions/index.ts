@@ -543,7 +543,7 @@ export const ExprFunctions = {
         this.dataSources.profile?.selectedAppLanguage ||
         this.dataSources.profile?.profile?.profileSettingPreference?.language;
 
-      return selectedLanguage || null;
+      return selectedLanguage || 'nb';
     },
     args: [] as const,
     returns: ExprVal.String,
