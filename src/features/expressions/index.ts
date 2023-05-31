@@ -3,7 +3,6 @@ import type { Mutable } from 'utility-types';
 
 import {
   ExprRuntimeError,
-  LookupNotFound,
   NodeNotFoundWithoutContext,
   UnexpectedType,
   UnknownSourceType,
@@ -432,7 +431,7 @@ export const ExprFunctions = {
   instanceContext: defineFunc({
     impl(key): string | null {
       if (key === null || instanceContextKeys[key] !== true) {
-        throw new LookupNotFound(this, `Unknown Instance context property ${key}`);
+        throw new ExprRuntimeError(this, `Unknown Instance context property ${key}`);
       }
 
       return (this.dataSources.instanceContext && this.dataSources.instanceContext[key]) || null;
@@ -443,7 +442,7 @@ export const ExprFunctions = {
   frontendSettings: defineFunc({
     impl(key): any {
       if (key === null) {
-        throw new LookupNotFound(this, `Value cannot be null. (Parameter 'key')`);
+        throw new ExprRuntimeError(this, `Value cannot be null. (Parameter 'key')`);
       }
 
       return (this.dataSources.applicationSettings && this.dataSources.applicationSettings[key]) || null;
@@ -454,7 +453,7 @@ export const ExprFunctions = {
   authContext: defineFunc({
     impl(key): boolean | null {
       if (key === null || authContextKeys[key] !== true) {
-        throw new LookupNotFound(this, `Unknown auth context property ${key}`);
+        throw new ExprRuntimeError(this, `Unknown auth context property ${key}`);
       }
 
       return Boolean(this.dataSources.authContext?.[key]);
@@ -465,7 +464,7 @@ export const ExprFunctions = {
   component: defineFunc({
     impl(id): any {
       if (id === null) {
-        throw new LookupNotFound(this, `Cannot lookup component null`);
+        throw new ExprRuntimeError(this, `Cannot lookup component null`);
       }
 
       const node = this.failWithoutNode();
@@ -483,7 +482,7 @@ export const ExprFunctions = {
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
       // results. We should note this in the error message, so we know the reason we couldn't find the component.
       const hasAllLayouts = node instanceof LayoutPage ? !!node.top : !!node.top.top;
-      throw new LookupNotFound(
+      throw new ExprRuntimeError(
         this,
         hasAllLayouts
           ? `Unable to find component with identifier ${id} or it does not have a simpleBinding`
@@ -496,7 +495,7 @@ export const ExprFunctions = {
   dataModel: defineFunc({
     impl(path): any {
       if (path === null) {
-        throw new LookupNotFound(this, `Cannot lookup dataModel null`);
+        throw new ExprRuntimeError(this, `Cannot lookup dataModel null`);
       }
 
       const maybeNode = this.failWithoutNode();
@@ -515,7 +514,7 @@ export const ExprFunctions = {
   round: defineFunc({
     impl(number, decimalPoints: number | null): number | null {
       if (number === null) {
-        throw new LookupNotFound(this, `"Value" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"Value" parameter cannot be null.`);
       }
 
       if (decimalPoints !== undefined && decimalPoints !== null) {
@@ -531,7 +530,7 @@ export const ExprFunctions = {
   text: defineFunc({
     impl(key): string | null {
       if (key === null) {
-        throw new LookupNotFound(this, `"Key" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"Key" parameter cannot be null.`);
       }
       const state = altinnWindow.reduxStore.getState();
       return getTextResourceByKey(key, state.textResources.resources);
@@ -550,7 +549,7 @@ export const ExprFunctions = {
   contains: defineFunc({
     impl(string: string, stringToContain: string): boolean {
       if (string === null || stringToContain === null) {
-        throw new LookupNotFound(this, `"string" or "stringToContain" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"string" or "stringToContain" parameter cannot be null.`);
       }
 
       return string.includes(stringToContain);
@@ -561,7 +560,7 @@ export const ExprFunctions = {
   notContains: defineFunc({
     impl(string: string, stringToNotContain: string): boolean {
       if (string === null || stringToNotContain === null) {
-        throw new LookupNotFound(this, `"string" or "stringToNotContain" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"string" or "stringToNotContain" parameter cannot be null.`);
       }
       return !string.includes(stringToNotContain);
     },
@@ -571,7 +570,7 @@ export const ExprFunctions = {
   endsWith: defineFunc({
     impl(string: string, stringToMatch: string): boolean {
       if (string === null || stringToMatch === null) {
-        throw new LookupNotFound(this, `"string" or "stringToMatch" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"string" or "stringToMatch" parameter cannot be null.`);
       }
       return string.endsWith(stringToMatch);
     },
@@ -581,7 +580,7 @@ export const ExprFunctions = {
   startsWith: defineFunc({
     impl(string: string, stringToMatch: string): boolean {
       if (string === null || stringToMatch === null) {
-        throw new LookupNotFound(this, `"string" or "stringToMatch" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"string" or "stringToMatch" parameter cannot be null.`);
       }
 
       return string.startsWith(stringToMatch);
@@ -592,7 +591,7 @@ export const ExprFunctions = {
   stringLength: defineFunc({
     impl(string: string): number {
       if (string === null) {
-        throw new LookupNotFound(this, `"string" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"string" parameter cannot be null.`);
       }
 
       return string.length;
@@ -603,7 +602,7 @@ export const ExprFunctions = {
   commaContains: defineFunc({
     impl(commaSeparatedString: string, stringToMatch: string): boolean {
       if (commaSeparatedString === null || stringToMatch === null) {
-        throw new LookupNotFound(this, `"commaSeparatedString" or "stringToMatch" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"commaSeparatedString" or "stringToMatch" parameter cannot be null.`);
       }
 
       // Split the comma separated string into an array and remove whitespace from each part
@@ -616,7 +615,7 @@ export const ExprFunctions = {
   lowerCase: defineFunc({
     impl(string: string): string {
       if (string === null) {
-        throw new LookupNotFound(this, `"string" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"string" parameter cannot be null.`);
       }
       return string.toLowerCase();
     },
@@ -626,7 +625,7 @@ export const ExprFunctions = {
   upperCase: defineFunc({
     impl(string: string): string {
       if (string === null) {
-        throw new LookupNotFound(this, `"string" parameter cannot be null.`);
+        throw new ExprRuntimeError(this, `"string" parameter cannot be null.`);
       }
       return string.toUpperCase();
     },
