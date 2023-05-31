@@ -4,14 +4,36 @@ import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 
 import { useLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { ISandboxProperties } from 'src/layout/IFrame/types';
+
+const sandboxPropertyMap: { [K in keyof Required<ISandboxProperties>]: string } = {
+  allowPopups: 'allow-popups',
+  allowPopupsToEscapeSandbox: 'allow-popups-to-escape-sandbox',
+};
+
+const getSanboxProperties = (sandbox: ISandboxProperties | undefined): string => {
+  if (!sandbox) {
+    return 'allow-same-origin';
+  }
+
+  return ['allow-same-origin']
+    .concat(
+      Object.entries(sandbox)
+        .filter(([, value]) => value)
+        .map(([key]) => sandboxPropertyMap[key]),
+    )
+    .join(' ');
+};
 
 export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 
 export const IFrameComponent = ({ node, getTextResourceAsString }: IFrameComponentProps): JSX.Element => {
   const { lang } = useLanguage();
+  const { textResourceBindings, sandbox } = node.item;
+
+  const sandboxProperties = getSanboxProperties(sandbox);
 
   const isSrcDocUnsupported = !('srcdoc' in document.createElement('iframe'));
-
   if (isSrcDocUnsupported) {
     return (
       <Panel
@@ -23,7 +45,6 @@ export const IFrameComponent = ({ node, getTextResourceAsString }: IFrameCompone
     );
   }
 
-  const { textResourceBindings } = node.item;
   const iFrameTitle = textResourceBindings?.title;
   const HTMLString = iFrameTitle ? getTextResourceAsString(iFrameTitle) : '';
 
@@ -40,7 +61,7 @@ export const IFrameComponent = ({ node, getTextResourceAsString }: IFrameCompone
       srcDoc={HTMLString}
       title={iFrameTitle}
       onLoad={adjustIFrameSize}
-      sandbox='allow-same-origin'
+      sandbox={sandboxProperties}
     />
   );
 };
