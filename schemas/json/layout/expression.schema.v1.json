@@ -136,8 +136,7 @@
         { "const":  "if" },
         { "$ref": "#/definitions/boolean" },
         { "$ref": "#/definitions/any" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-if-with-else": {
       "type": "array",
@@ -147,8 +146,7 @@
         { "$ref": "#/definitions/any" },
         { "const":  "else" },
         { "$ref": "#/definitions/any" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-component": {
       "title": "Component value lookup function",
@@ -157,8 +155,7 @@
       "items": [
         { "const":  "component" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-dataModel": {
       "title": "Data model lookup function",
@@ -167,8 +164,7 @@
       "items": [
         { "const":  "dataModel" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-instanceContext": {
       "title": "Instance context lookup function",
@@ -177,8 +173,7 @@
       "items": [
         { "const":  "instanceContext" },
         { "enum": ["appId", "instanceId", "instanceOwnerPartyId"] }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-authContext": {
       "title": "Auth context lookup function",
@@ -187,8 +182,7 @@
       "items": [
         { "const":  "authContext" },
         { "enum": ["read", "write", "instantiate", "confirm", "sign", "reject"] }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-frontendSettings": {
       "title": "Frontend settings lookup function",
@@ -197,8 +191,7 @@
       "items": [
         { "const":  "frontendSettings" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-concat": {
       "title": "String concatenation function",
@@ -217,8 +210,7 @@
         { "const":  "equals" },
         { "$ref": "#/definitions/any" },
         { "$ref": "#/definitions/any" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-notEquals": {
       "title": "Not equals function",
@@ -228,8 +220,7 @@
         { "const":  "notEquals" },
         { "$ref": "#/definitions/any" },
         { "$ref": "#/definitions/any" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-not": {
       "title": "Not function",
@@ -238,8 +229,7 @@
       "items": [
         { "const":  "not" },
         { "$ref": "#/definitions/boolean" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-greaterThan": {
       "title": "Greater than function",
@@ -249,8 +239,7 @@
         { "const":  "greaterThan" },
         { "$ref": "#/definitions/number" },
         { "$ref": "#/definitions/number" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-greaterThanEq": {
       "title": "Greater than or equals function",
@@ -260,8 +249,7 @@
         { "const":  "greaterThanEq" },
         { "$ref": "#/definitions/number" },
         { "$ref": "#/definitions/number" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-lessThan": {
       "title": "Less than function",
@@ -271,8 +259,7 @@
         { "const":  "lessThan" },
         { "$ref": "#/definitions/number" },
         { "$ref": "#/definitions/number" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-lessThanEq": {
       "title": "Less than or equals function",
@@ -282,8 +269,7 @@
         { "const":  "lessThanEq" },
         { "$ref": "#/definitions/number" },
         { "$ref": "#/definitions/number" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-and": {
       "title": "And combinator",
@@ -313,8 +299,7 @@
         { "const":  "round" },
         { "$ref": "#/definitions/number" },
         { "$ref": "#/definitions/number" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-text": {
       "title": "Text function",
@@ -323,8 +308,7 @@
       "items": [
         { "const":  "text" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-language": {
       "title": "Language function",
@@ -332,8 +316,7 @@
       "type": "array",
       "items": [
         { "const":  "language" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-contains": {
       "title": "Contains function",
@@ -343,8 +326,7 @@
         { "const":  "contains" },
         { "$ref": "#/definitions/string" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-notContains": {
       "title": "Not contains function",
@@ -354,8 +336,7 @@
         { "const":  "notContains" },
         { "$ref": "#/definitions/string" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-startsWith": {
       "title": "Starts with function",
@@ -365,8 +346,7 @@
         { "const":  "startsWith" },
         { "$ref": "#/definitions/string" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-endsWith": {
       "title": "Ends with function",
@@ -376,8 +356,7 @@
         { "const":  "endsWith" },
         { "$ref": "#/definitions/string" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-stringLength": {
       "title": "String length function",
@@ -386,8 +365,7 @@
       "items": [
         { "const":  "stringLength" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-commaContains": {
       "title": "Comma contains function",
@@ -397,8 +375,7 @@
         { "const":  "commaContains" },
         { "$ref": "#/definitions/string" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-lowerCase": {
       "title": "Lower case function",
@@ -407,8 +384,7 @@
       "items": [
         { "const":  "lowerCase" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     },
     "func-upperCase": {
       "title": "Upper case function",
@@ -417,8 +393,7 @@
       "items": [
         { "const":  "upperCase" },
         { "$ref": "#/definitions/string" }
-      ],
-      "additionalItems": false
+      ]
     }
   }
 }
