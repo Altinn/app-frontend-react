@@ -52,7 +52,7 @@ describe('expression schema tests', () => {
         const lastArg = args[args.length - 1];
         expect(expressionSchema.definitions[`func-${name}`].additionalItems).toEqual({ $ref: exprValToDef(lastArg) });
       } else {
-        expect(expressionSchema.definitions[`func-${name}`].additionalItems).toBeUndefined();
+        expect(expressionSchema.definitions[`func-${name}`].additionalItems).toBe(false);
       }
     },
   );
@@ -89,27 +89,25 @@ describe('expression schema tests', () => {
       expect(valid).toBe(true);
 
       // With too few arguments
-      if (minArguments !== 0 && args.length !== 0) {
-        const funcCall = [name];
-        const valid = validate(funcCall);
+      const funcCallMinArguments = [name];
+      const validMinArguments = validate(funcCallMinArguments);
 
-        // This always validates, because the schema allows for less than the minimum number of arguments. If it didn't,
-        // you wouldn't get autocomplete for functions until you had the minimum number of arguments, which makes for
-        // a bad developer experience. We test this explicitly below, even though is does not seem to be the desired
-        // behavior.
-        expect(validate.errors).toEqual(null);
-        expect(valid).toBe(true);
-      }
+      // This always validates, because the schema allows for less than the minimum number of arguments. If it didn't,
+      // you wouldn't get autocomplete for functions until you had the minimum number of arguments, which makes for
+      // a bad developer experience. We test this explicitly below, even though is does not seem to be the desired
+      // behavior.
+      expect(validate.errors).toEqual(null);
+      expect(validMinArguments).toBe(true);
 
       // With too many arguments
+      const funcCallExtra = [name, ...args.map(exprValToString), 'extra'];
+      const validExtra = validate(funcCallExtra);
       if (lastArgSpreads) {
-        const funcCall = [name, ...args.map(exprValToString), 'extra'];
-        const valid = validate(funcCall);
-
-        // This also always validates, because the schema allows for more than the maximum number of arguments, for the
-        // same reason as above.
+        // This always validates, because the last argument spread
         expect(validate.errors).toEqual(null);
-        expect(valid).toBe(true);
+        expect(validExtra).toBe(true);
+      } else {
+        expect(validExtra).toBe(false);
       }
     },
   );
