@@ -33,7 +33,6 @@ Cypress.Commands.add('dsSelect', { prevSubject: true }, (subject: JQueryWithSele
   cy.log(`Selecting ${name}`);
   cy.wrap(subject).click();
   cy.findByRole('option', { name }).click();
-  // cy.wrap(subject).parents('[data-testid="select-root"]').findByRole('option', { name }).click();
   cy.get('body').click();
   cy.wrap(subject);
 });
