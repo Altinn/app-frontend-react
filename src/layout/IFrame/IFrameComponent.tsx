@@ -3,27 +3,8 @@ import React from 'react';
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 
 import { useLanguage } from 'src/hooks/useLanguage';
+import { getSanboxProperties } from 'src/layout/IFrame/utils';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ISandboxProperties } from 'src/layout/IFrame/types';
-
-const sandboxPropertyMap: { [K in keyof Required<ISandboxProperties>]: string } = {
-  allowPopups: 'allow-popups',
-  allowPopupsToEscapeSandbox: 'allow-popups-to-escape-sandbox',
-};
-
-const getSanboxProperties = (sandbox: ISandboxProperties | undefined): string => {
-  if (!sandbox) {
-    return 'allow-same-origin';
-  }
-
-  return ['allow-same-origin']
-    .concat(
-      Object.entries(sandbox)
-        .filter(([, value]) => value)
-        .map(([key]) => sandboxPropertyMap[key]),
-    )
-    .join(' ');
-};
 
 export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 
@@ -32,6 +13,8 @@ export const IFrameComponent = ({ node, getTextResourceAsString }: IFrameCompone
   const { textResourceBindings, sandbox } = node.item;
 
   const sandboxProperties = getSanboxProperties(sandbox);
+  const iFrameTitle = textResourceBindings?.title;
+  const HTMLString = iFrameTitle ? getTextResourceAsString(iFrameTitle) : '';
 
   const isSrcDocUnsupported = !('srcdoc' in document.createElement('iframe'));
   if (isSrcDocUnsupported) {
@@ -44,9 +27,6 @@ export const IFrameComponent = ({ node, getTextResourceAsString }: IFrameCompone
       </Panel>
     );
   }
-
-  const iFrameTitle = textResourceBindings?.title;
-  const HTMLString = iFrameTitle ? getTextResourceAsString(iFrameTitle) : '';
 
   // Resize the iframe to fit the content thats loaded inside it
   const adjustIFrameSize = (iframe: React.BaseSyntheticEvent): void => {
