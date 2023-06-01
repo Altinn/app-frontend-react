@@ -148,6 +148,7 @@ export function FileList(props: FileListProps): JSX.Element | null {
                       key={`edit-${index}`}
                     >
                       <Button
+                        className={classes.editButton}
                         size={ButtonSize.Small}
                         variant={ButtonVariant.Quiet}
                         color={ButtonColor.Secondary}

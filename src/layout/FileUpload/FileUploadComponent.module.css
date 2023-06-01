@@ -14,7 +14,7 @@
   padding: 4px 4px 4px 6px;
 }
 
-.fileUploadTable > tbody > tr > td:last-child > button {
+.deleteButton {
   float: right;
   padding-right: 0;
 }

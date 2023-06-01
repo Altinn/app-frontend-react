@@ -173,6 +173,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
         />
       ) : (
         <Button
+          className={classes.deleteButton}
           size='small'
           variant='quiet'
           color='danger'
