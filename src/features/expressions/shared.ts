@@ -2,7 +2,9 @@ import fs from 'node:fs';
 
 import type { Expression } from 'src/features/expressions/types';
 import type { IProcessPermissions } from 'src/features/process';
+import type { IProfileState } from 'src/features/profile';
 import type { ILayout, ILayouts } from 'src/layout/layout';
+import type { ITextResource } from 'src/types';
 import type { IApplicationSettings, IInstance } from 'src/types/shared';
 
 export interface Layouts {
@@ -17,11 +19,14 @@ export interface Layouts {
 
 export interface SharedTest {
   name: string;
+  disabledFrontend?: boolean;
   layouts?: Layouts;
   dataModel?: any;
   instance?: IInstance;
   permissions?: IProcessPermissions;
   frontendSettings?: IApplicationSettings;
+  textResources?: ITextResource[];
+  profile?: IProfileState;
 }
 
 export interface SharedTestContext {

@@ -1,0 +1,13 @@
+{
+  "name": "Should return profile selectedAppLanguage",
+  "expression": ["language"],
+  "expects": "nb",
+  "profile": {
+    "profile": {
+      "profileSettingPreference": {
+        "language": "en"
+      }
+    },
+    "selectedAppLanguage": "nb"
+  }
+}
