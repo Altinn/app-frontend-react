@@ -1186,18 +1186,18 @@
         "sandbox": {
           "type": "object",
           "title": "Sandbox",
-          "description": "Controls the sandbox attribute on the iframe. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#attributes",
+          "description": "Controls the sandbox attribute on the iframe. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#sandbox",
           "properties": {
             "allowPopups": {
               "type": "boolean",
               "title": "Allow popups",
-              "description": "Sets \"allow-popups\" in the sandbox attribute on the iframe. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#attributes",
+              "description": "Sets \"allow-popups\" in the sandbox attribute on the iframe. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#sandbox",
               "default": false
             },
             "allowPopupsToEscapeSandbox": {
               "type": "boolean",
               "title": "Allow popups to escape sandbox",
-              "description": "Sets \"allow-popups-to-escape-sandbox\" in the sandbox attribute on the iframe. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#attributes",
+              "description": "Sets \"allow-popups-to-escape-sandbox\" in the sandbox attribute on the iframe. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#sandbox",
               "default": false
             }
           }
