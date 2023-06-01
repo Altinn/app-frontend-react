@@ -3,7 +3,7 @@ import React from 'react';
 import { Panel, PanelVariant } from '@altinn/altinn-design-system';
 
 import { useLanguage } from 'src/hooks/useLanguage';
-import { getSanboxProperties } from 'src/layout/IFrame/utils';
+import { getSandboxProperties } from 'src/layout/IFrame/utils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
@@ -12,7 +12,7 @@ export const IFrameComponent = ({ node, getTextResourceAsString }: IFrameCompone
   const { lang } = useLanguage();
   const { textResourceBindings, sandbox } = node.item;
 
-  const sandboxProperties = getSanboxProperties(sandbox);
+  const sandboxProperties = getSandboxProperties(sandbox);
   const iFrameTitle = textResourceBindings?.title;
   const HTMLString = iFrameTitle ? getTextResourceAsString(iFrameTitle) : '';
 

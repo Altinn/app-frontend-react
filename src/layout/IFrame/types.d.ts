@@ -4,7 +4,8 @@ export type ILayoutCompIFrame = ILayoutCompBase<'IFrame'> & {
   sandbox?: ISandboxProperties;
 };
 
-export interface ISandboxProperties {
-  allowPopups?: boolean;
-  allowPopupsToEscapeSandbox?: boolean;
-}
+export type SupportedSandboxProperties = 'allowPopups' | 'allowPopupsToEscapeSandbox';
+
+export type ISandboxProperties = {
+  [K in SupportedSandboxProperties]?: boolean;
+};
