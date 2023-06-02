@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
@@ -27,7 +27,7 @@ export class Likert extends FormComponent<'Likert'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'Likert'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

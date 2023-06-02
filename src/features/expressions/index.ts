@@ -12,7 +12,6 @@ import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
-import { dataSourcesFromState, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
@@ -724,47 +723,14 @@ export const ExprTypes: {
  * to try out a given expression (even in the context of a given component ID), and see the result directly in
  * the browser console window.
  *
- * @deprecated DO NOT use this directly, it is only meant for app developers to test out their expressions. It is not
- * meant to be performant, and will never get optimized in any way. In addition, it will spit out nice errors in the
- * console for app developers to understand. Use other alternatives in your code instead.
- *
- * @see resolvedNodesInLayouts
+ * @deprecated This has been replaced by the developer tools, and should not be used anymore. It throws an error, but
+ * after a while we can probably remove it entirely.
  */
-(window as unknown as IAltinnWindow).evalExpression = (maybeExpression: any, forComponentId?: string) => {
-  const config: ExprConfig<ExprVal.Any> = {
-    returnType: ExprVal.Any,
-    defaultValue: null,
-    resolvePerRow: false,
-  };
-
-  const expr = asExpression(maybeExpression, config);
-  if (!expr) {
-    return null;
-  }
-
-  const state = (window as unknown as IAltinnWindow).reduxStore.getState();
-  const nodes = resolvedLayoutsFromState(state);
-  let layout: LayoutPage | LayoutNode | undefined = nodes?.current();
-  if (!layout) {
-    console.error('Unable to find current page/layout');
-    return;
-  }
-
-  if (forComponentId) {
-    const foundNode = nodes?.findById(forComponentId);
-    if (!foundNode) {
-      console.error('Unable to find component with id', forComponentId);
-      console.error(
-        'Available components on the current page:',
-        layout?.flat(true).map((c) => c.item.id),
-      );
-      return;
-    }
-    layout = foundNode;
-  }
-
-  const dataSources = dataSourcesFromState(state);
-  return evalExpr(expr as Expression, layout, dataSources, { config });
+(window as unknown as IAltinnWindow).evalExpression = () => {
+  throw new Error(
+    'evalExpression() utgår. Du kan nå evaluere og teste uttrykk i utviklerverktøyene i stedet. Trykk Ctrl+Shift+K ' +
+      'for å åpne utviklerverktøyene, og naviger til fanen som heter "Uttrykk".',
+  );
 };
 
 export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {

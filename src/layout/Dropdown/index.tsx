@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
@@ -18,7 +18,7 @@ export class Dropdown extends FormComponent<'Dropdown'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'Dropdown'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

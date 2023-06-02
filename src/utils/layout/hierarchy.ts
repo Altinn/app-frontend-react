@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
@@ -104,9 +105,8 @@ function rewriteTextResourceBindings(collection: LayoutPages, textResources: ITe
   }
 }
 
-export function dataSourcesFromState(state: IRuntimeState): HierarchyDataSources {
+export function dataSourcesFromState(state: IRuntimeState): Omit<HierarchyDataSources, 'formData'> {
   return {
-    formData: state.formData.formData,
     applicationSettings: state.applicationSettings.applicationSettings,
     instanceContext: buildInstanceContext(state.instanceData?.instance),
     hiddenFields: new Set(state.formLayout.uiConfig.hiddenFields),
@@ -140,7 +140,10 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
     state.formLayout.layouts,
     state.formLayout.uiConfig.currentView,
     state.formLayout.uiConfig.repeatingGroups,
-    dataSourcesFromState(state),
+    {
+      formData,
+      ...dataSourcesFromState(state),
+    },
     state.textResources.resources,
   );
 }
@@ -152,7 +155,7 @@ export function resolvedLayoutsFromState(state: IRuntimeState) {
 function useResolvedExpressions() {
   const state = useAppSelector((state) => state);
   const instance = state.instanceData?.instance;
-  const formData = state.formData.formData;
+  const formData = FD.useAsDotMap();
   const process = state.process;
   const applicationSettings = state.applicationSettings.applicationSettings;
   const hiddenFields = state.formLayout.uiConfig.hiddenFields;

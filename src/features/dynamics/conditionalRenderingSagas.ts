@@ -14,12 +14,11 @@ import { selectNotNull } from 'src/utils/sagas';
 import type { ICheckIfConditionalRulesShouldRun, IConditionalRenderingRules } from 'src/features/dynamics/index';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig, ExprUnresolved } from 'src/features/expressions/types';
-import type { IFormData } from 'src/features/formData';
 import type { IHiddenLayoutsExpressions, IRuntimeState, IUiConfig, IValidations } from 'src/types';
+import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export const ConditionalRenderingSelector = (store: IRuntimeState) => store.formDynamics.conditionalRendering;
-export const FormDataSelector = (state: IRuntimeState) => state.formData.formData;
 export const RepeatingGroupsSelector = (state: IRuntimeState) => state.formLayout.uiConfig.repeatingGroups;
 export const UiConfigSelector = (state: IRuntimeState) => state.formLayout.uiConfig;
 export const FormValidationSelector = (state: IRuntimeState) => state.formValidations.validations;
@@ -30,12 +29,11 @@ export function* checkIfConditionalRulesShouldRunSaga({
 }: PayloadAction<ICheckIfConditionalRulesShouldRun>): SagaIterator {
   try {
     const conditionalRenderingState: IConditionalRenderingRules = yield select(ConditionalRenderingSelector);
-    const formData: IFormData = yield select(FormDataSelector);
     const formValidations: IValidations = yield select(FormValidationSelector);
     const repeatingGroups = yield selectNotNull(RepeatingGroupsSelector);
     const uiConfig: IUiConfig = yield select(UiConfigSelector);
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
-    const dataSources = yield select(DataSourcesSelector);
+    const mostDataSources: Omit<HierarchyDataSources, 'formData'> = yield select(DataSourcesSelector);
 
     const hiddenFields = new Set(uiConfig.hiddenFields);
     const futureHiddenFields = runConditionalRenderingRules(conditionalRenderingState, formData, repeatingGroups);

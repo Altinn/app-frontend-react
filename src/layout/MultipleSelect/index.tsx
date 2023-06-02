@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useCommaSeparatedOptionsToText } from 'src/hooks/useCommaSeparatedOptionsToText';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
@@ -18,7 +18,7 @@ export class MultipleSelect extends FormComponent<'MultipleSelect'> {
   }
 
   private useSummaryData(node: LayoutNodeFromType<'MultipleSelect'>): { [key: string]: string } {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     if (!node.item.dataModelBindings?.simpleBinding) {
       return {};
     }

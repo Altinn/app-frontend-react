@@ -1,3 +1,4 @@
+import { FD } from 'src/features/formData2/Compatibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
@@ -40,7 +41,7 @@ export function attachmentsFromComponentId(componentId: string, attachments: IAt
 }
 
 export function useUploaderSummaryData(node: LayoutNodeFromType<'FileUpload' | 'FileUploadWithTag'>): IAttachment[] {
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
   const attachments = useAppSelector((state) => state.attachments.attachments);
 
   const listBinding = node.item.dataModelBindings?.list;

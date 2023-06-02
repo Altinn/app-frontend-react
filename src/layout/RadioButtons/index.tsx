@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
@@ -22,7 +22,7 @@ export class RadioButtons extends FormComponent<'RadioButtons'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'RadioButtons'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     const value = node.item.dataModelBindings?.simpleBinding
       ? formData[node.item.dataModelBindings.simpleBinding] || ''
       : '';

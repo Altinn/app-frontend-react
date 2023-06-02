@@ -24,6 +24,7 @@ import {
 } from 'src/features/layout/update/updateFormLayoutSagas';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { createSagaSlice } from 'src/redux/sagaSlice';
+import type { IUpdateLayouts } from 'src/features/layout/formLayoutTypes';
 import type * as LayoutTypes from 'src/features/layout/formLayoutTypes';
 import type { ILayouts } from 'src/layout/layout';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
@@ -332,12 +333,12 @@ export const formLayoutSlice = () => {
             state.uiConfig.keepScrollPos = undefined;
           },
         }),
-        updateLayouts: mkAction<ILayouts>({
+        updateLayouts: mkAction<IUpdateLayouts>({
           *takeEvery() {
             yield call(checkIfConditionalRulesShouldRunSaga, { payload: {}, type: '' });
           },
           reducer: (state, action) => {
-            state.layouts = { ...state.layouts, ...action.payload };
+            state.layouts = { ...state.layouts, ...action.payload.layouts };
           },
         }),
         toggleExpandedWidth: mkAction<void>({

@@ -39,7 +39,7 @@ export const GLOBAL_INDEX_KEY_INDICATOR_REGEX = /\[{\d+}]/g;
  * Converts JSON to the flat datamodel used in Redux data store
  * @param data The form data as JSON
  */
-export function convertModelToDataBinding(data: any): any {
+export function convertModelToDataBinding(data: any): IFormData {
   return flattenObject(data);
 }
 
@@ -167,7 +167,7 @@ export function getKeyIndex(keyWithIndex: string): number[] {
  * Converts JSON to the flat datamodel used in Redux data store
  * @param data The form data as JSON
  */
-export function flattenObject(data: any): any {
+export function flattenObject(data: any): IFormData {
   const flat = dot(data);
 
   for (const key of Object.keys(flat)) {

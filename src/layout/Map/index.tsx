@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FD } from 'src/features/formData2/Compatibility';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { MapComponent } from 'src/layout/Map/MapComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
@@ -17,7 +17,7 @@ export class Map extends FormComponent<'Map'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'Map'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

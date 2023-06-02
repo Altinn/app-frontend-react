@@ -7,6 +7,7 @@ import { Add as AddIcon } from '@navikt/ds-icons';
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
+import { FD } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -49,7 +50,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const deletingIndexes = groupState?.deletingIndex ?? [];
   const multiPageIndex = groupState?.multiPageIndex ?? -1;
   const repeatingGroupIndex = groupState?.index ?? -1;
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
   const { lang, langAsString } = useLanguage();
 
   const filteredIndexList = React.useMemo(

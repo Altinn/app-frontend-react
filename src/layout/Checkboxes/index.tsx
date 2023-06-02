@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useCommaSeparatedOptionsToText } from 'src/hooks/useCommaSeparatedOptionsToText';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
@@ -22,7 +22,7 @@ export class Checkboxes extends FormComponent<'Checkboxes'> {
   }
 
   private useSummaryData(node: LayoutNodeFromType<'Checkboxes'>): { [key: string]: string } {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     const value = node.item.dataModelBindings?.simpleBinding
       ? formData[node.item.dataModelBindings.simpleBinding] || ''
       : '';

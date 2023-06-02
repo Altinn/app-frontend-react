@@ -2,7 +2,7 @@ import React from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
@@ -21,7 +21,7 @@ export class Input extends FormComponent<'Input'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'Input'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

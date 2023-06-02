@@ -66,7 +66,7 @@ export const LayoutInspector = () => {
           }
         });
 
-        dispatch(FormLayoutActions.updateLayouts({ [currentView]: updatedLayout }));
+        dispatch(FormLayoutActions.updateLayouts({ layouts: { [currentView]: updatedLayout } }));
 
         setPropertiesHaveChanged(false);
         return;

@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
+import { FD } from 'src/features/formData2/Compatibility';
 import { InstanceDataActions } from 'src/features/instanceData/instanceDataSlice';
 import { InstantiationActions } from 'src/features/instantiate/instantiation/instantiationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -16,7 +17,7 @@ type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedP
 export const InstantiationButton = ({ children, ...props }: Props) => {
   const dispatch = useAppDispatch();
   const [instantiateWithPrefill, { isSuccess, data, isLoading, isError }] = useInstantiateWithPrefillMutation();
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
   const party = useAppSelector((state) => state.party.selectedParty);
 
   const instantiate = () => {

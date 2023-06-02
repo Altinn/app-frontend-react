@@ -27,12 +27,11 @@ import type {
 } from 'src/features/attachments/delete/deleteAttachmentActions';
 import type { IFormDataState } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
+import type { IRepGroupDelRow } from 'src/features/layout/formLayoutTypes';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { IOptions, IRepeatingGroups, IValidations } from 'src/types';
 
-export function* repGroupDeleteRowSaga({
-  payload: { groupId, index },
-}: PayloadAction<{ groupId: string; index: number }>): SagaIterator {
+export function* repGroupDeleteRowSaga({ payload: { groupId, index } }: PayloadAction<IRepGroupDelRow>): SagaIterator {
   try {
     const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
     const repeatingGroups = formLayoutState.uiConfig.repeatingGroups;

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { FD } from 'src/features/formData2/Compatibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
@@ -20,7 +21,7 @@ export class Datepicker extends FormComponent<'Datepicker'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'Datepicker'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     const language = useAppSelector(appLanguageStateSelector);
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';

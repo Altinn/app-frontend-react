@@ -10,11 +10,13 @@ import { DevToolsTab } from 'src/features/devtools/data/types';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { asExpression } from 'src/features/expressions/validation';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { dataSourcesFromState } from 'src/utils/layout/hierarchy';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
+import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -28,7 +30,8 @@ export const ExpressionPlayground = () => {
   const [isError, setIsError] = React.useState(false);
   const nodes = useExprContext();
   const currentPage = nodes?.current()?.top.myKey;
-  const dataSources = useAppSelector(dataSourcesFromState);
+  const mostDataSources = useAppSelector(dataSourcesFromState);
+  const formData = FD.useAsDotMap();
 
   useEffect(() => {
     if (!input || input.length <= 0) {
@@ -72,6 +75,10 @@ export const ExpressionPlayground = () => {
         }
       }
 
+      const dataSources: HierarchyDataSources = {
+        formData,
+        ...mostDataSources,
+      };
       const out = evalExpr(expr as Expression, evalContext, dataSources, { config });
       setOutput(out);
       setIsError(false);
@@ -79,7 +86,7 @@ export const ExpressionPlayground = () => {
       setOutput(e.message);
       setIsError(true);
     }
-  }, [input, forPage, forComponentId, dataSources, nodes]);
+  }, [input, forPage, forComponentId, formData, mostDataSources, nodes]);
 
   return (
     <div className={classes.container}>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FD } from 'src/features/formData2/Compatibility';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
@@ -17,7 +17,7 @@ export class TextArea extends FormComponent<'TextArea'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'TextArea'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+    const formData = FD.useAsDotMap();
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

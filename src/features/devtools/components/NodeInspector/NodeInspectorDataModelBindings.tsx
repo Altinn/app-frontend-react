@@ -4,7 +4,7 @@ import dot from 'dot-object';
 
 import classes from 'src/features/devtools/components/NodeInspector/NodeInspector.module.css';
 import { Value } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataField';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { FD } from 'src/features/formData2/Compatibility';
 import { useBindingSchema } from 'src/hooks/useBindingSchema';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -14,7 +14,7 @@ interface Props {
 
 export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
   const schema = useBindingSchema(dataModelBindings);
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
   const asObject = dot.object(structuredClone(formData || {}));
 
   return (

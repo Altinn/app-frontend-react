@@ -112,7 +112,7 @@ function* generatePdfSaga(): SagaIterator {
     if (method == 'auto') {
       // Automatic layout
       const pdfLayout = generateAutomaticLayout(pdfFormat, uiConfig, layouts);
-      yield put(FormLayoutActions.updateLayouts({ [PDF_LAYOUT_NAME]: pdfLayout }));
+      yield put(FormLayoutActions.updateLayouts({ layouts: { [PDF_LAYOUT_NAME]: pdfLayout } }));
     }
 
     yield put(PdfActions.generateFulfilled());

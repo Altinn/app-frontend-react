@@ -1,3 +1,4 @@
+import { FD } from 'src/features/formData2/Compatibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import type { ISelectionComponent } from 'src/layout/layout';
@@ -5,7 +6,7 @@ import type { IOption } from 'src/types';
 
 export function useOptionList(component: ISelectionComponent): IOption[] {
   const textResources = useAppSelector((state) => state.textResources.resources);
-  const formData = useAppSelector((state) => state.formData.formData);
+  const formData = FD.useAsDotMap();
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
   const options = useAppSelector((state) => state.optionState.options);
 

@@ -6,10 +6,11 @@ import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { selectFormLayoutState } from 'src/features/layout/update/updateFormLayoutSagas';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
+import type { IRepGroupAddRow } from 'src/features/layout/formLayoutTypes';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { IRepeatingGroups } from 'src/types';
 
-export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<{ groupId: string }>): SagaIterator {
+export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<IRepGroupAddRow>): SagaIterator {
   try {
     const formLayoutState: ILayoutState = yield select(selectFormLayoutState);
     const repeatingGroups = formLayoutState.uiConfig.repeatingGroups;

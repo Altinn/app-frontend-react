@@ -12,7 +12,7 @@ export interface IAltinnWindow extends Window {
   instanceId: string;
   org: string;
   reportee: string;
-  evalExpression: (maybeExpression: any, forComponentId?: string) => any;
+  evalExpression: () => any;
   reduxStore: ToolkitStore<IRuntimeState>;
   reduxActionLog: any[];
 }

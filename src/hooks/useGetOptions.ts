@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 
+import { FD } from 'src/features/formData2/Compatibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
@@ -20,9 +21,10 @@ export interface IOptionResources {
 }
 
 export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsParams) => {
-  const relevantFormData = useAppSelector(
-    (state) => (source && getRelevantFormDataForOptionSource(state.formData.formData, source)) || {},
-    shallowEqual,
+  const formData = FD.useAsDotMap();
+  const relevantFormData = useMemo(
+    () => (source && getRelevantFormDataForOptionSource(formData, source)) || {},
+    [formData, source],
   );
   const instance = useAppSelector((state) => state.instanceData.instance);
   const relevantTextResources: IOptionResources = useAppSelector((state) => {
