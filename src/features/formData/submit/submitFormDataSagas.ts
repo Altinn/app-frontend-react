@@ -32,6 +32,10 @@ import type { IRuntimeState, IRuntimeStore, IValidationIssue } from 'src/types';
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
 
+/**
+ * Saga that submits the form data to the backend, and moves the process forward.
+ * @see autoSaveSaga
+ */
 export function* submitFormSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
@@ -138,6 +142,17 @@ function* waitForSaving() {
   yield put(FormDataActions.savingStarted());
 }
 
+/**
+ * This is the saving logic that is used for both autosaving and when the form is
+ * submitted at the end (moving the process forward).
+ *
+ * Strangely, this only performs the autosave logic for regular apps, but stateless apps have their own logic for this.
+ * However, when the form is submitted at the end, this is used for both regular and stateless apps.
+ *
+ * @see submitFormSaga
+ * @see autoSaveSaga
+ * @see postStatelessData
+ */
 export function* putFormData({ field, componentId }: SaveDataParams) {
   const defaultDataElementGuid: string | undefined = yield select((state) =>
     getCurrentTaskDataElementId(
@@ -227,6 +242,13 @@ function getModelToSave(state: IRuntimeState) {
   );
 }
 
+/**
+ * Saves the form data to the backend, called from the auto-save saga. This calls the methods that actually perform
+ * the save operation, but this is NOT the saving logic that happens on _submit_ (when the form is submitted, and
+ * the process moves forward).
+ * @see autoSaveSaga
+ * @see submitFormSaga
+ */
 export function* saveFormDataSaga({
   payload: { field, componentId, singleFieldValidation },
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
@@ -236,7 +258,7 @@ export function* saveFormDataSaga({
     const application = state.applicationMetadata.applicationMetadata;
 
     if (isStatelessApp(application)) {
-      yield call(saveStatelessData, { field, componentId });
+      yield call(postStatelessData, { field, componentId });
     } else {
       // app with instance
       yield call(putFormData, { field, componentId });
@@ -264,7 +286,13 @@ interface SaveDataParams {
   componentId?: string;
 }
 
-export function* saveStatelessData({ field, componentId }: SaveDataParams) {
+/**
+ * Innermost POST request that is called for stateless apps. This is only called during auto-save, and not when the
+ * form is submitted.
+ * @see saveFormDataSaga
+ * @see autoSaveSaga
+ */
+export function* postStatelessData({ field, componentId }: SaveDataParams) {
   const state: IRuntimeState = yield select();
   const model = getModelToSave(state);
   const allowAnonymous = yield select(makeGetAllowAnonymousSelector());
@@ -313,6 +341,10 @@ export function* saveStatelessData({ field, componentId }: SaveDataParams) {
   yield put(FormDataActions.savingEnded({ model: state.formData.formData }));
 }
 
+/**
+ * Auto-saves the form data when the user has made changes to the form. This is done very often.
+ * @see submitFormSaga
+ */
 export function* autoSaveSaga({
   payload: { skipAutoSave, field, componentId, singleFieldValidation },
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
