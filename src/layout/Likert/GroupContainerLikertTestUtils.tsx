@@ -211,7 +211,6 @@ export const render = ({
     lastSavedFormData: {},
     error: null,
     submittingId: '',
-    savingId: '',
     unsavedChanges: false,
     saving: false,
   };

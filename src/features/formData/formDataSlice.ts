@@ -27,7 +27,6 @@ export const initialState: IFormDataState = {
   unsavedChanges: false,
   saving: false,
   submittingId: '',
-  savingId: '',
   error: null,
 };
 
@@ -68,9 +67,8 @@ export const formDataSlice = () => {
       submit: mkAction<ISubmitDataAction>({
         takeEvery: submitFormSaga,
         reducer: (state, action) => {
-          const { apiMode, componentId } = action.payload;
-          state.savingId = apiMode !== 'Complete' ? componentId : state.savingId;
-          state.submittingId = apiMode === 'Complete' ? componentId : state.submittingId;
+          const { componentId } = action.payload;
+          state.submittingId = componentId;
         },
       }),
       savingStarted: mkAction<void>({
@@ -86,7 +84,6 @@ export const formDataSlice = () => {
       }),
       submitFulfilled: mkAction<void>({
         reducer: (state) => {
-          state.savingId = '';
           state.unsavedChanges = false;
         },
       }),
@@ -95,7 +92,6 @@ export const formDataSlice = () => {
           const { error } = action.payload;
           state.error = error;
           state.submittingId = '';
-          state.savingId = '';
         },
       }),
       update: mkAction<IUpdateFormData>({

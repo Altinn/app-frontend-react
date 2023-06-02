@@ -23,7 +23,6 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
 
   const dispatch = useAppDispatch();
   const submittingId = useAppSelector((state) => state.formData.submittingId);
-  const savingId = useAppSelector((state) => state.formData.savingId);
   const confirmingId = useAppSelector((state) => state.process.completingId);
   const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process?.currentTask?.altinnTaskType);
   const processActionsFeature = useAppSelector(
@@ -60,8 +59,6 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
         dispatch(
           FormDataActions.submit({
             url: `${window.location.origin}/${org}/${app}/api/${instanceId}`,
-            apiMode: 'Complete',
-            stopWithWarnings: false,
             componentId,
           }),
         );
@@ -72,7 +69,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
       }
     }
   };
-  const busyWithId = savingId || submittingId || confirmingId || '';
+  const busyWithId = submittingId || confirmingId || '';
   return (
     <div
       className={classes.container}

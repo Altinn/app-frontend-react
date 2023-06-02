@@ -25,16 +25,14 @@ import {
 } from 'src/utils/validation/validation';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
-import type { ISubmitDataAction, IUpdateFormDataFulfilled } from 'src/features/formData/formDataTypes';
+import type { IUpdateFormDataFulfilled } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { IRuntimeState, IRuntimeStore, IValidationIssue } from 'src/types';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
 
-export function* submitFormSaga({
-  payload: { apiMode, stopWithWarnings },
-}: PayloadAction<ISubmitDataAction>): SagaIterator {
+export function* submitFormSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     const { validationResult, componentSpecificValidations, emptyFieldsValidations } = runClientSideValidation(state);
@@ -42,18 +40,16 @@ export function* submitFormSaga({
     validationResult.validations = mergeValidationObjects(
       validationResult.validations,
       componentSpecificValidations,
-      apiMode === 'Complete' ? emptyFieldsValidations : null,
+      emptyFieldsValidations,
     );
     const { validations } = validationResult;
-    if (!canFormBeSaved(validationResult, apiMode)) {
+    if (!canFormBeSaved(validationResult)) {
       yield put(ValidationActions.updateValidations({ validations }));
       return yield put(FormDataActions.submitRejected({ error: null }));
     }
 
     yield call(putFormData, {});
-    if (apiMode === 'Complete') {
-      yield call(submitComplete, state, stopWithWarnings);
-    }
+    yield call(submitComplete, state);
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
     console.error(error);
@@ -61,7 +57,7 @@ export function* submitFormSaga({
   }
 }
 
-function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean | undefined) {
+function* submitComplete(state: IRuntimeState) {
   // run validations against the datamodel
   const instanceId = state.instanceData.instance?.id;
   const serverValidation: IValidationIssue[] | undefined = instanceId
@@ -77,8 +73,7 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean | undef
   );
   yield put(ValidationActions.updateValidations({ validations: mappedValidations }));
   const hasErrors = hasValidationsOfSeverity(mappedValidations, Severity.Error);
-  const hasWarnings = hasValidationsOfSeverity(mappedValidations, Severity.Warning);
-  if (hasErrors || (stopWithWarnings && hasWarnings)) {
+  if (hasErrors) {
     // we have validation errors or warnings that should be shown, do not submit
     return yield put(FormDataActions.submitRejected({ error: null }));
   }
