@@ -127,7 +127,6 @@ const createLayout = (
     },
     currentView: 'FormLayout',
     focus: null,
-    autoSave: null,
     fileUploadersWithTag: {},
     navigationConfig: {},
     tracks: {
