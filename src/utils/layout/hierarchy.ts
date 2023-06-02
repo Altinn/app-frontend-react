@@ -136,6 +136,8 @@ function innerResolvedLayoutsFromState(
 }
 
 export function resolvedLayoutsFromState(state: IRuntimeState) {
+  const formData = window.deprecated.currentFormData;
+
   return innerResolvedLayoutsFromState(
     state.formLayout.layouts,
     state.formLayout.uiConfig.currentView,

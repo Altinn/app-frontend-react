@@ -33,7 +33,12 @@ export function* checkIfConditionalRulesShouldRunSaga({
     const repeatingGroups = yield selectNotNull(RepeatingGroupsSelector);
     const uiConfig: IUiConfig = yield select(UiConfigSelector);
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
+    const formData = window.deprecated.currentFormData;
     const mostDataSources: Omit<HierarchyDataSources, 'formData'> = yield select(DataSourcesSelector);
+    const dataSources: HierarchyDataSources = {
+      formData,
+      ...mostDataSources,
+    };
 
     const hiddenFields = new Set(uiConfig.hiddenFields);
     const futureHiddenFields = runConditionalRenderingRules(conditionalRenderingState, formData, repeatingGroups);
