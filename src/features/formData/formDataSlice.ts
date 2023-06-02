@@ -71,17 +71,6 @@ export const formDataSlice = () => {
           state.submittingId = componentId;
         },
       }),
-      savingStarted: mkAction<void>({
-        reducer: (state) => {
-          state.saving = true;
-        },
-      }),
-      savingEnded: mkAction<{ model: IFormData }>({
-        reducer: (state, action) => {
-          state.saving = false;
-          state.lastSavedFormData = action.payload.model;
-        },
-      }),
       submitFulfilled: mkAction<void>({
         reducer: (state) => {
           state.unsavedChanges = false;
@@ -92,6 +81,17 @@ export const formDataSlice = () => {
           const { error } = action.payload;
           state.error = error;
           state.submittingId = '';
+        },
+      }),
+      savingStarted: mkAction<void>({
+        reducer: (state) => {
+          state.saving = true;
+        },
+      }),
+      savingEnded: mkAction<{ model: IFormData }>({
+        reducer: (state, action) => {
+          state.saving = false;
+          state.lastSavedFormData = action.payload.model;
         },
       }),
       update: mkAction<IUpdateFormData>({
