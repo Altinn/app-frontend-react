@@ -7,7 +7,7 @@ declare global {
   interface Window {
     app: string;
     conditionalRuleHandlerHelper: IRules;
-    instanceId: string;
+    instanceId: string | undefined;
     org: string;
     reportee: string;
     evalExpression: () => any;

@@ -26,7 +26,7 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
   const { instanceId } = window;
 
   const handleConfirmClick = () => {
-    if (!disabled) {
+    if (!disabled && instanceId) {
       setValidateId(props.id);
       httpGet(getValidationUrl(instanceId))
         .then((data: any) => {
