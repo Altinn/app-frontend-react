@@ -3,7 +3,6 @@ import type { Mutable } from 'utility-types';
 
 import {
   ExprRuntimeError,
-  LookupNotFound,
   NodeNotFoundWithoutContext,
   UnexpectedType,
   UnknownSourceType,
@@ -44,8 +43,6 @@ export interface EvalExprInObjArgs<T> {
   resolvingPerRow?: boolean;
   deleteNonExpressions?: boolean;
 }
-
-const altinnWindow = window as unknown as IAltinnWindow;
 
 /**
  * Magic key used to indicate a config value for all possible values in an object
@@ -432,7 +429,7 @@ export const ExprFunctions = {
   instanceContext: defineFunc({
     impl(key): string | null {
       if (key === null || instanceContextKeys[key] !== true) {
-        throw new LookupNotFound(this, `Unknown Instance context property ${key}`);
+        throw new ExprRuntimeError(this, `Unknown Instance context property ${key}`);
       }
 
       return (this.dataSources.instanceContext && this.dataSources.instanceContext[key]) || null;
@@ -443,7 +440,7 @@ export const ExprFunctions = {
   frontendSettings: defineFunc({
     impl(key): any {
       if (key === null) {
-        throw new LookupNotFound(this, `Value cannot be null. (Parameter 'key')`);
+        throw new ExprRuntimeError(this, `Value cannot be null. (Parameter 'key')`);
       }
 
       return (this.dataSources.applicationSettings && this.dataSources.applicationSettings[key]) || null;
@@ -454,7 +451,7 @@ export const ExprFunctions = {
   authContext: defineFunc({
     impl(key): boolean | null {
       if (key === null || authContextKeys[key] !== true) {
-        throw new LookupNotFound(this, `Unknown auth context property ${key}`);
+        throw new ExprRuntimeError(this, `Unknown auth context property ${key}`);
       }
 
       return Boolean(this.dataSources.authContext?.[key]);
@@ -465,7 +462,7 @@ export const ExprFunctions = {
   component: defineFunc({
     impl(id): any {
       if (id === null) {
-        throw new LookupNotFound(this, `Cannot lookup component null`);
+        throw new ExprRuntimeError(this, `Cannot lookup component null`);
       }
 
       const node = this.failWithoutNode();
@@ -483,7 +480,7 @@ export const ExprFunctions = {
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
       // results. We should note this in the error message, so we know the reason we couldn't find the component.
       const hasAllLayouts = node instanceof LayoutPage ? !!node.top : !!node.top.top;
-      throw new LookupNotFound(
+      throw new ExprRuntimeError(
         this,
         hasAllLayouts
           ? `Unable to find component with identifier ${id} or it does not have a simpleBinding`
@@ -496,7 +493,7 @@ export const ExprFunctions = {
   dataModel: defineFunc({
     impl(path): any {
       if (path === null) {
-        throw new LookupNotFound(this, `Cannot lookup dataModel null`);
+        throw new ExprRuntimeError(this, `Cannot lookup dataModel null`);
       }
 
       const maybeNode = this.failWithoutNode();
@@ -513,44 +510,41 @@ export const ExprFunctions = {
     returns: ExprVal.Any,
   }),
   round: defineFunc({
-    impl(number, decimalPoints: number | null): number | null {
-      if (number === null) {
-        throw new LookupNotFound(this, `"Value" parameter cannot be null.`);
-      }
-
-      if (decimalPoints !== undefined && decimalPoints !== null) {
-        const factor = 10 ** decimalPoints;
-        return Math.round(number * factor) / factor;
-      }
-
-      return Math.round(number);
+    impl(number, decimalPoints) {
+      const realNumber = number === null ? 0 : number;
+      const realDecimalPoints = decimalPoints === null ? 0 : decimalPoints;
+      return parseFloat(`${realNumber}`).toFixed(realDecimalPoints);
     },
     args: [ExprVal.Number, ExprVal.Number] as const,
-    returns: ExprVal.Number,
+    minArguments: 1,
+    returns: ExprVal.String,
   }),
   text: defineFunc({
-    impl(key): string | null {
+    impl(key) {
       if (key === null) {
-        throw new LookupNotFound(this, `"Key" parameter cannot be null.`);
+        return null;
       }
-      const state = altinnWindow.reduxStore.getState();
-      return getTextResourceByKey(key, state.textResources.resources);
+
+      return getTextResourceByKey(key, this.dataSources.textResources);
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.String,
   }),
   language: defineFunc({
-    impl(): string {
-      const state = altinnWindow.reduxStore.getState();
-      return state.profile.selectedAppLanguage || state.profile.profile.profileSettingPreference.language;
+    impl() {
+      const selectedLanguage =
+        this.dataSources.profile?.selectedAppLanguage ||
+        this.dataSources.profile?.profile?.profileSettingPreference?.language;
+
+      return selectedLanguage || 'nb';
     },
     args: [] as const,
     returns: ExprVal.String,
   }),
   contains: defineFunc({
-    impl(string: string, stringToContain: string): boolean {
+    impl(string, stringToContain): boolean {
       if (string === null || stringToContain === null) {
-        throw new LookupNotFound(this, `"string" or "stringToContain" parameter cannot be null.`);
+        return false;
       }
 
       return string.includes(stringToContain);
@@ -561,7 +555,7 @@ export const ExprFunctions = {
   notContains: defineFunc({
     impl(string: string, stringToNotContain: string): boolean {
       if (string === null || stringToNotContain === null) {
-        throw new LookupNotFound(this, `"string" or "stringToNotContain" parameter cannot be null.`);
+        return true;
       }
       return !string.includes(stringToNotContain);
     },
@@ -571,7 +565,7 @@ export const ExprFunctions = {
   endsWith: defineFunc({
     impl(string: string, stringToMatch: string): boolean {
       if (string === null || stringToMatch === null) {
-        throw new LookupNotFound(this, `"string" or "stringToMatch" parameter cannot be null.`);
+        return false;
       }
       return string.endsWith(stringToMatch);
     },
@@ -581,29 +575,22 @@ export const ExprFunctions = {
   startsWith: defineFunc({
     impl(string: string, stringToMatch: string): boolean {
       if (string === null || stringToMatch === null) {
-        throw new LookupNotFound(this, `"string" or "stringToMatch" parameter cannot be null.`);
+        return false;
       }
-
       return string.startsWith(stringToMatch);
     },
     args: [ExprVal.String, ExprVal.String] as const,
     returns: ExprVal.Boolean,
   }),
   stringLength: defineFunc({
-    impl(string: string): number {
-      if (string === null) {
-        throw new LookupNotFound(this, `"string" parameter cannot be null.`);
-      }
-
-      return string.length;
-    },
+    impl: (string) => (string === null ? 0 : string.length),
     args: [ExprVal.String] as const,
     returns: ExprVal.Number,
   }),
   commaContains: defineFunc({
-    impl(commaSeparatedString: string, stringToMatch: string): boolean {
+    impl(commaSeparatedString, stringToMatch) {
       if (commaSeparatedString === null || stringToMatch === null) {
-        throw new LookupNotFound(this, `"commaSeparatedString" or "stringToMatch" parameter cannot be null.`);
+        return false;
       }
 
       // Split the comma separated string into an array and remove whitespace from each part
@@ -614,9 +601,9 @@ export const ExprFunctions = {
     returns: ExprVal.Boolean,
   }),
   lowerCase: defineFunc({
-    impl(string: string): string {
+    impl(string) {
       if (string === null) {
-        throw new LookupNotFound(this, `"string" parameter cannot be null.`);
+        return null;
       }
       return string.toLowerCase();
     },
@@ -624,9 +611,9 @@ export const ExprFunctions = {
     returns: ExprVal.String,
   }),
   upperCase: defineFunc({
-    impl(string: string): string {
+    impl(string) {
       if (string === null) {
-        throw new LookupNotFound(this, `"string" parameter cannot be null.`);
+        return null;
       }
       return string.toUpperCase();
     },
