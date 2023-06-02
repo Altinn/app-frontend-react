@@ -54,6 +54,11 @@ Cypress.Commands.add('navPage', (page: string) => {
   });
 });
 
+Cypress.Commands.add('gotoNavPage', (page: string) => {
+  cy.navPage(page).click();
+  cy.navPage(page).should('have.attr', 'aria-current', 'page');
+});
+
 Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
   cy.log('Clearing number formatted input field');
   if (!subject) {
