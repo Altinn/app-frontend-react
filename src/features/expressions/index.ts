@@ -26,7 +26,6 @@ import type {
 } from 'src/features/expressions/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutComponent } from 'src/layout/layout';
-import type { IAltinnWindow } from 'src/types';
 import type { IAuthContext, IInstanceContext } from 'src/types/shared';
 
 export interface EvalExprOptions {
@@ -726,7 +725,7 @@ export const ExprTypes: {
  * @deprecated This has been replaced by the developer tools, and should not be used anymore. It throws an error, but
  * after a while we can probably remove it entirely.
  */
-(window as unknown as IAltinnWindow).evalExpression = () => {
+window.evalExpression = () => {
   throw new Error(
     'evalExpression() utgår. Du kan nå evaluere og teste uttrykk i utviklerverktøyene i stedet. Trykk Ctrl+Shift+K ' +
       'for å åpne utviklerverktøyene, og naviger til fanen som heter "Uttrykk".',

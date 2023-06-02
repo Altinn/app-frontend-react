@@ -6,7 +6,6 @@ import { PartyActions } from 'src/features/party/partySlice';
 import { putWithoutConfig } from 'src/utils/network/networking';
 import { updateCookieUrl } from 'src/utils/urls/appUrlHelper';
 import type { ISelectParty } from 'src/features/party/index';
-import type { IAltinnWindow } from 'src/types';
 
 export function* selectPartySaga({ payload: { party, redirect } }: PayloadAction<ISelectParty>): SagaIterator {
   try {
@@ -14,7 +13,7 @@ export function* selectPartySaga({ payload: { party, redirect } }: PayloadAction
     yield call(putWithoutConfig, url);
     yield put(PartyActions.selectPartyFulfilled({ party }));
     if (redirect) {
-      const { org, app } = window as Window as IAltinnWindow;
+      const { org, app } = window;
       window.location.replace(`${window.location.origin}/${org}/${app}#/`);
     }
   } catch (error) {
