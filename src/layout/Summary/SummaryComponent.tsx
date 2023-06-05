@@ -7,6 +7,7 @@ import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Summary/SummaryComponent.module.css';
 import { SummaryContent } from 'src/layout/Summary/SummaryContent';
@@ -44,7 +45,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
         true,
       ),
   );
-
+  const { langAsString } = useLanguage();
   const summaryItem = summaryNode.item;
   const targetNode = useResolvedNode(overrides?.targetNode || summaryNode.item.componentRef || summaryNode.item.id);
   const targetItem = targetNode?.item;
@@ -64,10 +65,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   const label = useAppSelector((state) => {
     const titleKey = summaryItem?.textResourceBindings?.title ?? targetItem?.textResourceBindings?.title;
     if (titleKey) {
-      return (
-        state.language.language &&
-        getTextFromAppOrDefault(titleKey, state.textResources.resources, state.language.language, [], false)
-      );
+      return state.language.language && langAsString(titleKey);
     }
     return undefined;
   });
