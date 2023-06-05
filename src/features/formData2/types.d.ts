@@ -1,12 +1,10 @@
 import type { IFormData } from 'src/features/formData';
 
-interface FormDataStorage {
-  currentData: object;
-  lastSavedData: object;
-  saving: boolean;
-  unsavedChanges: boolean;
+interface IFormDataMethods {
+  setLeafValue: (path: string, value: any) => void;
 }
 
 interface IFormDataFunctionality {
   useAsDotMap: () => IFormData;
+  useMethods: () => IFormDataMethods;
 }

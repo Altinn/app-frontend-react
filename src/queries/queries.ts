@@ -1,9 +1,10 @@
 import { httpPost } from 'src/utils/network/networking';
-import { httpGet } from 'src/utils/network/sharedNetworking';
+import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import {
   applicationMetadataApiUrl,
   applicationSettingsApiUrl,
   currentPartyUrl,
+  dataElementUrl,
   getActiveInstancesUrl,
   getFooterLayoutUrl,
   getLayoutSetsUrl,
@@ -40,3 +41,6 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
 export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
 
 export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
+
+export const fetchFormData = (uuid: string): object => httpGet(dataElementUrl(uuid));
+export const putFormData = (uuid: string, data: FormData): object => httpPut(dataElementUrl(uuid), data);

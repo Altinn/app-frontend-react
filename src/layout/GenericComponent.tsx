@@ -8,7 +8,9 @@ import { Description } from 'src/components/form/Description';
 import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { FD } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
+import { UseNewFormDataHook } from 'src/features/toggles';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getTextResourceByKey } from 'src/language/sharedLanguage';
@@ -97,6 +99,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     };
   }
 
+  const fdMethods = FD.useMethods();
   const dispatch = useAppDispatch();
   const classes = useStyles();
   const gridRef = React.useRef<HTMLDivElement>(null);
@@ -173,6 +176,12 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
             dataModelBinding,
           }
         : undefined;
+
+    if (UseNewFormDataHook) {
+      // TODO: Support validation, etc
+      fdMethods.setLeafValue(dataModelBinding, value);
+      return;
+    }
 
     dispatch(
       FormDataActions.update({
