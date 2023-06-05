@@ -53,15 +53,21 @@ describe('Summary', () => {
         .contains(mui.gridContainer, texts.dateOfEffect)
         .then((summaryDate) => {
           cy.wrap(summaryDate).children().find('button').click();
-          cy.get(appFrontend.changeOfName.dateOfEffect).clear();
-          cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
-          cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
-            force: true,
-          });
-          cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
-          cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
-          cy.get(appFrontend.backToSummaryButton).click();
         });
+
+      cy.get(appFrontend.changeOfName.dateOfEffect).clear();
+      cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+      cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
+        force: true,
+      });
+      cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+      cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
+
+      // Back to summary should not work when there are errors
+      cy.get(appFrontend.backToSummaryButton).click();
+      cy.navPage('form').should('have.attr', 'aria-current', 'page');
+      cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldDateFrom);
+      cy.gotoNavPage('summary');
     });
 
     // Summary of attachment components

@@ -114,18 +114,26 @@ export function* updateCurrentViewSaga({
         layoutState.layouts || {},
         state.textResources.resources,
       );
+
       validationResult.validations = mergeValidationObjects(
         validationResult.validations,
         componentSpecificValidations,
         emptyFieldsValidations,
         mappedValidations,
       );
+
       const validations =
         runValidations === Triggers.ValidatePage
           ? { [currentView]: validationResult.validations[currentView] } // only store validations for the specific page
           : validationResult.validations;
       yield put(ValidationActions.updateValidations({ validations }));
-      if (state.formLayout.uiConfig.returnToView) {
+
+      if (
+        canFormBeSaved(
+          { validations: { [currentView]: validations[currentView] }, invalidDataTypes: false },
+          'Complete',
+        )
+      ) {
         if (!skipPageCaching && currentViewCacheKey) {
           localStorage.setItem(currentViewCacheKey, newView);
         }
@@ -135,30 +143,11 @@ export function* updateCurrentViewSaga({
             focusComponentId,
           }),
         );
-      } else if (
-        !canFormBeSaved(
-          {
-            validations: { [currentView]: validations[currentView] },
-            invalidDataTypes: false,
-          },
-          'Complete',
-        )
-      ) {
+      } else {
         yield put(
           FormLayoutActions.updateCurrentViewRejected({
             error: null,
             keepScrollPos,
-          }),
-        );
-      } else {
-        if (!skipPageCaching && currentViewCacheKey) {
-          localStorage.setItem(currentViewCacheKey, newView);
-        }
-        yield put(
-          FormLayoutActions.updateCurrentViewFulfilled({
-            newView,
-            returnToView,
-            focusComponentId,
           }),
         );
       }
