@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { UseNewFormDataHook } from 'src/features/toggles';
 import type { IComponentProps } from 'src/layout';
 
 export interface DelayedSavedStateRetVal {
@@ -9,7 +10,7 @@ export interface DelayedSavedStateRetVal {
   onPaste: () => void;
 }
 
-export function useDelayedSavedState(
+function useDelayedSavedStateLegacy(
   handleDataChange: IComponentProps['handleDataChange'],
   formValue?: string,
   saveAfter?: number | boolean,
@@ -109,3 +110,23 @@ export function useDelayedSavedState(
     },
   };
 }
+
+function useDelayedSavedStateShortCircuit(
+  handleDataChange: IComponentProps['handleDataChange'],
+  formValue?: string,
+): DelayedSavedStateRetVal {
+  return {
+    value: formValue,
+    setValue: (newValue, _saveImmediately = false, skipValidation = false): void => {
+      handleDataChange(newValue, { validate: !skipValidation });
+    },
+    saveValue: (): void => {
+      // Do nothing, we always save immediately
+    },
+    onPaste: (): void => {
+      // Do nothing, we always save immediately
+    },
+  };
+}
+
+export const useDelayedSavedState = UseNewFormDataHook ? useDelayedSavedStateShortCircuit : useDelayedSavedStateLegacy;
