@@ -94,18 +94,24 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean | undef
   return yield put(ProcessActions.complete());
 }
 
-function createFormDataRequest(
-  state: IRuntimeState,
+export function createFormDataRequestMultiPart(currentData: IFormData, lastSavedData: IFormData, modelToSave: object) {
+  const previous = diffModels(currentData, lastSavedData);
+  const data = new FormData();
+  data.append('dataModel', JSON.stringify(modelToSave));
+  data.append('previousValues', JSON.stringify(previous));
+  return { data };
+}
+
+export function createFormDataRequestCompatible(
+  useMultiPartSave: boolean | undefined,
+  currentData: IFormData,
+  lastSavedData: IFormData,
   model: any,
-  field: string | undefined,
-  componentId: string | undefined,
+  field?: string | undefined,
+  componentId?: string | undefined,
 ): { data: any; options?: AxiosRequestConfig } {
-  if (state.applicationMetadata.applicationMetadata?.features?.multiPartSave) {
-    const previous = diffModels(state.formData.formData, state.formData.lastSavedFormData);
-    const data = new FormData();
-    data.append('dataModel', JSON.stringify(model));
-    data.append('previousValues', JSON.stringify(previous));
-    return { data };
+  if (useMultiPartSave) {
+    return createFormDataRequestMultiPart(currentData, lastSavedData, model);
   }
 
   const options: AxiosRequestConfig = {
@@ -164,7 +170,14 @@ export function* putFormData({ field, componentId }: SaveDataParams) {
   const url = dataElementUrl(defaultDataElementGuid);
   let lastSavedModel = state.formData.formData;
   try {
-    const { data, options } = createFormDataRequest(state, model, field, componentId);
+    const { data, options } = createFormDataRequestCompatible(
+      state.applicationMetadata.applicationMetadata?.features?.multiPartSave,
+      state.formData.formData,
+      state.formData.lastSavedFormData,
+      model,
+      field,
+      componentId,
+    );
     const responseData = yield call(httpPut, url, data, options);
     lastSavedModel = yield call(handleChangedFields, responseData?.changedFields, formDataCopy);
   } catch (error) {
