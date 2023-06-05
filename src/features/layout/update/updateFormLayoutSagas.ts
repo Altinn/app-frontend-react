@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
@@ -26,6 +27,7 @@ import {
   mapDataElementValidationToRedux,
   mergeValidationObjects,
 } from 'src/utils/validation/validation';
+import type { IFormData } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { ICalculatePageOrderAndMoveToNextPage, IUpdateCurrentView } from 'src/features/layout/formLayoutTypes';
 import type { IRuntimeState, IValidationIssue } from 'src/types';
@@ -173,11 +175,12 @@ export function* calculatePageOrderAndMoveToNextPageSaga({
 }: PayloadAction<ICalculatePageOrderAndMoveToNextPage>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
+    const formDataFromState: IFormData = yield select(SagaFetchFormDataCompat);
     const layoutSets = state.formLayout.layoutsets;
     const currentView = state.formLayout.uiConfig.currentView;
     let layoutSetId: string | null = null;
     let dataTypeId: string | null = null;
-    const formData = convertDataBindingToModel(state.formData.formData);
+    const formData = convertDataBindingToModel(formDataFromState);
 
     if (!state.applicationMetadata.applicationMetadata) {
       yield put(

@@ -6,12 +6,12 @@ import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import {
   mapAttachments,
   SelectApplicationMetaData,
-  SelectFormData,
   SelectFormLayouts,
   SelectFormLayoutSets,
   SelectInstance,
   SelectInstanceData,
 } from 'src/features/attachments/map/mapAttachmentsSagas';
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { selectFormLayouts } from 'src/features/layout/update/updateFormLayoutSagas';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { ExprUnresolved } from 'src/features/expressions/types';
@@ -151,7 +151,7 @@ describe('mapAttachments', () => {
         [select(SelectInstance), SelectInstance(state)],
         [select(SelectApplicationMetaData), SelectApplicationMetaData(state)],
         [select(SelectFormLayoutSets), SelectFormLayoutSets(state)],
-        [select(SelectFormData), SelectFormData(state)],
+        [select(SagaFetchFormDataCompat), state.formData.formData],
         [select(SelectFormLayouts), selectFormLayouts(state)],
       ])
       .put(AttachmentActions.mapAttachmentsFulfilled({ attachments: expected }))

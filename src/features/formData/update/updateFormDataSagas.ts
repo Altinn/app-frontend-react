@@ -4,6 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { removeAttachmentReference } from 'src/utils/databindings';
@@ -124,7 +125,7 @@ function shouldUpdateFormData(currentData: any, newData: any): boolean {
   return currentData !== newData;
 }
 
-export const SelectFormData = (s: IRuntimeState) => s.formData.formData;
+export const SelectFormData = SagaFetchFormDataCompat;
 export const SelectAttachments = (s: IRuntimeState) => s.attachments.attachments;
 
 export function* deleteAttachmentReferenceSaga({

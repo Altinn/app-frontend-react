@@ -5,10 +5,10 @@ import type { SagaIterator } from 'redux-saga';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import {
   selectAttachmentState,
-  selectFormData,
   selectFormLayoutState,
   selectOptions,
   selectValidations,
@@ -25,7 +25,7 @@ import type {
   IDeleteAttachmentActionFulfilled,
   IDeleteAttachmentActionRejected,
 } from 'src/features/attachments/delete/deleteAttachmentActions';
-import type { IFormDataState } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { IRepGroupDelRow } from 'src/features/layout/formLayoutTypes';
 import type { ILayoutGroup } from 'src/layout/Group/types';
@@ -75,7 +75,7 @@ export function* repGroupDeleteRowSaga({ payload: { groupId, index } }: PayloadA
       updatedRepeatingGroups = removeRepeatingGroupFromUIConfig(updatedRepeatingGroups, group.id, index, true);
     });
 
-    const formDataState: IFormDataState = yield select(selectFormData);
+    const formData: IFormData = yield select(SagaFetchFormDataCompat);
     const attachments: IAttachmentState = yield select(selectAttachmentState);
     const validations: IValidations = yield select(selectValidations);
     const options: IOptions = yield select(selectOptions);
@@ -83,7 +83,7 @@ export function* repGroupDeleteRowSaga({ payload: { groupId, index } }: PayloadA
 
     // Find uploaded attachments inside group and delete them
     const childAttachments = findChildAttachments(
-      formDataState.formData,
+      formData,
       attachments.attachments,
       currentLayout,
       groupId,
@@ -141,7 +141,7 @@ export function* repGroupDeleteRowSaga({ payload: { groupId, index } }: PayloadA
       );
 
       // Remove the form data associated with the group
-      const updatedFormData = removeGroupData(formDataState.formData, index, currentLayout, groupId, repeatingGroup);
+      const updatedFormData = removeGroupData(formData, index, currentLayout, groupId, repeatingGroup);
 
       // Remove the validations associated with the group
       const updatedValidations = removeGroupValidationsByIndex(

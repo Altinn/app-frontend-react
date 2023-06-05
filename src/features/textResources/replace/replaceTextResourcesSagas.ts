@@ -1,6 +1,7 @@
 import { put, select } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { replaceTextResourceParams } from 'src/language/sharedLanguage';
 import { buildInstanceContext } from 'src/utils/instanceContext';
@@ -10,7 +11,6 @@ import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 import type { IApplicationSettings, IDataSources, IInstance, IInstanceContext, ITextResource } from 'src/types/shared';
 
 export const InstanceSelector: (state: IRuntimeState) => IInstance | null = (state) => state.instanceData?.instance;
-export const FormDataSelector: (state: IRuntimeState) => IFormData = (state) => state.formData?.formData;
 export const ApplicationSettingsSelector: (state: IRuntimeState) => IApplicationSettings | null = (state) =>
   state.applicationSettings?.applicationSettings;
 export const TextResourcesSelector: (state: IRuntimeState) => ITextResourcesState = (state) => state.textResources;
@@ -19,7 +19,7 @@ export const RepeatingGroupsSelector: (state: IRuntimeState) => IRepeatingGroups
 
 export function* replaceTextResourcesSaga(): SagaIterator {
   try {
-    const formData: IFormData = yield select(FormDataSelector);
+    const formData: IFormData = yield select(SagaFetchFormDataCompat);
     const instance: IInstance = yield select(InstanceSelector);
     const applicationSettings: IApplicationSettings = yield select(ApplicationSettingsSelector);
     const textResources: ITextResourcesState = yield select(TextResourcesSelector);

@@ -1,3 +1,4 @@
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { getLayoutOrderFromTracks } from 'src/selectors/getLayoutOrder';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
@@ -41,7 +42,7 @@ export function runClientSideValidation(state: IRuntimeState): ValidationResult 
   });
   const validator = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
   const layoutOrder = getLayoutOrderFromTracks(state.formLayout.uiConfig.tracks);
-  const model = convertDataBindingToModel(state.formData.formData);
+  const model = convertDataBindingToModel(SagaFetchFormDataCompat(state));
   const layouts = resolvedLayoutsFromState(state);
 
   if (!layoutOrder || !state.language.language || !layouts) {
@@ -64,7 +65,7 @@ export function runClientSideValidation(state: IRuntimeState): ValidationResult 
     state.profile.selectedAppLanguage || state.profile.profile.profileSettingPreference.language,
   );
   out.emptyFieldsValidations = validateEmptyFields(
-    state.formData.formData,
+    SagaFetchFormDataCompat(state),
     layouts,
     layoutOrder,
     state.language.language,

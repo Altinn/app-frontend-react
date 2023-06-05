@@ -1297,7 +1297,7 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
   const profileLanguage = state.profile.selectedAppLanguage || state.profile.profile.profileSettingPreference.language;
   const textResources = state.textResources.resources;
   const attachments = state.attachments.attachments;
-  const formData = state.formData.formData;
+  const formData = window.deprecated.currentFormData;
   const jsonFormData = convertDataBindingToModel(formData);
   const currentView = state.formLayout.uiConfig.currentView;
   const resolvedLayouts = ResolvedNodesSelector(state);

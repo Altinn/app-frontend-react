@@ -4,6 +4,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { listStateSelector } from 'src/selectors/dataListStateSelector';
 import { getDataListLookupKey, getDataListLookupKeys } from 'src/utils/dataList';
@@ -22,7 +23,6 @@ import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 
 export const formLayoutSelector = (state: IRuntimeState): ILayouts | null => state.formLayout?.layouts;
-export const formDataSelector = (state: IRuntimeState) => state.formData.formData;
 export const dataListsSelector = (state: IRuntimeState): IDataLists => state.dataListState.dataLists;
 export const instanceIdSelector = (state: IRuntimeState): string | undefined => state.instanceData.instance?.id;
 export const repeatingGroupsSelector = (state: IRuntimeState) => state.formLayout?.uiConfig.repeatingGroups;
@@ -114,7 +114,7 @@ export function* fetchSpecificDataListSaga({
       dataListId,
     };
     yield put(DataListsActions.fetching({ key: id, metaData }));
-    const formData: IFormData = yield select(formDataSelector);
+    const formData: IFormData = yield select(SagaFetchFormDataCompat);
     const language = yield select(appLanguageStateSelector);
     const dataList = yield select(listStateSelector);
     const pageSize = dataList.dataLists[id].size ? dataList.dataLists[id].size.toString() : paginationDefaultValue;

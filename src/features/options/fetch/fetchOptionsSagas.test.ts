@@ -1,11 +1,11 @@
 import { select } from 'redux-saga/effects';
 import { expectSaga } from 'redux-saga-test-plan';
 
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import {
   checkIfOptionsShouldRefetchSaga,
   fetchOptionsSaga,
   fetchSpecificOptionSaga,
-  formDataSelector,
   formLayoutSelector,
   instanceIdSelector,
   optionsSelector,
@@ -47,7 +47,7 @@ describe('fetchOptionsSagas', () => {
       };
       return expectSaga(checkIfOptionsShouldRefetchSaga, action)
         .provide([
-          [select(formDataSelector), formData],
+          [select(SagaFetchFormDataCompat), formData],
           [select(appLanguageStateSelector), userLanguage],
           [select(optionsSelector), optionsWithField],
           [select(optionsWithIndexIndicatorsSelector), []],
@@ -75,7 +75,7 @@ describe('fetchOptionsSagas', () => {
       };
       return expectSaga(checkIfOptionsShouldRefetchSaga, action)
         .provide([
-          [select(formDataSelector), formData],
+          [select(SagaFetchFormDataCompat), formData],
           [select(appLanguageStateSelector), userLanguage],
           [select(optionsSelector), optionsWithoutField],
           [select(optionsWithIndexIndicatorsSelector), []],

@@ -3,15 +3,15 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { checkIfRuleShouldRun } from 'src/utils/rules';
 import type { IRuleConnections } from 'src/features/dynamics';
-import type { IFormDataState } from 'src/features/formData';
+import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { IRuntimeState } from 'src/types';
 
 const selectRuleConnection = (state: IRuntimeState): IRuleConnections | null => state.formDynamics.ruleConnection;
-const selectFormDataConnection = (state: IRuntimeState): IFormDataState => state.formData;
 const selectFormLayoutConnection = (state: IRuntimeState): ILayoutState => state.formLayout;
 
 export interface IResponse {
@@ -26,14 +26,14 @@ export function* checkIfRuleShouldRunSaga({
 }: PayloadAction<IUpdateFormData>): SagaIterator {
   try {
     const ruleConnectionState: IRuleConnections | null = yield select(selectRuleConnection);
-    const formDataState: IFormDataState = yield select(selectFormDataConnection);
+    const formData: IFormData = yield select(SagaFetchFormDataCompat);
     const formLayoutState: ILayoutState = yield select(selectFormLayoutConnection);
-    const rules: IResponse[] = checkIfRuleShouldRun(ruleConnectionState, formDataState, formLayoutState.layouts, field);
+    const rules: IResponse[] = checkIfRuleShouldRun(ruleConnectionState, formData, formLayoutState.layouts, field);
 
     if (rules.length > 0) {
       yield all(
         rules.map((rule) => {
-          const currentFormDataForField = formDataState.formData[rule.dataBindingName];
+          const currentFormDataForField = formData[rule.dataBindingName];
           if (currentFormDataForField === rule.result) {
             return undefined as any;
           }

@@ -2,6 +2,7 @@ import { call, fork, put, race, select, take } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import {
@@ -27,7 +28,6 @@ import type {
 } from 'src/types';
 
 export const formLayoutSelector = (state: IRuntimeState): ILayouts | null => state.formLayout?.layouts;
-export const formDataSelector = (state: IRuntimeState) => state.formData.formData;
 export const optionsSelector = (state: IRuntimeState): IOptions => state.optionState.options;
 export const optionsWithIndexIndicatorsSelector = (state: IRuntimeState) =>
   state.optionState.optionsWithIndexIndicators;
@@ -113,7 +113,7 @@ export function* fetchSpecificOptionSaga({ optionsId, dataMapping, secure }: IFe
       secure,
     };
     yield put(OptionsActions.fetching({ key, metaData }));
-    const formData: IFormData = yield select(formDataSelector);
+    const formData: IFormData = yield select(SagaFetchFormDataCompat);
     const language = yield select(appLanguageStateSelector);
     const url = getOptionsUrl({
       optionsId,
