@@ -62,7 +62,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
   );
 
   const label = useAppSelector((state) => {
-    const titleKey = targetItem?.textResourceBindings?.title;
+    const titleKey = summaryItem?.textResourceBindings?.title ?? targetItem?.textResourceBindings?.title;
     if (titleKey) {
       return (
         state.language.language &&
