@@ -117,7 +117,7 @@ function runConditionalRenderingRule(
     return acc;
   }, {});
 
-  const result = (window as any).conditionalRuleHandlerObject[functionToRun](newObj);
+  const result = window.conditionalRuleHandlerObject[functionToRun](newObj);
   const action = rule.selectedAction;
   const hide = (action === 'Show' && !result) || (action === 'Hide' && result);
   Object.keys(rule.selectedFields).forEach((elementToPerformActionOn) => {

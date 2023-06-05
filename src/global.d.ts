@@ -6,7 +6,6 @@ import type { IRules, IRuntimeState } from 'src/types';
 declare global {
   interface Window {
     app: string;
-    conditionalRuleHandlerHelper: IRules;
     instanceId: string | undefined;
     org: string;
     reportee: string;
@@ -14,5 +13,10 @@ declare global {
     reduxStore: ToolkitStore<IRuntimeState>;
     reduxActionLog: any[];
     featureToggles: IFeatureToggles;
+
+    conditionalRuleHandlerObject: any;
+    conditionalRuleHandlerHelper: IRules;
+    ruleHandlerObject: any;
+    ruleHandlerHelper: IRules;
   }
 }
