@@ -1,7 +1,7 @@
 import type { ToolkitStore } from '@reduxjs/toolkit/src/configureStore';
 
 import type { IFeatureToggles } from 'src/features/toggles';
-import type { IRules, IRuntimeState } from 'src/types';
+import type { IRuleObject, IRules, IRuntimeState } from 'src/types';
 
 declare global {
   interface Window {
@@ -14,9 +14,9 @@ declare global {
     reduxActionLog: any[];
     featureToggles: IFeatureToggles;
 
-    conditionalRuleHandlerObject: any;
+    conditionalRuleHandlerObject: IRuleObject;
     conditionalRuleHandlerHelper: IRules;
-    ruleHandlerObject: any;
+    ruleHandlerObject: IRuleObject;
     ruleHandlerHelper: IRules;
   }
 }
