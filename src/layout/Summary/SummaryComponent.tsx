@@ -62,13 +62,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
       ),
   );
 
-  const label = useAppSelector((state) => {
-    const titleKey = summaryItem?.textResourceBindings?.title ?? targetItem?.textResourceBindings?.title;
-    if (titleKey) {
-      return state.language.language && langAsString(titleKey);
-    }
-    return undefined;
-  });
+  const titleKey = summaryItem?.textResourceBindings?.title ?? targetItem?.textResourceBindings?.title;
 
   const onChangeClick = () => {
     if (!pageRef) {
@@ -119,7 +113,7 @@ export function SummaryComponent({ summaryNode, overrides }: ISummaryComponent) 
           <SummaryContent
             onChangeClick={onChangeClick}
             changeText={changeText}
-            label={label}
+            label={langAsString(titleKey)}
             summaryNode={summaryNode}
             targetNode={targetNode}
             overrides={overrides}
