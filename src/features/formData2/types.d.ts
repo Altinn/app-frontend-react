@@ -1,7 +1,7 @@
 import type { IFormData } from 'src/features/formData';
 
 interface IFormDataMethods {
-  setLeafValue: (path: string, value: any) => void;
+  setLeafValue: (path: string, newValue: any) => void;
 }
 
 interface IFormDataFunctionality {

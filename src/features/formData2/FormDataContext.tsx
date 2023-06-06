@@ -5,7 +5,12 @@ import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 
 import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
-import { createFormDataRequestCompatible } from 'src/features/formData/submit/submitFormDataSagas';
+import {
+  createFormDataRequestFromDiff,
+  createFormDataRequestLegacy,
+  diffModels,
+} from 'src/features/formData/submit/submitFormDataSagas';
+import { runLegacyRules } from 'src/features/formData2/LegacyRules';
 import { UseNewFormDataHook } from 'src/features/toggles';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDebounce } from 'src/hooks/useDebounce';
@@ -16,14 +21,50 @@ import type { IFormData } from 'src/features/formData';
 import type { IFormDataFunctionality, IFormDataMethods } from 'src/features/formData2/types';
 
 interface FormDataStorage {
-  currentData: object;
-  lastSavedData: object;
+  data: object;
   saving: boolean;
   unsavedChanges: boolean;
   methods: IFormDataMethods;
 }
 
+interface MutationArg {
+  newData: object;
+  diff: Record<string, any>;
+}
+
+export interface DataModelChange {
+  path: string;
+  newValue: string;
+}
+
+type MutatorFunc = (currentModel: object) => object;
+
 const [Provider, useFormData] = createStrictContext<FormDataStorage>();
+
+const setLeafValueImpl =
+  ({ path, newValue }: DataModelChange): MutatorFunc =>
+  (current) => {
+    if (dot.pick(path, current) === newValue) {
+      console.log('debug, setLeafValueImpl no-change', path, newValue);
+      return current;
+    }
+
+    const newModel = structuredClone(current);
+    console.log('debug, setLeafValueImpl', path, newValue);
+    dot.str(path, newValue, newModel);
+    return newModel;
+  };
+
+const setMultiLeafValuesImpl =
+  (changes: DataModelChange[]): MutatorFunc =>
+  (current) => {
+    const newModel = structuredClone(current);
+    console.log('debug, setMultiLeafValuesImpl', changes);
+    for (const change of changes) {
+      dot.str(change.path, change.newValue, newModel);
+    }
+    return newModel;
+  };
 
 const useFormDataUuid = () =>
   useAppSelector((state) =>
@@ -40,32 +81,35 @@ const useFormDataQuery = () => {
     (state) => state.applicationMetadata.applicationMetadata?.features?.multiPartSave,
   );
 
-  const [currentData, setCurrentData] = React.useState<object | undefined>(undefined);
-  const [lastSavedData, setLastSavedData] = React.useState<object | undefined>(undefined);
+  const [fetchedUuid, setFetchedUuid] = React.useState('');
+  const [currentData, setCurrentData] = React.useState<object>({});
+  const [lastSavedData, setLastSavedData] = React.useState<object>({});
   const debouncedCurrentData = useDebounce(currentData, 400);
+  const ruleConnection = useAppSelector((state) => state.formDynamics.ruleConnection);
 
   const uuid = useFormDataUuid();
   const enabled = uuid !== undefined && UseNewFormDataHook;
-  const initialFetchDone = currentData !== undefined;
 
-  const mutation = useMutation(async (newData?: object) => {
+  const mutation = useMutation(async (arg?: MutationArg) => {
     if (!enabled) {
       return;
     }
 
-    if (!initialFetchDone) {
+    if (fetchedUuid !== uuid) {
       const _result = await fetchFormData(uuid);
       setCurrentData(_result);
       setLastSavedData(_result);
+      setFetchedUuid(uuid);
+      console.log('debug, initial fetch done');
       return;
     }
 
-    const { data } = createFormDataRequestCompatible(
-      useMultiPart,
-      flattenObject(newData),
-      flattenObject(lastSavedData),
-      newData,
-    );
+    if (!arg) {
+      throw new Error('Argument required for saving form data');
+    }
+
+    const { newData, diff } = arg;
+    const { data } = useMultiPart ? createFormDataRequestFromDiff(newData, diff) : createFormDataRequestLegacy(newData);
 
     try {
       console.log('debug, saving form data');
@@ -89,54 +133,63 @@ const useFormDataQuery = () => {
       }
     }
 
+    console.log('debug, saving form data done');
     setLastSavedData(newData);
   });
 
   React.useEffect(() => {
-    if (enabled && !initialFetchDone) {
+    if (enabled && fetchedUuid !== uuid) {
       mutation.mutate(undefined);
     }
-  }, [mutation, enabled, initialFetchDone]);
+  }, [mutation, enabled, fetchedUuid, uuid]);
+
+  const hasUnsavedChanges =
+    enabled && debouncedCurrentData !== undefined && !deepEqual(debouncedCurrentData, lastSavedData);
 
   React.useEffect(() => {
-    if (debouncedCurrentData !== undefined && !deepEqual(debouncedCurrentData, lastSavedData)) {
-      mutation.mutate(debouncedCurrentData);
+    if (hasUnsavedChanges) {
+      let modelToSave = structuredClone(debouncedCurrentData);
+      const prev = flattenObject(lastSavedData);
+      const current = flattenObject(modelToSave);
+      let diff = diffModels(current, prev);
+      const ruleChanges = runLegacyRules(ruleConnection, current, new Set(Object.keys(diff)));
+      console.log('debug, rule changes', ruleChanges);
+
+      if (ruleChanges.length) {
+        modelToSave = setMultiLeafValuesImpl(ruleChanges)(modelToSave);
+        setCurrentData(setMultiLeafValuesImpl(ruleChanges)); // TODO: Prevent double-saving
+        diff = diffModels(flattenObject(modelToSave), prev);
+      }
+
+      mutation.mutate({
+        newData: modelToSave,
+        diff,
+      });
     }
-  }, [mutation, debouncedCurrentData, lastSavedData]);
+  }, [mutation, ruleConnection, debouncedCurrentData, lastSavedData, hasUnsavedChanges]);
 
   const isSaving = mutation.isLoading;
-  const hasUnsavedChanges = enabled && currentData !== undefined && currentData !== lastSavedData;
+  console.log('debug, hasUnsavedChanges', hasUnsavedChanges, 'enabled', enabled, 'isSaving', isSaving);
 
   return {
-    currentData,
+    data: currentData,
     setCurrentData,
-    lastSavedData,
-    setLastSavedData,
-    isSaving,
+    saving: isSaving,
     hasUnsavedChanges,
   };
 };
 
 export function FormDataProvider({ children }) {
-  const { currentData, setCurrentData, lastSavedData, isSaving, hasUnsavedChanges } = useFormDataQuery();
-
-  const setLeafValue: FormDataStorage['methods']['setLeafValue'] = (path, value) => {
-    setCurrentData((current) => {
-      const newCurrent = structuredClone(current);
-      dot.str(path, value, newCurrent);
-      return newCurrent;
-    });
-  };
+  const { data, setCurrentData, saving, hasUnsavedChanges } = useFormDataQuery();
 
   return (
     <Provider
       value={{
-        currentData: currentData || {},
-        lastSavedData: lastSavedData || {},
-        saving: isSaving,
+        data,
+        saving,
         unsavedChanges: hasUnsavedChanges,
         methods: {
-          setLeafValue,
+          setLeafValue: (path, newValue) => setCurrentData(setLeafValueImpl({ path, newValue })),
         },
       }}
     >
@@ -150,8 +203,8 @@ export function FormDataProvider({ children }) {
  * dot-separated paths to the values. No objects exist here, just leaf values.
  */
 function useAsDotMap(): IFormData {
-  const { currentData } = useFormData();
-  return React.useMemo(() => flattenObject(currentData), [currentData]);
+  const { data } = useFormData();
+  return React.useMemo(() => flattenObject(data), [data]);
 }
 
 function useMethods(): IFormDataMethods {
