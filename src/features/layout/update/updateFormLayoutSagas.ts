@@ -33,7 +33,6 @@ import type { ICalculatePageOrderAndMoveToNextPage, IUpdateCurrentView } from 's
 import type { IRuntimeState, IValidationIssue } from 'src/types';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
-export const selectFormData = (state: IRuntimeState) => state.formData;
 export const selectFormLayouts = (state: IRuntimeState) => state.formLayout.layouts;
 export const selectAttachmentState = (state: IRuntimeState) => state.attachments;
 export const selectValidations = (state: IRuntimeState) => state.formValidations.validations;

@@ -4,6 +4,7 @@ import { expectSaga } from 'redux-saga-test-plan';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import {
   calculatePageOrderAndMoveToNextPageSaga,
@@ -31,7 +32,10 @@ describe('updateLayoutSagas', () => {
         payload: {},
       };
       const exp = expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), state]])
+        .provide([
+          [select(), state],
+          [select(SagaFetchFormDataCompat), state.formData.formData],
+        ])
         .put(
           FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
             order: orderResponse,
@@ -59,7 +63,10 @@ describe('updateLayoutSagas', () => {
         },
       };
       const exp = expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), state]])
+        .provide([
+          [select(), state],
+          [select(SagaFetchFormDataCompat), state.formData.formData],
+        ])
         .put(
           FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
             order: orderResponse,
@@ -101,7 +108,10 @@ describe('updateLayoutSagas', () => {
         },
       };
       const exp = expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), stateWithStatelessApp]])
+        .provide([
+          [select(), stateWithStatelessApp],
+          [select(SagaFetchFormDataCompat), stateWithStatelessApp.formData.formData],
+        ])
         .put(
           FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
             order: orderResponse,
@@ -140,7 +150,10 @@ describe('updateLayoutSagas', () => {
         },
       };
       const exp = expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), stateWithReturnToView]])
+        .provide([
+          [select(), stateWithReturnToView],
+          [select(SagaFetchFormDataCompat), stateWithReturnToView.formData.formData],
+        ])
         .put(
           FormLayoutActions.calculatePageOrderAndMoveToNextPageFulfilled({
             order: orderResponse,
@@ -164,7 +177,10 @@ describe('updateLayoutSagas', () => {
       const error = new Error('mock');
 
       const exp = expectSaga(calculatePageOrderAndMoveToNextPageSaga, action)
-        .provide([[select(), state]])
+        .provide([
+          [select(), state],
+          [select(SagaFetchFormDataCompat), state.formData.formData],
+        ])
         .put(
           FormLayoutActions.calculatePageOrderAndMoveToNextPageRejected({
             error,

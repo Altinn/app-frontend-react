@@ -5,11 +5,11 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
+import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { repGroupDeleteRowSaga } from 'src/features/layout/repGroups/repGroupDeleteRowSaga';
 import {
   selectAttachmentState,
-  selectFormData,
   selectFormLayoutState,
   selectOptions,
   selectValidations,
@@ -81,7 +81,7 @@ describe('repGroupDeleteRowSaga', function () {
     return expectSaga(repGroupDeleteRowSaga, action)
       .provide([
         [select(selectFormLayoutState), selectFormLayoutState(state)],
-        [select(selectFormData), selectFormData(state)],
+        [select(SagaFetchFormDataCompat), state.formData.formData],
         [select(selectAttachmentState), selectAttachmentState(state)],
         [select(selectValidations), selectValidations(state)],
         [select(selectOptions), selectOptions(state)],

@@ -177,8 +177,13 @@ export function getInitialStateMock(customStates?: Partial<IRuntimeState>): IRun
     appApi: {} as IRuntimeState['appApi'],
   };
 
-  return {
+  const out = {
     ...initialState,
     ...customStates,
   };
+
+  window.deprecated = window.deprecated || {};
+  window.deprecated.currentFormData = out.formData.formData;
+
+  return out;
 }
