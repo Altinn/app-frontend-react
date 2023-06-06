@@ -63,11 +63,9 @@ describe('Summary', () => {
       cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
       cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
 
-      // Back to summary should not work when there are errors
       cy.get(appFrontend.backToSummaryButton).click();
-      cy.navPage('form').should('have.attr', 'aria-current', 'page');
+      cy.navPage('summary').should('have.attr', 'aria-current', 'page');
       cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldDateFrom);
-      cy.gotoNavPage('summary');
     });
 
     // Summary of attachment components

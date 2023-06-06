@@ -144,13 +144,17 @@ export function* updateCurrentViewSaga({
         visibleLayouts ?? [],
       );
 
-      if (canFormBeSaved({ validations: validationsToCheckBeforeNavigation, invalidDataTypes: false }, 'Complete')) {
+      if (
+        state.formLayout.uiConfig.returnToView ||
+        canFormBeSaved({ validations: validationsToCheckBeforeNavigation, invalidDataTypes: false }, 'Complete')
+      ) {
         if (!skipPageCaching && currentViewCacheKey) {
           localStorage.setItem(currentViewCacheKey, newView);
         }
         yield put(
           FormLayoutActions.updateCurrentViewFulfilled({
             newView,
+            returnToView,
             focusComponentId,
           }),
         );
