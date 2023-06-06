@@ -94,12 +94,26 @@ function* submitComplete(state: IRuntimeState, stopWithWarnings: boolean | undef
   return yield put(ProcessActions.complete());
 }
 
-export function createFormDataRequestMultiPart(currentData: IFormData, lastSavedData: IFormData, modelToSave: object) {
-  const previous = diffModels(currentData, lastSavedData);
+export function createFormDataRequestFromDiff(modelToSave: object, diff: object) {
   const data = new FormData();
   data.append('dataModel', JSON.stringify(modelToSave));
-  data.append('previousValues', JSON.stringify(previous));
+  data.append('previousValues', JSON.stringify(diff));
   return { data };
+}
+
+export function createFormDataRequestMultiPart(currentData: IFormData, lastSavedData: IFormData, modelToSave: object) {
+  return createFormDataRequestFromDiff(modelToSave, diffModels(currentData, lastSavedData));
+}
+
+export function createFormDataRequestLegacy(model: any, field?: string | undefined, componentId?: string | undefined) {
+  const options: AxiosRequestConfig = {
+    headers: {
+      'X-DataField': (field && encodeURIComponent(field)) || 'undefined',
+      'X-ComponentId': (componentId && encodeURIComponent(componentId)) || 'undefined',
+    },
+  };
+
+  return { data: model, options };
 }
 
 export function createFormDataRequestCompatible(
@@ -114,17 +128,10 @@ export function createFormDataRequestCompatible(
     return createFormDataRequestMultiPart(currentData, lastSavedData, model);
   }
 
-  const options: AxiosRequestConfig = {
-    headers: {
-      'X-DataField': (field && encodeURIComponent(field)) || 'undefined',
-      'X-ComponentId': (componentId && encodeURIComponent(componentId)) || 'undefined',
-    },
-  };
-
-  return { data: model, options };
+  return createFormDataRequestLegacy(model, field, componentId);
 }
 
-function diffModels(current: IFormData, prev: IFormData) {
+export function diffModels(current: IFormData, prev: IFormData) {
   const changes: { [key: string]: string | null } = {};
   for (const key of Object.keys(current)) {
     if (current[key] !== prev[key]) {
