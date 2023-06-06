@@ -121,7 +121,13 @@ export interface IRepeatingGroups {
 }
 
 export interface IRules {
-  [id: string]: any;
+  [id: string]: () => Record<string, string>;
+}
+
+export type RuleFunc<T extends Record<string, any>> = (argObject: T) => T;
+
+export interface IRuleObject {
+  [id: string]: RuleFunc<any>;
 }
 
 export type IRuntimeState = RootState;

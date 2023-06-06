@@ -1,7 +1,7 @@
 import type { ToolkitStore } from '@reduxjs/toolkit/src/configureStore';
 
 import type { IFormData } from 'src/features/formData';
-import type { IRules, IRuntimeState } from 'src/types';
+import type { IRuleObject, IRules, IRuntimeState } from 'src/types';
 
 declare global {
   interface Window {
@@ -13,9 +13,9 @@ declare global {
     reduxStore: ToolkitStore<IRuntimeState>;
     reduxActionLog: any[];
 
-    conditionalRuleHandlerObject: any;
+    conditionalRuleHandlerObject: IRuleObject;
     conditionalRuleHandlerHelper: IRules;
-    ruleHandlerObject: any;
+    ruleHandlerObject: IRuleObject;
     ruleHandlerHelper: IRules;
 
     /** @deprecated */
