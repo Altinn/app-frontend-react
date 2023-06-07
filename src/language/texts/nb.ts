@@ -152,6 +152,7 @@ export function nb(): FixedLanguageList {
       row_error: 'En av radene er ikke fylt ut riktig, dette må fikses før skjema kan sendes inn',
       row_popover_delete_message: 'Er du sikker på at du vil slette denne raden?',
       row_popover_delete_button_confirm: 'Ja, slett raden',
+      validation_message_too_few_rows: 'You have to add at least {0} rows',
     },
     iframe_component: {
       unsupported_browser_title: 'Nettleseren din støttes ikke',

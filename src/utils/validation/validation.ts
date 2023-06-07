@@ -1331,13 +1331,46 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
     onlyInRowIndex,
   ).validations;
 
+  const repeatingGroupComponentValidations = validateRepeatingGroup(node, language);
+
   return mergeValidationObjects(
     { [currentView]: emptyFieldsValidations },
     { [currentView]: componentValidations },
+    { [currentView]: repeatingGroupComponentValidations },
     formDataValidations,
   );
 }
 
+function validateRepeatingGroup(node, language: ILanguage): ILayoutValidations {
+  // check if minCount is less than visible rows
+  const repeatingGroupComponent = node.item;
+  const repeatingGroupMinCount = repeatingGroupComponent.minCount || 0;
+  const repeatingGroupMaxCount = repeatingGroupComponent.maxCount || 0;
+  const repeatingGroupVisibleRows = repeatingGroupComponent.rows.filter((row) => !row.hidden).length;
+
+  const repeatingGroupMinCountValid = repeatingGroupMinCount <= repeatingGroupVisibleRows;
+  const repeatingGroupMaxCountValid = repeatingGroupMaxCount >= repeatingGroupVisibleRows;
+  const repeatingGroupValid = repeatingGroupMinCountValid && repeatingGroupMaxCountValid;
+
+  // if not valid, return appropriate error message
+  if (!repeatingGroupValid) {
+    const errorMessage = getParsedLanguageFromKey(
+      'group.validation_message_too_few_rows',
+      language,
+      [repeatingGroupMinCount],
+      true,
+    );
+    return {
+      [repeatingGroupComponent.id]: {
+        simpleBinding: {
+          errors: [errorMessage],
+        },
+      },
+    } as ILayoutValidations;
+  } else {
+    return {};
+  }
+}
 /*
  * Removes the validations for a given group index and shifts higher indexes if necessary.
  * @param id the group id
