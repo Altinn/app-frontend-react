@@ -1,18 +1,18 @@
-import { useReducer } from 'react';
-
 import dot from 'dot-object';
+import { useImmerReducer } from 'use-immer';
 
 import type { IFormData } from 'src/features/formData';
 
 /**
  * TODO: Make sure the model is initialized. Queue up changes and apply them after if not.
- * TODO: Store both the flat and the full model, since most of the time we need read from the flat model.
  */
 
 export interface FormDataStorage {
   currentUuid: string;
   currentData: object;
+  currentDataFlat: IFormData;
   lastSavedData: object;
+  lastSavedDataFlat: IFormData;
 }
 
 export interface DataModelChange {
@@ -24,7 +24,7 @@ export type FDAction = FDActionSetLeafValue | FDActionSetMultiLeafValues | FDAct
 type FDActionTypes = FDAction['type'];
 type FDActionObject<T extends FDActionTypes> = Extract<FDAction, { type: T }>;
 
-type Implementation<T extends FDActionTypes> = (state: FormDataStorage, action: FDActionObject<T>) => FormDataStorage;
+type Implementation<T extends FDActionTypes> = (state: FormDataStorage, action: FDActionObject<T>) => void;
 
 type ImplementationMap = {
   [Key in FDActionTypes]: Implementation<Key>;
@@ -54,63 +54,63 @@ interface FDActionSetMultiLeafValues {
 const initialState: FormDataStorage = {
   currentUuid: '',
   currentData: {},
+  currentDataFlat: {},
   lastSavedData: {},
+  lastSavedDataFlat: {},
 };
 
 const actions: ImplementationMap = {
   initialFetch: (state, { data, uuid }) => {
     console.log('debug, initialFetchImpl', data);
-    return {
-      ...state,
-      currentUuid: uuid,
-      currentData: data,
-      lastSavedData: data,
-    };
+    state.currentUuid = uuid;
+    state.currentData = data;
+    state.currentDataFlat = dot.dot(data);
+    state.lastSavedData = data;
+    state.lastSavedDataFlat = dot.dot(data);
   },
   saveFinished: (state, { savedData, changedFields }) => {
     // TODO: Implement changedFields
     console.log('debug, saveFinishedImpl', changedFields);
-    return {
-      ...state,
-      lastSavedData: savedData,
-      saving: false,
-    };
+    state.lastSavedData = savedData;
+    state.lastSavedDataFlat = dot.dot(savedData);
   },
   setLeafValue: (state, { path, newValue }) => {
-    const existingValue = dot.pick(path, state);
+    const existingValue = state.currentDataFlat[path];
     if (existingValue === newValue) {
       console.log('debug, setLeafValueImpl no-change', path, newValue);
-      return state;
+      return;
     }
 
-    const newModel = JSON.parse(JSON.stringify(state.currentData));
-    dot.str(path, newValue, newModel);
+    dot.str(path, newValue, state.currentData);
+    state.currentDataFlat = dot.dot(state.currentData);
 
-    const valueAfter = dot.pick(path, newModel);
-    console.log('debug, setLeafValueImpl', path, { existingValue, newValue, valueAfter, newModel });
-
-    return { ...state, currentData: newModel };
+    console.log('debug, setLeafValueImpl', path, { existingValue, newValue });
   },
   setMultiLeafValues: (state, { changes }) => {
-    const newModel = structuredClone(state.currentData);
-    // TODO: Check for no-change
     console.log('debug, setMultiLeafValuesImpl', changes);
-    for (const change of changes) {
-      dot.str(change.path, change.newValue, newModel);
+    let changesMade = false;
+    for (const { path, newValue } of changes) {
+      const existingValue = state.currentDataFlat[path];
+      if (existingValue === newValue) {
+        continue;
+      }
+      dot.str(path, newValue, state.currentData);
+      changesMade = true;
     }
 
-    return { ...state, currentData: newModel };
+    if (!changesMade) {
+      state.currentDataFlat = dot.dot(state.currentData);
+    }
   },
 };
 
 function reducer<T extends FDActionTypes>(state: FormDataStorage, action: FDActionObject<T>) {
   const implementation = actions[action.type];
   if (implementation) {
-    return (implementation as unknown as Implementation<T>)(state, action);
+    (implementation as unknown as Implementation<T>)(state, action);
+    return;
   }
   throw new Error(`Unknown action type ${action.type}`);
 }
 
-export function useFormDataStateMachine() {
-  return useReducer(reducer, initialState);
-}
+export const useFormDataStateMachine = () => useImmerReducer(reducer, initialState);

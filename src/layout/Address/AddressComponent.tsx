@@ -4,6 +4,7 @@ import { TextField } from '@digdir/design-system-react';
 import axios from 'axios';
 
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
+import { useStateDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { AddressLabel } from 'src/layout/Address/AddressLabel';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -77,7 +78,7 @@ export function AddressComponent({
     saveWhileTyping,
   );
 
-  const [validations, setValidations] = React.useState<IAddressValidationErrors>({});
+  const [validations, setValidations] = useStateDeepEqual<IAddressValidationErrors>({});
   const prevZipCode = React.useRef<string | undefined>(undefined);
   const hasFetchedPostPlace = React.useRef<boolean>(false);
 
@@ -109,7 +110,7 @@ export function AddressComponent({
         }
       }
     },
-    [validate, handleDataChange, setPostPlace],
+    [validate, setValidations, handleDataChange, setPostPlace],
   );
 
   React.useEffect(() => {
@@ -160,7 +161,7 @@ export function AddressComponent({
     return function cleanup() {
       source.cancel('ComponentWillUnmount');
     };
-  }, [formData.zipCode, language, source, onSaveField, validations, setPostPlace]);
+  }, [formData.zipCode, language, source, onSaveField, validations, setPostPlace, setValidations]);
 
   const updateField = (key: AddressKeys, saveImmediately: boolean, event: any): void => {
     const changedFieldValue: string = event.target.value;

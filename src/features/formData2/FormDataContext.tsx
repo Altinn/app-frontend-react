@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { useMutation } from '@tanstack/react-query';
-import deepEqual from 'fast-deep-equal';
 
 import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
 import {
@@ -12,7 +11,7 @@ import {
 import { useFormDataStateMachine } from 'src/features/formData2/StateMachine';
 import { UseNewFormDataHook } from 'src/features/toggles';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useDebounce } from 'src/hooks/useDebounce';
+import { useDebounceDeepEqual } from 'src/hooks/useDebounce';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { createStrictContext } from 'src/utils/createStrictContext';
 import { flattenObject } from 'src/utils/databindings';
@@ -56,8 +55,11 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
   );
 
   const [state, dispatch] = useFormDataStateMachine();
-  const debouncedCurrentData = useDebounce(state.currentData, 400);
-  const ruleConnection = useAppSelector((state) => state.formDynamics.ruleConnection);
+  const [debouncedCurrentData, debouncedCurrentDataFlat] = useDebounceDeepEqual(
+    [state.currentData, state.currentDataFlat],
+    400,
+  );
+  // const ruleConnection = useAppSelector((state) => state.formDynamics.ruleConnection);
 
   const uuid = useFormDataUuid();
   const enabled = uuid !== undefined && UseNewFormDataHook;
@@ -120,14 +122,12 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
   }, [mutation, enabled, state.currentUuid, uuid]);
 
   const isSaving = mutation.isLoading;
-  const hasUnsavedChanges = enabled && debouncedCurrentData && !deepEqual(debouncedCurrentData, state.lastSavedData);
+  const hasUnsavedChanges = enabled && debouncedCurrentData && debouncedCurrentData !== state.lastSavedData;
 
   React.useEffect(() => {
     if (hasUnsavedChanges) {
-      const modelToSave = structuredClone(debouncedCurrentData);
-      const prev = flattenObject(state.lastSavedData);
-      const current = flattenObject(modelToSave);
-      const diff = diffModels(current, prev);
+      const prev = state.lastSavedDataFlat;
+      const diff = diffModels(debouncedCurrentDataFlat, prev);
       // const ruleChanges = runLegacyRules(ruleConnection, current, new Set(Object.keys(diff)));
       // console.log('debug, rule changes', ruleChanges);
       //
@@ -138,11 +138,11 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
       // }
 
       mutation.mutate({
-        newData: modelToSave,
+        newData: debouncedCurrentData,
         diff,
       });
     }
-  }, [mutation, ruleConnection, debouncedCurrentData, state.lastSavedData, hasUnsavedChanges]);
+  }, [mutation, debouncedCurrentData, hasUnsavedChanges, state.lastSavedDataFlat, debouncedCurrentDataFlat]);
 
   return {
     ...state,
