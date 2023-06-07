@@ -11,7 +11,6 @@ import {
 import { useFormDataStateMachine } from 'src/features/formData2/StateMachine';
 import { UseNewFormDataHook } from 'src/features/toggles';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useDebounceDeepEqual } from 'src/hooks/useDebounce';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { createStrictContext } from 'src/utils/createStrictContext';
 import { flattenObject } from 'src/utils/databindings';
@@ -48,6 +47,46 @@ const useFormDataUuid = () =>
     ),
   );
 
+const performSave = async (
+  uuid: string,
+  useMultiPart: boolean | undefined,
+  dispatch: React.Dispatch<FDAction>,
+  putFormData: (uuid: string, data: FormData) => object,
+  arg: MutationArg,
+) => {
+  const { newData, diff } = arg;
+  const { data } = useMultiPart ? createFormDataRequestFromDiff(newData, diff) : createFormDataRequestLegacy(newData);
+
+  try {
+    const metaData: any = await putFormData(uuid, data);
+    dispatch({
+      type: 'saveFinished',
+      savedData: newData,
+      changedFields: metaData?.changedFields,
+    });
+  } catch (error) {
+    if (error.response && error.response.status === 303) {
+      // 303 means that data has been changed by calculation on server. Try to update from response.
+      // Newer backends might not reply back with this special response code when there are changes, they
+      // will just respond with the 'changedFields' property instead (see code handling this above).
+      if (error.response.data?.changedFields) {
+        dispatch({
+          type: 'saveFinished',
+          savedData: newData,
+          changedFields: error.response.data.changedFields,
+        });
+      } else {
+        // No changedFields property returned, try to fetch
+        // TODO: Implement
+        console.log('debug, no changedFields returned, will re-fetch');
+      }
+    } else {
+      // TODO: Store this error and warn the user when something goes wrong (or just ignore it and try again?)
+      throw error;
+    }
+  }
+};
+
 const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal => {
   const { fetchFormData, putFormData } = useAppQueriesContext();
   const useMultiPart = useAppSelector(
@@ -55,12 +94,6 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
   );
 
   const [state, dispatch] = useFormDataStateMachine();
-  const [debouncedCurrentData, debouncedCurrentDataFlat] = useDebounceDeepEqual(
-    [state.currentData, state.currentDataFlat],
-    400,
-  );
-  // const ruleConnection = useAppSelector((state) => state.formDynamics.ruleConnection);
-
   const uuid = useFormDataUuid();
   const enabled = uuid !== undefined && UseNewFormDataHook;
 
@@ -69,7 +102,7 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
       return;
     }
 
-    if (state.currentUuid !== uuid) {
+    if (state.currentUuid !== uuid && !arg) {
       dispatch({
         type: 'initialFetch',
         data: await fetchFormData(uuid),
@@ -78,71 +111,37 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
       return;
     }
 
-    if (!arg) {
-      throw new Error('Argument required for saving form data');
-    }
-
-    const { newData, diff } = arg;
-    const { data } = useMultiPart ? createFormDataRequestFromDiff(newData, diff) : createFormDataRequestLegacy(newData);
-
-    try {
-      const metaData: any = await putFormData(uuid, data);
-      dispatch({
-        type: 'saveFinished',
-        savedData: newData,
-        changedFields: metaData?.changedFields,
-      });
-    } catch (error) {
-      if (error.response && error.response.status === 303) {
-        // 303 means that data has been changed by calculation on server. Try to update from response.
-        // Newer backends might not reply back with this special response code when there are changes, they
-        // will just respond with the 'changedFields' property instead (see code handling this above).
-        if (error.response.data?.changedFields) {
-          dispatch({
-            type: 'saveFinished',
-            savedData: newData,
-            changedFields: error.response.data.changedFields,
-          });
-        } else {
-          // No changedFields property returned, try to fetch
-          // TODO: Implement
-          console.log('debug, no changedFields returned, will re-fetch');
-        }
-      } else {
-        // TODO: Store this error and warn the user when something goes wrong (or just ignore it and try again?)
-        throw error;
-      }
+    if (arg) {
+      await performSave(uuid, useMultiPart, dispatch, putFormData, arg);
     }
   });
 
   React.useEffect(() => {
-    if (enabled && state.currentUuid !== uuid) {
+    if (enabled && state.currentUuid !== uuid && !mutation.isLoading) {
       mutation.mutate(undefined);
     }
   }, [mutation, enabled, state.currentUuid, uuid]);
 
   const isSaving = mutation.isLoading;
-  const hasUnsavedChanges = enabled && debouncedCurrentData && debouncedCurrentData !== state.lastSavedData;
+  const hasUnsavedChanges = enabled && state.debouncedCurrentData && state.debouncedCurrentData !== state.lastSavedData;
 
   React.useEffect(() => {
-    if (hasUnsavedChanges) {
+    if (hasUnsavedChanges && !mutation.isLoading) {
       const prev = state.lastSavedDataFlat;
-      const diff = diffModels(debouncedCurrentDataFlat, prev);
-      // const ruleChanges = runLegacyRules(ruleConnection, current, new Set(Object.keys(diff)));
-      // console.log('debug, rule changes', ruleChanges);
-      //
-      // if (ruleChanges.length) {
-      //   modelToSave = setMultiLeafValuesImpl(ruleChanges)(modelToSave);
-      //   setCurrentData(setMultiLeafValuesImpl(ruleChanges)); // TODO: Prevent double-saving
-      //   diff = diffModels(flattenObject(modelToSave), prev);
-      // }
+      const diff = diffModels(state.debouncedCurrentDataFlat, prev);
 
       mutation.mutate({
-        newData: debouncedCurrentData,
+        newData: state.debouncedCurrentData,
         diff,
       });
     }
-  }, [mutation, debouncedCurrentData, hasUnsavedChanges, state.lastSavedDataFlat, debouncedCurrentDataFlat]);
+  }, [
+    mutation,
+    state.debouncedCurrentData,
+    hasUnsavedChanges,
+    state.lastSavedDataFlat,
+    state.debouncedCurrentDataFlat,
+  ]);
 
   return {
     ...state,
