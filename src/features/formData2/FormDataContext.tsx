@@ -103,18 +103,17 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
       return;
     }
 
-    if (state.currentUuid !== uuid && !arg) {
+    if (state.currentUuid === uuid && arg) {
+      await performSave(uuid, useMultiPart, dispatch, putFormData, arg);
+    } else {
       dispatch({
         type: 'initialFetch',
         data: await fetchFormData(uuid),
         uuid,
       });
-      return;
     }
 
-    if (arg) {
-      await performSave(uuid, useMultiPart, dispatch, putFormData, arg);
-    }
+    throw new Error('Non-initialization mutation before initialization');
   });
 
   React.useEffect(() => {

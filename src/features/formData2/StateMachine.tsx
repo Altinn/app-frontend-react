@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import dot from 'dot-object';
 import { useImmerReducer } from 'use-immer';
@@ -6,10 +6,6 @@ import { useImmerReducer } from 'use-immer';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IRuleConnections } from 'src/features/dynamics';
 import type { IFormData } from 'src/features/formData';
-
-/**
- * TODO: Make sure the model is initialized. Queue up changes and apply them after if not.
- */
 
 export interface FormDataStorage {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
@@ -80,14 +76,17 @@ export type FDAction =
   | FDActionSaveFinished
   | FDActionFreeze;
 
+// Defining one single object to be used as the initial state. This affects comparisons in useEffect(), etc, so that
+// we don't interpret the initial state as a change (because currentData !== lastSavedData).
+const initialEmptyObject = {};
 const initialState: FormDataStorage = {
   currentUuid: '',
-  currentData: {},
-  currentDataFlat: {},
-  debouncedCurrentData: {},
-  debouncedCurrentDataFlat: {},
-  lastSavedData: {},
-  lastSavedDataFlat: {},
+  currentData: initialEmptyObject,
+  currentDataFlat: initialEmptyObject,
+  debouncedCurrentData: initialEmptyObject,
+  debouncedCurrentDataFlat: initialEmptyObject,
+  lastSavedData: initialEmptyObject,
+  lastSavedDataFlat: initialEmptyObject,
 };
 
 const actions: ImplementationMap = {
@@ -158,7 +157,35 @@ const createReducer =
 export const useFormDataStateMachine = () => {
   const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
   const [state, dispatch] = useImmerReducer<FormDataStorage, FDAction>(createReducer(ruleConnections), initialState);
+  const actionQueue = useRef<FDAction[]>([]);
 
+  // Wrap the dispatch function so that we can queue up actions to be dispatched once the initial fetch has completed
+  const dispatchWrapper = useCallback(
+    (action: FDAction) => {
+      if (!state.currentUuid && action.type !== 'initialFetch') {
+        console.log('debug, initial fetch not complete, queueing action', action);
+        actionQueue.current.push(action);
+        return;
+      }
+
+      dispatch(action);
+    },
+    [dispatch, state.currentUuid],
+  );
+
+  // Dispatch any queued actions once the initial fetch has completed
+  useEffect(() => {
+    if (state.currentUuid && actionQueue.current.length > 0) {
+      console.log('debug, dispatching queued actions', actionQueue.current);
+      for (const action of actionQueue.current) {
+        dispatch(action);
+      }
+      actionQueue.current = [];
+    }
+  }, [dispatch, state.currentUuid]);
+
+  // Freeze the data model when the user stops typing. Freezing it has the effect of triggering a useEffect in
+  // FormDataContext, which will save the data model to the server.
   useEffect(() => {
     const timer = setTimeout(() => {
       if (state.currentData !== state.debouncedCurrentData) {
@@ -176,5 +203,5 @@ export const useFormDataStateMachine = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  return [state, dispatch] as const;
+  return [state, dispatchWrapper] as const;
 };
