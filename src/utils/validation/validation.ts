@@ -1356,7 +1356,7 @@ function validateRepeatingGroup(node, language: ILanguage): ILayoutValidations {
     const errorMessage = getParsedLanguageFromKey(
       'group.validation_message_too_few_rows',
       language,
-      [repeatingGroupMinCount],
+      [repeatingGroupMinCount - repeatingGroupVisibleRows],
       true,
     );
     return {
