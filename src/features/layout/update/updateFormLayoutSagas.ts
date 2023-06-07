@@ -146,7 +146,7 @@ export function* updateCurrentViewSaga({
 
       if (
         state.formLayout.uiConfig.returnToView ||
-        canFormBeSaved({ validations: validationsToCheckBeforeNavigation, invalidDataTypes: false }, 'Complete')
+        canFormBeSaved({ validations: validationsToCheckBeforeNavigation, invalidDataTypes: false })
       ) {
         if (!skipPageCaching && currentViewCacheKey) {
           localStorage.setItem(currentViewCacheKey, newView);
