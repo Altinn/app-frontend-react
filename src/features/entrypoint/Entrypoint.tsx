@@ -12,6 +12,7 @@ import { InstantiateContainer } from 'src/features/instantiate/containers/Instan
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { PartyActions } from 'src/features/party/partySlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { usePartyValidationMutation } from 'src/hooks/mutations/usePartyValidationMutation';
@@ -107,6 +108,7 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
   }
 
   if (doNotPromptForParty === false && !selectedParty) {
+    dispatch(PartyActions.setAutoRedirect(true));
     return <Navigate to={'/partyselection/'} />;
   }
 
