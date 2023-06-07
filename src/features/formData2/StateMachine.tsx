@@ -1,10 +1,9 @@
-import { useCallback, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
 import { useImmerReducer } from 'use-immer';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useDebounceDeepEqual } from 'src/hooks/useDebounceDeepEqual';
 import type { IRuleConnections } from 'src/features/dynamics';
 import type { IFormData } from 'src/features/formData';
 
@@ -12,26 +11,24 @@ import type { IFormData } from 'src/features/formData';
  * TODO: Make sure the model is initialized. Queue up changes and apply them after if not.
  */
 
-interface FormDataStorageInternal {
+export interface FormDataStorage {
   // These values contain the current data model, with the values immediately available whenever the user is typing.
   // Use these values to render the form, and for other cases where you need the current data model immediately.
   currentUuid: string;
   currentData: object;
   currentDataFlat: IFormData;
 
-  // These values contain the last saved data model, with the values that were last saved to the server. We use this
-  // to determine if there are any unsaved changes, and to diff the current data model against the last saved data
-  // model when saving. You probably don't need to use these values directly unless you know what you're doing.
-  lastSavedData: object;
-  lastSavedDataFlat: IFormData;
-}
-
-export interface FormDataStorage extends FormDataStorageInternal {
   // These values contain the current data model, with the values debounced at 400ms. This means that if the user is
   // typing, the values will be updated 400ms after the user stopped typing. Use these values when you need to perform
   // expensive operations on the data model, such as validation, calculations, or sending a request to save the model.
   debouncedCurrentData: object;
   debouncedCurrentDataFlat: IFormData;
+
+  // These values contain the last saved data model, with the values that were last saved to the server. We use this
+  // to determine if there are any unsaved changes, and to diff the current data model against the last saved data
+  // model when saving. You probably don't need to use these values directly unless you know what you're doing.
+  lastSavedData: object;
+  lastSavedDataFlat: IFormData;
 }
 
 export interface DataModelChange {
@@ -42,7 +39,7 @@ export interface DataModelChange {
 type FDActionTypes = FDAction['type'];
 type FDActionObject<T extends FDActionTypes> = Extract<FDAction, { type: T }>;
 type Implementation<T extends FDActionTypes> = (
-  state: FormDataStorageInternal,
+  state: FormDataStorage,
   action: FDActionObject<T>,
   ruleConnections: IRuleConnections | null,
 ) => void;
@@ -72,8 +69,8 @@ interface FDActionSetMultiLeafValues {
   changes: DataModelChange[];
 }
 
-interface FDActionRunRules {
-  type: 'runRules';
+interface FDActionFreeze {
+  type: 'freeze';
 }
 
 export type FDAction =
@@ -81,12 +78,14 @@ export type FDAction =
   | FDActionSetMultiLeafValues
   | FDActionInitialFetch
   | FDActionSaveFinished
-  | FDActionRunRules;
+  | FDActionFreeze;
 
-const initialState: FormDataStorageInternal = {
+const initialState: FormDataStorage = {
   currentUuid: '',
   currentData: {},
   currentDataFlat: {},
+  debouncedCurrentData: {},
+  debouncedCurrentDataFlat: {},
   lastSavedData: {},
   lastSavedDataFlat: {},
 };
@@ -97,11 +96,16 @@ const actions: ImplementationMap = {
     state.currentUuid = uuid;
     state.currentData = data;
     state.currentDataFlat = dot.dot(data);
+    state.debouncedCurrentData = data;
+    state.debouncedCurrentDataFlat = state.currentDataFlat;
     state.lastSavedData = data;
-    state.lastSavedDataFlat = dot.dot(data);
+    state.lastSavedDataFlat = state.currentDataFlat;
   },
-  runRules: (_state, _, _ruleConnections) => {
-    console.log('debug, runRulesImpl');
+  freeze: (state, _, _ruleConnections) => {
+    console.log('debug, freezeImpl');
+    // TODO: Run rules
+    state.debouncedCurrentData = state.currentData;
+    state.debouncedCurrentDataFlat = state.currentDataFlat;
   },
   saveFinished: (state, { savedData, changedFields }) => {
     // TODO: Implement changedFields
@@ -139,7 +143,7 @@ const actions: ImplementationMap = {
   },
 };
 
-type Reducer = <T extends FDActionTypes>(state: FormDataStorageInternal, action: FDActionObject<T>) => void;
+type Reducer = <T extends FDActionTypes>(state: FormDataStorage, action: FDActionObject<T>) => void;
 
 const createReducer =
   (ruleConnections: IRuleConnections | null): Reducer =>
@@ -153,42 +157,24 @@ const createReducer =
 
 export const useFormDataStateMachine = () => {
   const ruleConnections = useAppSelector((state) => state.formDynamics.ruleConnection);
-  const [internalState, dispatch] = useImmerReducer<FormDataStorageInternal, FDAction>(
-    createReducer(ruleConnections),
-    initialState,
-  );
-  const onDebounceCallback = useCallback(() => {
-    dispatch({ type: 'runRules' });
-  }, [dispatch]);
-  const [debouncedCurrentData, debouncedCurrentDataFlat] = useDebounceDeepEqual(
-    [internalState.currentData, internalState.currentDataFlat],
-    400,
-    onDebounceCallback,
-  );
+  const [state, dispatch] = useImmerReducer<FormDataStorage, FDAction>(createReducer(ruleConnections), initialState);
 
-  const externalState: FormDataStorage = useMemo(
-    () => ({
-      ...internalState,
-      debouncedCurrentData,
-      debouncedCurrentDataFlat,
-    }),
-    [internalState, debouncedCurrentData, debouncedCurrentDataFlat],
-  );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (state.currentData !== state.debouncedCurrentData) {
+        dispatch({ type: 'freeze' });
+      }
+    }, 400);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [dispatch, state.currentData, state.debouncedCurrentData]);
 
   useMemo(() => {
-    console.log('debug, useFormDataStateMachine, state change debounced');
+    console.log('debug, useFormDataStateMachine, state change');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedCurrentData]);
+  }, [state]);
 
-  useMemo(() => {
-    console.log('debug, useFormDataStateMachine, state change external');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [externalState]);
-
-  useMemo(() => {
-    console.log('debug, useFormDataStateMachine, state change internal');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [internalState]);
-
-  return [externalState, dispatch] as const;
+  return [state, dispatch] as const;
 };

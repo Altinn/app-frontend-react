@@ -21,6 +21,7 @@ import type { IFormDataFunctionality, IFormDataMethods } from 'src/features/form
 interface FormDataStorageExtended extends FormDataStorage {
   isSaving: boolean;
   hasUnsavedChanges: boolean;
+  hasUnsavedDebouncedChanges: boolean;
 }
 
 interface FormDataStorageInternal {
@@ -123,12 +124,14 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
   }, [mutation, enabled, state.currentUuid, uuid]);
 
   const isSaving = mutation.isLoading;
-  const hasUnsavedChanges = enabled && state.debouncedCurrentData && state.debouncedCurrentData !== state.lastSavedData;
+  const hasUnsavedChanges = enabled && state.currentData !== state.lastSavedData;
+  const hasUnsavedDebouncedChanges = enabled && state.debouncedCurrentData !== state.lastSavedData;
 
   React.useEffect(() => {
-    if (hasUnsavedChanges && !mutation.isLoading) {
+    if (hasUnsavedDebouncedChanges && !mutation.isLoading) {
       const prev = state.lastSavedDataFlat;
       const diff = diffModels(state.debouncedCurrentDataFlat, prev);
+      console.log('debug, has unsaved debounced changes, diff: ', state.debouncedCurrentDataFlat, diff);
 
       mutation.mutate({
         newData: state.debouncedCurrentData,
@@ -137,16 +140,17 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
     }
   }, [
     mutation,
+    hasUnsavedDebouncedChanges,
     state.debouncedCurrentData,
-    hasUnsavedChanges,
-    state.lastSavedDataFlat,
     state.debouncedCurrentDataFlat,
+    state.lastSavedDataFlat,
   ]);
 
   return {
     ...state,
     isSaving,
     hasUnsavedChanges,
+    hasUnsavedDebouncedChanges,
     dispatch,
   };
 };
