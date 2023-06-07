@@ -1345,15 +1345,14 @@ function validateRepeatingGroup(node, language: ILanguage): ILayoutValidations {
   // check if minCount is less than visible rows
   const repeatingGroupComponent = node.item;
   const repeatingGroupMinCount = repeatingGroupComponent.minCount || 0;
-  const repeatingGroupMaxCount = repeatingGroupComponent.maxCount || 0;
   const repeatingGroupVisibleRows = repeatingGroupComponent.rows.filter((row) => !row.hidden).length;
 
   const repeatingGroupMinCountValid = repeatingGroupMinCount <= repeatingGroupVisibleRows;
-  const repeatingGroupMaxCountValid = repeatingGroupMaxCount >= repeatingGroupVisibleRows;
-  const repeatingGroupValid = repeatingGroupMinCountValid && repeatingGroupMaxCountValid;
+
+  //const fieldKey = repeatingGroupComponent.dataModelBindings?.group;
 
   // if not valid, return appropriate error message
-  if (!repeatingGroupValid) {
+  if (!repeatingGroupMinCountValid) {
     const errorMessage = getParsedLanguageFromKey(
       'group.validation_message_too_few_rows',
       language,
@@ -1362,7 +1361,7 @@ function validateRepeatingGroup(node, language: ILanguage): ILayoutValidations {
     );
     return {
       [repeatingGroupComponent.id]: {
-        simpleBinding: {
+        group: {
           errors: [errorMessage],
         },
       },
@@ -1370,6 +1369,9 @@ function validateRepeatingGroup(node, language: ILanguage): ILayoutValidations {
   } else {
     return {};
   }
+
+  //addErrorToValidations(result.validations, currentView, repeatingGroupComponent.id, fieldKey, errorMessage);
+  //mapToComponentValidationsGivenNode(currentView, node, dataBinding, errorMessage, result.validations);
 }
 /*
  * Removes the validations for a given group index and shifts higher indexes if necessary.
