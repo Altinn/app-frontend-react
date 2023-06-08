@@ -191,8 +191,10 @@ export const NewFD: IFormDataFunctionality = {
   useBindings: (bindings, freshness) => {
     const data = useCurrentData(freshness);
     const out: any = {};
-    for (const key of Object.keys(bindings)) {
-      out[key] = dot.pick(bindings[key], data);
+    if (bindings) {
+      for (const key of Object.keys(bindings)) {
+        out[key] = dot.pick(bindings[key], data);
+      }
     }
 
     return useMemoDeepEqual(out);

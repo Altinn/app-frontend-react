@@ -33,7 +33,10 @@ interface IFormDataFunctionality {
    * from the form data. If a value is not found, undefined is returned. Null may also be returned if the value
    * is explicitly set to null.
    */
-  useBindings: <T extends IDataModelBindings>(bindings: T, freshness?: FDFreshness) => { [key in keyof T]: FDValue };
+  useBindings: <T extends IDataModelBindings | undefined>(
+    bindings: T,
+    freshness?: FDFreshness,
+  ) => T extends undefined ? Record<string, never> : { [key in keyof T]: FDValue };
 
   /**
    * These methods can be used to update the data model.

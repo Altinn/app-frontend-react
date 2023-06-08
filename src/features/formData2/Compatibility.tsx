@@ -54,8 +54,10 @@ const CompatibilityFD: IFormDataFunctionality = {
     const formData = useAppSelector((state) => state.formData.formData);
     const asObject = useMemo(() => dot.object(structuredClone(formData || {})), [formData]);
     const output: any = {};
-    for (const binding of Object.keys(bindings)) {
-      output[binding] = dot.pick(bindings[binding], asObject);
+    if (bindings) {
+      for (const binding of Object.keys(bindings)) {
+        output[binding] = dot.pick(bindings[binding], asObject);
+      }
     }
 
     return output;
