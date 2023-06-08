@@ -24,6 +24,7 @@ import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes, IGridStyling } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -107,7 +108,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   const hasValidationMessages = node.hasValidationMessages('any');
   const hidden = node.isHidden();
 
-  const formData = node.getFormData();
+  const formData = FD.useBindings(node.item.dataModelBindings, 'current');
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
 
   const isValid = !node.hasValidationMessages('errors');
@@ -258,7 +259,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     handleDataChange,
     getTextResource: getTextResourceWrapper,
     getTextResourceAsString,
-    formData,
+    formData: formData as IComponentFormData,
     isValid,
     language,
     shouldFocus,
