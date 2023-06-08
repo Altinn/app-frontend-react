@@ -10,7 +10,6 @@ import * as oneOfOnRootSchema from 'src/__mocks__/json-schema/one-of-on-root.jso
 import * as refOnRootSchema from 'src/__mocks__/json-schema/ref-on-root.json';
 import { getMockValidationState } from 'src/__mocks__/validationStateMock';
 import { staticUseLanguage } from 'src/hooks/useLanguage';
-import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getLayoutComponentObject } from 'src/layout';
 import { Severity } from 'src/types';
 import { getRepeatingGroups } from 'src/utils/formLayout';
@@ -481,22 +480,22 @@ describe('utils > validation', () => {
         FormLayout: {
           componentId_1: {
             simpleBinding: {
-              errors: [getParsedLanguageFromKey('validation_errors.min', mockLanguage.language, [0], true)],
+              errors: ['must be bigger than 0'],
             },
           },
           componentId_2: {
             customBinding: {
-              errors: [getParsedLanguageFromKey('validation_errors.minLength', mockLanguage.language, [10], true)],
+              errors: ['length must be bigger than 10'],
             },
           },
           'componentId_4-0': {
             simpleBinding: {
-              errors: [getParsedLanguageFromKey('validation_errors.pattern', mockLanguage.language, [], true)],
+              errors: ['Feil format eller verdi'],
             },
           },
           'componentId_5-0-1': {
             simpleBinding: {
-              errors: [getParsedLanguageFromKey('validation_errors.minLength', mockLanguage.language, [10], true)],
+              errors: ['length must be bigger than 10'],
             },
           },
         },
@@ -1226,15 +1225,15 @@ describe('utils > validation', () => {
         FormLayout: {
           componentId_1: {
             simpleBinding: {
-              errors: [getTextResourceByKey('Error message', [])],
-              info: [getTextResourceByKey('Info message', [])],
-              fixed: [getTextResourceByKey('Another error message', [])],
+              errors: ['Error message'],
+              info: ['Info message'],
+              fixed: ['Another error message'],
             },
           },
           componentId_2: {
             customBinding: {
-              success: [getTextResourceByKey('Success message', [])],
-              warnings: [getTextResourceByKey('Warning message', [])],
+              success: ['Success message'],
+              warnings: ['Warning message'],
             },
           },
         },
@@ -1274,7 +1273,7 @@ describe('utils > validation', () => {
         AnotherPage: {
           AnotherComponent: {
             simpleBinding: {
-              errors: [getTextResourceByKey('Error message 1', []), getTextResourceByKey('Error message 2', [])],
+              errors: ['Error message 1', 'Error message 2'],
             },
           },
         },
@@ -1379,7 +1378,7 @@ describe('utils > validation', () => {
           FormLayout: {
             componentId_2: {
               customBinding: {
-                errors: [getParsedLanguageFromKey('validation_errors.minLength', mockLanguage.language, [10], true)],
+                errors: ['length must be bigger than 10'],
               },
             },
           },
@@ -1410,7 +1409,7 @@ describe('utils > validation', () => {
           FormLayout: {
             componentId_2: {
               customBinding: {
-                errors: [getParsedLanguageFromKey('validation_errors.minLength', mockLanguage.language, [10], true)],
+                errors: ['length must be bigger than 10'],
               },
             },
           },
@@ -1698,17 +1697,12 @@ describe('utils > validation', () => {
         FormLayout: {
           'componentId_4-0': {
             simpleBinding: {
-              errors: [
-                'Du må fylle ut component_4',
-                getParsedLanguageFromKey(`validation_errors.pattern`, state.language.language || {}, [], true),
-              ],
+              errors: ['Du må fylle ut component_4', 'Feil format eller verdi'],
             },
           },
           'componentId_5-0-1': {
             simpleBinding: {
-              errors: [
-                getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
-              ],
+              errors: ['Bruk 10 eller flere tegn'],
             },
           },
         },
@@ -1790,17 +1784,12 @@ describe('utils > validation', () => {
         FormLayout: {
           'componentId_4-0': {
             simpleBinding: {
-              errors: [
-                'Du må fylle ut component_4',
-                getParsedLanguageFromKey(`validation_errors.pattern`, state.language.language || {}, [], true),
-              ],
+              errors: ['Du må fylle ut component_4', 'Feil format eller verdi'],
             },
           },
           'componentId_5-0-1': {
             simpleBinding: {
-              errors: [
-                getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
-              ],
+              errors: ['Bruk 10 eller flere tegn'],
             },
           },
         },
@@ -1811,17 +1800,12 @@ describe('utils > validation', () => {
         FormLayout: {
           'componentId_4-1': {
             simpleBinding: {
-              errors: [
-                'Du må fylle ut component_4',
-                getParsedLanguageFromKey(`validation_errors.pattern`, state.language.language || {}, [], true),
-              ],
+              errors: ['Du må fylle ut component_4', 'Feil format eller verdi'],
             },
           },
           'componentId_5-1-0': {
             simpleBinding: {
-              errors: [
-                getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
-              ],
+              errors: ['Bruk 10 eller flere tegn'],
             },
           },
         },
@@ -1893,9 +1877,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'componentId_5-0-1': {
             simpleBinding: {
-              errors: [
-                getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
-              ],
+              errors: ['Bruk 10 eller flere tegn'],
             },
           },
         },
