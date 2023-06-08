@@ -13,6 +13,7 @@ export interface IUseLanguage {
   selectedLanguage: string;
   lang(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string | JSX.Element | JSX.Element[] | null;
   langAsString(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
+  langAsStringOrEmpty(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
 }
 
 /**
@@ -113,6 +114,23 @@ function staticUseLanguage(
       }
 
       return getParsedLanguageFromKey(key as ValidLanguageKey, language, params, true);
+    },
+    langAsStringOrEmpty: (key, params) => {
+      if (!key) {
+        return '';
+      }
+
+      const textResource = getTextResourceByKey(key, textResources);
+      if (textResource !== key && textResource !== undefined) {
+        return textResource;
+      }
+
+      const result = getParsedLanguageFromKey(key as ValidLanguageKey, language, params, true);
+      if (result === key) {
+        return '';
+      }
+
+      return result;
     },
   };
 }
