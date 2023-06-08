@@ -2,7 +2,7 @@ import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnC
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import type { IParty } from 'src/types/shared';
 
-const langTools = staticUseLanguageForTests();
+const langTools = staticUseLanguageForTests({ language: {} });
 
 describe('returnConfirmSummaryObject', () => {
   it('should return sender with ssn prefix when ssn is present', () => {
