@@ -150,7 +150,7 @@ export function en() {
       row_error: 'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',
       row_popover_delete_message: 'Are you sure you want to delete this row?',
       row_popover_delete_button_confirm: 'Yes, delete the row',
-      validation_message_too_few_rows: 'You have to add at least {0} rows',
+      validation_message_too_few_rows: 'You have to add {0} more rows',
     },
     iframe_component: {
       unsupported_browser_title: 'Your browser is unsupported',
