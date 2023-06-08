@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { Select } from '@digdir/design-system-react';
 
@@ -6,14 +6,13 @@ import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { ProfileActions } from 'src/features/profile/profileSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { useGetAppLanguageQuery } from 'src/services/LanguageApi';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
 
 export const LanguageSelector = () => {
-  const language = useAppSelector((state) => state.language.language);
+  const { langAsString } = useLanguage();
   const selectedAppLanguage = useAppSelector(appLanguageStateSelector);
-  const textResources = useAppSelector((state) => state.textResources.resources);
 
   const { data: appLanguages, isError: appLanguageError } = useGetAppLanguageQuery();
   const dispatch = useAppDispatch();
@@ -22,26 +21,26 @@ export const LanguageSelector = () => {
     dispatch(ProfileActions.updateSelectedAppLanguage({ selected: languageCode }));
   };
 
+  const optionsMap = useMemo(
+    () =>
+      appLanguages?.map((lang) => ({
+        label: langAsString(`language.full_name.${lang.language}`),
+        value: lang.language,
+      })),
+    [appLanguages, langAsString],
+  );
+
   if (appLanguageError) {
     console.error('Failed to load app languages.');
     return null;
   }
 
-  if (appLanguages && language) {
+  if (appLanguages) {
     return (
       <div style={{ minWidth: 150 }}>
         <Select
-          label={getTextFromAppOrDefault('language.selector.label', textResources, language, undefined, true)}
-          options={appLanguages.map((lang) => ({
-            value: lang.language,
-            label: getTextFromAppOrDefault(
-              `language.full_name.${lang.language}`,
-              textResources,
-              language,
-              undefined,
-              true,
-            ),
-          }))}
+          label={langAsString('language.selector.label')}
+          options={optionsMap || []}
           onChange={(value) => handleAppLanguageChange(value)}
           value={selectedAppLanguage}
         />
