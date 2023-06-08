@@ -31,7 +31,7 @@ export const ExpressionPlayground = () => {
   const nodes = useExprContext();
   const currentPage = nodes?.current()?.top.myKey;
   const mostDataSources = useAppSelector(dataSourcesFromState);
-  const formData = FD.useAsDotMap();
+  const formData = FD.useAsDotMap('current');
 
   useEffect(() => {
     if (!input || input.length <= 0) {
@@ -105,7 +105,7 @@ export const ExpressionPlayground = () => {
             style={{ color: isError ? 'red' : 'black' }}
             className={cn(classes.textbox, classes.output)}
             readOnly={true}
-            value={output}
+            value={JSON.stringify(output)}
             placeholder={'Resultatet av uttrykket vises her'}
           />
         </SplitView>
