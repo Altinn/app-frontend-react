@@ -1,8 +1,8 @@
 import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnConfirmSummaryObject';
-import { staticUseLanguage } from 'src/hooks/useLanguage';
+import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import type { IParty } from 'src/types/shared';
 
-const langTools = staticUseLanguage([], {}, 'nb', 'nb');
+const langTools = staticUseLanguageForTests();
 
 describe('returnConfirmSummaryObject', () => {
   it('should return sender with ssn prefix when ssn is present', () => {
@@ -75,7 +75,7 @@ describe('returnConfirmSummaryObject', () => {
 
   it('should return custom value for confirm.sender if key is supplied in text resources', () => {
     const result = returnConfirmSummaryObject({
-      langTools: staticUseLanguage([{ id: 'confirm.sender', value: 'Some custom value' }], {}, 'nb', 'nb'),
+      langTools: staticUseLanguageForTests({ textResources: [{ id: 'confirm.sender', value: 'Some custom value' }] }),
       instanceOwnerParty: {
         partyId: '50001',
         name: 'Ola Privatperson',

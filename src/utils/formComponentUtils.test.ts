@@ -1,6 +1,6 @@
 import parseHtmlToReact from 'html-react-parser';
 
-import { staticUseLanguage } from 'src/hooks/useLanguage';
+import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { parseOptions } from 'src/language/sharedLanguage';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import {
@@ -212,7 +212,7 @@ describe('formComponentUtils', () => {
         generic_field: 'dette feltet',
       },
     };
-    const mockLangTools = staticUseLanguage(textResources, mockLanguage, 'nb', 'nb');
+    const mockLangTools = staticUseLanguageForTests({ textResources, language: mockLanguage });
 
     it('should return field text from languages when fieldKey is present', () => {
       const result = getFieldName({ title: 'title' }, mockLangTools, 'address');

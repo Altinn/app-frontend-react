@@ -41,14 +41,14 @@ describe('InstantiationButton', () => {
 
     expect(mockAxios).toHaveBeenCalledTimes(0);
 
-    expect(screen.queryByText('general.loading')).toBeNull();
+    expect(screen.queryByText('Laster innhold')).toBeNull();
 
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => userEvent.click(screen.getByRole('button')));
 
     expect(mockAxios).toHaveBeenCalledTimes(1);
 
-    expect(screen.getByText('general.loading')).toBeInTheDocument();
+    expect(screen.getByText('Laster innhold')).toBeInTheDocument();
 
     await act(() => {
       mockAxios.mockResponse({ data: { id: 'abc123' } });

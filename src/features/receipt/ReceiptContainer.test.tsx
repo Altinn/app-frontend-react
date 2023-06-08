@@ -7,7 +7,7 @@ import { dataTypes, instanceOwner, partyMember, partyTypesAllowed, userProfile }
 import { getInstanceDataStateMock } from 'src/__mocks__/instanceDataStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { ReceiptContainer, returnInstanceMetaDataObject } from 'src/features/receipt/ReceiptContainer';
-import { staticUseLanguage } from 'src/hooks/useLanguage';
+import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { MemoryRouterWithRedirectingRoot, renderWithProviders } from 'src/testUtils';
 import type { ILayout } from 'src/layout/layout';
 import type { IAltinnOrgs, IParty } from 'src/types/shared';
@@ -388,12 +388,11 @@ describe('returnInstanceMetaDataObject', () => {
         ssn: '01017512345',
       },
     };
-    const langTools = staticUseLanguage(
-      testData.textResources,
-      testData.languageData,
-      testData.userLanguageString,
-      'nb',
-    );
+    const langTools = staticUseLanguageForTests({
+      textResources: testData.textResources,
+      language: testData.languageData,
+      selectedAppLanguage: testData.userLanguageString,
+    });
 
     const expected = {
       'receipt.date_sent': '22.08.2019 / 09:08',

@@ -1,4 +1,4 @@
-import { staticUseLanguage } from 'src/hooks/useLanguage';
+import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import {
   getAppName,
   getAppOwner,
@@ -258,7 +258,7 @@ describe('language.ts', () => {
         },
       ];
 
-      const result = getAppName({} as IApplication, staticUseLanguage(textResources, {}, 'nb', 'nb'));
+      const result = getAppName({} as IApplication, staticUseLanguageForTests({ textResources }));
       const expectedResult = 'SomeAppName';
       expect(result).toEqual(expectedResult);
     });
@@ -271,7 +271,7 @@ describe('language.ts', () => {
         },
       ];
 
-      const result = getAppName({} as IApplication, staticUseLanguage(textResources, {}, 'nb', 'nb'));
+      const result = getAppName({} as IApplication, staticUseLanguageForTests({ textResources }));
       const expectedResult = 'SomeAppName';
       expect(result).toEqual(expectedResult);
     });
@@ -284,7 +284,7 @@ describe('language.ts', () => {
         },
       } as unknown as IApplication;
 
-      const result = getAppName(applicationMetadata, staticUseLanguage(textResources, {}, 'nb', 'nb'));
+      const result = getAppName(applicationMetadata, staticUseLanguageForTests({ textResources }));
       const expectedResult = 'SomeAppName';
       expect(result).toEqual(expectedResult);
     });
@@ -302,7 +302,7 @@ describe('language.ts', () => {
         },
       } as unknown as IApplication;
 
-      const result = getAppName(applicationMetadata, staticUseLanguage(textResources, {}, 'nb', 'nb'));
+      const result = getAppName(applicationMetadata, staticUseLanguageForTests({ textResources }));
       const expectedResult = 'AppNameFromTextResource';
       expect(result).toEqual(expectedResult);
     });
@@ -320,7 +320,7 @@ describe('language.ts', () => {
         },
       } as unknown as IApplication;
 
-      const result = getAppName(applicationMetadata, staticUseLanguage(textResources, {}, 'nb', 'nb'));
+      const result = getAppName(applicationMetadata, staticUseLanguageForTests({ textResources }));
       const expectedResult = 'AppNameFromTextResource';
       expect(result).toEqual(expectedResult);
     });
@@ -333,13 +333,13 @@ describe('language.ts', () => {
         },
       } as unknown as IApplication;
 
-      const result = getAppName(applicationMetadata, staticUseLanguage(textResources, {}, 'nb', 'en'));
+      const result = getAppName(applicationMetadata, staticUseLanguageForTests({ textResources }));
       const expectedResult = 'NorwegianName';
       expect(result).toEqual(expectedResult);
     });
 
     it('should return undefined string if neither defined in textResources and applicationMetadata not set', () => {
-      const result = getAppName(null, staticUseLanguage([], {}, 'nb', 'en'));
+      const result = getAppName(null, staticUseLanguageForTests());
       expect(result).toBeUndefined();
     });
   });
@@ -357,7 +357,7 @@ describe('language.ts', () => {
           name: { nb: 'NameFromOrg' },
         } as unknown as IAltinnOrg,
       };
-      const result = getAppOwner(orgs, 'ttd', staticUseLanguage(textResources, {}, 'nb', 'nb'));
+      const result = getAppOwner(orgs, 'ttd', staticUseLanguageForTests({ textResources }));
       const expectedResult = 'NameFromResources';
       expect(result).toEqual(expectedResult);
     });
@@ -369,14 +369,14 @@ describe('language.ts', () => {
           name: { nb: 'NameFromOrg' },
         } as unknown as IAltinnOrg,
       };
-      const result = getAppOwner(orgs, 'ttd', staticUseLanguage(textResources, {}, 'nb', 'nb'));
+      const result = getAppOwner(orgs, 'ttd', staticUseLanguageForTests({ textResources }));
       const expectedResult = 'NameFromOrg';
       expect(result).toEqual(expectedResult);
     });
 
     it('should return undefined value is not set by appOwner key and no text defined in org', () => {
       const textResources: ITextResource[] = [];
-      const result = getAppOwner({}, 'ttd', staticUseLanguage(textResources, {}, 'nb', 'nb'));
+      const result = getAppOwner({}, 'ttd', staticUseLanguageForTests({ textResources }));
       expect(result).toEqual(undefined);
     });
   });

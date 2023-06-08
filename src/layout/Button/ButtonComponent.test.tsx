@@ -12,14 +12,14 @@ describe('ButtonComponent', () => {
     render('');
 
     expect(screen.getByRole('button', { name: submitBtnText })).toBeInTheDocument();
-    expect(screen.queryByText('general.loading')).not.toBeInTheDocument();
+    expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
   });
 
   it('should render loader when submittingId is truthy', () => {
     render('some-id');
 
     expect(screen.getByRole('button')).toBeInTheDocument();
-    expect(screen.getByText('general.loading')).toBeInTheDocument();
+    expect(screen.getByText('Laster innhold')).toBeInTheDocument();
   });
 });
 
@@ -33,7 +33,6 @@ const render = (submittingId: string) => {
     genericProps: {
       text: submitBtnText,
       handleDataChange: jest.fn(),
-      language: {},
     },
     manipulateState: (state) => {
       state.formData.submittingId = submittingId;

@@ -66,10 +66,28 @@ export function staticUseLanguageFromState(state: IRuntimeState) {
   return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage);
 }
 
+interface ILanguageState {
+  textResources: ITextResource[];
+  language: ILanguage | null;
+  selectedAppLanguage: string | undefined;
+  profileLanguage: string | undefined;
+}
+
 /**
- * Static version of useLanguage() for use outside of React components. Can be used from sagas, etc.
+ * Static version, like the above and below functions, but with an API that lets you pass just the state you need.
+ * This is useful for testing, but please do not use this in production code (where all arguments should be passed,
+ * even if the signature is updated).
  */
-export function staticUseLanguage(
+export function staticUseLanguageForTests({
+  textResources = [],
+  language = null,
+  profileLanguage = 'nb',
+  selectedAppLanguage = 'nb',
+}: Partial<ILanguageState> = {}) {
+  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage);
+}
+
+function staticUseLanguage(
   textResources: ITextResource[],
   _language: ILanguage | null,
   selectedAppLanguage: string | undefined,

@@ -9,7 +9,7 @@ import * as complexSchema from 'src/__mocks__/json-schema/complex.json';
 import * as oneOfOnRootSchema from 'src/__mocks__/json-schema/one-of-on-root.json';
 import * as refOnRootSchema from 'src/__mocks__/json-schema/ref-on-root.json';
 import { getMockValidationState } from 'src/__mocks__/validationStateMock';
-import { staticUseLanguage } from 'src/hooks/useLanguage';
+import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
 import { Severity } from 'src/types';
 import { getRepeatingGroups } from 'src/utils/formLayout';
@@ -575,7 +575,7 @@ describe('utils > validation', () => {
       },
     ];
 
-    mockLangTools = staticUseLanguage(mockTextResources, mockLanguage.language, 'nb', 'nb');
+    mockLangTools = staticUseLanguageForTests({ textResources: mockTextResources, language: mockLanguage.language });
 
     /**
      * Silences deprecation warning about jsPropertySyntax from Ajv, so we don't pollute our test runner output with
