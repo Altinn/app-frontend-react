@@ -4,7 +4,7 @@ import { marked } from 'marked';
 import { mangle } from 'marked-mangle';
 import type { HTMLReactParserOptions } from 'html-react-parser';
 
-import type { ValidLanguageKey } from 'src/hooks/useLanguage';
+import type { IUseLanguage, ValidLanguageKey } from 'src/hooks/useLanguage';
 import type { IAltinnOrgs, IApplication, IDataSources, ILanguage, ITextResource } from 'src/types/shared';
 
 marked.use(mangle());
@@ -248,10 +248,10 @@ export function replaceTextResourceParams(
 export function getOrgName(
   orgs: IAltinnOrgs | null,
   org: string | undefined,
-  userLanguage: string,
+  langTools: IUseLanguage,
 ): string | undefined {
   if (orgs && typeof org === 'string' && orgs[org]) {
-    return orgs[org].name[userLanguage] || orgs[org].name.nb;
+    return orgs[org].name[langTools.selectedLanguage] || orgs[org].name.nb;
   }
 
   return undefined;
@@ -259,47 +259,37 @@ export function getOrgName(
 
 const appOwnerKey = 'appOwner';
 
-export function getAppOwner(
-  textResources: ITextResource[],
-  orgs: IAltinnOrgs | null,
-  org: string | undefined,
-  userLanguage: string,
-) {
-  const appOwner = getTextResourceByKey(appOwnerKey, textResources);
+export function getAppOwner(orgs: IAltinnOrgs | null, org: string | undefined, langTools: IUseLanguage) {
+  const appOwner = langTools.langAsString(appOwnerKey);
   if (appOwner !== appOwnerKey) {
     return appOwner;
   }
 
-  return getOrgName(orgs, org, userLanguage);
+  return getOrgName(orgs, org, langTools);
 }
 
 const appReceiverKey = 'appReceiver';
 
 export function getAppReceiver(
-  textResources: ITextResource[],
   orgs: IAltinnOrgs | null,
   org: string | undefined,
-  userLanguage: string,
+  langTools: IUseLanguage,
 ): string | undefined {
-  const appReceiver = getTextResourceByKey(appReceiverKey, textResources);
+  const appReceiver = langTools.langAsString(appReceiverKey);
   if (appReceiver !== appReceiverKey) {
     return appReceiver;
   }
 
-  return getOrgName(orgs, org, userLanguage);
+  return getOrgName(orgs, org, langTools);
 }
 
 const appNameKey = 'appName';
 const oldAppNameKey = 'ServiceName';
 
-export function getAppName(
-  textResources: ITextResource[],
-  applicationMetadata: IApplication | null,
-  userLanguage: string,
-) {
-  let appName = getTextResourceByKey(appNameKey, textResources);
+export function getAppName(applicationMetadata: IApplication | null, langTools: IUseLanguage) {
+  let appName = langTools.langAsString(appNameKey);
   if (appName === appNameKey) {
-    appName = getTextResourceByKey(oldAppNameKey, textResources);
+    appName = langTools.langAsString(oldAppNameKey);
   }
 
   if (appName !== appNameKey && appName !== oldAppNameKey) {
@@ -308,7 +298,7 @@ export function getAppName(
 
   // if no text resource key is set, fetch from app metadata
   if (applicationMetadata) {
-    return applicationMetadata.title[userLanguage] || applicationMetadata.title.nb;
+    return applicationMetadata.title[langTools.selectedLanguage] || applicationMetadata.title.nb;
   }
 
   return undefined;

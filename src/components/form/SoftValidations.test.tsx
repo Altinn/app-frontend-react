@@ -4,7 +4,7 @@ import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { getPanelTitle, SoftValidations } from 'src/components/form/SoftValidations';
-import { nb } from 'src/language/texts/nb';
+import { staticUseLanguage } from 'src/hooks/useLanguage';
 import { FormComponentContext } from 'src/layout';
 import { renderWithProviders } from 'src/testUtils';
 import type { ISoftValidationProps, SoftValidationVariant } from 'src/components/form/SoftValidations';
@@ -43,12 +43,13 @@ describe('SoftValidations', () => {
   it.each(['info', 'warning', 'success'])(
     'for variant %p it should render the message with correct title',
     (variant: SoftValidationVariant) => {
+      const langTools = staticUseLanguage([], null, 'nb', 'nb');
       render({ variant });
 
       const message = screen.getByText('Some message');
       expect(message).toBeInTheDocument();
 
-      const title = screen.getByText(getPanelTitle({ variant, textResources: [], language: nb() }));
+      const title = screen.getByText(getPanelTitle({ variant, langTools }));
       expect(title).toBeInTheDocument();
     },
   );
@@ -67,6 +68,7 @@ describe('SoftValidations', () => {
           value: 'Overridden success title',
         },
       ];
+      const langTools = staticUseLanguage(suppliedTextResources, null, 'nb', 'nb');
       render(
         { variant },
         {
@@ -81,13 +83,7 @@ describe('SoftValidations', () => {
       const message = screen.getByText('Some message');
       expect(message).toBeInTheDocument();
 
-      const title = screen.getByText(
-        getPanelTitle({
-          variant,
-          textResources: suppliedTextResources,
-          language: nb(),
-        }),
-      );
+      const title = screen.getByText(getPanelTitle({ variant, langTools }));
       expect(title).toBeInTheDocument();
     },
   );

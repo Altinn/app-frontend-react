@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
@@ -46,7 +48,10 @@ export function useLanguage() {
   const profileLanguage = useAppSelector((state) => state.profile.profile.profileSettingPreference.language);
   const selectedAppLanguage = useAppSelector((state) => state.profile.selectedAppLanguage);
 
-  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage);
+  return useMemo(
+    () => staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage),
+    [language, profileLanguage, selectedAppLanguage, textResources],
+  );
 }
 
 /**

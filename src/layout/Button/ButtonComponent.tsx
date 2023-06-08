@@ -77,7 +77,6 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
       <SubmitButton
         onClick={() => submitTask({ componentId: id })}
         id={id}
-        language={props.language}
         busyWithId={busyWithId}
         disabled={disabled}
       >

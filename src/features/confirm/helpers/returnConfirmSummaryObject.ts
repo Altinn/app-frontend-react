@@ -1,13 +1,12 @@
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
-import type { ILanguage, IParty, ITextResource } from 'src/types/shared';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IParty } from 'src/types/shared';
 
 export interface ISummaryData {
-  languageData?: ILanguage;
   instanceOwnerParty?: IParty;
-  textResources?: ITextResource[];
+  langTools: IUseLanguage;
 }
 
-export const returnConfirmSummaryObject = ({ languageData, instanceOwnerParty, textResources }: ISummaryData) => {
+export const returnConfirmSummaryObject = ({ instanceOwnerParty, langTools }: ISummaryData) => {
   let sender = '';
   if (instanceOwnerParty?.ssn) {
     sender = `${instanceOwnerParty.ssn}-${instanceOwnerParty.name}`;
@@ -15,7 +14,7 @@ export const returnConfirmSummaryObject = ({ languageData, instanceOwnerParty, t
     sender = `${instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
   }
 
-  const key = getTextFromAppOrDefault('confirm.sender', textResources || [], languageData || {}, undefined, true);
+  const key = langTools.langAsString('confirm.sender');
 
   return {
     [key]: sender,
