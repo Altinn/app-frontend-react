@@ -57,77 +57,68 @@ export function* uploadAttachmentSaga({
 
     const response: AxiosResponse = yield call(httpPost, fileUploadLink, config, file);
 
-    if (response.status === 201) {
-      const attachment: IAttachment = {
-        name: file.name,
-        size: file.size,
-        uploaded: true,
-        tags: [],
-        id: response.data.id,
-        deleting: false,
-        updating: false,
-      };
+    const attachment: IAttachment = {
+      name: file.name,
+      size: file.size,
+      uploaded: true,
+      tags: [],
+      id: response.data.id,
+      deleting: false,
+      updating: false,
+    };
+    yield put(
+      AttachmentActions.uploadAttachmentFulfilled({
+        attachment,
+        attachmentType,
+        tmpAttachmentId,
+        componentId,
+      }),
+    );
+
+    if (dataModelBindings && (dataModelBindings.simpleBinding || dataModelBindings.list)) {
       yield put(
-        AttachmentActions.uploadAttachmentFulfilled({
-          attachment,
-          attachmentType,
-          tmpAttachmentId,
+        FormDataActions.update({
           componentId,
+          data: response.data.id,
+          field: dataModelBindings.simpleBinding
+            ? `${dataModelBindings.simpleBinding}`
+            : `${dataModelBindings.list}[${index}]`,
         }),
       );
-
-      if (dataModelBindings && (dataModelBindings.simpleBinding || dataModelBindings.list)) {
-        yield put(
-          FormDataActions.update({
-            componentId,
-            data: response.data.id,
-            field: dataModelBindings.simpleBinding
-              ? `${dataModelBindings.simpleBinding}`
-              : `${dataModelBindings.list}[${index}]`,
-          }),
-        );
-      }
-    } else {
-      throw new AxiosError('Error uploading file', undefined, undefined, undefined, response);
     }
   } catch (err) {
-    if (err instanceof AxiosError) {
-      let validations: IComponentValidations = {};
+    let validations: IComponentValidations = {};
 
-      if (backendFeatures?.jsonObjectInDataResponse && err.response?.data?.result) {
-        const validationIssues: IValidationIssue[] = err.response.data.result;
+    if (backendFeatures?.jsonObjectInDataResponse && err instanceof AxiosError && err.response?.data?.result) {
+      const validationIssues: IValidationIssue[] = err.response.data.result;
 
-        validations = {
-          simpleBinding: {
-            errors: validationIssues
-              .filter((v) => v.severity === Severity.Error)
-              .map((v) => getValidationMessage(v, textResources, language)),
-            warnings: validationIssues
-              .filter((v) => v.severity === Severity.Warning)
-              .map((v) => getValidationMessage(v, textResources, language)),
-          },
-        };
-      } else {
-        validations = getFileUploadComponentValidations('upload', language);
-      }
-
-      yield put(
-        ValidationActions.updateComponentValidations({
-          componentId,
-          layoutId: currentView,
-          validations,
-        }),
-      );
-      yield put(
-        AttachmentActions.uploadAttachmentRejected({
-          componentId,
-          attachmentType,
-          attachmentId: tmpAttachmentId,
-        }),
-      );
+      validations = {
+        simpleBinding: {
+          errors: validationIssues
+            .filter((v) => v.severity === Severity.Error)
+            .map((v) => getValidationMessage(v, textResources, language)),
+          warnings: validationIssues
+            .filter((v) => v.severity === Severity.Warning)
+            .map((v) => getValidationMessage(v, textResources, language)),
+        },
+      };
     } else {
-      // Ukjent feil?
-      console.error('File upload failed for an unknown reason');
+      validations = getFileUploadComponentValidations('upload', language);
     }
+
+    yield put(
+      ValidationActions.updateComponentValidations({
+        componentId,
+        layoutId: currentView,
+        validations,
+      }),
+    );
+    yield put(
+      AttachmentActions.uploadAttachmentRejected({
+        componentId,
+        attachmentType,
+        attachmentId: tmpAttachmentId,
+      }),
+    );
   }
 }
