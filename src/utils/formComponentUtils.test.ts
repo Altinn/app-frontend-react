@@ -1,5 +1,6 @@
 import parseHtmlToReact from 'html-react-parser';
 
+import { staticUseLanguage } from 'src/hooks/useLanguage';
 import { parseOptions } from 'src/language/sharedLanguage';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import {
@@ -211,24 +212,25 @@ describe('formComponentUtils', () => {
         generic_field: 'dette feltet',
       },
     };
+    const mockLangTools = staticUseLanguage(textResources, mockLanguage, 'nb', 'nb');
 
     it('should return field text from languages when fieldKey is present', () => {
-      const result = getFieldName({ title: 'title' }, textResources, mockLanguage, 'address');
+      const result = getFieldName({ title: 'title' }, mockLangTools, 'address');
       expect(result).toEqual('gateadresse');
     });
 
     it('should return component shortName (textResourceBindings) when no fieldKey is present', () => {
-      const result = getFieldName({ title: 'title', shortName: 'short' }, textResources, mockLanguage);
+      const result = getFieldName({ title: 'title', shortName: 'short' }, mockLangTools);
       expect(result).toEqual('name');
     });
 
     it('should return component title (textResourceBindings) when no shortName (textResourceBindings) and no fieldKey is present', () => {
-      const result = getFieldName({ title: 'title' }, textResources, mockLanguage);
+      const result = getFieldName({ title: 'title' }, mockLangTools);
       expect(result).toEqual('component name');
     });
 
     it('should return generic field name when fieldKey, shortName and title are all not available', () => {
-      const result = getFieldName({ something: 'someTextKey' }, textResources, mockLanguage);
+      const result = getFieldName({ something: 'someTextKey' }, mockLangTools);
       expect(result).toEqual('dette feltet');
     });
   });

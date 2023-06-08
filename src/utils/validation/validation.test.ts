@@ -9,6 +9,7 @@ import * as complexSchema from 'src/__mocks__/json-schema/complex.json';
 import * as oneOfOnRootSchema from 'src/__mocks__/json-schema/one-of-on-root.json';
 import * as refOnRootSchema from 'src/__mocks__/json-schema/ref-on-root.json';
 import { getMockValidationState } from 'src/__mocks__/validationStateMock';
+import { staticUseLanguage } from 'src/hooks/useLanguage';
 import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { getLayoutComponentObject } from 'src/layout';
 import { Severity } from 'src/types';
@@ -16,6 +17,7 @@ import { getRepeatingGroups } from 'src/utils/formLayout';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import * as validation from 'src/utils/validation/validation';
 import type { ExprUnresolved } from 'src/features/expressions/types';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { ILayoutComponent, ILayouts } from 'src/layout/layout';
 import type {
@@ -88,6 +90,7 @@ describe('utils > validation', () => {
   let mockFormAttachments: any;
   let mockDataElementValidations: IValidationIssue[];
   let mockTextResources: ITextResource[];
+  let mockLangTools: IUseLanguage;
 
   beforeEach(() => {
     mockLanguage = {
@@ -150,6 +153,10 @@ describe('utils > validation', () => {
             dataSource: 'dataModel.default',
           },
         ],
+      },
+      {
+        id: 'custom_error',
+        value: 'This is a custom error message',
       },
     ];
 
@@ -569,6 +576,8 @@ describe('utils > validation', () => {
       },
     ];
 
+    mockLangTools = staticUseLanguage(mockTextResources, mockLanguage.language, 'nb', 'nb');
+
     /**
      * Silences deprecation warning about jsPropertySyntax from Ajv, so we don't pollute our test runner output with
      * these warnings. We already know about the deprecation of jsPropertySyntax, and our tests will fail if/when
@@ -753,8 +762,7 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       const mockResult = {
@@ -779,8 +787,7 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       const mockResult = {
@@ -813,8 +820,7 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout),
         Object.keys(mockLayout),
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       const mockResult = {
@@ -840,8 +846,7 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout, {}, new Set(['componentId_4'])),
         Object.keys(mockLayout),
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       const mockResult = {
@@ -867,8 +872,7 @@ describe('utils > validation', () => {
         mockFormAttachments.attachments,
         toCollection(mockLayout),
         [],
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       expect(componentSpecificValidations).toEqual({});
@@ -888,8 +892,7 @@ describe('utils > validation', () => {
         mockFormData,
         toCollection(mockLayout, repeatingGroups),
         Object.keys(mockLayout),
-        mockLanguage.language,
-        mockTextResources,
+        mockLangTools,
       );
 
       const mockResult = {
@@ -928,8 +931,7 @@ describe('utils > validation', () => {
         mockFormData,
         toCollection(mockLayout, repeatingGroups, new Set(['componentId_4-0'])),
         Object.keys(mockLayout),
-        mockLanguage.language,
-        mockTextResources,
+        mockLangTools,
       );
 
       const mockResult = {
@@ -962,8 +964,7 @@ describe('utils > validation', () => {
         mockFormData,
         toCollection(mockLayout, repeatingGroups),
         [],
-        mockLanguage.language,
-        mockTextResources,
+        mockLangTools,
       );
 
       expect(componentSpecificValidations).toEqual({});
@@ -977,12 +978,7 @@ describe('utils > validation', () => {
       }
 
       const validations = {};
-      validations[component.item.id] = validation.validateEmptyField(
-        mockFormData,
-        component,
-        mockTextResources,
-        mockLanguage.language,
-      );
+      validations[component.item.id] = validation.validateEmptyField(mockFormData, component, mockLangTools);
 
       const mockResult = {
         componentId_3: {
@@ -1004,12 +1000,7 @@ describe('utils > validation', () => {
       }
 
       const validations = {};
-      validations[component.item.id] = validation.validateEmptyField(
-        mockFormData,
-        component,
-        mockTextResources,
-        mockLanguage.language,
-      );
+      validations[component.item.id] = validation.validateEmptyField(mockFormData, component, mockLangTools);
 
       const mockResult = {
         componentId_6: {
@@ -1041,7 +1032,7 @@ describe('utils > validation', () => {
       if (!layout) {
         throw new Error('No layout found - check your test data!');
       }
-      return validation.validateEmptyFieldsForNodes(formData, layout, mockLanguage.language, mockTextResources);
+      return validation.validateEmptyFieldsForNodes(formData, layout, mockLangTools);
     };
 
     const requiredFieldInSimpleGroup = 'required_in_group_simple';
@@ -1181,7 +1172,7 @@ describe('utils > validation', () => {
       const mappedDataElementValidations = validation.mapDataElementValidationToRedux(
         mockDataElementValidations,
         mockLayoutState.layouts,
-        [],
+        mockLangTools,
       );
       const expected = getMockValidationState(false);
       expect(mappedDataElementValidations).toEqual(expected);
@@ -1252,7 +1243,7 @@ describe('utils > validation', () => {
       const mappedDataElementValidations = validation.mapDataElementValidationToRedux(
         serverValidationResponse,
         mockLayoutState.layouts,
-        [],
+        mockLangTools,
       );
 
       expect(mappedDataElementValidations).toEqual(expectedResult);
@@ -1276,7 +1267,7 @@ describe('utils > validation', () => {
             },
           ],
         },
-        [],
+        mockLangTools,
       );
       const expected = {
         ...getMockValidationState(false),
@@ -1300,8 +1291,7 @@ describe('utils > validation', () => {
         toCollectionFromData(mockLayout, mockFormData),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
-        mockLanguage.language,
-        [],
+        mockLangTools,
       );
       expect(mockResult).toEqual(mockFormValidationResult);
     });
@@ -1313,15 +1303,13 @@ describe('utils > validation', () => {
         toCollectionFromData(mockLayout, mockValidFormData),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
-        mockLanguage,
-        [],
+        mockLangTools,
       );
       expect(mockResult.validations).toEqual({});
     });
 
     it('should return custom error message when this is defined', () => {
       const mockValidator = validation.createValidator(mockJsonSchema);
-      const mockTexts = [{ id: 'custom_error', value: 'This is a custom error message' }];
       const formData = {
         ...mockValidFormData,
         dataModelField_custom: 'abcdefg',
@@ -1332,14 +1320,13 @@ describe('utils > validation', () => {
         toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
-        mockLanguage,
-        mockTexts,
+        mockLangTools,
       );
       expect(mockResult.validations).toEqual({
         FormLayout: {
           componentId_customError: {
             simpleBinding: {
-              errors: [getTextResourceByKey('custom_error', mockTexts)],
+              errors: ['This is a custom error message'],
             },
           },
         },
@@ -1356,8 +1343,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
-        mockLanguage,
-        [],
+        mockLangTools,
       );
       expect(mockResult.invalidDataTypes).toBeTruthy();
     });
@@ -1369,8 +1355,7 @@ describe('utils > validation', () => {
         toCollection(mockLayout),
         [],
         mockValidator,
-        mockLanguage.language,
-        [],
+        mockLangTools,
       );
       expect(mockResult).toEqual({ invalidDataTypes: false, validations: {} });
     });
@@ -1387,8 +1372,7 @@ describe('utils > validation', () => {
         toCollectionFromData(mockLayout, useFormData),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
-        mockLanguage.language,
-        [],
+        mockLangTools,
       );
       const mockFormValidationResult = {
         validations: {
@@ -1419,8 +1403,7 @@ describe('utils > validation', () => {
         toCollectionFromData(mockLayout, useFormData),
         Object.keys(mockLayoutState.layouts),
         mockValidator,
-        mockLanguage.language,
-        [],
+        mockLangTools,
       );
       const mockFormValidationResult = {
         validations: {
@@ -1445,7 +1428,7 @@ describe('utils > validation', () => {
 
   describe('isOneOfError', () => {
     it('should return fasle if provided error does not have keyword `oneOf`', () => {
-      const error: ErrorObject<string, Record<string, any>, unknown> = {
+      const error: ErrorObject = {
         keyword: 'test',
         instancePath: '',
         schemaPath: '',
@@ -1455,7 +1438,7 @@ describe('utils > validation', () => {
       expect(result).toBeFalsy();
     });
     it('should return true if provided error has keyword `oneOf`', () => {
-      const error: ErrorObject<string, Record<string, any>, unknown> = {
+      const error: ErrorObject = {
         keyword: 'oneOf',
         instancePath: '',
         schemaPath: '',
@@ -1466,7 +1449,7 @@ describe('utils > validation', () => {
     });
 
     it('should return true if provided error has param "type: null"', () => {
-      const error: ErrorObject<string, Record<string, any>, unknown> = {
+      const error: ErrorObject = {
         keyword: 'test',
         instancePath: '',
         schemaPath: '',
@@ -2459,7 +2442,7 @@ describe('utils > validation', () => {
           },
         },
       };
-      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLangTools);
       expect(result).toBeFalsy();
     });
     it('should return true when validations contain messages (string) for missing fields', () => {
@@ -2471,7 +2454,7 @@ describe('utils > validation', () => {
           },
         },
       };
-      const result = validation.missingFieldsInLayoutValidations(validations, mockLanguage.language);
+      const result = validation.missingFieldsInLayoutValidations(validations, mockLangTools);
       expect(result).toBeTruthy();
     });
     it('should return true when validations contain arrays with error message for missing fields', () => {
@@ -2485,8 +2468,8 @@ describe('utils > validation', () => {
       });
       const shallow = 'Første linje\nDu må fylle ut ';
       const deep = 'Dette er feil:\nFørste linje\nDu må fylle ut ';
-      expect(validation.missingFieldsInLayoutValidations(validations(shallow), mockLanguage.language)).toBeTruthy();
-      expect(validation.missingFieldsInLayoutValidations(validations(deep), mockLanguage.language)).toBeTruthy();
+      expect(validation.missingFieldsInLayoutValidations(validations(shallow), mockLangTools)).toBeTruthy();
+      expect(validation.missingFieldsInLayoutValidations(validations(deep), mockLangTools)).toBeTruthy();
     });
   });
   describe('validateDatepickerFormData', () => {
@@ -2498,8 +2481,7 @@ describe('utils > validation', () => {
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2515,8 +2497,7 @@ describe('utils > validation', () => {
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2532,8 +2513,7 @@ describe('utils > validation', () => {
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2549,8 +2529,7 @@ describe('utils > validation', () => {
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2566,8 +2545,7 @@ describe('utils > validation', () => {
           maxDate: '2020-12-31T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2583,8 +2561,7 @@ describe('utils > validation', () => {
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2600,8 +2577,7 @@ describe('utils > validation', () => {
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       expect(validations.simpleBinding).toEqual({
@@ -2617,8 +2593,7 @@ describe('utils > validation', () => {
           maxDate: '2020-12-01T12:00:00.000+01:00',
           format: 'DD.MM.YYYY',
         } as ExprUnresolved<ILayoutCompDatepicker>,
-        mockLanguage.language,
-        'nb',
+        mockLangTools,
       );
 
       expect(validations.simpleBinding).toEqual({

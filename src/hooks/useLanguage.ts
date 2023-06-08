@@ -2,10 +2,13 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
 import type { FixedLanguageList } from 'src/language/languages';
+import type { IRuntimeState, ITextResource } from 'src/types';
+import type { ILanguage } from 'src/types/shared';
 
 type ValidParam = string | number | undefined;
 
 export interface IUseLanguage {
+  selectedLanguage: string;
   lang(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string | JSX.Element | JSX.Element[] | null;
   langAsString(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
 }
@@ -37,11 +40,41 @@ const defaultLocale = 'nb';
  * You get two functions from this hook, and you can choose which one to use based on your needs:
  * - lang(key, params) usually returns a React element
  */
-export function useLanguage(): IUseLanguage {
+export function useLanguage() {
   const textResources = useAppSelector((state) => state.textResources.resources);
-  const language = useAppSelector((state) => state.language.language) || getLanguageFromCode(defaultLocale);
+  const language = useAppSelector((state) => state.language.language);
+  const profileLanguage = useAppSelector((state) => state.profile.profile.profileSettingPreference.language);
+  const selectedAppLanguage = useAppSelector((state) => state.profile.selectedAppLanguage);
+
+  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage);
+}
+
+/**
+ * Static version of useLanguage() for use outside of React components. Can be used from sagas, etc.
+ */
+export function staticUseLanguageFromState(state: IRuntimeState) {
+  const textResources = state.textResources.resources;
+  const language = state.language.language;
+  const profileLanguage = state.profile.profile.profileSettingPreference.language;
+  const selectedAppLanguage = state.profile.selectedAppLanguage;
+
+  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage);
+}
+
+/**
+ * Static version of useLanguage() for use outside of React components. Can be used from sagas, etc.
+ */
+export function staticUseLanguage(
+  textResources: ITextResource[],
+  _language: ILanguage | null,
+  selectedAppLanguage: string | undefined,
+  profileLanguage: string | undefined,
+): IUseLanguage {
+  const language = _language || getLanguageFromCode(defaultLocale);
+  const langKey = selectedAppLanguage || profileLanguage || defaultLocale;
 
   return {
+    selectedLanguage: langKey,
     lang: (key, params) => {
       const textResource: string | undefined = getTextResourceByKey(key, textResources);
       if (textResource !== key && textResource !== undefined) {

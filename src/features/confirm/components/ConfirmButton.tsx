@@ -4,6 +4,7 @@ import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { httpGet } from 'src/utils/network/networking';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
@@ -23,6 +24,7 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
   const disabled = processActionsFeature && !actions?.confirm;
 
   const dispatch = useAppDispatch();
+  const langTools = useLanguage();
   const { instanceId } = window;
 
   const handleConfirmClick = () => {
@@ -30,7 +32,7 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
       setValidateId(props.id);
       httpGet(getValidationUrl(instanceId))
         .then((data: any) => {
-          const mappedValidations = mapDataElementValidationToRedux(data, {}, textResources);
+          const mappedValidations = mapDataElementValidationToRedux(data, {}, langTools);
           dispatch(
             ValidationActions.updateValidations({
               validations: mappedValidations,

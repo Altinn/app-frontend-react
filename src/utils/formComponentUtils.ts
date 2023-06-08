@@ -3,9 +3,9 @@ import type React from 'react';
 import { getLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
 import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { IAttachment } from 'src/features/attachments';
 import type { ExprResolved } from 'src/features/expressions/types';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { IPageBreak } from 'src/layout/layout.d';
 import type { IComponentValidations, ITextResource, ITextResourceBindings } from 'src/types';
@@ -143,25 +143,24 @@ export const atleastOneTagExists = (attachments: IAttachment[]): boolean => {
 
 export function getFieldName(
   textResourceBindings: ITextResourceBindings | undefined,
-  textResources: ITextResource[],
-  language: ILanguage,
+  langTools: IUseLanguage,
   fieldKey?: string,
 ): string | undefined {
+  const { langAsString } = langTools;
+
   if (fieldKey) {
-    return smartLowerCaseFirst(
-      getTextFromAppOrDefault(`form_filler.${fieldKey}`, textResources, language, undefined, true),
-    );
+    return smartLowerCaseFirst(langAsString(`form_filler.${fieldKey}`));
   }
 
   if (textResourceBindings?.shortName) {
-    return getTextResourceByKey(textResourceBindings.shortName, textResources);
+    return langAsString(textResourceBindings.shortName);
   }
 
   if (textResourceBindings?.title) {
-    return smartLowerCaseFirst(getTextResourceByKey(textResourceBindings.title, textResources));
+    return smartLowerCaseFirst(langAsString(textResourceBindings.title));
   }
 
-  return getLanguageFromKey('validation.generic_field', language);
+  return langAsString('validation.generic_field');
 }
 
 /**
