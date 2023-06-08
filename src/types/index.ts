@@ -4,6 +4,7 @@ import type Ajv from 'ajv/dist/core';
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
+import type { IFeatureToggles } from 'src/features/toggles';
 import type { RootState } from 'src/redux/store';
 
 export interface IAltinnWindow extends Window {
@@ -15,6 +16,7 @@ export interface IAltinnWindow extends Window {
   evalExpression: (maybeExpression: any, forComponentId?: string) => any;
   reduxStore: ToolkitStore<IRuntimeState>;
   reduxActionLog: any[];
+  featureToggles: IFeatureToggles;
 }
 
 export interface IComponentBindingValidation {
@@ -177,7 +179,6 @@ export interface IHiddenLayoutsExpressions {
 }
 
 export interface IUiConfig {
-  autoSave: boolean | null | undefined;
   autoSaveBehavior?: 'onChangePage' | 'onChangeFormData';
   receiptLayoutName?: string;
   currentView: string;
@@ -277,11 +278,15 @@ export enum Triggers {
   Validation = 'validation',
   CalculatePageOrder = 'calculatePageOrder',
   ValidatePage = 'validatePage',
+  ValidateCurrentAndPreviousPages = 'validateCurrentAndPreviousPages',
   ValidateAllPages = 'validateAllPages',
   ValidateRow = 'validateRow',
 }
 
-export type TriggersPageValidation = Triggers.ValidateAllPages | Triggers.ValidatePage;
+export type TriggersPageValidation =
+  | Triggers.ValidateAllPages
+  | Triggers.ValidateCurrentAndPreviousPages
+  | Triggers.ValidatePage;
 
 /**
  * Reduces a list of validation triggers to be only one value (preferring validation for all pages
@@ -290,9 +295,37 @@ export type TriggersPageValidation = Triggers.ValidateAllPages | Triggers.Valida
 export function reducePageValidations(triggers?: Triggers[]): TriggersPageValidation | undefined {
   return triggers?.includes(Triggers.ValidateAllPages)
     ? Triggers.ValidateAllPages
+    : triggers?.includes(Triggers.ValidateCurrentAndPreviousPages)
+    ? Triggers.ValidateCurrentAndPreviousPages
     : triggers?.includes(Triggers.ValidatePage)
     ? Triggers.ValidatePage
     : undefined;
+}
+
+/**
+ * Filters an IValidations object to only include validations for the given TriggersPageValidation trigger.
+ */
+export function filterPageValidations(
+  validations: IValidations,
+  trigger: TriggersPageValidation,
+  currentView: string,
+  pageOrder: string[],
+): IValidations {
+  if (trigger === Triggers.ValidateAllPages) {
+    return validations;
+  }
+
+  if (trigger === Triggers.ValidateCurrentAndPreviousPages) {
+    const index = pageOrder.indexOf(currentView);
+    const previousPages = pageOrder.slice(0, index + 1);
+    return Object.fromEntries(Object.entries(validations).filter(([page]) => previousPages.includes(page)));
+  }
+
+  if (trigger === Triggers.ValidatePage) {
+    return { [currentView]: validations[currentView] };
+  }
+
+  return {};
 }
 
 export interface ILabelSettings {

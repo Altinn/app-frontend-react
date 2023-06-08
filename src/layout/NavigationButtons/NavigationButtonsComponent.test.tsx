@@ -37,7 +37,6 @@ describe('NavigationButton', () => {
           },
           readOnly: false,
           required: false,
-          disabled: false,
           textResourceBindings: {},
         },
         navButton1,
@@ -51,7 +50,6 @@ describe('NavigationButton', () => {
           },
           readOnly: false,
           required: false,
-          disabled: false,
           textResourceBindings: {},
         },
         navButton2,
@@ -59,7 +57,6 @@ describe('NavigationButton', () => {
     },
     uiConfig: {
       currentView: 'layout1',
-      autoSave: true,
       focus: null,
       hiddenFields: [],
       repeatingGroups: {},

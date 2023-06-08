@@ -771,6 +771,10 @@ function addErrorToValidations(
   }
 }
 
+/**
+ * @deprecated
+ * @see mapToComponentValidationsGivenNode
+ */
 function mapToComponentValidationsGivenComponent(
   layoutId: string,
   component: ExprUnresolved<ILayoutComponent | ILayoutGroup>,
@@ -799,7 +803,7 @@ export function mapToComponentValidationsGivenNode(
   onlyInRowIndex?: number,
 ) {
   let fieldKey: string | undefined = undefined;
-  const component = node.flat(true, onlyInRowIndex).find((item) => {
+  const foundNode = node.flat(true, onlyInRowIndex).find((item) => {
     if (item.item.dataModelBindings) {
       fieldKey = Object.keys(item.item.dataModelBindings).find(
         (key) =>
@@ -809,23 +813,23 @@ export function mapToComponentValidationsGivenNode(
     return !!fieldKey;
   });
 
-  if (!fieldKey || !component) {
+  if (!fieldKey || !foundNode || foundNode.isHidden()) {
     return;
   }
 
-  addErrorToValidations(validations, layoutId, component.item.id, fieldKey, errorMessage);
+  addErrorToValidations(validations, layoutId, foundNode.item.id, fieldKey, errorMessage);
 }
 
-/*
+/**
  * Checks if form can be saved. If it contains anything other than valid error messages it returns false
  */
-export function canFormBeSaved(validationResult: IValidationResult | null, apiMode?: string): boolean {
+export function canFormBeSaved(validationResult: IValidationResult | null): boolean {
   if (validationResult && validationResult.invalidDataTypes) {
     return false;
   }
 
   const validations = validationResult?.validations;
-  if (!validations || apiMode !== 'Complete') {
+  if (!validations) {
     return true;
   }
   return Object.keys(validations).every((layoutId: string) =>

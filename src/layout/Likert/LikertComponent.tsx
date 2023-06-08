@@ -48,6 +48,7 @@ const RadioGroupTableRow = ({
   legend,
   isValid,
   text,
+  getTextResourceAsString,
 }: IControlledRadioGroupProps) => {
   const id = node.item.id;
   const groupContainerId = node.closest((n) => n.type === 'Group')?.item.id;
@@ -56,7 +57,7 @@ const RadioGroupTableRow = ({
   return (
     <TableRow
       aria-labelledby={rowLabelId}
-      data-componentid={node.item.baseComponentId ?? node.item.id}
+      data-componentid={node.item.id}
     >
       <th
         scope='row'
@@ -76,7 +77,7 @@ const RadioGroupTableRow = ({
           <TableCell
             key={option.value}
             align={'center'}
-            style={{ padding: '4px 12px' }}
+            style={{ padding: '10px', lineHeight: 0 }}
             onBlur={handleBlur}
           >
             <RadioButton
@@ -84,7 +85,7 @@ const RadioGroupTableRow = ({
               checked={isChecked}
               onChange={handleChange}
               value={option.value}
-              label={`${getPlainTextFromNode(text)} ${option.label}`}
+              label={`${getPlainTextFromNode(text)} ${getTextResourceAsString(option.label)}`}
               hideLabel={true}
               name={rowLabelId}
               radioId={inputId}

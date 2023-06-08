@@ -35,10 +35,6 @@ export interface ISetCurrentViewCacheKey {
   key: string | undefined;
 }
 
-export interface IUpdateAutoSave {
-  autoSave: boolean | undefined;
-}
-
 export interface IUpdateCurrentView {
   newView: string;
   returnToView?: string;
@@ -46,6 +42,7 @@ export interface IUpdateCurrentView {
   skipPageCaching?: boolean;
   focusComponentId?: string;
   keepScrollPos?: IKeepComponentScrollPos;
+  allowNavigationToHidden?: boolean;
 }
 
 export interface IUpdateCurrentViewFulfilled {
@@ -64,26 +61,6 @@ export interface IUpdateFocus {
 
 export interface IUpdateHiddenComponents {
   componentsToHide: string[];
-}
-
-export interface IUpdateRepeatingGroups {
-  layoutElementId: string;
-  remove?: boolean;
-  index?: number;
-}
-
-export interface IUpdateRepeatingGroupsFulfilled {
-  repeatingGroups: any;
-}
-
-export interface IUpdateRepeatingGroupsRemoveCancelled {
-  layoutElementId: string;
-  index: number;
-}
-
-export interface IUpdateRepeatingGroupsMultiPageIndex {
-  group: string;
-  index: number | undefined;
 }
 
 export interface IUpdateRepeatingGroupsEditIndex {

@@ -153,6 +153,16 @@ export function nb(): FixedLanguageList {
       row_popover_delete_message: 'Er du sikker på at du vil slette denne raden?',
       row_popover_delete_button_confirm: 'Ja, slett raden',
     },
+    iframe_component: {
+      unsupported_browser_title: 'Nettleseren din støttes ikke',
+      unsupported_browser:
+        'Nettleseren du bruker støtter ikke iframes som benytter seg av srcdoc. Dette kan føre til at du ikke ser all innholdet som er ment å vises her. Vi anbefaler deg å prøve en annen nettleser.',
+    },
+    input_components: {
+      character_limit_sr_label: 'Tekstfeltet kan inneholde maks {0} tegn',
+      remaining_characters: 'Du har {0} tegn igjen',
+      exceeded_max_limit: 'Du har overskredet maks antall tegn med {0}',
+    },
     instance_selection: {
       changed_by: 'Endret av',
       continue: 'Fortsett her',
@@ -170,6 +180,10 @@ export function nb(): FixedLanguageList {
       unknown_error_text: 'Det har skjedd en ukjent feil, vennligst prøv igjen senere.',
       unknown_error_status: 'Ukjent feil',
       unknown_error_customer_support: 'Om problemet vedvarer, ta kontakt med oss på brukerservice {0}.',
+      forbidden_action_error_title: 'Du mangler rettigheter til å utføre denne handlingen',
+      forbidden_action_error_text: 'Det ser ut til at du mangler rettigheter til å utføre denne handlingen.',
+      forbidden_action_error_status: '403 - Forbidden',
+      forbidden_action_error_customer_support: 'Hvis du trenger hjelp, ta kontakt med oss på brukerservice <br/> {0}.',
       authorization_error_main_title: 'Du mangler rettigheter for å se denne tjenesten.',
       authorization_error_instantiate_validation_title: 'Du kan ikke starte denne tjenesten',
       authorization_error_rights: 'Det ser ut til at du ikke har rettigheter til å starte denne tjenesten for {0}',
@@ -221,6 +235,10 @@ export function nb(): FixedLanguageList {
       unit_personal_number: 'personnr.',
       show_deleted: 'Vis slettede',
       show_sub_unit: 'Vis underenheter',
+      why_seeing_this: 'Hvorfor ser jeg dette?',
+      seeing_this_preference:
+        'Du kan endre [profilinnstillingene](https://altinn.no/ui/Profile) dine for å ikke bli spurt om aktør hver gang du starter utfylling av et nytt skjema. Du finner denne innstillingen under **Profil** > **Avanserte innstillinger** > **Jeg ønsker ikke å bli spurt om aktør hver gang jeg starter utfylling av et nytt skjema**.',
+      seeing_this_override: 'Denne appen er satt opp til å alltid spørre om aktør.',
     },
     helptext: {
       button_title: 'Hjelp',

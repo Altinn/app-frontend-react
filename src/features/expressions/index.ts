@@ -3,7 +3,6 @@ import type { Mutable } from 'utility-types';
 
 import {
   ExprRuntimeError,
-  LookupNotFound,
   NodeNotFoundWithoutContext,
   UnexpectedType,
   UnknownSourceType,
@@ -12,6 +11,7 @@ import {
 import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
+import { getTextResourceByKey } from 'src/language/sharedLanguage';
 import { dataSourcesFromState, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -429,7 +429,7 @@ export const ExprFunctions = {
   instanceContext: defineFunc({
     impl(key): string | null {
       if (key === null || instanceContextKeys[key] !== true) {
-        throw new LookupNotFound(this, `Unknown Instance context property ${key}`);
+        throw new ExprRuntimeError(this, `Unknown Instance context property ${key}`);
       }
 
       return (this.dataSources.instanceContext && this.dataSources.instanceContext[key]) || null;
@@ -440,7 +440,7 @@ export const ExprFunctions = {
   frontendSettings: defineFunc({
     impl(key): any {
       if (key === null) {
-        throw new LookupNotFound(this, `Value cannot be null. (Parameter 'key')`);
+        throw new ExprRuntimeError(this, `Value cannot be null. (Parameter 'key')`);
       }
 
       return (this.dataSources.applicationSettings && this.dataSources.applicationSettings[key]) || null;
@@ -451,7 +451,7 @@ export const ExprFunctions = {
   authContext: defineFunc({
     impl(key): boolean | null {
       if (key === null || authContextKeys[key] !== true) {
-        throw new LookupNotFound(this, `Unknown auth context property ${key}`);
+        throw new ExprRuntimeError(this, `Unknown auth context property ${key}`);
       }
 
       return Boolean(this.dataSources.authContext?.[key]);
@@ -462,7 +462,7 @@ export const ExprFunctions = {
   component: defineFunc({
     impl(id): any {
       if (id === null) {
-        throw new LookupNotFound(this, `Cannot lookup component null`);
+        throw new ExprRuntimeError(this, `Cannot lookup component null`);
       }
 
       const node = this.failWithoutNode();
@@ -480,7 +480,7 @@ export const ExprFunctions = {
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected
       // results. We should note this in the error message, so we know the reason we couldn't find the component.
       const hasAllLayouts = node instanceof LayoutPage ? !!node.top : !!node.top.top;
-      throw new LookupNotFound(
+      throw new ExprRuntimeError(
         this,
         hasAllLayouts
           ? `Unable to find component with identifier ${id} or it does not have a simpleBinding`
@@ -493,7 +493,7 @@ export const ExprFunctions = {
   dataModel: defineFunc({
     impl(path): any {
       if (path === null) {
-        throw new LookupNotFound(this, `Cannot lookup dataModel null`);
+        throw new ExprRuntimeError(this, `Cannot lookup dataModel null`);
       }
 
       const maybeNode = this.failWithoutNode();
@@ -508,6 +508,117 @@ export const ExprFunctions = {
     },
     args: [ExprVal.String] as const,
     returns: ExprVal.Any,
+  }),
+  round: defineFunc({
+    impl(number, decimalPoints) {
+      const realNumber = number === null ? 0 : number;
+      const realDecimalPoints = decimalPoints === null ? 0 : decimalPoints;
+      return parseFloat(`${realNumber}`).toFixed(realDecimalPoints);
+    },
+    args: [ExprVal.Number, ExprVal.Number] as const,
+    minArguments: 1,
+    returns: ExprVal.String,
+  }),
+  text: defineFunc({
+    impl(key) {
+      if (key === null) {
+        return null;
+      }
+
+      return getTextResourceByKey(key, this.dataSources.textResources);
+    },
+    args: [ExprVal.String] as const,
+    returns: ExprVal.String,
+  }),
+  language: defineFunc({
+    impl() {
+      const selectedLanguage =
+        this.dataSources.profile?.selectedAppLanguage ||
+        this.dataSources.profile?.profile?.profileSettingPreference?.language;
+
+      return selectedLanguage || 'nb';
+    },
+    args: [] as const,
+    returns: ExprVal.String,
+  }),
+  contains: defineFunc({
+    impl(string, stringToContain): boolean {
+      if (string === null || stringToContain === null) {
+        return false;
+      }
+
+      return string.includes(stringToContain);
+    },
+    args: [ExprVal.String, ExprVal.String] as const,
+    returns: ExprVal.Boolean,
+  }),
+  notContains: defineFunc({
+    impl(string: string, stringToNotContain: string): boolean {
+      if (string === null || stringToNotContain === null) {
+        return true;
+      }
+      return !string.includes(stringToNotContain);
+    },
+    args: [ExprVal.String, ExprVal.String] as const,
+    returns: ExprVal.Boolean,
+  }),
+  endsWith: defineFunc({
+    impl(string: string, stringToMatch: string): boolean {
+      if (string === null || stringToMatch === null) {
+        return false;
+      }
+      return string.endsWith(stringToMatch);
+    },
+    args: [ExprVal.String, ExprVal.String] as const,
+    returns: ExprVal.Boolean,
+  }),
+  startsWith: defineFunc({
+    impl(string: string, stringToMatch: string): boolean {
+      if (string === null || stringToMatch === null) {
+        return false;
+      }
+      return string.startsWith(stringToMatch);
+    },
+    args: [ExprVal.String, ExprVal.String] as const,
+    returns: ExprVal.Boolean,
+  }),
+  stringLength: defineFunc({
+    impl: (string) => (string === null ? 0 : string.length),
+    args: [ExprVal.String] as const,
+    returns: ExprVal.Number,
+  }),
+  commaContains: defineFunc({
+    impl(commaSeparatedString, stringToMatch) {
+      if (commaSeparatedString === null || stringToMatch === null) {
+        return false;
+      }
+
+      // Split the comma separated string into an array and remove whitespace from each part
+      const parsedToArray = commaSeparatedString.split(',').map((part) => part.trim());
+      return parsedToArray.includes(stringToMatch);
+    },
+    args: [ExprVal.String, ExprVal.String] as const,
+    returns: ExprVal.Boolean,
+  }),
+  lowerCase: defineFunc({
+    impl(string) {
+      if (string === null) {
+        return null;
+      }
+      return string.toLowerCase();
+    },
+    args: [ExprVal.String] as const,
+    returns: ExprVal.String,
+  }),
+  upperCase: defineFunc({
+    impl(string) {
+      if (string === null) {
+        return null;
+      }
+      return string.toUpperCase();
+    },
+    args: [ExprVal.String] as const,
+    returns: ExprVal.String,
   }),
 };
 

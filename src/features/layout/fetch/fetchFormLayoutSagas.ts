@@ -5,7 +5,7 @@ import { preProcessItem, preProcessLayout } from 'src/features/expressions/valid
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { components } from 'src/layout';
+import { ComponentConfigs } from 'src/layout/components';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';
@@ -23,12 +23,8 @@ type ComponentTypeCaseMapping = { [key: string]: ComponentTypes };
 let componentTypeCaseMapping: ComponentTypeCaseMapping | undefined = undefined;
 function getCaseMapping(): ComponentTypeCaseMapping {
   if (!componentTypeCaseMapping) {
-    componentTypeCaseMapping = {
-      group: 'Group',
-      summary: 'Summary',
-    };
-
-    for (const type in components) {
+    componentTypeCaseMapping = {};
+    for (const type in ComponentConfigs) {
       componentTypeCaseMapping[type.toLowerCase()] = type as ComponentTypes;
     }
   }
@@ -58,13 +54,11 @@ export function* fetchLayoutSaga(): SagaIterator {
     const layouts: ILayouts = {};
     const navigationConfig: any = {};
     const hiddenLayoutsExpressions: ExprUnresolved<IHiddenLayoutsExpressions> = {};
-    let autoSave: boolean | undefined;
     let firstLayoutKey: string;
     if (layoutResponse.data?.layout) {
       layouts.FormLayout = layoutResponse.data.layout;
       hiddenLayoutsExpressions.FormLayout = layoutResponse.data.hidden;
       firstLayoutKey = 'FormLayout';
-      autoSave = layoutResponse.data.autoSave;
     } else {
       const orderedLayoutKeys = Object.keys(layoutResponse).sort();
 
@@ -83,7 +77,6 @@ export function* fetchLayoutSaga(): SagaIterator {
         layouts[key] = cleanLayout(layoutResponse[key].data.layout);
         hiddenLayoutsExpressions[key] = layoutResponse[key].data.hidden;
         navigationConfig[key] = layoutResponse[key].data.navigation;
-        autoSave = layoutResponse[key].data.autoSave;
       });
     }
 
@@ -106,7 +99,6 @@ export function* fetchLayoutSaga(): SagaIterator {
         hiddenLayoutsExpressions,
       }),
     );
-    yield put(FormLayoutActions.updateAutoSave({ autoSave }));
     yield put(
       FormLayoutActions.updateCurrentView({
         newView: firstLayoutKey,

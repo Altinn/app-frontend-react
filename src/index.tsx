@@ -7,6 +7,8 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { HashRouter } from 'react-router-dom';
 
+import 'src/features/toggles';
+
 import { AppWrapper } from '@altinn/altinn-design-system';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -15,6 +17,7 @@ import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
+import { DataModelSchemaContextWrapper } from 'src/hooks/useDataModelSchema';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
 import { setupStore } from 'src/redux/store';
@@ -46,11 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
             <ErrorBoundary>
               <QueryClientProvider client={queryClient}>
                 <AppQueriesContextProvider {...queries}>
-                  <ExprContextWrapper>
-                    <DevTools>
-                      <App />
-                    </DevTools>
-                  </ExprContextWrapper>
+                  <DataModelSchemaContextWrapper>
+                    <ExprContextWrapper>
+                      <DevTools>
+                        <App />
+                      </DevTools>
+                    </ExprContextWrapper>
+                  </DataModelSchemaContextWrapper>
                 </AppQueriesContextProvider>
               </QueryClientProvider>
             </ErrorBoundary>

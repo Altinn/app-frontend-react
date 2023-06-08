@@ -2,6 +2,7 @@ import { getLayoutComponentObject } from 'src/layout';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ComponentClassMap } from 'src/layout';
+import type { HNonRepGroup, HRepGroup } from 'src/layout/Group/types';
 import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
 import type { ComponentType } from 'src/layout/LayoutComponent';
 import type { IComponentBindingValidation, IComponentValidations, ValidationKeyOrAny } from 'src/types';
@@ -10,13 +11,12 @@ import type {
   AnyItem,
   HComponent,
   HierarchyDataSources,
-  HNonRepGroup,
-  HRepGroup,
   LayoutNodeFromComponentType,
   LayoutNodeFromType,
   ParentNode,
   TypeFromAnyItem,
 } from 'src/utils/layout/hierarchy.types';
+import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 
 /**
@@ -26,6 +26,7 @@ import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTypes = TypeFromAnyItem<Item>>
   implements LayoutObject
 {
+  public readonly itemWithExpressions: Item;
   public readonly def: ComponentClassMap[Type];
 
   public constructor(
@@ -35,6 +36,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     private readonly dataSources: HierarchyDataSources,
     public readonly rowIndex?: number,
   ) {
+    this.itemWithExpressions = structuredClone(this.item);
     this.def = getLayoutComponentObject(item.type as any);
   }
 
@@ -93,26 +95,8 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   }
 
   private childrenAsList(onlyInRowIndex?: number): LayoutNode[] {
-    let list: LayoutNode[] = [];
-    if (this.isRepGroup()) {
-      const maybeNodes =
-        typeof onlyInRowIndex === 'number'
-          ? this.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || []
-          : // Beware: In most cases this will just match the first row.
-            Object.values(this.item.rows)
-              .map((r) => r?.items)
-              .flat();
-
-      for (const node of maybeNodes) {
-        if (node) {
-          list.push(node);
-        }
-      }
-    } else if (this.isNonRepGroup()) {
-      list = this.item.childComponents;
-    }
-
-    return list;
+    const hierarchy = this.def.hierarchyGenerator() as unknown as ComponentHierarchyGenerator<Type>;
+    return hierarchy.childrenFromNode(this as unknown as LayoutNodeFromType<Type>, onlyInRowIndex);
   }
 
   /**
@@ -167,8 +151,11 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
    * Checks if this field should be hidden. This also takes into account the group this component is in, so the
    * methods returns true if the component is inside a hidden group.
    */
-  public isHidden(respectLegacy = true): boolean {
+  public isHidden(respectLegacy = true, respectDevTools = true): boolean {
     const hiddenList = respectLegacy ? this.dataSources.hiddenFields : new Set();
+    if (respectDevTools && this.dataSources.devTools.isOpen && this.dataSources.devTools.hiddenComponents !== 'hide') {
+      return false;
+    }
 
     if (this.item.baseComponentId && hiddenList.has(this.item.baseComponentId)) {
       return true;
@@ -185,7 +172,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
       }
     }
 
-    return !!(this.parent instanceof LayoutNode && this.parent.isHidden(respectLegacy));
+    return this.parent instanceof LayoutNode && this.parent.isHidden(respectLegacy);
   }
 
   private firstDataModelBinding() {

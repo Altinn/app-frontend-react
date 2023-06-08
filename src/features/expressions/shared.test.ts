@@ -1,5 +1,6 @@
 import dot from 'dot-object';
 
+import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { evalExpr } from 'src/features/expressions';
 import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
@@ -12,6 +13,7 @@ import { _private } from 'src/utils/layout/hierarchy';
 import { generateEntireHierarchy, generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { FunctionTest, SharedTestContext, SharedTestContextList } from 'src/features/expressions/shared';
 import type { Expression } from 'src/features/expressions/types';
+import type { IProfileState } from 'src/features/profile';
 import type { IRepeatingGroups } from 'src/types';
 import type { IApplicationSettings } from 'src/types/shared';
 import type { HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
@@ -51,6 +53,7 @@ describe('Expressions shared function tests', () => {
     it.each(folder.content)(
       '$name',
       ({
+        disabledFrontend,
         expression,
         expects,
         expectsFailure,
@@ -60,14 +63,22 @@ describe('Expressions shared function tests', () => {
         instance,
         permissions,
         frontendSettings,
+        textResources,
+        profile,
       }) => {
+        if (disabledFrontend) {
+          // Skipped tests usually means that the frontend does not support the feature yet
+          return;
+        }
+
         const dataSources: HierarchyDataSources = {
+          ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
           instanceContext: buildInstanceContext(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
-          hiddenFields: new Set<string>(),
           authContext: buildAuthContext(permissions),
-          validations: {},
+          textResources: textResources || [],
+          profile: profile || ({} as IProfileState),
         };
 
         const _layouts = convertLayouts(layouts);
@@ -155,12 +166,11 @@ describe('Expressions shared context tests', () => {
       '$name',
       ({ layouts, dataModel, instance, frontendSettings, permissions, expectedContexts }) => {
         const dataSources: HierarchyDataSources = {
+          ...getHierarchyDataSourcesMock(),
           formData: dataModel ? dot.dot(dataModel) : {},
           instanceContext: buildInstanceContext(instance),
           applicationSettings: frontendSettings || ({} as IApplicationSettings),
-          hiddenFields: new Set(),
           authContext: buildAuthContext(permissions),
-          validations: {},
         };
 
         const foundContexts: SharedTestContextList[] = [];

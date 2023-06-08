@@ -16,7 +16,7 @@ describe('Summary', () => {
       }
     });
     cy.goto('changename');
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
 
     // Verify empty summary components
     cy.get('[data-testid=summary-summary-2]').contains(texts.emptySummary);
@@ -31,9 +31,9 @@ describe('Summary', () => {
         cy.wrap(items).eq(2).should('contain.text', `Referanse 2 : ${texts.emptySummary}`);
       });
 
-    cy.navPage('form').click();
+    cy.gotoNavPage('form');
     cy.gotoAndComplete('changename');
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get(appFrontend.backButton).should('be.visible');
 
     // Summary displays change button for editable fields and does not for readonly fields
@@ -53,15 +53,19 @@ describe('Summary', () => {
         .contains(mui.gridContainer, texts.dateOfEffect)
         .then((summaryDate) => {
           cy.wrap(summaryDate).children().find('button').click();
-          cy.get(appFrontend.changeOfName.dateOfEffect).clear();
-          cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
-          cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
-            force: true,
-          });
-          cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
-          cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
-          cy.get(appFrontend.backToSummaryButton).click();
         });
+
+      cy.get(appFrontend.changeOfName.dateOfEffect).clear();
+      cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+      cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
+        force: true,
+      });
+      cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+      cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
+
+      cy.get(appFrontend.backToSummaryButton).click();
+      cy.navPage('summary').should('have.attr', 'aria-current', 'page');
+      cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldDateFrom);
     });
 
     // Summary of attachment components
@@ -103,17 +107,17 @@ describe('Summary', () => {
 
     // Hide the component the Summary refers to, which should hide the summary component as well
     cy.get('[data-testid=summary-summary-1]').contains('span', 'Du har valgt å endre:').should('be.visible');
-    cy.navPage('form').click();
+    cy.gotoNavPage('form');
     cy.get(appFrontend.changeOfName.newFirstName).clear();
     cy.get(appFrontend.changeOfName.newFirstName).type('hidePrevName');
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-summary-1]').should('not.exist');
 
     // Test summary of non-repeating group
-    cy.navPage('form').click();
+    cy.gotoNavPage('form');
     cy.get('#reference').dsSelect('Ola Nordmann');
     cy.get('#reference2').dsSelect('Ole');
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
       .then((items) => {
@@ -122,11 +126,11 @@ describe('Summary', () => {
         cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Ole');
       });
 
-    cy.navPage('form').click();
+    cy.gotoNavPage('form');
     cy.get('#sources').dsSelect('Digitaliseringsdirektoratet');
     cy.get('#reference').dsSelect('Sophie Salt');
     cy.get('#reference2').dsSelect('Dole');
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
       .then((items) => {
@@ -135,11 +139,11 @@ describe('Summary', () => {
         cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Dole');
       });
 
-    cy.navPage('form').click();
+    cy.gotoNavPage('form');
     cy.get('#sources').dsSelect('Annet');
     cy.get('#reference').dsSelect('Test');
     cy.get('#reference2').dsSelect('Doffen');
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-summary-reference] [data-testid=summary-item-compact]')
       .and('have.length', 3)
       .then((items) => {
@@ -153,11 +157,11 @@ describe('Summary', () => {
     cy.goto('group');
 
     // Verify empty group summary
-    cy.navPage('repeating').click();
+    cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-group-component] > div').last().should('contain.text', texts.emptySummary);
-    cy.navPage('prefill').click();
+    cy.gotoNavPage('prefill');
 
     cy.gotoAndComplete('group');
 
@@ -209,11 +213,11 @@ describe('Summary', () => {
         cy.wrap(item).eq(5).should('contain.text', `${texts.nestedOption2}, ${texts.nestedOption3}`);
       });
 
-    cy.navPage('prefill').click();
+    cy.gotoNavPage('prefill');
     cy.get(appFrontend.group.prefill.liten).dsCheck();
     cy.get(appFrontend.group.prefill.middels).dsCheck();
     cy.get(appFrontend.group.prefill.svaer).dsCheck();
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
 
     function assertSummaryItem(groupRow: number, items: { [key: string]: boolean }) {
       cy.get(appFrontend.group.mainGroupSummary)
@@ -257,12 +261,12 @@ describe('Summary', () => {
     assertSummaryItem(3, prefillRowAbove100);
 
     // Verify empty values in group summary
-    cy.navPage('repeating').click();
+    cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).find(appFrontend.group.next).click();
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.group.saveMainGroup).click();
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get('#summary-mainGroup-4 > [data-testid=summary-currentValue-4] > div')
       .children()
       .last()
@@ -299,9 +303,9 @@ describe('Summary', () => {
 
     // Hiding the group should hide the group summary as well
     cy.get('[data-testid=summary-summary1]').should('be.visible');
-    cy.navPage('repeating').click();
+    cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input[type=checkbox]').dsUncheck();
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     cy.get('[data-testid=summary-summary1]').should('not.exist');
   });
 
@@ -314,7 +318,7 @@ describe('Summary', () => {
     cy.goto('group');
 
     cy.get(appFrontend.group.prefill['liten']).dsCheck();
-    cy.navPage('repeating').click();
+    cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     // Add data
     cy.get(appFrontend.group.row(0).editBtn).click();
@@ -331,7 +335,7 @@ describe('Summary', () => {
     cy.get(appFrontend.group.comments).type('third comment');
     cy.get(appFrontend.group.saveSubGroup).clickAndGone();
 
-    cy.navPage('summary').click();
+    cy.gotoNavPage('summary');
     //Skjul kommentar felt
     cy.get('[data-testid=summary-group-component]')
       .children()
@@ -368,7 +372,13 @@ describe('Summary', () => {
   it('Navigation between summary and pages', () => {
     cy.gotoAndComplete('changename');
 
-    const triggerVariations: (Triggers | undefined)[] = [undefined, Triggers.ValidatePage, Triggers.ValidateAllPages];
+    const triggerVariations: (Triggers | undefined)[] = [
+      undefined,
+      Triggers.ValidatePage,
+      Triggers.ValidateCurrentAndPreviousPages,
+      Triggers.ValidateAllPages,
+    ];
+
     for (const trigger of triggerVariations) {
       injectExtraPageAndSetTriggers(trigger);
 
@@ -387,16 +397,28 @@ describe('Summary', () => {
       } else {
         cy.navPage('form').should('have.attr', 'aria-current', 'page');
         cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldLastName);
+
+        /*
+         * Test that ValidateAllPages and ValidatePreviousPages prevents the user from proceeding
+         * when there are errors on a previous page.
+         */
+        cy.gotoNavPage('summary');
+        cy.get(appFrontend.nextButton).click();
+        if (trigger === Triggers.ValidatePage) {
+          cy.navPage('grid').should('have.attr', 'aria-current', 'page');
+        } else {
+          cy.navPage('summary').should('have.attr', 'aria-current', 'page');
+        }
+
+        cy.gotoNavPage('form');
         cy.get(appFrontend.changeOfName.newLastName).type('a');
         cy.get(appFrontend.nextButton).clickAndGone();
       }
 
       if (trigger === Triggers.ValidateAllPages) {
         cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut page3required');
-        cy.navPage('summary').click();
-      } else if (trigger !== undefined) {
-        cy.navPage('summary').should('have.attr', 'aria-current', 'page');
       }
+      cy.navPage('summary').should('have.attr', 'aria-current', 'page');
 
       cy.get(newFirstNameSummary).should('contain.text', `Hello world`);
 
@@ -457,6 +479,32 @@ describe('Summary', () => {
     cy.get(appFrontend.backToSummaryButton).should('not.exist');
     cy.get(appFrontend.nextButton).click();
     cy.navPage('summary').should('have.attr', 'aria-current', 'page');
+  });
+
+  ['Summary Title', undefined].forEach((title) => {
+    it(`should display title from summary component if (${title} !== undefined), else title from reference component`, () => {
+      cy.interceptLayout('changename', (component) => {
+        if (component.type === 'Summary' && component.id === 'summary-4') {
+          component.textResourceBindings = {
+            title,
+            accessibleTitle: title,
+          };
+        }
+      });
+      cy.goto('changename');
+      cy.gotoNavPage('summary');
+      if (title === undefined) {
+        cy.get('[data-testid=summary-summary-4]').should('contain.text', 'Når vil du at navnendringen skal skje?');
+        cy.get('[data-testid=summary-summary-4]')
+          .find('button')
+          .should('have.attr', 'aria-label', 'Endre: Når vil du at navnendringen skal skje?');
+      } else {
+        cy.get('[data-testid=summary-summary-4]').should('contain.text', title);
+        cy.get('[data-testid=summary-summary-4]')
+          .find('button')
+          .should('have.attr', 'aria-label', 'Endre: Summary Title');
+      }
+    });
   });
 });
 

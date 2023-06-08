@@ -3,6 +3,7 @@ import Ajv2020 from 'ajv/dist/2020';
 import dot from 'dot-object';
 import type { ErrorObject } from 'ajv';
 
+import { getHierarchyDataSourcesMock } from 'src/__mocks__/hierarchyMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import * as complexSchema from 'src/__mocks__/json-schema/complex.json';
 import * as oneOfOnRootSchema from 'src/__mocks__/json-schema/one-of-on-root.json';
@@ -38,12 +39,8 @@ function toCollection(
     Object.keys(mockLayouts)[0],
     repeatingGroups,
     {
-      instanceContext: null,
-      formData: {},
-      applicationSettings: null,
+      ...getHierarchyDataSourcesMock(),
       hiddenFields,
-      authContext: null,
-      validations: {},
     },
     getLayoutComponentObject,
   );
@@ -741,15 +738,12 @@ describe('utils > validation', () => {
 
   describe('canFormBeSaved', () => {
     it('should validate correctly', () => {
-      const apiModeComplete = 'Complete';
-      const falseResult = validation.canFormBeSaved(mockFormValidationResult, apiModeComplete);
+      const falseResult = validation.canFormBeSaved(mockFormValidationResult);
       const falseResult2 = validation.canFormBeSaved(mockInvalidTypes);
       const trueResult2 = validation.canFormBeSaved(null);
-      const trueResult3 = validation.canFormBeSaved(mockFormValidationResult);
       expect(falseResult).toBeFalsy();
       expect(falseResult2).toBeFalsy();
       expect(trueResult2).toBeTruthy();
-      expect(trueResult3).toBeTruthy();
     });
   });
 
