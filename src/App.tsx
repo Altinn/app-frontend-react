@@ -14,9 +14,9 @@ import { usePartiesQuery } from 'src/hooks/queries/useGetPartiesQuery';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { useOrgsQuery } from 'src/hooks/queries/useOrgsQuery';
 import { useProfileQuery } from 'src/hooks/queries/useProfileQuery';
+import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useDoNotPromptForParty } from 'src/hooks/useDoNotPromptForParty';
 import { useKeepAlive } from 'src/hooks/useKeepAlive';
 import { useUpdatePdfState } from 'src/hooks/useUpdatePdfState';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
@@ -62,10 +62,10 @@ const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | n
   const { isError: hasProfileError } = useProfileQuery(allowAnonymous === false);
   const { isError: hasPartiesError } = usePartiesQuery(allowAnonymous === false);
 
-  const doNotPromptForParty = useDoNotPromptForParty();
+  const alwaysPromptForParty = useAlwaysPromptForParty();
 
   const { isError: hasCurrentPartyError } = useCurrentPartyQuery(
-    doNotPromptForParty === true && allowAnonymous === false,
+    alwaysPromptForParty === false && allowAnonymous === false,
   );
 
   const appName = useAppSelector(selectAppName);

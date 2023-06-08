@@ -237,7 +237,7 @@ export function nn(): FixedLanguageList {
       show_sub_unit: 'Vis undereiningar',
       why_seeing_this: 'Kvifor ser eg dette?',
       seeing_this_preference:
-        'Du kan endra profilinnstillingane dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
+        'Du kan endra [profilinnstillingane](https://altinn.no/ui/Profile) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
       seeing_this_override: 'Denne appen er sett opp til å alltid spørja om aktør.',
     },
     helptext: {

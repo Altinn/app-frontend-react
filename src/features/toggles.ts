@@ -1,12 +1,12 @@
 import type { IAltinnWindow } from 'src/types';
 
-type FeatureToggle = 'UseDoNotPromptForPartyPreference';
+type FeatureToggle = 'doNotPromptForPartyPreference';
 export type IFeatureToggles = { [key in FeatureToggle]?: boolean };
 
 const altinnWindow = window as Window as IAltinnWindow;
 
 const featureToggles: IFeatureToggles = {
-  UseDoNotPromptForPartyPreference: altinnWindow.featureToggles?.UseDoNotPromptForPartyPreference ?? false,
+  doNotPromptForPartyPreference: altinnWindow.featureToggles?.doNotPromptForPartyPreference ?? false,
 };
 
 altinnWindow.featureToggles = featureToggles;

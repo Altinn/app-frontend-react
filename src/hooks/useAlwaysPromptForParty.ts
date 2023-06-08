@@ -2,7 +2,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import type { IAltinnWindow } from 'src/types';
 
-export function useDoNotPromptForParty(): boolean | null {
+export function useAlwaysPromptForParty(): boolean | null {
   const { partyId: partyIdFromUrl } = useInstanceIdParams();
   const applicationMetadata = useAppSelector((state) => state.applicationMetadata.applicationMetadata);
   const profile = useAppSelector((state) => state.profile.profile);
@@ -13,22 +13,22 @@ export function useDoNotPromptForParty(): boolean | null {
     return null;
   }
 
-  if (!altinnWindow.featureToggles.UseDoNotPromptForPartyPreference) {
-    return true;
+  if (!altinnWindow.featureToggles.doNotPromptForPartyPreference) {
+    return false;
   }
 
   if (applicationMetadata?.promptForParty === 'never') {
-    return true;
+    return false;
   }
 
   if (applicationMetadata?.promptForParty === 'always') {
-    return false;
+    return true;
   }
 
   // No point in prompting if there is only one party
   if (parties.length === 1) {
-    return true;
+    return false;
   }
 
-  return !!partyIdFromUrl || profile.profileSettingPreference.doNotPromptForParty;
+  return !partyIdFromUrl && !profile.profileSettingPreference.doNotPromptForParty;
 }

@@ -42,7 +42,7 @@ describe.only('doNotPromptForParty doNotPromptForPartyPreference', () => {
     // Enable feature toggle on the window object
     cy.on('window:before:load', (win: IAltinnWindow) => {
       win.featureToggles = {
-        UseDoNotPromptForPartyPreference: true,
+        doNotPromptForPartyPreference: true,
       };
     });
   });

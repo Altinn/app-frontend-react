@@ -18,7 +18,7 @@ import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { capitalizeName } from 'src/utils/stringHelper';
-import type { IAltinnWindow, IParty } from 'src/types/shared';
+import type { IParty } from 'src/types/shared';
 
 const useStyles = makeStyles((theme) => ({
   partySelectionTitle: {
@@ -103,12 +103,11 @@ export const PartySelection = () => {
     dispatch(InstantiationActions.instantiateRejected({ error: null }));
   };
 
-  const { org, app } = window as Window as IAltinnWindow;
   useEffect(() => {
     if (selectedParty && hasSelected) {
       navigate('/');
     }
-  }, [selectedParty, hasSelected, navigate, org, app]);
+  }, [selectedParty, hasSelected, navigate]);
 
   function renderParties() {
     if (!parties || !appMetadata) {
