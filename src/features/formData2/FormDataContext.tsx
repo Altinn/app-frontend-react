@@ -128,13 +128,9 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
 
   React.useEffect(() => {
     if (hasUnsavedDebouncedChanges && !mutation.isLoading) {
-      const prev = state.lastSavedDataFlat;
-      const diff = diffModels(state.debouncedCurrentDataFlat, prev);
-      console.log('debug, has unsaved debounced changes, diff: ', state.debouncedCurrentDataFlat, diff);
-
       mutation.mutate({
         newData: state.debouncedCurrentData,
-        diff,
+        diff: diffModels(state.debouncedCurrentDataFlat, state.lastSavedDataFlat),
       });
     }
   }, [

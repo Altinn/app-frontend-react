@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import dot from 'dot-object';
+import deepEqual from 'fast-deep-equal';
+import { original } from 'immer';
 import { useImmerReducer } from 'use-immer';
 
+import { diffModels } from 'src/features/formData/submit/submitFormDataSagas';
+import { runLegacyRules } from 'src/features/formData2/LegacyRules';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IRuleConnections } from 'src/features/dynamics';
 import type { IFormData } from 'src/features/formData';
@@ -91,7 +95,6 @@ const initialState: FormDataStorage = {
 
 const actions: ImplementationMap = {
   initialFetch: (state, { data, uuid }) => {
-    console.log('debug, initialFetchImpl', data);
     state.currentUuid = uuid;
     state.currentData = data;
     state.currentDataFlat = dot.dot(data);
@@ -101,16 +104,52 @@ const actions: ImplementationMap = {
     state.lastSavedDataFlat = state.currentDataFlat;
   },
   freeze: (state, _, _ruleConnections) => {
-    console.log('debug, freezeImpl');
-    // TODO: Run rules
+    const diff = diffModels(state.currentDataFlat, state.debouncedCurrentDataFlat);
+    const changes = runLegacyRules(_ruleConnections, state.currentDataFlat, new Set(Object.keys(diff)));
+    for (const { path, newValue } of changes) {
+      dot.str(path, newValue, state.currentData);
+    }
+
     state.debouncedCurrentData = state.currentData;
     state.debouncedCurrentDataFlat = state.currentDataFlat;
   },
+  // TODO: Create tests for this action, it's getting complex
   saveFinished: (state, { savedData, changedFields }) => {
-    // TODO: Implement changedFields
-    console.log('debug, saveFinishedImpl', changedFields);
-    state.lastSavedData = savedData;
-    state.lastSavedDataFlat = dot.dot(savedData);
+    if (changedFields && Object.keys(changedFields).length > 0) {
+      console.log('debug, saveFinished, changes', changedFields);
+      for (const path of Object.keys(changedFields)) {
+        const newValue = changedFields[path];
+        dot.str(path, newValue, state.currentData);
+        dot.str(path, newValue, savedData);
+      }
+
+      state.currentDataFlat = dot.dot(state.currentData);
+
+      const beforeChanges = original(state.currentData);
+      if (deepEqual(beforeChanges, state.debouncedCurrentData)) {
+        // If these are equal, the user hasn't yet made any changes to the data model since we started changing the
+        // data above. We can safely freeze now, so as not to trigger a new save request.
+        state.debouncedCurrentData = state.currentData;
+        state.debouncedCurrentDataFlat = state.currentDataFlat;
+      } else {
+        console.log('debug, saveFinished, changes to debouncedCurrentData');
+      }
+
+      if (deepEqual(beforeChanges, savedData)) {
+        // If these are equal, the user hasn't yet made any changes to the data model since we last saved. We can
+        // safely update the last saved data now, so that we don't trigger a new save request.
+        state.lastSavedData = state.currentData;
+        state.lastSavedDataFlat = state.currentDataFlat;
+      } else {
+        state.lastSavedData = savedData;
+        state.lastSavedDataFlat = dot.dot(savedData);
+        console.log('debug, saveFinished, changes to lastSavedData');
+      }
+    } else {
+      state.lastSavedData = savedData;
+      state.lastSavedDataFlat = dot.dot(savedData);
+      console.log('debug, saveFinished, no changes reported');
+    }
   },
   setLeafValue: (state, { path, newValue }) => {
     const existingValue = state.currentDataFlat[path];
@@ -121,8 +160,6 @@ const actions: ImplementationMap = {
 
     dot.str(path, newValue, state.currentData);
     state.currentDataFlat = dot.dot(state.currentData);
-
-    console.log('debug, setLeafValueImpl', path, { existingValue, newValue });
   },
   setMultiLeafValues: (state, { changes }) => {
     console.log('debug, setMultiLeafValuesImpl', changes);
@@ -199,8 +236,7 @@ export const useFormDataStateMachine = () => {
   }, [dispatch, state.currentData, state.debouncedCurrentData]);
 
   useMemo(() => {
-    console.log('debug, useFormDataStateMachine, state change');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    console.log('debug, useFormDataStateMachine, state change', state);
   }, [state]);
 
   return [state, dispatchWrapper] as const;
