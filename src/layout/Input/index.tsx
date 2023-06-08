@@ -21,15 +21,12 @@ export class Input extends FormComponent<'Input'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'Input'>): string {
-    const formData = FD.useAsDotMap();
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    const text = FD.usePick(node.item.dataModelBindings?.simpleBinding);
+    if (typeof text !== 'string') {
       return '';
     }
 
-    const text = formData[node.item.dataModelBindings.simpleBinding] || '';
-
     const numberFormatting = useMapToReactNumberConfig(node.item.formatting as IInputFormatting, text);
-
     if (numberFormatting?.number) {
       return formatNumericText(text, numberFormatting.number);
     }

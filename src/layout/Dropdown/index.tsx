@@ -18,12 +18,11 @@ export class Dropdown extends FormComponent<'Dropdown'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'Dropdown'>): string {
-    const formData = FD.useAsDotMap();
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    const value = FD.usePick(node.item.dataModelBindings?.simpleBinding);
+    if (typeof value !== 'string') {
       return '';
     }
 
-    const value = formData[node.item.dataModelBindings.simpleBinding] || '';
     return useSelectedValueToText(node.item, value) || '';
   }
 

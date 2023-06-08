@@ -22,11 +22,8 @@ export class RadioButtons extends FormComponent<'RadioButtons'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'RadioButtons'>): string {
-    const formData = FD.useAsDotMap();
-    const value = node.item.dataModelBindings?.simpleBinding
-      ? formData[node.item.dataModelBindings.simpleBinding] || ''
-      : '';
-    return useSelectedValueToText(node.item, value) || '';
+    const value = FD.usePick(node.item.dataModelBindings?.simpleBinding);
+    return useSelectedValueToText(node.item, typeof value === 'string' ? value : '') || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'RadioButtons'>): JSX.Element | null {

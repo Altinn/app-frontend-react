@@ -17,12 +17,8 @@ export class Map extends FormComponent<'Map'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'Map'>): string {
-    const formData = FD.useAsDotMap();
-    if (!node.item.dataModelBindings?.simpleBinding) {
-      return '';
-    }
-
-    return formData[node.item.dataModelBindings.simpleBinding] || '';
+    const value = FD.usePick(node.item.dataModelBindings?.simpleBinding);
+    return typeof value !== 'string' ? '' : value;
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Map'>): JSX.Element | null {

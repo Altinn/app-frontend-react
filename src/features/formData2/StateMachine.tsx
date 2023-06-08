@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+/* eslint-disable no-console */
+import { useCallback, useEffect, useRef } from 'react';
 
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
@@ -160,6 +161,7 @@ const actions: ImplementationMap = {
 
     dot.str(path, newValue, state.currentData);
     state.currentDataFlat = dot.dot(state.currentData);
+    console.log('debug, setLeafValueImpl', path, newValue);
   },
   setMultiLeafValues: (state, { changes }) => {
     console.log('debug, setMultiLeafValuesImpl', changes);
@@ -235,7 +237,7 @@ export const useFormDataStateMachine = () => {
     };
   }, [dispatch, state.currentData, state.debouncedCurrentData]);
 
-  useMemo(() => {
+  useEffect(() => {
     console.log('debug, useFormDataStateMachine, state change', state);
   }, [state]);
 

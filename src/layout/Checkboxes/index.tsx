@@ -22,11 +22,8 @@ export class Checkboxes extends FormComponent<'Checkboxes'> {
   }
 
   private useSummaryData(node: LayoutNodeFromType<'Checkboxes'>): { [key: string]: string } {
-    const formData = FD.useAsDotMap();
-    const value = node.item.dataModelBindings?.simpleBinding
-      ? formData[node.item.dataModelBindings.simpleBinding] || ''
-      : '';
-    return useCommaSeparatedOptionsToText(node.item, value);
+    const value = FD.usePick(node.item.dataModelBindings?.simpleBinding);
+    return useCommaSeparatedOptionsToText(node.item, typeof value === 'string' ? value : '');
   }
 
   useDisplayData(node: LayoutNodeFromType<'Checkboxes'>): string {

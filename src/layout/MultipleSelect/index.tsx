@@ -18,13 +18,8 @@ export class MultipleSelect extends FormComponent<'MultipleSelect'> {
   }
 
   private useSummaryData(node: LayoutNodeFromType<'MultipleSelect'>): { [key: string]: string } {
-    const formData = FD.useAsDotMap();
-    if (!node.item.dataModelBindings?.simpleBinding) {
-      return {};
-    }
-
-    const value = formData[node.item.dataModelBindings.simpleBinding] || '';
-    return useCommaSeparatedOptionsToText(node.item, value);
+    const value = FD.usePick(node.item.dataModelBindings?.simpleBinding);
+    return useCommaSeparatedOptionsToText(node.item, typeof value === 'string' ? value : '');
   }
 
   useDisplayData(node: LayoutNodeFromType<'MultipleSelect'>): string {

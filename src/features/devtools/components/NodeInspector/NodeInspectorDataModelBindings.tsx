@@ -1,7 +1,5 @@
 import React from 'react';
 
-import dot from 'dot-object';
-
 import classes from 'src/features/devtools/components/NodeInspector/NodeInspector.module.css';
 import { Value } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataField';
 import { FD } from 'src/features/formData2/Compatibility';
@@ -14,8 +12,7 @@ interface Props {
 
 export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
   const schema = useBindingSchema(dataModelBindings);
-  const formData = FD.useAsDotMap();
-  const asObject = dot.object(structuredClone(formData || {}));
+  const results = FD.useBindings(dataModelBindings);
 
   return (
     <Value
@@ -34,9 +31,7 @@ export function NodeInspectorDataModelBindings({ dataModelBindings }: Props) {
             {dataModelBindings[key]}
             <br />
             <em>Resultat: </em>
-            <div className={classes.json}>
-              {JSON.stringify(dot.pick(dataModelBindings[key], asObject) || null, null, 2)}
-            </div>
+            <div className={classes.json}>{JSON.stringify(results[key], null, 2)}</div>
             <br />
             <em>Datamodell: </em>
             <div className={classes.json}>{JSON.stringify(schema?.[key] || null, null, 2)}</div>

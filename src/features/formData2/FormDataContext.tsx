@@ -1,6 +1,8 @@
+/* eslint-disable no-console */
 import React from 'react';
 
 import { useMutation } from '@tanstack/react-query';
+import dot from 'dot-object';
 
 import { useAppQueriesContext } from 'src/contexts/appQueriesContext';
 import {
@@ -11,10 +13,9 @@ import {
 import { useFormDataStateMachine } from 'src/features/formData2/StateMachine';
 import { UseNewFormDataHook } from 'src/features/toggles';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { createStrictContext } from 'src/utils/createStrictContext';
-import { flattenObject } from 'src/utils/databindings';
-import type { IFormData } from 'src/features/formData';
 import type { FDAction, FormDataStorage } from 'src/features/formData2/StateMachine';
 import type { IFormDataFunctionality, IFormDataMethods } from 'src/features/formData2/types';
 
@@ -172,21 +173,32 @@ export function FormDataProvider({ children }) {
   );
 }
 
-/**
- * Returns the current form data, as a dot map. The dot map is a flat object where the keys are the
- * dot-separated paths to the values. No objects exist here, just leaf values.
- */
-function useAsDotMap(): IFormData {
-  const { currentData } = useFormData();
-  return React.useMemo(() => flattenObject(currentData), [currentData]);
-}
-
-function useMethods(): IFormDataMethods {
-  const { methods } = useFormData();
-  return methods;
+function useCurrentData(freshness: 'current' | 'debounced' = 'debounced') {
+  const { currentData, debouncedCurrentData } = useFormData();
+  return freshness === 'current' ? currentData : debouncedCurrentData;
 }
 
 export const NewFD: IFormDataFunctionality = {
-  useAsDotMap,
-  useMethods,
+  useAsDotMap(freshness = 'debounced') {
+    const { currentDataFlat, debouncedCurrentDataFlat } = useFormData();
+    return freshness === 'current' ? currentDataFlat : debouncedCurrentDataFlat;
+  },
+  useAsObject: (freshness = 'debounced') => useCurrentData(freshness),
+  usePick: (path, freshness) => {
+    const data = useCurrentData(freshness);
+    return useMemoDeepEqual(path ? dot.pick(path, data) : undefined);
+  },
+  useBindings: (bindings, freshness) => {
+    const data = useCurrentData(freshness);
+    const out: any = {};
+    for (const key of Object.keys(bindings)) {
+      out[key] = dot.pick(bindings[key], data);
+    }
+
+    return useMemoDeepEqual(out);
+  },
+  useMethods: () => {
+    const { methods } = useFormData();
+    return methods;
+  },
 };

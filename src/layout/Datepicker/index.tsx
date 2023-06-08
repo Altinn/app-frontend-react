@@ -21,15 +21,14 @@ export class Datepicker extends FormComponent<'Datepicker'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'Datepicker'>): string {
-    const formData = FD.useAsDotMap();
+    const data = FD.usePick(node.item.dataModelBindings?.simpleBinding) ?? '';
     const language = useAppSelector(appLanguageStateSelector);
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    if (typeof data !== 'string') {
       return '';
     }
 
     const dateFormat = getDateFormat(node.item.format, language);
-    const data = formData[node.item.dataModelBindings?.simpleBinding] || '';
-    return formatISOString(data, dateFormat) ?? data;
+    return formatISOString(data, dateFormat) ?? '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Datepicker'>): JSX.Element | null {

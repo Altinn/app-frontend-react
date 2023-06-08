@@ -17,12 +17,8 @@ export class TextArea extends FormComponent<'TextArea'> {
   }
 
   useDisplayData(node: LayoutNodeFromType<'TextArea'>): string {
-    const formData = FD.useAsDotMap();
-    if (!node.item.dataModelBindings?.simpleBinding) {
-      return '';
-    }
-
-    return formData[node.item.dataModelBindings.simpleBinding] || '';
+    const value = FD.usePick(node.item.dataModelBindings?.simpleBinding);
+    return typeof value === 'string' ? value : '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'TextArea'>): JSX.Element | null {
