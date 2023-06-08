@@ -1,5 +1,10 @@
 export function en() {
   return {
+    altinn: {
+      standard_validation: {
+        file_content_type_not_allowed: 'File type is not allowed.',
+      },
+    },
     actions: {
       sign: 'Sign',
       confirm: 'Confirm',

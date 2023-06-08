@@ -10,9 +10,9 @@ import { ValidationActions } from 'src/features/validation/validationSlice';
 import { Severity } from 'src/types';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { httpPost } from 'src/utils/network/networking';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI } from 'src/utils/urls/urlHelper';
+import { getValidationMessage } from 'src/utils/validation/validationHelpers';
 import type { IAttachment } from 'src/features/attachments';
 import type { IUploadAttachmentAction } from 'src/features/attachments/upload/uploadAttachmentActions';
 import type { IComponentValidations, IRuntimeState, IValidationIssue } from 'src/types';
@@ -101,10 +101,10 @@ export function* uploadAttachmentSaga({
           simpleBinding: {
             errors: validationIssues
               .filter((v) => v.severity === Severity.Error)
-              .map((v) => getTextFromAppOrDefault(v.code, textResources, language, undefined, true)),
+              .map((v) => getValidationMessage(v, textResources, language)),
             warnings: validationIssues
               .filter((v) => v.severity === Severity.Warning)
-              .map((v) => getTextFromAppOrDefault(v.code, textResources, language, undefined, true)),
+              .map((v) => getValidationMessage(v, textResources, language)),
           },
         };
       } else {
