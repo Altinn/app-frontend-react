@@ -1,10 +1,13 @@
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { getLanguageFromCode } from 'src/language/languages';
 import { getParsedLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
 import type { FixedLanguageList } from 'src/language/languages';
 
+type ValidParam = string | number | undefined;
+
 export interface IUseLanguage {
-  lang(key: ValidLanguageKey | string | undefined, params?: string[]): string | JSX.Element | JSX.Element[] | null;
-  langAsString(key: ValidLanguageKey | string | undefined, params?: string[]): string;
+  lang(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string | JSX.Element | JSX.Element[] | null;
+  langAsString(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
 }
 
 /**
@@ -24,6 +27,8 @@ type ObjectToDotNotation<T extends Record<string, any>, Prefix extends string = 
 
 export type ValidLanguageKey = ObjectToDotNotation<FixedLanguageList>;
 
+const defaultLocale = 'nb';
+
 /**
  * Hook to resolve a key to a language string or React element (if the key is found and contains markdown or HTML).
  * Prefer this over using the long-named language functions. When those are less used, we can refactor their
@@ -34,7 +39,7 @@ export type ValidLanguageKey = ObjectToDotNotation<FixedLanguageList>;
  */
 export function useLanguage(): IUseLanguage {
   const textResources = useAppSelector((state) => state.textResources.resources);
-  const language = useAppSelector((state) => state.language.language);
+  const language = useAppSelector((state) => state.language.language) || getLanguageFromCode(defaultLocale);
 
   return {
     lang: (key, params) => {
