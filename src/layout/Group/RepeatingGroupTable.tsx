@@ -4,8 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/desi
 import { useMediaQuery } from '@material-ui/core';
 import cn from 'classnames';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import { nodesFromGridRows } from 'src/layout/Grid/tools';
@@ -13,7 +12,7 @@ import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow';
 import { ComponentType } from 'src/layout/LayoutComponent';
-import { getColumnStylesRepeatingGroups, getTextResource } from 'src/utils/formComponentUtils';
+import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { HRepGroup } from 'src/layout/Group/types';
 import type { ITableColumnFormatting } from 'src/layout/layout';
@@ -58,8 +57,7 @@ export function RepeatingGroupTable({
   rowsAfter,
 }: IRepeatingGroupTableProps): JSX.Element | null {
   const mobileView = useMediaQuery('(max-width:992px)');
-  const textResources = useAppSelector((state) => state.textResources.resources);
-  const language = useAppSelector((state) => state.language.language);
+  const { lang } = useLanguage();
 
   const id = node.item.id;
   const container = node.item;
@@ -164,7 +162,7 @@ export function RepeatingGroupTable({
       />
     );
 
-  if (!tableNodes || !language) {
+  if (!tableNodes) {
     return null;
   }
 
@@ -244,18 +242,18 @@ export function RepeatingGroupTable({
                     className={classes.contentFormatting}
                     style={getColumnStylesRepeatingGroups(n.item, columnSettings)}
                   >
-                    {getTextResource(getTableTitle(n.item.textResourceBindings || {}), textResources)}
+                    {lang(getTableTitle(n.item.textResourceBindings || {}))}
                   </span>
                 </TableCell>
               ))}
               {displayEditColumn && (
                 <TableCell style={{ padding: 0, paddingRight: '10px' }}>
-                  <span className={classes.visuallyHidden}>{getLanguageFromKey('general.edit', language)}</span>
+                  <span className={classes.visuallyHidden}>{lang('general.edit')}</span>
                 </TableCell>
               )}
               {displayDeleteColumn && (
                 <TableCell style={{ padding: 0 }}>
-                  <span className={classes.visuallyHidden}>{getLanguageFromKey('general.delete', language)}</span>
+                  <span className={classes.visuallyHidden}>{lang('general.delete')}</span>
                 </TableCell>
               )}
             </TableRow>

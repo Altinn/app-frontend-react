@@ -16,6 +16,10 @@ export interface IComponentFormData {
   [binding: string]: string | undefined;
 }
 
+/**
+ * @deprecated
+ * @see useLanguage
+ */
 export const getTextResource = (resourceKey: string | undefined, textResources: ITextResource[]): React.ReactNode => {
   const textResourceValue = getTextResourceByKey(resourceKey, textResources);
   if (textResourceValue === resourceKey) {
@@ -29,6 +33,10 @@ export const getTextResource = (resourceKey: string | undefined, textResources: 
   return getParsedLanguageFromText(textResourceValue);
 };
 
+/**
+ * @deprecated
+ * @see useLanguage
+ */
 export function selectComponentTexts(
   textResources: ITextResource[],
   textResourceBindings: ITextResourceBindings | undefined,
