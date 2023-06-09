@@ -46,7 +46,7 @@ export function runClientSideValidation(state: IRuntimeState): ValidationResult 
   const layouts = resolvedLayoutsFromState(state);
   const langTools = staticUseLanguageFromState(state);
 
-  if (!layoutOrder || !state.language.language || !layouts) {
+  if (!layoutOrder || !layouts) {
     return out;
   }
 

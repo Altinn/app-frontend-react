@@ -59,9 +59,6 @@ function* runValidations(field: string, data: any, componentId: string | undefin
     );
     return;
   }
-  if (!state.language.language) {
-    return;
-  }
 
   const layoutId = getLayoutIdForComponent(componentId, state.formLayout.layouts || {});
 
