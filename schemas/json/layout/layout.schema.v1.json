@@ -207,6 +207,9 @@
           "type": "integer",
           "minimum": 0
         },
+        "alertOnDelete": {
+          "$ref": "#/definitions/alertOnChange"
+        },
         "displayMode": {
           "title": "Display mode",
           "description": "Sets the display mode for the file upload component.",
@@ -702,9 +705,7 @@
           ]
         },
         "alertOnDelete": {
-          "title": "Alert on delete",
-          "description": "Boolean value indicating if warning popup should be displayed when attempting to delete a row",
-          "type": "boolean"
+          "$ref": "#/definitions/alertOnChange"
         }
       }
     },
@@ -848,6 +849,9 @@
           "items": {
             "$ref": "#/definitions/options"
           }
+        },
+        "alertOnChange": {
+          "$ref": "#/definitions/alertOnChange"
         },
         "preselectedOptionIndex": {
           "type": "integer",
@@ -1214,6 +1218,12 @@
           }
         }
       }
+    },
+    "alertOnChange":{
+        "type": "boolean",
+        "title": "Alert on change",
+        "description": "Boolean value indicating if warning popup should be displayed when attempting to change an element",
+        "default": false
     },
     "listComponent": {
       "type": "object",
