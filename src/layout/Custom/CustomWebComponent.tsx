@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getTextResourceByKey } from 'src/language/sharedLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ITextResource, ITextResourceBindings } from 'src/types';
+import type { ITextResourceBindings } from 'src/types';
 
 export type ICustomComponentProps = PropsFromGenericComponent<'Custom'> & {
   [key: string]: string | number | boolean | object | null | undefined;
@@ -25,7 +25,7 @@ export function CustomWebComponent({
   };
   const Tag = tagName;
   const wcRef = React.useRef<any>(null);
-  const textResources = useAppSelector((state) => state.textResources.resources);
+  const langTools = useLanguage();
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
@@ -45,11 +45,11 @@ export function CustomWebComponent({
   React.useLayoutEffect(() => {
     const { current } = wcRef;
     if (current) {
-      current.texts = getTextsForComponent(textResourceBindings || {}, textResources, false);
+      current.texts = getTextsForComponent(textResourceBindings || {}, langTools);
       current.dataModelBindings = dataModelBindings;
       current.language = language;
     }
-  }, [wcRef, textResourceBindings, textResources, dataModelBindings, language]);
+  }, [wcRef, textResourceBindings, dataModelBindings, langTools, language]);
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
@@ -59,7 +59,7 @@ export function CustomWebComponent({
     }
   }, [formData, componentValidations]);
 
-  if (node.isHidden() || !Tag || !textResources) {
+  if (node.isHidden() || !Tag) {
     return null;
   }
 
@@ -85,18 +85,10 @@ export function CustomWebComponent({
   );
 }
 
-function getTextsForComponent(
-  textResourceBindings: ITextResourceBindings,
-  textResources: ITextResource[],
-  stringify = true,
-) {
+function getTextsForComponent(textResourceBindings: ITextResourceBindings, langTools: IUseLanguage) {
   const result: any = {};
   Object.keys(textResourceBindings).forEach((key) => {
-    result[key] = getTextResourceByKey(textResourceBindings[key], textResources);
+    result[key] = langTools.langAsString(textResourceBindings[key]);
   });
-
-  if (stringify) {
-    return JSON.stringify(result);
-  }
   return result;
 }

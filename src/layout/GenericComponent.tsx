@@ -198,7 +198,6 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
         key={`label-${id}`}
         labelText={texts.title}
         helpText={texts.help}
-        language={language}
         id={id}
         readOnly={item.readOnly}
         required={item.required}
@@ -232,7 +231,6 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
         labelText={texts.title}
         descriptionText={texts.description}
         helpText={texts.help}
-        language={language}
         id={id}
         required={item.required}
         labelSettings={item.labelSettings}
@@ -242,7 +240,6 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   };
 
   const getTextResourceWrapper = (key: string | undefined) => getTextResource(key, textResources);
-
   const getTextResourceAsString = (key: string | undefined) => getTextResourceByKey(key, textResources);
 
   const fixedComponentProps: IComponentProps = {

@@ -5,6 +5,10 @@ import type { IProfile } from 'src/types/shared';
 
 const selectedAppLanguageStateSelector = (state: IRuntimeState) => state.profile.selectedAppLanguage;
 
+/**
+ * @deprecated
+ * @see useLanguage
+ */
 export const appLanguageStateSelector = (state: IRuntimeState) => {
   let selectedAppLanguage = selectedAppLanguageStateSelector(state);
   const allowAnonymous = makeGetAllowAnonymousSelector()(state);

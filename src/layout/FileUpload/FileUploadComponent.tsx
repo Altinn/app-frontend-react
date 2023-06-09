@@ -27,7 +27,7 @@ export type IFileUploadProps = PropsFromGenericComponent<'FileUpload'>;
 export const bytesInOneMB = 1048576;
 export const emptyArray = [];
 
-export function FileUploadComponent({ node, componentValidations, language }: IFileUploadProps) {
+export function FileUploadComponent({ node, componentValidations }: IFileUploadProps) {
   const {
     id,
     baseComponentId,
@@ -46,7 +46,8 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
   const attachments = useAppSelector((state) => state.attachments.attachments[id] || emptyArray);
-  const { lang, langAsString } = useLanguage();
+  const langTools = useLanguage();
+  const { lang, langAsString } = langTools;
   const getComponentValidations = (): IComponentValidations => {
     const validationMessages = {
       simpleBinding: {
@@ -107,7 +108,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
         setShowFileUpload(displayMode === 'simple' ? false : attachments.length < maxNumberOfAttachments);
       }
       const rejections = handleRejectedFiles({
-        language,
+        langTools,
         rejectedFiles,
         maxFileSizeInMB,
       });
@@ -317,26 +318,26 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
         />
       )}
 
-      {shouldShowFileUpload() &&
-        AttachmentsCounter({
-          language,
-          currentNumberOfAttachments: attachments.length,
-          minNumberOfAttachments,
-          maxNumberOfAttachments,
-        })}
+      {shouldShowFileUpload() && (
+        <AttachmentsCounter
+          currentNumberOfAttachments={attachments.length}
+          minNumberOfAttachments={minNumberOfAttachments}
+          maxNumberOfAttachments={maxNumberOfAttachments}
+        />
+      )}
 
       {validationMessages.simpleBinding?.errors &&
         validationMessages.simpleBinding.errors.length > 0 &&
         showFileUpload &&
         renderValidationMessagesForComponent(validationMessages.simpleBinding, id)}
       <FileList />
-      {!shouldShowFileUpload() &&
-        AttachmentsCounter({
-          language,
-          currentNumberOfAttachments: attachments.length,
-          minNumberOfAttachments,
-          maxNumberOfAttachments,
-        })}
+      {!shouldShowFileUpload() && (
+        <AttachmentsCounter
+          currentNumberOfAttachments={attachments.length}
+          minNumberOfAttachments={minNumberOfAttachments}
+          maxNumberOfAttachments={maxNumberOfAttachments}
+        />
+      )}
 
       {validationMessages.simpleBinding?.errors &&
         validationMessages.simpleBinding.errors.length > 0 &&
