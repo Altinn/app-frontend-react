@@ -13,6 +13,13 @@ export interface IUseLanguage {
   selectedLanguage: string;
   lang(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string | JSX.Element | JSX.Element[] | null;
   langAsString(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
+
+  /**
+   * @deprecated Please do not use this functionality in new code. This function looks up the key, but if the key is not
+   * found in either text resources or the app language list, it will return an empty string (instead of the key itself,
+   * as is default). This behaviour makes it impossible to hard-code texts by just using the raw text as keys, so it
+   * may lead to unexpected behaviour.
+   */
   langAsStringOrEmpty(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
 }
 
