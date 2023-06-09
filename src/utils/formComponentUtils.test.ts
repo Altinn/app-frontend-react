@@ -1,7 +1,4 @@
-import parseHtmlToReact from 'html-react-parser';
-
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
-import { parseOptions } from 'src/language/sharedLanguage';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import {
   atleastOneTagExists,
@@ -13,48 +10,13 @@ import {
   isAttachmentError,
   isNotAttachmentError,
   parseFileUploadComponentWithTagValidationObject,
-  selectComponentTexts,
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
-import type { ITextResource } from 'src/types';
 import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 describe('formComponentUtils', () => {
-  const mockTextResources: ITextResource[] = [
-    {
-      id: 'textKey1',
-      value: 'Value1',
-    },
-    {
-      id: 'textKey2',
-      value: 'Value2',
-    },
-    {
-      id: 'repTextKey1',
-      value: 'RepValue1',
-    },
-    {
-      id: 'repTextKey2',
-      value: 'RepValue2',
-    },
-    {
-      id: 'repTextKey3',
-      value: 'RepValue3',
-    },
-    {
-      id: 'dropdown.label',
-      value: 'Label value: {0}',
-      unparsedValue: 'Label value: {0}',
-      variables: [
-        {
-          key: 'someGroup[{0}].fieldUsedAsLabel',
-          dataSource: 'dataModel.default',
-        },
-      ],
-    },
-  ];
   const mockAttachments: IAttachments = {
     upload: [
       {
@@ -113,36 +75,6 @@ describe('formComponentUtils', () => {
       id: '123457',
     },
   ];
-
-  describe('selectComponentTexts', () => {
-    it('should return value of mapped textResourceBinding', () => {
-      const textResourceBindings = {
-        title: 'textKey2',
-      };
-      const result = selectComponentTexts(mockTextResources, textResourceBindings);
-
-      expect(result).toEqual({
-        title: parseHtmlToReact(`<span>Value2</span>`, parseOptions),
-      });
-    });
-
-    it('should return empty object when no textResourceBindings are provided', () => {
-      const result = selectComponentTexts(mockTextResources, undefined);
-
-      expect(result).toEqual({});
-    });
-
-    it('should return original key when textResourceBinding key is not found in textResources', () => {
-      const textResourceBindings = {
-        title: 'key-that-does-not-exist',
-      };
-      const result = selectComponentTexts(mockTextResources, textResourceBindings);
-
-      expect(result).toEqual({
-        title: 'key-that-does-not-exist',
-      });
-    });
-  });
 
   describe('isAttachmentError', () => {
     it('should return true when error has attachmentId', () => {

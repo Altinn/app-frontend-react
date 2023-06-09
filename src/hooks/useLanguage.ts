@@ -107,6 +107,10 @@ function staticUseLanguage(
   return {
     selectedLanguage: langKey,
     lang: (key, params) => {
+      if (!key) {
+        return '';
+      }
+
       const textResource: string | undefined = getTextResourceByKey(key, textResources);
       if (textResource !== key && textResource !== undefined) {
         return getParsedLanguageFromText(textResource);
@@ -115,6 +119,10 @@ function staticUseLanguage(
       return getParsedLanguageFromKey(key as ValidLanguageKey, language, params, false);
     },
     langAsString: (key, params) => {
+      if (!key) {
+        return '';
+      }
+
       const textResource = getTextResourceByKey(key, textResources);
       if (textResource !== key && textResource !== undefined) {
         return textResource;

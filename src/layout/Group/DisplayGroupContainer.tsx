@@ -4,10 +4,9 @@ import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
-import { pageBreakStyles, selectComponentTexts } from 'src/utils/formComponentUtils';
+import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { HGroups } from 'src/layout/Group/types';
 
@@ -39,13 +38,10 @@ export interface IDisplayGroupContainer {
 }
 
 export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
-  const { langAsString } = useLanguage();
+  const { lang, langAsString } = useLanguage();
   const container = groupNode.item;
   const title = langAsString(container.textResourceBindings?.title);
-
-  const texts = useAppSelector((state) =>
-    selectComponentTexts(state.textResources.resources, container.textResourceBindings),
-  );
+  const body = lang(container.textResourceBindings?.body);
 
   if (groupNode.isHidden()) {
     return null;
@@ -68,7 +64,7 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
       data-testid='display-group-container'
       data-componentid={container.id}
     >
-      {(title || texts.body) && (
+      {(title || body) && (
         <Grid
           item={true}
           xs={12}
@@ -81,7 +77,7 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
               {title}
             </H>
           )}
-          {texts.body && <p className={classes.groupBody}>{texts.body}</p>}
+          {body && <p className={classes.groupBody}>{body}</p>}
         </Grid>
       )}
       <ConditionalWrapper
