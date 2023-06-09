@@ -1,8 +1,6 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import type { IAltinnWindow } from 'src/types';
-
 const appFrontend = new AppFrontend();
 
 describe('Reportee selection', () => {
@@ -37,10 +35,24 @@ describe('Reportee selection', () => {
   });
 });
 
-describe.only('doNotPromptForParty doNotPromptForPartyPreference', () => {
+const fakeParty = {
+  partyId: 12345678,
+  partyTypeName: 1,
+  orgNumber: '9879879876',
+  ssn: '12312312345',
+  unitType: null,
+  name: 'Fake Party',
+  isDeleted: false,
+  onlyHierarchyElementWithNoAccess: false,
+  person: null,
+  organization: null,
+  childParties: null,
+};
+
+describe('doNotPromptForParty doNotPromptForPartyPreference', () => {
   beforeEach(() => {
     // Enable feature toggle on the window object
-    cy.on('window:before:load', (win: IAltinnWindow) => {
+    cy.on('window:before:load', (win) => {
       win.featureToggles = {
         doNotPromptForPartyPreference: true,
       };
@@ -58,6 +70,13 @@ describe.only('doNotPromptForParty doNotPromptForPartyPreference', () => {
       cy.intercept('GET', '**/api/v1/profile/user', (req) => {
         req.on('response', (res) => {
           res.body.profileSettingPreference.doNotPromptForParty = doNotPromptForParty;
+        });
+      });
+
+      // Intercept allowed parties
+      cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, (req) => {
+        req.on('response', (res) => {
+          res.body.push(fakeParty);
         });
       });
 
@@ -109,21 +128,7 @@ describe.only('doNotPromptForParty doNotPromptForPartyPreference', () => {
 
       // Intercept allowed parties
       cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, {
-        body: [
-          {
-            partyId: 50085642,
-            partyTypeName: 1,
-            orgNumber: '',
-            ssn: '23033600534',
-            unitType: null,
-            name: 'RISHAUG JULIUS',
-            isDeleted: false,
-            onlyHierarchyElementWithNoAccess: false,
-            person: null,
-            organization: null,
-            childParties: null,
-          },
-        ],
+        body: [fakeParty],
       });
 
       cy.startAppInstance(appFrontend.apps.frontendTest);
