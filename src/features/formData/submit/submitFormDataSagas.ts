@@ -9,7 +9,7 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-import { IUiConfig, Severity } from 'src/types';
+import { Severity } from 'src/types';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from 'src/utils/databindings';
 import { httpPost } from 'src/utils/network/networking';
@@ -27,7 +27,7 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormDataFulfilled } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { IRuntimeState, IRuntimeStore, IValidationIssue } from 'src/types';
+import type { IRuntimeState, IRuntimeStore, IUiConfig, IValidationIssue } from 'src/types';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
@@ -350,7 +350,8 @@ export function* autoSaveSaga({
   payload: { skipAutoSave, field, componentId, singleFieldValidation },
 }: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
   const uiConfig: IUiConfig = yield select(selectUiConfig);
-  if (skipAutoSave || uiConfig.autoSaveBehavior === 'onChangeFormData') {
+  if (skipAutoSave || uiConfig.autoSaveBehavior === 'onChangePage') {
+    console.log('Skip save', skipAutoSave);
     return;
   }
 

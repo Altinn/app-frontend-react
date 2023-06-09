@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
-import { putFormData } from 'src/features/formData/submit/submitFormDataSagas';
+import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
@@ -55,8 +55,14 @@ export function* updateCurrentViewSaga({
   try {
     const uiConfig: IUiConfig = yield select(selectUiConfig);
 
+    // When triggering navigation we should save the data if autoSaveBehavior === 'onChangePage'
+    // But we should not save the data when currentView is hidden.
+    // This happens on the initial load of the page
     if (uiConfig.autoSaveBehavior === 'onChangePage') {
-      yield call(putFormData, {});
+      const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
+      if (visibleLayouts?.includes(uiConfig.currentView)) {
+        yield put(FormDataActions.saveLatest({}));
+      }
     } else {
       // When triggering navigation to the next page, we need to make sure there are no unsaved changes. The action to
       // save it should be triggered elsewhere, but we should wait until the state settles before navigating.
