@@ -1,31 +1,45 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
+import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ITextResourceBindings } from 'src/types';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 export type ICustomComponentProps = PropsFromGenericComponent<'Custom'> & {
   [key: string]: string | number | boolean | object | null | undefined;
 };
 
+export type IPassedOnProps = Omit<
+  PropsFromGenericComponent<'Custom'>,
+  'formData' | 'node' | 'componentValidations' | 'handleDataChange'
+> &
+  Omit<AnyItem<'Custom'>, 'tagName'> & {
+    [key: string]: string | number | boolean | object | null | undefined;
+    text: string | undefined;
+    getTextResourceAsString: (textResource: string | undefined) => string;
+  };
+
 export function CustomWebComponent({
   node,
   formData,
   componentValidations,
-  language,
   handleDataChange,
   ...passThroughPropsFromGenericComponent
 }: ICustomComponentProps) {
+  const langTools = useLanguage();
   const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = node.item;
-  const passThroughProps = {
+  const language = useAppSelector((state) => state.language.language);
+  const passThroughProps: IPassedOnProps = {
     ...passThroughPropsFromGenericComponent,
     ...passThroughPropsFromNode,
+    text: langTools.langAsString(textResourceBindings?.title),
+    getTextResourceAsString: (textResource: string) => langTools.langAsString(textResource),
   };
   const Tag = tagName;
   const wcRef = React.useRef<any>(null);
-  const langTools = useLanguage();
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;

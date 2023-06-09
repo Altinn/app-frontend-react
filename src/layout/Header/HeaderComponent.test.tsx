@@ -89,10 +89,7 @@ describe('HeaderComponent', () => {
       },
     });
 
-    const helpButton = screen.getByRole('button', {
-      name: /helptext\.button_title/i,
-    });
-
+    const helpButton = screen.getByRole('button', { name: /Hjelp/i });
     expect(helpButton).toBeInTheDocument();
   });
 
@@ -106,10 +103,7 @@ describe('HeaderComponent', () => {
       },
     });
 
-    const helpButton = screen.getByRole('button', {
-      name: /helptext\.button_title/i,
-    });
-
+    const helpButton = screen.getByRole('button', { name: /Hjelp/i });
     expect(screen.queryByText(helpText)).not.toBeInTheDocument();
     fireEvent.click(helpButton);
     expect(screen.getByText(helpText)).toBeInTheDocument();
