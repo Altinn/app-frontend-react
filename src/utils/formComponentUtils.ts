@@ -1,6 +1,6 @@
 import type React from 'react';
 
-import { getLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import type { IAttachment } from 'src/features/attachments';
@@ -8,47 +8,12 @@ import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { IPageBreak } from 'src/layout/layout.d';
-import type { IComponentValidations, ITextResource, ITextResourceBindings } from 'src/types';
+import type { IComponentValidations, ITextResourceBindings } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 export interface IComponentFormData {
   [binding: string]: string | undefined;
-}
-
-/**
- * @deprecated
- * @see useLanguage
- */
-export const getTextResource = (resourceKey: string | undefined, textResources: ITextResource[]): React.ReactNode => {
-  const textResourceValue = getTextResourceByKey(resourceKey, textResources);
-  if (textResourceValue === resourceKey) {
-    // No match in text resources
-    return resourceKey;
-  }
-  if (!textResourceValue) {
-    return undefined;
-  }
-
-  return getParsedLanguageFromText(textResourceValue);
-};
-
-/**
- * @deprecated
- * @see useLanguage
- */
-export function selectComponentTexts(
-  textResources: ITextResource[],
-  textResourceBindings: ITextResourceBindings | undefined,
-) {
-  const result: { [textResourceKey: string]: React.ReactNode } = {};
-
-  if (textResourceBindings) {
-    Object.keys(textResourceBindings).forEach((key) => {
-      result[key] = getTextResource(textResourceBindings[key], textResources);
-    });
-  }
-  return result;
 }
 
 export function getFileUploadComponentValidations(

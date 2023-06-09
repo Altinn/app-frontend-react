@@ -24,7 +24,6 @@ export const ControlledRadioGroup = ({
   node,
   fetchingOptions,
   selected,
-  text,
   handleBlur,
   handleChangeRadioGroup,
   calculatedOptions,
@@ -36,7 +35,7 @@ export const ControlledRadioGroup = ({
 
   const labelText = (
     <span style={{ fontSize: '1rem', wordBreak: 'break-word' }}>
-      {text}
+      {lang(textResourceBindings?.title)}
       <RequiredIndicator required={required} />
       <OptionalIndicator
         labelSettings={labelSettings}

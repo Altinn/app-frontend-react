@@ -29,9 +29,11 @@ const render = (submittingId: string) => {
     renderer: (props) => <ButtonComponent {...props} />,
     component: {
       id: 'some-id',
+      textResourceBindings: {
+        title: submitBtnText,
+      },
     },
     genericProps: {
-      text: submitBtnText,
       handleDataChange: jest.fn(),
     },
     manipulateState: (state) => {

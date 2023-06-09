@@ -61,7 +61,7 @@ export const HeaderSize = ({ id, size, text }: IHeaderSizeProps) => {
   }
 };
 
-export const HeaderComponent = ({ node, text, getTextResource }: IHeaderProps) => {
+export const HeaderComponent = ({ node }: IHeaderProps) => {
   const { id, size, textResourceBindings } = node.item;
   const { lang } = useLanguage();
   return (
@@ -74,7 +74,7 @@ export const HeaderComponent = ({ node, text, getTextResource }: IHeaderProps) =
         <HeaderSize
           id={id}
           size={size}
-          text={text}
+          text={lang(textResourceBindings?.title)}
         />
       </Grid>
       {textResourceBindings?.help && (
@@ -84,7 +84,7 @@ export const HeaderComponent = ({ node, text, getTextResource }: IHeaderProps) =
         >
           <HelpTextContainer
             helpText={lang(textResourceBindings.help)}
-            title={getPlainTextFromNode(text)}
+            title={getPlainTextFromNode(lang(textResourceBindings?.title))}
           />
         </Grid>
       )}

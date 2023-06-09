@@ -23,7 +23,6 @@ const defaultSelectedOptions: string[] = [];
 export const CheckboxContainerComponent = ({
   node,
   formData,
-  text,
   isValid,
   handleDataChange,
   overrideDisplay,
@@ -91,7 +90,7 @@ export const CheckboxContainerComponent = ({
 
   const labelText = (
     <span style={{ fontSize: '1rem' }}>
-      {text}
+      {lang(node.item.textResourceBindings?.title)}
       <RequiredIndicator required={required} />
       <OptionalIndicator
         labelSettings={labelSettings}

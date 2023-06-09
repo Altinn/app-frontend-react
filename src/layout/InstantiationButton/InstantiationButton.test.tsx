@@ -11,17 +11,17 @@ import { renderGenericComponentTest } from 'src/testUtils';
 const render = () => {
   renderGenericComponentTest({
     type: 'InstantiationButton',
+    component: {
+      textResourceBindings: {
+        title: 'Instantiate',
+      },
+    },
     renderer: (props) => (
       <MemoryRouter initialEntries={['/']}>
         <Routes>
           <Route
             path={'/'}
-            element={
-              <InstantiationButtonComponent
-                {...props}
-                text={'Instantiate'}
-              />
-            }
+            element={<InstantiationButtonComponent {...props} />}
           />
           <Route
             path='/instance/abc123'

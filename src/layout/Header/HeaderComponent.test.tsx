@@ -17,12 +17,7 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
       textResourceBindings: {},
       ...component,
     },
-    genericProps: {
-      text: 'text',
-      getTextResource: (key: string) => key,
-      language: {},
-      ...genericProps,
-    },
+    genericProps,
   });
 };
 describe('HeaderComponent', () => {
