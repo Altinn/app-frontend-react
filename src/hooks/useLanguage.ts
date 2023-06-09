@@ -104,6 +104,14 @@ function staticUseLanguage(
   const language = _language || getLanguageFromCode(defaultLocale);
   const langKey = selectedAppLanguage || profileLanguage || defaultLocale;
 
+  /**
+   * TODO: Replace parameters when passed to text resources (e.g. {0}, {1}, etc.) with the actual values. Text resources
+   * can also use variables, so we should only use our parameters if no variable is present in the text resource config.
+   *
+   * TODO: Clean away any markdown/HTML formatting when using the langAsString function. Even though we support
+   * returning a string, we don't want to show markdown/HTML in the UI.
+   */
+
   return {
     selectedLanguage: langKey,
     lang: (key, params) => {
@@ -112,7 +120,7 @@ function staticUseLanguage(
       }
 
       const textResource: string | undefined = getTextResourceByKey(key, textResources);
-      if (textResource !== key && textResource !== undefined) {
+      if (textResource !== key) {
         return getParsedLanguageFromText(textResource);
       }
 
@@ -124,7 +132,7 @@ function staticUseLanguage(
       }
 
       const textResource = getTextResourceByKey(key, textResources);
-      if (textResource !== key && textResource !== undefined) {
+      if (textResource !== key) {
         return textResource;
       }
 
@@ -136,7 +144,7 @@ function staticUseLanguage(
       }
 
       const textResource = getTextResourceByKey(key, textResources);
-      if (textResource !== key && textResource !== undefined) {
+      if (textResource !== key) {
         return textResource;
       }
 
