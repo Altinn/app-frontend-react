@@ -209,8 +209,9 @@ describe('formComponentUtils', () => {
           },
         },
       };
+      const langTools = staticUseLanguageForTests({ language: mockLanguage.language });
 
-      const uploadValidation = getFileUploadComponentValidations('upload', mockLanguage.language);
+      const uploadValidation = getFileUploadComponentValidations('upload', langTools);
       expect(uploadValidation).toEqual({
         simpleBinding: {
           errors: ['Noe gikk galt under opplastingen av filen, prøv igjen senere.'],
@@ -218,7 +219,7 @@ describe('formComponentUtils', () => {
         },
       });
 
-      const updateValidation = getFileUploadComponentValidations('update', mockLanguage.language);
+      const updateValidation = getFileUploadComponentValidations('update', langTools);
       expect(updateValidation).toEqual({
         simpleBinding: {
           errors: ['Noe gikk galt under oppdatering av filens merking, prøv igjen senere.'],
@@ -226,11 +227,7 @@ describe('formComponentUtils', () => {
         },
       });
 
-      const updateValidationWithId = getFileUploadComponentValidations(
-        'update',
-        mockLanguage.language,
-        'mock-attachment-id',
-      );
+      const updateValidationWithId = getFileUploadComponentValidations('update', langTools, 'mock-attachment-id');
       expect(updateValidationWithId).toEqual({
         simpleBinding: {
           errors: [
@@ -240,7 +237,7 @@ describe('formComponentUtils', () => {
         },
       });
 
-      const deleteValidation = getFileUploadComponentValidations('delete', mockLanguage.language);
+      const deleteValidation = getFileUploadComponentValidations('delete', langTools);
       expect(deleteValidation).toEqual({
         simpleBinding: {
           errors: ['Noe gikk galt under slettingen av filen, prøv igjen senere.'],

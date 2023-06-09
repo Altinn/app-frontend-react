@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Summary/SummaryItemSimple.module.css';
 
 export interface ISummaryItemSimple {
@@ -9,13 +8,13 @@ export interface ISummaryItemSimple {
 }
 
 export function SummaryItemSimple({ formDataAsString }: ISummaryItemSimple) {
-  const language = useAppSelector((state) => state.language.language);
+  const { lang } = useLanguage();
   return (
     <div data-testid={'summary-item-simple'}>
       {formDataAsString ? (
         <span className={classes.data}>{formDataAsString}</span>
       ) : (
-        <span className={classes.emptyField}>{getLanguageFromKey('general.empty_summary', language || {})}</span>
+        <span className={classes.emptyField}>{lang('general.empty_summary')}</span>
       )}
     </div>
   );

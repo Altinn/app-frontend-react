@@ -13,7 +13,6 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { CustomIcon } from 'src/layout/Panel/CustomPanelIcon';
 import { makeGetHidden } from 'src/selectors/getLayoutData';
@@ -30,7 +29,6 @@ export function PanelReferenceGroupContainer({ id }: IPanelGroupContainerProps) 
   const node = useResolvedNode(id) as LayoutNodeFromType<'Group'>;
   const container = node.item.panel ? node.item : undefined;
   const [open, setOpen] = useState<boolean>(!container?.panel?.groupReference);
-  const language = useAppSelector((state) => state.language.language);
   const hidden = useAppSelector((state) => GetHiddenSelector(state, { id }));
   const textResourceBindings = node?.item.textResourceBindings;
   const { lang } = useLanguage();
@@ -56,7 +54,7 @@ export function PanelReferenceGroupContainer({ id }: IPanelGroupContainerProps) 
     setOpen(true);
   };
 
-  if (hidden || !language || !container || !node) {
+  if (hidden || !container || !node) {
     return null;
   }
 
@@ -132,7 +130,7 @@ export function PanelReferenceGroupContainer({ id }: IPanelGroupContainerProps) 
                       <Grid item>
                         <SuccessIconButton
                           id={`save-reference-button-${container.id}`}
-                          label={getLanguageFromKey('general.save', language)}
+                          label={lang('general.save')}
                           onClick={handleSave}
                         />
                       </Grid>

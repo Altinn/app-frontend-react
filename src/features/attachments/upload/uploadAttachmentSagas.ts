@@ -6,24 +6,25 @@ import type { SagaIterator } from 'redux-saga';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { httpPost } from 'src/utils/network/networking';
 import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI } from 'src/utils/urls/urlHelper';
 import type { IAttachment } from 'src/features/attachments';
 import type { IUploadAttachmentAction } from 'src/features/attachments/upload/uploadAttachmentActions';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IRuntimeState } from 'src/types';
-import type { ILanguage } from 'src/types/shared';
 
 export function* uploadAttachmentSaga({
   payload: { file, attachmentType, tmpAttachmentId, componentId, dataModelBindings, index },
 }: PayloadAction<IUploadAttachmentAction>): SagaIterator {
   const currentView: string = yield select((s: IRuntimeState) => s.formLayout.uiConfig.currentView);
-  const language: ILanguage = yield select((s: IRuntimeState) => s.language.language);
+  const langTools: IUseLanguage = yield select(staticUseLanguageFromState);
 
   try {
     // Sets validations to empty.
-    const newValidations = getFileUploadComponentValidations(null, {});
+    const newValidations = getFileUploadComponentValidations(null, langTools);
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,
@@ -83,7 +84,7 @@ export function* uploadAttachmentSaga({
         );
       }
     } else {
-      const validations = getFileUploadComponentValidations('upload', language);
+      const validations = getFileUploadComponentValidations('upload', langTools);
       yield put(
         ValidationActions.updateComponentValidations({
           componentId,
@@ -100,7 +101,7 @@ export function* uploadAttachmentSaga({
       );
     }
   } catch (err) {
-    const validations = getFileUploadComponentValidations('upload', language);
+    const validations = getFileUploadComponentValidations('upload', langTools);
     yield put(
       ValidationActions.updateComponentValidations({
         componentId,

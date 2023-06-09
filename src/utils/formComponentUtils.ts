@@ -1,6 +1,5 @@
 import type React from 'react';
 
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import type { IAttachment } from 'src/features/attachments';
@@ -9,7 +8,6 @@ import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { IPageBreak } from 'src/layout/layout.d';
 import type { IComponentValidations, ITextResourceBindings } from 'src/types';
-import type { ILanguage } from 'src/types/shared';
 import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 
 export interface IComponentFormData {
@@ -18,9 +16,10 @@ export interface IComponentFormData {
 
 export function getFileUploadComponentValidations(
   validationError: 'upload' | 'update' | 'delete' | null,
-  language: ILanguage,
+  langTools: IUseLanguage,
   attachmentId?: string,
 ): IComponentValidations {
+  const { langAsString } = langTools;
   const componentValidations: any = {
     simpleBinding: {
       errors: [],
@@ -28,26 +27,18 @@ export function getFileUploadComponentValidations(
     },
   };
   if (validationError === 'upload') {
-    componentValidations.simpleBinding.errors.push(
-      getLanguageFromKey('form_filler.file_uploader_validation_error_upload', language),
-    );
+    componentValidations.simpleBinding.errors.push(langAsString('form_filler.file_uploader_validation_error_upload'));
   } else if (validationError === 'update') {
     if (attachmentId === undefined || attachmentId === '') {
-      componentValidations.simpleBinding.errors.push(
-        getLanguageFromKey('form_filler.file_uploader_validation_error_update', language),
-      );
+      componentValidations.simpleBinding.errors.push(langAsString('form_filler.file_uploader_validation_error_update'));
     } else {
       componentValidations.simpleBinding.errors.push(
         // If validation has attachmentId, add to start of message and seperate using ASCII Universal Seperator
-        attachmentId +
-          AsciiUnitSeparator +
-          getLanguageFromKey('form_filler.file_uploader_validation_error_update', language),
+        attachmentId + AsciiUnitSeparator + langAsString('form_filler.file_uploader_validation_error_update'),
       );
     }
   } else if (validationError === 'delete') {
-    componentValidations.simpleBinding.errors.push(
-      getLanguageFromKey('form_filler.file_uploader_validation_error_delete', language),
-    );
+    componentValidations.simpleBinding.errors.push(langAsString('form_filler.file_uploader_validation_error_delete'));
   }
   return componentValidations;
 }

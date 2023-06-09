@@ -16,13 +16,13 @@ import { Delete as DeleteIcon, Edit as EditIcon, Warning as WarningIcon } from '
 import cn from 'classnames';
 
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprResolved } from 'src/features/expressions/types';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ITextResourceBindings } from 'src/types';
-import type { ILanguage, ITextResource } from 'src/types/shared';
 
 export interface IMobileTableItem {
   key: React.Key;
@@ -34,15 +34,12 @@ export interface IAltinnMobileTableItemProps {
   items: IMobileTableItem[];
   tableItemIndex: number;
   container?: ILayoutGroup;
-  textResources?: ITextResource[];
-  language?: ILanguage;
   valid?: boolean;
   editIndex: number;
   onEditClick: () => void;
   getEditButtonText?: (
-    language: ILanguage,
     isEditing: boolean,
-    textResources: ITextResource[],
+    langTools: IUseLanguage,
     textResourceBindings?: ITextResourceBindings,
   ) => string;
   editButtonText?: string;
@@ -135,10 +132,8 @@ export function AltinnMobileTableItem({
   items,
   tableItemIndex,
   container,
-  textResources,
   valid = true,
   editIndex,
-  language,
   onEditClick,
   getEditButtonText,
   editButtonText,
@@ -146,6 +141,8 @@ export function AltinnMobileTableItem({
 }: IAltinnMobileTableItemProps) {
   const classes = useStyles();
   const mobileViewSmall = useMediaQuery('(max-width:768px)');
+  const langTools = useLanguage();
+  const { langAsString } = langTools;
 
   const {
     onDeleteClick,
@@ -173,10 +170,10 @@ export function AltinnMobileTableItem({
     ...expressionsForRow?.edit,
   } as ExprResolved<ILayoutGroup['edit']>;
 
-  if (textResources && getEditButtonText && container && language) {
+  if (getEditButtonText && container) {
     const editButtonTextFromTextResources = !valid
-      ? getLanguageFromKey('general.edit_alt_error', language)
-      : getEditButtonText(language, editIndex === tableItemIndex, textResources, textResourceBindings);
+      ? langAsString('general.edit_alt_error')
+      : getEditButtonText(editIndex === tableItemIndex, langTools, textResourceBindings);
 
     if (!editButtonText) {
       editButtonText = editButtonTextFromTextResources;
@@ -246,7 +243,6 @@ export function AltinnMobileTableItem({
                 setPopoverOpen &&
                 onOpenChange &&
                 onPopoverDeleteClick &&
-                language &&
                 typeof popoverOpen === 'boolean' && (
                   <TableCell
                     align='right'
@@ -270,8 +266,8 @@ export function AltinnMobileTableItem({
                               {!mobileViewSmall && deleteButtonText}
                             </Button>
                           }
-                          deleteButtonText={getLanguageFromKey('group.row_popover_delete_button_confirm', language)}
-                          messageText={getLanguageFromKey('group.row_popover_delete_message', language)}
+                          deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
+                          messageText={langAsString('group.row_popover_delete_message')}
                           open={popoverPanelIndex == tableItemIndex && popoverOpen}
                           setPopoverOpen={setPopoverOpen}
                           onCancelClick={() => onOpenChange(tableItemIndex)}

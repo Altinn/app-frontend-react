@@ -7,39 +7,38 @@ import type { PropsFromGenericComponent } from '..';
 
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { selectAppReceiver } from 'src/selectors/language';
 import { getDateFormat } from 'src/utils/dateHelpers';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IRuntimeState } from 'src/types';
-import type { IInstance, ILanguage, IParty } from 'src/types/shared';
+import type { IInstance, IParty } from 'src/types/shared';
 
 export const returnInstanceMetaDataObject = (
-  language?: ILanguage | null | undefined,
+  langTools: IUseLanguage,
   instanceDateSent?: string | boolean | null | undefined,
   instanceSender?: string | boolean | null | undefined,
   instanceReceiver?: string | boolean | null | undefined,
   instanceReferenceNumber?: string | boolean | null | undefined,
 ) => {
   const obj: any = {};
-  if (!language) {
-    return null;
-  }
+  const { langAsString } = langTools;
 
   if (instanceDateSent) {
-    obj[getLanguageFromKey('receipt.date_sent', language)] = instanceDateSent;
+    obj[langAsString('receipt.date_sent')] = instanceDateSent;
   }
 
   if (instanceSender) {
-    obj[getLanguageFromKey('receipt.sender', language)] = instanceSender;
+    obj[langAsString('receipt.sender')] = instanceSender;
   }
 
   if (instanceReceiver) {
-    obj[getLanguageFromKey('receipt.receiver', language)] = instanceReceiver;
+    obj[langAsString('receipt.receiver')] = instanceReceiver;
   }
 
   if (instanceReferenceNumber) {
-    obj[getLanguageFromKey('receipt.ref_num', language)] = instanceReferenceNumber;
+    obj[langAsString('receipt.ref_num')] = instanceReferenceNumber;
   }
 
   return obj;
@@ -48,10 +47,10 @@ export const returnInstanceMetaDataObject = (
 export function InstanceInformationComponent({ node }: PropsFromGenericComponent<'InstanceInformation'>) {
   const elements = node.item.elements;
   const { dateSent, sender, receiver, referenceNumber } = elements || {};
+  const langTools = useLanguage();
 
   const instance: IInstance | null = useAppSelector((state: IRuntimeState) => state.instanceData.instance);
   const parties: IParty[] | null = useAppSelector((state: IRuntimeState) => state.party.parties);
-  const language: ILanguage | null = useAppSelector((state) => state.language.language);
   const profileLanguage = useAppSelector(appLanguageStateSelector);
   const appReceiver = useAppSelector(selectAppReceiver);
 
@@ -64,7 +63,6 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const instanceSender =
     sender !== false &&
     instanceOwnerParty &&
-    language &&
     `${instanceOwnerParty.ssn ? instanceOwnerParty.ssn : instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
 
   const instanceReceiver = receiver !== false ? appReceiver ?? 'Error: Receiver org not found' : undefined;
@@ -72,7 +70,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const instanceReferenceNumber = referenceNumber !== false && instance && instance.id.split('/')[1].split('-')[4];
 
   const instanceMetaDataObject = returnInstanceMetaDataObject(
-    language,
+    langTools,
     instanceDateSent,
     instanceSender,
     instanceReceiver,
