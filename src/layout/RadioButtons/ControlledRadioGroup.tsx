@@ -80,7 +80,7 @@ export const ControlledRadioGroup = ({
               value: option.value,
               checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
               hideLabel,
-              label: hideLabel ? langAsString(option.label) : lang(option.label),
+              label: langAsString(option.label),
               description: lang(option.description),
               helpText: option.helpText && lang(option.helpText),
             }))}

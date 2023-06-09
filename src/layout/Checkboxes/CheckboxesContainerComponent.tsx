@@ -133,9 +133,9 @@ export const CheckboxContainerComponent = ({
           checkboxId: `${id}-${option.label.replace(/\s/g, '-')}`,
           checked: selected.includes(option.value),
           hideLabel,
-          label: hideLabel ? langAsString(option.label) : lang(option.label),
-          description: lang(option.description),
-          helpText: option.helpText && lang(option.helpText),
+          label: langAsString(option.label),
+          description: langAsString(option.description),
+          helpText: option.helpText && langAsString(option.helpText),
         }))}
       />
     </div>
