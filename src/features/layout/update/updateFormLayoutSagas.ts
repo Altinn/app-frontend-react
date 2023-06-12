@@ -57,7 +57,7 @@ export function* updateCurrentViewSaga({
 
     // When triggering navigation we should save the data if autoSaveBehavior === 'onChangePage'
     // But we should not save the data when currentView is hidden.
-    // This happens on the initial load of the page
+    // This happens on the initial page load
     if (uiConfig.autoSaveBehavior === 'onChangePage') {
       const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
       if (visibleLayouts?.includes(uiConfig.currentView)) {

@@ -3,10 +3,10 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 const appFrontend = new AppFrontend();
 
 describe('Auto save behavior', () => {
-  it('On change form data: Check if PUT data is called 1 time after clicking checkbox', () => {
+  it('onChangeFormData: Check if PUT data is called 1 time after clicking checkbox', () => {
     let putFormDataCounter = 0;
     cy.interceptLayoutSetsUiSettings({ autoSaveBehavior: 'onChangeFormData' });
-    cy.goto('group').then(() => {
+    cy.goto('group', 'fast').then(() => {
       cy.intercept('PUT', '**/data/**', () => {
         putFormDataCounter++;
       }).as('putFormData');
@@ -23,10 +23,11 @@ describe('Auto save behavior', () => {
       });
     });
   });
-  it('On change page: Check if PUT data is called when clicking different navigation buttons', () => {
+  it('onChangePage: Check if PUT data is called when clicking different navigation buttons', () => {
     let putFormDataCounter = 0;
     cy.interceptLayoutSetsUiSettings({ autoSaveBehavior: 'onChangePage' });
-    cy.goto('group').then(() => {
+
+    cy.goto('group', 'with-data').then(() => {
       cy.intercept('PUT', '**/data/**', () => {
         putFormDataCounter++;
       }).as('putFormData');
