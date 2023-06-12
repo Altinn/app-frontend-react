@@ -82,7 +82,17 @@ Cypress.Commands.add('snapshot', (name: string) => {
   cy.get('#readyForPrint').should('exist');
 
   cy.log('Taking snapshot with Percy');
-  cy.percySnapshot(name);
+  cy.percySnapshot(name, {
+    percyCSS: `.no-visual-testing {
+        color: black !important;
+        background-color: black !important;
+        border: none !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+        outline: none !important;
+        opacity: 1 !important;
+     }`,
+  });
 
   cy.log('Testing WCAG');
   cy.injectAxe();
