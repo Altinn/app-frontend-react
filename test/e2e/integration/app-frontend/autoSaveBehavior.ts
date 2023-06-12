@@ -5,7 +5,7 @@ import { Triggers } from 'src/types';
 const appFrontend = new AppFrontend();
 
 describe('Auto save behavior', () => {
-  it('onChangeFormData: Check if PUT data is called 1 time after clicking checkbox', () => {
+  it('onChangeFormData: Should save form data when interacting with form element(checkbox) but not on navigation', () => {
     let putFormDataCounter = 0;
     cy.interceptLayoutSetsUiSettings({ autoSaveBehavior: 'onChangeFormData' });
     cy.goto('group', 'fast').then(() => {
@@ -25,7 +25,7 @@ describe('Auto save behavior', () => {
       });
     });
   });
-  it('onChangePage: Check if PUT data is called when clicking different navigation buttons', () => {
+  it('onChangePage: Should not save form when interacting with form element(checkbox), but should save on navigating between pages', () => {
     let putFormDataCounter = 0;
     cy.interceptLayoutSetsUiSettings({ autoSaveBehavior: 'onChangePage' });
 
@@ -39,6 +39,8 @@ describe('Auto save behavior', () => {
       cy.wait(1000).then(() => {
         expect(putFormDataCounter).to.be.eq(0);
       });
+
+      // NavigationButtons
       cy.get(appFrontend.nextButton).clickAndGone();
       cy.wait('@putFormData').then(() => {
         expect(putFormDataCounter).to.be.eq(1);
@@ -47,10 +49,14 @@ describe('Auto save behavior', () => {
       cy.wait('@putFormData').then(() => {
         expect(putFormDataCounter).to.be.eq(2);
       });
+
+      // NavigationBar
       cy.get(appFrontend.navMenu).findByRole('button', { name: '2. repeating' }).click();
       cy.wait('@putFormData').then(() => {
         expect(putFormDataCounter).to.be.eq(3);
       });
+
+      // Icon previous button
       cy.get(appFrontend.prevButton).clickAndGone();
       cy.wait('@putFormData').then(() => {
         expect(putFormDataCounter).to.be.eq(4);

@@ -3,7 +3,7 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 const appFrontend = new AppFrontend();
 
 describe('Auto save behavior', () => {
-  it('onChangeFormData: Check if PUT data is called', () => {
+  it('onChangeFormData: Should save form data when interacting with form element(input)', () => {
     let postFormDataCounter = 0;
     cy.intercept('POST', '**/data/**', () => {
       postFormDataCounter++;
@@ -24,7 +24,7 @@ describe('Auto save behavior', () => {
     cy.findByRole('button', { name: 'next' }).click();
     cy.findByText('Welcome to page 2');
   });
-  it('onChangePage: Check if PUT data is called when clicking different navigation buttons', () => {
+  it('onChangePage: Should not save form when interacting with form element(input), but should save on navigating between pages', () => {
     let postFormDataCounter = 0;
     cy.intercept('POST', '**/data/**', () => {
       postFormDataCounter++;
