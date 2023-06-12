@@ -65,22 +65,6 @@ declare global {
       addItemToGroup(oldValue: number, newValue: number, comment: string, openByDefault?: boolean): Chainable<Element>;
 
       /**
-       * Test for WCAG violations of impact critical, serious, moderate
-       * @example cy.testWcag()
-       */
-      testWcag(): Chainable<Element>;
-
-      /**
-       * Typings for axe/a11y plugin
-       */
-      injectAxe(): Chainable<null>;
-
-      /**
-       * Typings for a11y plugin
-       */
-      checkA11y(...args: any[]): Chainable<null>;
-
-      /**
        * Typings for tab plugin
        */
       tab(...args: any[]): Chainable<null>;

@@ -79,6 +79,12 @@ Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQuer
 });
 
 Cypress.Commands.add('snapshot', (name: string) => {
+  cy.log('Taking snapshot with Percy');
   cy.percySnapshot(name);
-  cy.testWcag();
+
+  cy.log('Testing WCAG');
+  cy.injectAxe();
+  cy.checkA11y(undefined, {
+    includedImpacts: ['critical', 'serious', 'moderate'],
+  });
 });
