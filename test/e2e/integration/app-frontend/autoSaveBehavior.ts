@@ -1,5 +1,7 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
+import { Triggers } from 'src/types';
+
 const appFrontend = new AppFrontend();
 
 describe('Auto save behavior', () => {
@@ -54,5 +56,41 @@ describe('Auto save behavior', () => {
         expect(putFormDataCounter).to.be.eq(4);
       });
     });
+  });
+
+  it('onChangePage: Should save data when NavigationButton has triggered calculatePageOrder', () => {
+    cy.interceptLayoutSetsUiSettings({ autoSaveBehavior: 'onChangePage' });
+    cy.interceptLayout(
+      'group',
+      (component) => {
+        if (component.type === 'NavigationButtons') {
+          if (!component.triggers) {
+            component.triggers = [Triggers.CalculatePageOrder];
+          } else if (!component.triggers?.includes(Triggers.CalculatePageOrder)) {
+            component.triggers.push(Triggers.CalculatePageOrder);
+          }
+        }
+      },
+      (layoutSet) => {
+        layoutSet.hide.data.hidden = ['equals', ['component', 'choose-group-prefills'], 'stor'];
+        layoutSet.repeating.data.hidden = ['equals', ['component', 'choose-group-prefills'], 'stor'];
+      },
+    );
+
+    cy.goto('group', 'with-data');
+    cy.intercept('POST', '**/pages/order*').as('getPageOrder');
+    cy.intercept('PUT', '**/data/**').as('putFormData');
+    cy.get(appFrontend.navMenuButtons).should('have.length', 4);
+
+    cy.get(appFrontend.group.prefill.stor).dsCheck();
+    cy.get(appFrontend.nextButton).click();
+
+    // Wait for both endpoints to be called
+    cy.wait('@getPageOrder');
+    cy.wait('@putFormData');
+
+    // Both pages the 'repeating' and 'hide' pages are now hidden
+    cy.get(appFrontend.navMenuCurrent).should('have.text', '2. summary');
+    cy.get(appFrontend.navMenuButtons).should('have.length', 2);
   });
 });
