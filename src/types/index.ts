@@ -164,6 +164,8 @@ export interface IValidationIssue {
   scope: string | null;
   severity: Severity;
   targetId: string;
+  source?: string;
+  customTextKey?: string;
 }
 
 export interface IHiddenLayoutsExpressions {
