@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { PanelVariant, PopoverPanel } from '@altinn/altinn-design-system';
-import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
+import { Button, ButtonColor, ButtonVariant, Popover, PopoverVariant } from '@digdir/design-system-react';
 import { makeStyles } from '@material-ui/core';
 
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -15,37 +14,35 @@ const useStyles = makeStyles({
 });
 
 export interface IDeleteWarningPopover {
-  open: boolean;
-  setPopoverOpen: (open: boolean) => void;
   trigger: React.ReactNode;
   onPopoverDeleteClick: () => void;
   onCancelClick: () => void;
   deleteButtonText: string;
   messageText: string;
-  side?: 'bottom' | 'left' | 'right' | 'top';
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  placement?: 'bottom' | 'left' | 'right' | 'top';
 }
 
 export function DeleteWarningPopover({
-  open,
-  setPopoverOpen,
   trigger,
   onPopoverDeleteClick,
   onCancelClick,
   deleteButtonText,
   messageText,
-  side = 'bottom',
+  placement = 'bottom',
+  open,
+  setOpen,
 }: IDeleteWarningPopover) {
   const classes = useStyles();
   const { lang } = useLanguage();
   return (
-    <PopoverPanel
-      variant={PanelVariant.Warning}
-      side={side}
-      open={open}
-      onOpenChange={setPopoverOpen}
-      showIcon={false}
-      forceMobileLayout={true}
+    <Popover
+      variant={PopoverVariant.Warning}
+      placement={placement}
       trigger={trigger}
+      open={open}
+      onOpenChange={() => setOpen(!open)}
     >
       <div>{messageText}</div>
       <div className={classes.popoverButtonContainer}>
@@ -66,6 +63,6 @@ export function DeleteWarningPopover({
           {lang('general.cancel')}
         </Button>
       </div>
-    </PopoverPanel>
+    </Popover>
   );
 }
