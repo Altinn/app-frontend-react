@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
+import type { JSX } from 'react';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getLanguageFromCode } from 'src/language/languages';
-import { getParsedLanguageFromKey, getParsedLanguageFromText, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { getParsedLanguageFromText, replaceParameters } from 'src/language/sharedLanguage';
 import type { FixedLanguageList } from 'src/language/languages';
 import type { IRuntimeState, ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
@@ -110,6 +111,9 @@ function staticUseLanguage(
    *
    * TODO: Clean away any markdown/HTML formatting when using the langAsString function. Even though we support
    * returning a string, we don't want to show markdown/HTML in the UI.
+   *
+   * TODO: Make text resources and language keys simpler and more performant to look up by using maps instead of
+   * arrays and deep objects.
    */
 
   return {
@@ -124,7 +128,10 @@ function staticUseLanguage(
         return getParsedLanguageFromText(textResource);
       }
 
-      return getParsedLanguageFromKey(key as ValidLanguageKey, language, params, false);
+      const name = getLanguageFromKey(key, language);
+      const paramParsed = params ? replaceParameters(name, params) : name;
+
+      return getParsedLanguageFromText(paramParsed);
     },
     langAsString: (key, params) => {
       if (!key) {
@@ -136,7 +143,8 @@ function staticUseLanguage(
         return textResource;
       }
 
-      return getParsedLanguageFromKey(key as ValidLanguageKey, language, params, true);
+      const name = getLanguageFromKey(key, language);
+      return params ? replaceParameters(name, params) : name;
     },
     langAsStringOrEmpty: (key, params) => {
       if (!key) {
@@ -148,7 +156,8 @@ function staticUseLanguage(
         return textResource;
       }
 
-      const result = getParsedLanguageFromKey(key as ValidLanguageKey, language, params, true);
+      const name = getLanguageFromKey(key, language);
+      const result = params ? replaceParameters(name, params) : name;
       if (result === key) {
         return '';
       }
@@ -156,4 +165,31 @@ function staticUseLanguage(
       return result;
     },
   };
+}
+
+function getLanguageFromKey(key: string, language: ILanguage) {
+  const path = key.split('.');
+  const value = getNestedObject(language, path);
+  if (!value || typeof value === 'object') {
+    return key;
+  }
+  return value;
+}
+
+function getTextResourceByKey(key: string, textResources: ITextResource[]) {
+  const textResource = textResources.find((resource) => resource.id === key);
+  if (!textResource) {
+    return key;
+  }
+
+  // Checks if this text resource is a reference to another text resource.
+  // This is a common case when using likert component
+  // TODO: When using a more performant data structure for text resources, we can do this recursively until we find
+  // the target text resource.
+  const resource = textResources.find((resource) => resource.id === textResource.value) || textResource;
+  return resource.value;
+}
+
+function getNestedObject(nestedObj: ILanguage, pathArr: string[]) {
+  return pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined), nestedObj);
 }
