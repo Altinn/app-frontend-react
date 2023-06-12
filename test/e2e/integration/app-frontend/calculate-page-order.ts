@@ -26,7 +26,7 @@ describe('Calculate Page Order', () => {
     );
     cy.intercept('POST', '**/pages/order*').as('getPageOrder');
 
-    cy.goto('group', 'with-data');
+    cy.goto('group');
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
 
@@ -111,7 +111,7 @@ describe('Calculate Page Order', () => {
     );
     cy.intercept('POST', '**/pages/order*').as('getPageOrder');
 
-    cy.goto('group', 'with-data');
+    cy.goto('group');
     cy.get(appFrontend.navMenuButtons).should('have.length', 4);
 
     cy.get(appFrontend.group.prefill.stor).dsCheck();
