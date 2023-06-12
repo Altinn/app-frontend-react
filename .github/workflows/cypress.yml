@@ -69,7 +69,7 @@ jobs:
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}\n
           export PERCY_TOKEN=${{ secrets.PERCY_TOKEN }}\n
           bash -c 'cd dist/; npx http-server -p 8080 --cors >/dev/null &'\n
-          bash -c 'percy exec -- yarn run cy:test:all:headless
+          bash -c 'npx percy exec -- yarn run cy:test:all:headless
             --env environment=tt02
             --record
             --parallel
