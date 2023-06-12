@@ -85,6 +85,13 @@ const completeFormFast: { [key in FrontendTestTask]: () => void } = {
     genericSendIn();
   },
   changename: () => {
+    // The GridData form values get loaded in and will overwrite the values we'll pass
+    // in here, so we need to wait for them to load in properly to continue
+    cy.waitUntil(() =>
+      cy
+        .getReduxState((state) => state.formData.formData)
+        .then((formData) => formData && Object.keys(formData).filter((key) => key.startsWith('GridData')).length > 0),
+    );
     endTaskWithData(validMinimalData.changename);
   },
   group: () => {
