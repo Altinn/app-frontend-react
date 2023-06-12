@@ -8,7 +8,6 @@ import type { PropsFromGenericComponent } from '..';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { selectAppReceiver } from 'src/selectors/language';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
@@ -48,17 +47,17 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const elements = node.item.elements;
   const { dateSent, sender, receiver, referenceNumber } = elements || {};
   const langTools = useLanguage();
+  const { selectedLanguage } = langTools;
 
   const instance: IInstance | null = useAppSelector((state: IRuntimeState) => state.instanceData.instance);
   const parties: IParty[] | null = useAppSelector((state: IRuntimeState) => state.party.parties);
-  const profileLanguage = useAppSelector(appLanguageStateSelector);
   const appReceiver = useAppSelector(selectAppReceiver);
 
   const instanceOwnerParty =
     instance && parties?.find((party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId);
 
   const instanceDateSent =
-    dateSent !== false && Moment(instance?.lastChanged).format(getDateFormat(undefined, profileLanguage));
+    dateSent !== false && Moment(instance?.lastChanged).format(getDateFormat(undefined, selectedLanguage));
 
   const instanceSender =
     sender !== false &&

@@ -6,14 +6,16 @@ import { LanguageActions } from 'src/features/language/languageSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProfileActions } from 'src/features/profile/profileSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getLanguageFromCode } from 'src/language/languages';
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { waitFor } from 'src/utils/sagas';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 
 export function* fetchLanguageSaga(defaultLanguage = false): SagaIterator {
   try {
-    const languageCode = defaultLanguage === true ? 'nb' : yield select(appLanguageStateSelector);
+    const langTools: IUseLanguage = yield select(staticUseLanguageFromState);
+    const languageCode = defaultLanguage ? 'nb' : langTools.selectedLanguage;
     const language = getLanguageFromCode(languageCode);
     yield put(LanguageActions.fetchLanguageFulfilled({ language }));
   } catch (error) {

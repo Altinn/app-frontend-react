@@ -6,8 +6,8 @@ import { fetchLanguageSaga, watchFetchLanguageSaga } from 'src/features/language
 import { LanguageActions } from 'src/features/language/languageSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProfileActions } from 'src/features/profile/profileSlice';
+import { staticUseLanguageForTests, staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getLanguageFromCode } from 'src/language/languages';
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { waitFor } from 'src/utils/sagas';
 
@@ -58,7 +58,7 @@ describe('fetchLanguageSagas', () => {
 
   it('should fetch default language when defaultLanguage is true', () =>
     expectSaga(fetchLanguageSaga, true)
-      .provide([[select(appLanguageStateSelector), 'en']])
+      .provide([[select(staticUseLanguageFromState), staticUseLanguageForTests({ selectedAppLanguage: 'en' })]])
       .put(
         LanguageActions.fetchLanguageFulfilled({
           language: getLanguageFromCode('nb'),
@@ -68,7 +68,7 @@ describe('fetchLanguageSagas', () => {
 
   it('should fetch language from app language state', () =>
     expectSaga(fetchLanguageSaga)
-      .provide([[select(appLanguageStateSelector), 'en']])
+      .provide([[select(staticUseLanguageFromState), staticUseLanguageForTests({ selectedAppLanguage: 'en' })]])
       .put(
         LanguageActions.fetchLanguageFulfilled({
           language: getLanguageFromCode('en'),
