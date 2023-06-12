@@ -47,6 +47,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
   const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
   const attachments = useAppSelector((state) => state.attachments.attachments[id] || emptyArray);
   const { lang, langAsString } = useLanguage();
+  const alertOnDelete = node.item?.alertOnDelete;
   const getComponentValidations = (): IComponentValidations => {
     const validationMessages = {
       simpleBinding: {
@@ -123,6 +124,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
 
   const handleDeleteFile = (index: number) => {
     const attachmentToDelete = attachments[index];
+    console.log(`alertOnDelete is set to ${alertOnDelete}`);
     dispatch(
       AttachmentActions.deleteAttachment({
         attachment: attachmentToDelete,

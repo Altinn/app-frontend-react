@@ -850,7 +850,7 @@
             "$ref": "#/definitions/options"
           }
         },
-        "alertOnChange": {
+        "alertOnDelete": {
           "$ref": "#/definitions/alertOnChange"
         },
         "preselectedOptionIndex": {
