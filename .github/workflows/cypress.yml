@@ -67,6 +67,7 @@ jobs:
           export CYPRESS_PROJECT_ID=y2jhp6\n
           export CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}\n
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}\n
+          export PERCY_TOKEN=${{ secrets.PERCY_TOKEN }}\n
           bash -c 'cd dist/; npx http-server -p 8080 --cors >/dev/null &'\n
           bash -c 'yarn run cy:test:all:headless
             --env environment=tt02
