@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { FileRejection } from 'react-dropzone';
 
 import { Button } from '@digdir/design-system-react';
@@ -7,6 +7,7 @@ import { CheckmarkCircleFillIcon, TrashIcon } from '@navikt/aksel-icons';
 import { v4 as uuidv4 } from 'uuid';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
+import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
@@ -64,6 +65,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     });
     return validationMessages;
   };
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     const newFiles: IAttachment[] = [];
@@ -116,15 +118,40 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     }
   };
 
-  const handleDeleteKeypress = (index: number, event: any) => {
-    if (event.key === 'Enter') {
-      handleDeleteFile(index);
+  function handlePopoverDeleteClick(setOpen: (open: boolean) => void, index?: number) {
+    console.log('taddaa');
+    console.log(index);
+    setOpen(!popoverOpen);
+    console.log(index);
+    index !== undefined && handleDeleteFile(index);
+  }
+
+  function handleDeleteClick(open: boolean, setOpen: (open: boolean) => void, alertOnDelete?: boolean, index?: number) {
+    if (alertOnDelete) {
+      setOpen(!open);
+      return;
     }
-  };
+    console.log(index);
+    index !== undefined && handleDeleteFile(index);
+  }
+
+  // const handleDeleteKeypress = (
+  //   index: number,
+  //   event: any,
+  //   setOpen: (open: boolean) => void,
+  //   alertOnDelete?: boolean,
+  // ) => {
+  //   if (alertOnDelete) {
+  //     setOpen(!open);
+  //     return;
+  //   }
+  //   if (event.key === 'Enter') {
+  //     handleDeleteFile(index);
+  //   }
+  // };
 
   const handleDeleteFile = (index: number) => {
     const attachmentToDelete = attachments[index];
-    console.log(`alertOnDelete is set to ${alertOnDelete}`);
     dispatch(
       AttachmentActions.deleteAttachment({
         attachment: attachmentToDelete,
@@ -174,23 +201,45 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
           srContent={langAsString('general.loading')}
         />
       ) : (
-        <Button
-          className={classes.deleteButton}
-          size='small'
-          variant='quiet'
-          color='danger'
-          onClick={handleDeleteFile.bind(this, index)}
-          onKeyPress={handleDeleteKeypress.bind(this, index)}
-          icon={<TrashIcon aria-hidden={true} />}
-          iconPlacement='right'
-          data-testid={`attachment-delete-${index}`}
-          aria-label={langAsString('general.delete')}
-        >
-          {!mobileView && lang('form_filler.file_uploader_list_delete')}
-        </Button>
+        <DeleteButton index={index} />
       )}
     </>
   );
+
+  const deleteButton = ({ index }: { index: number }) => (
+    <Button
+      className={classes.deleteButton}
+      size='small'
+      variant='quiet'
+      color='danger'
+      onClick={() => handleDeleteClick(popoverOpen, setPopoverOpen, alertOnDelete, index)}
+      // onKeyPress={handleDeleteKeypress.bind(this, index)}
+      icon={<TrashIcon aria-hidden={true} />}
+      iconPlacement='right'
+      data-testid={`attachment-delete-${index}`}
+      aria-label={langAsString('general.delete')}
+    >
+      {!mobileView && lang('form_filler.file_uploader_list_delete')}
+    </Button>
+  );
+  const DeleteButton = ({ index }: { index: number }) => {
+    if (alertOnDelete) {
+      return (
+        <DeleteWarningPopover
+          trigger={deleteButton({ index })}
+          placement='left'
+          onPopoverDeleteClick={() => handlePopoverDeleteClick(setPopoverOpen, index)}
+          onCancelClick={() => setPopoverOpen(false)}
+          deleteButtonText={langAsString('general.delete')}
+          messageText={langAsString('form_filler.file_uploader_delete_attachment')}
+          open={popoverOpen}
+          setOpen={setPopoverOpen}
+        />
+      );
+    } else {
+      return deleteButton({ index });
+    }
+  };
 
   const FileList = (): JSX.Element | null => {
     if (!attachments?.length) {

@@ -266,7 +266,6 @@ export function RepeatingGroupTableRow({
                         placement='left'
                         deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
                         messageText={langAsString('group.row_popover_delete_message')}
-                        // eslint-disable-next-line @typescript-eslint/no-empty-function
                         onCancelClick={() => {
                           setPopoverOpen(false);
                         }}
