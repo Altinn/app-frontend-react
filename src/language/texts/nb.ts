@@ -4,7 +4,8 @@ export function nb(): FixedLanguageList {
   return {
     altinn: {
       standard_validation: {
-        file_content_type_not_allowed: 'Filtypen er ikke tillatt.',
+        file_content_type_not_allowed:
+          'Det ser ut som du prøver å laste opp en filtype som ikke er tillatt. Sjekk at filen faktisk er av den typen den utgir seg for å være.',
       },
     },
     actions: {
