@@ -10,16 +10,18 @@ interface Args {
   maxFileSizeInMB: number;
 }
 
-export function handleRejectedFiles({ langTools, rejectedFiles, maxFileSizeInMB }: Args) {
-  const { langAsString } = langTools;
+export function handleRejectedFiles({ language, rejectedFiles, maxFileSizeInMB }: Args): string[] {
   return rejectedFiles.length > 0
     ? rejectedFiles.map((fileRejection) => {
         if (fileRejection.file.size > maxFileSizeInMB * bytesInOneMB) {
-          return `${fileRejection.file.name} ${langAsString('form_filler.file_uploader_validation_error_file_size')}`;
+          return `${fileRejection.file.name} ${getLanguageFromKey(
+            'form_filler.file_uploader_validation_error_file_size',
+            language,
+          )}`;
         } else {
-          return `${langAsString('form_filler.file_uploader_validation_error_general_1')} ${
+          return `${getLanguageFromKey('form_filler.file_uploader_validation_error_general_1', language)} ${
             fileRejection.file.name
-          } ${langAsString('form_filler.file_uploader_validation_error_general_2')}`;
+          } ${getLanguageFromKey('form_filler.file_uploader_validation_error_general_2', language)}`;
         }
       })
     : [];

@@ -51,22 +51,17 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
   const getComponentValidations = (): IComponentValidations => {
     const validationMessages = {
       simpleBinding: {
-        errors: [...(componentValidations?.simpleBinding?.errors || [])],
-        warnings: [...(componentValidations?.simpleBinding?.warnings || [])],
-        fixed: [...(componentValidations?.simpleBinding?.fixed || [])],
+        errors: [...(componentValidations?.simpleBinding?.errors ?? [])],
+        warnings: [...(componentValidations?.simpleBinding?.warnings ?? [])],
+        fixed: [...(componentValidations?.simpleBinding?.fixed ?? [])],
       },
     };
-    if (!validations || validations.length === 0) {
-      return validationMessages;
-    }
-    validations.forEach((message) => {
-      validationMessages.simpleBinding.errors.push(message);
-    });
+
+    validationMessages.simpleBinding.errors.push(...validations);
     return validationMessages;
   };
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-    const newFiles: IAttachment[] = [];
     const fileType = baseComponentId || id;
     const totalAttachments = acceptedFiles.length + rejectedFiles.length + attachments.length;
 
@@ -80,45 +75,28 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
     } else {
       // we should upload all files, if any rejected files we should display an error
       acceptedFiles.forEach((file: File, index) => {
-        if (attachments.length + newFiles.length < maxNumberOfAttachments) {
-          const tmpId: string = uuidv4();
-          newFiles.push({
-            name: file.name,
-            size: file.size,
-            uploaded: false,
-            id: tmpId,
-            tags: undefined,
-            deleting: false,
-            updating: false,
-          });
-          dispatch(
-            AttachmentActions.uploadAttachment({
-              file,
-              attachmentType: fileType,
-              tmpAttachmentId: tmpId,
-              componentId: id,
-              dataModelBindings,
-              index: attachments.length + index,
-            }),
-          );
-        }
+        dispatch(
+          AttachmentActions.uploadAttachment({
+            file,
+            attachmentType: fileType,
+            tmpAttachmentId: uuidv4(),
+            componentId: id,
+            dataModelBindings,
+            index: attachments.length + index,
+          }),
+        );
       });
 
       if (acceptedFiles.length > 0) {
         setShowFileUpload(displayMode === 'simple' ? false : attachments.length < maxNumberOfAttachments);
       }
+
       const rejections = handleRejectedFiles({
         langTools,
         rejectedFiles,
         maxFileSizeInMB,
       });
       setValidations(rejections);
-    }
-  };
-
-  const handleDeleteKeypress = (index: number, event: any) => {
-    if (event.key === 'Enter') {
-      handleDeleteFile(index);
     }
   };
 
@@ -178,8 +156,7 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
           size='small'
           variant='quiet'
           color='danger'
-          onClick={handleDeleteFile.bind(this, index)}
-          onKeyPress={handleDeleteKeypress.bind(this, index)}
+          onClick={() => handleDeleteFile(index)}
           icon={<TrashIcon aria-hidden={true} />}
           iconPlacement='right'
           data-testid={`attachment-delete-${index}`}
@@ -259,10 +236,6 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
     );
   };
 
-  const updateShowFileUpload = () => {
-    setShowFileUpload(true);
-  };
-
   const shouldShowFileUpload = (): boolean => {
     if (attachments.length >= maxNumberOfAttachments) {
       return false;
@@ -280,7 +253,7 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
       return (
         <button
           className={`${classes.fileUploadButton} ${classes.blueUnderline}`}
-          onClick={updateShowFileUpload}
+          onClick={() => setShowFileUpload(true)}
           type='button'
         >
           {lang('form_filler.file_uploader_add_attachment')}
@@ -288,10 +261,6 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
       );
     }
     return null;
-  };
-
-  const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-    event.preventDefault();
   };
 
   const validationMessages = getComponentValidations();
@@ -309,7 +278,7 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
           isMobile={mobileView}
           maxFileSizeInMB={maxFileSizeInMB}
           readOnly={!!readOnly}
-          onClick={handleClick}
+          onClick={(e) => e.preventDefault()}
           onDrop={handleDrop}
           hasValidationMessages={!!hasValidationMessages}
           hasCustomFileEndings={hasCustomFileEndings}
