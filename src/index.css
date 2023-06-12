@@ -52,6 +52,11 @@
   --repeating-group-edit-divider-color: var(--colors-blue-200);
   --repeating-group-error-color: var(--colors-red-200);
 
+  /* Focus styles */
+  --fds-inner-focus-border-color: #1e2b3c;
+  --fds-outer-focus-border-color: #fadf4b;
+  --fds-focus-border-width: 3px;
+
   /*Border styles*/
   --border-color-primary: #008fd6;
   --dashed-border-primary: 1px dashed var(--border-color-primary);

@@ -42,7 +42,6 @@ describe('SummaryGroupComponent', () => {
             },
             readOnly: false,
             required: false,
-            disabled: false,
             textResourceBindings: {
               title: 'mockField1',
             },
@@ -56,7 +55,6 @@ describe('SummaryGroupComponent', () => {
             },
             readOnly: false,
             required: false,
-            disabled: false,
             textResourceBindings: {
               title: 'mockField2',
             },
@@ -72,7 +70,6 @@ describe('SummaryGroupComponent', () => {
         ],
       },
       uiConfig: {
-        autoSave: true,
         focus: null,
         hiddenFields: [],
         repeatingGroups: {

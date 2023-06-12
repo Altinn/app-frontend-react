@@ -29,7 +29,6 @@ const render = (submittingId: string) => {
     renderer: (props) => <ButtonComponent {...props} />,
     component: {
       id: 'some-id',
-      disabled: false,
     },
     genericProps: {
       text: submitBtnText,
@@ -38,7 +37,6 @@ const render = (submittingId: string) => {
     },
     manipulateState: (state) => {
       state.formData.submittingId = submittingId;
-      state.formLayout.uiConfig.autoSave = true;
     },
   });
 };

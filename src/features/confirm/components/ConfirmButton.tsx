@@ -10,7 +10,6 @@ import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { getValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapDataElementValidationToRedux } from 'src/utils/validation/validation';
 import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
-import type { IAltinnWindow } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 
 export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string; language: ILanguage }) => {
@@ -24,10 +23,10 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
   const disabled = processActionsFeature && !actions?.confirm;
 
   const dispatch = useAppDispatch();
-  const { instanceId } = window as Window as IAltinnWindow;
+  const { instanceId } = window;
 
   const handleConfirmClick = () => {
-    if (!disabled) {
+    if (!disabled && instanceId) {
       setValidateId(props.id);
       httpGet(getValidationUrl(instanceId))
         .then((data: any) => {
@@ -44,6 +43,9 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
               dispatch(ProcessActions.complete({ componentId: props.id }));
             }
           }
+        })
+        .catch((error) => {
+          dispatch(ProcessActions.completeRejected({ error: JSON.parse(JSON.stringify(error)) }));
         })
         .finally(() => {
           setValidateId(null);

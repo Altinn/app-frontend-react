@@ -1,3 +1,5 @@
+import path from 'path';
+
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
@@ -32,9 +34,27 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
-    cy.get(appFrontend.changeOfName.deleteAttachment).should('have.length', 1);
     cy.get(appFrontend.changeOfName.deleteAttachment).click();
     cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
+  });
+
+  it('is possible to download attachments that are uploaded', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
+    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+
+    cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
+    cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
+    cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
+
+    const loadScript = '<script> setTimeout(() => location.reload(), 1000); </script>';
+    cy.get('body').invoke('append', loadScript);
+    cy.get(appFrontend.changeOfName.downloadAttachment).click();
+
+    const downloadsFolder = Cypress.config('downloadsFolder');
+    const downloadedFilename = path.join(downloadsFolder, 'test.pdf');
+
+    cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer.length).equal(1024));
   });
 
   it('is possible to upload attachments with tags', () => {
@@ -56,6 +76,29 @@ describe('UI Components', () => {
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).find('button:contains("Slett")').click();
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
+  });
+
+  it('is possible to download attachments with tags that are uploaded', () => {
+    cy.goto('changename');
+    cy.intercept('POST', '**/tags').as('saveTags');
+    cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
+    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
+      force: true,
+    });
+    cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+    cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
+    cy.wait('@saveTags');
+
+    const loadScript = '<script> setTimeout(() => location.reload(), 1000); </script>';
+    cy.get('body').invoke('append', loadScript);
+
+    cy.get(appFrontend.changeOfName.downloadAttachment).click();
+
+    const downloadsFolder = Cypress.config('downloadsFolder');
+    const downloadedFilename = path.join(downloadsFolder, 'test.pdf');
+
+    cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer.length).equal(1024));
   });
 
   it('is possible to navigate between pages using navigation bar', () => {
@@ -198,5 +241,16 @@ describe('UI Components', () => {
         cy.get('button#toNextTask').should('be.visible');
       });
     });
+  });
+
+  it('should countdown remaining letters', () => {
+    cy.goto('changename');
+    cy.get('#form-content-newFirstName').contains('Du har 4 tegn igjen');
+    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+    cy.get('#form-content-newFirstName').contains('Du har 1 tegn igjen');
+    cy.get(appFrontend.changeOfName.newFirstName).type('r');
+    cy.get('#form-content-newFirstName').contains('Du har 0 tegn igjen');
+    cy.get(appFrontend.changeOfName.newFirstName).type('r');
+    cy.get('#form-content-newFirstName').contains('Du har overskredet maks antall tegn med 1');
   });
 });

@@ -141,6 +141,7 @@
         { "if": {"properties": {"type": { "const": "Grid"}}}, "then": { "$ref": "#/definitions/gridComponent"}},
         { "if": {"properties": {"type": { "const": "Group"}}}, "then": { "$ref": "#/definitions/groupComponent"}},
         { "if": {"properties": {"type": { "const": "Image"}}}, "then": { "$ref": "#/definitions/imageComponent"}},
+        { "if": {"properties": {"type": { "const": "IFrame"}}}, "then": { "$ref": "#/definitions/iframeComponent"}},
         { "if": {"properties": {"type": { "const": "Input"}}}, "then": { "$ref": "#/definitions/inputComponent"}},
         { "if": {"properties": {"type": { "const": "TextArea"}}}, "then": { "$ref": "#/definitions/textAreaComponent"}},
         { "if": {"properties": {"type": { "const": "InstanceInformation"}}}, "then": { "$ref": "#/definitions/instanceInformationComponent"}},
@@ -567,6 +568,12 @@
           "description": "Alternatives for panel view of repeating group",
           "$ref": "#/definitions/groupPanelOptions"
         },
+        "showGroupingIndicator": {
+          "title": "Show grouping indicator",
+          "description": "Boolean to decide whether a vertical line indicating grouping of fields should be visible. Only relevant for non-repeating groups.",
+          "type": "boolean",
+          "default": false
+        },
         "maxCount": {
           "type": "integer",
           "title": "Maximum count",
@@ -824,7 +831,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["validation", "validateRow", "validatePage", "validateAllPages", "calculatePageOrder"]
+        "enum": ["validation", "validateRow", "validatePage", "validateCurrentAndPreviousPages", "validateAllPages", "calculatePageOrder"]
       }
     },
     "selectionComponents": {
@@ -1092,6 +1099,9 @@
         },
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
+        },
+        "maxLength": {
+          "$ref": "#/definitions/maxLength"
         }
       }
     },
@@ -1102,6 +1112,9 @@
         },
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
+        },
+        "maxLength": {
+          "$ref": "#/definitions/maxLength"
         }
       }
     },
@@ -1113,6 +1126,11 @@
         { "type": "boolean" },
         { "type": "number" }
       ]
+    },
+    "maxLength": {
+      "title": "Maximum length",
+      "description": "Maximum length of input field",
+      "type": "number"
     },
     "inputFormatting": {
       "type": "object",
@@ -1171,6 +1189,30 @@
       ],
       "additionalProperties": {
         "type": "string"
+      }
+    },
+    "iframeComponent": {
+      "type": "object",
+      "properties": {
+        "sandbox": {
+          "type": "object",
+          "title": "Sandbox",
+          "description": "Controls the sandbox attribute on the iframe. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#sandbox",
+          "properties": {
+            "allowPopups": {
+              "type": "boolean",
+              "title": "Allow popups",
+              "description": "Sets \"allow-popups\" in the sandbox attribute on the iframe. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#sandbox",
+              "default": false
+            },
+            "allowPopupsToEscapeSandbox": {
+              "type": "boolean",
+              "title": "Allow popups to escape sandbox",
+              "description": "Sets \"allow-popups-to-escape-sandbox\" in the sandbox attribute on the iframe. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#sandbox",
+              "default": false
+            }
+          }
+        }
       }
     },
     "listComponent": {

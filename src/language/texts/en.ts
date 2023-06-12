@@ -156,6 +156,11 @@ export function en() {
       unsupported_browser:
         'Your browser does not support iframes that use srcdoc. This may result in not being able to see all the content intended to be displayed here. We recommend trying a different browser.',
     },
+    input_components: {
+      character_limit_sr_label: 'Textfield has a maximum length of {0} characters',
+      remaining_characters: 'You have {0} characters left',
+      exceeded_max_limit: 'You have exceeded the maximum limit with {0} characters',
+    },
     instance_selection: {
       changed_by: 'Changed by',
       continue: 'Continue here',
@@ -173,6 +178,10 @@ export function en() {
       unknown_error_text: 'An unknown error occcurred, please try again later.',
       unknown_error_status: 'Unknow error',
       unknown_error_customer_support: 'If the problem persists, contact us at customer service at {0}.',
+      forbidden_action_error_title: 'You do not have permission to perform this action.',
+      forbidden_action_error_text: 'It looks like you do not have permission to perform this action.',
+      forbidden_action_error_status: '403 - Forbidden',
+      forbidden_action_error_customer_support: 'If you need help, contact us at customer service <br/> {0}.',
       authorization_error_main_title: 'You do not have permission to view this app.',
       authorization_error_instantiate_validation_title: 'You cannot start this service',
       authorization_error_rights: 'It looks like you do not have permission to start this service for {0}',
@@ -223,6 +232,10 @@ export function en() {
       unit_personal_number: 'pers. number',
       show_deleted: 'Show deleted',
       show_sub_unit: 'Show sub units',
+      why_seeing_this: 'Why am I seeing this?',
+      seeing_this_preference:
+        'You can change your [profile settings](https://altinn.no/ui/Profile) to not get prompted for party selection each time you start a new instance. You can find this setting under **Profile** > **Advanced settings** > **Do not ask what party I represent each time I start to fill in a new form**.',
+      seeing_this_override: 'This app has been configured to always prompt you for party selection.',
     },
     helptext: {
       button_title: 'Help',

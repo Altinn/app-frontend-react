@@ -162,9 +162,10 @@ export class AppFrontend {
     mobilenummer: '#mobilnummer',
     sources: '#sources',
     uploadingAnimation: '#loader-upload',
-    deleteAttachment: 'div[data-testid^="attachment-delete"]',
+    deleteAttachment: '[data-testid^="attachment-delete"]',
     uploadedTable: '#altinn-file-listfileUpload-changename',
-    uploadSuccess: '.ai-check-circle',
+    downloadAttachment: '[data-testid="attachment-download"]',
+    uploadSuccess: '[data-testid="checkmark-success"]',
     uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
     componentSummary: '[data-testid="summary-item-simple"]',
   };
@@ -223,6 +224,7 @@ export class AppFrontend {
       deleteBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) [data-testid=delete-button]`,
       nestedGroup: {
         row: (subIdx: number) => ({
+          comments: `#comments-${idx}-${subIdx}`,
           uploadTagMulti: makeUploaderSelectors('subUploader', `${idx}-${subIdx}`, 2, 'tagged'),
           nestedDynamics: `#nestedDynamics-${idx}-${subIdx} input[type=checkbox]`,
           nestedOptions: [
@@ -290,7 +292,7 @@ export function makeUploaderSelectors<T extends Type>(
   const tableSelector =
     type === 'tagged'
       ? `#form-content-${id}-${row} div[data-testid=tagFile] > div > table`
-      : `#altinn-fileuploader-${id}-${row} .file-upload-table`;
+      : `#altinn-fileuploader-${id}-${row} [data-testid="file-upload-table"]`;
   const statusIdx = type === 'tagged' ? 4 : 3;
 
   return {
@@ -300,7 +302,7 @@ export function makeUploaderSelectors<T extends Type>(
     attachments: (idx) => ({
       name: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(1)`,
       status: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(${statusIdx})`,
-      deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) div[role=button]`,
+      deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) [data-testid^="attachment-delete"]`,
       ...(type === 'tagged' && {
         tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) select`,
         tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,

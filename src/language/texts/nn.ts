@@ -158,6 +158,11 @@ export function nn(): FixedLanguageList {
       unsupported_browser:
         'Nettlesaren di støttar ikkje iframes som brukar srcdoc. Dette kan føre til at du ikkje ser all innhaldet som er meint å visast her. Vi anbefalar deg å prøve ein annan nettlesar.',
     },
+    input_components: {
+      character_limit_sr_label: 'Tekstfeltet kan innehalde maks {0} teikn.',
+      remaining_characters: 'Du har {0} teikn igjen',
+      exceeded_max_limit: 'Du har overskride maks teikn med {0}',
+    },
     instance_selection: {
       changed_by: 'Endra av',
       continue: 'Hald fram her',
@@ -175,6 +180,10 @@ export function nn(): FixedLanguageList {
       unknown_error_text: 'Det har skjedd ein ukjent feil, ver venleg prøv igjen seinare.',
       unknown_error_status: 'Ukjent feil',
       unknown_error_customer_support: 'Om problemet hald fram, ta kontakt med oss på brukarservice {0}.',
+      forbidden_action_error_title: 'Du manglar rett til å utføre denne handlinga',
+      forbidden_action_error_text: 'Det ser ut til at du ikkje har rett til å utføre denne handlinga.',
+      forbidden_action_error_status: '403 - Forbidden',
+      forbidden_action_error_customer_support: 'Om du treng hjelp, ta kontakt med oss på brukarservice <br/> {0}.',
       authorization_error_main_title: 'Du manglar rett til å sjå denne tenesta.',
       authorization_error_instantiate_validation_title: 'Du kan ikkje starte denne tenesta',
       authorization_error_rights: 'Det ser ut til at du ikkje har rett til å starte denne tenesta for {0}',
@@ -226,6 +235,10 @@ export function nn(): FixedLanguageList {
       unit_personal_number: 'personnr.',
       show_deleted: 'Vis sletta',
       show_sub_unit: 'Vis undereiningar',
+      why_seeing_this: 'Kvifor ser eg dette?',
+      seeing_this_preference:
+        'Du kan endra [profilinnstillingane](https://altinn.no/ui/Profile) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
+      seeing_this_override: 'Denne appen er sett opp til å alltid spørja om aktør.',
     },
     helptext: {
       button_title: 'Hjelp',

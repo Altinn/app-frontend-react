@@ -18447,7 +18447,6 @@ a.a-linkFeatured[href^='http']:not([href*='altinn.no'])::after {
   .a-breadcrumb,
   .a-footer,
   .nav,
-  .form-group,
   button,
   .a-linkFeatured,
   .a-btn,

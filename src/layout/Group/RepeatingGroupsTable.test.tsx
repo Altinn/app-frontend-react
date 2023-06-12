@@ -15,11 +15,10 @@ import type { IFormData } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
 import type { IRepeatingGroupTableProps } from 'src/layout/Group/RepeatingGroupTable';
-import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { HRepGroup, ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';
 import type { IOption, ITextResource } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
-import type { HRepGroup } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 (global as any).ResizeObserver = ResizeObserverModule;
@@ -41,7 +40,6 @@ const getLayout = (
           index: 3,
         },
       },
-      autoSave: false,
       currentView: 'FormLayout',
       focus: undefined,
       tracks: {
@@ -89,7 +87,6 @@ describe('RepeatingGroupTable', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field2',
@@ -102,7 +99,6 @@ describe('RepeatingGroupTable', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field3',
@@ -115,7 +111,6 @@ describe('RepeatingGroupTable', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
     },
     {
       id: 'field4',
@@ -128,7 +123,6 @@ describe('RepeatingGroupTable', () => {
       },
       readOnly: false,
       required: false,
-      disabled: false,
       options,
     } as ExprUnresolved<ILayoutCompCheckboxes>,
   ];
