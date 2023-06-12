@@ -91,7 +91,7 @@ export function staticUseLanguageForTests({
   textResources = [],
   language = null,
   profileLanguage = 'nb',
-  selectedAppLanguage = 'nb',
+  selectedAppLanguage = undefined,
 }: Partial<ILanguageState> = {}) {
   return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage);
 }
