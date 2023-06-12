@@ -1,7 +1,5 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import type { ILayoutSets } from 'src/types';
-
 const appFrontend = new AppFrontend();
 
 describe('Auto save behavior', () => {
@@ -18,9 +16,9 @@ describe('Auto save behavior', () => {
       });
       cy.get(appFrontend.nextButton).clickAndGone();
       cy.get(appFrontend.backButton).clickAndGone();
+      // Doing a hard wait to be sure no request is sent to backend
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000).then(() => {
-        // Wait 1 second to be sure it is not called
         expect(putFormDataCounter).to.be.eq(1);
       });
     });
@@ -33,9 +31,9 @@ describe('Auto save behavior', () => {
         putFormDataCounter++;
       }).as('putFormData');
       cy.get(appFrontend.group.prefill.liten).dsCheck();
+      // Doing a hard wait to be sure no request is sent to backend
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000).then(() => {
-        // Wait 1 second to be sure it is not called
         expect(putFormDataCounter).to.be.eq(0);
       });
       cy.get(appFrontend.nextButton).clickAndGone();
@@ -57,15 +55,3 @@ describe('Auto save behavior', () => {
     });
   });
 });
-
-function interceptLayoutSetsUiSettings(uiSettings: Partial<ILayoutSets['uiSettings']>) {
-  cy.intercept('GET', '**/api/layoutsets', (req) => {
-    req.continue((res) => {
-      const body = JSON.parse(res.body);
-      res.body = JSON.stringify({
-        ...body,
-        uiSettings: { ...body.uiSettings, ...uiSettings },
-      });
-    });
-  }).as('layoutSets');
-}
