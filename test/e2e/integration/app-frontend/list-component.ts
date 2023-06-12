@@ -78,6 +78,8 @@ describe('List component', () => {
     cy.get(dataListPage.navigatePreviousButton).click();
     cy.get(dataListPage.navigatePreviousButton).get(dataListPage.tableBody).first().first().contains('Caroline');
 
+    cy.snapshot('list-component');
+
     cy.log('Search should work as expected');
     cy.get(dataListPage.searchInput).type('Johanne');
     cy.get(dataListPage.listComponent).get(dataListPage.tableBody).find('tr').its('length').should('eq', 1);

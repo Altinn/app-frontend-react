@@ -35,6 +35,8 @@ describe('Receipt', () => {
 
     cy.get('body').should('have.css', 'background-color', 'rgb(212, 249, 228)');
     cy.get(appFrontend.header).should('contain.text', texts.ttd);
+
+    cy.snapshot('receipt');
   });
 
   it('Custom receipt shows as expected', () => {
@@ -89,5 +91,7 @@ describe('Receipt', () => {
 
     cy.get('[data-testId=custom-receipt]').should('not.exist');
     cy.get(appFrontend.receipt.container).should('exist').and('be.visible');
+
+    cy.snapshot('custom-receipt');
   });
 });

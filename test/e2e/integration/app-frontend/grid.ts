@@ -48,6 +48,8 @@ describe('Grid component', () => {
     cy.get(appFrontend.errorReport).should('contain.text', 'Må summeres opp til 100%');
     cy.get(appFrontend.grid.totalPercent).parents('td').should('contain.text', 'Må summeres opp til 100%');
 
+    cy.snapshot('grid');
+
     // Make sure markdown works in text cells
     cy.get(appFrontend.grid.grid).find('tr').eq(1).find('td').eq(0).should('contain.text', 'Boliglån');
     cy.changeLayout((component) => {
@@ -120,5 +122,7 @@ describe('Grid component', () => {
     cy.get(appFrontend.group.row(0).nestedGroup.groupContainer)
       .find('table tr:last-child td:first-child')
       .should('contain.text', 'Foreldreraden er prefill: true');
+
+    cy.snapshot('grid:in-nested-repeating-groups');
   });
 });

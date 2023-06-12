@@ -48,6 +48,8 @@ describe('On Entry', () => {
     cy.get('@tableRow').find('td').eq(1).should('have.text', 'Ola Nordmann');
     cy.get('@tableRow').find('td').eq(2).find('button').click();
     cy.url().should('contain', instanceIdExamples[0]);
+
+    cy.snapshot('select-instance');
   });
 
   it('is possible to create a new instance', () => {

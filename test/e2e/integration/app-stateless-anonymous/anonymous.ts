@@ -20,6 +20,7 @@ describe('Anonymous (stateless)', () => {
     cy.get(appFrontend.header)
       .should('contain.text', appFrontend.apps.anonymousStateless)
       .and('contain.text', texts.ttd);
+    cy.snapshot('anonymous:prefill');
   });
 
   it('should trigger data processing on changes in form fields', () => {
@@ -50,5 +51,6 @@ describe('Anonymous (stateless)', () => {
       .within(() => {
         cy.get('h1').contains('The red title is rendered within an iframe');
       });
+    cy.snapshot('anonymous:iframe');
   });
 });

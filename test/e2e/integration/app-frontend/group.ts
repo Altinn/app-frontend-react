@@ -28,6 +28,7 @@ describe('Group', () => {
 
     // Make sure group is still visible even without table headers
     cy.get(appFrontend.group.currentValue).should('be.visible');
+    cy.snapshot('group:dynamics');
   });
 
   [true, false].forEach((alwaysShowAddButton) => {
@@ -104,6 +105,7 @@ describe('Group', () => {
     // DataProcessingHandler.cs for frontend-test changes 1337 to 1338.
     cy.get(appFrontend.group.currentValue).should('have.value', 'NOK 1 338');
     cy.get(appFrontend.group.newValueLabel).should('contain.text', '2. Endre verdi 1338 til');
+    cy.snapshot('group:calculation');
   });
 
   it('Validation on group', () => {
@@ -127,6 +129,7 @@ describe('Group', () => {
     cy.get(appFrontend.fieldValidation('comments')).should('not.exist');
     cy.get(appFrontend.group.subGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
     cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
+    cy.snapshot('group:validation');
     cy.get(appFrontend.group.saveSubGroup).clickAndGone();
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
   });
@@ -203,6 +206,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.secondGroup_save).click();
     cy.get(appFrontend.group.secondGroup_save_and_close).click();
     cy.get(appFrontend.group.secondGroup_table).find('tbody').find('tr').its('length').should('eq', 1);
+    cy.snapshot('group:panel');
   });
 
   it('Prefilling repeating group using calculation from server', () => {
@@ -406,6 +410,7 @@ describe('Group', () => {
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').first().should('have.text', 'automation');
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
+    cy.snapshot('group: delete-warning-popup');
     cy.get(appFrontend.group.subGroup)
       .find(appFrontend.designSystemPanel)
       .find(appFrontend.group.popOverCancelButton)
@@ -452,6 +457,7 @@ describe('Group', () => {
     cy.navPage('repeating').click();
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
+    cy.snapshot('group:edit-in-table');
 
     for (const row of [0, 1, 2]) {
       cy.get(appFrontend.group.mainGroupTableBody)
@@ -523,6 +529,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
+    cy.snapshot('group:only-table');
 
     for (const extraRows of [6, 7]) {
       cy.get(appFrontend.group.addNewItem).click();

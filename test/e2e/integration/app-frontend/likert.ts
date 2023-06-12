@@ -14,6 +14,8 @@ describe('Likert', () => {
       expect($alerts.eq(1).text()).to.match(new RegExp(`du må fylle ut ${likertPage.requiredQuestions[1]}`, 'i'));
       expect($alerts.eq(2).text()).to.match(new RegExp(`du må fylle ut ${likertPage.requiredQuestions[2]}`, 'i'));
     });
+
+    cy.snapshot('likert');
   });
   it('Should fill out optional likert and see results in summary component', () => {
     cy.goto('likert');

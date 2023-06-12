@@ -25,6 +25,7 @@ describe('UI Components', () => {
       cy.get(appFrontend.helpText.alert).should('not.exist');
     });
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
+    cy.snapshot('components:image');
   });
 
   it('is possible to upload and delete attachments', () => {
@@ -34,6 +35,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
+    cy.snapshot('components:attachment');
     cy.get(appFrontend.changeOfName.deleteAttachment).click();
     cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
   });
@@ -74,6 +76,7 @@ describe('UI Components', () => {
       cy.wrap(table).find(mui.tableBody).find(mui.tableElement).eq(1).should('have.text', 'Adresse');
       cy.wrap(table).find(mui.tableBody).find(mui.tableElement).last().find('button').click();
     });
+    cy.snapshot('components:attachment-with-tags');
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).find('button:contains("Slett")').click();
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
   });
@@ -177,6 +180,7 @@ describe('UI Components', () => {
 
     // Assert the last click had no effect
     cy.get('#form-content-reasonFarm3').should('be.visible');
+    cy.snapshot('components:read-only-checkboxes-and-radios');
   });
 
   it('description and helptext for options in radio and checkbox groups', () => {
@@ -252,5 +256,6 @@ describe('UI Components', () => {
     cy.get('#form-content-newFirstName').contains('Du har 0 tegn igjen');
     cy.get(appFrontend.changeOfName.newFirstName).type('r');
     cy.get('#form-content-newFirstName').contains('Du har overskredet maks antall tegn med 1');
+    cy.snapshot('components:text-countdown');
   });
 });
