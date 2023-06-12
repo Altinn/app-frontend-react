@@ -66,6 +66,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     return validationMessages;
   };
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [popoverIndex, setPopoverIndex] = useState<number>(-1);
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     const newFiles: IAttachment[] = [];
@@ -118,20 +119,25 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
     }
   };
 
-  function handlePopoverDeleteClick(setOpen: (open: boolean) => void, index?: number) {
-    console.log('taddaa');
-    console.log(index);
-    setOpen(!popoverOpen);
-    console.log(index);
+  function handlePopoverDeleteClick(index?: number) {
+    setPopoverOpen(!popoverOpen);
     index !== undefined && handleDeleteFile(index);
   }
 
-  function handleDeleteClick(open: boolean, setOpen: (open: boolean) => void, alertOnDelete?: boolean, index?: number) {
+  function handleDeleteClick(alertOnDelete?: boolean, index?: number) {
     if (alertOnDelete) {
-      setOpen(!open);
+      console.log('popoverIndex1', popoverIndex);
+      console.log('popoverOpen1', popoverOpen);
+      if (index == popoverIndex && popoverOpen) {
+        console.log('hello');
+        setPopoverIndex(-1);
+      } else if (index) {
+        setPopoverIndex(index);
+        console.log('popoverIndex2', popoverIndex);
+        console.log('popoverOpen2', popoverOpen);
+      }
       return;
     }
-    console.log(index);
     index !== undefined && handleDeleteFile(index);
   }
 
@@ -212,7 +218,7 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
       size='small'
       variant='quiet'
       color='danger'
-      onClick={() => handleDeleteClick(popoverOpen, setPopoverOpen, alertOnDelete, index)}
+      onClick={() => handleDeleteClick(alertOnDelete, index)}
       // onKeyPress={handleDeleteKeypress.bind(this, index)}
       icon={<TrashIcon aria-hidden={true} />}
       iconPlacement='right'
@@ -228,11 +234,11 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
         <DeleteWarningPopover
           trigger={deleteButton({ index })}
           placement='left'
-          onPopoverDeleteClick={() => handlePopoverDeleteClick(setPopoverOpen, index)}
+          onPopoverDeleteClick={() => handlePopoverDeleteClick(index)}
           onCancelClick={() => setPopoverOpen(false)}
           deleteButtonText={langAsString('general.delete')}
           messageText={langAsString('form_filler.file_uploader_delete_attachment')}
-          open={popoverOpen}
+          open={index == popoverIndex && popoverOpen}
           setOpen={setPopoverOpen}
         />
       );
