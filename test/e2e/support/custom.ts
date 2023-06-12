@@ -77,3 +77,8 @@ Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQuer
 
   cy.wrap(subject).type(`${moveToStart}${del}`);
 });
+
+Cypress.Commands.add('snapshot', (name: string) => {
+  cy.percySnapshot(name);
+  cy.testWcag();
+});

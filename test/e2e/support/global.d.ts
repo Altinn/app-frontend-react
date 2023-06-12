@@ -179,6 +179,15 @@ declare global {
        * @see https://github.com/s-yadav/react-number-format/issues/736
        */
       numberFormatClear(): Chainable<null>;
+
+      /**
+       * Snapshot the current visual state of the app. This does a few things:
+       *  - It takes a screenshot of the app, compares that to the previous screenshot from earlier testing and notifies
+       *    us of any changes (using Percy.io)
+       *  - Runs the wcag tests on the app and notifies us of any violations (using axe/ally)
+       * @param name A unique name for the snapshot.
+       */
+      snapshot(name: string): Chainable<null>;
     }
   }
 }
