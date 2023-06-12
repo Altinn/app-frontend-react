@@ -31,7 +31,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
  * @deprecated Use lang() from useLanguage.ts instead
  * @see useLanguage
  */
-export function getLanguageFromKey<T extends ValidLanguageKey | undefined>(key: T, language: ILanguage | null) {
+function getLanguageFromKey<T extends ValidLanguageKey | undefined>(key: T, language: ILanguage | null) {
   if (!key || !language) {
     return key;
   }
