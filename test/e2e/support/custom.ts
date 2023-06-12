@@ -79,6 +79,8 @@ Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQuer
 });
 
 Cypress.Commands.add('snapshot', (name: string) => {
+  cy.get('#readyForPrint').should('exist');
+
   cy.log('Taking snapshot with Percy');
   cy.percySnapshot(name);
 
