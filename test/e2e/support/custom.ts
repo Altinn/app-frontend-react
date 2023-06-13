@@ -109,6 +109,9 @@ Cypress.Commands.add('snapshot', (name: string) => {
         transform: none !important;
      }
    `,
+    discovery: {
+      allowedHostnames: ['localhost', 'localhost:8080'],
+    },
   });
 
   /*
