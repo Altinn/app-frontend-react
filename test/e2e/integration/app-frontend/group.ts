@@ -201,10 +201,10 @@ describe('Group', () => {
     cy.get(appFrontend.group.secondGroup_add_to_reference_group).click();
     cy.get(appFrontend.group.secondGroup_currentValue).type('1');
     cy.get(appFrontend.group.secondGroup_newValue).type('2');
+    cy.snapshot('group:panel');
     cy.get(appFrontend.group.secondGroup_save).click();
     cy.get(appFrontend.group.secondGroup_save_and_close).click();
     cy.get(appFrontend.group.secondGroup_table).find('tbody').find('tr').its('length').should('eq', 1);
-    cy.snapshot('group:panel');
   });
 
   it('Prefilling repeating group using calculation from server', () => {
@@ -409,6 +409,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').first().should('have.text', 'automation');
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
     cy.snapshot('group: delete-warning-popup');
+
     cy.get(appFrontend.group.subGroup)
       .find(appFrontend.designSystemPanel)
       .find(appFrontend.group.popOverCancelButton)
