@@ -7,6 +7,8 @@ import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { HGroups, ILayoutGroup } from 'src/layout/Group/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ILayoutValidations } from 'src/types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -53,6 +55,14 @@ export class Group extends ContainerComponent<'Group'> {
 
   canRenderInTable(): boolean {
     return false;
+  }
+
+  runGroupValidations(node: LayoutNodeFromType<'Group'>, onlyInRowIndex?: number): ILayoutValidations {
+    const validations = {};
+    for (const child of node.flat(false, onlyInRowIndex)) {
+      validations[child.item.id] = child.runValidations();
+    }
+    return validations;
   }
 }
 

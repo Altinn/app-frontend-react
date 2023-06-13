@@ -134,28 +134,28 @@ export class LayoutPage implements LayoutObject {
 
   public runEmptyFieldValidations(): ILayoutValidations {
     const validations = {};
-    for (const child of this.directChildren) {
+    for (const child of this.allChildren) {
       validations[child.item.id] = child.runEmptyFieldValidation();
     }
     return validations;
   }
   public runComponentValidations(): ILayoutValidations {
     const validations = {};
-    for (const child of this.directChildren) {
+    for (const child of this.allChildren) {
       validations[child.item.id] = child.runComponentValidation();
     }
     return validations;
   }
   public runSchemaValidations(): ILayoutValidations {
     const validations = {};
-    for (const child of this.directChildren) {
+    for (const child of this.allChildren) {
       validations[child.item.id] = child.runSchemaValidation();
     }
     return validations;
   }
   public runValidations(): ILayoutValidations {
     const validations = {};
-    for (const child of this.directChildren) {
+    for (const child of this.allChildren) {
       validations[child.item.id] = child.runValidations();
     }
     return validations;
