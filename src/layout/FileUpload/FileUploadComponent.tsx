@@ -126,35 +126,16 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
 
   function handleDeleteClick(alertOnDelete?: boolean, index?: number) {
     if (alertOnDelete) {
-      console.log('popoverIndex1', popoverIndex);
-      console.log('popoverOpen1', popoverOpen);
       if (index == popoverIndex && popoverOpen) {
-        console.log('hello');
         setPopoverIndex(-1);
-      } else if (index) {
+      } else if (index !== undefined) {
+        setPopoverOpen(true);
         setPopoverIndex(index);
-        console.log('popoverIndex2', popoverIndex);
-        console.log('popoverOpen2', popoverOpen);
       }
       return;
     }
     index !== undefined && handleDeleteFile(index);
   }
-
-  // const handleDeleteKeypress = (
-  //   index: number,
-  //   event: any,
-  //   setOpen: (open: boolean) => void,
-  //   alertOnDelete?: boolean,
-  // ) => {
-  //   if (alertOnDelete) {
-  //     setOpen(!open);
-  //     return;
-  //   }
-  //   if (event.key === 'Enter') {
-  //     handleDeleteFile(index);
-  //   }
-  // };
 
   const handleDeleteFile = (index: number) => {
     const attachmentToDelete = attachments[index];
@@ -219,7 +200,6 @@ export function FileUploadComponent({ node, componentValidations, language }: IF
       variant='quiet'
       color='danger'
       onClick={() => handleDeleteClick(alertOnDelete, index)}
-      // onKeyPress={handleDeleteKeypress.bind(this, index)}
       icon={<TrashIcon aria-hidden={true} />}
       iconPlacement='right'
       data-testid={`attachment-delete-${index}`}
