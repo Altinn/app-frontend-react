@@ -141,7 +141,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'OSLO');
   });
 
-  it('radios and checkboxes can be readOnly', () => {
+  it('radios, checkboxes and other components can be readOnly', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.id === 'confirmChangeName' && component.type === 'Checkboxes') {
         component.readOnly = [
