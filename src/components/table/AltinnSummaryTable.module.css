@@ -1,5 +1,9 @@
 .instanceMetaData {
   margin-top: 36px;
+  box-shadow: none;
+  padding: 0;
+  height: auto !important;
+  width: auto !important;
 }
 
 .tableCell {

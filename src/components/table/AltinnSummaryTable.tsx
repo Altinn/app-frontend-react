@@ -39,11 +39,7 @@ const InnerRow = ({ name, prop }: InnerRowProps) => (
 );
 
 export const AltinnSummaryTable = (props: IAltinnSummaryTableProps) => (
-  <Table
-    style={{ height: 'auto', width: 'auto' }}
-    padding='none'
-    className={classes.instanceMetaData}
-  >
+  <Table className={classes.instanceMetaData}>
     <TableBody>
       {Object.keys(props.summaryDataObject).map((name) => (
         <InnerRow
