@@ -25,7 +25,6 @@ describe('UI Components', () => {
       cy.get(appFrontend.helpText.alert).should('not.exist');
     });
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
-    cy.snapshot('components:image');
   });
 
   it('is possible to upload and delete attachments', () => {

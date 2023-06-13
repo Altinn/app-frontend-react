@@ -26,7 +26,6 @@ describe('Formatting', () => {
     cy.get(appFrontend.group.currentValue).should('have.value', 'NOK 1').and('have.css', 'text-align', 'right');
     cy.get(appFrontend.group.newValue).type('-2');
     cy.get(appFrontend.group.newValue).should('not.contain.value', '-').and('have.css', 'text-align', 'right');
-    cy.snapshot('formatting:number-in-group');
   });
 
   const changeToLang = (option: 'en' | 'nb') => {

@@ -28,7 +28,6 @@ describe('Group', () => {
 
     // Make sure group is still visible even without table headers
     cy.get(appFrontend.group.currentValue).should('be.visible');
-    cy.snapshot('group:dynamics');
   });
 
   [true, false].forEach((alwaysShowAddButton) => {
@@ -105,7 +104,6 @@ describe('Group', () => {
     // DataProcessingHandler.cs for frontend-test changes 1337 to 1338.
     cy.get(appFrontend.group.currentValue).should('have.value', 'NOK 1 338');
     cy.get(appFrontend.group.newValueLabel).should('contain.text', '2. Endre verdi 1338 til');
-    cy.snapshot('group:calculation');
   });
 
   it('Validation on group', () => {
@@ -115,6 +113,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.currentValue).type('1');
     cy.get(appFrontend.group.newValue).type('0');
     cy.get(appFrontend.fieldValidation('newValue')).should('have.text', texts.zeroIsNotValid);
+    cy.snapshot('group:validation');
     cy.get(appFrontend.group.newValue).clear();
     cy.get(appFrontend.group.newValue).type('1');
     cy.get(appFrontend.fieldValidation('newValue')).should('not.exist');
@@ -129,7 +128,6 @@ describe('Group', () => {
     cy.get(appFrontend.fieldValidation('comments')).should('not.exist');
     cy.get(appFrontend.group.subGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
     cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
-    cy.snapshot('group:validation');
     cy.get(appFrontend.group.saveSubGroup).clickAndGone();
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
   });

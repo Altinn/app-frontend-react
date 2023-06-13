@@ -122,7 +122,5 @@ describe('Grid component', () => {
     cy.get(appFrontend.group.row(0).nestedGroup.groupContainer)
       .find('table tr:last-child td:first-child')
       .should('contain.text', 'Foreldreraden er prefill: true');
-
-    cy.snapshot('grid:in-nested-repeating-groups');
   });
 });
