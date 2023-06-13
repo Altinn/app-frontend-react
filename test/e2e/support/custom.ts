@@ -112,7 +112,7 @@ Cypress.Commands.add('snapshot', (name: string) => {
      }
    `,
     discovery: {
-      allowedHostnames: ['localhost', 'localhost:8080'],
+      allowedHostnames: ['localhost', 'localhost:8080', 'altinncdn.no'],
     },
   });
 

@@ -1,3 +1,5 @@
+import escapeRegex from 'escape-string-regexp';
+
 import { login } from 'test/e2e/support/auth';
 import type { user } from 'test/e2e/support/auth';
 
@@ -29,22 +31,32 @@ Cypress.Commands.add('startAppInstance', (appName, user: user | null = 'default'
     cy.log(`Response fuzzing off, enable with --env responseFuzzing=on`);
   }
 
+  const targetUrl =
+    Cypress.env('environment') === 'local'
+      ? `${Cypress.config('baseUrl')}/ttd/${appName}/`
+      : `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}/ttd/${appName}/`;
+
   // Rewrite all references to the app-frontend with a local URL
-  cy.intercept(/\/altinn-app-frontend\.(css|js)$/, (req) => {
-    if (req.url.match(/localhost:8080/)) {
-      req.continue();
-    } else {
-      const extension = req.url.endsWith('.css') ? 'css' : 'js';
-      req.redirect(`http://localhost:8080/altinn-app-frontend.${extension}`);
-    }
-  }).as('frontend');
+  // We cannot just intercept and redirect (like we did before), because Percy reads this DOM to figure out where
+  // to download assets from. If we redirect, Percy will download from altinncdn.no, which will cause the test to
+  // use outdated CSS.
+  // https://docs.percy.io/docs/debugging-sdks#asset-discovery
+  cy.intercept(targetUrl, (req) => {
+    req.continue((res) => {
+      if (typeof res.body === 'string') {
+        const urlRegex = new RegExp(`${escapeRegex('https://altinncdn.no/toolkits/altinn-app-frontend')}/.*?/`, 'g');
+        res.body = res.body.replace(urlRegex, 'http://localhost:8080/');
+      }
+    });
+  }).as('app');
+  cy.intercept('http://localhost:8080/altinn-app-frontend.css').as('app-frontend-css');
+  cy.intercept('http://localhost:8080/altinn-app-frontend.js').as('app-frontend-js');
 
   if (!anonymous) {
     login(user);
   }
-  if (Cypress.env('environment') === 'local') {
-    cy.visit(`${Cypress.config('baseUrl')}/ttd/${appName}/`, visitOptions);
-  } else {
-    cy.visit(`https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}/ttd/${appName}/`, visitOptions);
-  }
+
+  cy.visit(targetUrl, visitOptions);
+  cy.wait('@app-frontend-css');
+  cy.wait('@app-frontend-js');
 });
