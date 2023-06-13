@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
@@ -6,6 +6,7 @@ import { CheckmarkCircleFillIcon, TrashIcon } from '@navikt/aksel-icons';
 import classNames from 'classnames';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
+import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -31,9 +32,21 @@ export interface EditWindowProps extends PropsFromGenericComponent<'FileUploadWi
 
 export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   const dispatch = useAppDispatch();
-  const { id, baseComponentId, dataModelBindings, readOnly, textResourceBindings } = props.node.item;
+  const { id, baseComponentId, dataModelBindings, readOnly, textResourceBindings, alertOnDelete } = props.node.item;
   const { lang, langAsString } = useLanguage();
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const handlePopoverDeleteClick = () => {
+    setPopoverOpen(false);
+    handleDeleteFile();
+  };
 
+  const handleDeleteClick = () => {
+    if (alertOnDelete) {
+      setPopoverOpen(!popoverOpen);
+    } else {
+      handleDeleteFile();
+    }
+  };
   const handleDeleteFile = () => {
     dispatch(
       AttachmentActions.deleteAttachment({
@@ -95,15 +108,34 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
               />
             )}
             <div>
-              <Button
-                onClick={() => handleDeleteFile()}
-                variant={ButtonVariant.Quiet}
-                color={ButtonColor.Danger}
-                icon={<TrashIcon aria-hidden={true} />}
-                iconPlacement='right'
-              >
-                {!props.mobileView && lang('general.delete')}
-              </Button>
+              {(() => {
+                const deleteButton = (
+                  <Button
+                    onClick={() => handleDeleteClick()}
+                    variant={ButtonVariant.Quiet}
+                    color={ButtonColor.Danger}
+                    icon={<TrashIcon aria-hidden={true} />}
+                    iconPlacement='right'
+                  >
+                    {!props.mobileView && lang('general.delete')}
+                  </Button>
+                );
+                if (alertOnDelete) {
+                  return (
+                    <DeleteWarningPopover
+                      trigger={deleteButton}
+                      onPopoverDeleteClick={() => handlePopoverDeleteClick()}
+                      onCancelClick={() => setPopoverOpen(false)}
+                      deleteButtonText={langAsString('general.delete')}
+                      messageText={langAsString('form_filler.file_uploader_delete_file_warning')}
+                      open={popoverOpen}
+                      setOpen={setPopoverOpen}
+                    />
+                  );
+                } else {
+                  return deleteButton;
+                }
+              })()}
             </div>
           </div>
         </Grid>
