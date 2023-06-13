@@ -36,6 +36,8 @@ describe('Receipt', () => {
     cy.get('body').should('have.css', 'background-color', 'rgb(212, 249, 228)');
     cy.get(appFrontend.header).should('contain.text', texts.ttd);
 
+    cy.get('#attachment-collapsible-list').should('contain.text', 'Vedlegg (5)');
+
     cy.snapshot('receipt');
   });
 
@@ -71,7 +73,15 @@ describe('Receipt', () => {
       'contain.text',
       'Takk for din innsending, dette er en veldig fin custom kvittering.',
     );
-    cy.get('#form-content-r-attachments').find('[data-testId=attachment-list]').children().should('have.length', 5);
+
+    // TODO: Update test when the language subsystem fetches these texts correctly
+    cy.get('#form-content-r-header-pdfs').should('contain.text', 'receipt.title_submitted');
+    cy.get('#form-content-r-pdfs').find('[data-testId=attachment-list]').children().should('have.length', 5);
+    cy.get('#form-content-r-pdfs').should('contain.text', 'frontend-test.pdf');
+    cy.get('#form-content-r-header-attachments').should('contain.text', 'receipt.attachments');
+    cy.get('#form-content-r-attachments').find('[data-testId=attachment-list]').children().should('have.length', 1);
+    cy.get('#form-content-r-attachments').should('contain.text', 'test.pdf');
+    cy.snapshot('custom-receipt');
 
     /*
       Verify that layout and settings are not fetched on refresh
@@ -91,7 +101,6 @@ describe('Receipt', () => {
 
     cy.get('[data-testId=custom-receipt]').should('not.exist');
     cy.get(appFrontend.receipt.container).should('exist').and('be.visible');
-
-    cy.snapshot('custom-receipt');
+    cy.get('#attachment-collapsible-list').should('contain.text', 'Vedlegg (5)');
   });
 });
