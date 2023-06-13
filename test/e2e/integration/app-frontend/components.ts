@@ -144,10 +144,19 @@ describe('UI Components', () => {
   it('radios and checkboxes can be readOnly', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.id === 'confirmChangeName' && component.type === 'Checkboxes') {
-        component.readOnly = ['equals', ['component', 'newMiddleName'], 'checkbox_readOnly'];
-      }
-      if (component.id === 'reason' && component.type === 'RadioButtons') {
-        component.readOnly = ['equals', ['component', 'newMiddleName'], 'radio_readOnly'];
+        component.readOnly = [
+          'or',
+          ['equals', ['component', 'newMiddleName'], 'checkbox_readOnly'],
+          ['equals', ['component', 'newMiddleName'], 'all_readOnly'],
+        ];
+      } else if (component.id === 'reason' && component.type === 'RadioButtons') {
+        component.readOnly = [
+          'or',
+          ['equals', ['component', 'newMiddleName'], 'radio_readOnly'],
+          ['equals', ['component', 'newMiddleName'], 'all_readOnly'],
+        ];
+      } else {
+        component.readOnly = ['equals', ['component', 'newMiddleName'], 'all_readOnly'];
       }
     });
     cy.goto('changename');
@@ -179,7 +188,13 @@ describe('UI Components', () => {
 
     // Assert the last click had no effect
     cy.get('#form-content-reasonFarm3').should('be.visible');
-    cy.snapshot('components:read-only-checkboxes-and-radios');
+
+    // Make all components on the page readOnly, and snapshot the effect
+    cy.get(appFrontend.changeOfName.newMiddleName).clear();
+    cy.get(appFrontend.changeOfName.newMiddleName).type('all_readOnly');
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('input').should('be.disabled');
+    cy.get(appFrontend.changeOfName.reasons).find('input').should('be.disabled');
+    cy.snapshot('components:read-only');
   });
 
   it('description and helptext for options in radio and checkbox groups', () => {
