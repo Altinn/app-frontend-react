@@ -96,6 +96,8 @@ Cypress.Commands.add('snapshot', (name: string) => {
         text-shadow: none !important;
         outline: none !important;
         opacity: 1 !important;
+        font-family: monospace !important;
+        font-size: 0.8rem !important;
      }
      /* This mitigates a problem where our DeleteWarningPopover (and potentially other components using radix popper)
       * is not displayed in the correct location in the snapshot. It seems the radix popover is positioned actively
