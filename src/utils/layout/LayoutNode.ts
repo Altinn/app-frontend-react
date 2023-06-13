@@ -1,6 +1,7 @@
 import { getLayoutComponentObject } from 'src/layout';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { mergeComponentValidations } from 'src/utils/validation/validation';
 import type { ComponentClassMap } from 'src/layout';
 import type { HNonRepGroup, HRepGroup } from 'src/layout/Group/types';
 import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
@@ -344,5 +345,31 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     }
 
     return formDataObj;
+  }
+
+  public runEmptyFieldValidation(): IComponentValidations {
+    if (this.isHidden() || !this.item.required) {
+      return {};
+    }
+    return this.def.runEmptyFieldValidation(this as any);
+  }
+  public runComponentValidation(): IComponentValidations {
+    if (this.isHidden()) {
+      return {};
+    }
+    return this.def.runComponentValidation(this as any);
+  }
+  public runSchemaValidation(): IComponentValidations {
+    if (this.isHidden()) {
+      return {};
+    }
+    return this.def.runSchemaValidation(this as any);
+  }
+  public runValidations(): IComponentValidations {
+    let validations = this.runEmptyFieldValidation();
+    validations = mergeComponentValidations(validations, this.runComponentValidation());
+    validations = mergeComponentValidations(validations, this.runSchemaValidation());
+
+    return validations;
   }
 }

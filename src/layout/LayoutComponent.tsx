@@ -2,12 +2,22 @@ import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
+import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
+import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
+import { convertDataBindingToModel } from 'src/utils/databindings';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import {
+  getValidator,
+  validateEmptyField,
+  validateFormComponentsForNodes,
+  validateFormDataForLayout,
+} from 'src/utils/validation/validation';
 import type { ComponentTypeConfigs } from 'src/layout/components';
 import type { PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import type { IComponentValidations, IRuntimeState } from 'src/types';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -85,6 +95,19 @@ abstract class AnyComponent<Type extends ComponentTypes> {
     return defaultGenerator;
   }
 
+  /**
+   * Validation
+   */
+  runEmptyFieldValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    return {};
+  }
+  runComponentValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    return {};
+  }
+  runSchemaValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    return {};
+  }
+
   makeNode(
     item: AnyItem<Type>,
     parent: LayoutNode | LayoutPage,
@@ -153,10 +176,74 @@ export abstract class ActionComponent<Type extends ComponentTypes> extends AnyCo
 
 export abstract class FormComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
   readonly type = ComponentType.Form;
+
+  // TODO: This actually returns ILayoutValidations, the signature must be changed
+  runComponentValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    const state: IRuntimeState = window.reduxStore.getState();
+
+    const attachments = state.attachments.attachments;
+    const language = state.language.language ?? {};
+    const profileLanguage = appLanguageStateSelector(state);
+    return validateFormComponentsForNodes(attachments, node, language, profileLanguage);
+  }
+
+  runEmptyFieldValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    const state: IRuntimeState = window.reduxStore.getState();
+
+    const formData = node.getFormData();
+    const language = state.language.language ?? {};
+    const textResources = state.textResources.resources;
+    return validateEmptyField(formData, node, textResources, language) ?? {};
+  }
+
+  // TODO: This actually returns IValidations, the signature must be changed and function fixed
+  runSchemaValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    const state: IRuntimeState = window.reduxStore.getState();
+
+    const jsonFormData = convertDataBindingToModel(node.getFormData());
+    const layoutKey = node.top.top.myKey;
+    const language = state.language.language ?? {};
+    const textResources = state.textResources.resources;
+    const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
+      application: state.applicationMetadata.applicationMetadata,
+      instance: state.instanceData.instance,
+      layoutSets: state.formLayout.layoutsets,
+    });
+    const validator = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
+
+    return validateFormDataForLayout(jsonFormData, node, layoutKey, validator, language, textResources).validations;
+  }
 }
 
 export abstract class ContainerComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
   readonly type = ComponentType.Container;
+
+  // TODO: This actually returns ILayoutValidations, the signature must be changed
+  runEmptyFieldValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    const validations = {};
+    for (const child of node.children()) {
+      validations[child.item.id] = child.runEmptyFieldValidation();
+    }
+    return validations;
+  }
+
+  // TODO: This actually returns ILayoutValidations, the signature must be changed
+  runComponentValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    const validations = {};
+    for (const child of node.children()) {
+      validations[child.item.id] = child.runComponentValidation();
+    }
+    return validations;
+  }
+
+  // TODO: This actually returns ILayoutValidations, the signature must be changed
+  runSchemaValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    const validations = {};
+    for (const child of node.children()) {
+      validations[child.item.id] = child.runSchemaValidation();
+    }
+    return validations;
+  }
 }
 
 export type LayoutComponent<Type extends ComponentTypes = ComponentTypes> =

@@ -373,7 +373,7 @@ export function validateFormComponents(
 /*
   Fetches component specific validations
 */
-function validateFormComponentsForNodes(
+export function validateFormComponentsForNodes(
   attachments: IAttachments,
   nodes: LayoutPage | LayoutNode,
   language: ILanguage,
@@ -675,7 +675,7 @@ export function validateFormData(
 /*
   Validates the entire formData and returns an IValidations object with validations mapped for all components
 */
-function validateFormDataForLayout(
+export function validateFormDataForLayout(
   formDataAsObject: any,
   node: LayoutPage | LayoutNode,
   layoutKey: string,

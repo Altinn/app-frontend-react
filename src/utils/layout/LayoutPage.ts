@@ -1,3 +1,4 @@
+import type { ILayoutValidations } from 'src/types';
 import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
@@ -129,5 +130,34 @@ export class LayoutPage implements LayoutObject {
       myKey,
       collection,
     };
+  }
+
+  public runEmptyFieldValidations(): ILayoutValidations {
+    const validations = {};
+    for (const child of this.directChildren) {
+      validations[child.item.id] = child.runEmptyFieldValidation();
+    }
+    return validations;
+  }
+  public runComponentValidations(): ILayoutValidations {
+    const validations = {};
+    for (const child of this.directChildren) {
+      validations[child.item.id] = child.runComponentValidation();
+    }
+    return validations;
+  }
+  public runSchemaValidations(): ILayoutValidations {
+    const validations = {};
+    for (const child of this.directChildren) {
+      validations[child.item.id] = child.runSchemaValidation();
+    }
+    return validations;
+  }
+  public runValidations(): ILayoutValidations {
+    const validations = {};
+    for (const child of this.directChildren) {
+      validations[child.item.id] = child.runValidations();
+    }
+    return validations;
   }
 }

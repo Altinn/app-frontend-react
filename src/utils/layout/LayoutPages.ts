@@ -1,5 +1,7 @@
 import type { $Values } from 'utility-types';
 
+// import { mergeValidationObjects } from 'src/utils/validation/validation';
+import type { IValidations } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -92,5 +94,39 @@ export class LayoutPages<
         .map((key) => this.objects[key])
         .flat(),
     ] as $Values<Omit<Collection, L>>[];
+  }
+
+  public runEmptyFieldValidations(): IValidations {
+    const validations = {};
+    for (const layoutKey of Object.keys(this.objects)) {
+      validations[layoutKey] = this.objects[layoutKey].runEmptyFieldValidations();
+    }
+    return validations;
+  }
+  public runComponentValidations(): IValidations {
+    const validations = {};
+    for (const layoutKey of Object.keys(this.objects)) {
+      validations[layoutKey] = this.objects[layoutKey].runComponentValidations();
+    }
+    return validations;
+  }
+  public runSchemaValidations(): IValidations {
+    // TODO: Validate entire schema separately
+    return {};
+  }
+
+  public runValidations(): IValidations {
+    // TODO: Validate entire schema separately
+    // const emptyFieldValidations = this.runEmptyFieldValidations();
+    // const componentValidations = this.runComponentValidations();
+    // const schemaValidations = this.runSchemaValidations();
+    //
+    // return mergeValidationObjects(emptyFieldValidations, componentValidations, schemaValidations);
+
+    const validations = {};
+    for (const layoutKey of Object.keys(this.objects)) {
+      validations[layoutKey] = this.objects[layoutKey].runValidations();
+    }
+    return validations;
   }
 }
