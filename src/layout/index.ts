@@ -4,11 +4,12 @@ import type React from 'react';
 import { ComponentConfigs } from 'src/layout/components';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentTypes, IGrid } from 'src/layout/layout';
-import type { LayoutComponent } from 'src/layout/LayoutComponent';
+import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IComponentValidations } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type ComponentClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -80,3 +81,31 @@ export function getLayoutComponentObject<T extends keyof ComponentClassMap>(type
 }
 
 export type DefGetter = typeof getLayoutComponentObject;
+
+export interface NodeValidation {
+  runEmptyFieldValidation: (node: LayoutNode) => IComponentValidations;
+  runComponentValidation: (node: LayoutNode) => IComponentValidations;
+  runSchemaValidation: (node: LayoutNode) => IComponentValidations;
+  runValidations: (node: LayoutNode) => IComponentValidations;
+}
+
+export function implementsNodeValidation<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & NodeValidation {
+  return (
+    'runEmptyFieldValidation' in component &&
+    'runComponentValidation' in component &&
+    'runSchemaValidation' in component &&
+    'runValidations' in component
+  );
+}
+
+export interface GroupValidation {
+  runGroupValidations: (node: LayoutNode, onlyInRowIndex?: number) => IComponentValidations;
+}
+
+export function implementsGroupValidation<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & GroupValidation {
+  return 'runGroupValidations' in component;
+}

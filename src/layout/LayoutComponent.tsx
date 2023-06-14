@@ -9,12 +9,13 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import {
   getValidator,
+  mergeComponentValidations,
   validateEmptyField,
   validateFormComponentsForNodes,
   validateFormDataForLayout,
 } from 'src/utils/validation/validation';
 import type { ComponentTypeConfigs } from 'src/layout/components';
-import type { PropsFromGenericComponent } from 'src/layout/index';
+import type { NodeValidation, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { IComponentValidations, IRuntimeState } from 'src/types';
@@ -35,7 +36,7 @@ export enum ComponentType {
 
 const defaultGenerator = new SimpleComponentHierarchyGenerator();
 
-abstract class AnyComponent<Type extends ComponentTypes> {
+export abstract class AnyComponent<Type extends ComponentTypes> {
   /**
    * Given properties from GenericComponent, render this layout component
    */
@@ -93,19 +94,6 @@ abstract class AnyComponent<Type extends ComponentTypes> {
    */
   hierarchyGenerator(): ComponentHierarchyGenerator<Type> {
     return defaultGenerator;
-  }
-
-  /**
-   * Validation
-   */
-  runEmptyFieldValidation(_node: LayoutNodeFromType<Type>): IComponentValidations {
-    return {};
-  }
-  runComponentValidation(_node: LayoutNodeFromType<Type>): IComponentValidations {
-    return {};
-  }
-  runSchemaValidation(_node: LayoutNodeFromType<Type>): IComponentValidations {
-    return {};
   }
 
   makeNode(
@@ -174,10 +162,17 @@ export abstract class ActionComponent<Type extends ComponentTypes> extends AnyCo
   readonly type = ComponentType.Action;
 }
 
-export abstract class FormComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
+export abstract class FormComponent<Type extends ComponentTypes>
+  extends _FormComponent<Type>
+  implements NodeValidation
+{
   readonly type = ComponentType.Form;
 
   runComponentValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    if (node.isHidden() || !node.item.required) {
+      return {};
+    }
+
     const state: IRuntimeState = window.reduxStore.getState();
 
     const attachments = state.attachments.attachments;
@@ -187,6 +182,10 @@ export abstract class FormComponent<Type extends ComponentTypes> extends _FormCo
   }
 
   runEmptyFieldValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    if (node.isHidden() || !node.item.required) {
+      return {};
+    }
+
     const state: IRuntimeState = window.reduxStore.getState();
 
     const formData = node.getFormData();
@@ -196,6 +195,10 @@ export abstract class FormComponent<Type extends ComponentTypes> extends _FormCo
   }
 
   runSchemaValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+    if (node.isHidden() || !node.item.required) {
+      return {};
+    }
+
     const state: IRuntimeState = window.reduxStore.getState();
 
     const jsonFormData = convertDataBindingToModel(node.getFormData());
@@ -212,6 +215,14 @@ export abstract class FormComponent<Type extends ComponentTypes> extends _FormCo
     return validateFormDataForLayout(jsonFormData, node, layoutKey, validator, language, textResources).validations[
       layoutKey
     ][node.item.id];
+  }
+
+  runValidations(node: LayoutNodeFromType<Type>): IComponentValidations {
+    let validations = this.runComponentValidation(node);
+    validations = mergeComponentValidations(validations, this.runEmptyFieldValidation(node));
+    validations = mergeComponentValidations(validations, this.runSchemaValidation(node));
+
+    return validations;
   }
 }
 

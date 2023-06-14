@@ -1,3 +1,4 @@
+import { implementsNodeValidation } from 'src/layout';
 import type { ILayoutValidations } from 'src/types';
 import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -135,28 +136,36 @@ export class LayoutPage implements LayoutObject {
   public runEmptyFieldValidations(): ILayoutValidations {
     const validations = {};
     for (const child of this.allChildren) {
-      validations[child.item.id] = child.runEmptyFieldValidation();
+      if (implementsNodeValidation(child.def)) {
+        validations[child.item.id] = child.def.runEmptyFieldValidation(child as any);
+      }
     }
     return validations;
   }
   public runComponentValidations(): ILayoutValidations {
     const validations = {};
     for (const child of this.allChildren) {
-      validations[child.item.id] = child.runComponentValidation();
+      if (implementsNodeValidation(child.def)) {
+        validations[child.item.id] = child.def.runComponentValidation(child as any);
+      }
     }
     return validations;
   }
   public runSchemaValidations(): ILayoutValidations {
     const validations = {};
     for (const child of this.allChildren) {
-      validations[child.item.id] = child.runSchemaValidation();
+      if (implementsNodeValidation(child.def)) {
+        validations[child.item.id] = child.def.runSchemaValidation(child as any);
+      }
     }
     return validations;
   }
   public runValidations(): ILayoutValidations {
     const validations = {};
     for (const child of this.allChildren) {
-      validations[child.item.id] = child.runValidations();
+      if (implementsNodeValidation(child.def)) {
+        validations[child.item.id] = child.def.runValidations(child as any);
+      }
     }
     return validations;
   }
