@@ -81,41 +81,10 @@ Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQuer
 Cypress.Commands.add('snapshot', (name: string) => {
   cy.get('#readyForPrint').should('exist');
 
-  cy.log('Taking snapshot with Percy');
-  cy.percySnapshot(name, {
-    percyCSS: `
-      /* This snippet allows us to add a class to hide some elements from the visual testing. This class should be
-       * added on elements that change for every test, such as dates, times, random strings (such as the instance UUID)
-       * and other elements that would interfere and cause unnecessary visual diffs.
-       */
-      .no-visual-testing {
-        color: black !important;
-        background-color: black !important;
-        border: none !important;
-        box-shadow: none !important;
-        text-shadow: none !important;
-        outline: none !important;
-        opacity: 1 !important;
-        font-family: monospace !important;
-        font-size: 0.8rem !important;
-     }
-     /* This mitigates a problem where our DeleteWarningPopover (and potentially other components using radix popper)
-      * is not displayed in the correct location in the snapshot. It seems the radix popover is positioned actively
-      * using javascript, which is not passed on to Percy. This workaround positions the popover in a spot where it
-      * is visible, instead of defaulting to being buried under our app header (with a higher z-index).
-      */
-     [data-radix-popper-content-wrapper] {
-        left: 100px !important;
-        top: 150px !important;
-        position: fixed !important;
-        transform: none !important;
-     }
-   `,
-    discovery: {
-      allowedHostnames: ['localhost', 'localhost:8080', 'altinncdn.no'],
-    },
+  cy.readFile('test/percy.css').then((percyCSS) => {
+    cy.log('Taking snapshot with Percy');
+    cy.percySnapshot(name, { percyCSS });
   });
-
   /*
    * TODO: Enable this again later, when we have fixed all the accessibility issues in current tests.
    *
