@@ -50,21 +50,20 @@ Cypress.Commands.add('startAppInstance', (appName, user: user | null = 'default'
   }).as('app');
 
   const requestsToBeCalled = [
-    {
-      url: 'http://localhost:8080/altinn-app-frontend.css',
-      responseReceived: false,
-    },
-    {
-      url: 'http://localhost:8080/altinn-app-frontend.js',
-      responseReceived: false,
-    },
+    { url: 'http://localhost:8080/altinn-app-frontend.css', called: false },
+    { url: 'http://localhost:8080/altinn-app-frontend.js', called: false },
   ];
   for (const request of requestsToBeCalled) {
-    cy.intercept(request.url, (req) => {
-      req.on('response', () => {
-        request.responseReceived = true;
-      });
-    });
+    cy.intercept(
+      {
+        url: request.url,
+        method: 'GET',
+        times: 1,
+      },
+      () => {
+        request.called = true;
+      },
+    ).as(request.url.replace(/.*\//, ''));
   }
 
   if (!anonymous) {
@@ -75,5 +74,5 @@ Cypress.Commands.add('startAppInstance', (appName, user: user | null = 'default'
 
   // Make sure the app-frontend has loaded, and that our intercepted requests have been hit at least once.
   // This ensures that the intercept to rewrite the app HTML was successful.
-  cy.waitUntil(() => requestsToBeCalled.every((request) => request.responseReceived));
+  cy.waitUntil(() => requestsToBeCalled.every((request) => request.called));
 });
