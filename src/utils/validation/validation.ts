@@ -736,7 +736,6 @@ function validateFormDataForLayout(
     if (fieldSchema?.errorMessage) {
       errorMessage = getTextResourceByKey(fieldSchema.errorMessage, textResources);
     } else {
-      console.log('error', error);
       errorMessage = getParsedLanguageFromKey(
         `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
         language,
