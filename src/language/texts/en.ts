@@ -150,7 +150,6 @@ export function en() {
       row_error: 'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',
       row_popover_delete_message: 'Are you sure you want to delete this row?',
       row_popover_delete_button_confirm: 'Yes, delete the row',
-      validation_message_too_few_rows: 'You have to add {0} more rows',
     },
     iframe_component: {
       unsupported_browser_title: 'Your browser is unsupported',
@@ -287,6 +286,8 @@ export function en() {
       pattern: 'Wrong format or value',
       required: 'Field is required',
       enum: 'Only the values {0} are permitted',
+      minItems: 'A minimum of {0} elements is required',
+      maxItems: 'A maximum of {0} elements is permitted',
     },
     map_component: {
       selectedLocation: 'Selected location: {0}° north, {1}° east',

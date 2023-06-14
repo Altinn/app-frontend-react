@@ -205,6 +205,14 @@ export const errorMessageKeys = {
     textKey: 'formatMinimum',
     paramKey: 'limit',
   },
+  minItems: {
+    textKey: 'minItems',
+    paramKey: 'limit',
+  },
+  maxItems: {
+    textKey: 'maxItems',
+    paramKey: 'limit',
+  },
 };
 
 export function validateEmptyFields(
@@ -382,7 +390,7 @@ function validateFormComponentsForNodes(
 ): ILayoutValidations {
   const validations: ILayoutValidations = {};
   const fieldKey: keyof IDataModelBindings = 'simpleBinding';
-  const flatNodes = nodes.flat(false, onlyInRowIndex);
+  const flatNodes = nodes.flat(true, onlyInRowIndex);
 
   for (const node of flatNodes) {
     if (node.isHidden()) {
@@ -443,6 +451,11 @@ function validateFormComponentsForNodes(
         language,
         profileLanguage,
       );
+    }
+
+    if (node.isRepGroup()) {
+      const repeatingGroupComponentValidations = validateRepeatingGroupVisibleRows(node, language);
+      validations[node.item.id] = repeatingGroupComponentValidations;
     }
   }
 
@@ -723,6 +736,7 @@ function validateFormDataForLayout(
     if (fieldSchema?.errorMessage) {
       errorMessage = getTextResourceByKey(fieldSchema.errorMessage, textResources);
     } else {
+      console.log('error', error);
       errorMessage = getParsedLanguageFromKey(
         `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
         language,
@@ -1331,18 +1345,20 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
     onlyInRowIndex,
   ).validations;
 
-  const repeatingGroupComponentValidations = validateRepeatingGroup(node, language);
-
   return mergeValidationObjects(
     { [currentView]: emptyFieldsValidations },
     { [currentView]: componentValidations },
-    { [currentView]: repeatingGroupComponentValidations },
     formDataValidations,
   );
 }
 
-function validateRepeatingGroup(node, language: ILanguage): ILayoutValidations {
-  const validations: ILayoutValidations = {};
+/*
+ * Validates a repeating groups number of visible rows.
+ * @param node the node to validate
+ * @param language the current language
+ */
+function validateRepeatingGroupVisibleRows(node, language: ILanguage): IComponentValidations {
+  const validations: IComponentBindingValidation = { errors: [], warnings: [] };
   // check if minCount is less than visible rows
   const repeatingGroupComponent = node.item;
   const repeatingGroupMinCount = repeatingGroupComponent.minCount || 0;
@@ -1352,32 +1368,18 @@ function validateRepeatingGroup(node, language: ILanguage): ILayoutValidations {
 
   const repeatingGroupMinCountValid = repeatingGroupMinCount <= repeatingGroupVisibleRows;
 
-  //const fieldKey = repeatingGroupComponent.dataModelBindings?.group;
-
   // if not valid, return appropriate error message
-  validations[repeatingGroupComponent.id] = {
-    group: {
-      errors: [],
-    },
-  };
   if (!repeatingGroupMinCountValid) {
     const errorMessage = getParsedLanguageFromKey(
-      'group.validation_message_too_few_rows',
+      'validation_errors.minItems',
       language,
-      [repeatingGroupMinCount - repeatingGroupVisibleRows],
+      [repeatingGroupMinCount],
       true,
     );
-    validations[repeatingGroupComponent.id] = {
-      group: {
-        errors: [errorMessage],
-      },
-    };
+    validations.errors?.push(errorMessage);
   }
 
-  return validations;
-
-  //addErrorToValidations(result.validations, currentView, repeatingGroupComponent.id, fieldKey, errorMessage);
-  //mapToComponentValidationsGivenNode(currentView, node, dataBinding, errorMessage, result.validations);
+  return { group: validations };
 }
 /*
  * Removes the validations for a given group index and shifts higher indexes if necessary.

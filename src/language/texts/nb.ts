@@ -152,7 +152,6 @@ export function nb(): FixedLanguageList {
       row_error: 'En av radene er ikke fylt ut riktig, dette må fikses før skjema kan sendes inn',
       row_popover_delete_message: 'Er du sikker på at du vil slette denne raden?',
       row_popover_delete_button_confirm: 'Ja, slett raden',
-      validation_message_too_few_rows: 'You have to add {0} more rows',
     },
     iframe_component: {
       unsupported_browser_title: 'Nettleseren din støttes ikke',
@@ -290,6 +289,8 @@ export function nb(): FixedLanguageList {
       pattern: 'Feil format eller verdi',
       required: 'Feltet er påkrevd',
       enum: 'Kun verdiene {0} er tillatt',
+      minItems: 'Minst {0} elementer er påkrevd',
+      maxItems: 'Maks {0} elementer er tillatt',
     },
     map_component: {
       selectedLocation: 'Valgt lokasjon: {0}° nord, {1}° øst',
