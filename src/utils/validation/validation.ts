@@ -1177,14 +1177,15 @@ export function mergeValidationObjects(...sources: (IValidations | null)[]): IVa
     return validations;
   }
 
-  sources.forEach((source: IValidations | null) => {
+  for (const source of sources) {
     if (source === null) {
-      return;
+      continue;
     }
-    Object.keys(source).forEach((layout: string) => {
+    const layouts = Object.keys(source);
+    for (const layout of layouts) {
       validations[layout] = mergeLayoutValidations(validations[layout] || {}, source[layout] || {});
-    });
-  });
+    }
+  }
 
   return validations;
 }
@@ -1195,13 +1196,15 @@ export function mergeLayoutValidations(
   fixValidations = true,
 ): ILayoutValidations {
   const mergedValidations: ILayoutValidations = { ...currentLayoutValidations };
-  Object.keys(newLayoutValidations).forEach((component) => {
+
+  const components = Object.keys(newLayoutValidations);
+  for (const component of components) {
     mergedValidations[component] = mergeComponentValidations(
       currentLayoutValidations[component] || {},
       newLayoutValidations[component] || {},
       fixValidations,
     );
-  });
+  }
   return mergedValidations;
 }
 
@@ -1210,16 +1213,16 @@ export function mergeComponentValidations(
   newComponentValidations: IComponentValidations,
   fixValidations = true,
 ): IComponentValidations {
-  const mergedValidations: IComponentValidations = {
-    ...currentComponentValidations,
-  };
-  Object.keys(newComponentValidations).forEach((binding) => {
+  const mergedValidations: IComponentValidations = structuredClone(currentComponentValidations);
+
+  const bindings = Object.keys(newComponentValidations);
+  for (const binding of bindings) {
     mergedValidations[binding] = mergeComponentBindingValidations(
       currentComponentValidations[binding],
       newComponentValidations[binding],
       fixValidations,
     );
-  });
+  }
   return mergedValidations;
 }
 
@@ -1256,11 +1259,12 @@ export function mergeComponentBindingValidations(
         fixed: existingFixed.concat(uniqueNewFixed),
       };
 
-  Object.keys(merged).forEach((key) => {
+  const keys = Object.keys(merged);
+  for (const key of keys) {
     if (!merged[key] || merged[key].length === 0) {
       delete merged[key];
     }
-  });
+  }
 
   return merged;
 }
@@ -1274,7 +1278,20 @@ export function getUniqueNewElements(originalArray: string[], newArray?: string[
     return newArray;
   }
 
-  return newArray.filter((element) => originalArray.findIndex((existingElement) => existingElement === element) < 0);
+  const uniqueNewArray: string[] = [];
+  for (const newElement of newArray) {
+    let found = false;
+    for (const oldElement of originalArray) {
+      if (newElement === oldElement) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      uniqueNewArray.push(newElement);
+    }
+  }
+  return uniqueNewArray;
 }
 
 function removeFixedValidations(validations?: string[], fixed?: string[]): string[] | undefined {

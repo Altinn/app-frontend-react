@@ -56,6 +56,10 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     return this.item.type === 'Group' && (!this.item.maxCount || this.item.maxCount <= 1);
   }
 
+  public pageKey(): string {
+    return this.top.top.myKey;
+  }
+
   /**
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found).
@@ -244,7 +248,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   public getValidations(binding: keyof IDataModelBindings | string): IComponentBindingValidation;
   public getValidations(binding?: undefined): IComponentValidations;
   public getValidations(binding?: string): IComponentBindingValidation | IComponentValidations {
-    const pageKey = this.top.top.myKey;
+    const pageKey = this.pageKey();
     const page = this.dataSources.validations[pageKey] || {};
     const component = page[this.item.id] || {};
 

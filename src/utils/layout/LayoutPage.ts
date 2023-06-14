@@ -1,9 +1,9 @@
 import { implementsNodeValidation } from 'src/layout';
-import type { ILayoutValidations } from 'src/types';
 import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { IValidationOutput } from 'src/utils/validation/types';
 
 /**
  * The layout page is a class containing an entire page/form layout, with all components/nodes within it. It
@@ -133,38 +133,38 @@ export class LayoutPage implements LayoutObject {
     };
   }
 
-  public runEmptyFieldValidations(): ILayoutValidations {
-    const validations = {};
+  public runEmptyFieldValidations(): IValidationOutput[] {
+    const validations: IValidationOutput[] = [];
     for (const child of this.allChildren) {
       if (implementsNodeValidation(child.def)) {
-        validations[child.item.id] = child.def.runEmptyFieldValidation(child as any);
+        validations.push(child.def.runEmptyFieldValidation(child as any));
       }
     }
     return validations;
   }
-  public runComponentValidations(): ILayoutValidations {
-    const validations = {};
+  public runComponentValidations(): IValidationOutput[] {
+    const validations: IValidationOutput[] = [];
     for (const child of this.allChildren) {
       if (implementsNodeValidation(child.def)) {
-        validations[child.item.id] = child.def.runComponentValidation(child as any);
+        validations.push(child.def.runComponentValidation(child as any));
       }
     }
     return validations;
   }
-  public runSchemaValidations(): ILayoutValidations {
-    const validations = {};
+  public runSchemaValidations(): IValidationOutput[] {
+    const validations: IValidationOutput[] = [];
     for (const child of this.allChildren) {
       if (implementsNodeValidation(child.def)) {
-        validations[child.item.id] = child.def.runSchemaValidation(child as any);
+        validations.push(child.def.runSchemaValidation(child as any));
       }
     }
     return validations;
   }
-  public runValidations(): ILayoutValidations {
-    const validations = {};
+  public runValidations(): IValidationOutput[] {
+    const validations: IValidationOutput[] = [];
     for (const child of this.allChildren) {
       if (implementsNodeValidation(child.def)) {
-        validations[child.item.id] = child.def.runValidations(child as any);
+        validations.push(child.def.runValidations(child as any));
       }
     }
     return validations;

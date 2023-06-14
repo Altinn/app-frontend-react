@@ -10,6 +10,7 @@ import type { ILanguage } from 'src/types/shared';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { IValidationOutput } from 'src/utils/validation/types';
 
 export type ComponentClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -83,10 +84,10 @@ export function getLayoutComponentObject<T extends keyof ComponentClassMap>(type
 export type DefGetter = typeof getLayoutComponentObject;
 
 export interface NodeValidation {
-  runEmptyFieldValidation: (node: LayoutNode) => IComponentValidations;
-  runComponentValidation: (node: LayoutNode) => IComponentValidations;
-  runSchemaValidation: (node: LayoutNode) => IComponentValidations;
-  runValidations: (node: LayoutNode) => IComponentValidations;
+  runEmptyFieldValidation: (node: LayoutNode) => IValidationOutput;
+  runComponentValidation: (node: LayoutNode) => IValidationOutput;
+  runSchemaValidation: (node: LayoutNode) => IValidationOutput;
+  runValidations: (node: LayoutNode) => IValidationOutput;
 }
 
 export function implementsNodeValidation<Type extends ComponentTypes>(
@@ -101,7 +102,7 @@ export function implementsNodeValidation<Type extends ComponentTypes>(
 }
 
 export interface GroupValidation {
-  runGroupValidations: (node: LayoutNode, onlyInRowIndex?: number) => IComponentValidations;
+  runGroupValidations: (node: LayoutNode, onlyInRowIndex?: number) => IValidationOutput[];
 }
 
 export function implementsGroupValidation<Type extends ComponentTypes>(

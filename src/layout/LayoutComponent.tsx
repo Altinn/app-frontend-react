@@ -9,19 +9,20 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import {
   getValidator,
-  mergeComponentValidations,
   validateEmptyField,
   validateFormComponentsForNodes,
   validateFormDataForLayout,
 } from 'src/utils/validation/validation';
+import { mergeValidationOutputs } from 'src/utils/validation/validationHelpers';
 import type { ComponentTypeConfigs } from 'src/layout/components';
 import type { NodeValidation, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { IComponentValidations, IRuntimeState } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { IValidationOutput } from 'src/utils/validation/types';
 
 /**
  * This enum is used to distinguish purely presentational components
@@ -168,9 +169,14 @@ export abstract class FormComponent<Type extends ComponentTypes>
 {
   readonly type = ComponentType.Form;
 
-  runComponentValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+  runComponentValidation(node: LayoutNodeFromType<Type>): IValidationOutput {
     if (node.isHidden() || !node.item.required) {
-      return {};
+      return {
+        componentId: node.item.id,
+        pageKey: node.pageKey(),
+        validations: {},
+        invalidDataTypes: false,
+      };
     }
 
     const state: IRuntimeState = window.reduxStore.getState();
@@ -178,12 +184,24 @@ export abstract class FormComponent<Type extends ComponentTypes>
     const attachments = state.attachments.attachments;
     const language = state.language.language ?? {};
     const profileLanguage = appLanguageStateSelector(state);
-    return validateFormComponentsForNodes(attachments, node, language, profileLanguage)[node.item.id];
+    const componentValidations = validateFormComponentsForNodes(attachments, node, language, profileLanguage);
+
+    return {
+      componentId: node.item.id,
+      pageKey: node.pageKey(),
+      validations: componentValidations?.[node.item.id] ?? {},
+      invalidDataTypes: false,
+    };
   }
 
-  runEmptyFieldValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+  runEmptyFieldValidation(node: LayoutNodeFromType<Type>): IValidationOutput {
     if (node.isHidden() || !node.item.required) {
-      return {};
+      return {
+        componentId: node.item.id,
+        pageKey: node.pageKey(),
+        validations: {},
+        invalidDataTypes: false,
+      };
     }
 
     const state: IRuntimeState = window.reduxStore.getState();
@@ -191,18 +209,30 @@ export abstract class FormComponent<Type extends ComponentTypes>
     const formData = node.getFormData();
     const language = state.language.language ?? {};
     const textResources = state.textResources.resources;
-    return validateEmptyField(formData, node, textResources, language) ?? {};
+    const emptyFieldValidations = validateEmptyField(formData, node, textResources, language);
+
+    return {
+      componentId: node.item.id,
+      pageKey: node.pageKey(),
+      validations: emptyFieldValidations ?? {},
+      invalidDataTypes: false,
+    };
   }
 
-  runSchemaValidation(node: LayoutNodeFromType<Type>): IComponentValidations {
+  runSchemaValidation(node: LayoutNodeFromType<Type>): IValidationOutput {
     if (node.isHidden() || !node.item.required) {
-      return {};
+      return {
+        componentId: node.item.id,
+        pageKey: node.pageKey(),
+        validations: {},
+        invalidDataTypes: false,
+      };
     }
 
     const state: IRuntimeState = window.reduxStore.getState();
 
     const jsonFormData = convertDataBindingToModel(node.getFormData());
-    const layoutKey = node.top.top.myKey;
+    const layoutKey = node.pageKey();
     const language = state.language.language ?? {};
     const textResources = state.textResources.resources;
     const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
@@ -212,17 +242,29 @@ export abstract class FormComponent<Type extends ComponentTypes>
     });
     const validator = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
 
-    return validateFormDataForLayout(jsonFormData, node, layoutKey, validator, language, textResources).validations[
-      layoutKey
-    ][node.item.id];
+    const schemaValidation = validateFormDataForLayout(
+      jsonFormData,
+      node,
+      layoutKey,
+      validator,
+      language,
+      textResources,
+    );
+
+    return {
+      componentId: node.item.id,
+      pageKey: layoutKey,
+      validations: schemaValidation.validations[layoutKey]?.[node.item.id] ?? {},
+      invalidDataTypes: schemaValidation.invalidDataTypes,
+    };
   }
 
-  runValidations(node: LayoutNodeFromType<Type>): IComponentValidations {
-    let validations = this.runComponentValidation(node);
-    validations = mergeComponentValidations(validations, this.runEmptyFieldValidation(node));
-    validations = mergeComponentValidations(validations, this.runSchemaValidation(node));
+  runValidations(node: LayoutNodeFromType<Type>): IValidationOutput {
+    const componentValidations = this.runComponentValidation(node);
+    const emptyFieldValidations = this.runEmptyFieldValidation(node);
+    const schemaValidations = this.runSchemaValidation(node);
 
-    return validations;
+    return mergeValidationOutputs(componentValidations, emptyFieldValidations, schemaValidations);
   }
 }
 
