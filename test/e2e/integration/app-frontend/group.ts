@@ -251,6 +251,7 @@ describe('Group', () => {
 
     checkPrefills({ middels: true, svaer: true });
     expectRows(['NOK 1', 'NOK 5'], ['NOK 120', 'NOK 350'], ['NOK 80 323', 'NOK 123 455']);
+    cy.snapshot('group:prefill');
 
     checkPrefills({ middels: false, svaer: false });
     expectRows(['NOK 1', 'NOK 5']);
