@@ -1,5 +1,3 @@
-import escapeRegex from 'escape-string-regexp';
-
 import { login } from 'test/e2e/support/auth';
 import type { user } from 'test/e2e/support/auth';
 
@@ -33,8 +31,8 @@ Cypress.Commands.add('startAppInstance', (appName, user: user | null = 'default'
 
   const targetUrl =
     Cypress.env('environment') === 'local'
-      ? `${Cypress.config('baseUrl')}/ttd/${appName}/`
-      : `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}/ttd/${appName}/`;
+      ? `${Cypress.config('baseUrl')}/ttd/${appName}`
+      : `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}/ttd/${appName}`;
 
   // Rewrite all references to the app-frontend with a local URL
   // We cannot just intercept and redirect (like we did before), because Percy reads this DOM to figure out where
@@ -42,10 +40,11 @@ Cypress.Commands.add('startAppInstance', (appName, user: user | null = 'default'
   // use outdated CSS.
   // https://docs.percy.io/docs/debugging-sdks#asset-discovery
   cy.intercept(targetUrl, (req) => {
-    req.continue((res) => {
-      if (typeof res.body === 'string') {
-        const urlRegex = new RegExp(`${escapeRegex('https://altinncdn.no/toolkits/altinn-app-frontend')}/.*?/`, 'g');
-        res.body = res.body.replace(urlRegex, 'http://localhost:8080/');
+    req.on('response', (res) => {
+      if (typeof res.body === 'string' || res.statusCode === 200) {
+        const source = /https?:\/\/.*?\/altinn-app-frontend\./g;
+        const target = `http://localhost:8080/altinn-app-frontend.`;
+        res.body = res.body.replace(source, target);
       }
     });
   }).as('app');
