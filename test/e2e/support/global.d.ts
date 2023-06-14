@@ -171,6 +171,13 @@ declare global {
        *  - It takes a screenshot of the app, compares that to the previous screenshot from earlier testing and notifies
        *    us of any changes (using Percy.io)
        *  - Runs the wcag tests on the app and notifies us of any violations (using axe/ally)
+       *
+       * You should make sure that:
+       *  - The page you're looking at is what you expect to screenshot, and that no elements are
+       *    currently loading or animating.
+       *  - The snapshot does not overlap with other snapshots. Multiple snapshots on the same page in the same state
+       *    will cause confusion, and eat up our Percy.io quota.
+       *
        * @param name A unique name for the snapshot.
        */
       snapshot(name: string): Chainable<null>;
