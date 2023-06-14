@@ -240,6 +240,7 @@
         "altinncdn.no"
       ],
       "launch-options": {
+        "executable": "/usr/bin/google-chrome",
         "timeout": 30000
       }
     }
