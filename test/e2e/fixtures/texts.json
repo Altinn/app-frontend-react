@@ -44,5 +44,7 @@
   "change": "Endre",
   "view": "Se innhold",
   "edit": "Rediger",
-  "emptySummary": "Du har ikke lagt inn informasjon her"
+  "emptySummary": "Du har ikke lagt inn informasjon her",
+  "minCountError1": "Minst 1 elementer er påkrevd",
+  "minCountError2": "Minst 2 elementer er påkrevd"
 }

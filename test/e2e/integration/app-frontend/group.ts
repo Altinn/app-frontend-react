@@ -131,6 +131,54 @@ describe('Group', () => {
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
   });
 
+  it.only('Validation on repeating group for minCount', () => {
+    // set minCount to 3 on main group
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'Group' && component.edit && component.id === 'mainGroup') {
+        component.minCount = 3;
+      }
+    });
+
+    init();
+
+    // add row to main group
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // assert error message to exist
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError2);
+
+    // add row to main group
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // assert error message to exist
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError1);
+
+    // add row to main group
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // assert error message to not exist
+    cy.get(appFrontend.group.tableErrors).should('not.exist');
+
+    // remove row from main group
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).first().click();
+
+    // attempt to move to next page
+    cy.get(appFrontend.nextButton).click();
+
+    // assert error message to exist
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError1);
+  });
+
   [Triggers.Validation, Triggers.ValidateRow].forEach((trigger) => {
     it(`Validates group using triggers = ['${trigger}']`, () => {
       cy.intercept('GET', '**/instances/*/*/data/*/validate').as('validate');
