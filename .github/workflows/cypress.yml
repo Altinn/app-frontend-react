@@ -134,4 +134,7 @@ jobs:
         if: failure()
         with:
           name: redux-state-history
-          path: test/redux-history/*.json
+          path: |
+            test/redux-history/*.json
+            test/screenshots/*
+            test/videos/*
