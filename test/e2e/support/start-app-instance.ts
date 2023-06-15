@@ -1,8 +1,20 @@
+import dotenv from 'dotenv';
+
 import { login } from 'test/e2e/support/auth';
 import type { user } from 'test/e2e/support/auth';
 
 Cypress.Commands.add('startAppInstance', (appName, user: user | null = 'default') => {
   const anonymous = user === null;
+  const env = dotenv.config().parsed || {};
+
+  // You can override the host we load css/js from, using multiple methods:
+  //   1. Start Cypress with --env environment=<local|tt02>,host=<host>
+  //   2. Set CYPRESS_HOST=<host> in your .env file
+  // This is useful, for example if you want to run a Cypress test locally in the background while working on
+  // other things. Build the app-frontend with `yarn build` and serve it with `yarn serve 8081`, then run
+  // Cypress using a command like this:
+  //   npx cypress run --env environment=tt02,host=localhost:8081 -s 'test/e2e/integration/*/*.ts'
+  const targetHost = Cypress.env('host') || env.CYPRESS_HOST || 'localhost:8080';
 
   const visitOptions = {
     onBeforeLoad: (win) => {
@@ -12,6 +24,8 @@ Cypress.Commands.add('startAppInstance', (appName, user: user | null = 'default'
     },
   };
 
+  // Run this using --env environment=<local|tt02>,responseFuzzing=on to simulate an unreliable network. This might
+  // help us find bugs (usually race conditions) that only occur requests/responses arrive out of order.
   if (Cypress.env('responseFuzzing') === 'on') {
     const [min, max] = [10, 1000];
     cy.log(`Response fuzzing on, will delay responses randomly between ${min}ms and ${max}ms`);
@@ -43,7 +57,7 @@ Cypress.Commands.add('startAppInstance', (appName, user: user | null = 'default'
     req.on('response', (res) => {
       if (typeof res.body === 'string' || res.statusCode === 200) {
         const source = /https?:\/\/.*?\/altinn-app-frontend\./g;
-        const target = `http://localhost:8080/altinn-app-frontend.`;
+        const target = `http://${targetHost}/altinn-app-frontend.`;
         res.body = res.body.replace(source, target);
       }
     });
