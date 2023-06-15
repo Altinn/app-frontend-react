@@ -19,17 +19,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  altinn-app-frontend-test:
-    if: |
-     github.repository_owner == 'Altinn' &&
-     (github.event_name != 'pull_request' && github.event.repository.fork == false) ||
-     (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
-
+  cypress:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        machines: [1, 2, 3]
     name: Internal
 
     steps:
@@ -41,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -68,11 +59,10 @@ jobs:
           export CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}\n
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}\n
           export PERCY_TOKEN=${{ secrets.PERCY_TOKEN }}\n
-          bash -c 'cd dist/; npx http-server -p 8080 --cors >/dev/null &'\n
+          bash -c 'yarn serve 8080 >/dev/null &'\n
           bash -c 'npx percy exec -- yarn run cy:test:all:headless
             --env environment=tt02
             --record
-            --parallel
             --tag \"altinn-app-frontend\"
             --group altinn-app-frontend
             --ci-build-id $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT'
@@ -101,7 +91,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -124,7 +114,7 @@ jobs:
       - name: Verify cypress and run tests
         run: "
           yarn run cy:verify\n
-          bash -c 'cd dist/; npx http-server -p 8080 --cors >/dev/null &'\n
+          bash -c 'yarn serve 8080 >/dev/null &'\n
           bash -c 'yarn run cy:test:all:headless
               --config watchForFileChanges=false
               --env environment=tt02'
