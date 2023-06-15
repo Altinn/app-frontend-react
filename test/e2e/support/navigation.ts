@@ -95,10 +95,15 @@ const validMinimalData = {
  */
 function generateEvalString(submitTasks: (keyof typeof validMinimalData)[]) {
   const baseUrl = getTargetUrl(appFrontend.apps.frontendTest);
-  const partyId = getLocalPartyId('default').split('.')[1];
+  const fullPartyId = getLocalPartyId('default');
+
+  // Hard-coded partyId for now, since I couldn't figure out a way to get it from the app.
+  // This is the one used on tt02.
+  const partyId = fullPartyId ? fullPartyId.split('.')[1] : 50085642;
 
   const instantiateUrl = `${baseUrl}/instances?instanceOwnerPartyId=${partyId}`;
   const createInstance = `
+    const partyId = ${JSON.stringify(partyId)};
     const xsrfCookie = document.cookie.split('; ').find((row) => row.startsWith('XSRF-TOKEN=')).split('=')[1];
     const headers = { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': xsrfCookie };
     const instanceCreated = await fetch(${JSON.stringify(instantiateUrl)}, { method: 'POST', headers });
