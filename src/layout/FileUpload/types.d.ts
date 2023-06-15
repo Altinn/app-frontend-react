@@ -8,6 +8,7 @@ export interface ILayoutCompFileUploadBase<T extends Extract<ComponentTypes, 'Fi
   displayMode: 'simple' | 'list';
   hasCustomFileEndings?: boolean;
   validFileEndings?: string[] | string;
+  alertOnDelete?: boolean;
 }
 
 export type ILayoutCompFileUpload = ILayoutCompFileUploadBase<'FileUpload'>;
