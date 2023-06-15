@@ -9,7 +9,10 @@ describe('Message', () => {
   const instanceIdExpr = getInstanceIdRegExp();
 
   it('Attachments List displays correct number of attachments', () => {
-    cy.goto('message');
+    cy.intercept('POST', `**/instances?instanceOwnerPartyId*`).as('createdInstance');
+    cy.intercept('**/active', []).as('noActiveInstances');
+    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.get(appFrontend.closeButton).should('be.visible');
     cy.findByRole('heading', { name: /Appen for test av app frontend/i }).should('exist');
     cy.wait('@createdInstance').then((xhr) => {
       const instanceMetadata = xhr.response?.body;
