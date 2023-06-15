@@ -35,7 +35,7 @@ describe('Mobile', () => {
 function testChangeName() {
   cy.goto('changename');
   cy.get(appFrontend.changeOfName.oldFullName).parents().eq(3).should('have.css', 'max-width', '100%');
-  cy.gotoAndComplete('changename');
+  cy.fillOut('changename');
   cy.intercept('**/api/layoutsettings/group').as('getLayoutGroup');
   cy.get(appFrontend.sendinButton).should('be.visible');
   sendIn();

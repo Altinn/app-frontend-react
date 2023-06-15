@@ -145,7 +145,9 @@ function generateEvalString(submitTasks: (keyof typeof validMinimalData)[]) {
 const gotoFunctions: { [key in FrontendTestTask]: () => void } = {
   message: () => {
     cy.intercept('**/active', []).as('noActiveInstances');
+    cy.intercept('POST', `**/instances?instanceOwnerPartyId*`).as('createInstance');
     cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.wait('@createInstance');
     cy.get(appFrontend.closeButton).should('be.visible');
   },
   changename: () => {
