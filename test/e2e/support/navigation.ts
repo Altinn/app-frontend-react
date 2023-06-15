@@ -123,6 +123,9 @@ const completeFormSlow: { [key in FrontendTestTask]: () => void } = {
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.wait('@createInstance');
     cy.get(appFrontend.closeButton).should('be.visible');
+
+    // In slow mode, we'll fill out the form as usual, including generating PDFs
+    cy.setCookie('createPdf', 'true');
   },
   changename: () => {
     cy.get(appFrontend.changeOfName.currentName).then(() => {
