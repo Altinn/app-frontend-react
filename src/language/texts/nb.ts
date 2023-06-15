@@ -289,8 +289,8 @@ export function nb(): FixedLanguageList {
       pattern: 'Feil format eller verdi',
       required: 'Feltet er påkrevd',
       enum: 'Kun verdiene {0} er tillatt',
-      minItems: 'Minst {0} elementer er påkrevd',
-      maxItems: 'Maks {0} elementer er tillatt',
+      minItems: 'Minst {0} rader er påkrevd',
+      maxItems: 'Maks {0} rader er tillatt',
     },
     map_component: {
       selectedLocation: 'Valgt lokasjon: {0}° nord, {1}° øst',
