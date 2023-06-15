@@ -15,7 +15,25 @@ describe('All process steps', () => {
   it('Should be possible to fill out all steps from beginning to end', () => {
     interceptAndAddCustomReceipt();
 
-    cy.goto('confirm', 'with-data');
+    cy.goto('message');
+
+    // Later in this test we will make sure PDFs are created, so we need to set the cookie to
+    // convince the backend to create them
+    cy.setCookie('createPdf', 'true');
+    cy.get(appFrontend.sendinButton).clickAndGone();
+
+    cy.fillOut('changename');
+    cy.get(appFrontend.sendinButton).clickAndGone();
+
+    cy.fillOut('group');
+    cy.get(appFrontend.sendinButton).clickAndGone();
+
+    cy.fillOut('likert');
+    cy.get(appFrontend.sendinButton).clickAndGone();
+
+    cy.fillOut('datalist');
+    cy.get(appFrontend.sendinButton).clickAndGone();
+
     testConfirmationPage();
 
     cy.get(appFrontend.confirm.sendIn).click();
