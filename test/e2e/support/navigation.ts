@@ -87,6 +87,12 @@ const validMinimalData = {
   },
 };
 
+/**
+ * This function generates javascript code to move through the instance to the desired task as quickly as possible.
+ * When using the goto() function, this code is injected into the app before the app itself runs, and loads
+ * the data model content from validMinimalData, injects into the data object, and pushes the process forward as quickly
+ * as possible.
+ */
 function generateEvalString(submitTasks: (keyof typeof validMinimalData)[]) {
   const baseUrl = getTargetUrl(appFrontend.apps.frontendTest);
   const partyId = getLocalPartyId('default').split('.')[1];
@@ -143,29 +149,24 @@ const gotoFunctions: { [key in FrontendTestTask]: () => void } = {
     cy.get(appFrontend.closeButton).should('be.visible');
   },
   changename: () => {
-    cy.intercept('**/active', []).as('noActiveInstances');
     cy.startAppInstance(appFrontend.apps.frontendTest, { evaluateBefore: generateEvalString(['message']) });
   },
   group: () => {
-    cy.intercept('**/active', []).as('noActiveInstances');
     cy.startAppInstance(appFrontend.apps.frontendTest, {
       evaluateBefore: generateEvalString(['message', 'changename']),
     });
   },
   likert: () => {
-    cy.intercept('**/active', []).as('noActiveInstances');
     cy.startAppInstance(appFrontend.apps.frontendTest, {
       evaluateBefore: generateEvalString(['message', 'changename', 'group']),
     });
   },
   datalist: () => {
-    cy.intercept('**/active', []).as('noActiveInstances');
     cy.startAppInstance(appFrontend.apps.frontendTest, {
       evaluateBefore: generateEvalString(['message', 'changename', 'group', 'likert']),
     });
   },
   confirm: () => {
-    cy.intercept('**/active', []).as('noActiveInstances');
     cy.startAppInstance(appFrontend.apps.frontendTest, {
       evaluateBefore: generateEvalString(['message', 'changename', 'group', 'likert', 'datalist']),
     });
