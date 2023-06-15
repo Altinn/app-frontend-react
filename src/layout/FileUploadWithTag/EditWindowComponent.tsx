@@ -35,10 +35,6 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   const { id, baseComponentId, dataModelBindings, readOnly, textResourceBindings, alertOnDelete } = props.node.item;
   const { lang, langAsString } = useLanguage();
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const handlePopoverDeleteClick = () => {
-    setPopoverOpen(false);
-    handleDeleteFile();
-  };
 
   const handleDeleteClick = () => {
     if (alertOnDelete) {
@@ -46,6 +42,10 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
     } else {
       handleDeleteFile();
     }
+  };
+  const handlePopoverDeleteClick = () => {
+    setPopoverOpen(false);
+    handleDeleteFile();
   };
   const handleDeleteFile = () => {
     dispatch(
