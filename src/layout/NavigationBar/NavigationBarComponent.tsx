@@ -1,11 +1,12 @@
 import React from 'react';
 
-import { Grid, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import cn from 'classnames';
 
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import { reducePageValidations } from 'src/types';
@@ -115,8 +116,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const pageOrPropTriggers = triggers || pageTriggers;
   const currentPageId = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const [showMenu, setShowMenu] = React.useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down(600)) || compact === true;
+  const isMobile = useIsMobile() || compact === true;
   const { lang, langAsString } = useLanguage();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();

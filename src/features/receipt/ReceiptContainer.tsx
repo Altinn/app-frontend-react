@@ -16,6 +16,7 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { getAppReceiver } from 'src/language/sharedLanguage';
 import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
+import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IAltinnOrgs, IAttachment, IParty } from 'src/types/shared';
 
@@ -27,9 +28,12 @@ export const returnInstanceMetaDataObject = (
   lastChangedDateTime: string,
   org: string,
 ) => {
-  const obj: any = {};
+  const obj: SummaryDataObject = {};
 
-  obj[langTools.langAsString('receipt.date_sent')] = lastChangedDateTime;
+  obj[langTools.langAsString('receipt.date_sent')] = {
+    value: lastChangedDateTime,
+    hideFromVisualTesting: true,
+  };
 
   let sender = '';
   if (instanceOwnerParty?.ssn) {
@@ -37,17 +41,26 @@ export const returnInstanceMetaDataObject = (
   } else if (instanceOwnerParty?.orgNumber) {
     sender = `${instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
   }
-  obj[langTools.langAsString('receipt.sender')] = sender;
+  obj[langTools.langAsString('receipt.sender')] = {
+    value: sender,
+  };
 
   const receiver = getAppReceiver(orgsData, org, langTools);
   if (receiver) {
-    obj[langTools.langAsString('receipt.receiver')] = receiver;
+    obj[langTools.langAsString('receipt.receiver')] = {
+      value: receiver,
+    };
   } else {
     // This is only related to testing in Altinn Studio Dev
-    obj[langTools.langAsString('receipt.receiver')] = 'Error: Receiver org not found';
+    obj[langTools.langAsString('receipt.receiver')] = {
+      value: 'Error: Receiver org not found',
+    };
   }
 
-  obj[langTools.langAsString('receipt.ref_num')] = instanceGuid.split('-')[4];
+  obj[langTools.langAsString('receipt.ref_num')] = {
+    value: instanceGuid.split('-')[4],
+    hideFromVisualTesting: true,
+  };
 
   return obj;
 };
@@ -57,7 +70,7 @@ export const ReceiptContainer = () => {
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
   const [pdf, setPdf] = useState<IAttachment[] | undefined>(undefined);
   const [lastChangedDateTime, setLastChangedDateTime] = useState('');
-  const [instanceMetaObject, setInstanceMetaObject] = useState({});
+  const [instanceMetaObject, setInstanceMetaObject] = useState<SummaryDataObject>({});
 
   const receiptLayoutName = useAppSelector((state) => state.formLayout.uiConfig.receiptLayoutName);
   const allOrgs = useAppSelector((state) => state.organisationMetaData.allOrgs);

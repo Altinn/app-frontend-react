@@ -9,6 +9,7 @@ import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
 import { ReceiptContainer, returnInstanceMetaDataObject } from 'src/features/receipt/ReceiptContainer';
 import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { MemoryRouterWithRedirectingRoot, renderWithProviders } from 'src/testUtils';
+import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { ILayout } from 'src/layout/layout';
 import type { IAltinnOrgs, IParty } from 'src/types/shared';
 
@@ -394,11 +395,21 @@ describe('returnInstanceMetaDataObject', () => {
       selectedAppLanguage: testData.userLanguageString,
     });
 
-    const expected = {
-      'receipt.date_sent': '22.08.2019 / 09:08',
-      'receipt.receiver': 'Testdepartementet',
-      'receipt.ref_num': 'd6a414a797ae',
-      'receipt.sender': '01017512345-Ola Privatperson',
+    const expected: SummaryDataObject = {
+      'receipt.date_sent': {
+        value: '22.08.2019 / 09:08',
+        hideFromVisualTesting: true,
+      },
+      'receipt.receiver': {
+        value: 'Testdepartementet',
+      },
+      'receipt.ref_num': {
+        value: 'd6a414a797ae',
+        hideFromVisualTesting: true,
+      },
+      'receipt.sender': {
+        value: '01017512345-Ola Privatperson',
+      },
     };
 
     expect(
