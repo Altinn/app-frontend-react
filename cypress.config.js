@@ -11,11 +11,15 @@ module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
       on('before:browser:launch', (browser, launchOptions) => {
-        if (['chrome', 'electron'].includes(browser.name) && browser.isHeadless) {
-          launchOptions.args.push(`--window-size=${CYPRESS_WINDOW_WIDTH},${CYPRESS_WINDOW_HEIGHT}`);
-
-          return launchOptions;
+        if (browser.name === 'electron') {
+          launchOptions.preferences.width = CYPRESS_WINDOW_WIDTH;
+          launchOptions.preferences.height = CYPRESS_WINDOW_HEIGHT;
         }
+        if (browser.name === 'chrome' && browser.isHeadless) {
+          launchOptions.args.push(`--window-size=${CYPRESS_WINDOW_WIDTH},${CYPRESS_WINDOW_HEIGHT}`);
+        }
+
+        return launchOptions;
       });
 
       on('after:spec', async (_spec, results) => {
