@@ -236,7 +236,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.componentSummary).contains('Testveien 1');
   });
 
-  it('button group with navigation, printbutton and go-to-task', () => {
+  it('button group with navigation, printbutton', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
     cy.get(appFrontend.changeOfName.newFirstName).blur();
@@ -247,7 +247,6 @@ describe('UI Components', () => {
     cy.get('#form-content-button-group1').within(() => {
       cy.get(appFrontend.printButton).should('be.visible');
       cy.get(appFrontend.nextButton).should('be.visible');
-      cy.get('button#toNextTask').should('be.visible');
     });
 
     // Check that the buttons are moved inside the error paper
@@ -256,7 +255,6 @@ describe('UI Components', () => {
       cy.get('#form-content-button-group1').within(() => {
         cy.get(appFrontend.printButton).should('be.visible');
         cy.get(appFrontend.nextButton).should('be.visible');
-        cy.get('button#toNextTask').should('be.visible');
       });
     });
   });
