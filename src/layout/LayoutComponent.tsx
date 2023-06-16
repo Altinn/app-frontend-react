@@ -1,19 +1,23 @@
 import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
-import { getParsedLanguageFromKey } from 'src/language/sharedLanguage';
+import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { getValidator, validateFormDataForLayout } from 'src/utils/validation/validation';
 import {
-  buildValidationObject,
-  componentValidationToValidationObjects,
-  createComponentValidationResult,
-} from 'src/utils/validation/validationHelpers';
+  errorMessageKeys,
+  getSchemaPart,
+  getSchemaPartOldGenerator,
+  getValidator,
+  isOneOfError,
+  processInstancePath,
+} from 'src/utils/validation/validation';
+import { buildValidationObject, createComponentValidationResult } from 'src/utils/validation/validationHelpers';
+import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 import type { ComponentTypeConfigs } from 'src/layout/components';
 import type { NodeValidation, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
@@ -212,29 +216,68 @@ export abstract class FormComponent<Type extends ComponentTypes>
 
     const state: IRuntimeState = window.reduxStore.getState();
 
-    const jsonFormData = convertDataBindingToModel(node.getFormData());
-    const layoutKey = node.pageKey();
     const language = state.language.language ?? {};
     const textResources = state.textResources.resources;
+
     const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
       application: state.applicationMetadata.applicationMetadata,
       instance: state.instanceData.instance,
       layoutSets: state.formLayout.layoutsets,
     });
-    const validator = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
+    const { validator, rootElementPath, schema } = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
+    const formData = convertDataBindingToModel(state.formData.formData);
+    const valid = validator.validate(`schema${rootElementPath}`, formData);
 
-    const schemaValidation = validateFormDataForLayout(
-      jsonFormData,
-      node,
-      layoutKey,
-      validator,
-      language,
-      textResources,
-    );
+    if (valid) {
+      return [];
+    }
+    const validationObjects: IValidationObject[] = [];
 
-    const componentValidations = schemaValidation.validations[layoutKey]?.[node.item.id];
+    for (const error of validator.errors || []) {
+      // Required fields are handled separately
+      if (error.keyword === 'required') {
+        continue;
+      }
 
-    return componentValidationToValidationObjects(node, componentValidations, schemaValidation.invalidDataTypes);
+      if (isOneOfError(error)) {
+        continue;
+      }
+      const invalidDataTypes = error.keyword === 'type' || error.keyword === 'format';
+
+      let errorParams = error.params[errorMessageKeys[error.keyword]?.paramKey];
+      if (errorParams === undefined) {
+        console.warn(`WARN: Error message for ${error.keyword} not implemented`);
+      }
+      if (Array.isArray(errorParams)) {
+        errorParams = errorParams.join(', ');
+      }
+
+      // backward compatible if we are validating against a sub scheme.
+      const fieldSchema = rootElementPath
+        ? getSchemaPartOldGenerator(error.schemaPath, schema, rootElementPath)
+        : getSchemaPart(error.schemaPath, schema);
+
+      const errorMessage = fieldSchema?.errorMessage
+        ? getTextResourceByKey(fieldSchema.errorMessage, textResources)
+        : getParsedLanguageFromKey(
+            `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
+            language,
+            [errorParams],
+            true,
+          );
+
+      const field = processInstancePath(error.instancePath);
+      if (node.item.dataModelBindings) {
+        const bindings = Object.entries(node.item.dataModelBindings);
+        for (const [bindingKey, bindingField] of bindings) {
+          if (bindingField === field) {
+            validationObjects.push(buildValidationObject(node, 'errors', errorMessage, bindingKey, invalidDataTypes));
+          }
+        }
+      }
+    }
+
+    return validationObjects;
   }
 
   runValidations(node: LayoutNodeFromType<Type>): IValidationObject[] {

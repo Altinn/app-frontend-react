@@ -306,16 +306,7 @@ export function mapValidationIssues(issues: IValidationIssue[]): IValidationObje
     for (const node of allNodes) {
       // Special case for FileUpload and FileUploadWithTag
       if ((node.isType('FileUpload') || node.isType('FileUploadWithTag')) && node.item.id === issue.field) {
-        validationOutputs.push({
-          pageKey: node.pageKey(),
-          componentId: node.item.id,
-          bindingKey: 'simpleBinding',
-          severity: severityMap[severity],
-          message,
-          invalidDataTypes: false,
-          rowIndices: node.getRowIndices(),
-        });
-
+        validationOutputs.push(buildValidationObject(node, severityMap[severity], message));
         continue;
       }
 
@@ -323,15 +314,7 @@ export function mapValidationIssues(issues: IValidationIssue[]): IValidationObje
         const bindings = Object.entries(node.item.dataModelBindings);
         for (const [bindingKey, bindingField] of bindings) {
           if (bindingField === field) {
-            validationOutputs.push({
-              pageKey: node.pageKey(),
-              componentId: node.item.id,
-              bindingKey,
-              severity: severityMap[severity],
-              message,
-              invalidDataTypes: false,
-              rowIndices: node.getRowIndices(),
-            });
+            validationOutputs.push(buildValidationObject(node, severityMap[severity], message, bindingKey));
           }
         }
       }

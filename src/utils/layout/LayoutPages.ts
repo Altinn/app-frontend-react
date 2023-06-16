@@ -2,7 +2,6 @@ import type { $Values } from 'utility-types';
 
 import { createValidationResult } from 'src/utils/validation/validationHelpers';
 import type { IValidationResult } from 'src/types';
-// import { mergeValidationObjects } from 'src/utils/validation/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IValidationObject } from 'src/utils/validation/types';
@@ -123,11 +122,6 @@ export class LayoutPages<
 
   public runValidations(): IValidationObject[] {
     // TODO: Validate entire schema separately
-    // const emptyFieldValidations = this.runEmptyFieldValidations();
-    // const componentValidations = this.runComponentValidations();
-    // const schemaValidations = this.runSchemaValidations();
-    //
-    // return mergeValidationObjects(emptyFieldValidations, componentValidations, schemaValidations);
 
     const validations: IValidationObject[] = [];
     for (const layoutKey of Object.keys(this.objects)) {
