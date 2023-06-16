@@ -39,6 +39,10 @@ export class FileUpload extends FormComponent<'FileUpload'> {
     return false;
   }
 
+  runEmptyFieldValidation(_node: LayoutNodeFromType<'FileUpload'>): IValidationObject[] {
+    return [];
+  }
+
   runComponentValidations(node: LayoutNodeFromType<'FileUpload'>): IValidationObject[] {
     if (node.isHidden()) {
       return [];

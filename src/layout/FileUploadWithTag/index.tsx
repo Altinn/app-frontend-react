@@ -40,6 +40,10 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> {
     return false;
   }
 
+  runEmptyFieldValidation(_node: LayoutNodeFromType<'FileUploadWithTag'>): IValidationObject[] {
+    return [];
+  }
+
   runComponentValidations(node: LayoutNodeFromType<'FileUploadWithTag'>): IValidationObject[] {
     if (node.isHidden()) {
       return [];
