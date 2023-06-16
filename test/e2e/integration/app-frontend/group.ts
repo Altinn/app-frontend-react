@@ -143,29 +143,19 @@ describe('Group', () => {
     init();
 
     // add row to main group
-    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
-    cy.get(appFrontend.group.addNewItem).click();
-    cy.get(appFrontend.group.currentValue).type('1');
-    cy.get(appFrontend.group.newValue).type('1');
-    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+    cy.addItemToGroup(1, 2, 'automation', false);
 
     // assert error message to exist
-    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError2);
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
 
     // add row to main group
-    cy.get(appFrontend.group.addNewItem).click();
-    cy.get(appFrontend.group.currentValue).type('1');
-    cy.get(appFrontend.group.newValue).type('1');
-    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+    cy.addItemToGroup(3, 4, 'automation', false);
 
     // assert error message to exist
-    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError1);
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
 
     // add row to main group
-    cy.get(appFrontend.group.addNewItem).click();
-    cy.get(appFrontend.group.currentValue).type('1');
-    cy.get(appFrontend.group.newValue).type('1');
-    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+    cy.addItemToGroup(3, 4, 'automation', false);
 
     // assert error message to not exist
     cy.get(appFrontend.group.tableErrors).should('not.exist');
@@ -177,7 +167,7 @@ describe('Group', () => {
     cy.get(appFrontend.nextButton).click();
 
     // assert error message to exist
-    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError1);
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
   });
 
   [Triggers.Validation, Triggers.ValidateRow].forEach((trigger) => {
