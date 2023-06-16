@@ -1,0 +1,13 @@
+@import '@digdir/design-system-tokens/brand/digdir/tokens.css';
+
+.radioGroup {
+  display: flex;
+  flex-wrap: wrap;
+  /**
+    Values taken from @digdir/design-system.
+    The values are from @altinn/figma-design-tokens,
+    which are not exposed as css variables.
+   */
+  row-gap: 1.125rem;
+  column-gap: 2.25rem;
+}
