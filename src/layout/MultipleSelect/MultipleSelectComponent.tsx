@@ -28,7 +28,7 @@ export function MultipleSelectComponent({
   const calculatedOptions: MultiSelectOption[] = useMemo(
     () =>
       (apiOptions || options)?.filter(duplicateOptionFilter).map((option) => {
-        const label = langAsString(option.label) ?? option.value;
+        const label = langAsString(option.label ?? option.value);
         return {
           label,
           formattedLabel: formatLabelForSelect(option, langAsString),

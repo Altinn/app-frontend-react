@@ -50,7 +50,7 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
   const optionsMap = React.useMemo(
     () =>
       options?.map((option) => ({
-        label: langAsString(option.label) ?? option.value,
+        label: langAsString(option.label ?? option.value),
         formattedLabel: formatLabelForSelect(option, langAsString),
         value: option.value,
       })) || [],

@@ -46,7 +46,7 @@ export const ListComponent = ({ node, formData, handleDataChange, legend }: ILis
 
   const tableHeadersValues = { ...tableHeaders };
   for (const key in tableHeaders) {
-    tableHeadersValues[key] = langAsString(tableHeaders[key]) ?? '';
+    tableHeadersValues[key] = langAsString(tableHeaders[key]);
   }
 
   const selectedRow: Record<string, string> = React.useMemo(() => {

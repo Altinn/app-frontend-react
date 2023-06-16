@@ -220,9 +220,9 @@ export function duplicateOptionFilter(currentOption: IOption, currentIndex: numb
 export function formatLabelForSelect(option: IOption, langAsString: IUseLanguage['langAsString']): React.ReactNode {
   if (option.description) {
     return getParsedLanguageFromText(
-      `<b>${langAsString(option.label) ?? option.value}</b><br><span>${langAsString(option.description)}</span>`,
+      `<b>${langAsString(option.label ?? option.value)}</b><br><span>${langAsString(option.description)}</span>`,
     );
   } else {
-    return getParsedLanguageFromText(`<span>${langAsString(option.label) ?? option.value}</span>`);
+    return getParsedLanguageFromText(`<span>${langAsString(option.label ?? option.value)}</span>`);
   }
 }

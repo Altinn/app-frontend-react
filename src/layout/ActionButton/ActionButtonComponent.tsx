@@ -41,7 +41,7 @@ export function ActionButtonComponent({ node }: IActionButton) {
 
   const isLoading = busyWithId === id;
   const parentIsPage = node.parent instanceof LayoutPage;
-  const buttonText = lang(textResourceBindings?.title) ?? lang(`actions.${action}`);
+  const buttonText = lang(textResourceBindings?.title ?? `actions.${action}`);
   const { color, variant } = buttonStyles[buttonStyle];
 
   return (
