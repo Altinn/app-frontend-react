@@ -24,7 +24,7 @@ export function MultipleSelectComponent({
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
   const { langAsString } = useLanguage();
-  5;
+
   const calculatedOptions: MultiSelectOption[] = useMemo(
     () =>
       (apiOptions || options)?.filter(duplicateOptionFilter).map((option) => {
