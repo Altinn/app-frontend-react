@@ -11,7 +11,8 @@
     "start": "yarn gen && cross-env NODE_ENV=development webpack-dev-server --config webpack.config.development.js --mode development --progress",
     "start:silent": "yarn gen && cross-env NOTIFY_ON_ERRORS=false yarn start",
     "build": "yarn gen && cross-env NODE_ENV=production webpack --config webpack.config.production.js --progress",
-    "docker": "yarn gen && cross-env NODE_ENV=development webpack --config webpack.config.development.js --progress && http-server dist -p 8080 --cors",
+    "docker": "yarn gen && cross-env NODE_ENV=development webpack --config webpack.config.development.js --progress && yarn serve 8080",
+    "serve": "http-server dist --cors -p",
     "test": "yarn gen && jest",
     "test:watch": "yarn gen && jest --watch",
     "test:watchall": "yarn gen && jest --watchAll",
@@ -45,6 +46,8 @@
     "@babel/preset-react": "7.22.3",
     "@babel/runtime": "^7.21.0",
     "@babel/runtime-corejs3": "^7.21.0",
+    "@percy/cli": "^1.26.0",
+    "@percy/cypress": "^3.1.2",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.10",
     "@tanstack/react-query-devtools": "^4.29.3",
     "@testing-library/cypress": "9.0.0",
@@ -162,7 +165,7 @@
     "redux": "4.2.1",
     "redux-saga": "1.2.3",
     "reselect": "4.1.8",
-    "typescript": "4.9.5",
+    "typescript": "5.1.3",
     "uuid": "9.0.0"
   },
   "packageManager": "yarn@3.6.0",
@@ -228,5 +231,19 @@
       "not op_mini all",
       "ie 11"
     ]
+  },
+  "percy": {
+    "version": 2,
+    "discovery": {
+      "allowed-hostnames": [
+        "localhost",
+        "localhost:8080",
+        "altinncdn.no"
+      ],
+      "launch-options": {
+        "executable": "/usr/bin/google-chrome",
+        "timeout": 30000
+      }
+    }
   }
 }

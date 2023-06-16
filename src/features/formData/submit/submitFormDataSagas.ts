@@ -25,12 +25,13 @@ import {
 } from 'src/utils/validation/validation';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
-import type { IUpdateFormDataFulfilled } from 'src/features/formData/formDataTypes';
+import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { IRuntimeState, IRuntimeStore, IValidationIssue } from 'src/types';
+import type { IRuntimeState, IRuntimeStore, IUiConfig, IValidationIssue } from 'src/types';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
+const selectUiConfig = (state: IRuntimeState) => state.formLayout.uiConfig;
 
 /**
  * Saga that submits the form data to the backend, and moves the process forward.
@@ -251,7 +252,7 @@ function getModelToSave(state: IRuntimeState) {
  */
 export function* saveFormDataSaga({
   payload: { field, componentId, singleFieldValidation },
-}: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
+}: PayloadAction<IUpdateFormData>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     // updates the default data element
@@ -347,8 +348,9 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
  */
 export function* autoSaveSaga({
   payload: { skipAutoSave, field, componentId, singleFieldValidation },
-}: PayloadAction<IUpdateFormDataFulfilled>): SagaIterator {
-  if (skipAutoSave) {
+}: PayloadAction<IUpdateFormData>): SagaIterator {
+  const uiConfig: IUiConfig = yield select(selectUiConfig);
+  if (skipAutoSave || uiConfig.autoSaveBehavior === 'onChangePage') {
     return;
   }
 

@@ -32,7 +32,7 @@ describe('Summary', () => {
       });
 
     cy.gotoNavPage('form');
-    cy.gotoAndComplete('changename');
+    cy.fillOut('changename');
     cy.gotoNavPage('summary');
     cy.get(appFrontend.backButton).should('be.visible');
 
@@ -151,6 +151,8 @@ describe('Summary', () => {
         cy.wrap(items).eq(1).should('contain.text', 'Referanse : Test');
         cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Doffen');
       });
+
+    cy.snapshot('summary:change-name');
   });
 
   it('is possible to view summary of repeating group', () => {
@@ -163,7 +165,7 @@ describe('Summary', () => {
     cy.get('[data-testid=summary-group-component] > div').last().should('contain.text', texts.emptySummary);
     cy.gotoNavPage('prefill');
 
-    cy.gotoAndComplete('group');
+    cy.fillOut('group');
 
     cy.get(appFrontend.group.mainGroupSummary)
       .should('have.length', 1)
@@ -301,6 +303,8 @@ describe('Summary', () => {
       .last()
       .should('contain.text', texts.emptySummary);
 
+    cy.snapshot('summary:repeating-groups');
+
     // Hiding the group should hide the group summary as well
     cy.get('[data-testid=summary-summary1]').should('be.visible');
     cy.gotoNavPage('repeating');
@@ -390,7 +394,7 @@ describe('Summary', () => {
       cy.get(appFrontend.changeOfName.newFirstName).type(`Hello world`);
       cy.get(appFrontend.changeOfName.newLastName).clear();
       cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
-      cy.get(appFrontend.nextButton).clickAndGone();
+      cy.get(appFrontend.nextButton).click();
 
       if (trigger === undefined) {
         cy.navPage('summary').should('have.attr', 'aria-current', 'page');
@@ -412,7 +416,7 @@ describe('Summary', () => {
 
         cy.gotoNavPage('form');
         cy.get(appFrontend.changeOfName.newLastName).type('a');
-        cy.get(appFrontend.nextButton).clickAndGone();
+        cy.get(appFrontend.nextButton).click();
       }
 
       if (trigger === Triggers.ValidateAllPages) {

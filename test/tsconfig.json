@@ -1,8 +1,9 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "cypress", "@testing-library/cypress"]
+    "types": ["node", "cypress", "@testing-library/cypress"],
+    "sourceMap": false
   },
-  "include": ["./**/*.ts", "../src/global.d.ts"],
+  "include": ["./**/*.ts", "../src/modules.d.ts", "../src/global.d.ts"],
   "exclude": ["../node_modules"]
 }

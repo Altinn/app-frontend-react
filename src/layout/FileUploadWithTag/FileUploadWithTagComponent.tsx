@@ -1,13 +1,13 @@
 import React from 'react';
 import type { FileRejection } from 'react-dropzone';
 
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { v4 as uuidv4 } from 'uuid';
 
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { DropzoneComponent } from 'src/layout/FileUpload/shared/DropzoneComponent';
 import { handleRejectedFiles } from 'src/layout/FileUpload/shared/handleRejectedFiles';
@@ -45,7 +45,7 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
   } = props.node.item;
   const dataDispatch = useAppDispatch();
   const [validations, setValidations] = React.useState<Array<{ id: string; message: string }>>([]);
-  const mobileView = useMediaQuery('(max-width:992px)'); // breakpoint on altinn-modal
+  const mobileView = useIsMobileOrTablet();
   const options = useAppSelector(
     (state: IRuntimeState) => state.optionState.options[getOptionLookupKey({ id: optionsId, mapping })]?.options,
   );
@@ -78,11 +78,7 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
     );
   };
 
-  const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-    event.preventDefault();
-  };
-
-  const handleEdit = (index) => {
+  const handleEdit = (index: number) => {
     if (editIndex === -1 || editIndex !== index) {
       setEditIndex(index);
     } else {
@@ -148,7 +144,6 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
   const shouldShowFileUpload = (): boolean => attachments.length < maxNumberOfAttachments;
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-    const newFiles: IAttachment[] = [];
     const fileType = baseComponentId || id;
     const totalAttachments = acceptedFiles.length + rejectedFiles.length + attachments.length;
 
@@ -162,34 +157,24 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
     } else {
       // we should upload all files, if any rejected files we should display an error
       acceptedFiles.forEach((file: File, index) => {
-        if (attachments.length + newFiles.length < maxNumberOfAttachments) {
-          const tmpId: string = uuidv4();
-          newFiles.push({
-            name: file.name,
-            size: file.size,
-            uploaded: false,
-            tags: [],
-            id: tmpId,
-            deleting: false,
-            updating: false,
-          });
-          dataDispatch(
-            AttachmentActions.uploadAttachment({
-              file,
-              attachmentType: fileType,
-              tmpAttachmentId: tmpId,
-              componentId: id,
-              dataModelBindings,
-              index: attachments.length + index,
-            }),
-          );
-        }
+        dataDispatch(
+          AttachmentActions.uploadAttachment({
+            file,
+            attachmentType: fileType,
+            tmpAttachmentId: uuidv4(),
+            componentId: id,
+            dataModelBindings,
+            index: attachments.length + index,
+          }),
+        );
       });
+
       const rejections = handleRejectedFiles({
         language,
         rejectedFiles,
         maxFileSizeInMB,
       });
+
       setValidationsFromArray(rejections);
     }
   };
@@ -213,7 +198,7 @@ export function FileUploadWithTagComponent(props: IFileUploadWithTagProps): JSX.
           isMobile={mobileView}
           maxFileSizeInMB={maxFileSizeInMB}
           readOnly={!!readOnly}
-          onClick={handleClick}
+          onClick={(e) => e.preventDefault()}
           onDrop={handleDrop}
           hasValidationMessages={hasValidationMessages}
           hasCustomFileEndings={hasCustomFileEndings}
