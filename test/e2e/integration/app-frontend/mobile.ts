@@ -2,6 +2,8 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Datalist } from 'test/e2e/pageobjects/datalist';
 import { Likert } from 'test/e2e/pageobjects/likert';
 
+import { breakpoints } from 'src/hooks/useIsMobile';
+
 const appFrontend = new AppFrontend();
 const likertPage = new Likert();
 const dataListPage = new Datalist();
@@ -12,6 +14,7 @@ describe('Mobile', () => {
   it('is possible to submit app instance from mobile', () => {
     cy.viewport('samsung-s10');
     testChangeName();
+    cy.get('html.viewport-is-mobile').should('be.visible');
     testGroup('mobile');
     testLikert();
     testList('mobile');
@@ -19,8 +22,9 @@ describe('Mobile', () => {
   });
 
   it('is possible to submit app instance a tablet', () => {
-    cy.viewport('ipad-2');
+    cy.viewport(breakpoints.tablet - 5, 1024);
     testChangeName();
+    cy.get('html.viewport-is-tablet').should('be.visible');
     testGroup('tablet');
     testLikert();
     testList('tablet');
@@ -31,10 +35,10 @@ describe('Mobile', () => {
 function testChangeName() {
   cy.goto('changename');
   cy.get(appFrontend.changeOfName.oldFullName).parents().eq(3).should('have.css', 'max-width', '100%');
-  cy.gotoAndComplete('changename');
+  cy.fillOut('changename');
   cy.intercept('**/api/layoutsettings/group').as('getLayoutGroup');
   cy.get(appFrontend.sendinButton).should('be.visible');
-  cy.sendIn();
+  sendIn();
 }
 
 function testGroup(mode: Mode) {
@@ -85,7 +89,7 @@ function testGroup(mode: Mode) {
   } else {
     cy.navPage('summary').click();
   }
-  cy.sendIn();
+  sendIn();
 }
 
 function ensureTableHasNumColumns(tableContainer: string, numColumns: number) {
@@ -102,7 +106,7 @@ function ensureTableHasNumColumns(tableContainer: string, numColumns: number) {
 
 function testLikert() {
   likertPage.selectRequiredRadiosInMobile();
-  cy.sendIn();
+  sendIn();
 }
 
 function testList(mode: Mode) {
@@ -112,7 +116,7 @@ function testList(mode: Mode) {
     cy.get(dataListPage.tableBody).contains('Caroline').parent('td').parent('tr').click();
   }
   cy.get(appFrontend.nextButton).click();
-  cy.sendIn();
+  sendIn();
 }
 
 function testConfirm() {
@@ -120,4 +124,9 @@ function testConfirm() {
   cy.get(appFrontend.confirm.sendIn).should('not.exist');
   cy.get(appFrontend.receipt.container).should('be.visible');
   cy.get(appFrontend.receipt.linkToArchive).should('be.visible');
+}
+
+function sendIn() {
+  cy.get(appFrontend.sendinButton).click();
+  cy.get(appFrontend.sendinButton).should('not.exist');
 }

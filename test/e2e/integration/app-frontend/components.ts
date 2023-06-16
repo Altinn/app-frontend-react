@@ -9,7 +9,7 @@ const mui = new Common();
 
 describe('UI Components', () => {
   it('Image component with help text', () => {
-    cy.gotoAndComplete('message');
+    cy.goto('message');
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
     cy.get(appFrontend.loadingAnimation).should('be.visible');
     cy.get(appFrontend.closeButton).should('be.visible');
@@ -34,6 +34,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
+    cy.snapshot('components:attachment');
     cy.get(appFrontend.changeOfName.deleteAttachment).click();
     cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
   });
@@ -74,6 +75,7 @@ describe('UI Components', () => {
       cy.wrap(table).find(mui.tableBody).find(mui.tableElement).eq(1).should('have.text', 'Adresse');
       cy.wrap(table).find(mui.tableBody).find(mui.tableElement).last().find('button').click();
     });
+    cy.snapshot('components:attachment-with-tags');
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).find('button:contains("Slett")').click();
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
   });
@@ -139,13 +141,22 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'OSLO');
   });
 
-  it('radios and checkboxes can be readOnly', () => {
+  it('radios, checkboxes and other components can be readOnly', () => {
     cy.interceptLayout('changename', (component) => {
       if (component.id === 'confirmChangeName' && component.type === 'Checkboxes') {
-        component.readOnly = ['equals', ['component', 'newMiddleName'], 'checkbox_readOnly'];
-      }
-      if (component.id === 'reason' && component.type === 'RadioButtons') {
-        component.readOnly = ['equals', ['component', 'newMiddleName'], 'radio_readOnly'];
+        component.readOnly = [
+          'or',
+          ['equals', ['component', 'newMiddleName'], 'checkbox_readOnly'],
+          ['equals', ['component', 'newMiddleName'], 'all_readOnly'],
+        ];
+      } else if (component.id === 'reason' && component.type === 'RadioButtons') {
+        component.readOnly = [
+          'or',
+          ['equals', ['component', 'newMiddleName'], 'radio_readOnly'],
+          ['equals', ['component', 'newMiddleName'], 'all_readOnly'],
+        ];
+      } else {
+        component.readOnly = ['equals', ['component', 'newMiddleName'], 'all_readOnly'];
       }
     });
     cy.goto('changename');
@@ -177,6 +188,13 @@ describe('UI Components', () => {
 
     // Assert the last click had no effect
     cy.get('#form-content-reasonFarm3').should('be.visible');
+
+    // Make all components on the page readOnly, and snapshot the effect
+    cy.get(appFrontend.changeOfName.newMiddleName).clear();
+    cy.get(appFrontend.changeOfName.newMiddleName).type('all_readOnly');
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('input').should('be.disabled');
+    cy.get(appFrontend.changeOfName.reasons).find('input').should('be.disabled');
+    cy.snapshot('components:read-only');
   });
 
   it('description and helptext for options in radio and checkbox groups', () => {
@@ -218,7 +236,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.componentSummary).contains('Testveien 1');
   });
 
-  it('button group with navigation, printbutton and go-to-task', () => {
+  it('button group with navigation, printbutton', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.newFirstName).type('Per');
     cy.get(appFrontend.changeOfName.newFirstName).blur();
@@ -226,19 +244,17 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.newLastName).blur();
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
 
-    cy.get('#form-content-button-group-1').within(() => {
+    cy.get('#form-content-button-group1').within(() => {
       cy.get(appFrontend.printButton).should('be.visible');
       cy.get(appFrontend.nextButton).should('be.visible');
-      cy.get('button#toNextTask').should('be.visible');
     });
 
     // Check that the buttons are moved inside the error paper
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport).within(() => {
-      cy.get('#form-content-button-group-1').within(() => {
+      cy.get('#form-content-button-group1').within(() => {
         cy.get(appFrontend.printButton).should('be.visible');
         cy.get(appFrontend.nextButton).should('be.visible');
-        cy.get('button#toNextTask').should('be.visible');
       });
     });
   });
@@ -252,5 +268,6 @@ describe('UI Components', () => {
     cy.get('#form-content-newFirstName').contains('Du har 0 tegn igjen');
     cy.get(appFrontend.changeOfName.newFirstName).type('r');
     cy.get('#form-content-newFirstName').contains('Du har overskredet maks antall tegn med 1');
+    cy.snapshot('components:text-countdown');
   });
 });
