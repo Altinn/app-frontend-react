@@ -7,7 +7,7 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
-import { filterPageValidations, Triggers } from 'src/types';
+import { Triggers } from 'src/types';
 import {
   getCurrentDataTypeForApplication,
   getCurrentDataTypeId,
@@ -16,19 +16,20 @@ import {
 } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { getLayoutsetForDataElement } from 'src/utils/layout';
+import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
 import {
-  canFormBeSaved,
-  mapDataElementValidationToRedux,
-  mergeValidationObjects,
-} from 'src/utils/validation/validation';
-import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
+  containsErrors,
+  createValidations,
+  filterValidationObjectsByPage,
+  mapValidationIssues,
+} from 'src/utils/validation/validationHelpers';
 import type { ICalculatePageOrderAndMoveToNextPage, IUpdateCurrentView } from 'src/features/layout/formLayoutTypes';
 import type { IRuntimeState, IValidationIssue } from 'src/types';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
 export const selectFormData = (state: IRuntimeState) => state.formData;
@@ -56,6 +57,7 @@ export function* updateCurrentViewSaga({
     yield waitFor((state) => !state.formData.unsavedChanges);
 
     const state: IRuntimeState = yield select();
+    const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
     const visibleLayouts: string[] | null = yield select(selectLayoutOrder);
     const viewCacheKey = state.formLayout.uiConfig.currentViewCacheKey;
     const instanceId = state.instanceData.instance?.id;
@@ -86,48 +88,36 @@ export function* updateCurrentViewSaga({
         }),
       );
     } else {
-      const { validationResult, componentSpecificValidations, emptyFieldsValidations } = runClientSideValidation(state);
       const currentView = state.formLayout.uiConfig.currentView;
+      const page = resolvedNodes.findLayout(currentView);
+      const frontendValidationObjects = page?.runValidations() ?? [];
+
       const options: AxiosRequestConfig = {
         headers: {
           LayoutId: currentView,
         },
       };
-      const currentTaskDataId =
-        state.applicationMetadata.applicationMetadata &&
-        getCurrentTaskDataElementId(
-          state.applicationMetadata.applicationMetadata,
-          state.instanceData.instance,
-          state.formLayout.layoutsets,
-        );
-      const layoutState: ILayoutState = state.formLayout;
+      const currentTaskDataId = getCurrentTaskDataElementId(
+        state.applicationMetadata.applicationMetadata,
+        state.instanceData.instance,
+        state.formLayout.layoutsets,
+      );
 
       const validationOptions = runValidations === Triggers.ValidatePage ? options : undefined;
-      const serverValidation: IValidationIssue[] | undefined =
+      const serverValidations: IValidationIssue[] =
         instanceId && currentTaskDataId
           ? yield call(httpGet, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
-          : undefined;
+          : [];
 
-      // update validation state
-      const mappedValidations = mapDataElementValidationToRedux(
-        serverValidation,
-        layoutState.layouts || {},
-        state.textResources.resources,
-      );
+      const serverValidationObjects = mapValidationIssues(serverValidations);
 
-      validationResult.validations = mergeValidationObjects(
-        validationResult.validations,
-        componentSpecificValidations,
-        emptyFieldsValidations,
-        mappedValidations,
-      );
-
-      const validations = filterPageValidations(
-        validationResult.validations,
+      const validationObjects = filterValidationObjectsByPage(
+        [...frontendValidationObjects, ...serverValidationObjects],
         runValidations,
         currentView,
         visibleLayouts ?? [],
       );
+      const validations = createValidations(validationObjects);
 
       yield put(ValidationActions.updateValidations({ validations }));
 
@@ -137,17 +127,14 @@ export function* updateCurrentViewSaga({
        * navigate to the next page; but if the error is on a future page, we should not prevent the user from navigating
        * to the next page.
        */
-      const validationsToCheckBeforeNavigation = filterPageValidations(
-        validations,
+      const validationsToCheckBeforeNavigation = filterValidationObjectsByPage(
+        validationObjects,
         Triggers.ValidateCurrentAndPreviousPages,
         currentView,
         visibleLayouts ?? [],
       );
 
-      if (
-        state.formLayout.uiConfig.returnToView ||
-        canFormBeSaved({ validations: validationsToCheckBeforeNavigation, invalidDataTypes: false })
-      ) {
+      if (state.formLayout.uiConfig.returnToView || !containsErrors(validationsToCheckBeforeNavigation)) {
         if (!skipPageCaching && currentViewCacheKey) {
           localStorage.setItem(currentViewCacheKey, newView);
         }

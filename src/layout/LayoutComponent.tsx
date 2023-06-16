@@ -1,28 +1,28 @@
 import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
+import { getParsedLanguageFromKey } from 'src/language/sharedLanguage';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
+import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { getValidator, validateFormDataForLayout } from 'src/utils/validation/validation';
 import {
-  getValidator,
-  validateEmptyField,
-  validateFormComponentsForNodes,
-  validateFormDataForLayout,
-} from 'src/utils/validation/validation';
-import { mergeValidationOutputs } from 'src/utils/validation/validationHelpers';
+  buildValidationObject,
+  componentValidationToValidationObjects,
+  createComponentValidationResult,
+} from 'src/utils/validation/validationHelpers';
 import type { ComponentTypeConfigs } from 'src/layout/components';
 import type { NodeValidation, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { IRuntimeState } from 'src/types';
+import type { IComponentValidationResult, IRuntimeState } from 'src/types';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { IValidationOutput } from 'src/utils/validation/types';
+import type { IValidationObject } from 'src/utils/validation/types';
 
 /**
  * This enum is used to distinguish purely presentational components
@@ -169,39 +169,13 @@ export abstract class FormComponent<Type extends ComponentTypes>
 {
   readonly type = ComponentType.Form;
 
-  runComponentValidation(node: LayoutNodeFromType<Type>): IValidationOutput {
-    if (node.isHidden() || !node.item.required) {
-      return {
-        componentId: node.item.id,
-        pageKey: node.pageKey(),
-        validations: {},
-        invalidDataTypes: false,
-      };
-    }
-
-    const state: IRuntimeState = window.reduxStore.getState();
-
-    const attachments = state.attachments.attachments;
-    const language = state.language.language ?? {};
-    const profileLanguage = appLanguageStateSelector(state);
-    const componentValidations = validateFormComponentsForNodes(attachments, node, language, profileLanguage);
-
-    return {
-      componentId: node.item.id,
-      pageKey: node.pageKey(),
-      validations: componentValidations?.[node.item.id] ?? {},
-      invalidDataTypes: false,
-    };
+  runComponentValidation(_node: LayoutNodeFromType<Type>): IValidationObject[] {
+    return [];
   }
 
-  runEmptyFieldValidation(node: LayoutNodeFromType<Type>): IValidationOutput {
+  runEmptyFieldValidation(node: LayoutNodeFromType<Type>): IValidationObject[] {
     if (node.isHidden() || !node.item.required) {
-      return {
-        componentId: node.item.id,
-        pageKey: node.pageKey(),
-        validations: {},
-        invalidDataTypes: false,
-      };
+      return [];
     }
 
     const state: IRuntimeState = window.reduxStore.getState();
@@ -209,24 +183,31 @@ export abstract class FormComponent<Type extends ComponentTypes>
     const formData = node.getFormData();
     const language = state.language.language ?? {};
     const textResources = state.textResources.resources;
-    const emptyFieldValidations = validateEmptyField(formData, node, textResources, language);
+    const validationObjects: IValidationObject[] = [];
 
-    return {
-      componentId: node.item.id,
-      pageKey: node.pageKey(),
-      validations: emptyFieldValidations ?? {},
-      invalidDataTypes: false,
-    };
+    const bindingKeys = Object.keys(formData);
+    for (const bindingKey of bindingKeys) {
+      const data = formData[bindingKey];
+
+      if (!data?.length) {
+        const fieldName = getFieldName(node.item.textResourceBindings, textResources, language, bindingKey);
+
+        validationObjects.push(
+          buildValidationObject(
+            node,
+            'errors',
+            getParsedLanguageFromKey('form_filler.error_required', language, [fieldName], true),
+            bindingKey,
+          ),
+        );
+      }
+    }
+    return validationObjects;
   }
 
-  runSchemaValidation(node: LayoutNodeFromType<Type>): IValidationOutput {
-    if (node.isHidden() || !node.item.required) {
-      return {
-        componentId: node.item.id,
-        pageKey: node.pageKey(),
-        validations: {},
-        invalidDataTypes: false,
-      };
+  runSchemaValidation(node: LayoutNodeFromType<Type>): IValidationObject[] {
+    if (node.isHidden()) {
+      return [];
     }
 
     const state: IRuntimeState = window.reduxStore.getState();
@@ -251,20 +232,22 @@ export abstract class FormComponent<Type extends ComponentTypes>
       textResources,
     );
 
-    return {
-      componentId: node.item.id,
-      pageKey: layoutKey,
-      validations: schemaValidation.validations[layoutKey]?.[node.item.id] ?? {},
-      invalidDataTypes: schemaValidation.invalidDataTypes,
-    };
+    const componentValidations = schemaValidation.validations[layoutKey]?.[node.item.id];
+
+    return componentValidationToValidationObjects(node, componentValidations, schemaValidation.invalidDataTypes);
   }
 
-  runValidations(node: LayoutNodeFromType<Type>): IValidationOutput {
+  runValidations(node: LayoutNodeFromType<Type>): IValidationObject[] {
     const componentValidations = this.runComponentValidation(node);
     const emptyFieldValidations = this.runEmptyFieldValidation(node);
     const schemaValidations = this.runSchemaValidation(node);
 
-    return mergeValidationOutputs(componentValidations, emptyFieldValidations, schemaValidations);
+    return [...componentValidations, ...emptyFieldValidations, ...schemaValidations];
+  }
+
+  validateComponent(node: LayoutNodeFromType<Type>): IComponentValidationResult {
+    const validationObjects = this.runValidations(node);
+    return createComponentValidationResult(validationObjects);
   }
 }
 

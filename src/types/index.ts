@@ -5,13 +5,11 @@ import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
 import type { RootState } from 'src/redux/store';
 
-export interface IComponentBindingValidation {
-  errors?: string[];
-  warnings?: string[];
-  info?: string[];
-  success?: string[];
-  fixed?: string[];
-}
+export type ValidationSeverity = 'errors' | 'warnings' | 'info' | 'success' | 'fixed' | 'unspecified';
+
+export type IComponentBindingValidation = {
+  [severity in ValidationSeverity]?: string[];
+};
 
 export type ValidationKey = keyof IComponentBindingValidation;
 export type ValidationKeyOrAny = ValidationKey | 'any';
@@ -224,6 +222,16 @@ export interface ITracks {
 export interface IValidationResult {
   invalidDataTypes: boolean;
   validations: IValidations;
+}
+
+export interface ILayoutValidationResult {
+  invalidDataTypes: boolean;
+  validations: ILayoutValidations;
+}
+
+export interface IComponentValidationResult {
+  invalidDataTypes: boolean;
+  validations: IComponentValidations;
 }
 
 export interface IValidations {

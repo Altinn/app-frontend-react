@@ -1,15 +1,20 @@
 import React from 'react';
 
+import { getLanguageFromKey } from 'src/language/sharedLanguage';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { FormComponent } from 'src/layout/LayoutComponent';
+import { attachmentsValid } from 'src/utils/validation/validation';
+import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { IRuntimeState } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { IValidationObject } from 'src/utils/validation/types';
 
 export class FileUpload extends FormComponent<'FileUpload'> {
   render(props: PropsFromGenericComponent<'FileUpload'>): JSX.Element | null {
@@ -32,6 +37,24 @@ export class FileUpload extends FormComponent<'FileUpload'> {
 
   canRenderInTable(): boolean {
     return false;
+  }
+
+  runComponentValidations(node: LayoutNodeFromType<'FileUpload'>): IValidationObject[] {
+    if (node.isHidden()) {
+      return [];
+    }
+
+    const state: IRuntimeState = window.reduxStore.getState();
+    const attachments = state.attachments.attachments;
+    const language = state.language.language ?? {};
+
+    if (!attachmentsValid(attachments, node.item)) {
+      const message = `${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_1', language)} ${
+        node.item.minNumberOfAttachments
+      } ${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_2', language)}`;
+      return [buildValidationObject(node, 'errors', message)];
+    }
+    return [];
   }
 }
 

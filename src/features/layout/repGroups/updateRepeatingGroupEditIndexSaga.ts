@@ -7,17 +7,15 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { Triggers } from 'src/types';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
-import { splitDashedKey } from 'src/utils/formLayout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import {
-  canFormBeSaved,
-  filterValidationsByRow,
-  mapDataElementValidationToRedux,
-  mergeValidationObjects,
-  validateGroup,
-} from 'src/utils/validation/validation';
+  containsErrors,
+  createLayoutValidations,
+  filterValidationObjectsByRowIndex,
+  mapValidationIssues,
+} from 'src/utils/validation/validationHelpers';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/layout/formLayoutTypes';
 import type { IRuntimeState, IValidationIssue, IValidations } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -29,19 +27,17 @@ export function* updateRepeatingGroupEditIndexSaga({
     const state: IRuntimeState = yield select();
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
     const rowIndex = state.formLayout.uiConfig.repeatingGroups?.[group].editIndex;
+    const groupNode = resolvedNodes.findById(group);
 
-    if (validate && typeof rowIndex === 'number' && rowIndex > -1) {
+    if (validate && groupNode?.isType('Group') && typeof rowIndex === 'number' && rowIndex > -1) {
       const validations: IValidations = state.formValidations.validations;
-      const currentView = state.formLayout.uiConfig.currentView;
-
-      const frontendValidations: IValidations = validateGroup(
-        group,
-        state,
+      const frontendValidationObjects = groupNode.def.runGroupValidations(
+        groupNode,
         validate === Triggers.ValidateRow ? rowIndex : undefined,
       );
 
       // Get group's rowIndices to send to server for validations
-      const { depth: rowIndices } = splitDashedKey(group);
+      const rowIndices = groupNode.getRowIndices();
       rowIndices.push(rowIndex);
 
       const options: AxiosRequestConfig = {
@@ -82,26 +78,24 @@ export function* updateRepeatingGroupEditIndexSaga({
         getDataValidationUrl(state.instanceData.instance.id, currentTaskDataId),
         options,
       );
-      const mappedServerValidations: IValidations = mapDataElementValidationToRedux(
-        serverValidations,
-        state.formLayout.layouts,
-        state.textResources.resources,
-      );
+      const serverValidationObjects = mapValidationIssues(serverValidations);
 
-      const combinedValidations = mergeValidationObjects(frontendValidations, mappedServerValidations);
+      const validationObjects = [...frontendValidationObjects, ...serverValidationObjects];
+      const layoutValidations = createLayoutValidations(validationObjects);
 
-      // only overwrite validtions specific to the group - leave all other untouched
+      // only overwrite validations specific to the group - leave all other untouched
+      const pageKey = groupNode.pageKey();
       const newValidations = {
         ...validations,
-        [currentView]: {
-          ...validations[currentView],
-          ...combinedValidations[currentView],
+        [pageKey]: {
+          ...validations[pageKey],
+          ...layoutValidations,
         },
       };
       yield put(ValidationActions.updateValidations({ validations: newValidations }));
-      const rowValidations = filterValidationsByRow(resolvedNodes, combinedValidations, group, rowIndex);
+      const rowValidations = filterValidationObjectsByRowIndex(rowIndex, groupNode.getRowIndices(), validationObjects);
 
-      if (canFormBeSaved({ validations: rowValidations, invalidDataTypes: false })) {
+      if (!containsErrors(rowValidations)) {
         if (shouldAddRow) {
           yield put(FormLayoutActions.repGroupAddRow({ groupId: group }));
         }

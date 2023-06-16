@@ -9,25 +9,21 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
-import { Severity } from 'src/types';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from 'src/utils/databindings';
+import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpPost } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { runClientSideValidation } from 'src/utils/validation/runClientSideValidation';
-import {
-  canFormBeSaved,
-  hasValidationsOfSeverity,
-  mapDataElementValidationToRedux,
-  mergeValidationObjects,
-} from 'src/utils/validation/validation';
+import { canFormBeSaved } from 'src/utils/validation/validation';
+import { containsErrors, createValidations, mapValidationIssues } from 'src/utils/validation/validationHelpers';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { IRuntimeState, IRuntimeStore, IValidationIssue } from 'src/types';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
@@ -39,13 +35,8 @@ const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetada
 export function* submitFormSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
-    const { validationResult, componentSpecificValidations, emptyFieldsValidations } = runClientSideValidation(state);
-
-    validationResult.validations = mergeValidationObjects(
-      validationResult.validations,
-      componentSpecificValidations,
-      emptyFieldsValidations,
-    );
+    const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
+    const validationResult = resolvedNodes.validateForm();
     const { validations } = validationResult;
     if (!canFormBeSaved(validationResult)) {
       yield put(ValidationActions.updateValidations({ validations }));
@@ -64,20 +55,16 @@ export function* submitFormSaga(): SagaIterator {
 function* submitComplete(state: IRuntimeState) {
   // run validations against the datamodel
   const instanceId = state.instanceData.instance?.id;
-  const serverValidation: IValidationIssue[] | undefined = instanceId
+  const serverValidations: IValidationIssue[] | undefined = instanceId
     ? yield call(httpGet, getValidationUrl(instanceId))
     : undefined;
 
   // update validation state
   const layoutState: ILayoutState = yield select(LayoutSelector);
-  const mappedValidations = mapDataElementValidationToRedux(
-    serverValidation,
-    layoutState.layouts,
-    state.textResources.resources,
-  );
-  yield put(ValidationActions.updateValidations({ validations: mappedValidations }));
-  const hasErrors = hasValidationsOfSeverity(mappedValidations, Severity.Error);
-  if (hasErrors) {
+  const validationObjects = mapValidationIssues(serverValidations ?? []);
+  const validations = createValidations(validationObjects);
+  yield put(ValidationActions.updateValidations({ validations }));
+  if (containsErrors(validationObjects)) {
     // we have validation errors or warnings that should be shown, do not submit
     return yield put(FormDataActions.submitRejected({ error: null }));
   }

@@ -1,9 +1,11 @@
 import type { $Values } from 'utility-types';
 
+import { createValidationResult } from 'src/utils/validation/validationHelpers';
+import type { IValidationResult } from 'src/types';
 // import { mergeValidationObjects } from 'src/utils/validation/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { IValidationOutput } from 'src/utils/validation/types';
+import type { IValidationObject } from 'src/utils/validation/types';
 
 /**
  * A tool when you have more than one LayoutPage (i.e. a full layout set). It can help you look up components
@@ -87,6 +89,10 @@ export class LayoutPages<
     return this.objects;
   }
 
+  public allNodes(): LayoutNode[] {
+    return Object.values(this.objects).flatMap((layout) => layout.flat(true));
+  }
+
   public flat<L extends keyof Collection>(exceptLayout?: L) {
     return [
       ...Object.keys(this.objects)
@@ -96,26 +102,26 @@ export class LayoutPages<
     ] as $Values<Omit<Collection, L>>[];
   }
 
-  public runEmptyFieldValidations(): IValidationOutput[] {
-    const validations: IValidationOutput[] = [];
+  public runEmptyFieldValidations(): IValidationObject[] {
+    const validations: IValidationObject[] = [];
     for (const layoutKey of Object.keys(this.objects)) {
       validations.push(...this.objects[layoutKey].runEmptyFieldValidations());
     }
     return validations;
   }
-  public runComponentValidations(): IValidationOutput[] {
-    const validations: IValidationOutput[] = [];
+  public runComponentValidations(): IValidationObject[] {
+    const validations: IValidationObject[] = [];
     for (const layoutKey of Object.keys(this.objects)) {
       validations.push(...this.objects[layoutKey].runComponentValidations());
     }
     return validations;
   }
-  public runSchemaValidations(): IValidationOutput[] {
+  public runSchemaValidations(): IValidationObject[] {
     // TODO: Validate entire schema separately
     return [];
   }
 
-  public runValidations(): IValidationOutput[] {
+  public runValidations(): IValidationObject[] {
     // TODO: Validate entire schema separately
     // const emptyFieldValidations = this.runEmptyFieldValidations();
     // const componentValidations = this.runComponentValidations();
@@ -123,10 +129,15 @@ export class LayoutPages<
     //
     // return mergeValidationObjects(emptyFieldValidations, componentValidations, schemaValidations);
 
-    const validations: IValidationOutput[] = [];
+    const validations: IValidationObject[] = [];
     for (const layoutKey of Object.keys(this.objects)) {
       validations.push(...this.objects[layoutKey].runValidations());
     }
     return validations;
+  }
+
+  public validateForm(): IValidationResult {
+    const validations = this.runValidations();
+    return createValidationResult(validations);
   }
 }

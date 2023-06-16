@@ -1,8 +1,11 @@
-import type { IComponentValidations } from 'src/types';
+import type { ValidationSeverity } from 'src/types';
 
-export type IValidationOutput = {
+export type IValidationObject = {
   pageKey: string;
   componentId: string;
-  validations: IComponentValidations;
+  bindingKey: string;
+  severity: ValidationSeverity;
+  message: string;
   invalidDataTypes: boolean;
+  rowIndices: number[];
 };

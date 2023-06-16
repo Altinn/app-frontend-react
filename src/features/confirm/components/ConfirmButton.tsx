@@ -8,7 +8,7 @@ import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { httpGet } from 'src/utils/network/networking';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { getValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { mapDataElementValidationToRedux } from 'src/utils/validation/validation';
+import { createValidations, mapValidationIssues } from 'src/utils/validation/validationHelpers';
 import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
 import type { ILanguage } from 'src/types/shared';
 
@@ -29,14 +29,15 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
     if (!disabled && instanceId) {
       setValidateId(props.id);
       httpGet(getValidationUrl(instanceId))
-        .then((data: any) => {
-          const mappedValidations = mapDataElementValidationToRedux(data, {}, textResources);
+        .then((serverValidations: any) => {
+          const validationObjects = mapValidationIssues(serverValidations);
+          const validations = createValidations(validationObjects);
           dispatch(
             ValidationActions.updateValidations({
-              validations: mappedValidations,
+              validations,
             }),
           );
-          if (data.length === 0) {
+          if (serverValidations.length === 0) {
             if (processActionsFeature) {
               dispatch(ProcessActions.complete({ componentId: props.id, action: 'confirm' }));
             } else {

@@ -449,7 +449,7 @@ export function validateFormComponentsForNodes(
   return validations;
 }
 
-function attachmentsValid(attachments: any, component: any): boolean {
+export function attachmentsValid(attachments: any, component: any): boolean {
   return (
     component.minNumberOfAttachments === 0 ||
     (attachments && attachments[component.id] && attachments[component.id].length >= component.minNumberOfAttachments)
@@ -915,23 +915,21 @@ export function findComponentFromValidationIssue(
 
 export function filterValidationsByRow(
   nodes: LayoutPages,
-  validations: IValidations,
+  validations: ILayoutValidations,
   groupId: string,
   rowIndex?: number,
-): IValidations {
+): ILayoutValidations {
   if (!nodes || typeof rowIndex === 'undefined') {
     return validations;
   }
 
   const groupNode = nodes.findById(groupId);
   const childIds = new Set(groupNode?.flat(false, rowIndex).map((child) => child.item.id));
-  const filteredValidations = JSON.parse(JSON.stringify(validations)) as IValidations;
+  const filteredValidations = structuredClone(validations);
 
-  for (const layout of Object.keys(filteredValidations)) {
-    for (const componentId of Object.keys(filteredValidations[layout])) {
-      if (!childIds?.has(componentId)) {
-        delete filteredValidations[layout][componentId];
-      }
+  for (const componentId of Object.keys(filteredValidations)) {
+    if (!childIds?.has(componentId)) {
+      delete filteredValidations[componentId];
     }
   }
 

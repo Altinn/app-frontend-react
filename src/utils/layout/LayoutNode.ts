@@ -349,4 +349,18 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
 
     return formDataObj;
   }
+
+  public getRowIndices(): number[] {
+    const rowIndices: number[] = [];
+    if (typeof this.rowIndex !== 'undefined') {
+      rowIndices.splice(0, 0, this.rowIndex);
+    }
+    if (this.parent instanceof LayoutNode) {
+      const parentIndices = this.parent.getRowIndices();
+      if (parentIndices) {
+        rowIndices.splice(0, 0, ...parentIndices);
+      }
+    }
+    return rowIndices;
+  }
 }

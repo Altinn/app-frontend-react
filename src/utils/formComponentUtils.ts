@@ -147,7 +147,7 @@ export function getFieldName(
   language: ILanguage,
   fieldKey?: string,
 ): string | undefined {
-  if (fieldKey) {
+  if (fieldKey && fieldKey !== 'simpleBinding') {
     return smartLowerCaseFirst(
       getTextFromAppOrDefault(`form_filler.${fieldKey}`, textResources, language, undefined, true),
     );

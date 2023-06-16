@@ -5,12 +5,12 @@ import { ComponentConfigs } from 'src/layout/components';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentTypes, IGrid } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
-import type { IComponentValidations } from 'src/types';
+import type { IComponentValidationResult, IComponentValidations, ILayoutValidationResult } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationOutput } from 'src/utils/validation/types';
+import type { IValidationObject } from 'src/utils/validation/types';
 
 export type ComponentClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -84,10 +84,11 @@ export function getLayoutComponentObject<T extends keyof ComponentClassMap>(type
 export type DefGetter = typeof getLayoutComponentObject;
 
 export interface NodeValidation {
-  runEmptyFieldValidation: (node: LayoutNode) => IValidationOutput;
-  runComponentValidation: (node: LayoutNode) => IValidationOutput;
-  runSchemaValidation: (node: LayoutNode) => IValidationOutput;
-  runValidations: (node: LayoutNode) => IValidationOutput;
+  runEmptyFieldValidation: (node: LayoutNode) => IValidationObject[];
+  runComponentValidation: (node: LayoutNode) => IValidationObject[];
+  runSchemaValidation: (node: LayoutNode) => IValidationObject[];
+  runValidations: (node: LayoutNode) => IValidationObject[];
+  validateComponent: (node: LayoutNode) => IComponentValidationResult;
 }
 
 export function implementsNodeValidation<Type extends ComponentTypes>(
@@ -97,16 +98,18 @@ export function implementsNodeValidation<Type extends ComponentTypes>(
     'runEmptyFieldValidation' in component &&
     'runComponentValidation' in component &&
     'runSchemaValidation' in component &&
-    'runValidations' in component
+    'runValidations' in component &&
+    'validateComponent' in component
   );
 }
 
 export interface GroupValidation {
-  runGroupValidations: (node: LayoutNode, onlyInRowIndex?: number) => IValidationOutput[];
+  runGroupValidations: (node: LayoutNode, onlyInRowIndex?: number) => IValidationObject[];
+  validateGroup: (node: LayoutNode, onlyinRowIndex?: number) => ILayoutValidationResult;
 }
 
 export function implementsGroupValidation<Type extends ComponentTypes>(
   component: AnyComponent<Type>,
 ): component is typeof component & GroupValidation {
-  return 'runGroupValidations' in component;
+  return 'runGroupValidations' in component && 'validateGroup' in component;
 }
