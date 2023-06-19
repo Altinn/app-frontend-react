@@ -132,7 +132,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
   });
 
-  it.only('Validation on repeating group for minCount', () => {
+  it('Validation on repeating group for minCount', () => {
     // set minCount to 3 on main group
     cy.interceptLayout('group', (component) => {
       if (component.type === 'Group' && component.edit && component.id === 'mainGroup') {
@@ -141,21 +141,31 @@ describe('Group', () => {
     });
 
     init();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
 
     // add row to main group
-    cy.addItemToGroup(1, 2, 'automation', false);
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
     // assert error message to exist
     cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
 
     // add row to main group
-    cy.addItemToGroup(3, 4, 'automation', false);
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
     // assert error message to exist
     cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
 
     // add row to main group
-    cy.addItemToGroup(3, 4, 'automation', false);
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
 
     // assert error message to not exist
     cy.get(appFrontend.group.tableErrors).should('not.exist');
