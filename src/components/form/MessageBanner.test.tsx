@@ -6,21 +6,9 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { renderWithProviders } from 'src/testUtils';
 import type { ValidLanguageKey } from 'src/hooks/useLanguage';
-import type { ILanguage } from 'src/types/shared';
 
 describe('MessageBanner', () => {
-  const descriptionText = 'Obligatoriske felter er merket med *';
-  const mockLanguage: ILanguage = {
-    form_filler: {
-      required_description: descriptionText,
-    },
-  };
-  const mockState = getInitialStateMock({
-    language: {
-      language: mockLanguage,
-      error: null,
-    },
-  });
+  const mockState = getInitialStateMock();
   const mockMessageKey: ValidLanguageKey = 'form_filler.required_description';
 
   it('should have grey background by default', () => {

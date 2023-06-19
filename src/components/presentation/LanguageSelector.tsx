@@ -9,8 +9,7 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { useGetAppLanguageQuery } from 'src/services/LanguageApi';
 
 export const LanguageSelector = () => {
-  const { langAsString } = useLanguage();
-  const { selectedLanguage } = useLanguage();
+  const { langAsString, selectedLanguage } = useLanguage();
 
   const { data: appLanguages, isError: appLanguageError } = useGetAppLanguageQuery();
   const dispatch = useAppDispatch();

@@ -111,10 +111,6 @@ const render = ({ dispatch = jest.fn() }: Props = {}) => {
           ],
         },
       };
-      state.language = {
-        language: {},
-        error: null,
-      };
     },
     manipulateStore: (store) => {
       store.dispatch = dispatch;

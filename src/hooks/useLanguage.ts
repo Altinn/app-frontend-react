@@ -11,6 +11,7 @@ import type { ILanguage } from 'src/types/shared';
 type ValidParam = string | number | undefined;
 
 export interface IUseLanguage {
+  language: ILanguage;
   selectedLanguage: string;
   lang(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string | JSX.Element | JSX.Element[] | null;
   langAsString(key: ValidLanguageKey | string | undefined, params?: ValidParam[]): string;
@@ -53,13 +54,12 @@ const defaultLocale = 'nb';
  */
 export function useLanguage() {
   const textResources = useAppSelector((state) => state.textResources.resources);
-  const language = useAppSelector((state) => state.language.language);
   const profileLanguage = useAppSelector((state) => state.profile.profile.profileSettingPreference.language);
   const selectedAppLanguage = useAppSelector((state) => state.profile.selectedAppLanguage);
 
   return useMemo(
-    () => staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage),
-    [language, profileLanguage, selectedAppLanguage, textResources],
+    () => staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage),
+    [profileLanguage, selectedAppLanguage, textResources],
   );
 }
 
@@ -68,11 +68,10 @@ export function useLanguage() {
  */
 export function staticUseLanguageFromState(state: IRuntimeState) {
   const textResources = state.textResources.resources;
-  const language = state.language.language;
   const profileLanguage = state.profile.profile.profileSettingPreference.language;
   const selectedAppLanguage = state.profile.selectedAppLanguage;
 
-  return staticUseLanguage(textResources, language, selectedAppLanguage, profileLanguage);
+  return staticUseLanguage(textResources, null, selectedAppLanguage, profileLanguage);
 }
 
 interface ILanguageState {
@@ -102,8 +101,8 @@ function staticUseLanguage(
   selectedAppLanguage: string | undefined,
   profileLanguage: string | undefined,
 ): IUseLanguage {
-  const language = _language || getLanguageFromCode(defaultLocale);
   const langKey = selectedAppLanguage || profileLanguage || defaultLocale;
+  const language = _language || getLanguageFromCode(langKey);
 
   /**
    * TODO: Replace parameters when passed to text resources (e.g. {0}, {1}, etc.) with the actual values. Text resources
@@ -117,6 +116,7 @@ function staticUseLanguage(
    */
 
   return {
+    language,
     selectedLanguage: langKey,
     lang: (key, params) => {
       if (!key) {

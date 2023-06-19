@@ -21,14 +21,13 @@ const defaultDataList: any[] = [];
 export const ListComponent = ({ node, formData, handleDataChange, legend }: IListProps) => {
   const { tableHeaders, id, pagination, sortableColumns, tableHeadersMobile } = node.item;
   const classes = useRadioStyles();
-  const { langAsString } = useLanguage();
+  const { langAsString, language } = useLanguage();
   const RenderLegend = legend;
   const dynamicDataList = useGetDataList({ id });
   const calculatedDataList = dynamicDataList || defaultDataList;
   const defaultPagination = pagination ? pagination.default : 0;
   const rowsPerPage = useAppSelector((state) => state.dataListState.dataLists[id]?.size || defaultPagination);
   const currentPage = useAppSelector((state) => state.dataListState.dataLists[id]?.pageNumber || 0);
-  const language = useAppSelector((state) => state.language.language);
 
   const sortColumn = useAppSelector((state) => state.dataListState.dataLists[id]?.sortColumn || null);
   const sortDirection = useAppSelector(

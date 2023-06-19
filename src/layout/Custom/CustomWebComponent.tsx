@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -30,13 +29,13 @@ export function CustomWebComponent({
   ...passThroughPropsFromGenericComponent
 }: ICustomComponentProps) {
   const langTools = useLanguage();
+  const { language, langAsString } = langTools;
   const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = node.item;
-  const language = useAppSelector((state) => state.language.language);
   const passThroughProps: IPassedOnProps = {
     ...passThroughPropsFromGenericComponent,
     ...passThroughPropsFromNode,
-    text: langTools.langAsString(textResourceBindings?.title),
-    getTextResourceAsString: (textResource: string) => langTools.langAsString(textResource),
+    text: langAsString(textResourceBindings?.title),
+    getTextResourceAsString: (textResource: string) => langAsString(textResource),
   };
   const Tag = tagName;
   const wcRef = React.useRef<any>(null);
