@@ -107,6 +107,7 @@ describe('utils > validation', () => {
           minLength: 'length must be bigger than {0}',
           min: 'must be bigger than {0}',
           pattern: 'Feil format eller verdi',
+          minItems: 'Du må legge til minst {0} rader',
         },
         date_picker: {
           invalid_date_message: 'Invalid date format. Use the format {0}.',
@@ -768,7 +769,6 @@ describe('utils > validation', () => {
           group1: {
             group: {
               errors: [],
-              warnings: [],
             },
           },
         },
@@ -800,7 +800,6 @@ describe('utils > validation', () => {
           group1: {
             group: {
               errors: [],
-              warnings: [],
             },
           },
         },
@@ -2657,6 +2656,56 @@ describe('utils > validation', () => {
       expect(validations.simpleBinding).toEqual({
         errors: [`Invalid date format. Use the format DD.MM.YYYY.`],
         warnings: [],
+      });
+    });
+  });
+  describe('validateRepeatingGroup', () => {
+    it('should return validation object with errors for repeating group if number of rows is less than minCount', () => {
+      const mockRepeatingGroupNode = {
+        id: 'group1',
+        item: {
+          minCount: 2,
+          maxCount: 3,
+          rows: [
+            {
+              id: 'group1-0',
+              baseComponentId: 'group1',
+              children: [],
+              hidden: false,
+            },
+          ],
+        },
+      };
+      const validations = validation.validateRepeatingGroup(mockRepeatingGroupNode, mockLanguage.language);
+      expect(validations).toEqual({
+        group: {
+          errors: ['Du må legge til minst 2 rader'],
+        },
+      });
+    });
+    it('should return empty validation object if number of rows is greater or equal to minCount', () => {
+      const mockRepeatingGroupNode = {
+        id: 'group1',
+        item: {
+          minCount: 2,
+          maxCount: 3,
+          rows: [
+            {
+              id: 'group1-0',
+              groupExpressions: { hiddenRow: false },
+            },
+            {
+              id: 'group1-1',
+              groupExpressions: { hiddenRow: false },
+            },
+          ],
+        },
+      };
+      const validations = validation.validateRepeatingGroup(mockRepeatingGroupNode, mockLanguage.language);
+      expect(validations).toEqual({
+        group: {
+          errors: [],
+        },
       });
     });
   });

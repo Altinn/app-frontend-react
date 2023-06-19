@@ -454,7 +454,7 @@ function validateFormComponentsForNodes(
     }
 
     if (node.isRepGroup()) {
-      const repeatingGroupComponentValidations = validateRepeatingGroupVisibleRows(node, language);
+      const repeatingGroupComponentValidations = validateRepeatingGroup(node, language);
       validations[node.item.id] = repeatingGroupComponentValidations;
     }
   }
@@ -1352,17 +1352,17 @@ export function validateGroup(groupId: string, state: IRuntimeState, onlyInRowIn
 }
 
 /*
- * Validates a repeating groups number of visible rows.
+ * Validates a repeating groups component specific validations
  * @param node the node to validate
  * @param language the current language
  */
-function validateRepeatingGroupVisibleRows(node, language: ILanguage): IComponentValidations {
-  const validations: IComponentBindingValidation = { errors: [], warnings: [] };
+export function validateRepeatingGroup(node, language: ILanguage): IComponentValidations {
+  const validations: IComponentBindingValidation = { errors: [] };
   // check if minCount is less than visible rows
   const repeatingGroupComponent = node.item;
   const repeatingGroupMinCount = repeatingGroupComponent.minCount || 0;
   const repeatingGroupVisibleRows = repeatingGroupComponent.rows.filter(
-    (row) => !row.groupExpressions.hiddenRow,
+    (row) => !row.groupExpressions?.hiddenRow,
   ).length;
 
   const repeatingGroupMinCountValid = repeatingGroupMinCount <= repeatingGroupVisibleRows;
@@ -1380,6 +1380,7 @@ function validateRepeatingGroupVisibleRows(node, language: ILanguage): IComponen
 
   return { group: validations };
 }
+
 /*
  * Removes the validations for a given group index and shifts higher indexes if necessary.
  * @param id the group id
