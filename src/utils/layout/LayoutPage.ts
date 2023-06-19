@@ -1,5 +1,9 @@
 import { implementsNodeValidation } from 'src/layout';
-import { createLayoutValidationResult } from 'src/utils/validation/validationHelpers';
+import {
+  buildValidationObject,
+  createLayoutValidationResult,
+  getSchemaValidationErrors,
+} from 'src/utils/validation/validationHelpers';
 import type { ILayoutValidationResult } from 'src/types';
 import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -154,21 +158,35 @@ export class LayoutPage implements LayoutObject {
     return validations;
   }
   public runSchemaValidations(): IValidationObject[] {
-    const validations: IValidationObject[] = [];
-    for (const child of this.allChildren) {
-      if (implementsNodeValidation(child.def)) {
-        validations.push(...child.def.runSchemaValidation(child as any));
+    const visibleChildren = this.allChildren.filter((node) => !node.isHidden());
+    const schemaErrors = getSchemaValidationErrors();
+    const validationObjects: IValidationObject[] = [];
+    for (const error of schemaErrors) {
+      for (const node of visibleChildren) {
+        if (node.item.dataModelBindings) {
+          const bindings = Object.entries(node.item.dataModelBindings);
+          for (const [bindingKey, bindingField] of bindings) {
+            if (bindingField === error.bindingField) {
+              validationObjects.push(
+                buildValidationObject(node, 'errors', error.message, bindingKey, error.invalidDataType),
+              );
+            }
+          }
+        }
       }
     }
-    return validations;
+
+    return validationObjects;
   }
   public runValidations(): IValidationObject[] {
     const validations: IValidationObject[] = [];
     for (const child of this.allChildren) {
       if (implementsNodeValidation(child.def)) {
-        validations.push(...child.def.runValidations(child as any));
+        validations.push(...child.def.runEmptyFieldValidation(child as any));
+        validations.push(...child.def.runComponentValidation(child as any));
       }
     }
+    validations.push(...this.runSchemaValidations());
     return validations;
   }
   public validatePage(): ILayoutValidationResult {

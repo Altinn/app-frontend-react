@@ -1,7 +1,19 @@
+import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
 import { Severity, Triggers } from 'src/types';
+import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
+import { convertDataBindingToModel } from 'src/utils/databindings';
 import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
+import {
+  errorMessageKeys,
+  getSchemaPart,
+  getSchemaPartOldGenerator,
+  getValidator,
+  isOneOfError,
+  processInstancePath,
+} from 'src/utils/validation/validation';
 import { validationTexts } from 'src/utils/validation/validationTexts';
+import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 import type {
   IComponentValidationResult,
   IComponentValidations,
@@ -17,7 +29,7 @@ import type {
 } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationObject } from 'src/utils/validation/types';
+import type { ISchemaValidationError, IValidationObject } from 'src/utils/validation/types';
 
 export const severityMap: { [s in Severity]: ValidationSeverity } = {
   [Severity.Error]: 'errors',
@@ -321,4 +333,64 @@ export function mapValidationIssues(issues: IValidationIssue[]): IValidationObje
     }
   }
   return validationOutputs;
+}
+
+export function getSchemaValidationErrors(): ISchemaValidationError[] {
+  const state: IRuntimeState = window.reduxStore.getState();
+
+  const language = state.language.language ?? {};
+  const textResources = state.textResources.resources;
+
+  const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
+    application: state.applicationMetadata.applicationMetadata,
+    instance: state.instanceData.instance,
+    layoutSets: state.formLayout.layoutsets,
+  });
+  const { validator, rootElementPath, schema } = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
+  const formData = convertDataBindingToModel(state.formData.formData);
+  const valid = validator.validate(`schema${rootElementPath}`, formData);
+
+  if (valid) {
+    return [];
+  }
+  const validationErrors: ISchemaValidationError[] = [];
+
+  for (const error of validator.errors || []) {
+    // Required fields are handled separately
+    if (error.keyword === 'required') {
+      continue;
+    }
+
+    if (isOneOfError(error)) {
+      continue;
+    }
+    const invalidDataType = error.keyword === 'type' || error.keyword === 'format';
+
+    let errorParams = error.params[errorMessageKeys[error.keyword]?.paramKey];
+    if (errorParams === undefined) {
+      console.warn(`WARN: Error message for ${error.keyword} not implemented`);
+    }
+    if (Array.isArray(errorParams)) {
+      errorParams = errorParams.join(', ');
+    }
+
+    // backward compatible if we are validating against a sub scheme.
+    const fieldSchema = rootElementPath
+      ? getSchemaPartOldGenerator(error.schemaPath, schema, rootElementPath)
+      : getSchemaPart(error.schemaPath, schema);
+
+    const errorMessage = fieldSchema?.errorMessage
+      ? getTextResourceByKey(fieldSchema.errorMessage, textResources)
+      : getParsedLanguageFromKey(
+          `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
+          language,
+          [errorParams],
+          true,
+        );
+
+    const field = processInstancePath(error.instancePath);
+    validationErrors.push({ message: errorMessage, bindingField: field, invalidDataType });
+  }
+
+  return validationErrors;
 }

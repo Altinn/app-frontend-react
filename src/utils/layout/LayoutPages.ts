@@ -1,6 +1,10 @@
 import type { $Values } from 'utility-types';
 
-import { createValidationResult } from 'src/utils/validation/validationHelpers';
+import {
+  buildValidationObject,
+  createValidationResult,
+  getSchemaValidationErrors,
+} from 'src/utils/validation/validationHelpers';
 import type { IValidationResult } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -116,17 +120,34 @@ export class LayoutPages<
     return validations;
   }
   public runSchemaValidations(): IValidationObject[] {
-    // TODO: Validate entire schema separately
-    return [];
+    const visibleNodes = this.allNodes().filter((node) => !node.isHidden());
+    const schemaErrors = getSchemaValidationErrors();
+    const validationObjects: IValidationObject[] = [];
+    for (const error of schemaErrors) {
+      for (const node of visibleNodes) {
+        if (node.item.dataModelBindings) {
+          const bindings = Object.entries(node.item.dataModelBindings);
+          for (const [bindingKey, bindingField] of bindings) {
+            if (bindingField === error.bindingField) {
+              validationObjects.push(
+                buildValidationObject(node, 'errors', error.message, bindingKey, error.invalidDataType),
+              );
+            }
+          }
+        }
+      }
+    }
+
+    return validationObjects;
   }
 
   public runValidations(): IValidationObject[] {
-    // TODO: Validate entire schema separately
-
     const validations: IValidationObject[] = [];
     for (const layoutKey of Object.keys(this.objects)) {
-      validations.push(...this.objects[layoutKey].runValidations());
+      validations.push(...this.objects[layoutKey].runEmptyFieldValidations());
+      validations.push(...this.objects[layoutKey].runComponentValidations());
     }
+    validations.push(...this.runSchemaValidations());
     return validations;
   }
 
