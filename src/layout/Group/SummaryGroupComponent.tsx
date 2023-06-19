@@ -30,14 +30,14 @@ export function SummaryGroupComponent({
 }: ISummaryGroupComponent) {
   const excludedChildren = summaryNode.item.excludedChildren;
   const display = overrides?.display || summaryNode.item.display;
-  const { lang, langAsString, langAsStringOrEmpty } = useLanguage();
+  const { lang, langAsString } = useLanguage();
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren &&
     (excludedChildren.includes(n.item.id) || excludedChildren.includes(`${n.item.baseComponentId}`));
 
   const groupHasErrors = targetNode.hasDeepValidationMessages();
-  const title = langAsStringOrEmpty(targetNode.item.textResourceBindings?.title);
+  const title = langAsString(targetNode.item.textResourceBindings?.title);
 
   const rowIndexes: (number | undefined)[] = [];
   if (targetNode.isRepGroup()) {
