@@ -67,6 +67,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
         color='danger'
         icon={<TrashIcon aria-hidden={true} />}
         iconPlacement='right'
+        data-testid='attachment-delete'
       >
         {!props.mobileView && lang('general.delete')}
       </Button>
@@ -123,6 +124,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
                   aria-hidden={!props.mobileView}
                   aria-label={langAsString('form_filler.file_uploader_list_status_done')}
                   className={classes.checkMark}
+                  data-testid='checkmark-success'
                 />
               </div>
             )}

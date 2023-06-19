@@ -162,6 +162,8 @@ export class AppFrontend {
     sources: '#sources',
     uploadingAnimation: '#loader-upload',
     deleteAttachment: '[data-testid^="attachment-delete"]',
+    popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
+    popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     uploadedTable: '#altinn-file-listfileUpload-changename',
     downloadAttachment: '[data-testid="attachment-download"]',
     uploadSuccess: '[data-testid="checkmark-success"]',

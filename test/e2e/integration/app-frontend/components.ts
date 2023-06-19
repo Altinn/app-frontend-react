@@ -39,6 +39,23 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
   });
 
+  it('is possible to add delete confirmation for uploaded files: only proceeds on user confirmation', () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.id === 'fileUpload-changename' && component.type === 'FileUpload') {
+        component.alertOnDelete = true;
+      }
+    });
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+    cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
+    cy.get(appFrontend.changeOfName.deleteAttachment).click();
+    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.get(appFrontend.changeOfName.uploadedTable).should('exist');
+    cy.get(appFrontend.changeOfName.deleteAttachment).click();
+    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.get(appFrontend.changeOfName.uploadedTable).should('not.exist');
+  });
+
   it('is possible to download attachments that are uploaded', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
@@ -78,6 +95,23 @@ describe('UI Components', () => {
     cy.snapshot('components:attachment-with-tags');
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).find('button:contains("Slett")').click();
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
+  });
+
+  it('is possible to add delete confirmation for uploaded files with tag: only proceeds on user confirmation', () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.id === 'fileUploadWithTags-changename' && component.type === 'FileUploadWithTag') {
+        component.alertOnDelete = true;
+      }
+    });
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+    cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
+    cy.get(appFrontend.changeOfName.deleteAttachment).click();
+    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+    cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('exist');
+    cy.get(appFrontend.changeOfName.deleteAttachment).click();
+    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+    cy.get(appFrontend.changeOfName.uploadedTable).should('not.exist');
   });
 
   it('is possible to download attachments with tags that are uploaded', () => {
