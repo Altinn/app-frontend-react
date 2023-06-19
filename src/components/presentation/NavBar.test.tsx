@@ -122,7 +122,9 @@ describe('NavBar', () => {
     await act(() => dropdown.click());
     const en = screen.getByText(/Engelsk/i, { selector: '[role=option]' });
     await act(() => en.click());
-    expect(dropdown).toHaveValue('Engelsk');
+
+    // Language now changed, so the value should be the language name in the selected language
+    expect(dropdown).toHaveValue('English');
   });
   it('should render app language with custom labels', async () => {
     renderNavBar({
