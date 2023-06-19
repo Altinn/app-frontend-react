@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
+import { Button } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import { CheckmarkCircleFillIcon, TrashIcon } from '@navikt/aksel-icons';
 import classNames from 'classnames';
@@ -37,16 +37,14 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleDeleteClick = () => {
-    if (alertOnDelete) {
-      setPopoverOpen(!popoverOpen);
-    } else {
-      handleDeleteFile();
-    }
+    alertOnDelete ? setPopoverOpen(!popoverOpen) : handleDeleteFile();
   };
+
   const handlePopoverDeleteClick = () => {
     setPopoverOpen(false);
     handleDeleteFile();
   };
+
   const handleDeleteFile = () => {
     dispatch(
       AttachmentActions.deleteAttachment({
@@ -60,6 +58,36 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   };
 
   const saveIsDisabled = props.attachment.updating === true || props.attachment.uploaded === false || readOnly;
+
+  const DeleteButton = () => {
+    const deleteButton = (
+      <Button
+        onClick={() => handleDeleteClick()}
+        variant='quiet'
+        color='danger'
+        icon={<TrashIcon aria-hidden={true} />}
+        iconPlacement='right'
+      >
+        {!props.mobileView && lang('general.delete')}
+      </Button>
+    );
+    if (alertOnDelete) {
+      return (
+        <DeleteWarningPopover
+          trigger={deleteButton}
+          onPopoverDeleteClick={() => handlePopoverDeleteClick()}
+          placement='left'
+          onCancelClick={() => setPopoverOpen(false)}
+          deleteButtonText={langAsString('form_filler.file_uploader_delete_button_confirm')}
+          messageText={langAsString('form_filler.file_uploader_delete_warning')}
+          open={popoverOpen}
+          setOpen={setPopoverOpen}
+        />
+      );
+    } else {
+      return deleteButton;
+    }
+  };
 
   return (
     <div
@@ -108,34 +136,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
               />
             )}
             <div>
-              {(() => {
-                const deleteButton = (
-                  <Button
-                    onClick={() => handleDeleteClick()}
-                    variant={ButtonVariant.Quiet}
-                    color={ButtonColor.Danger}
-                    icon={<TrashIcon aria-hidden={true} />}
-                    iconPlacement='right'
-                  >
-                    {!props.mobileView && lang('general.delete')}
-                  </Button>
-                );
-                if (alertOnDelete) {
-                  return (
-                    <DeleteWarningPopover
-                      trigger={deleteButton}
-                      onPopoverDeleteClick={() => handlePopoverDeleteClick()}
-                      onCancelClick={() => setPopoverOpen(false)}
-                      deleteButtonText={langAsString('general.delete')}
-                      messageText={langAsString('form_filler.file_uploader_delete_file_warning')}
-                      open={popoverOpen}
-                      setOpen={setPopoverOpen}
-                    />
-                  );
-                } else {
-                  return deleteButton;
-                }
-              })()}
+              <DeleteButton />
             </div>
           </div>
         </Grid>

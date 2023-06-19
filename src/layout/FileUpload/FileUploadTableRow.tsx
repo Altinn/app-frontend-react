@@ -39,24 +39,19 @@ export function FileUploadTableRow({
   const [popoverOpen, setPopoverOpen] = useState(false);
   const dispatch = useAppDispatch();
 
-  function handlePopoverDeleteClick() {
+  const handleDeleteClick = () => {
+    alertOnDelete ? setPopoverOpen(!popoverOpen) : handleDeleteFile();
+  };
+
+  const handlePopoverDeleteClick = () => {
     setPopoverOpen(false);
     handleDeleteFile();
-  }
-
-  function handleDeleteClick() {
-    if (alertOnDelete) {
-      setPopoverOpen(!popoverOpen);
-    } else {
-      handleDeleteFile();
-    }
-  }
+  };
 
   const handleDeleteFile = () => {
-    const attachmentToDelete = attachment;
     dispatch(
       AttachmentActions.deleteAttachment({
-        attachment: attachmentToDelete,
+        attachment,
         attachmentType: baseComponentId || id,
         componentId: id,
         dataModelBindings,
@@ -126,7 +121,7 @@ export function FileUploadTableRow({
     );
   };
 
-  const DeleteCellContent = ({ attachment, index }: { attachment: { deleting: boolean }; index: number }) => (
+  const DeleteCellContent = () => (
     <>
       {attachment.deleting ? (
         <AltinnLoader
@@ -135,42 +130,42 @@ export function FileUploadTableRow({
           srContent={langAsString('general.loading')}
         />
       ) : (
-        <DeleteButton index={index} />
+        <DeleteButton />
       )}
     </>
   );
 
-  const deleteButton = ({ index }: { index: number }) => (
-    <Button
-      className={classes.deleteButton}
-      size='small'
-      variant='quiet'
-      color='danger'
-      onClick={() => handleDeleteClick()}
-      icon={<TrashIcon aria-hidden={true} />}
-      iconPlacement='right'
-      data-testid={`attachment-delete-${index}`}
-      aria-label={langAsString('general.delete')}
-    >
-      {!mobileView && lang('form_filler.file_uploader_list_delete')}
-    </Button>
-  );
-  const DeleteButton = ({ index }: { index: number }) => {
+  const DeleteButton = () => {
+    const deleteButton = (
+      <Button
+        className={classes.deleteButton}
+        size='small'
+        variant='quiet'
+        color='danger'
+        onClick={() => handleDeleteClick()}
+        icon={<TrashIcon aria-hidden={true} />}
+        iconPlacement='right'
+        data-testid={`attachment-delete-${index}`}
+        aria-label={langAsString('general.delete')}
+      >
+        {!mobileView && lang('form_filler.file_uploader_list_delete')}
+      </Button>
+    );
     if (alertOnDelete) {
       return (
         <DeleteWarningPopover
-          trigger={deleteButton({ index })}
+          trigger={deleteButton}
           placement='left'
           onPopoverDeleteClick={() => handlePopoverDeleteClick()}
           onCancelClick={() => setPopoverOpen(false)}
-          deleteButtonText={langAsString('general.delete')}
-          messageText={langAsString('form_filler.file_uploader_delete_attachment')}
+          deleteButtonText={langAsString('form_filler.file_uploader_delete_button_confirm')}
+          messageText={langAsString('form_filler.file_uploader_delete_warning')}
           open={popoverOpen}
           setOpen={setPopoverOpen}
         />
       );
     } else {
-      return deleteButton({ index });
+      return deleteButton;
     }
   };
 
@@ -189,10 +184,7 @@ export function FileUploadTableRow({
         <StatusCellContent attachment={attachment} />
       </td>
       <td>
-        <DeleteCellContent
-          attachment={attachment}
-          index={index}
-        />
+        <DeleteCellContent />
       </td>
     </tr>
   );

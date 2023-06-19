@@ -208,7 +208,7 @@
           "minimum": 0
         },
         "alertOnDelete": {
-          "$ref": "#/definitions/alertOnChange"
+          "$ref": "#/definitions/alertOnDelete"
         },
         "displayMode": {
           "title": "Display mode",
@@ -705,7 +705,7 @@
           ]
         },
         "alertOnDelete": {
-          "$ref": "#/definitions/alertOnChange"
+          "$ref": "#/definitions/alertOnDelete"
         }
       }
     },
@@ -849,9 +849,6 @@
           "items": {
             "$ref": "#/definitions/options"
           }
-        },
-        "alertOnDelete": {
-          "$ref": "#/definitions/alertOnChange"
         },
         "preselectedOptionIndex": {
           "type": "integer",
@@ -1219,10 +1216,10 @@
         }
       }
     },
-    "alertOnChange":{
+    "alertOnDelete":{
         "type": "boolean",
-        "title": "Alert on change",
-        "description": "Boolean value indicating if warning popup should be displayed when attempting to change an element",
+        "title": "Alert on delete",
+        "description": "Boolean value indicating if warning popup should be displayed when attempting to delete an element",
         "default": false
     },
     "listComponent": {

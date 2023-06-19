@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, ButtonColor, ButtonVariant, Popover, PopoverVariant } from '@digdir/design-system-react';
+import { Button, Popover } from '@digdir/design-system-react';
 import { makeStyles } from '@material-ui/core';
 
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -38,7 +38,7 @@ export function DeleteWarningPopover({
   const { lang } = useLanguage();
   return (
     <Popover
-      variant={PopoverVariant.Warning}
+      variant='warning'
       placement={placement}
       trigger={trigger}
       open={open}
@@ -48,16 +48,16 @@ export function DeleteWarningPopover({
       <div className={classes.popoverButtonContainer}>
         <Button
           data-testid='warning-popover-delete-button'
-          variant={ButtonVariant.Filled}
-          color={ButtonColor.Danger}
+          variant='filled'
+          color='danger'
           onClick={onPopoverDeleteClick}
         >
           {deleteButtonText}
         </Button>
         <Button
           data-testid='warning-popover-cancel-button'
-          variant={ButtonVariant.Quiet}
-          color={ButtonColor.Secondary}
+          variant='quiet'
+          color='secondary'
           onClick={onCancelClick}
         >
           {lang('general.cancel')}

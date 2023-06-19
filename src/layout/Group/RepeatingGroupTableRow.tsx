@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Button, ButtonColor, ButtonVariant, TableCell, TableRow } from '@digdir/design-system-react';
+import { Button, TableCell, TableRow } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
@@ -64,11 +64,7 @@ function handleDeleteClick(
   onDeleteClick: () => void,
   alertOnDelete?: boolean,
 ) {
-  if (alertOnDelete) {
-    setOpen(!open);
-  } else {
-    onDeleteClick();
-  }
+  alertOnDelete ? setOpen(!open) : onDeleteClick();
 }
 
 function handlePopoverDeleteClick(setOpen: (open: boolean) => void, onDeleteClick: () => void) {
@@ -220,8 +216,8 @@ export function RepeatingGroupTableRow({
                 <Button
                   aria-expanded={isEditingRow}
                   aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-                  variant={ButtonVariant.Quiet}
-                  color={ButtonColor.Secondary}
+                  variant='quiet'
+                  color='secondary'
                   icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                   iconPlacement='right'
                   onClick={onEditClick}
@@ -244,8 +240,8 @@ export function RepeatingGroupTableRow({
                 {(() => {
                   const deleteButton = (
                     <Button
-                      variant={ButtonVariant.Quiet}
-                      color={ButtonColor.Danger}
+                      variant='quiet'
+                      color='danger'
                       icon={<DeleteIcon aria-hidden='true' />}
                       iconPlacement='right'
                       disabled={deleting}
@@ -295,8 +291,8 @@ export function RepeatingGroupTableRow({
               <Button
                 aria-expanded={isEditingRow}
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-                variant={ButtonVariant.Quiet}
-                color={ButtonColor.Secondary}
+                variant='quiet'
+                color='secondary'
                 icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 iconPlacement='right'
                 onClick={onEditClick}
@@ -313,8 +309,8 @@ export function RepeatingGroupTableRow({
                 {(() => {
                   const deleteButton = (
                     <Button
-                      variant={ButtonVariant.Quiet}
-                      color={ButtonColor.Danger}
+                      variant='quiet'
+                      color='danger'
                       icon={<DeleteIcon aria-hidden='true' />}
                       iconPlacement='right'
                       disabled={deleting}
@@ -336,7 +332,6 @@ export function RepeatingGroupTableRow({
                         placement='left'
                         deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
                         messageText={langAsString('group.row_popover_delete_message')}
-                        // eslint-disable-next-line @typescript-eslint/no-empty-function
                         onCancelClick={() => {
                           setPopoverOpen(false);
                         }}
