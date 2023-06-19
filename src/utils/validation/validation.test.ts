@@ -765,6 +765,12 @@ describe('utils > validation', () => {
               warnings: [],
             },
           },
+          group1: {
+            group: {
+              errors: [],
+              warnings: [],
+            },
+          },
         },
       };
 
@@ -788,6 +794,12 @@ describe('utils > validation', () => {
           componentId_7: {
             simpleBinding: {
               errors: ['For å fortsette må du laste opp 2 vedlegg'],
+              warnings: [],
+            },
+          },
+          group1: {
+            group: {
+              errors: [],
               warnings: [],
             },
           },
@@ -1728,6 +1740,12 @@ describe('utils > validation', () => {
               ],
             },
           },
+          'group2-0': {
+            group: {},
+          },
+          group1: {
+            group: {},
+          },
         },
       });
     });
@@ -1820,6 +1838,12 @@ describe('utils > validation', () => {
               ],
             },
           },
+          'group2-0': {
+            group: {},
+          },
+          group1: {
+            group: {},
+          },
         },
       });
 
@@ -1840,6 +1864,12 @@ describe('utils > validation', () => {
                 getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
               ],
             },
+          },
+          'group2-1': {
+            group: {},
+          },
+          group1: {
+            group: {},
           },
         },
       });
@@ -1914,6 +1944,9 @@ describe('utils > validation', () => {
                 getParsedLanguageFromKey(`validation_errors.minLength`, state.language.language || {}, [10], true),
               ],
             },
+          },
+          'group2-0': {
+            group: {},
           },
         },
       });
