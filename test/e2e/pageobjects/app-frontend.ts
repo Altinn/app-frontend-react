@@ -33,7 +33,6 @@ export class AppFrontend {
   public profileIconButton = '#profile-icon-button';
   public logOut = '#logout-menu-item';
   public logOutLink = 'a[href$="/ui/authentication/LogOut"]';
-  public designSystemPanel = '[data-testid="panel-content-wrapper"]';
   public printButton = 'button:contains("Print / Lagre PDF")';
 
   public helpText = {
