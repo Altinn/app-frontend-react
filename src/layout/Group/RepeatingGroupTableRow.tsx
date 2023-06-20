@@ -35,13 +35,7 @@ export interface IRepeatingGroupTableRowProps {
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
-  if (textResourceBindings.tableTitle) {
-    return textResourceBindings.tableTitle;
-  }
-  if (textResourceBindings.title) {
-    return textResourceBindings.title;
-  }
-  return '';
+  return textResourceBindings.tableTitle ?? textResourceBindings.title ?? '';
 }
 
 function getEditButtonText(
@@ -49,13 +43,10 @@ function getEditButtonText(
   textResourceBindings: ITextResourceBindings | undefined,
   langAsString: (key: string) => string,
 ) {
-  if (isEditing && textResourceBindings?.edit_button_close) {
-    return langAsString(textResourceBindings?.edit_button_close);
-  } else if (!isEditing && textResourceBindings?.edit_button_open) {
-    return langAsString(textResourceBindings?.edit_button_open);
-  }
-
-  return isEditing ? langAsString('general.save_and_close') : langAsString('general.edit_alt');
+  const buttonTextKey = isEditing
+    ? textResourceBindings?.edit_button_close ?? 'general.save_and_close'
+    : textResourceBindings?.edit_button_open ?? 'general.edit_alt';
+  return langAsString(buttonTextKey);
 }
 
 function handleDeleteClick(
@@ -93,7 +84,7 @@ export function RepeatingGroupTableRow({
   const { lang, langAsString } = useLanguage();
   const id = node.item.id;
   const group = node.item;
-  const row = group.rows[index] ? group.rows[index] : undefined;
+  const row = group.rows[index];
   const expressionsForRow = row?.groupExpressions;
   const columnSettings = group.tableColumns;
   const edit = {
