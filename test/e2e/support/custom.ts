@@ -79,49 +79,92 @@ Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQuer
   cy.wrap(subject).type(`${moveToStart}${del}`);
 });
 
-interface KnownViolation extends Pick<axe.Result, 'id' | 'help' | 'description' | 'impact'> {
-  snapshotName: string;
-  currentTest: string;
+interface KnownViolation extends Pick<axe.Result, 'id'> {
+  spec: string;
+  test: string;
   nodeLength: number;
+  countTowardsExpected?: false;
 }
 
 // TODO: Fix all violations and remove this list
 const knownWcagViolations: KnownViolation[] = [
   {
-    snapshotName: 'grid',
-    currentTest: 'should work with basic table functionality',
+    spec: 'app-frontend/all-process-steps.ts',
+    test: 'Should be possible to fill out all steps from beginning to end',
+    id: 'landmark-unique',
+    nodeLength: 1,
+    countTowardsExpected: false,
+  },
+  {
+    spec: 'app-frontend/all-process-steps.ts',
+    test: 'Should be possible to fill out all steps from beginning to end',
     id: 'list',
-    impact: 'serious',
-    description: 'Ensures that lists are structured correctly',
-    help: '<ul> and <ol> must only directly contain <li>, <script> or <template> elements',
+    nodeLength: 2,
+  },
+  {
+    spec: 'app-frontend/grid.ts',
+    test: 'should work with basic table functionality',
+    id: 'list',
     nodeLength: 1,
   },
   {
-    snapshotName: 'group:validation',
-    currentTest: 'Validation on group',
+    spec: 'app-frontend/group.ts',
+    test: 'Validation on group',
     id: 'color-contrast',
-    impact: 'serious',
-    description:
-      'Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds',
-    help: 'Elements must meet minimum color contrast ratio thresholds',
     nodeLength: 1,
   },
   {
-    snapshotName: 'group:validation',
-    currentTest: 'Validation on group',
+    spec: 'app-frontend/group.ts',
+    test: 'Validation on group',
     id: 'list',
-    impact: 'serious',
-    description: 'Ensures that lists are structured correctly',
-    help: '<ul> and <ol> must only directly contain <li>, <script> or <template> elements',
     nodeLength: 1,
   },
   {
-    snapshotName: 'group: delete-warning-popup',
-    currentTest: 'Opens delete warning popup when alertOnDelete is true and deletes on confirm',
+    spec: 'app-frontend/group.ts',
+    test: 'Opens delete warning popup when alertOnDelete is true and deletes on confirm',
     id: 'aria-dialog-name',
-    impact: 'serious',
-    description: 'Ensures every ARIA dialog and alertdialog node has an accessible name',
-    help: 'ARIA dialog and alertdialog nodes should have an accessible name',
+    nodeLength: 1,
+  },
+  {
+    spec: 'app-frontend/hide-row-in-group.ts',
+    test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
+    id: 'aria-valid-attr-value',
+    nodeLength: 3,
+  },
+  {
+    spec: 'app-frontend/hide-row-in-group.ts',
+    test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
+    id: 'heading-order',
+    nodeLength: 1,
+  },
+  {
+    spec: 'app-frontend/likert.ts',
+    test: 'Should show validation message for required likert',
+    id: 'list',
+    nodeLength: 2,
+  },
+  {
+    spec: 'app-frontend/on-entry.ts',
+    test: 'is possible to select an existing instance',
+    id: 'svg-img-alt',
+    nodeLength: 3,
+  },
+  {
+    spec: 'app-frontend/reportee-selection.ts',
+    test: 'Prompts for party when doNotPromptForParty = false, on instantiation with multiple possible parties',
+    id: 'label',
+    nodeLength: 2,
+  },
+  {
+    spec: 'signing/double-signing.ts',
+    test: 'accountant -> manager -> auditor',
+    id: 'list',
+    nodeLength: 1,
+  },
+  {
+    spec: 'app-stateless-anonymous/validation.ts',
+    test: 'Should show validation message for missing name',
+    id: 'list',
     nodeLength: 1,
   },
 ];
@@ -161,28 +204,33 @@ Cypress.Commands.add('snapshot', (name: string) => {
     });
   });
 
+  cy.testWcag();
+});
+
+Cypress.Commands.add('testWcag', () => {
   cy.log('Testing WCAG');
+  const spec = Cypress.spec.absolute.replace(/.*\/integration\//g, '');
   const axeOptions: AxeOptions = {
     includedImpacts: ['critical', 'serious', 'moderate'],
   };
   const violationsCallback = (violations: axe.Result[]) => {
-    const filteredKnown = knownWcagViolations.filter(
-      (known) => known.snapshotName === name && known.currentTest === Cypress.currentTest.title,
+    const knownHere = knownWcagViolations.filter(
+      (known) => known.spec === spec && known.test === Cypress.currentTest.title,
     );
+    const expectedHere = [...knownHere].filter((known) => known.countTowardsExpected === undefined);
 
     let foundNewViolations = false;
     let foundKnownViolations = 0;
     for (const violation of violations) {
       const asKnown: KnownViolation = {
         id: violation.id,
-        impact: violation.impact,
-        snapshotName: name,
-        currentTest: Cypress.currentTest.title,
-        description: violation.description,
-        help: violation.help,
+        spec,
+        test: Cypress.currentTest.title,
         nodeLength: violation.nodes.length,
       };
-      const isKnown = filteredKnown.some((known) => deepEqual(known, asKnown));
+      const isKnown = knownHere.some(({ id, spec, test, nodeLength }) =>
+        deepEqual({ id, spec, test, nodeLength }, asKnown),
+      );
       if (isKnown) {
         cy.log(`Ignoring known WCAG violation: ${violation.id}`);
         foundKnownViolations++;
@@ -192,8 +240,10 @@ Cypress.Commands.add('snapshot', (name: string) => {
       if (!foundNewViolations) {
         cy.log('-----------------------------------');
         cy.log('Found new WCAG violations:');
-        cy.log(`snapshotName: ${name}`);
+        cy.log(`snapshotName: ${spec}`);
         cy.log(`currentTest: ${Cypress.currentTest.title}`);
+        cy.log(`known here: ${knownHere.length}`);
+        cy.log(`expected here: ${expectedHere.length}`);
       }
       cy.log('-----------------------------------');
       cy.log(`id: ${violation.id}`);
@@ -210,9 +260,9 @@ Cypress.Commands.add('snapshot', (name: string) => {
 
       // Forcing a failure here, as long as skipFailures is true, to ensure that we don't miss any new WCAG violations.
       cy.get('#element-does-not-exist').should('exist');
-    } else if (foundKnownViolations !== filteredKnown.length) {
+    } else if (foundKnownViolations !== expectedHere.length && foundKnownViolations !== knownHere.length) {
       cy.log(
-        `Expected to find ${filteredKnown.length} known WCAG violations, but found ${foundKnownViolations} in this test`,
+        `Expected to find ${expectedHere.length} or ${knownHere.length} known WCAG violations, but found ${foundKnownViolations} in this test`,
       );
       cy.get('#element-does-not-exist').should('exist');
     }
@@ -224,6 +274,7 @@ Cypress.Commands.add('snapshot', (name: string) => {
 Cypress.Commands.add('reloadAndWait', () => {
   cy.reload();
   cy.get('#readyForPrint').should('exist');
+  cy.injectAxe();
 });
 
 Cypress.Commands.add(
