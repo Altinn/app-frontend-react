@@ -188,6 +188,7 @@ export function DatepickerComponent({ node, formData, handleDataChange, isValid,
               }),
             }}
             inputProps={{
+              className: 'no-visual-testing',
               'aria-label': overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined,
             }}
             DialogProps={{ className: classes.dialog }}
