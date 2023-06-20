@@ -8,7 +8,7 @@ import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { httpGet } from 'src/utils/network/networking';
 import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { getValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { createValidations, mapValidationIssues } from 'src/utils/validation/validationHelpers';
+import { createValidationResult, mapValidationIssues } from 'src/utils/validation/validationHelpers';
 import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
 import type { ILanguage } from 'src/types/shared';
 
@@ -31,10 +31,10 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
       httpGet(getValidationUrl(instanceId))
         .then((serverValidations: any) => {
           const validationObjects = mapValidationIssues(serverValidations);
-          const validations = createValidations(validationObjects);
+          const validationResult = createValidationResult(validationObjects);
           dispatch(
             ValidationActions.updateValidations({
-              validations,
+              validationResult,
             }),
           );
           if (serverValidations.length === 0) {

@@ -27,8 +27,8 @@ describe('validationSlice', () => {
   it('handles runSingleFieldValidationFulfilled action', () => {
     const nextState = slice.reducer(
       state,
-      ValidationActions.runSingleFieldValidationFulfilled({
-        validations: mockValidations,
+      ValidationActions.updateValidations({
+        validationResult: { validations: mockValidations },
       }),
     );
     expect(nextState.validations).toEqual(mockValidations);
@@ -54,9 +54,12 @@ describe('validationSlice', () => {
         validations: mockValidations,
       },
       ValidationActions.updateComponentValidations({
-        layoutId: 'formLayout',
+        pageKey: 'formLayout',
         componentId,
-        validations: componentValidations,
+        validationResult: {
+          validations: componentValidations,
+          invalidDataTypes: true,
+        },
         invalidDataTypes,
       }),
     );
@@ -75,7 +78,7 @@ describe('validationSlice', () => {
     const nextState = slice.reducer(
       state,
       ValidationActions.updateValidations({
-        validations: mockValidations,
+        validationResult: { validations: mockValidations },
       }),
     );
     expect(nextState.validations).toEqual(mockValidations);

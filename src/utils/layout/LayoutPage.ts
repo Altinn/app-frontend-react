@@ -2,6 +2,7 @@ import { implementsNodeValidation } from 'src/layout';
 import {
   buildValidationObject,
   createLayoutValidationResult,
+  emptyValidation,
   getSchemaValidationErrors,
 } from 'src/utils/validation/validationHelpers';
 import type { ILayoutValidationResult } from 'src/types';
@@ -139,24 +140,6 @@ export class LayoutPage implements LayoutObject {
     };
   }
 
-  public runEmptyFieldValidations(): IValidationObject[] {
-    const validations: IValidationObject[] = [];
-    for (const child of this.allChildren) {
-      if (implementsNodeValidation(child.def)) {
-        validations.push(...child.def.runEmptyFieldValidation(child as any));
-      }
-    }
-    return validations;
-  }
-  public runComponentValidations(): IValidationObject[] {
-    const validations: IValidationObject[] = [];
-    for (const child of this.allChildren) {
-      if (implementsNodeValidation(child.def)) {
-        validations.push(...child.def.runComponentValidation(child as any));
-      }
-    }
-    return validations;
-  }
   public runSchemaValidations(): IValidationObject[] {
     const visibleChildren = this.allChildren.filter((node) => !node.isHidden());
     const schemaErrors = getSchemaValidationErrors();
@@ -181,9 +164,16 @@ export class LayoutPage implements LayoutObject {
   public runValidations(): IValidationObject[] {
     const validations: IValidationObject[] = [];
     for (const child of this.allChildren) {
-      if (implementsNodeValidation(child.def)) {
-        validations.push(...child.def.runEmptyFieldValidation(child as any));
-        validations.push(...child.def.runComponentValidation(child as any));
+      if (implementsNodeValidation(child.def) && !child.isHidden()) {
+        const emptyFieldValidation = child.def.runEmptyFieldValidation(child as any);
+        const componentValidation = child.def.runComponentValidation(child as any);
+        const nodeValidations = [...emptyFieldValidation, ...componentValidation];
+
+        if (nodeValidations.length) {
+          validations.push(...nodeValidations);
+        } else {
+          validations.push(emptyValidation(child));
+        }
       }
     }
     validations.push(...this.runSchemaValidations());

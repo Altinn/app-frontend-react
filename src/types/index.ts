@@ -4,6 +4,7 @@ import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
 import type { RootState } from 'src/redux/store';
+import type { IValidationMessage } from 'src/utils/validation/types';
 
 export type ValidationSeverity = 'errors' | 'warnings' | 'info' | 'success' | 'fixed' | 'unspecified';
 
@@ -222,18 +223,21 @@ export interface ITracks {
 }
 
 export interface IValidationResult {
-  invalidDataTypes: boolean;
+  invalidDataTypes?: boolean;
   validations: IValidations;
+  fixedValidations?: IValidationMessage<'fixed'>[];
 }
 
 export interface ILayoutValidationResult {
-  invalidDataTypes: boolean;
+  invalidDataTypes?: boolean;
   validations: ILayoutValidations;
+  fixedValidations?: IValidationMessage<'fixed'>[];
 }
 
 export interface IComponentValidationResult {
-  invalidDataTypes: boolean;
+  invalidDataTypes?: boolean;
   validations: IComponentValidations;
+  fixedValidations?: IValidationMessage<'fixed'>[];
 }
 
 export interface IValidations {

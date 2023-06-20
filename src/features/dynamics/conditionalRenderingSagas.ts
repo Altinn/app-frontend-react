@@ -108,7 +108,7 @@ export function* checkIfConditionalRulesShouldRunSaga({
       if (validationsChanged) {
         yield put(
           ValidationActions.updateValidations({
-            validations: newFormValidations,
+            validationResult: { validations: newFormValidations },
           }),
         );
       }

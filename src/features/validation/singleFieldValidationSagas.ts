@@ -9,10 +9,14 @@ import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { createComponentValidations, mapValidationIssues } from 'src/utils/validation/validationHelpers';
+import {
+  createComponentValidationResult,
+  filterValidationObjectsByComponentId,
+  mapValidationIssues,
+} from 'src/utils/validation/validationHelpers';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IRunSingleFieldValidation } from 'src/features/validation/validationSlice';
-import type { ILayoutSets, IRuntimeState, IValidationIssue, IValidations } from 'src/types';
+import type { ILayoutSets, IRuntimeState, IValidationIssue } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
@@ -39,7 +43,6 @@ export function* runSingleFieldValidationSaga({
   const applicationMetadata: IApplicationMetadata = yield select(selectApplicationMetadataState);
   const instance: IInstance = yield select(selectInstanceState);
   const layoutSets: ILayoutSets = yield select(selectLayoutSetsState);
-  const validations: IValidations = yield select(selectValidationsState);
 
   const currentTaskDataId: string | undefined =
     applicationMetadata && getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
@@ -57,18 +60,11 @@ export function* runSingleFieldValidationSaga({
       const serverValidations: IValidationIssue[] = yield call(httpGet, url, options);
       const serverValidationObjects = mapValidationIssues(serverValidations);
 
-      const validationObjects = [...frontendValidationObjects, ...serverValidationObjects].filter(
-        (o) => o.componentId === componentId,
+      const validationObjects = filterValidationObjectsByComponentId(
+        [...frontendValidationObjects, ...serverValidationObjects],
+        componentId,
       );
-
-      const componentValidation = createComponentValidations(validationObjects);
-      const newValidations = {
-        ...validations,
-        [layoutId]: {
-          ...validations[layoutId],
-          [componentId]: componentValidation,
-        },
-      };
+      const validationResult = createComponentValidationResult(validationObjects);
 
       // Reject validation if field has been set to hidden in the time after we sent the validation request
       hiddenFields = yield select(selectHiddenFieldsState);
@@ -77,7 +73,9 @@ export function* runSingleFieldValidationSaga({
         return;
       }
 
-      yield put(ValidationActions.runSingleFieldValidationFulfilled({ validations: newValidations }));
+      yield put(
+        ValidationActions.updateComponentValidations({ pageKey: node.pageKey(), componentId, validationResult }),
+      );
     } catch (error) {
       yield put(ValidationActions.runSingleFieldValidationRejected({ error }));
     }

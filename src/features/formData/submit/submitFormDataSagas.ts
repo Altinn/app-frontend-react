@@ -16,8 +16,7 @@ import { httpPost } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { canFormBeSaved } from 'src/utils/validation/validation';
-import { containsErrors, createValidations, mapValidationIssues } from 'src/utils/validation/validationHelpers';
+import { containsErrors, createValidationResult, mapValidationIssues } from 'src/utils/validation/validationHelpers';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
@@ -37,10 +36,10 @@ export function* submitFormSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
-    const validationResult = resolvedNodes.validateForm();
-    const { validations } = validationResult;
-    if (!canFormBeSaved(validationResult)) {
-      yield put(ValidationActions.updateValidations({ validations }));
+    const validationObjects = resolvedNodes.runValidations();
+    const validationResult = createValidationResult(validationObjects);
+    if (containsErrors(validationObjects)) {
+      yield put(ValidationActions.updateValidations({ validationResult }));
       return yield put(FormDataActions.submitRejected({ error: null }));
     }
 
@@ -63,8 +62,8 @@ function* submitComplete(state: IRuntimeState) {
   // update validation state
   const layoutState: ILayoutState = yield select(LayoutSelector);
   const validationObjects = mapValidationIssues(serverValidations ?? []);
-  const validations = createValidations(validationObjects);
-  yield put(ValidationActions.updateValidations({ validations }));
+  const validationResult = createValidationResult(validationObjects);
+  yield put(ValidationActions.updateValidations({ validationResult }));
   if (containsErrors(validationObjects)) {
     // we have validation errors or warnings that should be shown, do not submit
     return yield put(FormDataActions.submitRejected({ error: null }));

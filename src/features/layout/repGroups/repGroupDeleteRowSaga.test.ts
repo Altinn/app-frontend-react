@@ -103,7 +103,7 @@ describe('repGroupDeleteRowSaga', function () {
           dataModelBindings: {},
         }),
       )
-      .put(ValidationActions.updateValidations({ validations: {} }))
+      .put(ValidationActions.updateValidations({ validationResult: { validations: {} } }))
       .put(OptionsActions.setOptions({ options: {} }))
       .put(
         FormLayoutActions.repGroupDeleteRowFulfilled({

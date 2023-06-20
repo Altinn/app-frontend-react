@@ -68,9 +68,8 @@ function* runValidations(field: string, data: any, componentId: string | undefin
     yield put(
       ValidationActions.updateComponentValidations({
         componentId: node.item.id,
-        layoutId: node.pageKey(),
-        validations: validationResult.validations,
-        invalidDataTypes: updatedInvalidDataComponents,
+        pageKey: node.pageKey(),
+        validationResult,
       }),
     );
   }

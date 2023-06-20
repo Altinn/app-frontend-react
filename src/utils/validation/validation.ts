@@ -664,7 +664,7 @@ export function validateFormData(
       );
       validations[id] = result.validations[id];
       if (!invalidDataTypes) {
-        invalidDataTypes = result.invalidDataTypes;
+        invalidDataTypes = !!result.invalidDataTypes;
       }
     }
   }

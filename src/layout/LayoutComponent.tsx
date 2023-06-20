@@ -9,6 +9,7 @@ import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import {
   buildValidationObject,
   createComponentValidationResult,
+  emptyValidation,
   getSchemaValidationErrors,
 } from 'src/utils/validation/validationHelpers';
 import type { ComponentTypeConfigs } from 'src/layout/components';
@@ -230,7 +231,8 @@ export abstract class FormComponent<Type extends ComponentTypes>
     const emptyFieldValidations = this.runEmptyFieldValidation(node);
     const schemaValidations = this.runSchemaValidation(node);
 
-    return [...componentValidations, ...emptyFieldValidations, ...schemaValidations];
+    const nodeValidationObjects = [...componentValidations, ...emptyFieldValidations, ...schemaValidations];
+    return nodeValidationObjects.length ? nodeValidationObjects : [emptyValidation(node)];
   }
 
   validateComponent(node: LayoutNodeFromType<Type>): IComponentValidationResult {

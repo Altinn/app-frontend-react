@@ -1,7 +1,20 @@
 import { runSingleFieldValidationSaga } from 'src/features/validation/singleFieldValidationSagas';
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
-import type { IComponentValidations, IValidations } from 'src/types';
+import type {
+  IComponentBindingValidation,
+  IComponentValidationResult,
+  ILayoutValidationResult,
+  IValidationResult,
+  IValidations,
+} from 'src/types';
+import type { IValidationMessage } from 'src/utils/validation/types';
+
+export interface IRunSingleFieldValidation {
+  componentId: string;
+  layoutId: string;
+  dataModelBinding: string;
+}
 
 export interface IValidationState {
   validations: IValidations;
@@ -10,20 +23,19 @@ export interface IValidationState {
 }
 
 export interface IUpdateComponentValidations {
-  layoutId: string;
-  validations: IComponentValidations;
+  pageKey: string;
+  validationResult: IComponentValidationResult;
   componentId: string;
   invalidDataTypes?: string[];
 }
 
-export interface IUpdateValidations {
-  validations: IValidations;
+export interface IUpdateLayoutValidations {
+  pageKey: string;
+  validationResult: ILayoutValidationResult;
 }
 
-export interface IRunSingleFieldValidation {
-  dataModelBinding: string;
-  componentId: string;
-  layoutId: string;
+export interface IUpdateValidations {
+  validationResult: IValidationResult;
 }
 
 export interface IValidationActionRejected {
@@ -45,12 +57,6 @@ export const validationSlice = () => {
       runSingleFieldValidation: mkAction<IRunSingleFieldValidation>({
         takeLatest: runSingleFieldValidationSaga,
       }),
-      runSingleFieldValidationFulfilled: mkAction<IUpdateValidations>({
-        reducer: (state, action) => {
-          const { validations } = action.payload;
-          state.validations = validations;
-        },
-      }),
       runSingleFieldValidationRejected: mkAction<IValidationActionRejected>({
         reducer: (state, action) => {
           if (action.payload.error) {
@@ -61,20 +67,30 @@ export const validationSlice = () => {
       }),
       updateComponentValidations: mkAction<IUpdateComponentValidations>({
         reducer: (state, action) => {
-          const { layoutId, validations, componentId, invalidDataTypes } = action.payload;
+          const { pageKey, validationResult, componentId, invalidDataTypes } = action.payload;
 
-          if (!state.validations[layoutId]) {
-            state.validations[layoutId] = {};
+          if (!state.validations[pageKey]) {
+            state.validations[pageKey] = {};
           }
 
-          state.validations[layoutId][componentId] = validations;
+          state.validations[pageKey][componentId] = validationResult.validations;
+          runFixedValidations(state, validationResult.fixedValidations ?? []);
+
           state.invalidDataTypes = invalidDataTypes || [];
+        },
+      }),
+      updateLayoutValidation: mkAction<IUpdateLayoutValidations>({
+        reducer: (state, action) => {
+          const { pageKey, validationResult } = action.payload;
+          state.validations[pageKey] = validationResult.validations;
+          runFixedValidations(state, validationResult.fixedValidations ?? []);
         },
       }),
       updateValidations: mkAction<IUpdateValidations>({
         reducer: (state, action) => {
-          const { validations } = action.payload;
-          state.validations = validations;
+          const { validationResult } = action.payload;
+          state.validations = validationResult.validations;
+          runFixedValidations(state, validationResult.fixedValidations ?? []);
         },
       }),
     },
@@ -83,3 +99,19 @@ export const validationSlice = () => {
   ValidationActions = slice.actions;
   return slice;
 };
+
+function runFixedValidations(state: IValidationState, fixedValidations: IValidationMessage<'fixed'>[]) {
+  for (const fixed of fixedValidations) {
+    const { pageKey, componentId, bindingKey } = fixed;
+
+    let bindingValidations: IComponentBindingValidation | undefined;
+    if ((bindingValidations = state.validations[pageKey]?.[componentId]?.[bindingKey])) {
+      const severities = Object.keys(bindingValidations);
+      for (const severity of severities) {
+        bindingValidations[severity] = bindingValidations[severity].filter(
+          (message: string) => message !== fixed.message,
+        );
+      }
+    }
+  }
+}

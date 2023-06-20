@@ -48,7 +48,7 @@ export function* initRepeatingGroupsSaga({
         );
       }
     }
-    yield put(ValidationActions.updateValidations({ validations }));
+    yield put(ValidationActions.updateValidations({ validationResult: { validations } }));
   }
 
   // Open by default

@@ -12,12 +12,12 @@ import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import {
   containsErrors,
-  createLayoutValidations,
+  createLayoutValidationResult,
   filterValidationObjectsByRowIndex,
   mapValidationIssues,
 } from 'src/utils/validation/validationHelpers';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/layout/formLayoutTypes';
-import type { IRuntimeState, IValidationIssue, IValidations } from 'src/types';
+import type { IRuntimeState, IValidationIssue } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export function* updateRepeatingGroupEditIndexSaga({
@@ -30,7 +30,6 @@ export function* updateRepeatingGroupEditIndexSaga({
     const groupNode = resolvedNodes.findById(group);
 
     if (validate && groupNode?.isType('Group') && typeof rowIndex === 'number' && rowIndex > -1) {
-      const validations: IValidations = state.formValidations.validations;
       const frontendValidationObjects = groupNode.def.runGroupValidations(
         groupNode,
         validate === Triggers.ValidateRow ? rowIndex : undefined,
@@ -81,18 +80,8 @@ export function* updateRepeatingGroupEditIndexSaga({
       const serverValidationObjects = mapValidationIssues(serverValidations);
 
       const validationObjects = [...frontendValidationObjects, ...serverValidationObjects];
-      const layoutValidations = createLayoutValidations(validationObjects);
-
-      // only overwrite validations specific to the group - leave all other untouched
-      const pageKey = groupNode.pageKey();
-      const newValidations = {
-        ...validations,
-        [pageKey]: {
-          ...validations[pageKey],
-          ...layoutValidations,
-        },
-      };
-      yield put(ValidationActions.updateValidations({ validations: newValidations }));
+      const validationResult = createLayoutValidationResult(validationObjects);
+      yield put(ValidationActions.updateLayoutValidation({ validationResult, pageKey: groupNode.pageKey() }));
       const rowValidations = filterValidationObjectsByRowIndex(rowIndex, groupNode.getRowIndices(), validationObjects);
 
       if (!containsErrors(rowValidations)) {

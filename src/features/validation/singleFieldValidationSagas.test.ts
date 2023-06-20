@@ -80,8 +80,8 @@ describe('singleFieldValidationSagas', () => {
         [call(httpGet, url, options), validationIssues],
       ])
       .put(
-        ValidationActions.runSingleFieldValidationFulfilled({
-          validations: mappedValidations,
+        ValidationActions.updateValidations({
+          validationResult: { validations: mappedValidations },
         }),
       )
       .run();

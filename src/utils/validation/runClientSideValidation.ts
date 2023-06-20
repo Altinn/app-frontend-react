@@ -24,7 +24,6 @@ export function runClientSideValidation(state: IRuntimeState): ValidationResult 
   const out: ValidationResult = {
     validationResult: {
       validations: {},
-      invalidDataTypes: false,
     },
     componentSpecificValidations: {},
     emptyFieldsValidations: {},

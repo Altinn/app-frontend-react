@@ -24,7 +24,7 @@ import { waitFor } from 'src/utils/sagas';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
 import {
   containsErrors,
-  createValidations,
+  createValidationResult,
   filterValidationObjectsByPage,
   mapValidationIssues,
 } from 'src/utils/validation/validationHelpers';
@@ -131,9 +131,10 @@ export function* updateCurrentViewSaga({
         currentView,
         visibleLayouts ?? [],
       );
-      const validations = createValidations(validationObjects);
 
-      yield put(ValidationActions.updateValidations({ validations }));
+      const validationResult = createValidationResult(validationObjects);
+
+      yield put(ValidationActions.updateValidations({ validationResult }));
 
       /*
        * If only the current page or the previous pages are validated, this makes no difference.

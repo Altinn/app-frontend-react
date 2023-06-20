@@ -29,7 +29,7 @@ import type {
 } from 'src/types';
 import type { ILanguage } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ISchemaValidationError, IValidationObject } from 'src/utils/validation/types';
+import type { ISchemaValidationError, IValidationMessage, IValidationObject } from 'src/utils/validation/types';
 
 export const severityMap: { [s in Severity]: ValidationSeverity } = {
   [Severity.Error]: 'errors',
@@ -48,12 +48,22 @@ export function buildValidationObject(
   invalidDataTypes = false,
 ): IValidationObject {
   return {
+    empty: false,
     componentId: node.item.id,
     pageKey: node.pageKey(),
     bindingKey,
     severity,
     message,
     invalidDataTypes,
+    rowIndices: node.getRowIndices(),
+  };
+}
+
+export function emptyValidation(node: LayoutNode): IValidationObject {
+  return {
+    empty: true,
+    componentId: node.item.id,
+    pageKey: node.pageKey(),
     rowIndices: node.getRowIndices(),
   };
 }
@@ -85,9 +95,15 @@ export function getValidationMessage(
 }
 
 export function containsErrors(validationObjects: IValidationObject[]): boolean {
-  return validationObjects.some(
-    (validationObject) => validationObject.severity === 'errors' || validationObject.invalidDataTypes,
-  );
+  return validationObjects.some((o) => !o.empty && (o.severity === 'errors' || o.invalidDataTypes));
+}
+
+export function hasInvalidDataTypes(validationObjects: IValidationObject[]): boolean {
+  return validationObjects.some((o) => !o.empty && o.invalidDataTypes);
+}
+
+export function filterValidationObjectsByComponentId(validations: IValidationObject[], componentId: string) {
+  return validations.filter((v) => v.severity === 'fixed' || v.componentId === componentId);
 }
 
 export function filterValidationObjectsByPage(
@@ -103,11 +119,11 @@ export function filterValidationObjectsByPage(
   if (trigger === Triggers.ValidateCurrentAndPreviousPages) {
     const index = pageOrder.indexOf(currentView);
     const previousPages = pageOrder.slice(0, index + 1);
-    return validations.filter(({ pageKey }) => previousPages.includes(pageKey));
+    return validations.filter(({ pageKey, severity }) => severity === 'fixed' || previousPages.includes(pageKey));
   }
 
   if (trigger === Triggers.ValidatePage) {
-    return validations.filter(({ pageKey }) => pageKey === currentView);
+    return validations.filter(({ pageKey, severity }) => severity === 'fixed' || pageKey === currentView);
   }
 
   return [];
@@ -121,6 +137,11 @@ export function filterValidationObjectsByRowIndex(
   const filteredValidationObjects: IValidationObject[] = [];
   const rowIndicesToCompare = [...baseRowIndices, rowIndex];
   for (const object of validationObjects) {
+    if (object.severity === 'fixed') {
+      filteredValidationObjects.push(object);
+      continue;
+    }
+
     if (object.rowIndices.length < rowIndicesToCompare.length) {
       continue;
     }
@@ -132,48 +153,30 @@ export function filterValidationObjectsByRowIndex(
 }
 
 /**
- * This is a temprorary function to convert the old validation format to the new one.
+ * This function assumes that all validation outputs are for the same component. (except for fixed messages)
  */
-export function componentValidationToValidationObjects(
-  node: LayoutNode,
-  componentValidations: IComponentValidations,
-  invalidDataTypes = false,
-): IValidationObject[] {
-  const validationObjects: IValidationObject[] = [];
-  const bindingKeys = Object.keys(componentValidations ?? {});
-  for (const bindingKey of bindingKeys) {
-    const severities = Object.keys(componentValidations[bindingKey] ?? {}) as ValidationSeverity[];
-    for (const severity of severities) {
-      const messages = componentValidations[bindingKey]?.[severity] ?? [];
-      for (const message of messages) {
-        validationObjects.push({
-          componentId: node.item.id,
-          pageKey: node.pageKey(),
-          bindingKey,
-          severity,
-          message,
-          invalidDataTypes,
-          rowIndices: node.getRowIndices(),
-        });
-      }
-    }
-  }
-  return validationObjects;
-}
-
-/**
- * This function assumes that all validation outputs are for the same component.
- */
-export function createComponentValidations(validationOutputs: IValidationObject[]): IComponentValidations {
+export function createComponentValidations(
+  validationOutputs: IValidationObject[],
+): [IComponentValidations, IValidationMessage<'fixed'>[]] {
   if (validationOutputs.length === 0) {
-    return {};
+    return [{}, []];
   }
   const componentValidations = {};
+  const fixedValidations: IValidationMessage<'fixed'>[] = [];
 
   for (const output of validationOutputs) {
+    if (output.empty) {
+      continue;
+    }
+
+    if (output.severity === 'fixed') {
+      fixedValidations.push(output);
+      continue;
+    }
+
     const { bindingKey, severity, message } = output;
 
-    if (componentValidations[bindingKey]?.[severity]) {
+    if (componentValidations[bindingKey]?.[severity] && !componentValidations[bindingKey][severity].includes(message)) {
       componentValidations[bindingKey][severity].push(message);
       continue;
     }
@@ -184,22 +187,41 @@ export function createComponentValidations(validationOutputs: IValidationObject[
     componentValidations[bindingKey] = { [severity]: [message] };
   }
 
-  return componentValidations;
+  return [componentValidations, fixedValidations];
 }
 
 /**
- * This function assumes that all validation outputs are for the same layout.
+ * This function assumes that all validation outputs are for the same layout. (except for fixed messages)
  */
-export function createLayoutValidations(validationOutputs: IValidationObject[]): ILayoutValidations {
+export function createLayoutValidations(
+  validationOutputs: IValidationObject[],
+): [ILayoutValidations, IValidationMessage<'fixed'>[]] {
   if (validationOutputs.length === 0) {
-    return {};
+    return [{}, []];
   }
 
   const layoutValidations = {};
+  const fixedValidations: IValidationMessage<'fixed'>[] = [];
+
   for (const output of validationOutputs) {
+    if (output.empty) {
+      if (!layoutValidations[output.componentId]) {
+        layoutValidations[output.componentId] = {};
+      }
+      continue;
+    }
+
+    if (output.severity === 'fixed') {
+      fixedValidations.push(output);
+      continue;
+    }
+
     const { componentId, bindingKey, severity, message } = output;
 
-    if (layoutValidations[componentId]?.[bindingKey]?.[severity]) {
+    if (
+      layoutValidations[componentId]?.[bindingKey]?.[severity] &&
+      !layoutValidations[componentId][bindingKey][severity].includes(message)
+    ) {
       layoutValidations[componentId][bindingKey][severity].push(message);
       continue;
     }
@@ -213,19 +235,42 @@ export function createLayoutValidations(validationOutputs: IValidationObject[]):
     }
     layoutValidations[componentId] = { [bindingKey]: { [severity]: [message] } };
   }
-  return layoutValidations;
+  return [layoutValidations, fixedValidations];
 }
 
-export function createValidations(validationOutputs: IValidationObject[]): IValidations {
+export function createValidations(
+  validationOutputs: IValidationObject[],
+): [IValidations, IValidationMessage<'fixed'>[]] {
   if (validationOutputs.length === 0) {
-    return {};
+    return [{}, []];
   }
 
   const validations = {};
+  const fixedValidations: IValidationMessage<'fixed'>[] = [];
+
   for (const output of validationOutputs) {
+    if (output.empty) {
+      if (!validations[output.pageKey]) {
+        validations[output.pageKey] = { [output.componentId]: {} };
+        continue;
+      }
+      if (!validations[output.pageKey][output.componentId]) {
+        validations[output.pageKey][output.componentId] = {};
+      }
+      continue;
+    }
+
+    if (output.severity === 'fixed') {
+      fixedValidations.push(output);
+      continue;
+    }
+
     const { pageKey, componentId, bindingKey, severity, message } = output;
 
-    if (validations[pageKey]?.[componentId]?.[bindingKey]?.[severity]) {
+    if (
+      validations[pageKey]?.[componentId]?.[bindingKey]?.[severity] &&
+      !validations[pageKey][componentId][bindingKey][severity].includes(message)
+    ) {
       validations[pageKey][componentId][bindingKey][severity].push(message);
       continue;
     }
@@ -243,38 +288,41 @@ export function createValidations(validationOutputs: IValidationObject[]): IVali
     }
     validations[pageKey] = { [componentId]: { [bindingKey]: { [severity]: [message] } } };
   }
-  return validations;
+  return [validations, fixedValidations];
 }
 
 export function createComponentValidationResult(validationOutputs: IValidationObject[]): IComponentValidationResult {
-  const validations = createComponentValidations(validationOutputs);
-  const invalidDataTypes = validationOutputs.some((output) => output.invalidDataTypes);
+  const [validations, fixedValidations] = createComponentValidations(validationOutputs);
+  const invalidDataTypes = hasInvalidDataTypes(validationOutputs);
 
   const result: IComponentValidationResult = {
     validations,
     invalidDataTypes,
+    fixedValidations,
   };
   return result;
 }
 
 export function createLayoutValidationResult(validationOutputs: IValidationObject[]): ILayoutValidationResult {
-  const validations = createLayoutValidations(validationOutputs);
-  const invalidDataTypes = validationOutputs.some((output) => output.invalidDataTypes);
+  const [validations, fixedValidations] = createLayoutValidations(validationOutputs);
+  const invalidDataTypes = hasInvalidDataTypes(validationOutputs);
 
   const result: ILayoutValidationResult = {
     validations,
     invalidDataTypes,
+    fixedValidations,
   };
   return result;
 }
 
 export function createValidationResult(validationOutputs: IValidationObject[]): IValidationResult {
-  const validations = createValidations(validationOutputs);
-  const invalidDataTypes = validationOutputs.some((output) => output.invalidDataTypes);
+  const [validations, fixedValidations] = createValidations(validationOutputs);
+  const invalidDataTypes = hasInvalidDataTypes(validationOutputs);
 
   const result: IValidationResult = {
     validations,
     invalidDataTypes,
+    fixedValidations,
   };
   return result;
 }
