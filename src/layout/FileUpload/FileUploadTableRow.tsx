@@ -35,7 +35,6 @@ export function FileUploadTableRow({
   baseComponentId,
   dataModelBindings,
 }: IFileUploadTableRowProps) {
-  const { langAsString, lang } = useLanguage();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -52,121 +51,11 @@ export function FileUploadTableRow({
     dispatch(
       AttachmentActions.deleteAttachment({
         attachment,
-        attachmentType: baseComponentId || id,
+        attachmentType: baseComponentId ?? id,
         componentId: id,
         dataModelBindings,
       }),
     );
-  };
-
-  const NameCell = ({
-    mobileView,
-    attachment,
-  }: {
-    mobileView: boolean;
-    attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'>;
-  }) => {
-    const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${langAsString(
-      'form_filler.file_uploader_mb',
-    )}`;
-
-    return (
-      <>
-        <td>
-          <AttachmentFileName
-            attachment={attachment}
-            mobileView={mobileView}
-          />
-          {mobileView ? (
-            <div
-              style={{
-                color: AltinnAppTheme.altinnPalette.primary.grey,
-              }}
-            >
-              {readableSize}
-            </div>
-          ) : null}
-        </td>
-        {!mobileView ? <td>{readableSize}</td> : null}
-      </>
-    );
-  };
-
-  const StatusCellContent = ({ attachment }: { attachment: { uploaded: boolean } }) => {
-    const { uploaded } = attachment;
-    const status = attachment.uploaded
-      ? langAsString('form_filler.file_uploader_list_status_done')
-      : langAsString('general.loading');
-
-    return uploaded ? (
-      <div className={classes.fileStatus}>
-        {mobileView ? null : status}
-        <CheckmarkCircleFillIcon
-          data-testid='checkmark-success'
-          style={mobileView ? { margin: 'auto' } : {}}
-          aria-hidden={!mobileView}
-          aria-label={status}
-          role='img'
-        />
-      </div>
-    ) : (
-      <AltinnLoader
-        id='loader-upload'
-        style={{
-          marginBottom: '1rem',
-          marginRight: '0.8125rem',
-        }}
-        srContent={status}
-      />
-    );
-  };
-
-  const DeleteCellContent = () => (
-    <>
-      {attachment.deleting ? (
-        <AltinnLoader
-          id='loader-delete'
-          className={classes.deleteLoader}
-          srContent={langAsString('general.loading')}
-        />
-      ) : (
-        <DeleteButton />
-      )}
-    </>
-  );
-
-  const DeleteButton = () => {
-    const deleteButton = (
-      <Button
-        className={classes.deleteButton}
-        size='small'
-        variant='quiet'
-        color='danger'
-        onClick={() => handleDeleteClick()}
-        icon={<TrashIcon aria-hidden={true} />}
-        iconPlacement='right'
-        data-testid={`attachment-delete-${index}`}
-        aria-label={langAsString('general.delete')}
-      >
-        {!mobileView && lang('form_filler.file_uploader_list_delete')}
-      </Button>
-    );
-    if (alertOnDelete) {
-      return (
-        <DeleteWarningPopover
-          trigger={deleteButton}
-          placement='left'
-          onPopoverDeleteClick={() => handlePopoverDeleteClick()}
-          onCancelClick={() => setPopoverOpen(false)}
-          deleteButtonText={langAsString('form_filler.file_uploader_delete_button_confirm')}
-          messageText={langAsString('form_filler.file_uploader_delete_warning')}
-          open={popoverOpen}
-          setOpen={setPopoverOpen}
-        />
-      );
-    } else {
-      return deleteButton;
-    }
   };
 
   return (
@@ -181,11 +70,151 @@ export function FileUploadTableRow({
         mobileView={mobileView}
       />
       <td>
-        <StatusCellContent attachment={attachment} />
+        <StatusCellContent
+          uploaded={attachment.uploaded}
+          mobileView={mobileView}
+        />
       </td>
       <td>
-        <DeleteCellContent />
+        <DeleteCellContent
+          deleting={attachment.deleting}
+          handleDeleteClick={handleDeleteClick}
+          handlePopoverDeleteClick={handlePopoverDeleteClick}
+          index={index}
+          alertOnDelete={alertOnDelete}
+          mobileView={mobileView}
+          setPopoverOpen={setPopoverOpen}
+          popoverOpen={popoverOpen}
+        />
       </td>
     </tr>
   );
 }
+
+const NameCell = ({
+  mobileView,
+  attachment,
+}: {
+  mobileView: boolean;
+  attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'>;
+}) => {
+  const { langAsString } = useLanguage();
+  const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${langAsString('form_filler.file_uploader_mb')}`;
+
+  return (
+    <>
+      <td>
+        <AttachmentFileName
+          attachment={attachment}
+          mobileView={mobileView}
+        />
+        {mobileView ? (
+          <div
+            style={{
+              color: AltinnAppTheme.altinnPalette.primary.grey,
+            }}
+          >
+            {readableSize}
+          </div>
+        ) : null}
+      </td>
+      {!mobileView ? <td>{readableSize}</td> : null}
+    </>
+  );
+};
+
+const StatusCellContent = ({ uploaded, mobileView }) => {
+  const { langAsString } = useLanguage();
+  const status = uploaded
+    ? langAsString('form_filler.file_uploader_list_status_done')
+    : langAsString('general.loading');
+
+  return uploaded ? (
+    <div className={classes.fileStatus}>
+      {mobileView ? null : status}
+      <CheckmarkCircleFillIcon
+        data-testid='checkmark-success'
+        style={mobileView ? { margin: 'auto' } : {}}
+        aria-hidden={!mobileView}
+        aria-label={status}
+        role='img'
+      />
+    </div>
+  ) : (
+    <AltinnLoader
+      id='loader-upload'
+      style={{
+        marginBottom: '1rem',
+        marginRight: '0.8125rem',
+      }}
+      srContent={status}
+    />
+  );
+};
+
+const DeleteCellContent = ({
+  deleting,
+  handleDeleteClick,
+  handlePopoverDeleteClick,
+  index,
+  alertOnDelete,
+  mobileView,
+  setPopoverOpen,
+  popoverOpen,
+}: {
+  deleting: boolean;
+  handleDeleteClick: () => void;
+  handlePopoverDeleteClick: () => void;
+  index: number;
+  alertOnDelete?: boolean;
+  mobileView: boolean;
+  setPopoverOpen: (open: boolean) => void;
+  popoverOpen: boolean;
+}) => {
+  const { lang, langAsString } = useLanguage();
+  return (
+    <>
+      {deleting ? (
+        <AltinnLoader
+          id='loader-delete'
+          className={classes.deleteLoader}
+          srContent={langAsString('general.loading')}
+        />
+      ) : (
+        (() => {
+          const deleteButton = (
+            <Button
+              className={classes.deleteButton}
+              size='small'
+              variant='quiet'
+              color='danger'
+              onClick={() => handleDeleteClick()}
+              icon={<TrashIcon aria-hidden={true} />}
+              iconPlacement='right'
+              data-testid={`attachment-delete-${index}`}
+              aria-label={langAsString('general.delete')}
+            >
+              {!mobileView && lang('form_filler.file_uploader_list_delete')}
+            </Button>
+          );
+          if (alertOnDelete) {
+            return (
+              <DeleteWarningPopover
+                trigger={deleteButton}
+                placement='left'
+                onPopoverDeleteClick={() => handlePopoverDeleteClick()}
+                onCancelClick={() => setPopoverOpen(false)}
+                deleteButtonText={langAsString('form_filler.file_uploader_delete_button_confirm')}
+                messageText={langAsString('form_filler.file_uploader_delete_warning')}
+                open={popoverOpen}
+                setOpen={setPopoverOpen}
+              />
+            );
+          } else {
+            return deleteButton;
+          }
+        })()
+      )}
+    </>
+  );
+};

@@ -59,37 +59,6 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
 
   const saveIsDisabled = props.attachment.updating === true || props.attachment.uploaded === false || readOnly;
 
-  const DeleteButton = () => {
-    const deleteButton = (
-      <Button
-        onClick={() => handleDeleteClick()}
-        variant='quiet'
-        color='danger'
-        icon={<TrashIcon aria-hidden={true} />}
-        iconPlacement='right'
-        data-testid='attachment-delete'
-      >
-        {!props.mobileView && lang('general.delete')}
-      </Button>
-    );
-    if (alertOnDelete) {
-      return (
-        <DeleteWarningPopover
-          trigger={deleteButton}
-          onPopoverDeleteClick={() => handlePopoverDeleteClick()}
-          placement='left'
-          onCancelClick={() => setPopoverOpen(false)}
-          deleteButtonText={langAsString('form_filler.file_uploader_delete_button_confirm')}
-          messageText={langAsString('form_filler.file_uploader_delete_warning')}
-          open={popoverOpen}
-          setOpen={setPopoverOpen}
-        />
-      );
-    } else {
-      return deleteButton;
-    }
-  };
-
   return (
     <div
       id={`attachment-edit-window-${props.attachment.id}`}
@@ -138,7 +107,14 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
               />
             )}
             <div>
-              <DeleteButton />
+              <DeleteButton
+                alertOnDelete={alertOnDelete}
+                mobileView={props.mobileView}
+                handleDeleteClick={handleDeleteClick}
+                handlePopoverDeleteClick={handlePopoverDeleteClick}
+                popoverOpen={popoverOpen}
+                setPopoverOpen={setPopoverOpen}
+              />
             </div>
           </div>
         </Grid>
@@ -224,3 +200,49 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
     </div>
   );
 }
+
+const DeleteButton = ({
+  alertOnDelete,
+  mobileView,
+  handleDeleteClick,
+  handlePopoverDeleteClick,
+  popoverOpen,
+  setPopoverOpen,
+}: {
+  alertOnDelete?: boolean;
+  mobileView: boolean;
+  handleDeleteClick: () => void;
+  handlePopoverDeleteClick: () => void;
+  popoverOpen: boolean;
+  setPopoverOpen: (open: boolean) => void;
+}) => {
+  const { lang, langAsString } = useLanguage();
+  const deleteButton = (
+    <Button
+      onClick={() => handleDeleteClick()}
+      variant='quiet'
+      color='danger'
+      icon={<TrashIcon aria-hidden={true} />}
+      iconPlacement='right'
+      data-testid='attachment-delete'
+    >
+      {!mobileView && lang('general.delete')}
+    </Button>
+  );
+  if (alertOnDelete) {
+    return (
+      <DeleteWarningPopover
+        trigger={deleteButton}
+        onPopoverDeleteClick={() => handlePopoverDeleteClick()}
+        placement='left'
+        onCancelClick={() => setPopoverOpen(false)}
+        deleteButtonText={langAsString('form_filler.file_uploader_delete_button_confirm')}
+        messageText={langAsString('form_filler.file_uploader_delete_warning')}
+        open={popoverOpen}
+        setOpen={setPopoverOpen}
+      />
+    );
+  } else {
+    return deleteButton;
+  }
+};
