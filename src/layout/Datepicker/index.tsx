@@ -3,11 +3,10 @@ import React from 'react';
 import moment from 'moment';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { getLanguageFromKey, getParsedLanguageFromKey } from 'src/language/sharedLanguage';
+import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
@@ -27,19 +26,24 @@ export class Datepicker extends FormComponent<'Datepicker'> {
 
   useDisplayData(node: LayoutNodeFromType<'Datepicker'>): string {
     const formData = useAppSelector((state) => state.formData.formData);
-    const language = useAppSelector(appLanguageStateSelector);
+    const { selectedLanguage } = useLanguage();
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    const dateFormat = getDateFormat(node.item.format, language);
+    const dateFormat = getDateFormat(node.item.format, selectedLanguage);
     const data = formData[node.item.dataModelBindings?.simpleBinding] || '';
     return formatISOString(data, dateFormat) ?? data;
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Datepicker'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
-    return <SummaryItemSimple formDataAsString={displayData} />;
+    return (
+      <SummaryItemSimple
+        formDataAsString={displayData}
+        hideFromVisualTesting={true}
+      />
+    );
   }
 
   runComponentValidations(node: LayoutNodeFromType<'Datepicker'>): IValidationObject[] {
@@ -48,8 +52,7 @@ export class Datepicker extends FormComponent<'Datepicker'> {
     }
 
     const state: IRuntimeState = window.reduxStore.getState();
-    const profileLanguage = appLanguageStateSelector(state);
-    const language = state.language.language ?? {};
+    const { langAsString, selectedLanguage } = staticUseLanguageFromState(state);
     const formData = node.getFormData().simpleBinding;
 
     if (!formData) {
@@ -58,29 +61,21 @@ export class Datepicker extends FormComponent<'Datepicker'> {
 
     const minDate = getDateConstraint(node.item.minDate, 'min');
     const maxDate = getDateConstraint(node.item.maxDate, 'max');
-    const format = getDateFormat(node.item.format, profileLanguage);
+    const format = getDateFormat(node.item.format, selectedLanguage);
 
     const validations: IValidationObject[] = [];
     const date = moment(formData, moment.ISO_8601);
 
     if (!date.isValid()) {
       validations.push(
-        buildValidationObject(
-          node,
-          'errors',
-          getParsedLanguageFromKey('date_picker.invalid_date_message', language, [format], true),
-        ),
+        buildValidationObject(node, 'errors', langAsString('date_picker.invalid_date_message', [format])),
       );
     }
 
     if (date.isBefore(minDate)) {
-      validations.push(
-        buildValidationObject(node, 'errors', getLanguageFromKey('date_picker.min_date_exeeded', language)),
-      );
+      validations.push(buildValidationObject(node, 'errors', langAsString('date_picker.min_date_exeeded')));
     } else if (date.isAfter(maxDate)) {
-      validations.push(
-        buildValidationObject(node, 'errors', getLanguageFromKey('date_picker.max_date_exeeded', language)),
-      );
+      validations.push(buildValidationObject(node, 'errors', langAsString('date_picker.max_date_exeeded')));
     }
 
     return validations;

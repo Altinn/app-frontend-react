@@ -24,7 +24,6 @@ export const selectLayoutsState = (state: IRuntimeState) => state.formLayout.lay
 export const selectApplicationMetadataState = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 export const selectInstanceState = (state: IRuntimeState) => state.instanceData.instance;
 export const selectLayoutSetsState = (state: IRuntimeState) => state.formLayout.layoutsets;
-export const selectTextResourcesState = (state: IRuntimeState) => state.textResources.resources;
 export const selectValidationsState = (state: IRuntimeState) => state.formValidations.validations;
 export const selectHiddenFieldsState = (state: IRuntimeState) => state.formLayout.uiConfig.hiddenFields;
 

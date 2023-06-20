@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
@@ -50,12 +50,12 @@ export class FileUpload extends FormComponent<'FileUpload'> {
 
     const state: IRuntimeState = window.reduxStore.getState();
     const attachments = state.attachments.attachments;
-    const language = state.language.language ?? {};
+    const { langAsString } = staticUseLanguageFromState(state);
 
     if (!attachmentsValid(attachments, node.item)) {
-      const message = `${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_1', language)} ${
+      const message = `${langAsString('form_filler.file_uploader_validation_error_file_number_1')} ${
         node.item.minNumberOfAttachments
-      } ${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_2', language)}`;
+      } ${langAsString('form_filler.file_uploader_validation_error_file_number_2')}`;
       return [buildValidationObject(node, 'errors', message)];
     }
     return [];

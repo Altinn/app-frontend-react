@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getParsedLanguageFromKey } from 'src/language/sharedLanguage';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -52,8 +52,7 @@ export class List extends FormComponent<'List'> {
 
     const state: IRuntimeState = window.reduxStore.getState();
 
-    const language = state.language.language ?? {};
-    const textResources = state.textResources.resources;
+    const langTools = staticUseLanguageFromState(state);
     const formData = node.getFormData();
     const validationObjects: IValidationObject[] = [];
 
@@ -67,8 +66,8 @@ export class List extends FormComponent<'List'> {
       }
     }
     if (listHasErrors) {
-      const fieldName = getFieldName(node.item.textResourceBindings, textResources, language, undefined);
-      const message = getParsedLanguageFromKey('form_filler.error_required', language, [fieldName], true);
+      const fieldName = getFieldName(node.item.textResourceBindings, langTools, undefined);
+      const message = langTools.langAsString('form_filler.error_required', [fieldName]);
       validationObjects.push(buildValidationObject(node, 'errors', message));
     }
     return validationObjects;

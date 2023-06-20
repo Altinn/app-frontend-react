@@ -1,9 +1,8 @@
-import { getParsedLanguageFromKey, getTextResourceByKey } from 'src/language/sharedLanguage';
+import { type IUseLanguage, staticUseLanguageFromState, type ValidLanguageKey } from 'src/hooks/useLanguage';
 import { Severity, Triggers } from 'src/types';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import {
   errorMessageKeys,
   getSchemaPart,
@@ -13,21 +12,18 @@ import {
   processInstancePath,
 } from 'src/utils/validation/validation';
 import { validationTexts } from 'src/utils/validation/validationTexts';
-import type { ValidLanguageKey } from 'src/hooks/useLanguage';
 import type {
   IComponentValidationResult,
   IComponentValidations,
   ILayoutValidationResult,
   ILayoutValidations,
   IRuntimeState,
-  ITextResource,
   IValidationIssue,
   IValidationResult,
   IValidations,
   TriggersPageValidation,
   ValidationSeverity,
 } from 'src/types';
-import type { ILanguage } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError, IValidationMessage, IValidationObject } from 'src/utils/validation/types';
 
@@ -68,25 +64,21 @@ export function emptyValidation(node: LayoutNode): IValidationObject {
   };
 }
 
-export function getValidationMessage(
-  issue: IValidationIssue,
-  textResources: ITextResource[],
-  language: ILanguage,
-  params?: string[],
-): string {
+export function getValidationMessage(issue: IValidationIssue, langTools: IUseLanguage, params?: string[]): string {
+  const { langAsString } = langTools;
   if (issue.customTextKey) {
-    return getTextFromAppOrDefault(issue.customTextKey, textResources, language, params, true);
+    return langAsString(issue.customTextKey, params);
   }
 
   if (issue.source && issue.code) {
     const resource = validationTexts[issue.source]?.[issue.code];
     if (resource) {
-      return getTextFromAppOrDefault(resource, textResources, language, params, true);
+      return langAsString(resource, params);
     }
   }
 
-  // Fallback to old behvaior if source not set.
-  const legacyText = getTextFromAppOrDefault(issue.code, textResources, language, params, true);
+  // Fallback to old behavior if source not set.
+  const legacyText = langAsString(issue.code, params);
   if (legacyText !== issue.code) {
     return legacyText;
   }
@@ -345,8 +337,7 @@ function shouldExcludeValidationIssue(issue: IValidationIssue): boolean {
 export function mapValidationIssues(issues: IValidationIssue[]): IValidationObject[] {
   const state: IRuntimeState = window.reduxStore.getState();
   const nodes = resolvedLayoutsFromState(state);
-  const language = state.language.language ?? {};
-  const textResources = state.textResources.resources;
+  const langTools = staticUseLanguageFromState(state);
 
   if (!nodes) {
     return [];
@@ -361,7 +352,7 @@ export function mapValidationIssues(issues: IValidationIssue[]): IValidationObje
     }
 
     const { field, severity } = issue;
-    const message = getValidationMessage(issue, textResources, language);
+    const message = getValidationMessage(issue, langTools);
 
     for (const node of allNodes) {
       // Special case for FileUpload and FileUploadWithTag
@@ -386,8 +377,7 @@ export function mapValidationIssues(issues: IValidationIssue[]): IValidationObje
 export function getSchemaValidationErrors(): ISchemaValidationError[] {
   const state: IRuntimeState = window.reduxStore.getState();
 
-  const language = state.language.language ?? {};
-  const textResources = state.textResources.resources;
+  const { langAsString } = staticUseLanguageFromState(state);
 
   const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
     application: state.applicationMetadata.applicationMetadata,
@@ -428,12 +418,10 @@ export function getSchemaValidationErrors(): ISchemaValidationError[] {
       : getSchemaPart(error.schemaPath, schema);
 
     const errorMessage = fieldSchema?.errorMessage
-      ? getTextResourceByKey(fieldSchema.errorMessage, textResources)
-      : getParsedLanguageFromKey(
+      ? langAsString(fieldSchema.errorMessage)
+      : langAsString(
           `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
-          language,
           [errorParams],
-          true,
         );
 
     const field = processInstancePath(error.instancePath);

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
-import { getParsedLanguageFromKey } from 'src/language/sharedLanguage';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -179,8 +179,7 @@ export abstract class FormComponent<Type extends ComponentTypes>
     const state: IRuntimeState = window.reduxStore.getState();
 
     const formData = node.getFormData();
-    const language = state.language.language ?? {};
-    const textResources = state.textResources.resources;
+    const langTools = staticUseLanguageFromState(state);
     const validationObjects: IValidationObject[] = [];
 
     const bindingKeys = Object.keys(formData);
@@ -188,13 +187,13 @@ export abstract class FormComponent<Type extends ComponentTypes>
       const data = formData[bindingKey];
 
       if (!data?.length) {
-        const fieldName = getFieldName(node.item.textResourceBindings, textResources, language, bindingKey);
+        const fieldName = getFieldName(node.item.textResourceBindings, langTools, bindingKey);
 
         validationObjects.push(
           buildValidationObject(
             node,
             'errors',
-            getParsedLanguageFromKey('form_filler.error_required', language, [fieldName], true),
+            langTools.langAsString('form_filler.error_required', [fieldName]),
             bindingKey,
           ),
         );

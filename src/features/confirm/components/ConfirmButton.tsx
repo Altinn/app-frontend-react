@@ -4,16 +4,14 @@ import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { httpGet } from 'src/utils/network/networking';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import { getValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { createValidationResult, mapValidationIssues } from 'src/utils/validation/validationHelpers';
 import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
-import type { ILanguage } from 'src/types/shared';
 
-export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string; language: ILanguage }) => {
-  const textResources = useAppSelector((state) => state.textResources.resources);
+export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string }) => {
   const confirmingId = useAppSelector((state) => state.process.completingId);
   const [validateId, setValidateId] = useState<string | null>(null);
   const processActionsFeature = useAppSelector(
@@ -23,6 +21,8 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
   const disabled = processActionsFeature && !actions?.confirm;
 
   const dispatch = useAppDispatch();
+  const langTools = useLanguage();
+  const { lang } = langTools;
   const { instanceId } = window;
 
   const handleConfirmClick = () => {
@@ -64,7 +64,7 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
         onClick={handleConfirmClick}
         disabled={disabled}
       >
-        {getTextFromAppOrDefault('confirm.button_text', textResources, props.language)}
+        {lang('confirm.button_text')}
       </SubmitButton>
     </div>
   );

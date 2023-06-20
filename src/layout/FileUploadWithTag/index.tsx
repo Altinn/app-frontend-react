@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
@@ -51,7 +51,7 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> {
 
     const state: IRuntimeState = window.reduxStore.getState();
     const attachments = state.attachments.attachments;
-    const language = state.language.language ?? {};
+    const { langAsString } = staticUseLanguageFromState(state);
 
     const validations: IValidationObject[] = [];
     if (attachmentsValid(attachments, node.item)) {
@@ -62,17 +62,15 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> {
       if (missingTagAttachments?.length > 0) {
         missingTagAttachments.forEach((missingId) => {
           const message = `${
-            missingId +
-            AsciiUnitSeparator +
-            getLanguageFromKey('form_filler.file_uploader_validation_error_no_chosen_tag', language)
+            missingId + AsciiUnitSeparator + langAsString('form_filler.file_uploader_validation_error_no_chosen_tag')
           } ${(node.item.textResourceBindings?.tagTitle || '').toLowerCase()}.`;
           validations.push(buildValidationObject(node, 'errors', message));
         });
       }
     } else {
-      const message = `${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_1', language)} ${
+      const message = `${langAsString('form_filler.file_uploader_validation_error_file_number_1')} ${
         node.item.minNumberOfAttachments
-      } ${getLanguageFromKey('form_filler.file_uploader_validation_error_file_number_2', language)}`;
+      } ${langAsString('form_filler.file_uploader_validation_error_file_number_2')}`;
       validations.push(buildValidationObject(node, 'errors', message));
     }
     return validations;
