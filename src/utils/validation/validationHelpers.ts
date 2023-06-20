@@ -12,6 +12,7 @@ import {
   processInstancePath,
 } from 'src/utils/validation/validation';
 import { validationTexts } from 'src/utils/validation/validationTexts';
+import type { IFormData } from 'src/features/formData';
 import type {
   IComponentValidationResult,
   IComponentValidations,
@@ -374,7 +375,7 @@ export function mapValidationIssues(issues: IValidationIssue[]): IValidationObje
   return validationOutputs;
 }
 
-export function getSchemaValidationErrors(): ISchemaValidationError[] {
+export function getSchemaValidationErrors(overrideFormData?: IFormData): ISchemaValidationError[] {
   const state: IRuntimeState = window.reduxStore.getState();
 
   const { langAsString } = staticUseLanguageFromState(state);
@@ -385,8 +386,9 @@ export function getSchemaValidationErrors(): ISchemaValidationError[] {
     layoutSets: state.formLayout.layoutsets,
   });
   const { validator, rootElementPath, schema } = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
-  const formData = convertDataBindingToModel(state.formData.formData);
-  const valid = validator.validate(`schema${rootElementPath}`, formData);
+  const formData = { ...state.formData.formData, ...overrideFormData };
+  const model = convertDataBindingToModel(formData);
+  const valid = validator.validate(`schema${rootElementPath}`, model);
 
   if (valid) {
     return [];

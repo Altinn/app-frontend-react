@@ -15,13 +15,13 @@ import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export function* updateFormDataSaga({
-  payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation },
+  payload: { field, data, key, componentId, skipValidation, skipAutoSave, singleFieldValidation },
 }: PayloadAction<IUpdateFormData>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
 
     if (!skipValidation) {
-      yield call(runValidations, field, data, componentId, state);
+      yield call(runValidations, field, data, componentId, state, key);
     }
 
     if (shouldUpdateFormData(state.formData.formData[field], data)) {
@@ -44,8 +44,13 @@ export function* updateFormDataSaga({
   }
 }
 
-// TODO: Use provided data?
-function* runValidations(field: string, data: any, componentId: string | undefined, state: IRuntimeState) {
+function* runValidations(
+  field: string,
+  data: any,
+  componentId: string | undefined,
+  state: IRuntimeState,
+  key?: string,
+) {
   const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
   const node = componentId && resolvedNodes.findById(componentId);
   if (!node) {
@@ -57,8 +62,15 @@ function* runValidations(field: string, data: any, componentId: string | undefin
     return;
   }
 
+  let overrideFormData: IFormData | undefined;
+  if (data && key) {
+    overrideFormData = {
+      [key]: data,
+    };
+  }
+
   if (implementsNodeValidation(node.def)) {
-    const validationResult = node.def.validateComponent(node as any);
+    const validationResult = node.def.validateComponent(node as any, overrideFormData);
     const invalidDataComponents = state.formValidations.invalidDataTypes || [];
     const updatedInvalidDataComponents = invalidDataComponents.filter((item) => item !== field);
     if (validationResult.invalidDataTypes) {

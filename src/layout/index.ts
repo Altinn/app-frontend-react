@@ -75,11 +75,11 @@ export function getLayoutComponentObject<T extends keyof ComponentClassMap>(type
 export type DefGetter = typeof getLayoutComponentObject;
 
 export interface NodeValidation {
-  runEmptyFieldValidation: (node: LayoutNode) => IValidationObject[];
-  runComponentValidation: (node: LayoutNode) => IValidationObject[];
-  runSchemaValidation: (node: LayoutNode) => IValidationObject[];
-  runValidations: (node: LayoutNode) => IValidationObject[];
-  validateComponent: (node: LayoutNode) => IComponentValidationResult;
+  runEmptyFieldValidation: (node: LayoutNode, formData?: IComponentFormData) => IValidationObject[];
+  runComponentValidation: (node: LayoutNode, formData?: IComponentFormData) => IValidationObject[];
+  runSchemaValidation: (node: LayoutNode, formData?: IComponentFormData) => IValidationObject[];
+  runValidations: (node: LayoutNode, formData?: IComponentFormData) => IValidationObject[];
+  validateComponent: (node: LayoutNode, formData?: IComponentFormData) => IComponentValidationResult;
 }
 
 export function implementsNodeValidation<Type extends ComponentTypes>(

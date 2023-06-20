@@ -17,6 +17,7 @@ import type { NodeValidation, PropsFromGenericComponent } from 'src/layout/index
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { IComponentValidationResult, IRuntimeState } from 'src/types';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -167,18 +168,19 @@ export abstract class FormComponent<Type extends ComponentTypes>
 {
   readonly type = ComponentType.Form;
 
-  runComponentValidation(_node: LayoutNodeFromType<Type>): IValidationObject[] {
+  runComponentValidation(_node: LayoutNodeFromType<Type>, _formData?: IComponentFormData): IValidationObject[] {
     return [];
   }
 
-  runEmptyFieldValidation(node: LayoutNodeFromType<Type>): IValidationObject[] {
+  runEmptyFieldValidation(node: LayoutNodeFromType<Type>, newFormData?: IComponentFormData): IValidationObject[] {
     if (node.isHidden() || !node.item.required) {
       return [];
     }
 
     const state: IRuntimeState = window.reduxStore.getState();
 
-    const formData = node.getFormData();
+    const formDataFromState = node.getFormData();
+    const formData = { ...formDataFromState, ...newFormData };
     const langTools = staticUseLanguageFromState(state);
     const validationObjects: IValidationObject[] = [];
 
@@ -202,12 +204,23 @@ export abstract class FormComponent<Type extends ComponentTypes>
     return validationObjects;
   }
 
-  runSchemaValidation(node: LayoutNodeFromType<Type>): IValidationObject[] {
+  runSchemaValidation(node: LayoutNodeFromType<Type>, newFormData?: IComponentFormData): IValidationObject[] {
     if (node.isHidden()) {
       return [];
     }
 
-    const schemaErrors = getSchemaValidationErrors();
+    const formDataFromState = node.getFormData();
+    const formData = { ...formDataFromState, ...newFormData };
+    const dataModelBindings = node.item.dataModelBindings;
+    const overrideFormData = Object.keys(formData).reduce((obj, binding) => {
+      const field = dataModelBindings?.[binding];
+      if (field) {
+        obj[field] = formData[binding];
+      }
+      return obj;
+    }, {});
+
+    const schemaErrors = getSchemaValidationErrors(overrideFormData);
     const validationObjects: IValidationObject[] = [];
     for (const error of schemaErrors) {
       if (node.item.dataModelBindings) {
@@ -225,17 +238,17 @@ export abstract class FormComponent<Type extends ComponentTypes>
     return validationObjects;
   }
 
-  runValidations(node: LayoutNodeFromType<Type>): IValidationObject[] {
-    const componentValidations = this.runComponentValidation(node);
-    const emptyFieldValidations = this.runEmptyFieldValidation(node);
-    const schemaValidations = this.runSchemaValidation(node);
+  runValidations(node: LayoutNodeFromType<Type>, formData?: IComponentFormData): IValidationObject[] {
+    const componentValidations = this.runComponentValidation(node, formData);
+    const emptyFieldValidations = this.runEmptyFieldValidation(node, formData);
+    const schemaValidations = this.runSchemaValidation(node, formData);
 
     const nodeValidationObjects = [...componentValidations, ...emptyFieldValidations, ...schemaValidations];
     return nodeValidationObjects.length ? nodeValidationObjects : [emptyValidation(node)];
   }
 
-  validateComponent(node: LayoutNodeFromType<Type>): IComponentValidationResult {
-    const validationObjects = this.runValidations(node);
+  validateComponent(node: LayoutNodeFromType<Type>, formData?: IComponentFormData): IComponentValidationResult {
+    const validationObjects = this.runValidations(node, formData);
     return createComponentValidationResult(validationObjects);
   }
 }
