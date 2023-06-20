@@ -111,7 +111,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('exist');
     cy.get(appFrontend.changeOfName.deleteAttachment).click();
     cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
-    cy.get(appFrontend.changeOfName.uploadedTable).should('not.exist');
+    cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
   });
 
   it('is possible to download attachments with tags that are uploaded', () => {
