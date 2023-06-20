@@ -1,5 +1,3 @@
-import escapeRegex from 'escape-string-regexp';
-
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
 import { breakpoints } from 'src/hooks/useIsMobile';
@@ -45,13 +43,10 @@ Cypress.Commands.add('clickAndGone', { prevSubject: true }, (subject: JQueryWith
 
 Cypress.Commands.add('navPage', (page: string) => {
   cy.window().then((win) => {
-    const pageAsRegex = escapeRegex(page);
-    const regex = new RegExp(`^([0-9]+. )?${pageAsRegex}$`);
-
     if (win.innerWidth < 768) {
       cy.get(appFrontend.navMobileMenu).should('have.attr', 'aria-expanded', 'false').click();
     }
-    cy.get(appFrontend.navMenu).findByText(regex);
+    cy.get(appFrontend.navMenu).findByText(page).parent();
   });
 });
 
@@ -83,6 +78,12 @@ Cypress.Commands.add('snapshot', (name: string) => {
   cy.get('#readyForPrint').should('exist');
 
   cy.window().then((win) => {
+    // Find focused element and blur it, to ensure that we don't get any focus outlines or styles in the snapshot.
+    const focused = win.document.activeElement;
+    if (focused && 'blur' in focused && typeof focused.blur === 'function') {
+      focused.blur();
+    }
+
     const { innerWidth, innerHeight } = win;
     cy.readFile('test/percy.css').then((percyCSS) => {
       cy.log('Taking snapshot with Percy');

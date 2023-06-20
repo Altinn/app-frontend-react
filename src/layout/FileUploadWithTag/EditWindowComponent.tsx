@@ -17,7 +17,8 @@ import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IOption } from 'src/types';
 
-export interface EditWindowProps extends PropsFromGenericComponent<'FileUploadWithTag'> {
+export interface EditWindowProps {
+  node: PropsFromGenericComponent<'FileUploadWithTag'>['node'];
   attachment: IAttachment;
   mobileView: boolean;
   options?: IOption[];
@@ -30,9 +31,18 @@ export interface EditWindowProps extends PropsFromGenericComponent<'FileUploadWi
   }[];
 }
 
-export function EditWindowComponent(props: EditWindowProps): JSX.Element {
+export function EditWindowComponent({
+  attachment,
+  attachmentValidations,
+  mobileView,
+  node,
+  onDropdownDataChange,
+  onSave,
+  options,
+  setEditIndex,
+}: EditWindowProps): JSX.Element {
   const dispatch = useAppDispatch();
-  const { id, baseComponentId, dataModelBindings, readOnly, textResourceBindings, alertOnDelete } = props.node.item;
+  const { id, baseComponentId, dataModelBindings, readOnly, textResourceBindings, alertOnDelete } = node.item;
   const { lang, langAsString } = useLanguage();
   const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -48,20 +58,20 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
   const handleDeleteFile = () => {
     dispatch(
       AttachmentActions.deleteAttachment({
-        attachment: props.attachment,
+        attachment,
         componentId: id,
         attachmentType: baseComponentId || id,
         dataModelBindings,
       }),
     );
-    props.setEditIndex(-1);
+    setEditIndex(-1);
   };
 
-  const saveIsDisabled = props.attachment.updating === true || props.attachment.uploaded === false || readOnly;
+  const saveIsDisabled = attachment.updating === true || attachment.uploaded === false || readOnly;
 
   return (
     <div
-      id={`attachment-edit-window-${props.attachment.id}`}
+      id={`attachment-edit-window-${attachment.id}`}
       className={classes.editContainer}
     >
       <Grid
@@ -76,8 +86,8 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           style={{ flexShrink: 1 }}
         >
           <AttachmentFileName
-            attachment={props.attachment}
-            mobileView={props.mobileView}
+            attachment={attachment}
+            mobileView={mobileView}
           />
         </Grid>
         <Grid
@@ -85,21 +95,21 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           style={{ flexShrink: 0 }}
         >
           <div className={classes.iconButtonWrapper}>
-            {props.attachment.uploaded && (
+            {attachment.uploaded && (
               <div style={{ marginLeft: '0.9375rem', marginRight: '0.9375rem' }}>
-                {!props.mobileView ? lang('form_filler.file_uploader_list_status_done') : undefined}
+                {!mobileView ? lang('form_filler.file_uploader_list_status_done') : undefined}
                 <CheckmarkCircleFillIcon
                   role='img'
-                  aria-hidden={!props.mobileView}
+                  aria-hidden={!mobileView}
                   aria-label={langAsString('form_filler.file_uploader_list_status_done')}
                   className={classes.checkMark}
                   data-testid='checkmark-success'
                 />
               </div>
             )}
-            {!props.attachment.uploaded && (
+            {!attachment.uploaded && (
               <AltinnLoader
-                id={`attachment-loader-upload-${props.attachment.id}`}
+                id={`attachment-loader-upload-${attachment.id}`}
                 style={{
                   width: '80px',
                 }}
@@ -109,7 +119,7 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
             <div>
               <DeleteButton
                 alertOnDelete={alertOnDelete}
-                mobileView={props.mobileView}
+                mobileView={mobileView}
                 handleDeleteClick={handleDeleteClick}
                 handlePopoverDeleteClick={handlePopoverDeleteClick}
                 popoverOpen={popoverOpen}
@@ -123,9 +133,9 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
         {textResourceBindings?.tagTitle && (
           <label
             className={classes.label}
-            htmlFor={`attachment-tag-dropdown-${props.attachment.id}`}
+            htmlFor={`attachment-tag-dropdown-${attachment.id}`}
           >
-            {props.getTextResource(textResourceBindings?.tagTitle)}
+            {lang(textResourceBindings?.tagTitle)}
           </label>
         )}
         <Grid
@@ -137,24 +147,24 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
             xs
           >
             <select
-              id={`attachment-tag-dropdown-${props.attachment.id}`}
+              id={`attachment-tag-dropdown-${attachment.id}`}
               tabIndex={0}
-              defaultValue={props.attachment.tags && props.attachment.tags[0]}
+              defaultValue={attachment.tags && attachment.tags[0]}
               disabled={saveIsDisabled}
               className={classNames(classes.select, 'custom-select a-custom-select', {
-                'validation-error': props.attachmentValidations.filter((i) => i.id === props.attachment.id).length > 0,
-                'disabled !important': props.attachment.updating || readOnly,
+                'validation-error': attachmentValidations.filter((i) => i.id === attachment.id).length > 0,
+                'disabled !important': attachment.updating || readOnly,
               })}
-              onChange={(e) => props.onDropdownDataChange(props.attachment.id, e.target.value)}
-              onBlur={(e) => props.onDropdownDataChange(props.attachment.id, e.target.value)}
+              onChange={(e) => onDropdownDataChange(attachment.id, e.target.value)}
+              onBlur={(e) => onDropdownDataChange(attachment.id, e.target.value)}
             >
               <option style={{ display: 'none' }} />
-              {props.options?.map((option) => (
+              {options?.map((option) => (
                 <option
                   key={option.value}
                   value={option.value}
                 >
-                  {props.getTextResourceAsString(option.label)}
+                  {lang(option.label)}
                 </option>
               ))}
             </select>
@@ -163,9 +173,9 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
             item={true}
             xs='auto'
           >
-            {props.attachment.updating ? (
+            {attachment.updating ? (
               <AltinnLoader
-                id={`attachment-loader-update-${props.attachment.id}`}
+                id={`attachment-loader-update-${attachment.id}`}
                 srContent={langAsString('general.loading')}
                 style={{
                   height: '30px',
@@ -174,8 +184,8 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
               />
             ) : (
               <Button
-                onClick={() => props.onSave(props.attachment)}
-                id={`attachment-save-tag-button-${props.attachment.id}`}
+                onClick={() => onSave(attachment)}
+                id={`attachment-save-tag-button-${attachment.id}`}
                 disabled={saveIsDisabled}
               >
                 {lang('general.save')}
@@ -184,15 +194,15 @@ export function EditWindowComponent(props: EditWindowProps): JSX.Element {
           </Grid>
         </Grid>
       </Grid>
-      {props.attachmentValidations.filter((i) => i.id === props.attachment.id).length > 0 ? (
+      {attachmentValidations.filter((i) => i.id === attachment.id).length > 0 ? (
         <div
           style={{
             whiteSpace: 'pre-wrap',
           }}
         >
           {renderValidationMessages(
-            props.attachmentValidations.filter((i) => i.id === props.attachment.id).map((e) => e.message),
-            `attachment-error-${props.attachment.id}`,
+            attachmentValidations.filter((i) => i.id === attachment.id).map((e) => e.message),
+            `attachment-error-${attachment.id}`,
             'error',
           )}
         </div>

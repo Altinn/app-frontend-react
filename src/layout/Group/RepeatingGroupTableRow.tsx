@@ -13,6 +13,7 @@ import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { ExprResolved } from 'src/features/expressions/types';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { HRepGroup, ILayoutGroup } from 'src/layout/Group/types';
 import type { ITextResourceBindings } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -40,13 +41,13 @@ function getTableTitle(textResourceBindings: ITextResourceBindings) {
 
 function getEditButtonText(
   isEditing: boolean,
+  langTools: IUseLanguage,
   textResourceBindings: ITextResourceBindings | undefined,
-  langAsString: (key: string) => string,
 ) {
   const buttonTextKey = isEditing
     ? textResourceBindings?.edit_button_close ?? 'general.save_and_close'
     : textResourceBindings?.edit_button_open ?? 'general.edit_alt';
-  return langAsString(buttonTextKey);
+  return langTools.langAsString(buttonTextKey);
 }
 
 function handleDeleteClick(
@@ -81,7 +82,8 @@ export function RepeatingGroupTableRow({
   const { refSetter } = useRepeatingGroupsFocusContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  const { lang, langAsString } = useLanguage();
+  const langTools = useLanguage();
+  const { lang, langAsString } = langTools;
   const id = node.item.id;
   const group = node.item;
   const row = group.rows[index];
@@ -105,7 +107,7 @@ export function RepeatingGroupTableRow({
 
   const editButtonText = rowHasErrors
     ? langAsString('general.edit_alt_error')
-    : getEditButtonText(editIndex === index, resolvedTextBindings, langAsString);
+    : getEditButtonText(editIndex === index, langTools, resolvedTextBindings);
 
   const deleteButtonText = langAsString('general.delete');
 

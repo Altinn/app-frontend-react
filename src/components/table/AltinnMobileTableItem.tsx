@@ -6,12 +6,12 @@ import { Edit as EditIcon, Warning as WarningIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { useIsMobile } from 'src/hooks/useIsMobile';
-import { getLanguageFromKey } from 'src/language/sharedLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { AltinnStudioTheme } from 'src/theme/altinnStudioTheme';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ITextResourceBindings } from 'src/types';
-import type { ILanguage, ITextResource } from 'src/types/shared';
 
 export interface IMobileTableItem {
   key: React.Key;
@@ -23,15 +23,12 @@ export interface IAltinnMobileTableItemProps {
   items: IMobileTableItem[];
   tableItemIndex: number;
   container?: ILayoutGroup;
-  textResources?: ITextResource[];
-  language?: ILanguage;
   valid?: boolean;
   editIndex: number;
   onEditClick: () => void;
   getEditButtonText?: (
-    language: ILanguage,
     isEditing: boolean,
-    textResources: ITextResource[],
+    langTools: IUseLanguage,
     textResourceBindings?: ITextResourceBindings,
   ) => string;
   editButtonText?: string;
@@ -73,13 +70,6 @@ const useStyles = makeStyles({
       width: '50px',
     },
   },
-  deleteButtonCell: {
-    width: '120px',
-    padding: '4px !important',
-    '@media (max-width: 768px)': {
-      width: '50px',
-    },
-  },
   tableButtonWrapper: {
     width: '100%',
     display: 'flex',
@@ -105,26 +95,22 @@ const useStyles = makeStyles({
   aboveEditingRow: {
     borderBottom: 0,
   },
-  popoverCurrentCell: {
-    zIndex: 1,
-    position: 'relative',
-  },
 });
 
 export function AltinnMobileTableItem({
   items,
   tableItemIndex,
   container,
-  textResources,
   valid = true,
   editIndex,
-  language,
   onEditClick,
   getEditButtonText,
   editButtonText,
 }: IAltinnMobileTableItemProps) {
   const classes = useStyles();
   const mobileViewSmall = useIsMobile();
+  const langTools = useLanguage();
+  const { langAsString } = langTools;
 
   const node = useResolvedNode(container);
   const expressionsForRow =
@@ -137,10 +123,10 @@ export function AltinnMobileTableItem({
     ...expressionsForRow?.textResourceBindings,
   } as ITextResourceBindings;
 
-  if (textResources && getEditButtonText && container && language) {
+  if (getEditButtonText && container) {
     const editButtonTextFromTextResources = !valid
-      ? getLanguageFromKey('general.edit_alt_error', language)
-      : getEditButtonText(language, editIndex === tableItemIndex, textResources, textResourceBindings);
+      ? langAsString('general.edit_alt_error')
+      : getEditButtonText(editIndex === tableItemIndex, langTools, textResourceBindings);
 
     if (!editButtonText) {
       editButtonText = editButtonTextFromTextResources;
