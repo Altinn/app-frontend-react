@@ -1,5 +1,9 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
+import deepEqual from 'fast-deep-equal';
+import type axe from 'axe-core';
+import type { Options as AxeOptions } from 'cypress-axe';
+
 import { breakpoints } from 'src/hooks/useIsMobile';
 import type { ILayouts } from 'src/layout/layout';
 
@@ -75,6 +79,53 @@ Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQuer
   cy.wrap(subject).type(`${moveToStart}${del}`);
 });
 
+interface KnownViolation extends Pick<axe.Result, 'id' | 'help' | 'description' | 'impact'> {
+  snapshotName: string;
+  currentTest: string;
+  nodeLength: number;
+}
+
+// TODO: Fix all violations and remove this list
+const knownWcagViolations: KnownViolation[] = [
+  {
+    snapshotName: 'grid',
+    currentTest: 'should work with basic table functionality',
+    id: 'list',
+    impact: 'serious',
+    description: 'Ensures that lists are structured correctly',
+    help: '<ul> and <ol> must only directly contain <li>, <script> or <template> elements',
+    nodeLength: 1,
+  },
+  {
+    snapshotName: 'group:validation',
+    currentTest: 'Validation on group',
+    id: 'color-contrast',
+    impact: 'serious',
+    description:
+      'Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds',
+    help: 'Elements must meet minimum color contrast ratio thresholds',
+    nodeLength: 1,
+  },
+  {
+    snapshotName: 'group:validation',
+    currentTest: 'Validation on group',
+    id: 'list',
+    impact: 'serious',
+    description: 'Ensures that lists are structured correctly',
+    help: '<ul> and <ol> must only directly contain <li>, <script> or <template> elements',
+    nodeLength: 1,
+  },
+  {
+    snapshotName: 'group: delete-warning-popup',
+    currentTest: 'Opens delete warning popup when alertOnDelete is true and deletes on confirm',
+    id: 'aria-dialog-name',
+    impact: 'serious',
+    description: 'Ensures every ARIA dialog and alertdialog node has an accessible name',
+    help: 'ARIA dialog and alertdialog nodes should have an accessible name',
+    nodeLength: 1,
+  },
+];
+
 Cypress.Commands.add('snapshot', (name: string) => {
   cy.get('#readyForPrint').should('exist');
 
@@ -87,7 +138,7 @@ Cypress.Commands.add('snapshot', (name: string) => {
 
     const { innerWidth, innerHeight } = win;
     cy.readFile('test/percy.css').then((percyCSS) => {
-      cy.log('Taking snapshot with Percy');
+      cy.log(`Taking snapshot with Percy: ${name}`);
 
       // We need to manually resize the viewport to ensure that the snapshot is taken with the correct DOM. We sometimes
       // change the DOM based on the viewport size, and Percy only understands CSS media queries (not our React logic).
@@ -104,19 +155,70 @@ Cypress.Commands.add('snapshot', (name: string) => {
 
       // Reset to original viewport
       cy.viewport(innerWidth, innerHeight);
+      const targetViewport =
+        innerWidth < breakpoints.mobile ? 'mobile' : innerWidth < breakpoints.tablet ? 'tablet' : 'desktop';
+      cy.get(`html.viewport-is-${targetViewport}`).should('be.visible');
     });
   });
 
-  /*
-   * TODO: Enable this again later, when we have fixed all the accessibility issues in current tests.
-   *
-   *
   cy.log('Testing WCAG');
-  cy.injectAxe();
-  cy.checkA11y(undefined, {
+  const axeOptions: AxeOptions = {
     includedImpacts: ['critical', 'serious', 'moderate'],
-  });
-   */
+  };
+  const violationsCallback = (violations: axe.Result[]) => {
+    const filteredKnown = knownWcagViolations.filter(
+      (known) => known.snapshotName === name && known.currentTest === Cypress.currentTest.title,
+    );
+
+    let foundNewViolations = false;
+    let foundKnownViolations = 0;
+    for (const violation of violations) {
+      const asKnown: KnownViolation = {
+        id: violation.id,
+        impact: violation.impact,
+        snapshotName: name,
+        currentTest: Cypress.currentTest.title,
+        description: violation.description,
+        help: violation.help,
+        nodeLength: violation.nodes.length,
+      };
+      const isKnown = filteredKnown.some((known) => deepEqual(known, asKnown));
+      if (isKnown) {
+        cy.log(`Ignoring known WCAG violation: ${violation.id}`);
+        foundKnownViolations++;
+        continue;
+      }
+
+      if (!foundNewViolations) {
+        cy.log('-----------------------------------');
+        cy.log('Found new WCAG violations:');
+        cy.log(`snapshotName: ${name}`);
+        cy.log(`currentTest: ${Cypress.currentTest.title}`);
+      }
+      cy.log('-----------------------------------');
+      cy.log(`id: ${violation.id}`);
+      cy.log(`impact: ${violation.impact}`);
+      cy.log(`descr: ${violation.description}`);
+      cy.log(`help: ${violation.help}`);
+      cy.log(`helpUrl: ${violation.helpUrl}`);
+      cy.log(`nodeLength: ${violation.nodes.length}`);
+      foundNewViolations = true;
+    }
+
+    if (foundNewViolations) {
+      cy.log('-----------------------------------');
+
+      // Forcing a failure here, as long as skipFailures is true, to ensure that we don't miss any new WCAG violations.
+      cy.get('#element-does-not-exist').should('exist');
+    } else if (foundKnownViolations !== filteredKnown.length) {
+      cy.log(
+        `Expected to find ${filteredKnown.length} known WCAG violations, but found ${foundKnownViolations} in this test`,
+      );
+      cy.get('#element-does-not-exist').should('exist');
+    }
+  };
+  const skipFailures = true; // TODO: Remove this when we have fixed all WCAG violations
+  cy.checkA11y(undefined, axeOptions, violationsCallback, skipFailures);
 });
 
 Cypress.Commands.add('reloadAndWait', () => {
