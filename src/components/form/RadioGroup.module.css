@@ -1,5 +1,3 @@
-@import '@digdir/design-system-tokens/brand/digdir/tokens.css';
-
 .radioGroup {
   display: flex;
   flex-wrap: wrap;
