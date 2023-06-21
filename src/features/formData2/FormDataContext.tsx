@@ -11,7 +11,6 @@ import {
   diffModels,
 } from 'src/features/formData/submit/submitFormDataSagas';
 import { useFormDataStateMachine } from 'src/features/formData2/StateMachine';
-import { UseNewFormDataHook } from 'src/features/toggles';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMemoDeepEqual } from 'src/hooks/useMemoDeepEqual';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
@@ -97,7 +96,7 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
 
   const [state, dispatch] = useFormDataStateMachine();
   const uuid = useFormDataUuid();
-  const enabled = uuid !== undefined && UseNewFormDataHook;
+  const enabled = uuid !== undefined && window.featureToggles.useNewFormDataHook;
 
   const mutation = useMutation(async (arg?: MutationArg) => {
     if (!enabled) {

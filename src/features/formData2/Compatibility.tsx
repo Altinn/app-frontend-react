@@ -3,14 +3,13 @@ import React, { useMemo } from 'react';
 import dot from 'dot-object';
 
 import { FormDataProvider, NewFD } from 'src/features/formData2/FormDataContext';
-import { UseNewFormDataHook } from 'src/features/toggles';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import type { IFormData } from 'src/features/formData';
 import type { IFormDataFunctionality } from 'src/features/formData2/types';
 import type { IRuntimeState } from 'src/types';
 
 export function SagaFetchFormDataCompat(state: IRuntimeState): IFormData {
-  if (UseNewFormDataHook) {
+  if (window.featureToggles.useNewFormDataHook) {
     return window.deprecated.currentFormData;
   }
 
@@ -70,4 +69,4 @@ const CompatibilityFD: IFormDataFunctionality = {
   }),
 };
 
-export const FD: IFormDataFunctionality = UseNewFormDataHook ? NewFD : CompatibilityFD;
+export const FD: IFormDataFunctionality = window.featureToggles.useNewFormDataHook ? NewFD : CompatibilityFD;

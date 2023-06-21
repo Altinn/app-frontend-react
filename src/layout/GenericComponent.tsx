@@ -10,7 +10,6 @@ import { Legend } from 'src/components/form/Legend';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FD } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
-import { UseNewFormDataHook } from 'src/features/toggles';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -172,7 +171,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
           }
         : undefined;
 
-    if (UseNewFormDataHook) {
+    if (window.featureToggles.useNewFormDataHook) {
       // TODO: Support validation, etc
       fdMethods.setLeafValue(dataModelBinding, value);
       return;

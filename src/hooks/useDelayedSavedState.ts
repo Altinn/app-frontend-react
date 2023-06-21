@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { UseNewFormDataHook } from 'src/features/toggles';
 import type { IComponentProps } from 'src/layout';
 
 export interface DelayedSavedStateRetVal {
@@ -129,4 +128,6 @@ function useDelayedSavedStateShortCircuit(
   };
 }
 
-export const useDelayedSavedState = UseNewFormDataHook ? useDelayedSavedStateShortCircuit : useDelayedSavedStateLegacy;
+export const useDelayedSavedState = window.featureToggles.useNewFormDataHook
+  ? useDelayedSavedStateShortCircuit
+  : useDelayedSavedStateLegacy;
