@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/features/expressions';
 import { FD } from 'src/features/formData2/Compatibility';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
 import { getLayoutComponentObject } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { buildInstanceContext } from 'src/utils/instanceContext';
@@ -113,8 +114,7 @@ export function dataSourcesFromState(state: IRuntimeState): Omit<HierarchyDataSo
     authContext: buildAuthContext(state.process),
     validations: state.formValidations.validations,
     devTools: state.devTools,
-    textResources: state.textResources.resources,
-    profile: state.profile,
+    langTools: staticUseLanguageFromState(state),
   };
 }
 
@@ -167,6 +167,7 @@ function useResolvedExpressions() {
   const repeatingGroups = state.formLayout.uiConfig.repeatingGroups;
   const textResources = state.textResources.resources;
   const devTools = state.devTools;
+  const langTools = useLanguage();
 
   const dataSources: HierarchyDataSources = useMemo(
     () => ({
@@ -177,20 +178,9 @@ function useResolvedExpressions() {
       hiddenFields: new Set(hiddenFields),
       validations,
       devTools,
-      textResources,
-      profile: state.profile,
+      langTools,
     }),
-    [
-      formData,
-      applicationSettings,
-      instance,
-      process,
-      hiddenFields,
-      validations,
-      devTools,
-      textResources,
-      state.profile,
-    ],
+    [formData, applicationSettings, instance, process, hiddenFields, validations, devTools, langTools],
   );
 
   return useMemo(

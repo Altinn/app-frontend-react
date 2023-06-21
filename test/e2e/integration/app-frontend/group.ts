@@ -113,6 +113,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.currentValue).type('1');
     cy.get(appFrontend.group.newValue).type('0');
     cy.get(appFrontend.fieldValidation('newValue')).should('have.text', texts.zeroIsNotValid);
+    cy.snapshot('group:validation');
     cy.get(appFrontend.group.newValue).clear();
     cy.get(appFrontend.group.newValue).type('1');
     cy.get(appFrontend.fieldValidation('newValue')).should('not.exist');
@@ -129,6 +130,54 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup).siblings(appFrontend.group.tableErrors).should('not.exist');
     cy.get(appFrontend.group.saveSubGroup).clickAndGone();
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+  });
+
+  it('Validation on repeating group for minCount', () => {
+    // set minCount to 3 on main group
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'Group' && component.edit && component.id === 'mainGroup') {
+        component.minCount = 3;
+      }
+    });
+
+    init();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+
+    // add row to main group
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // assert error message to exist
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
+
+    // add row to main group
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // assert error message to exist
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
+
+    // add row to main group
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // assert error message to not exist
+    cy.get(appFrontend.group.tableErrors).should('not.exist');
+
+    // remove row from main group
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).first().click();
+
+    // attempt to move to next page
+    cy.get(appFrontend.nextButton).click();
+
+    // assert error message to exist
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
   });
 
   [Triggers.Validation, Triggers.ValidateRow].forEach((trigger) => {
@@ -200,6 +249,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.secondGroup_add_to_reference_group).click();
     cy.get(appFrontend.group.secondGroup_currentValue).type('1');
     cy.get(appFrontend.group.secondGroup_newValue).type('2');
+    cy.snapshot('group:panel');
     cy.get(appFrontend.group.secondGroup_save).click();
     cy.get(appFrontend.group.secondGroup_save_and_close).click();
     cy.get(appFrontend.group.secondGroup_table).find('tbody').find('tr').its('length').should('eq', 1);
@@ -249,6 +299,7 @@ describe('Group', () => {
 
     checkPrefills({ middels: true, svaer: true });
     expectRows(['NOK 1', 'NOK 5'], ['NOK 120', 'NOK 350'], ['NOK 80 323', 'NOK 123 455']);
+    cy.snapshot('group:prefill');
 
     checkPrefills({ middels: false, svaer: false });
     expectRows(['NOK 1', 'NOK 5']);
@@ -386,7 +437,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
-  it('Opens delete warning popoup when alertOnDelete is true and deletes on confirm', () => {
+  it('Opens delete warning popup when alertOnDelete is true and deletes on confirm', () => {
     cy.interceptLayout('group', (component) => {
       if (component.type === 'Group' && component.edit && typeof component.edit.openByDefault !== 'undefined') {
         component.edit.alertOnDelete = true;
@@ -406,6 +457,8 @@ describe('Group', () => {
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').first().should('have.text', 'automation');
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
+    cy.snapshot('group: delete-warning-popup');
+
     cy.get(appFrontend.group.subGroup)
       .find(appFrontend.designSystemPanel)
       .find(appFrontend.group.popOverCancelButton)
@@ -452,6 +505,7 @@ describe('Group', () => {
     cy.navPage('repeating').click();
     cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
+    cy.snapshot('group:edit-in-table');
 
     for (const row of [0, 1, 2]) {
       cy.get(appFrontend.group.mainGroupTableBody)
@@ -523,6 +577,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
+    cy.snapshot('group:only-table');
 
     for (const extraRows of [6, 7]) {
       cy.get(appFrontend.group.addNewItem).click();

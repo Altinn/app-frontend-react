@@ -2,6 +2,12 @@ import type { FixedLanguageList } from 'src/language/languages';
 
 export function nb(): FixedLanguageList {
   return {
+    altinn: {
+      standard_validation: {
+        file_content_type_not_allowed:
+          'Det ser ut som du prøver å laste opp en filtype som ikke er tillatt. Sjekk at filen faktisk er av den typen den utgir seg for å være.',
+      },
+    },
     actions: {
       sign: 'Signer',
       confirm: 'Bekreft',
@@ -235,6 +241,10 @@ export function nb(): FixedLanguageList {
       unit_personal_number: 'personnr.',
       show_deleted: 'Vis slettede',
       show_sub_unit: 'Vis underenheter',
+      why_seeing_this: 'Hvorfor ser jeg dette?',
+      seeing_this_preference:
+        'Du kan endre [profilinnstillingene](https://altinn.no/ui/Profile) dine for å ikke bli spurt om aktør hver gang du starter utfylling av et nytt skjema. Du finner denne innstillingen under **Profil** > **Avanserte innstillinger** > **Jeg ønsker ikke å bli spurt om aktør hver gang jeg starter utfylling av et nytt skjema**.',
+      seeing_this_override: 'Denne appen er satt opp til å alltid spørre om aktør.',
     },
     helptext: {
       button_title: 'Hjelp',
@@ -285,6 +295,8 @@ export function nb(): FixedLanguageList {
       pattern: 'Feil format eller verdi',
       required: 'Feltet er påkrevd',
       enum: 'Kun verdiene {0} er tillatt',
+      minItems: 'Minst {0} rader er påkrevd',
+      maxItems: 'Maks {0} rader er tillatt',
     },
     map_component: {
       selectedLocation: 'Valgt lokasjon: {0}° nord, {1}° øst',

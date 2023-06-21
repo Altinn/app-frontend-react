@@ -8,6 +8,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { Severity } from 'src/types';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
@@ -27,10 +28,11 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { IRuntimeState, IRuntimeStore, IValidationIssue } from 'src/types';
+import type { IRuntimeState, IRuntimeStore, IUiConfig, IValidationIssue } from 'src/types';
 
 const LayoutSelector: (store: IRuntimeStore) => ILayoutState = (store: IRuntimeStore) => store.formLayout;
 const getApplicationMetaData = (store: IRuntimeState) => store.applicationMetadata?.applicationMetadata;
+const selectUiConfig = (state: IRuntimeState) => state.formLayout.uiConfig;
 
 /**
  * Saga that submits the form data to the backend, and moves the process forward.
@@ -69,12 +71,9 @@ function* submitComplete(state: IRuntimeState) {
     : undefined;
 
   // update validation state
+  const langTools = staticUseLanguageFromState(state);
   const layoutState: ILayoutState = yield select(LayoutSelector);
-  const mappedValidations = mapDataElementValidationToRedux(
-    serverValidation,
-    layoutState.layouts,
-    state.textResources.resources,
-  );
+  const mappedValidations = mapDataElementValidationToRedux(serverValidation, layoutState.layouts, langTools);
   yield put(ValidationActions.updateValidations({ validations: mappedValidations }));
   const hasErrors = hasValidationsOfSeverity(mappedValidations, Severity.Error);
   if (hasErrors) {
@@ -368,7 +367,8 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
 export function* autoSaveSaga({
   payload: { skipAutoSave, field, componentId, singleFieldValidation },
 }: PayloadAction<IUpdateFormData>): SagaIterator {
-  if (skipAutoSave) {
+  const uiConfig: IUiConfig = yield select(selectUiConfig);
+  if (skipAutoSave || uiConfig.autoSaveBehavior === 'onChangePage') {
     return;
   }
 

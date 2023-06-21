@@ -1,10 +1,13 @@
 import { returnConfirmSummaryObject } from 'src/features/confirm/helpers/returnConfirmSummaryObject';
+import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import type { IParty } from 'src/types/shared';
+
+const langTools = staticUseLanguageForTests({ language: {} });
 
 describe('returnConfirmSummaryObject', () => {
   it('should return sender with ssn prefix when ssn is present', () => {
     const result = returnConfirmSummaryObject({
-      languageData: {},
+      langTools,
       instanceOwnerParty: {
         partyId: '50001',
         name: 'Ola Privatperson',
@@ -13,13 +16,15 @@ describe('returnConfirmSummaryObject', () => {
     });
 
     expect(result).toEqual({
-      'confirm.sender': '01017512345-Ola Privatperson',
+      'confirm.sender': {
+        value: '01017512345-Ola Privatperson',
+      },
     });
   });
 
   it('should return sender with ssn prefix when both ssn and orgNumber is present', () => {
     const result = returnConfirmSummaryObject({
-      languageData: {},
+      langTools,
       instanceOwnerParty: {
         partyId: '50001',
         name: 'Ola Privatperson',
@@ -29,13 +34,15 @@ describe('returnConfirmSummaryObject', () => {
     });
 
     expect(result).toEqual({
-      'confirm.sender': '01017512345-Ola Privatperson',
+      'confirm.sender': {
+        value: '01017512345-Ola Privatperson',
+      },
     });
   });
 
   it('should return sender with orgNumber prefix when orgNumber is present', () => {
     const result = returnConfirmSummaryObject({
-      languageData: {},
+      langTools,
       instanceOwnerParty: {
         partyId: '50001',
         name: 'Ola Bedrift',
@@ -44,13 +51,15 @@ describe('returnConfirmSummaryObject', () => {
     });
 
     expect(result).toEqual({
-      'confirm.sender': '987654321-Ola Bedrift',
+      'confirm.sender': {
+        value: '987654321-Ola Bedrift',
+      },
     });
   });
 
   it('should return sender as empty string when neither ssn or orgNumber is present', () => {
     const result = returnConfirmSummaryObject({
-      languageData: {},
+      langTools,
       instanceOwnerParty: {
         partyId: '50001',
         name: 'Ola Bedrift',
@@ -58,24 +67,25 @@ describe('returnConfirmSummaryObject', () => {
     });
 
     expect(result).toEqual({
-      'confirm.sender': '',
+      'confirm.sender': {
+        value: '',
+      },
     });
   });
 
   it('should return sender as empty string when instanceOwnerParty is not present', () => {
-    const result = returnConfirmSummaryObject({
-      languageData: {},
-    });
+    const result = returnConfirmSummaryObject({ langTools });
 
     expect(result).toEqual({
-      'confirm.sender': '',
+      'confirm.sender': {
+        value: '',
+      },
     });
   });
 
   it('should return custom value for confirm.sender if key is supplied in text resources', () => {
     const result = returnConfirmSummaryObject({
-      languageData: {},
-      textResources: [{ id: 'confirm.sender', value: 'Some custom value' }],
+      langTools: staticUseLanguageForTests({ textResources: [{ id: 'confirm.sender', value: 'Some custom value' }] }),
       instanceOwnerParty: {
         partyId: '50001',
         name: 'Ola Privatperson',
@@ -84,7 +94,9 @@ describe('returnConfirmSummaryObject', () => {
     });
 
     expect(result).toEqual({
-      'Some custom value': '01017512345-Ola Privatperson',
+      'Some custom value': {
+        value: '01017512345-Ola Privatperson',
+      },
     });
   });
 });

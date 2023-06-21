@@ -14,7 +14,7 @@ describe('Formatting', () => {
       .should('have.css', 'border-bottom', '1px dashed rgb(148, 148, 148)');
     cy.get(appFrontend.changeOfName.mobilenummer).type('44444444');
     cy.get(appFrontend.changeOfName.mobilenummer).should('have.value', '+47 444 44 444');
-    cy.gotoAndComplete('changename');
+    cy.fillOut('changename');
     cy.get(appFrontend.backButton).should('be.visible');
     cy.intercept('**/api/layoutsettings/group').as('getLayoutGroup');
     cy.get(appFrontend.sendinButton).click();
@@ -31,6 +31,9 @@ describe('Formatting', () => {
   const changeToLang = (option: 'en' | 'nb') => {
     cy.findByRole('combobox', { name: option === 'en' ? 'Språk' : 'Language' }).click();
     cy.findByRole('option', { name: option === 'en' ? 'Engelsk' : 'Norwegian bokmål' }).click();
+
+    // Verify that the language has changed
+    cy.findByRole('combobox', { name: option === 'en' ? 'Language' : 'Språk' }).should('be.visible');
   };
 
   it('Dynamic number formatting', () => {

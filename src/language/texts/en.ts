@@ -1,5 +1,11 @@
 export function en() {
   return {
+    altinn: {
+      standard_validation: {
+        file_content_type_not_allowed:
+          'It looks like you are trying to upload a file type that is not allowed. Please make sure that the file is actually the type it claims to be.',
+      },
+    },
     actions: {
       sign: 'Sign',
       confirm: 'Confirm',
@@ -232,6 +238,10 @@ export function en() {
       unit_personal_number: 'pers. number',
       show_deleted: 'Show deleted',
       show_sub_unit: 'Show sub units',
+      why_seeing_this: 'Why am I seeing this?',
+      seeing_this_preference:
+        'You can change your [profile settings](https://altinn.no/ui/Profile) to not get prompted for party selection each time you start a new instance. You can find this setting under **Profile** > **Advanced settings** > **Do not ask what party I represent each time I start to fill in a new form**.',
+      seeing_this_override: 'This app has been configured to always prompt you for party selection.',
     },
     helptext: {
       button_title: 'Help',
@@ -282,6 +292,8 @@ export function en() {
       pattern: 'Wrong format or value',
       required: 'Field is required',
       enum: 'Only the values {0} are permitted',
+      minItems: 'A minimum of {0} rows are required',
+      maxItems: 'A maximum of {0} rows are permitted',
     },
     map_component: {
       selectedLocation: 'Selected location: {0}° north, {1}° east',

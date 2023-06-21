@@ -13,6 +13,7 @@ export interface IApplicationMetadata {
   autoDeleteOnProcessEnd: boolean;
   onEntry?: IOnEntry;
   features?: Partial<IBackendFeaturesState>;
+  promptForParty?: 'always' | 'never';
 }
 
 export interface IApplicationMetadataState {
@@ -45,4 +46,5 @@ export interface IBackendFeaturesState {
   footer: boolean;
   multiPartSave: boolean;
   processActions: boolean;
+  jsonObjectInDataResponse: boolean; // Extended attachment validation
 }

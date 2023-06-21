@@ -2,6 +2,12 @@ import type { FixedLanguageList } from 'src/language/languages';
 
 export function nn(): FixedLanguageList {
   return {
+    altinn: {
+      standard_validation: {
+        file_content_type_not_allowed:
+          'Det ser ut som du prøver å lasta opp ein filtype som ikkje er tillaten. Sjekk at fila faktisk er av den typen han gir seg ut for å vera.',
+      },
+    },
     actions: {
       sign: 'Signer',
       confirm: 'Bekreft',
@@ -73,7 +79,7 @@ export function nn(): FixedLanguageList {
       file_uploader_validation_error_file_size: 'overskrid tillatt filstorleik.',
       file_uploader_validation_error_general_1: 'Det var eit problem med fila',
       file_uploader_validation_error_general_2:
-        '. Forsikre deg om at fila har rett filtype og ikkke overskrid maks filstorleik.',
+        '. Forsikre deg om at fila har rett filtype og ikkje overskrid maks filstorleik.',
       file_uploader_validation_error_upload: 'Noko gjekk galt under opplastinga av fila, prøv igjen seinare.',
       file_uploader_validation_error_update: 'Noko gjekk galt under oppdateringa av filas merking, prøv igjen seinare.',
       file_uploader_validation_error_no_chosen_tag: 'Du må velja',
@@ -235,6 +241,10 @@ export function nn(): FixedLanguageList {
       unit_personal_number: 'personnr.',
       show_deleted: 'Vis sletta',
       show_sub_unit: 'Vis undereiningar',
+      why_seeing_this: 'Kvifor ser eg dette?',
+      seeing_this_preference:
+        'Du kan endra [profilinnstillingane](https://altinn.no/ui/Profile) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
+      seeing_this_override: 'Denne appen er sett opp til å alltid spørja om aktør.',
     },
     helptext: {
       button_title: 'Hjelp',
@@ -285,6 +295,8 @@ export function nn(): FixedLanguageList {
       pattern: 'Feil format eller verdi',
       required: 'Feltet er påkravd',
       enum: 'Kun verdiane {0} er tillatne',
+      minItems: 'Minst {0} radar er påkrevd',
+      maxItems: 'Maks {0} radar er tillatne',
     },
     map_component: {
       selectedLocation: 'Valt lokasjon: {0}° nord, {1}° øst',

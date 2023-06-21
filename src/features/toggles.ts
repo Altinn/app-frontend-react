@@ -1,3 +1,12 @@
+type FeatureToggle = 'doNotPromptForPartyPreference';
+export type IFeatureToggles = { [key in FeatureToggle]?: boolean };
+
+const featureToggles: IFeatureToggles = {
+  doNotPromptForPartyPreference: window.featureToggles?.doNotPromptForPartyPreference ?? false,
+};
+
+window.featureToggles = featureToggles;
+
 /**
  * Toggle this on to use the newer form data API. This is a breaking change, and should be toggled on in v4,
  * at which point the old functionality should be removed.

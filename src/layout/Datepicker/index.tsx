@@ -1,11 +1,10 @@
 import React from 'react';
 
 import { FD } from 'src/features/formData2/Compatibility';
-import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
 import { getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import type { ExprResolved } from 'src/features/expressions/types';
@@ -22,18 +21,23 @@ export class Datepicker extends FormComponent<'Datepicker'> {
 
   useDisplayData(node: LayoutNodeFromType<'Datepicker'>): string {
     const data = FD.usePick(node.item.dataModelBindings?.simpleBinding) ?? '';
-    const language = useAppSelector(appLanguageStateSelector);
+    const { selectedLanguage } = useLanguage();
     if (typeof data !== 'string') {
       return '';
     }
 
-    const dateFormat = getDateFormat(node.item.format, language);
+    const dateFormat = getDateFormat(node.item.format, selectedLanguage);
     return formatISOString(data, dateFormat) ?? '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Datepicker'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
-    return <SummaryItemSimple formDataAsString={displayData} />;
+    return (
+      <SummaryItemSimple
+        formDataAsString={displayData}
+        hideFromVisualTesting={true}
+      />
+    );
   }
 }
 

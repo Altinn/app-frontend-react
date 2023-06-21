@@ -12,17 +12,19 @@ import { InstantiateContainer } from 'src/features/instantiate/containers/Instan
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { PartyActions } from 'src/features/party/partySlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { usePartyValidationMutation } from 'src/hooks/mutations/usePartyValidationMutation';
 import { useActiveInstancesQuery } from 'src/hooks/queries/useActiveInstancesQuery';
+import { useAlwaysPromptForParty } from 'src/hooks/useAlwaysPromptForParty';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { selectAppName, selectAppOwner } from 'src/selectors/language';
 import { PresentationType, ProcessTaskType } from 'src/types';
 import { isStatelessApp } from 'src/utils/appMetadata';
 import { checkIfAxiosError, HttpStatusCodes } from 'src/utils/network/networking';
-import { getTextFromAppOrDefault } from 'src/utils/textResource';
 import type { ShowTypes } from 'src/features/applicationMetadata';
 
 const titleKey = 'instantiate.starting';
@@ -33,6 +35,7 @@ type EntrypointProps = {
 export function Entrypoint({ allowAnonymous }: EntrypointProps) {
   const [action, setAction] = React.useState<ShowTypes | null>(null);
   const selectedParty = useAppSelector((state) => state.party.selectedParty);
+  const { langAsStringOrEmpty } = useLanguage();
 
   const {
     data: partyValidation,
@@ -56,18 +59,7 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
   const formDataError = useAppSelector((state) => state.formData.error);
   const appName = useAppSelector(selectAppName);
   const appOwner = useAppSelector(selectAppOwner);
-
-  const titleText = useAppSelector((state) => {
-    const text = getTextFromAppOrDefault(
-      titleKey,
-      state.textResources.resources,
-      state.language.language || {},
-      [],
-      true,
-    );
-    return text === titleKey ? '' : text;
-  });
-
+  const alwaysPromptForParty = useAlwaysPromptForParty();
   const dispatch = useAppDispatch();
 
   const componentHasErrors = hasPartyValidationError || hasActiveInstancesError;
@@ -102,6 +94,11 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
 
   if (componentHasErrors) {
     return <UnknownError />;
+  }
+
+  if (alwaysPromptForParty === true && !selectedParty) {
+    dispatch(PartyActions.setAutoRedirect(true));
+    return <Navigate to={'/partyselection/'} />;
   }
 
   if (partyValidation?.valid === false) {
@@ -168,7 +165,7 @@ export function Entrypoint({ allowAnonymous }: EntrypointProps) {
 
   return (
     <PresentationComponent
-      header={titleText}
+      header={langAsStringOrEmpty(titleKey)}
       type={ProcessTaskType.Unknown}
     >
       <AltinnContentLoader

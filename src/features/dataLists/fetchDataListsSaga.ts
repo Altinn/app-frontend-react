@@ -5,7 +5,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { DataListsActions } from 'src/features/dataLists/dataListsSlice';
 import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
-import { appLanguageStateSelector } from 'src/selectors/appLanguageStateSelector';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { listStateSelector } from 'src/selectors/dataListStateSelector';
 import { getDataListLookupKey, getDataListLookupKeys } from 'src/utils/dataList';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -19,6 +19,7 @@ import type {
 } from 'src/features/dataLists/index';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, IRuntimeState } from 'src/types';
 
@@ -115,7 +116,8 @@ export function* fetchSpecificDataListSaga({
     };
     yield put(DataListsActions.fetching({ key: id, metaData }));
     const formData: IFormData = yield select(SagaFetchFormDataCompat);
-    const language = yield select(appLanguageStateSelector);
+    const langTools: IUseLanguage = yield select(staticUseLanguageFromState);
+    const language = langTools.selectedLanguage;
     const dataList = yield select(listStateSelector);
     const pageSize = dataList.dataLists[id].size ? dataList.dataLists[id].size.toString() : paginationDefaultValue;
     const pageNumber = dataList.dataLists[id].pageNumber ? dataList.dataLists[id].pageNumber.toString() : '0';
