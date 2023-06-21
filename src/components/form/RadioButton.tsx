@@ -1,10 +1,9 @@
-import React, { useId } from 'react';
+import React, { useRef } from 'react';
 
 import { RadioButton as DesignSystemRadioButton } from '@digdir/design-system-react';
 import type { RadioButtonProps } from '@digdir/design-system-react';
 
 import classes from 'src/components/form/RadioButton.module.css';
-import { getPlainTextFromNode } from 'src/utils/stringHelper';
 
 const Card = ({ children }: { children: React.ReactNode }) => <div className={classes.card}>{children}</div>;
 
@@ -13,20 +12,23 @@ export interface IAppRadioButtonProps extends RadioButtonProps {
 }
 
 export const RadioButton = ({ showAsCard = false, ...rest }: IAppRadioButtonProps) => {
-  const randomId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   if (showAsCard) {
-    const id = `input-${randomId}`;
     return (
       <Card>
-        <label
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+        <div
           className={classes.cardLabel}
-          htmlFor={id}
-          aria-hidden='true'
-          aria-label={getPlainTextFromNode(rest.label)}
+          onClick={() => {
+            if (inputRef.current) {
+              inputRef.current.click();
+              inputRef.current.focus();
+            }
+          }}
         />
         <DesignSystemRadioButton
           {...rest}
-          radioId={id}
+          ref={inputRef}
         />
       </Card>
     );
