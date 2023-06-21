@@ -52,7 +52,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
             {calculatedOptions.map((option) => (
               <RadioButton
                 {...option}
-                label={hideLabel ? langAsString(option.label) : lang(option.label)}
+                label={langAsString(option.label)}
                 description={lang(option.description)}
                 helpText={lang(option.helpText)}
                 name={id}
