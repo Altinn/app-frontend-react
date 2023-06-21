@@ -318,7 +318,11 @@ export function validateEmptyField(
           langTools,
           fieldKey !== 'simpleBinding' ? fieldKey : undefined,
         );
-        errors.push(langAsString('form_filler.error_required', [fieldName]));
+        const errorMessage = node.item.textResourceBindings?.requiredValidation
+          ? langAsString(node.item.textResourceBindings?.requiredValidation)
+          : langAsString('form_filler.error_required', [fieldName]);
+
+        errors.push(errorMessage);
 
         componentValidations[fieldKey] = { errors, warnings };
       }

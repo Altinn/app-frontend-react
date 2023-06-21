@@ -137,6 +137,10 @@ describe('utils > validation', () => {
         value: 'component_4',
       },
       {
+        id: 'c4RequiredValidation',
+        value: 'Component_4 feltet er påkrevd og må besvares',
+      },
+      {
         id: 'c5Title',
         value: 'component_5',
       },
@@ -170,6 +174,7 @@ describe('utils > validation', () => {
       readOnly: false,
       textResourceBindings: {
         title: 'c4Title',
+        requiredValidation: 'c4RequiredValidation',
       },
     };
 
@@ -915,7 +920,7 @@ describe('utils > validation', () => {
           },
           'componentId_4-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut component_4'],
+              errors: ['Component_4 feltet er påkrevd og må besvares'],
               warnings: [],
             },
           },
@@ -1048,12 +1053,19 @@ describe('utils > validation', () => {
     const requiredFieldInSimpleGroup = 'required_in_group_simple';
     const requiredError = (name?: string) => {
       const fieldName = name || 'dette feltet';
-      return {
-        simpleBinding: {
-          errors: [`Du må fylle ut ${fieldName}`],
-          warnings: [],
-        },
-      };
+      return name == 'component_4'
+        ? {
+            simpleBinding: {
+              errors: [`Component_4 feltet er påkrevd og må besvares`],
+              warnings: [],
+            },
+          }
+        : {
+            simpleBinding: {
+              errors: [`Du må fylle ut ${fieldName}`],
+              warnings: [],
+            },
+          };
     };
 
     it('should pass validation on required field in hidden group', () => {
@@ -1708,7 +1720,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'componentId_4-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut component_4', 'Feil format eller verdi'],
+              errors: ['Component_4 feltet er påkrevd og må besvares', 'Feil format eller verdi'],
             },
           },
           'componentId_5-0-1': {
@@ -1801,7 +1813,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'componentId_4-0': {
             simpleBinding: {
-              errors: ['Du må fylle ut component_4', 'Feil format eller verdi'],
+              errors: ['Component_4 feltet er påkrevd og må besvares', 'Feil format eller verdi'],
             },
           },
           'componentId_5-0-1': {
@@ -1823,7 +1835,7 @@ describe('utils > validation', () => {
         FormLayout: {
           'componentId_4-1': {
             simpleBinding: {
-              errors: ['Du må fylle ut component_4', 'Feil format eller verdi'],
+              errors: ['Component_4 feltet er påkrevd og må besvares', 'Feil format eller verdi'],
             },
           },
           'componentId_5-1-0': {

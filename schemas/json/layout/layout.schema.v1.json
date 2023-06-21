@@ -78,7 +78,8 @@
           "examples": [
             {
               "title": "some.text.binding",
-              "help": "some.other.text.binding"
+              "help": "some.other.text.binding",
+              "requiredValidation": "some.custom.required.validation.message"
             }
           ]
         },
