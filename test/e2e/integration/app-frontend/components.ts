@@ -39,23 +39,6 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.deleteAttachment).should('not.exist');
   });
 
-  it('is possible to add delete confirmation for uploaded files: only proceeds on user confirmation', () => {
-    cy.interceptLayout('changename', (component) => {
-      if (component.id === 'fileUpload-changename' && component.type === 'FileUpload') {
-        component.alertOnDelete = true;
-      }
-    });
-    cy.goto('changename');
-    cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
-    cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
-    cy.get(appFrontend.changeOfName.deleteAttachment).click();
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
-    cy.get(appFrontend.changeOfName.uploadedTable).should('exist');
-    cy.get(appFrontend.changeOfName.deleteAttachment).click();
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
-    cy.get(appFrontend.changeOfName.uploadedTable).should('not.exist');
-  });
-
   it('is possible to download attachments that are uploaded', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.uploadDropZone).should('be.visible');
@@ -97,23 +80,6 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
   });
 
-  it('is possible to add delete confirmation for uploaded files with tag: only proceeds on user confirmation', () => {
-    cy.interceptLayout('changename', (component) => {
-      if (component.id === 'fileUploadWithTags-changename' && component.type === 'FileUploadWithTag') {
-        component.alertOnDelete = true;
-      }
-    });
-    cy.goto('changename');
-    cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', { force: true });
-    cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
-    cy.get(appFrontend.changeOfName.deleteAttachment).click();
-    cy.get(appFrontend.changeOfName.popOverCancelButton).click();
-    cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('exist');
-    cy.get(appFrontend.changeOfName.deleteAttachment).click();
-    cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
-    cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
-  });
-
   it('is possible to download attachments with tags that are uploaded', () => {
     cy.goto('changename');
     cy.intercept('POST', '**/tags').as('saveTags');
@@ -135,6 +101,39 @@ describe('UI Components', () => {
     const downloadedFilename = path.join(downloadsFolder, 'test.pdf');
 
     cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer.length).equal(299));
+  });
+
+  it('should implement delete confirmation for both file upload components and require user confirmation', () => {
+    const components = [
+      {
+        type: 'FileUpload',
+        uploader: appFrontend.changeOfName.upload,
+        shouldExist: appFrontend.changeOfName.uploadedTable,
+      },
+      {
+        type: 'FileUploadWithTag',
+        uploader: appFrontend.changeOfName.uploadWithTag.uploadZone,
+        shouldExist: appFrontend.changeOfName.uploadWithTag.editWindow,
+      },
+    ];
+    cy.interceptLayout('changename', (component) => {
+      for (const { type } of components) {
+        if (component.type === type) {
+          component.alertOnDelete = true;
+        }
+      }
+    });
+    cy.goto('changename');
+    for (const { uploader, shouldExist } of components) {
+      cy.get(uploader).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+      cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
+      cy.get(appFrontend.changeOfName.deleteAttachment).click();
+      cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+      cy.get(shouldExist).should('exist');
+      cy.get(appFrontend.changeOfName.deleteAttachment).click();
+      cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+      cy.get(shouldExist).should('not.exist');
+    }
   });
 
   it('is possible to navigate between pages using navigation bar', () => {

@@ -1217,7 +1217,7 @@
       }
     },
     "alertOnDelete":{
-        "type": "boolean",
+        "$ref": "expression.schema.v1.json#/definitions/boolean",
         "title": "Alert on delete",
         "description": "Boolean value indicating if warning popup should be displayed when attempting to delete an element",
         "default": false
