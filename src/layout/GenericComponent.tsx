@@ -172,7 +172,6 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
       FormDataActions.update({
         field: dataModelBinding,
         data: value,
-        key,
         componentId: id,
         skipValidation: !validate,
         singleFieldValidation,

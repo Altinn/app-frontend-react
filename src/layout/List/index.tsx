@@ -45,7 +45,7 @@ export class List extends FormComponent<'List'> {
     return false;
   }
 
-  runEmptyFieldValidations(node: LayoutNodeFromType<'List'>): IValidationObject[] {
+  runEmptyFieldValidation(node: LayoutNodeFromType<'List'>): IValidationObject[] {
     if (node.isHidden() || !node.item.required) {
       return [];
     }

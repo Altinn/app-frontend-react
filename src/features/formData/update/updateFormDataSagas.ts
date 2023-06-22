@@ -8,6 +8,7 @@ import { ValidationActions } from 'src/features/validation/validationSlice';
 import { implementsNodeValidation } from 'src/layout';
 import { removeAttachmentReference } from 'src/utils/databindings';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
+import { createComponentValidationResult } from 'src/utils/validation/validationHelpers';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { IDeleteAttachmentReference, IUpdateFormData } from 'src/features/formData/formDataTypes';
@@ -15,13 +16,13 @@ import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export function* updateFormDataSaga({
-  payload: { field, data, key, componentId, skipValidation, skipAutoSave, singleFieldValidation },
+  payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation },
 }: PayloadAction<IUpdateFormData>): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
 
     if (!skipValidation) {
-      yield call(runValidations, field, data, componentId, state, key);
+      yield call(runValidations, field, data, componentId, state);
     }
 
     if (shouldUpdateFormData(state.formData.formData[field], data)) {
@@ -44,13 +45,7 @@ export function* updateFormDataSaga({
   }
 }
 
-function* runValidations(
-  field: string,
-  data: any,
-  componentId: string | undefined,
-  state: IRuntimeState,
-  key?: string,
-) {
+function* runValidations(field: string, data: any, componentId: string | undefined, state: IRuntimeState) {
   const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
   const node = componentId && resolvedNodes.findById(componentId);
   if (!node) {
@@ -62,15 +57,13 @@ function* runValidations(
     return;
   }
 
-  let overrideFormData: IFormData | undefined;
-  if (data && key) {
-    overrideFormData = {
-      [key]: data,
-    };
-  }
+  const overrideFormData = { [field]: data?.length ? data : undefined };
 
   if (implementsNodeValidation(node.def)) {
-    const validationResult = node.def.validateComponent(node as any, overrideFormData);
+    const schemaValidation = node.def.runSchemaValidation(node as any, overrideFormData);
+    const componentValidation = node.def.runComponentValidation(node as any, overrideFormData);
+    const validationResult = createComponentValidationResult([...schemaValidation, ...componentValidation]);
+
     const invalidDataComponents = state.formValidations.invalidDataTypes || [];
     const updatedInvalidDataComponents = invalidDataComponents.filter((item) => item !== field);
     if (validationResult.invalidDataTypes) {

@@ -1,6 +1,7 @@
 import { createContext } from 'react';
 
 import { ComponentConfigs } from 'src/layout/components';
+import type { IFormData } from 'src/features/formData';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentTypes, IGrid } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
@@ -75,11 +76,11 @@ export function getLayoutComponentObject<T extends keyof ComponentClassMap>(type
 export type DefGetter = typeof getLayoutComponentObject;
 
 export interface NodeValidation {
-  runEmptyFieldValidation: (node: LayoutNode, formData?: IComponentFormData) => IValidationObject[];
-  runComponentValidation: (node: LayoutNode, formData?: IComponentFormData) => IValidationObject[];
-  runSchemaValidation: (node: LayoutNode, formData?: IComponentFormData) => IValidationObject[];
-  runValidations: (node: LayoutNode, formData?: IComponentFormData) => IValidationObject[];
-  validateComponent: (node: LayoutNode, formData?: IComponentFormData) => IComponentValidationResult;
+  runEmptyFieldValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
+  runComponentValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
+  runSchemaValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
+  runValidations: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
+  validateComponent: (node: LayoutNode, overrideFormData?: IFormData) => IComponentValidationResult;
 }
 
 export function implementsNodeValidation<Type extends ComponentTypes>(

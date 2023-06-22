@@ -8,7 +8,7 @@ import type {
   IValidationResult,
   IValidations,
 } from 'src/types';
-import type { IValidationMessage } from 'src/utils/validation/types';
+import type { IValidationMessage, IValidationObject } from 'src/utils/validation/types';
 
 export interface IRunSingleFieldValidation {
   componentId: string;
@@ -36,6 +36,10 @@ export interface IUpdateLayoutValidations {
 
 export interface IUpdateValidations {
   validationResult: IValidationResult;
+}
+
+export interface IAddValidations {
+  validationObjects: IValidationObject[];
 }
 
 export interface IValidationActionRejected {
@@ -91,6 +95,40 @@ export const validationSlice = () => {
           const { validationResult } = action.payload;
           state.validations = validationResult.validations;
           runFixedValidations(state, validationResult.fixedValidations ?? []);
+        },
+      }),
+      addValidations: mkAction<IAddValidations>({
+        reducer: (state, action) => {
+          const { validationObjects } = action.payload;
+          const fixedValidation: IValidationMessage<'fixed'>[] = [];
+          for (const object of validationObjects) {
+            if (object.severity === 'fixed') {
+              fixedValidation.push(object);
+              continue;
+            }
+
+            const { pageKey, componentId, bindingKey, severity, message } = object;
+            if (!state.validations[pageKey]) {
+              state.validations[pageKey] = { [componentId]: { [bindingKey]: { [severity]: [message] } } };
+              continue;
+            }
+            if (!state.validations[pageKey][componentId]) {
+              state.validations[pageKey][componentId] = { [bindingKey]: { [severity]: [message] } };
+              continue;
+            }
+            if (!state.validations[pageKey][componentId][bindingKey]) {
+              state.validations[pageKey][componentId][bindingKey] = { [severity]: [message] };
+              continue;
+            }
+            if (!(state.validations as any)[pageKey][componentId][bindingKey][severity]) {
+              (state.validations as any)[pageKey][componentId][bindingKey][severity] = [message];
+              continue;
+            }
+            if (!(state.validations as any)[pageKey][componentId][bindingKey][severity].includes(message)) {
+              (state.validations as any)[pageKey][componentId][bindingKey][severity].push(message);
+            }
+          }
+          runFixedValidations(state, fixedValidation);
         },
       }),
     },

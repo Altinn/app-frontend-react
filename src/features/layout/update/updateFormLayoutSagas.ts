@@ -104,8 +104,7 @@ export function* updateCurrentViewSaga({
       );
     } else {
       const currentView = state.formLayout.uiConfig.currentView;
-      const page = resolvedNodes.findLayout(currentView);
-      const frontendValidationObjects = page?.runValidations() ?? [];
+      const frontendValidationObjects = resolvedNodes?.runValidations() ?? [];
 
       const options: AxiosRequestConfig = {
         headers: {

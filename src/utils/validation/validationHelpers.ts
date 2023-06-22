@@ -65,6 +65,19 @@ export function emptyValidation(node: LayoutNode): IValidationObject {
   };
 }
 
+export function unmappedError(severity: ValidationSeverity, message: string): IValidationObject {
+  return {
+    empty: false,
+    componentId: 'unmapped',
+    pageKey: 'unmapped',
+    bindingKey: 'unmapped',
+    severity,
+    message,
+    invalidDataTypes: false,
+    rowIndices: [],
+  };
+}
+
 export function getValidationMessage(issue: IValidationIssue, langTools: IUseLanguage, params?: string[]): string {
   const { langAsString } = langTools;
   if (issue.customTextKey) {
@@ -82,6 +95,10 @@ export function getValidationMessage(issue: IValidationIssue, langTools: IUseLan
   const legacyText = langAsString(issue.code, params);
   if (legacyText !== issue.code) {
     return legacyText;
+  }
+
+  if (issue.description) {
+    return issue.description;
   }
 
   return issue.source ? `${issue.source}.${issue.code}` : issue.code;
@@ -344,7 +361,7 @@ export function mapValidationIssues(issues: IValidationIssue[]): IValidationObje
     return [];
   }
 
-  const allNodes = nodes.allNodes().filter((node) => !node.isHidden()); // TODO Should hidden components be excluded?
+  const allNodes = nodes.allNodes().filter((node) => !node.isHidden() && !node.item.renderAsSummary);
 
   const validationOutputs: IValidationObject[] = [];
   for (const issue of issues) {
@@ -355,9 +372,14 @@ export function mapValidationIssues(issues: IValidationIssue[]): IValidationObje
     const { field, severity } = issue;
     const message = getValidationMessage(issue, langTools);
 
+    if (!field) {
+      // Unmapped error
+      validationOutputs.push(unmappedError(severityMap[severity], message));
+    }
+
     for (const node of allNodes) {
       // Special case for FileUpload and FileUploadWithTag
-      if ((node.isType('FileUpload') || node.isType('FileUploadWithTag')) && node.item.id === issue.field) {
+      if ((node.isType('FileUpload') || node.isType('FileUploadWithTag')) && node.item.id === field) {
         validationOutputs.push(buildValidationObject(node, severityMap[severity], message));
         continue;
       }

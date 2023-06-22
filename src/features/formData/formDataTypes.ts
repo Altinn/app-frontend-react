@@ -35,7 +35,6 @@ export interface IUpdateFormData {
   componentId?: string;
   field: string;
   data: any;
-  key?: string;
 }
 
 export interface IDeleteAttachmentReference {

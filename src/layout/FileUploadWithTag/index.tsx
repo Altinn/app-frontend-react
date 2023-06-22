@@ -45,7 +45,7 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> {
   }
 
   runComponentValidations(node: LayoutNodeFromType<'FileUploadWithTag'>): IValidationObject[] {
-    if (node.isHidden()) {
+    if (node.isHidden() || node.item.renderAsSummary) {
       return [];
     }
 

@@ -9,11 +9,7 @@ import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import {
-  createComponentValidationResult,
-  filterValidationObjectsByComponentId,
-  mapValidationIssues,
-} from 'src/utils/validation/validationHelpers';
+import { mapValidationIssues } from 'src/utils/validation/validationHelpers';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IRunSingleFieldValidation } from 'src/features/validation/validationSlice';
 import type { ILayoutSets, IRuntimeState, IValidationIssue } from 'src/types';
@@ -55,15 +51,8 @@ export function* runSingleFieldValidationSaga({
     };
 
     try {
-      const frontendValidationObjects = node.def.runValidations(node as any);
       const serverValidations: IValidationIssue[] = yield call(httpGet, url, options);
-      const serverValidationObjects = mapValidationIssues(serverValidations);
-
-      const validationObjects = filterValidationObjectsByComponentId(
-        [...frontendValidationObjects, ...serverValidationObjects],
-        componentId,
-      );
-      const validationResult = createComponentValidationResult(validationObjects);
+      const validationObjects = mapValidationIssues(serverValidations);
 
       // Reject validation if field has been set to hidden in the time after we sent the validation request
       hiddenFields = yield select(selectHiddenFieldsState);
@@ -72,9 +61,7 @@ export function* runSingleFieldValidationSaga({
         return;
       }
 
-      yield put(
-        ValidationActions.updateComponentValidations({ pageKey: node.pageKey(), componentId, validationResult }),
-      );
+      yield put(ValidationActions.addValidations({ validationObjects }));
     } catch (error) {
       yield put(ValidationActions.runSingleFieldValidationRejected({ error }));
     }

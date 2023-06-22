@@ -140,34 +140,29 @@ export class LayoutPage implements LayoutObject {
     };
   }
 
-  public runSchemaValidations(): IValidationObject[] {
-    const visibleChildren = this.allChildren.filter((node) => !node.isHidden());
-    const schemaErrors = getSchemaValidationErrors();
-    const validationObjects: IValidationObject[] = [];
-    for (const error of schemaErrors) {
-      for (const node of visibleChildren) {
-        if (node.item.dataModelBindings) {
-          const bindings = Object.entries(node.item.dataModelBindings);
-          for (const [bindingKey, bindingField] of bindings) {
-            if (bindingField === error.bindingField) {
-              validationObjects.push(
-                buildValidationObject(node, 'errors', error.message, bindingKey, error.invalidDataType),
-              );
-            }
-          }
-        }
-      }
-    }
-
-    return validationObjects;
-  }
   public runValidations(): IValidationObject[] {
+    const visibleChildren = this.allChildren.filter((node) => !node.isHidden() && !node.item.renderAsSummary);
+    const schemaErrors = getSchemaValidationErrors();
+
     const validations: IValidationObject[] = [];
-    for (const child of this.allChildren) {
-      if (implementsNodeValidation(child.def) && !child.isHidden()) {
+    for (const child of visibleChildren) {
+      if (implementsNodeValidation(child.def)) {
         const emptyFieldValidation = child.def.runEmptyFieldValidation(child as any);
         const componentValidation = child.def.runComponentValidation(child as any);
         const nodeValidations = [...emptyFieldValidation, ...componentValidation];
+
+        for (const error of schemaErrors) {
+          if (child.item.dataModelBindings) {
+            const bindings = Object.entries(child.item.dataModelBindings);
+            for (const [bindingKey, bindingField] of bindings) {
+              if (bindingField === error.bindingField) {
+                nodeValidations.push(
+                  buildValidationObject(child, 'errors', error.message, bindingKey, error.invalidDataType),
+                );
+              }
+            }
+          }
+        }
 
         if (nodeValidations.length) {
           validations.push(...nodeValidations);
@@ -176,7 +171,6 @@ export class LayoutPage implements LayoutObject {
         }
       }
     }
-    validations.push(...this.runSchemaValidations());
     return validations;
   }
   public validatePage(): ILayoutValidationResult {

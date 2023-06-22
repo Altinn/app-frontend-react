@@ -107,36 +107,29 @@ export class LayoutPages<
     ] as $Values<Omit<Collection, L>>[];
   }
 
-  public runSchemaValidations(): IValidationObject[] {
-    const visibleNodes = this.allNodes().filter((node) => !node.isHidden());
-    const schemaErrors = getSchemaValidationErrors();
-    const validationObjects: IValidationObject[] = [];
-    for (const error of schemaErrors) {
-      for (const node of visibleNodes) {
-        if (node.item.dataModelBindings) {
-          const bindings = Object.entries(node.item.dataModelBindings);
-          for (const [bindingKey, bindingField] of bindings) {
-            if (bindingField === error.bindingField) {
-              validationObjects.push(
-                buildValidationObject(node, 'errors', error.message, bindingKey, error.invalidDataType),
-              );
-            }
-          }
-        }
-      }
-    }
-
-    return validationObjects;
-  }
-
   public runValidations(): IValidationObject[] {
+    const visibleNodes = this.allNodes().filter((node) => !node.isHidden() && !node.item.renderAsSummary);
+    const schemaErrors = getSchemaValidationErrors();
+
     const validations: IValidationObject[] = [];
-    const allChildren = this.allNodes();
-    for (const child of allChildren) {
+    for (const child of visibleNodes) {
       if (implementsNodeValidation(child.def) && !child.isHidden()) {
         const emptyFieldValidation = child.def.runEmptyFieldValidation(child as any);
         const componentValidation = child.def.runComponentValidation(child as any);
         const nodeValidations = [...emptyFieldValidation, ...componentValidation];
+
+        for (const error of schemaErrors) {
+          if (child.item.dataModelBindings) {
+            const bindings = Object.entries(child.item.dataModelBindings);
+            for (const [bindingKey, bindingField] of bindings) {
+              if (bindingField === error.bindingField) {
+                nodeValidations.push(
+                  buildValidationObject(child, 'errors', error.message, bindingKey, error.invalidDataType),
+                );
+              }
+            }
+          }
+        }
 
         if (nodeValidations.length) {
           validations.push(...nodeValidations);
@@ -145,7 +138,6 @@ export class LayoutPages<
         }
       }
     }
-    validations.push(...this.runSchemaValidations());
     return validations;
   }
 

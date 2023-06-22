@@ -44,7 +44,7 @@ export class FileUpload extends FormComponent<'FileUpload'> {
   }
 
   runComponentValidations(node: LayoutNodeFromType<'FileUpload'>): IValidationObject[] {
-    if (node.isHidden()) {
+    if (node.isHidden() || node.item.renderAsSummary) {
       return [];
     }
 

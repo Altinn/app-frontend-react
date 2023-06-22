@@ -47,7 +47,7 @@ export class Datepicker extends FormComponent<'Datepicker'> {
   }
 
   runComponentValidations(node: LayoutNodeFromType<'Datepicker'>): IValidationObject[] {
-    if (node.isHidden()) {
+    if (node.isHidden() || node.item.renderAsSummary) {
       return [];
     }
 
