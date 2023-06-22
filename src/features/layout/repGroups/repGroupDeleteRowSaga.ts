@@ -19,7 +19,7 @@ import { findChildAttachments, removeGroupData } from 'src/utils/databindings';
 import { findChildren, removeRepeatingGroupFromUIConfig, splitDashedKey } from 'src/utils/formLayout';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { removeGroupOptionsByIndex } from 'src/utils/options';
-import { createValidationResult, emptyValidation } from 'src/utils/validation/validationHelpers';
+import { createLayoutValidationResult, emptyValidation } from 'src/utils/validation/validationHelpers';
 import type { IAttachmentState } from 'src/features/attachments';
 import type {
   IDeleteAttachmentActionFulfilled,
@@ -150,7 +150,7 @@ export function* repGroupDeleteRowSaga({
       if (groupNode) {
         const children = groupNode.flat(true, index).filter((node) => node.item.id !== groupId);
         const validationObjects = children.map((child) => emptyValidation(child));
-        const validationResult = createValidationResult(validationObjects);
+        const validationResult = createLayoutValidationResult(validationObjects);
         yield put(
           ValidationActions.updateLayoutValidation({
             pageKey: groupNode.pageKey(),

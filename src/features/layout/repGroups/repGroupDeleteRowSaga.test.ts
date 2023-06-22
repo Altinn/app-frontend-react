@@ -109,7 +109,7 @@ describe('repGroupDeleteRowSaga', function () {
         ValidationActions.updateLayoutValidation({
           pageKey: 'FormLayout',
           validationResult: {
-            validations: { FormLayout: { 'uploader-0': {} } },
+            validations: { 'uploader-0': {} },
             invalidDataTypes: false,
             fixedValidations: [],
           },
