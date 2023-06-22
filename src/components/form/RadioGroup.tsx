@@ -10,6 +10,7 @@ export interface IRadioGroupProps {
   legend: React.ReactNode;
   description?: React.ReactNode;
   helpText?: React.ReactNode;
+  error?: React.ReactNode;
   children: React.ReactElement<typeof RadioButton> | React.ReactElement<typeof RadioButton>[];
   shouldDisplayHorizontally?: boolean;
 }
@@ -19,12 +20,14 @@ export const RadioGroup = ({
   description,
   helpText,
   children,
+  error,
   shouldDisplayHorizontally,
 }: IRadioGroupProps) => (
   <FieldSet
     legend={legend}
     description={description}
     helpText={helpText}
+    error={error}
   >
     <div
       role='radiogroup'
