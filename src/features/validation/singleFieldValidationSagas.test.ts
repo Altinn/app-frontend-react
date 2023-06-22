@@ -16,9 +16,11 @@ import {
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Severity } from 'src/types';
+import { resolvedLayoutsFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import type { IRuntimeState, IValidationIssue, IValidations } from 'src/types';
+import type { IRuntimeState, IValidationIssue } from 'src/types';
+import type { IValidationObject } from 'src/utils/validation/types';
 
 describe('singleFieldValidationSagas', () => {
   let mockState: IRuntimeState;
@@ -27,6 +29,7 @@ describe('singleFieldValidationSagas', () => {
 
   beforeEach(() => {
     mockState = getInitialStateMock();
+    window.reduxStore.getState = jest.fn(() => mockState);
   });
 
   it('runSingleFieldValidationSaga, single field validation is triggered', () => {
@@ -51,14 +54,15 @@ describe('singleFieldValidationSagas', () => {
         targetId: '',
       },
     ];
-    const mappedValidations: IValidations = {
-      FormLayout: {
-        field1: {
-          simpleBinding: {
-            errors: [mockErrorMessage],
-          },
-        },
-      },
+    const validationError: IValidationObject = {
+      empty: false,
+      componentId: 'field1',
+      pageKey: 'FormLayout',
+      bindingKey: 'simpleBinding',
+      severity: 'errors',
+      message: mockErrorMessage,
+      invalidDataTypes: false,
+      rowIndices: [],
     };
 
     return expectSaga(runSingleFieldValidationSaga, {
@@ -77,11 +81,12 @@ describe('singleFieldValidationSagas', () => {
         [select(selectLayoutSetsState), mockState.formLayout.layoutsets],
         [select(staticUseLanguageFromState), staticUseLanguageFromState(mockState)],
         [select(selectValidationsState), mockState.formValidations.validations],
+        [select(ResolvedNodesSelector), resolvedLayoutsFromState(mockState)],
         [call(httpGet, url, options), validationIssues],
       ])
       .put(
-        ValidationActions.updateValidations({
-          validationResult: { validations: mappedValidations },
+        ValidationActions.addValidations({
+          validationObjects: [validationError],
         }),
       )
       .run();
@@ -115,6 +120,7 @@ describe('singleFieldValidationSagas', () => {
         [select(selectLayoutSetsState), mockState.formLayout.layoutsets],
         [select(staticUseLanguageFromState), staticUseLanguageFromState(mockState)],
         [select(selectValidationsState), mockState.formValidations.validations],
+        [select(ResolvedNodesSelector), resolvedLayoutsFromState(mockState)],
         [call(httpGet, url, options), throwError(error)],
       ])
       .put(ValidationActions.runSingleFieldValidationRejected({ error }))
