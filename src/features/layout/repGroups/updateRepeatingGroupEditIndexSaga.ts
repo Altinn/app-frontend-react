@@ -81,7 +81,9 @@ export function* updateRepeatingGroupEditIndexSaga({
 
       const validationObjects = [...frontendValidationObjects, ...serverValidationObjects];
       const validationResult = createLayoutValidationResult(validationObjects);
-      yield put(ValidationActions.updateLayoutValidation({ validationResult, pageKey: groupNode.pageKey() }));
+      yield put(
+        ValidationActions.updateLayoutValidation({ validationResult, pageKey: groupNode.pageKey(), merge: true }),
+      );
       const rowValidations = filterValidationObjectsByRowIndex(rowIndex, groupNode.getRowIndices(), validationObjects);
 
       if (!containsErrors(rowValidations)) {

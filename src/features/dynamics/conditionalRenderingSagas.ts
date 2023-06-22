@@ -109,6 +109,7 @@ export function* checkIfConditionalRulesShouldRunSaga({
         yield put(
           ValidationActions.updateValidations({
             validationResult: { validations: newFormValidations },
+            merge: false,
           }),
         );
       }

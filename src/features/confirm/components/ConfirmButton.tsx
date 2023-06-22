@@ -35,6 +35,7 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
           dispatch(
             ValidationActions.updateValidations({
               validationResult,
+              merge: false,
             }),
           );
           if (serverValidations.length === 0) {

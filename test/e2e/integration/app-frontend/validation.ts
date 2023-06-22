@@ -107,11 +107,11 @@ describe('Validation', () => {
       .should('contain.text', texts.next);
 
     // Make sure all the buttons in the form are now inside errorReport, not outside of it.
-    // - 4 of the button roles belong to each of the errors in the report
+    // - 5 of the button roles belong to each of the errors in the report
     // - 2 of the button roles belong to the buttons on the bottom of the form (print, next)
     cy.get(appFrontend.errorReport)
       .findAllByRole('button')
-      .should('have.length', 4 + 2);
+      .should('have.length', 5 + 2);
 
     const lastNameError = appFrontend.fieldValidation(appFrontend.changeOfName.newLastName);
     cy.get(lastNameError).should('exist').should('not.be.inViewport');

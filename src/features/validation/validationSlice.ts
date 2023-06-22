@@ -32,10 +32,12 @@ export interface IUpdateComponentValidations {
 export interface IUpdateLayoutValidations {
   pageKey: string;
   validationResult: ILayoutValidationResult;
+  merge: boolean;
 }
 
 export interface IUpdateValidations {
   validationResult: IValidationResult;
+  merge: boolean;
 }
 
 export interface IAddValidations {
@@ -85,15 +87,29 @@ export const validationSlice = () => {
       }),
       updateLayoutValidation: mkAction<IUpdateLayoutValidations>({
         reducer: (state, action) => {
-          const { pageKey, validationResult } = action.payload;
-          state.validations[pageKey] = validationResult.validations;
+          const { pageKey, validationResult, merge } = action.payload;
+          if (merge) {
+            state.validations[pageKey] = {
+              ...state.validations[pageKey],
+              ...validationResult.validations,
+            };
+          } else {
+            state.validations[pageKey] = validationResult.validations;
+          }
           runFixedValidations(state, validationResult.fixedValidations ?? []);
         },
       }),
       updateValidations: mkAction<IUpdateValidations>({
         reducer: (state, action) => {
-          const { validationResult } = action.payload;
-          state.validations = validationResult.validations;
+          const { validationResult, merge } = action.payload;
+          if (merge) {
+            state.validations = {
+              ...state.validations,
+              ...validationResult.validations,
+            };
+          } else {
+            state.validations = validationResult.validations;
+          }
           runFixedValidations(state, validationResult.fixedValidations ?? []);
         },
       }),

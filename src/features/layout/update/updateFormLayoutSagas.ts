@@ -134,7 +134,7 @@ export function* updateCurrentViewSaga({
 
       const validationResult = createValidationResult(validationObjects);
 
-      yield put(ValidationActions.updateValidations({ validationResult }));
+      yield put(ValidationActions.updateValidations({ validationResult, merge: true }));
 
       /*
        * If only the current page or the previous pages are validated, this makes no difference.

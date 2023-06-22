@@ -39,7 +39,7 @@ export function* submitFormSaga(): SagaIterator {
     const validationObjects = resolvedNodes.runValidations();
     const validationResult = createValidationResult(validationObjects);
     if (containsErrors(validationObjects)) {
-      yield put(ValidationActions.updateValidations({ validationResult }));
+      yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
       return yield put(FormDataActions.submitRejected({ error: null }));
     }
 
@@ -63,7 +63,7 @@ function* submitComplete(state: IRuntimeState) {
   const layoutState: ILayoutState = yield select(LayoutSelector);
   const validationObjects = mapValidationIssues(serverValidations ?? []);
   const validationResult = createValidationResult(validationObjects);
-  yield put(ValidationActions.updateValidations({ validationResult }));
+  yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
   if (containsErrors(validationObjects)) {
     // we have validation errors or warnings that should be shown, do not submit
     return yield put(FormDataActions.submitRejected({ error: null }));

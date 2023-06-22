@@ -152,8 +152,10 @@ export function* repGroupDeleteRowSaga({
         const validationObjects = children.map((child) => emptyValidation(child));
         const validationResult = createValidationResult(validationObjects);
         yield put(
-          ValidationActions.updateValidations({
+          ValidationActions.updateLayoutValidation({
+            pageKey: groupNode.pageKey(),
             validationResult,
+            merge: true,
           }),
         );
       }

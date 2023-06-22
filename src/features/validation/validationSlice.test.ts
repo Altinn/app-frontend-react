@@ -29,6 +29,7 @@ describe('validationSlice', () => {
       state,
       ValidationActions.updateValidations({
         validationResult: { validations: mockValidations },
+        merge: false,
       }),
     );
     expect(nextState.validations).toEqual(mockValidations);
@@ -79,6 +80,7 @@ describe('validationSlice', () => {
       state,
       ValidationActions.updateValidations({
         validationResult: { validations: mockValidations },
+        merge: false,
       }),
     );
     expect(nextState.validations).toEqual(mockValidations);
