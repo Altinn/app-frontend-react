@@ -73,7 +73,7 @@ export const ExpressionPlayground = () => {
       }
 
       const out = evalExpr(expr as Expression, evalContext, dataSources, { config });
-      setOutput(out);
+      setOutput(JSON.stringify(out));
       setIsError(false);
     } catch (e) {
       setOutput(e.message);
@@ -98,7 +98,7 @@ export const ExpressionPlayground = () => {
             style={{ color: isError ? 'red' : 'black' }}
             className={cn(classes.textbox, classes.output)}
             readOnly={true}
-            value={JSON.stringify(output)}
+            value={output}
             placeholder={'Resultatet av uttrykket vises her'}
           />
         </SplitView>
