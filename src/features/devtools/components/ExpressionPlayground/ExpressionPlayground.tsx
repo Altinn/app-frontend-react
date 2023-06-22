@@ -82,7 +82,7 @@ export const ExpressionPlayground = () => {
       const out = evalExpr(expr as Expression, evalContext, dataSources, { config, onAfterFunctionCall });
 
       if (showAllSteps) {
-        setOutput(`${calls.join('\n')}\n<end> => ${JSON.stringify(out)}`);
+        setOutput(calls.join('\n'));
       } else {
         setOutput(JSON.stringify(out));
       }
