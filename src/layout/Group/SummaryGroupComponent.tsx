@@ -37,12 +37,7 @@ export function SummaryGroupComponent({
     (excludedChildren.includes(n.item.id) || excludedChildren.includes(`${n.item.baseComponentId}`));
 
   const groupHasErrors = targetNode.hasDeepValidationMessages();
-  const title = lang(summaryNode.item.textResourceBindings?.title ?? targetNode.item.textResourceBindings?.title);
-  const ariaLabel = langAsString(
-    summaryNode.item.textResourceBindings?.accessibleTitle ??
-      summaryNode.item.textResourceBindings?.title ??
-      targetNode.item.textResourceBindings?.title,
-  );
+  const title = langAsString(targetNode.item.textResourceBindings?.title);
 
   const rowIndexes: (number | undefined)[] = [];
   if (targetNode.isRepGroup()) {
@@ -112,7 +107,7 @@ export function SummaryGroupComponent({
             <EditButton
               onClick={onChangeClick}
               editText={changeText}
-              label={ariaLabel}
+              label={title}
             />
           ) : null}
         </div>
