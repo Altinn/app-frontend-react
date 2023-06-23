@@ -1,7 +1,6 @@
 import type { $Values } from 'utility-types';
 
-import { createValidationResult, runValidationOnNodes } from 'src/utils/validation/validationHelpers';
-import type { IValidationResult } from 'src/types';
+import { runValidationOnNodes } from 'src/utils/validation/validationHelpers';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IValidationObject } from 'src/utils/validation/types';
@@ -103,10 +102,5 @@ export class LayoutPages<
 
   public runValidations(): IValidationObject[] {
     return runValidationOnNodes(this.allNodes());
-  }
-
-  public validateForm(): IValidationResult {
-    const validations = this.runValidations();
-    return createValidationResult(validations);
   }
 }

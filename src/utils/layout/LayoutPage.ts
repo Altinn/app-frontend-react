@@ -1,5 +1,4 @@
-import { createLayoutValidationResult, runValidationOnNodes } from 'src/utils/validation/validationHelpers';
-import type { ILayoutValidationResult } from 'src/types';
+import { runValidationOnNodes } from 'src/utils/validation/validationHelpers';
 import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
@@ -136,9 +135,5 @@ export class LayoutPage implements LayoutObject {
 
   public runValidations(): IValidationObject[] {
     return runValidationOnNodes(this.allChildren);
-  }
-  public validatePage(): ILayoutValidationResult {
-    const validations = this.runValidations();
-    return createLayoutValidationResult(validations);
   }
 }
