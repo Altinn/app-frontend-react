@@ -207,6 +207,9 @@
           "type": "integer",
           "minimum": 0
         },
+        "alertOnDelete": {
+          "$ref": "#/definitions/alertOnDelete"
+        },
         "displayMode": {
           "title": "Display mode",
           "description": "Sets the display mode for the file upload component.",
@@ -580,6 +583,12 @@
           "description": "The maximum number of iterations of a group. Only relevant if group is repeating.",
           "minimum": 0
         },
+        "minCount": {
+          "type": "integer",
+          "title": "Minimum count",
+          "description": "The minimum number of iterations of a group. Only relevant if group is repeating.",
+          "minimum": 0
+        },
         "rowsBefore": {
           "title": "Static rows before",
           "description": "An array of rows to be rendered before the group table (using Grid component configuration)",
@@ -702,9 +711,7 @@
           ]
         },
         "alertOnDelete": {
-          "title": "Alert on delete",
-          "description": "Boolean value indicating if warning popup should be displayed when attempting to delete a row",
-          "type": "boolean"
+          "$ref": "#/definitions/alertOnDelete"
         }
       }
     },
@@ -1214,6 +1221,12 @@
           }
         }
       }
+    },
+    "alertOnDelete":{
+        "$ref": "expression.schema.v1.json#/definitions/boolean",
+        "title": "Alert on delete",
+        "description": "Boolean value indicating if warning popup should be displayed when attempting to delete an element",
+        "default": false
     },
     "listComponent": {
       "type": "object",

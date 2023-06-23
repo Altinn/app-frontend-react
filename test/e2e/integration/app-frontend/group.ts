@@ -132,6 +132,54 @@ describe('Group', () => {
     cy.get(appFrontend.group.saveMainGroup).clickAndGone();
   });
 
+  it('Validation on repeating group for minCount', () => {
+    // set minCount to 3 on main group
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'Group' && component.edit && component.id === 'mainGroup') {
+        component.minCount = 3;
+      }
+    });
+
+    init();
+    cy.get(appFrontend.group.showGroupToContinue).find('input').dsCheck();
+
+    // add row to main group
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // assert error message to exist
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
+
+    // add row to main group
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // assert error message to exist
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
+
+    // add row to main group
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('1');
+    cy.get(appFrontend.group.newValue).type('1');
+    cy.get(appFrontend.group.saveMainGroup).clickAndGone();
+
+    // assert error message to not exist
+    cy.get(appFrontend.group.tableErrors).should('not.exist');
+
+    // remove row from main group
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).first().click();
+
+    // attempt to move to next page
+    cy.get(appFrontend.nextButton).click();
+
+    // assert error message to exist
+    cy.get(appFrontend.group.tableErrors).should('have.text', texts.minCountError);
+  });
+
   [Triggers.Validation, Triggers.ValidateRow].forEach((trigger) => {
     it(`Validates group using triggers = ['${trigger}']`, () => {
       cy.intercept('GET', '**/instances/*/*/data/*/validate').as('validate');
@@ -389,7 +437,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
-  it('Opens delete warning popoup when alertOnDelete is true and deletes on confirm', () => {
+  it('Opens delete warning popup when alertOnDelete is true and deletes on confirm', () => {
     cy.interceptLayout('group', (component) => {
       if (component.type === 'Group' && component.edit && typeof component.edit.openByDefault !== 'undefined') {
         component.edit.alertOnDelete = true;
@@ -411,30 +459,18 @@ describe('Group', () => {
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
     cy.snapshot('group: delete-warning-popup');
 
-    cy.get(appFrontend.group.subGroup)
-      .find(appFrontend.designSystemPanel)
-      .find(appFrontend.group.popOverCancelButton)
-      .click();
+    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverCancelButton).click();
     cy.get(appFrontend.group.subGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.subGroup)
-      .find(appFrontend.designSystemPanel)
-      .find(appFrontend.group.popOverDeleteButton)
-      .click();
+    cy.get(appFrontend.group.subGroup).find(appFrontend.group.popOverDeleteButton).click();
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').eq(0).should('not.contain.text', 'automation');
 
     // Navigate to main group and test delete warning popup cancel and confirm
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.mainGroup)
-      .find(appFrontend.designSystemPanel)
-      .find(appFrontend.group.popOverCancelButton)
-      .click();
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.popOverCancelButton).click();
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.delete).click();
-    cy.get(appFrontend.group.mainGroup)
-      .find(appFrontend.designSystemPanel)
-      .find(appFrontend.group.popOverDeleteButton)
-      .click();
+    cy.get(appFrontend.group.mainGroup).find(appFrontend.group.popOverDeleteButton).click();
 
     cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
   });
