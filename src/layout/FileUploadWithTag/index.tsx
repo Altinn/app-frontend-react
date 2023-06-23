@@ -9,7 +9,8 @@ import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { IFormData } from 'src/features/formData';
+import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { IRuntimeState } from 'src/types';
@@ -17,7 +18,7 @@ import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationObject } from 'src/utils/validation/types';
 
-export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> {
+export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> implements ComponentValidation {
   render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {
     return <FileUploadWithTagComponent {...props} />;
   }
@@ -45,7 +46,10 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> {
     return [];
   }
 
-  runComponentValidations(node: LayoutNodeFromType<'FileUploadWithTag'>): IValidationObject[] {
+  runComponentValidation(
+    node: LayoutNodeFromType<'FileUploadWithTag'>,
+    _overrideFormData?: IFormData,
+  ): IValidationObject[] {
     const state: IRuntimeState = window.reduxStore.getState();
     const attachments = state.attachments.attachments;
     const { langAsString } = staticUseLanguageFromState(state);

@@ -11,7 +11,8 @@ import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { IFormData } from 'src/features/formData';
+import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { IRuntimeState } from 'src/types';
@@ -19,7 +20,7 @@ import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationObject } from 'src/utils/validation/types';
 
-export class Datepicker extends FormComponent<'Datepicker'> {
+export class Datepicker extends FormComponent<'Datepicker'> implements ComponentValidation {
   render(props: PropsFromGenericComponent<'Datepicker'>): JSX.Element | null {
     return <DatepickerComponent {...props} />;
   }
@@ -46,7 +47,8 @@ export class Datepicker extends FormComponent<'Datepicker'> {
     );
   }
 
-  runComponentValidations(node: LayoutNodeFromType<'Datepicker'>): IValidationObject[] {
+  // TODO: support overrideFormData
+  runComponentValidation(node: LayoutNodeFromType<'Datepicker'>, _overrideFormData?: IFormData): IValidationObject[] {
     const state: IRuntimeState = window.reduxStore.getState();
     const { langAsString, selectedLanguage } = staticUseLanguageFromState(state);
     const formData = node.getFormData().simpleBinding;
