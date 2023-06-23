@@ -5,11 +5,11 @@ import type { IFormData } from 'src/features/formData';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentTypes, IGrid } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
-import type { IComponentValidationResult, IComponentValidations, ILayoutValidationResult } from 'src/types';
+import type { IComponentValidations } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationObject } from 'src/utils/validation/types';
+import type { ISchemaValidationError, IValidationObject } from 'src/utils/validation/types';
 
 export type ComponentClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -75,33 +75,50 @@ export function getLayoutComponentObject<T extends keyof ComponentClassMap>(type
 
 export type DefGetter = typeof getLayoutComponentObject;
 
-export interface NodeValidation {
-  runEmptyFieldValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
-  runComponentValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
-  runSchemaValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
-  runValidations: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
-  validateComponent: (node: LayoutNode, overrideFormData?: IFormData) => IComponentValidationResult;
+export function implementsAnyValidation<Type extends ComponentTypes>(component: AnyComponent<Type>): boolean {
+  return (
+    'runEmptyFieldValidation' in component ||
+    'runComponentValidation' in component ||
+    'runSchemaValidation' in component
+  );
 }
 
-export function implementsNodeValidation<Type extends ComponentTypes>(
+export interface EmptyFieldValidation {
+  runEmptyFieldValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
+}
+
+export function implementsEmptyFieldValidation<Type extends ComponentTypes>(
   component: AnyComponent<Type>,
-): component is typeof component & NodeValidation {
-  return (
-    'runEmptyFieldValidation' in component &&
-    'runComponentValidation' in component &&
-    'runSchemaValidation' in component &&
-    'runValidations' in component &&
-    'validateComponent' in component
-  );
+): component is typeof component & EmptyFieldValidation {
+  return 'runEmptyFieldValidation' in component;
+}
+
+export interface ComponentValidation {
+  runComponentValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
+}
+
+export function implementsComponentValidation<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & ComponentValidation {
+  return 'runComponentValidation' in component;
+}
+
+export interface SchemaValidation {
+  runSchemaValidation: (node: LayoutNode, schemaValidations: ISchemaValidationError[]) => IValidationObject[];
+}
+
+export function implementsSchemaValidation<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & SchemaValidation {
+  return 'runSchemaValidation' in component;
 }
 
 export interface GroupValidation {
   runGroupValidations: (node: LayoutNode, onlyInRowIndex?: number) => IValidationObject[];
-  validateGroup: (node: LayoutNode, onlyinRowIndex?: number) => ILayoutValidationResult;
 }
 
 export function implementsGroupValidation<Type extends ComponentTypes>(
   component: AnyComponent<Type>,
 ): component is typeof component & GroupValidation {
-  return 'runGroupValidations' in component && 'validateGroup' in component;
+  return 'runGroupValidations' in component;
 }

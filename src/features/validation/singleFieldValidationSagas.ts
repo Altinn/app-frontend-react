@@ -4,7 +4,6 @@ import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { implementsNodeValidation } from 'src/layout';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
@@ -24,7 +23,7 @@ export const selectValidationsState = (state: IRuntimeState) => state.formValida
 export const selectHiddenFieldsState = (state: IRuntimeState) => state.formLayout.uiConfig.hiddenFields;
 
 export function* runSingleFieldValidationSaga({
-  payload: { componentId, layoutId, dataModelBinding },
+  payload: { componentId, dataModelBinding },
 }: PayloadAction<IRunSingleFieldValidation>): SagaIterator {
   // Reject validation if field is hidden
   let hiddenFields: string[] = yield select(selectHiddenFieldsState);
@@ -43,7 +42,7 @@ export function* runSingleFieldValidationSaga({
     applicationMetadata && getCurrentTaskDataElementId(applicationMetadata, instance, layoutSets);
   const url: string | undefined = instance && currentTaskDataId && getDataValidationUrl(instance.id, currentTaskDataId);
 
-  if (node && implementsNodeValidation(node.def) && url && dataModelBinding) {
+  if (node && url && dataModelBinding) {
     const options: AxiosRequestConfig = {
       headers: {
         ValidationTriggerField: dataModelBinding,

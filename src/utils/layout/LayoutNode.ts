@@ -1,6 +1,7 @@
 import { getLayoutComponentObject } from 'src/layout';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { runValidationOnNodes } from 'src/utils/validation/validationHelpers';
 import type { ComponentClassMap } from 'src/layout';
 import type { HNonRepGroup, HRepGroup } from 'src/layout/Group/types';
 import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
@@ -18,6 +19,8 @@ import type {
 } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
+import type { IValidationObject } from 'src/utils/validation/types';
+import type { IValidationOptions } from 'src/utils/validation/validationHelpers';
 
 /**
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
@@ -362,5 +365,9 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
       }
     }
     return rowIndices;
+  }
+
+  runValidations(options?: IValidationOptions): IValidationObject[] {
+    return runValidationOnNodes([this], options);
   }
 }

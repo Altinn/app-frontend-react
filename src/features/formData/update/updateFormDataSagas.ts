@@ -5,7 +5,7 @@ import type { SagaIterator } from 'redux-saga';
 import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { implementsNodeValidation } from 'src/layout';
+import { implementsAnyValidation } from 'src/layout';
 import { removeAttachmentReference } from 'src/utils/databindings';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { createComponentValidationResult } from 'src/utils/validation/validationHelpers';
@@ -59,10 +59,12 @@ function* runValidations(field: string, data: any, componentId: string | undefin
 
   const overrideFormData = { [field]: data?.length ? data : undefined };
 
-  if (implementsNodeValidation(node.def)) {
-    const schemaValidation = node.def.runSchemaValidation(node as any, overrideFormData);
-    const componentValidation = node.def.runComponentValidation(node as any, overrideFormData);
-    const validationResult = createComponentValidationResult([...schemaValidation, ...componentValidation]);
+  if (implementsAnyValidation(node.def)) {
+    const validationObjects = node.runValidations({
+      overrideFormData,
+      skipEmptyFieldValidation: true,
+    });
+    const validationResult = createComponentValidationResult(validationObjects);
 
     const invalidDataComponents = state.formValidations.invalidDataTypes || [];
     const updatedInvalidDataComponents = invalidDataComponents.filter((item) => item !== field);

@@ -128,12 +128,6 @@ const knownWcagViolations: KnownViolation[] = [
   {
     spec: 'app-frontend/hide-row-in-group.ts',
     test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
-    id: 'aria-valid-attr-value',
-    nodeLength: 3,
-  },
-  {
-    spec: 'app-frontend/hide-row-in-group.ts',
-    test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
     id: 'heading-order',
     nodeLength: 1,
   },

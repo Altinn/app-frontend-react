@@ -40,15 +40,12 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> {
     return false;
   }
 
+  // This component does not have empty field validation, so has to override its inherited method
   runEmptyFieldValidation(_node: LayoutNodeFromType<'FileUploadWithTag'>): IValidationObject[] {
     return [];
   }
 
   runComponentValidations(node: LayoutNodeFromType<'FileUploadWithTag'>): IValidationObject[] {
-    if (node.isHidden() || node.item.renderAsSummary) {
-      return [];
-    }
-
     const state: IRuntimeState = window.reduxStore.getState();
     const attachments = state.attachments.attachments;
     const { langAsString } = staticUseLanguageFromState(state);

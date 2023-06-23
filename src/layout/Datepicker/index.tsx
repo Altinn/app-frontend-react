@@ -47,10 +47,6 @@ export class Datepicker extends FormComponent<'Datepicker'> {
   }
 
   runComponentValidations(node: LayoutNodeFromType<'Datepicker'>): IValidationObject[] {
-    if (node.isHidden() || node.item.renderAsSummary) {
-      return [];
-    }
-
     const state: IRuntimeState = window.reduxStore.getState();
     const { langAsString, selectedLanguage } = staticUseLanguageFromState(state);
     const formData = node.getFormData().simpleBinding;

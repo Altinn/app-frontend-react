@@ -6,22 +6,17 @@ import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import {
-  buildValidationObject,
-  createComponentValidationResult,
-  emptyValidation,
-  getSchemaValidationErrors,
-} from 'src/utils/validation/validationHelpers';
+import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentTypeConfigs } from 'src/layout/components';
-import type { NodeValidation, PropsFromGenericComponent } from 'src/layout/index';
+import type { EmptyFieldValidation, PropsFromGenericComponent, SchemaValidation } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { IComponentValidationResult, IRuntimeState } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { IValidationObject } from 'src/utils/validation/types';
+import type { ISchemaValidationError, IValidationObject } from 'src/utils/validation/types';
 
 /**
  * This enum is used to distinguish purely presentational components
@@ -164,16 +159,12 @@ export abstract class ActionComponent<Type extends ComponentTypes> extends AnyCo
 
 export abstract class FormComponent<Type extends ComponentTypes>
   extends _FormComponent<Type>
-  implements NodeValidation
+  implements EmptyFieldValidation, SchemaValidation
 {
   readonly type = ComponentType.Form;
 
-  runComponentValidation(_node: LayoutNodeFromType<Type>, _overrideFormData?: IFormData): IValidationObject[] {
-    return [];
-  }
-
   runEmptyFieldValidation(node: LayoutNodeFromType<Type>, overrideFormData?: IFormData): IValidationObject[] {
-    if (node.isHidden() || node.item.renderAsSummary || !node.item.required) {
+    if (!node.item.required) {
       return [];
     }
 
@@ -203,12 +194,7 @@ export abstract class FormComponent<Type extends ComponentTypes>
     return validationObjects;
   }
 
-  runSchemaValidation(node: LayoutNodeFromType<Type>, overrideFormData?: IFormData): IValidationObject[] {
-    if (node.isHidden() || node.item.renderAsSummary) {
-      return [];
-    }
-
-    const schemaErrors = getSchemaValidationErrors(overrideFormData);
+  runSchemaValidation(node: LayoutNodeFromType<Type>, schemaErrors: ISchemaValidationError[]): IValidationObject[] {
     const validationObjects: IValidationObject[] = [];
     for (const error of schemaErrors) {
       if (node.item.dataModelBindings) {
@@ -222,22 +208,7 @@ export abstract class FormComponent<Type extends ComponentTypes>
         }
       }
     }
-
     return validationObjects;
-  }
-
-  runValidations(node: LayoutNodeFromType<Type>, overrideFormData?: IFormData): IValidationObject[] {
-    const componentValidations = this.runComponentValidation(node, overrideFormData);
-    const emptyFieldValidations = this.runEmptyFieldValidation(node, overrideFormData);
-    const schemaValidations = this.runSchemaValidation(node, overrideFormData);
-
-    const nodeValidationObjects = [...componentValidations, ...emptyFieldValidations, ...schemaValidations];
-    return nodeValidationObjects.length ? nodeValidationObjects : [emptyValidation(node)];
-  }
-
-  validateComponent(node: LayoutNodeFromType<Type>, overrideFormData?: IFormData): IComponentValidationResult {
-    const validationObjects = this.runValidations(node, overrideFormData);
-    return createComponentValidationResult(validationObjects);
   }
 }
 

@@ -1,10 +1,4 @@
-import { implementsNodeValidation } from 'src/layout';
-import {
-  buildValidationObject,
-  createLayoutValidationResult,
-  emptyValidation,
-  getSchemaValidationErrors,
-} from 'src/utils/validation/validationHelpers';
+import { createLayoutValidationResult, runValidationOnNodes } from 'src/utils/validation/validationHelpers';
 import type { ILayoutValidationResult } from 'src/types';
 import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -141,37 +135,7 @@ export class LayoutPage implements LayoutObject {
   }
 
   public runValidations(): IValidationObject[] {
-    const visibleChildren = this.allChildren.filter((node) => !node.isHidden() && !node.item.renderAsSummary);
-    const schemaErrors = getSchemaValidationErrors();
-
-    const validations: IValidationObject[] = [];
-    for (const child of visibleChildren) {
-      if (implementsNodeValidation(child.def)) {
-        const emptyFieldValidation = child.def.runEmptyFieldValidation(child as any);
-        const componentValidation = child.def.runComponentValidation(child as any);
-        const nodeValidations = [...emptyFieldValidation, ...componentValidation];
-
-        for (const error of schemaErrors) {
-          if (child.item.dataModelBindings) {
-            const bindings = Object.entries(child.item.dataModelBindings);
-            for (const [bindingKey, bindingField] of bindings) {
-              if (bindingField === error.bindingField) {
-                nodeValidations.push(
-                  buildValidationObject(child, 'errors', error.message, bindingKey, error.invalidDataType),
-                );
-              }
-            }
-          }
-        }
-
-        if (nodeValidations.length) {
-          validations.push(...nodeValidations);
-        } else {
-          validations.push(emptyValidation(child));
-        }
-      }
-    }
-    return validations;
+    return runValidationOnNodes(this.allChildren);
   }
   public validatePage(): ILayoutValidationResult {
     const validations = this.runValidations();
