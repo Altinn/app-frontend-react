@@ -90,11 +90,7 @@ export class Group extends ContainerComponent<'Group'> implements GroupValidatio
   }
 
   runGroupValidations(node: LayoutNodeFromType<'Group'>, onlyInRowIndex?: number): IValidationObject[] {
-    const visibleChildren = node
-      .flat(true, onlyInRowIndex)
-      .filter((node) => !node.isHidden() && !node.item.renderAsSummary);
-
-    return runValidationOnNodes(visibleChildren);
+    return runValidationOnNodes(node.flat(true, onlyInRowIndex));
   }
 }
 
