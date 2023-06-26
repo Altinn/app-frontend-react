@@ -12,15 +12,15 @@ import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent, ILayouts } from 'src/layout/layout';
+import type { IRepeatingGroups } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   IComponentValidations,
   ILayoutValidations,
-  IRepeatingGroups,
+  IValidationObject,
   IValidationResult,
   IValidations,
-} from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationObject } from 'src/utils/validation/types';
+} from 'src/utils/validation/types';
 
 export interface IValidationOptions {
   overrideFormData?: IFormData;

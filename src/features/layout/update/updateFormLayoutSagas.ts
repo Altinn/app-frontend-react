@@ -22,15 +22,16 @@ import { httpPost } from 'src/utils/network/networking';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { getCalculatePageOrderUrl, getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
+import { mapValidationIssues } from 'src/utils/validation/backendValidation';
 import {
   containsErrors,
   createValidationResult,
   filterValidationObjectsByPage,
-  mapValidationIssues,
 } from 'src/utils/validation/validationHelpers';
 import type { ICalculatePageOrderAndMoveToNextPage, IUpdateCurrentView } from 'src/features/layout/formLayoutTypes';
-import type { IRuntimeState, IUiConfig, IValidationIssue } from 'src/types';
+import type { IRuntimeState, IUiConfig } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { IValidationIssue } from 'src/utils/validation/types';
 
 export const selectFormLayoutState = (state: IRuntimeState) => state.formLayout;
 export const selectFormData = (state: IRuntimeState) => state.formData;

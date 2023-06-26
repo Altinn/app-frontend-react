@@ -5,10 +5,11 @@ import type {
   IComponentBindingValidation,
   IComponentValidationResult,
   ILayoutValidationResult,
+  IValidationMessage,
+  IValidationObject,
   IValidationResult,
   IValidations,
-} from 'src/types';
-import type { IValidationMessage, IValidationObject } from 'src/utils/validation/types';
+} from 'src/utils/validation/types';
 
 export interface IRunSingleFieldValidation {
   componentId: string;

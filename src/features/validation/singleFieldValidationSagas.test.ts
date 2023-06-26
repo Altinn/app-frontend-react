@@ -15,12 +15,12 @@ import {
 } from 'src/features/validation/singleFieldValidationSagas';
 import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { Severity } from 'src/types';
 import { resolvedLayoutsFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
-import type { IRuntimeState, IValidationIssue } from 'src/types';
-import type { IValidationObject } from 'src/utils/validation/types';
+import { ValidationIssueSeverity } from 'src/utils/validation/backendValidation';
+import type { IRuntimeState } from 'src/types';
+import type { IValidationIssue, IValidationObject } from 'src/utils/validation/types';
 
 describe('singleFieldValidationSagas', () => {
   let mockState: IRuntimeState;
@@ -50,7 +50,7 @@ describe('singleFieldValidationSagas', () => {
         description: mockErrorMessage,
         field: 'Group.prop1',
         scope: null,
-        severity: Severity.Error,
+        severity: ValidationIssueSeverity.Error,
         targetId: '',
       },
     ];

@@ -6,7 +6,8 @@ import { staticUseLanguageForTests } from 'src/hooks/useLanguage';
 import { createValidator, isOneOfError } from 'src/utils/validation/schemaValidation';
 import * as validation from 'src/utils/validation/validation';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { ILayoutValidations, IRepeatingGroups, ITextResource, IValidations } from 'src/types';
+import type { IRepeatingGroups, ITextResource } from 'src/types';
+import type { ILayoutValidations, IValidations } from 'src/utils/validation/types';
 
 // Mock dateformat
 jest.mock('src/utils/dateHelpers', () => ({

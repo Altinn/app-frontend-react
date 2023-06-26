@@ -1,6 +1,6 @@
 import { initialState, ValidationActions, validationSlice } from 'src/features/validation/validationSlice';
 import type { IValidationState } from 'src/features/validation/validationSlice';
-import type { IComponentValidations, IValidations } from 'src/types';
+import type { IComponentValidations, IValidations } from 'src/utils/validation/types';
 
 describe('validationSlice', () => {
   let state: IValidationState;

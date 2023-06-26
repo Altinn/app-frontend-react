@@ -10,15 +10,16 @@ import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { getDataValidationUrl } from 'src/utils/urls/appUrlHelper';
+import { mapValidationIssues } from 'src/utils/validation/backendValidation';
 import {
   containsErrors,
   createLayoutValidationResult,
   filterValidationObjectsByRowIndex,
-  mapValidationIssues,
 } from 'src/utils/validation/validationHelpers';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/layout/formLayoutTypes';
-import type { IRuntimeState, IValidationIssue } from 'src/types';
+import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { IValidationIssue } from 'src/utils/validation/types';
 
 export function* updateRepeatingGroupEditIndexSaga({
   payload: { group, index, validate, shouldAddRow },

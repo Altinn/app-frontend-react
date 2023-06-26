@@ -8,7 +8,8 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { httpGet } from 'src/utils/network/networking';
 import { getValidationUrl } from 'src/utils/urls/appUrlHelper';
-import { createValidationResult, mapValidationIssues } from 'src/utils/validation/validationHelpers';
+import { mapValidationIssues } from 'src/utils/validation/backendValidation';
+import { createValidationResult } from 'src/utils/validation/validationHelpers';
 import type { BaseButtonProps } from 'src/layout/Button/WrappedButton';
 
 export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: string }) => {

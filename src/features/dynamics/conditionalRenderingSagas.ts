@@ -15,8 +15,9 @@ import type { ICheckIfConditionalRulesShouldRun, IConditionalRenderingRules } fr
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig, ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
-import type { IHiddenLayoutsExpressions, IRuntimeState, IUiConfig, IValidations } from 'src/types';
+import type { IHiddenLayoutsExpressions, IRuntimeState, IUiConfig } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
+import type { IValidations } from 'src/utils/validation/types';
 
 export const ConditionalRenderingSelector = (store: IRuntimeState) => store.formDynamics.conditionalRendering;
 export const FormDataSelector = (state: IRuntimeState) => state.formData.formData;

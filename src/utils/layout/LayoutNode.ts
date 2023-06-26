@@ -6,7 +6,6 @@ import type { ComponentClassMap } from 'src/layout';
 import type { HNonRepGroup, HRepGroup } from 'src/layout/Group/types';
 import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
 import type { ComponentType } from 'src/layout/LayoutComponent';
-import type { IComponentBindingValidation, IComponentValidations, ValidationKeyOrAny } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type {
   AnyItem,
@@ -19,7 +18,12 @@ import type {
 } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
-import type { IValidationObject } from 'src/utils/validation/types';
+import type {
+  IComponentBindingValidation,
+  IComponentValidations,
+  IValidationObject,
+  ValidationKeyOrAny,
+} from 'src/utils/validation/types';
 import type { IValidationOptions } from 'src/utils/validation/validation';
 
 /**
