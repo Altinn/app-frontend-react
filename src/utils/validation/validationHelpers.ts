@@ -93,18 +93,45 @@ export function getValidationMessage(issue: IValidationIssue, langTools: IUseLan
   return issue.source ? `${issue.source}.${issue.code}` : issue.code;
 }
 
+export function removeFixedValidations(validationObjects: IValidationObject[]): IValidationObject[] {
+  const fixedValidations = validationObjects.filter(
+    (f) => !f.empty && f.severity === 'fixed',
+  ) as IValidationMessage<'fixed'>[];
+
+  if (fixedValidations.length === 0) {
+    return validationObjects;
+  }
+
+  return validationObjects.filter(
+    (v) =>
+      v.empty ||
+      v.severity === 'fixed' ||
+      !fixedValidations.find(
+        (f) =>
+          v.pageKey === f.pageKey &&
+          v.componentId === f.componentId &&
+          v.bindingKey === f.bindingKey &&
+          v.message === f.message,
+      ),
+  );
+}
+
 export function containsErrors(validationObjects: IValidationObject[]): boolean {
-  return validationObjects.some((o) => !o.empty && (o.severity === 'errors' || o.invalidDataTypes));
+  return removeFixedValidations(validationObjects).some(
+    (o) => !o.empty && (o.severity === 'errors' || o.invalidDataTypes),
+  );
 }
 
 export function hasInvalidDataTypes(validationObjects: IValidationObject[]): boolean {
-  return validationObjects.some((o) => !o.empty && o.invalidDataTypes);
+  return removeFixedValidations(validationObjects).some((o) => !o.empty && o.invalidDataTypes);
 }
 
+// Preserves fixed validations
 export function filterValidationObjectsByComponentId(validations: IValidationObject[], componentId: string) {
-  return validations.filter((v) => v.severity === 'fixed' || v.componentId === componentId);
+  return validations.filter((v) => v.componentId === componentId || (!v.empty && v.severity === 'fixed'));
 }
 
+// Preserves fixed validations
 export function filterValidationObjectsByPage(
   validations: IValidationObject[],
   trigger: TriggersPageValidation,
@@ -118,16 +145,17 @@ export function filterValidationObjectsByPage(
   if (trigger === Triggers.ValidateCurrentAndPreviousPages) {
     const index = pageOrder.indexOf(currentView);
     const previousPages = pageOrder.slice(0, index + 1);
-    return validations.filter(({ pageKey, severity }) => severity === 'fixed' || previousPages.includes(pageKey));
+    return validations.filter((v) => previousPages.includes(v.pageKey) || (!v.empty && v.severity === 'fixed'));
   }
 
   if (trigger === Triggers.ValidatePage) {
-    return validations.filter(({ pageKey, severity }) => severity === 'fixed' || pageKey === currentView);
+    return validations.filter((v) => v.pageKey === currentView || (!v.empty && v.severity === 'fixed'));
   }
 
   return [];
 }
 
+// Preserves fixed validations
 export function filterValidationObjectsByRowIndex(
   rowIndex: number,
   baseRowIndices: number[],
@@ -135,17 +163,17 @@ export function filterValidationObjectsByRowIndex(
 ): IValidationObject[] {
   const filteredValidationObjects: IValidationObject[] = [];
   const rowIndicesToCompare = [...baseRowIndices, rowIndex];
-  for (const object of validationObjects) {
-    if (object.severity === 'fixed') {
-      filteredValidationObjects.push(object);
+  for (const o of validationObjects) {
+    if (!o.empty && o.severity === 'fixed') {
+      filteredValidationObjects.push(o);
       continue;
     }
 
-    if (object.rowIndices.length < rowIndicesToCompare.length) {
+    if (o.rowIndices.length < rowIndicesToCompare.length) {
       continue;
     }
-    if (rowIndicesToCompare.every((index, i) => object.rowIndices[i] === index)) {
-      filteredValidationObjects.push(object);
+    if (rowIndicesToCompare.every((index, i) => o.rowIndices[i] === index)) {
+      filteredValidationObjects.push(o);
     }
   }
   return filteredValidationObjects;

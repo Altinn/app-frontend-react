@@ -1,6 +1,6 @@
 import type { ValidationSeverity } from 'src/types';
 
-export type IValidationObject = IValidationMessage | IEmptyValidation;
+export type IValidationObject = IValidationMessage<T> | IEmptyValidation;
 
 export type IValidationMessage<T extends ValidationSeverity> = {
   empty: false;

@@ -118,6 +118,10 @@ export const validationSlice = () => {
           const { validationObjects } = action.payload;
           const fixedValidation: IValidationMessage<'fixed'>[] = [];
           for (const object of validationObjects) {
+            if (object.empty) {
+              continue;
+            }
+
             if (object.severity === 'fixed') {
               fixedValidation.push(object);
               continue;
