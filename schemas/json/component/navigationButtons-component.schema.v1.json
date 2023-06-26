@@ -32,7 +32,7 @@
           "default": "Tilbake"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "showBackButton": {
       "type": "boolean",

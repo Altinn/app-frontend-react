@@ -54,12 +54,22 @@
           "type": "string",
           "title": "Help text",
           "description": "The help text for the component"
+        },
+        "shortName": {
+          "type": "string",
+          "title": "Short name",
+          "description": "The short name for the component (used in validation messages) (optional). If it is not specified, 'title' text is used."
+        },
+        "tableTitle": {
+          "type": "string",
+          "title": "Table title",
+          "description": "The text shown in column title when component is used in repeating group (optional). If it is not specified, 'title' text is used."
         }
       },
       "required": [
         "title"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "basicDataModelBindings": {
       "title": "Data model bindings",

@@ -23,7 +23,8 @@
       },
       "required": [
         "title"
-      ]
+      ],
+      "additionalProperties": true
     },
     "sandbox": {
       "type": "object",

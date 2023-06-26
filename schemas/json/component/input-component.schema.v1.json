@@ -66,7 +66,7 @@
       "required": [
         "title"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "triggers": {
       "$ref": "common-defs.schema.v1.json#/$defs/triggers"

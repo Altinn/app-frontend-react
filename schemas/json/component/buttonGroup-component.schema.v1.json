@@ -24,7 +24,7 @@
       "required": [
         "title"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "children": {
       "title": "Children",

@@ -36,13 +36,52 @@
       "description": "Text resource bindings for a component.",
       "properties": {
         "title": {
-          "type": "string"
+          "type": "string",
+          "title": "Label",
+          "description": "The title/label text for the group"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "The description text for the group"
+        },
+        "help": {
+          "type": "string",
+          "title": "Help text",
+          "description": "The help text for the group"
+        },
+        "shortName": {
+          "type": "string",
+          "title": "Short name",
+          "description": "The short name for the group (used in validation messages) (optional). If it is not specified, 'title' text is used."
+        },
+        "add_button": {
+          "type": "string",
+          "title": "Add button",
+          "description": ""
+        },
+        "edit_button_open": {
+          "type": "string",
+          "title": "Edit button open",
+          "description": ""
+        },
+        "edit_button_close": {
+          "type": "string",
+          "title": "Edit button close",
+          "description": ""
+        },
+        "save_button": {
+          "type": "string",
+          "title": "Save button",
+          "description": ""
+        },
+        "save_and_next_button": {
+          "type": "string",
+          "title": "Save and next button",
+          "description": ""
         }
       },
-      "required": [
-        "title"
-      ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "children": {
       "title": "Children",

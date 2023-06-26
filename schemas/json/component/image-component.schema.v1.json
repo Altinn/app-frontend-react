@@ -28,7 +28,7 @@
       "required": [
         "altTextImg"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "src": {
       "title": "Image source",

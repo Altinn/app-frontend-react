@@ -14,6 +14,9 @@
       "description": "The component type.",
       "const": "NavigationBar"
     },
+    "textResourceBindings": {
+      "$ref": "common-defs.schema.v1.json#/$defs/basicTextResources"
+    },
     "compact": {
       "type": "boolean",
       "title": "Compact navbar menu",

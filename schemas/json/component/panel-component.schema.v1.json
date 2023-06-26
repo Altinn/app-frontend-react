@@ -34,7 +34,7 @@
         "title",
         "body"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "variant": {
       "title": "Panel variant",

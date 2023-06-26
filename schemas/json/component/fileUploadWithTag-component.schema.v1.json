@@ -29,7 +29,7 @@
       "required": [
         "title"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "maxFileSizeInMB": {
       "title": "Maximum file size in MB",

@@ -24,7 +24,7 @@
       "required": [
         "title"
       ],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "size": {
       "title": "Header size",
