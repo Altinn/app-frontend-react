@@ -33,7 +33,6 @@ export class AppFrontend {
   public profileIconButton = '#profile-icon-button';
   public logOut = '#logout-menu-item';
   public logOutLink = 'a[href$="/ui/authentication/LogOut"]';
-  public designSystemPanel = '[data-testid="panel-content-wrapper"]';
   public printButton = 'button:contains("Print / Lagre PDF")';
 
   public helpText = {
@@ -163,6 +162,8 @@ export class AppFrontend {
     sources: '#sources',
     uploadingAnimation: '#loader-upload',
     deleteAttachment: '[data-testid^="attachment-delete"]',
+    popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
+    popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
     uploadedTable: '#altinn-file-listfileUpload-changename',
     downloadAttachment: '[data-testid="attachment-download"]',
     uploadSuccess: '[data-testid="checkmark-success"]',
@@ -219,6 +220,8 @@ export class AppFrontend {
     hideCommentField: '[id^="hideComment"]',
     hiddenRowsInfoMsg: '[data-componentid="info-msg"]',
     row: (idx: number) => ({
+      currentValue: `#currentValue-${idx}`,
+      newValue: `#newValue-${idx}`,
       uploadSingle: makeUploaderSelectors('mainUploaderSingle', idx, 3, 'untagged'),
       uploadMulti: makeUploaderSelectors('mainUploaderMulti', idx, 4, 'untagged'),
       editBtn: `#group-mainGroup-table-body > tr:nth-child(${idx + 1}) [data-testid=edit-button]`,
