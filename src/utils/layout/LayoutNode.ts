@@ -179,8 +179,13 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
       // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,
       // because it doesn't make sense to validate a component that is hidden in the UI and the
       // user cannot interact with.
-      const hiddenImplicitly =
-        tableColSetup?.showInExpandedEdit === false && !tableColSetup.editInTable && groupMode !== 'onlyTable';
+      let hiddenImplicitly =
+        tableColSetup?.showInExpandedEdit === false && !tableColSetup?.editInTable && groupMode !== 'onlyTable';
+
+      if (groupMode === 'onlyTable' && tableColSetup?.editInTable === false) {
+        // This is also a way to hide a component implicitly
+        hiddenImplicitly = true;
+      }
 
       if (hiddenImplicitly) {
         return true;

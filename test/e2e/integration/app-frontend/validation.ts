@@ -422,12 +422,30 @@ describe('Validation', () => {
     cy.get(appFrontend.group.editContainer).should('not.exist');
 
     cy.changeLayout((component) => {
+      if (component.type === 'Group' && component.id === 'mainGroup' && component.tableColumns) {
+        // Components that are not editable in the table, when using the 'onlyTable' mode, are implicitly hidden
+        component.tableColumns.currentValue.editInTable = false;
+      }
+    });
+
+    cy.get(appFrontend.group.row(0).currentValue).should('not.exist');
+    cy.get(appFrontend.group.row(0).newValue).should('exist');
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(1).find('td').eq(0).should('have.text', 'NOK 1 233');
+    cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(2).find('td').eq(0).should('have.text', '');
+    cy.get(appFrontend.group.row(2).currentValue).should('not.exist');
+    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
+    cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi til').click();
+    cy.get(appFrontend.group.row(2).newValue).should('be.focused');
+
+    cy.changeLayout((component) => {
       if (component.type === 'Group' && component.id === 'mainGroup' && component.edit && component.tableColumns) {
         // In regular mode, if the edit button is hidden, we should not open the row in edit mode to focus a component
         // because this isn't a mode the user would be able to reach either.
         component.edit.mode = 'showTable';
         component.edit.editButton = false;
         component.tableColumns.newValue.editInTable = undefined;
+        component.tableColumns.currentValue.editInTable = undefined;
       }
     });
 
