@@ -9,7 +9,8 @@ import type { IComponentValidations } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ISchemaValidationError, IValidationObject } from 'src/utils/validation/types';
+import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
+import type { IValidationObject } from 'src/utils/validation/types';
 
 export type ComponentClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];

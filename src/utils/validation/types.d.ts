@@ -19,5 +19,3 @@ export type IEmptyValidation = {
   componentId: string;
   rowIndices: number[];
 };
-
-export type ISchemaValidationError = { message: string; bindingField: string; invalidDataType: boolean };

@@ -1,0 +1,248 @@
+import Ajv from 'ajv';
+import Ajv2020 from 'ajv/dist/2020';
+import addFormats from 'ajv-formats';
+import addAdditionalFormats from 'ajv-formats-draft2019';
+import type { Options } from 'ajv';
+import type * as AjvCore from 'ajv/dist/core';
+
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
+import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
+import { convertDataBindingToModel } from 'src/utils/databindings';
+import {
+  getRootElementPath,
+  getSchemaPart,
+  getSchemaPartOldGenerator,
+  processInstancePath,
+} from 'src/utils/schemaUtils';
+import type { IFormData } from 'src/features/formData';
+import type { ValidLanguageKey } from 'src/hooks/useLanguage';
+import type { IRuntimeState } from 'src/types';
+
+export interface ISchemaValidator {
+  rootElementPath: string;
+  schema: any;
+  validator: Ajv;
+}
+
+export interface ISchemaValidators {
+  [id: string]: ISchemaValidator;
+}
+
+export type ISchemaValidationError = { message: string; bindingField: string; invalidDataType: boolean };
+
+const validators: ISchemaValidators = {};
+
+export function getValidator(currentDataTaskTypeId, schemas) {
+  if (!validators[currentDataTaskTypeId]) {
+    validators[currentDataTaskTypeId] = createValidator(schemas[currentDataTaskTypeId]);
+  }
+  return validators[currentDataTaskTypeId];
+}
+
+export function createValidator(schema: any): ISchemaValidator {
+  const ajvOptions: Options = {
+    allErrors: true,
+    coerceTypes: true,
+
+    /**
+     * This option is deprecated in AJV, but continues to work for now. We have unit tests that will fail if the
+     * functionality is removed from AJV. The jsPropertySyntax (ex. 'Path.To.Array[0].Item') was replaced with JSON
+     * pointers in v7 (ex. '/Path/To/Array/0/Item'). If the option to keep the old syntax is removed at some point,
+     * we'll have to implement a translator ourselves, as we'll need this format to equal our data model bindings.
+     *
+     * @see https://github.com/ajv-validator/ajv/issues/1577#issuecomment-832216719
+     */
+    jsPropertySyntax: true,
+
+    strict: false,
+    strictTypes: false,
+    strictTuples: false,
+    unicodeRegExp: false,
+    code: { es5: true },
+  };
+  let ajv: AjvCore.default;
+  const rootElementPath = getRootElementPath(schema);
+  if (schema.$schema?.includes('2020-12')) {
+    // we have to use a different ajv-instance for 2020-12 draft
+    // here we actually validate against the root json-schema object
+    ajv = new Ajv2020(ajvOptions);
+  } else {
+    // leave existing schemas untouched. Here we actually validate against a sub schema with the name of the model
+    // for instance "skjema"
+    ajv = new Ajv(ajvOptions);
+  }
+  addFormats(ajv);
+  addAdditionalFormats(ajv);
+  ajv.addFormat('year', /^\d{4}$/);
+  ajv.addFormat('year-month', /^\d{4}-(0[1-9]|1[0-2])$/);
+  ajv.addSchema(schema, 'schema');
+  return {
+    validator: ajv,
+    schema,
+    rootElementPath,
+  };
+}
+
+/**
+ * Check if AVJ validation error is a oneOf error ("must match exactly one schema in oneOf").
+ * We don't currently support oneOf validation.
+ * These can be ignored, as there will be other, specific validation errors that actually
+ * from the specified sub-schemas that will trigger validation errors where relevant.
+ * @param error the AJV validation error object
+ * @returns a value indicating if the provided error is a "oneOf" error.
+ */
+export const isOneOfError = (error: AjvCore.ErrorObject): boolean =>
+  error.keyword === 'oneOf' || error.params?.type === 'null';
+
+export const errorMessageKeys = {
+  minimum: {
+    textKey: 'min',
+    paramKey: 'limit',
+  },
+  exclusiveMinimum: {
+    textKey: 'min',
+    paramKey: 'limit',
+  },
+  maximum: {
+    textKey: 'max',
+    paramKey: 'limit',
+  },
+  exclusiveMaximum: {
+    textKey: 'max',
+    paramKey: 'limit',
+  },
+  minLength: {
+    textKey: 'minLength',
+    paramKey: 'limit',
+  },
+  maxLength: {
+    textKey: 'maxLength',
+    paramKey: 'limit',
+  },
+  pattern: {
+    textKey: 'pattern',
+    paramKey: 'pattern',
+  },
+  format: {
+    textKey: 'pattern',
+    paramKey: 'format',
+  },
+  type: {
+    textKey: 'pattern',
+    paramKey: 'type',
+  },
+  required: {
+    textKey: 'required',
+    paramKey: 'limit',
+  },
+  enum: {
+    textKey: 'enum',
+    paramKey: 'allowedValues',
+  },
+  const: {
+    textKey: 'enum',
+    paramKey: 'allowedValues',
+  },
+  multipleOf: {
+    textKey: 'multipleOf',
+    paramKey: 'multipleOf',
+  },
+  oneOf: {
+    textKey: 'oneOf',
+    paramKey: 'passingSchemas',
+  },
+  anyOf: {
+    textKey: 'anyOf',
+    paramKey: 'passingSchemas',
+  },
+  allOf: {
+    textKey: 'allOf',
+    paramKey: 'passingSchemas',
+  },
+  not: {
+    textKey: 'not',
+    paramKey: 'passingSchemas',
+  },
+  formatMaximum: {
+    textKey: 'formatMaximum',
+    paramKey: 'limit',
+  },
+  formatMinimum: {
+    textKey: 'formatMinimum',
+    paramKey: 'limit',
+  },
+  formatExclusiveMaximum: {
+    textKey: 'formatMaximum',
+    paramKey: 'limit',
+  },
+  formatExclusiveMinimum: {
+    textKey: 'formatMinimum',
+    paramKey: 'limit',
+  },
+  minItems: {
+    textKey: 'minItems',
+    paramKey: 'limit',
+  },
+  maxItems: {
+    textKey: 'maxItems',
+    paramKey: 'limit',
+  },
+};
+
+export function getSchemaValidationErrors(overrideFormData?: IFormData): ISchemaValidationError[] {
+  const state: IRuntimeState = window.reduxStore.getState();
+
+  const { langAsString } = staticUseLanguageFromState(state);
+
+  const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
+    application: state.applicationMetadata.applicationMetadata,
+    instance: state.instanceData.instance,
+    layoutSets: state.formLayout.layoutsets,
+  });
+  const { validator, rootElementPath, schema } = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
+  const formData = { ...state.formData.formData, ...overrideFormData };
+  const model = convertDataBindingToModel(formData);
+  const valid = validator.validate(`schema${rootElementPath}`, model);
+
+  if (valid) {
+    return [];
+  }
+  const validationErrors: ISchemaValidationError[] = [];
+
+  for (const error of validator.errors || []) {
+    // Required fields are handled separately
+    if (error.keyword === 'required') {
+      continue;
+    }
+
+    if (isOneOfError(error)) {
+      continue;
+    }
+    const invalidDataType = error.keyword === 'type' || error.keyword === 'format';
+
+    let errorParams = error.params[errorMessageKeys[error.keyword]?.paramKey];
+    if (errorParams === undefined) {
+      console.warn(`WARN: Error message for ${error.keyword} not implemented`);
+    }
+    if (Array.isArray(errorParams)) {
+      errorParams = errorParams.join(', ');
+    }
+
+    // backward compatible if we are validating against a sub scheme.
+    const fieldSchema = rootElementPath
+      ? getSchemaPartOldGenerator(error.schemaPath, schema, rootElementPath)
+      : getSchemaPart(error.schemaPath, schema);
+
+    const errorMessage = fieldSchema?.errorMessage
+      ? langAsString(fieldSchema.errorMessage)
+      : langAsString(
+          `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
+          [errorParams],
+        );
+
+    const field = processInstancePath(error.instancePath);
+    validationErrors.push({ message: errorMessage, bindingField: field, invalidDataType });
+  }
+
+  return validationErrors;
+}

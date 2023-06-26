@@ -1,6 +1,6 @@
 import type { $Values } from 'utility-types';
 
-import { runValidationOnNodes } from 'src/utils/validation/validationHelpers';
+import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IValidationObject } from 'src/utils/validation/types';

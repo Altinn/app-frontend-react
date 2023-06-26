@@ -1,13 +1,14 @@
-import Ajv from 'ajv';
-import Ajv2020 from 'ajv/dist/2020';
-import addFormats from 'ajv-formats';
-import addAdditionalFormats from 'ajv-formats-draft2019';
-import JsonPointer from 'jsonpointer';
-import type { Options } from 'ajv';
-import type * as AjvCore from 'ajv/dist/core';
-
+import {
+  implementsAnyValidation,
+  implementsComponentValidation,
+  implementsEmptyFieldValidation,
+  implementsSchemaValidation,
+} from 'src/layout';
+import { getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
+import { emptyValidation } from 'src/utils/validation/validationHelpers';
 import type { IAttachment } from 'src/features/attachments';
 import type { ExprUnresolved } from 'src/features/expressions/types';
+import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent, ILayouts } from 'src/layout/layout';
@@ -15,177 +16,53 @@ import type {
   IComponentValidations,
   ILayoutValidations,
   IRepeatingGroups,
-  ISchemaValidator,
   IValidationResult,
   IValidations,
 } from 'src/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { IValidationObject } from 'src/utils/validation/types';
 
-export interface ISchemaValidators {
-  [id: string]: ISchemaValidator;
+export interface IValidationOptions {
+  overrideFormData?: IFormData;
+  skipSchemaValidation?: boolean;
+  skipComponentValidation?: boolean;
+  skipEmptyFieldValidation?: boolean;
 }
+export function runValidationOnNodes(nodes: LayoutNode[], options?: IValidationOptions): IValidationObject[] {
+  const nodesToValidate = nodes.filter(
+    (node) => implementsAnyValidation(node.def) && !node.isHidden() && !node.item.renderAsSummary,
+  );
 
-const validators: ISchemaValidators = {};
-
-export function getValidator(currentDataTaskTypeId, schemas) {
-  if (!validators[currentDataTaskTypeId]) {
-    validators[currentDataTaskTypeId] = createValidator(schemas[currentDataTaskTypeId]);
+  if (nodesToValidate.length === 0) {
+    return [];
   }
-  return validators[currentDataTaskTypeId];
+
+  const schemaErrors = getSchemaValidationErrors(options?.overrideFormData);
+  const validations: IValidationObject[] = [];
+  for (const node of nodesToValidate) {
+    const nodeValidations: IValidationObject[] = [];
+
+    if (implementsEmptyFieldValidation(node.def) && !options?.skipEmptyFieldValidation) {
+      nodeValidations.push(...node.def.runEmptyFieldValidation(node as any, options?.overrideFormData));
+    }
+
+    if (implementsComponentValidation(node.def) && !options?.skipComponentValidation) {
+      nodeValidations.push(...node.def.runComponentValidation(node as any, options?.overrideFormData));
+    }
+
+    if (implementsSchemaValidation(node.def) && !options?.skipSchemaValidation) {
+      nodeValidations.push(...node.def.runSchemaValidation(node as any, schemaErrors));
+    }
+
+    if (nodeValidations.length) {
+      validations.push(...nodeValidations);
+    } else {
+      validations.push(emptyValidation(node));
+    }
+  }
+
+  return validations;
 }
-
-export function createValidator(schema: any): ISchemaValidator {
-  const ajvOptions: Options = {
-    allErrors: true,
-    coerceTypes: true,
-
-    /**
-     * This option is deprecated in AJV, but continues to work for now. We have unit tests that will fail if the
-     * functionality is removed from AJV. The jsPropertySyntax (ex. 'Path.To.Array[0].Item') was replaced with JSON
-     * pointers in v7 (ex. '/Path/To/Array/0/Item'). If the option to keep the old syntax is removed at some point,
-     * we'll have to implement a translator ourselves, as we'll need this format to equal our data model bindings.
-     *
-     * @see https://github.com/ajv-validator/ajv/issues/1577#issuecomment-832216719
-     */
-    jsPropertySyntax: true,
-
-    strict: false,
-    strictTypes: false,
-    strictTuples: false,
-    unicodeRegExp: false,
-    code: { es5: true },
-  };
-  let ajv: AjvCore.default;
-  const rootElementPath = getRootElementPath(schema);
-  if (schema.$schema?.includes('2020-12')) {
-    // we have to use a different ajv-instance for 2020-12 draft
-    // here we actually validate against the root json-schema object
-    ajv = new Ajv2020(ajvOptions);
-  } else {
-    // leave existing schemas untouched. Here we actually validate against a sub schema with the name of the model
-    // for instance "skjema"
-    ajv = new Ajv(ajvOptions);
-  }
-  addFormats(ajv);
-  addAdditionalFormats(ajv);
-  ajv.addFormat('year', /^\d{4}$/);
-  ajv.addFormat('year-month', /^\d{4}-(0[1-9]|1[0-2])$/);
-  ajv.addSchema(schema, 'schema');
-  return {
-    validator: ajv,
-    schema,
-    rootElementPath,
-  };
-}
-
-export const getRootElementPath = (schema: any) => {
-  if (![null, undefined].includes(schema.info?.rootNode)) {
-    // If rootNode is defined in the schema
-    return schema.info.rootNode;
-  } else if (schema.info?.meldingsnavn && schema.properties) {
-    // SERES workaround
-    return schema.properties[schema.info.meldingsnavn]?.$ref || '';
-  } else if (schema.properties) {
-    // Expect first property to contain $ref to schema
-    const rootKey: string = Object.keys(schema.properties)[0];
-    return schema.properties[rootKey].$ref;
-  }
-  return '';
-};
-
-export const errorMessageKeys = {
-  minimum: {
-    textKey: 'min',
-    paramKey: 'limit',
-  },
-  exclusiveMinimum: {
-    textKey: 'min',
-    paramKey: 'limit',
-  },
-  maximum: {
-    textKey: 'max',
-    paramKey: 'limit',
-  },
-  exclusiveMaximum: {
-    textKey: 'max',
-    paramKey: 'limit',
-  },
-  minLength: {
-    textKey: 'minLength',
-    paramKey: 'limit',
-  },
-  maxLength: {
-    textKey: 'maxLength',
-    paramKey: 'limit',
-  },
-  pattern: {
-    textKey: 'pattern',
-    paramKey: 'pattern',
-  },
-  format: {
-    textKey: 'pattern',
-    paramKey: 'format',
-  },
-  type: {
-    textKey: 'pattern',
-    paramKey: 'type',
-  },
-  required: {
-    textKey: 'required',
-    paramKey: 'limit',
-  },
-  enum: {
-    textKey: 'enum',
-    paramKey: 'allowedValues',
-  },
-  const: {
-    textKey: 'enum',
-    paramKey: 'allowedValues',
-  },
-  multipleOf: {
-    textKey: 'multipleOf',
-    paramKey: 'multipleOf',
-  },
-  oneOf: {
-    textKey: 'oneOf',
-    paramKey: 'passingSchemas',
-  },
-  anyOf: {
-    textKey: 'anyOf',
-    paramKey: 'passingSchemas',
-  },
-  allOf: {
-    textKey: 'allOf',
-    paramKey: 'passingSchemas',
-  },
-  not: {
-    textKey: 'not',
-    paramKey: 'passingSchemas',
-  },
-  formatMaximum: {
-    textKey: 'formatMaximum',
-    paramKey: 'limit',
-  },
-  formatMinimum: {
-    textKey: 'formatMinimum',
-    paramKey: 'limit',
-  },
-  formatExclusiveMaximum: {
-    textKey: 'formatMaximum',
-    paramKey: 'limit',
-  },
-  formatExclusiveMinimum: {
-    textKey: 'formatMinimum',
-    paramKey: 'limit',
-  },
-  minItems: {
-    textKey: 'minItems',
-    paramKey: 'limit',
-  },
-  maxItems: {
-    textKey: 'maxItems',
-    paramKey: 'limit',
-  },
-};
 
 /**
  * @deprecated
@@ -232,61 +109,6 @@ export function attachmentsValid(attachments: any, component: any): boolean {
 
 export function attachmentIsMissingTag(attachment: IAttachment): boolean {
   return attachment.tags === undefined || attachment.tags.length === 0;
-}
-
-/**
- * Check if AVJ validation error is a oneOf error ("must match exactly one schema in oneOf").
- * We don't currently support oneOf validation.
- * These can be ignored, as there will be other, specific validation errors that actually
- * from the specified sub-schemas that will trigger validation errors where relevant.
- * @param error the AJV validation error object
- * @returns a value indicating if the provided error is a "oneOf" error.
- */
-export const isOneOfError = (error: AjvCore.ErrorObject): boolean =>
-  error.keyword === 'oneOf' || error.params?.type === 'null';
-
-/**
- * Wrapper method around getSchemaPart for schemas made with our old generator tool
- * @param schemaPath the path, format #/properties/model/properties/person/properties/name/maxLength
- * @param mainSchema the main schema to get part from
- * @param rootElementPath the subschema to get part from
- * @returns the part, or null if not found
- */
-export function getSchemaPartOldGenerator(schemaPath: string, mainSchema: object, rootElementPath: string): any {
-  // for old generators we can have a ref to a definition that is placed outside of the subSchema we validate against.
-  // if we are looking for #/definitons/x we search in main schema
-
-  if (/^#\/(definitions|\$defs)\//.test(schemaPath)) {
-    return getSchemaPart(schemaPath, mainSchema);
-  }
-  // all other in sub schema
-  return getSchemaPart(schemaPath, getSchemaPart(`${rootElementPath}/#`, mainSchema));
-}
-
-/**
- * Gets a json schema part by a schema patch
- * @param schemaPath the path, format #/properties/model/properties/person/properties/name/maxLength
- * @param jsonSchema the json schema to get part from
- * @returns the part, or null if not found
- */
-export function getSchemaPart(schemaPath: string, jsonSchema: object): any {
-  try {
-    // want to transform path example format to to /properties/model/properties/person/properties/name
-    const pointer = schemaPath.substr(1).split('/').slice(0, -1).join('/');
-    return JsonPointer.compile(pointer).get(jsonSchema);
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-export function processInstancePath(path: string): string {
-  let result = path.startsWith('.') ? path.slice(1) : path;
-  result = result
-    .replace(/"]\["|']\['/g, '.')
-    .replace(/\["|\['/g, '')
-    .replace(/"]|']/g, '');
-  return result;
 }
 
 /**

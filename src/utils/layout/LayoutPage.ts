@@ -1,4 +1,4 @@
-import { runValidationOnNodes } from 'src/utils/validation/validationHelpers';
+import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';

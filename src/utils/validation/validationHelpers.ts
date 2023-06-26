@@ -1,24 +1,7 @@
-import { type IUseLanguage, staticUseLanguageFromState, type ValidLanguageKey } from 'src/hooks/useLanguage';
-import {
-  implementsAnyValidation,
-  implementsComponentValidation,
-  implementsEmptyFieldValidation,
-  implementsSchemaValidation,
-} from 'src/layout';
+import { type IUseLanguage, staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Severity, Triggers } from 'src/types';
-import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
-import { convertDataBindingToModel } from 'src/utils/databindings';
 import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
-import {
-  errorMessageKeys,
-  getSchemaPart,
-  getSchemaPartOldGenerator,
-  getValidator,
-  isOneOfError,
-  processInstancePath,
-} from 'src/utils/validation/validation';
 import { validationTexts } from 'src/utils/validation/validationTexts';
-import type { IFormData } from 'src/features/formData';
 import type {
   IComponentValidationResult,
   IComponentValidations,
@@ -32,7 +15,7 @@ import type {
   ValidationSeverity,
 } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ISchemaValidationError, IValidationMessage, IValidationObject } from 'src/utils/validation/types';
+import type { IValidationMessage, IValidationObject } from 'src/utils/validation/types';
 
 export const severityMap: { [s in Severity]: ValidationSeverity } = {
   [Severity.Error]: 'errors',
@@ -401,104 +384,4 @@ export function mapValidationIssues(issues: IValidationIssue[]): IValidationObje
     }
   }
   return validationOutputs;
-}
-
-export function getSchemaValidationErrors(overrideFormData?: IFormData): ISchemaValidationError[] {
-  const state: IRuntimeState = window.reduxStore.getState();
-
-  const { langAsString } = staticUseLanguageFromState(state);
-
-  const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
-    application: state.applicationMetadata.applicationMetadata,
-    instance: state.instanceData.instance,
-    layoutSets: state.formLayout.layoutsets,
-  });
-  const { validator, rootElementPath, schema } = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
-  const formData = { ...state.formData.formData, ...overrideFormData };
-  const model = convertDataBindingToModel(formData);
-  const valid = validator.validate(`schema${rootElementPath}`, model);
-
-  if (valid) {
-    return [];
-  }
-  const validationErrors: ISchemaValidationError[] = [];
-
-  for (const error of validator.errors || []) {
-    // Required fields are handled separately
-    if (error.keyword === 'required') {
-      continue;
-    }
-
-    if (isOneOfError(error)) {
-      continue;
-    }
-    const invalidDataType = error.keyword === 'type' || error.keyword === 'format';
-
-    let errorParams = error.params[errorMessageKeys[error.keyword]?.paramKey];
-    if (errorParams === undefined) {
-      console.warn(`WARN: Error message for ${error.keyword} not implemented`);
-    }
-    if (Array.isArray(errorParams)) {
-      errorParams = errorParams.join(', ');
-    }
-
-    // backward compatible if we are validating against a sub scheme.
-    const fieldSchema = rootElementPath
-      ? getSchemaPartOldGenerator(error.schemaPath, schema, rootElementPath)
-      : getSchemaPart(error.schemaPath, schema);
-
-    const errorMessage = fieldSchema?.errorMessage
-      ? langAsString(fieldSchema.errorMessage)
-      : langAsString(
-          `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
-          [errorParams],
-        );
-
-    const field = processInstancePath(error.instancePath);
-    validationErrors.push({ message: errorMessage, bindingField: field, invalidDataType });
-  }
-
-  return validationErrors;
-}
-
-export interface IValidationOptions {
-  overrideFormData?: IFormData;
-  skipSchemaValidation?: boolean;
-  skipComponentValidation?: boolean;
-  skipEmptyFieldValidation?: boolean;
-}
-export function runValidationOnNodes(nodes: LayoutNode[], options?: IValidationOptions): IValidationObject[] {
-  const nodesToValidate = nodes.filter(
-    (node) => implementsAnyValidation(node.def) && !node.isHidden() && !node.item.renderAsSummary,
-  );
-
-  if (nodesToValidate.length === 0) {
-    return [];
-  }
-
-  const schemaErrors = getSchemaValidationErrors(options?.overrideFormData);
-  const validations: IValidationObject[] = [];
-  for (const node of nodesToValidate) {
-    const nodeValidations: IValidationObject[] = [];
-
-    if (implementsEmptyFieldValidation(node.def) && !options?.skipEmptyFieldValidation) {
-      nodeValidations.push(...node.def.runEmptyFieldValidation(node as any, options?.overrideFormData));
-    }
-
-    if (implementsComponentValidation(node.def) && !options?.skipComponentValidation) {
-      nodeValidations.push(...node.def.runComponentValidation(node as any, options?.overrideFormData));
-    }
-
-    if (implementsSchemaValidation(node.def) && !options?.skipSchemaValidation) {
-      nodeValidations.push(...node.def.runSchemaValidation(node as any, schemaErrors));
-    }
-
-    if (nodeValidations.length) {
-      validations.push(...nodeValidations);
-    } else {
-      validations.push(emptyValidation(node));
-    }
-  }
-
-  return validations;
 }

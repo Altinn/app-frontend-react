@@ -1,5 +1,3 @@
-import type Ajv from 'ajv/dist/core';
-
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
@@ -132,12 +130,6 @@ export interface IRuleObject {
 
 export type IRuntimeState = RootState;
 export type IRuntimeStore = IRuntimeState;
-
-export interface ISchemaValidator {
-  rootElementPath: string;
-  schema: any;
-  validator: Ajv;
-}
 
 export interface ISimpleInstance {
   id: string;

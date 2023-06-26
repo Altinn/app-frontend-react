@@ -16,7 +16,8 @@ import type { IRuntimeState } from 'src/types';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { ISchemaValidationError, IValidationObject } from 'src/utils/validation/types';
+import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
+import type { IValidationObject } from 'src/utils/validation/types';
 
 /**
  * This enum is used to distinguish purely presentational components
