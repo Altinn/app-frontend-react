@@ -1,0 +1,124 @@
+{
+  "$id": "https://altinncdn.no/schemas/json/layout/layout.schema.v2.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Altinn layout",
+  "description": "Schema that describes the layout configuration for Altinn applications.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "$defs": {
+    "data": {
+      "title": "The layout data",
+      "description": "Contains data describing the layout configuration.",
+      "type": "object",
+      "properties": {
+        "layout": {
+          "$ref": "#/$defs/layout"
+        }
+      }
+    },
+    "layout": {
+      "title": "The layout",
+      "description": "Array of components to be presented in the layout.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/component"
+      }
+    },
+    "component": {
+      "oneOf": [
+        {
+          "$ref": "../component/actionButton-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/address-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/attachmentList-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/buttonGroup-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/checkboxes-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/custom-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/datepicker-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/dropdown-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/fileUpload-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/fileUploadWithTag-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/grid-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/group-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/header-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/iframe-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/image-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/input-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/instanceInformation-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/instantiationButton-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/likert-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/link-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/list-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/map-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/multipleSelect-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/navigationBar-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/navigationButtons-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/panel-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/radioButtons-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/summary-component.schema.v1.json"
+        },
+        {
+          "$ref": "../component/textArea-component.schema.v1.json"
+        }
+      ]
+    }
+  }
+}
