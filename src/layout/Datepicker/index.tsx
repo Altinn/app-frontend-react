@@ -47,13 +47,16 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
     );
   }
 
-  // TODO: support overrideFormData
-  runComponentValidation(node: LayoutNodeFromType<'Datepicker'>, _overrideFormData?: IFormData): IValidationObject[] {
+  runComponentValidation(node: LayoutNodeFromType<'Datepicker'>, overrideFormData?: IFormData): IValidationObject[] {
     const state: IRuntimeState = window.reduxStore.getState();
     const { langAsString, selectedLanguage } = staticUseLanguageFromState(state);
-    const formData = node.getFormData().simpleBinding;
 
-    if (!formData) {
+    const formData = { ...state.formData.formData, ...overrideFormData };
+    const data = node.item.dataModelBindings?.simpleBinding
+      ? formData[node.item.dataModelBindings.simpleBinding]
+      : undefined;
+
+    if (!data) {
       return [];
     }
 
@@ -62,7 +65,7 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
     const format = getDateFormat(node.item.format, selectedLanguage);
 
     const validations: IValidationObject[] = [];
-    const date = moment(formData, moment.ISO_8601);
+    const date = moment(data, moment.ISO_8601);
 
     if (!date.isValid()) {
       validations.push(
