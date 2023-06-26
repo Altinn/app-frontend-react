@@ -28,7 +28,12 @@ export interface ISchemaValidators {
   [id: string]: ISchemaValidator;
 }
 
-export type ISchemaValidationError = { message: string; bindingField: string; invalidDataType: boolean };
+export type ISchemaValidationError = {
+  message: string;
+  bindingField: string;
+  invalidDataType: boolean;
+  keyword: string;
+};
 
 const validators: ISchemaValidators = {};
 
@@ -241,7 +246,7 @@ export function getSchemaValidationErrors(overrideFormData?: IFormData): ISchema
         );
 
     const field = processInstancePath(error.instancePath);
-    validationErrors.push({ message: errorMessage, bindingField: field, invalidDataType });
+    validationErrors.push({ message: errorMessage, bindingField: field, invalidDataType, keyword: error.keyword });
   }
 
   return validationErrors;

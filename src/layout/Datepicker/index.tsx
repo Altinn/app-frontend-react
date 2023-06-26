@@ -18,6 +18,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { IRuntimeState } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type { IValidationObject } from 'src/utils/validation/types';
 
 export class Datepicker extends FormComponent<'Datepicker'> implements ComponentValidation {
@@ -80,6 +81,27 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
     }
 
     return validations;
+  }
+
+  // Since the format is validated in component validations, it needs to be ignored in schema validation
+  runSchemaValidation(
+    node: LayoutNodeFromType<'Datepicker'>,
+    schemaErrors: ISchemaValidationError[],
+  ): IValidationObject[] {
+    const bindingField = node.item.dataModelBindings?.simpleBinding;
+    if (!bindingField) {
+      return [];
+    }
+
+    const validationObjects: IValidationObject[] = [];
+    for (const error of schemaErrors) {
+      if (bindingField === error.bindingField && error.keyword !== 'format') {
+        validationObjects.push(
+          buildValidationObject(node, 'errors', error.message, 'simpleBinding', error.invalidDataType),
+        );
+      }
+    }
+    return validationObjects;
   }
 }
 
