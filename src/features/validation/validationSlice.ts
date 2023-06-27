@@ -86,6 +86,10 @@ export const validationSlice = () => {
           state.invalidDataTypes = invalidDataTypes || [];
         },
       }),
+      /**
+       * If merge=true, it will only update the component validations that are present in the validationResult object.
+       * If merge=false, it will replace the validations for the entire layout with the ones in the validationResult object.
+       */
       updateLayoutValidation: mkAction<IUpdateLayoutValidations>({
         reducer: (state, action) => {
           const { pageKey, validationResult, merge } = action.payload;
@@ -100,6 +104,10 @@ export const validationSlice = () => {
           runFixedValidations(state, validationResult.fixedValidations ?? []);
         },
       }),
+      /**
+       * If merge=true, it will only update the layout validations that are present in the validationResult object.
+       * If merge=false, it will replace all validations with the validations in the validationResult object.
+       */
       updateValidations: mkAction<IUpdateValidations>({
         reducer: (state, action) => {
           const { validationResult, merge } = action.payload;
@@ -159,6 +167,9 @@ export const validationSlice = () => {
   return slice;
 };
 
+/**
+ * Applies fiexed validations to the state. This should be run after every validation update.
+ */
 function runFixedValidations(state: IValidationState, fixedValidations: IValidationMessage<'fixed'>[]) {
   for (const fixed of fixedValidations) {
     const { pageKey, componentId, bindingKey } = fixed;

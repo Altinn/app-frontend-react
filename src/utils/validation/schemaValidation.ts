@@ -28,6 +28,9 @@ export interface ISchemaValidators {
   [id: string]: ISchemaValidator;
 }
 
+/**
+ * This format is returned by the json schema validation, and needs to be mapped to components based on the datamodel bindingField.
+ */
 export type ISchemaValidationError = {
   message: string;
   bindingField: string;
@@ -99,6 +102,9 @@ export function createValidator(schema: any): ISchemaValidator {
 export const isOneOfError = (error: AjvCore.ErrorObject): boolean =>
   error.keyword === 'oneOf' || error.params?.type === 'null';
 
+/**
+ * A mapping between the json schema validation error keywords and the language keys used for the standard validation.
+ */
 export const errorMessageKeys = {
   minimum: {
     textKey: 'min',
@@ -194,6 +200,10 @@ export const errorMessageKeys = {
   },
 };
 
+/**
+ * Validates the form data against the schema and returns a list of schema validation errors.
+ * @see ISchemaValidationError
+ */
 export function getSchemaValidationErrors(overrideFormData?: IFormData): ISchemaValidationError[] {
   const state: IRuntimeState = window.reduxStore.getState();
 

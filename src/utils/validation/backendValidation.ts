@@ -6,7 +6,7 @@ import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IRuntimeState } from 'src/types';
 import type { IValidationIssue, IValidationObject, ValidationSeverity } from 'src/utils/validation/types';
 
-export enum ValidationIssueSeverity {
+export enum BackendValidationSeverity {
   Unspecified = 0,
   Error = 1,
   Warning = 2,
@@ -15,15 +15,22 @@ export enum ValidationIssueSeverity {
   Success = 5,
 }
 
-export const severityMap: { [s in ValidationIssueSeverity]: ValidationSeverity } = {
-  [ValidationIssueSeverity.Error]: 'errors',
-  [ValidationIssueSeverity.Warning]: 'warnings',
-  [ValidationIssueSeverity.Informational]: 'info',
-  [ValidationIssueSeverity.Success]: 'success',
-  [ValidationIssueSeverity.Fixed]: 'fixed',
-  [ValidationIssueSeverity.Unspecified]: 'unspecified',
+/**
+ * We need to map the severity we get from backend into the format used when storing in redux.
+ */
+export const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity } = {
+  [BackendValidationSeverity.Error]: 'errors',
+  [BackendValidationSeverity.Warning]: 'warnings',
+  [BackendValidationSeverity.Informational]: 'info',
+  [BackendValidationSeverity.Success]: 'success',
+  [BackendValidationSeverity.Fixed]: 'fixed',
+  [BackendValidationSeverity.Unspecified]: 'unspecified',
 };
 
+/**
+ * Some validations performed by the backend are also performed by the frontend.
+ * We need to ignore these to prevent duplicate errors.
+ */
 function shouldExcludeValidationIssue(issue: IValidationIssue): boolean {
   // eslint-disable-next-line sonarjs/prefer-single-boolean-return
   if (issue.code == 'required' && issue.code != issue.description) {
@@ -39,6 +46,9 @@ function shouldExcludeValidationIssue(issue: IValidationIssue): boolean {
   return false;
 }
 
+/**
+ * Gets standard validation messages for backend validation issues.
+ */
 export function getValidationMessage(issue: IValidationIssue, langTools: IUseLanguage, params?: string[]): string {
   const { langAsString } = langTools;
   if (issue.customTextKey) {
@@ -65,6 +75,9 @@ export function getValidationMessage(issue: IValidationIssue, langTools: IUseLan
   return issue.source ? `${issue.source}.${issue.code}` : issue.code;
 }
 
+/**
+ * Maps validation issues from the backend into the intermediate format used by the frontend.
+ */
 export function mapValidationIssues(issues: IValidationIssue[]): IValidationObject[] {
   const state: IRuntimeState = window.reduxStore.getState();
   const nodes = resolvedLayoutsFromState(state);

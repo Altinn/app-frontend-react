@@ -12,7 +12,7 @@ import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils'
 import { httpPost } from 'src/utils/network/networking';
 import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI } from 'src/utils/urls/urlHelper';
-import { getValidationMessage, ValidationIssueSeverity } from 'src/utils/validation/backendValidation';
+import { BackendValidationSeverity, getValidationMessage } from 'src/utils/validation/backendValidation';
 import type { IAttachment } from 'src/features/attachments';
 import type { IUploadAttachmentAction } from 'src/features/attachments/upload/uploadAttachmentActions';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
@@ -95,10 +95,10 @@ export function* uploadAttachmentSaga({
       validations = {
         simpleBinding: {
           errors: validationIssues
-            .filter((v) => v.severity === ValidationIssueSeverity.Error)
+            .filter((v) => v.severity === BackendValidationSeverity.Error)
             .map((v) => getValidationMessage(v, langTools)),
           warnings: validationIssues
-            .filter((v) => v.severity === ValidationIssueSeverity.Warning)
+            .filter((v) => v.severity === BackendValidationSeverity.Warning)
             .map((v) => getValidationMessage(v, langTools)),
         },
       };

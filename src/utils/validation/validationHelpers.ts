@@ -54,6 +54,9 @@ export function unmappedError(severity: ValidationSeverity, message: string): IV
   };
 }
 
+/**
+ * Takes an array of validation objects and removes all fixed validations from the same array.
+ */
 export function removeFixedValidations(validationObjects: IValidationObject[]): IValidationObject[] {
   const fixedValidations = validationObjects.filter(
     (f) => !f.empty && f.severity === 'fixed',
@@ -77,22 +80,31 @@ export function removeFixedValidations(validationObjects: IValidationObject[]): 
   );
 }
 
+/**
+ * Checks whether an array of validation objects contains any errors.
+ * Used for checking if the user can proceed to the next page.
+ * @see canFormBeSaved
+ */
 export function containsErrors(validationObjects: IValidationObject[]): boolean {
   return removeFixedValidations(validationObjects).some(
     (o) => !o.empty && (o.severity === 'errors' || o.invalidDataTypes),
   );
 }
 
+/**
+ * Checks whether an array of validation objects contains invalid data types.
+ * Is invalidDataTypes useful?
+ */
 export function hasInvalidDataTypes(validationObjects: IValidationObject[]): boolean {
   return removeFixedValidations(validationObjects).some((o) => !o.empty && o.invalidDataTypes);
 }
 
-// Preserves fixed validations
+// Preserves fixed validations, as these can fix validations on other components.
 export function filterValidationObjectsByComponentId(validations: IValidationObject[], componentId: string) {
   return validations.filter((v) => v.componentId === componentId || (!v.empty && v.severity === 'fixed'));
 }
 
-// Preserves fixed validations
+// Preserves fixed validations, as these can fix validations on other components.
 export function filterValidationObjectsByPage(
   validations: IValidationObject[],
   trigger: TriggersPageValidation,
@@ -116,7 +128,7 @@ export function filterValidationObjectsByPage(
   return [];
 }
 
-// Preserves fixed validations
+// Preserves fixed validations, as these can fix validations on other components.
 export function filterValidationObjectsByRowIndex(
   rowIndex: number,
   baseRowIndices: number[],
@@ -279,6 +291,9 @@ export function createValidations(
   return [validations, fixedValidations];
 }
 
+/**
+ * Takes a list of validation objects and converts into the format used for the redux reducer 'updateComponentValidations'.
+ */
 export function createComponentValidationResult(validationOutputs: IValidationObject[]): IComponentValidationResult {
   const [validations, fixedValidations] = createComponentValidations(validationOutputs);
   const invalidDataTypes = hasInvalidDataTypes(validationOutputs);
@@ -291,6 +306,9 @@ export function createComponentValidationResult(validationOutputs: IValidationOb
   return result;
 }
 
+/**
+ * Takes a list of validation objects and converts into the format used for the redux reducer 'updateLayoutValidations'.
+ */
 export function createLayoutValidationResult(validationOutputs: IValidationObject[]): ILayoutValidationResult {
   const [validations, fixedValidations] = createLayoutValidations(validationOutputs);
   const invalidDataTypes = hasInvalidDataTypes(validationOutputs);
@@ -303,6 +321,9 @@ export function createLayoutValidationResult(validationOutputs: IValidationObjec
   return result;
 }
 
+/**
+ * Takes a list of validation objects and converts into the format used for the redux reducer 'updateValidations'.
+ */
 export function createValidationResult(validationOutputs: IValidationObject[]): IValidationResult {
   const [validations, fixedValidations] = createValidations(validationOutputs);
   const invalidDataTypes = hasInvalidDataTypes(validationOutputs);

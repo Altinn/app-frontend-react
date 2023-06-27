@@ -28,6 +28,10 @@ export interface IValidationOptions {
   skipComponentValidation?: boolean;
   skipEmptyFieldValidation?: boolean;
 }
+/**
+ * Runs all frontend validations on a list of nodes, and optionally skips some types of validations.
+ * overrideFormData can be used to validate new data before saving.
+ */
 export function runValidationOnNodes(nodes: LayoutNode[], options?: IValidationOptions): IValidationObject[] {
   const nodesToValidate = nodes.filter(
     (node) => implementsAnyValidation(node.def) && !node.isHidden() && !node.item.renderAsSummary,
