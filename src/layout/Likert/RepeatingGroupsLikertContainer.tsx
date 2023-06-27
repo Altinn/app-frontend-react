@@ -27,8 +27,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
   const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNodeFromType<'Likert'> | undefined;
   const { optionsId, mapping, source, options } = firstLikertChild?.item || {};
   const mobileView = useIsMobileOrTablet();
-  const apiOptions = useGetOptions({ optionsId, mapping, source });
-  const calculatedOptions = apiOptions || options || [];
+  const calculatedOptions = useGetOptions({ optionsId, mapping, source, options, defaultOptions: [] });
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const { lang } = useLanguage();

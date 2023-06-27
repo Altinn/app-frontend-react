@@ -25,7 +25,9 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
     textResourceBindings,
   } = node.item;
   const { langAsString } = useLanguage();
-  const options = useGetOptions({ optionsId, mapping, source })?.filter(duplicateOptionFilter) || staticOptions;
+  const options = useGetOptions({ optionsId, mapping, source, options: staticOptions, defaultOptions: [] }).filter(
+    duplicateOptionFilter,
+  );
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const hasSelectedInitial = React.useRef(false);

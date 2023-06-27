@@ -40,10 +40,9 @@ export const CheckboxContainerComponent = ({
     required,
     labelSettings,
   } = node.item;
-  const apiOptions = useGetOptions({ optionsId, mapping, source });
-  const calculatedOptions = apiOptions || options || defaultOptions;
+  const calculatedOptions = useGetOptions({ optionsId, mapping, source, options, defaultOptions });
   const hasSelectedInitial = React.useRef(false);
-  const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
+  const optionsHasChanged = useHasChangedIgnoreUndefined(calculatedOptions);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const { lang, langAsString } = useLanguage();

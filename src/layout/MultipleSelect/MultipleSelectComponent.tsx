@@ -21,13 +21,13 @@ export function MultipleSelectComponent({
   overrideDisplay,
 }: IMultipleSelectProps) {
   const { options, optionsId, mapping, source, id, readOnly, textResourceBindings } = node.item;
-  const apiOptions = useGetOptions({ optionsId, mapping, source });
+  const apiOptions = useGetOptions({ optionsId, mapping, source, options });
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
   const { langAsString } = useLanguage();
 
   const calculatedOptions: MultiSelectOption[] = useMemo(
     () =>
-      (apiOptions || options)?.filter(duplicateOptionFilter).map((option) => {
+      apiOptions?.filter(duplicateOptionFilter).map((option) => {
         const label = langAsString(option.label ?? option.value);
         return {
           label,
@@ -36,7 +36,7 @@ export function MultipleSelectComponent({
           deleteButtonLabel: `${langAsString('general.delete')} ${label}`,
         };
       }) || [],
-    [apiOptions, langAsString, options],
+    [apiOptions, langAsString],
   );
 
   const handleChange = (values: string[]) => {
