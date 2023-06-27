@@ -32,7 +32,7 @@ describe('Summary', () => {
       });
 
     cy.gotoNavPage('form');
-    cy.gotoAndComplete('changename');
+    cy.fillOut('changename');
     cy.gotoNavPage('summary');
     cy.get(appFrontend.backButton).should('be.visible');
 
@@ -151,6 +151,8 @@ describe('Summary', () => {
         cy.wrap(items).eq(1).should('contain.text', 'Referanse : Test');
         cy.wrap(items).eq(2).should('contain.text', 'Referanse 2 : Doffen');
       });
+
+    cy.snapshot('summary:change-name');
   });
 
   it('is possible to view summary of repeating group', () => {
@@ -163,7 +165,7 @@ describe('Summary', () => {
     cy.get('[data-testid=summary-group-component] > div').last().should('contain.text', texts.emptySummary);
     cy.gotoNavPage('prefill');
 
-    cy.gotoAndComplete('group');
+    cy.fillOut('group');
 
     cy.get(appFrontend.group.mainGroupSummary)
       .should('have.length', 1)
@@ -301,6 +303,8 @@ describe('Summary', () => {
       .last()
       .should('contain.text', texts.emptySummary);
 
+    cy.snapshot('summary:repeating-groups');
+
     // Hiding the group should hide the group summary as well
     cy.get('[data-testid=summary-summary1]').should('be.visible');
     cy.gotoNavPage('repeating');
@@ -390,7 +394,7 @@ describe('Summary', () => {
       cy.get(appFrontend.changeOfName.newFirstName).type(`Hello world`);
       cy.get(appFrontend.changeOfName.newLastName).clear();
       cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
-      cy.get(appFrontend.nextButton).clickAndGone();
+      cy.get(appFrontend.nextButton).click();
 
       if (trigger === undefined) {
         cy.navPage('summary').should('have.attr', 'aria-current', 'page');
@@ -412,7 +416,7 @@ describe('Summary', () => {
 
         cy.gotoNavPage('form');
         cy.get(appFrontend.changeOfName.newLastName).type('a');
-        cy.get(appFrontend.nextButton).clickAndGone();
+        cy.get(appFrontend.nextButton).click();
       }
 
       if (trigger === Triggers.ValidateAllPages) {
@@ -481,29 +485,63 @@ describe('Summary', () => {
     cy.navPage('summary').should('have.attr', 'aria-current', 'page');
   });
 
-  ['Summary Title', undefined].forEach((title) => {
-    it(`should display title from summary component if (${title} !== undefined), else title from reference component`, () => {
+  //The test below validates that the summary component displays the appropriate summaryTitle and summaryAccessibleTitle values,
+  //based on the provided test data, for different types of components in the "changename" layout.
+  const testTitleData = [
+    {
+      summaryTitle: 'Summary Title',
+      summaryAccessibleTitle: 'Summary Accessible Title',
+    },
+    {
+      summaryAccessibleTitle: 'Summary Accessible Title',
+    },
+    {
+      summaryTitle: 'Summary Title',
+    },
+    undefined,
+  ];
+
+  testTitleData.forEach((title) => {
+    it(`should display summaryTitle (${!!title?.summaryTitle}) and/or summaryAccessibleTitle (${!!title?.summaryAccessibleTitle}) in summary if defined`, () => {
+      const components = [
+        {
+          id: 'dateOfEffect',
+          type: 'Datepicker',
+          summaryComponent: '[data-testid=summary-summary-4]',
+          defaultTitle: 'Dette vises når det ikke er satt summaryTitle',
+        },
+        {
+          id: 'reference-group',
+          type: 'Group',
+          summaryComponent: '[data-testid=summary-group-component]',
+          defaultTitle: 'Dette vises når det ikke er satt summaryTitle',
+        },
+      ];
+
       cy.interceptLayout('changename', (component) => {
-        if (component.type === 'Summary' && component.id === 'summary-4') {
+        const matchingComponent = components.find((c) => c.type === component.type && c.id === component.id);
+        if (matchingComponent) {
           component.textResourceBindings = {
-            title,
-            accessibleTitle: title,
+            title: matchingComponent.defaultTitle,
+            summaryTitle: title?.summaryTitle,
+            summaryAccessibleTitle: title?.summaryAccessibleTitle,
           };
         }
       });
+
       cy.goto('changename');
       cy.gotoNavPage('summary');
-      if (title === undefined) {
-        cy.get('[data-testid=summary-summary-4]').should('contain.text', 'Når vil du at navnendringen skal skje?');
-        cy.get('[data-testid=summary-summary-4]')
+
+      components.forEach(({ summaryComponent, defaultTitle }) => {
+        cy.get(summaryComponent).should('contain.text', title?.summaryTitle ?? defaultTitle);
+        cy.get(summaryComponent)
           .find('button')
-          .should('have.attr', 'aria-label', 'Endre: Når vil du at navnendringen skal skje?');
-      } else {
-        cy.get('[data-testid=summary-summary-4]').should('contain.text', title);
-        cy.get('[data-testid=summary-summary-4]')
-          .find('button')
-          .should('have.attr', 'aria-label', 'Endre: Summary Title');
-      }
+          .should(
+            'have.attr',
+            'aria-label',
+            `Endre: ${title?.summaryAccessibleTitle ?? title?.summaryTitle ?? defaultTitle}`,
+          );
+      });
     });
   });
 });

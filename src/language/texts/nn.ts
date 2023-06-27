@@ -2,6 +2,12 @@ import type { FixedLanguageList } from 'src/language/languages';
 
 export function nn(): FixedLanguageList {
   return {
+    altinn: {
+      standard_validation: {
+        file_content_type_not_allowed:
+          'Det ser ut som du prøver å lasta opp ein filtype som ikkje er tillaten. Sjekk at fila faktisk er av den typen han gir seg ut for å vera.',
+      },
+    },
     actions: {
       sign: 'Signer',
       confirm: 'Bekreft',
@@ -54,6 +60,8 @@ export function nn(): FixedLanguageList {
       file_uploader_drag: 'Dra og slepp eller',
       file_uploader_find: 'leit etter fil',
       file_uploader_list_delete: 'Slett vedlegg',
+      file_uploader_delete_warning: 'Er du sikker på at du vil sletta dette vedlegget?',
+      file_uploader_delete_button_confirm: 'Ja, slett vedlegg',
       file_uploader_list_header_file_size: 'Filstorleik',
       file_uploader_list_header_name: 'Namn',
       file_uploader_list_header_status: 'Status',
@@ -73,7 +81,7 @@ export function nn(): FixedLanguageList {
       file_uploader_validation_error_file_size: 'overskrid tillatt filstorleik.',
       file_uploader_validation_error_general_1: 'Det var eit problem med fila',
       file_uploader_validation_error_general_2:
-        '. Forsikre deg om at fila har rett filtype og ikkke overskrid maks filstorleik.',
+        '. Forsikre deg om at fila har rett filtype og ikkje overskrid maks filstorleik.',
       file_uploader_validation_error_upload: 'Noko gjekk galt under opplastinga av fila, prøv igjen seinare.',
       file_uploader_validation_error_update: 'Noko gjekk galt under oppdateringa av filas merking, prøv igjen seinare.',
       file_uploader_validation_error_no_chosen_tag: 'Du må velja',
@@ -289,6 +297,8 @@ export function nn(): FixedLanguageList {
       pattern: 'Feil format eller verdi',
       required: 'Feltet er påkravd',
       enum: 'Kun verdiane {0} er tillatne',
+      minItems: 'Minst {0} radar er påkrevd',
+      maxItems: 'Maks {0} radar er tillatne',
     },
     map_component: {
       selectedLocation: 'Valt lokasjon: {0}° nord, {1}° øst',

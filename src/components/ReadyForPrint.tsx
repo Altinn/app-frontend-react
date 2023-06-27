@@ -13,14 +13,14 @@ export function ReadyForPrint() {
 
     promises.push(document.fonts.ready);
 
-    const imageLoadPromise = (img: HTMLImageElement) =>
+    const loadPromise = (element: HTMLImageElement | HTMLLinkElement) =>
       new Promise((res) => {
-        img.addEventListener('load', res);
-        img.addEventListener('error', res);
+        element.addEventListener('load', res);
+        element.addEventListener('error', res);
       });
 
     document.querySelectorAll('img').forEach((image) => {
-      image.complete || promises.push(imageLoadPromise(image));
+      image.complete || promises.push(loadPromise(image));
     });
 
     Promise.all(promises).then(() => {

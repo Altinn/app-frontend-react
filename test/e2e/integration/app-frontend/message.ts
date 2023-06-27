@@ -8,14 +8,11 @@ const appFrontend = new AppFrontend();
 describe('Message', () => {
   const instanceIdExpr = getInstanceIdRegExp();
 
-  before(() => {
+  it('Attachments List displays correct number of attachments', () => {
     cy.intercept('POST', `**/instances?instanceOwnerPartyId*`).as('createdInstance');
     cy.intercept('**/active', []).as('noActiveInstances');
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.closeButton).should('be.visible');
-  });
-
-  it('Attachments List displays correct number of attachments', () => {
     cy.findByRole('heading', { name: /Appen for test av app frontend/i }).should('exist');
     cy.wait('@createdInstance').then((xhr) => {
       const instanceMetadata = xhr.response?.body;
@@ -43,7 +40,8 @@ describe('Message', () => {
           : 'https://ttd.apps.tt02.altinn.no/ttd/frontend-test/';
       const maybeInstanceId = instanceIdExpr.exec(url);
       const instanceId = maybeInstanceId ? maybeInstanceId[1] : 'instance-id-not-found';
-      cy.get(appFrontend.startAgain).contains(instanceId).and('contain.text', appFrontend.apps.frontendTest);
+      cy.get(appFrontend.startAgain).contains(instanceId);
+      cy.get(appFrontend.startAgain).should('contain.text', appFrontend.apps.frontendTest);
       cy.get(appFrontend.startAgain).find('a:contains("her")').should('have.attr', 'href', instantiateUrl);
 
       cy.get('a:contains("Intern lenke i nytt vindu")')

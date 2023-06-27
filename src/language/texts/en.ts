@@ -1,5 +1,11 @@
 export function en() {
   return {
+    altinn: {
+      standard_validation: {
+        file_content_type_not_allowed:
+          'It looks like you are trying to upload a file type that is not allowed. Please make sure that the file is actually the type it claims to be.',
+      },
+    },
     actions: {
       sign: 'Sign',
       confirm: 'Confirm',
@@ -52,6 +58,8 @@ export function en() {
       file_uploader_drag: 'Drag and drop or',
       file_uploader_find: 'find a file',
       file_uploader_list_delete: 'Delete attachment',
+      file_uploader_delete_warning: 'Are you sure you want to delete this attachment?',
+      file_uploader_delete_button_confirm: 'Yes, delete attachment',
       file_uploader_list_header_file_size: 'File size',
       file_uploader_list_header_name: 'Name',
       file_uploader_list_header_status: 'Status',
@@ -286,6 +294,8 @@ export function en() {
       pattern: 'Wrong format or value',
       required: 'Field is required',
       enum: 'Only the values {0} are permitted',
+      minItems: 'A minimum of {0} rows are required',
+      maxItems: 'A maximum of {0} rows are permitted',
     },
     map_component: {
       selectedLocation: 'Selected location: {0}° north, {1}° east',

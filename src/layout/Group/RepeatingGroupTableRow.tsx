@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { Button, ButtonColor, ButtonVariant, TableCell, TableRow } from '@digdir/design-system-react';
-import { Grid, useMediaQuery } from '@material-ui/core';
+import { Button, TableCell, TableRow } from '@digdir/design-system-react';
+import { Grid } from '@material-ui/core';
 import { Delete as DeleteIcon, Edit as EditIcon, ErrorColored as ErrorIcon } from '@navikt/ds-icons';
 import cn from 'classnames';
 
 import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
+import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { ExprResolved } from 'src/features/expressions/types';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { HRepGroup, ILayoutGroup } from 'src/layout/Group/types';
 import type { ITextResourceBindings } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -28,40 +30,38 @@ export interface IRepeatingGroupTableRowProps {
   getTableNodes: (index: number) => LayoutNode[] | undefined;
   onEditClick: () => void;
   mobileView: boolean;
-  deleteFunctionality?: {
-    popoverOpen: boolean;
-    popoverPanelIndex: number;
-    onDeleteClick: () => void;
-    setPopoverOpen: (open: boolean) => void;
-    onOpenChange: (index: number) => void;
-    onPopoverDeleteClick: (index: number) => () => void;
-  };
+  onDeleteClick: (index: number) => void;
   displayEditColumn: boolean;
   displayDeleteColumn: boolean;
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
-  if (textResourceBindings.tableTitle) {
-    return textResourceBindings.tableTitle;
-  }
-  if (textResourceBindings.title) {
-    return textResourceBindings.title;
-  }
-  return '';
+  return textResourceBindings.tableTitle ?? textResourceBindings.title ?? '';
 }
 
 function getEditButtonText(
   isEditing: boolean,
+  langTools: IUseLanguage,
   textResourceBindings: ITextResourceBindings | undefined,
-  langAsString: (key: string) => string,
 ) {
-  if (isEditing && textResourceBindings?.edit_button_close) {
-    return langAsString(textResourceBindings?.edit_button_close);
-  } else if (!isEditing && textResourceBindings?.edit_button_open) {
-    return langAsString(textResourceBindings?.edit_button_open);
-  }
+  const buttonTextKey = isEditing
+    ? textResourceBindings?.edit_button_close ?? 'general.save_and_close'
+    : textResourceBindings?.edit_button_open ?? 'general.edit_alt';
+  return langTools.langAsString(buttonTextKey);
+}
 
-  return isEditing ? langAsString('general.save_and_close') : langAsString('general.edit_alt');
+function handleDeleteClick(
+  open: boolean,
+  setOpen: (open: boolean) => void,
+  onDeleteClick: () => void,
+  alertOnDelete?: boolean,
+) {
+  alertOnDelete ? setOpen(!open) : onDeleteClick();
+}
+
+function handlePopoverDeleteClick(setOpen: (open: boolean) => void, onDeleteClick: () => void) {
+  setOpen(false);
+  onDeleteClick();
 }
 
 export function RepeatingGroupTableRow({
@@ -74,20 +74,19 @@ export function RepeatingGroupTableRow({
   getTableNodes,
   onEditClick,
   mobileView,
-  deleteFunctionality,
+  onDeleteClick,
   displayEditColumn,
   displayDeleteColumn,
 }: IRepeatingGroupTableRowProps): JSX.Element {
-  const mobileViewSmall = useMediaQuery('(max-width:768px)');
+  const mobileViewSmall = useIsMobile();
   const { refSetter } = useRepeatingGroupsFocusContext();
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
-  const { popoverOpen, popoverPanelIndex, onDeleteClick, setPopoverOpen, onPopoverDeleteClick, onOpenChange } =
-    deleteFunctionality || {};
-
-  const { lang, langAsString } = useLanguage();
+  const langTools = useLanguage();
+  const { lang, langAsString } = langTools;
   const id = node.item.id;
   const group = node.item;
-  const row = group.rows[index] ? group.rows[index] : undefined;
+  const row = group.rows[index];
   const expressionsForRow = row?.groupExpressions;
   const columnSettings = group.tableColumns;
   const edit = {
@@ -108,7 +107,7 @@ export function RepeatingGroupTableRow({
 
   const editButtonText = rowHasErrors
     ? langAsString('general.edit_alt_error')
-    : getEditButtonText(editIndex === index, resolvedTextBindings, langAsString);
+    : getEditButtonText(editIndex === index, langTools, resolvedTextBindings);
 
   const deleteButtonText = langAsString('general.delete');
 
@@ -210,8 +209,8 @@ export function RepeatingGroupTableRow({
                 <Button
                   aria-expanded={isEditingRow}
                   aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-                  variant={ButtonVariant.Quiet}
-                  color={ButtonColor.Secondary}
+                  variant='quiet'
+                  color='secondary'
                   icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                   iconPlacement='right'
                   onClick={onEditClick}
@@ -224,60 +223,29 @@ export function RepeatingGroupTableRow({
               </div>
             </TableCell>
           )}
-          {edit?.deleteButton !== false &&
-            displayDeleteColumn &&
-            setPopoverOpen &&
-            onOpenChange &&
-            onPopoverDeleteClick &&
-            typeof popoverOpen === 'boolean' && (
-              <TableCell
-                key={`delete-${index}`}
-                className={cn(
-                  {
-                    [classes.popoverCurrentCell]: index == popoverPanelIndex,
-                  },
-                  classes.buttonCell,
-                )}
-                colSpan={displayEditColumn && edit?.editButton === false ? 2 : 1}
-              >
-                <div className={classes.buttonInCellWrapper}>
-                  {(() => {
-                    const deleteButton = (
-                      <Button
-                        variant={ButtonVariant.Quiet}
-                        color={ButtonColor.Danger}
-                        icon={<DeleteIcon aria-hidden='true' />}
-                        iconPlacement='right'
-                        disabled={deleting}
-                        onClick={onDeleteClick}
-                        aria-label={`${deleteButtonText}-${firstCellData}`}
-                        data-testid='delete-button'
-                        className={classes.tableButton}
-                      >
-                        {deleteButtonText}
-                      </Button>
-                    );
-
-                    if (edit?.alertOnDelete) {
-                      return (
-                        <DeleteWarningPopover
-                          trigger={deleteButton}
-                          side='left'
-                          deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
-                          messageText={langAsString('group.row_popover_delete_message')}
-                          open={popoverPanelIndex == index && popoverOpen}
-                          setPopoverOpen={setPopoverOpen}
-                          onCancelClick={() => onOpenChange(index)}
-                          onPopoverDeleteClick={onPopoverDeleteClick(index)}
-                        />
-                      );
-                    } else {
-                      return deleteButton;
-                    }
-                  })()}
-                </div>
-              </TableCell>
-            )}
+          {edit?.deleteButton !== false && displayDeleteColumn && (
+            <TableCell
+              key={`delete-${index}`}
+              className={cn(classes.buttonCell)}
+              colSpan={displayEditColumn && edit?.editButton === false ? 2 : 1}
+            >
+              <div className={classes.buttonInCellWrapper}>
+                <DeleteElement
+                  onDeleteClick={onDeleteClick}
+                  index={index}
+                  deleting={deleting}
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
+                  edit={edit}
+                  deleteButtonText={deleteButtonText}
+                  firstCellData={firstCellData}
+                  langAsString={langAsString}
+                >
+                  {deleteButtonText}
+                </DeleteElement>
+              </div>
+            </TableCell>
+          )}
         </>
       ) : (
         <TableCell
@@ -289,8 +257,8 @@ export function RepeatingGroupTableRow({
               <Button
                 aria-expanded={isEditingRow}
                 aria-controls={isEditingRow ? `group-edit-container-${id}-${index}` : undefined}
-                variant={ButtonVariant.Quiet}
-                color={ButtonColor.Secondary}
+                variant='quiet'
+                color='secondary'
                 icon={rowHasErrors ? <ErrorIcon aria-hidden='true' /> : <EditIcon aria-hidden='true' />}
                 iconPlacement='right'
                 onClick={onEditClick}
@@ -301,49 +269,24 @@ export function RepeatingGroupTableRow({
                 {(isEditingRow || !mobileViewSmall) && editButtonText}
               </Button>
             )}
-            {edit?.deleteButton !== false &&
-              setPopoverOpen &&
-              onOpenChange &&
-              onPopoverDeleteClick &&
-              typeof popoverOpen === 'boolean' && (
-                <>
-                  <div style={{ height: 8 }} />
-                  {(() => {
-                    const deleteButton = (
-                      <Button
-                        variant={ButtonVariant.Quiet}
-                        color={ButtonColor.Danger}
-                        icon={<DeleteIcon aria-hidden='true' />}
-                        iconPlacement='right'
-                        disabled={deleting}
-                        onClick={onDeleteClick}
-                        aria-label={`${deleteButtonText}-${firstCellData}`}
-                        data-testid='delete-button'
-                        className={classes.tableButton}
-                      >
-                        {(isEditingRow || !mobileViewSmall) && deleteButtonText}
-                      </Button>
-                    );
-
-                    if (edit?.alertOnDelete) {
-                      return (
-                        <DeleteWarningPopover
-                          trigger={deleteButton}
-                          side='left'
-                          deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
-                          messageText={langAsString('group.row_popover_delete_message')}
-                          open={popoverPanelIndex == index && popoverOpen}
-                          setPopoverOpen={setPopoverOpen}
-                          onCancelClick={() => onOpenChange(index)}
-                          onPopoverDeleteClick={onPopoverDeleteClick(index)}
-                        />
-                      );
-                    } else {
-                      return deleteButton;
-                    }
-                  })()}
-                </>
-              )}
+            {edit?.deleteButton !== false && (
+              <>
+                <div style={{ height: 8 }} />
+                <DeleteElement
+                  onDeleteClick={onDeleteClick}
+                  index={index}
+                  deleting={deleting}
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
+                  edit={edit}
+                  deleteButtonText={deleteButtonText}
+                  firstCellData={firstCellData}
+                  langAsString={langAsString}
+                >
+                  {isEditingRow || !mobileViewSmall ? deleteButtonText : null}
+                </DeleteElement>
+              </>
+            )}
           </div>
         </TableCell>
       )}
@@ -356,14 +299,72 @@ export function shouldEditInTable(
   tableNode: LayoutNode,
   columnSettings: ILayoutGroup['tableColumns'],
 ) {
-  if (groupEdit?.mode === 'onlyTable') {
+  const column = columnSettings && columnSettings[tableNode.item.baseComponentId || tableNode.item.id];
+  if (groupEdit?.mode === 'onlyTable' && column?.editInTable !== false) {
     return tableNode.def.canRenderInTable();
   }
 
-  const column = columnSettings && columnSettings[tableNode.item.baseComponentId || tableNode.item.id];
   if (column && column.editInTable) {
     return tableNode.def.canRenderInTable();
   }
 
   return false;
 }
+
+const DeleteElement = ({
+  onDeleteClick,
+  index,
+  deleting,
+  popoverOpen,
+  setPopoverOpen,
+  edit,
+  deleteButtonText,
+  firstCellData,
+  langAsString,
+  children,
+}: {
+  onDeleteClick: (index: number) => void;
+  index: number;
+  deleting: boolean;
+  popoverOpen: boolean;
+  setPopoverOpen: (open: boolean) => void;
+  edit: ExprResolved<ILayoutGroup['edit']>;
+  deleteButtonText: string;
+  firstCellData: string | undefined;
+  langAsString: (key: string) => string;
+  children: React.ReactNode;
+}) => {
+  const deleteButton = (
+    <Button
+      variant='quiet'
+      color='danger'
+      icon={<DeleteIcon aria-hidden='true' />}
+      iconPlacement='right'
+      disabled={deleting}
+      onClick={() => handleDeleteClick(popoverOpen, setPopoverOpen, () => onDeleteClick(index), edit?.alertOnDelete)}
+      aria-label={`${deleteButtonText}-${firstCellData}`}
+      data-testid='delete-button'
+      className={classes.tableButton}
+    >
+      {children}
+    </Button>
+  );
+  if (edit?.alertOnDelete) {
+    return (
+      <DeleteWarningPopover
+        trigger={deleteButton}
+        placement='left'
+        deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
+        messageText={langAsString('group.row_popover_delete_message')}
+        onCancelClick={() => {
+          setPopoverOpen(false);
+        }}
+        onPopoverDeleteClick={() => handlePopoverDeleteClick(setPopoverOpen, () => onDeleteClick(index))}
+        open={popoverOpen}
+        setOpen={setPopoverOpen}
+      />
+    );
+  } else {
+    return deleteButton;
+  }
+};

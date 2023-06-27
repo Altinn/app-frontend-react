@@ -4,32 +4,40 @@ import type { user } from 'test/e2e/support/auth';
 
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutComponentOrGroup, ILayouts } from 'src/layout/layout';
-import type { IRuntimeState } from 'src/types';
+import type { ILayoutSets, IRuntimeState } from 'src/types';
 
 export type FrontendTestTask = 'message' | 'changename' | 'group' | 'likert' | 'datalist' | 'confirm';
-export type GotoMode = 'fast' | 'with-data';
+export type FillableFrontendTasks = Exclude<FrontendTestTask, 'message' | 'confirm'>;
+
+export type StartAppInstanceOptions = {
+  // User to log in as
+  user?: user | null;
+
+  // JavaScript code to evaluate before starting the app instance (evaluates in the browser, in context of the app).
+  // The code runs inside an async function, and if it ends with a return value, that value will assumed to be a
+  // URL that the app page should be navigated to.
+  evaluateBefore?: string;
+};
 
 declare global {
   namespace Cypress {
     interface Chainable {
       /**
-       * Go to a certain task in the app, using either the fast mode or a mode where data is properly filled out.
-       * Modes:
-       *  - 'fast' will jump to the given task by injecting a minimal set of valid data to complete each previous task
-       *  - 'with-data' will fill out proper/expected data, upload attachments, etc. Useful if you expect relatistic
-       *    and complete data in the instance at the end.
+       * Quickly go to a certain task in the app
        */
-      goto(target: FrontendTestTask, mode: GotoMode = 'fast'): Chainable<Element>;
+      goto(target: FrontendTestTask): Chainable<Element>;
 
       /**
-       * Go to a certain task and fill out the data in it. This behaves much like goto(), with key differences:
-       * - It will only use the 'mode' for an tasks preceding the target one (if any). This means, if you
-       *   gotoAndComplete('group', 'fast'), it will skip over the 'changeName' form using the fast mode (skipping
-       *   form filling), but it will use the slower form-filling mode to complete the 'group' form.
-       * - It won't send in the result, but stop on the last page in the task/layout set (usually a summary page). If
-       *   you want to do that, call cy.sendIn() afterwards
+       * Go to a certain task and fill out the data in it. This will skip ahead quickly to the correct task, and
+       * then fill out the data in it. It will not move to the next task after it has filled out the data.
        */
-      gotoAndComplete(target: FrontendTestTask, mode: GotoMode = 'fast'): Chainable<Element>;
+      gotoAndComplete(target: FillableFrontendTasks): Chainable<Element>;
+
+      /**
+       * The worker behind gotoAndComplete. This will assume that the task has already been navigated to, and will
+       * then fill out the data in it. It will not move to the next task after it has filled out the data.
+       */
+      fillOut(target: FillableFrontendTasks): Chainable<Element>;
 
       /**
        * Finds a navigation menu element with the specified text/page name
@@ -43,11 +51,6 @@ declare global {
       gotoNavPage(page: string): Chainable<Element>;
 
       /**
-       * Send in the form just completed by gotoAndComplete(), and wait for the next task to render
-       */
-      sendIn(target?: FrontendTestTask): Chainable<Element>;
-
-      /**
        * Reload the page and wait until the app has finished loading
        */
       reloadAndWait(): Chainable<null>;
@@ -56,29 +59,13 @@ declare global {
        * Start an app instance based on the environment selected
        * @example cy.startAppInstance('appName')
        */
-      startAppInstance(appName: string, user?: user | null): Chainable<Element>;
+      startAppInstance(appName: string, options?: StartAppInstanceOptions): Chainable<Element>;
 
       /**
        * Add an item to group component with an item in nested group
        * @example cy.addItemToGroup(1, 2, 'automation')
        */
       addItemToGroup(oldValue: number, newValue: number, comment: string, openByDefault?: boolean): Chainable<Element>;
-
-      /**
-       * Test for WCAG violations of impact critical, serious, moderate
-       * @example cy.testWcag()
-       */
-      testWcag(): Chainable<Element>;
-
-      /**
-       * Typings for axe/a11y plugin
-       */
-      injectAxe(): Chainable<null>;
-
-      /**
-       * Typings for a11y plugin
-       */
-      checkA11y(...args: any[]): Chainable<null>;
 
       /**
        * Typings for tab plugin
@@ -140,6 +127,8 @@ declare global {
         allLayoutsMutator?: (layouts: ILayouts) => void,
       ): Chainable<null>;
 
+      interceptLayoutSetsUiSettings(uiSettings: Partial<ILayoutSets['uiSettings']>): Chainable<null>;
+
       switchUser(user: user): any;
       assertUser(user: user): any;
       interceptPermissions(): void;
@@ -179,6 +168,27 @@ declare global {
        * @see https://github.com/s-yadav/react-number-format/issues/736
        */
       numberFormatClear(): Chainable<null>;
+
+      /**
+       * Snapshot the current visual state of the app. This does a few things:
+       *  - It takes a screenshot of the app, compares that to the previous screenshot from earlier testing and notifies
+       *    us of any changes (using Percy.io)
+       *  - Runs the wcag tests on the app and notifies us of any violations (using axe/ally)
+       *
+       * You should make sure that:
+       *  - The page you're looking at is what you expect to screenshot, and that no elements are
+       *    currently loading or animating.
+       *  - The snapshot does not overlap with other snapshots. Multiple snapshots on the same page in the same state
+       *    will cause confusion, and eat up our Percy.io quota.
+       *
+       * @param name A unique name for the snapshot.
+       */
+      snapshot(name: string): Chainable<null>;
+
+      /**
+       * Runs the wcag tests on the app and notifies us of any violations (using axe/ally)
+       */
+      testWcag(): Chainable<null>;
     }
   }
 }

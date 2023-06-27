@@ -2,11 +2,12 @@ import React from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@digdir/design-system-react';
-import { Grid, useMediaQuery } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
+import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
@@ -23,7 +24,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { rows } = node.item;
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
-  const isMobile = useMediaQuery('(max-width:768px)');
+  const isMobile = useIsMobile();
   const isNested = node.parent instanceof LayoutNode;
 
   if (isMobile) {
@@ -75,7 +76,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRo
           mutableColumnSettings[cellIdx] = cell.columnOptions;
         }
 
-        if (cell && 'text' in cell) {
+        if (cell && 'text' in cell && cell.text) {
           let textCellSettings: ITableColumnProperties = mutableColumnSettings[cellIdx]
             ? structuredClone(mutableColumnSettings[cellIdx])
             : {};
@@ -92,8 +93,8 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRo
           );
         }
 
-        const node = cell?.node as LayoutNode;
-        const componentId = node?.item.id;
+        const node = cell && 'node' in cell && cell?.node;
+        const componentId = node && node.item.id;
         return (
           <CellWithComponent
             key={`${componentId}/${cellIdx}`}

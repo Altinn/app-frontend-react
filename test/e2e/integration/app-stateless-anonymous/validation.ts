@@ -5,7 +5,7 @@ const appFrontend = new AppFrontend();
 
 describe('Validation in anonymous stateless app', () => {
   beforeEach(() => {
-    cy.startAppInstance(appFrontend.apps.anonymousStateless, null);
+    cy.startAppInstance(appFrontend.apps.anonymousStateless, { user: null });
     cy.get(appFrontend.stateless.name).should('exist').and('be.visible');
   });
 
@@ -21,6 +21,8 @@ describe('Validation in anonymous stateless app', () => {
       .should('be.inViewport')
       .should('contain.text', texts.errorReport)
       .should('contain.text', texts.requiredFieldName);
+
+    cy.snapshot('anonymous:validation');
 
     cy.get(appFrontend.stateless.name).type('Hello world');
     cy.get(nameError).should('not.exist');

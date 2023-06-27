@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { RadioButton } from '@digdir/design-system-react';
 import { TableCell, TableRow, Typography } from '@material-ui/core';
 
+import { RadioButton } from 'src/components/form/RadioButton';
+import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
@@ -13,47 +14,32 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { IControlledRadioGroupProps } from 'src/layout/RadioButtons/ControlledRadioGroup';
 
 export const LikertComponent = (props: PropsFromGenericComponent<'Likert'>) => {
-  const useRadioProps = useRadioButtons(props);
-
   const nodeLayout = props.node.item.layout;
   const overriddenLayout = props.overrideItemProps?.layout;
   const actualLayout = overriddenLayout || nodeLayout;
 
   if (actualLayout === LayoutStyle.Table) {
-    return (
-      <RadioGroupTableRow
-        {...props}
-        {...useRadioProps}
-      />
-    );
+    return <RadioGroupTableRow {...props} />;
   }
 
   return (
     <div className={classes.likertRadioGroupWrapperMobile}>
-      <ControlledRadioGroup
-        {...props}
-        {...useRadioProps}
-      />
+      <ControlledRadioGroup {...props} />
     </div>
   );
 };
 
-const RadioGroupTableRow = ({
-  node,
-  selected,
-  handleChange,
-  calculatedOptions,
-  handleBlur,
-  componentValidations,
-  legend,
-  isValid,
-  text,
-  getTextResourceAsString,
-}: IControlledRadioGroupProps) => {
+const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
+  const { node, componentValidations, legend, isValid } = props;
+  const { selected, handleChange, calculatedOptions, handleBlur } = useRadioButtons(props);
+  const { lang, langAsString } = useLanguage();
+
   const id = node.item.id;
   const groupContainerId = node.closest((n) => n.type === 'Group')?.item.id;
   const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
+  const texts = node.item.textResourceBindings;
+
   return (
     <TableRow
       aria-labelledby={rowLabelId}
@@ -85,7 +71,7 @@ const RadioGroupTableRow = ({
               checked={isChecked}
               onChange={handleChange}
               value={option.value}
-              label={`${getPlainTextFromNode(text)} ${getTextResourceAsString(option.label)}`}
+              label={`${getPlainTextFromNode(lang(texts?.title))} ${langAsString(option.label)}`}
               hideLabel={true}
               name={rowLabelId}
               radioId={inputId}
