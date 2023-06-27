@@ -8,6 +8,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { makeGetAllowAnonymousSelector } from 'src/selectors/getAllowAnonymous';
 import { getCurrentDataTypeForApplication, getCurrentTaskDataElementId, isStatelessApp } from 'src/utils/appMetadata';
 import { convertDataBindingToModel, convertModelToDataBinding, filterOutInvalidData } from 'src/utils/databindings';
@@ -17,7 +18,11 @@ import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import { waitFor } from 'src/utils/sagas';
 import { dataElementUrl, getStatelessFormDataUrl, getValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapValidationIssues } from 'src/utils/validation/backendValidation';
-import { containsErrors, createValidationResult } from 'src/utils/validation/validationHelpers';
+import {
+  containsErrors,
+  createValidationResult,
+  validationContextFromState,
+} from 'src/utils/validation/validationHelpers';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
@@ -38,7 +43,7 @@ export function* submitFormSaga(): SagaIterator {
   try {
     const state: IRuntimeState = yield select();
     const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
-    const validationObjects = resolvedNodes.runValidations();
+    const validationObjects = resolvedNodes.runValidations(validationContextFromState(state));
     const validationResult = createValidationResult(validationObjects);
     if (containsErrors(validationObjects)) {
       yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
@@ -46,7 +51,7 @@ export function* submitFormSaga(): SagaIterator {
     }
 
     yield call(putFormData, {});
-    yield call(submitComplete, state);
+    yield call(submitComplete, state, resolvedNodes);
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
     console.error(error);
@@ -54,7 +59,7 @@ export function* submitFormSaga(): SagaIterator {
   }
 }
 
-function* submitComplete(state: IRuntimeState) {
+function* submitComplete(state: IRuntimeState, resolvedNodes: LayoutPages) {
   // run validations against the datamodel
   const instanceId = state.instanceData.instance?.id;
   const serverValidations: IValidationIssue[] | undefined = instanceId
@@ -63,7 +68,11 @@ function* submitComplete(state: IRuntimeState) {
 
   // update validation state
   const layoutState: ILayoutState = yield select(LayoutSelector);
-  const validationObjects = mapValidationIssues(serverValidations ?? []);
+  const validationObjects = mapValidationIssues(
+    serverValidations ?? [],
+    resolvedNodes,
+    staticUseLanguageFromState(state),
+  );
   const validationResult = createValidationResult(validationObjects);
   yield put(ValidationActions.updateValidations({ validationResult, merge: false }));
   if (containsErrors(validationObjects)) {

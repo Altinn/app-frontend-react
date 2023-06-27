@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -10,10 +9,9 @@ import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ILayoutCompList } from 'src/layout/List/types';
-import type { IRuntimeState } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationObject } from 'src/utils/validation/types';
+import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class List extends FormComponent<'List'> {
   render(props: PropsFromGenericComponent<'List'>): JSX.Element | null {
@@ -45,15 +43,14 @@ export class List extends FormComponent<'List'> {
     return false;
   }
 
-  runEmptyFieldValidation(node: LayoutNodeFromType<'List'>): IValidationObject[] {
+  runEmptyFieldValidation(
+    node: LayoutNodeFromType<'List'>,
+    { formData, langTools }: IValidationContext,
+  ): IValidationObject[] {
     if (node.isHidden() || !node.item.required) {
       return [];
     }
 
-    const state: IRuntimeState = window.reduxStore.getState();
-
-    const langTools = staticUseLanguageFromState(state);
-    const formData = node.getFormData();
     const validationObjects: IValidationObject[] = [];
 
     const bindingKeys = Object.keys(formData);

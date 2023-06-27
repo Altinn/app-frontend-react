@@ -1,9 +1,7 @@
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import { buildValidationObject, unmappedError } from 'src/utils/validation/validationHelpers';
 import { validationTexts } from 'src/utils/validation/validationTexts';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IRuntimeState } from 'src/types';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { IValidationIssue, IValidationObject, ValidationSeverity } from 'src/utils/validation/types';
 
 export enum BackendValidationSeverity {
@@ -78,16 +76,16 @@ export function getValidationMessage(issue: IValidationIssue, langTools: IUseLan
 /**
  * Maps validation issues from the backend into the intermediate format used by the frontend.
  */
-export function mapValidationIssues(issues: IValidationIssue[]): IValidationObject[] {
-  const state: IRuntimeState = window.reduxStore.getState();
-  const nodes = resolvedLayoutsFromState(state);
-  const langTools = staticUseLanguageFromState(state);
-
-  if (!nodes) {
+export function mapValidationIssues(
+  issues: IValidationIssue[],
+  resolvedNodes: LayoutPages,
+  langTools: IUseLanguage,
+): IValidationObject[] {
+  if (!resolvedNodes) {
     return [];
   }
 
-  const allNodes = nodes.allNodes().filter((node) => !node.isHidden() && !node.item.renderAsSummary);
+  const allNodes = resolvedNodes.allNodes().filter((node) => !node.isHidden() && !node.item.renderAsSummary);
 
   const validationOutputs: IValidationObject[] = [];
   for (const issue of issues) {

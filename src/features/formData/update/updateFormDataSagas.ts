@@ -8,7 +8,7 @@ import { ValidationActions } from 'src/features/validation/validationSlice';
 import { implementsAnyValidation } from 'src/layout';
 import { removeAttachmentReference } from 'src/utils/databindings';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
-import { createComponentValidationResult } from 'src/utils/validation/validationHelpers';
+import { createComponentValidationResult, validationContextFromState } from 'src/utils/validation/validationHelpers';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { IDeleteAttachmentReference, IUpdateFormData } from 'src/features/formData/formDataTypes';
@@ -60,7 +60,7 @@ function* runValidations(field: string, data: any, componentId: string | undefin
   const overrideFormData = { [field]: data?.length ? data : undefined };
 
   if (implementsAnyValidation(node.def)) {
-    const validationObjects = node.runValidations({
+    const validationObjects = node.runValidations(validationContextFromState(state), {
       overrideFormData,
       skipEmptyFieldValidation: true,
     });

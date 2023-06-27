@@ -21,6 +21,7 @@ import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type {
   IComponentBindingValidation,
   IComponentValidations,
+  IValidationContext,
   IValidationObject,
   ValidationKeyOrAny,
 } from 'src/utils/validation/types';
@@ -371,7 +372,10 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     return rowIndices;
   }
 
-  runValidations(options?: IValidationOptions): IValidationObject[] {
-    return runValidationOnNodes([this], options);
+  /**
+   * Runs frontend validations for this node and returns an array of IValidationObject
+   */
+  runValidations(validationContext: IValidationContext, options?: IValidationOptions): IValidationObject[] {
+    return runValidationOnNodes([this], validationContext, options);
   }
 }

@@ -29,7 +29,6 @@ describe('singleFieldValidationSagas', () => {
 
   beforeEach(() => {
     mockState = getInitialStateMock();
-    window.reduxStore.getState = jest.fn(() => mockState);
   });
 
   it('runSingleFieldValidationSaga, single field validation is triggered', () => {
@@ -74,6 +73,7 @@ describe('singleFieldValidationSagas', () => {
       },
     })
       .provide([
+        [select(), mockState],
         [select(selectApplicationMetadataState), mockState.applicationMetadata.applicationMetadata],
         [select(selectLayoutsState), mockState.formLayout.layouts],
         [select(selectHiddenFieldsState), mockState.formLayout.uiConfig.hiddenFields],

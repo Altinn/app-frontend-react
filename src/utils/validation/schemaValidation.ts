@@ -5,7 +5,6 @@ import addAdditionalFormats from 'ajv-formats-draft2019';
 import type { Options } from 'ajv';
 import type * as AjvCore from 'ajv/dist/core';
 
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
 import { convertDataBindingToModel } from 'src/utils/databindings';
 import {
@@ -16,7 +15,7 @@ import {
 } from 'src/utils/schemaUtils';
 import type { IFormData } from 'src/features/formData';
 import type { ValidLanguageKey } from 'src/hooks/useLanguage';
-import type { IRuntimeState } from 'src/types';
+import type { IValidationContext } from 'src/utils/validation/types';
 
 export interface ISchemaValidator {
   rootElementPath: string;
@@ -204,19 +203,18 @@ export const errorMessageKeys = {
  * Validates the form data against the schema and returns a list of schema validation errors.
  * @see ISchemaValidationError
  */
-export function getSchemaValidationErrors(overrideFormData?: IFormData): ISchemaValidationError[] {
-  const state: IRuntimeState = window.reduxStore.getState();
-
-  const { langAsString } = staticUseLanguageFromState(state);
-
+export function getSchemaValidationErrors(
+  { formData, langTools, application, instance, layoutSets, schemas }: IValidationContext,
+  overrideFormData?: IFormData,
+): ISchemaValidationError[] {
   const currentDataTaskDataTypeId = getCurrentDataTypeForApplication({
-    application: state.applicationMetadata.applicationMetadata,
-    instance: state.instanceData.instance,
-    layoutSets: state.formLayout.layoutsets,
+    application,
+    instance,
+    layoutSets,
   });
-  const { validator, rootElementPath, schema } = getValidator(currentDataTaskDataTypeId, state.formDataModel.schemas);
-  const formData = { ...state.formData.formData, ...overrideFormData };
-  const model = convertDataBindingToModel(formData);
+  const { validator, rootElementPath, schema } = getValidator(currentDataTaskDataTypeId, schemas);
+  const formDataToValidate = { ...formData, ...overrideFormData };
+  const model = convertDataBindingToModel(formDataToValidate);
   const valid = validator.validate(`schema${rootElementPath}`, model);
 
   if (valid) {
@@ -249,8 +247,8 @@ export function getSchemaValidationErrors(overrideFormData?: IFormData): ISchema
       : getSchemaPart(error.schemaPath, schema);
 
     const errorMessage = fieldSchema?.errorMessage
-      ? langAsString(fieldSchema.errorMessage)
-      : langAsString(
+      ? langTools.langAsString(fieldSchema.errorMessage)
+      : langTools.langAsString(
           `validation_errors.${errorMessageKeys[error.keyword]?.textKey || error.keyword}` as ValidLanguageKey,
           [errorParams],
         );

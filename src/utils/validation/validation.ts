@@ -17,6 +17,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   IComponentValidations,
   ILayoutValidations,
+  IValidationContext,
   IValidationObject,
   IValidationResult,
   IValidations,
@@ -32,7 +33,11 @@ export interface IValidationOptions {
  * Runs all frontend validations on a list of nodes, and optionally skips some types of validations.
  * overrideFormData can be used to validate new data before saving.
  */
-export function runValidationOnNodes(nodes: LayoutNode[], options?: IValidationOptions): IValidationObject[] {
+export function runValidationOnNodes(
+  nodes: LayoutNode[],
+  validationContext: IValidationContext,
+  options?: IValidationOptions,
+): IValidationObject[] {
   const nodesToValidate = nodes.filter(
     (node) => implementsAnyValidation(node.def) && !node.isHidden() && !node.item.renderAsSummary,
   );
@@ -41,17 +46,21 @@ export function runValidationOnNodes(nodes: LayoutNode[], options?: IValidationO
     return [];
   }
 
-  const schemaErrors = getSchemaValidationErrors(options?.overrideFormData);
+  const schemaErrors = getSchemaValidationErrors(validationContext, options?.overrideFormData);
   const validations: IValidationObject[] = [];
   for (const node of nodesToValidate) {
     const nodeValidations: IValidationObject[] = [];
 
     if (implementsEmptyFieldValidation(node.def) && !options?.skipEmptyFieldValidation) {
-      nodeValidations.push(...node.def.runEmptyFieldValidation(node as any, options?.overrideFormData));
+      nodeValidations.push(
+        ...node.def.runEmptyFieldValidation(node as any, validationContext, options?.overrideFormData),
+      );
     }
 
     if (implementsComponentValidation(node.def) && !options?.skipComponentValidation) {
-      nodeValidations.push(...node.def.runComponentValidation(node as any, options?.overrideFormData));
+      nodeValidations.push(
+        ...node.def.runComponentValidation(node as any, validationContext, options?.overrideFormData),
+      );
     }
 
     if (implementsSchemaValidation(node.def) && !options?.skipSchemaValidation) {

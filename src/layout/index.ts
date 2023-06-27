@@ -9,7 +9,7 @@ import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
-import type { IComponentValidations, IValidationObject } from 'src/utils/validation/types';
+import type { IComponentValidations, IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export type ComponentClassMap = {
   [K in keyof typeof ComponentConfigs]: (typeof ComponentConfigs)[K]['def'];
@@ -84,7 +84,11 @@ export function implementsAnyValidation<Type extends ComponentTypes>(component: 
 }
 
 export interface EmptyFieldValidation {
-  runEmptyFieldValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
+  runEmptyFieldValidation: (
+    node: LayoutNode,
+    validationContext: IValidationContext,
+    overrideFormData?: IFormData,
+  ) => IValidationObject[];
 }
 
 export function implementsEmptyFieldValidation<Type extends ComponentTypes>(
@@ -94,7 +98,11 @@ export function implementsEmptyFieldValidation<Type extends ComponentTypes>(
 }
 
 export interface ComponentValidation {
-  runComponentValidation: (node: LayoutNode, overrideFormData?: IFormData) => IValidationObject[];
+  runComponentValidation: (
+    node: LayoutNode,
+    validationContext: IValidationContext,
+    overrideFormData?: IFormData,
+  ) => IValidationObject[];
 }
 
 export function implementsComponentValidation<Type extends ComponentTypes>(
@@ -114,7 +122,11 @@ export function implementsSchemaValidation<Type extends ComponentTypes>(
 }
 
 export interface GroupValidation {
-  runGroupValidations: (node: LayoutNode, onlyInRowIndex?: number) => IValidationObject[];
+  runGroupValidations: (
+    node: LayoutNode,
+    validationContext: IValidationContext,
+    onlyInRowIndex?: number,
+  ) => IValidationObject[];
 }
 
 export function implementsGroupValidation<Type extends ComponentTypes>(

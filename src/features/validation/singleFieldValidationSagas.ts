@@ -4,6 +4,7 @@ import type { AxiosRequestConfig } from 'axios';
 import type { SagaIterator } from 'redux-saga';
 
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
@@ -32,6 +33,7 @@ export function* runSingleFieldValidationSaga({
     yield put(ValidationActions.runSingleFieldValidationRejected({}));
     return;
   }
+  const state: IRuntimeState = yield select();
   const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
   const node = resolvedNodes.findById(componentId);
 
@@ -52,7 +54,11 @@ export function* runSingleFieldValidationSaga({
 
     try {
       const serverValidations: IValidationIssue[] = yield call(httpGet, url, options);
-      const validationObjects = mapValidationIssues(serverValidations);
+      const validationObjects = mapValidationIssues(
+        serverValidations,
+        resolvedNodes,
+        staticUseLanguageFromState(state),
+      );
 
       // Reject validation if field has been set to hidden in the time after we sent the validation request
       hiddenFields = yield select(selectHiddenFieldsState);

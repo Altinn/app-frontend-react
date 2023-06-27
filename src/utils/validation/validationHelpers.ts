@@ -1,17 +1,31 @@
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/types';
-import type { TriggersPageValidation } from 'src/types';
+import type { IRuntimeState, TriggersPageValidation } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   IComponentValidationResult,
   IComponentValidations,
   ILayoutValidationResult,
   ILayoutValidations,
+  IValidationContext,
   IValidationMessage,
   IValidationObject,
   IValidationResult,
   IValidations,
   ValidationSeverity,
 } from 'src/utils/validation/types';
+
+export function validationContextFromState(state: IRuntimeState): IValidationContext {
+  return {
+    formData: state.formData.formData,
+    langTools: staticUseLanguageFromState(state),
+    attachments: state.attachments.attachments,
+    application: state.applicationMetadata.applicationMetadata,
+    instance: state.instanceData.instance,
+    layoutSets: state.formLayout.layoutsets,
+    schemas: state.formDataModel.schemas,
+  };
+}
 
 export function buildValidationObject(
   node: LayoutNode,

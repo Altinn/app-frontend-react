@@ -7,6 +7,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getLayoutOrderFromTracks, selectLayoutOrder } from 'src/selectors/getLayoutOrder';
 import { Triggers } from 'src/types';
 import {
@@ -27,6 +28,7 @@ import {
   containsErrors,
   createValidationResult,
   filterValidationObjectsByPage,
+  validationContextFromState,
 } from 'src/utils/validation/validationHelpers';
 import type { ICalculatePageOrderAndMoveToNextPage, IUpdateCurrentView } from 'src/features/layout/formLayoutTypes';
 import type { IRuntimeState, IUiConfig } from 'src/types';
@@ -105,7 +107,7 @@ export function* updateCurrentViewSaga({
       );
     } else {
       const currentView = state.formLayout.uiConfig.currentView;
-      const frontendValidationObjects = resolvedNodes?.runValidations() ?? [];
+      const frontendValidationObjects = resolvedNodes?.runValidations(validationContextFromState(state)) ?? [];
 
       const options: AxiosRequestConfig = {
         headers: {
@@ -124,7 +126,11 @@ export function* updateCurrentViewSaga({
           ? yield call(httpGet, getDataValidationUrl(instanceId, currentTaskDataId), validationOptions)
           : [];
 
-      const serverValidationObjects = mapValidationIssues(serverValidations);
+      const serverValidationObjects = mapValidationIssues(
+        serverValidations,
+        resolvedNodes,
+        staticUseLanguageFromState(state),
+      );
 
       const validationObjects = filterValidationObjectsByPage(
         [...frontendValidationObjects, ...serverValidationObjects],

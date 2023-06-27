@@ -6,6 +6,7 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
+import { useExprContext } from 'src/utils/layout/ExprContext';
 import { httpGet } from 'src/utils/network/networking';
 import { getValidationUrl } from 'src/utils/urls/appUrlHelper';
 import { mapValidationIssues } from 'src/utils/validation/backendValidation';
@@ -20,6 +21,7 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
   );
   const { actions } = useAppSelector((state) => state.process);
   const disabled = processActionsFeature && !actions?.confirm;
+  const resolvedNodes = useExprContext();
 
   const dispatch = useAppDispatch();
   const langTools = useLanguage();
@@ -27,11 +29,11 @@ export const ConfirmButton = (props: Omit<BaseButtonProps, 'onClick'> & { id: st
   const { instanceId } = window;
 
   const handleConfirmClick = () => {
-    if (!disabled && instanceId) {
+    if (!disabled && instanceId && resolvedNodes) {
       setValidateId(props.id);
       httpGet(getValidationUrl(instanceId))
         .then((serverValidations: any) => {
-          const validationObjects = mapValidationIssues(serverValidations);
+          const validationObjects = mapValidationIssues(serverValidations, resolvedNodes, langTools);
           const validationResult = createValidationResult(validationObjects);
           dispatch(
             ValidationActions.updateValidations({

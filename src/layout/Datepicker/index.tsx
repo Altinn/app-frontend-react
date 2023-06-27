@@ -3,7 +3,7 @@ import React from 'react';
 import moment from 'moment';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { staticUseLanguageFromState, useLanguage } from 'src/hooks/useLanguage';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -15,11 +15,10 @@ import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompDatepicker } from 'src/layout/Datepicker/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { IRuntimeState } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
-import type { IValidationObject } from 'src/utils/validation/types';
+import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class Datepicker extends FormComponent<'Datepicker'> implements ComponentValidation {
   render(props: PropsFromGenericComponent<'Datepicker'>): JSX.Element | null {
@@ -48,13 +47,14 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
     );
   }
 
-  runComponentValidation(node: LayoutNodeFromType<'Datepicker'>, overrideFormData?: IFormData): IValidationObject[] {
-    const state: IRuntimeState = window.reduxStore.getState();
-    const { langAsString, selectedLanguage } = staticUseLanguageFromState(state);
-
-    const formData = { ...state.formData.formData, ...overrideFormData };
+  runComponentValidation(
+    node: LayoutNodeFromType<'Datepicker'>,
+    { formData, langTools }: IValidationContext,
+    overrideFormData?: IFormData,
+  ): IValidationObject[] {
+    const formDataToValidate = { ...formData, ...overrideFormData };
     const data = node.item.dataModelBindings?.simpleBinding
-      ? formData[node.item.dataModelBindings.simpleBinding]
+      ? formDataToValidate[node.item.dataModelBindings.simpleBinding]
       : undefined;
 
     if (!data) {
@@ -63,21 +63,21 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
 
     const minDate = getDateConstraint(node.item.minDate, 'min');
     const maxDate = getDateConstraint(node.item.maxDate, 'max');
-    const format = getDateFormat(node.item.format, selectedLanguage);
+    const format = getDateFormat(node.item.format, langTools.selectedLanguage);
 
     const validations: IValidationObject[] = [];
     const date = moment(data, moment.ISO_8601);
 
     if (!date.isValid()) {
       validations.push(
-        buildValidationObject(node, 'errors', langAsString('date_picker.invalid_date_message', [format])),
+        buildValidationObject(node, 'errors', langTools.langAsString('date_picker.invalid_date_message', [format])),
       );
     }
 
     if (date.isBefore(minDate)) {
-      validations.push(buildValidationObject(node, 'errors', langAsString('date_picker.min_date_exeeded')));
+      validations.push(buildValidationObject(node, 'errors', langTools.langAsString('date_picker.min_date_exeeded')));
     } else if (date.isAfter(maxDate)) {
-      validations.push(buildValidationObject(node, 'errors', langAsString('date_picker.max_date_exeeded')));
+      validations.push(buildValidationObject(node, 'errors', langTools.langAsString('date_picker.max_date_exeeded')));
     }
 
     return validations;

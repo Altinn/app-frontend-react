@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
@@ -12,10 +11,9 @@ import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { IRuntimeState } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IValidationObject } from 'src/utils/validation/types';
+import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class FileUpload extends FormComponent<'FileUpload'> implements ComponentValidation {
   render(props: PropsFromGenericComponent<'FileUpload'>): JSX.Element | null {
@@ -41,19 +39,19 @@ export class FileUpload extends FormComponent<'FileUpload'> implements Component
   }
 
   // This component does not have empty field validation, so has to override its inherited method
-  runEmptyFieldValidation(_node: LayoutNodeFromType<'FileUpload'>): IValidationObject[] {
+  runEmptyFieldValidation(): IValidationObject[] {
     return [];
   }
 
-  runComponentValidation(node: LayoutNodeFromType<'FileUpload'>, _overrideFormData?: IFormData): IValidationObject[] {
-    const state: IRuntimeState = window.reduxStore.getState();
-    const attachments = state.attachments.attachments;
-    const { langAsString } = staticUseLanguageFromState(state);
-
+  runComponentValidation(
+    node: LayoutNodeFromType<'FileUpload'>,
+    { attachments, langTools }: IValidationContext,
+    _overrideFormData?: IFormData,
+  ): IValidationObject[] {
     if (!attachmentsValid(attachments, node.item)) {
-      const message = `${langAsString('form_filler.file_uploader_validation_error_file_number_1')} ${
+      const message = `${langTools.langAsString('form_filler.file_uploader_validation_error_file_number_1')} ${
         node.item.minNumberOfAttachments
-      } ${langAsString('form_filler.file_uploader_validation_error_file_number_2')}`;
+      } ${langTools.langAsString('form_filler.file_uploader_validation_error_file_number_2')}`;
       return [buildValidationObject(node, 'errors', message)];
     }
     return [];

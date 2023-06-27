@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -12,12 +11,11 @@ import type { ComponentTypeConfigs } from 'src/layout/components';
 import type { EmptyFieldValidation, PropsFromGenericComponent, SchemaValidation } from 'src/layout/index';
 import type { ComponentTypes } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { IRuntimeState } from 'src/types';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
-import type { IValidationObject } from 'src/utils/validation/types';
+import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 /**
  * This enum is used to distinguish purely presentational components
@@ -164,20 +162,21 @@ export abstract class FormComponent<Type extends ComponentTypes>
 {
   readonly type = ComponentType.Form;
 
-  runEmptyFieldValidation(node: LayoutNodeFromType<Type>, overrideFormData?: IFormData): IValidationObject[] {
+  runEmptyFieldValidation(
+    node: LayoutNodeFromType<Type>,
+    { formData, langTools }: IValidationContext,
+    overrideFormData?: IFormData,
+  ): IValidationObject[] {
     if (!node.item.required) {
       return [];
     }
 
-    const state: IRuntimeState = window.reduxStore.getState();
-
-    const formData = { ...state.formData.formData, ...overrideFormData };
-    const langTools = staticUseLanguageFromState(state);
+    const formDataToValidate = { ...formData, ...overrideFormData };
     const validationObjects: IValidationObject[] = [];
 
     const bindings = Object.entries(node.item.dataModelBindings ?? {});
     for (const [bindingKey, field] of bindings) {
-      const data = formData[field];
+      const data = formDataToValidate[field];
 
       if (!data?.length) {
         const fieldName = getFieldName(node.item.textResourceBindings, langTools, bindingKey);

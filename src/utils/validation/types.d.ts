@@ -1,3 +1,24 @@
+import type { IApplicationMetadata } from 'src/features/applicationMetadata';
+import type { IAttachments } from 'src/features/attachments';
+import type { IJsonSchemas } from 'src/features/datamodel';
+import type { IFormData } from 'src/features/formData';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { ILayoutSets } from 'src/types';
+import type { IInstance } from 'src/types/shared';
+
+/**
+ * Contains all of the necessary elements from the redux store to run frontend validations.
+ */
+export type IValidationContext = {
+  langTools: IUseLanguage;
+  formData: IFormData;
+  attachments: IAttachments;
+  application: IApplicationMetadata | null;
+  instance: IInstance | null;
+  layoutSets: ILayoutSets | null;
+  schemas: IJsonSchemas;
+};
+
 /**
  * IValidationObject is an intermediate format that contains the information necessary to build validations for the redux store.
  * It is the format returned by the frontend validation methods.

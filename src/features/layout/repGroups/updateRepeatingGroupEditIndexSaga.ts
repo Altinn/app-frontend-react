@@ -5,6 +5,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { Triggers } from 'src/types';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
@@ -15,6 +16,7 @@ import {
   containsErrors,
   createLayoutValidationResult,
   filterValidationObjectsByRowIndex,
+  validationContextFromState,
 } from 'src/utils/validation/validationHelpers';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/layout/formLayoutTypes';
 import type { IRuntimeState } from 'src/types';
@@ -33,6 +35,7 @@ export function* updateRepeatingGroupEditIndexSaga({
     if (validate && groupNode?.isType('Group') && typeof rowIndex === 'number' && rowIndex > -1) {
       const frontendValidationObjects = groupNode.def.runGroupValidations(
         groupNode,
+        validationContextFromState(state),
         validate === Triggers.ValidateRow ? rowIndex : undefined,
       );
 
@@ -78,7 +81,11 @@ export function* updateRepeatingGroupEditIndexSaga({
         getDataValidationUrl(state.instanceData.instance.id, currentTaskDataId),
         options,
       );
-      const serverValidationObjects = mapValidationIssues(serverValidations);
+      const serverValidationObjects = mapValidationIssues(
+        serverValidations,
+        resolvedNodes,
+        staticUseLanguageFromState(state),
+      );
 
       const validationObjects = [...frontendValidationObjects, ...serverValidationObjects];
       const validationResult = createLayoutValidationResult(validationObjects);
