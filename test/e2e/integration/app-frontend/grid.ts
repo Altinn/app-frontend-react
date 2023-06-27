@@ -123,4 +123,17 @@ describe('Grid component', () => {
       .find('table tr:last-child td:first-child')
       .should('contain.text', 'Foreldreraden er prefill: true');
   });
+
+  it("should be possible to add help text to a Grid's text cells", () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.type === 'Grid' && component.rows[1].cells[0] && 'text' in component.rows[1].cells[0]) {
+        component.rows[1].cells[0].help = 'Help text';
+      }
+    });
+    cy.goto('changename');
+    cy.navPage('grid').click();
+    cy.get(appFrontend.grid.grid).find('tr').eq(1).find('td').eq(0).should('contain.text', 'Boliglån');
+    cy.get(appFrontend.grid.grid).find('tr').eq(1).find('td').eq(0).find(appFrontend.helpText.open).click();
+    cy.get(appFrontend.helpText.alert).should('contain.text', 'Help text');
+  });
 });
