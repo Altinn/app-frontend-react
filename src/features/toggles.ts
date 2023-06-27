@@ -5,8 +5,8 @@ export const FeatureToggles = {
     description:
       'Aktiver denne innstillingen for å alltid bli spurt om aktør når du starter en ny instans, med ' +
       'mindre du har valgt bort å bli spurt om aktør i Altinn-profilen. Frem til og med versjon 3 av app-frontend ' +
-      'er standardinnstillingen at du ikke blir spurt om aktør - men fra versjon 4 vil alle brukere bli' +
-      'spurt om aktør hver gang med mindre de har deaktivert dette i profilen (med andre ord, app-frontend vil' +
+      'er standardinnstillingen at du ikke blir spurt om aktør - men fra versjon 4 vil alle brukere bli ' +
+      'spurt om aktør hver gang med mindre de har deaktivert dette i profilen (med andre ord, app-frontend vil ' +
       'respektere denne innstillingen i profilen fra versjon 4).',
     links: [
       'https://github.com/Altinn/app-frontend-react/issues/268',
