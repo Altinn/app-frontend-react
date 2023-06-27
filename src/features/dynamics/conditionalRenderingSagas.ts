@@ -1,3 +1,4 @@
+import deepEqual from 'fast-deep-equal';
 import { put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
@@ -111,5 +112,5 @@ export function shouldUpdate(currentList: Set<string>, newList: Set<string>): bo
   const present = [...currentList.values()].sort();
   const future = [...newList.values()].sort();
 
-  return JSON.stringify(present) !== JSON.stringify(future);
+  return !deepEqual(present, future);
 }

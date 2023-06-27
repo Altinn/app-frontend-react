@@ -53,7 +53,7 @@ export function runConditionalRenderingRules(
           const childGroup = repeatingGroups && repeatingGroups[`${connection.repeatingGroup.childGroupId}-${index}`];
           if (childGroup) {
             for (let childIndex = 0; childIndex <= childGroup?.index; childIndex++) {
-              const connectionNestedCopy: IConditionalRenderingRule = JSON.parse(JSON.stringify(connectionCopy));
+              const connectionNestedCopy = structuredClone(connectionCopy);
               connectionNestedCopy.inputParams = mapRepeatingGroupIndex({
                 ruleObject: connectionCopy.inputParams,
                 index: childIndex,
