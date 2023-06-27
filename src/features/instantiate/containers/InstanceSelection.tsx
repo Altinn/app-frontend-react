@@ -107,6 +107,13 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
                   color={ButtonColor.Secondary}
                   icon={<EditIcon />}
                   iconPlacement='right'
+                  onMouseDown={(ev) => {
+                    // Open new tab on middle mouse click
+                    if (ev.button === 1) {
+                      ev.preventDefault();
+                      openInTab(getInstanceUiUrl(instance.id));
+                    }
+                  }}
                   onClick={() => openInstance(instance.id)}
                 >
                   {lang('instance_selection.continue')}
@@ -167,3 +174,18 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
     </>
   );
 }
+
+/**
+ * Opens a new tab with the given url
+ * This works much like window.open, but respects the browser settings for opening
+ * new tabs (if they should open in the background or not)
+ */
+const openInTab = (url: string) => {
+  const link = document.createElement('a');
+  link.href = url;
+  link.dispatchEvent(
+    new MouseEvent('click', {
+      ctrlKey: true,
+    }),
+  );
+};
