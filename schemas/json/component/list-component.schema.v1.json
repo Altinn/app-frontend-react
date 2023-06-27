@@ -14,6 +14,12 @@
       "description": "The component type.",
       "const": "List"
     },
+    "dataModelBindings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "textResourceBindings": {
       "type": "object",
       "title": "Text resource bindings",

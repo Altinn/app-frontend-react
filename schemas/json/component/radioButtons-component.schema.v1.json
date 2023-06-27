@@ -97,6 +97,11 @@
         "value"
       ]
     },
+    "showAsCard": {
+      "type": "boolean",
+      "title": "Show as card",
+      "description": "Boolean value indicating if the options should be displayed as cards. Defaults to false."
+    },
     "mapping": {
       "$ref": "common-defs.schema.v1.json#/$defs/mapping",
       "description": "Optionally used to map options"
