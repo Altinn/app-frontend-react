@@ -53,10 +53,10 @@ export class List extends FormComponent<'List'> {
 
     const validationObjects: IValidationObject[] = [];
 
-    const bindingKeys = Object.keys(formData);
+    const bindings = Object.values(node.item.dataModelBindings ?? {});
     let listHasErrors = false;
-    for (const bindingKey of bindingKeys) {
-      const data = formData[bindingKey];
+    for (const field of bindings) {
+      const data = formData[field];
 
       if (!data?.length) {
         listHasErrors = true;

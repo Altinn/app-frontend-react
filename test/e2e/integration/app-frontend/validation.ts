@@ -257,7 +257,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('not.exist');
   });
 
-  it('Validation messages should only show up once', () => {
+  it('List component: validation messages should only show up once', () => {
     cy.goto('datalist');
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport)
