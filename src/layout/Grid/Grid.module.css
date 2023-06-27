@@ -40,3 +40,8 @@ tr > .fullWidthCellLast {
 .tableCellFormatting:last-child {
   width: calc(var(--cell-width) + 8.15%);
 }
+
+.cellWithText {
+  display: flex;
+  align-items: center;
+}

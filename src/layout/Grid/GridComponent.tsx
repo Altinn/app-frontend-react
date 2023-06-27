@@ -7,6 +7,7 @@ import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
+import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -15,8 +16,9 @@ import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridComponent, GridRow } from 'src/layout/Grid/types';
+import type { GridComponent, GridRow, GridText } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
@@ -40,6 +42,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
         {rows.map((row, rowIdx) => (
           <GridRowRenderer
             key={rowIdx}
+            id={rowIdx}
             row={row}
             isNested={isNested}
             mutableColumnSettings={columnSettings}
@@ -51,12 +54,13 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
 }
 
 interface GridRowProps {
+  id: number;
   row: GridRow<GridComponent>;
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
 }
 
-export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps) {
+export function GridRowRenderer({ id, row, isNested, mutableColumnSettings }: GridRowProps) {
   const { lang } = useLanguage();
 
   return isGridRowHidden(row) ? null : (
@@ -72,6 +76,11 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRo
           [css.fullWidthCellLast]: isLast && !isNested,
         });
 
+        const helpTextId = () => {
+          const helpTextIdx = row.cells.findIndex((cell: GridText) => cell?.text && cell?.help);
+          return helpTextIdx !== -1 ? `row-${id}-cell-${helpTextIdx}` : undefined;
+        };
+
         if (row.header && cell && 'columnOptions' in cell && cell.columnOptions) {
           mutableColumnSettings[cellIdx] = cell.columnOptions;
         }
@@ -85,8 +94,10 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRo
           return (
             <CellWithText
               key={`${cell.text}/${cellIdx}`}
+              id={helpTextId()}
               className={className}
               columnStyleOptions={textCellSettings}
+              helpText={cell?.help}
             >
               {lang(cell.text)}
             </CellWithText>
@@ -98,6 +109,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRo
         return (
           <CellWithComponent
             key={`${componentId}/${cellIdx}`}
+            ariaDescribedById={helpTextId()}
             node={node}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
@@ -129,21 +141,25 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
 }
 
 interface CellProps {
+  id?: string;
   className?: string;
+  helpText?: string;
   columnStyleOptions?: ITableColumnProperties;
 }
 
 interface CellWithComponentProps extends CellProps {
   node?: LayoutNode;
+  ariaDescribedById?: string;
 }
 
-function CellWithComponent({ node, className, columnStyleOptions }: CellWithComponentProps) {
+function CellWithComponent({ node, className, columnStyleOptions, ariaDescribedById }: CellWithComponentProps) {
   if (node && !node.isHidden()) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
     return (
       <TableCell
         className={cn(css.tableCellFormatting, className)}
         style={columnStyles}
+        aria-describedby={ariaDescribedById}
       >
         <GenericComponent
           node={node}
@@ -162,18 +178,27 @@ function CellWithComponent({ node, className, columnStyleOptions }: CellWithComp
 
 type CellWithTextProps = CellProps & PropsWithChildren;
 
-function CellWithText({ children, className, columnStyleOptions }: CellWithTextProps) {
+function CellWithText({ children, className, columnStyleOptions, helpText, id }: CellWithTextProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   return (
     <TableCell
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
     >
-      <span
-        className={css.contentFormatting}
-        style={columnStyles}
-      >
-        {children}
+      <span className={css.cellWithText}>
+        <span
+          className={css.contentFormatting}
+          style={columnStyles}
+        >
+          {children}
+        </span>
+        {helpText && (
+          <HelpTextContainer
+            title={getPlainTextFromNode(children)}
+            helpText={helpText}
+            id={id}
+          />
+        )}
       </span>
     </TableCell>
   );

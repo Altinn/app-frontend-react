@@ -181,6 +181,7 @@ export function RepeatingGroupTable({
       <>
         {rows.map((row, index) => (
           <GridRowRenderer
+            id={index}
             key={`grid${where}-${index}`}
             row={{ ...row, cells: [...row.cells, ...extraCells] }}
             isNested={isNested}
