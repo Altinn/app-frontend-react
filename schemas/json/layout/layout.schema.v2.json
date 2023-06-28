@@ -41,6 +41,9 @@
           "$ref": "../component/AttachmentList.schema.v1.json"
         },
         {
+          "$ref": "../component/Button.schema.v1.json"
+        },
+        {
           "$ref": "../component/ButtonGroup.schema.v1.json"
         },
         {
@@ -108,6 +111,12 @@
         },
         {
           "$ref": "../component/Panel.schema.v1.json"
+        },
+        {
+          "$ref": "../component/Paragraph.schema.v1.json"
+        },
+        {
+          "$ref": "../component/PrintButton.schema.v1.json"
         },
         {
           "$ref": "../component/RadioButtons.schema.v1.json"
