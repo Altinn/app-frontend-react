@@ -74,7 +74,14 @@ export const DevToolsLogs = () => {
         {filteredLogs.map((log) => (
           <div key={log.index}>
             <span>{log.index + 1}.</span>
-            <span style={{ color: colorMap[log.level] }}>{log.message}</span>
+            <span style={{ color: colorMap[log.level] }}>
+              {log.message.split('\n').map((line) => (
+                <>
+                  {line}
+                  <br />
+                </>
+              ))}
+            </span>
           </div>
         ))}
       </div>

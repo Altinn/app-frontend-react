@@ -22,6 +22,7 @@ export function* fetchTextResources(): SagaIterator {
       resource = yield call(httpGet, textResourcesUrl(appLanguage));
     } catch (error) {
       if (error.response.status !== 200) {
+        window.logError('Failed to fetch text resources:\n', error);
         resource = yield call(httpGet, oldTextResourcesUrl);
       }
     }
