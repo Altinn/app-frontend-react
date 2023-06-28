@@ -409,22 +409,22 @@
         "saveButton": {
           "title": "Save button",
           "description": "Boolean or expression indicating whether save button should be shown or not for a given row",
-          "$ref": "expression.schema.v1.json#/definitions/boolean"
+          "$ref": "../layout/expression.schema.v1.json#/definitions/boolean"
         },
         "saveAndNextButton": {
           "title": "Save and open next button",
           "description": "Boolean or expression indicating whether save and go to next button should be shown or not in addition to save and close button",
-          "$ref": "expression.schema.v1.json#/definitions/boolean"
+          "$ref": "../layout/expression.schema.v1.json#/definitions/boolean"
         },
         "deleteButton": {
           "title": "Delete button",
           "description": "Boolean or expression indicating whether delete button should be shown or not for a given row",
-          "$ref": "expression.schema.v1.json#/definitions/boolean"
+          "$ref": "../layout/expression.schema.v1.json#/definitions/boolean"
         },
         "editButton": {
           "title": "Edit button",
           "description": "Boolean or expression indicating whether edit button should be shown or not for a given row",
-          "$ref": "expression.schema.v1.json#/definitions/boolean"
+          "$ref": "../layout/expression.schema.v1.json#/definitions/boolean"
         },
         "multiPage": {
           "title": "Multi-page",
@@ -434,7 +434,7 @@
         "addButton": {
           "title": "Add button",
           "description": "Boolean or expression indicating whether add new button should be shown or not under the table.",
-          "$ref": "expression.schema.v1.json#/definitions/boolean"
+          "$ref": "../layout/expression.schema.v1.json#/definitions/boolean"
         },
         "alwaysShowAddButton": {
           "title": "Show add button on open group",
