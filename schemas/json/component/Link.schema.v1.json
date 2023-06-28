@@ -1,8 +1,8 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/buttonGroup-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/Link.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "ButtonGroup component",
-  "description": "Schema that describes the layout configuration for a ButtonGroup component.",
+  "title": "Link component",
+  "description": "Schema that describes the layout configuration for a Link component.",
   "type": "object",
   "properties": {
     "id": {
@@ -12,10 +12,12 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "ButtonGroup"
+      "const": "Link"
     },
     "textResourceBindings": {
       "type": "object",
+      "title": "Text resource bindings",
+      "description": "Text resource bindings for a component.",
       "properties": {
         "title": {
           "type": "string"
@@ -26,14 +28,26 @@
       ],
       "additionalProperties": true
     },
-    "children": {
-      "title": "Children",
-      "description": "An array of the \"id\" of child components belonging to the button group.",
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "uniqueItems": true
+    "style": {
+      "type": "string",
+      "title": "Style",
+      "description": "The style of the button",
+      "enum": [
+        "primary",
+        "secondary",
+        "link"
+      ]
+    },
+    "openInNewTab": {
+      "type": "boolean",
+      "title": "Open in new tab",
+      "description": "Boolean value indicating if the link should be opened in a new tab. Defaults to false."
+    },
+    "renderAsSummary": {
+      "title": "Render as summary",
+      "description": "Boolean or expression indicating if the component should be rendered as a summary. Defaults to false.",
+      "default": false,
+      "$ref": "../layout/expression.schema.v1.json#/definitions/boolean"
     },
     "hidden": {
       "title": "Hidden",
@@ -58,7 +72,8 @@
   },
   "required": [
     "id",
-    "type"
+    "type",
+    "style"
   ],
   "additionalProperties": false
 }

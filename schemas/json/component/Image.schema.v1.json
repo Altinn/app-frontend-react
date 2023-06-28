@@ -1,8 +1,8 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/address-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/Image.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Address component",
-  "description": "Schema that describes the layout configuration for a Address component.",
+  "title": "Image component",
+  "description": "Schema that describes the layout configuration for a Image component.",
   "type": "object",
   "properties": {
     "id": {
@@ -12,50 +12,62 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "Address"
+      "const": "Image"
     },
     "textResourceBindings": {
-      "$ref": "common-defs.schema.v1.json#/$defs/basicTextResources"
-    },
-    "simplified": {
-      "type": "boolean",
-      "title": "Simplified",
-      "description": "Boolean value indicating if the address component should be shown in simple mode.",
-      "default": false
-    },
-    "saveWhileTyping": {
-      "$ref": "common-defs.schema.v1.json#/$defs/saveWhileTyping"
-    },
-    "dataModelBindings": {
       "type": "object",
+      "title": "Text resource bindings",
+      "description": "Text resource bindings for a component.",
       "properties": {
-        "address": {
-          "type": "string"
-        },
-        "zipCode": {
-          "type": "string"
-        },
-        "postPlace": {
-          "type": "string"
-        },
-        "careOf": {
-          "type": "string"
-        },
-        "houseNumber": {
-          "type": "string"
+        "altTextImg": {
+          "type": "string",
+          "title": "Alternate text",
+          "description": "Alternate text is read aloud to someone using assistive technology, but is hidden from a sighted user."
         }
       },
       "required": [
-        "address",
-        "zipCode",
-        "postPlace"
+        "altTextImg"
+      ],
+      "additionalProperties": true
+    },
+    "src": {
+      "title": "Image source",
+      "description": "",
+      "type": "object",
+      "properties": {
+        "nb": {
+          "type": "string",
+          "title": "Bokmål"
+        },
+        "nn": {
+          "type": "string",
+          "title": "Nynorsk"
+        },
+        "en": {
+          "type": "string",
+          "title": "English"
+        }
+      },
+      "additionalProperties": true
+    },
+    "width": {
+      "type": "string",
+      "title": "Image width",
+      "examples": [
+        "100%"
       ]
     },
-    "required": {
-      "$ref": "common-defs.schema.v1.json#/$defs/required"
-    },
-    "readOnly": {
-      "$ref": "common-defs.schema.v1.json#/$defs/readOnly"
+    "align": {
+      "type": "string",
+      "title": "Align image",
+      "enum": [
+        "flex-start",
+        "center",
+        "flex-end",
+        "space-between",
+        "space-around",
+        "space-evenly"
+      ]
     },
     "renderAsSummary": {
       "title": "Render as summary",
@@ -87,7 +99,9 @@
   "required": [
     "id",
     "type",
-    "dataModelBindings"
+    "src",
+    "width",
+    "align"
   ],
   "additionalProperties": false
 }

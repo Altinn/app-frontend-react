@@ -1,8 +1,8 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/link-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/AddressComponent.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Link component",
-  "description": "Schema that describes the layout configuration for a Link component.",
+  "title": "Address component",
+  "description": "Schema that describes the layout configuration for a Address component.",
   "type": "object",
   "properties": {
     "id": {
@@ -12,36 +12,50 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "Link"
+      "const": "Address"
     },
     "textResourceBindings": {
+      "$ref": "common-defs.schema.v1.json#/$defs/basicTextResources"
+    },
+    "simplified": {
+      "type": "boolean",
+      "title": "Simplified",
+      "description": "Boolean value indicating if the address component should be shown in simple mode.",
+      "default": false
+    },
+    "saveWhileTyping": {
+      "$ref": "common-defs.schema.v1.json#/$defs/saveWhileTyping"
+    },
+    "dataModelBindings": {
       "type": "object",
-      "title": "Text resource bindings",
-      "description": "Text resource bindings for a component.",
       "properties": {
-        "title": {
+        "address": {
+          "type": "string"
+        },
+        "zipCode": {
+          "type": "string"
+        },
+        "postPlace": {
+          "type": "string"
+        },
+        "careOf": {
+          "type": "string"
+        },
+        "houseNumber": {
           "type": "string"
         }
       },
       "required": [
-        "title"
-      ],
-      "additionalProperties": true
-    },
-    "style": {
-      "type": "string",
-      "title": "Style",
-      "description": "The style of the button",
-      "enum": [
-        "primary",
-        "secondary",
-        "link"
+        "address",
+        "zipCode",
+        "postPlace"
       ]
     },
-    "openInNewTab": {
-      "type": "boolean",
-      "title": "Open in new tab",
-      "description": "Boolean value indicating if the link should be opened in a new tab. Defaults to false."
+    "required": {
+      "$ref": "common-defs.schema.v1.json#/$defs/required"
+    },
+    "readOnly": {
+      "$ref": "common-defs.schema.v1.json#/$defs/readOnly"
     },
     "renderAsSummary": {
       "title": "Render as summary",
@@ -73,7 +87,7 @@
   "required": [
     "id",
     "type",
-    "style"
+    "dataModelBindings"
   ],
   "additionalProperties": false
 }

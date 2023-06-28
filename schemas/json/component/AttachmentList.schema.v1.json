@@ -1,8 +1,8 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/panel-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/AttachmentList.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Panel component",
-  "description": "Schema that describes the layout configuration for a Panel component.",
+  "title": "AttachmentList component",
+  "description": "Schema that describes the layout configuration for a AttachmentList component.",
   "type": "object",
   "properties": {
     "id": {
@@ -12,46 +12,39 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "Panel"
+      "const": "AttachmentList"
     },
     "textResourceBindings": {
       "type": "object",
-      "title": "Text resource bindings",
-      "description": "Text resource bindings for a component.",
       "properties": {
         "title": {
-          "type": "string",
-          "title": "Title text",
-          "description": "The text displayed in the panel title"
-        },
-        "body": {
-          "type": "string",
-          "title": "Body text",
-          "description": "The text displayed in the panel body"
+          "type": "string"
         }
       },
       "required": [
-        "title",
-        "body"
+        "title"
       ],
       "additionalProperties": true
     },
-    "variant": {
-      "title": "Panel variant",
-      "description": "Change the look of the panel.",
-      "type": "string",
-      "enum": [
-        "info",
-        "warning",
-        "success"
-      ],
-      "default": "info"
+    "dataTypeIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Data type IDs",
+      "description": "List of data type IDs for the attachment list to show.",
+      "examples": [
+        [
+          "SomeDataType",
+          "SomeOtherDataType"
+        ]
+      ]
     },
-    "showIcon": {
-      "title": "Show icon",
-      "description": "Boolean value indicating if the icon should be shown.",
+    "includePDF": {
       "type": "boolean",
-      "default": true
+      "title": "Include PDF as attachments",
+      "description": "Set the flag if the list of attachments should include PDF of answers.",
+      "default": false
     },
     "renderAsSummary": {
       "title": "Render as summary",

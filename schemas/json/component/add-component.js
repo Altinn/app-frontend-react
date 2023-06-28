@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const componentTemplate = `{
-  "$id": "https://altinncdn.no/schemas/json/component/<COMPONENT FILENAME>-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/<COMPONENT TYPE>.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "<COMPONENT TYPE> component",
   "description": "Schema that describes the layout configuration for a <COMPONENT TYPE> component.",
@@ -71,8 +71,7 @@ const componentTemplate = `{
 }
 `;
 
-const replaceComponentType = (componentType, fileNameComponent) =>
-  componentTemplate.replaceAll('<COMPONENT TYPE>', componentType).replace('<COMPONENT FILENAME>', fileNameComponent);
+const replaceComponentType = (componentType) => componentTemplate.replaceAll('<COMPONENT TYPE>', componentType);
 
 const updateLayoutSchema = (filePath, componentPath) => {
   const rawData = fs.readFileSync('./layout.schema.v2.json');
@@ -111,9 +110,8 @@ const script = () => {
     return;
   }
 
-  const fileNameComponent = componentType.charAt(0).toLowerCase() + componentType.slice(1);
-  const componentFilePath = `${fileNameComponent}-component.schema.v1.json`;
-  let componentString = replaceComponentType(componentType, fileNameComponent);
+  const componentFilePath = `${componentType}.schema.v1.json`;
+  let componentString = replaceComponentType(componentType);
   fs.writeFileSync(componentFilePath, componentString, (err) => {
     if (err) {
       console.error(err);

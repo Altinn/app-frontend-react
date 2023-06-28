@@ -32,91 +32,91 @@
     "component": {
       "oneOf": [
         {
-          "$ref": "../component/actionButton-component.schema.v1.json"
+          "$ref": "../component/ActionButton.schema.v1.json"
         },
         {
-          "$ref": "../component/address-component.schema.v1.json"
+          "$ref": "../component/AddressComponent.schema.v1.json"
         },
         {
-          "$ref": "../component/attachmentList-component.schema.v1.json"
+          "$ref": "../component/AttachmentList.schema.v1.json"
         },
         {
-          "$ref": "../component/buttonGroup-component.schema.v1.json"
+          "$ref": "../component/ButtonGroup.schema.v1.json"
         },
         {
-          "$ref": "../component/checkboxes-component.schema.v1.json"
+          "$ref": "../component/Checkboxes.schema.v1.json"
         },
         {
-          "$ref": "../component/custom-component.schema.v1.json"
+          "$ref": "../component/Custom.schema.v1.json"
         },
         {
-          "$ref": "../component/datepicker-component.schema.v1.json"
+          "$ref": "../component/Datepicker.schema.v1.json"
         },
         {
-          "$ref": "../component/dropdown-component.schema.v1.json"
+          "$ref": "../component/Dropdown.schema.v1.json"
         },
         {
-          "$ref": "../component/fileUpload-component.schema.v1.json"
+          "$ref": "../component/FileUpload.schema.v1.json"
         },
         {
-          "$ref": "../component/fileUploadWithTag-component.schema.v1.json"
+          "$ref": "../component/FileUploadWithTag.schema.v1.json"
         },
         {
-          "$ref": "../component/grid-component.schema.v1.json"
+          "$ref": "../component/Grid.schema.v1.json"
         },
         {
-          "$ref": "../component/group-component.schema.v1.json"
+          "$ref": "../component/Group.schema.v1.json"
         },
         {
-          "$ref": "../component/header-component.schema.v1.json"
+          "$ref": "../component/Header.schema.v1.json"
         },
         {
-          "$ref": "../component/iframe-component.schema.v1.json"
+          "$ref": "../component/IFrame.schema.v1.json"
         },
         {
-          "$ref": "../component/image-component.schema.v1.json"
+          "$ref": "../component/Image.schema.v1.json"
         },
         {
-          "$ref": "../component/input-component.schema.v1.json"
+          "$ref": "../component/Input.schema.v1.json"
         },
         {
-          "$ref": "../component/instanceInformation-component.schema.v1.json"
+          "$ref": "../component/InstanceInformation.schema.v1.json"
         },
         {
-          "$ref": "../component/instantiationButton-component.schema.v1.json"
+          "$ref": "../component/InstantiationButton.schema.v1.json"
         },
         {
-          "$ref": "../component/likert-component.schema.v1.json"
+          "$ref": "../component/Likert.schema.v1.json"
         },
         {
-          "$ref": "../component/link-component.schema.v1.json"
+          "$ref": "../component/Link.schema.v1.json"
         },
         {
-          "$ref": "../component/list-component.schema.v1.json"
+          "$ref": "../component/List.schema.v1.json"
         },
         {
-          "$ref": "../component/map-component.schema.v1.json"
+          "$ref": "../component/Map.schema.v1.json"
         },
         {
-          "$ref": "../component/multipleSelect-component.schema.v1.json"
+          "$ref": "../component/MultipleSelect.schema.v1.json"
         },
         {
-          "$ref": "../component/navigationBar-component.schema.v1.json"
+          "$ref": "../component/NavigationBar.schema.v1.json"
         },
         {
-          "$ref": "../component/navigationButtons-component.schema.v1.json"
+          "$ref": "../component/NavigationButtons.schema.v1.json"
         },
         {
-          "$ref": "../component/panel-component.schema.v1.json"
+          "$ref": "../component/Panel.schema.v1.json"
         },
         {
-          "$ref": "../component/radioButtons-component.schema.v1.json"
+          "$ref": "../component/RadioButtons.schema.v1.json"
         },
         {
-          "$ref": "../component/summary-component.schema.v1.json"
+          "$ref": "../component/Summary.schema.v1.json"
         },
         {
-          "$ref": "../component/textArea-component.schema.v1.json"
+          "$ref": "../component/TextArea.schema.v1.json"
         }
       ]
     }

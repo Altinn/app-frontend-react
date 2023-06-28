@@ -1,5 +1,5 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/map-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/Map.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Map component",
   "description": "Schema that describes the layout configuration for a Map component.",

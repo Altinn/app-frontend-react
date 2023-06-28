@@ -1,5 +1,5 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/summary-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/Summary.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Summary component",
   "description": "Schema that describes the layout configuration for a Summary component.",

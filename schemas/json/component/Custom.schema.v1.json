@@ -1,8 +1,8 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/instantiationButton-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/Custom.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "InstantiationButton component",
-  "description": "Schema that describes the layout configuration for a InstantiationButton component.",
+  "title": "Custom component",
+  "description": "Schema that describes the layout configuration for a Custom component.",
   "type": "object",
   "properties": {
     "id": {
@@ -12,7 +12,7 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "InstantiationButton"
+      "const": "Custom"
     },
     "textResourceBindings": {
       "type": "object",
@@ -23,14 +23,29 @@
           "type": "string"
         }
       },
-      "required": [
-        "title"
-      ],
       "additionalProperties": true
     },
-    "mapping": {
-      "$ref": "common-defs.schema.v1.json#/$defs/mapping",
-      "description": "Creates a new app instance with data collected from a stateless part of the app."
+    "daataModelBindings": {
+      "type": "object",
+      "title": "Data model bindings",
+      "description": "Data model bindings for component",
+      "properties": {
+        "simpleBinding": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "required": {
+      "$ref": "common-defs.schema.v1.json#/$defs/required"
+    },
+    "readOnly": {
+      "$ref": "common-defs.schema.v1.json#/$defs/readOnly"
+    },
+    "tagName": {
+      "type": "string",
+      "title": "Tag name",
+      "description": "Web component tag name to use"
     },
     "renderAsSummary": {
       "title": "Render as summary",
@@ -61,7 +76,8 @@
   },
   "required": [
     "id",
-    "type"
+    "type",
+    "tagName"
   ],
-  "additionalProperties": false
+  "additionalProperties": true
 }

@@ -1,5 +1,5 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/datepicker-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/Datepicker.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Datepicker component",
   "description": "Schema that describes the layout configuration for a Datepicker component.",

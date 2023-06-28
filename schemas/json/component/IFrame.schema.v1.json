@@ -1,5 +1,5 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/iframe-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/IFrame.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "IFrame component",
   "description": "Schema that describes the layout configuration for an IFrame component.",

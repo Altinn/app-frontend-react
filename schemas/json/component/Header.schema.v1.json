@@ -1,8 +1,8 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/image-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/Header.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Image component",
-  "description": "Schema that describes the layout configuration for a Image component.",
+  "title": "Header component",
+  "description": "Schema that describes the layout configuration for a header component.",
   "type": "object",
   "properties": {
     "id": {
@@ -12,61 +12,31 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "Image"
+      "const": "Header"
     },
     "textResourceBindings": {
       "type": "object",
-      "title": "Text resource bindings",
-      "description": "Text resource bindings for a component.",
       "properties": {
-        "altTextImg": {
-          "type": "string",
-          "title": "Alternate text",
-          "description": "Alternate text is read aloud to someone using assistive technology, but is hidden from a sighted user."
+        "title": {
+          "type": "string"
         }
       },
       "required": [
-        "altTextImg"
+        "title"
       ],
       "additionalProperties": true
     },
-    "src": {
-      "title": "Image source",
-      "description": "",
-      "type": "object",
-      "properties": {
-        "nb": {
-          "type": "string",
-          "title": "Bokmål"
-        },
-        "nn": {
-          "type": "string",
-          "title": "Nynorsk"
-        },
-        "en": {
-          "type": "string",
-          "title": "English"
-        }
-      },
-      "additionalProperties": true
-    },
-    "width": {
+    "size": {
+      "title": "Header size",
+      "description": "'L'=<h2>, 'M'=<h3>, 'S'=<h4>",
       "type": "string",
-      "title": "Image width",
-      "examples": [
-        "100%"
-      ]
-    },
-    "align": {
-      "type": "string",
-      "title": "Align image",
       "enum": [
-        "flex-start",
-        "center",
-        "flex-end",
-        "space-between",
-        "space-around",
-        "space-evenly"
+        "L",
+        "M",
+        "S",
+        "h2",
+        "h3",
+        "h4"
       ]
     },
     "renderAsSummary": {
@@ -99,9 +69,7 @@
   "required": [
     "id",
     "type",
-    "src",
-    "width",
-    "align"
-  ],
-  "additionalProperties": false
+    "textResourceBindings",
+    "size"
+  ]
 }

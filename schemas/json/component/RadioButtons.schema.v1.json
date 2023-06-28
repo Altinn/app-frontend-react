@@ -1,8 +1,8 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/likert-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/RadioButtons.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Likert component",
-  "description": "Schema that describes the layout configuration for a Likert component.",
+  "title": "RadioButtons component",
+  "description": "Schema that describes the layout configuration for a RadioButtons component.",
   "type": "object",
   "properties": {
     "id": {
@@ -12,7 +12,7 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "Likert"
+      "const": "RadioButtons"
     },
     "dataModelBindings": {
       "$ref": "common-defs.schema.v1.json#/$defs/basicDataModelBindings"

@@ -1,8 +1,8 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/instanceInformation-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/InstantiationButton.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "InstanceInformation component",
-  "description": "Schema that describes the layout configuration for a InstanceInformation component.",
+  "title": "InstantiationButton component",
+  "description": "Schema that describes the layout configuration for a InstantiationButton component.",
   "type": "object",
   "properties": {
     "id": {
@@ -12,7 +12,7 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "InstanceInformation"
+      "const": "InstantiationButton"
     },
     "textResourceBindings": {
       "type": "object",
@@ -28,36 +28,9 @@
       ],
       "additionalProperties": true
     },
-    "elements": {
-      "title": "Instance information choices",
-      "description": "The properties to include in the instanceInformation summary",
-      "type": "object",
-      "properties": {
-        "dateSent": {
-          "title": "Date sent",
-          "description": "Date when the schema was sent.",
-          "type": "boolean",
-          "default": true
-        },
-        "sender": {
-          "title": "Schema sender",
-          "description": "The sender of the schema.",
-          "type": "boolean",
-          "default": true
-        },
-        "receiver": {
-          "title": "Schema receiver",
-          "description": "The receiver of the schema.",
-          "type": "boolean",
-          "default": true
-        },
-        "referenceNumber": {
-          "title": "Schema reference number",
-          "description": "The reference number of the schema gathered from the instance Guid.",
-          "type": "boolean",
-          "default": true
-        }
-      }
+    "mapping": {
+      "$ref": "common-defs.schema.v1.json#/$defs/mapping",
+      "description": "Creates a new app instance with data collected from a stateless part of the app."
     },
     "renderAsSummary": {
       "title": "Render as summary",
@@ -88,8 +61,7 @@
   },
   "required": [
     "id",
-    "type",
-    "elements"
+    "type"
   ],
   "additionalProperties": false
 }

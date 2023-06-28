@@ -1,8 +1,8 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/header-component.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/component/ButtonGroup.schema.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Header component",
-  "description": "Schema that describes the layout configuration for a header component.",
+  "title": "ButtonGroup component",
+  "description": "Schema that describes the layout configuration for a ButtonGroup component.",
   "type": "object",
   "properties": {
     "id": {
@@ -12,7 +12,7 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "Header"
+      "const": "ButtonGroup"
     },
     "textResourceBindings": {
       "type": "object",
@@ -26,24 +26,14 @@
       ],
       "additionalProperties": true
     },
-    "size": {
-      "title": "Header size",
-      "description": "'L'=<h2>, 'M'=<h3>, 'S'=<h4>",
-      "type": "string",
-      "enum": [
-        "L",
-        "M",
-        "S",
-        "h2",
-        "h3",
-        "h4"
-      ]
-    },
-    "renderAsSummary": {
-      "title": "Render as summary",
-      "description": "Boolean or expression indicating if the component should be rendered as a summary. Defaults to false.",
-      "default": false,
-      "$ref": "../layout/expression.schema.v1.json#/definitions/boolean"
+    "children": {
+      "title": "Children",
+      "description": "An array of the \"id\" of child components belonging to the button group.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
     },
     "hidden": {
       "title": "Hidden",
@@ -68,8 +58,7 @@
   },
   "required": [
     "id",
-    "type",
-    "textResourceBindings",
-    "size"
-  ]
+    "type"
+  ],
+  "additionalProperties": false
 }
