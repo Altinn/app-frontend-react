@@ -12,7 +12,7 @@
       "type": "string",
       "title": "Type",
       "description": "The component type.",
-      "const": "Address"
+      "const": "AddressComponent"
     },
     "textResourceBindings": {
       "$ref": "common-defs.schema.v1.json#/$defs/basicTextResources"

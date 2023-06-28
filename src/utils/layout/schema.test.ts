@@ -25,7 +25,7 @@ describe('Layout schema', () => {
           continue;
         }
 
-        it(`${dir}/${file} should be parseable as JSON`, () => {
+        it(`${dir}/${file} should be parseable as JSON and a valid schema`, () => {
           const content = fs.readFileSync(`${dir}/${file}`, 'utf-8');
           expect(() => JSON.parse(content)).not.toThrow();
 
@@ -51,6 +51,7 @@ describe('Layout schema', () => {
         const content = fs.readFileSync(fullPath, 'utf-8');
         const schema = JSON.parse(content);
         expect(schema.$id).toBe(`https://altinncdn.no/schemas/json/component/${fileName}`);
+        expect(schema.properties.type.const).toEqual(component);
       });
     }
   });
