@@ -18,7 +18,7 @@ import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridComponent, GridRow, GridText } from 'src/layout/Grid/types';
+import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
@@ -42,7 +42,6 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
         {rows.map((row, rowIdx) => (
           <GridRowRenderer
             key={rowIdx}
-            id={rowIdx}
             row={row}
             isNested={isNested}
             mutableColumnSettings={columnSettings}
@@ -54,13 +53,12 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
 }
 
 interface GridRowProps {
-  id: number;
   row: GridRow<GridComponent>;
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
 }
 
-export function GridRowRenderer({ id, row, isNested, mutableColumnSettings }: GridRowProps) {
+export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps) {
   const { lang } = useLanguage();
 
   return isGridRowHidden(row) ? null : (
@@ -76,30 +74,36 @@ export function GridRowRenderer({ id, row, isNested, mutableColumnSettings }: Gr
           [css.fullWidthCellLast]: isLast && !isNested,
         });
 
-        const helpTextId = () => {
-          const helpTextIdx = row.cells.findIndex((cell: GridText) => cell?.text && cell?.help);
-          return helpTextIdx !== -1 ? `row-${id}-cell-${helpTextIdx}` : undefined;
-        };
-
         if (row.header && cell && 'columnOptions' in cell && cell.columnOptions) {
           mutableColumnSettings[cellIdx] = cell.columnOptions;
         }
 
-        if (cell && 'text' in cell && cell.text) {
+        const helpText = () => {
+          if (cell && 'textFrom' in cell && cell?.textFrom) {
+            const textFrom = cell.textFrom;
+            const component = row.cells.find(
+              (cell) => cell && 'node' in cell && cell?.node && cell?.node?.item.id === textFrom,
+            );
+            return component && 'node' in component && component?.node?.item?.textResourceBindings;
+          }
+        };
+
+        if (cell && (('text' in cell && cell.text) || ('textFrom' in cell && cell.textFrom))) {
           let textCellSettings: ITableColumnProperties = mutableColumnSettings[cellIdx]
             ? structuredClone(mutableColumnSettings[cellIdx])
             : {};
           textCellSettings = { ...textCellSettings, ...cell };
+          const { help, title } = helpText() || {};
 
           return (
             <CellWithText
               key={`${cell.text}/${cellIdx}`}
-              id={helpTextId()}
               className={className}
               columnStyleOptions={textCellSettings}
-              helpText={cell?.help}
+              helpText={help}
+              componentId={cell?.textFrom}
             >
-              {lang(cell.text)}
+              {lang(cell.text) || lang(title)}
             </CellWithText>
           );
         }
@@ -109,7 +113,6 @@ export function GridRowRenderer({ id, row, isNested, mutableColumnSettings }: Gr
         return (
           <CellWithComponent
             key={`${componentId}/${cellIdx}`}
-            ariaDescribedById={helpTextId()}
             node={node}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
@@ -141,25 +144,23 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
 }
 
 interface CellProps {
-  id?: string;
   className?: string;
   helpText?: string;
   columnStyleOptions?: ITableColumnProperties;
+  componentId?: string;
 }
 
 interface CellWithComponentProps extends CellProps {
   node?: LayoutNode;
-  ariaDescribedById?: string;
 }
 
-function CellWithComponent({ node, className, columnStyleOptions, ariaDescribedById }: CellWithComponentProps) {
+function CellWithComponent({ node, className, columnStyleOptions }: CellWithComponentProps) {
   if (node && !node.isHidden()) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
     return (
       <TableCell
         className={cn(css.tableCellFormatting, className)}
         style={columnStyles}
-        aria-describedby={ariaDescribedById}
       >
         <GenericComponent
           node={node}
@@ -178,7 +179,7 @@ function CellWithComponent({ node, className, columnStyleOptions, ariaDescribedB
 
 type CellWithTextProps = CellProps & PropsWithChildren;
 
-function CellWithText({ children, className, columnStyleOptions, helpText, id }: CellWithTextProps) {
+function CellWithText({ children, className, columnStyleOptions, helpText, componentId }: CellWithTextProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   return (
     <TableCell
@@ -186,18 +187,27 @@ function CellWithText({ children, className, columnStyleOptions, helpText, id }:
       style={columnStyles}
     >
       <span className={css.cellWithText}>
-        <span
-          className={css.contentFormatting}
-          style={columnStyles}
-        >
-          {children}
-        </span>
-        {helpText && (
-          <HelpTextContainer
-            title={getPlainTextFromNode(children)}
-            helpText={helpText}
-            id={id}
-          />
+        {helpText ? (
+          <>
+            <label
+              className={css.contentFormatting}
+              style={columnStyles}
+              htmlFor={componentId}
+            >
+              {children}
+            </label>
+            <HelpTextContainer
+              title={getPlainTextFromNode(children)}
+              helpText={helpText}
+            />
+          </>
+        ) : (
+          <span
+            className={css.contentFormatting}
+            style={columnStyles}
+          >
+            {children}
+          </span>
         )}
       </span>
     </TableCell>
