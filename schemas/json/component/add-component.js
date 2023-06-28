@@ -81,7 +81,7 @@ const updateLayoutSchema = (componentFileName) => {
     $ref: `../component/${componentFileName}`,
   });
   schema.$defs.component.oneOf = schema.$defs.component.oneOf.sort((a, b) => a.$ref.localeCompare(b.$ref));
-  fs.writeFileSync(schemaPath, JSON.stringify(schema, null, 2));
+  fs.writeFileSync(schemaPath, `${JSON.stringify(schema, null, 2)}\n`);
 };
 
 const script = () => {
