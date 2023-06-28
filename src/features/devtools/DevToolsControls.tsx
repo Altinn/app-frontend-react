@@ -4,6 +4,7 @@ import { Tabs } from '@digdir/design-system-react';
 
 import { DevHiddenFunctionality } from 'src/features/devtools/components/DevHiddenFunctionality/DevHiddenFunctionality';
 import { DevNavigationButtons } from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons';
+import { DevToolsLogs } from 'src/features/devtools/components/DevToolsLogs/DevToolsLogs';
 import { ExpressionPlayground } from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground';
 import { FeatureToggles } from 'src/features/devtools/components/FeatureToggles/FeatureToggles';
 import { LayoutInspector } from 'src/features/devtools/components/LayoutInspector/LayoutInspector';
@@ -57,6 +58,10 @@ export const DevToolsControls = () => {
           {
             name: DevToolsTab.FeatureToggles,
             content: <FeatureToggles />,
+          },
+          {
+            name: DevToolsTab.Logs,
+            content: <DevToolsLogs />,
           },
         ]}
       />
