@@ -1,7 +1,9 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
+export type AlertSeverity = 'success' | 'warning' | 'danger' | 'info';
+
 export interface ILayoutCompAlertBase {
-  severity: 'success' | 'warning' | 'danger' | 'info';
+  severity: AlertSeverity;
   useAsAlert?: boolean;
 }
 

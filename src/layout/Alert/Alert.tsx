@@ -8,6 +8,14 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type AlertProps = PropsFromGenericComponent<'Alert'>;
 
 import styles from 'src/layout/Alert/Alert.module.css';
+import type { AlertSeverity } from 'src/layout/Alert/types';
+
+function calculateAriaLive(severity: AlertSeverity): 'polite' | 'assertive' {
+  if (severity === 'warning' || severity === 'danger') {
+    return 'assertive';
+  }
+  return 'polite';
+}
 
 export const Alert = ({ node }: AlertProps) => {
   const { severity, useAsAlert, textResourceBindings } = node.item;
@@ -20,7 +28,7 @@ export const Alert = ({ node }: AlertProps) => {
     <AlertDesignSystem
       severity={severity}
       role={useAsAlert ? 'alert' : undefined}
-      aria-live={useAsAlert ? 'polite' : undefined}
+      aria-live={useAsAlert ? calculateAriaLive(severity) : undefined}
       aria-label={useAsAlert ? title : undefined}
     >
       <span className={styles.title}>{title}</span>
