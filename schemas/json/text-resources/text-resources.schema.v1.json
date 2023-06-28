@@ -37,8 +37,7 @@
         "id": {
           "type": "string",
           "title": "Text resource ID",
-          "description": "Must be unique within the file",
-          "pattern": "^[a-zA-Z0-9_\\-.]+$"
+          "description": "Must be unique within the file"
         },
         "value": {
           "type": "string",
@@ -80,7 +79,7 @@
           "type": "string",
           "title": "Variable lookup location",
           "description": "Location of the variable in the data source",
-          "pattern": "^[a-zA-Z0-9_\\-.{}[\\]]+$"
+          "pattern": "^[\\w\\p{L}.\\-_{}[\\]]+$"
         },
         "dataSource": {
           "title": "Variable data source",
@@ -100,7 +99,7 @@
       "type": "string",
       "title": "Data model",
       "description": "The variable is fetched from a named data model",
-      "pattern": "^dataModel\\.[a-zA-Z0-9\\-.]+$",
+      "pattern": "^dataModel\\..+$",
       "examples": [
         "dataModel.default"
       ]
