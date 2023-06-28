@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -26,8 +26,9 @@ export const useRadioStyles = makeStyles(() => ({
 
 export const useRadioButtons = ({ node, handleDataChange, formData }: IRadioButtonsContainerProps) => {
   const { optionsId, options, preselectedOptionIndex, mapping, source } = node.item;
-  const calculatedOptions = useGetOptions({ optionsId, mapping, source, options, defaultOptions: [] });
-  const optionsHasChanged = useHasChangedIgnoreUndefined(calculatedOptions);
+  const apiOptions = useGetOptions({ optionsId, mapping, source });
+  const calculatedOptions = useMemo(() => apiOptions || options || [], [apiOptions, options]);
+  const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });
   const fetchingOptions =
     useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading) || undefined;

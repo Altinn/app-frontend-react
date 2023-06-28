@@ -7,12 +7,10 @@ import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOpti
 import type { IMapping, IOption, IOptionSource, ITextResource } from 'src/types';
 import type { IDataSources } from 'src/types/shared';
 
-interface IUseGetOptionsParams<T extends IOption[] | undefined> {
+interface IUseGetOptionsParams {
   optionsId: string | undefined;
-  options: IOption[] | undefined;
-  mapping: IMapping | undefined;
-  source: IOptionSource | undefined;
-  defaultOptions?: T;
+  mapping?: IMapping;
+  source?: IOptionSource;
 }
 
 export interface IOptionResources {
@@ -21,13 +19,7 @@ export interface IOptionResources {
   helpText?: ITextResource;
 }
 
-export function useGetOptions<T extends IOption[] | undefined>({
-  optionsId,
-  mapping,
-  source,
-  options: staticOptions,
-  defaultOptions,
-}: IUseGetOptionsParams<T>): IOption[] | T {
+export const useGetOptions = ({ optionsId, mapping, source }: IUseGetOptionsParams) => {
   const relevantFormData = useAppSelector(
     (state) => (source && getRelevantFormDataForOptionSource(state.formData.formData, source)) || {},
     shallowEqual,
@@ -51,12 +43,7 @@ export function useGetOptions<T extends IOption[] | undefined>({
   useEffect(() => {
     if (optionsId) {
       const key = getOptionLookupKey({ id: optionsId, mapping });
-      setOptions(optionState[key]?.options as T);
-    }
-
-    if (staticOptions) {
-      setOptions(staticOptions);
-      return;
+      setOptions(optionState[key]?.options);
     }
 
     if (!source || !repeatingGroups || !relevantTextResources.label) {
@@ -82,7 +69,7 @@ export function useGetOptions<T extends IOption[] | undefined>({
         relevantFormData,
         repeatingGroups,
         dataSources,
-      }) as T,
+      }),
     );
   }, [
     applicationSettings,
@@ -96,8 +83,7 @@ export function useGetOptions<T extends IOption[] | undefined>({
     relevantTextResources.label,
     relevantTextResources.description,
     relevantTextResources.helpText,
-    staticOptions,
   ]);
 
-  return (options ?? defaultOptions) as IOption[] | T;
-}
+  return options;
+};
