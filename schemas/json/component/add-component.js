@@ -73,51 +73,45 @@ const componentTemplate = `{
 
 const replaceComponentType = (componentType) => componentTemplate.replaceAll('<COMPONENT TYPE>', componentType);
 
-const updateLayoutSchema = (filePath, componentPath) => {
-  const rawData = fs.readFileSync('./layout.schema.v2.json');
+const updateLayoutSchema = (componentFileName) => {
+  const schemaPath = `${__dirname}/../layout/layout.schema.v2.json`;
+  const rawData = fs.readFileSync(schemaPath);
   const schema = JSON.parse(rawData);
   schema.$defs.component.oneOf.push({
-    $ref: componentPath,
+    $ref: `../component/${componentFileName}`,
   });
-  fs.writeFileSync(filePath, JSON.stringify(schema, null, 2));
+  schema.$defs.component.oneOf = schema.$defs.component.oneOf.sort((a, b) => a.$ref.localeCompare(b.$ref));
+  fs.writeFileSync(schemaPath, JSON.stringify(schema, null, 2));
 };
 
 const script = () => {
   let componentType;
-  let pathToLayoutSchema;
 
   process.argv.slice(2).forEach((arg) => {
     const [key, value] = arg.split('=');
-    switch (key) {
-      case 'type': {
-        componentType = value;
-        break;
-      }
-      case 'schemaPath': {
-        pathToLayoutSchema = value;
-        break;
-      }
-      default:
-        break;
+    if (key === 'type') {
+      componentType = value;
+      return;
     }
+    throw new Error(`Unknown argument: ${key}`);
   });
 
-  if (!componentType || !pathToLayoutSchema) {
+  if (!componentType) {
     console.error('Input arguments missing!');
     console.error('-------------------');
     console.error('Usage:');
-    console.error('node ./add-component.js type=<ComponentType> schemaPath=<path to layout schema>');
+    console.error('node ./add-component.js type=<ComponentType>');
     return;
   }
 
-  const componentFilePath = `${componentType}.schema.v1.json`;
+  const componentFileName = `${componentType}.schema.v1.json`;
   let componentString = replaceComponentType(componentType);
-  fs.writeFileSync(componentFilePath, componentString, (err) => {
+  fs.writeFileSync(`${__dirname}/${componentFileName}`, componentString, (err) => {
     if (err) {
       console.error(err);
     }
   });
-  updateLayoutSchema(pathToLayoutSchema, componentFilePath);
+  updateLayoutSchema(componentFileName);
 };
 
 script();
