@@ -17,6 +17,9 @@ function parseArgs(args: any[]): string {
           arg.config?.url
         }': ${arg.message}`;
       }
+      if (arg instanceof Error) {
+        return `${arg.name}: ${arg.message}`;
+      }
       if (typeof arg === 'object') {
         return JSON.stringify(arg);
       }

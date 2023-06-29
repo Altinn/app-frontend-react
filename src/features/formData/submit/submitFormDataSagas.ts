@@ -58,7 +58,7 @@ export function* submitFormSaga(): SagaIterator {
     yield call(submitComplete, state);
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
-    console.error(error);
+    window.logError('Submit form data failed', error);
     yield put(FormDataActions.submitRejected({ error }));
   }
 }
@@ -275,7 +275,7 @@ export function* saveFormDataSaga({
 
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
-    console.error(error);
+    window.logError('Save form data failed', error);
     yield put(FormDataActions.submitRejected({ error }));
   }
 }
@@ -332,7 +332,7 @@ export function* postStatelessData({ field, componentId }: SaveDataParams) {
         // If the saga were cancelled (takeLatest), we would abort the HTTP request/promise
         // to ensure we do not update the redux-state with staled data.
         abortController.abort();
-        console.warn('Request aborted due to saga cancellation');
+        window.logWarn('Request aborted due to saga cancellation');
       }
     }
   }

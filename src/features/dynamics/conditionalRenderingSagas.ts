@@ -122,7 +122,7 @@ export function* checkIfConditionalRulesShouldRunSaga({
       );
     }
   } catch (err) {
-    yield call(console.error, err);
+    yield call(window.logError, 'Conditional rendering error', err);
   }
 }
 
