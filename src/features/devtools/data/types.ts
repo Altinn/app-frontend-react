@@ -30,5 +30,5 @@ export enum DevToolsTab {
   Components = 'Komponenter',
   Expressions = 'Uttrykk',
   FeatureToggles = 'Beta-funksjonalitet',
-  Logs = 'Logg',
+  Logs = 'Logger',
 }

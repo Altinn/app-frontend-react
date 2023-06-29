@@ -58,7 +58,7 @@ export function* submitFormSaga(): SagaIterator {
     yield call(submitComplete, state);
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
-    window.logError('Submit form data failed', error);
+    window.logError('Submit form data failed:\n', error);
     yield put(FormDataActions.submitRejected({ error }));
   }
 }
@@ -275,7 +275,7 @@ export function* saveFormDataSaga({
 
     yield put(FormDataActions.submitFulfilled());
   } catch (error) {
-    window.logError('Save form data failed', error);
+    window.logError('Save form data failed:\n', error);
     yield put(FormDataActions.submitRejected({ error }));
   }
 }

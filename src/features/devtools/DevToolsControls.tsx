@@ -44,6 +44,10 @@ export const DevToolsControls = () => {
             ),
           },
           {
+            name: DevToolsTab.Logs,
+            content: <DevToolsLogs />,
+          },
+          {
             name: DevToolsTab.Layout,
             content: <LayoutInspector />,
           },
@@ -58,10 +62,6 @@ export const DevToolsControls = () => {
           {
             name: DevToolsTab.FeatureToggles,
             content: <FeatureToggles />,
-          },
-          {
-            name: DevToolsTab.Logs,
-            content: <DevToolsLogs />,
           },
         ]}
       />

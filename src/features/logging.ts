@@ -4,12 +4,12 @@ let index = -1;
 function postLog(level: string, args: any[]) {
   if (window.reduxStore) {
     index++;
-    const message = parseArgs(args);
+    const message = parseErrorArgs(args);
     window.reduxStore.dispatch({ type: 'devTools/postLog', payload: { index, level, message } });
   }
 }
 
-function parseArgs(args: any[]): string {
+export function parseErrorArgs(args: any[]): string {
   return args
     .map((arg) => {
       if (arg instanceof AxiosError) {

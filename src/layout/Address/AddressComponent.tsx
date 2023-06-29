@@ -146,7 +146,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
         if (axios.isCancel(err)) {
           // Intentionally ignored
         } else {
-          window.logError(`AddressComponent (${id}):`, err);
+          window.logError(`AddressComponent (${id}):\n`, err);
         }
       }
     };
