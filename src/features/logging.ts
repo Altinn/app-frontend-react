@@ -9,7 +9,7 @@ function postLog(level: string, args: any[]) {
   }
 }
 
-function parseArgs(args: any[]) {
+function parseArgs(args: any[]): string {
   return args
     .map((arg) => {
       if (arg instanceof AxiosError) {
@@ -22,7 +22,18 @@ function parseArgs(args: any[]) {
       }
       return String(arg);
     })
-    .join(' ');
+    .reduce((message, part) => {
+      if (message.length === 0) {
+        return part;
+      }
+      if (part.length === 0) {
+        return message;
+      }
+      if (message.endsWith('\n')) {
+        return `${message}${part}`;
+      }
+      return `${message} ${part}`;
+    }, '');
 }
 
 window.logError = (...args: any[]) => {

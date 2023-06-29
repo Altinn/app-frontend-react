@@ -34,3 +34,9 @@
 .logContainer > div:hover {
   background-color: #f5f5f5;
 }
+
+.logContainer pre {
+  margin: 0;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
