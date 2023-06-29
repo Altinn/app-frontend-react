@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { Button, TextField } from '@digdir/design-system-react';
 import {
+  DownloadIcon,
   ExclamationmarkTriangleFillIcon,
   InformationSquareFillIcon,
   TrashIcon,
@@ -27,6 +28,15 @@ export const DevToolsLogs = () => {
   const dispatch = useDispatch();
   const clearLogs = () => dispatch(DevToolsActions.logsClear());
   const toggleShow = (level: string) => setShowLevels({ ...showLevels, [level]: !showLevels[level] });
+  const saveLogs = () => {
+    const data = logs.map((log) => `${log.index + 1}. - ${log.level.toUpperCase()}: ${log.message}`).join('\n\n');
+    const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `${window.org}-${window.app}-${new Date().toISOString()}-logs.txt`);
+    a.click();
+  };
 
   const filteredLogs = logs.filter((log) => {
     if (!showLevels[log.level]) {
@@ -45,6 +55,11 @@ export const DevToolsLogs = () => {
           onClick={clearLogs}
           color={'secondary'}
           icon={<TrashIcon title='slett alle logger' />}
+        />
+        <Button
+          onClick={saveLogs}
+          color={'secondary'}
+          icon={<DownloadIcon title='lagre logger til fil' />}
         />
         <div className={classes.filterField}>
           <TextField
