@@ -12,10 +12,6 @@ export class Alert extends PresentationComponent<'Alert'> {
     return <AlertComponent {...props} />;
   }
 
-  renderWithLabel(): boolean {
-    return false;
-  }
-
   canRenderInTable(): boolean {
     return false;
   }
@@ -23,10 +19,13 @@ export class Alert extends PresentationComponent<'Alert'> {
 
 export const Config = {
   def: new Alert(),
+  rendersWithLabel: false as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutCompAlert;
   nodeItem: ExprResolved<ILayoutCompAlert>;
   nodeObj: LayoutNode;
+  validTextResourceBindings: 'title' | 'description';
+  validDataModelBindings: undefined;
 };

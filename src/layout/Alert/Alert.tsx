@@ -1,21 +1,10 @@
 import React from 'react';
 
-import { Alert as AlertDesignSystem } from '@digdir/design-system-react';
-
 import { useLanguage } from 'src/hooks/useLanguage';
+import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type AlertProps = PropsFromGenericComponent<'Alert'>;
-
-import styles from 'src/layout/Alert/Alert.module.css';
-import type { AlertSeverity } from 'src/layout/Alert/types';
-
-function calculateAriaLive(severity: AlertSeverity): 'polite' | 'assertive' {
-  if (severity === 'warning' || severity === 'danger') {
-    return 'assertive';
-  }
-  return 'polite';
-}
 
 export const Alert = ({ node }: AlertProps) => {
   const { severity, textResourceBindings, hidden } = node.item;
@@ -26,14 +15,12 @@ export const Alert = ({ node }: AlertProps) => {
   const shouldAlertScreenReaders = hidden === false;
 
   return (
-    <AlertDesignSystem
+    <AlertBaseComponent
       severity={severity}
-      role={shouldAlertScreenReaders ? 'alert' : undefined}
-      aria-live={shouldAlertScreenReaders ? calculateAriaLive(severity) : undefined}
-      aria-label={shouldAlertScreenReaders ? title : undefined}
+      useAsAlert={shouldAlertScreenReaders}
+      title={title}
     >
-      <span className={styles.title}>{title}</span>
-      <p className={styles.description}>{description}</p>
-    </AlertDesignSystem>
+      {description}
+    </AlertBaseComponent>
   );
 };

@@ -35,7 +35,7 @@ describe('Alert', () => {
 });
 
 const render = ({
-  severity,
+  severity = 'info',
   hidden,
   title,
   description,
