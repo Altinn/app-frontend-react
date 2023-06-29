@@ -167,12 +167,6 @@
           "description": "The severity of the alert.",
           "type": "string",
           "enum": ["success", "warning", "danger", "info"]
-        },
-        "useAsAlert": {
-          "title": "Use as alert",
-          "description": "Boolean value indicating if the alert should be used as an alert. Setting to true will make screen readers read the alert when it is rendered.",
-          "type": "boolean",
-          "default": false
         }
       },
       "required": ["severity"]

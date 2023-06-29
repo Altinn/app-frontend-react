@@ -18,18 +18,19 @@ function calculateAriaLive(severity: AlertSeverity): 'polite' | 'assertive' {
 }
 
 export const Alert = ({ node }: AlertProps) => {
-  const { severity, useAsAlert, textResourceBindings } = node.item;
+  const { severity, textResourceBindings, hidden } = node.item;
   const { langAsString } = useLanguage();
 
   const title = textResourceBindings?.title && langAsString(textResourceBindings.title);
   const description = textResourceBindings?.description && langAsString(textResourceBindings.description);
+  const shouldAlertScreenReaders = hidden === false;
 
   return (
     <AlertDesignSystem
       severity={severity}
-      role={useAsAlert ? 'alert' : undefined}
-      aria-live={useAsAlert ? calculateAriaLive(severity) : undefined}
-      aria-label={useAsAlert ? title : undefined}
+      role={shouldAlertScreenReaders ? 'alert' : undefined}
+      aria-live={shouldAlertScreenReaders ? calculateAriaLive(severity) : undefined}
+      aria-label={shouldAlertScreenReaders ? title : undefined}
     >
       <span className={styles.title}>{title}</span>
       <p className={styles.description}>{description}</p>
