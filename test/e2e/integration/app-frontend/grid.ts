@@ -124,16 +124,30 @@ describe('Grid component', () => {
       .should('contain.text', 'Foreldreraden er prefill: true');
   });
 
-  // it("should be possible to add help text to a Grid's text cells", () => {
-  //   cy.interceptLayout('changename', (component) => {
-  //     if (component.type === 'Grid' && component.rows[1].cells[0] && 'text' in component.rows[1].cells[0]) {
-  //       component.rows[1].cells[0].help = 'Help text';
-  //     }
-  //   });
-  //   cy.goto('changename');
-  //   cy.navPage('grid').click();
-  //   cy.get(appFrontend.grid.grid).find('tr').eq(1).find('td').eq(0).should('contain.text', 'Boliglån');
-  //   cy.get(appFrontend.grid.grid).find('tr').eq(1).find('td').eq(0).find(appFrontend.helpText.open).click();
-  //   cy.get(appFrontend.helpText.alert).should('contain.text', 'Help text');
-  // });
+  it("should allow adding help text to Grid's text cells or referencing a component", () => {
+    cy.interceptLayout('changename', (component) => {
+      if (component.type === 'Grid' && component.rows[1].cells[0]) {
+        component.rows[1].cells[0].help = 'Help text';
+      }
+      if (component.type === 'Grid' && component.rows[2].cells[0]) {
+        delete component.rows[2].cells[0].text;
+        component.rows[2].cells[0].labelFrom = 'fordeling-studie';
+      }
+      if (component.type === 'Input' && component.id === 'fordeling-studie') {
+        component.textResourceBindings.description = 'Dette er en beskrivende tekst';
+        component.textResourceBindings.help = 'Dette er en hjelpetekst';
+      }
+    });
+
+    cy.goto('changename');
+    cy.navPage('grid').click();
+
+    cy.get(appFrontend.grid.grid).find('tr:eq(1) td:eq(0)').find(appFrontend.helpText.open).click();
+
+    cy.get(appFrontend.grid.grid).find('tr:eq(2) td:eq(0)').should('contain.text', 'Dette er en beskrivende tekst');
+    cy.get(appFrontend.grid.grid).find('tr:eq(2) td:eq(0)').find(appFrontend.helpText.open).click();
+
+    cy.get(appFrontend.grid.grid).find('tr:eq(2) td:eq(0) label').click();
+    cy.focused().should('have.attr', 'id', 'fordeling-studie');
+  });
 });
