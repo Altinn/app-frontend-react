@@ -66,39 +66,39 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
       <Heading
         size='xsmall'
         level={3}
-        className={classes.leftOfHeading}
+        className={classes.leftOffHeading}
       >
-        {lang('instance_selection.left_off')}
+        {lang('instance_selection.left_of')}
       </Heading>
       <Table id='instance-selection-mobile-table'>
-        {paginatedInstances.map((instance, index) => (
-          <TableRow
-            key={`instance-selection-mobile-row-${instance.id}`}
-            data-row-num={index}
-          >
-            <TableCell className={classes.mobileTableCell}>
-              <div>
-                <b className={classes.spaceAfterContent}>{langAsString('instance_selection.last_changed')}:</b>
-                <span>{getDateDisplayString(instance.lastChanged)}</span>
-              </div>
-              <div>
-                <b className={classes.spaceAfterContent}>{langAsString('instance_selection.changed_by')}:</b>
-                <span>{instance.lastChangedBy}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className={classes.tableButtonWrapper}>
-                <Button
-                  variant='quiet'
-                  color='secondary'
-                  icon={<EditIcon />}
-                  iconPlacement='right'
-                  onClick={() => openInstance(instance.id)}
-                />
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
+        <TableBody>
+          {paginatedInstances.map((instance) => (
+            <TableRow key={instance.id}>
+              <TableCell className={classes.mobileTableCell}>
+                <div>
+                  <b className={classes.spaceAfterContent}>{langAsString('instance_selection.last_changed')}:</b>
+                  <span>{getDateDisplayString(instance.lastChanged)}</span>
+                </div>
+                <div>
+                  <b className={classes.spaceAfterContent}>{langAsString('instance_selection.changed_by')}:</b>
+                  <span>{instance.lastChangedBy}</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className={classes.tableButtonWrapper}>
+                  <Button
+                    variant='quiet'
+                    color='secondary'
+                    icon={<EditIcon />}
+                    iconPlacement='right'
+                    onClick={() => openInstance(instance.id)}
+                    aria-label={`${langAsString('instance_selection.continue')}`}
+                  />
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
         <TableFooter>
           <TableRow>
             <TableCell colSpan={2}>

@@ -144,6 +144,8 @@ export const mockMediaQuery = (maxWidth: number) => {
       onchange: null,
       addListener: jest.fn(),
       removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
     }));
   };
 
