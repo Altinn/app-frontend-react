@@ -2,13 +2,24 @@
   padding-top: 12px;
 }
 
-.likertTableHeader {
-  white-space: normal;
-  font-weight: 400;
-  border-bottom: 1px solid rgb(0, 143, 214);
-  padding-left: 12px;
+.likertTableContainer {
+  display: block;
+  width: 100%;
+  padding: 12px;
+}
+
+.likertTableHeaderTop {
+  /* using !important because the design-system is overriding this */
+  text-align: center !important;
 }
 
 .likertTableCell {
   padding: 4px 12px;
+}
+
+.radioButtonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { TableCell, TableRow, Typography } from '@material-ui/core';
+import { TableCell, TableRow } from '@digdir/design-system-react';
+import { Typography } from '@material-ui/core';
 
 import { RadioButton } from 'src/components/form/RadioButton';
 import { useLanguage } from 'src/hooks/useLanguage';
@@ -45,16 +46,15 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       aria-labelledby={rowLabelId}
       data-componentid={node.item.id}
     >
-      <th
+      <TableCell
         scope='row'
         id={rowLabelId}
-        className={classes.likertTableHeader}
       >
         <Typography component={'div'}>
           <RenderLegend />
           {renderValidationMessagesForComponent(componentValidations?.simpleBinding, id)}
         </Typography>
-      </th>
+      </TableCell>
       {calculatedOptions?.map((option, colIndex) => {
         const colLabelId = `${groupContainerId}-likert-columnheader-${colIndex}`;
         const inputId = `${id}-${colIndex}`;
@@ -62,21 +62,22 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
         return (
           <TableCell
             key={option.value}
-            align={'center'}
-            style={{ padding: '10px', lineHeight: 0 }}
+            className={classes.likertTableCell}
             onBlur={handleBlur}
           >
-            <RadioButton
-              aria-labelledby={`${rowLabelId} ${colLabelId}`}
-              checked={isChecked}
-              onChange={handleChange}
-              value={option.value}
-              label={`${getPlainTextFromNode(lang(texts?.title))} ${langAsString(option.label)}`}
-              hideLabel={true}
-              name={rowLabelId}
-              radioId={inputId}
-              error={!isValid}
-            />
+            <div className={classes.radioButtonContainer}>
+              <RadioButton
+                aria-labelledby={`${rowLabelId} ${colLabelId}`}
+                checked={isChecked}
+                onChange={handleChange}
+                value={option.value}
+                label={`${getPlainTextFromNode(lang(texts?.title))} ${langAsString(option.label)}`}
+                hideLabel={true}
+                name={rowLabelId}
+                radioId={inputId}
+                error={!isValid}
+              />
+            </div>
           </TableCell>
         );
       })}
