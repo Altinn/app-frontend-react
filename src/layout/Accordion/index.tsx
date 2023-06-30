@@ -22,6 +22,10 @@ export class Accordion extends PresentationComponent<'Accordion'> {
   renderWithLabel(): boolean {
     return false;
   }
+
+  canRenderInAccordionGroup(): boolean {
+    return true;
+  }
 }
 
 export const Config = {

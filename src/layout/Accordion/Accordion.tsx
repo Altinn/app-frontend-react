@@ -10,8 +10,28 @@ import type { PropsFromGenericComponent } from 'src/layout';
 type IAccordionProps = PropsFromGenericComponent<'Accordion'>;
 
 export const Accordion = ({ node }: IAccordionProps) => {
-  const { textResourceBindings } = node.item;
+  const { textResourceBindings, renderAsAccordionItem } = node.item;
   const title = textResourceBindings?.title ?? '';
+
+  if (renderAsAccordionItem) {
+    return (
+      <AccordionItem title={title}>
+        <Grid
+          item={true}
+          container={true}
+          spacing={3}
+          alignItems='flex-start'
+        >
+          {node.item.childComponents.map((n) => (
+            <GenericComponent
+              key={n.item.id}
+              node={n}
+            />
+          ))}
+        </Grid>
+      </AccordionItem>
+    );
+  }
 
   return (
     <DesignSystemAccordion
