@@ -6,8 +6,10 @@ import { Grid } from '@material-ui/core';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { Description } from 'src/components/form/Description';
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
+import { Label } from 'src/components/form/Label';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -45,6 +47,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
             row={row}
             isNested={isNested}
             mutableColumnSettings={columnSettings}
+            node={node}
           />
         ))}
       </Table>
@@ -56,9 +59,10 @@ interface GridRowProps {
   row: GridRow<GridComponent>;
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
+  node: LayoutNode;
 }
 
-export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps) {
+export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: GridRowProps) {
   const { lang } = useLanguage();
 
   return isGridRowHidden(row) ? null : (
@@ -78,42 +82,49 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRo
           mutableColumnSettings[cellIdx] = cell.columnOptions;
         }
 
-        const helpText = () => {
-          if (cell && 'textFrom' in cell && cell?.textFrom) {
-            const textFrom = cell.textFrom;
-            const component = row.cells.find(
-              (cell) => cell && 'node' in cell && cell?.node && cell?.node?.item.id === textFrom,
-            );
-            return component && 'node' in component && component?.node?.item?.textResourceBindings;
+        const closestComponent = () => {
+          if (cell && 'labelFrom' in cell && cell?.labelFrom) {
+            const idToFind = cell.labelFrom;
+            return node.flat(true).find((n) => n.item.id === idToFind || n.item.baseComponentId === idToFind);
           }
         };
 
-        if (cell && (('text' in cell && cell.text) || ('textFrom' in cell && cell.textFrom))) {
+        if (cell && ('labelFrom' in cell || 'text' in cell)) {
           let textCellSettings: ITableColumnProperties = mutableColumnSettings[cellIdx]
             ? structuredClone(mutableColumnSettings[cellIdx])
             : {};
           textCellSettings = { ...textCellSettings, ...cell };
-          const { help, title } = helpText() || {};
 
-          return (
-            <CellWithText
-              key={`${cell.text}/${cellIdx}`}
-              className={className}
-              columnStyleOptions={textCellSettings}
-              helpText={help}
-              componentId={cell?.textFrom}
-            >
-              {lang(cell.text) || lang(title)}
-            </CellWithText>
-          );
+          if ('text' in cell && cell.text) {
+            return (
+              <CellWithText
+                key={`${cell.text}/${cellIdx}`}
+                className={className}
+                help={cell?.help}
+                columnStyleOptions={textCellSettings}
+                referenceComponent={closestComponent()}
+              >
+                {lang(cell.text)}
+              </CellWithText>
+            );
+          }
+          if ('labelFrom' in cell && cell.labelFrom) {
+            return (
+              <CellWithLabel
+                key={`${cell.labelFrom}/${cellIdx}`}
+                className={className}
+                columnStyleOptions={textCellSettings}
+                referenceComponent={closestComponent()}
+              />
+            );
+          }
         }
-
-        const node = cell && 'node' in cell && cell?.node;
-        const componentId = node && node.item.id;
+        const componentNode = cell && 'node' in cell && cell?.node;
+        const componentId = componentNode && componentNode.item.id;
         return (
           <CellWithComponent
             key={`${componentId}/${cellIdx}`}
-            node={node}
+            node={componentNode}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
           />
@@ -145,9 +156,10 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
 
 interface CellProps {
   className?: string;
-  helpText?: string;
+  textBindings?: string | undefined;
   columnStyleOptions?: ITableColumnProperties;
-  componentId?: string;
+  referenceComponent?: LayoutNode;
+  help?: string;
 }
 
 interface CellWithComponentProps extends CellProps {
@@ -179,37 +191,60 @@ function CellWithComponent({ node, className, columnStyleOptions }: CellWithComp
 
 type CellWithTextProps = CellProps & PropsWithChildren;
 
-function CellWithText({ children, className, columnStyleOptions, helpText, componentId }: CellWithTextProps) {
+function CellWithText({ children, className, columnStyleOptions, help }: CellWithTextProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
+
   return (
     <TableCell
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
     >
-      <span className={css.cellWithText}>
-        {helpText ? (
-          <>
-            <label
-              className={css.contentFormatting}
-              style={columnStyles}
-              htmlFor={componentId}
-            >
-              {children}
-            </label>
-            <HelpTextContainer
-              title={getPlainTextFromNode(children)}
-              helpText={helpText}
-            />
-          </>
-        ) : (
-          <span
-            className={css.contentFormatting}
-            style={columnStyles}
-          >
-            {children}
-          </span>
+      <span className={help && css.textCell}>
+        <span
+          className={css.contentFormatting}
+          style={columnStyles}
+        >
+          {children}
+        </span>
+        {help && (
+          <HelpTextContainer
+            title={getPlainTextFromNode(children)}
+            helpText={help}
+          />
         )}
       </span>
+    </TableCell>
+  );
+}
+
+function CellWithLabel({ className, columnStyleOptions, referenceComponent }: CellWithTextProps) {
+  const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
+  const { title, help, description } = referenceComponent?.item.textResourceBindings || {};
+  const { required } = referenceComponent?.item || {};
+  const componentId = referenceComponent?.item.id ?? referenceComponent?.item.baseComponentId;
+
+  return (
+    <TableCell
+      className={cn(css.tableCellFormatting, className)}
+      style={columnStyles}
+    >
+      {componentId && (
+        <>
+          <span className={css.textLabel}>
+            <Label
+              key={`label-${componentId}`}
+              labelText={title}
+              id={componentId}
+              required={required}
+              helpText={help}
+            />
+          </span>
+          <Description
+            id={componentId}
+            description={description}
+          />
+        </>
+      )}
     </TableCell>
   );
 }

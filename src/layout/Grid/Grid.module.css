@@ -41,7 +41,20 @@ tr > .fullWidthCellLast {
   width: calc(var(--cell-width) + 8.15%);
 }
 
-.cellWithText {
+.textCell,
+.textLabel,
+.textLabel div {
   display: flex;
-  align-items: center;
+}
+
+.textLabel {
+  margin-top: 12px;
+}
+
+.textLabel div {
+  flex-wrap: nowrap;
+}
+
+.textLabel button {
+  align-self: flex-start;
 }

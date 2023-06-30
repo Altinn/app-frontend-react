@@ -14,7 +14,7 @@ type GridComponentType = GridComponentRef | GridComponent;
 
 export interface GridText {
   text: string;
-  textFrom?: string;
+  help?: string;
   alignText?: 'left' | 'center' | 'right';
   textOverflow?: {
     lineWrap?: boolean;
