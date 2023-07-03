@@ -17,6 +17,7 @@
   --font_family-ingress: 'Inter', sans-serif;
   --font_family-body: 'Inter', sans-serif;
   --font_family-label: 'Inter', sans-serif;
+  --typography-default-font-family: 'Inter', sans-serif;
 
   --component-panel-font_size-header-breakpoint_sm: 1.25rem;
   --component-panel-font_size-header-breakpoint_md: 1.5rem;
@@ -35,6 +36,7 @@
     --font_family-ingress: 'Inter var', sans-serif;
     --font_family-body: 'Inter var', sans-serif;
     --font_family-label: 'Inter var', sans-serif;
+    --typography-default-font-family: 'Inter var', sans-serif;
   }
 }
 
