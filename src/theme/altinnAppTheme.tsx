@@ -50,25 +50,32 @@ export const AltinnAppTheme = {
     htmlFontSize: 16,
     fontFamily: 'inherit',
     h1: {
-      fontSize: 36,
+      fontSize: '2rem',
+      fontWeight: 500,
     },
     h2: {
-      fontSize: 28,
+      fontSize: '1.75rem',
+      fontWeight: 500,
     },
     h3: {
-      fontSize: 20,
+      fontSize: '1.5rem',
+      fontWeight: 500,
+    },
+    h4: {
+      fontSize: '1.25rem',
+      fontWeight: 500,
     },
     body1: {
-      fontSize: 16,
+      fontSize: '1rem',
     },
     body2: {
-      fontSize: 14,
+      fontSize: '0.875rem',
     },
     caption: {
-      fontSize: 14,
+      fontSize: '0.875rem',
     },
     subtitle1: {
-      fontSize: 14,
+      fontSize: '0.875rem',
     },
   },
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Heading } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
 
 import classes from 'src/components/presentation/Header.module.css';
@@ -34,12 +35,13 @@ export const Header = ({ type, header, appOwner }: IHeaderProps) => {
             <span>{appOwner}</span>
           </Grid>
           <Grid item>
-            <h1
-              className={classes.headerText}
+            <Heading
+              level={1}
+              size='medium'
               data-testid='presentation-heading'
             >
               {type === ProcessTaskType.Archived ? <span>{lang('receipt.receipt')}</span> : header}
-            </h1>
+            </Heading>
           </Grid>
         </Grid>
         {showProgress && (

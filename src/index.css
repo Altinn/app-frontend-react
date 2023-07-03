@@ -120,17 +120,6 @@ input:focus + .slider {
   box-shadow: 0 0 1px #1eaef7;
 }
 
-h2 {
-  font-size: 22px;
-  font-weight: normal;
-}
-
-@media only screen and (min-width: 576px) {
-  h2 {
-    font-size: 28px;
-  }
-}
-
 option {
   overflow: 'hidden';
   text-overflow: 'ellipsis';
