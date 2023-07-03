@@ -134,13 +134,6 @@ svg {
   vertical-align: middle;
 }
 
-label,
-.a-form-group .a-form-label-inline,
-.form-group .a-form-label-inline {
-  display: inline-block;
-  margin-bottom: 0.3125rem;
-}
-
 input[type='radio'],
 input[type='checkbox'] {
   box-sizing: border-box;
