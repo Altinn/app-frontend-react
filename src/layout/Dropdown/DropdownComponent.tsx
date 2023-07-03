@@ -32,6 +32,7 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
   const optionsHasChanged = useHasChangedIgnoreUndefined(options);
 
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding, 200);
+  const hasDescription = (options || staticOptions)?.some((option) => option.description);
 
   React.useEffect(() => {
     const shouldSelectOptionAutomatically =
@@ -60,10 +61,10 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
     () =>
       options?.map((option) => ({
         label: langAsString(option.label ?? option.value),
-        formattedLabel: formatLabelForSelect(option, langAsString),
+        formattedLabel: formatLabelForSelect(option, langAsString, hasDescription),
         value: option.value,
       })) || [],
-    [langAsString, options],
+    [langAsString, options, hasDescription],
   );
 
   return (

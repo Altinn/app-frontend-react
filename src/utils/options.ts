@@ -12,7 +12,6 @@ import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ILayout } from 'src/layout/layout';
 import type { IMapping, IOption, IOptions, IOptionsMetaData, IOptionSource, IRepeatingGroups } from 'src/types';
 import type { IDataSources } from 'src/types/shared';
-
 export function getOptionLookupKey({ id, mapping }: IOptionsMetaData) {
   if (!mapping) {
     return id;
@@ -217,12 +216,18 @@ export function duplicateOptionFilter(currentOption: IOption, currentIndex: numb
   return true;
 }
 
-export function formatLabelForSelect(option: IOption, langAsString: IUseLanguage['langAsString']): React.ReactNode {
+export function formatLabelForSelect(
+  option: IOption,
+  langAsString: IUseLanguage['langAsString'],
+  hasDescription: boolean | undefined,
+): React.ReactNode {
   if (option.description) {
     return getParsedLanguageFromText(
       `<b>${langAsString(option.label ?? option.value)}</b><br><span>${langAsString(option.description)}</span>`,
     );
   } else {
-    return getParsedLanguageFromText(`<span>${langAsString(option.label ?? option.value)}</span>`);
+    return getParsedLanguageFromText(
+      `<span style="${hasDescription ? 'font-weight: 600' : ''}">${langAsString(option.label ?? option.value)}</span>`,
+    );
   }
 }
