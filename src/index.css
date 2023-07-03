@@ -1,5 +1,5 @@
 @import 'src/styles/tjenester3.css';
-@import 'src/styles/font-faces.css';
+@import url('https://altinncdn.no/fonts/inter/inter.css');
 
 /* Font */
 :root {
