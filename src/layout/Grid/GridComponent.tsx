@@ -102,7 +102,6 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
                 className={className}
                 help={cell?.help}
                 columnStyleOptions={textCellSettings}
-                referenceComponent={closestComponent()}
               >
                 {lang(cell.text)}
               </CellWithText>
@@ -156,7 +155,6 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
 
 interface CellProps {
   className?: string;
-  textBindings?: string | undefined;
   columnStyleOptions?: ITableColumnProperties;
   referenceComponent?: LayoutNode;
   help?: string;
