@@ -3,12 +3,13 @@ import React from 'react';
 import { Select } from '@digdir/design-system-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { SelectOptionItem } from 'src/components/form/SelectOptionItem';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useHasChangedIgnoreUndefined } from 'src/hooks/useHasChangedIgnoreUndefined';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { duplicateOptionFilter, formatLabelForSelect, getOptionLookupKey } from 'src/utils/options';
+import { duplicateOptionFilter, getOptionLookupKey } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
@@ -61,7 +62,12 @@ export function DropdownComponent({ node, formData, handleDataChange, isValid, o
     () =>
       options?.map((option) => ({
         label: langAsString(option.label ?? option.value),
-        formattedLabel: formatLabelForSelect(option, langAsString, listHasDescription),
+        formattedLabel: (
+          <SelectOptionItem
+            option={option}
+            listHasDescription={listHasDescription}
+          />
+        ),
         value: option.value,
       })) || [],
     [langAsString, options, listHasDescription],

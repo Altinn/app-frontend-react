@@ -3,10 +3,11 @@ import React, { useMemo } from 'react';
 import { Select } from '@digdir/design-system-react';
 import type { MultiSelectOption } from '@digdir/design-system-react';
 
+import { SelectOptionItem } from 'src/components/form/SelectOptionItem';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useGetOptions } from 'src/hooks/useGetOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { duplicateOptionFilter, formatLabelForSelect } from 'src/utils/options';
+import { duplicateOptionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/layout/MultipleSelect/MultipleSelect.css';
@@ -34,7 +35,12 @@ export function MultipleSelectComponent({
 
         return {
           label,
-          formattedLabel: formatLabelForSelect(option, langAsString, listHasDescription),
+          formattedLabel: (
+            <SelectOptionItem
+              option={option}
+              listHasDescription={listHasDescription}
+            />
+          ),
           value: option.value,
           deleteButtonLabel: `${langAsString('general.delete')} ${label}`,
         };
