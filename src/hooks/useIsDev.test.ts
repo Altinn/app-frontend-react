@@ -1,3 +1,4 @@
+import { orgs } from 'src/__mocks__/orgs';
 import { useIsDev } from 'src/hooks/useIsDev';
 
 const location = window.location;
@@ -39,20 +40,21 @@ describe('useIsDev', () => {
     mockHostName('altinn3local.no');
     expect(window.location.host).toBe('altinn3local.no');
     expect(useIsDev()).toBe(false);
-    expect(useIsDev({ includeTT02: true })).toBe(false);
   });
 
-  it('should return true/false if host is ttd.apps.tt02.altinn.no depending on includeTT02', () => {
-    mockHostName('ttd.apps.tt02.altinn.no');
-    expect(window.location.host).toBe('ttd.apps.tt02.altinn.no');
-    expect(useIsDev({ includeTT02: true })).toBe(true);
-    expect(useIsDev({ includeTT02: false })).toBe(false);
+  orgs.forEach((org) => {
+    it(`should return true if host is ${org}.apps.tt02.altinn.no`, () => {
+      mockHostName(`${org}.apps.tt02.altinn.no`);
+      expect(window.location.host).toBe(`${org}.apps.tt02.altinn.no`);
+      expect(useIsDev()).toBe(true);
+    });
   });
 
-  it('should never return true if the host is ttd.apps.altinn.no', () => {
-    mockHostName('ttd.apps.altinn.no');
-    expect(window.location.host).toBe('ttd.apps.altinn.no');
-    expect(useIsDev({ includeTT02: true })).toBe(false);
-    expect(useIsDev({ includeTT02: false })).toBe(false);
+  orgs.forEach((org) => {
+    it(`should return false if host is ${org}.apps.altinn.no`, () => {
+      mockHostName(`${org}.apps.altinn.no`);
+      expect(window.location.host).toBe(`${org}.apps.altinn.no`);
+      expect(useIsDev()).toBe(false);
+    });
   });
 });

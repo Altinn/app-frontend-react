@@ -10,7 +10,7 @@ import { useIsDev } from 'src/hooks/useIsDev';
 import { useLanguage } from 'src/hooks/useLanguage';
 
 export function UnknownError() {
-  const isDev = useIsDev({ includeTT02: true });
+  const isDev = useIsDev();
   const { lang, langAsString } = useLanguage();
   const dispatch = useDispatch();
 
