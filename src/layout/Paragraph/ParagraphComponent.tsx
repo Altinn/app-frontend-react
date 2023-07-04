@@ -19,6 +19,7 @@ export function ParagraphComponent({ node }: IParagraphProps) {
       container={true}
       direction='row'
       alignItems='center'
+      spacing={1}
     >
       <Grid item={true}>
         <Typography

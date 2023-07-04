@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     display: 'block',
     textAlign: 'left',
-    padding: '6px 12px',
+    padding: '8px 14px',
     borderRadius: '40px',
     fontSize: '1rem',
 
