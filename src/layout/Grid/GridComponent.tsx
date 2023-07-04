@@ -82,13 +82,6 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
           mutableColumnSettings[cellIdx] = cell.columnOptions;
         }
 
-        const closestComponent = () => {
-          if (cell && 'labelFrom' in cell && cell?.labelFrom) {
-            const idToFind = cell.labelFrom;
-            return node.flat(true).find((n) => n.item.id === idToFind || n.item.baseComponentId === idToFind);
-          }
-        };
-
         if (cell && ('labelFrom' in cell || 'text' in cell)) {
           let textCellSettings: ITableColumnProperties = mutableColumnSettings[cellIdx]
             ? structuredClone(mutableColumnSettings[cellIdx])
@@ -107,13 +100,17 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
               </CellWithText>
             );
           }
+
           if ('labelFrom' in cell && cell.labelFrom) {
+            const closestComponent = node
+              .flat(true)
+              .find((n) => n.item.id === cell.labelFrom || n.item.baseComponentId === cell.labelFrom);
             return (
               <CellWithLabel
                 key={`${cell.labelFrom}/${cellIdx}`}
                 className={className}
                 columnStyleOptions={textCellSettings}
-                referenceComponent={closestComponent()}
+                referenceComponent={closestComponent}
               />
             );
           }
@@ -156,12 +153,18 @@ function InternalRow({ header, readOnly, children }: InternalRowProps) {
 interface CellProps {
   className?: string;
   columnStyleOptions?: ITableColumnProperties;
-  referenceComponent?: LayoutNode;
-  help?: string;
 }
 
 interface CellWithComponentProps extends CellProps {
   node?: LayoutNode;
+}
+
+interface CellWithTextProps extends PropsWithChildren, CellProps {
+  help?: string;
+}
+
+interface CellWithLabelProps extends CellProps {
+  referenceComponent?: LayoutNode;
 }
 
 function CellWithComponent({ node, className, columnStyleOptions }: CellWithComponentProps) {
@@ -186,8 +189,6 @@ function CellWithComponent({ node, className, columnStyleOptions }: CellWithComp
 
   return <TableCell className={className} />;
 }
-
-type CellWithTextProps = CellProps & PropsWithChildren;
 
 function CellWithText({ children, className, columnStyleOptions, help }: CellWithTextProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
@@ -215,7 +216,7 @@ function CellWithText({ children, className, columnStyleOptions, help }: CellWit
   );
 }
 
-function CellWithLabel({ className, columnStyleOptions, referenceComponent }: CellWithTextProps) {
+function CellWithLabel({ className, columnStyleOptions, referenceComponent }: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { title, help, description } = referenceComponent?.item.textResourceBindings || {};
   const { required } = referenceComponent?.item || {};
