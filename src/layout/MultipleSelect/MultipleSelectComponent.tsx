@@ -25,7 +25,7 @@ export function MultipleSelectComponent({
   const { value, setValue, saveValue } = useDelayedSavedState(handleDataChange, formData?.simpleBinding);
   const { langAsString } = useLanguage();
 
-  const hasDescription = (apiOptions || options)?.some((option) => option.label);
+  const listHasDescription = (apiOptions || options)?.some((option) => option.description) || false;
 
   const calculatedOptions: MultiSelectOption[] = useMemo(
     () =>
@@ -34,12 +34,12 @@ export function MultipleSelectComponent({
 
         return {
           label,
-          formattedLabel: formatLabelForSelect(option, langAsString, hasDescription),
+          formattedLabel: formatLabelForSelect(option, langAsString, listHasDescription),
           value: option.value,
           deleteButtonLabel: `${langAsString('general.delete')} ${label}`,
         };
       }) || [],
-    [apiOptions, langAsString, options, hasDescription],
+    [apiOptions, langAsString, options, listHasDescription],
   );
 
   const handleChange = (values: string[]) => {

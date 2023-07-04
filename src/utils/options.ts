@@ -219,7 +219,7 @@ export function duplicateOptionFilter(currentOption: IOption, currentIndex: numb
 export function formatLabelForSelect(
   option: IOption,
   langAsString: IUseLanguage['langAsString'],
-  hasDescription: boolean | undefined,
+  listHasDescription: boolean,
 ): React.ReactNode {
   if (option.description) {
     return getParsedLanguageFromText(
@@ -227,7 +227,7 @@ export function formatLabelForSelect(
     );
   } else {
     return getParsedLanguageFromText(
-      `<span style="${hasDescription ? 'font-weight: 600' : ''}">${langAsString(option.label ?? option.value)}</span>`,
+      `<span style="${listHasDescription && 'font-weight:600'}">${langAsString(option.label ?? option.value)}</span>`,
     );
   }
 }
