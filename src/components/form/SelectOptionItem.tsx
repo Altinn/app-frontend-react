@@ -13,7 +13,7 @@ export function SelectOptionItem({ option, listHasDescription }: ISelectOptionIt
   if (option.description) {
     return (
       <>
-        <b>{langAsString(option.label ?? option.value)}</b>
+        <span className={classes.optionLabelSemiBold}>{langAsString(option.label ?? option.value)}</span>
         <br />
         <span>{langAsString(option.description)}</span>
       </>
