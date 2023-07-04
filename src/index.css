@@ -10,34 +10,22 @@
   text-align: left;
   color: var(--semantic-text-neutral-default);
 }
-/* Override design system default font */
-* {
-  --font_family-default: 'Inter', sans-serif;
-  --font_family-heading: 'Inter', sans-serif;
-  --font_family-ingress: 'Inter', sans-serif;
-  --font_family-body: 'Inter', sans-serif;
-  --font_family-label: 'Inter', sans-serif;
-  --typography-default-font-family: 'Inter', sans-serif;
-
-  --component-panel-font_size-header-breakpoint_sm: 1.25rem;
-  --component-panel-font_size-header-breakpoint_md: 1.5rem;
-  --component-panel-font_size-header-breakpoint_lg: 1.75rem;
-  --component-panel-font_size-body-breakpoint_md: 1rem;
-}
 @supports (font-variation-settings: normal) {
   :root {
     font-family: 'Inter var', sans-serif;
   }
-  /* Override design system default font */
   * {
     font-feature-settings: 'cv05';
-    --font_family-default: 'Inter var', sans-serif;
-    --font_family-heading: 'Inter var', sans-serif;
-    --font_family-ingress: 'Inter var', sans-serif;
-    --font_family-body: 'Inter var', sans-serif;
-    --font_family-label: 'Inter var', sans-serif;
-    --typography-default-font-family: 'Inter var', sans-serif;
   }
+}
+
+/* Override design system variables */
+* {
+  --component-panel-font_size-header-breakpoint_sm: 1.4rem;
+  --component-panel-font_size-header-breakpoint_md: 1.6rem;
+  --component-panel-font_size-header-breakpoint_lg: 1.75rem;
+  --component-panel-font_size-body-breakpoint_md: 1rem;
+  --component-panel-font_weight-heading: 500;
 }
 
 /* Global variables */
