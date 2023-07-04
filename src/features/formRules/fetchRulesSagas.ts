@@ -35,7 +35,7 @@ export function* fetchRuleModelSaga(): SagaIterator {
   } catch (error) {
     if (error.message?.includes('404')) {
       yield put(FormRulesActions.fetchRejected({ error: null }));
-      window.logWarn('RuleHandler not found:\n', error);
+      window.logInfo('RuleHandler not found:\n', error);
     } else {
       yield put(FormRulesActions.fetchRejected({ error }));
       yield put(QueueActions.dataTaskQueueError({ error }));

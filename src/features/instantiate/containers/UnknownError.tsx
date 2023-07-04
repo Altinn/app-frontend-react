@@ -6,12 +6,11 @@ import { Button } from '@digdir/design-system-react';
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { InstantiationErrorPage } from 'src/features/instantiate/containers/InstantiationErrorPage';
+import { useIsDev } from 'src/hooks/useIsDev';
 import { useLanguage } from 'src/hooks/useLanguage';
 
-const devHostNames = ['local.altinn.cloud', 'dev.altinn.studio', 'altinn.studio', 'studio.localhost', 'tt02.altinn.no'];
-const isDev = devHostNames.some((host) => window.location.hostname.endsWith(host));
-
 export function UnknownError() {
+  const isDev = useIsDev({ includeTT02: true });
   const { lang, langAsString } = useLanguage();
   const dispatch = useDispatch();
 
