@@ -6,7 +6,7 @@
   min-width: 200px;
 }
 
-@media only screen and (min-width: 768px) {
+@media only screen and (min-width: 400px) {
   .responsiveDropdown {
     display: none;
   }
@@ -17,6 +17,10 @@
 
 .hidden {
   display: none;
+}
+
+.chipGroup {
+  flex-wrap: wrap;
 }
 
 .visiblePage {
