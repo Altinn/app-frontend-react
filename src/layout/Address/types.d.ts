@@ -1,6 +1,6 @@
 import type { ILayoutCompBase, ILayoutCompWillBeSavedWhileTyping } from 'src/layout/layout';
 
-type ValidTexts = 'world'; // TODO: Figure out if this is correct
+type ValidTexts = undefined;
 export interface ILayoutCompAddress
   extends ILayoutCompBase<'AddressComponent', IDataModelBindingsForAddress, ValidTexts>,
     ILayoutCompWillBeSavedWhileTyping {
