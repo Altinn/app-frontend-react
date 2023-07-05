@@ -36,20 +36,24 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
 {
   public readonly itemWithExpressions: Item;
   public readonly def: ComponentClassMap[Type];
+
+  public readonly item: Item;
   public readonly textResourceBindings: ITextResourceBindings<Type>;
   public readonly dataModelBindings: IDataModelBindings<Type>;
 
   public constructor(
-    public item: Item,
+    item: Item,
     public parent: ParentNode,
     public top: LayoutPage,
     private readonly dataSources: HierarchyDataSources,
     public readonly rowIndex?: number,
   ) {
-    this.itemWithExpressions = structuredClone(this.item);
     this.def = getLayoutComponentObject(item.type as any);
-    this.textResourceBindings = (item as any).textResourceBindings;
-    this.dataModelBindings = (item as any).dataModelBindings;
+    const { dataModelBindings, textResourceBindings, ...restItem } = item as any;
+    this.item = restItem as Item;
+    this.dataModelBindings = dataModelBindings;
+    this.textResourceBindings = textResourceBindings;
+    this.itemWithExpressions = structuredClone(item);
   }
 
   public isType<T extends ComponentTypes>(type: T): this is LayoutNodeFromType<T> {
