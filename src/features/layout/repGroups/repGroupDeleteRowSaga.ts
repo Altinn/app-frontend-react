@@ -183,5 +183,6 @@ export function* repGroupDeleteRowSaga({
     }
   } catch (error) {
     yield put(FormLayoutActions.repGroupDeleteRowRejected({ error }));
+    window.logError(`Deleting row from repeating group (${groupId}) failed:\n`, error);
   }
 }

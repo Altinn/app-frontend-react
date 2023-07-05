@@ -37,7 +37,7 @@ export function* updateFormDataSaga({
       );
     }
   } catch (error) {
-    console.error(error);
+    window.logError('Update form data failed:\n', error);
     yield put(FormDataActions.updateRejected({ error }));
   }
 }
@@ -108,6 +108,6 @@ export function* deleteAttachmentReferenceSaga({
     yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
     yield put(FormDataActions.saveEvery({ componentId }));
   } catch (err) {
-    console.error(err);
+    window.logError('Delete attachment reference failed:\n', err);
   }
 }

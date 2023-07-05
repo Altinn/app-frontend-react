@@ -70,6 +70,7 @@ export function* runSingleFieldValidationSaga({
       yield put(ValidationActions.addValidations({ validationObjects }));
     } catch (error) {
       yield put(ValidationActions.runSingleFieldValidationRejected({ error }));
+      window.logError('Single field validation failed:\n', error);
     }
   }
 }

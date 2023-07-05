@@ -178,6 +178,7 @@ export function* updateCurrentViewSaga({
     }
   } catch (error) {
     yield put(FormLayoutActions.updateCurrentViewRejected({ error }));
+    window.logError('Update view failed:\n', error);
   }
 }
 
