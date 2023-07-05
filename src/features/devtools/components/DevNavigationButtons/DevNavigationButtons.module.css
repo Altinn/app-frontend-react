@@ -23,9 +23,6 @@
   flex-wrap: wrap;
 }
 
-.visiblePage {
-}
-
-.hiddenPage {
+.hiddenPage span {
   font-style: italic;
 }

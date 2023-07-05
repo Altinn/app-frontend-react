@@ -37,7 +37,7 @@ export const DevNavigationButtons = () => {
           {order.map((page) => (
             <Chip
               key={page}
-              className={isHidden(page) ? classes.hiddenPage : classes.visiblePage}
+              className={isHidden(page) ? classes.hiddenPage : undefined}
               title={isHidden(page) ? 'Denne siden er skjult for brukeren' : ''}
               onClick={() => handleChange(page)}
               selected={currentView == page}
