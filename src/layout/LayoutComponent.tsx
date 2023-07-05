@@ -9,7 +9,7 @@ import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentTypeConfigs } from 'src/layout/components';
 import type { EmptyFieldValidation, PropsFromGenericComponent, SchemaValidation } from 'src/layout/index';
-import type { ComponentTypes } from 'src/layout/layout';
+import type { ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -174,12 +174,12 @@ export abstract class FormComponent<Type extends ComponentTypes>
     const formDataToValidate = { ...formData, ...overrideFormData };
     const validationObjects: IValidationObject[] = [];
 
-    const bindings = Object.entries(node.item.dataModelBindings ?? {});
+    const bindings = Object.entries(node.dataModelBindings ?? {});
     for (const [bindingKey, field] of bindings) {
       const data = formDataToValidate[field];
 
       if (!data?.length) {
-        const fieldName = getFieldName(node.item.textResourceBindings, langTools, bindingKey);
+        const fieldName = getFieldName(node.textResourceBindings as ITextResourceBindings, langTools, bindingKey);
 
         validationObjects.push(
           buildValidationObject(
@@ -197,8 +197,8 @@ export abstract class FormComponent<Type extends ComponentTypes>
   runSchemaValidation(node: LayoutNodeFromType<Type>, schemaErrors: ISchemaValidationError[]): IValidationObject[] {
     const validationObjects: IValidationObject[] = [];
     for (const error of schemaErrors) {
-      if (node.item.dataModelBindings) {
-        const bindings = Object.entries(node.item.dataModelBindings);
+      if (node.dataModelBindings) {
+        const bindings = Object.entries(node.dataModelBindings);
         for (const [bindingKey, bindingField] of bindings) {
           if (bindingField === error.bindingField) {
             validationObjects.push(

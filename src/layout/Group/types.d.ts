@@ -2,7 +2,12 @@ import type { DeepPartial } from 'utility-types';
 
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { GridComponent, GridRow } from 'src/layout/Grid/types';
-import type { ILayoutCompBase, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
+import type {
+  ILayoutCompBase,
+  ITableColumnFormatting,
+  ITableColumnProperties,
+  TextBindingsForSummarizableComponents,
+} from 'src/layout/layout';
 import type { ILayoutCompPanelBase } from 'src/layout/Panel/types';
 import type { HComponent, HierarchyExtensions } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -26,7 +31,21 @@ export interface IGroupEditProperties {
   alwaysShowAddButton?: boolean;
 }
 
-export interface ILayoutGroup extends ILayoutCompBase<'Group'> {
+type ValidTexts =
+  | 'add_button_full'
+  | 'add_button'
+  | 'add_label' // Used when rendered as Panel
+  | 'save_button'
+  | 'save_and_next_button'
+  | 'edit_button_close'
+  | 'edit_button_open'
+  | 'title'
+  | 'leftColumnHeader' // Used when in Likert mode
+  | 'description' // Used when in Likert mode
+  | 'body' // Used when rendered as Panel
+  | TextBindingsForSummarizableComponents;
+
+export interface ILayoutGroup extends ILayoutCompBase<'Group', IDataModelBindingsForGroup, ValidTexts> {
   children: string[];
   maxCount?: number;
   minCount?: number;
@@ -46,7 +65,7 @@ export interface IGroupColumnFormatting extends ITableColumnProperties {
 }
 
 export interface IDataModelBindingsForGroup {
-  group: string;
+  group?: string;
 }
 
 export interface IGroupPanel extends ILayoutCompPanelBase {

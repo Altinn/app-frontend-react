@@ -1,3 +1,11 @@
-import type { ILayoutCompBase, ISelectionComponent } from 'src/layout/layout';
+import type {
+  IDataModelBindingsSimple,
+  ILayoutCompBase,
+  ISelectionComponent,
+  TextBindingsForFormComponents,
+  TextBindingsForLabel,
+} from 'src/layout/layout';
 
-export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown'> & ISelectionComponent;
+type ValidTexts = TextBindingsForLabel | TextBindingsForFormComponents;
+export type ILayoutCompDropdown = ILayoutCompBase<'Dropdown', IDataModelBindingsSimple, ValidTexts> &
+  ISelectionComponent;

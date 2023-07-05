@@ -32,15 +32,14 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
     validFileEndings,
     displayMode,
     hasCustomFileEndings,
-    textResourceBindings,
-    dataModelBindings,
   } = node.item;
+  const { dataModelBindings, textResourceBindings } = node;
   const dispatch = useAppDispatch();
   const [validations, setValidations] = React.useState<string[]>([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments = useAppSelector((state) => state.attachments.attachments[id] || emptyArray);
-  const alertOnDelete = node.item?.alertOnDelete;
+  const alertOnDelete = node.item.alertOnDelete;
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;
   const getComponentValidations = (): IComponentValidations => {

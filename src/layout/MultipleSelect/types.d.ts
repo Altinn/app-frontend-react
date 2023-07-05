@@ -1,3 +1,11 @@
-import type { ILayoutCompBase, ISelectionComponent } from 'src/layout/layout';
+import type {
+  IDataModelBindingsSimple,
+  ILayoutCompBase,
+  ISelectionComponent,
+  TextBindingsForFormComponents,
+  TextBindingsForLabel,
+} from 'src/layout/layout';
 
-export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect'> & ISelectionComponent;
+type ValidTexts = TextBindingsForLabel | TextBindingsForFormComponents;
+export type ILayoutCompMultipleSelect = ILayoutCompBase<'MultipleSelect', IDataModelBindingsSimple, ValidTexts> &
+  ISelectionComponent;

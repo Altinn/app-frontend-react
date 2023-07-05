@@ -1,6 +1,7 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
-export type ILayoutCompIFrame = ILayoutCompBase<'IFrame'> & {
+type ValidTexts = 'title';
+export type ILayoutCompIFrame = ILayoutCompBase<'IFrame', undefined, ValidTexts> & {
   sandbox?: ISandboxProperties;
 };
 

@@ -254,7 +254,7 @@ export class HierarchyGenerator {
       throw new Error(`Could not find definition for component type '${item.type}'`);
     }
 
-    const node = def.makeNode(item as AnyItem<any>, parent || this.top, this.top, this.dataSources, rowIndex);
+    const node = def.makeNode(item as any, parent || this.top, this.top, this.dataSources, rowIndex);
     this.top._addChild(node);
 
     return node as LayoutNodeFromType<T>;
@@ -396,7 +396,7 @@ export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
    * @see replaceTextResourceParams
    */
   rewriteTextBindings(node: LayoutNodeFromType<Type>, textResources: ITextResource[]) {
-    if (!node.item.textResourceBindings || node.rowIndex === undefined) {
+    if (!node.textResourceBindings || node.rowIndex === undefined) {
       return;
     }
 
@@ -405,17 +405,17 @@ export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
       return;
     }
 
-    const rewrittenItems = { ...node.item.textResourceBindings };
-    if (textResources && node.item.textResourceBindings) {
-      for (const key of Object.keys(node.item.textResourceBindings)) {
-        const textKey = node.item.textResourceBindings[key];
+    const rewrittenItems = { ...node.textResourceBindings };
+    if (textResources && node.textResourceBindings) {
+      for (const key of Object.keys(node.textResourceBindings)) {
+        const textKey = node.textResourceBindings[key];
         if (this.textResourceHasRepeatingGroupVariable(textKey, textResources)) {
           rewrittenItems[key] = `${textKey}-${node.rowIndex}`;
         }
       }
     }
 
-    node.item.textResourceBindings = { ...rewrittenItems };
+    (node as any).textResourceBindings = { ...rewrittenItems };
   }
 }
 

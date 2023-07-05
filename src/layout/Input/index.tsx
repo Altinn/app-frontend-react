@@ -22,11 +22,11 @@ export class Input extends FormComponent<'Input'> {
 
   useDisplayData(node: LayoutNodeFromType<'Input'>): string {
     const formData = useAppSelector((state) => state.formData.formData);
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    if (!node.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    const text = formData[node.item.dataModelBindings.simpleBinding] || '';
+    const text = formData[node.dataModelBindings.simpleBinding] || '';
 
     const numberFormatting = useMapToReactNumberConfig(node.item.formatting as IInputFormatting, text);
 

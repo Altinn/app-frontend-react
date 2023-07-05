@@ -1,7 +1,8 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 import type { IActionType } from 'src/types/shared';
 
-export interface ILayoutCompActionButton extends ILayoutCompBase<'ActionButton'> {
+type ValidTexts = 'title';
+export interface ILayoutCompActionButton extends ILayoutCompBase<'ActionButton', undefined, ValidTexts> {
   action: IActionType;
   buttonStyle: ActionButtonStyle;
 }

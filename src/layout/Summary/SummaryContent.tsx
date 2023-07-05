@@ -33,7 +33,7 @@ export function SummaryContent({
   const displaySummaryBoilerPlate =
     'renderSummaryBoilerplate' in targetNode.def && targetNode.def.renderSummaryBoilerplate();
 
-  const textBindings = targetNode.item?.textResourceBindings;
+  const textBindings = targetNode.textResourceBindings;
   const title = lang(textBindings?.summaryTitle ?? textBindings?.title);
   const ariaLabel = langAsString(
     textBindings?.summaryAccessibleTitle ?? textBindings?.summaryTitle ?? textBindings?.title,

@@ -48,7 +48,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
         className={classes.container}
         style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
       >
-        <GenericButton {...props}>{lang(node.item.textResourceBindings?.title)}</GenericButton>
+        <GenericButton {...props}>{lang(node.textResourceBindings?.title)}</GenericButton>
       </div>
     );
   }
@@ -82,7 +82,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
         busyWithId={busyWithId}
         disabled={disabled}
       >
-        {lang(node.item.textResourceBindings?.title)}
+        {lang(node.textResourceBindings?.title)}
       </SubmitButton>
     </div>
   );

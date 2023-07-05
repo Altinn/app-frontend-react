@@ -1,6 +1,7 @@
-import type { ILayoutCompBase } from 'src/layout/layout';
+import type { IDataModelBindingsSimple, ILayoutCompBase, TextBindingsForLabel } from 'src/layout/layout';
 
-export interface ILayoutCompDatepicker extends ILayoutCompBase<'Datepicker'> {
+type ValidTexts = TextBindingsForLabel;
+export interface ILayoutCompDatepicker extends ILayoutCompBase<'Datepicker', IDataModelBindingsSimple, ValidTexts> {
   minDate?: string | 'today';
   maxDate?: string | 'today';
   timeStamp?: boolean;

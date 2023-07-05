@@ -1,5 +1,6 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
-export interface ILayoutCompNavBar extends ILayoutCompBase<'NavigationBar'> {
+type ValidTexts = undefined;
+export interface ILayoutCompNavBar extends ILayoutCompBase<'NavigationBar', undefined, ValidTexts> {
   compact?: boolean;
 }

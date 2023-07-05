@@ -1,6 +1,7 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
-export interface ILayoutCompInstanceInformation extends ILayoutCompBase<'InstanceInformation'> {
+type ValidTexts = undefined;
+export interface ILayoutCompInstanceInformation extends ILayoutCompBase<'InstanceInformation', undefined, ValidTexts> {
   elements?: {
     dateSent?: boolean;
     sender?: boolean;

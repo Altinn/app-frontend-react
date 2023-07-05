@@ -688,7 +688,7 @@ describe('Hierarchical layout tools', () => {
       };
       state.formLayout.uiConfig.currentView = 'page1';
       const resolved = resolvedLayoutsFromState(state);
-      const dataBindingFor = (id: string) => resolved?.findById(id)?.item.dataModelBindings?.simpleBinding;
+      const dataBindingFor = (id: string) => resolved?.findById(id)?.dataModelBindings?.simpleBinding;
 
       expect(dataBindingFor('child-2')).toEqual('MyModel.MainGroup[2].Child');
       expect(resolved?.findById('child-3')).toBeUndefined();

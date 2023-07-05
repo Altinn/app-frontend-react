@@ -9,10 +9,10 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { HGroups } from 'src/layout/Group/types';
+import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 export interface IDisplayGroupContainer {
-  groupNode: LayoutNode<HGroups, 'Group'>;
+  groupNode: LayoutNodeFromType<'Group'>;
   id?: string;
   onlyRowIndex?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
@@ -31,8 +31,9 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
 export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
   const { lang, langAsString } = useLanguage();
   const container = groupNode.item;
-  const title = langAsString(container.textResourceBindings?.title);
-  const body = lang(container.textResourceBindings?.body);
+  const { textResourceBindings } = groupNode;
+  const title = langAsString(textResourceBindings?.title);
+  const body = lang(textResourceBindings?.body);
 
   if (groupNode.isHidden()) {
     return null;

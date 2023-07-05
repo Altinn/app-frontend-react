@@ -16,6 +16,7 @@ export interface IImage {
   align: GridJustification;
 }
 
-export interface ILayoutCompImage extends ILayoutCompBase<'Image'> {
+type ValidTexts = 'altTextImg' | 'help';
+export interface ILayoutCompImage extends ILayoutCompBase<'Image', undefined, ValidTexts> {
   image?: IImage;
 }

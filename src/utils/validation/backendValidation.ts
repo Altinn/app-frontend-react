@@ -108,8 +108,8 @@ export function mapValidationIssues(
         continue;
       }
 
-      if (node.item.dataModelBindings) {
-        const bindings = Object.entries(node.item.dataModelBindings);
+      if (node.dataModelBindings) {
+        const bindings = Object.entries(node.dataModelBindings);
         for (const [bindingKey, bindingField] of bindings) {
           if (bindingField === field) {
             validationOutputs.push(buildValidationObject(node, severityMap[severity], message, bindingKey));

@@ -1,8 +1,9 @@
 import type { Location, MapLayer } from '@altinn/altinn-design-system';
 
-import type { ILayoutCompBase } from 'src/layout/layout';
+import type { IDataModelBindingsSimple, ILayoutCompBase, TextBindingsForLabel } from 'src/layout/layout';
 
-export interface ILayoutCompMap extends ILayoutCompBase<'Map'> {
+type ValidTexts = TextBindingsForLabel;
+export interface ILayoutCompMap extends ILayoutCompBase<'Map', IDataModelBindingsSimple, ValidTexts> {
   layers?: MapLayer[];
   centerLocation?: Location;
   zoom?: number;

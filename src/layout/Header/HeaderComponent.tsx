@@ -43,7 +43,8 @@ function getHeaderProps(size?: string): HeadingProps {
 }
 
 export const HeaderComponent = ({ node }: IHeaderProps) => {
-  const { id, size, textResourceBindings } = node.item;
+  const { id, size } = node.item;
+  const { textResourceBindings } = node;
   const { lang } = useLanguage();
   return (
     <Grid

@@ -4,7 +4,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { ComponentClassMap } from 'src/layout';
 import type { HNonRepGroup, HRepGroup } from 'src/layout/Group/types';
-import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
+import type { ComponentTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
 import type { ComponentType } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type {
@@ -36,6 +36,8 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
 {
   public readonly itemWithExpressions: Item;
   public readonly def: ComponentClassMap[Type];
+  public readonly textResourceBindings: ITextResourceBindings<Type>;
+  public readonly dataModelBindings: IDataModelBindings<Type>;
 
   public constructor(
     public item: Item,
@@ -46,6 +48,8 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   ) {
     this.itemWithExpressions = structuredClone(this.item);
     this.def = getLayoutComponentObject(item.type as any);
+    this.textResourceBindings = (item as any).textResourceBindings;
+    this.dataModelBindings = (item as any).dataModelBindings;
   }
 
   public isType<T extends ComponentTypes>(type: T): this is LayoutNodeFromType<T> {
@@ -57,11 +61,11 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   }
 
   public isRepGroup(): this is LayoutNode<HRepGroup, 'Group'> {
-    return this.item.type === 'Group' && typeof this.item.maxCount === 'number' && this.item.maxCount > 1;
+    return this.isType('Group') && typeof this.item.maxCount === 'number' && this.item.maxCount > 1;
   }
 
   public isNonRepGroup(): this is LayoutNode<HNonRepGroup, 'Group'> {
-    return this.item.type === 'Group' && (!this.item.maxCount || this.item.maxCount <= 1);
+    return this.isType('Group') && (!this.item.maxCount || this.item.maxCount <= 1);
   }
 
   public pageKey(): string {
@@ -208,9 +212,9 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   }
 
   private firstDataModelBinding() {
-    const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
-    if (firstBinding && this.item.dataModelBindings) {
-      return this.item.dataModelBindings[firstBinding];
+    const firstBinding = Object.keys(this.dataModelBindings || {}).shift();
+    if (firstBinding && this.dataModelBindings) {
+      return this.dataModelBindings[firstBinding];
     }
 
     return undefined;
@@ -361,13 +365,13 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
    * Gets the current form data for this component
    */
   public getFormData(): IComponentFormData {
-    if (!this.item.dataModelBindings) {
+    if (!this.dataModelBindings) {
       return {};
     }
 
     const formDataObj: IComponentFormData = {};
-    for (const key of Object.keys(this.item.dataModelBindings)) {
-      const binding = this.item.dataModelBindings[key];
+    for (const key of Object.keys(this.dataModelBindings)) {
+      const binding = this.dataModelBindings[key];
       if (this.dataSources.formData[binding]) {
         formDataObj[key] = this.dataSources.formData[binding];
       } else {

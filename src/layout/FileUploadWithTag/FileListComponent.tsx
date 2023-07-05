@@ -50,7 +50,7 @@ export function FileList({
   if (!attachments || attachments.length === 0) {
     return null;
   }
-  const { textResourceBindings } = node.item;
+  const { textResourceBindings } = node;
 
   return (
     <Grid

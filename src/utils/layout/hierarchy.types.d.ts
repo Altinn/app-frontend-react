@@ -28,8 +28,14 @@ export type HComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = 
 /**
  * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
  * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
+ *
+ * Do not use this to get textResourceBindings or dataModelBindings, use the LayoutNode class for that.
  */
-export type AnyItem<T extends ComponentTypes = ComponentTypes> = ComponentTypeConfigs[T]['nodeItem'] &
+type NodeItem<T extends ComponentTypes> = ComponentTypeConfigs[T]['nodeItem'];
+export type AnyItem<T extends ComponentTypes = ComponentTypes> = Omit<
+  NodeItem<T>,
+  'textResourceBindings' | 'dataModelBindings'
+> &
   HierarchyExtensions;
 
 /**

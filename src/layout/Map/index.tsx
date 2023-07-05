@@ -18,11 +18,11 @@ export class Map extends FormComponent<'Map'> {
 
   useDisplayData(node: LayoutNodeFromType<'Map'>): string {
     const formData = useAppSelector((state) => state.formData.formData);
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    if (!node.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    return formData[node.item.dataModelBindings.simpleBinding] || '';
+    return formData[node.dataModelBindings.simpleBinding] || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Map'>): JSX.Element | null {

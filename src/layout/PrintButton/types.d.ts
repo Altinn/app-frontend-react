@@ -1,3 +1,4 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
-export type ILayoutCompPrintButton = ILayoutCompBase<'PrintButton'>;
+type ValidTexts = 'title';
+export type ILayoutCompPrintButton = ILayoutCompBase<'PrintButton', undefined, ValidTexts>;

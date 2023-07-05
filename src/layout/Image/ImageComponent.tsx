@@ -17,7 +17,8 @@ const useStyles = makeStyles({
 
 export function ImageComponent({ node }: IImageProps) {
   const { lang, langAsString } = useLanguage();
-  const { id, image, textResourceBindings } = node.item;
+  const { id, image } = node.item;
+  const { textResourceBindings } = node;
   const classes = useStyles();
   const languageKey = useAppSelector((state) => state.profile.profile?.profileSettingPreference.language || 'nb');
   const width = image?.width || '100%';

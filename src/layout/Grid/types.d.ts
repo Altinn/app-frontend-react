@@ -1,5 +1,5 @@
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { ILayoutCompBase } from 'src/layout/layout';
+import type { ILayoutCompBase, ITableColumnProperties, TextBindingsForLabel } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 export interface GridComponentRef {
@@ -31,7 +31,9 @@ export interface GridRow<C extends GridComponentType = GridComponentRef> {
   cells: GridCell<C>[];
 }
 
-export interface ILayoutCompGrid<C extends GridComponentType = GridComponentRef> extends ILayoutCompBase<'Grid'> {
+type ValidTexts = TextBindingsForLabel;
+export interface ILayoutCompGrid<C extends GridComponentType = GridComponentRef>
+  extends ILayoutCompBase<'Grid', undefined, ValidTexts> {
   rows: GridRow<C>[];
 }
 

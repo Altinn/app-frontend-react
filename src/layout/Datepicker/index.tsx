@@ -28,12 +28,12 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
   useDisplayData(node: LayoutNodeFromType<'Datepicker'>): string {
     const formData = useAppSelector((state) => state.formData.formData);
     const { selectedLanguage } = useLanguage();
-    if (!node.item.dataModelBindings?.simpleBinding) {
+    if (!node.dataModelBindings?.simpleBinding) {
       return '';
     }
 
     const dateFormat = getDateFormat(node.item.format, selectedLanguage);
-    const data = formData[node.item.dataModelBindings?.simpleBinding] || '';
+    const data = formData[node.dataModelBindings?.simpleBinding] || '';
     return formatISOString(data, dateFormat) ?? data;
   }
 
@@ -53,8 +53,8 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
     overrideFormData?: IFormData,
   ): IValidationObject[] {
     const formDataToValidate = { ...formData, ...overrideFormData };
-    const data = node.item.dataModelBindings?.simpleBinding
-      ? formDataToValidate[node.item.dataModelBindings.simpleBinding]
+    const data = node.dataModelBindings?.simpleBinding
+      ? formDataToValidate[node.dataModelBindings.simpleBinding]
       : undefined;
 
     if (!data) {
@@ -88,7 +88,7 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
     node: LayoutNodeFromType<'Datepicker'>,
     schemaErrors: ISchemaValidationError[],
   ): IValidationObject[] {
-    const bindingField = node.item.dataModelBindings?.simpleBinding;
+    const bindingField = node.dataModelBindings?.simpleBinding;
     if (!bindingField) {
       return [];
     }

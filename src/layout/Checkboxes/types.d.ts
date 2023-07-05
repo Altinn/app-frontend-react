@@ -1,3 +1,14 @@
-import type { IComponentCheckbox } from 'src/layout/layout';
+import type {
+  IDataModelBindingsSimple,
+  ILayoutCompBase,
+  ISelectionComponent,
+  TextBindingsForFormComponents,
+  TextBindingsForLabel,
+} from 'src/layout/layout';
+import type { LayoutStyle } from 'src/types';
 
-export type ILayoutCompCheckboxes = IComponentCheckbox<'Checkboxes'>;
+type ValidTexts = TextBindingsForLabel | TextBindingsForFormComponents;
+export type ILayoutCompCheckboxes = ILayoutCompBase<'Checkboxes', IDataModelBindingsSimple, ValidTexts> &
+  ISelectionComponent & {
+    layout?: LayoutStyle;
+  };

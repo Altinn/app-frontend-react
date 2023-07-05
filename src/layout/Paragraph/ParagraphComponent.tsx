@@ -10,7 +10,8 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
 
 export function ParagraphComponent({ node }: IParagraphProps) {
-  const { id, textResourceBindings } = node.item;
+  const { id } = node.item;
+  const { textResourceBindings } = node;
   const { lang } = useLanguage();
   const text = lang(textResourceBindings?.title);
 

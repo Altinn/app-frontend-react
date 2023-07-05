@@ -9,7 +9,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export const PrintButtonComponent = ({ node }: PropsFromGenericComponent<'PrintButton'>) => {
   const { lang } = useLanguage();
-  const { textResourceBindings } = node.item;
+  const { textResourceBindings } = node;
   const parentIsPage = node.parent instanceof LayoutPage;
 
   return (

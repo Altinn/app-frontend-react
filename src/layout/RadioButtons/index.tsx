@@ -23,9 +23,7 @@ export class RadioButtons extends FormComponent<'RadioButtons'> {
 
   useDisplayData(node: LayoutNodeFromType<'RadioButtons'>): string {
     const formData = useAppSelector((state) => state.formData.formData);
-    const value = node.item.dataModelBindings?.simpleBinding
-      ? formData[node.item.dataModelBindings.simpleBinding] || ''
-      : '';
+    const value = node.dataModelBindings?.simpleBinding ? formData[node.dataModelBindings.simpleBinding] || '' : '';
     return useSelectedValueToText(node.item, value) || '';
   }
 

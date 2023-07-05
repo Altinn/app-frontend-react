@@ -1,6 +1,7 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
-export interface ILayoutCompAttachmentList extends ILayoutCompBase<'AttachmentList'> {
+type ValidTexts = 'title';
+export interface ILayoutCompAttachmentList extends ILayoutCompBase<'AttachmentList', undefined, ValidTexts> {
   dataTypeIds?: string[];
   includePDF?: boolean;
 }

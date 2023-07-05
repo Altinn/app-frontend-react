@@ -1,3 +1,14 @@
-import type { IComponentRadioOrLikert } from 'src/layout/layout';
+import type {
+  IDataModelBindingsSimple,
+  ILayoutCompBase,
+  ISelectionComponent,
+  TextBindingsForLabel,
+} from 'src/layout/layout';
+import type { LayoutStyle } from 'src/types';
 
-export type ILayoutCompLikert = IComponentRadioOrLikert<'Likert'>;
+type ValidTexts = TextBindingsForLabel; // TODO: Test what happens with description/helpText
+export type ILayoutCompLikert = ILayoutCompBase<'Likert', IDataModelBindingsSimple, ValidTexts> &
+  ISelectionComponent & {
+    layout?: LayoutStyle;
+    showAsCard?: boolean;
+  };

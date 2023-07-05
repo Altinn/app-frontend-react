@@ -25,7 +25,8 @@ export function ActionButtonComponent({ node }: IActionButton) {
   const actionPermissions = useAppSelector((state) => state.process.actions);
   const { lang } = useLanguage();
 
-  const { action, buttonStyle, id, textResourceBindings } = node.item;
+  const { action, buttonStyle, id } = node.item;
+  const { textResourceBindings } = node;
   const disabled = !actionPermissions?.[action];
 
   function handleClick() {

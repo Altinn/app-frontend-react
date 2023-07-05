@@ -218,7 +218,7 @@ function CellWithText({ children, className, columnStyleOptions, help }: CellWit
 
 function CellWithLabel({ className, columnStyleOptions, referenceComponent }: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const { title, help, description } = referenceComponent?.item.textResourceBindings || {};
+  const { title, help, description } = referenceComponent?.textResourceBindings || {};
   const { required } = referenceComponent?.item || {};
   const componentId = referenceComponent?.item.id ?? referenceComponent?.item.baseComponentId;
 

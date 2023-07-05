@@ -1,13 +1,19 @@
 import type { ILayoutCompBase, ILayoutCompWillBeSavedWhileTyping } from 'src/layout/layout';
 
-export interface ILayoutCompAddress extends ILayoutCompBase<'AddressComponent'>, ILayoutCompWillBeSavedWhileTyping {
+type ValidTexts = 'world'; // TODO: Figure out if this is correct
+export interface ILayoutCompAddress
+  extends ILayoutCompBase<'AddressComponent', IDataModelBindingsForAddress, ValidTexts>,
+    ILayoutCompWillBeSavedWhileTyping {
   simplified?: boolean;
 }
 
 export interface IDataModelBindingsForAddress {
-  address: string;
-  zipCode: string;
-  postPlace: string;
+  // Usually required, but we need to check
+  address?: string;
+  zipCode?: string;
+  postPlace?: string;
+
+  // Optional fields
   careOf?: string;
   houseNumber?: string;
 }

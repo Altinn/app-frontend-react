@@ -1,5 +1,12 @@
-import type { ILayoutCompBase, ILayoutCompWillBeSavedWhileTyping } from 'src/layout/layout';
+import type {
+  IDataModelBindingsSimple,
+  ILayoutCompBase,
+  ILayoutCompWillBeSavedWhileTyping,
+  TextBindingsForFormComponents,
+  TextBindingsForLabel,
+} from 'src/layout/layout';
 import type { HTMLAutoCompleteValues } from 'src/types/shared';
 
-export type ILayoutCompTextArea = ILayoutCompBase<'TextArea'> &
+type ValidTexts = TextBindingsForLabel | TextBindingsForFormComponents;
+export type ILayoutCompTextArea = ILayoutCompBase<'TextArea', IDataModelBindingsSimple, ValidTexts> &
   ILayoutCompWillBeSavedWhileTyping & { autocomplete?: HTMLAutoCompleteValues };

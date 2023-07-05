@@ -1,5 +1,6 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
-export interface ILayoutCompNavButtons extends ILayoutCompBase<'NavigationButtons'> {
+type ValidTexts = 'back' | 'next';
+export interface ILayoutCompNavButtons extends ILayoutCompBase<'NavigationButtons', undefined, ValidTexts> {
   showBackButton?: boolean;
 }

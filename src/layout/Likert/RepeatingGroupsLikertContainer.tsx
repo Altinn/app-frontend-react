@@ -13,17 +13,15 @@ import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { LayoutStyle } from 'src/types';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 type RepeatingGroupsLikertContainerProps = {
-  id: string;
+  node: LayoutNodeFromType<'Group'>;
 };
 
-export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertContainerProps) => {
-  const node = useResolvedNode(id);
+export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertContainerProps) => {
   const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNodeFromType<'Likert'> | undefined;
   const { optionsId, mapping, source, options } = firstLikertChild?.item || {};
   const mobileView = useIsMobileOrTablet();
@@ -33,8 +31,9 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const { lang } = useLanguage();
 
-  const hasDescription = !!node?.item.textResourceBindings?.description;
-  const hasTitle = !!node?.item.textResourceBindings?.title;
+  const id = node.item.id;
+  const hasDescription = !!node?.textResourceBindings?.description;
+  const hasTitle = !!node?.textResourceBindings?.title;
   const titleId = `likert-title-${id}`;
   const descriptionId = `likert-description-${id}`;
 
@@ -51,7 +50,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
           style={{ width: '100%' }}
           id={titleId}
         >
-          {lang(node?.item.textResourceBindings?.title)}
+          {lang(node?.textResourceBindings?.title)}
         </Typography>
       )}
       {hasDescription && (
@@ -60,7 +59,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
           gutterBottom
           id={descriptionId}
         >
-          {lang(node?.item.textResourceBindings?.description)}
+          {lang(node?.textResourceBindings?.description)}
         </Typography>
       )}
     </Grid>
@@ -114,8 +113,8 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
             padding={'dense'}
           >
             <AltinnTableRow>
-              {node?.item.textResourceBindings?.leftColumnHeader ? (
-                <TableCell>{lang(node?.item.textResourceBindings?.leftColumnHeader)}</TableCell>
+              {node?.textResourceBindings?.leftColumnHeader ? (
+                <TableCell>{lang(node?.textResourceBindings?.leftColumnHeader)}</TableCell>
               ) : (
                 <td />
               )}

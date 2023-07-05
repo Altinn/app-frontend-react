@@ -1,3 +1,4 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
-export type ILayoutCompParagraph = ILayoutCompBase<'Paragraph'>;
+type ValidTexts = 'title' | 'help';
+export type ILayoutCompParagraph = ILayoutCompBase<'Paragraph', undefined, ValidTexts>;
