@@ -1,0 +1,51 @@
+{
+  "$id": "https://altinncdn.no/schemas/json/component/application-metadata.schema.v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Application metadata settings",
+  "description": "Schema that describes the properties that can be configured in the application metadata json file.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Application id",
+      "description": "The applications id, usually in the form of {organization}/{application-name}"
+    },
+    "org": {
+      "type": "string",
+      "title": "Organization",
+      "description": "The organization that owns the application"
+    },
+    "title": {
+      "$ref": "#/definitions/title"
+    },
+    "dataTypes":{
+      "type": "array",
+      "title": "Data types",
+      "description": "The data types that the application uses",
+      "items": {
+        "$ref": "https://altinncdn.no/schemas/json/component/data-type.schema.v1.json"
+      }
+    }
+
+  },
+  "definitions": {
+    "title": {
+      "type": "object",
+      "title": "Title",
+      "description": "The title of the application",
+      "properties": {
+        "nb": {
+          "type": "string",
+          "title": "Norwegian",
+          "description": "The title in Norwegian"
+        },
+        "en": {
+          "type": "string",
+          "title": "English",
+          "description": "The title in English"
+        }
+      }
+    }
+  }
+}
