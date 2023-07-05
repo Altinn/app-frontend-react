@@ -72,22 +72,10 @@
   overflow-y: auto;
   max-height: 100%;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   grid-auto-flow: row;
   align-items: flex-start;
   justify-items: flex-start;
   gap: 32px;
   padding: 16px;
-}
-
-@media (min-width: 800px) {
-  .page {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1200px) {
-  .page {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
