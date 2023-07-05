@@ -46,9 +46,11 @@ function* runValidations(field: string, data: any, componentId: string | undefin
   const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
   const node = componentId && resolvedNodes.findById(componentId);
   if (!node) {
+    const error = new Error('Missing component ID!');
+    window.logError('Failed to run validations on update form data:\n', error);
     yield put(
       FormDataActions.updateRejected({
-        error: new Error('Missing component ID!'),
+        error,
       }),
     );
     return;
