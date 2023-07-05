@@ -23,5 +23,6 @@ const render = ({ title }: Partial<ILayoutAccordion> & { title?: string } = {}) 
       textResourceBindings: {
         title,
       },
+      children: [],
     },
   });

@@ -19,10 +19,6 @@ export class Accordion extends PresentationComponent<'Accordion'> {
     return this._hierarchyGenerator;
   }
 
-  renderWithLabel(): boolean {
-    return false;
-  }
-
   canRenderInAccordionGroup(): boolean {
     return true;
   }
@@ -30,10 +26,13 @@ export class Accordion extends PresentationComponent<'Accordion'> {
 
 export const Config = {
   def: new Accordion(),
+  rendersWithLabel: false as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutAccordion;
   nodeItem: IAccordion;
   nodeObj: LayoutNode;
+  validTextResourceBindings: 'title';
+  validDataModelBindings: undefined;
 };

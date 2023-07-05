@@ -18,18 +18,17 @@ export class AccordionGroup extends PresentationComponent<'AccordionGroup'> {
   hierarchyGenerator(): ComponentHierarchyGenerator<'AccordionGroup'> {
     return this._hierarchyGenerator;
   }
-
-  renderWithLabel(): boolean {
-    return false;
-  }
 }
 
 export const Config = {
   def: new AccordionGroup(),
+  rendersWithLabel: false as const,
 };
 
 export type TypeConfig = {
   layout: ILayoutAccordionGroup;
   nodeItem: IAccordionGroup;
   nodeObj: LayoutNode;
+  validTextResourceBindings: 'title';
+  validDataModelBindings: undefined;
 };
