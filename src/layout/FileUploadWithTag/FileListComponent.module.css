@@ -5,10 +5,12 @@
 
 .table,
 .tableMobile {
+  width: 100%;
   table-layout: fixed;
   margin-top: 1.5rem;
   margin-bottom: 12px;
   box-shadow: none;
+  border-spacing: 0;
 }
 
 .tableMobile {
@@ -17,6 +19,7 @@
   grid-template-columns: 5fr 3fr 4fr;
 }
 
+.table thead tr th,
 .tableMobile thead tr th {
   border-bottom: var(--solid-border-primary);
 }
@@ -26,10 +29,6 @@
 .tableMobile tbody,
 .tableMobile tbody tr {
   display: contents;
-}
-
-.tableMobile tbody tr {
-  border-bottom: var(--dotted-border-primary);
 }
 
 .tableMobile tbody tr td {
@@ -49,10 +48,6 @@
 
 .fullGrid {
   grid-column: 1 / -1;
-}
-
-.tableHeader {
-  border-bottom: var(--solid-border-primary);
 }
 
 .tableHeader tr th {
