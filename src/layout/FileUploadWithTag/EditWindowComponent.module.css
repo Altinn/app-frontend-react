@@ -9,14 +9,13 @@
 }
 
 .label {
-  font-weight: bold;
+  font-weight: 500;
   font-size: 1rem;
 }
 
 .textContainer {
   white-space: nowrap;
   text-overflow: ellipsis;
-  overflow: hidden;
   color: #000;
   font-weight: 500 !important;
   font-size: 0.875rem;

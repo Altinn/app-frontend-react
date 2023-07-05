@@ -11,8 +11,8 @@ import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { ILayoutComponent } from 'src/layout/layout';
-import type { IValidations } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { IValidations } from 'src/utils/validation/types';
 
 describe('SummaryComponent', () => {
   const pageId = 'FormLayout';
@@ -74,7 +74,12 @@ describe('SummaryComponent', () => {
     const otherLayout = {
       ...layoutMock(),
     };
-    otherLayout.uiConfig.hiddenFields = ['Input'];
+    const components = (otherLayout.layouts && otherLayout.layouts[pageId]) || [];
+    for (const component of components) {
+      if (component.id === 'Input') {
+        component.hidden = true;
+      }
+    }
     const { container } = renderHelper({ componentRef: 'Input' }, {}, otherLayout);
     // eslint-disable-next-line testing-library/no-node-access
     expect(container.firstChild).toBeNull();

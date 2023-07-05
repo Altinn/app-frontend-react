@@ -17,11 +17,6 @@ export interface IRuleConnections {
   [id: string]: IRuleConnection;
 }
 
-export interface ICheckIfConditionalRulesShouldRun {
-  preventRecursion?: boolean;
-  repeatingContainerId?: string;
-}
-
 export interface IFetchServiceConfigFulfilled {
   apis: any;
   ruleConnection: any;
@@ -29,7 +24,7 @@ export interface IFetchServiceConfigFulfilled {
 }
 
 export interface IFetchServiceConfigRejected {
-  error: Error;
+  error: Error | null;
 }
 
 export interface IConditionalRenderingRules {

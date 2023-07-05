@@ -103,6 +103,39 @@ describe('UI Components', () => {
     cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer.length).equal(299));
   });
 
+  it('should implement delete confirmation for both file upload components and require user confirmation', () => {
+    const components = [
+      {
+        type: 'FileUpload',
+        uploader: appFrontend.changeOfName.upload,
+        shouldExist: appFrontend.changeOfName.uploadedTable,
+      },
+      {
+        type: 'FileUploadWithTag',
+        uploader: appFrontend.changeOfName.uploadWithTag.uploadZone,
+        shouldExist: appFrontend.changeOfName.uploadWithTag.editWindow,
+      },
+    ];
+    cy.interceptLayout('changename', (component) => {
+      for (const { type } of components) {
+        if (component.type === type) {
+          component.alertOnDelete = true;
+        }
+      }
+    });
+    cy.goto('changename');
+    for (const { uploader, shouldExist } of components) {
+      cy.get(uploader).selectFile('test/e2e/fixtures/test.pdf', { force: true });
+      cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
+      cy.get(appFrontend.changeOfName.deleteAttachment).click();
+      cy.get(appFrontend.changeOfName.popOverCancelButton).click();
+      cy.get(shouldExist).should('exist');
+      cy.get(appFrontend.changeOfName.deleteAttachment).click();
+      cy.get(appFrontend.changeOfName.popOverDeleteButton).click();
+      cy.get(shouldExist).should('not.exist');
+    }
+  });
+
   it('is possible to navigate between pages using navigation bar', () => {
     cy.goto('changename');
     cy.get(appFrontend.navMenuButtons).should('have.length', 3);
@@ -134,11 +167,26 @@ describe('UI Components', () => {
 
   it('address component fetches post place from zip code', () => {
     cy.goto('changename');
+
+    // Mock zip code API, so that we don't rely on external services for our tests
+    cy.intercept('GET', 'https://api.bring.com/shippingguide/api/postalCode.json**', (req) => {
+      req.reply((res) => {
+        res.send({
+          body: {
+            postalCodeType: 'NORMAL',
+            result: 'KARDEMOMME BY', // Intentionally wrong, to test that our mock is used
+            valid: true,
+          },
+        });
+      });
+    }).as('zipCodeApi');
+
     cy.get(appFrontend.changeOfName.address.street_name).type('Sesame Street 1A');
     cy.get(appFrontend.changeOfName.address.street_name).blur();
-    cy.get(appFrontend.changeOfName.address.zip_code).type('0174');
+    cy.get(appFrontend.changeOfName.address.zip_code).type('0123');
     cy.get(appFrontend.changeOfName.address.zip_code).blur();
-    cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'OSLO');
+    cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'KARDEMOMME BY');
+    cy.get('@zipCodeApi').its('request.url').should('include', '0123');
   });
 
   it('radios, checkboxes and other components can be readOnly', () => {
@@ -276,5 +324,28 @@ describe('UI Components', () => {
     cy.get(appFrontend.errorReport).should('contain.text', 'Må summeres opp til 100%');
     cy.get(appFrontend.errorReport).should('not.contain.text', 'Du har overskredet maks antall tegn med 1');
     cy.snapshot('components:text-countdown');
+  });
+
+  it('should remember values after refreshing', () => {
+    cy.goto('changename');
+    cy.get(appFrontend.changeOfName.dateOfEffect).should('have.value', '');
+    cy.fillOut('changename');
+    cy.gotoNavPage('form');
+
+    cy.get(appFrontend.changeOfName.sources).dsSelect('Digitaliseringsdirektoratet');
+    cy.get(appFrontend.changeOfName.reference).dsSelect('Sophie Salt');
+    cy.get(appFrontend.changeOfName.reference2).dsSelect('Dole');
+    cy.reloadAndWait();
+
+    cy.get(appFrontend.changeOfName.newFirstName).should('have.value', 'a');
+    cy.get(appFrontend.changeOfName.newLastName).should('have.value', 'a');
+    cy.get(appFrontend.changeOfName.confirmChangeName).find('input').should('be.checked');
+    cy.get(appFrontend.changeOfName.reasonRelationship).should('have.value', 'test');
+    cy.get(appFrontend.changeOfName.dateOfEffect).should('not.have.value', '');
+    cy.get('#form-content-fileUpload-changename').find('td').first().should('contain.text', 'test.pdf');
+
+    cy.get(appFrontend.changeOfName.sources).should('have.value', 'Digitaliseringsdirektoratet');
+    cy.get(appFrontend.changeOfName.reference).should('have.value', 'Sophie Salt');
+    cy.get(appFrontend.changeOfName.reference2).should('have.value', 'Dole');
   });
 });

@@ -1,9 +1,5 @@
-.blueUnderline {
+tr.blueUnderline th {
   border-bottom: 2px solid #1eadf7;
-}
-
-.blueUnderlineDotted {
-  border-bottom: 1px dotted #1eadf7;
 }
 
 .fileUploadTable > tbody > tr > td {
@@ -14,11 +10,6 @@
   padding: 4px 4px 4px 6px;
 }
 
-.deleteButton {
-  float: right;
-  padding-right: 0;
-}
-
 .fileUploadTable > tbody > tr > td:first-child {
   text-overflow: ellipsis;
   overflow: hidden;
@@ -27,15 +18,9 @@
 .fileUploadTable {
   width: 100%;
   margin-top: 1.5rem;
-  border-spacing: 0 0.75rem;
+  border-spacing: 0;
   table-layout: fixed;
   box-shadow: none;
-}
-
-.fileStatus {
-  display: flex;
-  align-items: center;
-  gap: 3px;
 }
 
 .fileUploadButton {
@@ -47,10 +32,4 @@
   border-top: 0;
   padding: 0;
   margin-top: 1.5rem;
-}
-
-.deleteLoader {
-  margin-bottom: 1rem;
-  margin-right: 0.5rem;
-  float: right;
 }

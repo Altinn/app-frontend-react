@@ -2,23 +2,17 @@ import { call, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
-import { getCurrentDataTypeForApplication } from 'src/utils/appMetadata';
+import { implementsAnyValidation } from 'src/layout';
 import { removeAttachmentReference } from 'src/utils/databindings';
-import { getLayoutComponentById, getLayoutIdForComponent } from 'src/utils/layout';
-import {
-  getValidator,
-  mergeComponentValidations,
-  validateComponentFormData,
-  validateComponentSpecificValidations,
-} from 'src/utils/validation/validation';
+import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
+import { createComponentValidationResult, validationContextFromState } from 'src/utils/validation/validationHelpers';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { IDeleteAttachmentReference, IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IRuntimeState } from 'src/types';
+import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export function* updateFormDataSaga({
   payload: { field, data, componentId, skipValidation, skipAutoSave, singleFieldValidation },
@@ -42,70 +36,49 @@ export function* updateFormDataSaga({
         }),
       );
     }
-
-    yield put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}));
   } catch (error) {
-    console.error(error);
+    window.logError('Update form data failed:\n', error);
     yield put(FormDataActions.updateRejected({ error }));
   }
 }
 
 function* runValidations(field: string, data: any, componentId: string | undefined, state: IRuntimeState) {
-  if (!componentId) {
+  const resolvedNodes: LayoutPages = yield select(ResolvedNodesSelector);
+  const node = componentId && resolvedNodes.findById(componentId);
+  if (!node) {
+    const error = new Error('Missing component ID!');
+    window.logError('Failed to run validations on update form data:\n', error);
     yield put(
       FormDataActions.updateRejected({
-        error: new Error('Missing component ID!'),
+        error,
       }),
     );
     return;
   }
 
-  const layoutId = getLayoutIdForComponent(componentId, state.formLayout.layouts || {});
+  const overrideFormData = { [field]: data?.length ? data : undefined };
 
-  if (!layoutId) {
-    console.error('Failed to find layout ID for component', componentId);
-    return;
+  if (implementsAnyValidation(node.def)) {
+    const validationObjects = node.runValidations(validationContextFromState(state), {
+      overrideFormData,
+      skipEmptyFieldValidation: true,
+    });
+    const validationResult = createComponentValidationResult(validationObjects);
+
+    const invalidDataComponents = state.formValidations.invalidDataTypes || [];
+    const updatedInvalidDataComponents = invalidDataComponents.filter((item) => item !== field);
+    if (validationResult.invalidDataTypes) {
+      updatedInvalidDataComponents.push(field);
+    }
+
+    yield put(
+      ValidationActions.updateComponentValidations({
+        componentId: node.item.id,
+        pageKey: node.pageKey(),
+        validationResult,
+      }),
+    );
   }
-
-  const langTools = staticUseLanguageFromState(state);
-  const currentDataTypeId = getCurrentDataTypeForApplication({
-    application: state.applicationMetadata.applicationMetadata,
-    instance: state.instanceData.instance,
-    layoutSets: state.formLayout.layoutsets,
-  });
-  const validator = getValidator(currentDataTypeId, state.formDataModel.schemas);
-  const component = getLayoutComponentById(componentId, state.formLayout.layouts);
-
-  const validationResult = validateComponentFormData(
-    layoutId,
-    data,
-    field,
-    component,
-    langTools,
-    validator,
-    state.formValidations.validations[componentId],
-    componentId !== component?.id ? componentId : null,
-  );
-
-  const componentValidations = validationResult?.validations[layoutId][componentId];
-
-  const componentSpecificValidations = validateComponentSpecificValidations(data, component, langTools);
-  const mergedValidations = mergeComponentValidations(componentValidations ?? {}, componentSpecificValidations);
-
-  const invalidDataComponents = state.formValidations.invalidDataTypes || [];
-  const updatedInvalidDataComponents = invalidDataComponents.filter((item) => item !== field);
-  if (validationResult?.invalidDataTypes) {
-    updatedInvalidDataComponents.push(field);
-  }
-
-  yield put(
-    ValidationActions.updateComponentValidations({
-      componentId,
-      layoutId,
-      validations: mergedValidations ?? {},
-      invalidDataTypes: updatedInvalidDataComponents,
-    }),
-  );
 }
 
 function shouldUpdateFormData(currentData: any, newData: any): boolean {
@@ -137,6 +110,6 @@ export function* deleteAttachmentReferenceSaga({
     yield put(FormDataActions.setFulfilled({ formData: updatedFormData }));
     yield put(FormDataActions.saveEvery({ componentId }));
   } catch (err) {
-    console.error(err);
+    window.logError('Delete attachment reference failed:\n', err);
   }
 }

@@ -3,7 +3,6 @@ import { expectSaga } from 'redux-saga-test-plan';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { repGroupDeleteRowSaga } from 'src/features/layout/repGroups/repGroupDeleteRowSaga';
@@ -16,6 +15,7 @@ import {
 } from 'src/features/layout/update/updateFormLayoutSagas';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
+import { resolvedLayoutsFromState, ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { IAttachment } from 'src/features/attachments';
 import type { IDataModelBindings } from 'src/layout/layout';
 import type { IRuntimeState } from 'src/types';
@@ -84,6 +84,7 @@ describe('repGroupDeleteRowSaga', function () {
         [select(selectFormData), selectFormData(state)],
         [select(selectAttachmentState), selectAttachmentState(state)],
         [select(selectValidations), selectValidations(state)],
+        [select(ResolvedNodesSelector), resolvedLayoutsFromState(state)],
         [select(selectOptions), selectOptions(state)],
         [
           take(AttachmentActions.deleteAttachmentFulfilled),
@@ -94,7 +95,6 @@ describe('repGroupDeleteRowSaga', function () {
           }),
         ],
       ])
-      .put(FormDynamicsActions.checkIfConditionalRulesShouldRun({}))
       .put(
         AttachmentActions.deleteAttachment({
           attachment,
@@ -103,7 +103,17 @@ describe('repGroupDeleteRowSaga', function () {
           dataModelBindings: {},
         }),
       )
-      .put(ValidationActions.updateValidations({ validations: {} }))
+      .put(
+        ValidationActions.updateLayoutValidation({
+          pageKey: 'FormLayout',
+          validationResult: {
+            validations: { 'uploader-0': {} },
+            invalidDataTypes: false,
+            fixedValidations: [],
+          },
+          merge: true,
+        }),
+      )
       .put(OptionsActions.setOptions({ options: {} }))
       .put(
         FormLayoutActions.repGroupDeleteRowFulfilled({

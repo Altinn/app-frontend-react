@@ -152,7 +152,7 @@
         { "if": {"properties": {"type": { "const": "MultipleSelect"}}}, "then": { "$ref": "#/definitions/selectionComponents"}},
         { "if": {"properties": {"type": { "const": "NavigationButtons"}}}, "then": { "$ref": "#/definitions/navigationButtonsComponent"}},
         { "if": {"properties": {"type": { "const": "NavigationBar"}}}, "then": { "$ref": "#/definitions/navigationBarComponent"}},
-        { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/radioAndCheckboxComponents"}},
+        { "if": {"properties": {"type": { "const": "RadioButtons"}}}, "then": { "$ref": "#/definitions/radioComponent"}},
         { "if": {"properties": {"type": { "const": "Summary"}}}, "then": {"$ref": "#/definitions/summaryComponent"}},
         { "if": {"properties": {"type": { "const": "Header"}}}, "then": {"$ref": "#/definitions/headerComponent"}},
         { "if": {"properties": {"type": { "const": "Panel"}}}, "then": {"$ref": "#/definitions/panelComponent"}},
@@ -207,6 +207,9 @@
           "description": "Sets the minimum number of attachments to upload",
           "type": "integer",
           "minimum": 0
+        },
+        "alertOnDelete": {
+          "$ref": "#/definitions/alertOnDelete"
         },
         "displayMode": {
           "title": "Display mode",
@@ -513,10 +516,26 @@
           "title": "Text",
           "description": "The text or text resource ID to be rendered in the cell",
           "type": "string"
+        },
+        "help": {
+          "title": "Help text",
+          "description": "The help text or text resource ID to be rendered in the cell",
+          "type": "string"
         }
       },
       "$ref": "#/definitions/tableColumnOptions",
       "required": ["text"]
+    },
+    "gridLabelText": {
+      "properties": {
+        "labelFrom": {
+          "title": "Label from",
+          "description": "The ID of the component to be used to render text resources in the cell",
+          "type": "string"
+        }
+      },
+      "$ref": "#/definitions/tableColumnOptions",
+      "required": ["labelFrom"]
     },
     "gridCellComponent": {
       "properties": {
@@ -709,9 +728,7 @@
           ]
         },
         "alertOnDelete": {
-          "title": "Alert on delete",
-          "description": "Boolean value indicating if warning popup should be displayed when attempting to delete a row",
-          "type": "boolean"
+          "$ref": "#/definitions/alertOnDelete"
         }
       }
     },
@@ -912,6 +929,16 @@
         },
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
+        }
+      }
+    },
+    "radioComponent": {
+      "$ref": "#/definitions/radioAndCheckboxComponents",
+      "properties": {
+        "showAsCard": {
+          "type": "boolean",
+          "title": "Show as card",
+          "description": "Boolean value indicating if the options should be displayed as cards. Defaults to false."
         }
       }
     },
@@ -1221,6 +1248,12 @@
           }
         }
       }
+    },
+    "alertOnDelete":{
+        "$ref": "expression.schema.v1.json#/definitions/boolean",
+        "title": "Alert on delete",
+        "description": "Boolean value indicating if warning popup should be displayed when attempting to delete an element",
+        "default": false
     },
     "listComponent": {
       "type": "object",

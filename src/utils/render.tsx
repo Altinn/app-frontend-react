@@ -4,7 +4,7 @@ import { ErrorMessage } from '@digdir/design-system-react';
 
 import { SoftValidations } from 'src/components/form/SoftValidations';
 import { getParsedLanguageFromText } from 'src/language/sharedLanguage';
-import type { IComponentBindingValidation } from 'src/types';
+import type { IComponentBindingValidation } from 'src/utils/validation/types';
 
 export function renderValidationMessagesForComponent(
   validationMessages: IComponentBindingValidation | undefined | null,
@@ -44,7 +44,12 @@ export function renderValidationMessages(
         variant={variant}
         key={id}
       >
-        <ol id={id}>{messages.map(validationMessagesToList)}</ol>
+        <ol
+          style={{ paddingLeft: 0 }}
+          id={id}
+        >
+          {messages.map(validationMessagesToList)}
+        </ol>
       </SoftValidations>
     );
   }
@@ -58,7 +63,7 @@ export function renderValidationMessages(
         size='small'
         id={id}
       >
-        <ol>{messages.map(validationMessagesToList)}</ol>
+        <ol style={{ paddingLeft: 0 }}>{messages.map(validationMessagesToList)}</ol>
       </ErrorMessage>
     </div>
   );

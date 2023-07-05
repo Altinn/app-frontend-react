@@ -12,7 +12,6 @@ import type { IRadioButtonsContainerProps } from 'src/layout/RadioButtons/RadioB
 export const useRadioStyles = makeStyles(() => ({
   legend: {
     color: '#000000',
-    fontFamily: 'Altinn-DIN',
   },
   formControl: {
     alignItems: 'flex-start',
@@ -66,7 +65,7 @@ export const useRadioButtons = ({ node, handleDataChange, formData }: IRadioButt
     setValue(value);
   };
 
-  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur: React.FocusEventHandler = (event) => {
     // Only set value instantly if moving focus outside of the radio group
     if (!event.currentTarget.contains(event.relatedTarget)) {
       saveValue();
