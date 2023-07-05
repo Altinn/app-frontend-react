@@ -17,6 +17,7 @@ import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/sr
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import classes from 'src/features/instantiate/containers/InstanceSelection.module.css';
+import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
@@ -40,15 +41,19 @@ function getDateDisplayString(timeStamp: string) {
 }
 
 export function InstanceSelection({ instances, onNewInstance }: IInstanceSelectionProps) {
+  const { data: applicationMetadata } = useApplicationMetadataQuery();
+  const instanceSelectionOptions = applicationMetadata?.onEntry?.instanceSelection;
   const { lang, langAsString, language } = useLanguage();
   const mobileView = useIsMobileOrTablet();
-  const rowsPerPageOptions = [10, 25, 50];
+  const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
 
-  const instancesReversed = instances.slice().reverse();
-  const paginatedInstances = instancesReversed.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
+  if (instanceSelectionOptions?.sortDirection === 'desc') {
+    instances = instances.slice().reverse();
+  }
+  const paginatedInstances = instances.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
 
   const openInstance = (instanceId: string) => {
     window.location.href = getInstanceUiUrl(instanceId);
@@ -56,8 +61,8 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
 
   function handleRowsPerPageChanged(newRowsPerPage: number) {
     setRowsPerPage(newRowsPerPage);
-    if (instancesReversed.length < currentPage * newRowsPerPage) {
-      setCurrentPage(Math.floor(instancesReversed.length / newRowsPerPage));
+    if (instances.length < currentPage * newRowsPerPage) {
+      setCurrentPage(Math.floor(instances.length / newRowsPerPage));
     }
   }
 

@@ -35,7 +35,13 @@ export interface IApplicationLogic {
 
 export interface IOnEntry {
   show: 'new-instance' | 'startpage' | string;
+  instanceSelection?: IInstanceSelection;
 }
+
+export type IInstanceSelection = {
+  rowsPerPageOptions: number[];
+  sortDirection: 'asc' | 'desc';
+};
 
 export interface IAttachment {
   name?: string;
