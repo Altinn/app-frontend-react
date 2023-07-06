@@ -1,4 +1,4 @@
-import type { ILayoutCompBase, TextBindingsForLabel } from 'src/layout/layout';
+import type { ILayoutCompBase } from 'src/layout/layout';
 import type { IMapping } from 'src/types';
 
 export interface IPagination {
@@ -6,8 +6,7 @@ export interface IPagination {
   default: number;
 }
 
-type ValidTexts = TextBindingsForLabel;
-export interface ILayoutCompList extends ILayoutCompBase<'List', IDataModelBindingsForList, ValidTexts> {
+export interface ILayoutCompList extends ILayoutCompBase<'List'> {
   tableHeaders: Record<string, string>;
   sortableColumns?: string[];
   pagination?: IPagination;

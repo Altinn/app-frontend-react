@@ -1,6 +1,5 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
-type ValidTexts = 'title' | 'help';
-export interface ILayoutCompHeader extends ILayoutCompBase<'Header', undefined, ValidTexts> {
+export interface ILayoutCompHeader extends ILayoutCompBase<'Header'> {
   size: 'L' | 'M' | 'S' | 'h2' | 'h3' | 'h4';
 }

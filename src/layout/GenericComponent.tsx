@@ -12,7 +12,7 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { FormComponentContext } from 'src/layout/index';
+import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
 import { Triggers } from 'src/types';
@@ -295,7 +295,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
         )}
         alignItems='baseline'
       >
-        {layoutComponent.renderWithLabel() && overrideDisplay?.renderLabel !== false && (
+        {shouldComponentRenderLabel(node.item.type) && overrideDisplay?.renderLabel !== false && (
           <Grid
             item={true}
             {...gridBreakpoints(item.grid?.labelGrid)}

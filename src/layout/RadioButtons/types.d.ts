@@ -1,13 +1,7 @@
-import type {
-  IDataModelBindingsSimple,
-  ILayoutCompBase,
-  ISelectionComponent,
-  TextBindingsForLabel,
-} from 'src/layout/layout';
+import type { ILayoutCompBase, ISelectionComponent } from 'src/layout/layout';
 import type { LayoutStyle } from 'src/types';
 
-type ValidTexts = TextBindingsForLabel;
-export type ILayoutCompRadioButtons = ILayoutCompBase<'RadioButtons', IDataModelBindingsSimple, ValidTexts> &
+export type ILayoutCompRadioButtons = ILayoutCompBase<'RadioButtons'> &
   ISelectionComponent & {
     layout?: LayoutStyle;
     showAsCard?: boolean;

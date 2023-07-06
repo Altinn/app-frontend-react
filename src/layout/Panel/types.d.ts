@@ -5,5 +5,4 @@ export interface ILayoutCompPanelBase {
   showIcon?: boolean;
 }
 
-type ValidTexts = 'title' | 'body';
-export type ILayoutCompPanel = ILayoutCompBase<'Panel', undefined, ValidTexts> & ILayoutCompPanelBase;
+export type ILayoutCompPanel = ILayoutCompBase<'Panel'> & ILayoutCompPanelBase;

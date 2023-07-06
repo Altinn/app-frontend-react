@@ -1,9 +1,6 @@
 import type { ILayoutCompBase, ILayoutCompWillBeSavedWhileTyping } from 'src/layout/layout';
 
-type ValidTexts = undefined;
-export interface ILayoutCompAddress
-  extends ILayoutCompBase<'AddressComponent', IDataModelBindingsForAddress, ValidTexts>,
-    ILayoutCompWillBeSavedWhileTyping {
+export interface ILayoutCompAddress extends ILayoutCompBase<'AddressComponent'>, ILayoutCompWillBeSavedWhileTyping {
   simplified?: boolean;
 }
 

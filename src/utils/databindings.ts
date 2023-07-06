@@ -235,7 +235,7 @@ export function removeAttachmentReference(
   formData: IFormData,
   attachmentId: string,
   attachments: IAttachments,
-  dataModelBindings: IDataModelBindings,
+  dataModelBindings: IDataModelBindings<'FileUpload' | 'FileUploadWithTag'>,
   componentId: string,
 ): IFormData {
   if (!dataModelBindings || (!dataModelBindings.simpleBinding && !dataModelBindings.list)) {

@@ -52,13 +52,6 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
   }
 
   /**
-   * Return false to render this component without the label (in GenericComponent.tsx)
-   */
-  renderWithLabel(): boolean {
-    return true;
-  }
-
-  /**
    * Return false to prevent this component from being rendered in a table
    */
   canRenderInTable(): boolean {

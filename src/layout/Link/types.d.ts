@@ -1,7 +1,6 @@
 import type { ILayoutCompBase } from 'src/layout/layout';
 
-type ValidTexts = 'target' | 'title';
-export interface ILayoutCompLink extends ILayoutCompBase<'Link', undefined, ValidTexts> {
+export interface ILayoutCompLink extends ILayoutCompBase<'Link'> {
   style: LinkStyle;
   openInNewTab?: boolean;
 }

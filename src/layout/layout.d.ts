@@ -3,13 +3,11 @@ import type { GridSize } from '@material-ui/core';
 import type { UnionToIntersection } from 'utility-types';
 
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
-import type { IDataModelBindingsForAddress } from 'src/layout/Address/types';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components';
 import type { ILayoutCompDropdown } from 'src/layout/Dropdown/types';
-import type { IDataModelBindingsForGroup, ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompLikert } from 'src/layout/Likert/types';
-import type { IDataModelBindingsForList } from 'src/layout/List/types';
 import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
 import type { ILabelSettings, IMapping, IOption, IOptionSource, Triggers } from 'src/types';
 import type { UnifyDMB, UnifyTRB } from 'src/utils/layout/hierarchy.types';
@@ -23,18 +21,14 @@ export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> {
   type: T;
 }
 
-export interface ILayoutCompBase<
-  Type extends ComponentTypes,
-  DMB extends IAnyDataModelBindings | undefined,
-  TRB extends string | undefined,
-> extends ILayoutEntry<Type> {
-  dataModelBindings?: DMB;
+export interface ILayoutCompBase<Type extends ComponentTypes> extends ILayoutEntry<Type> {
+  dataModelBindings?: IDataModelBindings<Type>;
   maxLength?: number;
   readOnly?: ExprVal.Boolean;
   renderAsSummary?: ExprVal.Boolean;
   required?: ExprVal.Boolean;
   hidden?: ExprVal.Boolean;
-  textResourceBindings?: [TRB] extends [undefined] ? undefined : IComponentTextResourceBindings<TRB>;
+  textResourceBindings?: UnionToIntersection<TRBAsMap<Type, ExprVal.String>>;
   grid?: IGrid;
   triggers?: Triggers[];
   labelSettings?: ILabelSettings;
@@ -123,6 +117,8 @@ export type ILayoutComponentExact<Type extends ComponentTypes> = UnifyDMB<
 
 export type ILayoutComponentOrGroup = ILayoutGroup | ILayoutComponent;
 
+export type ComponentRendersLabel<T extends ComponentTypes> = (typeof ComponentConfigs)[T]['rendersWithLabel'];
+
 export interface IDataModelBindingsSimple {
   simpleBinding?: string;
 }
@@ -135,14 +131,7 @@ export interface IDataModelBindingsList {
   list?: string;
 }
 
-export type IAnyDataModelBindings =
-  | (Partial<IDataModelBindingsSimple> &
-      Partial<IDataModelBindingsList> &
-      Partial<IDataModelBindingsForGroup> &
-      Partial<IDataModelBindingsForAddress>)
-  | IDataModelBindingsForList;
-
-type InnerDMB<T extends ComponentTypes> = ComponentTypeConfigs[T]['nodeItem']['dataModelBindings'];
+type InnerDMB<T extends ComponentTypes> = ComponentTypeConfigs[T]['validDataModelBindings'];
 
 /**
  * This is the type you should use when referencing a specific component type, and will give
@@ -152,22 +141,23 @@ export type IDataModelBindings<T extends ComponentTypes = ComponentTypes> =
   | UnionToIntersection<Exclude<InnerDMB<T>, undefined>>
   | undefined;
 
-/**
- * This is the type used from the layout component definition, and has to include all possible
- * text resource bindings for the component.
- */
-export type IComponentTextResourceBindings<T extends string> = {
-  [key in T]?: ExprVal.String;
+type InnerTRB<T extends ComponentTypes> = ComponentRendersLabel<T> extends true
+  ? ComponentTypeConfigs[T]['validTextResourceBindings'] | TextBindingsForLabel
+  : ComponentTypeConfigs[T]['validTextResourceBindings'];
+
+type TRBAsUnion<T extends ComponentTypes> = Exclude<InnerTRB<T>, undefined> extends never
+  ? undefined
+  : Exclude<InnerTRB<T>, undefined>;
+
+type TRBAsMap<T extends ComponentTypes, V> = {
+  [Binding in TRBAsUnion<T>]?: V;
 };
 
-/**
- * This is the type you should use when referencing a specific component type, and will give
- * you the correct text resource bindings for that component.
- */
-type InnerTRB<T extends ComponentTypes> = ComponentTypeConfigs[T]['nodeItem']['textResourceBindings'];
 export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
-  | UnionToIntersection<Exclude<InnerTRB<T>, undefined>>
+  | UnionToIntersection<TRBAsMap<T, string>>
   | undefined;
+
+type Test1 = ITextResourceBindings<'TextArea'>;
 
 export type TextBindingsForSummarizableComponents = 'summaryTitle' | 'summaryDescription' | 'summaryAccessibleTitle';
 export type TextBindingsForFormComponents = TextBindingsForSummarizableComponents | 'tableTitle' | 'shortName';

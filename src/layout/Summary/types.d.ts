@@ -7,8 +7,7 @@ export interface SummaryDisplayProperties {
   hideBottomBorder?: boolean;
 }
 
-type ValidTexts = undefined;
-export interface ILayoutCompSummary extends ILayoutCompBase<'Summary', undefined, ValidTexts> {
+export interface ILayoutCompSummary extends ILayoutCompBase<'Summary'> {
   componentRef?: string;
   pageRef?: string;
   display?: SummaryDisplayProperties;
