@@ -81,11 +81,13 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
             <TableRow key={instance.id}>
               <TableCell className={classes.mobileTableCell}>
                 <div>
-                  <b className={classes.spaceAfterContent}>{langAsString('instance_selection.last_changed')}:</b>
+                  <b>{langAsString('instance_selection.last_changed')}:</b>
+                  <br />
                   <span>{getDateDisplayString(instance.lastChanged)}</span>
                 </div>
                 <div>
-                  <b className={classes.spaceAfterContent}>{langAsString('instance_selection.changed_by')}:</b>
+                  <b>{langAsString('instance_selection.changed_by')}:</b>
+                  <br />
                   <span>{instance.lastChangedBy}</span>
                 </div>
               </TableCell>
