@@ -27,9 +27,19 @@ export const CheckboxContainerComponent = ({
   handleDataChange,
   overrideDisplay,
 }: ICheckboxContainerProps) => {
-  const { id, options, optionsId, preselectedOptionIndex, layout, readOnly, mapping, source, required, labelSettings } =
-    node.item;
-  const { textResourceBindings } = node;
+  const {
+    id,
+    options,
+    optionsId,
+    preselectedOptionIndex,
+    layout,
+    readOnly,
+    mapping,
+    source,
+    required,
+    labelSettings,
+    textResourceBindings,
+  } = node.item;
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions = apiOptions || options || defaultOptions;
   const hasSelectedInitial = React.useRef(false);
@@ -80,7 +90,7 @@ export const CheckboxContainerComponent = ({
 
   const labelText = (
     <span style={{ fontSize: '1rem' }}>
-      {lang(node.textResourceBindings?.title)}
+      {lang(node.item.textResourceBindings?.title)}
       <RequiredIndicator required={required} />
       <OptionalIndicator
         labelSettings={labelSettings}

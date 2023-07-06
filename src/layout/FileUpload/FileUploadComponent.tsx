@@ -33,7 +33,7 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
     displayMode,
     hasCustomFileEndings,
   } = node.item;
-  const { dataModelBindings, textResourceBindings } = node;
+  const { dataModelBindings, textResourceBindings } = node.item;
   const dispatch = useAppDispatch();
   const [validations, setValidations] = React.useState<string[]>([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);

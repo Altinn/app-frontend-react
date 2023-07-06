@@ -17,8 +17,7 @@ import type { ILayoutNavigation, INavigationConfig } from 'src/types';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
 
 export function NavigationButtonsComponent({ node }: INavigationButtons) {
-  const { id, showBackButton, triggers } = node.item;
-  const { textResourceBindings } = node;
+  const { id, showBackButton, triggers, textResourceBindings } = node.item;
   const dispatch = useAppDispatch();
   const { lang } = useLanguage();
 

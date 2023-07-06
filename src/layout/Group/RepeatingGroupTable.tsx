@@ -222,7 +222,7 @@ export function RepeatingGroupTable({
                     className={classes.contentFormatting}
                     style={getColumnStylesRepeatingGroups(n, columnSettings)}
                   >
-                    {lang(getTableTitle(n.textResourceBindings))}
+                    {lang(getTableTitle(n.item.textResourceBindings))}
                   </span>
                 </TableCell>
               ))}

@@ -185,7 +185,7 @@ export function RepeatingGroupTableRow({
                     key={n.item.id}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
-                      {lang(getTableTitle(n.textResourceBindings))}:
+                      {lang(getTableTitle(n.item.textResourceBindings))}:
                     </b>
                     <span className={classes.contentFormatting}>{displayData[i]}</span>
                     {i < length - 1 && <div style={{ height: 8 }} />}

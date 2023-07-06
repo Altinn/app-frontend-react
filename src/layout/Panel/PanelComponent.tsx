@@ -12,8 +12,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 type IPanelProps = PropsFromGenericComponent<'Panel'>;
 
 export const PanelComponent = ({ node }: IPanelProps) => {
-  const { variant, showIcon } = node.item;
-  const { textResourceBindings } = node;
+  const { variant, showIcon, textResourceBindings } = node.item;
   const { lang } = useLanguage();
 
   const fullWidth = !node.item.grid && node.parent instanceof LayoutPage;

@@ -89,8 +89,8 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
 }: IGenericComponentProps<Type>) {
   let item = node.item;
   const id = item.id;
-  const textBindings = node.textResourceBindings as ITextResourceBindings;
-  const dataModelBindings = node.dataModelBindings as IDataModelBindings;
+  const textBindings = node.item.textResourceBindings as ITextResourceBindings;
+  const dataModelBindings = node.item.dataModelBindings as IDataModelBindings;
 
   if (overrideItemProps) {
     item = {

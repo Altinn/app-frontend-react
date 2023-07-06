@@ -43,7 +43,7 @@ export function useUploaderSummaryData(node: LayoutNodeFromType<'FileUpload' | '
   const formData = useAppSelector((state) => state.formData.formData);
   const attachments = useAppSelector((state) => state.attachments.attachments);
 
-  const listBinding = node.dataModelBindings?.list;
+  const listBinding = node.item.dataModelBindings?.list;
   if (listBinding) {
     const values = extractListFromBinding(formData, listBinding);
     return attachmentsFromUuids(node.item.id, values, attachments).sort(sortAttachmentsByName);

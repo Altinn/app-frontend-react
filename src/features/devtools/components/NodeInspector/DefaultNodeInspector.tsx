@@ -20,12 +20,6 @@ export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeIns
 
   return (
     <dl className={cn(classes.propertyList, classes.mainPropertyList)}>
-      {node.textResourceBindings && Object.keys(node.textResourceBindings).length > 0 && (
-        <NodeInspectorTextResourceBindings
-          node={node}
-          textResourceBindings={node.textResourceBindings}
-        />
-      )}
       {Object.keys(node.item).map((key) => {
         if (ignoredPropertiesFinal.has(key)) {
           return null;
@@ -37,6 +31,16 @@ export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeIns
             <NodeInspectorDataModelBindings
               key={key}
               dataModelBindings={value}
+            />
+          );
+        }
+
+        if (key === 'textResourceBindings' && typeof value === 'object' && Object.keys(value).length > 0) {
+          return (
+            <NodeInspectorTextResourceBindings
+              key={key}
+              node={node}
+              textResourceBindings={value}
             />
           );
         }

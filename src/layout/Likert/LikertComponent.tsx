@@ -38,7 +38,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
   const groupContainerId = node.closest((n) => n.type === 'Group')?.item.id;
   const RenderLegend = legend;
   const rowLabelId = `row-label-${id}`;
-  const texts = node.textResourceBindings;
+  const texts = node.item.textResourceBindings;
 
   return (
     <TableRow

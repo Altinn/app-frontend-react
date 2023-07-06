@@ -20,11 +20,11 @@ export class Dropdown extends FormComponent<'Dropdown'> {
 
   useDisplayData(node: LayoutNodeFromType<'Dropdown'>): string {
     const formData = useAppSelector((state) => state.formData.formData);
-    if (!node.dataModelBindings?.simpleBinding) {
+    if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    const value = formData[node.dataModelBindings.simpleBinding] || '';
+    const value = formData[node.item.dataModelBindings.simpleBinding] || '';
     return useSelectedValueToText(node.item, value) || '';
   }
 

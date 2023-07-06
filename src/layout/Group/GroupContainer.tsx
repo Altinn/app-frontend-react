@@ -38,7 +38,7 @@ const getValidationMethod = (node: LayoutNode) => {
 export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   const dispatch = useAppDispatch();
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const resolvedTextBindings = node.textResourceBindings;
+  const resolvedTextBindings = node.item.textResourceBindings;
   const id = node.item.id;
   const edit = node.item.edit;
   const groupState = useAppSelector(

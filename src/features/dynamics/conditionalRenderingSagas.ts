@@ -36,8 +36,13 @@ export function* removeHiddenValidationsSaga({
     }
     for (const componentId of newlyVisible) {
       const node = layoutObj?.findById(componentId) || resolvedNodes.findById(componentId);
-      if (node && node.dataModelBindings && node.item.triggers && node.item.triggers.includes(Triggers.Validation)) {
-        for (const dataModelBinding of Object.values(node.dataModelBindings)) {
+      if (
+        node &&
+        node.item.dataModelBindings &&
+        node.item.triggers &&
+        node.item.triggers.includes(Triggers.Validation)
+      ) {
+        for (const dataModelBinding of Object.values(node.item.dataModelBindings)) {
           yield put(
             ValidationActions.runSingleFieldValidation({
               componentId,

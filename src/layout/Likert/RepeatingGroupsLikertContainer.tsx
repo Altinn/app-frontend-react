@@ -32,8 +32,8 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
   const { lang } = useLanguage();
 
   const id = node.item.id;
-  const hasDescription = !!node?.textResourceBindings?.description;
-  const hasTitle = !!node?.textResourceBindings?.title;
+  const hasDescription = !!node?.item.textResourceBindings?.description;
+  const hasTitle = !!node?.item.textResourceBindings?.title;
   const titleId = `likert-title-${id}`;
   const descriptionId = `likert-description-${id}`;
 
@@ -50,7 +50,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
           style={{ width: '100%' }}
           id={titleId}
         >
-          {lang(node?.textResourceBindings?.title)}
+          {lang(node?.item.textResourceBindings?.title)}
         </Typography>
       )}
       {hasDescription && (
@@ -59,7 +59,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
           gutterBottom
           id={descriptionId}
         >
-          {lang(node?.textResourceBindings?.description)}
+          {lang(node?.item.textResourceBindings?.description)}
         </Typography>
       )}
     </Grid>
@@ -113,8 +113,8 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
             padding={'dense'}
           >
             <AltinnTableRow>
-              {node?.textResourceBindings?.leftColumnHeader ? (
-                <TableCell>{lang(node?.textResourceBindings?.leftColumnHeader)}</TableCell>
+              {node?.item.textResourceBindings?.leftColumnHeader ? (
+                <TableCell>{lang(node?.item.textResourceBindings?.leftColumnHeader)}</TableCell>
               ) : (
                 <td />
               )}

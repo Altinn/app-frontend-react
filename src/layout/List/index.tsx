@@ -20,7 +20,7 @@ export class List extends FormComponent<'List'> {
 
   useDisplayData(node: LayoutNodeFromType<'List'>): string {
     const formData = node.getFormData();
-    const dmBindings = node.dataModelBindings;
+    const dmBindings = node.item.dataModelBindings;
     for (const [key, binding] of Object.entries(dmBindings || {})) {
       if (binding == node.item.bindingToShowInSummary) {
         return formData[key] || '';
@@ -49,7 +49,7 @@ export class List extends FormComponent<'List'> {
 
     const validationObjects: IValidationObject[] = [];
 
-    const bindings = Object.values(node.dataModelBindings ?? {});
+    const bindings = Object.values(node.item.dataModelBindings ?? {});
     let listHasErrors = false;
     for (const field of bindings) {
       const data = formData[field];
@@ -59,7 +59,7 @@ export class List extends FormComponent<'List'> {
       }
     }
     if (listHasErrors) {
-      const fieldName = getFieldName(node.textResourceBindings, langTools, undefined);
+      const fieldName = getFieldName(node.item.textResourceBindings, langTools, undefined);
       const message = langTools.langAsString('form_filler.error_required', [fieldName]);
       validationObjects.push(buildValidationObject(node, 'errors', message));
     }

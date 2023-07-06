@@ -19,11 +19,11 @@ export class TextArea extends FormComponent<'TextArea'> {
 
   useDisplayData(node: LayoutNodeFromType<'TextArea'>): string {
     const formData = useAppSelector((state) => state.formData.formData);
-    if (!node.dataModelBindings?.simpleBinding) {
+    if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
 
-    return formData[node.dataModelBindings.simpleBinding] || '';
+    return formData[node.item.dataModelBindings.simpleBinding] || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'TextArea'>): JSX.Element | null {

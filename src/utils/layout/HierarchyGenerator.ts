@@ -396,7 +396,7 @@ export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
    * @see replaceTextResourceParams
    */
   rewriteTextBindings(node: LayoutNodeFromType<Type>, textResources: ITextResource[]) {
-    if (!node.textResourceBindings || node.rowIndex === undefined) {
+    if (!node.item.textResourceBindings || node.rowIndex === undefined) {
       return;
     }
 
@@ -405,10 +405,10 @@ export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
       return;
     }
 
-    const rewrittenItems = { ...node.textResourceBindings };
-    if (textResources && node.textResourceBindings) {
-      for (const key of Object.keys(node.textResourceBindings)) {
-        const textKey = node.textResourceBindings[key];
+    const rewrittenItems = { ...node.item.textResourceBindings };
+    if (textResources && node.item.textResourceBindings) {
+      for (const key of Object.keys(node.item.textResourceBindings)) {
+        const textKey = node.item.textResourceBindings[key];
         if (this.textResourceHasRepeatingGroupVariable(textKey, textResources)) {
           rewrittenItems[key] = `${textKey}-${node.rowIndex}`;
         }

@@ -19,8 +19,8 @@ interface PanelGroupConatinerProps {
 
 export const PanelGroupContainer = ({ node }: PanelGroupConatinerProps) => {
   const { lang } = useLanguage();
-  const title = lang(node.textResourceBindings?.title);
-  const body = lang(node.textResourceBindings?.body);
+  const title = lang(node.item.textResourceBindings?.title);
+  const body = lang(node.item.textResourceBindings?.body);
   const { iconUrl, iconAlt } = node.item.panel || {};
   const fullWidth = node.parent instanceof LayoutPage;
   const isOnBottom = node.parent.children().indexOf(node) === node.parent.children().length - 1;

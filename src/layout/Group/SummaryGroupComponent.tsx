@@ -38,7 +38,7 @@ export function SummaryGroupComponent({
 
   const groupHasErrors = targetNode.hasDeepValidationMessages();
 
-  const textBindings = targetNode.textResourceBindings;
+  const textBindings = targetNode.item.textResourceBindings;
   const title = lang(textBindings?.summaryTitle ?? textBindings?.title);
   const ariaLabel = langAsString(
     textBindings?.summaryAccessibleTitle ?? textBindings?.summaryTitle ?? textBindings?.title,

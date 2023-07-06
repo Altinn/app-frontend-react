@@ -30,8 +30,7 @@ export function CustomWebComponent({
 }: ICustomComponentProps) {
   const langTools = useLanguage();
   const { language, langAsString } = langTools;
-  const { tagName, ...passThroughPropsFromNode } = node.item;
-  const { textResourceBindings, dataModelBindings } = node;
+  const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = node.item;
   const passThroughProps: IPassedOnProps = {
     ...passThroughPropsFromGenericComponent,
     ...passThroughPropsFromNode,

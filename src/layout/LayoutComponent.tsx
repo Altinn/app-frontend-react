@@ -167,12 +167,12 @@ export abstract class FormComponent<Type extends ComponentTypes>
     const formDataToValidate = { ...formData, ...overrideFormData };
     const validationObjects: IValidationObject[] = [];
 
-    const bindings = Object.entries(node.dataModelBindings ?? {});
+    const bindings = Object.entries(node.item.dataModelBindings ?? {});
     for (const [bindingKey, field] of bindings) {
       const data = formDataToValidate[field];
 
       if (!data?.length) {
-        const fieldName = getFieldName(node.textResourceBindings as ITextResourceBindings, langTools, bindingKey);
+        const fieldName = getFieldName(node.item.textResourceBindings as ITextResourceBindings, langTools, bindingKey);
 
         validationObjects.push(
           buildValidationObject(
@@ -190,8 +190,8 @@ export abstract class FormComponent<Type extends ComponentTypes>
   runSchemaValidation(node: LayoutNodeFromType<Type>, schemaErrors: ISchemaValidationError[]): IValidationObject[] {
     const validationObjects: IValidationObject[] = [];
     for (const error of schemaErrors) {
-      if (node.dataModelBindings) {
-        const bindings = Object.entries(node.dataModelBindings);
+      if (node.item.dataModelBindings) {
+        const bindings = Object.entries(node.item.dataModelBindings);
         for (const [bindingKey, bindingField] of bindings) {
           if (bindingField === error.bindingField) {
             validationObjects.push(

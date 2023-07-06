@@ -20,11 +20,11 @@ export class MultipleSelect extends FormComponent<'MultipleSelect'> {
 
   private useSummaryData(node: LayoutNodeFromType<'MultipleSelect'>): { [key: string]: string } {
     const formData = useAppSelector((state) => state.formData.formData);
-    if (!node.dataModelBindings?.simpleBinding) {
+    if (!node.item.dataModelBindings?.simpleBinding) {
       return {};
     }
 
-    const value = formData[node.dataModelBindings.simpleBinding] || '';
+    const value = formData[node.item.dataModelBindings.simpleBinding] || '';
     return useCommaSeparatedOptionsToText(node.item, value);
   }
 

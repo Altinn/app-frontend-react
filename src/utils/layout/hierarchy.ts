@@ -40,7 +40,7 @@ function resolvedNodesInLayouts(
 
   for (const layout of Object.values(unresolved.all())) {
     for (const node of layout.flat(true)) {
-      const input = { ...node.item, textResourceBindings: node.textResourceBindings };
+      const input = { ...node.item };
       delete input['children'];
       delete input['rows'];
       delete input['childComponents'];
@@ -81,11 +81,7 @@ function resolvedNodesInLayouts(
       for (const key of Object.keys(resolvedItem)) {
         // Mutates node.item directly - this also mutates references to it and makes sure
         // we resolve expressions deep inside recursive structures.
-        if (key === 'textResourceBindings') {
-          (node as any).textResourceBindings = resolvedItem[key];
-        } else {
-          node.item[key] = resolvedItem[key];
-        }
+        node.item[key] = resolvedItem[key];
       }
     }
   }

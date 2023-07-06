@@ -20,7 +20,9 @@ export class Checkboxes extends FormComponent<'Checkboxes'> {
 
   private useSummaryData(node: LayoutNodeFromType<'Checkboxes'>): { [key: string]: string } {
     const formData = useAppSelector((state) => state.formData.formData);
-    const value = node.dataModelBindings?.simpleBinding ? formData[node.dataModelBindings.simpleBinding] || '' : '';
+    const value = node.item.dataModelBindings?.simpleBinding
+      ? formData[node.item.dataModelBindings.simpleBinding] || ''
+      : '';
     return useCommaSeparatedOptionsToText(node.item, value);
   }
 

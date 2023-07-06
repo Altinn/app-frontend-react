@@ -119,7 +119,7 @@ export function AltinnMobileTableItem({
       : undefined;
 
   const textResourceBindings = {
-    ...node?.textResourceBindings,
+    ...node?.item.textResourceBindings,
     ...expressionsForRow?.textResourceBindings,
   } as ITextResourceBindings;
 

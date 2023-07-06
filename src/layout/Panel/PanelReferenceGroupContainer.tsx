@@ -26,7 +26,7 @@ export function PanelReferenceGroupContainer({ node }: IPanelGroupContainerProps
   const container = node.item.panel ? node.item : undefined;
   const [open, setOpen] = useState<boolean>(!container?.panel?.groupReference);
   const hidden = node.isHidden();
-  const textResourceBindings = node?.textResourceBindings;
+  const textResourceBindings = node?.item.textResourceBindings;
   const { lang } = useLanguage();
 
   const { iconUrl, iconAlt } = container?.panel || {};

@@ -4,7 +4,7 @@ import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { ComponentClassMap } from 'src/layout';
 import type { HNonRepGroup, HRepGroup } from 'src/layout/Group/types';
-import type { ComponentTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
+import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
 import type { ComponentType } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type {
@@ -37,22 +37,14 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   public readonly itemWithExpressions: Item;
   public readonly def: ComponentClassMap[Type];
 
-  public readonly item: Item;
-  public readonly textResourceBindings: ITextResourceBindings<Type>;
-  public readonly dataModelBindings: IDataModelBindings<Type>;
-
   public constructor(
-    item: Item,
+    public item: Item,
     public parent: ParentNode,
     public top: LayoutPage,
     private readonly dataSources: HierarchyDataSources,
     public readonly rowIndex?: number,
   ) {
     this.def = getLayoutComponentObject(item.type as any);
-    const { dataModelBindings, textResourceBindings, ...restItem } = item as any;
-    this.item = restItem as Item;
-    this.dataModelBindings = dataModelBindings;
-    this.textResourceBindings = textResourceBindings;
     this.itemWithExpressions = structuredClone(item);
   }
 
@@ -216,9 +208,9 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   }
 
   private firstDataModelBinding() {
-    const firstBinding = Object.keys(this.dataModelBindings || {}).shift();
-    if (firstBinding && this.dataModelBindings) {
-      return this.dataModelBindings[firstBinding];
+    const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
+    if (firstBinding && this.item.dataModelBindings) {
+      return this.item.dataModelBindings[firstBinding];
     }
 
     return undefined;
@@ -369,13 +361,13 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
    * Gets the current form data for this component
    */
   public getFormData(): IComponentFormData {
-    if (!this.dataModelBindings) {
+    if (!this.item.dataModelBindings) {
       return {};
     }
 
     const formDataObj: IComponentFormData = {};
-    for (const key of Object.keys(this.dataModelBindings)) {
-      const binding = this.dataModelBindings[key];
+    for (const key of Object.keys(this.item.dataModelBindings)) {
+      const binding = this.item.dataModelBindings[key];
       if (this.dataSources.formData[binding]) {
         formDataObj[key] = this.dataSources.formData[binding];
       } else {

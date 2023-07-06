@@ -110,8 +110,7 @@ export function DatepickerComponent({ node, formData, handleDataChange, isValid,
   const profile = useAppSelector((state) => state.profile);
   const { langAsString } = useLanguage();
   const languageLocale = profile.selectedAppLanguage || profile.profile.profileSettingPreference.language;
-  const { minDate, maxDate, format, timeStamp = true, readOnly, required, id } = node.item;
-  const { textResourceBindings } = node;
+  const { minDate, maxDate, format, timeStamp = true, readOnly, required, id, textResourceBindings } = node.item;
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');

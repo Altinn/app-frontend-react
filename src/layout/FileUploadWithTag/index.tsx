@@ -66,7 +66,7 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> implem
             missingId +
             AsciiUnitSeparator +
             langTools.langAsString('form_filler.file_uploader_validation_error_no_chosen_tag')
-          } ${(node.textResourceBindings?.tagTitle || '').toLowerCase()}.`;
+          } ${(node.item.textResourceBindings?.tagTitle || '').toLowerCase()}.`;
           validations.push(buildValidationObject(node, 'errors', message));
         });
       }

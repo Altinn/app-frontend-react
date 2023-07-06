@@ -18,8 +18,7 @@ export const buttonStyles: {
 export type ILinkComponent = PropsFromGenericComponent<'Link'>;
 
 export function LinkComponent({ node }: ILinkComponent) {
-  const { id, style, openInNewTab } = node.item;
-  const { textResourceBindings } = node;
+  const { id, style, openInNewTab, textResourceBindings } = node.item;
   const { lang, langAsString } = useLanguage();
   const parentIsPage = node.parent instanceof LayoutPage;
 

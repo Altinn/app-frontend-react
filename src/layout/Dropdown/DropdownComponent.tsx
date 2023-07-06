@@ -15,8 +15,16 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
 export function DropdownComponent({ node, formData, handleDataChange, isValid, overrideDisplay }: IDropdownProps) {
-  const { optionsId, options: staticOptions, preselectedOptionIndex, id, readOnly, mapping, source } = node.item;
-  const { textResourceBindings } = node;
+  const {
+    optionsId,
+    options: staticOptions,
+    preselectedOptionIndex,
+    id,
+    readOnly,
+    mapping,
+    source,
+    textResourceBindings,
+  } = node.item;
   const { langAsString } = useLanguage();
   const options = (useGetOptions({ optionsId, mapping, source }) || staticOptions)?.filter(duplicateOptionFilter);
   const lookupKey = optionsId && getOptionLookupKey({ id: optionsId, mapping });

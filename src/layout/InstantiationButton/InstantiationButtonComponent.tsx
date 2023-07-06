@@ -20,7 +20,7 @@ export function InstantiationButtonComponent({ node, ...componentProps }: IInsta
       className={classes.container}
       style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
     >
-      <InstantiationButton {...props}>{lang(node.textResourceBindings?.title)}</InstantiationButton>
+      <InstantiationButton {...props}>{lang(node.item.textResourceBindings?.title)}</InstantiationButton>
     </div>
   );
 }
