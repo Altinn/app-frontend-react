@@ -141,6 +141,7 @@ describe('schemaValidation', () => {
         tests: [
           { value: 'altinn.no', expected: true },
           { value: 'altinnæøå.no.', expected: false },
+          { value: 'altinn/studio', expected: false },
         ],
       },
       {
@@ -148,6 +149,7 @@ describe('schemaValidation', () => {
         tests: [
           { value: 'altinn.no', expected: true },
           { value: 'altinnæøå.no.', expected: true },
+          { value: 'altinn/studio', expected: false },
         ],
       },
       {
