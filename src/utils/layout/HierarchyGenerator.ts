@@ -415,7 +415,7 @@ export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
       }
     }
 
-    (node as any).textResourceBindings = { ...rewrittenItems };
+    node.item.textResourceBindings = { ...rewrittenItems };
   }
 }
 
