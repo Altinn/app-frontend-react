@@ -31,9 +31,8 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size']
 export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayoutNode }: IDisplayGroupContainer) {
   const { lang, langAsString } = useLanguage();
   const container = groupNode.item;
-  const { textResourceBindings } = groupNode.item;
-  const title = langAsString(textResourceBindings?.title);
-  const body = lang(textResourceBindings?.body);
+  const title = langAsString(container.textResourceBindings?.title);
+  const body = lang(container.textResourceBindings?.body);
 
   if (groupNode.isHidden()) {
     return null;

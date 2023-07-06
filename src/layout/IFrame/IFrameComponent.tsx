@@ -10,7 +10,7 @@ export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 
 export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => {
   const { lang, langAsString } = useLanguage();
-  const { sandbox, textResourceBindings } = node.item;
+  const { textResourceBindings, sandbox } = node.item;
 
   const sandboxProperties = getSandboxProperties(sandbox);
   const iFrameTitle = textResourceBindings?.title;

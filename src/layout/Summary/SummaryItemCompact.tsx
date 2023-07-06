@@ -12,7 +12,6 @@ export interface ICompactSummaryItem {
 
 export function SummaryItemCompact({ targetNode, displayData }: ICompactSummaryItem) {
   const { lang } = useLanguage();
-
   const textBindings = targetNode.item.textResourceBindings as ITextResourceBindings;
   const title = lang(textBindings?.summaryTitle ?? textBindings?.title);
   return (

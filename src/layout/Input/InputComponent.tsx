@@ -19,10 +19,10 @@ export function InputComponent({ node, isValid, formData, handleDataChange, over
     required,
     formatting,
     variant,
+    textResourceBindings,
     saveWhileTyping,
     autocomplete,
     maxLength,
-    textResourceBindings,
   } = node.item;
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(
     handleDataChange,

@@ -14,7 +14,7 @@ export type IControlledRadioGroupProps = IRadioButtonsContainerProps;
 
 export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const { node, isValid, overrideDisplay } = props;
-  const { id, layout, readOnly, required, labelSettings, showAsCard, textResourceBindings } = node.item;
+  const { id, layout, readOnly, textResourceBindings, required, labelSettings, showAsCard } = node.item;
   const { selected, handleChange, handleBlur, fetchingOptions, calculatedOptions } = useRadioButtons(props);
   const { lang, langAsString } = useLanguage();
 

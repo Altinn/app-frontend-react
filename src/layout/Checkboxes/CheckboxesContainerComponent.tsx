@@ -36,9 +36,9 @@ export const CheckboxContainerComponent = ({
     readOnly,
     mapping,
     source,
+    textResourceBindings,
     required,
     labelSettings,
-    textResourceBindings,
   } = node.item;
   const apiOptions = useGetOptions({ optionsId, mapping, source });
   const calculatedOptions = apiOptions || options || defaultOptions;
