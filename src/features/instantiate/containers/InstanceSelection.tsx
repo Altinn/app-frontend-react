@@ -104,25 +104,27 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
             </TableRow>
           ))}
         </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={2}>
-              <div className={classes.paginationWrapperMobile}>
-                <Pagination
-                  numberOfRows={instances.length}
-                  rowsPerPageOptions={rowsPerPageOptions}
-                  rowsPerPage={rowsPerPage}
-                  currentPage={currentPage}
-                  onRowsPerPageChange={(changeEvent) =>
-                    handleRowsPerPageChanged(parseInt(changeEvent.currentTarget.value))
-                  }
-                  setCurrentPage={(page) => setCurrentPage(page)}
-                  descriptionTexts={language && (language['list_component'] as DescriptionText)}
-                />
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableFooter>
+        {instances.length > rowsPerPageOptions[0] && (
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={2}>
+                <div className={classes.paginationWrapperMobile}>
+                  <Pagination
+                    numberOfRows={instances.length}
+                    rowsPerPageOptions={rowsPerPageOptions}
+                    rowsPerPage={rowsPerPage}
+                    currentPage={currentPage}
+                    onRowsPerPageChange={(changeEvent) =>
+                      handleRowsPerPageChanged(parseInt(changeEvent.currentTarget.value))
+                    }
+                    setCurrentPage={(page) => setCurrentPage(page)}
+                    descriptionTexts={language && (language['list_component'] as DescriptionText)}
+                  />
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        )}
       </Table>
     </>
   );
@@ -158,25 +160,27 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
             </TableRow>
           ))}
         </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>
-              <div className={classes.paginationWrapper}>
-                <Pagination
-                  numberOfRows={instances.length}
-                  rowsPerPageOptions={rowsPerPageOptions}
-                  rowsPerPage={rowsPerPage}
-                  currentPage={currentPage}
-                  onRowsPerPageChange={(changeEvent) =>
-                    handleRowsPerPageChanged(parseInt(changeEvent.currentTarget.value))
-                  }
-                  setCurrentPage={(page) => setCurrentPage(page)}
-                  descriptionTexts={language && (language['list_component'] as DescriptionText)}
-                />
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableFooter>
+        {instances.length > rowsPerPageOptions[0] && (
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={3}>
+                <div className={classes.paginationWrapper}>
+                  <Pagination
+                    numberOfRows={instances.length}
+                    rowsPerPageOptions={rowsPerPageOptions}
+                    rowsPerPage={rowsPerPage}
+                    currentPage={currentPage}
+                    onRowsPerPageChange={(changeEvent) =>
+                      handleRowsPerPageChanged(parseInt(changeEvent.currentTarget.value))
+                    }
+                    setCurrentPage={(page) => setCurrentPage(page)}
+                    descriptionTexts={language && (language['list_component'] as DescriptionText)}
+                  />
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        )}
       </Table>
     </div>
   );
