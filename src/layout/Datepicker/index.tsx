@@ -1,13 +1,11 @@
 import React from 'react';
 
-import moment from 'moment';
-
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { formatISOString, getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
+import { formatISOString, getDateConstraint, getDateFormat, parseISOString } from 'src/utils/dateHelpers';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
@@ -66,18 +64,18 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
     const format = getDateFormat(node.item.format, langTools.selectedLanguage);
 
     const validations: IValidationObject[] = [];
-    const date = moment(data, moment.ISO_8601);
+    const { date, isValid } = parseISOString(data);
 
-    if (!date.isValid()) {
+    if (isValid) {
+      if (date.isBefore(minDate)) {
+        validations.push(buildValidationObject(node, 'errors', langTools.langAsString('date_picker.min_date_exeeded')));
+      } else if (date.isAfter(maxDate)) {
+        validations.push(buildValidationObject(node, 'errors', langTools.langAsString('date_picker.max_date_exeeded')));
+      }
+    } else {
       validations.push(
         buildValidationObject(node, 'errors', langTools.langAsString('date_picker.invalid_date_message', [format])),
       );
-    }
-
-    if (date.isBefore(minDate)) {
-      validations.push(buildValidationObject(node, 'errors', langTools.langAsString('date_picker.min_date_exeeded')));
-    } else if (date.isAfter(maxDate)) {
-      validations.push(buildValidationObject(node, 'errors', langTools.langAsString('date_picker.max_date_exeeded')));
     }
 
     return validations;

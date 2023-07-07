@@ -1,4 +1,5 @@
 import moment from 'moment';
+import type { Moment } from 'moment';
 
 import { DateFlags } from 'src/types';
 
@@ -13,9 +14,12 @@ export function getISOString(potentialDate: string | undefined): string | undefi
     return undefined;
   }
 
-  const momentDate = moment(potentialDate);
-  momentDate.set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
-  return momentDate.isValid() ? momentDate.toISOString() : undefined;
+  const { date, isValid } = parseISOString(potentialDate);
+  if (isValid) {
+    date.set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
+    return date.toISOString();
+  }
+  return undefined;
 }
 
 const locale = window.navigator?.language || (window.navigator as any)?.userLanguage || 'nb';
@@ -28,11 +32,11 @@ export function getDateFormat(format?: string, selectedLanguage = 'nb'): string 
   return moment.localeData(selectedLanguage).longDateFormat('L') || DatepickerFormatDefault;
 }
 
-export function getDateString(date: moment.Moment | null, timestamp: boolean) {
+export function getDateString(date: Moment | null, timestamp: boolean) {
   return (
     (timestamp === false
-      ? date?.format(DatepickerSaveFormatNoTimestamp)
-      : date?.format(DatepickerSaveFormatTimestamp)) ?? ''
+      ? formatDate(date, DatepickerSaveFormatNoTimestamp)
+      : formatDate(date, DatepickerSaveFormatTimestamp)) ?? ''
   );
 }
 
@@ -51,7 +55,45 @@ export function getDateConstraint(dateOrFlag: string | DateFlags | undefined, co
   }
 }
 
-export function formatISOString(isoString: string, format: string): string | null {
+export function formatISOString(isoString: string | undefined, format: string): string | null {
+  return formatDate(parseISOString(isoString).date, format);
+}
+
+export function isValidDate(date: Moment | null | undefined): boolean {
+  return Boolean(date?.isValid());
+}
+
+export type DateResult =
+  | {
+      isValid: true;
+      date: Moment;
+      input: undefined;
+    }
+  | {
+      isValid: false;
+      date: null;
+      input: string;
+    };
+export function parseISOString(isoString: string | undefined): DateResult {
   const date = moment(isoString, moment.ISO_8601);
-  return date.isValid() ? date.format(format) : null;
+  if (isValidDate(date)) {
+    return {
+      isValid: true,
+      date,
+      input: undefined,
+    };
+  } else {
+    return {
+      isValid: false,
+      date: null,
+      input: isoString ?? '',
+    };
+  }
+}
+
+export function formatDate(date: Moment | null | undefined, format: string): string | null {
+  if (isValidDate(date)) {
+    return (date as Moment).format(format);
+  }
+  return null;
 }

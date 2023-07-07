@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-import moment from 'moment';
-
 import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIconReceipt';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
@@ -15,6 +13,7 @@ import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getAppReceiver } from 'src/language/sharedLanguage';
 import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
+import { formatISOString } from 'src/utils/dateHelpers';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
@@ -121,7 +120,11 @@ export const ReceiptContainer = () => {
       );
       setAttachments(attachmentsResult);
       setPdf(getInstancePdf(instance.data));
-      setLastChangedDateTime(moment(instance.lastChanged).format('DD.MM.YYYY / HH:mm'));
+
+      const lastChanged = formatISOString(instance.lastChanged, 'DD.MM.YYYY / HH:mm');
+      if (lastChanged) {
+        setLastChangedDateTime(lastChanged);
+      }
     }
   }, [instance, applicationMetadata]);
 

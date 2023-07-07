@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Grid } from '@material-ui/core';
-import Moment from 'moment';
 
 import type { PropsFromGenericComponent } from '..';
 
@@ -9,7 +8,7 @@ import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { selectAppReceiver } from 'src/selectors/language';
-import { getDateFormat } from 'src/utils/dateHelpers';
+import { formatISOString, getDateFormat } from 'src/utils/dateHelpers';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IRuntimeState } from 'src/types';
@@ -67,8 +66,9 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
   const instanceOwnerParty =
     instance && parties?.find((party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId);
 
-  const instanceDateSent =
-    dateSent !== false && Moment(instance?.lastChanged).format(getDateFormat(undefined, selectedLanguage));
+  const format = getDateFormat(undefined, selectedLanguage);
+  const lastChanged = formatISOString(instance?.lastChanged, format);
+  const instanceDateSent = dateSent !== false && lastChanged;
 
   const instanceSender =
     sender !== false &&

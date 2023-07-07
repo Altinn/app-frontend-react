@@ -3,14 +3,21 @@ import React from 'react';
 import MomentUtils from '@date-io/moment';
 import { Grid, Icon, makeStyles } from '@material-ui/core';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import moment from 'moment';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
+import type { Moment } from 'moment';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { getDateConstraint, getDateFormat, getDateString } from 'src/utils/dateHelpers';
+import {
+  formatDate,
+  getDateConstraint,
+  getDateFormat,
+  getDateString,
+  isValidDate,
+  parseISOString,
+} from 'src/utils/dateHelpers';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/layout/Datepicker/DatepickerComponent.css';
@@ -94,9 +101,9 @@ const useStyles = makeStyles(() => ({
 }));
 
 class AltinnMomentUtils extends MomentUtils {
-  getDatePickerHeaderText(date: moment.Moment) {
+  getDatePickerHeaderText(date: Moment) {
     if (date && date.locale() === 'nb') {
-      return date.format('dddd, D. MMMM');
+      return formatDate(date, 'dddd, D. MMMM') ?? '';
     }
     return super.getDatePickerHeaderText(date);
   }
@@ -120,16 +127,15 @@ export function DatepickerComponent({ node, formData, handleDataChange, isValid,
 
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '');
 
-  const dateValue = moment(value, moment.ISO_8601);
-  const [date, input] = dateValue.isValid() ? [dateValue, undefined] : [null, value ?? ''];
+  const { date, input } = parseISOString(value);
 
   const handleDateValueChange = (
     dateValue: MaterialUiPickersDate,
     inputValue: string | undefined,
     saveImmediately = false,
   ) => {
-    if (dateValue?.isValid()) {
-      dateValue.set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
+    if (isValidDate(dateValue)) {
+      (dateValue as Moment).set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
       setValue(getDateString(dateValue, timeStamp), saveImmediately);
     } else {
       const skipValidation = (dateValue?.parsingFlags().charsLeftOver ?? 0) > 0;
