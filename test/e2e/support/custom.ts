@@ -184,6 +184,7 @@ Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
 
   // Work around slow state updates in Dropdown (possibly in combination with preselectedOptionIndex)
   cy.window().then((win) => {
+    const state = win.reduxStore.getState();
     cy.waitUntil(() => {
       const allDropdowns = win.document.querySelectorAll('[data-componenttype="Dropdown"]');
       const asArray = Array.from(allDropdowns);
@@ -192,6 +193,21 @@ Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
         if (!inputInside) {
           return false;
         }
+        const baseId = dropdown.getAttribute('data-componentbaseid');
+        const currentPageName = state.formLayout.uiConfig.currentView;
+        const currentPage = state.formLayout.layouts && state.formLayout.layouts[currentPageName];
+        const componentDef = currentPage?.find((c) => c.id === baseId);
+        if (!componentDef) {
+          throw new Error(`Could not find component definition for dropdown with id ${baseId}`);
+        }
+        if (
+          componentDef.type === 'Dropdown' &&
+          componentDef.preselectedOptionIndex !== undefined &&
+          !inputInside.value
+        ) {
+          return false;
+        }
+
         const activeDescendant = dropdown.getAttribute('aria-activedescendant');
         if (!activeDescendant) {
           return true;

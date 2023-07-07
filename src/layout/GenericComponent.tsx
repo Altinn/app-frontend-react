@@ -280,6 +280,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   return (
     <FormComponentContext.Provider value={formComponentContext}>
       <Grid
+        data-componentbaseid={item.baseComponentId || item.id}
         data-componentid={item.id}
         data-componenttype={item.type}
         ref={gridRef}
