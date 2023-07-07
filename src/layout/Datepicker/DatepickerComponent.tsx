@@ -14,7 +14,7 @@ import {
   formatDate,
   getDateConstraint,
   getDateFormat,
-  getDateString,
+  getSaveFormattedDateString,
   isValidDate,
   parseISOString,
 } from 'src/utils/dateHelpers';
@@ -136,7 +136,7 @@ export function DatepickerComponent({ node, formData, handleDataChange, isValid,
   ) => {
     if (isValidDate(dateValue)) {
       (dateValue as Moment).set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
-      setValue(getDateString(dateValue, timeStamp), saveImmediately);
+      setValue(getSaveFormattedDateString(dateValue, timeStamp), saveImmediately);
     } else {
       const skipValidation = (dateValue?.parsingFlags().charsLeftOver ?? 0) > 0;
       setValue(inputValue ?? '', saveImmediately, skipValidation);
