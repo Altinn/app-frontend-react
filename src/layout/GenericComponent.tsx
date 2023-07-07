@@ -281,6 +281,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     <FormComponentContext.Provider value={formComponentContext}>
       <Grid
         data-componentid={item.id}
+        data-componenttype={item.type}
         ref={gridRef}
         item={true}
         container={true}
