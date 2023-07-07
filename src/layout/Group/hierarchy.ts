@@ -2,9 +2,9 @@ import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { HRepGroupChild, HRepGroupRow } from 'src/layout/Group/types';
+import type { HGroups, HRepGroupChild, HRepGroupRow } from 'src/layout/Group/types';
 import type { ITextResource } from 'src/types';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { HComponent, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type {
   ChildFactory,
   ChildFactoryProps,
@@ -42,7 +42,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       const groupId = item.panel.groupReference.group;
       const groupPrototype = generator.prototype(groupId) as UnprocessedItem<'Group'>;
       if (!groupPrototype) {
-        console.warn(`Group ${groupId} referenced by panel ${item.id} does not exist`);
+        window.logWarn(`Group ${groupId} referenced by panel ${item.id} does not exist`);
         return;
       }
 
@@ -166,7 +166,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       delete (props.item as any)['children'];
       const me = ctx.generator.makeNode(props);
 
-      const childNodes: LayoutNode[] = [];
+      const childNodes: LayoutNode<HComponent | HGroups>[] = [];
       for (const id of prototype.children) {
         const [, childId] = me.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
         const child = ctx.generator.newChild({
@@ -174,7 +174,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
           parent: me,
           childId,
         });
-        child && childNodes.push(child);
+        child && childNodes.push(child as LayoutNode<HComponent | HGroups>);
       }
 
       if (me.isNonRepGroup()) {
@@ -217,7 +217,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
               mutateMapping(ctx, rowIndex),
             ],
           });
-          child && rowChildren.push(child);
+          child && rowChildren.push(child as LayoutNode<HRepGroupChild>);
         }
 
         rows.push({
@@ -248,7 +248,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
               mutateMapping(ctx, nextIndex),
             ],
           });
-          child && nextChildren.push(child);
+          child && nextChildren.push(child as LayoutNode<HRepGroupChild>);
         }
 
         ref.nextChildren = nextChildren;

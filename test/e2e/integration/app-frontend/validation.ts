@@ -109,11 +109,11 @@ describe('Validation', () => {
       .should('contain.text', texts.next);
 
     // Make sure all the buttons in the form are now inside errorReport, not outside of it.
-    // - 4 of the button roles belong to each of the errors in the report
+    // - 5 of the button roles belong to each of the errors in the report
     // - 2 of the button roles belong to the buttons on the bottom of the form (print, next)
     cy.get(appFrontend.errorReport)
       .findAllByRole('button')
-      .should('have.length', 4 + 2);
+      .should('have.length', 5 + 2);
 
     const lastNameError = appFrontend.fieldValidation(appFrontend.changeOfName.newLastName);
     cy.get(lastNameError).should('exist').should('not.be.inViewport');
@@ -259,7 +259,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('not.exist');
   });
 
-  it('Validation messages should only show up once', () => {
+  it('List component: validation messages should only show up once', () => {
     cy.goto('datalist');
     cy.get(appFrontend.nextButton).click();
     cy.get(appFrontend.errorReport)
@@ -279,10 +279,13 @@ describe('Validation', () => {
 
     cy.get(appFrontend.group.prefill.liten).dsCheck();
     cy.get(appFrontend.group.prefill.stor).dsCheck();
-    cy.get(appFrontend.nextButton).click();
+    cy.get(appFrontend.nextButton).clickAndGone();
+    cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
 
-    // Check that showGroupToContinue is focused
+    // Check that showGroupToContinue can be focused when clicked
     cy.get(appFrontend.nextButton).click();
+    cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
+
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
     cy.get(appFrontend.errorReport).findByText(texts.requiredOpenRepGroup).click();
     cy.get(appFrontend.group.showGroupToContinue).find('input').should('be.focused');
@@ -413,6 +416,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.get(appFrontend.nextButton).click();
+    cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
     cy.get(appFrontend.errorReport).findByText('Du må fylle ut 1.').click();
     cy.get(appFrontend.group.row(2).currentValue).should('be.focused');
@@ -434,6 +438,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').eq(2).find('td').eq(0).should('have.text', '');
     cy.get(appFrontend.group.row(2).currentValue).should('not.exist');
     cy.get(appFrontend.nextButton).click();
+    cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
     cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi til').click();
     cy.get(appFrontend.group.row(2).newValue).should('be.focused');

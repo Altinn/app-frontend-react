@@ -1,5 +1,5 @@
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { ILayoutCompBase } from 'src/layout/layout';
+import type { ILayoutCompBase, ITableColumnProperties } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/hierarchy';
 
 export interface GridComponentRef {
@@ -14,6 +14,7 @@ type GridComponentType = GridComponentRef | GridComponent;
 
 export interface GridText {
   text: string;
+  help?: string;
   alignText?: 'left' | 'center' | 'right';
   textOverflow?: {
     lineWrap?: boolean;

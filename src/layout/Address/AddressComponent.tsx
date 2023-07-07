@@ -9,7 +9,7 @@ import { AddressLabel } from 'src/layout/Address/AddressLabel';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IComponentValidations } from 'src/types';
+import type { IComponentValidations } from 'src/utils/validation/types';
 
 import 'src/layout/Address/AddressComponent.css';
 
@@ -146,7 +146,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
         if (axios.isCancel(err)) {
           // Intentionally ignored
         } else {
-          console.error(err);
+          window.logError(`AddressComponent (${id}):\n`, err);
         }
       }
     };
@@ -155,7 +155,7 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
     return function cleanup() {
       source.cancel('ComponentWillUnmount');
     };
-  }, [formData.zipCode, langAsString, source, onSaveField, validations, setPostPlace]);
+  }, [formData.zipCode, langAsString, source, onSaveField, validations, setPostPlace, id]);
 
   const updateField = (key: AddressKeys, saveImmediately: boolean, event: any): void => {
     const changedFieldValue: string = event.target.value;
