@@ -1,3 +1,4 @@
+import type { IOnEntry } from 'src/features/applicationMetadata';
 import type { IProcessPermissions } from 'src/features/process';
 import type { FixedLanguageList } from 'src/language/languages';
 
@@ -32,16 +33,6 @@ export interface IApplicationLogic {
   classRef?: string;
   schemaRef?: string;
 }
-
-export interface IOnEntry {
-  show: 'new-instance' | 'startpage' | string;
-  instanceSelection?: IInstanceSelection;
-}
-
-export type IInstanceSelection = {
-  rowsPerPageOptions: number[];
-  sortDirection: 'asc' | 'desc';
-};
 
 export interface IAttachment {
   name?: string;
