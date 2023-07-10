@@ -49,7 +49,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   }
 
   public isType<T extends ComponentTypes>(type: T): this is LayoutNodeFromType<T> {
-    return this.item.type === type;
+    return this.item.type === type || (!!this.item.renderAsSummary && type === 'Summary');
   }
 
   public isComponentType<T extends ComponentType>(type: T): this is LayoutNodeFromComponentType<T> {
