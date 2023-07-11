@@ -102,8 +102,11 @@ const useStyles = makeStyles(() => ({
 
 class DateUtilsProvider extends DateFnsUtils {
   getDatePickerHeaderText(date: Date) {
-    if (this.locale?.code === 'nb') {
-      return format(date, 'EEEE, d. MMMM', { locale: this.locale }) ?? '';
+    const code = this.locale?.code?.substring(0, 2);
+    if ((['nb', 'nn'] as (string | undefined)[]).includes(code)) {
+      return format(date, 'EEEE, d. MMMM', { locale: this.locale });
+    } else if (code === 'en') {
+      return format(date, 'EEEE, MMMM d', { locale: this.locale });
     }
     return super.getDatePickerHeaderText(date);
   }
