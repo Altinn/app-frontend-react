@@ -1,9 +1,7 @@
 import React from 'react';
 
-import DateFnsUtils from '@date-io/date-fns';
 import { Grid, Icon, makeStyles } from '@material-ui/core';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import { format } from 'date-fns';
 import set from 'date-fns/set';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
@@ -11,8 +9,10 @@ import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import {
+  convertToDatepickerFormat,
   getDateConstraint,
   getDateFormat,
+  getDateUtils,
   getLocale,
   getSaveFormattedDateString,
   isValidDate,
@@ -100,18 +100,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-class DateUtilsProvider extends DateFnsUtils {
-  getDatePickerHeaderText(date: Date) {
-    const code = this.locale?.code?.substring(0, 2);
-    if ((['nb', 'nn'] as (string | undefined)[]).includes(code)) {
-      return format(date, 'EEEE, d. MMMM', { locale: this.locale });
-    } else if (code === 'en') {
-      return format(date, 'EEEE, MMMM d', { locale: this.locale });
-    }
-    return super.getDatePickerHeaderText(date);
-  }
-}
-
 // We dont use the built-in validation for the 3rd party component, so it is always empty string
 const emptyString = '';
 
@@ -123,8 +111,9 @@ export function DatepickerComponent({ node, formData, handleDataChange, isValid,
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
-
-  const calculatedFormat = getDateFormat(format, selectedLanguage);
+  const resolvedFormat = getDateFormat(format, selectedLanguage);
+  const calculatedFormat = convertToDatepickerFormat(resolvedFormat);
+  const DateUtilsProvider = getDateUtils(resolvedFormat, calculatedFormat);
   const isMobile = useIsMobile();
 
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '');
@@ -152,7 +141,6 @@ export function DatepickerComponent({ node, formData, handleDataChange, isValid,
         todayLabel: langAsString('date_picker.today_label'),
       }
     : {};
-
   return (
     <>
       <MuiPickersUtilsProvider
