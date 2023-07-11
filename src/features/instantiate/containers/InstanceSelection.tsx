@@ -48,7 +48,11 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
+  const [rowsPerPage, setRowsPerPage] = useState(
+    (instanceSelectionOptions?.defaultRowsPerPage &&
+      rowsPerPageOptions[instanceSelectionOptions?.defaultRowsPerPage]) ??
+      rowsPerPageOptions[0],
+  );
 
   if (instanceSelectionOptions?.sortDirection === 'desc') {
     instances = instances.slice().reverse();
