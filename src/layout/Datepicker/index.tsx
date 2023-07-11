@@ -1,11 +1,13 @@
 import React from 'react';
 
+import { isAfter, isBefore } from 'date-fns';
+
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { formatISOString, getDateConstraint, getDateFormat, parseISOString } from 'src/utils/dateHelpers';
+import { formatISOString, getDateConstraint, getDateFormat, getLocale, parseISOString } from 'src/utils/dateHelpers';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
@@ -32,7 +34,7 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
 
     const dateFormat = getDateFormat(node.item.format, selectedLanguage);
     const data = formData[node.item.dataModelBindings?.simpleBinding] || '';
-    return formatISOString(data, dateFormat) ?? data;
+    return formatISOString(data, dateFormat, getLocale(selectedLanguage)) ?? data;
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Datepicker'>): JSX.Element | null {
@@ -67,9 +69,9 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
     const { date, isValid } = parseISOString(data);
 
     if (isValid) {
-      if (date.isBefore(minDate)) {
+      if (isBefore(date, minDate)) {
         validations.push(buildValidationObject(node, 'errors', langTools.langAsString('date_picker.min_date_exeeded')));
-      } else if (date.isAfter(maxDate)) {
+      } else if (isAfter(date, maxDate)) {
         validations.push(buildValidationObject(node, 'errors', langTools.langAsString('date_picker.max_date_exeeded')));
       }
     } else {

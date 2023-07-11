@@ -1,19 +1,19 @@
 import React from 'react';
 
-import MomentUtils from '@date-io/moment';
+import DateFnsUtils from '@date-io/date-fns';
 import { Grid, Icon, makeStyles } from '@material-ui/core';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { format } from 'date-fns';
+import set from 'date-fns/set';
 import type { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
-import type { Moment } from 'moment';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useIsMobile } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import {
-  formatDate,
   getDateConstraint,
   getDateFormat,
+  getLocale,
   getSaveFormattedDateString,
   isValidDate,
   parseISOString,
@@ -100,10 +100,10 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-class AltinnMomentUtils extends MomentUtils {
-  getDatePickerHeaderText(date: Moment) {
-    if (date && date.locale() === 'nb') {
-      return formatDate(date, 'dddd, D. MMMM') ?? '';
+class DateUtilsProvider extends DateFnsUtils {
+  getDatePickerHeaderText(date: Date) {
+    if (this.locale?.code === 'nb') {
+      return format(date, 'EEEE, d. MMMM', { locale: this.locale }) ?? '';
     }
     return super.getDatePickerHeaderText(date);
   }
@@ -114,15 +114,14 @@ const emptyString = '';
 
 export function DatepickerComponent({ node, formData, handleDataChange, isValid, overrideDisplay }: IDatepickerProps) {
   const classes = useStyles();
-  const profile = useAppSelector((state) => state.profile);
   const { langAsString } = useLanguage();
-  const languageLocale = profile.selectedAppLanguage || profile.profile.profileSettingPreference.language;
+  const { selectedLanguage } = useLanguage();
   const { minDate, maxDate, format, timeStamp = true, readOnly, required, id, textResourceBindings } = node.item;
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
   const calculatedMaxDate = getDateConstraint(maxDate, 'max');
 
-  const calculatedFormat = getDateFormat(format, languageLocale);
+  const calculatedFormat = getDateFormat(format, selectedLanguage);
   const isMobile = useIsMobile();
 
   const { value, setValue, saveValue, onPaste } = useDelayedSavedState(handleDataChange, formData?.simpleBinding ?? '');
@@ -135,10 +134,10 @@ export function DatepickerComponent({ node, formData, handleDataChange, isValid,
     saveImmediately = false,
   ) => {
     if (isValidDate(dateValue)) {
-      (dateValue as Moment).set('hour', 12).set('minute', 0).set('second', 0).set('millisecond', 0);
+      dateValue = set(dateValue as Date, { hours: 12, minutes: 0, seconds: 0, milliseconds: 0 });
       setValue(getSaveFormattedDateString(dateValue, timeStamp), saveImmediately);
     } else {
-      const skipValidation = (dateValue?.parsingFlags().charsLeftOver ?? 0) > 0;
+      const skipValidation = Boolean(inputValue && inputValue.length < calculatedFormat.length);
       setValue(inputValue ?? '', saveImmediately, skipValidation);
     }
   };
@@ -153,7 +152,10 @@ export function DatepickerComponent({ node, formData, handleDataChange, isValid,
 
   return (
     <>
-      <MuiPickersUtilsProvider utils={AltinnMomentUtils}>
+      <MuiPickersUtilsProvider
+        utils={DateUtilsProvider}
+        locale={getLocale(selectedLanguage)}
+      >
         <Grid
           container
           item

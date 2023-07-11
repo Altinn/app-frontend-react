@@ -1,9 +1,10 @@
-import moment from 'moment';
+import { format, parseISO } from 'date-fns';
 
 import { DateFlags } from 'src/types/index';
 import {
   DatepickerMaxDateDefault,
   DatepickerMinDateDefault,
+  DatepickerSaveFormatNoTimestamp,
   formatDate,
   formatISOString,
   getDateConstraint,
@@ -14,22 +15,26 @@ import {
 } from 'src/utils/dateHelpers';
 
 /**
- * Mock todays date to be 2023-07-07T12:54:25.000Z
- */
-jest.spyOn(Date, 'now').mockImplementation(() => 1688734465000);
-
-/**
  * The time zone is set to UTC when running tests
  */
 describe('dateHelpers', () => {
+  beforeAll(() => {
+    /**
+     * Mock todays date to be 2023-07-07T12:54:25.000Z
+     */
+    jest.useFakeTimers({ now: 1688734465000 });
+  });
   describe('getDateFormat', () => {
     const tests: { props: Parameters<typeof getDateFormat>; expected: ReturnType<typeof getDateFormat> }[] = [
-      { props: ['YYYY-MM-DD'], expected: 'YYYY-MM-DD' },
-      { props: ['DD/MM/YYYY'], expected: 'DD/MM/YYYY' },
-      { props: ['DD.MM.YYYY'], expected: 'DD.MM.YYYY' },
-      { props: [undefined, 'en'], expected: 'MM/DD/YYYY' },
-      { props: [undefined, 'nb'], expected: 'DD.MM.YYYY' },
-      { props: [undefined, undefined], expected: 'DD.MM.YYYY' },
+      { props: ['YYYY-MM-DD'], expected: 'yyyy-MM-dd' },
+      { props: ['DD/MM/YYYY'], expected: 'dd/MM/yyyy' },
+      { props: ['DD.MM.YYYY'], expected: 'dd.MM.y' },
+      { props: ['yyyy-MM-dd'], expected: 'yyyy-MM-dd' },
+      { props: ['dd/MM/yyyy'], expected: 'dd/MM/yyyy' },
+      { props: ['dd.MM.y'], expected: 'dd.MM.y' },
+      { props: [undefined, 'en'], expected: 'MM/dd/yyyy' },
+      { props: [undefined, 'nb'], expected: 'dd.MM.y' },
+      { props: [undefined, undefined], expected: 'dd.MM.y' },
     ];
     tests.forEach(({ props, expected }) => {
       it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
@@ -46,12 +51,12 @@ describe('dateHelpers', () => {
     }[] = [
       { props: [null, true], expected: '' },
       { props: [null, false], expected: '' },
-      { props: [moment('2020-12-31T12:00:00.000Z'), true], expected: '2020-12-31T12:00:00.000+00:00' },
-      { props: [moment('2020-12-31T12:00:00.000Z'), false], expected: '2020-12-31' },
-      { props: [moment('2018-01-05T20:00:00.000Z'), true], expected: '2018-01-05T20:00:00.000+00:00' },
-      { props: [moment('2018-01-05T20:00:00.000Z'), false], expected: '2018-01-05' },
-      { props: [moment('1987-01-03T12:00:00.000Z'), true], expected: '1987-01-03T12:00:00.000+00:00' },
-      { props: [moment('1987-01-03T12:00:00.000Z'), false], expected: '1987-01-03' },
+      { props: [parseISO('2020-12-31T12:00:00.000Z'), true], expected: '2020-12-31T12:00:00.000+00:00' },
+      { props: [parseISO('2020-12-31T12:00:00.000Z'), false], expected: '2020-12-31' },
+      { props: [parseISO('2018-01-05T20:00:00.000Z'), true], expected: '2018-01-05T20:00:00.000+00:00' },
+      { props: [parseISO('2018-01-05T20:00:00.000Z'), false], expected: '2018-01-05' },
+      { props: [parseISO('1987-01-03T12:00:00.000Z'), true], expected: '1987-01-03T12:00:00.000+00:00' },
+      { props: [parseISO('1987-01-03T12:00:00.000Z'), false], expected: '1987-01-03' },
     ];
     tests.forEach(({ props, expected }) => {
       it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
@@ -62,7 +67,7 @@ describe('dateHelpers', () => {
   });
 
   describe('getDateConstraint', () => {
-    const tests: { props: Parameters<typeof getDateConstraint>; expected: ReturnType<typeof getDateConstraint> }[] = [
+    const tests: { props: Parameters<typeof getDateConstraint>; expected: string }[] = [
       { props: [undefined, 'min'], expected: DatepickerMinDateDefault },
       { props: [undefined, 'max'], expected: DatepickerMaxDateDefault },
       { props: ['', 'min'], expected: DatepickerMinDateDefault },
@@ -81,7 +86,7 @@ describe('dateHelpers', () => {
     tests.forEach(({ props, expected }) => {
       it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
         const result = getDateConstraint(...props);
-        expect(result).toEqual(expected);
+        expect(format(result, DatepickerSaveFormatNoTimestamp)).toEqual(expected);
       });
     });
   });
@@ -90,11 +95,11 @@ describe('dateHelpers', () => {
     const tests: { props: Parameters<typeof isValidDate>; expected: ReturnType<typeof isValidDate> }[] = [
       { props: [undefined], expected: false },
       { props: [null], expected: false },
-      { props: [moment('2020-01-01')], expected: true },
-      { props: [moment('2023-12-31')], expected: true },
-      { props: [moment('2023-45-31')], expected: false },
-      { props: [moment('2023-09-34')], expected: false },
-      { props: [moment('asdf')], expected: false },
+      { props: [parseISO('2020-01-01')], expected: true },
+      { props: [parseISO('2023-12-31')], expected: true },
+      { props: [parseISO('2023-45-31')], expected: false },
+      { props: [parseISO('2023-09-34')], expected: false },
+      { props: [parseISO('asdf')], expected: false },
     ];
     tests.forEach(({ props, expected }) => {
       it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
@@ -106,11 +111,11 @@ describe('dateHelpers', () => {
 
   describe('formatDate', () => {
     const tests: { props: Parameters<typeof formatDate>; expected: ReturnType<typeof formatDate> }[] = [
-      { props: [undefined, 'YYYY.MM.DD'], expected: null },
-      { props: [null, 'YYYY.MM.DD'], expected: null },
-      { props: [moment('2020-12-31T12:00:00.000Z'), 'YYYY.MM.DD'], expected: '2020.12.31' },
-      { props: [moment('2020-12-31T12:00:00.000Z'), 'YYYY-MM-DD'], expected: '2020-12-31' },
-      { props: [moment('2020-12-31T12:00:00.000Z'), 'YYYY/MM/DD'], expected: '2020/12/31' },
+      { props: [undefined, 'yyyy.MM.dd'], expected: null },
+      { props: [null, 'yyyy.MM.dd'], expected: null },
+      { props: [parseISO('2020-12-31T12:00:00.000Z'), 'dd.MM.y'], expected: '31.12.2020' },
+      { props: [parseISO('2020-12-31T12:00:00.000Z'), 'yyyy-MM-dd'], expected: '2020-12-31' },
+      { props: [parseISO('2020-12-31T12:00:00.000Z'), 'dd/MM/yyyy'], expected: '31/12/2020' },
     ];
     tests.forEach(({ props, expected }) => {
       it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {
@@ -156,14 +161,14 @@ describe('dateHelpers', () => {
 
   describe('formatISOString', () => {
     const tests: { props: Parameters<typeof formatISOString>; expected: ReturnType<typeof formatISOString> }[] = [
-      { props: [undefined, 'DD/MM/YYYY'], expected: null },
-      { props: ['2023-13-01', 'DD/MM/YYYY'], expected: null },
-      { props: ['2023-10-41', 'DD/MM/YYYY'], expected: null },
-      { props: ['2023-01-04T12:69:00.000Z', 'DD/MM/YYYY'], expected: null },
-      { props: ['2020-12-31T12:00:00.000Z', 'DD/MM/YYYY'], expected: '31/12/2020' },
-      { props: ['2020-12-31T12:00:00.000Z', 'YYYY-MM-DD'], expected: '2020-12-31' },
-      { props: ['2020-12-31T12:00:00.000Z', 'YYYY/MM/DD'], expected: '2020/12/31' },
-      { props: ['2023-09-01', 'DD.MM.YYYY'], expected: '01.09.2023' },
+      { props: [undefined, 'dd/MM/yyyy'], expected: null },
+      { props: ['2023-13-01', 'dd/MM/yyyy'], expected: null },
+      { props: ['2023-10-41', 'dd/MM/yyyy'], expected: null },
+      { props: ['2023-01-04T12:69:00.000Z', 'dd/MM/yyyy'], expected: null },
+      { props: ['2020-12-31T12:00:00.000Z', 'dd/MM/yyyy'], expected: '31/12/2020' },
+      { props: ['2020-12-31T12:00:00.000Z', 'yyyy-MM-dd'], expected: '2020-12-31' },
+      { props: ['2020-12-31T12:00:00.000Z', 'yyyy/MM/dd'], expected: '2020/12/31' },
+      { props: ['2023-09-01', 'dd.MM.y'], expected: '01.09.2023' },
     ];
     tests.forEach(({ props, expected }) => {
       it(`should return ${expected} when called with ${JSON.stringify(props)}`, () => {

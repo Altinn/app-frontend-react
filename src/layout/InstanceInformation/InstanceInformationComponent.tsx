@@ -8,7 +8,7 @@ import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { selectAppReceiver } from 'src/selectors/language';
-import { formatISOString, getDateFormat } from 'src/utils/dateHelpers';
+import { formatISOString, getDateFormat, getLocale } from 'src/utils/dateHelpers';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IRuntimeState } from 'src/types';
@@ -67,7 +67,7 @@ export function InstanceInformationComponent({ node }: PropsFromGenericComponent
     instance && parties?.find((party: IParty) => party.partyId.toString() === instance.instanceOwner.partyId);
 
   const format = getDateFormat(undefined, selectedLanguage);
-  const lastChanged = formatISOString(instance?.lastChanged, format);
+  const lastChanged = formatISOString(instance?.lastChanged, format, getLocale(selectedLanguage));
   const instanceDateSent = dateSent !== false && lastChanged;
 
   const instanceSender =

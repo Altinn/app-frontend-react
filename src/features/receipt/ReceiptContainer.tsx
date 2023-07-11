@@ -121,7 +121,7 @@ export const ReceiptContainer = () => {
       setAttachments(attachmentsResult);
       setPdf(getInstancePdf(instance.data));
 
-      const lastChanged = formatISOString(instance.lastChanged, 'DD.MM.YYYY / HH:mm');
+      const lastChanged = formatISOString(instance.lastChanged, 'dd.MM.y / HH:mm');
       if (lastChanged) {
         setLastChangedDateTime(lastChanged);
       }
