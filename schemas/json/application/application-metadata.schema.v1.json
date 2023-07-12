@@ -4,7 +4,7 @@
   "title": "Application metadata settings",
   "description": "Schema that describes the properties that can be configured in the application metadata json file.",
   "type": "object",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "properties": {
     "processId": {
       "type": "string",
