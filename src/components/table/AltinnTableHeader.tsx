@@ -26,9 +26,9 @@ const useStyles = makeStyles({
     },
   }),
   removeHeader: {
-    borderColor: 'transparent !important',
+    borderColor: 'transparent',
     '& th': {
-      borderColor: 'transparent !important',
+      borderColor: 'transparent',
     },
   },
 });

@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
       borderBottom: '0px',
     },
     '&:after': {
-      display: 'none !important',
+      display: 'none',
     },
   },
   listItemPadding: {

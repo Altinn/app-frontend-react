@@ -70,20 +70,15 @@ const useStyles = makeStyles((theme) => ({
   logo: {
     marginRight: '0.75rem',
   },
-  menuButton: {
-    [theme.breakpoints.up('xs')]: {
-      display: 'none !important',
-    },
-  },
   partyIcon: {
     fontSize: '1.9375rem !important',
     marginLeft: '5px',
   },
   toolbarContainer: {
-    paddingTop: '1.875rem !important',
+    paddingTop: '1.875rem',
     marginBottom: '2.25rem',
     '& .a-personSwitcher': {
-      marginTop: '0 !important',
+      marginTop: '0',
       marginLeft: '1.5rem',
     },
     paddingLeft: '0',
