@@ -3,6 +3,7 @@ import React from 'react';
 import { Tabs } from '@digdir/design-system-react';
 
 import { DevHiddenFunctionality } from 'src/features/devtools/components/DevHiddenFunctionality/DevHiddenFunctionality';
+import { DevLanguageSelector } from 'src/features/devtools/components/DevLanguageSelector/DevLanguageSelector';
 import { DevNavigationButtons } from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons';
 import { DevToolsLogs } from 'src/features/devtools/components/DevToolsLogs/DevToolsLogs';
 import { DownloadXMLButton } from 'src/features/devtools/components/DownloadXMLButton/DownloadXMLButton';
@@ -41,6 +42,7 @@ export const DevToolsControls = () => {
                 <DevHiddenFunctionality />
                 <VersionSwitcher />
                 <PermissionsEditor />
+                <DevLanguageSelector />
                 <DownloadXMLButton />
               </div>
             ),
