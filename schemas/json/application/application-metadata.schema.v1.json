@@ -120,7 +120,7 @@
           "description": "Determines what should be shown on entry, valid selections include: a string matching the layoutSetId."
         },
         "instanceSelection": {
-          "ref": "#/definitions/instanceSelection"
+          "$ref": "#/definitions/instanceSelection"
         }
       }
     },
