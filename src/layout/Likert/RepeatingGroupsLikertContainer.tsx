@@ -11,17 +11,15 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { LayoutStyle } from 'src/types';
-import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 
 type RepeatingGroupsLikertContainerProps = {
-  id: string;
+  node: LayoutNodeFromType<'Group'>;
 };
 
-export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertContainerProps) => {
-  const node = useResolvedNode(id);
+export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertContainerProps) => {
   const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNodeFromType<'Likert'> | undefined;
   const { optionsId, mapping, source, options } = firstLikertChild?.item || {};
   const mobileView = useIsMobileOrTablet();
@@ -31,6 +29,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
   const fetchingOptions = useAppSelector((state) => lookupKey && state.optionState.options[lookupKey]?.loading);
   const { lang } = useLanguage();
 
+  const id = node.item.id;
   const hasDescription = !!node?.item.textResourceBindings?.description;
   const hasTitle = !!node?.item.textResourceBindings?.title;
   const titleId = `likert-title-${id}`;
@@ -78,7 +77,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
         >
           {node?.children().map((comp) => {
             if (comp.isType('Group') || comp.isType('Summary')) {
-              console.warn('Unexpected Group or Summary inside likert container', comp);
+              window.logWarn('Unexpected Group or Summary inside likert container:\n', comp);
               return;
             }
 
@@ -130,7 +129,7 @@ export const RepeatingGroupsLikertContainer = ({ id }: RepeatingGroupsLikertCont
             <TableBody id={`likert-table-body-${id}`}>
               {node?.children().map((comp) => {
                 if (comp.isType('Group') || comp.isType('Summary')) {
-                  console.warn('Unexpected Group or Summary inside likert container', comp);
+                  window.logWarn('Unexpected Group or Summary inside likert container', comp);
                   return;
                 }
 

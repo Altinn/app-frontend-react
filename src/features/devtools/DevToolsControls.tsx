@@ -3,7 +3,9 @@ import React from 'react';
 import { Tabs } from '@digdir/design-system-react';
 
 import { DevHiddenFunctionality } from 'src/features/devtools/components/DevHiddenFunctionality/DevHiddenFunctionality';
+import { DevLanguageSelector } from 'src/features/devtools/components/DevLanguageSelector/DevLanguageSelector';
 import { DevNavigationButtons } from 'src/features/devtools/components/DevNavigationButtons/DevNavigationButtons';
+import { DevToolsLogs } from 'src/features/devtools/components/DevToolsLogs/DevToolsLogs';
 import { ExpressionPlayground } from 'src/features/devtools/components/ExpressionPlayground/ExpressionPlayground';
 import { FeatureToggles } from 'src/features/devtools/components/FeatureToggles/FeatureToggles';
 import { LayoutInspector } from 'src/features/devtools/components/LayoutInspector/LayoutInspector';
@@ -39,8 +41,13 @@ export const DevToolsControls = () => {
                 <DevHiddenFunctionality />
                 <VersionSwitcher />
                 <PermissionsEditor />
+                <DevLanguageSelector />
               </div>
             ),
+          },
+          {
+            name: DevToolsTab.Logs,
+            content: <DevToolsLogs />,
           },
           {
             name: DevToolsTab.Layout,

@@ -28,7 +28,7 @@ export function GroupRenderer({ node }: GroupRendererProps) {
     return (
       <PanelReferenceGroupContainer
         key={node.item.id}
-        id={node.item.id}
+        node={node}
       />
     );
   }
@@ -60,6 +60,6 @@ export function GroupRenderer({ node }: GroupRendererProps) {
   }
 
   // Invalid configuration
-  console.warn(`Group ${node.item.id} has an invalid configuration.`);
+  window.logError(`Group ${node.item.id} has an invalid configuration.`);
   return null;
 }
