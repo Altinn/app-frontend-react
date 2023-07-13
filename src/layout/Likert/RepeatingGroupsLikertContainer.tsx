@@ -129,7 +129,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
             <TableBody id={`likert-table-body-${id}`}>
               {node?.children().map((comp) => {
                 if (comp.isType('Group') || comp.isType('Summary')) {
-                  window.logWarn('Unexpected Group or Summary inside likert container', comp);
+                  window.logWarn('Unexpected Group or Summary inside likert container:\n', comp);
                   return;
                 }
 
