@@ -123,7 +123,7 @@
         "defaultRowsPerPage": {
           "type": "integer",
           "title": "Default rows per page",
-          "description": "The default selected option for rows per page, uses the index of the rowsPerPageOptions array."
+          "description": "The default selected option for rows per page. This value must be a valid index for the rowsPerPageOptions array."
         }
       }
     },
