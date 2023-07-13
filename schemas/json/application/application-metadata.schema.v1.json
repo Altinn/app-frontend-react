@@ -1,5 +1,5 @@
 {
-  "$id": "https://altinncdn.no/schemas/json/component/application-metadata.schema.v1.json",
+  "$id": "https://altinncdn.no/schemas/json/application/application-metadata.schema.v1.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Application metadata settings",
   "description": "Schema that describes the properties that can be configured in the application metadata json file.",
