@@ -4,7 +4,7 @@
   "title": "Application metadata settings",
   "description": "Schema that describes the properties that can be configured in the application metadata json file.",
   "type": "object",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
     "processId": {
       "type": "string",
@@ -82,6 +82,28 @@
       "title": "Application id",
       "description": "The applications id, usually in the form of {organization}/{application-name}."
     },
+    "created": {
+      "type": "string",
+      "title": "Created",
+      "description": "The date and time when the application was created.",
+      "format": "date-time"
+    },
+    "createdBy": {
+      "type": "string",
+      "title": "Created by",
+      "description": "The user that created the application."
+    },
+    "lastChanged": {
+      "type": "string",
+      "title": "Last changed",
+      "description": "The date and time when the application was last changed.",
+      "format": "date-time"
+    },
+    "lastChangedBy": {
+      "type": "string",
+      "title": "Last changed by",
+      "description": "The user that last changed the application."
+    },
     "messageBoxConfig": {
       "$ref": "#/definitions/messageBoxConfig"
     }
@@ -97,7 +119,7 @@
           "title": "Show",
           "description": "Determines what should be shown on entry, valid selections include: a string matching the layoutSetId."
         },
-        "InstanceSelection": {
+        "instanceSelection": {
           "ref": "#/definitions/instanceSelection"
         }
       }
