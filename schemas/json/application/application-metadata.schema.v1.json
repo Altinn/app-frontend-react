@@ -22,7 +22,7 @@
       "title": "Data fields",
       "description": "The data fields that the application uses.",
       "items": {
-        "$ref": "#definitions/dataField"
+        "$ref": "#/definitions/dataField"
       }
     },
     "presentationFields": {
@@ -30,7 +30,7 @@
       "title": "Presentation fields",
       "description": "The presentation fields that the application uses.",
       "items": {
-        "$ref": "#definitions/dataField"
+        "$ref": "#/definitions/dataField"
       }
     },
     "autoDeleteOnProcessEnd": {
@@ -46,7 +46,7 @@
       "title": "Data types",
       "description": "The data types that the application uses.",
       "items": {
-        "$ref": "#definitions/dataType"
+        "$ref": "#/definitions/dataType"
       }
     },
     "copyInstanceSettings": {
