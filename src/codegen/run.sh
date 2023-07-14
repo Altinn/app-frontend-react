@@ -8,15 +8,7 @@ cd ../..
 
 function runScript {
   local script=$1
-  if command -v bun &> /dev/null; then
-    # Run with bun if available
-    set +e
-    bun run "$script"
-    set -e
-  else
-    # Run with node/ts-node if bun is not available
-    npx ts-node -r tsconfig-paths/register "$script"
-  fi
+  node -r ts-node/register/transpile-only -r tsconfig-paths/register "$script"
 }
 
 runScript src/codegen/stage1.ts
