@@ -6,9 +6,9 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { PDF_LAYOUT_NAME } from 'src/features/pdf/data/pdfSlice';
 import classes from 'src/features/pdf/PDFView.module.css';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { ComponentCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
-import { ComponentType } from 'src/layout/LayoutComponent';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -44,7 +44,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
         )}
       />
     );
-  } else if (node.isComponentType(ComponentType.Presentation)) {
+  } else if (node.isCategory(ComponentCategory.Presentation)) {
     return (
       <GenericComponent
         node={node}

@@ -1,4 +1,4 @@
 import { CG } from 'src/codegen';
-import { ComponentType } from 'src/layout/LayoutComponent';
+import { ComponentCategory } from 'src/layout/common';
 
-export const Generator = CG.newComponent(ComponentType.Action);
+export const Generator = CG.newComponent(ComponentCategory.Action);

@@ -3,9 +3,9 @@ import type { $Keys, PickByValue } from 'utility-types';
 import type { IDevToolsState } from 'src/features/devtools/data/types';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ComponentClassMapTypes } from 'src/layout';
+import type { ComponentCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { ComponentExceptGroup, ComponentTypes, IDataModelBindings, ILayoutComponent } from 'src/layout/layout';
-import type { ComponentType } from 'src/layout/LayoutComponent';
 import type { IValidations } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -57,8 +57,8 @@ export type LayoutNodeFromObj<T> = T extends ILayoutComponent
     : LayoutNode
   : LayoutNode;
 
-export type TypesFromType<Type extends ComponentType> = $Keys<PickByValue<ComponentClassMapTypes, Type>>;
+export type TypesFromCategory<Type extends ComponentCategory> = $Keys<PickByValue<ComponentClassMapTypes, Type>>;
 
-export type LayoutNodeFromComponentType<Type> = Type extends ComponentType
-  ? LayoutNodeFromType<TypesFromType<Type>>
+export type LayoutNodeFromCategory<Type> = Type extends ComponentCategory
+  ? LayoutNodeFromType<TypesFromCategory<Type>>
   : LayoutNode;

@@ -4,9 +4,9 @@ import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { ComponentCategory } from 'src/layout/common';
 import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
-import { ComponentType } from 'src/layout/LayoutComponent';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -125,7 +125,7 @@ export function SummaryGroupComponent({
                 .children(undefined, idx)
                 .filter((n) => !inExcludedChildren(n))
                 .map((child) => {
-                  if (child.isHidden() || !child.isComponentType(ComponentType.Form)) {
+                  if (child.isHidden() || !child.isCategory(ComponentCategory.Form)) {
                     return;
                   }
                   const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def);

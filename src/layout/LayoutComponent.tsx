@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
+import { ComponentCategory } from 'src/layout/common';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -16,17 +17,6 @@ import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGene
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
-
-/**
- * This enum is used to distinguish purely presentational components
- * from interactive form components that can have formData etc.
- */
-export enum ComponentType {
-  Presentation = 'presentation',
-  Form = 'form',
-  Action = 'action',
-  Container = 'container',
-}
 
 const defaultGenerator = new SimpleComponentHierarchyGenerator();
 
@@ -95,7 +85,7 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
 }
 
 export abstract class PresentationComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  readonly type = ComponentType.Presentation;
+  readonly type = ComponentCategory.Presentation;
 }
 
 export interface SummaryRendererProps<Type extends ComponentTypes> {
@@ -146,14 +136,14 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
 }
 
 export abstract class ActionComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  readonly type = ComponentType.Action;
+  readonly type = ComponentCategory.Action;
 }
 
 export abstract class FormComponent<Type extends ComponentTypes>
   extends _FormComponent<Type>
   implements EmptyFieldValidation, SchemaValidation
 {
-  readonly type = ComponentType.Form;
+  readonly type = ComponentCategory.Form;
 
   runEmptyFieldValidation(
     node: LayoutNodeFromType<Type>,
@@ -206,7 +196,7 @@ export abstract class FormComponent<Type extends ComponentTypes>
 }
 
 export abstract class ContainerComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
-  readonly type = ComponentType.Container;
+  readonly type = ComponentCategory.Container;
 }
 
 export type LayoutComponent<Type extends ComponentTypes = ComponentTypes> =

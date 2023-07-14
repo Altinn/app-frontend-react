@@ -3,15 +3,15 @@ import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { ComponentClassMap } from 'src/layout';
+import type { ComponentCategory } from 'src/layout/common';
 import type { HNonRepGroup, HRepGroup } from 'src/layout/Group/types';
 import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
-import type { ComponentType } from 'src/layout/LayoutComponent';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type {
   AnyItem,
   HComponent,
   HierarchyDataSources,
-  LayoutNodeFromComponentType,
+  LayoutNodeFromCategory,
   LayoutNodeFromType,
   ParentNode,
   TypeFromAnyItem,
@@ -52,8 +52,8 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     return this.item.type === type;
   }
 
-  public isComponentType<T extends ComponentType>(type: T): this is LayoutNodeFromComponentType<T> {
-    return this.def.type === type;
+  public isCategory<T extends ComponentCategory>(category: T): this is LayoutNodeFromCategory<T> {
+    return this.def.type === category;
   }
 
   public isRepGroup(): this is LayoutNode<HRepGroup, 'Group'> {

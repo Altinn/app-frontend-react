@@ -5,13 +5,13 @@ import cn from 'classnames';
 
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { ComponentCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import { nodesFromGridRows } from 'src/layout/Grid/tools';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow';
-import { ComponentType } from 'src/layout/LayoutComponent';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { GridComponent, GridRow } from 'src/layout/Grid/types';
 import type { HRepGroup } from 'src/layout/Group/types';
@@ -72,7 +72,7 @@ export function RepeatingGroupTable({
         const { id, baseComponentId } = child.item;
         return !!(tableHeaders.includes(id) || (baseComponentId && tableHeaders.includes(baseComponentId)));
       }
-      return child.isComponentType(ComponentType.Form);
+      return child.isCategory(ComponentCategory.Form);
     });
 
     // Sort using the order from tableHeaders

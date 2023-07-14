@@ -1,12 +1,12 @@
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { CG } from 'src/codegen/index';
 import { ExprVal } from 'src/features/expressions/types';
-import { ComponentType } from 'src/layout/LayoutComponent';
+import { ComponentCategory } from 'src/layout/common';
 
 export class ComponentConfig extends GenerateObject {
   public type: string;
 
-  constructor(public readonly category: ComponentType) {
+  constructor(public readonly category: ComponentCategory) {
     super();
 
     this.addProperty('id', CG.str());
@@ -14,12 +14,12 @@ export class ComponentConfig extends GenerateObject {
     this.addProperty('grid', CG.known('grid').optional());
     this.addProperty('pageBreak', CG.known('pageBreak').optional());
 
-    if (category === ComponentType.Form) {
+    if (category === ComponentCategory.Form) {
       this.addProperty('readOnly', CG.expr(ExprVal.Boolean).optional(CG.const(false)));
       this.addProperty('required', CG.expr(ExprVal.Boolean).optional(CG.const(false)));
       this.addProperty('triggers', CG.known('triggers').optional()); // TODO: Triggers for Group, navigation buttons
     }
-    if (category === ComponentType.Form || category === ComponentType.Container) {
+    if (category === ComponentCategory.Form || category === ComponentCategory.Container) {
       this.addProperty('renderAsSummary', CG.expr(ExprVal.Boolean).optional(CG.const(false)));
     }
   }

@@ -14,7 +14,7 @@ import { PDF_LAYOUT_NAME, PdfActions } from 'src/features/pdf/data/pdfSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { getLayoutComponentObject } from 'src/layout';
-import { ComponentType } from 'src/layout/LayoutComponent';
+import { ComponentCategory } from 'src/layout/common';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { topLevelComponents } from 'src/utils/formLayout';
 import { httpGet } from 'src/utils/network/networking';
@@ -75,8 +75,8 @@ function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, lay
       if (
         !component.renderAsSummary &&
         (component.type === 'Group' ||
-          layoutComponent.type === ComponentType.Form ||
-          layoutComponent.type === ComponentType.Presentation)
+          layoutComponent.type === ComponentCategory.Form ||
+          layoutComponent.type === ComponentCategory.Presentation)
       ) {
         return {
           id: `__pdf__${component.id}`,
