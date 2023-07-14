@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { saveFile, saveTsFile } from 'src/codegen/tools';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 
@@ -53,16 +52,9 @@ async function getComponentList() {
   for (const key of sortedKeys) {
     const generator: ComponentConfig = (await import(`src/layout/${key}/config`)).Generator;
     generator.setType(componentList[key]);
-    CodeGeneratorContext.getInstance().reset();
     const path = `src/layout/${key}/types.generated.d.ts`;
     const content = generator.toTypeScript();
-    const imports = CodeGeneratorContext.getInstance().getImportsAsTypeScript();
-
-    if (imports) {
-      promises.push(saveTsFile(path, `${imports}\n\n${content}`));
-    } else {
-      promises.push(saveTsFile(path, content));
-    }
+    promises.push(saveTsFile(path, content));
   }
 
   await Promise.all(promises);

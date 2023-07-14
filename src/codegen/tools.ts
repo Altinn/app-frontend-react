@@ -14,8 +14,8 @@ export async function saveFile(targetPath: string, _content: string, removeText?
       console.log(`Regenerated ${targetPath}`);
       await fd.truncate(0);
       await fd.write(content, 0, 'utf-8');
-      await fd.close();
     }
+    await fd.close();
   } catch (e) {
     // File does not exist
     await fs.writeFile(targetPath, content, 'utf-8');

@@ -1,3 +1,4 @@
+import { CG } from 'src/codegen';
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { ExprVal } from 'src/features/expressions/types';
@@ -12,6 +13,19 @@ const toTsMap: { [key in ExprVal]: string } = {
 export class GenerateExpressionOr extends CodeGenerator {
   constructor(public readonly valueType: ExprVal) {
     super();
+  }
+
+  public getTargetType(): CodeGenerator {
+    if (this.valueType === ExprVal.Boolean) {
+      return CG.bool();
+    }
+    if (this.valueType === ExprVal.Number) {
+      return CG.num();
+    }
+    if (this.valueType === ExprVal.String) {
+      return CG.str();
+    }
+    throw new Error(`Unsupported type: ${this.valueType}`);
   }
 
   public toTypeScript(): string {

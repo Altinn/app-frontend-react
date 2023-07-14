@@ -24,6 +24,24 @@ export class GenerateObject extends CodeGenerator {
     return this;
   }
 
+  public addPropertyBefore(name: string, value: CodeGenerator, before: string): this {
+    const index = this.properties.findIndex((property) => property.name === before);
+    if (index === -1) {
+      throw new Error(`Property ${before} not found`);
+    }
+    this.properties.splice(index, 0, { name, value });
+    return this;
+  }
+
+  public addPropertyAfter(name: string, value: CodeGenerator, after: string): this {
+    const index = this.properties.findIndex((property) => property.name === after);
+    if (index === -1) {
+      throw new Error(`Property ${after} not found`);
+    }
+    this.properties.splice(index + 1, 0, { name, value });
+    return this;
+  }
+
   public toTypeScript(): string {
     if (!this.name) {
       throw new Error('Object name is required');
