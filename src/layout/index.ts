@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-import { ComponentConfigs } from 'src/layout/components';
+import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IFormData } from 'src/features/formData';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentRendersLabel, ComponentTypes, IGrid } from 'src/layout/layout';

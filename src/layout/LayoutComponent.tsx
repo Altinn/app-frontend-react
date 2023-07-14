@@ -7,7 +7,7 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentTypeConfigs } from 'src/layout/components';
+import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { EmptyFieldValidation, PropsFromGenericComponent, SchemaValidation } from 'src/layout/index';
 import type { ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';

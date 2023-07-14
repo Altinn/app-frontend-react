@@ -9,7 +9,8 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Form } from 'src/components/form/Form';
 import { MemoryRouterWithRedirectingRoot, renderWithProviders } from 'src/testUtils';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayout, ILayoutComponent, ILayoutEntry } from 'src/layout/layout';
+import type { ILayout, ILayoutComponent } from 'src/layout/layout';
+import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { RootState } from 'src/redux/store';
 
 describe('Form', () => {
@@ -205,14 +206,14 @@ describe('Form', () => {
   });
 
   it('should render a summary component', () => {
-    const summaryComponent: ILayoutEntry[] = [
+    const summaryComponent = [
       ...mockComponents,
       {
         id: 'the-summary',
         type: 'Summary',
         pageRef: 'FormLayout',
         componentRef: 'field1',
-      } as unknown as ILayoutEntry,
+      } as ILayoutCompSummary,
     ];
     renderForm(summaryComponent as ILayout);
     expect(screen.getByTestId('summary-the-summary')).toBeInTheDocument();

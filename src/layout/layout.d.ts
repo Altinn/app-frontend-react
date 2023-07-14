@@ -4,7 +4,7 @@ import type { UnionToIntersection } from 'utility-types';
 
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
-import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components';
+import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { ILayoutCompDropdown } from 'src/layout/Dropdown/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompLikert } from 'src/layout/Likert/types';
@@ -16,14 +16,10 @@ export interface ILayouts {
   [id: string]: ILayout | undefined;
 }
 
-export interface ILayoutEntry<T extends ComponentTypes = ComponentTypes> {
+export interface ILayoutCompBase<Type extends ComponentTypes> {
   id: string;
   type: T;
-}
-
-export interface ILayoutCompBase<Type extends ComponentTypes> extends ILayoutEntry<Type> {
   dataModelBindings?: IDataModelBindings<Type>;
-  maxLength?: number;
   readOnly?: ExprVal.Boolean;
   renderAsSummary?: ExprVal.Boolean;
   required?: ExprVal.Boolean;

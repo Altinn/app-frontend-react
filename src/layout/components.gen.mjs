@@ -37,16 +37,16 @@ const lines = [
 ];
 
 try {
-  const fd = fs.openSync('src/layout/components.ts', 'r+');
+  const fd = fs.openSync('src/layout/components.generated.ts', 'r+');
   const content = fs.readFileSync(fd, 'utf-8').toString();
   if (content !== lines.join('\n')) {
-    console.log('Regenerated src/layout/components.ts');
+    console.log('Regenerated src/layout/components.generated.ts');
     fs.ftruncateSync(fd, 0);
     fs.writeSync(fd, lines.join('\n'), 0, 'utf-8');
   }
 } catch (e) {
   // File does not exist
-  const fd = fs.openSync('src/layout/components.ts', 'w');
-  console.log('Created src/layout/components.ts');
+  const fd = fs.openSync('src/layout/components.generated.ts', 'w');
+  console.log('Created src/layout/components.generated.ts');
   fs.writeFileSync(fd, lines.join('\n'));
 }

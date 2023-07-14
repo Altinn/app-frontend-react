@@ -5,4 +5,5 @@ export interface ILayoutCompInput extends ILayoutCompBase<'Input'>, ILayoutCompW
   formatting?: IInputFormatting;
   variant?: 'text' | 'search';
   autocomplete?: HTMLAutoCompleteValues;
+  maxLength?: number;
 }

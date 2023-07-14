@@ -5,7 +5,7 @@ import { preProcessItem, preProcessLayout } from 'src/features/expressions/valid
 import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
-import { ComponentConfigs } from 'src/layout/components';
+import { ComponentConfigs } from 'src/layout/components.generated';
 import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';

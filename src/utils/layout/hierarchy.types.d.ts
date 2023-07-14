@@ -3,7 +3,7 @@ import type { $Keys, PickByValue } from 'utility-types';
 import type { IDevToolsState } from 'src/features/devtools/data/types';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ComponentClassMapTypes } from 'src/layout';
-import type { ComponentTypeConfigs } from 'src/layout/components';
+import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { ComponentExceptGroup, ComponentTypes, IDataModelBindings, ILayoutComponent } from 'src/layout/layout';
 import type { ComponentType } from 'src/layout/LayoutComponent';
 import type { IValidations } from 'src/types';
