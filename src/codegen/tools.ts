@@ -1,15 +1,20 @@
+import crypto from 'crypto';
 import { ESLint } from 'eslint';
 import fs from 'node:fs/promises';
 
-export async function saveFile(targetPath: string, _content: string) {
+export async function saveFile(targetPath: string, _content: string, removeText?: RegExp) {
   const content = `${_content.trim()}\n`;
   try {
     const fd = await fs.open(targetPath, 'r+');
-    const existingContent = (await fd.readFile('utf-8')).toString();
-    if (existingContent !== content) {
+    let textToCompare = (await fd.readFile('utf-8')).toString();
+    if (removeText) {
+      textToCompare = textToCompare.replace(removeText, '');
+    }
+    if (textToCompare.trim() !== content.trim()) {
       console.log(`Regenerated ${targetPath}`);
       await fd.truncate(0);
       await fd.write(content, 0, 'utf-8');
+      await fd.close();
     }
   } catch (e) {
     // File does not exist
@@ -27,18 +32,34 @@ async function fileExists(path: string) {
   }
 }
 
+let eslint: ESLint | undefined;
+function getESLint() {
+  if (!eslint) {
+    eslint = new ESLint({
+      fix: true,
+      cache: true,
+    });
+  }
+
+  return eslint;
+}
+
 export async function saveTsFile(targetPath: string, content: string) {
-  if (!(await fileExists(targetPath))) {
+  const contentHash = crypto.createHash('sha256').update(content).digest('hex');
+  if (await fileExists(targetPath)) {
+    const existingContent = await fs.readFile(targetPath, 'utf-8');
+    const sourceHash = existingContent.match(/\/\/ Source hash: ([a-f0-9]+)/);
+    if (sourceHash && sourceHash[1] === contentHash) {
+      // No changes, avoids running eslint
+      return;
+    }
+  } else {
     // For some reason eslint needs the file to exist before it can fix it, even if we're passing
     // the content directly to it.
     await fs.writeFile(targetPath, content, 'utf-8');
   }
 
-  const eslint = new ESLint({
-    fix: true,
-    cache: true,
-  });
-  const results = await eslint.lintText(content, { filePath: targetPath });
+  const results = await getESLint().lintText(content, { filePath: targetPath });
   const output = results[0].output;
 
   if (!output && results[0].errorCount > 0) {
@@ -46,5 +67,7 @@ export async function saveTsFile(targetPath: string, content: string) {
     console.error(results[0].messages);
   }
 
-  await saveFile(targetPath, output || content);
+  const contentMain = output || content;
+  const regexToIgnore = /\/\/ Source hash: [a-f0-9]+/;
+  await saveFile(targetPath, `${contentMain.trim()}\n\n// Source hash: ${contentHash}`, regexToIgnore);
 }
