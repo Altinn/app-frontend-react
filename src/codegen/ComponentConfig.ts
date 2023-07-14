@@ -55,7 +55,19 @@ export class ComponentConfig {
   }
 
   public addTextResource(name: string, title: string, description: string): this {
-    // TODO: Implement
+    for (const targetObject of [this.unresolved, this.resolved]) {
+      let bindings = targetObject.getProperty('textResourceBindings') as GenerateObject | undefined;
+      if (!bindings) {
+        bindings = CG.obj(true);
+        targetObject.addProperty('textResourceBindings', bindings);
+      }
+      if (targetObject === this.unresolved) {
+        bindings.addProperty(name, CG.expr(ExprVal.String).optional());
+      } else {
+        bindings.addProperty(name, CG.str().optional());
+      }
+    }
+
     return this;
   }
 

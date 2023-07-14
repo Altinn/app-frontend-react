@@ -5,7 +5,7 @@ export class GenerateObject extends CodeGenerator {
   public exported = false;
   public properties: { name: string; value: CodeGenerator }[] = [];
 
-  constructor() {
+  constructor(public readonly inline?: boolean) {
     super();
   }
 
@@ -42,8 +42,13 @@ export class GenerateObject extends CodeGenerator {
     return this;
   }
 
+  public getProperty(name: string): CodeGenerator | undefined {
+    const property = this.properties.find((property) => property.name === name);
+    return property?.value;
+  }
+
   public toTypeScript(): string {
-    if (!this.name) {
+    if (!this.name && !this.inline) {
       throw new Error('Object name is required');
     }
 
@@ -54,6 +59,10 @@ export class GenerateObject extends CodeGenerator {
         return `${property.name}: ${property.value.toTypeScript()};`;
       }
     });
+
+    if (this.inline) {
+      return `{ ${propertyLines.join('\n')} }`.trim();
+    }
 
     return `${this.exported ? 'export ' : ''} interface ${this.name} { ${propertyLines.join('\n')} }`.trim();
   }
