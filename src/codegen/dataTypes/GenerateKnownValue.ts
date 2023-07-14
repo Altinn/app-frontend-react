@@ -12,6 +12,7 @@ const knownValues = {
   },
   triggers: {
     symbol: 'Triggers[]',
+    importSymbol: 'Triggers',
     importFrom: 'src/types/index',
   },
   labelSettings: {
@@ -29,7 +30,9 @@ export class GenerateKnownValue extends CodeGenerator {
   }
 
   toTypeScript() {
-    CodeGeneratorContext.getInstance().addImport(knownValues[this.value].symbol, knownValues[this.value].importFrom);
-    return knownValues[this.value].symbol;
+    const val = knownValues[this.value];
+    const importSymbol = 'importSymbol' in val ? val.importSymbol : val.symbol;
+    CodeGeneratorContext.getInstance().addImport(importSymbol, val.importFrom);
+    return val.symbol;
   }
 }

@@ -25,6 +25,16 @@ export class CodeGeneratorContext {
     return this.files;
   }
 
+  public getImportsAsTypeScript(): string {
+    const imports = this.getImports();
+    const importLines = Object.keys(imports).map((fileName) => {
+      const symbols = Array.from(imports[fileName]).sort();
+      return `import { ${symbols.join(', ')} } from '${fileName}';`;
+    });
+
+    return importLines.join('\n');
+  }
+
   public reset(): void {
     this.files = {};
   }

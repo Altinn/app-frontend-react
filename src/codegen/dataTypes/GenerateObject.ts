@@ -37,6 +37,6 @@ export class GenerateObject extends CodeGenerator {
       }
     });
 
-    return `${this.exported ? 'export ' : ''} interface ${this.name} { ${propertyLines} }`.trim();
+    return `${this.exported ? 'export ' : ''} interface ${this.name} { ${propertyLines.join('\n')} }`.trim();
   }
 }
