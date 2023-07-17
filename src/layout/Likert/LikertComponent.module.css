@@ -15,7 +15,7 @@
 .likertTableRowHeader {
   border-top: 1px solid #dde3e5;
   border-bottom: 1px solid #dde3e5;
-  background-color: #ffffff !important; /* remove important after https://github.com/Altinn/app-frontend-react/pull/1330*/
+  background-color: transparent !important; /* remove important after https://github.com/Altinn/app-frontend-react/pull/1330*/
 }
 
 .likertTableCell {
