@@ -51,7 +51,8 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       <TableCell
         scope='row'
         id={rowLabelId}
-        className={classes.likertTableHeader}
+        className={classes.likertTableRowHeader}
+        variant='header'
       >
         <Typography component={'div'}>
           <RenderLegend />
