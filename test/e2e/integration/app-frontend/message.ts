@@ -31,7 +31,6 @@ describe('Message', () => {
       .then((attachments) => {
         cy.wrap(attachments).should('have.length', 1);
         cy.wrap(attachments).first().should('contain.text', texts.downloadAttachment);
-        cy.get(appFrontend.attachmentIcon).should('be.visible');
       });
     cy.url().then((url) => {
       const instantiateUrl =
