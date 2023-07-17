@@ -171,11 +171,12 @@ export abstract class FormComponent<Type extends ComponentTypes>
     const bindings = Object.entries(node.item.dataModelBindings ?? {});
     for (const [bindingKey, field] of bindings) {
       const data = formDataToValidate[field];
+      const textResourceBindings = node.item.textResourceBindings as ITextResourceBindings;
 
       if (!data?.length) {
-        const fieldName = getFieldName(node.item.textResourceBindings as ITextResourceBindings, langTools, bindingKey);
-        const errorMessage = (node.item.textResourceBindings as ITextResourceBindings)?.requiredValidation
-          ? langAsString((node.item.textResourceBindings as ITextResourceBindings)?.requiredValidation)
+        const fieldName = getFieldName(textResourceBindings, langTools, bindingKey);
+        const errorMessage = textResourceBindings?.requiredValidation
+          ? langAsString(textResourceBindings?.requiredValidation)
           : langAsString('form_filler.error_required', [fieldName]);
 
         validationObjects.push(buildValidationObject(node, 'errors', errorMessage, bindingKey));

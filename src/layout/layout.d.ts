@@ -158,7 +158,11 @@ export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
   | undefined;
 
 export type TextBindingsForSummarizableComponents = 'summaryTitle' | 'summaryDescription' | 'summaryAccessibleTitle';
-export type TextBindingsForFormComponents = TextBindingsForSummarizableComponents | 'tableTitle' | 'shortName';
+export type TextBindingsForFormComponents =
+  | TextBindingsForSummarizableComponents
+  | 'tableTitle'
+  | 'shortName'
+  | 'requiredValidation';
 export type TextBindingsForLabel = 'title' | 'description' | 'help';
 
 export type ILayout = ExprUnresolved<ILayoutComponentOrGroup>[];
