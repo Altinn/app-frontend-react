@@ -46,6 +46,7 @@ const RadioGroupTableRow = (props: IControlledRadioGroupProps) => {
       aria-labelledby={rowLabelId}
       data-componentid={node.item.id}
       data-is-loading={fetchingOptions ? 'true' : 'false'}
+      className={classes.likertTableRow}
     >
       <TableCell
         scope='row'
