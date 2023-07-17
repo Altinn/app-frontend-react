@@ -48,8 +48,10 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
 
-    const loadScript = '<script> setTimeout(() => location.reload(), 1000); </script>';
-    cy.get('body').invoke('append', loadScript);
+    cy.window().then((win) => {
+      setTimeout(() => win.location.reload(), 1000);
+    });
+
     cy.get(appFrontend.changeOfName.downloadAttachment).click();
 
     const downloadsFolder = Cypress.config('downloadsFolder');
@@ -92,8 +94,9 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
 
-    const loadScript = '<script> setTimeout(() => location.reload(), 1000); </script>';
-    cy.get('body').invoke('append', loadScript);
+    cy.window().then((win) => {
+      setTimeout(() => win.location.reload(), 1000);
+    });
 
     cy.get(appFrontend.changeOfName.downloadAttachment).click();
 

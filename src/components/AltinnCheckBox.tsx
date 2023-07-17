@@ -15,7 +15,7 @@ export interface IAltinnCheckBoxComponentProvidedProps {
 
 const useStyles = makeStyles((theme) => ({
   altinnCheckBox: {
-    color: `${theme.altinnPalette.primary.blueDark} !important`,
+    color: `${theme.altinnPalette.primary.blueDark}`,
     '& span': {
       '& svg': {
         fontSize: '1.5625rem',
