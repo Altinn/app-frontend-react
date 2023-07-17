@@ -25,7 +25,7 @@ describe('Message', () => {
       cy.intercept('GET', interceptExpression, instanceMetadata);
     });
     cy.reload();
-    cy.get(appFrontend.message['attachmentList'])
+    cy.findByRole('heading', { name: /Vedlegg/i })
       .siblings('ul')
       .children('a')
       .then((attachments) => {

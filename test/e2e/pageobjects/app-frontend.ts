@@ -122,7 +122,6 @@ export class AppFrontend {
   //message - task_1
   public message = {
     header: '#appen-for-test-av-app-frontend',
-    attachmentList: '.attachmentList-title',
     logo: '#altinnLogo',
     logoFormContent: '#form-content-altinnLogo',
   };
