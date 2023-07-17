@@ -69,7 +69,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
         item
         container
       >
-        {<Header />}
+        <Header />
         <div
           role='group'
           aria-labelledby={(hasTitle && titleId) || undefined}
