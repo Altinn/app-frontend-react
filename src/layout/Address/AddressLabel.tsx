@@ -17,10 +17,7 @@ interface IAddressLabel {
 export const AddressLabel = ({ labelKey, id, required, readOnly, labelSettings }: IAddressLabel) => {
   const { lang } = useLanguage();
   return (
-    <label
-      className='a-form-label title-label'
-      htmlFor={id}
-    >
+    <label htmlFor={id}>
       {lang(labelKey)}
       <RequiredIndicator
         required={required}
