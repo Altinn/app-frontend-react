@@ -72,6 +72,10 @@ describe('utils > validation', () => {
         value: 'component_4',
       },
       {
+        id: 'c4RequiredValidation',
+        value: 'Component_4 feltet er påkrevd og må besvares',
+      },
+      {
         id: 'c5Title',
         value: 'component_5',
       },
@@ -105,6 +109,7 @@ describe('utils > validation', () => {
       readOnly: false,
       textResourceBindings: {
         title: 'c4Title',
+        requiredValidation: 'c4RequiredValidation',
       },
     };
 
