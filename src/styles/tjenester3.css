@@ -53,20 +53,6 @@ address {
   line-height: inherit;
 }
 
-ol,
-ul,
-dl {
-  margin-top: 0;
-  margin-bottom: 0.625rem;
-}
-
-ol ol,
-ul ul,
-ol ul,
-ul ol {
-  margin-bottom: 0;
-}
-
 a {
   color: #008fd6;
   text-decoration: none;
@@ -10927,17 +10913,6 @@ h1 .a-label {
   overflow-wrap: break-word;
 }
 
-.ai,
-.reg,
-.ai-stack,
-.reg-stack {
-  font-size: 2.25em;
-  -webkit-font-smoothing: subpixel-antialiased;
-  line-height: 0px;
-  width: 1em;
-  text-align: center;
-  vertical-align: middle;
-}
 .ai.ai-xs,
 .a-helpIconButton i.ai,
 .ai.reg-xs,
