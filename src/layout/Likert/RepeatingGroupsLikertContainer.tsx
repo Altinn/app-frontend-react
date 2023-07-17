@@ -95,7 +95,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
 
   return (
     <>
-      {<Header />}
+      <Header />
       {fetchingOptions ? (
         <AltinnSpinner />
       ) : (
