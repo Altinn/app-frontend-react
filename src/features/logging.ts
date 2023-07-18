@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 
 function postLog(level: 'info' | 'warn' | 'error', args: any[]) {
   if (window.reduxStore) {
@@ -10,7 +10,7 @@ function postLog(level: 'info' | 'warn' | 'error', args: any[]) {
 export function parseErrorArgs(args: any[]): string {
   return args
     .map((arg) => {
-      if (arg instanceof AxiosError) {
+      if (isAxiosError(arg)) {
         return `Request failed, check the server logs for more details. ${arg.config?.method?.toUpperCase()} '${arg
           .config?.url}': ${arg.message}`;
       }

@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import { call, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
@@ -89,7 +89,7 @@ export function* uploadAttachmentSaga({
   } catch (err) {
     let validations: IComponentValidations;
 
-    if (backendFeatures?.jsonObjectInDataResponse && err instanceof AxiosError && err.response?.data?.result) {
+    if (backendFeatures?.jsonObjectInDataResponse && isAxiosError(err) && err.response?.data?.result) {
       const validationIssues: IValidationIssue[] = err.response.data.result;
 
       validations = {
