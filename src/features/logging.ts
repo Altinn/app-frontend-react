@@ -1,11 +1,9 @@
 import { AxiosError } from 'axios';
 
-let index = -1;
-function postLog(level: string, args: any[]) {
+function postLog(level: 'info' | 'warn' | 'error', args: any[]) {
   if (window.reduxStore) {
-    index++;
     const message = parseErrorArgs(args);
-    window.reduxStore.dispatch({ type: 'devTools/postLog', payload: { index, level, message } });
+    window.reduxStore.dispatch({ type: 'devTools/postLog', payload: { level, message } });
   }
 }
 

@@ -1,4 +1,8 @@
 import { useRef } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
+import { parseErrorArgs } from 'src/features/logging';
 
 /**
  * This can safely be used inside the render function of a component without spamming the logs
@@ -6,28 +10,20 @@ import { useRef } from 'react';
  */
 export const useLogs = () => {
   const logged = useRef(new Set<string>());
+  const dispatch = useDispatch();
 
-  function logOnce(message: string, severity: 'info' | 'warn' | 'error') {
-    const logKey = `${severity}-${message}`;
+  function logOnce(level: 'info' | 'warn' | 'error', args: any[]) {
+    const message = parseErrorArgs(args);
+    const logKey = `${level}-${message}`;
     if (!logged.current.has(logKey)) {
-      switch (severity) {
-        case 'info':
-          window.logInfo(message);
-          break;
-        case 'warn':
-          window.logWarn(message);
-          break;
-        case 'error':
-          window.logError(message);
-          break;
-      }
       logged.current.add(logKey);
+      dispatch(DevToolsActions.postLog({ level, message }));
     }
   }
 
-  const logInfo = (message: string) => logOnce(message, 'info');
-  const logWarn = (message: string) => logOnce(message, 'warn');
-  const logError = (message: string) => logOnce(message, 'error');
+  const logInfo = (...args: any[]) => logOnce('info', args);
+  const logWarn = (...args: any) => logOnce('warn', args);
+  const logError = (...args: any[]) => logOnce('error', args);
 
   return { logInfo, logWarn, logError };
 };
