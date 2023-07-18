@@ -76,6 +76,7 @@ export const PDFView = ({ appName, appOwner }: PDFViewProps) => {
     >
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
       <Heading
+        spacing={true}
         level={1}
         size='large'
       >
