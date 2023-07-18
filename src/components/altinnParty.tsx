@@ -221,11 +221,13 @@ export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnParty
       >
         {isOrg ? (
           <Buldings3Icon
+            data-testid='org-icon'
             style={{ fontSize: '2rem' }}
             aria-hidden
           />
         ) : (
           <PersonIcon
+            data-testid='person-icon'
             style={{ fontSize: '2rem' }}
             aria-hidden
           />
