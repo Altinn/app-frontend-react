@@ -1,4 +1,3 @@
-import { isAxiosError } from 'axios';
 import { call, put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
@@ -10,6 +9,7 @@ import { ValidationActions } from 'src/features/validation/validationSlice';
 import { staticUseLanguageFromState } from 'src/hooks/useLanguage';
 import { getFileUploadComponentValidations } from 'src/utils/formComponentUtils';
 import { httpPost } from 'src/utils/network/networking';
+import { isAxiosError } from 'src/utils/network/sharedNetworking';
 import { fileUploadUrl } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI } from 'src/utils/urls/urlHelper';
 import { BackendValidationSeverity, getValidationMessage } from 'src/utils/validation/backendValidation';

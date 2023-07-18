@@ -1,4 +1,4 @@
-import { isAxiosError } from 'axios';
+import { isAxiosError } from 'src/utils/network/sharedNetworking';
 
 function postLog(level: 'info' | 'warn' | 'error', args: any[]) {
   if (window.reduxStore) {
