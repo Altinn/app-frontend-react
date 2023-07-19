@@ -159,6 +159,7 @@ export function EditWindowComponent({
               disabled={saveIsDisabled}
               error={attachmentValidations.filter((i) => i.id === attachment.id).length > 0}
               label={langAsString('general.choose')}
+              hideLabel={true}
             />
           </Grid>
           <Grid
