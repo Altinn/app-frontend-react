@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
   headerLink: {
     color: theme.altinnPalette.primary.blueDark,
-    fontSize: '1.5rem',
+    fontSize: '1.25rem',
     lineHeight: '1.5',
     marginLeft: '2.25rem',
     paddingBottom: '3px',
@@ -56,6 +56,8 @@ const useStyles = makeStyles((theme) => ({
   headerLinkList: {
     flexGrow: 1,
     listStyle: 'none',
+    margin: 0,
+    padding: 0,
     float: 'left',
     '& li': {
       display: 'inline',
