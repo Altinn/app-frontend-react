@@ -3,8 +3,13 @@
   margin-bottom: 0;
 }
 
+/**
+ * There are problems overriding the material-ui Grid styles even after https://github.com/Altinn/app-frontend-react/pull/1330
+ * making the use of !important necessary.
+ * @see https://github.com/mui/material-ui/issues/8509
+ */
 .groupContainer {
-  padding-bottom: 38px;
+  padding-bottom: 38px !important;
 }
 
 .groupingIndicator {
@@ -12,6 +17,6 @@
   margin-left: 12px;
   margin-bottom: 12px;
   margin-top: 12px;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
