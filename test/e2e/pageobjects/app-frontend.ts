@@ -149,7 +149,7 @@ export class AppFrontend {
     uploadWithTag: {
       uploadZone: '#fileUploadWithTags-changename',
       editWindow: '[id^="attachment-edit-window"]',
-      tagsDropDown: '[id^="attachment-tag-dropdown"]',
+      tagsDropDown: 'input[id^="attachment-tag-dropdown"]',
       saveTag: '[id^="attachment-save-tag-button"]',
       uploaded: '#tagFile',
       error: '[id^="attachment-error"]',
@@ -305,7 +305,7 @@ export function makeUploaderSelectors<T extends Type>(
       status: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(${statusIdx})`,
       deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) [data-testid^="attachment-delete"]`,
       ...(type === 'tagged' && {
-        tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) select`,
+        tagSelector: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) input`,
         tagSave: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button[id^=attachment-save-tag-button]`,
         editBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) td:last-of-type button:contains("Rediger")`,
         deleteBtn: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) button:contains("Slett")`,

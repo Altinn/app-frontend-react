@@ -68,7 +68,7 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploaded).then((table) => {
@@ -90,7 +90,7 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
 
