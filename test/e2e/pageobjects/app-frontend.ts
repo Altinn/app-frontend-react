@@ -256,8 +256,6 @@ export class AppFrontend {
   public reporteeSelection = {
     appHeader: '[data-testid="AltinnAppHeader"]',
     searchReportee: 'input[placeholder="Søk etter aktør"]',
-    checkbox: 'input[type="checkbox"]',
-    seeSubUnits: '.ai.ai-expand-circle',
     reportee: '[data-testid="AltinnParty-PartyWrapper"][id^=party-]',
     subUnits: '[data-testid="AltinnParty-SubUnitWrapper"]',
     error: '#party-selection-error',

@@ -215,6 +215,7 @@ export function DatepickerComponent({ node, formData, handleDataChange, isValid,
               <CalendarIcon
                 id='date-icon'
                 className={classes.icon}
+                aria-label={langAsString('date_picker.aria_label_icon')}
               />
             }
             className={classes.datepicker}

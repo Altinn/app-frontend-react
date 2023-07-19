@@ -286,6 +286,7 @@ export const PartySelection = () => {
         className={classes.partySearchFieldContainer}
       >
         <TextField
+          aria-label={langAsString('party_selection.search_placeholder')}
           placeholder={langAsString('party_selection.search_placeholder')}
           onChange={onFilterStringChange}
           value={filterString}
