@@ -34,8 +34,7 @@ const useStyles = makeStyles((theme) => ({
     margin: 12,
   },
   partySearchFieldContainer: {
-    paddingTop: 8,
-    paddingLeft: 12,
+    padding: '8px 12px 0 12px',
     width: '100%',
     '@media screen and (min-width: 768px)': {
       width: '50%',
