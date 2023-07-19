@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 
-import { Checkbox, TextField } from '@digdir/design-system-react';
+import { Button, Checkbox, TextField } from '@digdir/design-system-react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
+import { PlusIcon } from '@navikt/aksel-icons';
 
 import { AltinnParty } from 'src/components/altinnParty';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
@@ -148,7 +148,14 @@ export const PartySelection = () => {
             container={true}
             direction='row'
           >
-            {renderShowMoreButton()}
+            <Button
+              variant='outline'
+              dashedBorder={true}
+              icon={<PlusIcon aria-hidden />}
+              onClick={() => setNumberOfPartiesShown(numberOfPartiesShown + 4)}
+            >
+              {langAsString('party_selection.load_more')}
+            </Button>
           </Grid>
         ) : null}
       </>
@@ -246,27 +253,6 @@ export const PartySelection = () => {
   const onFilterStringChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilterString(event.target.value);
   };
-
-  function increaseNumberOfShownParties() {
-    setNumberOfPartiesShown(numberOfPartiesShown + 4);
-  }
-
-  function renderShowMoreButton() {
-    return (
-      <button
-        className={classes.loadMoreButton}
-        onClick={increaseNumberOfShownParties}
-      >
-        <Grid
-          container={true}
-          direction='row'
-        >
-          <AddIcon className={classes.loadMoreButtonIcon} />
-          <Typography className={classes.loadMoreButtonText}>{langAsString('party_selection.load_more')}</Typography>
-        </Grid>
-      </button>
-    );
-  }
 
   const toggleShowDeleted = () => {
     setShowDeleted(!showDeleted);
