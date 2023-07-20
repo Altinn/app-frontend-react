@@ -6,6 +6,7 @@ import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesCont
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import type { ExprResolved } from 'src/features/expressions/types';
+import type { IFormData } from 'src/features/formData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
 import type { IDataModelBindingsSimple, TextBindingsForFormComponents, TextBindingsForLabel } from 'src/layout/layout';
@@ -18,21 +19,21 @@ export class Checkboxes extends FormComponent<'Checkboxes'> {
     return <CheckboxContainerComponent {...props} />;
   }
 
-  private useSummaryData(node: LayoutNodeFromType<'Checkboxes'>): { [key: string]: string } {
-    const formData = useAppSelector((state) => state.formData.formData);
+  private getSummaryData(node: LayoutNodeFromType<'Checkboxes'>, formData: IFormData): { [key: string]: string } {
     const value = node.item.dataModelBindings?.simpleBinding
       ? formData[node.item.dataModelBindings.simpleBinding] || ''
       : '';
     return useCommaSeparatedOptionsToText(node.item, value);
   }
 
-  useDisplayData(node: LayoutNodeFromType<'Checkboxes'>): string {
-    return Object.values(this.useSummaryData(node)).join(', ');
+  getDisplayData(node: LayoutNodeFromType<'Checkboxes'>, { formData }): string {
+    return Object.values(this.getSummaryData(node, formData)).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
-    const formData = this.useSummaryData(targetNode);
-    return <MultipleChoiceSummary formData={formData} />;
+    const formData = useAppSelector((state) => state.formData.formData);
+    const summaryData = this.getSummaryData(targetNode, formData);
+    return <MultipleChoiceSummary formData={summaryData} />;
   }
 }
 

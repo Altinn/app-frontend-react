@@ -1,7 +1,9 @@
 import { createContext } from 'react';
 
 import { ComponentConfigs } from 'src/layout/components';
+import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentRendersLabel, ComponentTypes, IGrid } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
@@ -137,4 +139,21 @@ export function implementsGroupValidation<Type extends ComponentTypes>(
   component: AnyComponent<Type>,
 ): component is typeof component & GroupValidation {
   return 'runGroupValidations' in component;
+}
+
+export interface DisplayDataProps {
+  formData: IFormData;
+  attachments: IAttachments;
+  langTools: IUseLanguage;
+}
+
+export interface DisplayData<Type extends ComponentTypes> {
+  getDisplayData(node: LayoutNodeFromType<Type>, displayDataProps: DisplayDataProps): string;
+  useDisplayData(node: LayoutNodeFromType<Type>): string;
+}
+
+export function implementsDisplayData<Type extends ComponentTypes>(
+  component: AnyComponent<Type>,
+): component is typeof component & DisplayData<Type> {
+  return 'getDisplayData' in component && 'useDisplayData' in component;
 }

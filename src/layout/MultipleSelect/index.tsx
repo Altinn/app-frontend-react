@@ -6,6 +6,7 @@ import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSumma
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import type { ExprResolved } from 'src/features/expressions/types';
+import type { IFormData } from 'src/features/formData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsSimple, TextBindingsForFormComponents } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -18,8 +19,7 @@ export class MultipleSelect extends FormComponent<'MultipleSelect'> {
     return <MultipleSelectComponent {...props} />;
   }
 
-  private useSummaryData(node: LayoutNodeFromType<'MultipleSelect'>): { [key: string]: string } {
-    const formData = useAppSelector((state) => state.formData.formData);
+  private getSummaryData(node: LayoutNodeFromType<'MultipleSelect'>, formData: IFormData): { [key: string]: string } {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return {};
     }
@@ -28,13 +28,14 @@ export class MultipleSelect extends FormComponent<'MultipleSelect'> {
     return useCommaSeparatedOptionsToText(node.item, value);
   }
 
-  useDisplayData(node: LayoutNodeFromType<'MultipleSelect'>): string {
-    return Object.values(this.useSummaryData(node)).join(', ');
+  getDisplayData(node: LayoutNodeFromType<'MultipleSelect'>, { formData }): string {
+    return Object.values(this.getSummaryData(node, formData)).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
-    const formData = this.useSummaryData(targetNode);
-    return <MultipleChoiceSummary formData={formData} />;
+    const formData = useAppSelector((state) => state.formData.formData);
+    const summaryData = this.getSummaryData(targetNode, formData);
+    return <MultipleChoiceSummary formData={summaryData} />;
   }
 }
 

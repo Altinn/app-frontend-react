@@ -2,6 +2,7 @@ import dot from 'dot-object';
 
 import { ExprRuntimeError, NodeNotFound, NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { prettyErrors, prettyErrorsToConsole } from 'src/features/expressions/prettyErrors';
+import type { IAttachments } from 'src/features/attachments';
 import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
@@ -14,6 +15,7 @@ export interface ContextDataSources {
   instanceContext: IInstanceContext | null;
   applicationSettings: IApplicationSettings | null;
   formData: IFormData;
+  attachments: IAttachments;
   authContext: Partial<IAuthContext> | null;
   hiddenFields: Set<string>;
   langTools: IUseLanguage;

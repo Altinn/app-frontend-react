@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
@@ -18,8 +17,7 @@ export class Dropdown extends FormComponent<'Dropdown'> {
     return <DropdownComponent {...props} />;
   }
 
-  useDisplayData(node: LayoutNodeFromType<'Dropdown'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+  getDisplayData(node: LayoutNodeFromType<'Dropdown'>, { formData }): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }
