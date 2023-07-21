@@ -7,6 +7,7 @@ import type { EvalExprOptions } from 'src/features/expressions/index';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
+import type { IOptions, IUiConfig } from 'src/types';
 import type { IApplicationSettings, IAuthContext, IInstanceContext } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -16,6 +17,8 @@ export interface ContextDataSources {
   applicationSettings: IApplicationSettings | null;
   formData: IFormData;
   attachments: IAttachments;
+  uiConfig: IUiConfig;
+  options: IOptions;
   authContext: Partial<IAuthContext> | null;
   hiddenFields: Set<string>;
   langTools: IUseLanguage;

@@ -544,6 +544,8 @@ export const ExprFunctions = {
       return component.def.getDisplayData(component as any, {
         formData: this.dataSources.formData,
         attachments: this.dataSources.attachments,
+        options: this.dataSources.options,
+        uiConfig: this.dataSources.uiConfig,
         langTools: this.dataSources.langTools,
       });
     },

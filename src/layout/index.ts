@@ -7,6 +7,7 @@ import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentRendersLabel, ComponentTypes, IGrid } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
+import type { IOptions, IUiConfig } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -144,6 +145,8 @@ export function implementsGroupValidation<Type extends ComponentTypes>(
 export interface DisplayDataProps {
   formData: IFormData;
   attachments: IAttachments;
+  options: IOptions;
+  uiConfig: IUiConfig;
   langTools: IUseLanguage;
 }
 

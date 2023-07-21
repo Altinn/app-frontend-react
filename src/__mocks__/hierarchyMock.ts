@@ -6,6 +6,8 @@ export function getHierarchyDataSourcesMock(): HierarchyDataSources {
   return {
     formData: {},
     attachments: {},
+    uiConfig: {} as any,
+    options: {},
     applicationSettings: {} as any,
     instanceContext: {} as any,
     hiddenFields: new Set(),

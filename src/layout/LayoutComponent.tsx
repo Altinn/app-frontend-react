@@ -127,8 +127,10 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
   useDisplayData(node: LayoutNodeFromType<Type>): string {
     const formData = useAppSelector((state) => state.formData.formData);
     const attachments = useAppSelector((state) => state.attachments.attachments);
+    const options = useAppSelector((state) => state.optionState.options);
+    const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
     const langTools = useLanguage();
-    return this.getDisplayData(node, { formData, attachments, langTools });
+    return this.getDisplayData(node, { formData, attachments, options, uiConfig, langTools });
   }
 
   /**
