@@ -12,6 +12,7 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/validation/validation';
+import type { ITextResourceBindings } from 'src/layout/layout';
 
 export function Form() {
   const nodes = useExprContext();
@@ -21,20 +22,29 @@ export function Form() {
   const page = nodes?.current();
   const pageKey = page?.top.myKey;
 
-  const requiredFieldsMissing = React.useMemo(() => {
-    if (validations && pageKey && validations[pageKey]) {
-      return missingFieldsInLayoutValidations(validations[pageKey], langTools);
-    }
-
-    return false;
-  }, [pageKey, langTools, validations]);
-
   const [mainNodes, errorReportNodes] = React.useMemo(() => {
     if (!page) {
       return [[], []];
     }
     return hasErrors ? extractBottomButtons(page) : [page.children(), []];
   }, [page, hasErrors]);
+
+  const requiredFieldsMissing = React.useMemo(() => {
+    if (validations && pageKey && validations[pageKey]) {
+      const requiredValidationTextResources: string[] = [];
+      mainNodes.forEach((node) => {
+        const textResourceBindings = node.item.textResourceBindings as ITextResourceBindings;
+        if (node.item.required && textResourceBindings?.requiredValidation) {
+          requiredValidationTextResources.push(langTools.langAsString(textResourceBindings?.requiredValidation));
+        }
+      });
+      console.log('requiredValidationTextResources', requiredValidationTextResources);
+
+      return missingFieldsInLayoutValidations(validations[pageKey], requiredValidationTextResources, langTools);
+    }
+
+    return false;
+  }, [validations, pageKey, mainNodes, langTools]);
 
   if (!page) {
     return null;

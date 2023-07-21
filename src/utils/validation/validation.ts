@@ -365,6 +365,7 @@ export function getHighestIndexOfChildGroup(group: string, repeatingGroups: IRep
 
 export function missingFieldsInLayoutValidations(
   layoutValidations: ILayoutValidations,
+  requiredValidationTextResources: string[],
   langTools: IUseLanguage,
 ): boolean {
   let result = false;
@@ -378,6 +379,12 @@ export function missingFieldsInLayoutValidations(
     if (Array.isArray(e)) {
       return e.findIndex(lookForRequiredMsg) > -1;
     }
+    requiredValidationTextResources.forEach((textResource) => {
+      if (e.includes(textResource)) {
+        console.log('hello');
+        result = true;
+      }
+    });
     return (e?.props?.children as string).includes(requiredMessage);
   };
 

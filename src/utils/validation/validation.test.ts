@@ -683,7 +683,7 @@ describe('utils > validation', () => {
           },
         },
       };
-      const result = validation.missingFieldsInLayoutValidations(validations, mockLangTools);
+      const result = validation.missingFieldsInLayoutValidations(validations, [], mockLangTools);
       expect(result).toBeFalsy();
     });
     it('should return true when validations contain messages (string) for missing fields', () => {
@@ -695,7 +695,7 @@ describe('utils > validation', () => {
           },
         },
       };
-      const result = validation.missingFieldsInLayoutValidations(validations, mockLangTools);
+      const result = validation.missingFieldsInLayoutValidations(validations, [], mockLangTools);
       expect(result).toBeTruthy();
     });
     it('should return true when validations contain arrays with error message for missing fields', () => {
@@ -709,8 +709,8 @@ describe('utils > validation', () => {
       });
       const shallow = 'Første linje\nDu må fylle ut ';
       const deep = 'Dette er feil:\nFørste linje\nDu må fylle ut ';
-      expect(validation.missingFieldsInLayoutValidations(validations(shallow), mockLangTools)).toBeTruthy();
-      expect(validation.missingFieldsInLayoutValidations(validations(deep), mockLangTools)).toBeTruthy();
+      expect(validation.missingFieldsInLayoutValidations(validations(shallow), [], mockLangTools)).toBeTruthy();
+      expect(validation.missingFieldsInLayoutValidations(validations(deep), [], mockLangTools)).toBeTruthy();
     });
   });
 });
