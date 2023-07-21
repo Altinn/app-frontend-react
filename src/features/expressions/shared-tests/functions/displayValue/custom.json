@@ -1,24 +1,26 @@
 {
-  "name": "Display value of regular Input component",
+  "name": "Display value of Custom component",
   "expression": [
     "displayValue",
-    "penger"
+    "custom"
   ],
   "context": {
-    "component": "penger",
+    "component": "custom",
     "currentLayout": "Page"
   },
-  "expects": "1200",
+  "expects": "Alice, Bob, Charlie",
   "layouts": {
     "Page": {
       "$schema": "https://altinncdn.no/schemas/json/layout/layout.schema.v1.json",
       "data": {
         "layout": [
           {
-            "id": "penger",
-            "type": "Input",
+            "id": "custom",
+            "type": "Custom",
             "dataModelBindings": {
-              "simpleBinding": "Skjema.Penger"
+              "name1": "Skjema.Name1",
+              "name2": "Skjema.Name2",
+              "name3": "Skjema.Name3"
             }
           }
         ]
@@ -27,7 +29,9 @@
   },
   "dataModel": {
     "Skjema": {
-      "Penger": "1200"
+      "Name1": "Alice",
+      "Name2": "Bob",
+      "Name3": "Charlie"
     }
   }
 }
