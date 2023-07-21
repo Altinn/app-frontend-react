@@ -62,7 +62,7 @@ describe('On Entry', () => {
     cy.get(appFrontend.instanceErrorCode).should('have.text', 'Ukjent feil');
   });
 
-  it.only('is possible to paginate the instances and select default rows per page', () => {
+  it('is possible to paginate the instances and select default rows per page', () => {
     cy.intercept('**/applicationmetadata', {
       id: 'ttd/frontend-test',
       org: 'ttd',
