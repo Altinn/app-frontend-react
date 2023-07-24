@@ -8,6 +8,12 @@ import { ComponentCategory } from 'src/layout/common';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 
+export interface TextResourceConfig {
+  name: string;
+  title: string;
+  description: string;
+}
+
 export class ComponentConfig {
   public type: string;
   private unresolved = new GenerateObject().export();
@@ -44,12 +50,13 @@ export class ComponentConfig {
     }
   }
 
-  public setType(type: string): this {
+  public setType(type: string, symbol?: string): this {
+    const symbolName = symbol ?? type;
     this.type = type;
     this.unresolved.addPropertyAfter('type', CG.const(type), 'id');
     this.resolved.addPropertyAfter('type', CG.const(type), 'id');
-    this.unresolved.setName(`ILayoutComp${type}`);
-    this.resolved.setName(`${type}Item`);
+    this.unresolved.setName(`ILayoutComp${symbolName}`);
+    this.resolved.setName(`${symbolName}Item`);
 
     return this;
   }
@@ -59,7 +66,9 @@ export class ComponentConfig {
     return this;
   }
 
-  public addTextResource(name: string, title: string, description: string): this {
+  public addTextResource(args: TextResourceConfig): this {
+    const { name } = args;
+
     for (const targetObject of [this.unresolved, this.resolved]) {
       let bindings = targetObject.getProperty('textResourceBindings') as GenerateObject | undefined;
       if (!bindings) {
@@ -77,33 +86,49 @@ export class ComponentConfig {
   }
 
   public addTextResourcesForSummarizableComponents(): this {
-    return this.addTextResource(
-      'summaryTitle',
-      'Summary title',
-      'Title used in the summary view (overrides the default title)',
-    ).addTextResource(
-      'summaryAccessibleTitle',
-      'Accessible summary title',
-      'Title used for aria-label on the edit button in the summary view (overrides the default and summary title)',
-    );
+    return this.addTextResource({
+      name: 'summaryTitle',
+      title: 'Summary title',
+      description: 'Title used in the summary view (overrides the default title)',
+    }).addTextResource({
+      name: 'summaryAccessibleTitle',
+      title: 'Accessible summary title',
+      description:
+        'Title used for aria-label on the edit button in the summary view (overrides the default and summary title)',
+    });
   }
 
   public addTextResourcesForFormComponents(): this {
-    return this.addTextResource(
-      'tableTitle',
-      'Table title',
-      'Title used in the table view (overrides the default title)',
-    ).addTextResource(
-      'shortName',
-      'Short name (for validation)',
-      'Alternative name used for required validation messages (overrides the default title)',
-    );
+    return this.addTextResource({
+      name: 'tableTitle',
+      title: 'Table title',
+      description: 'Title used in the table view (overrides the default title)',
+    }).addTextResource({
+      name: 'shortName',
+      title: 'Short name (for validation)',
+      description: 'Alternative name used for required validation messages (overrides the default title)',
+    });
   }
 
+  /**
+   * TODO: Call this for components that have a label
+   */
   public addTextResourcesForLabel(): this {
-    return this.addTextResource('title', 'Title', 'Label text/title shown above the component')
-      .addTextResource('description', 'Description', 'Label description shown above the component, below the title')
-      .addTextResource('help', 'Help text', 'Help text shown in a tooltip when clicking the help button');
+    return this.addTextResource({
+      name: 'title',
+      title: 'Title',
+      description: 'Label text/title shown above the component',
+    })
+      .addTextResource({
+        name: 'description',
+        title: 'Description',
+        description: 'Label description shown above the component, below the title',
+      })
+      .addTextResource({
+        name: 'help',
+        title: 'Help text',
+        description: 'Help text shown in a tooltip when clicking the help button',
+      });
   }
 
   /**
@@ -117,7 +142,7 @@ export class ComponentConfig {
     if (existing && existing instanceof GenerateUnion) {
       existing.addType(targetType);
     } else if (existing) {
-      const union = CG.union([existing, targetType]);
+      const union = CG.union(existing, targetType);
       this.unresolved.addProperty('dataModelBindings', union);
     } else {
       this.unresolved.addProperty('dataModelBindings', targetType);

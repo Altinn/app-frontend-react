@@ -1,8 +1,11 @@
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 
 export class GenerateUnion extends CodeGenerator {
-  constructor(private types: CodeGenerator[]) {
+  private types: CodeGenerator[];
+
+  constructor(...types: CodeGenerator[]) {
     super();
+    this.types = types;
   }
 
   addType(type: CodeGenerator) {
