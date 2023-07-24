@@ -1,5 +1,4 @@
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
-import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 
 const knownValues = {
   grid: {
@@ -19,20 +18,19 @@ const knownValues = {
     symbol: 'ILabelSettings',
     importFrom: 'src/types/index',
   },
+  'dataModelBinding.simple': {
+    symbol: 'IDataModelBindingsSimple',
+    importFrom: 'src/layout/layout',
+  },
+  'dataModelBinding.list': {
+    symbol: 'IDataModelBindingsList',
+    importFrom: 'src/layout/layout',
+  },
 };
 
-export class GenerateKnownValue extends CodeGenerator {
-  public readonly value: keyof typeof knownValues;
-
+export class GenerateKnownValue extends GenerateImportedSymbol {
   constructor(value: keyof typeof knownValues) {
-    super();
-    this.value = value;
-  }
-
-  toTypeScript() {
-    const val = knownValues[this.value];
-    const importSymbol = 'importSymbol' in val ? val.importSymbol : val.symbol;
-    CodeGeneratorContext.getInstance().addImport(importSymbol, val.importFrom);
-    return val.symbol;
+    const val = knownValues[value];
+    super(val);
   }
 }

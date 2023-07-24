@@ -52,7 +52,7 @@ async function getComponentList() {
   for (const key of sortedKeys) {
     const generator: ComponentConfig = (await import(`src/layout/${key}/config`)).Generator;
     generator.setType(componentList[key]);
-    const path = `src/layout/${key}/types.generated.d.ts`;
+    const path = `src/layout/${key}/config.generated.ts`;
     const content = generator.toTypeScript();
     promises.push(saveTsFile(path, content));
   }

@@ -2,6 +2,7 @@ import { ComponentConfig } from 'src/codegen/ComponentConfig';
 import { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
 import { GenerateConst } from 'src/codegen/dataTypes/GenerateConst';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
+import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateKnownValue } from 'src/codegen/dataTypes/GenerateKnownValue';
 import { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -19,8 +20,9 @@ export const CG = {
   bool: (...args: ConstructorParameters<typeof GenerateBoolean>) => new GenerateBoolean(...args),
   num: (...args: ConstructorParameters<typeof GenerateNumber>) => new GenerateNumber(...args),
 
-  // Known values that we have types for elsewhere
+  // Known values that we have types for elsewhere, or other imported types
   known: (...args: ConstructorParameters<typeof GenerateKnownValue>) => new GenerateKnownValue(...args),
+  import: (...args: ConstructorParameters<typeof GenerateImportedSymbol>) => new GenerateImportedSymbol(...args),
 
   // Others
   union: (...args: ConstructorParameters<typeof GenerateUnion>) => new GenerateUnion(...args),

@@ -20,6 +20,13 @@ export class GenerateObject extends CodeGenerator {
   }
 
   public addProperty(name: string, value: CodeGenerator): this {
+    // Replace property if it already exists
+    const index = this.properties.findIndex((property) => property.name === name);
+    if (index !== -1) {
+      this.properties[index].value = value;
+      return this;
+    }
+
     this.properties.push({ name, value });
     return this;
   }
