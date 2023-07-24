@@ -5,8 +5,8 @@ import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { CG } from 'src/codegen/index';
 import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
-import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateImportedSymbol, ImportDef } from 'src/codegen/dataTypes/GenerateImportedSymbol';
+import type { AddProperty } from 'src/codegen/dataTypes/GenerateObject';
 
 export interface TextResourceConfig {
   name: string;
@@ -54,21 +54,45 @@ export class ComponentConfig {
   private resolved = new GenerateObject().export();
 
   constructor(public readonly config: RequiredComponentConfig) {
-    this.addProperty('id', CG.str());
-    this.addProperty('hidden', CG.expr(ExprVal.Boolean).optional(CG.const(false)));
-    this.addProperty('grid', CG.known('grid').optional());
-    this.addProperty('pageBreak', CG.known('pageBreak').optional());
+    this.addProperty({
+      name: 'id',
+      value: CG.str(),
+    });
+    this.addProperty({
+      name: 'hidden',
+      value: CG.expr(ExprVal.Boolean).optional(CG.const(false)),
+    });
+    this.addProperty({
+      name: 'grid',
+      value: CG.known('grid').optional(),
+    });
+    this.addProperty({
+      name: 'pageBreak',
+      value: CG.known('pageBreak').optional(),
+    });
 
     if (config.category === ComponentCategory.Form) {
-      this.addProperty('readOnly', CG.expr(ExprVal.Boolean).optional(CG.const(false)));
-      this.addProperty('required', CG.expr(ExprVal.Boolean).optional(CG.const(false)));
-      this.addProperty('triggers', CG.known('triggers').optional()); // TODO: Triggers for Group, navigation buttons
+      this.addProperty({
+        name: 'readOnly',
+        value: CG.expr(ExprVal.Boolean).optional(CG.const(false)),
+      });
+      this.addProperty({
+        name: 'required',
+        value: CG.expr(ExprVal.Boolean).optional(CG.const(false)),
+      });
+      this.addProperty({
+        name: 'triggers',
+        value: CG.known('triggers').optional(), // TODO: Triggers for Group, navigation buttons
+      });
 
       this.addTextResourcesForSummarizableComponents();
       this.addTextResourcesForFormComponents();
     }
     if (config.category === ComponentCategory.Form || config.category === ComponentCategory.Container) {
-      this.addProperty('renderAsSummary', CG.expr(ExprVal.Boolean).optional(CG.const(false)));
+      this.addProperty({
+        name: 'renderAsSummary',
+        value: CG.expr(ExprVal.Boolean).optional(CG.const(false)),
+      });
     }
 
     if (config.rendersWithLabel) {
@@ -76,13 +100,13 @@ export class ComponentConfig {
     }
   }
 
-  public addProperty(name: string, value: CodeGenerator): this {
-    this.unresolved.addProperty(name, value);
+  public addProperty(prop: AddProperty): this {
+    this.unresolved.addProperty(prop);
 
-    if (value instanceof GenerateExpressionOr) {
-      this.resolved.addProperty(name, value.getTargetType());
+    if (prop.value instanceof GenerateExpressionOr) {
+      this.resolved.addProperty({ ...prop, value: prop.value.getTargetType() });
     } else {
-      this.resolved.addProperty(name, value);
+      this.resolved.addProperty(prop);
     }
 
     return this;
@@ -92,8 +116,8 @@ export class ComponentConfig {
     const symbolName = symbol ?? type;
     this.type = type;
     this.typeSymbol = symbolName;
-    this.unresolved.addPropertyAfter('type', CG.const(type), 'id');
-    this.resolved.addPropertyAfter('type', CG.const(type), 'id');
+    this.unresolved.addProperty({ name: 'type', value: CG.const(type), insertAfter: 'id' });
+    this.resolved.addProperty({ name: 'type', value: CG.const(type), insertAfter: 'id' });
     this.unresolved.setName(`ILayoutComp${symbolName}`);
     this.resolved.setName(`${symbolName}Item`);
 
@@ -106,7 +130,11 @@ export class ComponentConfig {
   }
 
   public rendersWithLabel(): this {
-    this.addProperty('labelSettings', CG.known('labelSettings').optional());
+    this.addProperty({
+      name: 'labelSettings',
+      value: CG.known('labelSettings').optional(),
+    });
+
     return this;
   }
 
@@ -114,15 +142,23 @@ export class ComponentConfig {
     const { name } = args;
 
     for (const targetObject of [this.unresolved, this.resolved]) {
-      let bindings = targetObject.getProperty('textResourceBindings') as GenerateObject | undefined;
+      let bindings = targetObject.getProperty('textResourceBindings')?.value;
       if (!bindings) {
         bindings = CG.obj(true);
-        targetObject.addProperty('textResourceBindings', bindings);
+        targetObject.addProperty({
+          name: 'textResourceBindings',
+          value: bindings,
+        });
       }
-      if (targetObject === this.unresolved) {
-        bindings.addProperty(name, CG.expr(ExprVal.String).optional());
-      } else {
-        bindings.addProperty(name, CG.str().optional());
+      if (bindings instanceof GenerateObject) {
+        if (targetObject === this.unresolved) {
+          bindings.addProperty({
+            name,
+            value: CG.expr(ExprVal.String).optional(),
+          });
+        } else {
+          bindings.addProperty({ name, value: CG.str().optional() });
+        }
       }
     }
 
@@ -179,14 +215,20 @@ export class ComponentConfig {
   public addDataModelBinding(type: 'simple' | 'list' | GenerateImportedSymbol): this {
     const targetType = typeof type === 'string' ? CG.known(`dataModelBinding.${type}`) : type;
 
-    const existing = this.unresolved.getProperty('dataModelBindings');
+    const common = {
+      name: 'dataModelBindings',
+      title: 'Data model bindings',
+      description: 'Describes the location in the data model where the component should store its value(s)',
+    };
+
+    const existing = this.unresolved.getProperty('dataModelBindings')?.value;
     if (existing && existing instanceof GenerateUnion) {
       existing.addType(targetType);
     } else if (existing) {
       const union = CG.union(existing, targetType);
-      this.unresolved.addProperty('dataModelBindings', union);
+      this.unresolved.addProperty({ ...common, value: union });
     } else {
-      this.unresolved.addProperty('dataModelBindings', targetType);
+      this.unresolved.addProperty({ ...common, value: targetType });
     }
 
     return this;

@@ -14,5 +14,15 @@ export const Generator = CG.newComponent({
     title: 'Button title/text',
     description: 'The text to display on the button.',
   })
-  .addProperty('action', CG.union(CG.const('instantiate'), CG.const('confirm'), CG.const('sign'), CG.const('reject')))
-  .addProperty('buttonStyle', CG.union(CG.const('primary'), CG.const('secondary')));
+  .addProperty({
+    name: 'action',
+    title: 'Action',
+    description: 'The action to perform when the button is clicked.',
+    value: CG.union(CG.const('instantiate'), CG.const('confirm'), CG.const('sign'), CG.const('reject')),
+  })
+  .addProperty({
+    name: 'buttonStyle',
+    title: 'Button style',
+    description: 'The style/color scheme of the button.',
+    value: CG.union(CG.const('primary'), CG.const('secondary')),
+  });

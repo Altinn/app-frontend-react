@@ -1,9 +1,21 @@
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 
+export interface Property {
+  name: string;
+  title?: string;
+  description?: string;
+  value: CodeGenerator;
+}
+
+export interface AddProperty extends Property {
+  insertBefore?: string;
+  insertAfter?: string;
+}
+
 export class GenerateObject extends CodeGenerator {
   public name: string;
   public exported = false;
-  public properties: { name: string; value: CodeGenerator }[] = [];
+  public properties: Property[] = [];
 
   constructor(public readonly inline?: boolean) {
     super();
@@ -19,39 +31,40 @@ export class GenerateObject extends CodeGenerator {
     return this;
   }
 
-  public addProperty(name: string, value: CodeGenerator): this {
+  public addProperty(prop: AddProperty): this {
+    const { name } = prop;
+
     // Replace property if it already exists
     const index = this.properties.findIndex((property) => property.name === name);
     if (index !== -1) {
-      this.properties[index].value = value;
+      this.properties[index] = prop;
       return this;
     }
 
-    this.properties.push({ name, value });
-    return this;
-  }
-
-  public addPropertyBefore(name: string, value: CodeGenerator, before: string): this {
-    const index = this.properties.findIndex((property) => property.name === before);
-    if (index === -1) {
-      throw new Error(`Property ${before} not found`);
+    if (prop.insertBefore) {
+      const index = this.properties.findIndex((property) => property.name === prop.insertBefore);
+      if (index === -1) {
+        throw new Error(`Property ${prop.insertBefore} not found`);
+      }
+      this.properties.splice(index, 0, prop);
+      return this;
     }
-    this.properties.splice(index, 0, { name, value });
-    return this;
-  }
 
-  public addPropertyAfter(name: string, value: CodeGenerator, after: string): this {
-    const index = this.properties.findIndex((property) => property.name === after);
-    if (index === -1) {
-      throw new Error(`Property ${after} not found`);
+    if (prop.insertAfter) {
+      const index = this.properties.findIndex((property) => property.name === prop.insertAfter);
+      if (index === -1) {
+        throw new Error(`Property ${prop.insertAfter} not found`);
+      }
+      this.properties.splice(index + 1, 0, prop);
+      return this;
     }
-    this.properties.splice(index + 1, 0, { name, value });
+
+    this.properties.push(prop);
     return this;
   }
 
-  public getProperty(name: string): CodeGenerator | undefined {
-    const property = this.properties.find((property) => property.name === name);
-    return property?.value;
+  public getProperty(name: string): Property | undefined {
+    return this.properties.find((property) => property.name === name);
   }
 
   public toTypeScript(): string {

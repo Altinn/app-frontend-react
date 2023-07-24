@@ -15,4 +15,9 @@ export const Generator = CG.newComponent({
       importFrom: 'src/layout/Address/types',
     }),
   )
-  .addProperty('simplified', CG.bool().optional());
+  .addProperty({
+    name: 'simplified',
+    title: 'Simplified',
+    description: 'Whether to use the simplified address input or not',
+    value: CG.bool().optional(CG.const(true)),
+  });
