@@ -1,7 +1,14 @@
 import { CG } from 'src/codegen';
 import { ComponentCategory } from 'src/layout/common';
 
-export const Generator = CG.newComponent(ComponentCategory.Action)
+export const Generator = CG.newComponent({
+  category: ComponentCategory.Action,
+  rendersWithLabel: false,
+  capabilities: {
+    renderInTable: true,
+    renderInButtonGroup: true,
+  },
+})
   .addTextResource({
     name: 'title',
     title: 'Button title/text',
