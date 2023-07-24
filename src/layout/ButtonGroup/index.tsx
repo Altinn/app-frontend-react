@@ -3,14 +3,14 @@ import React from 'react';
 import type { PropsFromGenericComponent } from '..';
 
 import { ButtonGroupComponent } from 'src/layout/ButtonGroup/ButtonGroupComponent';
+import { ButtonGroupDef } from 'src/layout/ButtonGroup/config.generated';
 import { ButtonGroupHierarchyGenerator } from 'src/layout/ButtonGroup/hierarchy';
-import { ContainerComponent } from 'src/layout/LayoutComponent';
 import type { ILayoutCompButtonGroup, ILayoutCompButtonGroupInHierarchy } from 'src/layout/ButtonGroup/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class ButtonGroup extends ContainerComponent<'ButtonGroup'> {
+export class ButtonGroup extends ButtonGroupDef {
   private _hierarchyGenerator = new ButtonGroupHierarchyGenerator();
 
   render(props: PropsFromGenericComponent<'ButtonGroup'>): JSX.Element | null {
@@ -27,10 +27,6 @@ export class ButtonGroup extends ContainerComponent<'ButtonGroup'> {
 
   renderSummary(): JSX.Element | null {
     return null;
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 }
 

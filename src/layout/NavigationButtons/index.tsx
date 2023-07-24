@@ -1,23 +1,15 @@
 import React from 'react';
 
-import { ActionComponent } from 'src/layout/LayoutComponent';
+import { NavigationButtonsDef } from 'src/layout/NavigationButtons/config.generated';
 import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompNavButtons } from 'src/layout/NavigationButtons/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class NavigationButtons extends ActionComponent<'NavigationButtons'> {
+export class NavigationButtons extends NavigationButtonsDef {
   render(props: PropsFromGenericComponent<'NavigationButtons'>): JSX.Element | null {
     return <NavigationButtonsComponent {...props} />;
-  }
-
-  canRenderInButtonGroup(): boolean {
-    return true;
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 }
 

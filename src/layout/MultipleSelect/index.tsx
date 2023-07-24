@@ -3,7 +3,7 @@ import React from 'react';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCommaSeparatedOptionsToText } from 'src/hooks/useCommaSeparatedOptionsToText';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import { FormComponent } from 'src/layout/LayoutComponent';
+import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -13,7 +13,7 @@ import type { ILayoutCompMultipleSelect } from 'src/layout/MultipleSelect/types'
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class MultipleSelect extends FormComponent<'MultipleSelect'> {
+export class MultipleSelect extends MultipleSelectDef {
   render(props: PropsFromGenericComponent<'MultipleSelect'>): JSX.Element | null {
     return <MultipleSelectComponent {...props} />;
   }

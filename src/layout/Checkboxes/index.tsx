@@ -3,8 +3,8 @@ import React from 'react';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCommaSeparatedOptionsToText } from 'src/hooks/useCommaSeparatedOptionsToText';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
+import { CheckboxesDef } from 'src/layout/Checkboxes/config.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
@@ -13,7 +13,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Checkboxes extends FormComponent<'Checkboxes'> {
+export class Checkboxes extends CheckboxesDef {
   render(props: PropsFromGenericComponent<'Checkboxes'>): JSX.Element | null {
     return <CheckboxContainerComponent {...props} />;
   }

@@ -2,19 +2,15 @@ import React from 'react';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { ActionComponent } from 'src/layout/LayoutComponent';
+import { PrintButtonDef } from 'src/layout/PrintButton/config.generated';
 import { PrintButtonComponent } from 'src/layout/PrintButton/PrintButtonComponent';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { ILayoutCompPrintButton } from 'src/layout/PrintButton/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class PrintButton extends ActionComponent<'PrintButton'> {
+export class PrintButton extends PrintButtonDef {
   render(props: PropsFromGenericComponent<'PrintButton'>): JSX.Element | null {
     return <PrintButtonComponent {...props} />;
-  }
-
-  canRenderInButtonGroup(): boolean {
-    return true;
   }
 }
 

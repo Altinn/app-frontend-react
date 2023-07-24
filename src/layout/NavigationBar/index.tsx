@@ -1,19 +1,15 @@
 import React from 'react';
 
-import { ActionComponent } from 'src/layout/LayoutComponent';
+import { NavigationBarDef } from 'src/layout/NavigationBar/config.generated';
 import { NavigationBarComponent } from 'src/layout/NavigationBar/NavigationBarComponent';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompNavBar } from 'src/layout/NavigationBar/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class NavigationBar extends ActionComponent<'NavigationBar'> {
+export class NavigationBar extends NavigationBarDef {
   render(props: PropsFromGenericComponent<'NavigationBar'>): JSX.Element | null {
     return <NavigationBarComponent {...props} />;
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 }
 

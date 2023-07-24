@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
+import { FileUploadDef } from 'src/layout/FileUpload/config.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { attachmentsValid } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprResolved } from 'src/features/expressions/types';
@@ -20,7 +20,7 @@ import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
-export class FileUpload extends FormComponent<'FileUpload'> implements ComponentValidation {
+export class FileUpload extends FileUploadDef implements ComponentValidation {
   render(props: PropsFromGenericComponent<'FileUpload'>): JSX.Element | null {
     return <FileUploadComponent {...props} />;
   }
@@ -37,10 +37,6 @@ export class FileUpload extends FormComponent<'FileUpload'> implements Component
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUpload'>): JSX.Element | null {
     return <AttachmentSummaryComponent targetNode={targetNode} />;
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 
   // This component does not have empty field validation, so has to override its inherited method

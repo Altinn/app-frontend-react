@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useSelectedValueToText } from 'src/hooks/useSelectedValueToText';
-import { FormComponent } from 'src/layout/LayoutComponent';
+import { RadioButtonsDef } from 'src/layout/RadioButtons/config.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { ExprResolved } from 'src/features/expressions/types';
@@ -13,7 +13,7 @@ import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class RadioButtons extends FormComponent<'RadioButtons'> {
+export class RadioButtons extends RadioButtonsDef {
   render(props: PropsFromGenericComponent<'RadioButtons'>): JSX.Element | null {
     return <RadioButtonContainerComponent {...props} />;
   }

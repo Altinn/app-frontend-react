@@ -2,8 +2,8 @@ import React from 'react';
 
 import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
+import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.generated';
 import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
@@ -21,7 +21,7 @@ import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
-export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> implements ComponentValidation {
+export class FileUploadWithTag extends FileUploadWithTagDef implements ComponentValidation {
   render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {
     return <FileUploadWithTagComponent {...props} />;
   }
@@ -38,10 +38,6 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> implem
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {
     return <AttachmentWithTagSummaryComponent targetNode={targetNode} />;
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 
   // This component does not have empty field validation, so has to override its inherited method

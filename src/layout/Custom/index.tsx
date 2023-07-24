@@ -1,7 +1,7 @@
 import React from 'react';
 
+import { CustomDef } from 'src/layout/Custom/config.generated';
 import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -10,7 +10,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Custom extends FormComponent<'Custom'> {
+export class Custom extends CustomDef {
   render(props: PropsFromGenericComponent<'Custom'>): JSX.Element | null {
     return <CustomWebComponent {...props} />;
   }
@@ -23,14 +23,6 @@ export class Custom extends FormComponent<'Custom'> {
   renderSummary({ targetNode }: SummaryRendererProps<'Custom'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
-  }
-
-  canRenderInButtonGroup(): boolean {
-    return true;
-  }
-
-  canRenderInTable(): boolean {
-    return true;
   }
 }
 

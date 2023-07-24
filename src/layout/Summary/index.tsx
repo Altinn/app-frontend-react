@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { ContainerComponent } from 'src/layout/LayoutComponent';
+import { SummaryDef } from 'src/layout/Summary/config.generated';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Summary extends ContainerComponent<'Summary'> {
+export class Summary extends SummaryDef {
   directRender(): boolean {
     return true;
   }
@@ -29,10 +29,6 @@ export class Summary extends ContainerComponent<'Summary'> {
 
   useDisplayData(): string {
     return '';
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 }
 

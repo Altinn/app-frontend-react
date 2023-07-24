@@ -1,9 +1,9 @@
 import React from 'react';
 
+import { GroupDef } from 'src/layout/Group/config.generated';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
-import { ContainerComponent } from 'src/layout/LayoutComponent';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
@@ -16,7 +16,7 @@ import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGene
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
-export class Group extends ContainerComponent<'Group'> implements GroupValidation, ComponentValidation {
+export class Group extends GroupDef implements GroupValidation, ComponentValidation {
   private _hierarchyGenerator = new GroupHierarchyGenerator();
 
   directRender(): boolean {
@@ -55,10 +55,6 @@ export class Group extends ContainerComponent<'Group'> implements GroupValidatio
 
   hierarchyGenerator(): ComponentHierarchyGenerator<'Group'> {
     return this._hierarchyGenerator;
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 
   runComponentValidation(

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { FormComponent } from 'src/layout/LayoutComponent';
+import { MapDef } from 'src/layout/Map/config.generated';
 import { MapComponent } from 'src/layout/Map/MapComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import type { ExprResolved } from 'src/features/expressions/types';
@@ -12,7 +12,7 @@ import type { ILayoutCompMap } from 'src/layout/Map/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Map extends FormComponent<'Map'> {
+export class Map extends MapDef {
   render(props: PropsFromGenericComponent<'Map'>): JSX.Element | null {
     return <MapComponent {...props} />;
   }
@@ -28,10 +28,6 @@ export class Map extends FormComponent<'Map'> {
 
   renderSummary({ targetNode }: SummaryRendererProps<'Map'>): JSX.Element | null {
     return <MapComponentSummary targetNode={targetNode} />;
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 }
 

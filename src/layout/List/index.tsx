@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FormComponent } from 'src/layout/LayoutComponent';
+import { ListDef } from 'src/layout/List/config.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldName } from 'src/utils/formComponentUtils';
@@ -13,7 +13,7 @@ import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
-export class List extends FormComponent<'List'> {
+export class List extends ListDef {
   render(props: PropsFromGenericComponent<'List'>): JSX.Element | null {
     return <ListComponent {...props} />;
   }
@@ -33,10 +33,6 @@ export class List extends FormComponent<'List'> {
   renderSummary({ targetNode }: SummaryRendererProps<'List'>): JSX.Element | null {
     const displayData = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 
   runEmptyFieldValidation(

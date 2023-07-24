@@ -4,8 +4,8 @@ import { formatNumericText } from '@digdir/design-system-react';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
+import { InputDef } from 'src/layout/Input/config.generated';
 import { InputComponent } from 'src/layout/Input/InputComponent';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -15,7 +15,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Input extends FormComponent<'Input'> {
+export class Input extends InputDef {
   render(props: PropsFromGenericComponent<'Input'>): JSX.Element | null {
     return <InputComponent {...props} />;
   }

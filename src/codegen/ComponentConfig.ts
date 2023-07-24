@@ -6,7 +6,7 @@ import { CG } from 'src/codegen/index';
 import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
-import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
+import type { GenerateImportedSymbol, ImportDef } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 
 export interface TextResourceConfig {
   name: string;
@@ -22,6 +22,25 @@ export interface RequiredComponentConfig {
     renderInButtonGroup: boolean;
   };
 }
+
+const CategoryImports: { [Category in ComponentCategory]: ImportDef } = {
+  [ComponentCategory.Action]: {
+    symbol: 'ActionComponent',
+    importFrom: 'src/layout/LayoutComponent',
+  },
+  [ComponentCategory.Form]: {
+    symbol: 'FormComponent',
+    importFrom: 'src/layout/LayoutComponent',
+  },
+  [ComponentCategory.Container]: {
+    symbol: 'ContainerComponent',
+    importFrom: 'src/layout/LayoutComponent',
+  },
+  [ComponentCategory.Presentation]: {
+    symbol: 'PresentationComponent',
+    importFrom: 'src/layout/LayoutComponent',
+  },
+};
 
 export class ComponentConfig {
   public type: string;
@@ -177,9 +196,27 @@ export class ComponentConfig {
     CodeGeneratorContext.getInstance().reset();
     const elements = [this.unresolved.toTypeScript(), this.resolved.toTypeScript()];
 
-    // TODO: Implement solution for 'def' property
+    const symbol = this.typeSymbol;
+    const category = this.config.category;
+    const categorySymbol = CG.import(CategoryImports[category]).toTypeScript();
+
+    elements.push(`export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
+      canRenderInTable(): boolean {
+        return ${this.config.capabilities.renderInTable ? 'true' : 'false'};
+      }
+
+      canRenderInButtonGroup(): boolean {
+        return ${this.config.capabilities.renderInButtonGroup ? 'true' : 'false'};
+      }
+    }`);
+
+    const impl = CG.import({
+      symbol,
+      importFrom: `./index`,
+    });
+
     elements.push(`export const Config = {
-      def: null,
+      def: new ${impl.toTypeScript()}(),
       rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
     }`);
 

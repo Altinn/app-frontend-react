@@ -43,17 +43,15 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
 
   /**
    * Return false to prevent this component from being rendered in a table
+   * Should be configured as a capability in the component configuration (config.ts)
    */
-  canRenderInTable(): boolean {
-    return true;
-  }
+  abstract canRenderInTable(): boolean;
 
   /**
    * Return true to allow this component to be rendered in a ButtonGroup
+   * Should be configured as a capability in the component configuration (config.ts)
    */
-  canRenderInButtonGroup(): boolean {
-    return false;
-  }
+  abstract canRenderInButtonGroup(): boolean;
 
   /**
    * Should GenericComponent render validation messages for simpleBinding outside of this component?

@@ -4,8 +4,8 @@ import moment from 'moment';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
+import { DatepickerDef } from 'src/layout/Datepicker/config.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
-import { FormComponent } from 'src/layout/LayoutComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';
 import { formatISOString } from 'src/utils/formatDate';
@@ -21,7 +21,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
-export class Datepicker extends FormComponent<'Datepicker'> implements ComponentValidation {
+export class Datepicker extends DatepickerDef implements ComponentValidation {
   render(props: PropsFromGenericComponent<'Datepicker'>): JSX.Element | null {
     return <DatepickerComponent {...props} />;
   }

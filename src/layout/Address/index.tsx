@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
-import { FormComponent } from 'src/layout/LayoutComponent';
+import { AddressDef } from 'src/layout/Address/config.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -10,7 +10,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Address extends FormComponent<'AddressComponent'> {
+export class Address extends AddressDef {
   render(props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null {
     return <AddressComponent {...props} />;
   }
@@ -23,10 +23,6 @@ export class Address extends FormComponent<'AddressComponent'> {
   renderSummary({ targetNode }: SummaryRendererProps<'AddressComponent'>): JSX.Element | null {
     const data = this.useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={data} />;
-  }
-
-  canRenderInTable(): boolean {
-    return false;
   }
 }
 
