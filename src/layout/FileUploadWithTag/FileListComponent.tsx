@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { useLanguage } from 'src/hooks/useLanguage';
+import { FileTableHeader } from 'src/layout/FileUpload/shared/FileTableHeader';
+import { FileTableRow } from 'src/layout/FileUpload/shared/FileTableRow';
+import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import classes from 'src/layout/FileUploadWithTag/FileListComponent.module.css';
-import { FileListRow } from 'src/layout/FileUploadWithTag/FileListRow';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -24,7 +25,7 @@ export interface FileListProps {
   }[];
 }
 
-export const bytesInOneMB = 1048576;
+// export const bytesInOneMB = 1048576;
 
 export function FileList({
   attachmentValidations,
@@ -38,12 +39,17 @@ export function FileList({
   options,
   setEditIndex,
 }: FileListProps): JSX.Element | null {
-  const { lang, langAsString } = useLanguage();
-
   if (!attachments || attachments.length === 0) {
     return null;
   }
   const { textResourceBindings } = node.item;
+  const tagTitle = textResourceBindings?.tagTitle;
+  const renderRow = (attachment: IAttachment, index: number) =>
+    attachment.tags !== undefined && attachment.tags.length > 0 && editIndex !== index;
+  const label = (attachment: IAttachment) => {
+    const firstTag = attachment.tags && attachment.tags[0];
+    return options?.find((option) => option.value === firstTag)?.label;
+  };
 
   return (
     <div
@@ -52,33 +58,46 @@ export function FileList({
     >
       <table className={!mobileView ? classes.table : classes.tableMobile}>
         {atleastOneTagExists(attachments) && (
-          <thead className={classes.tableHeader}>
-            <tr className={mobileView ? classes.mobileTableRow : ''}>
-              <th align='left'>{lang('form_filler.file_uploader_list_header_name')}</th>
-              <th align='left'>{textResourceBindings?.tagTitle && langAsString(textResourceBindings.tagTitle)}</th>
-              {!mobileView ? <th align='left'>{lang('form_filler.file_uploader_list_header_file_size')}</th> : null}
-              {!mobileView ? <th align='left'>{lang('form_filler.file_uploader_list_header_status')}</th> : null}
-              <th />
-            </tr>
-          </thead>
+          <FileTableHeader
+            mobileView={mobileView}
+            tagTitle={tagTitle}
+          />
         )}
         <tbody className={classes.tableBody}>
-          {attachments.map((attachment, index: number) => (
-            <FileListRow
-              key={`altinn-file-list-row-${attachment.id}`}
-              attachment={attachment}
-              options={options}
-              mobileView={mobileView}
-              index={index}
-              editIndex={editIndex}
-              setEditIndex={setEditIndex}
-              onEdit={onEdit}
-              onSave={onSave}
-              onDropdownDataChange={onDropdownDataChange}
-              node={node}
-              attachmentValidations={attachmentValidations}
-            />
-          ))}
+          {attachments.map((attachment, index: number) =>
+            // Check if filter is applied and includes specified index.
+            renderRow(attachment, index) ? (
+              <FileTableRow
+                key={`altinn-file-list-row-${attachment.id}`}
+                node={node}
+                attachment={attachment}
+                mobileView={mobileView}
+                index={index}
+                onEdit={onEdit}
+                tagLabel={label(attachment)}
+              />
+            ) : (
+              <tr key={`altinn-unchosen-option-attachment-row-${index}`}>
+                <td
+                  className={mobileView ? classes.fullGrid : ''}
+                  colSpan={!mobileView ? 5 : 3}
+                >
+                  <EditWindowComponent
+                    node={node}
+                    attachment={attachment}
+                    attachmentValidations={[
+                      ...new Map(attachmentValidations.map((validation) => [validation['id'], validation])).values(),
+                    ]}
+                    mobileView={mobileView}
+                    options={options}
+                    onSave={onSave}
+                    onDropdownDataChange={onDropdownDataChange}
+                    setEditIndex={setEditIndex}
+                  />
+                </td>
+              </tr>
+            ),
+          )}
         </tbody>
       </table>
     </div>

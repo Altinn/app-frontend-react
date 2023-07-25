@@ -13,49 +13,13 @@
   border-spacing: 0;
 }
 
-.tableMobile {
-  width: 100%;
-  display: grid !important;
-  grid-template-columns: 5fr 3fr 4fr;
-}
-
-.table thead tr th,
-.tableMobile thead tr th {
-  border-bottom: var(--solid-border-primary);
-}
-
-.tableMobile thead,
-.tableMobile thead tr,
-.tableMobile tbody,
-.tableMobile tbody tr {
-  display: contents;
-}
-
 .tableMobile tbody tr td {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.mobileTableRow td {
-  display: flex;
-  align-items: center;
-  align-self: stretch;
-  color: #000;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
 .fullGrid {
   grid-column: 1 / -1;
-}
-
-.tableHeader tr th {
-  padding: 4px 4px 4px 6px;
-  font-size: 0.875rem;
-  font-family: 'Altinn-DIN', sans-serif;
-  font-weight: 500 !important;
-  color: #000;
 }
 
 .tableBody tr td {

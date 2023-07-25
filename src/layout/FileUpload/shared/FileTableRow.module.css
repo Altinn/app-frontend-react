@@ -1,16 +1,10 @@
-.fileStatus {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
 .deleteLoader {
   margin-bottom: 1rem;
   margin-right: 0.5rem;
   float: right;
 }
 
-.deleteButton {
+.button {
   float: right;
   padding-right: 0;
 }

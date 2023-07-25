@@ -9,12 +9,14 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
-import { FileUploadTableRow } from 'src/layout/FileUpload/FileUploadTableRow';
+import { FileUploadTable } from 'src/layout/FileUpload/FileUploadTable';
 import { DropzoneComponent } from 'src/layout/FileUpload/shared/DropzoneComponent';
 import { handleRejectedFiles } from 'src/layout/FileUpload/shared/handleRejectedFiles';
 import { AttachmentsCounter } from 'src/layout/FileUpload/shared/render';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
+import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IRuntimeState } from 'src/types';
 import type { IComponentValidations } from 'src/utils/validation/types';
 
 export type IFileUploadProps = PropsFromGenericComponent<'FileUpload'>;
@@ -39,10 +41,10 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
   const [validations, setValidations] = React.useState<string[]>([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
-  const attachments = useAppSelector((state) => state.attachments.attachments[id] || emptyArray);
-  const alertOnDelete = node.item?.alertOnDelete;
+  const attachments: IAttachment[] = useAppSelector((state: IRuntimeState) => state.attachments.attachments[id] || []);
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;
+
   const getComponentValidations = (): IComponentValidations => {
     const validationMessages = {
       simpleBinding: {
@@ -95,67 +97,6 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
     }
   };
 
-  const NonMobileColumnHeader = () =>
-    !mobileView ? <th scope='col'>{lang('form_filler.file_uploader_list_header_file_size')}</th> : null;
-
-  const FileList = (): JSX.Element | null => {
-    if (!attachments?.length) {
-      return null;
-    }
-    return (
-      <div
-        id={`altinn-file-list${id}`}
-        data-testid={id}
-      >
-        <table
-          className={classes.fileUploadTable}
-          data-testid='file-upload-table'
-        >
-          <thead>
-            <tr
-              className={classes.blueUnderline}
-              id='altinn-file-list-row-header'
-            >
-              <th
-                scope='col'
-                style={!mobileView ? { width: '30%' } : {}}
-              >
-                {lang('form_filler.file_uploader_list_header_name')}
-              </th>
-              <NonMobileColumnHeader />
-              <th
-                scope='col'
-                style={mobileView ? { textAlign: 'center' } : {}}
-              >
-                {lang('form_filler.file_uploader_list_header_status')}
-              </th>
-              <th
-                scope='col'
-                style={!mobileView ? { width: '30%' } : {}}
-              >
-                <p className='sr-only'>{lang('form_filler.file_uploader_list_header_delete_sr')}</p>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {attachments.map((attachment, index: number) => (
-              <FileUploadTableRow
-                key={attachment.id}
-                id={id}
-                alertOnDelete={alertOnDelete}
-                attachment={attachment}
-                index={index}
-                mobileView={mobileView}
-                baseComponentId={baseComponentId}
-                dataModelBindings={dataModelBindings}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
   const shouldShowFileUpload = (): boolean => {
     if (attachments.length >= maxNumberOfAttachments) {
       return false;
@@ -187,6 +128,11 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
   const hasValidationMessages =
     validationMessages.simpleBinding?.errors && validationMessages.simpleBinding.errors.length > 0;
 
+  const renderValidationMessages =
+    hasValidationMessages &&
+    !showFileUpload &&
+    renderValidationMessagesForComponent(validationMessages.simpleBinding, id);
+
   return (
     <div
       id={`altinn-fileuploader-${id}`}
@@ -206,7 +152,6 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
           textResourceBindings={textResourceBindings}
         />
       )}
-
       {shouldShowFileUpload() && (
         <AttachmentsCounter
           currentNumberOfAttachments={attachments.length}
@@ -214,12 +159,12 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
           maxNumberOfAttachments={maxNumberOfAttachments}
         />
       )}
-
-      {validationMessages.simpleBinding?.errors &&
-        validationMessages.simpleBinding.errors.length > 0 &&
-        showFileUpload &&
-        renderValidationMessagesForComponent(validationMessages.simpleBinding, id)}
-      <FileList />
+      {renderValidationMessages}
+      <FileUploadTable
+        attachments={attachments}
+        mobileView={mobileView}
+        node={node}
+      />
       {!shouldShowFileUpload() && (
         <AttachmentsCounter
           currentNumberOfAttachments={attachments.length}
@@ -227,12 +172,6 @@ export function FileUploadComponent({ node, componentValidations }: IFileUploadP
           maxNumberOfAttachments={maxNumberOfAttachments}
         />
       )}
-
-      {validationMessages.simpleBinding?.errors &&
-        validationMessages.simpleBinding.errors.length > 0 &&
-        !showFileUpload &&
-        renderValidationMessagesForComponent(validationMessages.simpleBinding, id)}
-
       {renderAddMoreAttachmentsButton()}
     </div>
   );

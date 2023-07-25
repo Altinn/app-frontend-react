@@ -42,6 +42,7 @@ export function FileUploadWithTagComponent({ componentValidations, node }: IFile
     textResourceBindings,
     dataModelBindings,
   } = node.item;
+
   const dataDispatch = useAppDispatch();
   const [validations, setValidations] = React.useState<Array<{ id: string; message: string }>>([]);
   const mobileView = useIsMobileOrTablet();
