@@ -19,5 +19,5 @@ export const Generator = CG.newComponent({
     name: 'simplified',
     title: 'Simplified',
     description: 'Whether to use the simplified address input or not',
-    value: CG.bool().optional(CG.const(true)),
+    value: CG.bool().optional(CG.true()),
   });

@@ -1,11 +1,16 @@
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 
-export class GenerateArray extends CodeGenerator {
-  constructor(public readonly innerType: CodeGenerator) {
+export class GenerateArray<Inner extends CodeGenerator<any>> extends CodeGenerator<Inner[]> {
+  constructor(public readonly innerType: Inner) {
     super();
   }
 
   toTypeScript(): string {
+    if (this.innerType instanceof GenerateUnion) {
+      return `(${this.innerType.toTypeScript()})[]`;
+    }
+
     return `${this.innerType.toTypeScript()}[]`;
   }
 }

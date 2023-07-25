@@ -7,7 +7,7 @@ export interface ImportDef {
   importFrom: string;
 }
 
-export class GenerateImportedSymbol extends CodeGenerator {
+export class GenerateImportedSymbol<T> extends CodeGenerator<T> {
   public constructor(private readonly val: ImportDef) {
     super();
   }

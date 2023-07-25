@@ -10,12 +10,19 @@ const toTsMap: { [key in ExprVal]: string } = {
   [ExprVal.String]: 'ExprVal.String',
 };
 
-export class GenerateExpressionOr extends CodeGenerator {
-  constructor(public readonly valueType: ExprVal) {
+type TypeMap = {
+  [ExprVal.Boolean]: boolean;
+  [ExprVal.Number]: number;
+  [ExprVal.String]: string;
+  [ExprVal.Any]: boolean | number | string;
+};
+
+export class GenerateExpressionOr<Val extends ExprVal> extends CodeGenerator<TypeMap[Val]> {
+  constructor(public readonly valueType: Val) {
     super();
   }
 
-  public getTargetType(): CodeGenerator {
+  public getTargetType(): CodeGenerator<TypeMap[Val]> {
     if (this.valueType === ExprVal.Boolean) {
       return CG.bool();
     }

@@ -1,8 +1,8 @@
-export abstract class CodeGenerator {
+export abstract class CodeGenerator<T> {
   public isOptional = false;
-  public default?: CodeGenerator;
+  public default?: CodeGenerator<T>;
 
-  public optional(defaultValue?: CodeGenerator): this {
+  public optional(defaultValue?: CodeGenerator<T>): this {
     this.isOptional = true;
     this.default = defaultValue;
     return this;

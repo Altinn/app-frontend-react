@@ -1,6 +1,6 @@
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 
-export class GenerateBoolean extends CodeGenerator {
+export class GenerateBoolean extends CodeGenerator<boolean> {
   constructor() {
     super();
   }

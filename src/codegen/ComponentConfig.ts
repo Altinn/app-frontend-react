@@ -50,8 +50,16 @@ export class ComponentConfig {
     importFrom: 'src/utils/layout/LayoutNode',
   });
 
-  private unresolved = new GenerateObject().export();
-  private resolved = new GenerateObject().export();
+  private unresolved = new GenerateObject({
+    name: '// TODO: Set name',
+    exported: true,
+    properties: [],
+  });
+  private resolved = new GenerateObject({
+    name: '// TODO: Set name',
+    exported: true,
+    properties: [],
+  });
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.addProperty({
@@ -60,29 +68,29 @@ export class ComponentConfig {
     });
     this.addProperty({
       name: 'hidden',
-      value: CG.expr(ExprVal.Boolean).optional(CG.const(false)),
+      value: CG.expr(ExprVal.Boolean).optional(CG.false()),
     });
     this.addProperty({
       name: 'grid',
-      value: CG.known('grid').optional(),
+      value: CG.known('IGrid').optional(),
     });
     this.addProperty({
       name: 'pageBreak',
-      value: CG.known('pageBreak').optional(),
+      value: CG.known('IPageBreak').optional(),
     });
 
     if (config.category === ComponentCategory.Form) {
       this.addProperty({
         name: 'readOnly',
-        value: CG.expr(ExprVal.Boolean).optional(CG.const(false)),
+        value: CG.expr(ExprVal.Boolean).optional(CG.false()),
       });
       this.addProperty({
         name: 'required',
-        value: CG.expr(ExprVal.Boolean).optional(CG.const(false)),
+        value: CG.expr(ExprVal.Boolean).optional(CG.false()),
       });
       this.addProperty({
         name: 'triggers',
-        value: CG.known('triggers').optional(), // TODO: Triggers for Group, navigation buttons
+        value: CG.arr(CG.known('Triggers')).optional(), // TODO: Triggers for Group, navigation buttons
       });
 
       this.addTextResourcesForSummarizableComponents();
@@ -91,7 +99,7 @@ export class ComponentConfig {
     if (config.category === ComponentCategory.Form || config.category === ComponentCategory.Container) {
       this.addProperty({
         name: 'renderAsSummary',
-        value: CG.expr(ExprVal.Boolean).optional(CG.const(false)),
+        value: CG.expr(ExprVal.Boolean).optional(CG.false()),
       });
     }
 
@@ -124,13 +132,13 @@ export class ComponentConfig {
     this.typeSymbol = symbolName;
     this.unresolved.addProperty({ name: 'type', value: CG.const(type), insertAfter: 'id' });
     this.resolved.addProperty({ name: 'type', value: CG.const(type), insertAfter: 'id' });
-    this.unresolved.setName(`ILayoutComp${symbolName}`);
-    this.resolved.setName(`${symbolName}Item`);
+    this.unresolved.config.name = `ILayoutComp${symbolName}`;
+    this.resolved.config.name = `${symbolName}Item`;
 
     return this;
   }
 
-  public setLayoutNodeType(type: GenerateImportedSymbol): this {
+  public setLayoutNodeType(type: GenerateImportedSymbol<any>): this {
     this.layoutNodeType = type;
     return this;
   }
@@ -138,7 +146,7 @@ export class ComponentConfig {
   public rendersWithLabel(): this {
     this.addProperty({
       name: 'labelSettings',
-      value: CG.known('labelSettings').optional(),
+      value: CG.known('ILabelSettings').optional(),
     });
 
     return this;
@@ -150,10 +158,13 @@ export class ComponentConfig {
     for (const targetObject of [this.unresolved, this.resolved]) {
       let bindings = targetObject.getProperty('textResourceBindings')?.value;
       if (!bindings) {
-        bindings = CG.obj(true);
+        bindings = CG.obj({
+          inline: true,
+          properties: [],
+        });
         targetObject.addProperty({
           name: 'textResourceBindings',
-          value: bindings as GenerateObject,
+          value: bindings as GenerateObject<any>,
         });
       }
       if (bindings instanceof GenerateObject) {
@@ -240,7 +251,7 @@ export class ComponentConfig {
         title: 'Secure options (when using optionsId)',
         description:
           'Whether to call the secure API endpoint when fetching options from the server (allows for user/instance-specific options)',
-        value: CG.bool().optional(CG.const(false)),
+        value: CG.bool().optional(CG.false()),
       });
     !minimalFunctionality &&
       this.addProperty({
@@ -264,8 +275,12 @@ export class ComponentConfig {
    * Adding multiple data model bindings to the component makes it a union
    * TODO: Support required and optional bindings
    */
-  public addDataModelBinding(type: 'simple' | 'list' | GenerateImportedSymbol): this {
-    const targetType = typeof type === 'string' ? CG.known(`dataModelBinding.${type}`) : type;
+  public addDataModelBinding(type: 'simple' | 'list' | GenerateImportedSymbol<any>): this {
+    const mapping = {
+      simple: CG.known(`IDataModelBindingsSimple`),
+      list: CG.known(`IDataModelBindingsList`),
+    };
+    const targetType = typeof type === 'string' ? mapping[type] : type;
 
     const common = {
       name: 'dataModelBindings',

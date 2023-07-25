@@ -1,15 +1,15 @@
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 
-export class GenerateUnion extends CodeGenerator {
-  private types: CodeGenerator[];
+export class GenerateUnion<U extends CodeGenerator<any>> extends CodeGenerator<U> {
+  private types: U[];
 
-  constructor(...types: CodeGenerator[]) {
+  constructor(...types: U[]) {
     super();
     this.types = types;
   }
 
-  addType(type: CodeGenerator) {
-    this.types.push(type);
+  addType(type: CodeGenerator<any>) {
+    this.types.push(type as any);
   }
 
   toTypeScript() {

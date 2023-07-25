@@ -24,6 +24,11 @@ export const CG = {
   float: (...args: ConstructorParameters<typeof GenerateFloat>) => new GenerateFloat(...args),
   arr: (...args: ConstructorParameters<typeof GenerateArray>) => new GenerateArray(...args),
 
+  // Shortcuts for common constant values
+  null: () => CG.const(null),
+  true: () => CG.const(true),
+  false: () => CG.const(false),
+
   // Known values that we have types for elsewhere, or other imported types
   known: (...args: ConstructorParameters<typeof GenerateKnownValue>) => new GenerateKnownValue(...args),
   import: (...args: ConstructorParameters<typeof GenerateImportedSymbol>) => new GenerateImportedSymbol(...args),

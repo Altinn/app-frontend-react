@@ -1,11 +1,11 @@
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 
-export interface Property {
+export interface Property<T extends CodeGenerator<any> = CodeGenerator<any>> {
   name: string;
   title?: string;
   description?: string;
-  examples?: any[];
-  value: CodeGenerator;
+  examples?: T extends CodeGenerator<infer V> ? V[] : never[];
+  value: T;
 }
 
 export interface AddProperty extends Property {
@@ -13,78 +13,90 @@ export interface AddProperty extends Property {
   insertAfter?: string;
 }
 
-export class GenerateObject extends CodeGenerator {
-  public name: string;
-  public exported = false;
-  public properties: Property[] = [];
+export interface ObjectBaseDef {
+  properties: Property[];
+}
 
-  constructor(public readonly inline?: boolean) {
+export interface ExportedNamedObject extends ObjectBaseDef {
+  name: string;
+  exported: true;
+  inline?: false;
+}
+
+export interface NamedObject extends ObjectBaseDef {
+  name: string;
+  exported?: false;
+  inline: false;
+}
+
+export interface InlineObject extends ObjectBaseDef {
+  name?: undefined;
+  exported?: false;
+  inline: true;
+}
+
+export type ObjectDef = ExportedNamedObject | NamedObject | InlineObject;
+
+export class GenerateObject<T extends ObjectDef> extends CodeGenerator<T> {
+  constructor(public config: T) {
     super();
-  }
-
-  public setName(name: string): this {
-    this.name = name;
-    return this;
-  }
-
-  public export(): this {
-    this.exported = true;
-    return this;
   }
 
   public addProperty(prop: AddProperty): this {
     const { name } = prop;
 
     // Replace property if it already exists
-    const index = this.properties.findIndex((property) => property.name === name);
+    const index = this.config.properties.findIndex((property) => property.name === name);
     if (index !== -1) {
-      this.properties[index] = prop;
+      this.config.properties[index] = prop;
       return this;
     }
 
     if (prop.insertBefore) {
-      const index = this.properties.findIndex((property) => property.name === prop.insertBefore);
+      const index = this.config.properties.findIndex((property) => property.name === prop.insertBefore);
       if (index === -1) {
         throw new Error(`Property ${prop.insertBefore} not found`);
       }
-      this.properties.splice(index, 0, prop);
+      this.config.properties.splice(index, 0, prop);
       return this;
     }
 
     if (prop.insertAfter) {
-      const index = this.properties.findIndex((property) => property.name === prop.insertAfter);
+      const index = this.config.properties.findIndex((property) => property.name === prop.insertAfter);
       if (index === -1) {
         throw new Error(`Property ${prop.insertAfter} not found`);
       }
-      this.properties.splice(index + 1, 0, prop);
+      this.config.properties.splice(index + 1, 0, prop);
       return this;
     }
 
-    this.properties.push(prop);
+    this.config.properties.push(prop);
     return this;
   }
 
   public getProperty(name: string): Property | undefined {
-    return this.properties.find((property) => property.name === name);
+    return this.config.properties.find((property) => property.name === name);
   }
 
   public toTypeScript(): string {
-    if (!this.name && !this.inline) {
+    const { name, inline, exported, properties } = this.config;
+
+    if (!name && !inline) {
       throw new Error('Object name is required');
     }
 
-    const propertyLines = this.properties.map((property) => {
-      if (property.value.isOptional) {
-        return `${property.name}?: ${property.value.toTypeScript()};`;
+    const propertyLines = properties.map((prop) => {
+      if (prop.value.isOptional) {
+        return `${prop.name}?: ${prop.value.toTypeScript()};`;
       } else {
-        return `${property.name}: ${property.value.toTypeScript()};`;
+        return `${prop.name}: ${prop.value.toTypeScript()};`;
       }
     });
 
-    if (this.inline) {
+    if (inline) {
       return `{ ${propertyLines.join('\n')} }`.trim();
     }
 
-    return `${this.exported ? 'export ' : ''} interface ${this.name} { ${propertyLines.join('\n')} }`.trim();
+    return `${exported ? 'export ' : ''} interface ${name} { ${propertyLines.join('\n')} }`.trim();
   }
 }

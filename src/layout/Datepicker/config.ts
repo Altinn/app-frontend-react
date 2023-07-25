@@ -30,7 +30,7 @@ export const Generator = CG.newComponent({
     description:
       'Boolean value indicating if the date time should be stored as a timeStamp. Defaults to true. ' +
       "If true: 'YYYY-MM-DDThh:mm:ss.sssZ', if false 'YYYY-MM-DD';",
-    value: CG.bool().optional(CG.const(true)),
+    value: CG.bool().optional(CG.true()),
   })
   .addProperty({
     name: 'format',
