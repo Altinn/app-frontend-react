@@ -4,6 +4,7 @@ export interface Property {
   name: string;
   title?: string;
   description?: string;
+  examples?: any[];
   value: CodeGenerator;
 }
 
