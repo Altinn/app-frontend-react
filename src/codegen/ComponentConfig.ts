@@ -1,8 +1,8 @@
+import { CG } from 'src/codegen/CG';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
-import { CG } from 'src/codegen/index';
 import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
 import type { GenerateImportedSymbol, ImportDef } from 'src/codegen/dataTypes/GenerateImportedSymbol';
@@ -147,7 +147,7 @@ export class ComponentConfig {
         bindings = CG.obj(true);
         targetObject.addProperty({
           name: 'textResourceBindings',
-          value: bindings,
+          value: bindings as GenerateObject,
         });
       }
       if (bindings instanceof GenerateObject) {

@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen';
+import { CG } from 'src/codegen/CG';
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { ExprVal } from 'src/features/expressions/types';
