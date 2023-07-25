@@ -8,4 +8,6 @@ export const Generator = CG.newComponent({
     renderInTable: true,
     renderInButtonGroup: false,
   },
-});
+})
+  .makeSelectionComponent()
+  .addDataModelBinding('simple');

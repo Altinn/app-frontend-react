@@ -20,7 +20,7 @@ export class GenerateExpressionOr extends CodeGenerator {
       return CG.bool();
     }
     if (this.valueType === ExprVal.Number) {
-      return CG.num();
+      return CG.float(); // Represents any number in TypeScript
     }
     if (this.valueType === ExprVal.String) {
       return CG.str();

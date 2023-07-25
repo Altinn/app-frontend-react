@@ -214,13 +214,14 @@ export class ComponentConfig {
       });
   }
 
-  public makeSelectionComponent(): this {
-    this.addProperty({
-      name: 'options',
-      title: 'Static options',
-      description: 'List of static options',
-      value: CG.arr(CG.known('IOption')).optional(),
-    });
+  public makeSelectionComponent(minimalFunctionality = false): this {
+    !minimalFunctionality &&
+      this.addProperty({
+        name: 'options',
+        title: 'Static options',
+        description: 'List of static options',
+        value: CG.arr(CG.known('IOption')).optional(),
+      });
     this.addProperty({
       name: 'optionsId',
       title: 'Dynamic options (fetched from server)',
@@ -233,25 +234,28 @@ export class ComponentConfig {
       description: 'Mapping of data/query-string when fetching from the server',
       value: CG.known('IMapping').optional(),
     });
-    this.addProperty({
-      name: 'secure',
-      title: 'Secure options (when using optionsId)',
-      description:
-        'Whether to call the secure API endpoint when fetching options from the server (allows for user/instance-specific options)',
-      value: CG.bool().optional(CG.const(false)),
-    });
-    this.addProperty({
-      name: 'source',
-      title: 'Fetch options from a repeating group source',
-      description: 'Allows for fetching options from the data model, pointing to a repeating group structure',
-      value: CG.known('IOptionSource').optional(),
-    });
-    this.addProperty({
-      name: 'preselectedOptionIndex',
-      title: 'Preselected option index',
-      description: 'Index of the option to preselect (if no option has been selected yet)',
-      value: CG.num().optional(),
-    });
+    !minimalFunctionality &&
+      this.addProperty({
+        name: 'secure',
+        title: 'Secure options (when using optionsId)',
+        description:
+          'Whether to call the secure API endpoint when fetching options from the server (allows for user/instance-specific options)',
+        value: CG.bool().optional(CG.const(false)),
+      });
+    !minimalFunctionality &&
+      this.addProperty({
+        name: 'source',
+        title: 'Fetch options from a repeating group source',
+        description: 'Allows for fetching options from the data model, pointing to a repeating group structure',
+        value: CG.known('IOptionSource').optional(),
+      });
+    !minimalFunctionality &&
+      this.addProperty({
+        name: 'preselectedOptionIndex',
+        title: 'Preselected option index',
+        description: 'Index of the option to preselect (if no option has been selected yet)',
+        value: CG.int().optional(),
+      });
 
     return this;
   }
