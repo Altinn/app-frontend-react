@@ -39,6 +39,6 @@ export type TypeConfig = {
   layout: ILayoutCompButtonGroup;
   nodeItem: ILayoutCompButtonGroupInHierarchy;
   nodeObj: LayoutNode;
-  validTextResourceBindings: 'title';
+  validTextResourceBindings: undefined;
   validDataModelBindings: undefined;
 };

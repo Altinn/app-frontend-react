@@ -100,7 +100,13 @@ export class ComponentConfig {
     }
   }
 
-  public addProperty(prop: AddProperty): this {
+  public addProperty(prop: AddProperty | { unresolved: AddProperty; resolved: AddProperty }): this {
+    if ('unresolved' in prop) {
+      this.unresolved.addProperty(prop.unresolved);
+      this.resolved.addProperty(prop.resolved);
+      return this;
+    }
+
     this.unresolved.addProperty(prop);
 
     if (prop.value instanceof GenerateExpressionOr) {
@@ -165,7 +171,7 @@ export class ComponentConfig {
     return this;
   }
 
-  public addTextResourcesForSummarizableComponents(): this {
+  private addTextResourcesForSummarizableComponents(): this {
     return this.addTextResource({
       name: 'summaryTitle',
       title: 'Summary title',
@@ -178,7 +184,7 @@ export class ComponentConfig {
     });
   }
 
-  public addTextResourcesForFormComponents(): this {
+  private addTextResourcesForFormComponents(): this {
     return this.addTextResource({
       name: 'tableTitle',
       title: 'Table title',
@@ -206,6 +212,48 @@ export class ComponentConfig {
         title: 'Help text',
         description: 'Help text shown in a tooltip when clicking the help button',
       });
+  }
+
+  public makeSelectionComponent(): this {
+    this.addProperty({
+      name: 'options',
+      title: 'Static options',
+      description: 'List of static options',
+      value: CG.arr(CG.known('IOption')).optional(),
+    });
+    this.addProperty({
+      name: 'optionsId',
+      title: 'Dynamic options (fetched from server)',
+      description: 'ID of the option list to fetch from the server',
+      value: CG.str().optional(),
+    });
+    this.addProperty({
+      name: 'mapping',
+      title: 'Mapping (when using optionsId)',
+      description: 'Mapping of data/query-string when fetching from the server',
+      value: CG.known('IMapping').optional(),
+    });
+    this.addProperty({
+      name: 'secure',
+      title: 'Secure options (when using optionsId)',
+      description:
+        'Whether to call the secure API endpoint when fetching options from the server (allows for user/instance-specific options)',
+      value: CG.bool().optional(CG.const(false)),
+    });
+    this.addProperty({
+      name: 'source',
+      title: 'Fetch options from a repeating group source',
+      description: 'Allows for fetching options from the data model, pointing to a repeating group structure',
+      value: CG.known('IOptionSource').optional(),
+    });
+    this.addProperty({
+      name: 'preselectedOptionIndex',
+      title: 'Preselected option index',
+      description: 'Index of the option to preselect (if no option has been selected yet)',
+      value: CG.num().optional(),
+    });
+
+    return this;
   }
 
   /**

@@ -26,6 +26,26 @@ const knownValues = {
     symbol: 'IDataModelBindingsList',
     importFrom: 'src/layout/layout',
   },
+  LayoutNode: {
+    symbol: 'LayoutNode',
+    importFrom: 'src/utils/layout/LayoutNode',
+  },
+  IOption: {
+    symbol: 'IOption',
+    importFrom: 'src/types/index',
+  },
+  IMapping: {
+    symbol: 'IMapping',
+    importFrom: 'src/types/index',
+  },
+  IOptionSource: {
+    symbol: 'IOptionSource',
+    importFrom: 'src/types/index',
+  },
+  LayoutStyle: {
+    symbol: 'LayoutStyle',
+    importFrom: 'src/types/index',
+  },
 };
 
 export class GenerateKnownValue extends GenerateImportedSymbol {
