@@ -1,7 +1,7 @@
 import React from 'react';
 
+import { AttachmentSummaryComponent } from 'src/layout/FileUpload/shared/AttachmentSummaryComponent';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
-import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
@@ -32,7 +32,7 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> implem
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {
-    return <AttachmentWithTagSummaryComponent targetNode={targetNode} />;
+    return <AttachmentSummaryComponent targetNode={targetNode} />;
   }
 
   canRenderInTable(): boolean {
