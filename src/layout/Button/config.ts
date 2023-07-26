@@ -19,12 +19,7 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'mode',
-      new CG.union(
-        new CG.const('submit'),
-        new CG.const('save'),
-        new CG.const('go-to-task'),
-        new CG.const('instantiate'),
-      )
+      new CG.enum('submit', 'save', 'go-to-task', 'instantiate')
         .optional(new CG.const('submit'))
         .setTitle('Mode')
         .setDescription('The mode of the button'),

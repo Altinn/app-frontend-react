@@ -40,7 +40,7 @@ export function asUploaderComponent(config: ComponentConfig) {
           .setDescription('Sets the minimum number of attachments required to upload'),
       ),
     )
-    .addProperty(new CG.prop('displayMode', new CG.union(new CG.const('simple'), new CG.const('list'))))
+    .addProperty(new CG.prop('displayMode', new CG.enum('simple', 'list')))
     .addProperty(
       new CG.prop(
         'hasCustomFileEndings',

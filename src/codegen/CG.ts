@@ -2,6 +2,7 @@ import { ComponentConfig } from 'src/codegen/ComponentConfig';
 import { GenerateArray } from 'src/codegen/dataTypes/GenerateArray';
 import { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
 import { GenerateConst } from 'src/codegen/dataTypes/GenerateConst';
+import { GenerateEnum } from 'src/codegen/dataTypes/GenerateEnum';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
 import { GenerateFloat } from 'src/codegen/dataTypes/GenerateFloat';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
@@ -40,5 +41,6 @@ export const CG = {
   import: GenerateImportedSymbol,
 
   // Others
+  enum: GenerateEnum,
   union: GenerateUnion,
 };
