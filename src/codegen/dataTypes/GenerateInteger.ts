@@ -1,6 +1,6 @@
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 
-export class GenerateInteger extends CodeGenerator<number> {
+export class GenerateInteger extends DescribableCodeGenerator<number> {
   constructor() {
     super();
   }

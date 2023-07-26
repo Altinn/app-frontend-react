@@ -1,7 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
-export const Generator = CG.newComponent({
+export const Config = new CG.component({
   category: ComponentCategory.Action,
   rendersWithLabel: false,
   capabilities: {
@@ -14,15 +14,19 @@ export const Generator = CG.newComponent({
     title: 'Button title/text',
     description: 'The text to display on the button.',
   })
-  .addProperty({
-    name: 'action',
-    title: 'Action',
-    description: 'The action to perform when the button is clicked.',
-    value: CG.union(CG.const('instantiate'), CG.const('confirm'), CG.const('sign'), CG.const('reject')),
-  })
-  .addProperty({
-    name: 'buttonStyle',
-    title: 'Button style',
-    description: 'The style/color scheme of the button.',
-    value: CG.union(CG.const('primary'), CG.const('secondary')),
-  });
+  .addProperty(
+    new CG.prop(
+      'action',
+      new CG.union(new CG.const('instantiate'), new CG.const('confirm'), new CG.const('sign'), new CG.const('reject'))
+        .setTitle('Action')
+        .setDescription('The action to perform when the button is clicked.'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'buttonStyle',
+      new CG.union(new CG.const('primary'), new CG.const('secondary'))
+        .setTitle('Button style')
+        .setDescription('The style/color scheme of the button.'),
+    ),
+  );

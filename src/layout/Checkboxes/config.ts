@@ -1,7 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
-export const Generator = CG.newComponent({
+export const Config = new CG.component({
   category: ComponentCategory.Form,
   rendersWithLabel: false,
   capabilities: {
@@ -16,9 +16,12 @@ export const Generator = CG.newComponent({
   // text resource bindings for rendering them on our own
   .addTextResourcesForLabel()
 
-  .addProperty({
-    name: 'layout',
-    title: 'Layout style',
-    description: 'How the checkboxes should be laid out (rows, columns, etc.)',
-    value: CG.known('LayoutStyle').optional(),
-  });
+  .addProperty(
+    new CG.prop(
+      'layout',
+      new CG.known('LayoutStyle')
+        .optional()
+        .setTitle('Layout style')
+        .setDescription('How the checkboxes should be laid out (rows, columns, etc.)'),
+    ),
+  );

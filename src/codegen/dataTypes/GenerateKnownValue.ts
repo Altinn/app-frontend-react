@@ -72,12 +72,13 @@ const knownValues = {
   },
 };
 
-type KnownValue = keyof typeof knownValues;
-type TypeOfKnownValue<T extends KnownValue> = (typeof knownValues)[T]['type'];
+type Map = typeof knownValues;
+type KnownValue = keyof Map;
+type TypeOfKnownValue<T extends KnownValue> = Map[T]['type'];
 
 export class GenerateKnownValue<T extends KnownValue> extends GenerateImportedSymbol<TypeOfKnownValue<T>> {
-  constructor(value: T) {
-    const val = knownValues[value];
+  constructor(key: T) {
+    const val = knownValues[key];
     super(val);
   }
 }

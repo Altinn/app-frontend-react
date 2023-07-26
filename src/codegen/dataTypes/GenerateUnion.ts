@@ -1,9 +1,12 @@
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 
-export class GenerateUnion<U extends CodeGenerator<any>> extends CodeGenerator<U> {
-  private types: U[];
+export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCodeGenerator<
+  U[number] extends CodeGenerator<infer X> ? X : never
+> {
+  private types: U;
 
-  constructor(...types: U[]) {
+  constructor(...types: U) {
     super();
     this.types = types;
   }

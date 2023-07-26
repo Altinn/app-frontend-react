@@ -1,7 +1,8 @@
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
+import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 
-export class GenerateArray<Inner extends CodeGenerator<any>> extends CodeGenerator<Inner[]> {
+export class GenerateArray<Inner extends CodeGenerator<any>> extends DescribableCodeGenerator<Inner[]> {
   constructor(public readonly innerType: Inner) {
     super();
   }

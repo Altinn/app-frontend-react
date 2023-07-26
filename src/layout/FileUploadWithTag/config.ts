@@ -2,8 +2,8 @@ import { CG } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 import { asUploaderComponent } from 'src/layout/FileUpload/config';
 
-export const Generator = asUploaderComponent(
-  CG.newComponent({
+export const Config = asUploaderComponent(
+  new CG.component({
     category: ComponentCategory.Form,
     rendersWithLabel: true,
     capabilities: {

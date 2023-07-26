@@ -57,10 +57,10 @@ const useNewTypes = false; // TODO: Remove this once we've migrated to the new t
   promises.push(saveFile('src/layout/components.generated.ts', componentIndex.join('\n')));
 
   for (const key of sortedKeys) {
-    const generator: ComponentConfig = (await import(`src/layout/${key}/config`)).Generator;
-    generator.setType(componentList[key], key);
+    const config: ComponentConfig = (await import(`src/layout/${key}/config`)).Config;
+    config.setType(componentList[key], key);
     const path = `src/layout/${key}/config.generated.ts`;
-    const content = generator.toTypeScript();
+    const content = config.toTypeScript();
     promises.push(saveTsFile(path, content));
   }
 

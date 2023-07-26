@@ -1,20 +1,8 @@
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
-
-export interface Property<T extends CodeGenerator<any> = CodeGenerator<any>> {
-  name: string;
-  title?: string;
-  description?: string;
-  examples?: T extends CodeGenerator<infer V> ? V[] : never[];
-  value: T;
-}
-
-export interface AddProperty extends Property {
-  insertBefore?: string;
-  insertAfter?: string;
-}
+import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export interface ObjectBaseDef {
-  properties: Property[];
+  properties: GenerateProperty<any>[];
 }
 
 export interface ExportedNamedObject extends ObjectBaseDef {
@@ -37,13 +25,13 @@ export interface InlineObject extends ObjectBaseDef {
 
 export type ObjectDef = ExportedNamedObject | NamedObject | InlineObject;
 
-export class GenerateObject<T extends ObjectDef> extends CodeGenerator<T> {
+export class GenerateObject<T extends ObjectDef> extends DescribableCodeGenerator<T> {
   constructor(public config: T) {
     super();
   }
 
-  public addProperty(prop: AddProperty): this {
-    const { name } = prop;
+  public addProperty(prop: GenerateProperty<any>): this {
+    const { name, insertBefore, insertAfter } = prop.toObject();
 
     // Replace property if it already exists
     const index = this.config.properties.findIndex((property) => property.name === name);
@@ -52,19 +40,19 @@ export class GenerateObject<T extends ObjectDef> extends CodeGenerator<T> {
       return this;
     }
 
-    if (prop.insertBefore) {
-      const index = this.config.properties.findIndex((property) => property.name === prop.insertBefore);
+    if (insertBefore) {
+      const index = this.config.properties.findIndex((property) => property.name === insertBefore);
       if (index === -1) {
-        throw new Error(`Property ${prop.insertBefore} not found`);
+        throw new Error(`Property ${insertBefore} not found`);
       }
       this.config.properties.splice(index, 0, prop);
       return this;
     }
 
-    if (prop.insertAfter) {
-      const index = this.config.properties.findIndex((property) => property.name === prop.insertAfter);
+    if (insertAfter) {
+      const index = this.config.properties.findIndex((property) => property.name === insertAfter);
       if (index === -1) {
-        throw new Error(`Property ${prop.insertAfter} not found`);
+        throw new Error(`Property ${insertAfter} not found`);
       }
       this.config.properties.splice(index + 1, 0, prop);
       return this;
@@ -74,29 +62,22 @@ export class GenerateObject<T extends ObjectDef> extends CodeGenerator<T> {
     return this;
   }
 
-  public getProperty(name: string): Property | undefined {
+  public getProperty(name: string): GenerateProperty<any> | undefined {
     return this.config.properties.find((property) => property.name === name);
   }
 
   public toTypeScript(): string {
-    const { name, inline, exported, properties } = this.config;
+    const { name, inline, exported } = this.config;
 
     if (!name && !inline) {
       throw new Error('Object name is required');
     }
 
-    const propertyLines = properties.map((prop) => {
-      if (prop.value.isOptional) {
-        return `${prop.name}?: ${prop.value.toTypeScript()};`;
-      } else {
-        return `${prop.name}: ${prop.value.toTypeScript()};`;
-      }
-    });
-
+    const properties = this.config.properties.map((prop) => prop.toTypeScript()).join('\n');
     if (inline) {
-      return `{ ${propertyLines.join('\n')} }`.trim();
+      return `{ ${properties} }`;
     }
 
-    return `${exported ? 'export ' : ''} interface ${name} { ${propertyLines.join('\n')} }`.trim();
+    return `${exported ? 'export ' : ''} interface ${name} { ${properties} }`;
   }
 }

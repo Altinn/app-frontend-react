@@ -6,7 +6,7 @@ import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
 import type { GenerateImportedSymbol, ImportDef } from 'src/codegen/dataTypes/GenerateImportedSymbol';
-import type { AddProperty } from 'src/codegen/dataTypes/GenerateObject';
+import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export interface TextResourceConfig {
   name: string;
@@ -45,7 +45,7 @@ const CategoryImports: { [Category in ComponentCategory]: ImportDef } = {
 export class ComponentConfig {
   public type: string;
   public typeSymbol: string;
-  public layoutNodeType = CG.import({
+  public layoutNodeType = new CG.import({
     symbol: 'LayoutNode',
     importFrom: 'src/utils/layout/LayoutNode',
   });
@@ -62,45 +62,68 @@ export class ComponentConfig {
   });
 
   constructor(public readonly config: RequiredComponentConfig) {
-    this.addProperty({
-      name: 'id',
-      value: CG.str(),
-    });
-    this.addProperty({
-      name: 'hidden',
-      value: CG.expr(ExprVal.Boolean).optional(CG.false()),
-    });
-    this.addProperty({
-      name: 'grid',
-      value: CG.known('IGrid').optional(),
-    });
-    this.addProperty({
-      name: 'pageBreak',
-      value: CG.known('IPageBreak').optional(),
-    });
+    this.addProperty(
+      new CG.prop(
+        'id',
+        new CG.str()
+          .setPattern(/^[0-9a-zA-Z][0-9a-zA-Z-]*(-?[a-zA-Z]+|[a-zA-Z][0-9]+|-[0-9]{6,})$/)
+          .setTitle('ID')
+          .setDescription(
+            'The component ID. Must be unique within all layouts/pages in a layout-set. Cannot end with <dash><number>.',
+          ),
+      ),
+    );
+    this.addProperty(
+      new CG.prop(
+        'hidden',
+        new CG.expr(ExprVal.Boolean)
+          .optional(CG.false)
+          .setTitle('Hidden')
+          .setDescription(
+            'Boolean value or expression indicating if the component should be hidden. Defaults to false.',
+          ),
+      ),
+    );
+    this.addProperty(
+      new CG.prop(
+        'grid',
+        new CG.known('IGrid')
+          .setTitle('Grid')
+          .setDescription('Settings for the components grid. Used for controlling horizontal alignment')
+          .optional(),
+      ),
+    );
+    this.addProperty(
+      new CG.prop(
+        'pageBreak',
+        new CG.known('IPageBreak')
+          .setTitle('Page break')
+          .setDescription('Optionally insert page-break before/after component when rendered in PDF')
+          .optional(),
+      ),
+    );
 
     if (config.category === ComponentCategory.Form) {
-      this.addProperty({
-        name: 'readOnly',
-        value: CG.expr(ExprVal.Boolean).optional(CG.false()),
-      });
-      this.addProperty({
-        name: 'required',
-        value: CG.expr(ExprVal.Boolean).optional(CG.false()),
-      });
-      this.addProperty({
-        name: 'triggers',
-        value: CG.arr(CG.known('Triggers')).optional(), // TODO: Triggers for Group, navigation buttons
-      });
+      // TODO: Describe these
+      this.addProperty(new CG.prop('readOnly', new CG.expr(ExprVal.Boolean).optional(CG.false)));
+      this.addProperty(new CG.prop('required', new CG.expr(ExprVal.Boolean).optional(CG.false)));
+      this.addProperty(new CG.prop('triggers', new CG.arr(new CG.known('Triggers')).optional()));
 
       this.addTextResourcesForSummarizableComponents();
       this.addTextResourcesForFormComponents();
     }
     if (config.category === ComponentCategory.Form || config.category === ComponentCategory.Container) {
-      this.addProperty({
-        name: 'renderAsSummary',
-        value: CG.expr(ExprVal.Boolean).optional(CG.false()),
-      });
+      this.addProperty(
+        new CG.prop(
+          'renderAsSummary',
+          new CG.expr(ExprVal.Boolean)
+            .optional(CG.false)
+            .setTitle('Render as summary')
+            .setDescription(
+              'Boolean value or expression indicating if the component should be rendered as a summary. Defaults to false.',
+            ),
+        ),
+      );
     }
 
     if (config.rendersWithLabel) {
@@ -108,7 +131,9 @@ export class ComponentConfig {
     }
   }
 
-  public addProperty(prop: AddProperty | { unresolved: AddProperty; resolved: AddProperty }): this {
+  public addProperty(
+    prop: GenerateProperty<any> | { unresolved: GenerateProperty<any>; resolved: GenerateProperty<any> },
+  ): this {
     if ('unresolved' in prop) {
       this.unresolved.addProperty(prop.unresolved);
       this.resolved.addProperty(prop.resolved);
@@ -117,8 +142,10 @@ export class ComponentConfig {
 
     this.unresolved.addProperty(prop);
 
-    if (prop.value instanceof GenerateExpressionOr) {
-      this.resolved.addProperty({ ...prop, value: prop.value.getTargetType() });
+    if (prop.type instanceof GenerateExpressionOr) {
+      const newProp = new CG.prop(prop.name, prop.type.getTargetType());
+      prop.internal.optional && newProp.optional(prop.internal.default as any);
+      this.resolved.addProperty(newProp);
     } else {
       this.resolved.addProperty(prop);
     }
@@ -130,8 +157,7 @@ export class ComponentConfig {
     const symbolName = symbol ?? type;
     this.type = type;
     this.typeSymbol = symbolName;
-    this.unresolved.addProperty({ name: 'type', value: CG.const(type), insertAfter: 'id' });
-    this.resolved.addProperty({ name: 'type', value: CG.const(type), insertAfter: 'id' });
+    this.addProperty(new CG.prop('type', new CG.const(type)).insertAfter('id'));
     this.unresolved.config.name = `ILayoutComp${symbolName}`;
     this.resolved.config.name = `${symbolName}Item`;
 
@@ -144,10 +170,8 @@ export class ComponentConfig {
   }
 
   public rendersWithLabel(): this {
-    this.addProperty({
-      name: 'labelSettings',
-      value: CG.known('ILabelSettings').optional(),
-    });
+    // TODO: Describe this
+    this.addProperty(new CG.prop('labelSettings', new CG.known('ILabelSettings').optional()));
 
     return this;
   }
@@ -156,25 +180,24 @@ export class ComponentConfig {
     const { name } = args;
 
     for (const targetObject of [this.unresolved, this.resolved]) {
-      let bindings = targetObject.getProperty('textResourceBindings')?.value;
+      let bindings = targetObject.getProperty('textResourceBindings')?.type;
       if (!bindings) {
-        bindings = CG.obj({
+        bindings = new CG.obj({
           inline: true,
           properties: [],
         });
-        targetObject.addProperty({
-          name: 'textResourceBindings',
-          value: bindings as GenerateObject<any>,
-        });
+        targetObject.addProperty(new CG.prop('textResourceBindings', bindings));
       }
       if (bindings instanceof GenerateObject) {
         if (targetObject === this.unresolved) {
-          bindings.addProperty({
-            name,
-            value: CG.expr(ExprVal.String).optional(),
-          });
+          bindings.addProperty(
+            new CG.prop(
+              name,
+              new CG.expr(ExprVal.String).setTitle(args.title).setDescription(args.description).optional(),
+            ),
+          );
         } else {
-          bindings.addProperty({ name, value: CG.str().optional() });
+          bindings.addProperty(new CG.prop(name, new CG.str().optional()));
         }
       }
     }
@@ -227,46 +250,64 @@ export class ComponentConfig {
 
   public makeSelectionComponent(minimalFunctionality = false): this {
     !minimalFunctionality &&
-      this.addProperty({
-        name: 'options',
-        title: 'Static options',
-        description: 'List of static options',
-        value: CG.arr(CG.known('IOption')).optional(),
-      });
-    this.addProperty({
-      name: 'optionsId',
-      title: 'Dynamic options (fetched from server)',
-      description: 'ID of the option list to fetch from the server',
-      value: CG.str().optional(),
-    });
-    this.addProperty({
-      name: 'mapping',
-      title: 'Mapping (when using optionsId)',
-      description: 'Mapping of data/query-string when fetching from the server',
-      value: CG.known('IMapping').optional(),
-    });
+      this.addProperty(
+        new CG.prop(
+          'options',
+          new CG.arr(new CG.known('IOption').optional())
+            .setTitle('Static options')
+            .setDescription('List of static options'),
+        ),
+      );
+    this.addProperty(
+      new CG.prop(
+        'optionsId',
+        new CG.str()
+          .optional()
+          .setTitle('Dynamic options (fetched from server)')
+          .setDescription('ID of the option list to fetch from the server'),
+      ),
+    );
+    this.addProperty(
+      new CG.prop(
+        'mapping',
+        new CG.known('IMapping')
+          .optional()
+          .setTitle('Mapping (when using optionsId)')
+          .setDescription('Mapping of data/query-string when fetching from the server'),
+      ),
+    );
     !minimalFunctionality &&
-      this.addProperty({
-        name: 'secure',
-        title: 'Secure options (when using optionsId)',
-        description:
-          'Whether to call the secure API endpoint when fetching options from the server (allows for user/instance-specific options)',
-        value: CG.bool().optional(CG.false()),
-      });
+      this.addProperty(
+        new CG.prop(
+          'secure',
+          new CG.bool()
+            .optional(CG.false)
+            .setTitle('Secure options (when using optionsId)')
+            .setDescription(
+              'Whether to call the secure API endpoint when fetching options from the server (allows for user/instance-specific options)',
+            ),
+        ),
+      );
     !minimalFunctionality &&
-      this.addProperty({
-        name: 'source',
-        title: 'Fetch options from a repeating group source',
-        description: 'Allows for fetching options from the data model, pointing to a repeating group structure',
-        value: CG.known('IOptionSource').optional(),
-      });
+      this.addProperty(
+        new CG.prop(
+          'source',
+          new CG.known('IOptionSource')
+            .optional()
+            .setTitle('Option source')
+            .setDescription('Allows for fetching options from the data model, pointing to a repeating group structure'),
+        ),
+      );
     !minimalFunctionality &&
-      this.addProperty({
-        name: 'preselectedOptionIndex',
-        title: 'Preselected option index',
-        description: 'Index of the option to preselect (if no option has been selected yet)',
-        value: CG.int().optional(),
-      });
+      this.addProperty(
+        new CG.prop(
+          'preselectedOptionIndex',
+          new CG.int()
+            .optional()
+            .setTitle('Preselected option index')
+            .setDescription('Index of the option to preselect (if no option has been selected yet)'),
+        ),
+      );
 
     return this;
   }
@@ -277,25 +318,24 @@ export class ComponentConfig {
    */
   public addDataModelBinding(type: 'simple' | 'list' | GenerateImportedSymbol<any>): this {
     const mapping = {
-      simple: CG.known(`IDataModelBindingsSimple`),
-      list: CG.known(`IDataModelBindingsList`),
+      simple: new CG.known(`IDataModelBindingsSimple`),
+      list: new CG.known(`IDataModelBindingsList`),
     };
     const targetType = typeof type === 'string' ? mapping[type] : type;
 
-    const common = {
-      name: 'dataModelBindings',
-      title: 'Data model bindings',
-      description: 'Describes the location in the data model where the component should store its value(s)',
-    };
+    const name = 'dataModelBindings';
+    const title = 'Data model bindings';
+    const description = 'Describes the location in the data model where the component should store its value(s)';
+    targetType.setTitle(title).setDescription(description);
 
-    const existing = this.unresolved.getProperty('dataModelBindings')?.value;
+    const existing = this.unresolved.getProperty(name)?.type;
     if (existing && existing instanceof GenerateUnion) {
       existing.addType(targetType);
     } else if (existing) {
-      const union = CG.union(existing, targetType);
-      this.unresolved.addProperty({ ...common, value: union });
+      const union = new CG.union(existing, targetType).setTitle(title).setDescription(description);
+      this.unresolved.addProperty(new CG.prop(name, union));
     } else {
-      this.unresolved.addProperty({ ...common, value: targetType });
+      this.unresolved.addProperty(new CG.prop(name, targetType));
     }
 
     return this;
@@ -307,7 +347,7 @@ export class ComponentConfig {
 
     const symbol = this.typeSymbol;
     const category = this.config.category;
-    const categorySymbol = CG.import(CategoryImports[category]).toTypeScript();
+    const categorySymbol = new CG.import(CategoryImports[category]).toTypeScript();
 
     elements.push(`export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       canRenderInTable(): boolean {
@@ -319,7 +359,7 @@ export class ComponentConfig {
       }
     }`);
 
-    const impl = CG.import({
+    const impl = new CG.import({
       symbol,
       importFrom: `./index`,
     });

@@ -1,7 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
-export const Generator = CG.newComponent({
+export const Config = new CG.component({
   category: ComponentCategory.Presentation,
   rendersWithLabel: false,
   capabilities: {
@@ -14,15 +14,21 @@ export const Generator = CG.newComponent({
     title: 'Title',
     description: 'Title shown above the attachment list',
   })
-  .addProperty({
-    name: 'dataTypeIds',
-    title: 'Data type IDs',
-    description: 'List of data type IDs for the attachment list to show',
-    value: CG.arr(CG.str()).optional(),
-  })
-  .addProperty({
-    name: 'includePDF',
-    title: 'Include PDF?',
-    description: 'Whether to include the generated PDF summary files in the attachment list',
-    value: CG.bool().optional(),
-  });
+  .addProperty(
+    new CG.prop(
+      'dataTypeIds',
+      new CG.arr(new CG.str())
+        .optional()
+        .setTitle('Data type IDs')
+        .setDescription('List of data type IDs for the attachment list to show'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'includePDF',
+      new CG.bool()
+        .optional()
+        .setTitle('Include PDF?')
+        .setDescription('Whether to include the generated PDF summary files in the attachment list'),
+    ),
+  );

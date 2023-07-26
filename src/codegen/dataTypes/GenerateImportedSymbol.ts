@@ -1,4 +1,4 @@
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 
 export interface ImportDef {
@@ -7,7 +7,7 @@ export interface ImportDef {
   importFrom: string;
 }
 
-export class GenerateImportedSymbol<T> extends CodeGenerator<T> {
+export class GenerateImportedSymbol<T> extends DescribableCodeGenerator<T> {
   public constructor(private readonly val: ImportDef) {
     super();
   }

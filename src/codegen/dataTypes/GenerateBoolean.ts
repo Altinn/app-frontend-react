@@ -1,6 +1,6 @@
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 
-export class GenerateBoolean extends CodeGenerator<boolean> {
+export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
   constructor() {
     super();
   }

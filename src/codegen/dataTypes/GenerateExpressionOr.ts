@@ -1,7 +1,10 @@
 import { CG } from 'src/codegen/CG';
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { ExprVal } from 'src/features/expressions/types';
+import type { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
+import type { GenerateFloat } from 'src/codegen/dataTypes/GenerateFloat';
+import type { GenerateString } from 'src/codegen/dataTypes/GenerateString';
 
 const toTsMap: { [key in ExprVal]: string } = {
   [ExprVal.Any]: 'ExprVal.Any',
@@ -10,27 +13,36 @@ const toTsMap: { [key in ExprVal]: string } = {
   [ExprVal.String]: 'ExprVal.String',
 };
 
-type TypeMap = {
-  [ExprVal.Boolean]: boolean;
-  [ExprVal.Number]: number;
-  [ExprVal.String]: string;
-  [ExprVal.Any]: boolean | number | string;
-};
+type TypeMap<Val extends ExprVal> = Val extends ExprVal.Boolean
+  ? boolean
+  : Val extends ExprVal.Number
+  ? number
+  : Val extends ExprVal.String
+  ? string
+  : never;
 
-export class GenerateExpressionOr<Val extends ExprVal> extends CodeGenerator<TypeMap[Val]> {
+type GeneratorMap<Val extends ExprVal> = Val extends ExprVal.Boolean
+  ? GenerateBoolean
+  : Val extends ExprVal.Number
+  ? GenerateFloat
+  : Val extends ExprVal.String
+  ? GenerateString
+  : never;
+
+export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGenerator<TypeMap<Val>> {
   constructor(public readonly valueType: Val) {
     super();
   }
 
-  public getTargetType(): CodeGenerator<TypeMap[Val]> {
+  public getTargetType(): GeneratorMap<Val> {
     if (this.valueType === ExprVal.Boolean) {
-      return CG.bool();
+      return new CG.bool() as GeneratorMap<Val>;
     }
     if (this.valueType === ExprVal.Number) {
-      return CG.float(); // Represents any number in TypeScript
+      return new CG.float() as GeneratorMap<Val>; // Represents any number in TypeScript
     }
     if (this.valueType === ExprVal.String) {
-      return CG.str();
+      return new CG.str() as GeneratorMap<Val>;
     }
     throw new Error(`Unsupported type: ${this.valueType}`);
   }

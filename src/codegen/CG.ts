@@ -8,31 +8,35 @@ import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSy
 import { GenerateInteger } from 'src/codegen/dataTypes/GenerateInteger';
 import { GenerateKnownValue } from 'src/codegen/dataTypes/GenerateKnownValue';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
+import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import { GenerateString } from 'src/codegen/dataTypes/GenerateString';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 
 export const CG = {
-  newComponent: (...args: ConstructorParameters<typeof ComponentConfig>) => new ComponentConfig(...args),
+  component: ComponentConfig,
 
   // Scalars, types and expressions
-  const: (...args: ConstructorParameters<typeof GenerateConst>) => new GenerateConst(...args),
-  expr: (...args: ConstructorParameters<typeof GenerateExpressionOr>) => new GenerateExpressionOr(...args),
-  obj: (...args: ConstructorParameters<typeof GenerateObject>) => new GenerateObject(...args),
-  str: (...args: ConstructorParameters<typeof GenerateString>) => new GenerateString(...args),
-  bool: (...args: ConstructorParameters<typeof GenerateBoolean>) => new GenerateBoolean(...args),
-  int: (...args: ConstructorParameters<typeof GenerateInteger>) => new GenerateInteger(...args),
-  float: (...args: ConstructorParameters<typeof GenerateFloat>) => new GenerateFloat(...args),
-  arr: (...args: ConstructorParameters<typeof GenerateArray>) => new GenerateArray(...args),
+  const: GenerateConst,
+  expr: GenerateExpressionOr,
+  str: GenerateString,
+  bool: GenerateBoolean,
+  int: GenerateInteger,
+  float: GenerateFloat,
+  arr: GenerateArray,
 
   // Shortcuts for common constant values
-  null: () => CG.const(null),
-  true: () => CG.const(true),
-  false: () => CG.const(false),
+  null: new GenerateConst(null),
+  true: new GenerateConst(true),
+  false: new GenerateConst(false),
+
+  // Objects and properties
+  obj: GenerateObject,
+  prop: GenerateProperty,
 
   // Known values that we have types for elsewhere, or other imported types
-  known: (...args: ConstructorParameters<typeof GenerateKnownValue>) => new GenerateKnownValue(...args),
-  import: (...args: ConstructorParameters<typeof GenerateImportedSymbol>) => new GenerateImportedSymbol(...args),
+  known: GenerateKnownValue,
+  import: GenerateImportedSymbol,
 
   // Others
-  union: (...args: ConstructorParameters<typeof GenerateUnion>) => new GenerateUnion(...args),
+  union: GenerateUnion,
 };

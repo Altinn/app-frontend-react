@@ -1,6 +1,6 @@
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 
-export class GenerateConst<Val extends string | boolean | number | null> extends CodeGenerator<Val> {
+export class GenerateConst<Val extends string | boolean | number | null> extends DescribableCodeGenerator<Val> {
   constructor(public readonly value: Val) {
     super();
   }

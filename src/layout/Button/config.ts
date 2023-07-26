@@ -1,7 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
-export const Generator = CG.newComponent({
+export const Config = new CG.component({
   category: ComponentCategory.Action,
   rendersWithLabel: false,
   capabilities: {
@@ -14,33 +14,46 @@ export const Generator = CG.newComponent({
     title: 'Title',
     description: 'The title/text on the button',
   })
-  .addProperty({
-    name: 'mode',
-    title: 'Mode',
-    description: 'The mode of the button',
-    value: CG.union(CG.const('submit'), CG.const('save'), CG.const('go-to-task'), CG.const('instantiate')).optional(
-      CG.const('submit'),
+  .addProperty(
+    new CG.prop(
+      'mode',
+      new CG.union(
+        new CG.const('submit'),
+        new CG.const('save'),
+        new CG.const('go-to-task'),
+        new CG.const('instantiate'),
+      )
+        .optional(new CG.const('submit'))
+        .setTitle('Mode')
+        .setDescription('The mode of the button'),
     ),
-  })
-  .addProperty({
-    name: 'taskId',
-    title: 'Task ID',
-    description: 'The ID of the task to go to (only used when mode is "go-to-task")',
-    value: CG.str().optional(),
-  })
-  .addProperty({
-    name: 'busyWithId',
-    title: '(do not use)',
-    description:
-      'Possibly an internally used flag to make the button look like its loading (only used when mode is "instantiate")',
-    value: CG.str().optional(),
-  })
-  .addProperty({
-    name: 'mapping',
-    title: 'Mapping',
-    description: 'The data mapping to use when instantiating a new task (only used when mode is "instantiate")',
-    value: CG.import({
-      symbol: 'IMapping',
-      importFrom: 'src/types',
-    }).optional(),
-  });
+  )
+  .addProperty(
+    new CG.prop(
+      'taskId',
+      new CG.str()
+        .optional()
+        .setTitle('Task ID')
+        .setDescription('The ID of the task to go to (only used when mode is "go-to-task")'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'busyWithId',
+      new CG.str()
+        .optional()
+        .setTitle('(do not use)')
+        .setDescription(
+          'Possibly an internally used flag to make the button look like its loading (only used when mode is "instantiate")',
+        ),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'mapping',
+      new CG.known('IMapping')
+        .optional()
+        .setTitle('Mapping')
+        .setDescription('The data mapping to use when instantiating a new task (only used when mode is "instantiate")'),
+    ),
+  );

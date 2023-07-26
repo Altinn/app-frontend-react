@@ -1,7 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
-export const Generator = CG.newComponent({
+export const Config = new CG.component({
   category: ComponentCategory.Form,
   rendersWithLabel: false,
   capabilities: {
@@ -10,14 +10,17 @@ export const Generator = CG.newComponent({
   },
 })
   .addDataModelBinding(
-    CG.import({
+    new CG.import({
       symbol: 'IDataModelBindingsForAddress',
       importFrom: 'src/layout/Address/types',
     }),
   )
-  .addProperty({
-    name: 'simplified',
-    title: 'Simplified',
-    description: 'Whether to use the simplified address input or not',
-    value: CG.bool().optional(CG.true()),
-  });
+  .addProperty(
+    new CG.prop(
+      'simplified',
+      new CG.bool()
+        .optional(CG.true)
+        .setTitle('Simplified')
+        .setDescription('Whether to use the simplified address input or not'),
+    ),
+  );
