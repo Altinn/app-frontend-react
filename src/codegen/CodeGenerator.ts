@@ -1,4 +1,4 @@
-import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7, JSONSchema7Definition, JSONSchema7Type } from 'json-schema';
 
 export interface JsonSchemaExt<T> {
   title: string | undefined;
@@ -12,7 +12,7 @@ export interface InternalConfig<T> {
   jsonSchema: JsonSchemaExt<T>;
   typeScript: TypeScriptExt;
   optional: boolean;
-  default?: CodeGenerator<T>;
+  default?: T;
 }
 
 export abstract class CodeGenerator<T> {
@@ -31,6 +31,7 @@ export abstract class CodeGenerator<T> {
       title: this.internal.jsonSchema.title,
       description: this.internal.jsonSchema.description,
       examples: this.internal.jsonSchema.examples.length ? (this.internal.jsonSchema.examples as any) : undefined,
+      default: this.internal.default as JSONSchema7Type,
     };
   }
 
@@ -39,7 +40,7 @@ export abstract class CodeGenerator<T> {
 }
 
 export abstract class MaybeOptionalCodeGenerator<T> extends CodeGenerator<T> {
-  optional(defaultValue?: CodeGenerator<T>): this {
+  optional(defaultValue?: T): this {
     this.internal.optional = true;
     this.internal.default = defaultValue;
     return this;

@@ -14,7 +14,7 @@ export const Config = new CG.component({
     new CG.prop(
       'minDate',
       new CG.union(new CG.str(), new CG.const('today'))
-        .optional(new CG.const('1900-01-01T12:00:00.000Z'))
+        .optional('1900-01-01T12:00:00.000Z')
         .setTitle('Earliest date')
         .setDescription(
           "Sets the earliest allowed date. Can also use keyword 'today' to disable all past dates dynamically based " +
@@ -26,7 +26,7 @@ export const Config = new CG.component({
     new CG.prop(
       'maxDate',
       new CG.union(new CG.str(), new CG.const('today'))
-        .optional(new CG.const('2100-01-01T12:00:00.000Z'))
+        .optional('2100-01-01T12:00:00.000Z')
         .setTitle('Latest date')
         .setDescription(
           "Sets the latest allowed date. Can also use keyword 'today' to disable all future dates dynamically based " +
@@ -38,7 +38,7 @@ export const Config = new CG.component({
     new CG.prop(
       'timeStamp',
       new CG.bool()
-        .optional(CG.true)
+        .optional(true)
         .setTitle('Include time')
         .setDescription(
           'Boolean value indicating if the date time should be stored as a timeStamp. Defaults to true. ' +
@@ -50,7 +50,7 @@ export const Config = new CG.component({
     new CG.prop(
       'format',
       new CG.str()
-        .optional(new CG.const('DD.MM.YYYY'))
+        .optional('DD.MM.YYYY')
         .setTitle('Date format')
         .setDescription(
           'Date format used when displaying the date to the user. The user date format from the locale ' +

@@ -30,8 +30,8 @@ function generateRows(cellType: CodeGenerator<any>): GenerateProperty<any> {
     new CG.obj({
       inline: true,
       properties: [
-        new CG.prop('header', new CG.bool().optional(CG.false).setTitle('Is header row?')),
-        new CG.prop('readOnly', new CG.bool().optional(CG.false).setTitle('Is row read-only?')),
+        new CG.prop('header', new CG.bool().optional(false).setTitle('Is header row?')),
+        new CG.prop('readOnly', new CG.bool().optional(false).setTitle('Is row read-only?')),
         new CG.prop(
           'columnOptions',
           new CG.known('ITableColumnProperties')

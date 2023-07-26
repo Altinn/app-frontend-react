@@ -63,7 +63,7 @@ export function asUploaderComponent(config: ComponentConfig) {
       new CG.prop(
         'alertOnDelete',
         new CG.expr(ExprVal.Boolean)
-          .optional(CG.false)
+          .optional(false)
           .setTitle('Alert on delete')
           .setDescription(
             'Boolean value indicating if warning popup should be displayed when attempting to delete an element',

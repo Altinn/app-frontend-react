@@ -19,7 +19,7 @@ export const Config = new CG.component({
     new CG.prop(
       'simplified',
       new CG.bool()
-        .optional(CG.true)
+        .optional(true)
         .setTitle('Simplified')
         .setDescription('Whether to use the simplified address input or not'),
     ),

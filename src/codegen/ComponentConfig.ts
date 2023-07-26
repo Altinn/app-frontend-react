@@ -74,7 +74,7 @@ export class ComponentConfig {
       new CG.prop(
         'hidden',
         new CG.expr(ExprVal.Boolean)
-          .optional(CG.false)
+          .optional(false)
           .setTitle('Hidden')
           .setDescription(
             'Boolean value or expression indicating if the component should be hidden. Defaults to false.',
@@ -102,8 +102,8 @@ export class ComponentConfig {
 
     if (config.category === ComponentCategory.Form) {
       // TODO: Describe these
-      this.addProperty(new CG.prop('readOnly', new CG.expr(ExprVal.Boolean).optional(CG.false)));
-      this.addProperty(new CG.prop('required', new CG.expr(ExprVal.Boolean).optional(CG.false)));
+      this.addProperty(new CG.prop('readOnly', new CG.expr(ExprVal.Boolean).optional(false)));
+      this.addProperty(new CG.prop('required', new CG.expr(ExprVal.Boolean).optional(false)));
       this.addProperty(new CG.prop('triggers', new CG.arr(new CG.known('Triggers')).optional()));
 
       this.addTextResourcesForSummarizableComponents();
@@ -114,7 +114,7 @@ export class ComponentConfig {
         new CG.prop(
           'renderAsSummary',
           new CG.expr(ExprVal.Boolean)
-            .optional(CG.false)
+            .optional(false)
             .setTitle('Render as summary')
             .setDescription(
               'Boolean value or expression indicating if the component should be rendered as a summary. Defaults to false.',
@@ -286,7 +286,7 @@ export class ComponentConfig {
         new CG.prop(
           'secure',
           new CG.bool()
-            .optional(CG.false)
+            .optional(false)
             .setTitle('Secure options (when using optionsId)')
             .setDescription(
               'Whether to call the secure API endpoint when fetching options from the server (allows for user/instance-specific options)',
