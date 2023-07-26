@@ -10,6 +10,7 @@ import { GenerateKnownValue } from 'src/codegen/dataTypes/GenerateKnownValue';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import { GenerateString } from 'src/codegen/dataTypes/GenerateString';
+import { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 
 export const CG = {
@@ -32,6 +33,7 @@ export const CG = {
   // Objects and properties
   obj: GenerateObject,
   prop: GenerateProperty,
+  trb: GenerateTextResourceBinding,
 
   // Known values that we have types for elsewhere, or other imported types
   known: GenerateKnownValue,

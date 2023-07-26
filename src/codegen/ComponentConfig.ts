@@ -7,12 +7,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
 import type { GenerateImportedSymbol, ImportDef } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
-
-export interface TextResourceConfig {
-  name: string;
-  title: string;
-  description: string;
-}
+import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 
 export interface RequiredComponentConfig {
   category: ComponentCategory;
@@ -144,7 +139,6 @@ export class ComponentConfig {
 
     if (prop.type instanceof GenerateExpressionOr) {
       const newProp = new CG.prop(prop.name, prop.type.getTargetType());
-      prop.internal.optional && newProp.optional(prop.internal.default as any);
       this.resolved.addProperty(newProp);
     } else {
       this.resolved.addProperty(prop);
@@ -176,28 +170,23 @@ export class ComponentConfig {
     return this;
   }
 
-  public addTextResource(args: TextResourceConfig): this {
-    const { name } = args;
+  public addTextResource(arg: GenerateTextResourceBinding): this {
+    if (!this.unresolved.getProperty('textResourceBindings')) {
+      this.unresolved.addProperty(
+        new CG.prop('textResourceBindings', new CG.obj({ inline: true, properties: [] }).optional()),
+      );
+      this.resolved.addProperty(
+        new CG.prop('textResourceBindings', new CG.obj({ inline: true, properties: [] }).optional()),
+      );
+    }
 
     for (const targetObject of [this.unresolved, this.resolved]) {
-      let bindings = targetObject.getProperty('textResourceBindings')?.type;
-      if (!bindings) {
-        bindings = new CG.obj({
-          inline: true,
-          properties: [],
-        });
-        targetObject.addProperty(new CG.prop('textResourceBindings', bindings));
-      }
+      const bindings = targetObject.getProperty('textResourceBindings')?.type;
       if (bindings instanceof GenerateObject) {
         if (targetObject === this.unresolved) {
-          bindings.addProperty(
-            new CG.prop(
-              name,
-              new CG.expr(ExprVal.String).setTitle(args.title).setDescription(args.description).optional(),
-            ),
-          );
+          bindings.addProperty(arg);
         } else {
-          bindings.addProperty(new CG.prop(name, new CG.str().optional()));
+          bindings.addProperty(arg.asResolved());
         }
       }
     }
@@ -206,46 +195,60 @@ export class ComponentConfig {
   }
 
   private addTextResourcesForSummarizableComponents(): this {
-    return this.addTextResource({
-      name: 'summaryTitle',
-      title: 'Summary title',
-      description: 'Title used in the summary view (overrides the default title)',
-    }).addTextResource({
-      name: 'summaryAccessibleTitle',
-      title: 'Accessible summary title',
-      description:
-        'Title used for aria-label on the edit button in the summary view (overrides the default and summary title)',
-    });
+    return this.addTextResource(
+      new CG.trb({
+        name: 'summaryTitle',
+        title: 'Summary title',
+        description: 'Title used in the summary view (overrides the default title)',
+      }),
+    ).addTextResource(
+      new CG.trb({
+        name: 'summaryAccessibleTitle',
+        title: 'Accessible summary title',
+        description:
+          'Title used for aria-label on the edit button in the summary view (overrides the default and summary title)',
+      }),
+    );
   }
 
   private addTextResourcesForFormComponents(): this {
-    return this.addTextResource({
-      name: 'tableTitle',
-      title: 'Table title',
-      description: 'Title used in the table view (overrides the default title)',
-    }).addTextResource({
-      name: 'shortName',
-      title: 'Short name (for validation)',
-      description: 'Alternative name used for required validation messages (overrides the default title)',
-    });
+    return this.addTextResource(
+      new CG.trb({
+        name: 'tableTitle',
+        title: 'Table title',
+        description: 'Title used in the table view (overrides the default title)',
+      }),
+    ).addTextResource(
+      new CG.trb({
+        name: 'shortName',
+        title: 'Short name (for validation)',
+        description: 'Alternative name used for required validation messages (overrides the default title)',
+      }),
+    );
   }
 
   public addTextResourcesForLabel(): this {
-    return this.addTextResource({
-      name: 'title',
-      title: 'Title',
-      description: 'Label text/title shown above the component',
-    })
-      .addTextResource({
-        name: 'description',
-        title: 'Description',
-        description: 'Label description shown above the component, below the title',
-      })
-      .addTextResource({
-        name: 'help',
-        title: 'Help text',
-        description: 'Help text shown in a tooltip when clicking the help button',
-      });
+    return this.addTextResource(
+      new CG.trb({
+        name: 'title',
+        title: 'Title',
+        description: 'Label text/title shown above the component',
+      }),
+    )
+      .addTextResource(
+        new CG.trb({
+          name: 'description',
+          title: 'Description',
+          description: 'Label description shown above the component, below the title',
+        }),
+      )
+      .addTextResource(
+        new CG.trb({
+          name: 'help',
+          title: 'Help text',
+          description: 'Help text shown in a tooltip when clicking the help button',
+        }),
+      );
   }
 
   public makeSelectionComponent(minimalFunctionality = false): this {
@@ -326,16 +329,18 @@ export class ComponentConfig {
     const name = 'dataModelBindings';
     const title = 'Data model bindings';
     const description = 'Describes the location in the data model where the component should store its value(s)';
-    targetType.setTitle(title).setDescription(description);
+    targetType.setTitle(title).setDescription(description).optional();
 
-    const existing = this.unresolved.getProperty(name)?.type;
-    if (existing && existing instanceof GenerateUnion) {
-      existing.addType(targetType);
-    } else if (existing) {
-      const union = new CG.union(existing, targetType).setTitle(title).setDescription(description);
-      this.unresolved.addProperty(new CG.prop(name, union));
-    } else {
-      this.unresolved.addProperty(new CG.prop(name, targetType));
+    for (const targetObject of [this.unresolved, this.resolved]) {
+      const existing = targetObject.getProperty(name)?.type;
+      if (existing && existing instanceof GenerateUnion) {
+        existing.addType(targetType);
+      } else if (existing) {
+        const union = new CG.union(existing, targetType).setTitle(title).setDescription(description).optional();
+        targetObject.addProperty(new CG.prop(name, union));
+      } else {
+        targetObject.addProperty(new CG.prop(name, targetType));
+      }
     }
 
     return this;

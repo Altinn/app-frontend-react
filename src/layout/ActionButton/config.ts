@@ -9,11 +9,13 @@ export const Config = new CG.component({
     renderInButtonGroup: true,
   },
 })
-  .addTextResource({
-    name: 'title',
-    title: 'Button title/text',
-    description: 'The text to display on the button.',
-  })
+  .addTextResource(
+    new CG.trb({
+      name: 'title',
+      title: 'Button title/text',
+      description: 'The text to display on the button.',
+    }),
+  )
   .addProperty(
     new CG.prop(
       'action',

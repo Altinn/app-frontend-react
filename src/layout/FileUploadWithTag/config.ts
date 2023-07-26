@@ -12,9 +12,11 @@ export const Config = asUploaderComponent(
     },
   }),
 )
-  .addTextResource({
-    name: 'tagTitle',
-    title: 'Tag title',
-    description: 'The title to show when selecting a tag for each uploaded file',
-  })
+  .addTextResource(
+    new CG.trb({
+      name: 'tagTitle',
+      title: 'Tag title',
+      description: 'The title to show when selecting a tag for each uploaded file',
+    }),
+  )
   .makeSelectionComponent(true);

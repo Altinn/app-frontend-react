@@ -13,11 +13,17 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     super();
   }
 
+  /**
+   * Important: Call this on the property object before adding it to the object
+   */
   insertBefore(otherPropertyName: string): this {
     this._insertBefore = otherPropertyName;
     return this;
   }
 
+  /**
+   * Important: Call this on the property object before adding it to the object
+   */
   insertAfter(otherPropertyName: string): this {
     this._insertAfter = otherPropertyName;
     return this;

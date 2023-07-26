@@ -24,16 +24,18 @@ export abstract class CodeGenerator<T> {
     optional: false,
   };
 
+  abstract toTypeScript(): string;
+}
+
+export abstract class MaybeOptionalCodeGenerator<T> extends CodeGenerator<T> {
   optional(defaultValue?: CodeGenerator<T>): this {
     this.internal.optional = true;
     this.internal.default = defaultValue;
     return this;
   }
-
-  abstract toTypeScript(): string;
 }
 
-export abstract class DescribableCodeGenerator<T> extends CodeGenerator<T> {
+export abstract class DescribableCodeGenerator<T> extends MaybeOptionalCodeGenerator<T> {
   setTitle(title: string): this {
     this.internal.jsonSchema.title = title;
     return this;

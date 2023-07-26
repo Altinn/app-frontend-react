@@ -9,11 +9,13 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
   },
 })
-  .addTextResource({
-    name: 'title',
-    title: 'Title',
-    description: 'Title shown above the attachment list',
-  })
+  .addTextResource(
+    new CG.trb({
+      name: 'title',
+      title: 'Title',
+      description: 'Title shown above the attachment list',
+    }),
+  )
   .addProperty(
     new CG.prop(
       'dataTypeIds',

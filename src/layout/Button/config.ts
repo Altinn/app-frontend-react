@@ -9,11 +9,13 @@ export const Config = new CG.component({
     renderInButtonGroup: true,
   },
 })
-  .addTextResource({
-    name: 'title',
-    title: 'Title',
-    description: 'The title/text on the button',
-  })
+  .addTextResource(
+    new CG.trb({
+      name: 'title',
+      title: 'Title',
+      description: 'The title/text on the button',
+    }),
+  )
   .addProperty(
     new CG.prop(
       'mode',

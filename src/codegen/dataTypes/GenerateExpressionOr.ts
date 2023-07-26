@@ -35,14 +35,23 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
   }
 
   public getTargetType(): GeneratorMap<Val> {
+    let out: GeneratorMap<Val> | undefined;
     if (this.valueType === ExprVal.Boolean) {
-      return new CG.bool() as GeneratorMap<Val>;
+      out = new CG.bool() as GeneratorMap<Val>;
     }
     if (this.valueType === ExprVal.Number) {
-      return new CG.float() as GeneratorMap<Val>; // Represents any number in TypeScript
+      out = new CG.float() as GeneratorMap<Val>; // Represents any number in TypeScript
     }
     if (this.valueType === ExprVal.String) {
-      return new CG.str() as GeneratorMap<Val>;
+      out = new CG.str() as GeneratorMap<Val>;
+    }
+
+    if (out) {
+      out.internal.jsonSchema = this.internal.jsonSchema as any;
+      if (this.internal.optional) {
+        out.optional(this.internal.default as any);
+      }
+      return out;
     }
     throw new Error(`Unsupported type: ${this.valueType}`);
   }
