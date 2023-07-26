@@ -25,7 +25,7 @@ async function getComponentList() {
   return out;
 }
 
-const useNewTypes = false; // TODO: Remove this once we've migrated to the new types
+const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the new types
 
 (async () => {
   const componentList = await getComponentList();

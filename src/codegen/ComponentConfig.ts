@@ -96,7 +96,7 @@ export class ComponentConfig {
     );
 
     if (config.category === ComponentCategory.Form) {
-      // TODO: Describe these
+      // PRIORITY: Describe these
       this.addProperty(new CG.prop('readOnly', new CG.expr(ExprVal.Boolean).optional(false)));
       this.addProperty(new CG.prop('required', new CG.expr(ExprVal.Boolean).optional(false)));
       this.addProperty(new CG.prop('triggers', new CG.arr(CG.common('Triggers')).optional()));
@@ -167,7 +167,7 @@ export class ComponentConfig {
   }
 
   public rendersWithLabel(): this {
-    // TODO: Describe this
+    // PRIORITY: Describe this
     this.addProperty(new CG.prop('labelSettings', CG.common('ILabelSettings').optional()));
 
     return this;
@@ -316,7 +316,7 @@ export class ComponentConfig {
 
   /**
    * Adding multiple data model bindings to the component makes it a union
-   * TODO: Support required and optional bindings
+   * PRIORITY: Support required and optional bindings
    */
   public addDataModelBinding(type: 'simple' | 'list' | GenerateObject<any>): this {
     const mapping = {

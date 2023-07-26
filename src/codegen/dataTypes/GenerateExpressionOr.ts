@@ -15,7 +15,7 @@ const toTsMap: { [key in ExprVal]: string } = {
   [ExprVal.String]: 'ExprVal.String',
 };
 
-// TODO: Use references to the real expression schema
+// PRIORITY: Use references to the real expression schema
 const toSchemaMap: { [key in ExprVal]: JSONSchema7 } = {
   [ExprVal.Any]: { $ref: '#/definitions/ExprVal.Any' },
   [ExprVal.Boolean]: { $ref: '#/definitions/ExprVal.Boolean' },

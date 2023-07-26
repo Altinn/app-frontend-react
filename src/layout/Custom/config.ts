@@ -19,4 +19,4 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop('tagName', new CG.str().setTitle('Tag name').setDescription('Web component tag name to use')),
   );
-// TODO: Add support for any data model binding
+// PRIORITY: Add support for any data model binding
