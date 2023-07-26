@@ -1,3 +1,5 @@
+import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
+
 import { CG } from 'src/codegen/CG';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
@@ -11,6 +13,14 @@ const toTsMap: { [key in ExprVal]: string } = {
   [ExprVal.Boolean]: 'ExprVal.Boolean',
   [ExprVal.Number]: 'ExprVal.Number',
   [ExprVal.String]: 'ExprVal.String',
+};
+
+// TODO: Use references to the real expression schema
+const toSchemaMap: { [key in ExprVal]: JSONSchema7 } = {
+  [ExprVal.Any]: { $ref: '#/definitions/ExprVal.Any' },
+  [ExprVal.Boolean]: { $ref: '#/definitions/ExprVal.Boolean' },
+  [ExprVal.Number]: { $ref: '#/definitions/ExprVal.Number' },
+  [ExprVal.String]: { $ref: '#/definitions/ExprVal.String' },
 };
 
 type TypeMap<Val extends ExprVal> = Val extends ExprVal.Boolean
@@ -53,11 +63,19 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
       }
       return out;
     }
+
     throw new Error(`Unsupported type: ${this.valueType}`);
   }
 
   public toTypeScript(): string {
     CodeGeneratorContext.getInstance().addImport('ExprVal', 'src/features/expressions/types');
     return toTsMap[this.valueType];
+  }
+
+  toJsonSchema(): JSONSchema7Definition {
+    return {
+      ...this.getInternalJsonSchema(),
+      ...toSchemaMap[this.valueType],
+    };
   }
 }

@@ -1,3 +1,5 @@
+import type { JSONSchema7Definition } from 'json-schema';
+
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
@@ -30,7 +32,7 @@ export class GenerateObject<T extends ObjectDef> extends DescribableCodeGenerato
     super();
   }
 
-  public addProperty(prop: GenerateProperty<any>): this {
+  addProperty(prop: GenerateProperty<any>): this {
     const { name, insertBefore, insertAfter } = prop.toObject();
 
     // Replace property if it already exists
@@ -62,11 +64,11 @@ export class GenerateObject<T extends ObjectDef> extends DescribableCodeGenerato
     return this;
   }
 
-  public getProperty(name: string): GenerateProperty<any> | undefined {
+  getProperty(name: string): GenerateProperty<any> | undefined {
     return this.config.properties.find((property) => property.name === name);
   }
 
-  public toTypeScript(): string {
+  toTypeScript(): string {
     const { name, inline, exported } = this.config;
 
     if (!name && !inline) {
@@ -79,5 +81,24 @@ export class GenerateObject<T extends ObjectDef> extends DescribableCodeGenerato
     }
 
     return `${exported ? 'export ' : ''} interface ${name} { ${properties} }`;
+  }
+
+  toJsonSchema(): JSONSchema7Definition {
+    const properties: { [key: string]: JSONSchema7Definition } = {};
+    for (const prop of this.config.properties) {
+      properties[prop.name] = prop.type.toJsonSchema();
+    }
+
+    const requiredProps = this.config.properties
+      .filter((prop) => !prop.type.internal.optional)
+      .map((prop) => prop.name);
+
+    return {
+      ...this.getInternalJsonSchema(),
+      type: 'object',
+      properties,
+      required: requiredProps.length ? requiredProps : undefined,
+      additionalProperties: false,
+    };
   }
 }

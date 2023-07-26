@@ -59,9 +59,13 @@ const useNewTypes = false; // TODO: Remove this once we've migrated to the new t
   for (const key of sortedKeys) {
     const config: ComponentConfig = (await import(`src/layout/${key}/config`)).Config;
     config.setType(componentList[key], key);
-    const path = `src/layout/${key}/config.generated.ts`;
+    const tsPath = `src/layout/${key}/config.generated.ts`;
     const content = config.toTypeScript();
-    promises.push(saveTsFile(path, content));
+    promises.push(saveTsFile(tsPath, content));
+
+    const jsonSchemaPath = `src/layout/${key}/config.generated.schema.json`;
+    const jsonSchemaContent = JSON.stringify(config.toJsonSchema(), null, 2);
+    promises.push(saveFile(jsonSchemaPath, jsonSchemaContent));
   }
 
   await Promise.all(promises);

@@ -1,3 +1,5 @@
+import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
+
 import { CG } from 'src/codegen/CG';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
@@ -386,5 +388,12 @@ export class ComponentConfig {
     }
 
     return elements.join('\n\n');
+  }
+
+  public toJsonSchema(): JSONSchema7Definition {
+    return {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      ...(this.unresolved.toJsonSchema() as JSONSchema7),
+    };
   }
 }

@@ -1,3 +1,5 @@
+import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
+
 export interface JsonSchemaExt<T> {
   title: string | undefined;
   description: string | undefined;
@@ -24,6 +26,15 @@ export abstract class CodeGenerator<T> {
     optional: false,
   };
 
+  protected getInternalJsonSchema(): JSONSchema7 {
+    return {
+      title: this.internal.jsonSchema.title,
+      description: this.internal.jsonSchema.description,
+      examples: this.internal.jsonSchema.examples.length ? (this.internal.jsonSchema.examples as any) : undefined,
+    };
+  }
+
+  abstract toJsonSchema(): JSONSchema7Definition;
   abstract toTypeScript(): string;
 }
 

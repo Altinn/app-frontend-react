@@ -397,3 +397,5 @@ src/Altinn.Apps/AppTemplates/AspNet/App/Properties/launchSettings.json
 *.generated.ts
 *.generated.d.ts
 *.generated.tsx
+*.generated.json
+*.generated.schema.json

@@ -1,3 +1,5 @@
+import type { JSONSchema7Definition } from 'json-schema';
+
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 
 export class GenerateConst<Val extends string | boolean | number | null> extends DescribableCodeGenerator<Val> {
@@ -16,5 +18,12 @@ export class GenerateConst<Val extends string | boolean | number | null> extends
     }
 
     return `'${this.value}'`;
+  }
+
+  toJsonSchema(): JSONSchema7Definition {
+    return {
+      ...this.getInternalJsonSchema(),
+      const: this.value,
+    };
   }
 }

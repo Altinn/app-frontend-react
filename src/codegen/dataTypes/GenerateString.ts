@@ -1,8 +1,8 @@
+import type { JSONSchema7Definition } from 'json-schema';
+
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 
 export class GenerateString extends DescribableCodeGenerator<string> {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   private pattern: RegExp | undefined;
 
   constructor() {
@@ -16,5 +16,13 @@ export class GenerateString extends DescribableCodeGenerator<string> {
 
   toTypeScript() {
     return 'string';
+  }
+
+  toJsonSchema(): JSONSchema7Definition {
+    return {
+      ...this.getInternalJsonSchema(),
+      type: 'string',
+      pattern: this.pattern?.source,
+    };
   }
 }
