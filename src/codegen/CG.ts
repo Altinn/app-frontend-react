@@ -1,13 +1,13 @@
 import { ComponentConfig } from 'src/codegen/ComponentConfig';
 import { GenerateArray } from 'src/codegen/dataTypes/GenerateArray';
 import { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
+import { GenerateCommonValue } from 'src/codegen/dataTypes/GenerateCommonValue';
 import { GenerateConst } from 'src/codegen/dataTypes/GenerateConst';
 import { GenerateEnum } from 'src/codegen/dataTypes/GenerateEnum';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
-import { GenerateFloat } from 'src/codegen/dataTypes/GenerateFloat';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateInteger } from 'src/codegen/dataTypes/GenerateInteger';
-import { GenerateKnownValue } from 'src/codegen/dataTypes/GenerateKnownValue';
+import { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import { GenerateString } from 'src/codegen/dataTypes/GenerateString';
@@ -23,7 +23,7 @@ export const CG = {
   str: GenerateString,
   bool: GenerateBoolean,
   int: GenerateInteger,
-  float: GenerateFloat,
+  num: GenerateNumber,
   arr: GenerateArray,
 
   // Shortcuts for common constant values
@@ -37,7 +37,7 @@ export const CG = {
   trb: GenerateTextResourceBinding,
 
   // Known values that we have types for elsewhere, or other imported types
-  known: GenerateKnownValue,
+  common: GenerateCommonValue,
   import: GenerateImportedSymbol,
 
   // Others

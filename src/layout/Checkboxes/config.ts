@@ -19,7 +19,7 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'layout',
-      new CG.known('LayoutStyle')
+      CG.common('LayoutStyle')
         .optional()
         .setTitle('Layout style')
         .setDescription('How the checkboxes should be laid out (rows, columns, etc.)'),

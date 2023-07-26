@@ -1,5 +1,7 @@
 import type { JSONSchema7, JSONSchema7Definition, JSONSchema7Type } from 'json-schema';
 
+import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+
 export interface JsonSchemaExt<T> {
   title: string | undefined;
   description: string | undefined;
@@ -8,9 +10,15 @@ export interface JsonSchemaExt<T> {
 
 export interface TypeScriptExt {}
 
+export interface SymbolExt {
+  name: string;
+  exported: boolean;
+}
+
 export interface InternalConfig<T> {
   jsonSchema: JsonSchemaExt<T>;
   typeScript: TypeScriptExt;
+  symbol?: SymbolExt;
   optional: boolean;
   default?: T;
 }
@@ -39,7 +47,31 @@ export abstract class CodeGenerator<T> {
   abstract toTypeScript(): string;
 }
 
-export abstract class MaybeOptionalCodeGenerator<T> extends CodeGenerator<T> {
+export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
+  setSymbol(symbol: SymbolExt): this {
+    this.internal.symbol = symbol;
+    CodeGeneratorContext.getInstance().addSymbol(this);
+
+    return this;
+  }
+
+  getSymbol(): SymbolExt | undefined {
+    return this.internal.symbol;
+  }
+
+  toTypeScript(): string {
+    if (this.internal.symbol) {
+      // If this type has a symbol, always use the symbol name instead of the full type definition
+      return this.internal.symbol.name;
+    }
+
+    return this.toTypeScriptDefinition(undefined);
+  }
+
+  abstract toTypeScriptDefinition(symbol: string | undefined): string;
+}
+
+export abstract class MaybeOptionalCodeGenerator<T> extends MaybeSymbolizedCodeGenerator<T> {
   optional(defaultValue?: T): this {
     this.internal.optional = true;
     this.internal.default = defaultValue;

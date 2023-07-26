@@ -6,8 +6,9 @@ export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
   constructor() {
     super();
   }
-  toTypeScript() {
-    return 'boolean';
+
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    return symbol ? `type ${symbol} = boolean;` : 'boolean';
   }
 
   toJsonSchema(): JSONSchema7Definition {

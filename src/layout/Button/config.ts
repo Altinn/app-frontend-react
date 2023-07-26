@@ -48,7 +48,7 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'mapping',
-      new CG.known('IMapping')
+      CG.common('IMapping')
         .optional()
         .setTitle('Mapping')
         .setDescription('The data mapping to use when instantiating a new task (only used when mode is "instantiate")'),

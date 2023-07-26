@@ -295,12 +295,12 @@ describe('rules getRuleModelFields', () => {
     const ruleModelFields = getRuleModelFields();
     const expectedResult = [
       {
-        inputs: { number: 'number' },
+        inputs: { num: 'number' },
         name: 'sum',
         type: 'rule',
       },
       {
-        inputs: { number: 'number' },
+        inputs: { num: 'number' },
         name: 'biggerThan10',
         type: 'condition',
       },

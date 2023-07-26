@@ -3,13 +3,19 @@ import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 import { CG } from 'src/codegen/CG';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
+import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
-import type { GenerateImportedSymbol, ImportDef } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
+import type {
+  ActionComponent,
+  ContainerComponent,
+  FormComponent,
+  PresentationComponent,
+} from 'src/layout/LayoutComponent';
 
 export interface RequiredComponentConfig {
   category: ComponentCategory;
@@ -20,44 +26,32 @@ export interface RequiredComponentConfig {
   };
 }
 
-const CategoryImports: { [Category in ComponentCategory]: ImportDef } = {
-  [ComponentCategory.Action]: {
+const CategoryImports: { [Category in ComponentCategory]: GenerateImportedSymbol<any> } = {
+  [ComponentCategory.Action]: new GenerateImportedSymbol<ActionComponent<any>>({
     import: 'ActionComponent',
     from: 'src/layout/LayoutComponent',
-    jsonSchema: null,
-  },
-  [ComponentCategory.Form]: {
+  }),
+  [ComponentCategory.Form]: new GenerateImportedSymbol<FormComponent<any>>({
     import: 'FormComponent',
     from: 'src/layout/LayoutComponent',
-    jsonSchema: null,
-  },
-  [ComponentCategory.Container]: {
+  }),
+  [ComponentCategory.Container]: new GenerateImportedSymbol<ContainerComponent<any>>({
     import: 'ContainerComponent',
     from: 'src/layout/LayoutComponent',
-    jsonSchema: null,
-  },
-  [ComponentCategory.Presentation]: {
+  }),
+  [ComponentCategory.Presentation]: new GenerateImportedSymbol<PresentationComponent<any>>({
     import: 'PresentationComponent',
     from: 'src/layout/LayoutComponent',
-    jsonSchema: null,
-  },
+  }),
 };
 
 export class ComponentConfig {
   public type: string;
   public typeSymbol: string;
-  public layoutNodeType = new CG.known('LayoutNode');
+  public layoutNodeType = CG.common('LayoutNode');
 
-  private unresolved = new GenerateObject({
-    name: '// TODO: Set name',
-    exported: true,
-    properties: [],
-  });
-  private resolved = new GenerateObject({
-    name: '// TODO: Set name',
-    exported: true,
-    properties: [],
-  });
+  private unresolved = new CG.obj();
+  private resolved = new CG.obj();
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.addProperty(
@@ -85,7 +79,7 @@ export class ComponentConfig {
     this.addProperty(
       new CG.prop(
         'grid',
-        new CG.known('IGrid')
+        CG.common('IGrid')
           .setTitle('Grid')
           .setDescription('Settings for the components grid. Used for controlling horizontal alignment')
           .optional(),
@@ -94,7 +88,7 @@ export class ComponentConfig {
     this.addProperty(
       new CG.prop(
         'pageBreak',
-        new CG.known('IPageBreak')
+        CG.common('IPageBreak')
           .setTitle('Page break')
           .setDescription('Optionally insert page-break before/after component when rendered in PDF')
           .optional(),
@@ -105,7 +99,7 @@ export class ComponentConfig {
       // TODO: Describe these
       this.addProperty(new CG.prop('readOnly', new CG.expr(ExprVal.Boolean).optional(false)));
       this.addProperty(new CG.prop('required', new CG.expr(ExprVal.Boolean).optional(false)));
-      this.addProperty(new CG.prop('triggers', new CG.arr(new CG.known('Triggers')).optional()));
+      this.addProperty(new CG.prop('triggers', new CG.arr(CG.common('Triggers')).optional()));
 
       this.addTextResourcesForSummarizableComponents();
       this.addTextResourcesForFormComponents();
@@ -155,8 +149,14 @@ export class ComponentConfig {
     this.type = type;
     this.typeSymbol = symbolName;
     this.addProperty(new CG.prop('type', new CG.const(type)).insertAfter('id'));
-    this.unresolved.config.name = `ILayoutComp${symbolName}`;
-    this.resolved.config.name = `${symbolName}Item`;
+    this.unresolved.setSymbol({
+      name: `ILayoutComp${symbolName}`,
+      exported: true,
+    });
+    this.resolved.setSymbol({
+      name: `${symbolName}Item`,
+      exported: true,
+    });
 
     return this;
   }
@@ -168,19 +168,15 @@ export class ComponentConfig {
 
   public rendersWithLabel(): this {
     // TODO: Describe this
-    this.addProperty(new CG.prop('labelSettings', new CG.known('ILabelSettings').optional()));
+    this.addProperty(new CG.prop('labelSettings', CG.common('ILabelSettings').optional()));
 
     return this;
   }
 
   public addTextResource(arg: GenerateTextResourceBinding): this {
     if (!this.unresolved.getProperty('textResourceBindings')) {
-      this.unresolved.addProperty(
-        new CG.prop('textResourceBindings', new CG.obj({ inline: true, properties: [] }).optional()),
-      );
-      this.resolved.addProperty(
-        new CG.prop('textResourceBindings', new CG.obj({ inline: true, properties: [] }).optional()),
-      );
+      this.unresolved.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
+      this.resolved.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
     }
 
     for (const targetObject of [this.unresolved, this.resolved]) {
@@ -259,7 +255,7 @@ export class ComponentConfig {
       this.addProperty(
         new CG.prop(
           'options',
-          new CG.arr(new CG.known('IOption').optional())
+          new CG.arr(CG.common('IOption').optional())
             .setTitle('Static options')
             .setDescription('List of static options'),
         ),
@@ -276,7 +272,7 @@ export class ComponentConfig {
     this.addProperty(
       new CG.prop(
         'mapping',
-        new CG.known('IMapping')
+        CG.common('IMapping')
           .optional()
           .setTitle('Mapping (when using optionsId)')
           .setDescription('Mapping of data/query-string when fetching from the server'),
@@ -298,7 +294,7 @@ export class ComponentConfig {
       this.addProperty(
         new CG.prop(
           'source',
-          new CG.known('IOptionSource')
+          CG.common('IOptionSource')
             .optional()
             .setTitle('Option source')
             .setDescription('Allows for fetching options from the data model, pointing to a repeating group structure'),
@@ -322,10 +318,10 @@ export class ComponentConfig {
    * Adding multiple data model bindings to the component makes it a union
    * TODO: Support required and optional bindings
    */
-  public addDataModelBinding(type: 'simple' | 'list' | GenerateImportedSymbol<any>): this {
+  public addDataModelBinding(type: 'simple' | 'list' | GenerateObject<any>): this {
     const mapping = {
-      simple: new CG.known(`IDataModelBindingsSimple`),
-      list: new CG.known(`IDataModelBindingsList`),
+      simple: CG.common(`IDataModelBindingsSimple`),
+      list: CG.common(`IDataModelBindingsList`),
     };
     const targetType = typeof type === 'string' ? mapping[type] : type;
 
@@ -355,7 +351,7 @@ export class ComponentConfig {
 
     const symbol = this.typeSymbol;
     const category = this.config.category;
-    const categorySymbol = new CG.import(CategoryImports[category]).toTypeScript();
+    const categorySymbol = CategoryImports[category].toTypeScript();
 
     elements.push(`export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       canRenderInTable(): boolean {
@@ -370,7 +366,6 @@ export class ComponentConfig {
     const impl = new CG.import({
       import: symbol,
       from: `./index`,
-      jsonSchema: null,
     });
 
     elements.push(`export const Config = {
@@ -385,11 +380,8 @@ export class ComponentConfig {
     }`);
 
     const imports = CodeGeneratorContext.getInstance().getImportsAsTypeScript();
-    if (imports) {
-      return `${imports}\n\n${elements.join('\n\n')}`;
-    }
-
-    return elements.join('\n\n');
+    const objects = CodeGeneratorContext.getInstance().getSymbolsAsTypeScript();
+    return `${imports}\n\n${objects}\n\n${elements.join('\n\n')}`.trim();
   }
 
   public toJsonSchema(): JSONSchema7Definition {

@@ -5,7 +5,7 @@ import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { ExprVal } from 'src/features/expressions/types';
 import type { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
-import type { GenerateFloat } from 'src/codegen/dataTypes/GenerateFloat';
+import type { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import type { GenerateString } from 'src/codegen/dataTypes/GenerateString';
 
 const toTsMap: { [key in ExprVal]: string } = {
@@ -34,7 +34,7 @@ type TypeMap<Val extends ExprVal> = Val extends ExprVal.Boolean
 type GeneratorMap<Val extends ExprVal> = Val extends ExprVal.Boolean
   ? GenerateBoolean
   : Val extends ExprVal.Number
-  ? GenerateFloat
+  ? GenerateNumber
   : Val extends ExprVal.String
   ? GenerateString
   : never;
@@ -50,7 +50,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
       out = new CG.bool() as GeneratorMap<Val>;
     }
     if (this.valueType === ExprVal.Number) {
-      out = new CG.float() as GeneratorMap<Val>; // Represents any number in TypeScript
+      out = new CG.num() as GeneratorMap<Val>; // Represents any number in TypeScript
     }
     if (this.valueType === ExprVal.String) {
       out = new CG.str() as GeneratorMap<Val>;
@@ -67,9 +67,9 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     throw new Error(`Unsupported type: ${this.valueType}`);
   }
 
-  public toTypeScript(): string {
+  toTypeScriptDefinition(symbol: string | undefined): string {
     CodeGeneratorContext.getInstance().addImport('ExprVal', 'src/features/expressions/types');
-    return toTsMap[this.valueType];
+    return symbol ? `type ${symbol} = ${toTsMap[this.valueType]};` : toTsMap[this.valueType];
   }
 
   toJsonSchema(): JSONSchema7Definition {

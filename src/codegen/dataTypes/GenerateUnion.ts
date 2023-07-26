@@ -17,8 +17,10 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
     this.types.push(type as any);
   }
 
-  toTypeScript() {
-    return this.types.map((type) => type.toTypeScript()).join(' | ');
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    const out = this.types.map((type) => type.toTypeScript()).join(' | ');
+
+    return symbol ? `type ${symbol} = ${out};` : out;
   }
 
   toJsonSchema(): JSONSchema7Definition {

@@ -10,21 +10,15 @@ export const Config = new CG.component({
   },
 })
   .addDataModelBinding(
-    new CG.import({
-      import: 'IDataModelBindingsForAddress',
-      from: 'src/layout/Address/types',
-      jsonSchema: {
-        type: 'object',
-        properties: {
-          address: { type: 'string' },
-          zipCode: { type: 'string' },
-          postPlace: { type: 'string' },
-          careOf: { type: 'string' },
-          houseNumber: { type: 'string' },
-        },
-        required: ['address', 'zipCode', 'postPlace'],
-        additionalProperties: false,
-      },
+    new CG.obj(
+      new CG.prop('address', new CG.str()),
+      new CG.prop('zipCode', new CG.str()),
+      new CG.prop('postPlace', new CG.str()),
+      new CG.prop('careOf', new CG.str().optional()),
+      new CG.prop('houseNumber', new CG.str().optional()),
+    ).setSymbol({
+      name: 'IDataModelBindingsForAddress',
+      exported: true,
     }),
   )
   .addProperty(

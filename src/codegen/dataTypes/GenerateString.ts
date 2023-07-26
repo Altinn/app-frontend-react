@@ -14,8 +14,8 @@ export class GenerateString extends DescribableCodeGenerator<string> {
     return this;
   }
 
-  toTypeScript() {
-    return 'string';
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    return symbol ? `type ${symbol} = string;` : 'string';
   }
 
   toJsonSchema(): JSONSchema7Definition {

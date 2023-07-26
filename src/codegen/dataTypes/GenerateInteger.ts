@@ -1,18 +1,20 @@
-import type { JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
-import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 
-export class GenerateInteger extends DescribableCodeGenerator<number> {
+export class GenerateInteger extends GenerateNumber {
   constructor() {
     super();
   }
-  toTypeScript() {
-    return 'number';
+
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    return symbol ? `type ${symbol} = number;` : 'number';
   }
 
   toJsonSchema(): JSONSchema7Definition {
     return {
       ...this.getInternalJsonSchema(),
+      ...(super.toJsonSchema() as JSONSchema7),
       type: 'integer',
     };
   }

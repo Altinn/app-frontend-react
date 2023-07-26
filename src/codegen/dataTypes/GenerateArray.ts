@@ -9,12 +9,13 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     super();
   }
 
-  toTypeScript(): string {
-    if (this.innerType instanceof GenerateUnion) {
-      return `(${this.innerType.toTypeScript()})[]`;
-    }
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    const out =
+      this.innerType instanceof GenerateUnion
+        ? `(${this.innerType.toTypeScript()})[]`
+        : `${this.innerType.toTypeScript()}[]`;
 
-    return `${this.innerType.toTypeScript()}[]`;
+    return symbol ? `type ${symbol} = ${out};` : out;
   }
 
   toJsonSchema(): JSONSchema7Definition {

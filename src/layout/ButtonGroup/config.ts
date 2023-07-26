@@ -15,5 +15,5 @@ export const Config = new CG.component({
       .setTitle('Children')
       .setDescription('Child component IDs of button-like components to be rendered in this group'),
   ),
-  resolved: new CG.prop('childComponents', new CG.arr(new CG.known('LayoutNode'))),
+  resolved: new CG.prop('childComponents', new CG.arr(CG.common('LayoutNode'))),
 });

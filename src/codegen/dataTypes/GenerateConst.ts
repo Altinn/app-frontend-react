@@ -6,18 +6,18 @@ export class GenerateConst<Val extends string | boolean | number | null> extends
   constructor(public readonly value: Val) {
     super();
   }
-  public toTypeScript(): string {
-    if (typeof this.value === 'number') {
-      return `${this.value}`;
-    }
-    if (typeof this.value === 'boolean') {
-      return `${this.value ? 'true' : 'false'}`;
-    }
-    if (this.value === null) {
-      return 'null';
-    }
 
-    return `'${this.value}'`;
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    const out =
+      typeof this.value === 'string'
+        ? JSON.stringify(this.value)
+        : typeof this.value === 'number'
+        ? `${this.value}`
+        : this.value === null
+        ? `null`
+        : `${this.value ? 'true' : 'false'}`;
+
+    return symbol ? `type ${symbol} = ${out};` : out;
   }
 
   toJsonSchema(): JSONSchema7Definition {
