@@ -22,30 +22,31 @@ export interface RequiredComponentConfig {
 
 const CategoryImports: { [Category in ComponentCategory]: ImportDef } = {
   [ComponentCategory.Action]: {
-    symbol: 'ActionComponent',
-    importFrom: 'src/layout/LayoutComponent',
+    import: 'ActionComponent',
+    from: 'src/layout/LayoutComponent',
+    jsonSchema: null,
   },
   [ComponentCategory.Form]: {
-    symbol: 'FormComponent',
-    importFrom: 'src/layout/LayoutComponent',
+    import: 'FormComponent',
+    from: 'src/layout/LayoutComponent',
+    jsonSchema: null,
   },
   [ComponentCategory.Container]: {
-    symbol: 'ContainerComponent',
-    importFrom: 'src/layout/LayoutComponent',
+    import: 'ContainerComponent',
+    from: 'src/layout/LayoutComponent',
+    jsonSchema: null,
   },
   [ComponentCategory.Presentation]: {
-    symbol: 'PresentationComponent',
-    importFrom: 'src/layout/LayoutComponent',
+    import: 'PresentationComponent',
+    from: 'src/layout/LayoutComponent',
+    jsonSchema: null,
   },
 };
 
 export class ComponentConfig {
   public type: string;
   public typeSymbol: string;
-  public layoutNodeType = new CG.import({
-    symbol: 'LayoutNode',
-    importFrom: 'src/utils/layout/LayoutNode',
-  });
+  public layoutNodeType = new CG.known('LayoutNode');
 
   private unresolved = new GenerateObject({
     name: '// TODO: Set name',
@@ -367,8 +368,9 @@ export class ComponentConfig {
     }`);
 
     const impl = new CG.import({
-      symbol,
-      importFrom: `./index`,
+      import: symbol,
+      from: `./index`,
+      jsonSchema: null,
     });
 
     elements.push(`export const Config = {

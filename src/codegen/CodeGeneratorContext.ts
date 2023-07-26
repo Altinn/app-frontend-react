@@ -16,8 +16,8 @@ export class CodeGeneratorContext {
 
   private files: { [fileName: string]: Set<string> } = {};
 
-  public addImport(symbol: string, fromFile: string): void {
-    const set = this.files[fromFile] ? this.files[fromFile] : (this.files[fromFile] = new Set());
+  public addImport(symbol: string, from: string): void {
+    const set = this.files[from] ? this.files[from] : (this.files[from] = new Set());
     set.add(symbol);
   }
 

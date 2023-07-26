@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { alignTextSchema, textOverflowSchema } from 'src/codegen/dataTypes/GenerateKnownValue';
 import { ComponentCategory } from 'src/layout/common';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -13,14 +14,25 @@ export const Config = new CG.component({
 }).addProperty({
   unresolved: generateRows(
     new CG.import({
-      symbol: 'GridComponentRef',
-      importFrom: 'src/layout/Grid/types',
+      import: 'GridComponentRef',
+      from: 'src/layout/Grid/types',
+      jsonSchema: {
+        type: 'object',
+        title: 'Component reference',
+        description: 'References another component by ID',
+        properties: {
+          component: { type: 'string' },
+        },
+        required: ['component'],
+        additionalProperties: false,
+      },
     }),
   ),
   resolved: generateRows(
     new CG.import({
-      symbol: 'GridComponent',
-      importFrom: 'src/layout/Grid/types',
+      import: 'GridComponent',
+      from: 'src/layout/Grid/types',
+      jsonSchema: null,
     }),
   ),
 });
@@ -54,8 +66,19 @@ function generateRows(cellType: CodeGenerator<any>): GenerateProperty<any> {
               cellType,
               CG.null,
               new CG.import({
-                symbol: 'GridText',
-                importFrom: 'src/layout/Grid/types',
+                import: 'GridText',
+                from: 'src/layout/Grid/types',
+                jsonSchema: {
+                  type: 'object',
+                  properties: {
+                    text: { type: 'string' },
+                    help: { type: 'string' },
+                    alignText: alignTextSchema,
+                    textOverflow: textOverflowSchema,
+                  },
+                  required: ['text'],
+                  additionalProperties: false,
+                },
               }),
             )
               .setTitle('Cells in table row')
