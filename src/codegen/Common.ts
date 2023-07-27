@@ -33,16 +33,16 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
   IGridSize: new CG.union(new CG.const('auto'), new CG.int().setMin(1).setMax(12)),
 
   IGridStyling: new CG.obj(
-    new CG.prop('xs', CG.common('IGridSize')),
-    new CG.prop('sm', CG.common('IGridSize')),
-    new CG.prop('md', CG.common('IGridSize')),
-    new CG.prop('lg', CG.common('IGridSize')),
-    new CG.prop('xl', CG.common('IGridSize')),
-  ),
+    new CG.prop('xs', CG.common('IGridSize').optional('auto')),
+    new CG.prop('sm', CG.common('IGridSize').optional('auto')),
+    new CG.prop('md', CG.common('IGridSize').optional('auto')),
+    new CG.prop('lg', CG.common('IGridSize').optional('auto')),
+    new CG.prop('xl', CG.common('IGridSize').optional('auto')),
+  ).extends(CG.common('IGridStyling')),
 
   IGrid: new CG.obj(
-    new CG.prop('labelGrid', CG.common('IGridStyling')),
-    new CG.prop('innerGrid', CG.common('IGridStyling')),
+    new CG.prop('labelGrid', CG.common('IGridStyling').optional()),
+    new CG.prop('innerGrid', CG.common('IGridStyling').optional()),
   )
     .setTitle('Grid')
     .setDescription('Settings for the components grid. Used for controlling horizontal alignment'),

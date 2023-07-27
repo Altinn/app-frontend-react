@@ -93,7 +93,6 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
           title: 'Altinn layout',
           description: 'Schema that describes the layout configuration for Altinn applications.',
           type: 'object',
-          additionalProperties: false,
           properties: {
             $schema: { type: 'string' },
             data: {

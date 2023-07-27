@@ -12,7 +12,7 @@ export type AsInterface<P extends Props> = {
 
 export class GenerateObject<P extends Props> extends DescribableCodeGenerator<AsInterface<P>> {
   private readonly properties: P;
-  private _additionalProperties: DescribableCodeGenerator<any> | false = false;
+  private _additionalProperties: DescribableCodeGenerator<any> | false | undefined = undefined;
   private _extends: {
     symbol: GenerateImportedSymbol<any>;
     forJsonSchema: boolean;
@@ -128,7 +128,7 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
       type: 'object',
       properties,
       required: requiredProps.length ? requiredProps : undefined,
-      additionalProperties: this._additionalProperties === false ? false : this._additionalProperties.toJsonSchema(),
+      additionalProperties: this._additionalProperties === false ? false : this._additionalProperties?.toJsonSchema(),
     };
   }
 }
