@@ -1,4 +1,4 @@
-import type { JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
@@ -13,7 +13,10 @@ export type AsInterface<P extends Props> = {
 export class GenerateObject<P extends Props> extends DescribableCodeGenerator<AsInterface<P>> {
   private readonly properties: P;
   private _additionalProperties: DescribableCodeGenerator<any> | false = false;
-  private _extends: GenerateImportedSymbol<any>[] = [];
+  private _extends: {
+    symbol: GenerateImportedSymbol<any>;
+    forJsonSchema: boolean;
+  }[] = [];
 
   constructor(...properties: P) {
     super();
@@ -21,7 +24,12 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
   }
 
   extends(...symbols: GenerateImportedSymbol<any>[]): this {
-    this._extends.push(...symbols);
+    this._extends.push(...symbols.map((symbol) => ({ symbol, forJsonSchema: true })));
+    return this;
+  }
+
+  extendsOnlyForTypeScript(...symbols: GenerateImportedSymbol<any>[]): this {
+    this._extends.push(...symbols.map((symbol) => ({ symbol, forJsonSchema: false })));
     return this;
   }
 
@@ -83,10 +91,10 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     }
 
     const extendsClause = this._extends.length
-      ? ` extends ${this._extends.map((symbol) => symbol.toTypeScript()).join(', ')}`
+      ? ` extends ${this._extends.map((e) => e.symbol.toTypeScript()).join(', ')}`
       : '';
     const extendsIntersection = this._extends.length
-      ? ` & ${this._extends.map((symbol) => symbol.toTypeScript()).join(' & ')}`
+      ? ` & ${this._extends.map((e) => e.symbol.toTypeScript()).join(' & ')}`
       : '';
 
     return symbol
@@ -94,18 +102,21 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
       : `{ ${properties.join('\n')} }${extendsIntersection}`;
   }
 
-  toJsonSchema(): JSONSchema7Definition {
+  toJsonSchema(): JSONSchema7 {
     if (this._extends.length) {
       return {
-        allOf: [...this._extends.map((symbol) => symbol.toJsonSchema()), this.innerToJsonSchema()],
+        allOf: [
+          ...this._extends.filter((e) => e.forJsonSchema).map((e) => e.symbol.toJsonSchema()),
+          this.innerToJsonSchema(),
+        ],
       };
     }
 
     return this.innerToJsonSchema();
   }
 
-  private innerToJsonSchema(): JSONSchema7Definition {
-    const properties: { [key: string]: JSONSchema7Definition } = {};
+  private innerToJsonSchema(): JSONSchema7 {
+    const properties: { [key: string]: JSONSchema7 } = {};
     for (const prop of this.properties) {
       properties[prop.name] = prop.type.toJsonSchema();
     }

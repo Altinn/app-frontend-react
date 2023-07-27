@@ -1,4 +1,4 @@
-import type { JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
@@ -305,13 +305,13 @@ export function generateCommonTypeScript(): string[] {
   return out;
 }
 
-export function generateCommonSchema(): { [key: string]: JSONSchema7Definition } {
-  const out: { [key: string]: JSONSchema7Definition } = {};
+export function generateCommonSchema(): { [key in ValidCommonKeys]: JSONSchema7 } {
+  const out: { [key: string]: JSONSchema7 } = {};
 
   for (const key in makeCommon()) {
     const val: CodeGenerator<any> = makeCommon()[key];
     out[key] = val.toJsonSchema();
   }
 
-  return out;
+  return out as { [key in ValidCommonKeys]: JSONSchema7 };
 }

@@ -1,4 +1,4 @@
-import type { JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 
@@ -18,7 +18,7 @@ export class GenerateString extends DescribableCodeGenerator<string> {
     return symbol ? `type ${symbol} = string;` : 'string';
   }
 
-  toJsonSchema(): JSONSchema7Definition {
+  toJsonSchema(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       type: 'string',

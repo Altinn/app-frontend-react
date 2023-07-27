@@ -1,4 +1,4 @@
-import type { JSONSchema7, JSONSchema7Definition, JSONSchema7Type } from 'json-schema';
+import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 
@@ -47,7 +47,7 @@ export abstract class CodeGenerator<T> {
     return this;
   }
 
-  abstract toJsonSchema(): JSONSchema7Definition;
+  abstract toJsonSchema(): JSONSchema7;
   abstract toTypeScript(): string;
 }
 

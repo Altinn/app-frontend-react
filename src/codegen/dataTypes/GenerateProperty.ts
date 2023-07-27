@@ -1,4 +1,4 @@
-import type { JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 
@@ -61,7 +61,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
       : `${this.name}: ${this.type.toTypeScript()};`;
   }
 
-  toJsonSchema(): JSONSchema7Definition {
+  toJsonSchema(): JSONSchema7 {
     throw new Error('Do not call this directly, generate JsonSchema for the object (or property type) instead');
   }
 }

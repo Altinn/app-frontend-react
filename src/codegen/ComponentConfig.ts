@@ -1,4 +1,4 @@
-import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
@@ -51,7 +51,7 @@ export class ComponentConfig {
     from: 'src/utils/layout/LayoutNode',
   });
 
-  private unresolved = new CG.obj().extends(CG.common('ILayoutCompBase'));
+  private unresolved = new CG.obj().extendsOnlyForTypeScript(CG.common('ILayoutCompBase'));
   private resolved = new CG.obj().extends(CG.common('ComponentBaseNode'));
 
   constructor(public readonly config: RequiredComponentConfig) {
@@ -315,10 +315,7 @@ export class ComponentConfig {
     return staticElements.join('\n\n');
   }
 
-  public toJsonSchema(): JSONSchema7Definition {
-    return {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      ...(this.unresolved.toJsonSchema() as JSONSchema7),
-    };
+  public toJsonSchema(): JSONSchema7 {
+    return this.unresolved.toJsonSchema();
   }
 }

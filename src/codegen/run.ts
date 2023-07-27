@@ -66,7 +66,8 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
     ),
   );
 
-  const schemaDefinitions = generateCommonSchema();
+  const schemaDefs = generateCommonSchema();
+  const { ILayoutCompBase: componentBaseSchema, ...otherSchemaDefs } = schemaDefs;
 
   for (const key of sortedKeys) {
     const config: ComponentConfig = (await import(`src/layout/${key}/config`)).Config;
@@ -78,7 +79,7 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
     });
     promises.push(saveTsFile(tsPath, content));
 
-    schemaDefinitions[`Comp${key}`] = config.toJsonSchema();
+    otherSchemaDefs[`Comp${key}`] = config.toJsonSchema();
   }
 
   const schemaPath = 'schemas/json/layout/layout.schema.v2.generated.json';
@@ -88,8 +89,56 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
       JSON.stringify(
         {
           $schema: 'http://json-schema.org/draft-07/schema#',
-          definitions: schemaDefinitions,
-          // PRIORITY: Implement the rest of the schema (hidden on page, etc)
+          $id: 'https://altinncdn.no/schemas/json/layout/layout.schema.v1.json',
+          title: 'Altinn layout',
+          description: 'Schema that describes the layout configuration for Altinn applications.',
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            $schema: { type: 'string' },
+            data: {
+              $ref: '#/definitions/data',
+            },
+          },
+          definitions: {
+            data: {
+              title: 'The layout data',
+              description: 'Contains data describing the layout configuration.',
+              type: 'object',
+              properties: {
+                layout: {
+                  $ref: '#/definitions/layout',
+                },
+              },
+            },
+            layout: {
+              title: 'The layout',
+              description: 'Array of components to be presented in the layout.',
+              type: 'array',
+              items: {
+                $ref: '#/definitions/component',
+              },
+            },
+            component: {
+              ...componentBaseSchema,
+              properties: {
+                ...componentBaseSchema.properties,
+                type: {
+                  // This is a trick to make the type property required, but still override the type with a const value
+                  // in each of the component schemas (not normally possible with this code generator)
+                  title: 'Type',
+                  description: 'The component type',
+                  enum: sortedKeys.map((key) => componentList[key]),
+                },
+              },
+              required: [...(componentBaseSchema.required || []), 'type'],
+              allOf: sortedKeys.map((key) => ({
+                if: { properties: { type: { const: componentList[key] } } },
+                then: { $ref: `#/definitions/Comp${key}` },
+              })),
+            },
+            ...otherSchemaDefs,
+          },
         },
         null,
         2,

@@ -1,4 +1,4 @@
-import type { JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 
 import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
@@ -21,7 +21,7 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
     return symbol ? `type ${symbol} = ${this.val.import};` : this.val.import;
   }
 
-  toJsonSchema(): JSONSchema7Definition {
+  toJsonSchema(): JSONSchema7 {
     if (this.schemaSymbol) {
       return { $ref: `#/definitions/${this.schemaSymbol}` };
     }

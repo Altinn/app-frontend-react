@@ -1,4 +1,4 @@
-import type { JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
@@ -18,7 +18,7 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     return symbol ? `type ${symbol} = ${out};` : out;
   }
 
-  toJsonSchema(): JSONSchema7Definition {
+  toJsonSchema(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       type: 'array',

@@ -1,4 +1,4 @@
-import type { JSONSchema7Definition } from 'json-schema';
+import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 
@@ -11,7 +11,7 @@ export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
     return symbol ? `type ${symbol} = boolean;` : 'boolean';
   }
 
-  toJsonSchema(): JSONSchema7Definition {
+  toJsonSchema(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       type: 'boolean',
