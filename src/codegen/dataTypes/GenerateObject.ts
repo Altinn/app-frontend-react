@@ -91,8 +91,16 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
   }
 
   toJsonSchema(): JSONSchema7Definition {
-    // PRIORITY: Implement support for extends
+    if (this._extends.length) {
+      return {
+        allOf: [...this._extends.map((symbol) => symbol.toJsonSchema()), this.innerToJsonSchema()],
+      };
+    }
 
+    return this.innerToJsonSchema();
+  }
+
+  private innerToJsonSchema(): JSONSchema7Definition {
     const properties: { [key: string]: JSONSchema7Definition } = {};
     for (const prop of this.properties) {
       properties[prop.name] = prop.type.toJsonSchema();

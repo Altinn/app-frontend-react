@@ -15,12 +15,11 @@ const toTsMap: { [key in ExprVal]: string } = {
   [ExprVal.String]: 'ExprVal.String',
 };
 
-// PRIORITY: Use references to the real expression schema
 const toSchemaMap: { [key in ExprVal]: JSONSchema7 } = {
-  [ExprVal.Any]: { $ref: '#/definitions/ExprVal.Any' },
-  [ExprVal.Boolean]: { $ref: '#/definitions/ExprVal.Boolean' },
-  [ExprVal.Number]: { $ref: '#/definitions/ExprVal.Number' },
-  [ExprVal.String]: { $ref: '#/definitions/ExprVal.String' },
+  [ExprVal.Any]: { $ref: 'expression.schema.v1.json#/definitions/any' },
+  [ExprVal.Boolean]: { $ref: 'expression.schema.v1.json#/definitions/boolean' },
+  [ExprVal.Number]: { $ref: 'expression.schema.v1.json#/definitions/number' },
+  [ExprVal.String]: { $ref: 'expression.schema.v1.json#/definitions/string' },
 };
 
 type TypeMap<Val extends ExprVal> = Val extends ExprVal.Boolean

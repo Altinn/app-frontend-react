@@ -1,3 +1,5 @@
+import type { JSONSchema7Definition } from 'json-schema';
+
 import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
@@ -275,7 +277,7 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
   ILayoutCompWithLabel: new CG.obj(new CG.prop('labelSettings', CG.common('ILabelSettings').optional())),
 });
 
-export function generateCommonDefinitions(): string[] {
+export function generateCommonTypeScript(): string[] {
   const out: string[] = [];
 
   for (const key in makeCommon()) {
@@ -283,6 +285,17 @@ export function generateCommonDefinitions(): string[] {
     if (!(val instanceof CG.import)) {
       out.push(`export ${val.toTypeScriptDefinition(key)}\n`);
     }
+  }
+
+  return out;
+}
+
+export function generateCommonSchema(): { [key: string]: JSONSchema7Definition } {
+  const out: { [key: string]: JSONSchema7Definition } = {};
+
+  for (const key in makeCommon()) {
+    const val: CodeGenerator<any> = makeCommon()[key];
+    out[key] = val.toJsonSchema();
   }
 
   return out;

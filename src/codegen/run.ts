@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
-import { generateCommonDefinitions } from 'src/codegen/Common';
+import { generateCommonSchema, generateCommonTypeScript } from 'src/codegen/Common';
 import { saveFile, saveTsFile } from 'src/codegen/tools';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 
@@ -62,9 +62,11 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
   promises.push(
     saveTsFile(
       commonTsPath,
-      CodeGeneratorContext.run(commonTsPath, () => generateCommonDefinitions().join('\n')),
+      CodeGeneratorContext.run(commonTsPath, () => generateCommonTypeScript().join('\n')),
     ),
   );
+
+  const schemaDefinitions = generateCommonSchema();
 
   for (const key of sortedKeys) {
     const config: ComponentConfig = (await import(`src/layout/${key}/config`)).Config;
@@ -76,10 +78,24 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
     });
     promises.push(saveTsFile(tsPath, content));
 
-    const jsonSchemaPath = `src/layout/${key}/config.generated.schema.json`;
-    const jsonSchemaContent = JSON.stringify(config.toJsonSchema(), null, 2);
-    promises.push(saveFile(jsonSchemaPath, jsonSchemaContent));
+    schemaDefinitions[`Comp${key}`] = config.toJsonSchema();
   }
+
+  const schemaPath = 'schemas/json/layout/layout.schema.v2.generated.json';
+  promises.push(
+    saveFile(
+      schemaPath,
+      JSON.stringify(
+        {
+          $schema: 'http://json-schema.org/draft-07/schema#',
+          definitions: schemaDefinitions,
+          // PRIORITY: Implement the rest of the schema (hidden on page, etc)
+        },
+        null,
+        2,
+      ),
+    ),
+  );
 
   await Promise.all(promises);
 })();
