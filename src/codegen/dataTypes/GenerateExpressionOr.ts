@@ -43,7 +43,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     super();
   }
 
-  public getTargetType(): GeneratorMap<Val> {
+  transformToResolved(): GeneratorMap<Val> {
     let out: GeneratorMap<Val> | undefined;
     if (this.valueType === ExprVal.Boolean) {
       out = new CG.bool() as GeneratorMap<Val>;

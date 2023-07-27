@@ -43,6 +43,10 @@ export abstract class CodeGenerator<T> {
     };
   }
 
+  transformToResolved(): this | CodeGenerator<any> {
+    return this;
+  }
+
   abstract toJsonSchema(): JSONSchema7Definition;
   abstract toTypeScript(): string;
 }

@@ -51,23 +51,24 @@ export class ComponentConfig {
     from: 'src/utils/layout/LayoutNode',
   });
 
-  // PRIORITY: Extend a different base component for resolved components
   private unresolved = new CG.obj().extends(CG.common('ILayoutCompBase'));
-  private resolved = new CG.obj().extends(CG.common('ILayoutCompBase'));
+  private resolved = new CG.obj().extends(CG.common('ComponentBaseNode'));
 
   constructor(public readonly config: RequiredComponentConfig) {
     if (config.category === ComponentCategory.Form) {
       this.unresolved.extends(CG.common('ILayoutCompForm'));
-
-      this.addTextResourcesForSummarizableComponents();
+      this.resolved.extends(CG.common('FormComponentNode'));
       this.addTextResourcesForFormComponents();
     }
     if (config.category === ComponentCategory.Form || config.category === ComponentCategory.Container) {
       this.unresolved.extends(CG.common('ILayoutCompSummarizable'));
+      this.resolved.extends(CG.common('SummarizableNode'));
+      this.addTextResourcesForSummarizableComponents();
     }
 
     if (config.rendersWithLabel) {
-      this.rendersWithLabel();
+      this.unresolved.extends(CG.common('ILayoutCompWithLabel'));
+      this.resolved.extends(CG.common('ILayoutCompWithLabel'));
       this.addTextResourcesForLabel();
     }
   }
@@ -84,7 +85,7 @@ export class ComponentConfig {
     this.unresolved.addProperty(prop);
 
     if (prop.type instanceof GenerateExpressionOr) {
-      const newProp = new CG.prop(prop.name, prop.type.getTargetType());
+      const newProp = new CG.prop(prop.name, prop.type.transformToResolved());
       this.resolved.addProperty(newProp);
     } else {
       this.resolved.addProperty(prop);
@@ -103,13 +104,6 @@ export class ComponentConfig {
 
   public setLayoutNodeType(type: GenerateImportedSymbol<any>): this {
     this.layoutNodeType = type;
-    return this;
-  }
-
-  private rendersWithLabel(): this {
-    this.unresolved.extends(CG.common('ILayoutCompWithLabel'));
-    this.resolved.extends(CG.common('ILayoutCompWithLabel'));
-
     return this;
   }
 

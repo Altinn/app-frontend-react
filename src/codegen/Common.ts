@@ -22,8 +22,11 @@ export type ValidCommonKeys =
   | 'ITableColumnsTextOverflow'
   | 'ITableColumnsProperties'
   | 'ILayoutCompBase'
+  | 'ComponentBaseNode'
   | 'ILayoutCompForm'
+  | 'FormComponentNode'
   | 'ILayoutCompSummarizable'
+  | 'SummarizableNode'
   | 'ILayoutCompWithLabel';
 
 const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
@@ -219,7 +222,20 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
       },
     }),
 
-  ILayoutCompBase: new CG.obj(
+  ILayoutCompBase: makeBaseComponent(),
+  ComponentBaseNode: makeBaseComponent().transformToResolved(),
+
+  ILayoutCompForm: makeFormComponent(),
+  FormComponentNode: makeFormComponent().transformToResolved(),
+
+  ILayoutCompSummarizable: makeSummarizable(),
+  SummarizableNode: makeSummarizable().transformToResolved(),
+
+  ILayoutCompWithLabel: new CG.obj(new CG.prop('labelSettings', CG.common('ILabelSettings').optional())),
+});
+
+const makeBaseComponent = () =>
+  new CG.obj(
     new CG.prop(
       'id',
       new CG.str()
@@ -238,9 +254,10 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
     ),
     new CG.prop('grid', CG.common('IGrid').optional()),
     new CG.prop('pageBreak', CG.common('IPageBreak').optional()),
-  ),
+  );
 
-  ILayoutCompForm: new CG.obj(
+const makeFormComponent = () =>
+  new CG.obj(
     new CG.prop(
       'readOnly',
       new CG.expr(ExprVal.Boolean)
@@ -260,9 +277,10 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
         ),
     ),
     new CG.prop('triggers', CG.common('TriggerList').optional()),
-  ),
+  );
 
-  ILayoutCompSummarizable: new CG.obj(
+const makeSummarizable = () =>
+  new CG.obj(
     new CG.prop(
       'renderAsSummary',
       new CG.expr(ExprVal.Boolean)
@@ -272,10 +290,7 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
           'Boolean value or expression indicating if the component should be rendered as a summary. Defaults to false.',
         ),
     ),
-  ),
-
-  ILayoutCompWithLabel: new CG.obj(new CG.prop('labelSettings', CG.common('ILabelSettings').optional())),
-});
+  );
 
 export function generateCommonTypeScript(): string[] {
   const out: string[] = [];

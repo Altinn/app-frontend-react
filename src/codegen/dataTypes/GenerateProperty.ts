@@ -51,6 +51,10 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     };
   }
 
+  transformToResolved(): GenerateProperty<any> {
+    return new GenerateProperty(this.name, this.type.transformToResolved());
+  }
+
   toTypeScript() {
     return this.type.internal.optional
       ? `${this.name}?: ${this.type.toTypeScript()};`
