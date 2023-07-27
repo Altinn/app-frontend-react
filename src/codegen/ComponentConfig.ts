@@ -1,7 +1,6 @@
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
-import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -48,7 +47,10 @@ const CategoryImports: { [Category in ComponentCategory]: GenerateImportedSymbol
 export class ComponentConfig {
   public type: string;
   public typeSymbol: string;
-  public layoutNodeType = CG.common('LayoutNode');
+  public layoutNodeType = new CG.import({
+    import: 'LayoutNode',
+    from: 'src/utils/layout/LayoutNode',
+  });
 
   private unresolved = new CG.obj();
   private resolved = new CG.obj();
@@ -76,24 +78,8 @@ export class ComponentConfig {
           ),
       ),
     );
-    this.addProperty(
-      new CG.prop(
-        'grid',
-        CG.common('IGrid')
-          .setTitle('Grid')
-          .setDescription('Settings for the components grid. Used for controlling horizontal alignment')
-          .optional(),
-      ),
-    );
-    this.addProperty(
-      new CG.prop(
-        'pageBreak',
-        CG.common('IPageBreak')
-          .setTitle('Page break')
-          .setDescription('Optionally insert page-break before/after component when rendered in PDF')
-          .optional(),
-      ),
-    );
+    this.addProperty(new CG.prop('grid', CG.common('IGrid').optional()));
+    this.addProperty(new CG.prop('pageBreak', CG.common('IPageBreak').optional()));
 
     if (config.category === ComponentCategory.Form) {
       // PRIORITY: Describe these
@@ -148,15 +134,6 @@ export class ComponentConfig {
     const symbolName = symbol ?? type;
     this.type = type;
     this.typeSymbol = symbolName;
-    this.addProperty(new CG.prop('type', new CG.const(type)).insertAfter('id'));
-    this.unresolved.setSymbol({
-      name: `ILayoutComp${symbolName}`,
-      exported: true,
-    });
-    this.resolved.setSymbol({
-      name: `${symbolName}Item`,
-      exported: true,
-    });
 
     return this;
   }
@@ -269,15 +246,7 @@ export class ComponentConfig {
           .setDescription('ID of the option list to fetch from the server'),
       ),
     );
-    this.addProperty(
-      new CG.prop(
-        'mapping',
-        CG.common('IMapping')
-          .optional()
-          .setTitle('Mapping (when using optionsId)')
-          .setDescription('Mapping of data/query-string when fetching from the server'),
-      ),
-    );
+    this.addProperty(new CG.prop('mapping', CG.common('IMapping').optional()));
     !minimalFunctionality &&
       this.addProperty(
         new CG.prop(
@@ -290,16 +259,7 @@ export class ComponentConfig {
             ),
         ),
       );
-    !minimalFunctionality &&
-      this.addProperty(
-        new CG.prop(
-          'source',
-          CG.common('IOptionSource')
-            .optional()
-            .setTitle('Option source')
-            .setDescription('Allows for fetching options from the data model, pointing to a repeating group structure'),
-        ),
-      );
+    !minimalFunctionality && this.addProperty(new CG.prop('source', CG.common('IOptionSource').optional()));
     !minimalFunctionality &&
       this.addProperty(
         new CG.prop(
@@ -328,7 +288,10 @@ export class ComponentConfig {
     const name = 'dataModelBindings';
     const title = 'Data model bindings';
     const description = 'Describes the location in the data model where the component should store its value(s)';
-    targetType.setTitle(title).setDescription(description).optional();
+
+    if (targetType instanceof GenerateObject) {
+      targetType.setTitle(title).setDescription(description).optional();
+    }
 
     for (const targetObject of [this.unresolved, this.resolved]) {
       const existing = targetObject.getProperty(name)?.type;
@@ -346,14 +309,27 @@ export class ComponentConfig {
   }
 
   public toTypeScript(): string {
-    CodeGeneratorContext.getInstance().reset();
-    const elements = [this.unresolved.toTypeScript(), this.resolved.toTypeScript()];
+    this.addProperty(new CG.prop('type', new CG.const(this.type)).insertAfter('id'));
+    this.unresolved.setSymbol({
+      name: `ILayoutComp${this.typeSymbol}`,
+      exported: true,
+    });
+    this.resolved.setSymbol({
+      name: `${this.typeSymbol}Item`,
+      exported: true,
+    });
+
+    // Forces the objects to register in the context and be exported via the context symbols table
+    this.unresolved.toTypeScript();
+    this.resolved.toTypeScript();
+
+    const staticElements: string[] = [];
 
     const symbol = this.typeSymbol;
     const category = this.config.category;
     const categorySymbol = CategoryImports[category].toTypeScript();
 
-    elements.push(`export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
+    staticElements.push(`export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       canRenderInTable(): boolean {
         return ${this.config.capabilities.renderInTable ? 'true' : 'false'};
       }
@@ -368,20 +344,18 @@ export class ComponentConfig {
       from: `./index`,
     });
 
-    elements.push(`export const Config = {
+    staticElements.push(`export const Config = {
       def: new ${impl.toTypeScript()}(),
       rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
     }`);
 
-    elements.push(`export type TypeConfig = {
+    staticElements.push(`export type TypeConfig = {
       layout: ILayoutComp${this.typeSymbol};
       nodeItem: ${this.typeSymbol}Item;
       nodeObj: ${this.layoutNodeType.toTypeScript()};
     }`);
 
-    const imports = CodeGeneratorContext.getInstance().getImportsAsTypeScript();
-    const objects = CodeGeneratorContext.getInstance().getSymbolsAsTypeScript();
-    return `${imports}\n\n${objects}\n\n${elements.join('\n\n')}`.trim();
+    return staticElements.join('\n\n');
   }
 
   public toJsonSchema(): JSONSchema7Definition {

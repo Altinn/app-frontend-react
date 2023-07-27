@@ -1,7 +1,6 @@
 import { ComponentConfig } from 'src/codegen/ComponentConfig';
 import { GenerateArray } from 'src/codegen/dataTypes/GenerateArray';
 import { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
-import { GenerateCommonValue } from 'src/codegen/dataTypes/GenerateCommonValue';
 import { GenerateConst } from 'src/codegen/dataTypes/GenerateConst';
 import { GenerateEnum } from 'src/codegen/dataTypes/GenerateEnum';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
@@ -11,8 +10,20 @@ import { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import { GenerateString } from 'src/codegen/dataTypes/GenerateString';
+import { GenerateSymbol } from 'src/codegen/dataTypes/GenerateSymbol';
 import { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
+import type { ValidCommonKeys } from 'src/codegen/Common';
+
+function generateCommonImport<T extends ValidCommonKeys>(key: T): GenerateImportedSymbol<any> {
+  return new CG.import(
+    {
+      import: key,
+      from: 'src/layout/common.generated',
+    },
+    new CG.symbol(key),
+  );
+}
 
 export const CG = {
   component: ComponentConfig,
@@ -37,8 +48,9 @@ export const CG = {
   trb: GenerateTextResourceBinding,
 
   // Known values that we have types for elsewhere, or other imported types
-  common: GenerateCommonValue,
+  common: generateCommonImport,
   import: GenerateImportedSymbol,
+  symbol: GenerateSymbol,
 
   // Others
   enum: GenerateEnum,

@@ -50,7 +50,6 @@ export abstract class CodeGenerator<T> {
 export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
   setSymbol(symbol: SymbolExt): this {
     this.internal.symbol = symbol;
-    CodeGeneratorContext.getInstance().addSymbol(this);
 
     return this;
   }
@@ -62,6 +61,7 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
   toTypeScript(): string {
     if (this.internal.symbol) {
       // If this type has a symbol, always use the symbol name instead of the full type definition
+      CodeGeneratorContext.getInstance().addSymbol(this);
       return this.internal.symbol.name;
     }
 

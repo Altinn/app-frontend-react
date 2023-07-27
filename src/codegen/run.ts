@@ -1,6 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+import { generateCommonDefinitions } from 'src/codegen/Common';
 import { saveFile, saveTsFile } from 'src/codegen/tools';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 
@@ -56,11 +58,22 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
   const promises: Promise<void>[] = [];
   promises.push(saveFile('src/layout/components.generated.ts', componentIndex.join('\n')));
 
+  const commonTsPath = 'src/layout/common.generated.ts';
+  promises.push(
+    saveTsFile(
+      commonTsPath,
+      CodeGeneratorContext.run(commonTsPath, () => generateCommonDefinitions().join('\n')),
+    ),
+  );
+
   for (const key of sortedKeys) {
     const config: ComponentConfig = (await import(`src/layout/${key}/config`)).Config;
-    config.setType(componentList[key], key);
     const tsPath = `src/layout/${key}/config.generated.ts`;
-    const content = config.toTypeScript();
+
+    const content = CodeGeneratorContext.run(tsPath, () => {
+      config.setType(componentList[key], key);
+      return config.toTypeScript();
+    });
     promises.push(saveTsFile(tsPath, content));
 
     const jsonSchemaPath = `src/layout/${key}/config.generated.schema.json`;

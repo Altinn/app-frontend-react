@@ -16,12 +16,4 @@ export const Config = new CG.component({
   // text resource bindings for rendering them on our own
   .addTextResourcesForLabel()
 
-  .addProperty(
-    new CG.prop(
-      'layout',
-      CG.common('LayoutStyle')
-        .optional()
-        .setTitle('Layout style')
-        .setDescription('How the checkboxes should be laid out (rows, columns, etc.)'),
-    ),
-  );
+  .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()));
