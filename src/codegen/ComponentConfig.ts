@@ -5,7 +5,6 @@ import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
-import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
@@ -52,59 +51,23 @@ export class ComponentConfig {
     from: 'src/utils/layout/LayoutNode',
   });
 
-  private unresolved = new CG.obj();
-  private resolved = new CG.obj();
+  // PRIORITY: Extend a different base component for resolved components
+  private unresolved = new CG.obj().extends(CG.common('ILayoutCompBase'));
+  private resolved = new CG.obj().extends(CG.common('ILayoutCompBase'));
 
   constructor(public readonly config: RequiredComponentConfig) {
-    this.addProperty(
-      new CG.prop(
-        'id',
-        new CG.str()
-          .setPattern(/^[0-9a-zA-Z][0-9a-zA-Z-]*(-?[a-zA-Z]+|[a-zA-Z][0-9]+|-[0-9]{6,})$/)
-          .setTitle('ID')
-          .setDescription(
-            'The component ID. Must be unique within all layouts/pages in a layout-set. Cannot end with <dash><number>.',
-          ),
-      ),
-    );
-    this.addProperty(
-      new CG.prop(
-        'hidden',
-        new CG.expr(ExprVal.Boolean)
-          .optional(false)
-          .setTitle('Hidden')
-          .setDescription(
-            'Boolean value or expression indicating if the component should be hidden. Defaults to false.',
-          ),
-      ),
-    );
-    this.addProperty(new CG.prop('grid', CG.common('IGrid').optional()));
-    this.addProperty(new CG.prop('pageBreak', CG.common('IPageBreak').optional()));
-
     if (config.category === ComponentCategory.Form) {
-      // PRIORITY: Describe these
-      this.addProperty(new CG.prop('readOnly', new CG.expr(ExprVal.Boolean).optional(false)));
-      this.addProperty(new CG.prop('required', new CG.expr(ExprVal.Boolean).optional(false)));
-      this.addProperty(new CG.prop('triggers', new CG.arr(CG.common('Triggers')).optional()));
+      this.unresolved.extends(CG.common('ILayoutCompForm'));
 
       this.addTextResourcesForSummarizableComponents();
       this.addTextResourcesForFormComponents();
     }
     if (config.category === ComponentCategory.Form || config.category === ComponentCategory.Container) {
-      this.addProperty(
-        new CG.prop(
-          'renderAsSummary',
-          new CG.expr(ExprVal.Boolean)
-            .optional(false)
-            .setTitle('Render as summary')
-            .setDescription(
-              'Boolean value or expression indicating if the component should be rendered as a summary. Defaults to false.',
-            ),
-        ),
-      );
+      this.unresolved.extends(CG.common('ILayoutCompSummarizable'));
     }
 
     if (config.rendersWithLabel) {
+      this.rendersWithLabel();
       this.addTextResourcesForLabel();
     }
   }
@@ -143,9 +106,9 @@ export class ComponentConfig {
     return this;
   }
 
-  public rendersWithLabel(): this {
-    // PRIORITY: Describe this
-    this.addProperty(new CG.prop('labelSettings', CG.common('ILabelSettings').optional()));
+  private rendersWithLabel(): this {
+    this.unresolved.extends(CG.common('ILayoutCompWithLabel'));
+    this.resolved.extends(CG.common('ILayoutCompWithLabel'));
 
     return this;
   }
@@ -309,7 +272,7 @@ export class ComponentConfig {
   }
 
   public toTypeScript(): string {
-    this.addProperty(new CG.prop('type', new CG.const(this.type)).insertAfter('id'));
+    this.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
     this.unresolved.setSymbol({
       name: `ILayoutComp${this.typeSymbol}`,
       exported: true,

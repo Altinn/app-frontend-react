@@ -8,6 +8,7 @@ export type ValidCommonKeys =
   | 'IGrid'
   | 'IPageBreak'
   | 'Triggers'
+  | 'TriggerList'
   | 'ILabelSettings'
   | 'IDataModelBindingsSimple'
   | 'IDataModelBindingsList'
@@ -17,22 +18,26 @@ export type ValidCommonKeys =
   | 'LayoutStyle'
   | 'ITableColumnsAlignText'
   | 'ITableColumnsTextOverflow'
-  | 'ITableColumnsProperties';
+  | 'ITableColumnsProperties'
+  | 'ILayoutCompBase'
+  | 'ILayoutCompForm'
+  | 'ILayoutCompSummarizable'
+  | 'ILayoutCompWithLabel';
 
 const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
   IGridSize: new CG.union(new CG.const('auto'), new CG.int().setMin(1).setMax(12)),
 
   IGridStyling: new CG.obj(
-    new CG.prop('xs', new CG.symbol('IGridSize')),
-    new CG.prop('sm', new CG.symbol('IGridSize')),
-    new CG.prop('md', new CG.symbol('IGridSize')),
-    new CG.prop('lg', new CG.symbol('IGridSize')),
-    new CG.prop('xl', new CG.symbol('IGridSize')),
+    new CG.prop('xs', CG.common('IGridSize')),
+    new CG.prop('sm', CG.common('IGridSize')),
+    new CG.prop('md', CG.common('IGridSize')),
+    new CG.prop('lg', CG.common('IGridSize')),
+    new CG.prop('xl', CG.common('IGridSize')),
   ),
 
   IGrid: new CG.obj(
-    new CG.prop('labelGrid', new CG.symbol('IGridStyling')),
-    new CG.prop('innerGrid', new CG.symbol('IGridStyling')),
+    new CG.prop('labelGrid', CG.common('IGridStyling')),
+    new CG.prop('innerGrid', CG.common('IGridStyling')),
   )
     .setTitle('Grid')
     .setDescription('Settings for the components grid. Used for controlling horizontal alignment'),
@@ -72,6 +77,10 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
     'validateAllPages',
     'validateRow',
   ),
+
+  TriggerList: new CG.arr(CG.common('Triggers'))
+    .setTitle('Triggers')
+    .setDescription('List of actions to trigger when the user interacts with the component'),
 
   ILabelSettings: new CG.obj(
     new CG.prop(
@@ -194,8 +203,8 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
         .setDescription("Width of cell in % or 'auto'. Defaults to 'auto'")
         .setPattern(/^([0-9]{1,2}%|100%|auto)$/),
     ),
-    new CG.prop('alignText', new CG.symbol('ITableColumnsAlignText')),
-    new CG.prop('textOverflow', new CG.symbol('ITableColumnsTextOverflow')),
+    new CG.prop('alignText', CG.common('ITableColumnsAlignText')),
+    new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow')),
   )
     .setTitle('Column options')
     .setDescription('Options for the row/column')
@@ -207,6 +216,63 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
         maxHeight: 2,
       },
     }),
+
+  ILayoutCompBase: new CG.obj(
+    new CG.prop(
+      'id',
+      new CG.str()
+        .setPattern(/^[0-9a-zA-Z][0-9a-zA-Z-]*(-?[a-zA-Z]+|[a-zA-Z][0-9]+|-[0-9]{6,})$/)
+        .setTitle('ID')
+        .setDescription(
+          'The component ID. Must be unique within all layouts/pages in a layout-set. Cannot end with <dash><number>.',
+        ),
+    ),
+    new CG.prop(
+      'hidden',
+      new CG.expr(ExprVal.Boolean)
+        .optional(false)
+        .setTitle('Hidden')
+        .setDescription('Boolean value or expression indicating if the component should be hidden. Defaults to false.'),
+    ),
+    new CG.prop('grid', CG.common('IGrid').optional()),
+    new CG.prop('pageBreak', CG.common('IPageBreak').optional()),
+  ),
+
+  ILayoutCompForm: new CG.obj(
+    new CG.prop(
+      'readOnly',
+      new CG.expr(ExprVal.Boolean)
+        .optional(false)
+        .setTitle('Read only/disabled?')
+        .setDescription(
+          'Boolean value or expression indicating if the component should be read only/disabled. Defaults to false.',
+        ),
+    ),
+    new CG.prop(
+      'required',
+      new CG.expr(ExprVal.Boolean)
+        .optional(false)
+        .setTitle('Required?')
+        .setDescription(
+          'Boolean value or expression indicating if the component should be required. Defaults to false.',
+        ),
+    ),
+    new CG.prop('triggers', CG.common('TriggerList').optional()),
+  ),
+
+  ILayoutCompSummarizable: new CG.obj(
+    new CG.prop(
+      'renderAsSummary',
+      new CG.expr(ExprVal.Boolean)
+        .optional(false)
+        .setTitle('Render as summary')
+        .setDescription(
+          'Boolean value or expression indicating if the component should be rendered as a summary. Defaults to false.',
+        ),
+    ),
+  ),
+
+  ILayoutCompWithLabel: new CG.obj(new CG.prop('labelSettings', CG.common('ILabelSettings').optional())),
 });
 
 export function generateCommonDefinitions(): string[] {
@@ -215,7 +281,7 @@ export function generateCommonDefinitions(): string[] {
   for (const key in makeCommon()) {
     const val = makeCommon()[key];
     if (!(val instanceof CG.import)) {
-      out.push(`export ${val.toTypeScriptDefinition(key)}`);
+      out.push(`export ${val.toTypeScriptDefinition(key)}\n`);
     }
   }
 

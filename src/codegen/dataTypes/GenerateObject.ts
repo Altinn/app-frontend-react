@@ -2,6 +2,7 @@ import type { JSONSchema7Definition } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
+import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export type Props = GenerateProperty<any>[];
@@ -12,10 +13,16 @@ export type AsInterface<P extends Props> = {
 export class GenerateObject<P extends Props> extends DescribableCodeGenerator<AsInterface<P>> {
   private readonly properties: P;
   private _additionalProperties: DescribableCodeGenerator<any> | false = false;
+  private _extends: GenerateImportedSymbol<any>[] = [];
 
   constructor(...properties: P) {
     super();
     this.properties = properties;
+  }
+
+  extends(...symbols: GenerateImportedSymbol<any>[]): this {
+    this._extends.push(...symbols);
+    return this;
   }
 
   additionalProperties(type: DescribableCodeGenerator<any> | false) {
@@ -24,7 +31,7 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
   }
 
   addProperty(prop: GenerateProperty<any>): this {
-    const { name, insertBefore, insertAfter } = prop.toObject();
+    const { name, insertBefore, insertAfter, insertFirst } = prop.toObject();
 
     // Replace property if it already exists
     const index = this.properties.findIndex((property) => property.name === name);
@@ -51,6 +58,11 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
       return this;
     }
 
+    if (insertFirst) {
+      this.properties.unshift(prop);
+      return this;
+    }
+
     this.properties.push(prop);
     return this;
   }
@@ -66,10 +78,21 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
       properties.push(`[key: string]: ${this._additionalProperties.toTypeScript()};`);
     }
 
-    return symbol ? `interface ${symbol} { ${properties.join('\n')} }` : `{ ${properties.join('\n')} }`;
+    const extendsClause = this._extends.length
+      ? ` extends ${this._extends.map((symbol) => symbol.toTypeScript()).join(', ')}`
+      : '';
+    const extendsIntersection = this._extends.length
+      ? ` & ${this._extends.map((symbol) => symbol.toTypeScript()).join(' & ')}`
+      : '';
+
+    return symbol
+      ? `interface ${symbol}${extendsClause} { ${properties.join('\n')} }`
+      : `{ ${properties.join('\n')} }${extendsIntersection}`;
   }
 
   toJsonSchema(): JSONSchema7Definition {
+    // PRIORITY: Implement support for extends
+
     const properties: { [key: string]: JSONSchema7Definition } = {};
     for (const prop of this.properties) {
       properties[prop.name] = prop.type.toJsonSchema();

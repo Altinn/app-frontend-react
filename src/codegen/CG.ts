@@ -10,7 +10,6 @@ import { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import { GenerateString } from 'src/codegen/dataTypes/GenerateString';
-import { GenerateSymbol } from 'src/codegen/dataTypes/GenerateSymbol';
 import { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import type { ValidCommonKeys } from 'src/codegen/Common';
@@ -21,7 +20,7 @@ function generateCommonImport<T extends ValidCommonKeys>(key: T): GenerateImport
       import: key,
       from: 'src/layout/common.generated',
     },
-    new CG.symbol(key),
+    key,
   );
 }
 
@@ -50,7 +49,6 @@ export const CG = {
   // Known values that we have types for elsewhere, or other imported types
   common: generateCommonImport,
   import: GenerateImportedSymbol,
-  symbol: GenerateSymbol,
 
   // Others
   enum: GenerateEnum,

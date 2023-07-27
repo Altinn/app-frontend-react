@@ -7,6 +7,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
 > {
   private _insertBefore?: string;
   private _insertAfter?: string;
+  private _insertFirst = false;
 
   constructor(
     public readonly name: string,
@@ -31,11 +32,22 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     return this;
   }
 
+  /**
+   * Important: Call this on the property object before adding it to the object
+   */
+  insertFirst(): this {
+    this._insertBefore = undefined;
+    this._insertAfter = undefined;
+    this._insertFirst = true;
+    return this;
+  }
+
   toObject() {
     return {
       name: this.name,
       insertBefore: this._insertBefore,
       insertAfter: this._insertAfter,
+      insertFirst: this._insertFirst,
     };
   }
 
