@@ -2,7 +2,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
-import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
+import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export type Props = GenerateProperty<any>[];
@@ -12,28 +12,20 @@ export type AsInterface<P extends Props> = {
 
 export class GenerateObject<P extends Props> extends DescribableCodeGenerator<AsInterface<P>> {
   private readonly properties: P;
-  private _additionalProperties: DescribableCodeGenerator<any> | false | undefined = undefined;
-  private _extends: {
-    symbol: GenerateImportedSymbol<any>;
-    forJsonSchema: boolean;
-  }[] = [];
+  private _additionalProperties: DescribableCodeGenerator<any> | false | undefined = false;
+  private _extends: GenerateCommonImport<any>[] = [];
 
   constructor(...properties: P) {
     super();
     this.properties = properties;
   }
 
-  extends(...symbols: GenerateImportedSymbol<any>[]): this {
-    this._extends.push(...symbols.map((symbol) => ({ symbol, forJsonSchema: true })));
+  extends(...symbols: GenerateCommonImport<any>[]): this {
+    this._extends.push(...symbols);
     return this;
   }
 
-  extendsOnlyForTypeScript(...symbols: GenerateImportedSymbol<any>[]): this {
-    this._extends.push(...symbols.map((symbol) => ({ symbol, forJsonSchema: false })));
-    return this;
-  }
-
-  additionalProperties(type: DescribableCodeGenerator<any> | false) {
+  additionalProperties(type: DescribableCodeGenerator<any> | false | undefined) {
     this._additionalProperties = type;
     return this;
   }
@@ -79,6 +71,10 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     return this.properties.find((property) => property.name === name);
   }
 
+  getProperties(): GenerateProperty<any>[] {
+    return this.properties;
+  }
+
   transformToResolved(): GenerateObject<any> {
     return new GenerateObject(...this.properties.map((prop) => prop.transformToResolved()));
   }
@@ -91,10 +87,10 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     }
 
     const extendsClause = this._extends.length
-      ? ` extends ${this._extends.map((e) => e.symbol.toTypeScript()).join(', ')}`
+      ? ` extends ${this._extends.map((e) => e.toTypeScript()).join(', ')}`
       : '';
     const extendsIntersection = this._extends.length
-      ? ` & ${this._extends.map((e) => e.symbol.toTypeScript()).join(' & ')}`
+      ? ` & ${this._extends.map((e) => e.toTypeScript()).join(' & ')}`
       : '';
 
     return symbol
@@ -104,10 +100,30 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
 
   toJsonSchema(): JSONSchema7 {
     if (this._extends.length) {
+      const allProperties: { [key: string]: true } = {};
+
+      for (const e of this._extends) {
+        for (const prop of e.getProperties()) {
+          allProperties[prop] = true;
+        }
+      }
+
+      for (const prop of this.properties) {
+        allProperties[prop.name] = true;
+      }
+
       return {
         allOf: [
-          ...this._extends.filter((e) => e.forJsonSchema).map((e) => e.symbol.toJsonSchema()),
-          this.innerToJsonSchema(),
+          ...this._extends.map((e) => e.toJsonSchema()),
+          this.innerToJsonSchema(false),
+          {
+            // This trick makes it possible to extend multiple other object, but still
+            // preserve the behaviour of additionalProperties = false. If it was set on each of the objects we extended,
+            // the objects would mutually exclude each other's properties.
+            type: 'object',
+            properties: allProperties,
+            additionalProperties: this.additionalPropertiesToJsonSchema(),
+          },
         ],
       };
     }
@@ -115,7 +131,7 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     return this.innerToJsonSchema();
   }
 
-  private innerToJsonSchema(): JSONSchema7 {
+  private innerToJsonSchema(respectAdditionalProperties = true): JSONSchema7 {
     const properties: { [key: string]: JSONSchema7 } = {};
     for (const prop of this.properties) {
       properties[prop.name] = prop.type.toJsonSchema();
@@ -128,7 +144,15 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
       type: 'object',
       properties,
       required: requiredProps.length ? requiredProps : undefined,
-      additionalProperties: this._additionalProperties === false ? false : this._additionalProperties?.toJsonSchema(),
+      additionalProperties: respectAdditionalProperties ? this.additionalPropertiesToJsonSchema() : undefined,
     };
+  }
+
+  private additionalPropertiesToJsonSchema(): JSONSchema7['additionalProperties'] {
+    if (this._additionalProperties === false) {
+      return false;
+    }
+
+    return this._additionalProperties?.toJsonSchema();
   }
 }

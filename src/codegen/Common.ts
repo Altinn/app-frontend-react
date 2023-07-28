@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
+import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { ExprVal } from 'src/features/expressions/types';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 
@@ -354,8 +355,25 @@ export function generateCommonSchema(): { [key in ValidCommonKeys]: JSONSchema7 
 
   for (const key in makeCommon()) {
     const val: CodeGenerator<any> = makeCommon()[key];
+    if (val instanceof GenerateObject) {
+      // We need to set this to undefined for common objects, because we have to collect all properties in one single
+      // object when extending multiple objects, and the last object will then collect all properties and
+      // set additionalProperties to false in order to not have conflicts in JsonSchema where multiple objects
+      // define additionalProperties = false and mutually exclusive properties.
+      val.additionalProperties(undefined);
+    }
+
     out[key] = val.toJsonSchema();
   }
 
   return out as { [key in ValidCommonKeys]: JSONSchema7 };
+}
+
+export function getPropertiesFor(key: ValidCommonKeys): string[] {
+  const val = makeCommon()[key];
+  if (val instanceof GenerateObject) {
+    return val.getProperties().map((p) => p.name);
+  }
+
+  throw new Error(`No properties for ${key}, it is of type ${val.constructor.name}`);
 }

@@ -9,10 +9,7 @@ export interface ImportDef {
 }
 
 export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
-  public constructor(
-    private readonly val: ImportDef,
-    private readonly schemaSymbol?: string,
-  ) {
+  public constructor(private readonly val: ImportDef) {
     super();
   }
 
@@ -22,10 +19,6 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
   }
 
   toJsonSchema(): JSONSchema7 {
-    if (this.schemaSymbol) {
-      return { $ref: `#/definitions/${this.schemaSymbol}` };
-    }
-
     throw new Error(`Cannot generate JsonSchema for imported '${this.val.import}'`);
   }
 }

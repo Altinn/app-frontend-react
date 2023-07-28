@@ -1,6 +1,7 @@
 import { ComponentConfig } from 'src/codegen/ComponentConfig';
 import { GenerateArray } from 'src/codegen/dataTypes/GenerateArray';
 import { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
+import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import { GenerateConst } from 'src/codegen/dataTypes/GenerateConst';
 import { GenerateEnum } from 'src/codegen/dataTypes/GenerateEnum';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
@@ -14,14 +15,8 @@ import { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextR
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 
-function generateCommonImport<T extends ValidCommonKeys>(key: T): GenerateImportedSymbol<any> {
-  return new CG.import(
-    {
-      import: key,
-      from: 'src/layout/common.generated',
-    },
-    key,
-  );
+function generateCommonImport<T extends ValidCommonKeys>(key: T): GenerateCommonImport<T> {
+  return new GenerateCommonImport(key);
 }
 
 export const CG = {

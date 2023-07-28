@@ -51,7 +51,7 @@ export class ComponentConfig {
     from: 'src/utils/layout/LayoutNode',
   });
 
-  private unresolved = new CG.obj().extendsOnlyForTypeScript(CG.common('ILayoutCompBase'));
+  private unresolved = new CG.obj().extends(CG.common('ILayoutCompBase'));
   private resolved = new CG.obj().extends(CG.common('ComponentBaseNode'));
 
   constructor(public readonly config: RequiredComponentConfig) {

@@ -67,7 +67,6 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
   );
 
   const schemaDefs = generateCommonSchema();
-  const { ILayoutCompBase: componentBaseSchema, ...otherSchemaDefs } = schemaDefs;
 
   for (const key of sortedKeys) {
     const config: ComponentConfig = (await import(`src/layout/${key}/config`)).Config;
@@ -79,7 +78,7 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
     });
     promises.push(saveTsFile(tsPath, content));
 
-    otherSchemaDefs[`Comp${key}`] = config.toJsonSchema();
+    schemaDefs[`Comp${key}`] = config.toJsonSchema();
   }
 
   const schemaPath = 'schemas/json/layout/layout.schema.v2.generated.json';
@@ -119,9 +118,8 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
               },
             },
             component: {
-              ...componentBaseSchema,
+              type: 'object',
               properties: {
-                ...componentBaseSchema.properties,
                 type: {
                   // This is a trick to make the type property required, but still override the type with a const value
                   // in each of the component schemas (not normally possible with this code generator)
@@ -130,13 +128,12 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
                   enum: sortedKeys.map((key) => componentList[key]),
                 },
               },
-              required: [...(componentBaseSchema.required || []), 'type'],
               allOf: sortedKeys.map((key) => ({
                 if: { properties: { type: { const: componentList[key] } } },
                 then: { $ref: `#/definitions/Comp${key}` },
               })),
             },
-            ...otherSchemaDefs,
+            ...schemaDefs,
           },
         },
         null,
