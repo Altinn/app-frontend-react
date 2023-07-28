@@ -34,6 +34,7 @@ export abstract class CodeGenerator<T> {
     typeScript: {},
     optional: false,
   };
+  private _containsExprCache: boolean | undefined = undefined;
 
   protected getInternalJsonSchema(): JSONSchema7 {
     return {
@@ -49,13 +50,24 @@ export abstract class CodeGenerator<T> {
   }
 
   containsExpressions(): boolean {
+    if (this._containsExprCache !== undefined) {
+      return this._containsExprCache;
+    }
+
     try {
       const resolved = this.transformToResolved();
-      return !deepEqual(resolved.toJsonSchema(), this.toJsonSchema());
+      const result = !this.equals(resolved);
+      this._containsExprCache = result;
+      return result;
     } catch (e) {
       // Something failed, possibly an exception when generating the JsonSchema. Assume it does not contain expressions.
+      this._containsExprCache = false;
       return false;
     }
+  }
+
+  equals(other: CodeGenerator<any>): boolean {
+    return deepEqual(this.toJsonSchema(), other.toJsonSchema());
   }
 
   abstract toJsonSchema(): JSONSchema7;
@@ -89,14 +101,27 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     return this;
   }
 
-  getSymbol(): SymbolExt | undefined {
-    return this.internal.symbol;
-  }
-
   toTypeScript(): string {
     if (this.internal.symbol) {
+      if (this.containsExpressions() && !this.internal.symbol.name.match(/(Unresolved|Resolved)$/)) {
+        const unresolvedSymbol: SymbolExt = {
+          name: `${this.internal.symbol.name}Unresolved`,
+          exported: this.internal.symbol.exported,
+        };
+        const resolvedSymbol: SymbolExt = {
+          name: `${this.internal.symbol.name}Resolved`,
+          exported: this.internal.symbol.exported,
+        };
+        CodeGeneratorContext.getInstance().addSymbol(unresolvedSymbol, this);
+        const resolved = this.transformToResolved();
+        CodeGeneratorContext.getInstance().addSymbol(resolvedSymbol, resolved as MaybeSymbolizedCodeGenerator<any>);
+
+        // PRIORITY: Figure out if the current context is resolved or unresolved
+        return unresolvedSymbol.name;
+      }
+
+      CodeGeneratorContext.getInstance().addSymbol(this.internal.symbol, this);
       // If this type has a symbol, always use the symbol name instead of the full type definition
-      CodeGeneratorContext.getInstance().addSymbol(this);
       return this.internal.symbol.name;
     }
 

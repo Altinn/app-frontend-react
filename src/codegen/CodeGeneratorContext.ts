@@ -1,4 +1,4 @@
-import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { MaybeSymbolizedCodeGenerator, SymbolExt } from 'src/codegen/CodeGenerator';
 
 /**
  * This code relies on the fact that the code generator will generate one file at a time, and reset the context
@@ -29,8 +29,9 @@ export class CodeGeneratorContext {
     CodeGeneratorContext.instance = instance;
     const out = fn();
     const parts: string[] = [out];
+    const symbols = new Set<string>();
     while (Object.keys(instance.symbols).length) {
-      parts.unshift(instance.getSymbolsAsTypeScript());
+      parts.unshift(instance.getSymbolsAsTypeScript(symbols));
     }
     while (Object.keys(instance.imports).length) {
       parts.unshift(instance.getImportsAsTypeScript());
@@ -41,7 +42,7 @@ export class CodeGeneratorContext {
   }
 
   private imports: { [fileName: string]: Set<string> } = {};
-  private symbols: { [symbol: string]: MaybeSymbolizedCodeGenerator<any> } = {};
+  private symbols: { [symbol: string]: string } = {};
 
   public addImport(symbol: string, from: string): void {
     if (from === this.targetFile) {
@@ -56,12 +57,14 @@ export class CodeGeneratorContext {
     set.add(symbol);
   }
 
-  public addSymbol(generator: MaybeSymbolizedCodeGenerator<any>) {
-    const symbol = generator.getSymbol();
-    if (!symbol) {
-      throw new Error('Cannot add a symbol without a name');
+  public addSymbol(symbol: SymbolExt, generator: MaybeSymbolizedCodeGenerator<any>) {
+    const prefix = symbol.exported ? 'export ' : '';
+    const definition = prefix + generator.toTypeScriptDefinition(symbol.name);
+    if (this.symbols[symbol.name] && this.symbols[symbol.name] !== definition) {
+      throw new Error(`Symbol ${symbol.name} already exists, and is not equal to the new symbol`);
     }
-    this.symbols[symbol.name] = generator;
+
+    this.symbols[symbol.name] = definition;
   }
 
   private getImportsAsTypeScript(): string {
@@ -74,18 +77,14 @@ export class CodeGeneratorContext {
     return importLines.join('\n');
   }
 
-  private getSymbolsAsTypeScript(): string {
+  private getSymbolsAsTypeScript(ifNotIn: Set<string>): string {
     return Object.keys(this.symbols)
+      .filter((name) => !ifNotIn.has(name))
       .map((name) => {
-        const sym = this.symbols[name];
-        const symbol = sym.getSymbol();
-        if (!symbol) {
-          throw new Error('Cannot get symbol without a name');
-        }
-
+        const definition = this.symbols[name];
+        ifNotIn.add(name);
         delete this.symbols[name];
-        const out = sym.toTypeScriptDefinition(symbol.name);
-        return symbol.exported ? `export ${out}` : out;
+        return definition;
       })
       .join('\n\n');
   }
