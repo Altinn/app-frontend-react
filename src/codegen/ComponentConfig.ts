@@ -128,6 +128,7 @@ export class ComponentConfig {
   }
 
   private addTextResourcesForSummarizableComponents(): this {
+    // PRIORITY: Make the text resource bindings object extend others
     return this.addTextResource(
       new CG.trb({
         name: 'summaryTitle',
@@ -185,48 +186,13 @@ export class ComponentConfig {
   }
 
   public makeSelectionComponent(minimalFunctionality = false): this {
-    !minimalFunctionality &&
-      this.addProperty(
-        new CG.prop(
-          'options',
-          new CG.arr(CG.common('IOption').optional())
-            .setTitle('Static options')
-            .setDescription('List of static options'),
-        ),
-      );
-    this.addProperty(
-      new CG.prop(
-        'optionsId',
-        new CG.str()
-          .optional()
-          .setTitle('Dynamic options (fetched from server)')
-          .setDescription('ID of the option list to fetch from the server'),
-      ),
-    );
-    this.addProperty(new CG.prop('mapping', CG.common('IMapping').optional()));
-    !minimalFunctionality &&
-      this.addProperty(
-        new CG.prop(
-          'secure',
-          new CG.bool()
-            .optional(false)
-            .setTitle('Secure options (when using optionsId)')
-            .setDescription(
-              'Whether to call the secure API endpoint when fetching options from the server (allows for user/instance-specific options)',
-            ),
-        ),
-      );
-    !minimalFunctionality && this.addProperty(new CG.prop('source', CG.common('IOptionSource').optional()));
-    !minimalFunctionality &&
-      this.addProperty(
-        new CG.prop(
-          'preselectedOptionIndex',
-          new CG.int()
-            .optional()
-            .setTitle('Preselected option index')
-            .setDescription('Index of the option to preselect (if no option has been selected yet)'),
-        ),
-      );
+    if (minimalFunctionality) {
+      this.unresolved.extends(CG.common('ISelectionComponentMinimal'));
+      this.resolved.extends(CG.common('ISelectionComponentMinimal'));
+    } else {
+      this.unresolved.extends(CG.common('ISelectionComponent'));
+      this.resolved.extends(CG.common('ISelectionComponent'));
+    }
 
     return this;
   }

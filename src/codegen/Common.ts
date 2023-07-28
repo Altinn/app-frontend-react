@@ -5,22 +5,29 @@ import { ExprVal } from 'src/features/expressions/types';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 
 export type ValidCommonKeys =
-  | 'IGridSize'
-  | 'IGridStyling'
-  | 'IGrid'
   | 'IPageBreak'
   | 'Triggers'
   | 'TriggerList'
   | 'ILabelSettings'
+  | 'LayoutStyle'
+  // Grid styling:
+  | 'IGridSize'
+  | 'IGridStyling'
+  | 'IGrid'
+  // Data model bindings:
   | 'IDataModelBindingsSimple'
   | 'IDataModelBindingsList'
+  // Options/code lists:
   | 'IOption'
   | 'IMapping'
   | 'IOptionSource'
-  | 'LayoutStyle'
+  | 'ISelectionComponentMinimal'
+  | 'ISelectionComponent'
+  // Table configuration:
   | 'ITableColumnsAlignText'
   | 'ITableColumnsTextOverflow'
   | 'ITableColumnsProperties'
+  // Types that unresolved/resolved component definitions extend:
   | 'ILayoutCompBase'
   | 'ComponentBaseNode'
   | 'ILayoutCompForm'
@@ -38,12 +45,13 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
     new CG.prop('md', CG.common('IGridSize').optional('auto')),
     new CG.prop('lg', CG.common('IGridSize').optional('auto')),
     new CG.prop('xl', CG.common('IGridSize').optional('auto')),
-  ).extends(CG.common('IGridStyling')),
+  ),
 
   IGrid: new CG.obj(
     new CG.prop('labelGrid', CG.common('IGridStyling').optional()),
     new CG.prop('innerGrid', CG.common('IGridStyling').optional()),
   )
+    .extends(CG.common('IGridStyling'))
     .setTitle('Grid')
     .setDescription('Settings for the components grid. Used for controlling horizontal alignment'),
 
@@ -168,6 +176,42 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
   )
     .setTitle('Option source')
     .setDescription('Allows for fetching options from the data model, pointing to a repeating group structure'),
+
+  ISelectionComponentMinimal: new CG.obj(
+    new CG.prop(
+      'optionsId',
+      new CG.str()
+        .optional()
+        .setTitle('Dynamic options (fetched from server)')
+        .setDescription('ID of the option list to fetch from the server'),
+    ),
+    new CG.prop('mapping', CG.common('IMapping').optional()),
+  ),
+
+  ISelectionComponent: new CG.obj(
+    new CG.prop(
+      'options',
+      new CG.arr(CG.common('IOption').optional()).setTitle('Static options').setDescription('List of static options'),
+    ),
+    new CG.prop(
+      'secure',
+      new CG.bool()
+        .optional(false)
+        .setTitle('Secure options (when using optionsId)')
+        .setDescription(
+          'Whether to call the secure API endpoint when fetching options from the ' +
+            'server (allows for user/instance-specific options)',
+        ),
+    ),
+    new CG.prop('source', CG.common('IOptionSource').optional()),
+    new CG.prop(
+      'preselectedOptionIndex',
+      new CG.int()
+        .optional()
+        .setTitle('Preselected option index')
+        .setDescription('Index of the option to preselect (if no option has been selected yet)'),
+    ),
+  ).extends(CG.common('ISelectionComponentMinimal')),
 
   LayoutStyle: new CG.enum('column', 'row', 'table')
     .setTitle('Layout')
