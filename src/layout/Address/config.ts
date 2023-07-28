@@ -16,10 +16,7 @@ export const Config = new CG.component({
       new CG.prop('postPlace', new CG.str()),
       new CG.prop('careOf', new CG.str().optional()),
       new CG.prop('houseNumber', new CG.str().optional()),
-    ).setSymbol({
-      name: 'IDataModelBindingsForAddress',
-      exported: true,
-    }),
+    ).exportAs('IDataModelBindingsForAddress'),
   )
   .addProperty(
     new CG.prop(

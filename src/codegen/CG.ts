@@ -15,8 +15,11 @@ import { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextR
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 
-function generateCommonImport<T extends ValidCommonKeys>(key: T): GenerateCommonImport<T> {
-  return new GenerateCommonImport(key);
+function generateCommonImport<T extends ValidCommonKeys>(
+  key: T,
+  type: 'resolved' | 'unresolved' = 'unresolved',
+): GenerateCommonImport<T> {
+  return new GenerateCommonImport(key, type);
 }
 
 export const CG = {

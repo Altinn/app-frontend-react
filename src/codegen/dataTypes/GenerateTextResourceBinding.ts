@@ -17,7 +17,7 @@ export class GenerateTextResourceBinding extends GenerateProperty<GenerateExpres
     );
   }
 
-  asResolved() {
+  transformToResolved(): GenerateProperty<any> {
     return new CG.prop(this.name, new CG.str().optional());
   }
 }

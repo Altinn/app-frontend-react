@@ -1,7 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
-import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
@@ -52,17 +51,17 @@ export class ComponentConfig {
   });
 
   private unresolved = new CG.obj().extends(CG.common('ILayoutCompBase'));
-  private resolved = new CG.obj().extends(CG.common('ComponentBaseNode'));
+  private resolved = new CG.obj().extends(CG.common('ILayoutCompBase', 'resolved'));
 
   constructor(public readonly config: RequiredComponentConfig) {
     if (config.category === ComponentCategory.Form) {
       this.unresolved.extends(CG.common('ILayoutCompForm'));
-      this.resolved.extends(CG.common('FormComponentNode'));
+      this.resolved.extends(CG.common('ILayoutCompForm', 'resolved'));
       this.addTextResourcesForFormComponents();
     }
     if (config.category === ComponentCategory.Form || config.category === ComponentCategory.Container) {
       this.unresolved.extends(CG.common('ILayoutCompSummarizable'));
-      this.resolved.extends(CG.common('SummarizableNode'));
+      this.resolved.extends(CG.common('ILayoutCompSummarizable', 'resolved'));
       this.addTextResourcesForSummarizableComponents();
     }
 
@@ -83,10 +82,8 @@ export class ComponentConfig {
     }
 
     this.unresolved.addProperty(prop);
-
-    if (prop.type instanceof GenerateExpressionOr) {
-      const newProp = new CG.prop(prop.name, prop.type.transformToResolved());
-      this.resolved.addProperty(newProp);
+    if (prop.containsExpressions()) {
+      this.resolved.addProperty(prop.transformToResolved());
     } else {
       this.resolved.addProperty(prop);
     }
@@ -122,7 +119,7 @@ export class ComponentConfig {
         if (targetObject === this.unresolved) {
           bindings.addProperty(arg);
         } else {
-          bindings.addProperty(arg.asResolved());
+          bindings.addProperty(arg.transformToResolved());
         }
       }
     }
@@ -134,8 +131,8 @@ export class ComponentConfig {
     this.ensureTextResourceBindings();
     const unresolved = this.unresolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
     const resolved = this.resolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
-    unresolved.extends(CG.common('TRBSummarizableExpr'));
-    resolved.extends(CG.common('TRBSummarizable'));
+    unresolved.extends(CG.common('TRBSummarizable'));
+    resolved.extends(CG.common('TRBSummarizable', 'resolved'));
 
     return this;
   }
@@ -144,8 +141,8 @@ export class ComponentConfig {
     this.ensureTextResourceBindings();
     const unresolved = this.unresolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
     const resolved = this.resolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
-    unresolved.extends(CG.common('TRBFormCompExpr'));
-    resolved.extends(CG.common('TRBFormComp'));
+    unresolved.extends(CG.common('TRBFormComp'));
+    resolved.extends(CG.common('TRBFormComp', 'resolved'));
 
     return this;
   }
@@ -154,8 +151,8 @@ export class ComponentConfig {
     this.ensureTextResourceBindings();
     const unresolved = this.unresolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
     const resolved = this.resolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
-    unresolved.extends(CG.common('TRBLabelExpr'));
-    resolved.extends(CG.common('TRBLabel'));
+    unresolved.extends(CG.common('TRBLabel'));
+    resolved.extends(CG.common('TRBLabel', 'resolved'));
 
     return this;
   }
@@ -208,14 +205,8 @@ export class ComponentConfig {
 
   public toTypeScript(): string {
     this.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
-    this.unresolved.setSymbol({
-      name: `ILayoutComp${this.typeSymbol}`,
-      exported: true,
-    });
-    this.resolved.setSymbol({
-      name: `${this.typeSymbol}Item`,
-      exported: true,
-    });
+    this.unresolved.exportAs(`ILayoutComp${this.typeSymbol}`);
+    this.resolved.exportAs(`${this.typeSymbol}Item`);
 
     // Forces the objects to register in the context and be exported via the context symbols table
     this.unresolved.toTypeScript();

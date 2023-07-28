@@ -13,6 +13,10 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
     super();
   }
 
+  transformToResolved(): this | GenerateImportedSymbol<any> {
+    throw new Error(`Cannot transform an import ${this.val.import} to a resolved import`);
+  }
+
   toTypeScriptDefinition(symbol: string | undefined): string {
     CodeGeneratorContext.getInstance().addImport(this.val.import, this.val.from);
     return symbol ? `type ${symbol} = ${this.val.import};` : this.val.import;

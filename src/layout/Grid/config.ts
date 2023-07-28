@@ -26,10 +26,7 @@ export function generateGridRowsProperty(
       unresolved: generateProp(
         new CG.obj(
           new CG.prop('component', new CG.str().setTitle('Component ID').setDescription('ID of the component')),
-        ).setSymbol({
-          name: 'GridComponentRef',
-          exported: true,
-        }),
+        ).exportAs('GridComponentRef'),
       ),
       resolved: generateProp(
         new CG.import({
@@ -58,10 +55,7 @@ export function generateGridArray(cellType: CodeGenerator<any>) {
               new CG.prop('help', new CG.str().optional()),
               new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
               new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
-            ).setSymbol({
-              name: 'GridText',
-              exported: true,
-            }),
+            ).exportAs('GridText'),
           )
             .setTitle('Cells in table row')
             .setDescription('The list of cells in this row'),

@@ -1,3 +1,4 @@
+import deepEqual from 'fast-deep-equal';
 import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
@@ -24,7 +25,7 @@ export interface InternalConfig<T> {
 }
 
 export abstract class CodeGenerator<T> {
-  public readonly internal: InternalConfig<T> = {
+  public internal: InternalConfig<T> = {
     jsonSchema: {
       title: undefined,
       description: undefined,
@@ -47,13 +48,43 @@ export abstract class CodeGenerator<T> {
     return this;
   }
 
+  containsExpressions(): boolean {
+    try {
+      const resolved = this.transformToResolved();
+      return !deepEqual(resolved.toJsonSchema(), this.toJsonSchema());
+    } catch (e) {
+      // Something failed, possibly an exception when generating the JsonSchema. Assume it does not contain expressions.
+      return false;
+    }
+  }
+
   abstract toJsonSchema(): JSONSchema7;
   abstract toTypeScript(): string;
 }
 
 export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
-  setSymbol(symbol: SymbolExt): this {
-    this.internal.symbol = symbol;
+  exportAs(name: string): this {
+    if (this.internal.symbol) {
+      throw new Error('Cannot rename a symbolized code generator');
+    }
+
+    this.internal.symbol = {
+      name,
+      exported: true,
+    };
+
+    return this;
+  }
+
+  named(name: string): this {
+    if (this.internal.symbol) {
+      throw new Error('Cannot rename a symbolized code generator');
+    }
+
+    this.internal.symbol = {
+      name,
+      exported: false,
+    };
 
     return this;
   }

@@ -52,7 +52,13 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
   }
 
   transformToResolved(): GenerateProperty<any> {
-    return new GenerateProperty(this.name, this.type.transformToResolved());
+    const next = new GenerateProperty(this.name, this.type.transformToResolved());
+    next._insertFirst = this._insertFirst;
+    next._insertBefore = this._insertBefore;
+    next._insertAfter = this._insertAfter;
+    next.internal = this.internal;
+
+    return next;
   }
 
   toTypeScript() {

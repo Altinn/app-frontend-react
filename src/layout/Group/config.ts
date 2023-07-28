@@ -106,10 +106,7 @@ export const Config = new CG.component({
               'is stored. Not needed for non-repeating groups',
           ),
       ),
-    ).setSymbol({
-      name: 'IDataModelBindingsForGroup',
-      exported: true,
-    }),
+    ).exportAs('IDataModelBindingsForGroup'),
   )
   .addProperty(
     new CG.prop(
@@ -125,10 +122,7 @@ export const Config = new CG.component({
         new CG.prop(
           'filter',
           new CG.arr(
-            new CG.obj(new CG.prop('key', new CG.str()), new CG.prop('value', new CG.str())).setSymbol({
-              name: 'IGroupFilter',
-              exported: true,
-            }),
+            new CG.obj(new CG.prop('key', new CG.str()), new CG.prop('value', new CG.str())).exportAs('IGroupFilter'),
           )
             .optional()
             .setTitle('Filter')
@@ -216,10 +210,7 @@ export const Config = new CG.component({
                 'currently editing another row',
             ),
         ),
-      ).setSymbol({
-        name: 'IGroupEditProperties',
-        exported: true,
-      }),
+      ).exportAs('IGroupEditProperties'),
     ),
   )
   .addProperty(
@@ -289,12 +280,7 @@ export const Config = new CG.component({
                     'behaviour, but can be turned off for components that are only to be edited in the table view.',
                 ),
             ),
-          ).extends(
-            CG.common('ITableColumnsProperties').setSymbol({
-              name: 'IGroupColumnFormatting',
-              exported: true,
-            }),
-          ),
+          ).extends(CG.common('ITableColumnsProperties').exportAs('IGroupColumnFormatting')),
         )
         .addExample({
           childComponent1: {
@@ -334,10 +320,7 @@ export const Config = new CG.component({
       )
         .extends(CG.common('IPanelBase'))
         .optional()
-        .setSymbol({
-          name: 'IGroupPanel',
-          exported: true,
-        }),
+        .exportAs('IGroupPanel'),
     ),
   )
   .addProperty(

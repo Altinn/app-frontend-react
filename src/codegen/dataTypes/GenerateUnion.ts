@@ -17,6 +17,11 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
     this.types.push(type as any);
   }
 
+  transformToResolved(): this | CodeGenerator<any> {
+    const types = this.types.map((type) => type.transformToResolved());
+    return new GenerateUnion(...types);
+  }
+
   toTypeScriptDefinition(symbol: string | undefined): string {
     const out = this.types.map((type) => type.toTypeScript()).join(' | ');
 

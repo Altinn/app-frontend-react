@@ -76,7 +76,12 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
   }
 
   transformToResolved(): GenerateObject<any> {
-    return new GenerateObject(...this.properties.map((prop) => prop.transformToResolved()));
+    const next = new GenerateObject(...this.properties.map((prop) => prop.transformToResolved()));
+    next._additionalProperties = this._additionalProperties;
+    next._extends = this._extends.map((e) => e.transformToResolved());
+    next.internal = this.internal;
+
+    return next;
   }
 
   toTypeScriptDefinition(symbol: string | undefined): string {
