@@ -16,6 +16,8 @@ export type ValidCommonKeys =
   | 'IGridSize'
   | 'IGridStyling'
   | 'IGrid'
+  // Panel display mode:
+  | 'IPanelBase'
   // Data model bindings:
   | 'IDataModelBindingsSimple'
   | 'IDataModelBindingsList'
@@ -103,6 +105,11 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
   TriggerList: new CG.arr(CG.common('Triggers'))
     .setTitle('Triggers')
     .setDescription('List of actions to trigger when the user interacts with the component'),
+
+  IPanelBase: new CG.obj(
+    new CG.prop('variant', new CG.enum('info', 'warning', 'error', 'success').optional()),
+    new CG.prop('showIcon', new CG.bool().optional()),
+  ),
 
   ILabelSettings: new CG.obj(
     new CG.prop(

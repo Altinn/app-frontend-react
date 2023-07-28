@@ -1,6 +1,7 @@
 import { CG } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
+import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export const Config = new CG.component({
@@ -10,25 +11,38 @@ export const Config = new CG.component({
     renderInTable: false,
     renderInButtonGroup: false,
   },
-}).addProperty({
-  unresolved: generateRows(
-    new CG.obj(
-      new CG.prop('component', new CG.str().setTitle('Component ID').setDescription('ID of the component')),
-    ).setSymbol({
-      name: 'GridComponentRef',
-      exported: true,
-    }),
-  ),
-  resolved: generateRows(
-    new CG.import({
-      import: 'GridComponent',
-      from: 'src/layout/Grid/types',
-    }),
-  ),
-});
+}).addProperty(
+  ...generateGridRowsProperty((cellType) => {
+    const type = generateGridArray(cellType).setTitle('Rows in Grid').setDescription('The list of rows in this grid');
+    return new CG.prop('rows', type);
+  }),
+);
 
-function generateRows(cellType: CodeGenerator<any>): GenerateProperty<any> {
-  const type = new CG.arr(
+export function generateGridRowsProperty(
+  generateProp: (cellType: CodeGenerator<any>) => GenerateProperty<any>,
+): Parameters<ComponentConfig['addProperty']> {
+  return [
+    {
+      unresolved: generateProp(
+        new CG.obj(
+          new CG.prop('component', new CG.str().setTitle('Component ID').setDescription('ID of the component')),
+        ).setSymbol({
+          name: 'GridComponentRef',
+          exported: true,
+        }),
+      ),
+      resolved: generateProp(
+        new CG.import({
+          import: 'GridComponent',
+          from: 'src/layout/Grid/types',
+        }),
+      ),
+    },
+  ];
+}
+
+export function generateGridArray(cellType: CodeGenerator<any>) {
+  return new CG.arr(
     new CG.obj(
       new CG.prop('header', new CG.bool().optional(false).setTitle('Is header row?')),
       new CG.prop('readOnly', new CG.bool().optional(false).setTitle('Is row read-only?')),
@@ -54,9 +68,5 @@ function generateRows(cellType: CodeGenerator<any>): GenerateProperty<any> {
         ),
       ),
     ),
-  )
-    .setTitle('Rows in Grid')
-    .setDescription('The list of rows in this grid');
-
-  return new CG.prop('rows', type);
+  );
 }
