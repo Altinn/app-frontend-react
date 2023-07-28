@@ -107,12 +107,15 @@ export class ComponentConfig {
     return this;
   }
 
-  public addTextResource(arg: GenerateTextResourceBinding): this {
+  private ensureTextResourceBindings(): void {
     if (!this.unresolved.getProperty('textResourceBindings')) {
       this.unresolved.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
       this.resolved.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
     }
+  }
 
+  public addTextResource(arg: GenerateTextResourceBinding): this {
+    this.ensureTextResourceBindings();
     for (const targetObject of [this.unresolved, this.resolved]) {
       const bindings = targetObject.getProperty('textResourceBindings')?.type;
       if (bindings instanceof GenerateObject) {
@@ -128,61 +131,33 @@ export class ComponentConfig {
   }
 
   private addTextResourcesForSummarizableComponents(): this {
-    // PRIORITY: Make the text resource bindings object extend others
-    return this.addTextResource(
-      new CG.trb({
-        name: 'summaryTitle',
-        title: 'Summary title',
-        description: 'Title used in the summary view (overrides the default title)',
-      }),
-    ).addTextResource(
-      new CG.trb({
-        name: 'summaryAccessibleTitle',
-        title: 'Accessible summary title',
-        description:
-          'Title used for aria-label on the edit button in the summary view (overrides the default and summary title)',
-      }),
-    );
+    this.ensureTextResourceBindings();
+    const unresolved = this.unresolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
+    const resolved = this.resolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
+    unresolved.extends(CG.common('TRBSummarizableExpr'));
+    resolved.extends(CG.common('TRBSummarizable'));
+
+    return this;
   }
 
   private addTextResourcesForFormComponents(): this {
-    return this.addTextResource(
-      new CG.trb({
-        name: 'tableTitle',
-        title: 'Table title',
-        description: 'Title used in the table view (overrides the default title)',
-      }),
-    ).addTextResource(
-      new CG.trb({
-        name: 'shortName',
-        title: 'Short name (for validation)',
-        description: 'Alternative name used for required validation messages (overrides the default title)',
-      }),
-    );
+    this.ensureTextResourceBindings();
+    const unresolved = this.unresolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
+    const resolved = this.resolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
+    unresolved.extends(CG.common('TRBFormCompExpr'));
+    resolved.extends(CG.common('TRBFormComp'));
+
+    return this;
   }
 
   public addTextResourcesForLabel(): this {
-    return this.addTextResource(
-      new CG.trb({
-        name: 'title',
-        title: 'Title',
-        description: 'Label text/title shown above the component',
-      }),
-    )
-      .addTextResource(
-        new CG.trb({
-          name: 'description',
-          title: 'Description',
-          description: 'Label description shown above the component, below the title',
-        }),
-      )
-      .addTextResource(
-        new CG.trb({
-          name: 'help',
-          title: 'Help text',
-          description: 'Help text shown in a tooltip when clicking the help button',
-        }),
-      );
+    this.ensureTextResourceBindings();
+    const unresolved = this.unresolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
+    const resolved = this.resolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
+    unresolved.extends(CG.common('TRBLabelExpr'));
+    resolved.extends(CG.common('TRBLabel'));
+
+    return this;
   }
 
   public makeSelectionComponent(minimalFunctionality = false): this {

@@ -18,6 +18,13 @@ export type ValidCommonKeys =
   // Data model bindings:
   | 'IDataModelBindingsSimple'
   | 'IDataModelBindingsList'
+  // Text resource bindings:
+  | 'TRBSummarizableExpr'
+  | 'TRBSummarizable'
+  | 'TRBFormCompExpr'
+  | 'TRBFormComp'
+  | 'TRBLabelExpr'
+  | 'TRBLabel'
   // Options/code lists:
   | 'IOption'
   | 'IMapping'
@@ -117,6 +124,15 @@ const makeCommon = (): { [key in ValidCommonKeys]: CodeGenerator<any> } => ({
         'should be pointed to an array structure in the data model, and is used for components that store multiple ' +
         'simple values (e.g. a list of strings).',
     ),
+
+  TRBSummarizableExpr: makeTRB('summarizable'),
+  TRBSummarizable: makeTRB('summarizable').transformToResolved(),
+
+  TRBFormCompExpr: makeTRB('formComponent'),
+  TRBFormComp: makeTRB('formComponent').transformToResolved(),
+
+  TRBLabelExpr: makeTRB('label'),
+  TRBLabel: makeTRB('label').transformToResolved(),
 
   IOption: new CG.obj(
     new CG.prop('label', new CG.str()),
@@ -336,6 +352,62 @@ const makeSummarizable = () =>
         ),
     ),
   );
+
+interface TRB {
+  title: string;
+  description: string;
+}
+
+type ValidCommonTRB = 'summarizable' | 'formComponent' | 'label';
+
+const TRBMap: { [key in ValidCommonTRB]: { [key: string]: TRB } } = {
+  summarizable: {
+    summaryTitle: {
+      title: 'Summary title',
+      description: 'Title used in the summary view (overrides the default title)',
+    },
+    summaryAccessibleTitle: {
+      title: 'Accessible summary title',
+      description:
+        'Title used for aria-label on the edit button in the summary view (overrides the default and summary title)',
+    },
+  },
+  formComponent: {
+    tableTitle: {
+      title: 'Table title',
+      description: 'Title used in the table view (overrides the default title)',
+    },
+    shortName: {
+      title: 'Short name (for validation)',
+      description: 'Alternative name used for required validation messages (overrides the default title)',
+    },
+  },
+  label: {
+    title: {
+      title: 'Title',
+      description: 'Label text/title shown above the component',
+    },
+    description: {
+      title: 'Description',
+      description: 'Label description shown above the component, below the title',
+    },
+    help: {
+      title: 'Help text',
+      description: 'Help text shown in a tooltip when clicking the help button',
+    },
+  },
+};
+
+function makeTRB(key: ValidCommonTRB) {
+  const obj = new CG.obj();
+  for (const prop in TRBMap[key]) {
+    const val = TRBMap[key][prop];
+    obj.addProperty(
+      new CG.prop(prop, new CG.expr(ExprVal.String).optional().setTitle(val.title).setDescription(val.description)),
+    );
+  }
+  return obj;
+}
 
 export function generateCommonTypeScript(): string[] {
   const out: string[] = [];

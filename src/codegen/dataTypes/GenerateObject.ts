@@ -93,6 +93,16 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
       ? ` & ${this._extends.map((e) => e.toTypeScript()).join(' & ')}`
       : '';
 
+    if (!properties.length && this._extends.length) {
+      return symbol
+        ? `type ${symbol} = ${extendsIntersection.replace(/^ & /, '')};`
+        : `${extendsIntersection.replace(/^ & /, '')}`;
+    }
+
+    if (!properties.length) {
+      throw new Error('About to generate empty object, this is probably a bug');
+    }
+
     return symbol
       ? `interface ${symbol}${extendsClause} { ${properties.join('\n')} }`
       : `{ ${properties.join('\n')} }${extendsIntersection}`;
@@ -112,10 +122,14 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
         allProperties[prop.name] = true;
       }
 
+      const allOf = this._extends.map((e) => e.toJsonSchema());
+      if (this.properties.length) {
+        allOf.push(this.innerToJsonSchema(false));
+      }
+
       return {
         allOf: [
-          ...this._extends.map((e) => e.toJsonSchema()),
-          this.innerToJsonSchema(false),
+          ...allOf,
           {
             // This trick makes it possible to extend multiple other object, but still
             // preserve the behaviour of additionalProperties = false. If it was set on each of the objects we extended,
