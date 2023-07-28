@@ -111,15 +111,22 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
   toJsonSchema(): JSONSchema7 {
     if (this._extends.length) {
       const allProperties: { [key: string]: true } = {};
+      const requiredProperties: string[] = [];
 
       for (const e of this._extends) {
         for (const prop of e.getProperties()) {
-          allProperties[prop] = true;
+          allProperties[prop.name] = true;
+          if (!prop.type.internal.optional) {
+            requiredProperties.push(prop.name);
+          }
         }
       }
 
       for (const prop of this.properties) {
         allProperties[prop.name] = true;
+        if (!prop.type.internal.optional) {
+          requiredProperties.push(prop.name);
+        }
       }
 
       const allOf = this._extends.map((e) => e.toJsonSchema());
@@ -136,6 +143,7 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
             // the objects would mutually exclude each other's properties.
             type: 'object',
             properties: allProperties,
+            required: requiredProperties.length ? requiredProperties : undefined,
             additionalProperties: this.additionalPropertiesToJsonSchema(),
           },
         ],

@@ -4,6 +4,7 @@ import { CG } from 'src/codegen/CG';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { ExprVal } from 'src/features/expressions/types';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
+import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export type ValidCommonKeys =
   | 'IPageBreak'
@@ -441,10 +442,10 @@ export function generateCommonSchema(): { [key in ValidCommonKeys]: JSONSchema7 
   return out as { [key in ValidCommonKeys]: JSONSchema7 };
 }
 
-export function getPropertiesFor(key: ValidCommonKeys): string[] {
+export function getPropertiesFor(key: ValidCommonKeys): GenerateProperty<any>[] {
   const val = makeCommon()[key];
   if (val instanceof GenerateObject) {
-    return val.getProperties().map((p) => p.name);
+    return val.getProperties();
   }
 
   throw new Error(`No properties for ${key}, it is of type ${val.constructor.name}`);

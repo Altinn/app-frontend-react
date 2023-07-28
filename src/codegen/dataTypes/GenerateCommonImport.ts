@@ -3,6 +3,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { getPropertiesFor } from 'src/codegen/Common';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { ValidCommonKeys } from 'src/codegen/Common';
+import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export class GenerateCommonImport<T extends ValidCommonKeys> extends GenerateImportedSymbol<any> {
   constructor(public readonly key: T) {
@@ -16,7 +17,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys> extends GenerateImp
     return { $ref: `#/definitions/${this.key}` };
   }
 
-  getProperties(): string[] {
+  getProperties(): GenerateProperty<any>[] {
     return getPropertiesFor(this.key);
   }
 }
