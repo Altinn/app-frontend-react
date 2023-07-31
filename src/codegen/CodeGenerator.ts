@@ -66,8 +66,8 @@ export abstract class CodeGenerator<T> {
 }
 
 export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
-  exportAs(name: string, allowRename = false): this {
-    if (this.internal.symbol && !allowRename) {
+  exportAs(name: string): this {
+    if (this.internal.symbol) {
       throw new Error('Cannot rename a symbolized code generator');
     }
 
@@ -92,9 +92,22 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     return this;
   }
 
+  public transformNameToResolved() {
+    if (!this.internal.symbol || this.internal.symbol.name.endsWith('Resolved')) {
+      return;
+    }
+
+    if (this.internal.symbol.name.endsWith('Unresolved')) {
+      this.internal.symbol.name = this.internal.symbol.name.replace(/Unresolved$/, '');
+    }
+
+    this.internal.symbol.name = `${this.internal.symbol.name}Resolved`;
+  }
+
   _toTypeScript(): string {
     if (this.internal.symbol) {
-      if (this.containsExpressions() && !this.internal.symbol.name.match(/(Unresolved|Resolved)$/)) {
+      const containsExpressions = this.containsExpressions();
+      if (containsExpressions && !this.internal.symbol.name.match(/(Unresolved|Resolved)$/)) {
         const unresolvedSymbol: SymbolExt = {
           name: `${this.internal.symbol.name}Unresolved`,
           exported: this.internal.symbol.exported,

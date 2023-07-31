@@ -83,13 +83,20 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     const next = new GenerateObject(...this.properties.map((prop) => prop.transformToResolved()));
     next._additionalProperties = this._additionalProperties;
     next._extends = this._extends.map((e) => e.transformToResolved());
-    next.internal = this.internal;
+    next.internal = structuredClone(this.internal);
+    next.transformNameToResolved();
 
     return next;
   }
 
   containsExpressions(): boolean {
-    return this.properties.some((prop) => prop.containsExpressions());
+    if (this.properties.some((prop) => prop.containsExpressions())) {
+      return true;
+    }
+    if (this._additionalProperties && this._additionalProperties.containsExpressions()) {
+      return true;
+    }
+    return this._extends.some((e) => e.containsExpressions());
   }
 
   _toTypeScriptDefinition(symbol: string | undefined): string {

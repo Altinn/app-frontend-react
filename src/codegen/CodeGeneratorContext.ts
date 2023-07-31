@@ -20,10 +20,6 @@ export class CodeGeneratorContext {
     return this.fileInstance;
   }
 
-  public static hasTypeScriptInstance(): boolean {
-    return !!this.typeScriptInstance;
-  }
-
   public static getTypeScriptInstance(): CodeGeneratorTypeScriptContext {
     if (!this.typeScriptInstance) {
       throw new Error(

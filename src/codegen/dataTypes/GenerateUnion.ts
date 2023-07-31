@@ -26,7 +26,11 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
 
   transformToResolved(): this | CodeGenerator<any> {
     const types = this.types.map((type) => type.transformToResolved());
-    return new GenerateUnion(...types);
+    const out = new GenerateUnion(...types);
+    out.internal = this.internal;
+    out.transformNameToResolved();
+
+    return out;
   }
 
   _toTypeScriptDefinition(symbol: string | undefined): string {

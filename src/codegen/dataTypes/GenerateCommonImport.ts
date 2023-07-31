@@ -2,7 +2,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
 import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
-import { commonContainsExpressions, getCommonRealName, getPropertiesFor, isCommonKey } from 'src/codegen/Common';
+import { commonContainsExpressions, getCommonRealName, getPropertiesFor } from 'src/codegen/Common';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
@@ -11,20 +11,25 @@ import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
  * In TypeScript, this is a regular import statement, and in JSON Schema, this is a reference to the definition.
  */
 export class GenerateCommonImport<T extends ValidCommonKeys> extends MaybeOptionalCodeGenerator<any> {
-  constructor(public readonly key: T) {
+  public readonly realKey?: string;
+  constructor(
+    public readonly key: T,
+    realKey?: string,
+  ) {
     super();
+    this.realKey = realKey;
   }
 
   transformToResolved(): this | GenerateCommonImport<any> {
-    if (isCommonKey(this.key) && commonContainsExpressions(this.key)) {
-      return new GenerateCommonImport(`${this.key}Resolved` as ValidCommonKeys);
+    if (commonContainsExpressions(this.key)) {
+      return new GenerateCommonImport(this.key, `${this.key}Resolved`);
     }
 
     return this;
   }
 
   toJsonSchema(): JSONSchema7 {
-    return { $ref: `#/definitions/${getCommonRealName(this.key)}` };
+    return { $ref: `#/definitions/${this.key}` };
   }
 
   getProperties(): GenerateProperty<any>[] {
@@ -33,7 +38,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys> extends MaybeOption
 
   _toTypeScriptDefinition(symbol: string | undefined): string {
     const _import = new CG.import({
-      import: getCommonRealName(this.key),
+      import: this.realKey ?? getCommonRealName(this.key),
       from: 'src/layout/common.generated',
     });
 

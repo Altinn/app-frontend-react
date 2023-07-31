@@ -373,15 +373,7 @@ function makeTRB(keys: { [key: string]: TRB }) {
   return obj;
 }
 
-export function isCommonKey(key: string): key is ValidCommonKeys {
-  return key in common;
-}
-
 export function commonContainsExpressions(key: ValidCommonKeys): boolean {
-  if (!isCommonKey(key)) {
-    return false;
-  }
-
   return common[key]().containsExpressions();
 }
 
@@ -448,7 +440,7 @@ export function getPropertiesFor(key: ValidCommonKeys): GenerateProperty<any>[] 
 }
 
 export function getCommonRealName(key: ValidCommonKeys): string {
-  if (CodeGeneratorContext.hasTypeScriptInstance() && commonContainsExpressions(key) && key in common) {
+  if (commonContainsExpressions(key) && key in common) {
     const suffix = CodeGeneratorContext.getTypeScriptInstance().variant === 'resolved' ? 'Resolved' : 'Unresolved';
     return `${key}${suffix}`;
   }

@@ -157,9 +157,7 @@ export class ComponentConfig {
     // Forces the objects to register in the context and be exported via the context symbols table
     this.typeDef.exportAs(`Comp${this.typeSymbol}Unresolved`);
     this.typeDef.toTypeScript('unresolved');
-
-    this.typeDef.exportAs(`Comp${this.typeSymbol}Resolved`, true);
-    this.typeDef.toTypeScript('resolved');
+    this.typeDef.transformToResolved().toTypeScript('resolved');
 
     const staticElements: string[] = [];
 

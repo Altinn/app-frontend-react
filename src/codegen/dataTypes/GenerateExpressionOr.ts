@@ -61,10 +61,8 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     }
 
     if (out) {
-      out.internal.jsonSchema = this.internal.jsonSchema as any;
-      if (this.internal.optional) {
-        out.optional(this.internal.default as any);
-      }
+      out.internal = this.internal as any;
+      out.transformNameToResolved();
       return out;
     }
 

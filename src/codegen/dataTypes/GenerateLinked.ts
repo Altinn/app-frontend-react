@@ -30,14 +30,7 @@ export class GenerateLinked<
   }
 
   toJsonSchema(): JSONSchema7 {
-    if (
-      !CodeGeneratorContext.hasTypeScriptInstance() ||
-      CodeGeneratorContext.getTypeScriptInstance().variant === 'unresolved'
-    ) {
-      return this.unresolved.toJsonSchema();
-    }
-
-    throw new Error('Cannot generate JsonSchema for linked type when expressions are resolved');
+    return this.unresolved.toJsonSchema();
   }
 
   containsExpressions(): boolean {
