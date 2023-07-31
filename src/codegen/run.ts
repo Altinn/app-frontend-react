@@ -1,3 +1,4 @@
+/* eslint-disable */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -62,23 +63,27 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
   promises.push(
     saveTsFile(
       commonTsPath,
-      CodeGeneratorContext.run(commonTsPath, () => generateCommonTypeScript().join('\n')),
+      CodeGeneratorContext.generateFile(commonTsPath, () => generateCommonTypeScript().join('\n')),
     ),
   );
 
+  // PRIORITY: Remove definitions not in use in the layout schema (such as the ones for resolved types)
   const schemaDefs = generateCommonSchema();
 
   for (const key of sortedKeys) {
-    const config: ComponentConfig = (await import(`src/layout/${key}/config`)).Config;
     const tsPath = `src/layout/${key}/config.generated.ts`;
 
-    const content = CodeGeneratorContext.run(tsPath, () => {
+    let config = null as unknown as ComponentConfig;
+    const content = await CodeGeneratorContext.generateFile(tsPath, () => {
+      config = (require(`src/layout/${key}/config`)).Config;
       config.setType(componentList[key], key);
       return config.toTypeScript();
     });
     promises.push(saveTsFile(tsPath, content));
 
-    schemaDefs[`Comp${key}`] = config.toJsonSchema();
+    if (config) {
+      schemaDefs[`Comp${key}`] = config.toJsonSchema();
+    }
   }
 
   const schemaPath = 'schemas/json/layout/layout.schema.v2.generated.json';

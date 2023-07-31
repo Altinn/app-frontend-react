@@ -7,6 +7,7 @@ import { GenerateEnum } from 'src/codegen/dataTypes/GenerateEnum';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateInteger } from 'src/codegen/dataTypes/GenerateInteger';
+import { GenerateLinked } from 'src/codegen/dataTypes/GenerateLinked';
 import { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -15,11 +16,8 @@ import { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextR
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 
-function generateCommonImport<T extends ValidCommonKeys>(
-  key: T,
-  type: 'resolved' | 'unresolved' = 'unresolved',
-): GenerateCommonImport<T> {
-  return new GenerateCommonImport(key, type);
+function generateCommonImport<T extends ValidCommonKeys>(key: T): GenerateCommonImport<T> {
+  return new GenerateCommonImport(key);
 }
 
 export const CG = {
@@ -51,4 +49,5 @@ export const CG = {
   // Others
   enum: GenerateEnum,
   union: GenerateUnion,
+  linked: GenerateLinked,
 };

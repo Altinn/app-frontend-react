@@ -5,6 +5,7 @@ import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSy
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { ComponentCategory } from 'src/layout/common';
+import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import type {
@@ -50,44 +51,26 @@ export class ComponentConfig {
     from: 'src/utils/layout/LayoutNode',
   });
 
-  private unresolved = new CG.obj().extends(CG.common('ILayoutCompBase'));
-  private resolved = new CG.obj().extends(CG.common('ILayoutCompBase', 'resolved'));
+  private typeDef = new CG.obj().extends(CG.common('ComponentBase'));
 
   constructor(public readonly config: RequiredComponentConfig) {
     if (config.category === ComponentCategory.Form) {
-      this.unresolved.extends(CG.common('ILayoutCompForm'));
-      this.resolved.extends(CG.common('ILayoutCompForm', 'resolved'));
-      this.addTextResourcesForFormComponents();
+      this.typeDef.extends(CG.common('FormComponentProps'));
+      this.extendTextResources(CG.common('TRBFormComp'));
     }
     if (config.category === ComponentCategory.Form || config.category === ComponentCategory.Container) {
-      this.unresolved.extends(CG.common('ILayoutCompSummarizable'));
-      this.resolved.extends(CG.common('ILayoutCompSummarizable', 'resolved'));
-      this.addTextResourcesForSummarizableComponents();
+      this.typeDef.extends(CG.common('SummarizableComponentProps'));
+      this.extendTextResources(CG.common('TRBSummarizable'));
     }
 
     if (config.rendersWithLabel) {
-      this.unresolved.extends(CG.common('ILayoutCompWithLabel'));
-      this.resolved.extends(CG.common('ILayoutCompWithLabel'));
-      this.addTextResourcesForLabel();
+      this.typeDef.extends(CG.common('LabeledComponentProps'));
+      this.extendTextResources(CG.common('TRBLabel'));
     }
   }
 
-  public addProperty(
-    prop: GenerateProperty<any> | { unresolved: GenerateProperty<any>; resolved: GenerateProperty<any> },
-  ): this {
-    if ('unresolved' in prop) {
-      this.unresolved.addProperty(prop.unresolved);
-      this.resolved.addProperty(prop.resolved);
-      return this;
-    }
-
-    this.unresolved.addProperty(prop);
-    if (prop.containsExpressions()) {
-      this.resolved.addProperty(prop.transformToResolved());
-    } else {
-      this.resolved.addProperty(prop);
-    }
-
+  public addProperty(prop: GenerateProperty<any>): this {
+    this.typeDef.addProperty(prop);
     return this;
   }
 
@@ -105,66 +88,33 @@ export class ComponentConfig {
   }
 
   private ensureTextResourceBindings(): void {
-    if (!this.unresolved.getProperty('textResourceBindings')) {
-      this.unresolved.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
-      this.resolved.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
+    if (!this.typeDef.getProperty('textResourceBindings')) {
+      this.typeDef.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
     }
   }
 
   public addTextResource(arg: GenerateTextResourceBinding): this {
     this.ensureTextResourceBindings();
-    for (const targetObject of [this.unresolved, this.resolved]) {
-      const bindings = targetObject.getProperty('textResourceBindings')?.type;
-      if (bindings instanceof GenerateObject) {
-        if (targetObject === this.unresolved) {
-          bindings.addProperty(arg);
-        } else {
-          bindings.addProperty(arg.transformToResolved());
-        }
-      }
-    }
+    this.typeDef.getProperty('textResourceBindings')?.type.addProperty(arg);
 
     return this;
   }
 
-  private addTextResourcesForSummarizableComponents(): this {
+  private extendTextResources(type: GenerateCommonImport<any>): this {
     this.ensureTextResourceBindings();
-    const unresolved = this.unresolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
-    const resolved = this.resolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
-    unresolved.extends(CG.common('TRBSummarizable'));
-    resolved.extends(CG.common('TRBSummarizable', 'resolved'));
-
-    return this;
-  }
-
-  private addTextResourcesForFormComponents(): this {
-    this.ensureTextResourceBindings();
-    const unresolved = this.unresolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
-    const resolved = this.resolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
-    unresolved.extends(CG.common('TRBFormComp'));
-    resolved.extends(CG.common('TRBFormComp', 'resolved'));
+    this.typeDef.getProperty('textResourceBindings')?.type.extends(type);
 
     return this;
   }
 
   public addTextResourcesForLabel(): this {
-    this.ensureTextResourceBindings();
-    const unresolved = this.unresolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
-    const resolved = this.resolved.getProperty('textResourceBindings')?.type as GenerateObject<any>;
-    unresolved.extends(CG.common('TRBLabel'));
-    resolved.extends(CG.common('TRBLabel', 'resolved'));
-
-    return this;
+    return this.extendTextResources(CG.common('TRBLabel'));
   }
 
   public makeSelectionComponent(minimalFunctionality = false): this {
-    if (minimalFunctionality) {
-      this.unresolved.extends(CG.common('ISelectionComponentMinimal'));
-      this.resolved.extends(CG.common('ISelectionComponentMinimal'));
-    } else {
-      this.unresolved.extends(CG.common('ISelectionComponent'));
-      this.resolved.extends(CG.common('ISelectionComponent'));
-    }
+    this.typeDef.extends(
+      minimalFunctionality ? CG.common('ISelectionComponentMinimal') : CG.common('ISelectionComponent'),
+    );
 
     return this;
   }
@@ -188,16 +138,14 @@ export class ComponentConfig {
       targetType.setTitle(title).setDescription(description).optional();
     }
 
-    for (const targetObject of [this.unresolved, this.resolved]) {
-      const existing = targetObject.getProperty(name)?.type;
-      if (existing && existing instanceof GenerateUnion) {
-        existing.addType(targetType);
-      } else if (existing) {
-        const union = new CG.union(existing, targetType).setTitle(title).setDescription(description).optional();
-        targetObject.addProperty(new CG.prop(name, union));
-      } else {
-        targetObject.addProperty(new CG.prop(name, targetType));
-      }
+    const existing = this.typeDef.getProperty(name)?.type;
+    if (existing && existing instanceof GenerateUnion) {
+      existing.addType(targetType);
+    } else if (existing) {
+      const union = new CG.union(existing, targetType).setTitle(title).setDescription(description).optional();
+      this.typeDef.addProperty(new CG.prop(name, union));
+    } else {
+      this.typeDef.addProperty(new CG.prop(name, targetType));
     }
 
     return this;
@@ -205,18 +153,19 @@ export class ComponentConfig {
 
   public toTypeScript(): string {
     this.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
-    this.unresolved.exportAs(`ILayoutComp${this.typeSymbol}`);
-    this.resolved.exportAs(`${this.typeSymbol}Item`);
 
     // Forces the objects to register in the context and be exported via the context symbols table
-    this.unresolved.toTypeScript();
-    this.resolved.toTypeScript();
+    this.typeDef.exportAs(`Comp${this.typeSymbol}Unresolved`);
+    this.typeDef.toTypeScript('unresolved');
+
+    this.typeDef.exportAs(`Comp${this.typeSymbol}Resolved`, true);
+    this.typeDef.toTypeScript('resolved');
 
     const staticElements: string[] = [];
 
     const symbol = this.typeSymbol;
     const category = this.config.category;
-    const categorySymbol = CategoryImports[category].toTypeScript();
+    const categorySymbol = CategoryImports[category]._toTypeScript();
 
     staticElements.push(`export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       canRenderInTable(): boolean {
@@ -234,20 +183,20 @@ export class ComponentConfig {
     });
 
     staticElements.push(`export const Config = {
-      def: new ${impl.toTypeScript()}(),
+      def: new ${impl._toTypeScript()}(),
       rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
     }`);
 
     staticElements.push(`export type TypeConfig = {
-      layout: ILayoutComp${this.typeSymbol};
-      nodeItem: ${this.typeSymbol}Item;
-      nodeObj: ${this.layoutNodeType.toTypeScript()};
+      layout: Comp${this.typeSymbol}Unresolved;
+      nodeItem: Comp${this.typeSymbol}Resolved;
+      nodeObj: ${this.layoutNodeType._toTypeScript()};
     }`);
 
     return staticElements.join('\n\n');
   }
 
   public toJsonSchema(): JSONSchema7 {
-    return this.unresolved.toJsonSchema();
+    return this.typeDef.toJsonSchema();
   }
 }

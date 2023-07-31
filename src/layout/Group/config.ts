@@ -216,7 +216,15 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'children',
-      new CG.arr(new CG.str())
+      new CG.arr(
+        new CG.linked(
+          new CG.str(),
+          new CG.import({
+            import: 'LayoutNode',
+            from: 'src/utils/layout/LayoutNode',
+          }),
+        ),
+      )
         .setTitle('Children')
         .setDescription('Array of component IDs that should be displayed in the group'),
     ),

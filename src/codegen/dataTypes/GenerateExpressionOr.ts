@@ -38,6 +38,11 @@ type GeneratorMap<Val extends ExprVal> = Val extends ExprVal.Boolean
   ? GenerateString
   : never;
 
+/**
+ * Generates a type that can be either a pure boolean, number, or string, or an expression that evaluates to
+ * one of those types. Be sure you implement support for evaluating the expression as well, because adding
+ * this type will not automatically add support for evaluating the expression as well.
+ */
 export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGenerator<TypeMap<Val>> {
   constructor(public readonly valueType: Val) {
     super();
@@ -66,8 +71,14 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     throw new Error(`Unsupported type: ${this.valueType}`);
   }
 
-  toTypeScriptDefinition(symbol: string | undefined): string {
-    CodeGeneratorContext.getInstance().addImport('ExprVal', 'src/features/expressions/types');
+  _toTypeScriptDefinition(symbol: string | undefined): string {
+    if (CodeGeneratorContext.getTypeScriptInstance().variant === 'resolved') {
+      throw new Error(
+        'Cannot generate TypeScript definition for resolved expression type. Call transformToResolved() first.',
+      );
+    }
+
+    CodeGeneratorContext.getFileInstance().addImport('ExprVal', 'src/features/expressions/types');
     return symbol ? `type ${symbol} = ${toTsMap[this.valueType]};` : toTsMap[this.valueType];
   }
 

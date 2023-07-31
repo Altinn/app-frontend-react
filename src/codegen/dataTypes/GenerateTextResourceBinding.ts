@@ -9,6 +9,10 @@ export interface TextResourceConfig {
   description: string;
 }
 
+/**
+ * Generates a text resource binding property. This is just a regular property, but this class is used as a
+ * helper to make sure you always provide a description and title, and never specify the inner type yourself.
+ */
 export class GenerateTextResourceBinding extends GenerateProperty<GenerateExpressionOr<ExprVal.String>> {
   constructor(config: TextResourceConfig) {
     super(

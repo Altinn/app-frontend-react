@@ -22,19 +22,17 @@ export function generateGridRowsProperty(
   generateProp: (cellType: CodeGenerator<any>) => GenerateProperty<any>,
 ): Parameters<ComponentConfig['addProperty']> {
   return [
-    {
-      unresolved: generateProp(
+    generateProp(
+      new CG.linked(
         new CG.obj(
           new CG.prop('component', new CG.str().setTitle('Component ID').setDescription('ID of the component')),
         ).exportAs('GridComponentRef'),
-      ),
-      resolved: generateProp(
         new CG.import({
           import: 'GridComponent',
           from: 'src/layout/Grid/types',
         }),
       ),
-    },
+    ),
   ];
 }
 

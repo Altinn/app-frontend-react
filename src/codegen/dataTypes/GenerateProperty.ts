@@ -2,6 +2,10 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 
+/**
+ * Generates a property on an object. Remember to call insertBefore/insertAfter/insertFirst before adding it to
+ * the object (by calling obj.addProperty(<this object>)).
+ */
 export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenerator<
   Val extends CodeGenerator<infer X> ? X : never
 > {
@@ -61,10 +65,10 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     return next;
   }
 
-  toTypeScript() {
+  _toTypeScript() {
     return this.type.internal.optional
-      ? `${this.name}?: ${this.type.toTypeScript()};`
-      : `${this.name}: ${this.type.toTypeScript()};`;
+      ? `${this.name}?: ${this.type._toTypeScript()};`
+      : `${this.name}: ${this.type._toTypeScript()};`;
   }
 
   toJsonSchema(): JSONSchema7 {

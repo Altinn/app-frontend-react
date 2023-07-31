@@ -71,12 +71,22 @@ export abstract class CodeGenerator<T> {
   }
 
   abstract toJsonSchema(): JSONSchema7;
-  abstract toTypeScript(): string;
+  abstract _toTypeScript(): string;
+
+  toTypeScript(variant: 'resolved' | 'unresolved'): string {
+    return CodeGeneratorContext.generateTypeScript(() => {
+      if (variant === 'resolved') {
+        return this.transformToResolved()._toTypeScript();
+      }
+
+      return this._toTypeScript();
+    }, variant).result;
+  }
 }
 
 export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
-  exportAs(name: string): this {
-    if (this.internal.symbol) {
+  exportAs(name: string, allowRename = false): this {
+    if (this.internal.symbol && !allowRename) {
       throw new Error('Cannot rename a symbolized code generator');
     }
 
@@ -101,7 +111,7 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     return this;
   }
 
-  toTypeScript(): string {
+  _toTypeScript(): string {
     if (this.internal.symbol) {
       if (this.containsExpressions() && !this.internal.symbol.name.match(/(Unresolved|Resolved)$/)) {
         const unresolvedSymbol: SymbolExt = {
@@ -112,23 +122,23 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
           name: `${this.internal.symbol.name}Resolved`,
           exported: this.internal.symbol.exported,
         };
-        CodeGeneratorContext.getInstance().addSymbol(unresolvedSymbol, this);
+        CodeGeneratorContext.getFileInstance().addSymbol(unresolvedSymbol, this);
         const resolved = this.transformToResolved();
-        CodeGeneratorContext.getInstance().addSymbol(resolvedSymbol, resolved as MaybeSymbolizedCodeGenerator<any>);
+        CodeGeneratorContext.getFileInstance().addSymbol(resolvedSymbol, resolved as MaybeSymbolizedCodeGenerator<any>);
 
         // PRIORITY: Figure out if the current context is resolved or unresolved
         return unresolvedSymbol.name;
       }
 
-      CodeGeneratorContext.getInstance().addSymbol(this.internal.symbol, this);
+      CodeGeneratorContext.getFileInstance().addSymbol(this.internal.symbol, this);
       // If this type has a symbol, always use the symbol name instead of the full type definition
       return this.internal.symbol.name;
     }
 
-    return this.toTypeScriptDefinition(undefined);
+    return this._toTypeScriptDefinition(undefined);
   }
 
-  abstract toTypeScriptDefinition(symbol: string | undefined): string;
+  abstract _toTypeScriptDefinition(symbol: string | undefined): string;
 }
 
 export abstract class MaybeOptionalCodeGenerator<T> extends MaybeSymbolizedCodeGenerator<T> {

@@ -8,6 +8,10 @@ export interface ImportDef {
   from: string;
 }
 
+/**
+ * Generates a plain import statement in TypeScript. Beware that if you use this in code generating a JsonSchema,
+ * your code will fail (JsonSchema only supports imports from the definitions, i.e. 'common' imports).
+ */
 export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
   public constructor(private readonly val: ImportDef) {
     super();
@@ -17,8 +21,8 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
     throw new Error(`Cannot transform an import ${this.val.import} to a resolved import`);
   }
 
-  toTypeScriptDefinition(symbol: string | undefined): string {
-    CodeGeneratorContext.getInstance().addImport(this.val.import, this.val.from);
+  _toTypeScriptDefinition(symbol: string | undefined): string {
+    CodeGeneratorContext.getFileInstance().addImport(this.val.import, this.val.from);
     return symbol ? `type ${symbol} = ${this.val.import};` : this.val.import;
   }
 

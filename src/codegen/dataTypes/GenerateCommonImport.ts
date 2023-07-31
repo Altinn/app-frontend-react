@@ -1,31 +1,42 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { getCommonRealName, getPropertiesFor } from 'src/codegen/Common';
-import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
+import { CG } from 'src/codegen/CG';
+import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
+import { commonContainsExpressions, getCommonRealName, getPropertiesFor, isCommonKey } from 'src/codegen/Common';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
-export class GenerateCommonImport<T extends ValidCommonKeys> extends GenerateImportedSymbol<any> {
-  constructor(
-    public readonly key: T,
-    public readonly type: 'unresolved' | 'resolved' = 'unresolved',
-  ) {
-    super({
-      import: getCommonRealName(key, type),
-      from: 'src/layout/common.generated',
-    });
+/**
+ * Generates an import statement for a common type (one of those defined in Common.ts).
+ * In TypeScript, this is a regular import statement, and in JSON Schema, this is a reference to the definition.
+ */
+export class GenerateCommonImport<T extends ValidCommonKeys> extends MaybeOptionalCodeGenerator<any> {
+  constructor(public readonly key: T) {
+    super();
   }
 
   transformToResolved(): this | GenerateCommonImport<any> {
-    // PRIORITY: Find resolved variant of this import, if any
-    throw new Error(`Cannot transform a common import (${this.key}) to a resolved import`);
+    if (isCommonKey(this.key) && commonContainsExpressions(this.key)) {
+      return new GenerateCommonImport(`${this.key}Resolved` as ValidCommonKeys);
+    }
+
+    return this;
   }
 
   toJsonSchema(): JSONSchema7 {
-    return { $ref: `#/definitions/${getCommonRealName(this.key, this.type)}` };
+    return { $ref: `#/definitions/${getCommonRealName(this.key)}` };
   }
 
   getProperties(): GenerateProperty<any>[] {
     return getPropertiesFor(this.key);
+  }
+
+  _toTypeScriptDefinition(symbol: string | undefined): string {
+    const _import = new CG.import({
+      import: getCommonRealName(this.key),
+      from: 'src/layout/common.generated',
+    });
+
+    return _import._toTypeScriptDefinition(symbol);
   }
 }

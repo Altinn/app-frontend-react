@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
+import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { ExprVal } from 'src/features/expressions/types';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
@@ -294,7 +295,7 @@ const common = {
       }),
 
   // Types that unresolved/resolved component definitions extend:
-  ILayoutCompBase: () =>
+  ComponentBase: () =>
     new CG.obj(
       new CG.prop(
         'id',
@@ -317,7 +318,7 @@ const common = {
       new CG.prop('grid', CG.common('IGrid').optional()),
       new CG.prop('pageBreak', CG.common('IPageBreak').optional()),
     ),
-  ILayoutCompForm: () =>
+  FormComponentProps: () =>
     new CG.obj(
       new CG.prop(
         'readOnly',
@@ -339,7 +340,7 @@ const common = {
       ),
       new CG.prop('triggers', CG.common('TriggerList').optional()),
     ),
-  ILayoutCompSummarizable: () =>
+  SummarizableComponentProps: () =>
     new CG.obj(
       new CG.prop(
         'renderAsSummary',
@@ -351,7 +352,7 @@ const common = {
           ),
       ),
     ),
-  ILayoutCompWithLabel: () => new CG.obj(new CG.prop('labelSettings', CG.common('ILabelSettings').optional())),
+  LabeledComponentProps: () => new CG.obj(new CG.prop('labelSettings', CG.common('ILabelSettings').optional())),
 };
 
 export type ValidCommonKeys = keyof typeof common;
@@ -374,9 +375,20 @@ function makeTRB(keys: { [key: string]: TRB }) {
 
 const containsExprCache: { [key in ValidCommonKeys]?: boolean } = {};
 
-function containsExpressions(key: ValidCommonKeys): boolean {
+export function isCommonKey(key: string): key is ValidCommonKeys {
+  return key in common;
+}
+
+export function commonContainsExpressions(key: ValidCommonKeys): boolean {
+  if (!isCommonKey(key)) {
+    return false;
+  }
+
   if (containsExprCache[key] === undefined) {
-    containsExprCache[key] = common[key]().containsExpressions();
+    CodeGeneratorContext.generateTypeScript(() => {
+      containsExprCache[key] = common[key]().containsExpressions();
+      return '';
+    }, 'unresolved');
   }
   return containsExprCache[key]!;
 }
@@ -385,13 +397,24 @@ export function generateCommonTypeScript(): string[] {
   const out: string[] = [];
 
   for (const key in common) {
-    const val = common[key]();
-
-    if (containsExpressions(key as ValidCommonKeys)) {
-      out.push(['export ', val.toTypeScriptDefinition(`${key}Unresolved`), '\n'].join(''));
-      out.push(['export ', val.transformToResolved().toTypeScriptDefinition(`${key}Resolved`), '\n'].join(''));
+    if (commonContainsExpressions(key as ValidCommonKeys)) {
+      const unresolved = CodeGeneratorContext.generateTypeScript(() => {
+        const val = common[key]();
+        return val._toTypeScriptDefinition(`${key}Unresolved`);
+      }, 'unresolved');
+      const resolved = CodeGeneratorContext.generateTypeScript(() => {
+        const val = common[key]();
+        return val.transformToResolved()._toTypeScriptDefinition(`${key}Resolved`);
+      }, 'resolved');
+      out.push(`export ${unresolved.result}\n`);
+      out.push(`export ${resolved.result}\n`);
     } else {
-      out.push(`export ${val.toTypeScriptDefinition(key)}\n`);
+      const unresolved = CodeGeneratorContext.generateTypeScript(() => {
+        const val = common[key]();
+        return val._toTypeScriptDefinition(key);
+      }, 'unresolved');
+
+      out.push(`export ${unresolved.result}\n`);
     }
   }
 
@@ -412,7 +435,7 @@ export function generateCommonSchema(): { [key in ValidCommonKeys]: JSONSchema7 
       val.additionalProperties(undefined);
     }
 
-    if (containsExpressions(key as ValidCommonKeys)) {
+    if (commonContainsExpressions(key as ValidCommonKeys)) {
       out[`${key}Unresolved`] = val.toJsonSchema();
       out[`${key}Resolved`] = val.transformToResolved().toJsonSchema();
     } else {
@@ -432,9 +455,10 @@ export function getPropertiesFor(key: ValidCommonKeys): GenerateProperty<any>[] 
   throw new Error(`No properties for ${key}, it is of type ${val.constructor.name}`);
 }
 
-export function getCommonRealName(key: ValidCommonKeys, type: 'unresolved' | 'resolved'): string {
-  if (containsExpressions(key)) {
-    return `${key}${type === 'resolved' ? 'Resolved' : 'Unresolved'}`;
+export function getCommonRealName(key: ValidCommonKeys): string {
+  if (CodeGeneratorContext.hasTypeScriptInstance() && commonContainsExpressions(key) && key in common) {
+    const suffix = CodeGeneratorContext.getTypeScriptInstance().variant === 'resolved' ? 'Resolved' : 'Unresolved';
+    return `${key}${suffix}`;
   }
 
   return key;

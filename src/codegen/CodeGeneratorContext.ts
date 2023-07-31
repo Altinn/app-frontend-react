@@ -6,28 +6,42 @@ import type { MaybeSymbolizedCodeGenerator, SymbolExt } from 'src/codegen/CodeGe
  * to store information about the current file being generated (such as imports, etc).
  */
 export class CodeGeneratorContext {
-  private static instance: CodeGeneratorContext | undefined;
-  private readonly targetFile: string;
+  private static fileInstance: CodeGeneratorFileContext | undefined;
+  private static typeScriptInstance: CodeGeneratorTypeScriptContext | undefined;
 
-  private constructor(targetFile: string) {
-    this.targetFile = targetFile.replace(/\.ts$/, '');
-  }
-
-  public static getInstance(): CodeGeneratorContext {
-    if (!this.instance) {
+  public static getFileInstance(): CodeGeneratorFileContext {
+    if (!this.fileInstance) {
       throw new Error(
-        'CodeGeneratorContext has not been initialized, run this in code that is called ' +
-          'within CodeGeneratorContext.run(), such as a CodeGenerator.toTypeScript() method',
+        'CodeGeneratorFileContext has not been initialized, run this in code that is called ' +
+          'within CodeGeneratorContext.generateFile(), such as a CodeGenerator.toTypeScript() method',
       );
     }
 
-    return this.instance;
+    return this.fileInstance;
   }
 
-  public static run(targetFile: string, fn: () => string): { result: string } {
-    const instance = new CodeGeneratorContext(targetFile);
-    CodeGeneratorContext.instance = instance;
-    const out = fn();
+  public static hasTypeScriptInstance(): boolean {
+    return !!this.typeScriptInstance;
+  }
+
+  public static getTypeScriptInstance(): CodeGeneratorTypeScriptContext {
+    if (!this.typeScriptInstance) {
+      throw new Error(
+        'CodeGeneratorTypeScriptContext has not been initialized, run this in code that is called ' +
+          'within CodeGeneratorContext.generateTypeScript(), such as a CodeGenerator.toTypeScript() method',
+      );
+    }
+
+    return this.typeScriptInstance;
+  }
+
+  public static async generateFile(
+    targetFile: string,
+    fn: () => string | Promise<string>,
+  ): Promise<{ result: string }> {
+    const instance = new CodeGeneratorFileContext(targetFile);
+    CodeGeneratorContext.fileInstance = instance;
+    const out = await fn();
     const parts: string[] = [out];
     const symbols = new Set<string>();
     while (Object.keys(instance.symbols).length) {
@@ -36,13 +50,37 @@ export class CodeGeneratorContext {
     while (Object.keys(instance.imports).length) {
       parts.unshift(instance.getImportsAsTypeScript());
     }
-    CodeGeneratorContext.instance = undefined;
+    CodeGeneratorContext.fileInstance = undefined;
 
     return { result: parts.join('\n\n') };
   }
 
-  private imports: { [fileName: string]: Set<string> } = {};
-  private symbols: { [symbol: string]: string } = {};
+  public static generateTypeScript(fn: () => string, variant: 'resolved' | 'unresolved'): { result: string } {
+    if (!this.fileInstance) {
+      throw new Error(
+        'CodeGeneratorFileContext has not been initialized, run this in code that is called ' +
+          'within CodeGeneratorContext.generateFile()',
+      );
+    }
+
+    CodeGeneratorContext.typeScriptInstance = new CodeGeneratorTypeScriptContext(variant);
+    const out = fn();
+    CodeGeneratorContext.typeScriptInstance = undefined;
+
+    return { result: out };
+  }
+}
+
+type Imports = { [fileName: string]: Set<string> };
+
+export class CodeGeneratorFileContext {
+  private readonly targetFile: string;
+  public readonly symbols: { [symbol: string]: string } = {};
+  public imports: Imports = {};
+
+  constructor(targetFile: string) {
+    this.targetFile = targetFile.replace(/\.ts$/, '');
+  }
 
   public addImport(symbol: string, from: string): void {
     if (from === this.targetFile) {
@@ -59,7 +97,7 @@ export class CodeGeneratorContext {
 
   public addSymbol(symbol: SymbolExt, generator: MaybeSymbolizedCodeGenerator<any>) {
     const prefix = symbol.exported ? 'export ' : '';
-    const definition = prefix + generator.toTypeScriptDefinition(symbol.name);
+    const definition = prefix + generator._toTypeScriptDefinition(symbol.name);
     if (this.symbols[symbol.name] && this.symbols[symbol.name] !== definition) {
       throw new Error(`Symbol ${symbol.name} already exists, and is not equal to the new symbol`);
     }
@@ -67,7 +105,7 @@ export class CodeGeneratorContext {
     this.symbols[symbol.name] = definition;
   }
 
-  private getImportsAsTypeScript(): string {
+  getImportsAsTypeScript(): string {
     const importLines = Object.keys(this.imports).map((fileName) => {
       const symbols = Array.from(this.imports[fileName]).sort();
       return `import { ${symbols.join(', ')} } from '${fileName}';`;
@@ -77,7 +115,7 @@ export class CodeGeneratorContext {
     return importLines.join('\n');
   }
 
-  private getSymbolsAsTypeScript(ifNotIn: Set<string>): string {
+  getSymbolsAsTypeScript(ifNotIn: Set<string>): string {
     return Object.keys(this.symbols)
       .filter((name) => !ifNotIn.has(name))
       .map((name) => {
@@ -88,4 +126,8 @@ export class CodeGeneratorContext {
       })
       .join('\n\n');
   }
+}
+
+export class CodeGeneratorTypeScriptContext {
+  constructor(public readonly variant: 'resolved' | 'unresolved') {}
 }

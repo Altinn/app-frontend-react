@@ -10,6 +10,10 @@ export type AsInterface<P extends Props> = {
   [K in P[number]['name']]: P[number]['type'] extends CodeGenerator<infer X> ? X : never;
 };
 
+/**
+ * Generates an object definition type. This is used for both interfaces and types in TypeScript, and can extend other
+ * object types (either ones you generate, or from the common imports).
+ */
 export class GenerateObject<P extends Props> extends DescribableCodeGenerator<AsInterface<P>> {
   private readonly properties: P;
   private _additionalProperties: DescribableCodeGenerator<any> | false | undefined = false;
@@ -84,18 +88,18 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     return next;
   }
 
-  toTypeScriptDefinition(symbol: string | undefined): string {
+  _toTypeScriptDefinition(symbol: string | undefined): string {
     const properties: string[] = [];
-    properties.push(...this.properties.map((prop) => prop.toTypeScript()));
+    properties.push(...this.properties.map((prop) => prop._toTypeScript()));
     if (this._additionalProperties) {
-      properties.push(`[key: string]: ${this._additionalProperties.toTypeScript()};`);
+      properties.push(`[key: string]: ${this._additionalProperties._toTypeScript()};`);
     }
 
     const extendsClause = this._extends.length
-      ? ` extends ${this._extends.map((e) => e.toTypeScript()).join(', ')}`
+      ? ` extends ${this._extends.map((e) => e._toTypeScript()).join(', ')}`
       : '';
     const extendsIntersection = this._extends.length
-      ? ` & ${this._extends.map((e) => e.toTypeScript()).join(' & ')}`
+      ? ` & ${this._extends.map((e) => e._toTypeScript()).join(' & ')}`
       : '';
 
     if (!properties.length && this._extends.length) {

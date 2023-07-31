@@ -3,6 +3,9 @@ import type { JSONSchema7 } from 'json-schema';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 
+/**
+ * Generates a union of multiple types. In typescript this is a regular union, and in JsonSchema it is an 'anyOf'.
+ */
 export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCodeGenerator<
   U[number] extends CodeGenerator<infer X> ? X : never
 > {
@@ -22,8 +25,8 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
     return new GenerateUnion(...types);
   }
 
-  toTypeScriptDefinition(symbol: string | undefined): string {
-    const out = this.types.map((type) => type.toTypeScript()).join(' | ');
+  _toTypeScriptDefinition(symbol: string | undefined): string {
+    const out = this.types.map((type) => type._toTypeScript()).join(' | ');
 
     return symbol ? `type ${symbol} = ${out};` : out;
   }

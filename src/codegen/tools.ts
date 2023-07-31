@@ -44,8 +44,11 @@ function getESLint() {
   return eslint;
 }
 
-export async function saveTsFile(targetPath: string, content: { result: string }) {
-  const contentHash = crypto.createHash('sha256').update(content.result).digest('hex');
+type TsResult = { result: string };
+
+export async function saveTsFile(targetPath: string, content: TsResult | Promise<TsResult>) {
+  const { result } = await content;
+  const contentHash = crypto.createHash('sha256').update(result).digest('hex');
   if (await fileExists(targetPath)) {
     const existingContent = await fs.readFile(targetPath, 'utf-8');
     const sourceHash = existingContent.match(/\/\/ Source hash: ([a-f0-9]+)/);
@@ -56,10 +59,10 @@ export async function saveTsFile(targetPath: string, content: { result: string }
   } else {
     // For some reason eslint needs the file to exist before it can fix it, even if we're passing
     // the content directly to it.
-    await fs.writeFile(targetPath, content.result, 'utf-8');
+    await fs.writeFile(targetPath, result, 'utf-8');
   }
 
-  const results = await getESLint().lintText(content.result, { filePath: targetPath });
+  const results = await getESLint().lintText(result, { filePath: targetPath });
   const output = results[0].output;
 
   if (!output && results[0].errorCount > 0) {
@@ -67,7 +70,7 @@ export async function saveTsFile(targetPath: string, content: { result: string }
     console.error(results[0].messages);
   }
 
-  const contentMain = output || content.result;
+  const contentMain = output || result;
   const regexToIgnore = /\/\/ Source hash: [a-f0-9]+/;
   await saveFile(targetPath, `${contentMain.trim()}\n\n// Source hash: ${contentHash}`, regexToIgnore);
 }
