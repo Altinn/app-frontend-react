@@ -2,7 +2,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+import { CodeGeneratorContext, TsVariant } from 'src/codegen/CodeGeneratorContext';
 import { ExprVal } from 'src/features/expressions/types';
 import type { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
 import type { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
@@ -70,7 +70,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
   }
 
   _toTypeScriptDefinition(symbol: string | undefined): string {
-    if (CodeGeneratorContext.getTypeScriptInstance().variant === 'resolved') {
+    if (CodeGeneratorContext.getTypeScriptInstance().variant === TsVariant.Resolved) {
       throw new Error(
         'Cannot generate TypeScript definition for resolved expression type. Call transformToResolved() first.',
       );

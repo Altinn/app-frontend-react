@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
-import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+import { CodeGeneratorContext, TsVariant } from 'src/codegen/CodeGeneratorContext';
 
 /**
  * Generates a type that is one of two types, depending on the current variant of typescript code we're generating (i.e.
@@ -22,7 +22,7 @@ export class GenerateLinked<
   }
 
   _toTypeScript(): string {
-    if (CodeGeneratorContext.getTypeScriptInstance().variant === 'unresolved') {
+    if (CodeGeneratorContext.getTypeScriptInstance().variant === TsVariant.Unresolved) {
       return this.unresolved._toTypeScript();
     }
 

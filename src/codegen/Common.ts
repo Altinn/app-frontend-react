@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
-import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+import { CodeGeneratorContext, TsVariant } from 'src/codegen/CodeGeneratorContext';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { ExprVal } from 'src/features/expressions/types';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
@@ -385,18 +385,18 @@ export function generateCommonTypeScript(): string[] {
       const unresolved = CodeGeneratorContext.generateTypeScript(() => {
         const val = common[key]();
         return val._toTypeScriptDefinition(`${key}Unresolved`);
-      }, 'unresolved');
+      }, TsVariant.Unresolved);
       const resolved = CodeGeneratorContext.generateTypeScript(() => {
         const val = common[key]();
         return val.transformToResolved()._toTypeScriptDefinition(`${key}Resolved`);
-      }, 'resolved');
+      }, TsVariant.Resolved);
       out.push(`export ${unresolved.result}\n`);
       out.push(`export ${resolved.result}\n`);
     } else {
       const unresolved = CodeGeneratorContext.generateTypeScript(() => {
         const val = common[key]();
         return val._toTypeScriptDefinition(key);
-      }, 'unresolved');
+      }, TsVariant.Unresolved);
 
       out.push(`export ${unresolved.result}\n`);
     }
@@ -441,7 +441,8 @@ export function getPropertiesFor(key: ValidCommonKeys): GenerateProperty<any>[] 
 
 export function getCommonRealName(key: ValidCommonKeys): string {
   if (commonContainsExpressions(key) && key in common) {
-    const suffix = CodeGeneratorContext.getTypeScriptInstance().variant === 'resolved' ? 'Resolved' : 'Unresolved';
+    const suffix =
+      CodeGeneratorContext.getTypeScriptInstance().variant === TsVariant.Resolved ? 'Resolved' : 'Unresolved';
     return `${key}${suffix}`;
   }
 

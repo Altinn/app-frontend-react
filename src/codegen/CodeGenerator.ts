@@ -1,6 +1,6 @@
 import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
-import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+import { CodeGeneratorContext, TsVariant } from 'src/codegen/CodeGeneratorContext';
 
 export interface JsonSchemaExt<T> {
   title: string | undefined;
@@ -54,9 +54,9 @@ export abstract class CodeGenerator<T> {
   abstract toJsonSchema(): JSONSchema7;
   abstract _toTypeScript(): string;
 
-  toTypeScript(variant: 'resolved' | 'unresolved'): string {
+  toTypeScript(variant: TsVariant): string {
     return CodeGeneratorContext.generateTypeScript(() => {
-      if (variant === 'resolved') {
+      if (variant === TsVariant.Resolved) {
         return this.transformToResolved()._toTypeScript();
       }
 
@@ -120,7 +120,7 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
         const resolved = this.transformToResolved();
         CodeGeneratorContext.getFileInstance().addSymbol(resolvedSymbol, resolved as MaybeSymbolizedCodeGenerator<any>);
 
-        return CodeGeneratorContext.getTypeScriptInstance().variant === 'unresolved'
+        return CodeGeneratorContext.getTypeScriptInstance().variant === TsVariant.Unresolved
           ? unresolvedSymbol.name
           : resolvedSymbol.name;
       }

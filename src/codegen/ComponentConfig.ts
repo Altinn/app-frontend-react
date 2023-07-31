@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
+import { TsVariant } from 'src/codegen/CodeGeneratorContext';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
@@ -156,8 +157,8 @@ export class ComponentConfig {
 
     // Forces the objects to register in the context and be exported via the context symbols table
     this.typeDef.exportAs(`Comp${this.typeSymbol}Unresolved`);
-    this.typeDef.toTypeScript('unresolved');
-    this.typeDef.transformToResolved().toTypeScript('resolved');
+    this.typeDef.toTypeScript(TsVariant.Unresolved);
+    this.typeDef.transformToResolved().toTypeScript(TsVariant.Resolved);
 
     const staticElements: string[] = [];
 
