@@ -39,4 +39,8 @@ export class GenerateLinked<
 
     throw new Error('Cannot generate JsonSchema for linked type when expressions are resolved');
   }
+
+  containsExpressions(): boolean {
+    return this.unresolved.containsExpressions() || this.resolved.containsExpressions();
+  }
 }

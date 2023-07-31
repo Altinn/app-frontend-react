@@ -55,6 +55,10 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     };
   }
 
+  containsExpressions(): boolean {
+    return this.type.containsExpressions();
+  }
+
   transformToResolved(): GenerateProperty<any> {
     const next = new GenerateProperty(this.name, this.type.transformToResolved());
     next._insertFirst = this._insertFirst;

@@ -28,4 +28,8 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
       items: this.innerType.toJsonSchema(),
     };
   }
+
+  containsExpressions(): boolean {
+    return this.innerType.containsExpressions();
+  }
 }

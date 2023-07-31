@@ -1,4 +1,3 @@
-import deepEqual from 'fast-deep-equal';
 import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
@@ -34,7 +33,6 @@ export abstract class CodeGenerator<T> {
     typeScript: {},
     optional: false,
   };
-  private _containsExprCache: boolean | undefined = undefined;
 
   protected getInternalJsonSchema(): JSONSchema7 {
     return {
@@ -50,24 +48,7 @@ export abstract class CodeGenerator<T> {
   }
 
   containsExpressions(): boolean {
-    if (this._containsExprCache !== undefined) {
-      return this._containsExprCache;
-    }
-
-    try {
-      const resolved = this.transformToResolved();
-      const result = !this.equals(resolved);
-      this._containsExprCache = result;
-      return result;
-    } catch (e) {
-      // Something failed, possibly an exception when generating the JsonSchema. Assume it does not contain expressions.
-      this._containsExprCache = false;
-      return false;
-    }
-  }
-
-  equals(other: CodeGenerator<any>): boolean {
-    return deepEqual(this.toJsonSchema(), other.toJsonSchema());
+    return false;
   }
 
   abstract toJsonSchema(): JSONSchema7;

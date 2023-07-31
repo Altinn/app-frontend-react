@@ -88,6 +88,10 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     return next;
   }
 
+  containsExpressions(): boolean {
+    return this.properties.some((prop) => prop.containsExpressions());
+  }
+
   _toTypeScriptDefinition(symbol: string | undefined): string {
     const properties: string[] = [];
     properties.push(...this.properties.map((prop) => prop._toTypeScript()));

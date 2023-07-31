@@ -88,4 +88,8 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
       ...toSchemaMap[this.valueType],
     };
   }
+
+  containsExpressions(): boolean {
+    return true;
+  }
 }

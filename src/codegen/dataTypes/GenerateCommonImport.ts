@@ -39,4 +39,8 @@ export class GenerateCommonImport<T extends ValidCommonKeys> extends MaybeOption
 
     return _import._toTypeScriptDefinition(symbol);
   }
+
+  containsExpressions(): boolean {
+    return commonContainsExpressions(this.key);
+  }
 }

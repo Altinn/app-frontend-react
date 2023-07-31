@@ -20,6 +20,10 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
     this.types.push(type as any);
   }
 
+  containsExpressions(): boolean {
+    return this.types.some((type) => type.containsExpressions());
+  }
+
   transformToResolved(): this | CodeGenerator<any> {
     const types = this.types.map((type) => type.transformToResolved());
     return new GenerateUnion(...types);

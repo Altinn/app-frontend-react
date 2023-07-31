@@ -373,8 +373,6 @@ function makeTRB(keys: { [key: string]: TRB }) {
   return obj;
 }
 
-const containsExprCache: { [key in ValidCommonKeys]?: boolean } = {};
-
 export function isCommonKey(key: string): key is ValidCommonKeys {
   return key in common;
 }
@@ -384,13 +382,7 @@ export function commonContainsExpressions(key: ValidCommonKeys): boolean {
     return false;
   }
 
-  if (containsExprCache[key] === undefined) {
-    CodeGeneratorContext.generateTypeScript(() => {
-      containsExprCache[key] = common[key]().containsExpressions();
-      return '';
-    }, 'unresolved');
-  }
-  return containsExprCache[key]!;
+  return common[key]().containsExpressions();
 }
 
 export function generateCommonTypeScript(): string[] {

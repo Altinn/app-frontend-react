@@ -21,6 +21,10 @@ export class GenerateTextResourceBinding extends GenerateProperty<GenerateExpres
     );
   }
 
+  containsExpressions(): boolean {
+    return true;
+  }
+
   transformToResolved(): GenerateProperty<any> {
     return new CG.prop(this.name, new CG.str().optional());
   }
