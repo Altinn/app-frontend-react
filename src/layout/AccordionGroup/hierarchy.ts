@@ -22,7 +22,7 @@ export class AccordionGroupHierarchyGenerator extends ComponentHierarchyGenerato
   }
 
   /**
-   * Process the content of an accordion component and place each item on the components `childComponents` prop.
+   * Process the content of an AccordionGroup component and place each item on the components `childComponents` prop.
    */
   private processAccordionContent(ctx: HierarchyContext): ChildFactory<'AccordionGroup'> {
     return (props) => {
@@ -51,7 +51,7 @@ export class AccordionGroupHierarchyGenerator extends ComponentHierarchyGenerato
   }
 
   /**
-   * Check if a component can be rendered in an accordion.
+   * Check if a component can be rendered in an AccordionGroup.
    */
   private canRenderInAccordionGroup(generator: HierarchyGenerator, childId: string, outputWarning = true): boolean {
     const prototype = generator.prototype(childId);
