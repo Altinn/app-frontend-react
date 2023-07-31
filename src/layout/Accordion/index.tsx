@@ -11,7 +11,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export class Accordion extends PresentationComponent<'Accordion'> {
   private _hierarchyGenerator = new AccordionHierarchyGenerator();
 
-  render(props: PropsFromGenericComponent<'Accordion'>): JSX.Element | null {
+  render(props: PropsFromGenericComponent<'Accordion'>): React.JSX.Element | null {
     return <AccordionComponent {...props} />;
   }
 

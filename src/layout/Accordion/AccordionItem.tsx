@@ -7,7 +7,7 @@ interface AccordionBaseComponentProps {
   children: React.ReactNode;
 }
 
-export const AccordionItem = ({ title, children }: AccordionBaseComponentProps): JSX.Element => (
+export const AccordionItem = ({ title, children }: AccordionBaseComponentProps): React.JSX.Element => (
   <DesignSystemAccordion.Item>
     <DesignSystemAccordion.Header>{title}</DesignSystemAccordion.Header>
     <DesignSystemAccordion.Content>{children}</DesignSystemAccordion.Content>
