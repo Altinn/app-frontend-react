@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { ESLint } from 'eslint';
 import fs from 'node:fs/promises';
 
-export async function saveFile(targetPath: string, _content: string, removeText?: RegExp) {
+export async function saveFile(targetPath: string, _content: string, removeText?: RegExp, fileExisted?: boolean) {
   const content = `${_content.trim()}\n`;
   try {
     const fd = await fs.open(targetPath, 'r+');
@@ -11,7 +11,7 @@ export async function saveFile(targetPath: string, _content: string, removeText?
       textToCompare = textToCompare.replace(removeText, '');
     }
     if (textToCompare.trim() !== content.trim()) {
-      console.log(`Regenerated ${targetPath}`);
+      console.log(fileExisted === false ? `Created ${targetPath}` : `Regenerated ${targetPath}`);
       await fd.truncate(0);
       await fd.write(content, 0, 'utf-8');
     }
@@ -49,7 +49,8 @@ type TsResult = { result: string };
 export async function saveTsFile(targetPath: string, content: TsResult | Promise<TsResult>) {
   const { result } = await content;
   const contentHash = crypto.createHash('sha256').update(result).digest('hex');
-  if (await fileExists(targetPath)) {
+  const _fileExists = await fileExists(targetPath);
+  if (_fileExists) {
     const existingContent = await fs.readFile(targetPath, 'utf-8');
     const sourceHash = existingContent.match(/\/\/ Source hash: ([a-f0-9]+)/);
     if (sourceHash && sourceHash[1] === contentHash) {
@@ -72,5 +73,5 @@ export async function saveTsFile(targetPath: string, content: TsResult | Promise
 
   const contentMain = output || result;
   const regexToIgnore = /\/\/ Source hash: [a-f0-9]+/;
-  await saveFile(targetPath, `${contentMain.trim()}\n\n// Source hash: ${contentHash}`, regexToIgnore);
+  await saveFile(targetPath, `${contentMain.trim()}\n\n// Source hash: ${contentHash}`, regexToIgnore, _fileExists);
 }

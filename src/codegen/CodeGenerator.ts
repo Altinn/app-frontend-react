@@ -107,8 +107,9 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
         const resolved = this.transformToResolved();
         CodeGeneratorContext.getFileInstance().addSymbol(resolvedSymbol, resolved as MaybeSymbolizedCodeGenerator<any>);
 
-        // PRIORITY: Figure out if the current context is resolved or unresolved
-        return unresolvedSymbol.name;
+        return CodeGeneratorContext.getTypeScriptInstance().variant === 'unresolved'
+          ? unresolvedSymbol.name
+          : resolvedSymbol.name;
       }
 
       CodeGeneratorContext.getFileInstance().addSymbol(this.internal.symbol, this);
