@@ -419,12 +419,7 @@ export function generateCommonSchema(): { [key in ValidCommonKeys]: JSONSchema7 
       val.additionalProperties(undefined);
     }
 
-    if (commonContainsExpressions(key as ValidCommonKeys)) {
-      out[`${key}Unresolved`] = val.toJsonSchema();
-      out[`${key}Resolved`] = val.transformToResolved().toJsonSchema();
-    } else {
-      out[key] = val.toJsonSchema();
-    }
+    out[key] = val.toJsonSchema();
   }
 
   return out as { [key in ValidCommonKeys]: JSONSchema7 };

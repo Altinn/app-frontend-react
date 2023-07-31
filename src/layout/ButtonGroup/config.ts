@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { TsVariant } from 'src/codegen/CodeGeneratorContext';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -8,20 +9,23 @@ export const Config = new CG.component({
     renderInTable: false,
     renderInButtonGroup: false,
   },
-}).addProperty({
-  unresolved: new CG.prop(
-    'children',
-    new CG.arr(new CG.str())
-      .setTitle('Children')
-      .setDescription('Child component IDs of button-like components to be rendered in this group'),
-  ),
-  resolved: new CG.prop(
-    'childComponents',
-    new CG.arr(
-      new CG.import({
-        import: 'LayoutNode',
-        from: 'src/utils/layout/LayoutNode',
-      }),
-    ),
-  ),
-});
+})
+  .addProperty(
+    new CG.prop(
+      'children',
+      new CG.arr(new CG.str())
+        .setTitle('Children')
+        .setDescription('Child component IDs of button-like components to be rendered in this group'),
+    ).onlyIn(TsVariant.Unresolved),
+  )
+  .addProperty(
+    new CG.prop(
+      'childComponents',
+      new CG.arr(
+        new CG.import({
+          import: 'LayoutNode',
+          from: 'src/utils/layout/LayoutNode',
+        }),
+      ),
+    ).onlyIn(TsVariant.Resolved),
+  );

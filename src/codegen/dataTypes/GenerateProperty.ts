@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { CodeGeneratorContext, TsVariant } from 'src/codegen/CodeGeneratorContext';
 
 /**
  * Generates a property on an object. Remember to call insertBefore/insertAfter/insertFirst before adding it to
@@ -12,6 +13,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
   private _insertBefore?: string;
   private _insertAfter?: string;
   private _insertFirst = false;
+  private _onlyVariant?: TsVariant;
 
   constructor(
     public readonly name: string,
@@ -46,6 +48,19 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     return this;
   }
 
+  onlyIn(variant: TsVariant): this {
+    this._onlyVariant = variant;
+    return this;
+  }
+
+  shouldExistIn(variant: TsVariant): boolean {
+    return !this._onlyVariant || this._onlyVariant === variant;
+  }
+
+  shouldExistInCurrentVariant(): boolean {
+    return this.shouldExistIn(CodeGeneratorContext.getTypeScriptInstance().variant);
+  }
+
   toObject() {
     return {
       name: this.name,
@@ -60,16 +75,31 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
   }
 
   transformToResolved(): GenerateProperty<any> {
+    if (this._onlyVariant === TsVariant.Unresolved) {
+      throw new Error(
+        'Cannot transform to resolved when the property is not supposed to be present in resolved ' +
+          'variants. This is probably a bug, as the property should have been filtered out before this point.',
+      );
+    }
+
     const next = new GenerateProperty(this.name, this.type.transformToResolved());
     next._insertFirst = this._insertFirst;
     next._insertBefore = this._insertBefore;
     next._insertAfter = this._insertAfter;
+    next._onlyVariant = this._onlyVariant;
     next.internal = this.internal;
 
     return next;
   }
 
   _toTypeScript() {
+    if (this._onlyVariant && CodeGeneratorContext.getTypeScriptInstance().variant !== this._onlyVariant) {
+      throw new Error(
+        'This property is not supposed to be present in this variant. This is probably a bug, ' +
+          'as the property should have been filtered out before this point.',
+      );
+    }
+
     return this.type.internal.optional
       ? `${this.name}?: ${this.type._toTypeScript()};`
       : `${this.name}: ${this.type._toTypeScript()};`;

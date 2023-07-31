@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import { TsVariant } from 'src/codegen/CodeGeneratorContext';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -80,7 +81,16 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
   }
 
   transformToResolved(): GenerateObject<any> {
-    const next = new GenerateObject(...this.properties.map((prop) => prop.transformToResolved()));
+    const newProps: Props = [];
+    for (const prop of this.properties) {
+      if (!prop.shouldExistIn(TsVariant.Resolved)) {
+        continue;
+      }
+
+      newProps.push(prop.transformToResolved());
+    }
+
+    const next = new GenerateObject(...newProps);
     next._additionalProperties = this._additionalProperties;
     next._extends = this._extends.map((e) => e.transformToResolved());
     next.internal = structuredClone(this.internal);
@@ -101,7 +111,13 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
 
   _toTypeScriptDefinition(symbol: string | undefined): string {
     const properties: string[] = [];
-    properties.push(...this.properties.map((prop) => prop._toTypeScript()));
+    for (const prop of this.properties) {
+      if (!prop.shouldExistInCurrentVariant()) {
+        continue;
+      }
+      properties.push(prop._toTypeScript());
+    }
+
     if (this._additionalProperties) {
       properties.push(`[key: string]: ${this._additionalProperties._toTypeScript()};`);
     }
@@ -143,6 +159,9 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
       }
 
       for (const prop of this.properties) {
+        if (!prop.shouldExistIn(TsVariant.Unresolved)) {
+          continue;
+        }
         allProperties[prop.name] = true;
         if (!prop.type.internal.optional) {
           requiredProperties.push(prop.name);
@@ -176,10 +195,18 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
   private innerToJsonSchema(respectAdditionalProperties = true): JSONSchema7 {
     const properties: { [key: string]: JSONSchema7 } = {};
     for (const prop of this.properties) {
+      if (!prop.shouldExistIn(TsVariant.Unresolved)) {
+        // JsonSchema only supports unresolved variants, as the resolved types may include internal
+        // types such as LayoutNode
+        continue;
+      }
+
       properties[prop.name] = prop.type.toJsonSchema();
     }
 
-    const requiredProps = this.properties.filter((prop) => !prop.type.internal.optional).map((prop) => prop.name);
+    const requiredProps = this.properties
+      .filter((prop) => !prop.type.internal.optional && prop.shouldExistIn(TsVariant.Unresolved))
+      .map((prop) => prop.name);
 
     return {
       ...this.getInternalJsonSchema(),

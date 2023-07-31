@@ -210,7 +210,9 @@ export const Config = new CG.component({
                 'currently editing another row',
             ),
         ),
-      ).exportAs('IGroupEditProperties'),
+      )
+        .exportAs('IGroupEditProperties')
+        .optional(),
     ),
   )
   .addProperty(
@@ -269,6 +271,7 @@ export const Config = new CG.component({
     new CG.prop(
       'tableColumns',
       new CG.obj()
+        .optional()
         .additionalProperties(
           new CG.obj(
             new CG.prop(
@@ -361,7 +364,7 @@ export const Config = new CG.component({
         .setTitle('Grid-like rows before table')
         .setDescription('List of static Grid component rows to be displayed before the regular repeating group table');
 
-      return new CG.prop('rowBefore', type);
+      return new CG.prop('rowsBefore', type.optional());
     }),
   )
   .addProperty(
@@ -370,6 +373,6 @@ export const Config = new CG.component({
         .setTitle('Grid-like rows after table')
         .setDescription('List of static Grid component rows to be displayed after the regular repeating group table');
 
-      return new CG.prop('rowAfter', type);
+      return new CG.prop('rowsAfter', type.optional());
     }),
   );
