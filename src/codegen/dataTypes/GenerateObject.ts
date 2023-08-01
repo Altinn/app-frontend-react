@@ -35,6 +35,10 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     return this;
   }
 
+  hasProperty(name: string): boolean {
+    return this.properties.some((property) => property.name === name);
+  }
+
   addProperty(prop: GenerateProperty<any>): this {
     const { name, insertBefore, insertAfter, insertFirst } = prop.toObject();
 

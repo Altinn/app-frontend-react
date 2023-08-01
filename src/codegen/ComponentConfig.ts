@@ -155,15 +155,37 @@ export class ComponentConfig {
   }
 
   public toTypeScript(): string {
-    this.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
+    if (!this.typeDef.hasProperty('type')) {
+      this.typeDef.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
+    }
 
     // Forces the objects to register in the context and be exported via the context symbols table
     this.typeDef.exportAs(`Comp${this.typeSymbol}Unresolved`);
     this.typeDef.toTypeScript(TsVariant.Unresolved);
     this.typeDef.transformToResolved().toTypeScript(TsVariant.Resolved);
 
-    const staticElements: string[] = [];
+    const impl = new CG.import({
+      import: this.typeSymbol,
+      from: `./index`,
+    });
 
+    const staticElements = [
+      this.generateDefClass(),
+      `export const Config = {
+         def: new ${impl._toTypeScript()}(),
+         rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
+       }`,
+      `export type TypeConfig = {
+         layout: Comp${this.typeSymbol}Unresolved;
+         nodeItem: Comp${this.typeSymbol}Resolved;
+         nodeObj: ${this.layoutNodeType._toTypeScript()};
+       }`,
+    ];
+
+    return staticElements.join('\n\n');
+  }
+
+  private generateDefClass(): string {
     const symbol = this.typeSymbol;
     const category = this.config.category;
     const categorySymbol = CategoryImports[category]._toTypeScript();
@@ -180,27 +202,9 @@ export class ComponentConfig {
       throw new Error(`Unknown capability ${key}`);
     }
 
-    staticElements.push(`export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
+    return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
       ${methods.join('\n\n')}
-    }`);
-
-    const impl = new CG.import({
-      import: symbol,
-      from: `./index`,
-    });
-
-    staticElements.push(`export const Config = {
-      def: new ${impl._toTypeScript()}(),
-      rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
-    }`);
-
-    staticElements.push(`export type TypeConfig = {
-      layout: Comp${this.typeSymbol}Unresolved;
-      nodeItem: Comp${this.typeSymbol}Resolved;
-      nodeObj: ${this.layoutNodeType._toTypeScript()};
-    }`);
-
-    return staticElements.join('\n\n');
+    }`;
   }
 
   public toJsonSchema(): JSONSchema7 {
