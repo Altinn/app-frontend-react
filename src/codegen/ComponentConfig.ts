@@ -162,7 +162,8 @@ export class ComponentConfig {
     // Forces the objects to register in the context and be exported via the context symbols table
     this.typeDef.exportAs(`Comp${this.typeSymbol}Unresolved`);
     this.typeDef.toTypeScript(TsVariant.Unresolved);
-    this.typeDef.transformToResolved().toTypeScript(TsVariant.Resolved);
+    const resolved = this.typeDef.transformToResolved();
+    resolved.toTypeScript(TsVariant.Resolved);
 
     const impl = new CG.import({
       import: this.typeSymbol,
@@ -176,8 +177,8 @@ export class ComponentConfig {
          rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
        }`,
       `export type TypeConfig = {
-         layout: Comp${this.typeSymbol}Unresolved;
-         nodeItem: Comp${this.typeSymbol}Resolved;
+         layout: ${this.typeDef.getName()};
+         nodeItem: ${resolved.getName()};
          nodeObj: ${this.layoutNodeType._toTypeScript()};
        }`,
     ];

@@ -92,7 +92,11 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     return this;
   }
 
-  public transformNameToResolved() {
+  getName(): string | undefined {
+    return this.internal.symbol?.name;
+  }
+
+  transformNameToResolved() {
     if (!this.internal.symbol || this.internal.symbol.name.endsWith('Resolved')) {
       return;
     }

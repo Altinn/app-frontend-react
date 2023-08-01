@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { TsVariant } from 'src/codegen/CodeGeneratorContext';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -41,10 +42,9 @@ export const Config = new CG.component({
       'busyWithId',
       new CG.str()
         .optional()
-        .setTitle('(do not use)')
         .setDescription(
           'Possibly an internally used flag to make the button look like its loading (only used when mode is "instantiate")',
         ),
-    ),
+    ).onlyIn(TsVariant.Resolved),
   )
   .addProperty(new CG.prop('mapping', CG.common('IMapping').optional()));
