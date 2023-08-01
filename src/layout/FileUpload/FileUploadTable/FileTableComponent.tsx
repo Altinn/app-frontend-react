@@ -3,8 +3,8 @@ import React from 'react';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
-import { FileTableHeader } from 'src/layout/FileUpload/FileUploadTable/FileTableHeader';
 import { FileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRow';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
@@ -38,6 +38,7 @@ export function FileTableComponent({
   setValidationsWithTag,
 }: FileTableProps): JSX.Element | null {
   const dispatch = useAppDispatch();
+  const { lang } = useLanguage();
   const { id, baseComponentId, textResourceBindings, type } = node.item;
   const hasTag = type === 'FileUploadWithTag';
   const editIndex = useAppSelector(
@@ -76,10 +77,20 @@ export function FileTableComponent({
     >
       <table className={!mobileView ? classes.table : classes.tableMobile}>
         {(atleastOneTagExists(attachments) || !hasTag) && (
-          <FileTableHeader
-            mobileView={mobileView}
-            tagTitle={tagTitle}
-          />
+          <thead>
+            <tr
+              className={classes.blueUnderline}
+              id='altinn-file-list-row-header'
+            >
+              <th>{lang('form_filler.file_uploader_list_header_name')}</th>
+              {!mobileView ? <th>{lang('form_filler.file_uploader_list_header_file_size')}</th> : null}
+              {tagTitle ? <th>{tagTitle}</th> : null}
+              {!(tagTitle && mobileView) ? <th>{lang('form_filler.file_uploader_list_header_status')}</th> : null}
+              <th>
+                <p className='sr-only'>{lang('form_filler.file_uploader_list_header_delete_sr')}</p>
+              </th>
+            </tr>
+          </thead>
         )}
         <tbody className={classes.tableBody}>
           {attachments.map((attachment, index: number) =>
