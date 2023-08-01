@@ -27,7 +27,7 @@ export class Summary extends SummaryDef {
     return null;
   }
 
-  useDisplayData(): string {
+  getDisplayData(): string {
     return '';
   }
 }

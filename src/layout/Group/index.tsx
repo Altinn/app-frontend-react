@@ -49,7 +49,7 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
     return false;
   }
 
-  useDisplayData(): string {
+  getDisplayData(): string {
     return '';
   }
 

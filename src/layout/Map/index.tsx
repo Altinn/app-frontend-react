@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { MapDef } from 'src/layout/Map/config.generated';
 import { MapComponent } from 'src/layout/Map/MapComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
@@ -17,8 +16,7 @@ export class Map extends MapDef {
     return <MapComponent {...props} />;
   }
 
-  useDisplayData(node: LayoutNodeFromType<'Map'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+  getDisplayData(node: LayoutNodeFromType<'Map'>, { formData }): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

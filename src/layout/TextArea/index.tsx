@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { useAppSelector } from 'src/hooks/useAppSelector';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { TextAreaDef } from 'src/layout/TextArea/config.generated';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
@@ -17,8 +16,7 @@ export class TextArea extends TextAreaDef {
     return <TextAreaComponent {...props} />;
   }
 
-  useDisplayData(node: LayoutNodeFromType<'TextArea'>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
+  getDisplayData(node: LayoutNodeFromType<'TextArea'>, { formData }): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

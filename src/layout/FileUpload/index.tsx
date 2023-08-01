@@ -3,7 +3,7 @@ import React from 'react';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
 import { FileUploadDef } from 'src/layout/FileUpload/config.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
-import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
+import { getUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { attachmentsValid } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprResolved } from 'src/features/expressions/types';
@@ -29,8 +29,8 @@ export class FileUpload extends FileUploadDef implements ComponentValidation {
     return false;
   }
 
-  useDisplayData(node: LayoutNodeFromType<'FileUpload'>): string {
-    return useUploaderSummaryData(node)
+  getDisplayData(node: LayoutNodeFromType<'FileUpload'>, { formData, attachments }): string {
+    return getUploaderSummaryData(node, formData, attachments)
       .map((a) => a.name)
       .join(', ');
   }
