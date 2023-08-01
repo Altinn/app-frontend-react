@@ -2,7 +2,7 @@ import React from 'react';
 
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
-import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
+import { getUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
@@ -30,9 +30,8 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> implem
     return false;
   }
 
-  useDisplayData(node: LayoutNodeFromType<'FileUploadWithTag'>): string {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useUploaderSummaryData(node)
+  getDisplayData(node: LayoutNodeFromType<'FileUploadWithTag'>, { formData, attachments }): string {
+    return getUploaderSummaryData(node, formData, attachments)
       .map((a) => a.name)
       .join(', ');
   }

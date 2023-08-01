@@ -1,6 +1,8 @@
 import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
+import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useLanguage } from 'src/hooks/useLanguage';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
@@ -8,7 +10,13 @@ import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentTypeConfigs } from 'src/layout/components';
-import type { EmptyFieldValidation, PropsFromGenericComponent, SchemaValidation } from 'src/layout/index';
+import type {
+  DisplayData,
+  DisplayDataProps,
+  EmptyFieldValidation,
+  PropsFromGenericComponent,
+  SchemaValidation,
+} from 'src/layout/index';
 import type { ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -66,6 +74,20 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
   }
 
   /**
+   * Return true to allow this component to be rendered in an Accordion
+   */
+  canRenderInAccordion(): boolean {
+    return false;
+  }
+
+  /**
+   * Return true to allow this component to be rendered in an AccordionGroup
+   */
+  canRenderInAccordionGroup(): boolean {
+    return false;
+  }
+
+  /**
    * Should GenericComponent render validation messages for simpleBinding outside of this component?
    * This has no effect if:
    *  - Your component renders directly, using directRender()
@@ -106,7 +128,7 @@ export interface SummaryRendererProps<Type extends ComponentTypes> {
   overrides?: ISummaryComponent['overrides'];
 }
 
-abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
+abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> implements DisplayData<Type> {
   /**
    * Given a node (with group-index-aware data model bindings), this method should return a proper 'value' for the
    * current component/node. This value will be used to display form data in a repeating group table, and when rendering
@@ -114,7 +136,16 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
    * @see renderSummary
    * @see renderCompactSummary
    */
-  abstract useDisplayData(node: LayoutNodeFromType<Type>): string;
+  abstract getDisplayData(node: LayoutNodeFromType<Type>, displayDataProps: DisplayDataProps): string;
+
+  useDisplayData(node: LayoutNodeFromType<Type>): string {
+    const formData = useAppSelector((state) => state.formData.formData);
+    const attachments = useAppSelector((state) => state.attachments.attachments);
+    const options = useAppSelector((state) => state.optionState.options);
+    const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
+    const langTools = useLanguage();
+    return this.getDisplayData(node, { formData, attachments, options, uiConfig, langTools });
+  }
 
   /**
    * Render a summary for this component. For most components, this will return a:
