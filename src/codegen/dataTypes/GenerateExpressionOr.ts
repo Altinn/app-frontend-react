@@ -61,7 +61,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     }
 
     if (out) {
-      out.internal = this.internal as any;
+      out.internal = structuredClone(this.internal) as any;
       out.transformNameToResolved();
       return out;
     }

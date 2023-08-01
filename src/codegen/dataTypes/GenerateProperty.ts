@@ -82,12 +82,13 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
       );
     }
 
-    const next = new GenerateProperty(this.name, this.type.transformToResolved());
+    const resolvedType = this.type.transformToResolved();
+    const next = new GenerateProperty(this.name, resolvedType);
     next._insertFirst = this._insertFirst;
     next._insertBefore = this._insertBefore;
     next._insertAfter = this._insertAfter;
     next._onlyVariant = this._onlyVariant;
-    next.internal = this.internal;
+    next.internal = structuredClone(this.internal);
 
     return next;
   }

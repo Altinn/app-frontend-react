@@ -44,6 +44,19 @@ export abstract class CodeGenerator<T> {
   }
 
   transformToResolved(): this | CodeGenerator<any> {
+    const ignored = [
+      'GenerateString',
+      'GenerateConst',
+      'GenerateEnum',
+      'GenerateNumber',
+      'GenerateBoolean',
+      'GenerateInteger',
+      'GenerateLinked',
+    ];
+    const name = Object.getPrototypeOf(this).constructor.name;
+    if (ignored.includes(name)) {
+      return this;
+    }
     return this;
   }
 
@@ -93,6 +106,12 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
   }
 
   getName(): string | undefined {
+    if (!this.internal.symbol) {
+      return undefined;
+    }
+    if (this.containsExpressions()) {
+      return `${this.internal.symbol?.name}Unresolved`;
+    }
     return this.internal.symbol?.name;
   }
 
@@ -112,26 +131,24 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     if (this.internal.symbol) {
       const containsExpressions = this.containsExpressions();
       if (containsExpressions && !this.internal.symbol.name.match(/(Unresolved|Resolved)$/)) {
-        const unresolvedSymbol: SymbolExt = {
-          name: `${this.internal.symbol.name}Unresolved`,
-          exported: this.internal.symbol.exported,
-        };
-        const resolvedSymbol: SymbolExt = {
-          name: `${this.internal.symbol.name}Resolved`,
-          exported: this.internal.symbol.exported,
-        };
-        CodeGeneratorContext.getFileInstance().addSymbol(unresolvedSymbol, this);
+        const unresolvedName = this.getName() as string;
+        CodeGeneratorContext.getFileInstance().addSymbol({ ...this.internal.symbol, name: unresolvedName }, this);
         const resolved = this.transformToResolved();
+        const resolvedSymbol = resolved.internal.symbol;
+        if (!resolvedSymbol) {
+          throw new Error('Resolved symbol is undefined');
+        }
+
         CodeGeneratorContext.getFileInstance().addSymbol(resolvedSymbol, resolved as MaybeSymbolizedCodeGenerator<any>);
 
         return CodeGeneratorContext.getTypeScriptInstance().variant === TsVariant.Unresolved
-          ? unresolvedSymbol.name
+          ? unresolvedName
           : resolvedSymbol.name;
       }
 
       CodeGeneratorContext.getFileInstance().addSymbol(this.internal.symbol, this);
       // If this type has a symbol, always use the symbol name instead of the full type definition
-      return this.internal.symbol.name;
+      return this.getName() as string;
     }
 
     return this._toTypeScriptDefinition(undefined);

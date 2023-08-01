@@ -8,8 +8,21 @@ import type { CodeGenerator } from 'src/codegen/CodeGenerator';
  * Generates an array with inner items of the given type
  */
 export class GenerateArray<Inner extends CodeGenerator<any>> extends DescribableCodeGenerator<Inner[]> {
+  private _minItems?: number;
+  private _maxItems?: number;
+
   constructor(public readonly innerType: Inner) {
     super();
+  }
+
+  setMinItems(minItems: number): this {
+    this._minItems = minItems;
+    return this;
+  }
+
+  setMaxItems(maxItems: number): this {
+    this._maxItems = maxItems;
+    return this;
   }
 
   _toTypeScriptDefinition(symbol: string | undefined): string {
@@ -26,10 +39,19 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
       ...this.getInternalJsonSchema(),
       type: 'array',
       items: this.innerType.toJsonSchema(),
+      minItems: this._minItems,
+      maxItems: this._maxItems,
     };
   }
 
   containsExpressions(): boolean {
     return this.innerType.containsExpressions();
+  }
+
+  transformToResolved(): this | CodeGenerator<any> {
+    const out = new GenerateArray(this.innerType.transformToResolved());
+    out.internal = structuredClone(this.internal);
+
+    return out;
   }
 }

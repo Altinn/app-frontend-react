@@ -18,7 +18,7 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
   }
 
   transformToResolved(): this | GenerateImportedSymbol<any> {
-    throw new Error(`Cannot transform an import ${this.val.import} to a resolved import`);
+    return this;
   }
 
   _toTypeScriptDefinition(symbol: string | undefined): string {

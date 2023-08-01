@@ -21,12 +21,18 @@ export class GenerateLinked<
     super();
   }
 
+  transformToResolved(): this | CodeGenerator<any> {
+    return this.resolved;
+  }
+
   _toTypeScript(): string {
     if (CodeGeneratorContext.getTypeScriptInstance().variant === TsVariant.Unresolved) {
       return this.unresolved._toTypeScript();
     }
 
-    return this.resolved._toTypeScript();
+    // We cannot just call this.resolved._toTypeScript() here, because that would just fool us. All types should be
+    // deeply transformed to resolved mode instead. This exception is just thrown to guard against mistakes.
+    throw new Error('Cannot generate TypeScript for linked type in resolved mode - call transformToResolved() first');
   }
 
   toJsonSchema(): JSONSchema7 {
@@ -34,6 +40,8 @@ export class GenerateLinked<
   }
 
   containsExpressions(): boolean {
-    return this.unresolved.containsExpressions() || this.resolved.containsExpressions();
+    // This does not contain expressions itself, but it should be treated as if it does, because we need to output
+    // different types depending on the output variant.
+    return true;
   }
 }

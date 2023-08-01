@@ -2,11 +2,12 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
 import { TsVariant } from 'src/codegen/CodeGeneratorContext';
+import { GenerateComponentLikeBase } from 'src/codegen/dataTypes/GenerateComponentLike';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
-import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
-import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { ComponentCategory } from 'src/layout/common';
+import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
+import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import type {
@@ -46,7 +47,7 @@ const CategoryImports: { [Category in ComponentCategory]: GenerateImportedSymbol
   }),
 };
 
-export class ComponentConfig {
+export class ComponentConfig extends GenerateComponentLikeBase {
   public type: string;
   public typeSymbol: string;
   public layoutNodeType = new CG.import({
@@ -54,34 +55,78 @@ export class ComponentConfig {
     from: 'src/utils/layout/LayoutNode',
   });
 
-  private typeDef = new CG.obj().extends(CG.common('ComponentBase'));
+  private exportedComp: MaybeSymbolizedCodeGenerator<any> = this.inner;
 
   constructor(public readonly config: RequiredComponentConfig) {
+    super();
     if (config.category === ComponentCategory.Form) {
-      this.typeDef.extends(CG.common('FormComponentProps'));
+      this.inner.extends(CG.common('FormComponentProps'));
       this.extendTextResources(CG.common('TRBFormComp'));
     }
     if (config.category === ComponentCategory.Form || config.category === ComponentCategory.Container) {
-      this.typeDef.extends(CG.common('SummarizableComponentProps'));
+      this.inner.extends(CG.common('SummarizableComponentProps'));
       this.extendTextResources(CG.common('TRBSummarizable'));
     }
 
     if (config.rendersWithLabel) {
-      this.typeDef.extends(CG.common('LabeledComponentProps'));
+      this.inner.extends(CG.common('LabeledComponentProps'));
       this.extendTextResources(CG.common('TRBLabel'));
     }
   }
 
-  public addProperty(prop: GenerateProperty<any>): this {
-    this.typeDef.addProperty(prop);
-    return this;
+  private ensureNotOverridden(): void {
+    if (this.inner !== this.exportedComp) {
+      throw new Error('The exported symbol has been overridden, you cannot call this method anymore');
+    }
+  }
+
+  addProperty(prop: GenerateProperty<any>): this {
+    this.ensureNotOverridden();
+    return super.addProperty(prop);
+  }
+
+  makeSelectionComponent(minimalFunctionality: boolean = false): this {
+    this.ensureNotOverridden();
+    return super.makeSelectionComponent(minimalFunctionality);
+  }
+
+  addTextResourcesForLabel(): this {
+    this.ensureNotOverridden();
+    return super.addTextResourcesForLabel();
+  }
+
+  addDataModelBinding(type: 'simple' | 'list' | GenerateObject<any>): this {
+    this.ensureNotOverridden();
+    return super.addDataModelBinding(type);
+  }
+
+  extendTextResources(type: GenerateCommonImport<any>): this {
+    this.ensureNotOverridden();
+    return super.extendTextResources(type);
+  }
+
+  addTextResource(arg: GenerateTextResourceBinding): this {
+    this.ensureNotOverridden();
+    return super.addTextResource(arg);
   }
 
   public setType(type: string, symbol?: string): this {
     const symbolName = symbol ?? type;
     this.type = type;
     this.typeSymbol = symbolName;
+    this.inner.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
 
+    return this;
+  }
+
+  /**
+   * Overrides the exported symbol for this component with something else. This lets you change the base component
+   * type to, for example, a union of multiple types. This is for example useful for components that have
+   * configurations that change a lot of options based on some other options. Examples include the Group component,
+   * where many options rely on the Group being configured as repeating or not.
+   */
+  public overrideExported(comp: MaybeSymbolizedCodeGenerator<any>): this {
+    this.exportedComp = comp;
     return this;
   }
 
@@ -90,79 +135,11 @@ export class ComponentConfig {
     return this;
   }
 
-  private ensureTextResourceBindings(): void {
-    if (!this.typeDef.getProperty('textResourceBindings')) {
-      this.typeDef.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
-    }
-  }
-
-  public addTextResource(arg: GenerateTextResourceBinding): this {
-    this.ensureTextResourceBindings();
-    this.typeDef.getProperty('textResourceBindings')?.type.addProperty(arg);
-
-    return this;
-  }
-
-  private extendTextResources(type: GenerateCommonImport<any>): this {
-    this.ensureTextResourceBindings();
-    this.typeDef.getProperty('textResourceBindings')?.type.extends(type);
-
-    return this;
-  }
-
-  public addTextResourcesForLabel(): this {
-    return this.extendTextResources(CG.common('TRBLabel'));
-  }
-
-  public makeSelectionComponent(minimalFunctionality = false): this {
-    this.typeDef.extends(
-      minimalFunctionality ? CG.common('ISelectionComponentMinimal') : CG.common('ISelectionComponent'),
-    );
-
-    return this;
-  }
-
-  /**
-   * Adding multiple data model bindings to the component makes it a union
-   * PRIORITY: Support required and optional bindings
-   */
-  public addDataModelBinding(type: 'simple' | 'list' | GenerateObject<any>): this {
-    const mapping = {
-      simple: CG.common(`IDataModelBindingsSimple`),
-      list: CG.common(`IDataModelBindingsList`),
-    };
-    const targetType = typeof type === 'string' ? mapping[type] : type;
-
-    const name = 'dataModelBindings';
-    const title = 'Data model bindings';
-    const description = 'Describes the location in the data model where the component should store its value(s)';
-
-    if (targetType instanceof GenerateObject) {
-      targetType.setTitle(title).setDescription(description).optional();
-    }
-
-    const existing = this.typeDef.getProperty(name)?.type;
-    if (existing && existing instanceof GenerateUnion) {
-      existing.addType(targetType);
-    } else if (existing) {
-      const union = new CG.union(existing, targetType).setTitle(title).setDescription(description).optional();
-      this.typeDef.addProperty(new CG.prop(name, union));
-    } else {
-      this.typeDef.addProperty(new CG.prop(name, targetType));
-    }
-
-    return this;
-  }
-
   public toTypeScript(): string {
-    if (!this.typeDef.hasProperty('type')) {
-      this.typeDef.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
-    }
-
     // Forces the objects to register in the context and be exported via the context symbols table
-    this.typeDef.exportAs(`Comp${this.typeSymbol}Unresolved`);
-    this.typeDef.toTypeScript(TsVariant.Unresolved);
-    const resolved = this.typeDef.transformToResolved();
+    this.exportedComp.exportAs(`Comp${this.typeSymbol}`);
+    this.exportedComp.toTypeScript(TsVariant.Unresolved);
+    const resolved = this.exportedComp.transformToResolved() as MaybeSymbolizedCodeGenerator<any>;
     resolved.toTypeScript(TsVariant.Resolved);
 
     const impl = new CG.import({
@@ -177,7 +154,7 @@ export class ComponentConfig {
          rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
        }`,
       `export type TypeConfig = {
-         layout: ${this.typeDef.getName()};
+         layout: ${this.exportedComp.getName()};
          nodeItem: ${resolved.getName()};
          nodeObj: ${this.layoutNodeType._toTypeScript()};
        }`,
@@ -209,6 +186,6 @@ export class ComponentConfig {
   }
 
   public toJsonSchema(): JSONSchema7 {
-    return this.typeDef.toJsonSchema();
+    return this.exportedComp.toJsonSchema();
   }
 }
