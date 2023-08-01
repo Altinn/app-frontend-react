@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
-import { CodeGeneratorContext, TsVariant } from 'src/codegen/CodeGeneratorContext';
+import { CodeGeneratorContext, Variant, VariantSuffixes } from 'src/codegen/CodeGeneratorContext';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { ExprVal } from 'src/features/expressions/types';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
@@ -294,7 +294,7 @@ const common = {
         },
       }),
 
-  // Types that unresolved/resolved component definitions extend:
+  // Types that component definitions extend:
   ComponentBase: () =>
     new CG.obj(
       new CG.prop(
@@ -382,23 +382,23 @@ export function generateCommonTypeScript(): string[] {
 
   for (const key in common) {
     if (commonContainsExpressions(key as ValidCommonKeys)) {
-      const unresolved = CodeGeneratorContext.generateTypeScript(() => {
+      const external = CodeGeneratorContext.generateTypeScript(() => {
         const val = common[key]();
-        return val._toTypeScriptDefinition(`${key}Unresolved`);
-      }, TsVariant.Unresolved);
-      const resolved = CodeGeneratorContext.generateTypeScript(() => {
+        return val._toTypeScriptDefinition(`${key}${VariantSuffixes.external}`);
+      }, Variant.External);
+      const internal = CodeGeneratorContext.generateTypeScript(() => {
         const val = common[key]();
-        return val.transformToResolved()._toTypeScriptDefinition(`${key}Resolved`);
-      }, TsVariant.Resolved);
-      out.push(`export ${unresolved.result}\n`);
-      out.push(`export ${resolved.result}\n`);
+        return val.transformToInternal()._toTypeScriptDefinition(`${key}${VariantSuffixes.internal}`);
+      }, Variant.Internal);
+      out.push(`export ${external.result}\n`);
+      out.push(`export ${internal.result}\n`);
     } else {
-      const unresolved = CodeGeneratorContext.generateTypeScript(() => {
+      const external = CodeGeneratorContext.generateTypeScript(() => {
         const val = common[key]();
         return val._toTypeScriptDefinition(key);
-      }, TsVariant.Unresolved);
+      }, Variant.External);
 
-      out.push(`export ${unresolved.result}\n`);
+      out.push(`export ${external.result}\n`);
     }
   }
 
@@ -436,8 +436,7 @@ export function getPropertiesFor(key: ValidCommonKeys): GenerateProperty<any>[] 
 
 export function getCommonRealName(key: ValidCommonKeys): string {
   if (commonContainsExpressions(key) && key in common) {
-    const suffix =
-      CodeGeneratorContext.getTypeScriptInstance().variant === TsVariant.Resolved ? 'Resolved' : 'Unresolved';
+    const suffix = VariantSuffixes[CodeGeneratorContext.getTypeScriptInstance().variant];
     return `${key}${suffix}`;
   }
 

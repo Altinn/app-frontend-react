@@ -1,5 +1,5 @@
 import { CG } from 'src/codegen/CG';
-import { TsVariant } from 'src/codegen/CodeGeneratorContext';
+import { Variant } from 'src/codegen/CodeGeneratorContext';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -45,6 +45,6 @@ export const Config = new CG.component({
         .setDescription(
           'Possibly an internally used flag to make the button look like its loading (only used when mode is "instantiate")',
         ),
-    ).onlyIn(TsVariant.Resolved),
+    ).onlyIn(Variant.Internal),
   )
   .addProperty(new CG.prop('mapping', CG.common('IMapping').optional()));

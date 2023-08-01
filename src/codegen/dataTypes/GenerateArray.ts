@@ -48,8 +48,8 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     return this.innerType.containsExpressions();
   }
 
-  transformToResolved(): this | CodeGenerator<any> {
-    const out = new GenerateArray(this.innerType.transformToResolved());
+  transformToInternal(): this | CodeGenerator<any> {
+    const out = new GenerateArray(this.innerType.transformToInternal());
     out.internal = structuredClone(this.internal);
 
     return out;

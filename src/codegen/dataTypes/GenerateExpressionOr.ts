@@ -2,7 +2,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import { CodeGeneratorContext, TsVariant } from 'src/codegen/CodeGeneratorContext';
+import { CodeGeneratorContext, Variant } from 'src/codegen/CodeGeneratorContext';
 import { ExprVal } from 'src/features/expressions/types';
 import type { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
 import type { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
@@ -48,7 +48,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     super();
   }
 
-  transformToResolved(): GeneratorMap<Val> {
+  transformToInternal(): GeneratorMap<Val> {
     let out: GeneratorMap<Val> | undefined;
     if (this.valueType === ExprVal.Boolean) {
       out = new CG.bool() as GeneratorMap<Val>;
@@ -70,7 +70,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
   }
 
   _toTypeScriptDefinition(symbol: string | undefined): string {
-    if (CodeGeneratorContext.getTypeScriptInstance().variant === TsVariant.Resolved) {
+    if (CodeGeneratorContext.getTypeScriptInstance().variant === Variant.Internal) {
       throw new Error(
         'Cannot generate TypeScript definition for resolved expression type. Call transformToResolved() first.',
       );

@@ -20,7 +20,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys> extends MaybeOption
     this.realKey = realKey;
   }
 
-  transformToResolved(): this | GenerateCommonImport<any> {
+  transformToInternal(): this | GenerateCommonImport<any> {
     if (commonContainsExpressions(this.key)) {
       return new GenerateCommonImport(this.key, `${this.key}Resolved`);
     }

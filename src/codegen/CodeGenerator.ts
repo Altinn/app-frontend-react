@@ -1,6 +1,6 @@
 import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
-import { CodeGeneratorContext, TsVariant } from 'src/codegen/CodeGeneratorContext';
+import { CodeGeneratorContext, Variant, VariantSuffixes } from 'src/codegen/CodeGeneratorContext';
 
 export interface JsonSchemaExt<T> {
   title: string | undefined;
@@ -43,20 +43,7 @@ export abstract class CodeGenerator<T> {
     };
   }
 
-  transformToResolved(): this | CodeGenerator<any> {
-    const ignored = [
-      'GenerateString',
-      'GenerateConst',
-      'GenerateEnum',
-      'GenerateNumber',
-      'GenerateBoolean',
-      'GenerateInteger',
-      'GenerateLinked',
-    ];
-    const name = Object.getPrototypeOf(this).constructor.name;
-    if (ignored.includes(name)) {
-      return this;
-    }
+  transformToInternal(): this | CodeGenerator<any> {
     return this;
   }
 
@@ -67,10 +54,10 @@ export abstract class CodeGenerator<T> {
   abstract toJsonSchema(): JSONSchema7;
   abstract _toTypeScript(): string;
 
-  toTypeScript(variant: TsVariant): string {
+  toTypeScript(variant: Variant): string {
     return CodeGeneratorContext.generateTypeScript(() => {
-      if (variant === TsVariant.Resolved) {
-        return this.transformToResolved()._toTypeScript();
+      if (variant === Variant.Internal) {
+        return this.transformToInternal()._toTypeScript();
       }
 
       return this._toTypeScript();
@@ -110,7 +97,7 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
       return undefined;
     }
     if (this.containsExpressions()) {
-      return `${this.internal.symbol?.name}Unresolved`;
+      return `${this.internal.symbol?.name}${VariantSuffixes.external}`;
     }
     return this.internal.symbol?.name;
   }
@@ -120,30 +107,31 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
       return;
     }
 
-    if (this.internal.symbol.name.endsWith('Unresolved')) {
-      this.internal.symbol.name = this.internal.symbol.name.replace(/Unresolved$/, '');
+    if (this.internal.symbol.name.endsWith(VariantSuffixes.external)) {
+      this.internal.symbol.name = this.internal.symbol.name.replace(new RegExp(`${VariantSuffixes.external}$`), '');
     }
 
-    this.internal.symbol.name = `${this.internal.symbol.name}Resolved`;
+    this.internal.symbol.name = `${this.internal.symbol.name}${VariantSuffixes.internal}`;
   }
 
   _toTypeScript(): string {
     if (this.internal.symbol) {
       const containsExpressions = this.containsExpressions();
-      if (containsExpressions && !this.internal.symbol.name.match(/(Unresolved|Resolved)$/)) {
-        const unresolvedName = this.getName() as string;
-        CodeGeneratorContext.getFileInstance().addSymbol({ ...this.internal.symbol, name: unresolvedName }, this);
-        const resolved = this.transformToResolved();
-        const resolvedSymbol = resolved.internal.symbol;
-        if (!resolvedSymbol) {
-          throw new Error('Resolved symbol is undefined');
+      const hasSuffixRegex = new RegExp(`(${VariantSuffixes.external}|${VariantSuffixes.internal})$`);
+      if (containsExpressions && !this.internal.symbol.name.match(hasSuffixRegex)) {
+        const externalName = this.getName() as string;
+        CodeGeneratorContext.getFileInstance().addSymbol({ ...this.internal.symbol, name: externalName }, this);
+        const internal = this.transformToInternal();
+        const internalSymbol = internal.internal.symbol;
+        if (!internalSymbol) {
+          throw new Error('Internal symbol is undefined');
         }
 
-        CodeGeneratorContext.getFileInstance().addSymbol(resolvedSymbol, resolved as MaybeSymbolizedCodeGenerator<any>);
+        CodeGeneratorContext.getFileInstance().addSymbol(internalSymbol, internal as MaybeSymbolizedCodeGenerator<any>);
 
-        return CodeGeneratorContext.getTypeScriptInstance().variant === TsVariant.Unresolved
-          ? unresolvedName
-          : resolvedSymbol.name;
+        return CodeGeneratorContext.getTypeScriptInstance().variant === Variant.External
+          ? externalName
+          : internalSymbol.name;
       }
 
       CodeGeneratorContext.getFileInstance().addSymbol(this.internal.symbol, this);

@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
-import { CodeGeneratorContext, TsVariant } from 'src/codegen/CodeGeneratorContext';
+import { CodeGeneratorContext, Variant } from 'src/codegen/CodeGeneratorContext';
 
 /**
  * Generates a property on an object. Remember to call insertBefore/insertAfter/insertFirst before adding it to
@@ -13,7 +13,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
   private _insertBefore?: string;
   private _insertAfter?: string;
   private _insertFirst = false;
-  private _onlyVariant?: TsVariant;
+  private _onlyVariant?: Variant;
 
   constructor(
     public readonly name: string,
@@ -48,12 +48,12 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     return this;
   }
 
-  onlyIn(variant: TsVariant): this {
+  onlyIn(variant: Variant): this {
     this._onlyVariant = variant;
     return this;
   }
 
-  shouldExistIn(variant: TsVariant): boolean {
+  shouldExistIn(variant: Variant): boolean {
     return !this._onlyVariant || this._onlyVariant === variant;
   }
 
@@ -74,15 +74,15 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     return this.type.containsExpressions();
   }
 
-  transformToResolved(): GenerateProperty<any> {
-    if (this._onlyVariant === TsVariant.Unresolved) {
+  transformToInternal(): GenerateProperty<any> {
+    if (this._onlyVariant === Variant.External) {
       throw new Error(
         'Cannot transform to resolved when the property is not supposed to be present in resolved ' +
           'variants. This is probably a bug, as the property should have been filtered out before this point.',
       );
     }
 
-    const resolvedType = this.type.transformToResolved();
+    const resolvedType = this.type.transformToInternal();
     const next = new GenerateProperty(this.name, resolvedType);
     next._insertFirst = this._insertFirst;
     next._insertBefore = this._insertBefore;

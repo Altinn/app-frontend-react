@@ -51,7 +51,7 @@ export class CodeGeneratorContext {
     return { result: parts.join('\n\n') };
   }
 
-  public static generateTypeScript(fn: () => string, variant: TsVariant): { result: string } {
+  public static generateTypeScript(fn: () => string, variant: Variant): { result: string } {
     if (!this.fileInstance) {
       throw new Error(
         'CodeGeneratorFileContext has not been initialized, run this in code that is called ' +
@@ -124,11 +124,16 @@ export class CodeGeneratorFileContext {
   }
 }
 
-export enum TsVariant {
-  Resolved = 'resolved',
-  Unresolved = 'unresolved',
+export enum Variant {
+  Internal = 'internal',
+  External = 'external',
 }
 
+export const VariantSuffixes: { [variant in Variant]: string } = {
+  [Variant.Internal]: 'Internal',
+  [Variant.External]: 'External',
+};
+
 export class CodeGeneratorTypeScriptContext {
-  constructor(public readonly variant: TsVariant) {}
+  constructor(public readonly variant: Variant) {}
 }

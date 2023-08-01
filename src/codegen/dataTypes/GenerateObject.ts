@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import { TsVariant } from 'src/codegen/CodeGeneratorContext';
+import { Variant } from 'src/codegen/CodeGeneratorContext';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -84,19 +84,19 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     return this.properties;
   }
 
-  transformToResolved(): GenerateObject<any> {
+  transformToInternal(): GenerateObject<any> {
     const newProps: Props = [];
     for (const prop of this.properties) {
-      if (!prop.shouldExistIn(TsVariant.Resolved)) {
+      if (!prop.shouldExistIn(Variant.Internal)) {
         continue;
       }
 
-      newProps.push(prop.transformToResolved());
+      newProps.push(prop.transformToInternal());
     }
 
     const next = new GenerateObject(...newProps);
     next._additionalProperties = this._additionalProperties;
-    next._extends = this._extends.map((e) => e.transformToResolved());
+    next._extends = this._extends.map((e) => e.transformToInternal());
     next.internal = structuredClone(this.internal);
     next.transformNameToResolved();
 
@@ -163,7 +163,7 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
       }
 
       for (const prop of this.properties) {
-        if (!prop.shouldExistIn(TsVariant.Unresolved)) {
+        if (!prop.shouldExistIn(Variant.External)) {
           continue;
         }
         allProperties[prop.name] = true;
@@ -199,9 +199,8 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
   private innerToJsonSchema(respectAdditionalProperties = true): JSONSchema7 {
     const properties: { [key: string]: JSONSchema7 } = {};
     for (const prop of this.properties) {
-      if (!prop.shouldExistIn(TsVariant.Unresolved)) {
-        // JsonSchema only supports unresolved variants, as the resolved types may include internal
-        // types such as LayoutNode
+      if (!prop.shouldExistIn(Variant.External)) {
+        // JsonSchema only supports external variants
         continue;
       }
 
@@ -209,7 +208,7 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     }
 
     const requiredProps = this.properties
-      .filter((prop) => !prop.type.internal.optional && prop.shouldExistIn(TsVariant.Unresolved))
+      .filter((prop) => !prop.type.internal.optional && prop.shouldExistIn(Variant.External))
       .map((prop) => prop.name);
 
     return {

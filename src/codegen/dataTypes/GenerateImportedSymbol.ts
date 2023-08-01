@@ -17,7 +17,7 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
     super();
   }
 
-  transformToResolved(): this | GenerateImportedSymbol<any> {
+  transformToInternal(): this | GenerateImportedSymbol<any> {
     return this;
   }
 

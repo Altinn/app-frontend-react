@@ -24,8 +24,8 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
     return this.types.some((type) => type.containsExpressions());
   }
 
-  transformToResolved(): this | CodeGenerator<any> {
-    const types = this.types.map((type) => type.transformToResolved());
+  transformToInternal(): this | CodeGenerator<any> {
+    const types = this.types.map((type) => type.transformToInternal());
     const out = new GenerateUnion(...types);
     out.internal = structuredClone(this.internal);
     out.transformNameToResolved();
