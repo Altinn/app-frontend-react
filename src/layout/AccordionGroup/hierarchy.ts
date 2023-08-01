@@ -58,7 +58,7 @@ export class AccordionGroupHierarchyGenerator extends ComponentHierarchyGenerato
     const def = prototype && generator.getLayoutComponentObject(prototype.type);
 
     if (outputWarning && prototype && !def?.canRenderInAccordionGroup()) {
-      console.warn(
+      window.logWarn(
         `Accordion component included a component '${childId}', which ` +
           `is a '${prototype.type}' and cannot be rendered in an Accordion.`,
       );
