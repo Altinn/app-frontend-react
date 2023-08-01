@@ -11,10 +11,6 @@ export class Button extends ButtonDef {
   render(props: PropsFromGenericComponent<'Button'>): JSX.Element | null {
     return <ButtonComponent {...props} />;
   }
-
-  canRenderInAccordion(): boolean {
-    return true;
-  }
 }
 
 export const Config = {

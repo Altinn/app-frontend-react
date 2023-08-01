@@ -10,6 +10,8 @@ export const Config = asUploaderComponent(
     capabilities: {
       renderInTable: false,
       renderInButtonGroup: false,
+      renderInAccordion: false,
+      renderInAccordionGroup: false,
     },
   }),
 );

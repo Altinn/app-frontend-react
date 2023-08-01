@@ -7,6 +7,8 @@ export const Config = new CG.component({
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: true,
+    renderInAccordion: true,
+    renderInAccordionGroup: false,
   },
 })
   .addTextResource(

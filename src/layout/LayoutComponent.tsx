@@ -64,16 +64,12 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
   /**
    * Return true to allow this component to be rendered in an Accordion
    */
-  canRenderInAccordion(): boolean {
-    return false;
-  }
+  abstract canRenderInAccordion(): boolean;
 
   /**
    * Return true to allow this component to be rendered in an AccordionGroup
    */
-  canRenderInAccordionGroup(): boolean {
-    return false;
-  }
+  abstract canRenderInAccordionGroup(): boolean;
 
   /**
    * Should GenericComponent render validation messages for simpleBinding outside of this component?

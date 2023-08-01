@@ -22,6 +22,8 @@ export interface RequiredComponentConfig {
   capabilities: {
     renderInTable: boolean;
     renderInButtonGroup: boolean;
+    renderInAccordion: boolean;
+    renderInAccordionGroup: boolean;
   };
 }
 
@@ -166,14 +168,20 @@ export class ComponentConfig {
     const category = this.config.category;
     const categorySymbol = CategoryImports[category]._toTypeScript();
 
-    staticElements.push(`export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
-      canRenderInTable(): boolean {
-        return ${this.config.capabilities.renderInTable ? 'true' : 'false'};
+    const methods: string[] = [];
+    for (const [key, value] of Object.entries(this.config.capabilities)) {
+      if (key.startsWith('renderIn')) {
+        const name = key.replace('renderIn', '');
+        const valueStr = JSON.stringify(value);
+        methods.push(`canRenderIn${name}(): ${valueStr} {\nreturn ${valueStr}; }`);
+        continue;
       }
 
-      canRenderInButtonGroup(): boolean {
-        return ${this.config.capabilities.renderInButtonGroup ? 'true' : 'false'};
-      }
+      throw new Error(`Unknown capability ${key}`);
+    }
+
+    staticElements.push(`export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
+      ${methods.join('\n\n')}
     }`);
 
     const impl = new CG.import({

@@ -7,5 +7,7 @@ export const Config = new CG.component({
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,
+    renderInAccordion: true,
+    renderInAccordionGroup: false,
   },
 });
