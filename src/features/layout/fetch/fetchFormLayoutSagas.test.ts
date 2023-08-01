@@ -11,7 +11,7 @@ import {
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import * as networking from 'src/utils/network/networking';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUpload/FileUploadWithTag/types';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { IHiddenLayoutsExpressions } from 'src/types';

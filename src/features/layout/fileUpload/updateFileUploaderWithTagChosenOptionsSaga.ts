@@ -5,7 +5,7 @@ import type { SagaIterator } from 'redux-saga';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IUpdateFileUploaderWithTagChosenOptions } from 'src/features/layout/formLayoutTypes';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUpload/FileUploadWithTag/types';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { IRuntimeState } from 'src/types';
 
 export function* updateFileUploaderWithTagChosenOptionsSaga({

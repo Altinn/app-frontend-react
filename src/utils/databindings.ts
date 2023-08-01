@@ -3,8 +3,8 @@ import { dot, object } from 'dot-object';
 import { getParentGroup } from 'src/utils/validation/validation';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUpload/FileUploadWithTag/types';
 import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type { IDataModelBindings, ILayout } from 'src/layout/layout';
 import type { IMapping, IRepeatingGroup, IRepeatingGroups } from 'src/types';
 

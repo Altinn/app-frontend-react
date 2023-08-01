@@ -6,7 +6,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { FileTableHeader } from 'src/layout/FileUpload/FileUploadTable/FileTableHeader';
 import { FileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRow';
-import { EditWindowComponent } from 'src/layout/FileUpload/FileUploadWithTag/EditWindowComponent';
+import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';

@@ -10,7 +10,7 @@ import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUpload/FileUploadWithTag/types';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
 import type {
   IDataModelBindingsList,
   IDataModelBindingsSimple,
