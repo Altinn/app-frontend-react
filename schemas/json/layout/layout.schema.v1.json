@@ -167,7 +167,7 @@
         "children": {
           "title": "Children",
           "type": "array",
-          "description": "An array of the \"id\" of child components belonging to the button group.",
+          "description": "An array of the \"id\" of child components belonging to the accordion.",
           "items": {
             "type": "string"
           },
@@ -181,7 +181,7 @@
         "children": {
           "title": "Children",
           "type": "array",
-          "description": "An array of the \"id\" of child components belonging to the button group.",
+          "description": "An array of the \"id\" of child components belonging to the accordion group.",
           "items": {
             "type": "string"
           },
