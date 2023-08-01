@@ -1,20 +1,3 @@
-.fileUploadTable > tbody > tr > td {
-  padding: 10px 4px 10px 6px;
-}
-
-.fileUploadTable > tbody > tr > td:first-child {
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.fileUploadTable {
-  width: 100%;
-  margin-top: 1.5rem;
-  border-spacing: 0;
-  table-layout: fixed;
-  box-shadow: none;
-}
-
 .fileUploadButton {
   cursor: pointer;
   background: 0;

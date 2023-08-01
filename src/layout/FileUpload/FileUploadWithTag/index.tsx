@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { AttachmentSummaryComponent } from 'src/layout/FileUpload/shared/AttachmentSummaryComponent';
-import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
-import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
+import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
+import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
+import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
@@ -10,7 +10,7 @@ import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUpload/FileUploadWithTag/types';
 import type {
   IDataModelBindingsList,
   IDataModelBindingsSimple,
@@ -23,7 +23,7 @@ import type { IValidationContext, IValidationObject } from 'src/utils/validation
 
 export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> implements ComponentValidation {
   render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {
-    return <FileUploadWithTagComponent {...props} />;
+    return <FileUploadComponent {...props} />;
   }
 
   renderDefaultValidations(): boolean {
@@ -31,6 +31,7 @@ export class FileUploadWithTag extends FormComponent<'FileUploadWithTag'> implem
   }
 
   useDisplayData(node: LayoutNodeFromType<'FileUploadWithTag'>): string {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useUploaderSummaryData(node)
       .map((a) => a.name)
       .join(', ');

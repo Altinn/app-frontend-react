@@ -2,8 +2,8 @@ import React from 'react';
 
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
-import classes from 'src/layout/FileUpload/shared/AttachmentSummaryComponent.module.css';
-import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
+import classes from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent.module.css';
+import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 

@@ -8,8 +8,8 @@ import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopo
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { AttachmentFileName } from 'src/layout/FileUpload/shared/AttachmentFileName';
-import classes from 'src/layout/FileUpload/shared/FileTableRow.module.css';
+import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
+import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { IAttachment } from 'src/features/attachments';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
@@ -19,13 +19,22 @@ class IFileUploadTableRowProps {
   mobileView: boolean;
   index: number;
   node: LayoutNodeFromType<'FileUpload'> | LayoutNodeFromType<'FileUploadWithTag'>;
-  onEdit?: (index: any) => void;
   tagLabel?: string | undefined;
+  editIndex: number;
+  setEditIndex: (index: number) => void;
 }
 
 export const bytesInOneMB = 1048576;
 
-export function FileTableRow({ node, attachment, mobileView, index, onEdit, tagLabel }: IFileUploadTableRowProps) {
+export function FileTableRow({
+  node,
+  attachment,
+  mobileView,
+  index,
+  tagLabel,
+  editIndex,
+  setEditIndex,
+}: IFileUploadTableRowProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const dispatch = useAppDispatch();
   const { id, alertOnDelete, baseComponentId, dataModelBindings } = node.item;
@@ -86,8 +95,9 @@ export function FileTableRow({ node, attachment, mobileView, index, onEdit, tagL
         mobileView={mobileView}
         setPopoverOpen={setPopoverOpen}
         popoverOpen={popoverOpen}
-        onEdit={onEdit}
         tagLabel={tagLabel}
+        editIndex={editIndex}
+        setEditIndex={setEditIndex}
       />
     </tr>
   );
@@ -196,8 +206,9 @@ const ButtonCellContent = ({
   mobileView,
   setPopoverOpen,
   popoverOpen,
-  onEdit,
   tagLabel,
+  editIndex,
+  setEditIndex,
 }: {
   deleting: boolean;
   handleDeleteClick: () => void;
@@ -207,10 +218,19 @@ const ButtonCellContent = ({
   mobileView: boolean;
   setPopoverOpen: (open: boolean) => void;
   popoverOpen: boolean;
-  onEdit?: (index: any) => void;
   tagLabel: string | undefined;
+  editIndex: number;
+  setEditIndex: (index: number) => void;
 }) => {
   const { lang, langAsString } = useLanguage();
+
+  const handleEdit = (index: number) => {
+    if (editIndex === -1 || editIndex !== index) {
+      setEditIndex(index);
+    } else {
+      setEditIndex(-1);
+    }
+  };
 
   return (
     <td>
@@ -228,7 +248,7 @@ const ButtonCellContent = ({
               size='small'
               variant='quiet'
               color={tagLabel ? 'secondary' : 'danger'}
-              onClick={() => (onEdit ? onEdit(index) : handleDeleteClick())}
+              onClick={() => (tagLabel ? handleEdit(index) : handleDeleteClick())}
               icon={tagLabel ? <PencilIcon aria-hidden={true} /> : <TrashIcon aria-hidden={true} />}
               iconPlacement='right'
               data-testid={`attachment-delete-${index}`}

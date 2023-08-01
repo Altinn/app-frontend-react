@@ -5,7 +5,7 @@ import { screen } from '@testing-library/react';
 import { getAttachments } from 'src/__mocks__/attachmentsMock';
 import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getUiConfigStateMock } from 'src/__mocks__/uiConfigStateMock';
-import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
+import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
 import type { IAttachment } from 'src/features/attachments';
 import type { RenderGenericComponentTestProps } from 'src/testUtils';
@@ -191,7 +191,7 @@ interface Props extends Partial<RenderGenericComponentTestProps<'FileUploadWithT
 const render = ({ component, genericProps, attachments = getAttachments(), editIndex = -1 }: Props = {}) => {
   renderGenericComponentTest({
     type: 'FileUploadWithTag',
-    renderer: (props) => <FileUploadWithTagComponent {...props} />,
+    renderer: (props) => <FileUploadComponent {...props} />,
     component: {
       id: testId,
       displayMode: 'simple',

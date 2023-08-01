@@ -3,11 +3,11 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
-import { AttachmentSummaryComponent } from 'src/layout/FileUpload/shared/AttachmentSummaryComponent';
+import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { renderWithProviders } from 'src/testUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
+import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUpload/FileUploadWithTag/types';
 import type { RootState } from 'src/redux/store';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 

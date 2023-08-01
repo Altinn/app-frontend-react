@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { useLanguage } from 'src/hooks/useLanguage';
-// import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
-import classes from 'src/layout/FileUpload/shared/FileTableHeader.module.css';
+import classes from 'src/layout/FileUpload/FileUploadTable/FileTableHeader.module.css';
 export function FileTableHeader({ mobileView, tagTitle }: { mobileView: boolean; tagTitle?: string }) {
   const { lang } = useLanguage();
 

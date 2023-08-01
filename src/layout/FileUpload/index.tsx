@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
-import { AttachmentSummaryComponent } from 'src/layout/FileUpload/shared/AttachmentSummaryComponent';
-import { useUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
+import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
+import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { FormComponent } from 'src/layout/LayoutComponent';
 import { attachmentsValid } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
