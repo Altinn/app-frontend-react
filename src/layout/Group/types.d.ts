@@ -72,16 +72,20 @@ type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children' | 'rowsBefore' | 'rows
 export type HNonRepGroup = HGroup & {
   childComponents: LayoutNode<HComponent | HGroups>[];
 };
+
+export type HRepGroupItems = LayoutNode<HRepGroupChild>[];
+export type HGroupExpressions = DeepPartial<ExprResolved<ILayoutGroup>>;
+
 /**
  * A row object for a repeating group
  */
 export type HRepGroupRow = {
   index: number;
-  items: LayoutNode<HRepGroupChild>[];
+  items: HRepGroupItems;
 
   // If this object is present, it contains a subset of the Group layout object, where some expressions may be resolved
   // in the context of the current repeating group row.
-  groupExpressions?: DeepPartial<ExprResolved<ILayoutGroup>>;
+  groupExpressions?: HGroupExpressions;
 };
 /**
  * Definition of a repeating group component inside a hierarchy structure

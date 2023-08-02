@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
 
@@ -15,18 +15,43 @@ export const Config = new CG.component({
 
 const commonChildrenProp = new CG.prop(
   'children',
-  new CG.arr(
-    new CG.linked(
-      new CG.str(),
-      new CG.import({
-        import: 'LayoutNode',
-        from: 'src/utils/layout/LayoutNode',
-      }),
-    ),
-  )
+  new CG.arr(new CG.str())
     .setTitle('Children')
     .setDescription('Array of component IDs that should be displayed in the group'),
-);
+).onlyIn(Variant.External);
+
+const commonNonRepChildComponents = new CG.prop(
+  'childComponents',
+  new CG.arr(
+    new CG.import({
+      import: 'LayoutNode',
+      from: 'src/utils/layout/LayoutNode',
+    }),
+  ),
+).onlyIn(Variant.Internal);
+
+const commonRepRowsProp = new CG.prop(
+  'rows',
+  new CG.arr(
+    new CG.obj(
+      new CG.prop('index', new CG.num()),
+      new CG.prop(
+        'items',
+        new CG.import({
+          import: 'HRepGroupItems',
+          from: 'src/layout/Group/types',
+        }),
+      ),
+      new CG.prop(
+        'groupExpressions',
+        new CG.import({
+          import: 'HGroupExpressions',
+          from: 'src/layout/Group/types',
+        }),
+      ),
+    ),
+  ).exportAs('HRepGroupRows'),
+).onlyIn(Variant.Internal);
 
 const commonShowGroupingIndicatorProp = new CG.prop(
   'showGroupingIndicator',
@@ -223,22 +248,8 @@ function makeRepeatingGroup() {
           .optional(),
       ),
     )
-    .addProperty(
-      new CG.prop(
-        'children',
-        new CG.arr(
-          new CG.linked(
-            new CG.str(),
-            new CG.import({
-              import: 'LayoutNode',
-              from: 'src/utils/layout/LayoutNode',
-            }),
-          ),
-        )
-          .setTitle('Children')
-          .setDescription('Array of component IDs that should be displayed in the group'),
-      ),
-    )
+    .addProperty(commonChildrenProp)
+    .addProperty(commonRepRowsProp)
     .addProperty(
       new CG.prop(
         'maxCount',
@@ -335,22 +346,8 @@ function makeNonRepeatingGroup() {
         description: 'The title of the group (shown above the group)',
       }),
     )
-    .addProperty(
-      new CG.prop(
-        'children',
-        new CG.arr(
-          new CG.linked(
-            new CG.str(),
-            new CG.import({
-              import: 'LayoutNode',
-              from: 'src/utils/layout/LayoutNode',
-            }),
-          ),
-        )
-          .setTitle('Children')
-          .setDescription('Array of component IDs that should be displayed in the group'),
-      ),
-    )
+    .addProperty(commonChildrenProp)
+    .addProperty(commonNonRepChildComponents)
     .addProperty(
       new CG.prop(
         'maxCount',
