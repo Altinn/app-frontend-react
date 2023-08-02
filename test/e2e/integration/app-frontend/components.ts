@@ -2,10 +2,8 @@ import path from 'path';
 
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import { Common } from 'test/e2e/pageobjects/common';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
 
 describe('UI Components', () => {
   it('Image component with help text', () => {
