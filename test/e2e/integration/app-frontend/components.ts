@@ -57,7 +57,7 @@ describe('UI Components', () => {
     const downloadsFolder = Cypress.config('downloadsFolder');
     const downloadedFilename = path.join(downloadsFolder, 'test.pdf');
 
-    cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer.length).equal(299));
+    cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer.length).equal(332));
   });
 
   it('is possible to upload attachments with tags', () => {
@@ -73,9 +73,9 @@ describe('UI Components', () => {
     cy.wait('@saveTags');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploaded).then((table) => {
       cy.wrap(table).should('be.visible');
-      cy.wrap(table).find(mui.tableBody).find('tr').should('have.length', 1);
-      cy.wrap(table).find(mui.tableBody).find(mui.tableElement).eq(1).should('have.text', 'Adresse');
-      cy.wrap(table).find(mui.tableBody).find(mui.tableElement).last().find('button').click();
+      cy.wrap(table).find('tbody').find('tr').should('have.length', 1);
+      cy.wrap(table).find('tbody > tr > td').eq(2).should('have.text', 'Adresse');
+      cy.wrap(table).find('tbody > tr > td').last().find('button').click();
     });
     cy.snapshot('components:attachment-with-tags');
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).find('button:contains("Slett")').click();
@@ -103,7 +103,7 @@ describe('UI Components', () => {
     const downloadsFolder = Cypress.config('downloadsFolder');
     const downloadedFilename = path.join(downloadsFolder, 'test.pdf');
 
-    cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer.length).equal(299));
+    cy.readFile(downloadedFilename, 'binary', { timeout: 10000 }).should((buffer) => expect(buffer.length).equal(332));
   });
 
   it('should implement delete confirmation for both file upload components and require user confirmation', () => {

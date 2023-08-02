@@ -163,7 +163,7 @@ export class AppFrontend {
     deleteAttachment: '[data-testid^="attachment-delete"]',
     popOverDeleteButton: '[data-testid="warning-popover-delete-button"]',
     popOverCancelButton: '[data-testid="warning-popover-cancel-button"]',
-    uploadedTable: '#altinn-file-listfileUpload-changename',
+    uploadedTable: '#file-upload-table',
     downloadAttachment: '[data-testid="attachment-download"]',
     uploadSuccess: '[data-testid="checkmark-success"]',
     uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
