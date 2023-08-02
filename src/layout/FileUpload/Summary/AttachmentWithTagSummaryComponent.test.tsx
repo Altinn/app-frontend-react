@@ -115,7 +115,7 @@ describe('AttachmentWithTagSummaryComponent', () => {
   };
   test('should render file upload with tag without content with the text Du har ikke lagt inn informasjon her', () => {
     renderHelper(formLayoutItem);
-    const element = screen.getByTestId('attachment-with-tag-summary');
+    const element = screen.getByTestId('attachment-summary-component');
     expect(element).toHaveTextContent('Du har ikke lagt inn informasjon her');
   });
   test('should contain attachments', () => {
