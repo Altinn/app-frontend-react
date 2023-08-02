@@ -64,11 +64,6 @@
             "success"
           ]
         },
-        "field": {
-          "title": "Datamodel field",
-          "description": "The datamodel field that the validation is applied to. If left empty, the validation is applied to the triggering field.",
-          "type": "string"
-        },
         "ref": {
           "title": "Reference to another validation",
           "description": "A reference to another validation to extend from. The referenced validation must be defined in the same validation configuration file.",

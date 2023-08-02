@@ -1,5 +1,6 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
+import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -86,7 +87,6 @@ function resolveExpressionValidation(
     }
 
     expressionValidation = {
-      field,
       severity: 'errors',
       ...reference,
     };
@@ -106,7 +106,6 @@ function resolveExpressionValidation(
     }
 
     expressionValidation = {
-      field,
       severity: 'errors',
       ...resolvedDefinition,
     } as IExpressionValidationObject;
@@ -122,7 +121,6 @@ function resolveExpressionValidation(
     return null;
   }
 
-  expressionValidation.condition = resolveValidationCondition(expressionValidation.condition, field);
   return expressionValidation;
 }
 
@@ -161,6 +159,10 @@ export function runExpressionValidationsOnNode(
   expressionValidations: IExpressionValidationDefinition,
   overrideFormData?: IFormData,
 ): IValidationObject[] {
+  if (!node.item.dataModelBindings || !node.item.baseDataModelBindings) {
+    return [];
+  }
+
   const dataSources = node.getDataSources();
   const newDataSources = {
     ...dataSources,
@@ -176,33 +178,22 @@ export function runExpressionValidationsOnNode(
     errorAsException: true,
   };
 
-  const allNodes = node.top.top.collection.allNodes();
-
   const validationObjects: IValidationObject[] = [];
 
-  for (const field of Object.values(node.item.dataModelBindings ?? {})) {
+  for (const [bindingKey, field] of Object.entries(node.item.baseDataModelBindings)) {
     const validationDefs = expressionValidations[field];
     if (!validationDefs) {
       continue;
     }
     for (const validationDef of validationDefs) {
       try {
-        const isInvalid = evalExpr(validationDef.condition, node, newDataSources, { config });
-        for (const n of allNodes) {
-          for (const [bindingKey, f] of Object.values(n.item.dataModelBindings ?? {})) {
-            if (f === field) {
-              validationObjects.push({
-                componentId: n.item.id,
-                bindingKey,
-                severity: isInvalid ? validationDef.severity : 'fixed',
-                message: validationDef.message,
-                empty: false,
-                pageKey: n.pageKey(),
-                rowIndices: n.getRowIndices(),
-                invalidDataTypes: false,
-              });
-            }
-          }
+        const resolvedField = node.item.dataModelBindings[bindingKey];
+        const resolvedCondition = resolveValidationCondition(validationDef.condition, resolvedField);
+        const isInvalid = evalExpr(resolvedCondition, node, newDataSources, { config });
+        if (isInvalid) {
+          validationObjects.push(
+            buildValidationObject(node, validationDef.severity, validationDef.message, bindingKey),
+          );
         }
       } catch (e) {
         window.logError(`Custom validation:\nValidation for ${field} failed to evaluate:\n`, e);

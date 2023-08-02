@@ -129,7 +129,6 @@ export type IExpressionValidationObject = {
   message: string;
   condition: Expression;
   severity: ValidationSeverity;
-  field: string;
 };
 
 /**
@@ -146,7 +145,6 @@ export type IExpressionValidationResolved = {
   message: string;
   condition: Expression;
   severity?: ValidationSeverity;
-  field?: string;
 };
 
 /**
@@ -159,7 +157,6 @@ export type IExpressionValidationUnresolved =
       message?: string;
       condition?: Expression;
       severity?: ValidationSeverity;
-      field?: string;
       ref: string;
     };
 
