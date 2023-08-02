@@ -293,7 +293,7 @@ export function makeUploaderSelectors<T extends Type>(
 ) {
   const tableSelector =
     type === 'tagged'
-      ? `#form-content-${id}-${row} div[data-testid=tagFile] > table`
+      ? `#form-content-${id}-${row} [data-testid=tagFile]`
       : `#altinn-fileuploader-${id}-${row} [data-testid="file-upload-table"]`;
   const statusIdx = type === 'tagged' ? 4 : 3;
 

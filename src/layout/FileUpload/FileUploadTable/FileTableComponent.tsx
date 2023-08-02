@@ -71,67 +71,66 @@ export function FileTableComponent({
   };
 
   return (
-    <div
-      data-testid='tagFile'
-      id='tagFile'
+    <table
+      className={!mobileView ? classes.table : classes.tableMobile}
+      data-testid={hasTag ? 'tagFile' : 'file-upload-table'}
+      id={hasTag ? 'tagFile' : 'file-upload-table'}
     >
-      <table className={!mobileView ? classes.table : classes.tableMobile}>
-        {(atleastOneTagExists(attachments) || !hasTag) && (
-          <thead>
-            <tr
-              className={classes.blueUnderline}
-              id='altinn-file-list-row-header'
-            >
-              <th>{lang('form_filler.file_uploader_list_header_name')}</th>
-              {!mobileView ? <th>{lang('form_filler.file_uploader_list_header_file_size')}</th> : null}
-              {tagTitle ? <th>{tagTitle}</th> : null}
-              {!(tagTitle && mobileView) ? <th>{lang('form_filler.file_uploader_list_header_status')}</th> : null}
-              <th>
-                <p className='sr-only'>{lang('form_filler.file_uploader_list_header_delete_sr')}</p>
-              </th>
+      {(atleastOneTagExists(attachments) || !hasTag) && (
+        <thead>
+          <tr
+            className={classes.blueUnderline}
+            id='altinn-file-list-row-header'
+          >
+            <th>{lang('form_filler.file_uploader_list_header_name')}</th>
+            {!mobileView ? <th>{lang('form_filler.file_uploader_list_header_file_size')}</th> : null}
+            {tagTitle ? <th>{tagTitle}</th> : null}
+            {!(tagTitle && mobileView) ? <th>{lang('form_filler.file_uploader_list_header_status')}</th> : null}
+            <th>
+              <p className='sr-only'>{lang('form_filler.file_uploader_list_header_delete_sr')}</p>
+            </th>
+          </tr>
+        </thead>
+      )}
+      <tbody className={classes.tableBody}>
+        {attachments.map((attachment, index: number) =>
+          // Check if filter is applied and includes specified index.
+          renderRow(attachment, index) ? (
+            <FileTableRow
+              key={`altinn-file-list-row-${attachment.id}`}
+              node={node}
+              attachment={attachment}
+              mobileView={mobileView}
+              index={index}
+              editIndex={editIndex}
+              setEditIndex={setEditIndex}
+              tagLabel={label(attachment)}
+            />
+          ) : (
+            <tr key={`altinn-unchosen-option-attachment-row-${index}`}>
+              <td
+                className={mobileView ? classes.fullGrid : ''}
+                colSpan={!mobileView ? 5 : 3}
+              >
+                {
+                  <EditWindowComponent
+                    node={node as PropsFromGenericComponent<'FileUploadWithTag'>['node']}
+                    attachment={attachment}
+                    attachmentValidations={[
+                      ...new Map(attachmentValidations?.map((validation) => [validation['id'], validation])).values(),
+                    ]}
+                    mobileView={mobileView}
+                    options={options}
+                    setEditIndex={setEditIndex}
+                    validationsWithTag={validationsWithTag ?? []}
+                    setValidationsWithTag={setValidationsWithTag ?? (() => {})}
+                  />
+                }
+              </td>
             </tr>
-          </thead>
+          ),
         )}
-        <tbody className={classes.tableBody}>
-          {attachments.map((attachment, index: number) =>
-            // Check if filter is applied and includes specified index.
-            renderRow(attachment, index) ? (
-              <FileTableRow
-                key={`altinn-file-list-row-${attachment.id}`}
-                node={node}
-                attachment={attachment}
-                mobileView={mobileView}
-                index={index}
-                editIndex={editIndex}
-                setEditIndex={setEditIndex}
-                tagLabel={label(attachment)}
-              />
-            ) : (
-              <tr key={`altinn-unchosen-option-attachment-row-${index}`}>
-                <td
-                  className={mobileView ? classes.fullGrid : ''}
-                  colSpan={!mobileView ? 5 : 3}
-                >
-                  {
-                    <EditWindowComponent
-                      node={node as PropsFromGenericComponent<'FileUploadWithTag'>['node']}
-                      attachment={attachment}
-                      attachmentValidations={[
-                        ...new Map(attachmentValidations?.map((validation) => [validation['id'], validation])).values(),
-                      ]}
-                      mobileView={mobileView}
-                      options={options}
-                      setEditIndex={setEditIndex}
-                      validationsWithTag={validationsWithTag ?? []}
-                      setValidationsWithTag={setValidationsWithTag ?? (() => {})}
-                    />
-                  }
-                </td>
-              </tr>
-            ),
-          )}
-        </tbody>
-      </table>
-    </div>
+      </tbody>
+    </table>
   );
 }
