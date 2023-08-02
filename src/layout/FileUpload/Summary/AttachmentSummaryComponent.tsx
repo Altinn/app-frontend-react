@@ -47,9 +47,11 @@ export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryCom
             key={`attachment-summary-${attachment.id}`}
           >
             <div key={attachment.id}>{attachment.name}</div>
-            <div key={`attachment-summary-tag-${attachment.id}`}>
-              {attachment.tags && attachment.tags[0] && tryToGetTextResource(attachment)}
-            </div>
+            {component.type === 'FileUploadWithTag' && (
+              <div key={`attachment-summary-tag-${attachment.id}`}>
+                {attachment.tags && attachment.tags[0] && tryToGetTextResource(attachment)}
+              </div>
+            )}
           </div>
         ))
       )}
