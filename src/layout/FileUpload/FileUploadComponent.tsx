@@ -147,7 +147,7 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
   };
 
   const renderValidationMessages =
-    hasValidationMessages && !showFileUpload && renderValidationMessagesForComponent(validationMessages, id);
+    hasValidationMessages && renderValidationMessagesForComponent(validationMessages, id);
 
   return (
     <div
