@@ -15,9 +15,9 @@ export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryCom
   const attachments = useUploaderSummaryData(targetNode);
   const { lang, langAsString } = useLanguage();
   const component = targetNode.item;
-
+  const hasTag = component.type === 'FileUploadWithTag';
   const options = useAppSelector((state) => {
-    if (component.type === 'FileUploadWithTag') {
+    if (hasTag) {
       return state.optionState.options[
         getOptionLookupKey({
           id: component.optionsId,
@@ -37,17 +37,17 @@ export function AttachmentSummaryComponent({ targetNode }: IAttachmentSummaryCom
   };
 
   return (
-    <div data-testid={'attachment-summary-component'}>
+    <div data-testid={`${hasTag ? 'attachment-with-tag-summary' : 'attachment-summary-component'}`}>
       {attachments.length === 0 ? (
         <div className={classes.emptyField}>{lang('general.empty_summary')}</div>
       ) : (
         attachments.map((attachment) => (
           <div
-            className={component.type === 'FileUploadWithTag' ? classes.row : ''}
+            className={hasTag ? classes.row : ''}
             key={`attachment-summary-${attachment.id}`}
           >
             <div key={attachment.id}>{attachment.name}</div>
-            {component.type === 'FileUploadWithTag' && (
+            {hasTag && (
               <div key={`attachment-summary-tag-${attachment.id}`}>
                 {attachment.tags && attachment.tags[0] && tryToGetTextResource(attachment)}
               </div>
