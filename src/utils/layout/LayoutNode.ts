@@ -392,6 +392,10 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     return rowIndices;
   }
 
+  public getDataSources(): HierarchyDataSources {
+    return this.dataSources;
+  }
+
   /**
    * Runs frontend validations for this node and returns an array of IValidationObject
    */

@@ -1,10 +1,15 @@
-import type { Expression } from 'src/features/expressions/types';
+import { evalExpr } from 'src/features/expressions';
+import { ExprVal } from 'src/features/expressions/types';
+import type { ExprConfig, Expression } from 'src/features/expressions/types';
+import type { IFormData } from 'src/features/formData';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   IExpressionValidationConfig,
   IExpressionValidationDefinition,
   IExpressionValidationObject,
   IExpressionValidationResolved,
   IExpressionValidationUnresolved,
+  IValidationObject,
 } from 'src/utils/validation/types';
 
 /**
@@ -149,4 +154,60 @@ export function resolveExpressionValidationConfig(
     }
   }
   return resolvedExpressionValidationDefinitions;
+}
+
+export function runExpressionValidationsOnNode(
+  node: LayoutNode,
+  expressionValidations: IExpressionValidationDefinition,
+  overrideFormData?: IFormData,
+): IValidationObject[] {
+  const dataSources = node.getDataSources();
+  const newDataSources = {
+    ...dataSources,
+    formData: {
+      ...dataSources.formData,
+      ...overrideFormData,
+    },
+  };
+  const config: ExprConfig<ExprVal.Any> = {
+    returnType: ExprVal.Any,
+    defaultValue: null,
+    resolvePerRow: false,
+    errorAsException: true,
+  };
+
+  const allNodes = node.top.top.collection.allNodes();
+
+  const validationObjects: IValidationObject[] = [];
+
+  for (const field of Object.values(node.item.dataModelBindings ?? {})) {
+    const validationDefs = expressionValidations[field];
+    if (!validationDefs) {
+      continue;
+    }
+    for (const validationDef of validationDefs) {
+      try {
+        const isInvalid = evalExpr(validationDef.condition, node, newDataSources, { config });
+        for (const n of allNodes) {
+          for (const [bindingKey, f] of Object.values(n.item.dataModelBindings ?? {})) {
+            if (f === field) {
+              validationObjects.push({
+                componentId: n.item.id,
+                bindingKey,
+                severity: isInvalid ? validationDef.severity : 'fixed',
+                message: validationDef.message,
+                empty: false,
+                pageKey: n.pageKey(),
+                rowIndices: n.getRowIndices(),
+                invalidDataTypes: false,
+              });
+            }
+          }
+        }
+      } catch (e) {
+        window.logError(`Custom validation:\nValidation for ${field} failed to evaluate:\n`, e);
+      }
+    }
+  }
+  return validationObjects;
 }
