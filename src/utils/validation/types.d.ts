@@ -1,6 +1,7 @@
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IAttachments } from 'src/features/attachments';
 import type { IJsonSchemas } from 'src/features/datamodel';
+import type { Expression } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ILayoutSets } from 'src/types';
@@ -120,3 +121,52 @@ export interface IValidationIssue {
   source?: string;
   customTextKey?: string;
 }
+
+/**
+ * Expression validation definition with all references and implicit values resolved.
+ */
+export type IExpressionValidationObject = {
+  message: string;
+  condition: Expression;
+  severity: ValidationSeverity;
+  field: string;
+};
+
+/**
+ * Expression validation definition for all fields resolved.
+ */
+export type IExpressionValidationDefinition = {
+  [field: string]: IExpressionValidationObject[];
+};
+
+/**
+ * Expression validation definition with references resolved.
+ */
+export type IExpressionValidationResolved = {
+  message: string;
+  condition: Expression;
+  severity?: ValidationSeverity;
+  field?: string;
+};
+
+/**
+ * Unresolved expression validation definition from the configuration file.
+ */
+export type IExpressionValidationUnresolved =
+  | IExpressionValidationResolved
+  | {
+      // If extending using a reference, assume that message and condition are inherited if undefined
+      message?: string;
+      condition?: Expression;
+      severity?: ValidationSeverity;
+      field?: string;
+      ref: string;
+    };
+
+/**
+ * Expression validation configuration file type.
+ */
+export type IExpressionValidationConfig = {
+  validations: { [field: string]: (IExpressionValidationUnresolved | string)[] };
+  definitions: { [name: string]: IExpressionValidationUnresolved };
+};
