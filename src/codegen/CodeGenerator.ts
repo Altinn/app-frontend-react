@@ -26,6 +26,8 @@ export interface InternalConfig<T> {
   source?: CodeGenerator<any>;
 }
 
+export type Extract<Val extends CodeGenerator<any>> = Val extends CodeGenerator<infer X> ? X : never;
+
 export abstract class CodeGenerator<T> {
   public currentVariant: Variant | undefined;
   public internal: InternalConfig<T> = {

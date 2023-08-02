@@ -2,14 +2,12 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { Variant } from 'src/codegen/CG';
-import type { CodeGenerator, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { CodeGenerator, Extract, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 /**
  * Generates a union of multiple types. In typescript this is a regular union, and in JsonSchema it is an 'anyOf'.
  */
-export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCodeGenerator<
-  U[number] extends CodeGenerator<infer X> ? X : never
-> {
+export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCodeGenerator<Extract<U[number]>> {
   private types: U;
 
   constructor(...types: U) {

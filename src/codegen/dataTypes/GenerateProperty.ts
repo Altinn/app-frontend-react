@@ -2,14 +2,13 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
 import type { Variant } from 'src/codegen/CG';
+import type { Extract } from 'src/codegen/CodeGenerator';
 
 /**
  * Generates a property on an object. Remember to call insertBefore/insertAfter/insertFirst before adding it to
  * the object (by calling obj.addProperty(<this object>)).
  */
-export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenerator<
-  Val extends CodeGenerator<infer X> ? X : never
-> {
+export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenerator<Extract<Val>> {
   private _insertBefore?: string;
   private _insertAfter?: string;
   private _insertFirst = false;

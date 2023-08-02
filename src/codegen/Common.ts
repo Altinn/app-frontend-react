@@ -352,6 +352,55 @@ const common = {
       ),
     ),
   LabeledComponentProps: () => new CG.obj(new CG.prop('labelSettings', CG.common('ILabelSettings').optional())),
+
+  // Reusable Grid component properties (used by both Grid and repeating Group):
+  GridComponentRef: () =>
+    new CG.obj(new CG.prop('component', new CG.str().setTitle('Component ID').setDescription('ID of the component'))),
+  GridText: () =>
+    new CG.obj(
+      new CG.prop(
+        'text',
+        new CG.str().setTitle('Text').setDescription('Text to display (can also be a key in text resources)'),
+      ),
+      new CG.prop('help', new CG.str().optional().setTitle('Help').setDescription('Help text to display')),
+      new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
+      new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
+    ),
+  GridRows: () =>
+    new CG.arr(
+      new CG.obj(
+        new CG.prop('header', new CG.bool().optional(false).setTitle('Is header row?')),
+        new CG.prop('readOnly', new CG.bool().optional(false).setTitle('Is row read-only?')),
+        new CG.prop('columnOptions', CG.common('ITableColumnsProperties').optional()),
+        new CG.prop(
+          'cells',
+          new CG.arr(
+            new CG.union(
+              new CG.linked(
+                CG.common('GridComponentRef'),
+                new CG.import({
+                  import: 'GridComponent',
+                  from: 'src/layout/Grid/types',
+                }),
+              ),
+              CG.null,
+              CG.common('GridText'),
+            )
+              .setTitle('Cells in table row')
+              .setDescription('The list of cells in this row'),
+          ),
+        ),
+      ),
+    )
+      .setTitle('Rows in Grid or Grid-like component')
+      .setDescription('The list of rows in this grid')
+      .addExample([
+        {
+          header: false,
+          readOnly: false,
+          cells: [{ text: 'hello.world' }, { component: 'myOtherComponent' }],
+        },
+      ]),
 };
 
 export type ValidCommonKeys = keyof typeof common;

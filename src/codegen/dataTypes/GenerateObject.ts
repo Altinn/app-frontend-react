@@ -2,13 +2,13 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { Variant } from 'src/codegen/CG';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { CodeGenerator } from 'src/codegen/CodeGenerator';
+import type { Extract } from 'src/codegen/CodeGenerator';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export type Props = GenerateProperty<any>[];
 export type AsInterface<P extends Props> = {
-  [K in P[number]['name']]: P[number]['type'] extends CodeGenerator<infer X> ? X : never;
+  [K in P[number]['name']]: Extract<P[number]['type']>;
 };
 
 /**

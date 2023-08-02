@@ -3,12 +3,12 @@ import type { JSONSchema7 } from 'json-schema';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import type { Variant } from 'src/codegen/CG';
-import type { CodeGenerator, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { CodeGenerator, Extract, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 /**
  * Generates an array with inner items of the given type
  */
-export class GenerateArray<Inner extends CodeGenerator<any>> extends DescribableCodeGenerator<Inner[]> {
+export class GenerateArray<Inner extends CodeGenerator<any>> extends DescribableCodeGenerator<Extract<Inner>[]> {
   private _minItems?: number;
   private _maxItems?: number;
 

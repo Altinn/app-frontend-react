@@ -1,7 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
-import { generateGridArray, generateGridRowsProperty } from 'src/layout/Grid/config';
 
 export const Config = new CG.component({
   category: ComponentCategory.Container,
@@ -300,7 +299,9 @@ function makeRepeatingGroup() {
                       'behaviour, but can be turned off for components that are only to be edited in the table view.',
                   ),
               ),
-            ).extends(CG.common('ITableColumnsProperties').exportAs('IGroupColumnFormatting')),
+            )
+              .extends(CG.common('ITableColumnsProperties'))
+              .exportAs('IGroupColumnFormatting'),
           )
           .addExample({
             childComponent1: {
@@ -321,26 +322,8 @@ function makeRepeatingGroup() {
           ),
       ),
     )
-    .addProperty(
-      ...generateGridRowsProperty((cellType) => {
-        const type = generateGridArray(cellType)
-          .setTitle('Grid-like rows before table')
-          .setDescription(
-            'List of static Grid component rows to be displayed before the regular repeating group table',
-          );
-
-        return new CG.prop('rowsBefore', type.optional());
-      }),
-    )
-    .addProperty(
-      ...generateGridRowsProperty((cellType) => {
-        const type = generateGridArray(cellType)
-          .setTitle('Grid-like rows after table')
-          .setDescription('List of static Grid component rows to be displayed after the regular repeating group table');
-
-        return new CG.prop('rowsAfter', type.optional());
-      }),
-    );
+    .addProperty(new CG.prop('rowsBefore', CG.common('GridRows').optional()))
+    .addProperty(new CG.prop('rowsAfter', CG.common('GridRows').optional()));
 }
 
 function makeNonRepeatingGroup() {
