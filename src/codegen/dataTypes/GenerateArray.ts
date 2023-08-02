@@ -2,7 +2,8 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
-import type { CodeGenerator } from 'src/codegen/CodeGenerator';
+import type { Variant } from 'src/codegen/CG';
+import type { CodeGenerator, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 /**
  * Generates an array with inner items of the given type
@@ -25,11 +26,11 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     return this;
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
+  toTypeScriptDefinition(symbol: string | undefined): string {
     const out =
       this.innerType instanceof GenerateUnion
-        ? `(${this.innerType._toTypeScript()})[]`
-        : `${this.innerType._toTypeScript()}[]`;
+        ? `(${this.innerType.toTypeScript()})[]`
+        : `${this.innerType.toTypeScript()}[]`;
 
     return symbol ? `type ${symbol} = ${out};` : out;
   }
@@ -44,13 +45,19 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     };
   }
 
-  containsExpressions(): boolean {
-    return this.innerType.containsExpressions();
+  containsVariationDifferences(): boolean {
+    return this.internal.source?.containsVariationDifferences() || this.innerType.containsVariationDifferences();
   }
 
-  transformToInternal(): this | CodeGenerator<any> {
-    const out = new GenerateArray(this.innerType.transformToInternal());
+  transformTo(variant: Variant): this | MaybeSymbolizedCodeGenerator<any> {
+    if (this.currentVariant === variant) {
+      return this;
+    }
+
+    const out = new GenerateArray(this.innerType.transformTo(variant));
     out.internal = structuredClone(this.internal);
+    out.internal.source = this;
+    out.currentVariant = variant;
 
     return out;
   }

@@ -1,5 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
+import { Variant } from 'src/codegen/CG';
 import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 
@@ -17,16 +18,25 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
     super();
   }
 
-  transformToInternal(): this | GenerateImportedSymbol<any> {
+  transformTo(variant: Variant): this | GenerateImportedSymbol<any> {
+    if (variant === Variant.External) {
+      throw new Error('Cannot generate external imports');
+    }
+
+    this.currentVariant = variant;
     return this;
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
-    CodeGeneratorContext.getFileInstance().addImport(this.val.import, this.val.from);
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    CodeGeneratorContext.curFile().addImport(this.val.import, this.val.from);
     return symbol ? `type ${symbol} = ${this.val.import};` : this.val.import;
   }
 
   toJsonSchema(): JSONSchema7 {
     throw new Error(`Cannot generate JsonSchema for imported '${this.val.import}'`);
+  }
+
+  containsVariationDifferences(): boolean {
+    return this.internal.source?.containsVariationDifferences() || false;
   }
 }

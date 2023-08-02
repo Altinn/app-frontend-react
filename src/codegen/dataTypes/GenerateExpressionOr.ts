@@ -1,8 +1,8 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import { CodeGeneratorContext, Variant } from 'src/codegen/CodeGeneratorContext';
+import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { ExprVal } from 'src/features/expressions/types';
 import type { GenerateBoolean } from 'src/codegen/dataTypes/GenerateBoolean';
 import type { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
@@ -48,7 +48,12 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     super();
   }
 
-  transformToInternal(): GeneratorMap<Val> {
+  transformTo(variant: Variant): GeneratorMap<Val> | this {
+    if (variant === Variant.External) {
+      this.currentVariant = variant;
+      return this;
+    }
+
     let out: GeneratorMap<Val> | undefined;
     if (this.valueType === ExprVal.Boolean) {
       out = new CG.bool() as GeneratorMap<Val>;
@@ -62,21 +67,20 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
 
     if (out) {
       out.internal = structuredClone(this.internal) as any;
-      out.transformNameToResolved();
+      out.internal.source = this;
+      out.currentVariant = variant;
       return out;
     }
 
     throw new Error(`Unsupported type: ${this.valueType}`);
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
-    if (CodeGeneratorContext.getTypeScriptInstance().variant === Variant.Internal) {
-      throw new Error(
-        'Cannot generate TypeScript definition for resolved expression type. Call transformToResolved() first.',
-      );
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    if (this.currentVariant !== Variant.External) {
+      throw new Error('Cannot generate expr TypeScript definition for internal or non-transformed type');
     }
 
-    CodeGeneratorContext.getFileInstance().addImport('ExprVal', 'src/features/expressions/types');
+    CodeGeneratorContext.curFile().addImport('ExprVal', 'src/features/expressions/types');
     return symbol ? `type ${symbol} = ${toTsMap[this.valueType]};` : toTsMap[this.valueType];
   }
 
@@ -87,7 +91,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     };
   }
 
-  containsExpressions(): boolean {
+  containsVariationDifferences(): boolean {
     return true;
   }
 }

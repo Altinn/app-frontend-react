@@ -1,6 +1,8 @@
 import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
-import { CodeGeneratorContext, Variant, VariantSuffixes } from 'src/codegen/CodeGeneratorContext';
+import { VariantSuffixes } from 'src/codegen/CG';
+import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+import type { Variant } from 'src/codegen/CG';
 
 export interface JsonSchemaExt<T> {
   title: string | undefined;
@@ -21,9 +23,11 @@ export interface InternalConfig<T> {
   symbol?: SymbolExt;
   optional: boolean;
   default?: T;
+  source?: CodeGenerator<any>;
 }
 
 export abstract class CodeGenerator<T> {
+  public currentVariant: Variant | undefined;
   public internal: InternalConfig<T> = {
     jsonSchema: {
       title: undefined,
@@ -43,30 +47,28 @@ export abstract class CodeGenerator<T> {
     };
   }
 
-  transformToInternal(): this | CodeGenerator<any> {
+  transformTo(variant: Variant): this | CodeGenerator<any> {
+    if (!this.currentVariant && this.containsVariationDifferences()) {
+      throw new Error(
+        'You need to implement transformTo for this code generator, as it contains variation differences',
+      );
+    }
+
+    this.currentVariant = variant;
     return this;
   }
 
-  containsExpressions(): boolean {
-    return false;
-  }
-
+  abstract containsVariationDifferences(): boolean;
   abstract toJsonSchema(): JSONSchema7;
-  abstract _toTypeScript(): string;
-
-  toTypeScript(variant: Variant): string {
-    return CodeGeneratorContext.generateTypeScript(() => {
-      if (variant === Variant.Internal) {
-        return this.transformToInternal()._toTypeScript();
-      }
-
-      return this._toTypeScript();
-    }, variant).result;
-  }
+  abstract toTypeScript(): string;
 }
 
 export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
   exportAs(name: string): this {
+    if (this.currentVariant) {
+      throw new Error('You have to call exportAs() before calling transformTo()');
+    }
+
     if (this.internal.symbol) {
       throw new Error('Cannot rename a symbolized code generator');
     }
@@ -80,6 +82,10 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
   }
 
   named(name: string): this {
+    if (this.currentVariant) {
+      throw new Error('You have to call named() before calling transformTo()');
+    }
+
     if (this.internal.symbol) {
       throw new Error('Cannot rename a symbolized code generator');
     }
@@ -96,53 +102,42 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     if (!this.internal.symbol) {
       return undefined;
     }
-    if (this.containsExpressions()) {
-      return `${this.internal.symbol?.name}${VariantSuffixes.external}`;
+    if (!this.currentVariant) {
+      throw new Error('Cannot get name of symbolized code generator without variant - call transformTo() first');
     }
+    if (this.containsVariationDifferences()) {
+      return `${this.internal.symbol?.name}${VariantSuffixes[this.currentVariant]}`;
+    }
+
     return this.internal.symbol?.name;
   }
 
-  transformNameToResolved() {
-    if (!this.internal.symbol || this.internal.symbol.name.endsWith('Resolved')) {
-      return;
-    }
-
-    if (this.internal.symbol.name.endsWith(VariantSuffixes.external)) {
-      this.internal.symbol.name = this.internal.symbol.name.replace(new RegExp(`${VariantSuffixes.external}$`), '');
-    }
-
-    this.internal.symbol.name = `${this.internal.symbol.name}${VariantSuffixes.internal}`;
+  private shouldBeExported(): boolean {
+    return this.internal.symbol?.exported ?? false;
   }
 
-  _toTypeScript(): string {
-    if (this.internal.symbol) {
-      const containsExpressions = this.containsExpressions();
-      const hasSuffixRegex = new RegExp(`(${VariantSuffixes.external}|${VariantSuffixes.internal})$`);
-      if (containsExpressions && !this.internal.symbol.name.match(hasSuffixRegex)) {
-        const externalName = this.getName() as string;
-        CodeGeneratorContext.getFileInstance().addSymbol({ ...this.internal.symbol, name: externalName }, this);
-        const internal = this.transformToInternal();
-        const internalSymbol = internal.internal.symbol;
-        if (!internalSymbol) {
-          throw new Error('Internal symbol is undefined');
-        }
-
-        CodeGeneratorContext.getFileInstance().addSymbol(internalSymbol, internal as MaybeSymbolizedCodeGenerator<any>);
-
-        return CodeGeneratorContext.getTypeScriptInstance().variant === Variant.External
-          ? externalName
-          : internalSymbol.name;
-      }
-
-      CodeGeneratorContext.getFileInstance().addSymbol(this.internal.symbol, this);
-      // If this type has a symbol, always use the symbol name instead of the full type definition
-      return this.getName() as string;
-    }
-
-    return this._toTypeScriptDefinition(undefined);
+  transformTo(variant: Variant): this | MaybeSymbolizedCodeGenerator<any> {
+    return super.transformTo(variant) as this | MaybeSymbolizedCodeGenerator<any>;
   }
 
-  abstract _toTypeScriptDefinition(symbol: string | undefined): string;
+  toTypeScript(): string {
+    if (!this.currentVariant) {
+      throw new Error('You need to transform this type to either external or internal before generating TypeScript');
+    }
+
+    const name = this.getName();
+    if (name) {
+      CodeGeneratorContext.curFile().addSymbol(name, this.shouldBeExported(), this);
+
+      // If this type has a symbol, always use the symbol name
+      // as a reference instead of the full type definition
+      return name;
+    }
+
+    return this.toTypeScriptDefinition(undefined);
+  }
+
+  abstract toTypeScriptDefinition(symbol: string | undefined): string;
 }
 
 export abstract class MaybeOptionalCodeGenerator<T> extends MaybeSymbolizedCodeGenerator<T> {

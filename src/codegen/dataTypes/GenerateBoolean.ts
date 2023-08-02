@@ -10,7 +10,7 @@ export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
     super();
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
+  toTypeScriptDefinition(symbol: string | undefined): string {
     return symbol ? `type ${symbol} = boolean;` : 'boolean';
   }
 
@@ -19,5 +19,9 @@ export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
       ...this.getInternalJsonSchema(),
       type: 'boolean',
     };
+  }
+
+  containsVariationDifferences(): boolean {
+    return this.internal.source?.containsVariationDifferences() || false;
   }
 }

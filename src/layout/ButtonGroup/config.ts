@@ -1,5 +1,4 @@
-import { CG } from 'src/codegen/CG';
-import { Variant } from 'src/codegen/CodeGeneratorContext';
+import { CG, Variant } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({

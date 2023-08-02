@@ -1,8 +1,9 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CG } from 'src/codegen/CG';
+import { CG, VariantSuffixes } from 'src/codegen/CG';
 import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
-import { commonContainsExpressions, getCommonRealName, getPropertiesFor } from 'src/codegen/Common';
+import { commonContainsVariationDifferences, getPropertiesFor } from 'src/codegen/Common';
+import type { Variant } from 'src/codegen/CG';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
@@ -20,11 +21,20 @@ export class GenerateCommonImport<T extends ValidCommonKeys> extends MaybeOption
     this.realKey = realKey;
   }
 
-  transformToInternal(): this | GenerateCommonImport<any> {
-    if (commonContainsExpressions(this.key)) {
-      return new GenerateCommonImport(this.key, `${this.key}Resolved`);
+  transformTo(variant: Variant): this | GenerateCommonImport<any> {
+    if (this.currentVariant === variant) {
+      return this;
     }
 
+    if (commonContainsVariationDifferences(this.key)) {
+      const out = new GenerateCommonImport(this.key, `${this.key}${VariantSuffixes[variant]}`);
+      out.internal.source = this;
+      out.currentVariant = variant;
+
+      return out;
+    }
+
+    this.currentVariant = variant;
     return this;
   }
 
@@ -36,16 +46,20 @@ export class GenerateCommonImport<T extends ValidCommonKeys> extends MaybeOption
     return getPropertiesFor(this.key);
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    if (!this.currentVariant) {
+      throw new Error('Cannot generate TypeScript definition for common import without variant');
+    }
+
     const _import = new CG.import({
-      import: this.realKey ?? getCommonRealName(this.key),
+      import: this.realKey ?? this.key,
       from: 'src/layout/common.generated',
     });
 
-    return _import._toTypeScriptDefinition(symbol);
+    return _import.toTypeScriptDefinition(symbol);
   }
 
-  containsExpressions(): boolean {
-    return commonContainsExpressions(this.key);
+  containsVariationDifferences(): boolean {
+    return commonContainsVariationDifferences(this.key);
   }
 }

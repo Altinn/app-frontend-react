@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
-import { CodeGeneratorContext, Variant } from 'src/codegen/CodeGeneratorContext';
+import type { Variant } from 'src/codegen/CG';
 
 /**
  * Generates a property on an object. Remember to call insertBefore/insertAfter/insertFirst before adding it to
@@ -17,7 +17,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
 
   constructor(
     public readonly name: string,
-    public readonly type: Val,
+    public type: Val,
   ) {
     super();
   }
@@ -57,10 +57,6 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     return !this._onlyVariant || this._onlyVariant === variant;
   }
 
-  shouldExistInCurrentVariant(): boolean {
-    return this.shouldExistIn(CodeGeneratorContext.getTypeScriptInstance().variant);
-  }
-
   toObject() {
     return {
       name: this.name,
@@ -70,40 +66,51 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     };
   }
 
-  containsExpressions(): boolean {
-    return this.type.containsExpressions();
+  containsVariationDifferences(): boolean {
+    if (this.internal.source?.containsVariationDifferences()) {
+      return true;
+    }
+
+    if (this._onlyVariant) {
+      return true;
+    }
+
+    return this.type.containsVariationDifferences();
   }
 
-  transformToInternal(): GenerateProperty<any> {
-    if (this._onlyVariant === Variant.External) {
+  transformTo(variant: Variant): GenerateProperty<any> {
+    if (this._onlyVariant && this._onlyVariant !== variant) {
       throw new Error(
-        'Cannot transform to resolved when the property is not supposed to be present in resolved ' +
+        'Cannot transform to target variant when the property is not supposed to be present in this ' +
           'variants. This is probably a bug, as the property should have been filtered out before this point.',
       );
     }
 
-    const resolvedType = this.type.transformToInternal();
-    const next = new GenerateProperty(this.name, resolvedType);
+    if (this.currentVariant === variant) {
+      return this;
+    }
+
+    const transformedType = this.type.transformTo(variant);
+    const next = new GenerateProperty(this.name, transformedType);
     next._insertFirst = this._insertFirst;
     next._insertBefore = this._insertBefore;
     next._insertAfter = this._insertAfter;
     next._onlyVariant = this._onlyVariant;
     next.internal = structuredClone(this.internal);
+    next.internal.source = this;
+    next.currentVariant = variant;
 
     return next;
   }
 
-  _toTypeScript() {
-    if (this._onlyVariant && CodeGeneratorContext.getTypeScriptInstance().variant !== this._onlyVariant) {
-      throw new Error(
-        'This property is not supposed to be present in this variant. This is probably a bug, ' +
-          'as the property should have been filtered out before this point.',
-      );
+  toTypeScript() {
+    if (!this.currentVariant) {
+      throw new Error('You need to transform this type to either external or internal before generating TypeScript');
     }
 
     return this.type.internal.optional
-      ? `${this.name}?: ${this.type._toTypeScript()};`
-      : `${this.name}: ${this.type._toTypeScript()};`;
+      ? `${this.name}?: ${this.type.toTypeScript()};`
+      : `${this.name}: ${this.type.toTypeScript()};`;
   }
 
   toJsonSchema(): JSONSchema7 {

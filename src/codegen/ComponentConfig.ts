@@ -1,7 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CG } from 'src/codegen/CG';
-import { Variant } from 'src/codegen/CodeGeneratorContext';
+import { CG, Variant } from 'src/codegen/CG';
 import { GenerateComponentLikeBase } from 'src/codegen/dataTypes/GenerateComponentLike';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { ComponentCategory } from 'src/layout/common';
@@ -138,25 +137,26 @@ export class ComponentConfig extends GenerateComponentLikeBase {
   public toTypeScript(): string {
     // Forces the objects to register in the context and be exported via the context symbols table
     this.exportedComp.exportAs(`Comp${this.typeSymbol}`);
-    this.exportedComp.toTypeScript(Variant.External);
-    const resolved = this.exportedComp.transformToInternal() as MaybeSymbolizedCodeGenerator<any>;
-    resolved.toTypeScript(Variant.Internal);
+    const ext = this.exportedComp.transformTo(Variant.External);
+    ext.toTypeScript();
+    const int = this.exportedComp.transformTo(Variant.Internal);
+    int.toTypeScript();
 
     const impl = new CG.import({
       import: this.typeSymbol,
       from: `./index`,
-    });
+    }).transformTo(Variant.Internal);
 
     const staticElements = [
       this.generateDefClass(),
       `export const Config = {
-         def: new ${impl._toTypeScript()}(),
+         def: new ${impl.toTypeScript()}(),
          rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
        }`,
       `export type TypeConfig = {
-         layout: ${this.exportedComp.getName()};
-         nodeItem: ${resolved.getName()};
-         nodeObj: ${this.layoutNodeType._toTypeScript()};
+         layout: ${ext.getName()};
+         nodeItem: ${int.getName()};
+         nodeObj: ${this.layoutNodeType.transformTo(Variant.Internal).toTypeScript()};
        }`,
     ];
 
@@ -166,7 +166,7 @@ export class ComponentConfig extends GenerateComponentLikeBase {
   private generateDefClass(): string {
     const symbol = this.typeSymbol;
     const category = this.config.category;
-    const categorySymbol = CategoryImports[category]._toTypeScript();
+    const categorySymbol = CategoryImports[category].transformTo(Variant.Internal).toTypeScript();
 
     const methods: string[] = [];
     for (const [key, value] of Object.entries(this.config.capabilities)) {

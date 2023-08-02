@@ -21,6 +21,30 @@ function generateCommonImport<T extends ValidCommonKeys>(key: T): GenerateCommon
   return new GenerateCommonImport(key);
 }
 
+/**
+ * The code generator can transform defined types into multiple 'variants' of code. For example, an external variant
+ * of a configuration may contain an expression that should be evaluated, but our internal types however would just
+ * contain the result of the expression evaluation. All configuration of components are processed into internal
+ * types before being used in most of our internal code, and these processors include (but are not limited to) the
+ * hierarchy generator, LayoutNode (etc), and the expression evaluator engine.
+ *
+ * @see generateHierarchy
+ */
+export enum Variant {
+  Internal = 'internal',
+  External = 'external',
+}
+
+/**
+ * When the code generator sees types that include expressions or other types that differs between the internal and
+ * external variants, it will generate separate types for each variant (in our TypeScript outputs). These types are
+ * suffixed with these strings. In JsonSchema, only the external variant is generated, and so there are no suffixes.
+ */
+export const VariantSuffixes: { [variant in Variant]: string } = {
+  [Variant.Internal]: 'Internal',
+  [Variant.External]: 'External',
+};
+
 export const CG = {
   component: ComponentConfig,
   componentLike: GenerateComponentLike,

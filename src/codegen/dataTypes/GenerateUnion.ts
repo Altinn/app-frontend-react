@@ -1,7 +1,8 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { CodeGenerator } from 'src/codegen/CodeGenerator';
+import type { Variant } from 'src/codegen/CG';
+import type { CodeGenerator, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 /**
  * Generates a union of multiple types. In typescript this is a regular union, and in JsonSchema it is an 'anyOf'.
@@ -20,21 +21,30 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
     this.types.push(type as any);
   }
 
-  containsExpressions(): boolean {
-    return this.types.some((type) => type.containsExpressions());
+  containsVariationDifferences(): boolean {
+    if (this.internal.source?.containsVariationDifferences()) {
+      return true;
+    }
+
+    return this.types.some((type) => type.containsVariationDifferences());
   }
 
-  transformToInternal(): this | CodeGenerator<any> {
-    const types = this.types.map((type) => type.transformToInternal());
+  transformTo(variant: Variant): this | MaybeSymbolizedCodeGenerator<any> {
+    if (this.currentVariant === variant) {
+      return this;
+    }
+
+    const types = this.types.map((type) => type.transformTo(variant));
     const out = new GenerateUnion(...types);
     out.internal = structuredClone(this.internal);
-    out.transformNameToResolved();
+    out.internal.source = this;
+    out.currentVariant = variant;
 
     return out;
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
-    const out = this.types.map((type) => type._toTypeScript()).join(' | ');
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    const out = this.types.map((type) => type.toTypeScript()).join(' | ');
 
     return symbol ? `type ${symbol} = ${out};` : out;
   }

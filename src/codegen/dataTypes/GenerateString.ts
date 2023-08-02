@@ -18,7 +18,7 @@ export class GenerateString extends DescribableCodeGenerator<string> {
     return this;
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
+  toTypeScriptDefinition(symbol: string | undefined): string {
     return symbol ? `type ${symbol} = string;` : 'string';
   }
 
@@ -28,5 +28,9 @@ export class GenerateString extends DescribableCodeGenerator<string> {
       type: 'string',
       pattern: this.pattern?.source,
     };
+  }
+
+  containsVariationDifferences(): boolean {
+    return this.internal.source?.containsVariationDifferences() || false;
   }
 }

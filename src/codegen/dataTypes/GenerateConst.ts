@@ -10,7 +10,7 @@ export class GenerateConst<Val extends string | boolean | number | null> extends
     super();
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
+  toTypeScriptDefinition(symbol: string | undefined): string {
     const out =
       typeof this.value === 'string'
         ? JSON.stringify(this.value)
@@ -28,5 +28,9 @@ export class GenerateConst<Val extends string | boolean | number | null> extends
       ...this.getInternalJsonSchema(),
       const: this.value,
     };
+  }
+
+  containsVariationDifferences(): boolean {
+    return this.internal.source?.containsVariationDifferences() || false;
   }
 }

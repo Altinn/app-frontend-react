@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
+import { Variant } from 'src/codegen/CG';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import { Variant } from 'src/codegen/CodeGeneratorContext';
 import type { CodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -84,53 +84,58 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     return this.properties;
   }
 
-  transformToInternal(): GenerateObject<any> {
+  transformTo(variant: Variant): GenerateObject<any> {
+    if (this.currentVariant === variant) {
+      return this;
+    }
+
     const newProps: Props = [];
     for (const prop of this.properties) {
-      if (!prop.shouldExistIn(Variant.Internal)) {
+      if (!prop.shouldExistIn(variant)) {
         continue;
       }
 
-      newProps.push(prop.transformToInternal());
+      newProps.push(prop.transformTo(variant));
     }
 
     const next = new GenerateObject(...newProps);
-    next._additionalProperties = this._additionalProperties;
-    next._extends = this._extends.map((e) => e.transformToInternal());
+    next._additionalProperties = this._additionalProperties
+      ? (this._additionalProperties.transformTo(variant) as DescribableCodeGenerator<any>)
+      : this._additionalProperties;
+    next._extends = this._extends.map((e) => e.transformTo(variant));
     next.internal = structuredClone(this.internal);
-    next.transformNameToResolved();
+    next.internal.source = this;
+    next.currentVariant = variant;
 
     return next;
   }
 
-  containsExpressions(): boolean {
-    if (this.properties.some((prop) => prop.containsExpressions())) {
+  containsVariationDifferences(): boolean {
+    if (this.internal.source?.containsVariationDifferences()) {
       return true;
     }
-    if (this._additionalProperties && this._additionalProperties.containsExpressions()) {
+
+    if (this.properties.some((prop) => prop.containsVariationDifferences())) {
       return true;
     }
-    return this._extends.some((e) => e.containsExpressions());
+    if (this._additionalProperties && this._additionalProperties.containsVariationDifferences()) {
+      return true;
+    }
+    return this._extends.some((e) => e.containsVariationDifferences());
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
-    const properties: string[] = [];
-    for (const prop of this.properties) {
-      if (!prop.shouldExistInCurrentVariant()) {
-        continue;
-      }
-      properties.push(prop._toTypeScript());
-    }
+  toTypeScriptDefinition(symbol: string | undefined): string {
+    const properties: string[] = this.properties.map((prop) => prop.toTypeScript());
 
     if (this._additionalProperties) {
-      properties.push(`[key: string]: ${this._additionalProperties._toTypeScript()};`);
+      properties.push(`[key: string]: ${this._additionalProperties.toTypeScript()};`);
     }
 
     const extendsClause = this._extends.length
-      ? ` extends ${this._extends.map((e) => e._toTypeScript()).join(', ')}`
+      ? ` extends ${this._extends.map((e) => e.toTypeScript()).join(', ')}`
       : '';
     const extendsIntersection = this._extends.length
-      ? ` & ${this._extends.map((e) => e._toTypeScript()).join(' & ')}`
+      ? ` & ${this._extends.map((e) => e.toTypeScript()).join(' & ')}`
       : '';
 
     if (!properties.length && this._extends.length) {

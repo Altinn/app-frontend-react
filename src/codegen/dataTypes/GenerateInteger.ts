@@ -11,7 +11,7 @@ export class GenerateInteger extends GenerateNumber {
     super();
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
+  toTypeScriptDefinition(symbol: string | undefined): string {
     return symbol ? `type ${symbol} = number;` : 'number';
   }
 

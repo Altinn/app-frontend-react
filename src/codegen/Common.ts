@@ -1,10 +1,9 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CG } from 'src/codegen/CG';
-import { CodeGeneratorContext, Variant, VariantSuffixes } from 'src/codegen/CodeGeneratorContext';
+import { CG, Variant } from 'src/codegen/CG';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { ExprVal } from 'src/features/expressions/types';
-import type { CodeGenerator } from 'src/codegen/CodeGenerator';
+import type { CodeGenerator, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 const common = {
@@ -373,36 +372,24 @@ function makeTRB(keys: { [key: string]: TRB }) {
   return obj;
 }
 
-export function commonContainsExpressions(key: ValidCommonKeys): boolean {
-  return common[key]().containsExpressions();
+export function commonContainsVariationDifferences(key: ValidCommonKeys): boolean {
+  return common[key]().containsVariationDifferences();
 }
 
-export function generateCommonTypeScript(): string[] {
-  const out: string[] = [];
-
+export function generateCommonTypeScript() {
   for (const key in common) {
-    if (commonContainsExpressions(key as ValidCommonKeys)) {
-      const external = CodeGeneratorContext.generateTypeScript(() => {
-        const val = common[key]();
-        return val._toTypeScriptDefinition(`${key}${VariantSuffixes.external}`);
-      }, Variant.External);
-      const internal = CodeGeneratorContext.generateTypeScript(() => {
-        const val = common[key]();
-        return val.transformToInternal()._toTypeScriptDefinition(`${key}${VariantSuffixes.internal}`);
-      }, Variant.Internal);
-      out.push(`export ${external.result}\n`);
-      out.push(`export ${internal.result}\n`);
-    } else {
-      const external = CodeGeneratorContext.generateTypeScript(() => {
-        const val = common[key]();
-        return val._toTypeScriptDefinition(key);
-      }, Variant.External);
+    const val = common[key]() as MaybeSymbolizedCodeGenerator<any>;
+    val.exportAs(key);
 
-      out.push(`export ${external.result}\n`);
+    // Calling toTypeScript() on an exported symbol will register it in the currently
+    // generated file, so there's no need to output the result here
+    if (val.containsVariationDifferences()) {
+      val.transformTo(Variant.External).toTypeScript();
+      val.transformTo(Variant.Internal).toTypeScript();
+    } else {
+      val.transformTo(Variant.External).toTypeScript();
     }
   }
-
-  return out;
 }
 
 export function generateCommonSchema(): { [key in ValidCommonKeys]: JSONSchema7 } {
@@ -432,13 +419,4 @@ export function getPropertiesFor(key: ValidCommonKeys): GenerateProperty<any>[] 
   }
 
   throw new Error(`No properties for ${key}, it is of type ${val.constructor.name}`);
-}
-
-export function getCommonRealName(key: ValidCommonKeys): string {
-  if (commonContainsExpressions(key) && key in common) {
-    const suffix = VariantSuffixes[CodeGeneratorContext.getTypeScriptInstance().variant];
-    return `${key}${suffix}`;
-  }
-
-  return key;
 }

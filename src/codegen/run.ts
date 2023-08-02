@@ -63,7 +63,10 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
   promises.push(
     saveTsFile(
       commonTsPath,
-      CodeGeneratorContext.generateFile(commonTsPath, () => generateCommonTypeScript().join('\n')),
+      CodeGeneratorContext.generateFile(commonTsPath, () => {
+        generateCommonTypeScript();
+        return ''; // Empty content, because all symbols are exported and registered in the context
+      }),
     ),
   );
 

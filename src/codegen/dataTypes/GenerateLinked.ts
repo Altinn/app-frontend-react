@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
+import { Variant } from 'src/codegen/CG';
 import { CodeGenerator } from 'src/codegen/CodeGenerator';
-import { CodeGeneratorContext, Variant } from 'src/codegen/CodeGeneratorContext';
 
 /**
  * Generates a type that is one of two types, depending on the current variant of code we're generating (i.e.
@@ -17,33 +17,25 @@ export class GenerateLinked<
   Internal extends CodeGenerator<any>,
 > extends CodeGenerator<External> {
   constructor(
-    public readonly external: External,
-    public readonly internal: Internal,
+    public readonly ext: External,
+    public readonly int: Internal,
   ) {
     super();
   }
 
-  transformToInternal(): this | CodeGenerator<any> {
-    return this.internal;
+  transformTo(variant: Variant): this | CodeGenerator<any> {
+    return variant === Variant.External ? this.ext.transformTo(variant) : this.int.transformTo(variant);
   }
 
-  _toTypeScript(): string {
-    if (CodeGeneratorContext.getTypeScriptInstance().variant === Variant.External) {
-      return this.external._toTypeScript();
-    }
-
-    // We cannot just call this.resolved._toTypeScript() here, because that would just fool us. All types should be
-    // deeply transformed to resolved mode instead. This exception is just thrown to guard against mistakes.
-    throw new Error('Cannot generate TypeScript for linked type in internal mode - call transformToResolved() first');
+  toTypeScript(): string {
+    throw new Error('You need to transform this type to either external or internal before generating TypeScript');
   }
 
   toJsonSchema(): JSONSchema7 {
-    return this.external.toJsonSchema();
+    return this.ext.transformTo(Variant.External).toJsonSchema();
   }
 
-  containsExpressions(): boolean {
-    // This does not contain expressions itself, but it should be treated as if it does, because we need to output
-    // different types depending on the output variant.
+  containsVariationDifferences(): boolean {
     return true;
   }
 }

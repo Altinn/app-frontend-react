@@ -23,7 +23,7 @@ export class GenerateNumber extends DescribableCodeGenerator<number> {
     return this;
   }
 
-  _toTypeScriptDefinition(symbol: string | undefined): string {
+  toTypeScriptDefinition(symbol: string | undefined): string {
     return symbol ? `type ${symbol} = number;` : 'number';
   }
 
@@ -34,5 +34,9 @@ export class GenerateNumber extends DescribableCodeGenerator<number> {
       minimum: this.minimum,
       maximum: this.maximum,
     };
+  }
+
+  containsVariationDifferences(): boolean {
+    return this.internal.source?.containsVariationDifferences() || false;
   }
 }

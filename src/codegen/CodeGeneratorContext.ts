@@ -1,4 +1,4 @@
-import type { MaybeSymbolizedCodeGenerator, SymbolExt } from 'src/codegen/CodeGenerator';
+import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 /**
  * This code relies on the fact that the code generator will generate one file at a time, and reset the context
@@ -7,9 +7,8 @@ import type { MaybeSymbolizedCodeGenerator, SymbolExt } from 'src/codegen/CodeGe
  */
 export class CodeGeneratorContext {
   private static fileInstance: CodeGeneratorFileContext | undefined;
-  private static typeScriptInstance: CodeGeneratorTypeScriptContext | undefined;
 
-  public static getFileInstance(): CodeGeneratorFileContext {
+  public static curFile(): CodeGeneratorFileContext {
     if (!this.fileInstance) {
       throw new Error(
         'CodeGeneratorFileContext has not been initialized, run this in code that is called ' +
@@ -18,17 +17,6 @@ export class CodeGeneratorContext {
     }
 
     return this.fileInstance;
-  }
-
-  public static getTypeScriptInstance(): CodeGeneratorTypeScriptContext {
-    if (!this.typeScriptInstance) {
-      throw new Error(
-        'CodeGeneratorTypeScriptContext has not been initialized, run this in code that is called ' +
-          'within CodeGeneratorContext.generateTypeScript(), such as a CodeGenerator.toTypeScript() method',
-      );
-    }
-
-    return this.typeScriptInstance;
   }
 
   public static async generateFile(
@@ -49,21 +37,6 @@ export class CodeGeneratorContext {
     CodeGeneratorContext.fileInstance = undefined;
 
     return { result: parts.join('\n\n') };
-  }
-
-  public static generateTypeScript(fn: () => string, variant: Variant): { result: string } {
-    if (!this.fileInstance) {
-      throw new Error(
-        'CodeGeneratorFileContext has not been initialized, run this in code that is called ' +
-          'within CodeGeneratorContext.generateFile()',
-      );
-    }
-
-    CodeGeneratorContext.typeScriptInstance = new CodeGeneratorTypeScriptContext(variant);
-    const out = fn();
-    CodeGeneratorContext.typeScriptInstance = undefined;
-
-    return { result: out };
   }
 }
 
@@ -91,14 +64,14 @@ export class CodeGeneratorFileContext {
     set.add(symbol);
   }
 
-  public addSymbol(symbol: SymbolExt, generator: MaybeSymbolizedCodeGenerator<any>) {
-    const prefix = symbol.exported ? 'export ' : '';
-    const definition = prefix + generator._toTypeScriptDefinition(symbol.name);
-    if (this.symbols[symbol.name] && this.symbols[symbol.name] !== definition) {
-      throw new Error(`Symbol ${symbol.name} already exists, and is not equal to the new symbol`);
+  public addSymbol(name: string, exported: boolean, generator: MaybeSymbolizedCodeGenerator<any>) {
+    const prefix = exported ? 'export ' : '';
+    const definition = prefix + generator.toTypeScriptDefinition(name);
+    if (this.symbols[name] && this.symbols[name] !== definition) {
+      throw new Error(`Symbol ${name} already exists, and is not equal to the new symbol`);
     }
 
-    this.symbols[symbol.name] = definition;
+    this.symbols[name] = definition;
   }
 
   getImportsAsTypeScript(): string {
@@ -122,18 +95,4 @@ export class CodeGeneratorFileContext {
       })
       .join('\n\n');
   }
-}
-
-export enum Variant {
-  Internal = 'internal',
-  External = 'external',
-}
-
-export const VariantSuffixes: { [variant in Variant]: string } = {
-  [Variant.Internal]: 'Internal',
-  [Variant.External]: 'External',
-};
-
-export class CodeGeneratorTypeScriptContext {
-  constructor(public readonly variant: Variant) {}
 }

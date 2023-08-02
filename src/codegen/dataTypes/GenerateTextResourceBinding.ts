@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import { ExprVal } from 'src/features/expressions/types';
 import type { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
@@ -14,18 +14,27 @@ export interface TextResourceConfig {
  * helper to make sure you always provide a description and title, and never specify the inner type yourself.
  */
 export class GenerateTextResourceBinding extends GenerateProperty<GenerateExpressionOr<ExprVal.String>> {
+  private readonly externalProp: GenerateExpressionOr<ExprVal.String>;
+
   constructor(config: TextResourceConfig) {
-    super(
-      config.name,
-      new CG.expr(ExprVal.String).optional().setTitle(config.title).setDescription(config.description),
-    );
+    const actualProp = new CG.expr(ExprVal.String).optional().setTitle(config.title).setDescription(config.description);
+    super(config.name, actualProp);
+    this.externalProp = actualProp;
   }
 
-  containsExpressions(): boolean {
+  containsVariationDifferences(): boolean {
     return true;
   }
 
-  transformToInternal(): GenerateProperty<any> {
-    return new CG.prop(this.name, new CG.str().optional());
+  toTypeScript(): string {
+    throw new Error('Not transformed to any variant yet - please call transformTo(variant) first');
+  }
+
+  transformTo(variant: Variant): GenerateProperty<any> {
+    if (variant === Variant.External) {
+      return new CG.prop(this.name, this.externalProp).transformTo(variant);
+    }
+
+    return new CG.prop(this.name, new CG.str().optional()).transformTo(variant);
   }
 }
