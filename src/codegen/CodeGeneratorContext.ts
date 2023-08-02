@@ -25,15 +25,28 @@ export class CodeGeneratorContext {
   ): Promise<{ result: string }> {
     const instance = new CodeGeneratorFileContext(targetFile);
     CodeGeneratorContext.fileInstance = instance;
-    const out = await fn();
-    const parts: string[] = [out];
-    const symbols = new Set<string>();
+    const functionOutput = await fn();
+    const parts: string[] = [];
+    const symbols: { [symbol: string]: string } = {};
     while (Object.keys(instance.symbols).length) {
-      parts.unshift(instance.getSymbolsAsTypeScript(symbols));
+      const newSymbols = instance.getSymbolsAsTypeScript(symbols);
+      Object.assign(symbols, newSymbols);
     }
+
+    // Sort symbols and add them in sorted order to the file
+    const sortedSymbols = Object.keys(symbols).sort();
+    for (const symbol of sortedSymbols) {
+      parts.push(symbols[symbol]);
+    }
+
     while (Object.keys(instance.imports).length) {
       parts.unshift(instance.getImportsAsTypeScript());
     }
+
+    if (functionOutput) {
+      parts.push(functionOutput);
+    }
+
     CodeGeneratorContext.fileInstance = undefined;
 
     return { result: parts.join('\n\n') };
@@ -44,7 +57,7 @@ type Imports = { [fileName: string]: Set<string> };
 
 export class CodeGeneratorFileContext {
   private readonly targetFile: string;
-  public readonly symbols: { [symbol: string]: string } = {};
+  public symbols: { [symbol: string]: string } = {};
   public imports: Imports = {};
 
   constructor(targetFile: string) {
@@ -84,15 +97,17 @@ export class CodeGeneratorFileContext {
     return importLines.join('\n');
   }
 
-  getSymbolsAsTypeScript(ifNotIn: Set<string>): string {
-    return Object.keys(this.symbols)
-      .filter((name) => !ifNotIn.has(name))
-      .map((name) => {
-        const definition = this.symbols[name];
-        ifNotIn.add(name);
-        delete this.symbols[name];
-        return definition;
-      })
-      .join('\n\n');
+  getSymbolsAsTypeScript(ifNotIn: { [symbol: string]: string }): { [symbol: string]: string } {
+    const out: { [symbol: string]: string } = {};
+
+    for (const name of Object.keys(this.symbols)) {
+      if (ifNotIn[name]) {
+        continue;
+      }
+      out[name] = this.symbols[name];
+    }
+
+    this.symbols = {};
+    return out;
   }
 }
