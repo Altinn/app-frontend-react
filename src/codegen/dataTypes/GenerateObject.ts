@@ -128,7 +128,11 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     const properties: string[] = this.properties.map((prop) => prop.toTypeScript());
 
     if (this._additionalProperties) {
-      properties.push(`[key: string]: ${this._additionalProperties.toTypeScript()};`);
+      if (this._additionalProperties.internal.optional) {
+        properties.push(`[key: string]: ${this._additionalProperties.toTypeScript()} | undefined;`);
+      } else {
+        properties.push(`[key: string]: ${this._additionalProperties.toTypeScript()};`);
+      }
     }
 
     const extendsClause = this._extends.length
