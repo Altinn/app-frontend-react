@@ -71,6 +71,10 @@ export const CG = {
   // Known values that we have types for elsewhere, or other imported types
   common: generateCommonImport,
   import: GenerateImportedSymbol,
+  layoutNode: new GenerateImportedSymbol({
+    import: 'LayoutNode',
+    from: 'src/utils/layout/LayoutNode',
+  }),
 
   // Others
   enum: GenerateEnum,

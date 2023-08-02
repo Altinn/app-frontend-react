@@ -20,15 +20,7 @@ const commonChildrenProp = new CG.prop(
     .setDescription('Array of component IDs that should be displayed in the group'),
 ).onlyIn(Variant.External);
 
-const commonNonRepChildComponents = new CG.prop(
-  'childComponents',
-  new CG.arr(
-    new CG.import({
-      import: 'LayoutNode',
-      from: 'src/utils/layout/LayoutNode',
-    }),
-  ),
-).onlyIn(Variant.Internal);
+const commonNonRepChildComponents = new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal);
 
 const commonRepRowsProp = new CG.prop(
   'rows',

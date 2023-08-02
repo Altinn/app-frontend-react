@@ -49,10 +49,7 @@ const CategoryImports: { [Category in ComponentCategory]: GenerateImportedSymbol
 export class ComponentConfig extends GenerateComponentLikeBase {
   public type: string;
   public typeSymbol: string;
-  public layoutNodeType = new CG.import({
-    import: 'LayoutNode',
-    from: 'src/utils/layout/LayoutNode',
-  });
+  public layoutNodeType = CG.layoutNode;
 
   private exportedComp: MaybeSymbolizedCodeGenerator<any> = this.inner;
 
