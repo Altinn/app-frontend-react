@@ -227,6 +227,7 @@ export function EditWindowComponent({
               error={attachmentValidations.filter((i) => i.id === attachment.id).length > 0}
               label={langAsString('general.choose')}
               hideLabel={true}
+              value={chosenOptions[attachment.id]}
             />
           </Grid>
           <Grid
