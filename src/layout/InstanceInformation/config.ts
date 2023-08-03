@@ -10,4 +10,17 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-});
+}).addProperty(
+  new CG.prop(
+    'elements',
+    new CG.obj(
+      new CG.prop('dateSent', new CG.bool().optional()),
+      new CG.prop('sender', new CG.bool().optional()),
+      new CG.prop('receiver', new CG.bool().optional()),
+      new CG.prop('referenceNumber', new CG.bool().optional()),
+    )
+      .optional()
+      .setTitle('Elements')
+      .setDescription('Which elements to show in the instance information'),
+  ),
+);
