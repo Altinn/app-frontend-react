@@ -19,7 +19,7 @@ class IFileUploadTableRowProps {
   mobileView: boolean;
   index: number;
   node: LayoutNodeFromType<'FileUpload'> | LayoutNodeFromType<'FileUploadWithTag'>;
-  tagLabel?: string | undefined;
+  tagLabel: string | undefined;
   editIndex: number;
   setEditIndex: (index: number) => void;
 }
@@ -112,7 +112,7 @@ const NameCell = ({
   mobileView: boolean;
   attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'>;
   readableSize: string;
-  tagLabel?: string | undefined;
+  tagLabel: string | undefined;
 }) => {
   const { langAsString } = useLanguage();
   return (

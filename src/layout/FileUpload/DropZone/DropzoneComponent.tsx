@@ -62,7 +62,7 @@ export function DropzoneComponent({
   hasCustomFileEndings,
   validFileEndings,
   textResourceBindings,
-}: IDropzoneComponentProps): JSX.Element {
+}: IDropzoneComponentProps): React.JSX.Element {
   const maxSizeLabelId = `file-upload-max-size-${id}`;
   const { lang, langAsString } = useLanguage();
   return (

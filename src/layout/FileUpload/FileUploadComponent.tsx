@@ -28,7 +28,7 @@ import type { IComponentValidations } from 'src/utils/validation/types';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
-export function FileUploadComponent({ componentValidations, node }: IFileUploadWithTagProps): JSX.Element {
+export function FileUploadComponent({ componentValidations, node }: IFileUploadWithTagProps): React.JSX.Element {
   const {
     id,
     baseComponentId,

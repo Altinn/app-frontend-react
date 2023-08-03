@@ -41,12 +41,11 @@ export function FileTableComponent({
   const { lang } = useLanguage();
   const { id, baseComponentId, textResourceBindings, type } = node.item;
   const hasTag = type === 'FileUploadWithTag';
-  const editIndex = useAppSelector(
-    (state: IRuntimeState) =>
-      (state.formLayout.uiConfig.fileUploadersWithTag &&
-        state.formLayout.uiConfig.fileUploadersWithTag[id]?.editIndex) ??
-      -1,
-  );
+
+  const editIndex = useAppSelector((state: IRuntimeState) => {
+    const fileUploadersWithTag = state.formLayout.uiConfig.fileUploadersWithTag;
+    return fileUploadersWithTag?.[id]?.editIndex ?? -1;
+  });
 
   if (!attachments || attachments.length === 0) {
     return null;

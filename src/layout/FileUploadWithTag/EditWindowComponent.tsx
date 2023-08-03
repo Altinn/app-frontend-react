@@ -44,7 +44,7 @@ export function EditWindowComponent({
   setEditIndex,
   validationsWithTag,
   setValidationsWithTag,
-}: EditWindowProps): JSX.Element {
+}: EditWindowProps): React.JSX.Element {
   const dispatch = useAppDispatch();
   const { id, baseComponentId, dataModelBindings, textResourceBindings, readOnly, alertOnDelete } = node.item;
   const { lang, langAsString } = useLanguage();
