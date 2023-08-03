@@ -421,7 +421,7 @@ const common = {
 
   HTMLAutoCompleteValues: () =>
     new CG.enum(
-      ...['on', 'off', 'name', 'on', 'off', 'name', 'honorific-prefix', 'given-name', 'additional-name'],
+      ...['on', 'off', 'name', 'honorific-prefix', 'given-name', 'additional-name'],
       ...['family-name', 'honorific-suffix', 'nickname', 'email', 'username', 'new-password', 'current-password'],
       ...['one-time-code', 'organization-title', 'organization', 'street-address', 'address-line1', 'address-line2'],
       ...['address-line3', 'address-level4', 'address-level3', 'address-level2', 'address-level1', 'country'],

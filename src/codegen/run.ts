@@ -1,6 +1,6 @@
-/* eslint-disable */
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { generateCommonSchema, generateCommonTypeScript } from 'src/codegen/Common';
@@ -70,15 +70,14 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
     ),
   );
 
-  // PRIORITY: Remove definitions not in use in the layout schema (such as the ones for resolved types)
   const schemaDefs = generateCommonSchema();
-
   for (const key of sortedKeys) {
     const tsPath = `src/layout/${key}/config.generated.ts`;
 
     let config = null as unknown as ComponentConfig;
     const content = await CodeGeneratorContext.generateFile(tsPath, () => {
-      config = (require(`src/layout/${key}/config`)).Config;
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      config = require(`src/layout/${key}/config`).Config;
       config.setType(componentList[key], key);
       return config.toTypeScript();
     });
@@ -89,66 +88,89 @@ const useNewTypes = false; // PRIORITY: Remove this once we've migrated to the n
     }
   }
 
+  const fullSchema = generateFullSchema(sortedKeys, componentList, schemaDefs);
   const schemaPath = 'schemas/json/layout/layout.schema.v2.generated.json';
-  promises.push(
-    saveFile(
-      schemaPath,
-      JSON.stringify(
-        {
-          $schema: 'http://json-schema.org/draft-07/schema#',
-          $id: 'https://altinncdn.no/schemas/json/layout/layout.schema.v1.json',
-          title: 'Altinn layout',
-          description: 'Schema that describes the layout configuration for Altinn applications.',
-          type: 'object',
-          properties: {
-            $schema: { type: 'string' },
-            data: {
-              $ref: '#/definitions/data',
-            },
-          },
-          definitions: {
-            data: {
-              title: 'The layout data',
-              description: 'Contains data describing the layout configuration.',
-              type: 'object',
-              properties: {
-                layout: {
-                  $ref: '#/definitions/layout',
-                },
-              },
-            },
-            layout: {
-              title: 'The layout',
-              description: 'Array of components to be presented in the layout.',
-              type: 'array',
-              items: {
-                $ref: '#/definitions/component',
-              },
-            },
-            component: {
-              type: 'object',
-              properties: {
-                type: {
-                  // This is a trick to make the type property required, but still override the type with a const value
-                  // in each of the component schemas (not normally possible with this code generator)
-                  title: 'Type',
-                  description: 'The component type',
-                  enum: sortedKeys.map((key) => componentList[key]),
-                },
-              },
-              allOf: sortedKeys.map((key) => ({
-                if: { properties: { type: { const: componentList[key] } } },
-                then: { $ref: `#/definitions/Comp${key}` },
-              })),
-            },
-            ...schemaDefs,
-          },
-        },
-        null,
-        2,
-      ),
-    ),
-  );
+  promises.push(saveFile(schemaPath, JSON.stringify(fullSchema, null, 2)));
 
   await Promise.all(promises);
 })();
+
+function generateFullSchema(
+  sortedKeys: string[],
+  componentList: { [p: string]: string },
+  schemaDefs: { [key: string]: JSONSchema7 },
+): JSONSchema7 {
+  const foundRefs = new Set<string>();
+  const allRefs = new Set<string>(Object.keys(schemaDefs));
+  for (const value of Object.values(schemaDefs)) {
+    const asJson = JSON.stringify(value);
+    const refRegex = /"\$ref":\s*"([^"]+)"/g;
+    const refMatches = asJson.match(refRegex);
+    if (refMatches) {
+      for (const ref of refMatches) {
+        const result = ref.replace('"$ref":', '').replace(/"/g, '').trim().replace('#/definitions/', '');
+        foundRefs.add(result);
+      }
+      // foundRefs.add(refMatches[1].replace('#/definitions/', ''));
+    } else if (asJson.includes('$ref')) {
+      throw new Error(`Could not find ref in ${asJson}`);
+    }
+  }
+
+  const notFoundRefs = [...allRefs].filter((ref) => !foundRefs.has(ref));
+  const notFoundExceptComponents = notFoundRefs.filter((ref) => !ref.startsWith('Comp'));
+  if (notFoundExceptComponents.length) {
+    throw new Error(`Unused commons/refs: ${notFoundExceptComponents.join(', ')}`);
+  }
+
+  return {
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    $id: 'https://altinncdn.no/schemas/json/layout/layout.schema.v1.json',
+    title: 'Altinn layout',
+    description: 'Schema that describes the layout configuration for Altinn applications.',
+    type: 'object',
+    properties: {
+      $schema: { type: 'string' },
+      data: {
+        $ref: '#/definitions/data',
+      },
+    },
+    definitions: {
+      data: {
+        title: 'The layout data',
+        description: 'Contains data describing the layout configuration.',
+        type: 'object',
+        properties: {
+          layout: {
+            $ref: '#/definitions/layout',
+          },
+        },
+      },
+      layout: {
+        title: 'The layout',
+        description: 'Array of components to be presented in the layout.',
+        type: 'array',
+        items: {
+          $ref: '#/definitions/component',
+        },
+      },
+      component: {
+        type: 'object',
+        properties: {
+          type: {
+            // This is a trick to make the type property required, but still override the type with a const value
+            // in each of the component schemas (not normally possible with this code generator)
+            title: 'Type',
+            description: 'The component type',
+            enum: sortedKeys.map((key) => componentList[key]),
+          },
+        },
+        allOf: sortedKeys.map((key) => ({
+          if: { properties: { type: { const: componentList[key] } } },
+          then: { $ref: `#/definitions/Comp${key}` },
+        })),
+      },
+      ...schemaDefs,
+    },
+  };
+}
