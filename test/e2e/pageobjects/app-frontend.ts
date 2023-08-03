@@ -298,6 +298,7 @@ export function makeUploaderSelectors<T extends Type>(
   const statusIdx = type === 'tagged' ? 4 : 3;
 
   return {
+    fileUploader: `#altinn-fileuploader-${id}-${row}`,
     stateKey: `${id}-${row}`,
     dropZoneContainer: `#altinn-drop-zone-${id}-${row}`,
     dropZone: `#altinn-drop-zone-${id}-${row} input[type=file]`,
