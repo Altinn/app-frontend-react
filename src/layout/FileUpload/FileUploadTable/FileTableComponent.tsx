@@ -36,7 +36,7 @@ export function FileTableComponent({
   options,
   validationsWithTag,
   setValidationsWithTag,
-}: FileTableProps): JSX.Element | null {
+}: FileTableProps): React.JSX.Element | null {
   const dispatch = useAppDispatch();
   const { lang } = useLanguage();
   const { id, baseComponentId, textResourceBindings, type } = node.item;

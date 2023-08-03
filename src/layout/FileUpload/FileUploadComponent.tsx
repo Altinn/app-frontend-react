@@ -15,8 +15,6 @@ import { FileTableComponent } from 'src/layout/FileUpload/FileUploadTable/FileTa
 import { handleRejectedFiles } from 'src/layout/FileUpload/handleRejectedFiles';
 import {
   getFileUploadWithTagComponentValidations,
-  isAttachmentError,
-  isNotAttachmentError,
   parseFileUploadComponentWithTagValidationObject,
 } from 'src/utils/formComponentUtils';
 import { getOptionLookupKey } from 'src/utils/options';
@@ -41,22 +39,23 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
     validFileEndings,
     textResourceBindings,
     dataModelBindings,
-    type,
+    optionsId,
   } = node.item;
+
   const dataDispatch = useAppDispatch();
   const [validations, setValidations] = React.useState<string[]>([]);
   const [validationsWithTag, setValidationsWithTag] = React.useState<Array<{ id: string; message: string }>>([]);
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
   const attachments: IAttachment[] = useAppSelector((state: IRuntimeState) => state.attachments.attachments[id] || []);
-  const hasTag = type === 'FileUploadWithTag';
+
+  const hasTag = !!optionsId;
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;
 
   const options = useAppSelector((state) => {
-    const optionsId = ('optionsId' in node.item && node.item?.optionsId) ?? '';
     const mapping = ('mapping' in node.item && node.item?.mapping) || undefined;
-    if (optionsId) {
+    if (hasTag) {
       return state.optionState.options[
         getOptionLookupKey({
           id: optionsId,
@@ -92,20 +91,23 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
   };
 
   const renderAddMoreAttachmentsButton = (): JSX.Element | null => {
-    const shouldShowButton =
+    const canShowButton =
       displayMode === 'simple' &&
       !showFileUpload &&
       attachments.length < maxNumberOfAttachments &&
       attachments.length > 0;
 
-    return shouldShowButton ? (
+    if (!canShowButton) {
+      return null;
+    }
+    return (
       <button
         className={`${classes.fileUploadButton} ${classes.blueUnderline}`}
         onClick={() => setShowFileUpload(true)}
       >
         {lang('form_filler.file_uploader_add_attachment')}
       </button>
-    ) : null;
+    );
   };
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
@@ -117,37 +119,44 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
       const errorText = `${langAsString(
         'form_filler.file_uploader_validation_error_exceeds_max_files_1',
       )} ${maxNumberOfAttachments} ${langAsString('form_filler.file_uploader_validation_error_exceeds_max_files_2')}`;
-
       hasTag ? setValidationsFromArray([errorText]) : setValidations([errorText]);
-    } else {
-      // we should upload all files, if any rejected files we should display an error
-      acceptedFiles.forEach((file: File, index) => {
-        dataDispatch(
-          AttachmentActions.uploadAttachment({
-            file,
-            attachmentType: fileType,
-            tmpAttachmentId: uuidv4(),
-            componentId: id,
-            dataModelBindings,
-            index: attachments.length + index,
-          }),
-        );
-      });
-
-      if (acceptedFiles.length > 0) {
-        setShowFileUpload(displayMode === 'simple' ? false : attachments.length < maxNumberOfAttachments);
-      }
-      const rejections = handleRejectedFiles({
-        langTools,
-        rejectedFiles,
-        maxFileSizeInMB,
-      });
-      hasTag ? setValidationsFromArray(rejections) : setValidations(rejections);
+      return;
     }
+    // we should upload all files, if any rejected files we should display an error
+    acceptedFiles.forEach((file: File, index) => {
+      dataDispatch(
+        AttachmentActions.uploadAttachment({
+          file,
+          attachmentType: fileType,
+          tmpAttachmentId: uuidv4(),
+          componentId: id,
+          dataModelBindings,
+          index: attachments.length + index,
+        }),
+      );
+    });
+
+    if (acceptedFiles.length > 0) {
+      setShowFileUpload(displayMode === 'simple' ? false : attachments.length < maxNumberOfAttachments);
+    }
+    const rejections = handleRejectedFiles({
+      langTools,
+      rejectedFiles,
+      maxFileSizeInMB,
+    });
+    hasTag ? setValidationsFromArray(rejections) : setValidations(rejections);
   };
 
   const renderValidationMessages =
     hasValidationMessages && renderValidationMessagesForComponent(validationMessages, id);
+
+  const attachmentsCounter = (
+    <AttachmentsCounter
+      currentNumberOfAttachments={attachments.length}
+      minNumberOfAttachments={minNumberOfAttachments}
+      maxNumberOfAttachments={maxNumberOfAttachments}
+    />
+  );
 
   return (
     <div
@@ -155,27 +164,20 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
       style={{ padding: '0px' }}
     >
       {shouldShowFileUpload() && (
-        <DropzoneComponent
-          id={id}
-          isMobile={mobileView}
-          maxFileSizeInMB={maxFileSizeInMB}
-          readOnly={!!readOnly}
-          onClick={(e) => e.preventDefault()}
-          onDrop={handleDrop}
-          hasValidationMessages={!!hasValidationMessages}
-          hasCustomFileEndings={hasCustomFileEndings}
-          validFileEndings={validFileEndings}
-          textResourceBindings={textResourceBindings}
-        />
-      )}
-
-      {shouldShowFileUpload() && (
         <>
-          <AttachmentsCounter
-            currentNumberOfAttachments={attachments.length}
-            minNumberOfAttachments={minNumberOfAttachments}
-            maxNumberOfAttachments={maxNumberOfAttachments}
+          <DropzoneComponent
+            id={id}
+            isMobile={mobileView}
+            maxFileSizeInMB={maxFileSizeInMB}
+            readOnly={!!readOnly}
+            onClick={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            hasValidationMessages={!!hasValidationMessages}
+            hasCustomFileEndings={hasCustomFileEndings}
+            validFileEndings={validFileEndings}
+            textResourceBindings={textResourceBindings}
           />
+          {attachmentsCounter}
           {renderValidationMessages}
         </>
       )}
@@ -192,11 +194,7 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
 
       {!shouldShowFileUpload() && (
         <>
-          <AttachmentsCounter
-            currentNumberOfAttachments={attachments.length}
-            minNumberOfAttachments={minNumberOfAttachments}
-            maxNumberOfAttachments={maxNumberOfAttachments}
-          />
+          {attachmentsCounter}
           {renderValidationMessages}
         </>
       )}
@@ -218,15 +216,8 @@ const validateWithTag = ({ setValidationsWithTag, validationsWithTag, componentV
   const setValidationsFromArray = (validationArray: string[]) => {
     setValidationsWithTag(parseFileUploadComponentWithTagValidationObject(validationArray));
   };
-
-  // Get validations and filter general from identified validations.
-  const tmpValidationMessages = getFileUploadWithTagComponentValidations(componentValidations, validationsWithTag);
-  const validationMessages = {
-    errors: tmpValidationMessages.filter(isNotAttachmentError).map((el) => el.message),
-  };
-  const attachmentValidationMessages = tmpValidationMessages.filter(isAttachmentError);
-  const hasValidationMessages: boolean = validationMessages.errors.length > 0;
-
+  const { attachmentValidationMessages, hasValidationMessages, validationMessages } =
+    getFileUploadWithTagComponentValidations(componentValidations, validationsWithTag);
   return {
     setValidationsFromArray,
     attachmentValidationMessages,

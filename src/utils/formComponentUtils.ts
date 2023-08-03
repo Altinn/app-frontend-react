@@ -51,9 +51,12 @@ export function getFileUploadComponentValidations(
 export function getFileUploadWithTagComponentValidations(
   validationMessages: IComponentValidations | undefined,
   validationState: Array<{ id: string; message: string }>,
-): Array<{ id: string; message: string }> {
-  const result: Array<{ id: string; message: string }> = [];
-  validationMessages = validationMessages && JSON.parse(JSON.stringify(validationMessages));
+): {
+  attachmentValidationMessages: Array<{ id: string; message: string }>;
+  hasValidationMessages: boolean;
+  validationMessages: { errors: string[] };
+} {
+  let result: Array<{ id: string; message: string }> = [];
 
   if (!validationMessages || !validationMessages.simpleBinding) {
     validationMessages = {
@@ -63,21 +66,24 @@ export function getFileUploadWithTagComponentValidations(
       },
     };
   }
-  if (
-    validationMessages.simpleBinding !== undefined &&
-    validationMessages.simpleBinding.errors &&
-    validationMessages.simpleBinding.errors.length > 0
-  ) {
-    parseFileUploadComponentWithTagValidationObject(validationMessages.simpleBinding.errors as string[]).forEach(
-      (validation) => {
-        result.push(validation);
-      },
-    );
+
+  if (validationMessages?.simpleBinding?.errors && validationMessages.simpleBinding.errors.length > 0) {
+    result = [...result, ...parseFileUploadComponentWithTagValidationObject(validationMessages.simpleBinding.errors)];
   }
+
   validationState.forEach((validation) => {
     result.push(validation);
   });
-  return result;
+
+  const validationMessagesTest = {
+    errors: result.filter(isNotAttachmentError).map((el) => el.message),
+  };
+
+  return {
+    attachmentValidationMessages: validationState,
+    hasValidationMessages: result.some((validation) => !isAttachmentError(validation)),
+    validationMessages: validationMessagesTest,
+  };
 }
 
 export const parseFileUploadComponentWithTagValidationObject = (
