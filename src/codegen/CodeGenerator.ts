@@ -166,3 +166,9 @@ export abstract class DescribableCodeGenerator<T> extends MaybeOptionalCodeGener
     return this;
   }
 }
+
+export interface CodeGeneratorWithProperties {
+  hasProperty(name: string): boolean;
+  getProperty(name: string): CodeGenerator<any> | undefined;
+  getProperties(): CodeGenerator<any>[];
+}

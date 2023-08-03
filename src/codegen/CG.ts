@@ -8,10 +8,12 @@ import { GenerateEnum } from 'src/codegen/dataTypes/GenerateEnum';
 import { GenerateExpressionOr } from 'src/codegen/dataTypes/GenerateExpressionOr';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { GenerateInteger } from 'src/codegen/dataTypes/GenerateInteger';
+import { GenerateIntersection } from 'src/codegen/dataTypes/GenerateIntersection';
 import { GenerateLinked } from 'src/codegen/dataTypes/GenerateLinked';
 import { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
+import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateString } from 'src/codegen/dataTypes/GenerateString';
 import { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
@@ -79,5 +81,7 @@ export const CG = {
   // Others
   enum: GenerateEnum,
   union: GenerateUnion,
+  intersection: GenerateIntersection,
   linked: GenerateLinked,
+  raw: GenerateRaw,
 };

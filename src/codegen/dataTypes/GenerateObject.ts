@@ -1,9 +1,9 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { Variant } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { Extract } from 'src/codegen/CodeGenerator';
-import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
+import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
+import type { CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export type Props = GenerateProperty<any>[];
@@ -11,21 +11,26 @@ export type AsInterface<P extends Props> = {
   [K in P[number]['name']]: Extract<P[number]['type']>;
 };
 
+type Extendables = GenerateCommonImport<any> | GenerateObject<any>;
+
 /**
  * Generates an object definition type. This is used for both interfaces and types in TypeScript, and can extend other
  * object types (either ones you generate, or from the common imports).
  */
-export class GenerateObject<P extends Props> extends DescribableCodeGenerator<AsInterface<P>> {
+export class GenerateObject<P extends Props>
+  extends DescribableCodeGenerator<AsInterface<P>>
+  implements CodeGeneratorWithProperties
+{
   private readonly properties: P;
   private _additionalProperties: DescribableCodeGenerator<any> | false | undefined = false;
-  private _extends: GenerateCommonImport<any>[] = [];
+  private _extends: Extendables[] = [];
 
   constructor(...properties: P) {
     super();
     this.properties = properties;
   }
 
-  extends(...symbols: GenerateCommonImport<any>[]): this {
+  extends(...symbols: Extendables[]): this {
     this._extends.push(...symbols);
     return this;
   }
@@ -124,8 +129,53 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
     return this._extends.some((e) => e.containsVariationDifferences());
   }
 
+  private ensureExtendsHaveNames() {
+    for (const e of this._extends) {
+      if (e instanceof GenerateCommonImport) {
+        continue;
+      }
+      if (!e.getName()) {
+        throw new Error('Cannot extend an object that does not have a name');
+      }
+    }
+  }
+
+  /**
+   * When extending other objects, we need to make sure that the properties of the extended objects that collide with
+   * our own properties properly extend their parents. Otherwise, we'd get TypeScript errors about incompatible types.
+   */
+  private getPropertiesAsExtensions() {
+    if (!this._extends.length) {
+      return this.properties;
+    }
+
+    return this.properties.map((prop) => {
+      const parentsWithProp = this._extends.filter((e) => e.hasProperty(prop.name)).map((e) => e.getName());
+      if (!parentsWithProp.length) {
+        return prop;
+      }
+
+      const adapted = new CG.intersection(
+        prop.type,
+        ...parentsWithProp.map(
+          (e) =>
+            new CG.raw({
+              typeScript: `${e}['${prop.name}']`,
+            }),
+        ),
+      );
+      adapted.currentVariant = this.currentVariant;
+
+      const newProp = new CG.prop(prop.name, adapted);
+      newProp.currentVariant = this.currentVariant;
+
+      return newProp;
+    });
+  }
+
   toTypeScriptDefinition(symbol: string | undefined): string {
-    const properties: string[] = this.properties.map((prop) => prop.toTypeScript());
+    this.ensureExtendsHaveNames();
+    const properties: string[] = this.getPropertiesAsExtensions().map((prop) => prop.toTypeScript());
 
     if (this._additionalProperties) {
       if (this._additionalProperties.internal.optional) {
@@ -158,6 +208,7 @@ export class GenerateObject<P extends Props> extends DescribableCodeGenerator<As
   }
 
   toJsonSchema(): JSONSchema7 {
+    this.ensureExtendsHaveNames();
     if (this._extends.length) {
       const allProperties: { [key: string]: true } = {};
       const requiredProperties: string[] = [];

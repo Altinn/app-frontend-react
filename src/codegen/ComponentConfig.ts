@@ -114,6 +114,9 @@ export class ComponentConfig extends GenerateComponentLike {
     this.type = type;
     this.typeSymbol = symbolName;
     this.inner.addProperty(new CG.prop('type', new CG.const(this.type)).insertFirst());
+    if (this.inner !== this.exportedComp) {
+      this.inner.exportAs(`${symbolName}Base`);
+    }
 
     return this;
   }
@@ -186,6 +189,6 @@ export class ComponentConfig extends GenerateComponentLike {
   }
 
   public toJsonSchema(): JSONSchema7 {
-    return this.exportedComp.toJsonSchema();
+    return this.exportedComp.transformTo(Variant.External).toJsonSchema();
   }
 }

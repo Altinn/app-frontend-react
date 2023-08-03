@@ -1,5 +1,4 @@
 import { CG } from 'src/codegen/CG';
-import { ComponentConfig } from 'src/codegen/ComponentConfig';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
@@ -86,10 +85,10 @@ export class GenerateComponentLike {
     return this;
   }
 
-  extends(type: GenerateCommonImport<any> | ComponentConfig): this {
-    if (type instanceof ComponentConfig) {
+  extends(type: GenerateCommonImport<any> | GenerateComponentLike): this {
+    if (type instanceof GenerateComponentLike) {
+      this.inner.extends(type.inner);
       return this;
-      // throw new Error('Not implemented');
     }
 
     this.inner.extends(type);

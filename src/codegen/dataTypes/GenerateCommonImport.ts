@@ -2,8 +2,10 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CG, VariantSuffixes } from 'src/codegen/CG';
 import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
-import { commonContainsVariationDifferences, getPropertiesFor } from 'src/codegen/Common';
+import { commonContainsVariationDifferences, getSourceForCommon } from 'src/codegen/Common';
+import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { Variant } from 'src/codegen/CG';
+import type { CodeGenerator, CodeGeneratorWithProperties } from 'src/codegen/CodeGenerator';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
@@ -11,8 +13,13 @@ import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
  * Generates an import statement for a common type (one of those defined in Common.ts).
  * In TypeScript, this is a regular import statement, and in JSON Schema, this is a reference to the definition.
  */
-export class GenerateCommonImport<T extends ValidCommonKeys> extends MaybeOptionalCodeGenerator<any> {
+export class GenerateCommonImport<T extends ValidCommonKeys>
+  extends MaybeOptionalCodeGenerator<any>
+  implements CodeGeneratorWithProperties
+{
   public readonly realKey?: string;
+  private source?: CodeGenerator<any>;
+
   constructor(
     public readonly key: T,
     realKey?: string,
@@ -42,8 +49,39 @@ export class GenerateCommonImport<T extends ValidCommonKeys> extends MaybeOption
     return { $ref: `#/definitions/${this.key}` };
   }
 
+  private getSource(): CodeGenerator<any> {
+    if (!this.source) {
+      this.source = getSourceForCommon(this.key);
+    }
+
+    return this.source;
+  }
+
+  hasProperty(name: string): boolean {
+    const source = this.getSource();
+    if (source instanceof GenerateObject) {
+      return source.hasProperty(name);
+    }
+
+    return false;
+  }
+
+  getProperty(name: string): GenerateProperty<any> | undefined {
+    const source = this.getSource();
+    if (source instanceof GenerateObject) {
+      return source.getProperty(name);
+    }
+
+    return undefined;
+  }
+
   getProperties(): GenerateProperty<any>[] {
-    return getPropertiesFor(this.key);
+    const source = this.getSource();
+    if (source instanceof GenerateObject) {
+      return source.getProperties();
+    }
+
+    return [];
   }
 
   toTypeScriptDefinition(symbol: string | undefined): string {

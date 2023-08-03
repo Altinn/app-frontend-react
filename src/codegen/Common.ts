@@ -4,7 +4,6 @@ import { CG, Variant } from 'src/codegen/CG';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { ExprVal } from 'src/features/expressions/types';
 import type { CodeGenerator, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 const common = {
   ILabelSettings: () =>
@@ -494,11 +493,6 @@ export function generateCommonSchema(): { [key in ValidCommonKeys]: JSONSchema7 
   return out as { [key in ValidCommonKeys]: JSONSchema7 };
 }
 
-export function getPropertiesFor(key: ValidCommonKeys): GenerateProperty<any>[] {
-  const val = common[key]();
-  if (val instanceof GenerateObject) {
-    return val.getProperties();
-  }
-
-  throw new Error(`No properties for ${key}, it is of type ${val.constructor.name}`);
+export function getSourceForCommon(key: ValidCommonKeys): CodeGenerator<any> {
+  return common[key]();
 }
