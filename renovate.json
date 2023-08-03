@@ -1,4 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>Altinn/renovate-config"]
+  "extends": ["local>Altinn/renovate-config"],
+  "ignoreDeps": ["@digdir/design-system-react", "@digdir/design-system-tokens"]
 }
