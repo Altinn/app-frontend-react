@@ -11,6 +11,7 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
+  .addDataModelBinding(new CG.obj().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForCustom'))
   .addTextResource(
     new CG.trb({
       name: 'title',
@@ -21,4 +22,3 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop('tagName', new CG.str().setTitle('Tag name').setDescription('Web component tag name to use')),
   );
-// PRIORITY: Add support for any data model binding
