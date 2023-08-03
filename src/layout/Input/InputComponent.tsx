@@ -31,7 +31,7 @@ export function InputComponent({ node, isValid, formData, handleDataChange, over
     saveWhileTyping,
   );
   const { lang, langAsString } = useLanguage();
-  const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting, value);
+  const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, value);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!reactNumberFormatConfig.number || canBeParsedToDecimal(e.target.value)) {
