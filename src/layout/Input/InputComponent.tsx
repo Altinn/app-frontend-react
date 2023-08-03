@@ -6,6 +6,7 @@ import { TextField } from '@digdir/design-system-react';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
+import { canBeParsedToDecimal } from 'src/utils/formattingUtils';
 import { createCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting } from 'src/layout/layout';
@@ -31,7 +32,12 @@ export function InputComponent({ node, isValid, formData, handleDataChange, over
   );
   const { lang, langAsString } = useLanguage();
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting, value);
-  const handleChange = (e) => setValue(e.target.value);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!reactNumberFormatConfig.number || canBeParsedToDecimal(e.target.value)) {
+      setValue(e.target.value);
+    }
+  }
 
   const ariaLabel = overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined;
 
