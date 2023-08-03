@@ -401,6 +401,30 @@ const common = {
           cells: [{ text: 'hello.world' }, { component: 'myOtherComponent' }],
         },
       ]),
+
+  SaveWhileTyping: () =>
+    new CG.union(new CG.bool(), new CG.num())
+      .optional(true)
+      .setTitle('Automatic saving while typing')
+      .setDescription(
+        'Boolean or number. True = feature on (default), false = feature off (saves on focus blur), number = timeout in milliseconds (400 by default)',
+      ),
+
+  HTMLAutoCompleteValues: () =>
+    new CG.enum(
+      ...['on', 'off', 'name', 'on', 'off', 'name', 'honorific-prefix', 'given-name', 'additional-name'],
+      ...['family-name', 'honorific-suffix', 'nickname', 'email', 'username', 'new-password', 'current-password'],
+      ...['one-time-code', 'organization-title', 'organization', 'street-address', 'address-line1', 'address-line2'],
+      ...['address-line3', 'address-level4', 'address-level3', 'address-level2', 'address-level1', 'country'],
+      ...['country-name', 'postal-code', 'cc-name', 'cc-given-name', 'cc-additional-name', 'cc-family-name'],
+      ...['cc-number', 'cc-exp', 'cc-exp-month', 'cc-exp-year', 'cc-csc', 'cc-type', 'transaction-currency'],
+      ...['transaction-amount', 'language', 'bday', 'bday-day', 'bday-month', 'bday-year', 'sex', 'tel'],
+      ...['tel-country-code', 'tel-national', 'tel-area-code', 'tel-local', 'tel-extension', 'impp', 'url', 'photo'],
+    )
+      .setTitle('HTML autocomplete values')
+      .setDescription(
+        'Autocomplete hints to the browser. See https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete',
+      ),
 };
 
 export type ValidCommonKeys = keyof typeof common;
