@@ -10,4 +10,10 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-});
+}).addTextResource(
+  new CG.trb({
+    name: 'title',
+    title: 'Title',
+    description: 'The title/text on the button',
+  }),
+);

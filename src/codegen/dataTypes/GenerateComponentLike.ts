@@ -14,7 +14,7 @@ import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/Generate
  * The way you should use this is to override the exported symbol of your component, and add new symbols of this type.
  * I.e., you could override the exported symbol to a GenerateUnion-type, and adding multiples of this type to the union.
  */
-export class GenerateComponentLikeBase {
+export class GenerateComponentLike {
   readonly inner = new CG.obj().extends(CG.common('ComponentBase'));
 
   public addProperty(prop: GenerateProperty<any>): this {
@@ -85,10 +85,8 @@ export class GenerateComponentLikeBase {
 
     return this;
   }
-}
 
-export class GenerateComponentLike extends GenerateComponentLikeBase {
-  extend(type: GenerateCommonImport<any> | ComponentConfig): this {
+  extends(type: GenerateCommonImport<any> | ComponentConfig): this {
     if (type instanceof ComponentConfig) {
       return this;
       // throw new Error('Not implemented');

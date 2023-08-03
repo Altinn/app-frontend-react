@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG, Variant } from 'src/codegen/CG';
-import { GenerateComponentLikeBase } from 'src/codegen/dataTypes/GenerateComponentLike';
+import { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import { ComponentCategory } from 'src/layout/common';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
@@ -46,7 +46,7 @@ const CategoryImports: { [Category in ComponentCategory]: GenerateImportedSymbol
   }),
 };
 
-export class ComponentConfig extends GenerateComponentLikeBase {
+export class ComponentConfig extends GenerateComponentLike {
   public type: string;
   public typeSymbol: string;
   public layoutNodeType = CG.layoutNode;
@@ -101,6 +101,9 @@ export class ComponentConfig extends GenerateComponentLikeBase {
     return super.extendTextResources(type);
   }
 
+  /**
+   * PRIORITY: Add support for some required text resource bindings (but only make them required in external types)
+   */
   addTextResource(arg: GenerateTextResourceBinding): this {
     this.ensureNotOverridden();
     return super.addTextResource(arg);

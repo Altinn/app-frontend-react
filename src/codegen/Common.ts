@@ -83,8 +83,17 @@ const common = {
   // Panel display mode:
   IPanelBase: () =>
     new CG.obj(
-      new CG.prop('variant', new CG.enum('info', 'warning', 'error', 'success').optional()),
-      new CG.prop('showIcon', new CG.bool().optional()),
+      new CG.prop(
+        'variant',
+        new CG.enum('info', 'warning', 'error', 'success')
+          .optional()
+          .setTitle('Panel variant')
+          .setDescription('Change the look of the panel'),
+      ),
+      new CG.prop(
+        'showIcon',
+        new CG.bool().optional(true).setTitle('Show icon').setDescription('Show icon in the panel header'),
+      ),
     ),
 
   // Data model bindings:

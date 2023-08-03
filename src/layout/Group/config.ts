@@ -69,10 +69,10 @@ const commonRepGroupDataModelBinding = new CG.obj(
 
 Config.overrideExported(
   new CG.union(
-    makeRepeatingGroup().extend(Config).inner.exportAs('CompGroupRepeating'),
-    makeNonRepeatingGroup().extend(Config).inner.exportAs('CompGroupNonRepeating'),
-    makeNonRepeatingPanelGroup().extend(Config).inner.exportAs('CompGroupNonRepeatingPanel'),
-    makeRepeatingLikertGroup().extend(Config).inner.exportAs('CompGroupRepeatingLikert'),
+    makeRepeatingGroup().extends(Config).inner.exportAs('CompGroupRepeating'),
+    makeNonRepeatingGroup().extends(Config).inner.exportAs('CompGroupNonRepeating'),
+    makeNonRepeatingPanelGroup().extends(Config).inner.exportAs('CompGroupNonRepeatingPanel'),
+    makeRepeatingLikertGroup().extends(Config).inner.exportAs('CompGroupRepeatingLikert'),
   ),
 );
 

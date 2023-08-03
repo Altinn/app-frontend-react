@@ -10,4 +10,27 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-});
+})
+  .addTextResource(
+    new CG.trb({
+      name: 'back',
+      title: 'Back',
+      description: 'Text on the back/previous page button',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'next',
+      title: 'Next',
+      description: 'Text on the next page button',
+    }),
+  )
+  .addProperty(
+    new CG.prop(
+      'showBackButton',
+      new CG.bool()
+        .optional(false)
+        .setTitle('Show back button')
+        .setDescription("Shows two buttons (back/next) instead of just 'next'."),
+    ),
+  );

@@ -10,4 +10,17 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-}).addDataModelBinding('simple');
+})
+  .addDataModelBinding('simple')
+  .addProperty(new CG.prop('autocomplete', CG.common('HTMLAutoCompleteValues').optional()))
+  .addProperty(
+    new CG.prop(
+      'maxLength',
+      new CG.int()
+        .optional()
+        .setTitle('Max length')
+        .setDescription(
+          'Max length of the input field. Will add a counter to let the user know how many characters are left.',
+        ),
+    ),
+  );

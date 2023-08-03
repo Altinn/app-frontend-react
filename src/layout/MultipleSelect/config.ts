@@ -10,4 +10,6 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-});
+})
+  .addDataModelBinding('list')
+  .makeSelectionComponent();
