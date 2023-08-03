@@ -6,7 +6,7 @@ import { TextField } from '@digdir/design-system-react';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
-import { useReload } from 'src/hooks/useReload';
+import { useRerender } from 'src/hooks/useReload';
 import { canBeParsedToDecimal } from 'src/utils/formattingUtils';
 import { createCharacterLimit } from 'src/utils/inputUtils';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -33,7 +33,7 @@ export function InputComponent({ node, isValid, formData, handleDataChange, over
   );
   const { lang, langAsString } = useLanguage();
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting as IInputFormatting | undefined, value);
-  const [inputKey, reloadInput] = useReload('input');
+  const [inputKey, rerenderInput] = useRerender('input');
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!reactNumberFormatConfig.number || canBeParsedToDecimal(e.target.value)) {
@@ -44,7 +44,7 @@ export function InputComponent({ node, isValid, formData, handleDataChange, over
   function onBlur() {
     saveValue();
     if (reactNumberFormatConfig.number) {
-      reloadInput();
+      rerenderInput();
     }
   }
 
