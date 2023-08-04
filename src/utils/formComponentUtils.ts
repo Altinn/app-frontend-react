@@ -49,7 +49,7 @@ export function getFileUploadComponentValidations(
 }
 
 export function getFileUploadWithTagComponentValidations(
-  validationMessages: IComponentValidations | undefined,
+  componentValidations: IComponentValidations | undefined,
   validationState: Array<{ id: string; message: string }>,
 ): {
   attachmentValidationMessages: Array<{ id: string; message: string }>;
@@ -57,32 +57,26 @@ export function getFileUploadWithTagComponentValidations(
   validationMessages: { errors: string[] };
 } {
   let result: Array<{ id: string; message: string }> = [];
-
-  if (!validationMessages || !validationMessages.simpleBinding) {
-    validationMessages = {
+  componentValidations = componentValidations && JSON.parse(JSON.stringify(componentValidations));
+  if (!componentValidations || !componentValidations.simpleBinding) {
+    componentValidations = {
       simpleBinding: {
         errors: [],
         warnings: [],
       },
     };
   }
-
-  if (validationMessages?.simpleBinding?.errors && validationMessages.simpleBinding.errors.length > 0) {
-    result = [...result, ...parseFileUploadComponentWithTagValidationObject(validationMessages.simpleBinding.errors)];
+  if (componentValidations?.simpleBinding?.errors && componentValidations.simpleBinding.errors.length > 0) {
+    result = [...result, ...parseFileUploadComponentWithTagValidationObject(componentValidations.simpleBinding.errors)];
   }
-
-  validationState.forEach((validation) => {
-    result.push(validation);
-  });
-
-  const validationMessagesTest = {
-    errors: result.filter(isNotAttachmentError).map((el) => el.message),
-  };
+  result = [...result, ...validationState];
 
   return {
-    attachmentValidationMessages: validationState,
-    hasValidationMessages: result.some((validation) => !isAttachmentError(validation)),
-    validationMessages: validationMessagesTest,
+    attachmentValidationMessages: result.filter(isAttachmentError),
+    hasValidationMessages: result.some((validation) => isNotAttachmentError(validation)),
+    validationMessages: {
+      errors: result.filter(isNotAttachmentError).map((el) => el.message),
+    },
   };
 }
 
