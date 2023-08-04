@@ -148,10 +148,6 @@ export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
   | UnionToIntersection<TRBAsMap<T, string>>
   | undefined;
 
-export type TextBindingsForSummarizableComponents = 'summaryTitle' | 'summaryAccessibleTitle';
-export type TextBindingsForFormComponents = TextBindingsForSummarizableComponents | 'tableTitle' | 'shortName';
-export type TextBindingsForLabel = 'title' | 'description' | 'help';
-
 export type ILayout = ExprUnresolved<ILayoutComponentOrGroup>[];
 
 export type ISelectionComponentProps =
