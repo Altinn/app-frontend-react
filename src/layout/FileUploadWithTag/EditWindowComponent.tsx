@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Button, Select } from '@digdir/design-system-react';
 import { Grid } from '@material-ui/core';
-import { CheckmarkCircleFillIcon, TrashIcon } from '@navikt/aksel-icons';
+import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
-import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
 import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
+import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import { renderValidationMessages } from 'src/utils/render';
 import type { IAttachment } from 'src/features/attachments';
@@ -24,6 +24,8 @@ export interface EditWindowProps {
   mobileView: boolean;
   options?: IOption[];
   setEditIndex: (index: number) => void;
+  index: number;
+  editIndex: number;
   attachmentValidations: {
     id: string;
     message: string;
@@ -37,6 +39,8 @@ export interface EditWindowProps {
 
 export function EditWindowComponent({
   attachment,
+  index,
+  editIndex,
   attachmentValidations,
   mobileView,
   node,
@@ -46,30 +50,8 @@ export function EditWindowComponent({
   setValidationsWithTag,
 }: EditWindowProps): React.JSX.Element {
   const dispatch = useAppDispatch();
-  const { id, baseComponentId, dataModelBindings, textResourceBindings, readOnly, alertOnDelete } = node.item;
+  const { id, baseComponentId, textResourceBindings, readOnly } = node.item;
   const { lang, langAsString } = useLanguage();
-  const [popoverOpen, setPopoverOpen] = useState(false);
-
-  const handleDeleteClick = () => {
-    alertOnDelete ? setPopoverOpen(!popoverOpen) : handleDeleteFile();
-  };
-
-  const handlePopoverDeleteClick = () => {
-    setPopoverOpen(false);
-    handleDeleteFile();
-  };
-
-  const handleDeleteFile = () => {
-    dispatch(
-      AttachmentActions.deleteAttachment({
-        attachment,
-        componentId: id,
-        attachmentType: baseComponentId || id,
-        dataModelBindings,
-      }),
-    );
-    setEditIndex(-1);
-  };
 
   const onDropdownDataChange = (attachmentId: string, value: string) => {
     if (value !== undefined) {
@@ -183,13 +165,14 @@ export function EditWindowComponent({
               />
             )}
             <div>
-              <DeleteButton
-                alertOnDelete={alertOnDelete}
+              <FileTableButtons
+                node={node}
+                index={index}
                 mobileView={mobileView}
-                handleDeleteClick={handleDeleteClick}
-                handlePopoverDeleteClick={handlePopoverDeleteClick}
-                popoverOpen={popoverOpen}
-                setPopoverOpen={setPopoverOpen}
+                editIndex={editIndex}
+                setEditIndex={setEditIndex}
+                attachment={attachment}
+                editWindowIsOpen={true}
               />
             </div>
           </div>
@@ -271,49 +254,3 @@ export function EditWindowComponent({
     </div>
   );
 }
-
-const DeleteButton = ({
-  alertOnDelete,
-  mobileView,
-  handleDeleteClick,
-  handlePopoverDeleteClick,
-  popoverOpen,
-  setPopoverOpen,
-}: {
-  alertOnDelete?: boolean;
-  mobileView: boolean;
-  handleDeleteClick: () => void;
-  handlePopoverDeleteClick: () => void;
-  popoverOpen: boolean;
-  setPopoverOpen: (open: boolean) => void;
-}) => {
-  const { lang, langAsString } = useLanguage();
-  const deleteButton = (
-    <Button
-      onClick={() => handleDeleteClick()}
-      variant='quiet'
-      color='danger'
-      icon={<TrashIcon aria-hidden={true} />}
-      iconPlacement='right'
-      data-testid='attachment-delete'
-    >
-      {!mobileView && lang('general.delete')}
-    </Button>
-  );
-  if (alertOnDelete) {
-    return (
-      <DeleteWarningPopover
-        trigger={deleteButton}
-        onPopoverDeleteClick={() => handlePopoverDeleteClick()}
-        placement='left'
-        onCancelClick={() => setPopoverOpen(false)}
-        deleteButtonText={langAsString('form_filler.file_uploader_delete_button_confirm')}
-        messageText={langAsString('form_filler.file_uploader_delete_warning')}
-        open={popoverOpen}
-        setOpen={setPopoverOpen}
-      />
-    );
-  } else {
-    return deleteButton;
-  }
-};

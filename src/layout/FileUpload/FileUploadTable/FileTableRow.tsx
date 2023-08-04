@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-import { Button } from '@digdir/design-system-react';
-import { CheckmarkCircleFillIcon, PencilIcon, TrashIcon } from '@navikt/aksel-icons';
+import { CheckmarkCircleFillIcon } from '@navikt/aksel-icons';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
-import { DeleteWarningPopover } from 'src/components/molecules/DeleteWarningPopover';
-import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
-import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
+import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import type { IAttachment } from 'src/features/attachments';
@@ -18,7 +15,7 @@ class IFileUploadTableRowProps {
   attachment: IAttachment;
   mobileView: boolean;
   index: number;
-  node: LayoutNodeFromType<'FileUpload'> | LayoutNodeFromType<'FileUploadWithTag'>;
+  node: LayoutNodeFromType<'FileUpload' | 'FileUploadWithTag'>;
   tagLabel: string | undefined;
   editIndex: number;
   setEditIndex: (index: number) => void;
@@ -35,31 +32,10 @@ export function FileTableRow({
   editIndex,
   setEditIndex,
 }: IFileUploadTableRowProps) {
-  const [popoverOpen, setPopoverOpen] = useState(false);
-  const dispatch = useAppDispatch();
-  const { id, alertOnDelete, baseComponentId, dataModelBindings } = node.item;
   const { langAsString } = useLanguage();
-  const handleDeleteClick = () => {
-    alertOnDelete ? setPopoverOpen(!popoverOpen) : handleDeleteFile();
-  };
+  const hasTag = node.item.type === 'FileUploadWithTag';
 
   const readableSize = `${(attachment.size / bytesInOneMB).toFixed(2)} ${langAsString('form_filler.file_uploader_mb')}`;
-
-  const handlePopoverDeleteClick = () => {
-    setPopoverOpen(false);
-    handleDeleteFile();
-  };
-
-  const handleDeleteFile = () => {
-    dispatch(
-      AttachmentActions.deleteAttachment({
-        attachment,
-        attachmentType: baseComponentId ?? id,
-        componentId: id,
-        dataModelBindings,
-      }),
-    );
-  };
 
   return (
     <tr
@@ -72,30 +48,26 @@ export function FileTableRow({
         attachment={attachment}
         mobileView={mobileView}
         readableSize={readableSize}
-        tagLabel={tagLabel}
+        hasTag={hasTag}
       />
-      {tagLabel && (
+      {hasTag && (
         <FileTypeCell
           tagLabel={tagLabel}
           index={index}
         />
       )}
-      {!(tagLabel && mobileView) && (
+      {!(hasTag && mobileView) && (
         <StatusCellContent
           uploaded={attachment.uploaded}
           mobileView={mobileView}
         />
       )}
       <ButtonCellContent
+        node={node}
+        attachment={attachment}
         deleting={attachment.deleting}
-        handleDeleteClick={handleDeleteClick}
-        handlePopoverDeleteClick={handlePopoverDeleteClick}
         index={index}
-        alertOnDelete={alertOnDelete}
         mobileView={mobileView}
-        setPopoverOpen={setPopoverOpen}
-        popoverOpen={popoverOpen}
-        tagLabel={tagLabel}
         editIndex={editIndex}
         setEditIndex={setEditIndex}
       />
@@ -107,12 +79,12 @@ const NameCell = ({
   mobileView,
   attachment,
   readableSize,
-  tagLabel,
+  hasTag,
 }: {
   mobileView: boolean;
   attachment: Pick<IAttachment, 'name' | 'size' | 'id' | 'uploaded'>;
   readableSize: string;
-  tagLabel: string | undefined;
+  hasTag: boolean;
 }) => {
   const { langAsString } = useLanguage();
   return (
@@ -132,7 +104,7 @@ const NameCell = ({
               {attachment.uploaded ? (
                 <div>
                   {readableSize}
-                  {tagLabel && (
+                  {hasTag && (
                     <CheckmarkCircleFillIcon
                       aria-label={langAsString('form_filler.file_uploader_list_status_done')}
                       role='img'
@@ -143,10 +115,7 @@ const NameCell = ({
               ) : (
                 <AltinnLoader
                   id={`attachment-loader-upload-${attachment.id}`}
-                  style={{
-                    marginBottom: '1rem',
-                    marginRight: '0.8125rem',
-                  }}
+                  className={classes.altinnLoader}
                   srContent={langAsString('general.loading')}
                 />
               )}
@@ -186,10 +155,7 @@ const StatusCellContent = ({ uploaded, mobileView }) => {
       ) : (
         <AltinnLoader
           id='loader-upload'
-          style={{
-            marginBottom: '1rem',
-            marginRight: '0.8125rem',
-          }}
+          className={classes.altinnLoader}
           srContent={status}
         />
       )}
@@ -197,41 +163,8 @@ const StatusCellContent = ({ uploaded, mobileView }) => {
   );
 };
 
-const ButtonCellContent = ({
-  deleting,
-  handleDeleteClick,
-  handlePopoverDeleteClick,
-  index,
-  alertOnDelete,
-  mobileView,
-  setPopoverOpen,
-  popoverOpen,
-  tagLabel,
-  editIndex,
-  setEditIndex,
-}: {
-  deleting: boolean;
-  handleDeleteClick: () => void;
-  handlePopoverDeleteClick: () => void;
-  index: number;
-  alertOnDelete?: boolean;
-  mobileView: boolean;
-  setPopoverOpen: (open: boolean) => void;
-  popoverOpen: boolean;
-  tagLabel: string | undefined;
-  editIndex: number;
-  setEditIndex: (index: number) => void;
-}) => {
-  const { lang, langAsString } = useLanguage();
-
-  const handleEdit = (index: number) => {
-    if (editIndex === -1 || editIndex !== index) {
-      setEditIndex(index);
-    } else {
-      setEditIndex(-1);
-    }
-  };
-
+const ButtonCellContent = ({ deleting, node, index, mobileView, editIndex, setEditIndex, attachment }) => {
+  const { langAsString } = useLanguage();
   return (
     <td>
       {deleting ? (
@@ -241,39 +174,15 @@ const ButtonCellContent = ({
           srContent={langAsString('general.loading')}
         />
       ) : (
-        (() => {
-          const button = (
-            <Button
-              className={classes.button}
-              size='small'
-              variant='quiet'
-              color={tagLabel ? 'secondary' : 'danger'}
-              onClick={() => (tagLabel ? handleEdit(index) : handleDeleteClick())}
-              icon={tagLabel ? <PencilIcon aria-hidden={true} /> : <TrashIcon aria-hidden={true} />}
-              iconPlacement='right'
-              data-testid={`attachment-delete-${index}`}
-              aria-label={langAsString(tagLabel ? 'general.edit_alt' : 'general.delete')}
-            >
-              {!mobileView && lang(tagLabel ? 'general.edit_alt' : 'form_filler.file_uploader_list_delete')}
-            </Button>
-          );
-          if (alertOnDelete && !tagLabel) {
-            return (
-              <DeleteWarningPopover
-                trigger={button}
-                placement='left'
-                onPopoverDeleteClick={() => handlePopoverDeleteClick()}
-                onCancelClick={() => setPopoverOpen(false)}
-                deleteButtonText={langAsString('form_filler.file_uploader_delete_button_confirm')}
-                messageText={langAsString('form_filler.file_uploader_delete_warning')}
-                open={popoverOpen}
-                setOpen={setPopoverOpen}
-              />
-            );
-          } else {
-            return button;
-          }
-        })()
+        <FileTableButtons
+          node={node}
+          index={index}
+          mobileView={mobileView}
+          editIndex={editIndex}
+          setEditIndex={setEditIndex}
+          attachment={attachment}
+          editWindowIsOpen={false}
+        />
       )}
     </td>
   );

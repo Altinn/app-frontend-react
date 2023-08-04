@@ -39,7 +39,7 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
     validFileEndings,
     textResourceBindings,
     dataModelBindings,
-    optionsId,
+    type,
   } = node.item;
 
   const dataDispatch = useAppDispatch();
@@ -49,13 +49,14 @@ export function FileUploadComponent({ componentValidations, node }: IFileUploadW
   const mobileView = useIsMobileOrTablet();
   const attachments: IAttachment[] = useAppSelector((state: IRuntimeState) => state.attachments.attachments[id] || []);
 
-  const hasTag = !!optionsId;
+  const hasTag = type === 'FileUploadWithTag';
   const langTools = useLanguage();
   const { lang, langAsString } = langTools;
 
   const options = useAppSelector((state) => {
     const mapping = ('mapping' in node.item && node.item?.mapping) || undefined;
-    if (hasTag) {
+    const optionsId = 'optionsId' in node.item && node.item.optionsId;
+    if (optionsId) {
       return state.optionState.options[
         getOptionLookupKey({
           id: optionsId,

@@ -12,3 +12,8 @@
 tr.blueUnderlineDotted td {
   border-bottom: 1px dotted #1eadf7;
 }
+
+.altinnLoader {
+  margin-bottom: 1rem;
+  margin-right: 0.8125rem;
+}

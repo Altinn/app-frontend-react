@@ -114,12 +114,14 @@ export function FileTableComponent({
                 {
                   <EditWindowComponent
                     node={node as PropsFromGenericComponent<'FileUploadWithTag'>['node']}
+                    index={index}
                     attachment={attachment}
                     attachmentValidations={[
                       ...new Map(attachmentValidations?.map((validation) => [validation['id'], validation])).values(),
                     ]}
                     mobileView={mobileView}
                     options={options}
+                    editIndex={editIndex}
                     setEditIndex={setEditIndex}
                     validationsWithTag={validationsWithTag ?? []}
                     setValidationsWithTag={setValidationsWithTag ?? (() => {})}
