@@ -9,7 +9,7 @@ import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEd
 import { renderWithProviders } from 'src/testUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
+import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IRepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import type { HRepGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent } from 'src/layout/layout';
@@ -74,7 +74,7 @@ describe('RepeatingGroupsEditContainer', () => {
       required: false,
       disabled: false,
       options,
-    } as ExprUnresolved<ILayoutCompCheckboxes>,
+    } as CompCheckboxesExternal,
   ];
   const layout: ILayout = [multiPageGroup, ...components];
 

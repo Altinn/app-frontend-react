@@ -20,7 +20,7 @@ import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridComponent, GridRow } from 'src/layout/Grid/types';
+import type { GridRowsInternal } from 'src/layout/common.generated';
 import type { ITableColumnFormatting, ITableColumnProperties, ITextResourceBindings } from 'src/layout/layout';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
@@ -56,7 +56,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
 }
 
 interface GridRowProps {
-  row: GridRow<GridComponent>;
+  row: GridRowsInternal;
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
   node: LayoutNode;
@@ -130,7 +130,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
   );
 }
 
-type InternalRowProps = PropsWithChildren<Pick<GridRow, 'header' | 'readOnly'>>;
+type InternalRowProps = PropsWithChildren<Pick<GridRowsInternal, 'header' | 'readOnly'>>;
 
 function InternalRow({ header, readOnly, children }: InternalRowProps) {
   const className = readOnly ? css.rowReadOnly : undefined;

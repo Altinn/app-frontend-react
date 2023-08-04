@@ -13,7 +13,7 @@ import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import type { GridComponent, GridRow } from 'src/layout/Grid/types';
+import type { GridRowsInternal } from 'src/layout/common.generated';
 import type { HRepGroup } from 'src/layout/Group/types';
 import type { ITableColumnFormatting, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -28,8 +28,8 @@ export interface IRepeatingGroupTableProps {
   multiPageIndex?: number;
   deleting: boolean;
   filteredIndexes?: number[] | null;
-  rowsBefore?: GridRow<GridComponent>[];
-  rowsAfter?: GridRow<GridComponent>[];
+  rowsBefore?: GridRowsInternal;
+  rowsAfter?: GridRowsInternal;
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
@@ -147,7 +147,7 @@ export function RepeatingGroupTable({
 
   const extraCells = [...(displayEditColumn ? [null] : []), ...(displayDeleteColumn ? [null] : [])];
 
-  function RenderExtraRows({ rows, where }: { rows: GridRow<GridComponent>[] | undefined; where: 'Before' | 'After' }) {
+  function RenderExtraRows({ rows, where }: { rows: GridRowsInternal | undefined; where: 'Before' | 'After' }) {
     if (isEmpty || !rows) {
       return null;
     }

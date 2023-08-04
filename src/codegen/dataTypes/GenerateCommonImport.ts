@@ -35,6 +35,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
 
     if (commonContainsVariationDifferences(this.key)) {
       const out = new GenerateCommonImport(this.key, `${this.key}${VariantSuffixes[variant]}`);
+      out.internal = structuredClone(this.internal);
       out.internal.source = this;
       out.currentVariant = variant;
 

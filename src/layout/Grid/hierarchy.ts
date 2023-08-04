@@ -1,6 +1,6 @@
 import { nodesFromGrid } from 'src/layout/Grid/tools';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { GridComponent, GridRow } from 'src/layout/Grid/types';
+import type { GridRowsInternal } from 'src/layout/common.generated';
 import type { ITextResource } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type {
@@ -52,7 +52,7 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
     };
   }
 
-  public stage2Rows(ctx: HierarchyContext, me: LayoutNode, rows: GridRow<GridComponent>[]) {
+  public stage2Rows(ctx: HierarchyContext, me: LayoutNode, rows: GridRowsInternal) {
     for (const row of rows) {
       for (const cell of row.cells) {
         if (cell && 'component' in cell) {
@@ -79,7 +79,7 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
     return nodesFromGrid(node);
   }
 
-  rewriteTextBindingsForRows(node: LayoutNode, rows: GridRow<GridComponent>[], textResources: ITextResource[]) {
+  rewriteTextBindingsForRows(node: LayoutNode, rows: GridRowsInternal, textResources: ITextResource[]) {
     if (node.rowIndex === undefined) {
       return;
     }

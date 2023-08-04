@@ -1,4 +1,4 @@
-import type { GridComponent, GridRow } from 'src/layout/Grid/types';
+import type { GridRowInternal, GridRowsInternal } from 'src/layout/common.generated';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -6,7 +6,7 @@ export function nodesFromGrid(grid: LayoutNodeFromType<'Grid'>): LayoutNode[] {
   return nodesFromGridRows(grid.item.rows);
 }
 
-export function nodesFromGridRows(rows: GridRow<GridComponent>[]): LayoutNode[] {
+export function nodesFromGridRows(rows: GridRowsInternal): LayoutNode[] {
   const out: LayoutNode[] = [];
   for (const row of rows) {
     if (isGridRowHidden(row)) {
@@ -19,7 +19,7 @@ export function nodesFromGridRows(rows: GridRow<GridComponent>[]): LayoutNode[] 
   return out;
 }
 
-export function nodesFromGridRow(row: GridRow<GridComponent>): LayoutNode[] {
+export function nodesFromGridRow(row: GridRowInternal): LayoutNode[] {
   const out: LayoutNode[] = [];
   for (const cell of row.cells) {
     if (cell && 'text' in cell) {
@@ -32,7 +32,7 @@ export function nodesFromGridRow(row: GridRow<GridComponent>): LayoutNode[] {
   return out;
 }
 
-export function isGridRowHidden(row: GridRow<GridComponent>) {
+export function isGridRowHidden(row: GridRowInternal) {
   let atLeastNoneNodeExists = false;
   const allCellsAreHidden = row.cells.every((cell) => {
     const node = cell && 'node' in cell && (cell?.node as LayoutNode);

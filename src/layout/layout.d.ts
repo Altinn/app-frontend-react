@@ -3,12 +3,8 @@ import type { GridSize } from '@material-ui/core';
 import type { UnionToIntersection } from 'utility-types';
 
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
-import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { ILayoutCompDropdown } from 'src/layout/Dropdown/types';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayoutCompLikert } from 'src/layout/Likert/types';
-import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
 import type { ILabelSettings, IMapping, IOption, IOptionSource, Triggers } from 'src/types';
 import type { UnifyDMB, UnifyTRB } from 'src/utils/layout/hierarchy.types';
 
@@ -137,12 +133,6 @@ export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
   | undefined;
 
 export type ILayout = ExprUnresolved<ILayoutComponentOrGroup>[];
-
-export type ISelectionComponentProps =
-  | ILayoutCompRadioButtons
-  | ILayoutCompCheckboxes
-  | ILayoutCompLikert
-  | ILayoutCompDropdown;
 
 export interface IGrid extends IGridStyling {
   labelGrid?: IGridStyling;

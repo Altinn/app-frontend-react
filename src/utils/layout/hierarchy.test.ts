@@ -8,9 +8,10 @@ import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { ExprUnresolved } from 'src/features/expressions/types';
+import type { CompGroupNonRepeatingExternal, CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
 import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayoutCompHeader } from 'src/layout/Header/types';
-import type { ILayoutCompInput } from 'src/layout/Input/types';
+import type { CompHeaderExternal } from 'src/layout/Header/config.generated';
+import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { IDataModelBindings, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
@@ -19,13 +20,13 @@ import type { IValidations } from 'src/utils/validation/types';
 const { resolvedNodesInLayouts } = _private;
 
 describe('Hierarchical layout tools', () => {
-  const header: Omit<ExprUnresolved<ILayoutCompHeader>, 'id'> = { type: 'Header', size: 'L' };
-  const input: Omit<ExprUnresolved<ILayoutCompInput>, 'id'> = {
+  const header: Omit<CompHeaderExternal, 'id'> = { type: 'Header', size: 'L' };
+  const input: Omit<CompInputExternal, 'id'> = {
     type: 'Input',
     hidden: ['equals', ['dataModel', 'Model.ShouldBeTrue'], 'true'],
   };
-  const group: Omit<ExprUnresolved<ILayoutGroup>, 'id' | 'children'> = { type: 'Group' };
-  const repGroup: Omit<ExprUnresolved<ILayoutGroup>, 'id' | 'children'> = {
+  const group: Omit<CompGroupNonRepeatingExternal, 'id' | 'children'> = { type: 'Group' };
+  const repGroup: Omit<CompGroupRepeatingExternal, 'id' | 'children'> = {
     type: 'Group',
     maxCount: 3,
     hidden: ['equals', ['dataModel', 'Model.ShouldBeFalse'], 'false'],

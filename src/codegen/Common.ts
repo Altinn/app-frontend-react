@@ -17,7 +17,7 @@ const common = {
   IPageBreak: () =>
     new CG.obj(
       new CG.prop(
-        'pageBreakBefore',
+        'breakBefore',
         new CG.expr(ExprVal.String)
           .optional('auto')
           .setTitle('Page break before')
@@ -28,7 +28,7 @@ const common = {
           .addExample('auto', 'always', 'avoid'),
       ),
       new CG.prop(
-        'pageBreakAfter',
+        'breakAfter',
         new CG.expr(ExprVal.String)
           .optional('auto')
           .setTitle('Page break after')
@@ -374,32 +374,32 @@ const common = {
       new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
       new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
     ),
-  GridRows: () =>
-    new CG.arr(
-      new CG.obj(
-        new CG.prop('header', new CG.bool().optional(false).setTitle('Is header row?')),
-        new CG.prop('readOnly', new CG.bool().optional(false).setTitle('Is row read-only?')),
-        new CG.prop('columnOptions', CG.common('ITableColumnsProperties').optional()),
-        new CG.prop(
-          'cells',
-          new CG.arr(
-            new CG.union(
-              new CG.linked(
-                CG.common('GridComponentRef'),
-                new CG.import({
-                  import: 'GridComponent',
-                  from: 'src/layout/Grid/types',
-                }),
-              ),
-              CG.null,
-              CG.common('GridText'),
-            )
-              .setTitle('Cells in table row')
-              .setDescription('The list of cells in this row'),
-          ),
+  GridRow: () =>
+    new CG.obj(
+      new CG.prop('header', new CG.bool().optional(false).setTitle('Is header row?')),
+      new CG.prop('readOnly', new CG.bool().optional(false).setTitle('Is row read-only?')),
+      new CG.prop('columnOptions', CG.common('ITableColumnsProperties').optional()),
+      new CG.prop(
+        'cells',
+        new CG.arr(
+          new CG.union(
+            new CG.linked(
+              CG.common('GridComponentRef'),
+              new CG.import({
+                import: 'GridComponent',
+                from: 'src/layout/Grid/types',
+              }),
+            ),
+            CG.null,
+            CG.common('GridText'),
+          )
+            .setTitle('Cells in table row')
+            .setDescription('The list of cells in this row'),
         ),
       ),
-    )
+    ),
+  GridRows: () =>
+    new CG.arr(CG.common('GridRow'))
       .setTitle('Rows in Grid or Grid-like component')
       .setDescription('The list of rows in this grid')
       .addExample([

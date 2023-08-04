@@ -13,7 +13,7 @@ import type { IAttachments } from 'src/features/attachments';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
+import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IRepeatingGroupTableProps } from 'src/layout/Group/RepeatingGroupTable';
 import type { HRepGroup, ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';
@@ -112,7 +112,7 @@ describe('RepeatingGroupTable', () => {
       readOnly: false,
       required: false,
       options,
-    } as ExprUnresolved<ILayoutCompCheckboxes>,
+    } as CompCheckboxesExternal,
   ];
   const layout: ILayoutState = getLayout(group, components);
   const data: IFormData = {

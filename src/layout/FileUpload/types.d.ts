@@ -1,6 +1,7 @@
 import type { ExprVal } from 'src/features/expressions/types';
 import type { ComponentTypes, ILayoutCompBase } from 'src/layout/layout';
 
+// PRIORITY: Remove
 export interface ILayoutCompFileUploadBase<T extends Extract<ComponentTypes, 'FileUpload' | 'FileUploadWithTag'>>
   extends ILayoutCompBase<T> {
   maxFileSizeInMB: number;
@@ -12,4 +13,5 @@ export interface ILayoutCompFileUploadBase<T extends Extract<ComponentTypes, 'Fi
   alertOnDelete?: ExprVal.Boolean;
 }
 
+// PRIORITY: Remove
 export type ILayoutCompFileUpload = ILayoutCompFileUploadBase<'FileUpload'>;

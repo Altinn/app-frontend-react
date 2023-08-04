@@ -1,7 +1,7 @@
 import type { DeepPartial } from 'utility-types';
 
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
-import type { GridComponent, GridRow } from 'src/layout/Grid/types';
+import type { GridRowsExternal, GridRowsInternal } from 'src/layout/common.generated';
 import type { ILayoutCompBase, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
 import type { ILayoutCompPanelBase } from 'src/layout/Panel/types';
 import type { HComponent, HierarchyExtensions } from 'src/utils/layout/hierarchy.types';
@@ -36,8 +36,8 @@ export interface ILayoutGroup extends ILayoutCompBase<'Group'> {
   panel?: IGroupPanel;
   showGroupingIndicator?: boolean;
   hiddenRow?: ExprVal.Boolean;
-  rowsBefore?: GridRow[];
-  rowsAfter?: GridRow[];
+  rowsBefore?: GridRowsExternal;
+  rowsAfter?: GridRowsExternal;
 }
 
 export interface IGroupColumnFormatting extends ITableColumnProperties {
@@ -62,8 +62,8 @@ export interface IGroupPanel extends ILayoutCompPanelBase {
  */
 type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children' | 'rowsBefore' | 'rowsAfter'> &
   HierarchyExtensions & {
-    rowsBefore?: GridRow<GridComponent>[];
-    rowsAfter?: GridRow<GridComponent>[];
+    rowsBefore?: GridRowsInternal;
+    rowsAfter?: GridRowsInternal;
   };
 
 /**

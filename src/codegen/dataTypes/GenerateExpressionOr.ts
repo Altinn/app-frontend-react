@@ -9,10 +9,11 @@ import type { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import type { GenerateString } from 'src/codegen/dataTypes/GenerateString';
 
 const toTsMap: { [key in ExprVal]: string } = {
-  [ExprVal.Any]: 'ExprVal.Any',
-  [ExprVal.Boolean]: 'ExprVal.Boolean',
-  [ExprVal.Number]: 'ExprVal.Number',
-  [ExprVal.String]: 'ExprVal.String',
+  // PRIORITY: Support array-expression types as well
+  [ExprVal.Any]: 'ExprVal.Any | boolean | number | string',
+  [ExprVal.Boolean]: 'ExprVal.Boolean | boolean',
+  [ExprVal.Number]: 'ExprVal.Number | number',
+  [ExprVal.String]: 'ExprVal.String | string',
 };
 
 const toSchemaMap: { [key in ExprVal]: JSONSchema7 } = {

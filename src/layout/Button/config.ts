@@ -24,7 +24,8 @@ export const Config = new CG.component({
       new CG.enum('submit', 'save', 'go-to-task', 'instantiate')
         .optional('submit')
         .setTitle('Mode')
-        .setDescription('The mode of the button'),
+        .setDescription('The mode of the button')
+        .exportAs('ButtonMode'),
     ),
   )
   .addProperty(
