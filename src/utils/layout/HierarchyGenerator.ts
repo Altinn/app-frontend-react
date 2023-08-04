@@ -4,7 +4,7 @@ import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { DefGetter } from 'src/layout';
 import type { ComponentTypes, ILayout, ILayoutComponentExact, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, ITextResource } from 'src/types';
-import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type UnprocessedItem<T extends ComponentTypes = ComponentTypes> = ExprUnresolved<ILayoutComponentExact<T>>;
@@ -248,7 +248,7 @@ export class HierarchyGenerator {
   /**
    * Utility function to make it easier to create a LayoutNode object (used by processors in components)
    */
-  makeNode<T extends ComponentTypes>({ item, parent, rowIndex }: ChildFactoryProps<T>): LayoutNodeFromType<T> {
+  makeNode<T extends ComponentTypes>({ item, parent, rowIndex }: ChildFactoryProps<T>): LayoutNode<T> {
     const def = this.getLayoutComponentObject(item.type as ComponentTypes);
     if (!def) {
       throw new Error(`Could not find definition for component type '${item.type}'`);
@@ -257,7 +257,7 @@ export class HierarchyGenerator {
     const node = def.makeNode(item as any, parent || this.top, this.top, this.dataSources, rowIndex);
     this.top._addChild(node);
 
-    return node as LayoutNodeFromType<T>;
+    return node as LayoutNode<T>;
   }
 
   /**
@@ -383,7 +383,7 @@ export class HierarchyGenerator {
 export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
   abstract stage1(generator: HierarchyGenerator, item: UnprocessedItem<Type>): void;
   abstract stage2(ctx: HierarchyContext): ChildFactory<Type>;
-  abstract childrenFromNode(node: LayoutNodeFromType<Type>, onlyInRowIndex?: number): LayoutNode[];
+  abstract childrenFromNode(node: LayoutNode<Type>, onlyInRowIndex?: number): LayoutNode[];
 
   protected textResourceHasRepeatingGroupVariable(textKey: string | undefined, textResources: ITextResource[]) {
     const textResource = textResources.find((text) => text.id === textKey);
@@ -395,7 +395,7 @@ export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
    * @see replaceTextResourcesSaga
    * @see replaceTextResourceParams
    */
-  rewriteTextBindings(node: LayoutNodeFromType<Type>, textResources: ITextResource[]) {
+  rewriteTextBindings(node: LayoutNode<Type>, textResources: ITextResource[]) {
     if (!node.item.textResourceBindings || node.rowIndex === undefined) {
       return;
     }

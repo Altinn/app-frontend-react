@@ -11,7 +11,7 @@ import type { IFormData } from 'src/features/formData';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { IOptions, IRepeatingGroups } from 'src/types';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
   render(props: PropsFromGenericComponent<'Checkboxes'>): JSX.Element | null {
@@ -19,7 +19,7 @@ export class Checkboxes extends CheckboxesDef {
   }
 
   private getSummaryData(
-    node: LayoutNodeFromType<'Checkboxes'>,
+    node: LayoutNode<'Checkboxes'>,
     formData: IFormData,
     langTools: IUseLanguage,
     repeatingGroups: IRepeatingGroups | null,
@@ -32,10 +32,7 @@ export class Checkboxes extends CheckboxesDef {
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
-  getDisplayData(
-    node: LayoutNodeFromType<'Checkboxes'>,
-    { formData, langTools, uiConfig, options }: DisplayDataProps,
-  ): string {
+  getDisplayData(node: LayoutNode<'Checkboxes'>, { formData, langTools, uiConfig, options }: DisplayDataProps): string {
     return Object.values(this.getSummaryData(node, formData, langTools, uiConfig.repeatingGroups, options)).join(', ');
   }
 

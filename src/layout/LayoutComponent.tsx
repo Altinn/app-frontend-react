@@ -7,10 +7,9 @@ import { ComponentCategory } from 'src/layout/common';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
-import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type {
   DisplayData,
   DisplayDataProps,
@@ -20,8 +19,9 @@ import type {
 } from 'src/layout/index';
 import type { ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { AnyItem, HierarchyDataSources, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
@@ -37,7 +37,7 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector
    */
-  renderDevToolsInspector(node: LayoutNodeFromType<Type>): JSX.Element | null {
+  renderDevToolsInspector(node: LayoutNode<Type>): JSX.Element | null {
     return <DefaultNodeInspector node={node} />;
   }
 
@@ -95,8 +95,8 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
     top: LayoutPage,
     dataSources: HierarchyDataSources,
     rowIndex?: number,
-  ): ComponentTypeConfigs[Type]['nodeObj'] {
-    return new LayoutNode(item, parent, top, dataSources, rowIndex);
+  ): LayoutNode<Type> {
+    return new BaseLayoutNode(item, parent, top, dataSources, rowIndex) as LayoutNode<Type>;
   }
 }
 
@@ -105,8 +105,8 @@ export abstract class PresentationComponent<Type extends ComponentTypes> extends
 }
 
 export interface SummaryRendererProps<Type extends ComponentTypes> {
-  summaryNode: LayoutNodeFromType<'Summary'>;
-  targetNode: LayoutNodeFromType<Type>;
+  summaryNode: LayoutNode<'Summary'>;
+  targetNode: LayoutNode<Type>;
   onChangeClick: () => void;
   changeText: string | null;
   overrides?: ISummaryComponent['overrides'];
@@ -120,9 +120,9 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
    * @see renderSummary
    * @see renderCompactSummary
    */
-  abstract getDisplayData(node: LayoutNodeFromType<Type>, displayDataProps: DisplayDataProps): string;
+  abstract getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
 
-  useDisplayData(node: LayoutNodeFromType<Type>): string {
+  useDisplayData(node: LayoutNode<Type>): string {
     const formData = useAppSelector((state) => state.formData.formData);
     const attachments = useAppSelector((state) => state.attachments.attachments);
     const options = useAppSelector((state) => state.optionState.options);
@@ -171,7 +171,7 @@ export abstract class FormComponent<Type extends ComponentTypes>
   readonly type = ComponentCategory.Form;
 
   runEmptyFieldValidation(
-    node: LayoutNodeFromType<Type>,
+    node: LayoutNode<Type>,
     { formData, langTools }: IValidationContext,
     overrideFormData?: IFormData,
   ): IValidationObject[] {
@@ -202,7 +202,7 @@ export abstract class FormComponent<Type extends ComponentTypes>
     return validationObjects;
   }
 
-  runSchemaValidation(node: LayoutNodeFromType<Type>, schemaErrors: ISchemaValidationError[]): IValidationObject[] {
+  runSchemaValidation(node: LayoutNode<Type>, schemaErrors: ISchemaValidationError[]): IValidationObject[] {
     const validationObjects: IValidationObject[] = [];
     for (const error of schemaErrors) {
       if (node.item.dataModelBindings) {

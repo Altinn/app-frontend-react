@@ -2,9 +2,8 @@ import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { HGroups, HRepGroupChild, HRepGroupRow } from 'src/layout/Group/types';
+import type { HRepGroupRows } from 'src/layout/Group/config.generated';
 import type { ITextResource } from 'src/types';
-import type { HComponent, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type {
   ChildFactory,
   ChildFactoryProps,
@@ -20,7 +19,7 @@ interface GroupPanelRef {
   children: string[];
   parentPage: string;
   parentId: string;
-  nextChildren?: LayoutNode<HRepGroupChild>[];
+  nextChildren?: LayoutNode[];
 }
 
 export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'> {
@@ -78,9 +77,9 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
     return this.processNonRepeating(ctx);
   }
 
-  childrenFromNode(node: LayoutNodeFromType<'Group'>, onlyInRowIndex?: number): LayoutNode[] {
+  childrenFromNode(node: LayoutNode<'Group'>, onlyInRowIndex?: number): LayoutNode[] {
     let list: LayoutNode[] = [];
-    if (node.isRepGroup()) {
+    if (node.isType('Group') && node.isRepGroup()) {
       if (node.item.rowsBefore && onlyInRowIndex === undefined) {
         list.push(...node.item.rowsBefore.map(nodesFromGridRow).flat());
       }
@@ -109,13 +108,15 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
     return list;
   }
 
-  rewriteTextBindings(node: LayoutNodeFromType<'Group'>, textResources: ITextResource[]) {
+  rewriteTextBindings(node: LayoutNode<'Group'>, textResources: ITextResource[]) {
     super.rewriteTextBindings(node, textResources);
-    if (node.item?.rowsBefore) {
-      this.innerGrid.rewriteTextBindingsForRows(node, node.item.rowsBefore, textResources);
-    }
-    if (node.item?.rowsAfter) {
-      this.innerGrid.rewriteTextBindingsForRows(node, node.item.rowsAfter, textResources);
+    if (node.isRepGroup()) {
+      if (node.item?.rowsBefore) {
+        this.innerGrid.rewriteTextBindingsForRows(node, node.item.rowsBefore, textResources);
+      }
+      if (node.item?.rowsAfter) {
+        this.innerGrid.rewriteTextBindingsForRows(node, node.item.rowsAfter, textResources);
+      }
     }
   }
 
@@ -166,7 +167,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       delete (props.item as any)['children'];
       const me = ctx.generator.makeNode(props);
 
-      const childNodes: LayoutNode<HComponent | HGroups>[] = [];
+      const childNodes: LayoutNode[] = [];
       for (const id of prototype.children) {
         const [, childId] = me.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
         const child = ctx.generator.newChild({
@@ -174,7 +175,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
           parent: me,
           childId,
         });
-        child && childNodes.push(child as LayoutNode<HComponent | HGroups>);
+        child && childNodes.push(child as LayoutNode);
       }
 
       if (me.isNonRepGroup()) {
@@ -196,12 +197,12 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       delete (props.item as any)['children'];
       const me = ctx.generator.makeNode(props);
 
-      const rows: HRepGroupRow[] = [];
+      const rows: HRepGroupRows = [];
       const lastIndex = (ctx.generator.repeatingGroups || {})[props.item.id]?.index;
       const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex, props.item.edit);
 
       for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {
-        const rowChildren: LayoutNode<HRepGroupChild>[] = [];
+        const rowChildren: LayoutNode[] = [];
 
         for (const id of prototype.children) {
           const [multiPageIndex, childId] = props.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
@@ -217,7 +218,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
               mutateMapping(ctx, rowIndex),
             ],
           });
-          child && rowChildren.push(child as LayoutNode<HRepGroupChild>);
+          child && rowChildren.push(child as LayoutNode);
         }
 
         rows.push({
@@ -229,7 +230,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       if (this.groupPanelRefs[props.item.id]) {
         const ref = this.groupPanelRefs[props.item.id];
         const nextIndex = lastIndex + 1;
-        const nextChildren: LayoutNode<HRepGroupChild>[] = [];
+        const nextChildren: LayoutNode[] = [];
 
         for (const id of ref.children) {
           const [multiPageIndex, childId] = ref.multiPage ? id.split(':', 2) : [undefined, id];
@@ -248,7 +249,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
               mutateMapping(ctx, nextIndex),
             ],
           });
-          child && nextChildren.push(child as LayoutNode<HRepGroupChild>);
+          child && nextChildren.push(child);
         }
 
         ref.nextChildren = nextChildren;

@@ -9,14 +9,14 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IInputFormatting } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Input extends InputDef {
   render(props: PropsFromGenericComponent<'Input'>): JSX.Element | null {
     return <InputComponent {...props} />;
   }
 
-  getDisplayData(node: LayoutNodeFromType<'Input'>, { formData, langTools }): string {
+  getDisplayData(node: LayoutNode<'Input'>, { formData, langTools }): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

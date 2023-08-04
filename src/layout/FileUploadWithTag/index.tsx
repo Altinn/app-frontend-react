@@ -10,7 +10,7 @@ import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class FileUploadWithTag extends FileUploadWithTagDef implements ComponentValidation {
@@ -22,7 +22,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
     return false;
   }
 
-  getDisplayData(node: LayoutNodeFromType<'FileUploadWithTag'>, { formData, attachments }): string {
+  getDisplayData(node: LayoutNode<'FileUploadWithTag'>, { formData, attachments }): string {
     return getUploaderSummaryData(node, formData, attachments)
       .map((a) => a.name)
       .join(', ');
@@ -38,7 +38,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
   }
 
   runComponentValidation(
-    node: LayoutNodeFromType<'FileUploadWithTag'>,
+    node: LayoutNode<'FileUploadWithTag'>,
     { attachments, langTools }: IValidationContext,
     _overrideFormData?: IFormData,
   ): IValidationObject[] {

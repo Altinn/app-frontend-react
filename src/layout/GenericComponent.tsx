@@ -22,11 +22,11 @@ import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes, IDataModelBindings, IGridStyling, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
-import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGenericComponentProps<Type extends ComponentTypes> {
-  node: LayoutNode | LayoutNodeFromType<Type>;
+  node: LayoutNode<Type>;
   overrideItemProps?: Partial<Omit<AnyItem<Type>, 'id'>>;
   overrideDisplay?: {
     directRender?: true;
@@ -247,7 +247,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
 
   const componentProps: PropsFromGenericComponent<Type> = {
     ...fixedComponentProps,
-    node: node as unknown as LayoutNodeFromType<Type>,
+    node: node as unknown as LayoutNode<Type>,
     overrideItemProps,
     overrideDisplay,
   };
@@ -263,7 +263,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
 
     return (
       <SummaryComponent
-        summaryNode={node as LayoutNodeFromType<'Summary'>}
+        summaryNode={node as LayoutNode<'Summary'>}
         overrides={{ display: { hideChangeButton: true } }}
       />
     );

@@ -5,14 +5,14 @@ import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Address extends AddressDef {
   render(props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null {
     return <AddressComponent {...props} />;
   }
 
-  getDisplayData(node: LayoutNodeFromType<'AddressComponent'>): string {
+  getDisplayData(node: LayoutNode<'AddressComponent'>): string {
     const data = node.getFormData();
     return Object.values(data).join(' ');
   }

@@ -8,7 +8,7 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { LayoutStyle } from 'src/types';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Likert extends LikertDef {
   render(props: PropsFromGenericComponent<'Likert'>): JSX.Element | null {
@@ -19,10 +19,7 @@ export class Likert extends LikertDef {
     return props.node.item.layout === LayoutStyle.Table || props.overrideItemProps?.layout === LayoutStyle.Table;
   }
 
-  getDisplayData(
-    node: LayoutNodeFromType<'Likert'>,
-    { formData, langTools, uiConfig, options }: DisplayDataProps,
-  ): string {
+  getDisplayData(node: LayoutNode<'Likert'>, { formData, langTools, uiConfig, options }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

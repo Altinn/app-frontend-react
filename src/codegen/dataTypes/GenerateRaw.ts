@@ -1,6 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 
 type RawTypeScript = {
   typeScript: string;
@@ -12,7 +12,7 @@ type RawJsonSchema = {
 
 type RawDef = RawTypeScript | RawJsonSchema | (RawTypeScript & RawJsonSchema);
 
-export class GenerateRaw extends CodeGenerator<any> {
+export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
   constructor(private readonly raw: RawDef) {
     super();
   }
@@ -29,9 +29,13 @@ export class GenerateRaw extends CodeGenerator<any> {
     return this.raw.jsonSchema;
   }
 
-  toTypeScript(): string {
+  toTypeScriptDefinition(symbol: string | undefined): string {
     if (!('typeScript' in this.raw)) {
       throw new Error('Raw type does not have a typeScript');
+    }
+
+    if (symbol) {
+      throw new Error('Raw type does not support symbols');
     }
 
     return this.raw.typeScript;

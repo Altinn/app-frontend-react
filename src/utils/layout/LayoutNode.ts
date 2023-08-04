@@ -1,18 +1,17 @@
 import { getLayoutComponentObject } from 'src/layout';
+import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { ComponentClassMap } from 'src/layout';
 import type { ComponentCategory } from 'src/layout/common';
-import type { HNonRepGroup, HRepGroup } from 'src/layout/Group/types';
-import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
+import type { ComponentTypeConfigs } from 'src/layout/components.generated';
+import type { ComponentExceptGroup, ComponentTypes, IDataModelBindings } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type {
   AnyItem,
-  HComponent,
   HierarchyDataSources,
   LayoutNodeFromCategory,
-  LayoutNodeFromType,
   ParentNode,
   TypeFromAnyItem,
 } from 'src/utils/layout/hierarchy.types';
@@ -31,7 +30,7 @@ import type { IValidationOptions } from 'src/utils/validation/validation';
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTypes = TypeFromAnyItem<Item>>
+export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTypes = TypeFromAnyItem<Item>>
   implements LayoutObject
 {
   public readonly itemWithExpressions: Item;
@@ -48,20 +47,12 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     this.itemWithExpressions = structuredClone(item);
   }
 
-  public isType<T extends ComponentTypes>(type: T): this is LayoutNodeFromType<T> {
+  public isType<T extends ComponentTypes>(type: T): this is LayoutNode<T> {
     return this.item.type === type;
   }
 
   public isCategory<T extends ComponentCategory>(category: T): this is LayoutNodeFromCategory<T> {
     return this.def.type === category;
-  }
-
-  public isRepGroup(): this is LayoutNode<HRepGroup, 'Group'> {
-    return this.isType('Group') && typeof this.item.maxCount === 'number' && this.item.maxCount > 1;
-  }
-
-  public isNonRepGroup(): this is LayoutNode<HNonRepGroup, 'Group'> {
-    return this.isType('Group') && (!this.item.maxCount || this.item.maxCount <= 1);
   }
 
   public pageKey(): string {
@@ -108,7 +99,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
 
   private childrenAsList(onlyInRowIndex?: number): LayoutNode[] {
     const hierarchy = this.def.hierarchyGenerator() as unknown as ComponentHierarchyGenerator<Type>;
-    return hierarchy.childrenFromNode(this as unknown as LayoutNodeFromType<Type>, onlyInRowIndex);
+    return hierarchy.childrenFromNode(this as unknown as LayoutNode<Type>, onlyInRowIndex);
   }
 
   /**
@@ -143,7 +134,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
    *        children of nested groups regardless of row-index.
    */
   public flat(includeGroups: true, onlyInRowIndex?: number): LayoutNode[];
-  public flat(includeGroups: false, onlyInRowIndex?: number): LayoutNode<HComponent>[];
+  public flat(includeGroups: false, onlyInRowIndex?: number): LayoutNode<ComponentExceptGroup>[];
   public flat(includeGroups: boolean, onlyInRowIndex?: number): LayoutNode[] {
     const out: LayoutNode[] = [];
     const recurse = (item: LayoutNode, rowIndex?: number) => {
@@ -177,7 +168,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
       return true;
     }
 
-    if (this.parent instanceof LayoutNode && this.parent.isRepGroup() && typeof this.rowIndex === 'number') {
+    if (this.parent instanceof LayoutNodeForGroup && this.parent.isRepGroup() && typeof this.rowIndex === 'number') {
       const isHiddenRow = this.parent.item.rows[this.rowIndex]?.groupExpressions?.hiddenRow;
       if (isHiddenRow) {
         return true;
@@ -204,7 +195,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
       }
     }
 
-    return this.parent instanceof LayoutNode && this.parent.isHidden(respectLegacy);
+    return this.parent instanceof BaseLayoutNode && this.parent.isHidden(respectLegacy);
   }
 
   private firstDataModelBinding() {
@@ -234,7 +225,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
   public transposeDataModel(dataModel: string, rowIndex?: number): string {
     const firstBinding = this.firstDataModelBinding();
     if (!firstBinding) {
-      if (this.parent instanceof LayoutNode) {
+      if (this.parent instanceof BaseLayoutNode) {
         return this.parent.transposeDataModel(dataModel, this.rowIndex);
       }
 
@@ -252,7 +243,10 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
         break;
       }
 
-      const arrayIndex = ours.parentIndex === lastIdx && this.isRepGroup() ? rowIndex : ours.arrayIndex;
+      const arrayIndex =
+        ours.parentIndex === lastIdx && this instanceof LayoutNodeForGroup && this.isRepGroup()
+          ? rowIndex
+          : ours.arrayIndex;
 
       if (arrayIndex === undefined) {
         continue;
@@ -383,7 +377,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     if (typeof this.rowIndex !== 'undefined') {
       rowIndices.splice(0, 0, this.rowIndex);
     }
-    if (this.parent instanceof LayoutNode) {
+    if (this.parent instanceof BaseLayoutNode) {
       const parentIndices = this.parent.getRowIndices();
       if (parentIndices) {
         rowIndices.splice(0, 0, ...parentIndices);
@@ -399,3 +393,7 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
     return runValidationOnNodes([this], validationContext, options);
   }
 }
+
+export type LayoutNode<Type extends ComponentTypes = ComponentTypes> = Type extends ComponentTypes
+  ? ComponentTypeConfigs[Type]['nodeObj']
+  : BaseLayoutNode;

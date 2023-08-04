@@ -17,11 +17,14 @@ import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { Triggers } from 'src/types';
 import { getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { HRepGroup } from 'src/layout/Group/types';
+import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
 export interface IGroupProps {
-  node: LayoutNode<HRepGroup, 'Group'>;
+  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
 }
 
 const getValidationMethod = (node: LayoutNode) => {
@@ -162,7 +165,7 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
     return null;
   }
 
-  const isNested = node.parent instanceof LayoutNode;
+  const isNested = node.parent instanceof BaseLayoutNode;
 
   if (edit?.mode === 'likert') {
     return <RepeatingGroupsLikertContainer node={node} />;

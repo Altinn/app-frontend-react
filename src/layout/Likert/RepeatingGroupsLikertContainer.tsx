@@ -13,14 +13,16 @@ import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { LayoutStyle } from 'src/types';
 import { getOptionLookupKey } from 'src/utils/options';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { CompGroupRepeatingLikertInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type RepeatingGroupsLikertContainerProps = {
-  node: LayoutNodeFromType<'Group'>;
+  node: LayoutNodeForGroup<CompGroupRepeatingLikertInternal>;
 };
 
 export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertContainerProps) => {
-  const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNodeFromType<'Likert'> | undefined;
+  const firstLikertChild = node?.children((item) => item.type === 'Likert') as LayoutNode<'Likert'> | undefined;
   const { optionsId, mapping, source, options } = firstLikertChild?.item || {};
   const mobileView = useIsMobileOrTablet();
   const apiOptions = useGetOptions({ optionsId, mapping, source });
@@ -140,7 +142,7 @@ export const RepeatingGroupsLikertContainer = ({ node }: RepeatingGroupsLikertCo
                 return (
                   <GenericComponent
                     key={comp.item.id}
-                    node={comp as LayoutNodeFromType<'Likert'>}
+                    node={comp as LayoutNode<'Likert'>}
                     overrideItemProps={override}
                   />
                 );

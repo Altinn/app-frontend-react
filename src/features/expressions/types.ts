@@ -28,6 +28,11 @@ export type ExprValToActual<T extends ExprVal = ExprVal> = T extends ExprVal.Str
   ? string | number | boolean | null
   : unknown;
 
+/**
+ * This type replaces ExprVal with the actual value type, or expression that returns that type.
+ */
+export type ExprValToActualOrExpr<T extends ExprVal> = ExprValToActual<T> | Expression<FunctionsReturning<T>>;
+
 type ArgsToActualOrNull<T extends readonly ExprVal[]> = {
   [Index in keyof T]: ExprValToActual<T[Index]> | null;
 };
@@ -114,7 +119,7 @@ export type ExprResolved<T> = T extends ExprVal
  * @see ResolvedNodesSelector
  */
 export type ExprUnresolved<T> = T extends ExprVal
-  ? ExprValToActual<T> | Expression<FunctionsReturning<T>>
+  ? ExprValToActualOrExpr<T>
   : T extends any
   ? T extends object
     ? {

@@ -11,7 +11,7 @@ import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
@@ -20,7 +20,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
     return <DatepickerComponent {...props} />;
   }
 
-  getDisplayData(node: LayoutNodeFromType<'Datepicker'>, { formData, langTools }): string {
+  getDisplayData(node: LayoutNode<'Datepicker'>, { formData, langTools }): string {
     const { selectedLanguage } = langTools;
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
@@ -42,7 +42,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
   }
 
   runComponentValidation(
-    node: LayoutNodeFromType<'Datepicker'>,
+    node: LayoutNode<'Datepicker'>,
     { formData, langTools }: IValidationContext,
     overrideFormData?: IFormData,
   ): IValidationObject[] {
@@ -78,10 +78,7 @@ export class Datepicker extends DatepickerDef implements ComponentValidation {
   }
 
   // Since the format is validated in component validations, it needs to be ignored in schema validation
-  runSchemaValidation(
-    node: LayoutNodeFromType<'Datepicker'>,
-    schemaErrors: ISchemaValidationError[],
-  ): IValidationObject[] {
+  runSchemaValidation(node: LayoutNode<'Datepicker'>, schemaErrors: ISchemaValidationError[]): IValidationObject[] {
     const bindingField = node.item.dataModelBindings?.simpleBinding;
     if (!bindingField) {
       return [];

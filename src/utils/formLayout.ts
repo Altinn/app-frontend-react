@@ -1,7 +1,8 @@
 import type { IAttachmentState } from 'src/features/attachments';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
-import type { IGroupEditProperties, IGroupFilter, ILayoutGroup } from 'src/layout/Group/types';
+import type { IGroupEditPropertiesInternal } from 'src/layout/Group/config.generated';
+import type { IGroupFilter, ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent } from 'src/layout/layout';
 import type {
   IFileUploadersWithTag,
@@ -263,7 +264,7 @@ export function removeRepeatingGroupFromUIConfig(
 
 export const getRepeatingGroupStartStopIndex = (
   repeatingGroupIndex: number,
-  edit: Pick<IGroupEditProperties, 'filter'> | undefined,
+  edit: Pick<IGroupEditPropertiesInternal, 'filter'> | undefined,
 ) => {
   if (typeof repeatingGroupIndex === 'undefined') {
     return { startIndex: 0, stopIndex: -1 };

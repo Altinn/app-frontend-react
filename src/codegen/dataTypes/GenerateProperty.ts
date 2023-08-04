@@ -62,6 +62,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
       insertBefore: this._insertBefore,
       insertAfter: this._insertAfter,
       insertFirst: this._insertFirst,
+      onlyVariant: this._onlyVariant,
     };
   }
 

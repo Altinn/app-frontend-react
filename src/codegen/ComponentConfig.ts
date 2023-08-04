@@ -49,7 +49,7 @@ const CategoryImports: { [Category in ComponentCategory]: GenerateImportedSymbol
 export class ComponentConfig extends GenerateComponentLike {
   public type: string;
   public typeSymbol: string;
-  public layoutNodeType = CG.layoutNode;
+  public layoutNodeType = CG.baseLayoutNode;
 
   private exportedComp: MaybeSymbolizedCodeGenerator<any> = this.inner;
 
@@ -150,15 +150,19 @@ export class ComponentConfig extends GenerateComponentLike {
       from: `./index`,
     }).transformTo(Variant.Internal);
 
+    const nodeObj = this.layoutNodeType.transformTo(Variant.Internal).toTypeScript();
+    const nodeSuffix = this.layoutNodeType === CG.baseLayoutNode ? `<${int.getName()}, '${this.type}'>` : '';
+
     const staticElements = [
       `export const Config = {
          def: new ${impl.toTypeScript()}(),
          rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
+         nodeConstructor: ${nodeObj},
        }`,
       `export type TypeConfig = {
          layout: ${ext.getName()};
          nodeItem: ${int.getName()};
-         nodeObj: ${this.layoutNodeType.transformTo(Variant.Internal).toTypeScript()};
+         nodeObj: ${nodeObj}${nodeSuffix};
        }`,
     ];
 

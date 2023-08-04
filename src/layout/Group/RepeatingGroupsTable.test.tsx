@@ -14,11 +14,12 @@ import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
+import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IRepeatingGroupTableProps } from 'src/layout/Group/RepeatingGroupTable';
-import type { HRepGroup, ILayoutGroup } from 'src/layout/Group/types';
+import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';
 import type { IOption, ITextResource } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 
@@ -241,7 +242,7 @@ describe('RepeatingGroupTable', () => {
 });
 
 function RenderGroupTable(props: IRepeatingGroupTableProps & { id: string }) {
-  const node = useResolvedNode(props.id) as LayoutNode<HRepGroup, 'Group'>;
+  const node = useResolvedNode(props.id) as LayoutNodeForGroup<CompGroupRepeatingInternal>;
 
   return (
     <RepeatingGroupTable

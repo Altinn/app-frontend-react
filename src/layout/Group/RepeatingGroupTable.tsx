@@ -14,12 +14,12 @@ import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEd
 import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { GridRowsInternal } from 'src/layout/common.generated';
-import type { HRepGroup } from 'src/layout/Group/types';
+import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { ITableColumnFormatting, ITextResourceBindings } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupTableProps {
-  node: LayoutNode<HRepGroup, 'Group'>;
+  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
   repeatingGroupIndex: number;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;

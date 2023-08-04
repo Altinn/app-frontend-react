@@ -4,7 +4,7 @@ import { getLayoutComponentObject } from 'src/layout';
 import { getRepeatingGroups } from 'src/utils/formLayout';
 import { _private, resolvedLayoutsFromState } from 'src/utils/layout/hierarchy';
 import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { ExprUnresolved } from 'src/features/expressions/types';
@@ -15,6 +15,7 @@ import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { IDataModelBindings, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidations } from 'src/utils/validation/types';
 
 const { resolvedNodesInLayouts } = _private;
@@ -191,8 +192,8 @@ describe('Hierarchical layout tools', () => {
   describe('generateHierarchy', () => {
     it('should resolve a very simple layout', () => {
       const root = new LayoutPage();
-      const top1 = new LayoutNode(components.top1 as AnyItem, root, root, dataSources);
-      const top2 = new LayoutNode(components.top2 as AnyItem, root, root, dataSources);
+      const top1 = new BaseLayoutNode(components.top1 as AnyItem, root, root, dataSources);
+      const top2 = new BaseLayoutNode(components.top2 as AnyItem, root, root, dataSources);
       root._addChild(top1);
       root._addChild(top2);
 
@@ -433,11 +434,11 @@ describe('Hierarchical layout tools', () => {
     expect(uniqueHidden(nodes.current()?.flat(true))).toEqual(plain);
     expect(uniqueHidden(nodes.current()?.children())).toEqual(plain);
 
-    if (group2?.isRepGroup()) {
+    if (group2?.isType('Group') && group2.isRepGroup()) {
       expect(group2.item.rows[0]?.items[1].item.hidden).toEqual(true);
       expect(group2.item.rows[0]?.items[2].item.hidden).toEqual(true);
       const group2n = group2.item.rows[0]?.items[2];
-      if (group2n?.isRepGroup()) {
+      if (group2n?.isType('Group') && group2n.isRepGroup()) {
         expect(group2n.item.rows[0]?.items[1].item.hidden).toEqual(true);
       } else {
         expect(false).toEqual(true);

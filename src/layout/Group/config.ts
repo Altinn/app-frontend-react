@@ -11,7 +11,12 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-});
+}).setLayoutNodeType(
+  new CG.import({
+    import: 'LayoutNodeForGroup',
+    from: 'src/layout/Group/LayoutNodeForGroup',
+  }),
+);
 
 const commonChildrenProp = new CG.prop(
   'children',
@@ -27,13 +32,7 @@ const commonRepRowsProp = new CG.prop(
   new CG.arr(
     new CG.obj(
       new CG.prop('index', new CG.num()),
-      new CG.prop(
-        'items',
-        new CG.import({
-          import: 'HRepGroupItems',
-          from: 'src/layout/Group/types',
-        }),
-      ),
+      new CG.prop('items', new CG.arr(CG.layoutNode)),
       new CG.prop(
         'groupExpressions',
         new CG.import({
@@ -41,7 +40,7 @@ const commonRepRowsProp = new CG.prop(
           from: 'src/layout/Group/types',
         }),
       ),
-    ),
+    ).exportAs('HRepGroupRow'),
   ).exportAs('HRepGroupRows'),
 ).onlyIn(Variant.Internal);
 
@@ -338,6 +337,13 @@ function makeNonRepeatingGroup() {
         description: 'The title of the group (shown above the group)',
       }),
     )
+    .addTextResource(
+      new CG.trb({
+        name: 'body',
+        title: 'Body',
+        description: 'The body text shown underneath the title',
+      }),
+    )
     .addProperty(commonChildrenProp)
     .addProperty(commonNonRepChildComponents)
     .addProperty(
@@ -423,26 +429,21 @@ function makeNonRepeatingPanelGroup() {
           ),
         )
           .extends(CG.common('IPanelBase'))
-          .optional()
           .exportAs('IGroupPanel'),
       ),
     )
-    .addProperty(
-      new CG.prop(
-        'showGroupingIndicator',
-        new CG.bool()
-          .optional(false)
-          .setTitle('Show grouping indicator')
-          .setDescription(
-            'If set to true, non-repeating groups will show an indicator to the left of the entire group contents, ' +
-              'making it visually clear that the child components are grouped together.',
-          ),
-      ),
-    );
+    .addProperty(commonShowGroupingIndicatorProp);
 }
 
 function makeRepeatingLikertGroup() {
   return new CG.componentLike()
+    .addTextResource(
+      new CG.trb({
+        name: 'title',
+        title: 'Title',
+        description: 'The title of the group',
+      }),
+    )
     .addTextResource(
       new CG.trb({
         name: 'leftColumnHeader',
@@ -489,9 +490,7 @@ function makeRepeatingLikertGroup() {
                   '(deprecated, use an expression in the "hiddenRow" property instead)',
               ),
           ),
-        )
-          .exportAs('IGroupEditPropertiesLikert')
-          .optional(),
+        ).exportAs('IGroupEditPropertiesLikert'),
       ),
     )
     .addProperty(commonChildrenProp)

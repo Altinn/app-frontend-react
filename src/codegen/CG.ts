@@ -77,6 +77,10 @@ export const CG = {
     import: 'LayoutNode',
     from: 'src/utils/layout/LayoutNode',
   }),
+  baseLayoutNode: new GenerateImportedSymbol({
+    import: 'BaseLayoutNode',
+    from: 'src/utils/layout/LayoutNode',
+  }),
 
   // Others
   enum: GenerateEnum,

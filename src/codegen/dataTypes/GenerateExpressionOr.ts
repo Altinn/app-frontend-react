@@ -9,11 +9,10 @@ import type { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import type { GenerateString } from 'src/codegen/dataTypes/GenerateString';
 
 const toTsMap: { [key in ExprVal]: string } = {
-  // PRIORITY: Support array-expression types as well
-  [ExprVal.Any]: 'ExprVal.Any | boolean | number | string',
-  [ExprVal.Boolean]: 'ExprVal.Boolean | boolean',
-  [ExprVal.Number]: 'ExprVal.Number | number',
-  [ExprVal.String]: 'ExprVal.String | string',
+  [ExprVal.Any]: 'ExprValToActualOrExpr<ExprVal.Any>',
+  [ExprVal.Boolean]: 'ExprValToActualOrExpr<ExprVal.Boolean>',
+  [ExprVal.Number]: 'ExprValToActualOrExpr<ExprVal.Number>',
+  [ExprVal.String]: 'ExprValToActualOrExpr<ExprVal.String>',
 };
 
 const toSchemaMap: { [key in ExprVal]: JSONSchema7 } = {
@@ -82,6 +81,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     }
 
     CodeGeneratorContext.curFile().addImport('ExprVal', 'src/features/expressions/types');
+    CodeGeneratorContext.curFile().addImport('ExprValToActualOrExpr', 'src/features/expressions/types');
     return symbol ? `type ${symbol} = ${toTsMap[this.valueType]};` : toTsMap[this.valueType];
   }
 

@@ -12,7 +12,7 @@ import { ExprContext } from 'src/features/expressions/ExprContext';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError, asExpression, canBeExpression } from 'src/features/expressions/validation';
 import { implementsDisplayData } from 'src/layout';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type {
@@ -27,6 +27,7 @@ import type {
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { IDataModelBindings, ILayoutComponent } from 'src/layout/layout';
 import type { IAuthContext, IInstanceContext } from 'src/types/shared';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface EvalExprOptions {
   config?: ExprConfig;
@@ -507,7 +508,7 @@ export const ExprFunctions = {
       }
 
       const maybeNode = this.failWithoutNode();
-      if (maybeNode instanceof LayoutNode) {
+      if (maybeNode instanceof BaseLayoutNode) {
         const newPath = maybeNode?.transposeDataModel(path);
         return (newPath && this.dataSources.formData[newPath]) || null;
       }

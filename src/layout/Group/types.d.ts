@@ -1,11 +1,9 @@
 import type { DeepPartial } from 'utility-types';
 
-import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
-import type { GridRowsExternal, GridRowsInternal } from 'src/layout/common.generated';
-import type { ILayoutCompBase, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
-import type { ILayoutCompPanelBase } from 'src/layout/Panel/types';
-import type { HComponent, HierarchyExtensions } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { ExprVal } from 'src/features/expressions/types';
+import type { GridRowsExternal } from 'src/layout/common.generated';
+import type { CompGroupExternal, IGroupColumnFormatting, IGroupPanel } from 'src/layout/Group/config.generated';
+import type { ILayoutCompBase, ITableColumnFormatting } from 'src/layout/layout';
 
 export interface IGroupFilter {
   key: string;
@@ -40,61 +38,4 @@ export interface ILayoutGroup extends ILayoutCompBase<'Group'> {
   rowsAfter?: GridRowsExternal;
 }
 
-export interface IGroupColumnFormatting extends ITableColumnProperties {
-  editInTable?: boolean;
-  showInExpandedEdit?: boolean;
-}
-
-export interface IDataModelBindingsForGroup {
-  group?: string;
-}
-
-export interface IGroupPanel extends ILayoutCompPanelBase {
-  iconUrl?: string;
-  iconAlt?: string;
-  groupReference?: {
-    group: string;
-  };
-}
-
-/**
- * Base type used for repeating group and non-repeating groups
- */
-type HGroup = Omit<ExprResolved<ILayoutGroup>, 'children' | 'rowsBefore' | 'rowsAfter'> &
-  HierarchyExtensions & {
-    rowsBefore?: GridRowsInternal;
-    rowsAfter?: GridRowsInternal;
-  };
-
-/**
- * Definition of a non-repeating group inside a hierarchy structure
- */
-export type HNonRepGroup = HGroup & {
-  childComponents: LayoutNode<HComponent | HGroups>[];
-};
-
-export type HRepGroupItems = LayoutNode<HRepGroupChild>[];
-export type HGroupExpressions = DeepPartial<ExprResolved<ILayoutGroup>>;
-
-/**
- * A row object for a repeating group
- */
-export type HRepGroupRow = {
-  index: number;
-  items: HRepGroupItems;
-
-  // If this object is present, it contains a subset of the Group layout object, where some expressions may be resolved
-  // in the context of the current repeating group row.
-  groupExpressions?: HGroupExpressions;
-};
-/**
- * Definition of a repeating group component inside a hierarchy structure
- */
-export type HRepGroup = HGroup & {
-  rows: (HRepGroupRow | undefined)[];
-};
-/**
- * Types of possible components inside repeating group rows
- */
-export type HRepGroupChild = HComponent | HNonRepGroup | HRepGroup;
-export type HGroups = HNonRepGroup | HRepGroup;
+export type HGroupExpressions = DeepPartial<CompGroupExternal>;

@@ -85,7 +85,11 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     return [];
   }
 
-  toTypeScriptDefinition(symbol: string | undefined): string {
+  toTypeScript(): string {
+    return this.toTypeScriptDefinition();
+  }
+
+  toTypeScriptDefinition(): string {
     if (!this.currentVariant) {
       throw new Error('Cannot generate TypeScript definition for common import without variant');
     }
@@ -95,10 +99,14 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
       from: 'src/layout/common.generated',
     });
 
-    return _import.toTypeScriptDefinition(symbol);
+    return _import.toTypeScriptDefinition(undefined);
   }
 
   containsVariationDifferences(): boolean {
     return commonContainsVariationDifferences(this.key);
+  }
+
+  getName(): string {
+    return this.realKey ?? this.key;
   }
 }

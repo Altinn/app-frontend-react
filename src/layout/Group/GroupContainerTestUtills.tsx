@@ -5,7 +5,7 @@ import { useResolvedNode } from 'src/utils/layout/ExprContext';
 
 export function GroupContainerTester(props: { id: string }) {
   const node = useResolvedNode(props.id);
-  if (!node || !node.isRepGroup()) {
+  if (!node || !(node.isType('Group') && node.isRepGroup())) {
     throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
   }
 

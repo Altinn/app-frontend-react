@@ -6,8 +6,8 @@ import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Grid extends GridDef {
   private _hierarchyGenerator = new GridHierarchyGenerator();
@@ -24,7 +24,7 @@ export class Grid extends GridDef {
     return false;
   }
 
-  getDisplayData(_node: LayoutNodeFromType<'Grid'>): string {
+  getDisplayData(_node: LayoutNode<'Grid'>): string {
     return '';
   }
 

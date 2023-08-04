@@ -5,7 +5,7 @@ import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ComponentClassMapTypes } from 'src/layout';
 import type { ComponentCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { ComponentExceptGroup, ComponentTypes, IDataModelBindings, ILayoutComponent } from 'src/layout/layout';
+import type { ComponentExceptGroup, ComponentTypes, IDataModelBindings } from 'src/layout/layout';
 import type { IValidations } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -49,16 +49,14 @@ export interface HierarchyDataSources extends ContextDataSources {
   devTools: IDevToolsState;
 }
 
-export type LayoutNodeFromType<Type> = Type extends ComponentTypes ? LayoutNode<AnyItem<Type>, Type> : LayoutNode;
-
-export type LayoutNodeFromObj<T> = T extends ILayoutComponent
-  ? T extends { type: infer Type }
-    ? LayoutNodeFromType<Type>
+export type LayoutNodeFromObj<T> = T extends { type: infer Type }
+  ? Type extends ComponentTypes
+    ? LayoutNode<Type>
     : LayoutNode
   : LayoutNode;
 
 export type TypesFromCategory<Type extends ComponentCategory> = $Keys<PickByValue<ComponentClassMapTypes, Type>>;
 
 export type LayoutNodeFromCategory<Type> = Type extends ComponentCategory
-  ? LayoutNodeFromType<TypesFromCategory<Type>>
+  ? LayoutNode<TypesFromCategory<Type>>
   : LayoutNode;

@@ -16,12 +16,13 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import { isGridRowHidden, nodesFromGrid } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { getPlainTextFromNode } from 'src/utils/stringHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridRowsInternal } from 'src/layout/common.generated';
+import type { GridRowInternal } from 'src/layout/common.generated';
 import type { ITableColumnFormatting, ITableColumnProperties, ITextResourceBindings } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { node } = props;
@@ -29,7 +30,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
-  const isNested = node.parent instanceof LayoutNode;
+  const isNested = node.parent instanceof BaseLayoutNode;
 
   if (isMobile) {
     return <MobileGrid {...props} />;
@@ -56,7 +57,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
 }
 
 interface GridRowProps {
-  row: GridRowsInternal;
+  row: GridRowInternal;
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
   node: LayoutNode;
@@ -115,7 +116,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
             );
           }
         }
-        const componentNode = cell && 'node' in cell && cell?.node;
+        const componentNode = cell && 'node' in cell ? cell.node : undefined;
         const componentId = componentNode && componentNode.item.id;
         return (
           <CellWithComponent
@@ -130,7 +131,7 @@ export function GridRowRenderer({ row, isNested, mutableColumnSettings, node }: 
   );
 }
 
-type InternalRowProps = PropsWithChildren<Pick<GridRowsInternal, 'header' | 'readOnly'>>;
+type InternalRowProps = PropsWithChildren<Pick<GridRowInternal, 'header' | 'readOnly'>>;
 
 function InternalRow({ header, readOnly, children }: InternalRowProps) {
   const className = readOnly ? css.rowReadOnly : undefined;

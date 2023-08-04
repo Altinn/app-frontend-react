@@ -12,7 +12,7 @@ import {
   parseFileUploadComponentWithTagValidationObject,
   smartLowerCaseFirst,
 } from 'src/utils/formComponentUtils';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IGridStyling, ILayoutComponent, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
@@ -394,4 +394,4 @@ describe('formComponentUtils', () => {
 });
 
 const fakeLayoutNode = (item: Partial<ILayoutComponent> & Partial<AnyItem>) =>
-  new LayoutNode(item, new LayoutPage(), new LayoutPage(), {} as any);
+  new BaseLayoutNode(item, new LayoutPage(), new LayoutPage(), {} as any);

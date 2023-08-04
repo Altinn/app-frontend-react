@@ -10,13 +10,13 @@ import { renderWithProviders } from 'src/testUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
+import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IRepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
-import type { HRepGroup } from 'src/layout/Group/types';
 import type { ILayout, ILayoutComponent } from 'src/layout/layout';
 import type { RootState } from 'src/redux/store';
 import type { IOption } from 'src/types';
 import type { ITextResource } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const user = userEvent.setup();
 
@@ -112,7 +112,7 @@ describe('RepeatingGroupsEditContainer', () => {
 });
 
 function RenderRepGroupEditContainer(props: Omit<IRepeatingGroupsEditContainer, 'node'> & { id: string }) {
-  const node = useResolvedNode(props.id) as LayoutNode<HRepGroup, 'Group'>;
+  const node = useResolvedNode(props.id) as LayoutNodeForGroup<CompGroupRepeatingInternal>;
 
   return (
     <RepeatingGroupsEditContainer

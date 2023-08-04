@@ -5,14 +5,14 @@ import { MapComponent } from 'src/layout/Map/MapComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Map extends MapDef {
   render(props: PropsFromGenericComponent<'Map'>): JSX.Element | null {
     return <MapComponent {...props} />;
   }
 
-  getDisplayData(node: LayoutNodeFromType<'Map'>, { formData }): string {
+  getDisplayData(node: LayoutNode<'Map'>, { formData }): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

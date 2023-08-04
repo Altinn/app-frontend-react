@@ -1,5 +1,4 @@
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ChildFactory, HierarchyContext, HierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -17,7 +16,7 @@ export class AccordionHierarchyGenerator extends ComponentHierarchyGenerator<'Ac
     return this.processAccordionContent(ctx);
   }
 
-  childrenFromNode(node: LayoutNodeFromType<'Accordion'>): LayoutNode[] {
+  childrenFromNode(node: LayoutNode<'Accordion'>): LayoutNode[] {
     return node.item.childComponents;
   }
 

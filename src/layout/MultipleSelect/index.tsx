@@ -11,7 +11,7 @@ import type { IFormData } from 'src/features/formData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { IOptions, IRepeatingGroups } from 'src/types';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends MultipleSelectDef {
   render(props: PropsFromGenericComponent<'MultipleSelect'>): JSX.Element | null {
@@ -19,7 +19,7 @@ export class MultipleSelect extends MultipleSelectDef {
   }
 
   private getSummaryData(
-    node: LayoutNodeFromType<'MultipleSelect'>,
+    node: LayoutNode<'MultipleSelect'>,
     formData: IFormData,
     langTools: IUseLanguage,
     repeatingGroups: IRepeatingGroups | null,
@@ -34,7 +34,7 @@ export class MultipleSelect extends MultipleSelectDef {
     return getCommaSeparatedOptionsToText(value, optionList, langTools);
   }
 
-  getDisplayData(node: LayoutNodeFromType<'MultipleSelect'>, { formData, langTools, uiConfig, options }): string {
+  getDisplayData(node: LayoutNode<'MultipleSelect'>, { formData, langTools, uiConfig, options }): string {
     return Object.values(this.getSummaryData(node, formData, langTools, uiConfig.repeatingGroups, options)).join(', ');
   }
 

@@ -24,7 +24,7 @@ export function GroupRenderer({ node }: GroupRendererProps) {
   }
 
   // panel with groupReference
-  if (node.item.panel?.groupReference) {
+  if (node.isNonRepPanelGroup() && node.item.panel.groupReference) {
     return (
       <PanelReferenceGroupContainer
         key={node.item.id}
@@ -34,7 +34,7 @@ export function GroupRenderer({ node }: GroupRendererProps) {
   }
 
   // regular panel group
-  if (node.item.panel) {
+  if (node.isNonRepPanelGroup()) {
     return (
       <PanelGroupContainer
         key={node.item.id}

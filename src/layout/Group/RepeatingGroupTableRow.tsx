@@ -16,12 +16,14 @@ import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroups
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { HRepGroup, ILayoutGroup } from 'src/layout/Group/types';
+import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IRepeatingGroupTableRowProps {
-  node: LayoutNode<HRepGroup, 'Group'>;
+  node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
   className?: string;
   editIndex: number;
   setEditIndex: (index: number, forceValidation?: boolean) => void;

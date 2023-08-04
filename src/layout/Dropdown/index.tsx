@@ -7,17 +7,14 @@ import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Dropdown extends DropdownDef {
   render(props: PropsFromGenericComponent<'Dropdown'>): JSX.Element | null {
     return <DropdownComponent {...props} />;
   }
 
-  getDisplayData(
-    node: LayoutNodeFromType<'Dropdown'>,
-    { formData, langTools, options, uiConfig }: DisplayDataProps,
-  ): string {
+  getDisplayData(node: LayoutNode<'Dropdown'>, { formData, langTools, options, uiConfig }: DisplayDataProps): string {
     if (!node.item.dataModelBindings?.simpleBinding) {
       return '';
     }

@@ -28,8 +28,12 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
   }
 
   toTypeScriptDefinition(symbol: string | undefined): string {
+    if (symbol) {
+      throw new Error('Do not re-define imported symbols');
+    }
+
     CodeGeneratorContext.curFile().addImport(this.val.import, this.val.from);
-    return symbol ? `type ${symbol} = ${this.val.import};` : this.val.import;
+    return this.val.import;
   }
 
   toJsonSchema(): JSONSchema7 {

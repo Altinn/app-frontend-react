@@ -324,6 +324,20 @@ const common = {
       ),
       new CG.prop('grid', CG.common('IGrid').optional()),
       new CG.prop('pageBreak', CG.common('IPageBreak').optional()),
+
+      // Internal-only properties (these are added by the hierarchy generator):
+      new CG.prop('baseComponentId', new CG.str().optional()).onlyIn(Variant.Internal),
+      new CG.prop('multiPageIndex', new CG.int().optional()).onlyIn(Variant.Internal),
+
+      // Internal-only properties (PRIORITY: These should be removed, they're only here to reduce the enormous
+      // number of errors after generated new types):
+      new CG.prop('renderAsSummary', new CG.bool().optional()).onlyIn(Variant.Internal),
+      new CG.prop('dataModelBindings', new CG.raw({ typeScript: 'any' }).optional()).onlyIn(Variant.Internal),
+      new CG.prop('readOnly', new CG.bool().optional()).onlyIn(Variant.Internal),
+      new CG.prop('required', new CG.bool().optional()).onlyIn(Variant.Internal),
+      new CG.prop('textResourceBindings', new CG.raw({ typeScript: 'any' }).optional()).onlyIn(Variant.Internal),
+      new CG.prop('labelSettings', CG.common('ILabelSettings').optional()).onlyIn(Variant.Internal),
+      new CG.prop('triggers', CG.common('TriggerList').optional()).onlyIn(Variant.Internal),
     ),
   FormComponentProps: () =>
     new CG.obj(

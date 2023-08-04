@@ -1,8 +1,7 @@
 import type { GridRowInternal, GridRowsInternal } from 'src/layout/common.generated';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function nodesFromGrid(grid: LayoutNodeFromType<'Grid'>): LayoutNode[] {
+export function nodesFromGrid(grid: LayoutNode<'Grid'>): LayoutNode[] {
   return nodesFromGridRows(grid.item.rows);
 }
 

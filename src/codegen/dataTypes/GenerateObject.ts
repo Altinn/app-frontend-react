@@ -41,7 +41,12 @@ export class GenerateObject<P extends Props>
   }
 
   hasProperty(name: string): boolean {
-    return this.properties.some((property) => property.name === name);
+    return this.properties.some((property) => {
+      if (property.name === name) {
+        const { onlyVariant } = property.toObject();
+        return !onlyVariant || this.currentVariant === onlyVariant;
+      }
+    });
   }
 
   addProperty(prop: GenerateProperty<any>): this {
@@ -82,11 +87,17 @@ export class GenerateObject<P extends Props>
   }
 
   getProperty(name: string): GenerateProperty<any> | undefined {
+    if (!this.hasProperty(name)) {
+      return undefined;
+    }
     return this.properties.find((property) => property.name === name);
   }
 
   getProperties(): GenerateProperty<any>[] {
-    return this.properties;
+    return this.properties.filter((property) => {
+      const { onlyVariant } = property.toObject();
+      return !onlyVariant || this.currentVariant === onlyVariant;
+    });
   }
 
   transformTo(variant: Variant): GenerateObject<any> {
@@ -149,20 +160,28 @@ export class GenerateObject<P extends Props>
       return this.properties;
     }
 
-    return this.properties.map((prop) => {
+    return this.getProperties().map((prop) => {
       const parentsWithProp = this._extends.filter((e) => e.hasProperty(prop.name)).map((e) => e.getName());
       if (!parentsWithProp.length) {
         return prop;
       }
 
+      for (const parent of parentsWithProp) {
+        if (!parent) {
+          throw new Error(`Cannot extend an object that does not have a name`);
+        }
+      }
+
       const adapted = new CG.intersection(
         prop.type,
-        ...parentsWithProp.map(
-          (e) =>
-            new CG.raw({
-              typeScript: `${e}['${prop.name}']`,
-            }),
-        ),
+        ...parentsWithProp.map((e) => {
+          const out = new CG.raw({
+            typeScript: `${e}['${prop.name}']`,
+          });
+          out.currentVariant = this.currentVariant;
+
+          return out;
+        }),
       );
       adapted.currentVariant = this.currentVariant;
 

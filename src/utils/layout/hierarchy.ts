@@ -55,7 +55,7 @@ function resolvedNodesInLayouts(
         resolvingPerRow: false,
       }) as unknown as AnyItem;
 
-      if (node.isRepGroup()) {
+      if (node.isType('Group') && node.isRepGroup()) {
         for (const row of node.item.rows) {
           if (!row) {
             continue;

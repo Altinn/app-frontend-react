@@ -8,11 +8,13 @@ import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompGroupNonRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayGroupContainer {
-  groupNode: LayoutNodeFromType<'Group'>;
+  groupNode: LayoutNodeForGroup<CompGroupNonRepeatingInternal>;
   id?: string;
   onlyRowIndex?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
@@ -38,7 +40,7 @@ export function DisplayGroupContainer({ groupNode, id, onlyRowIndex, renderLayou
     return null;
   }
 
-  const isNested = groupNode.parent instanceof LayoutNode;
+  const isNested = groupNode.parent instanceof BaseLayoutNode;
   const headingLevel = Math.min(Math.max(groupNode.parents().length + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
 

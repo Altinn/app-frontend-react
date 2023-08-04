@@ -1,11 +1,7 @@
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { CompGroupExternal, CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
 
-export function getFormLayoutGroupMock(
-  customMock?: Partial<ExprUnresolved<ILayoutGroup>>,
-  children?: string[],
-): ExprUnresolved<ILayoutGroup> {
-  const mockLayoutGroup: ExprUnresolved<ILayoutGroup> = {
+export function getFormLayoutGroupMock<T extends CompGroupExternal>(customMock?: Partial<T>, children?: string[]): T {
+  const mockLayoutGroup = {
     id: 'container-closed-id',
     type: 'Group',
     children: children || ['field1', 'field2', 'field3', 'field4'],
@@ -13,14 +9,14 @@ export function getFormLayoutGroupMock(
     dataModelBindings: {
       group: 'some-group',
     },
-  };
+  } as unknown as T;
   return {
     ...mockLayoutGroup,
     ...customMock,
   };
 }
 
-export function getMultiPageGroupMock(id = 'multipageGroup'): ExprUnresolved<ILayoutGroup> {
+export function getMultiPageGroupMock(id = 'multipageGroup'): CompGroupRepeatingExternal {
   return {
     type: 'Group',
     id,

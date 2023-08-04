@@ -11,7 +11,7 @@ import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ILayout } from 'src/layout/layout';
 import type { RootState } from 'src/redux/store';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('PanelGroupContainer', () => {
   const initialState = getInitialStateMock();
@@ -129,5 +129,5 @@ const WrappedComponent = ({ id }: { id: string }) => {
     throw new Error(`Could not find node with id ${id}`);
   }
 
-  return <PanelReferenceGroupContainer node={node as LayoutNodeFromType<'Group'>} />;
+  return <PanelReferenceGroupContainer node={node as LayoutNode<'Group'>} />;
 };

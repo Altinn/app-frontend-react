@@ -9,7 +9,7 @@ import type { ComponentRendersLabel, ComponentTypes, IGrid } from 'src/layout/la
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';
 import type { IOptions, IUiConfig } from 'src/types';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
-import type { AnyItem, LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ISchemaValidationError } from 'src/utils/validation/schemaValidation';
 import type { IComponentValidations, IValidationContext, IValidationObject } from 'src/utils/validation/types';
@@ -52,7 +52,7 @@ export interface IComponentProps {
 }
 
 export interface PropsFromGenericComponent<T extends ComponentTypes = ComponentTypes> extends IComponentProps {
-  node: LayoutNodeFromType<T>;
+  node: LayoutNode<T>;
   overrideItemProps?: Partial<Omit<AnyItem<T>, 'id'>>;
   overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
 }
@@ -151,8 +151,8 @@ export interface DisplayDataProps {
 }
 
 export interface DisplayData<Type extends ComponentTypes> {
-  getDisplayData(node: LayoutNodeFromType<Type>, displayDataProps: DisplayDataProps): string;
-  useDisplayData(node: LayoutNodeFromType<Type>): string;
+  getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
+  useDisplayData(node: LayoutNode<Type>): string;
 }
 
 export function implementsDisplayData<Type extends ComponentTypes>(

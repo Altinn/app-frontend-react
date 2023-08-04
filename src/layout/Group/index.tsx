@@ -1,16 +1,20 @@
 import React from 'react';
+import type { JSX } from 'react';
 
 import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
+import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, GroupValidation, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
+import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class Group extends GroupDef implements GroupValidation, ComponentValidation {
@@ -55,7 +59,7 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
   }
 
   runComponentValidation(
-    node: LayoutNodeFromType<'Group'>,
+    node: LayoutNode<'Group'>,
     { langTools }: IValidationContext,
     _overrideFormData?: IFormData,
   ): IValidationObject[] {
@@ -84,10 +88,20 @@ export class Group extends GroupDef implements GroupValidation, ComponentValidat
   }
 
   runGroupValidations(
-    node: LayoutNodeFromType<'Group'>,
+    node: LayoutNode<'Group'>,
     validationContext: IValidationContext,
     onlyInRowIndex?: number,
   ): IValidationObject[] {
     return runValidationOnNodes(node.flat(true, onlyInRowIndex), validationContext);
+  }
+
+  makeNode(
+    item: AnyItem<'Group'>,
+    parent: LayoutNode | LayoutPage,
+    top: LayoutPage,
+    dataSources: HierarchyDataSources,
+    rowIndex?: number,
+  ): LayoutNodeForGroup {
+    return new LayoutNodeForGroup(item, parent, top, dataSources, rowIndex);
   }
 }
