@@ -232,22 +232,17 @@ interface IValidateWithoutTag {
 }
 
 const validateWithoutTag = ({ componentValidations, validations }: IValidateWithoutTag) => {
-  const getComponentValidations = (): IComponentValidations => {
-    const validationMessages = {
-      simpleBinding: {
-        errors: [...(componentValidations?.simpleBinding?.errors ?? [])],
-        warnings: [...(componentValidations?.simpleBinding?.warnings ?? [])],
-        fixed: [...(componentValidations?.simpleBinding?.fixed ?? [])],
-      },
-    };
-
-    validationMessages.simpleBinding.errors.push(...validations);
-    return validationMessages;
+  const validationMessages = {
+    simpleBinding: {
+      errors: [...(componentValidations?.simpleBinding?.errors ?? []), ...validations],
+      warnings: [...(componentValidations?.simpleBinding?.warnings ?? [])],
+      fixed: [...(componentValidations?.simpleBinding?.fixed ?? [])],
+    },
   };
-  const validationMessages = getComponentValidations().simpleBinding;
-  const hasValidationMessages = validationMessages?.errors && validationMessages.errors.length > 0;
+  const hasValidationMessages =
+    validationMessages?.simpleBinding.errors && validationMessages.simpleBinding.errors.length > 0;
   return {
-    validationMessages,
+    validationMessages: validationMessages.simpleBinding,
     hasValidationMessages,
   };
 };
