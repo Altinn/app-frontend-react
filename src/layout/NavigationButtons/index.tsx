@@ -2,26 +2,10 @@ import React from 'react';
 
 import { NavigationButtonsDef } from 'src/layout/NavigationButtons/config.generated';
 import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompNavButtons } from 'src/layout/NavigationButtons/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class NavigationButtons extends NavigationButtonsDef {
   render(props: PropsFromGenericComponent<'NavigationButtons'>): JSX.Element | null {
     return <NavigationButtonsComponent {...props} />;
   }
 }
-
-export const Config = {
-  def: new NavigationButtons(),
-  rendersWithLabel: false as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompNavButtons;
-  nodeItem: ExprResolved<ILayoutCompNavButtons>;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: 'back' | 'next';
-  validDataModelBindings: undefined;
-};

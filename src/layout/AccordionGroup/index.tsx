@@ -4,9 +4,7 @@ import { AccordionGroup as AccordionGroupComponent } from 'src/layout/AccordionG
 import { AccordionGroupDef } from 'src/layout/AccordionGroup/config.generated';
 import { AccordionGroupHierarchyGenerator } from 'src/layout/AccordionGroup/hierarchy';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IAccordionGroup, ILayoutAccordionGroup } from 'src/layout/AccordionGroup/types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class AccordionGroup extends AccordionGroupDef {
   private _hierarchyGenerator = new AccordionGroupHierarchyGenerator();
@@ -19,16 +17,3 @@ export class AccordionGroup extends AccordionGroupDef {
     return this._hierarchyGenerator;
   }
 }
-
-export const Config = {
-  def: new AccordionGroup(),
-  rendersWithLabel: false as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutAccordionGroup;
-  nodeItem: IAccordionGroup;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: 'title';
-  validDataModelBindings: undefined;
-};

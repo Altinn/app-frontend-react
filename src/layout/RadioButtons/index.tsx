@@ -5,13 +5,9 @@ import { getSelectedValueToText } from 'src/hooks/useSelectedValueToText';
 import { RadioButtonsDef } from 'src/layout/RadioButtons/config.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
-import type { IDataModelBindingsSimple, TextBindingsForLabel } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ILayoutCompRadioButtons } from 'src/layout/RadioButtons/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
   render(props: PropsFromGenericComponent<'RadioButtons'>): JSX.Element | null {
@@ -34,18 +30,3 @@ export class RadioButtons extends RadioButtonsDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }
-
-export const Config = {
-  def: new RadioButtons(),
-  rendersWithLabel: false as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompRadioButtons;
-  nodeItem: ExprResolved<ILayoutCompRadioButtons>;
-  nodeObj: LayoutNode;
-  // We don't render the label in GenericComponent, but we still need the
-  // text resource bindings for rendering them on our own
-  validTextResourceBindings: TextBindingsForLabel;
-  validDataModelBindings: IDataModelBindingsSimple;
-};

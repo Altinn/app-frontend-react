@@ -3,12 +3,9 @@ import React from 'react';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressDef } from 'src/layout/Address/config.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IDataModelBindingsForAddress, ILayoutCompAddress } from 'src/layout/Address/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Address extends AddressDef {
   render(props: PropsFromGenericComponent<'AddressComponent'>): JSX.Element | null {
@@ -25,16 +22,3 @@ export class Address extends AddressDef {
     return <SummaryItemSimple formDataAsString={data} />;
   }
 }
-
-export const Config = {
-  def: new Address(),
-  rendersWithLabel: false as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompAddress;
-  nodeItem: ExprResolved<ILayoutCompAddress>;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: undefined;
-  validDataModelBindings: IDataModelBindingsForAddress;
-};

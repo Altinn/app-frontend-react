@@ -7,15 +7,11 @@ import { getOptionList } from 'src/hooks/useOptionList';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IDataModelBindingsSimple, TextBindingsForFormComponents } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ILayoutCompMultipleSelect } from 'src/layout/MultipleSelect/types';
 import type { IOptions, IRepeatingGroups } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends MultipleSelectDef {
   render(props: PropsFromGenericComponent<'MultipleSelect'>): JSX.Element | null {
@@ -51,16 +47,3 @@ export class MultipleSelect extends MultipleSelectDef {
     return <MultipleChoiceSummary formData={summaryData} />;
   }
 }
-
-export const Config = {
-  def: new MultipleSelect(),
-  rendersWithLabel: true as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompMultipleSelect;
-  nodeItem: ExprResolved<ILayoutCompMultipleSelect>;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: TextBindingsForFormComponents;
-  validDataModelBindings: IDataModelBindingsSimple;
-};

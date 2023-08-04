@@ -6,18 +6,10 @@ import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { getUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { attachmentsValid } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { ComponentValidation, PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
-import type {
-  IDataModelBindingsList,
-  IDataModelBindingsSimple,
-  TextBindingsForFormComponents,
-} from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class FileUpload extends FileUploadDef implements ComponentValidation {
@@ -58,16 +50,3 @@ export class FileUpload extends FileUploadDef implements ComponentValidation {
     return [];
   }
 }
-
-export const Config = {
-  def: new FileUpload(),
-  rendersWithLabel: true as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompFileUpload;
-  nodeItem: ExprResolved<ILayoutCompFileUpload>;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: TextBindingsForFormComponents;
-  validDataModelBindings: IDataModelBindingsSimple | IDataModelBindingsList;
-};

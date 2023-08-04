@@ -2,10 +2,7 @@ import React from 'react';
 
 import { SummaryDef } from 'src/layout/Summary/config.generated';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompSummary } from 'src/layout/Summary/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Summary extends SummaryDef {
   directRender(): boolean {
@@ -31,16 +28,3 @@ export class Summary extends SummaryDef {
     return '';
   }
 }
-
-export const Config = {
-  def: new Summary(),
-  rendersWithLabel: false as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompSummary;
-  nodeItem: ExprResolved<ILayoutCompSummary>;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: undefined;
-  validDataModelBindings: undefined;
-};

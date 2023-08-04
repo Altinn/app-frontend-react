@@ -6,13 +6,10 @@ import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { InputDef } from 'src/layout/Input/config.generated';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompInput } from 'src/layout/Input/types';
-import type { IDataModelBindingsSimple, IInputFormatting, TextBindingsForFormComponents } from 'src/layout/layout';
+import type { IInputFormatting } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Input extends InputDef {
   render(props: PropsFromGenericComponent<'Input'>): JSX.Element | null {
@@ -40,16 +37,3 @@ export class Input extends InputDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }
-
-export const Config = {
-  def: new Input(),
-  rendersWithLabel: true as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompInput;
-  nodeItem: ExprResolved<ILayoutCompInput>;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: TextBindingsForFormComponents;
-  validDataModelBindings: IDataModelBindingsSimple;
-};

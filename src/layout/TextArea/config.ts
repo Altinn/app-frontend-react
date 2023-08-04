@@ -12,6 +12,7 @@ export const Config = new CG.component({
   },
 })
   .addDataModelBinding('simple')
+  .addProperty(new CG.prop('saveWhileTyping', CG.common('SaveWhileTyping').optional(true)))
   .addProperty(new CG.prop('autocomplete', CG.common('HTMLAutoCompleteValues').optional()))
   .addProperty(
     new CG.prop(

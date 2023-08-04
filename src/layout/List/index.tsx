@@ -5,12 +5,9 @@ import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { IDataModelBindingsForList, ILayoutCompList } from 'src/layout/List/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
 
 export class List extends ListDef {
@@ -62,16 +59,3 @@ export class List extends ListDef {
     return validationObjects;
   }
 }
-
-export const Config = {
-  def: new List(),
-  rendersWithLabel: false as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompList;
-  nodeItem: ExprResolved<ILayoutCompList>;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: undefined;
-  validDataModelBindings: IDataModelBindingsForList;
-};

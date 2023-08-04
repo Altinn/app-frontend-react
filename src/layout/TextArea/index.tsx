@@ -3,13 +3,9 @@ import React from 'react';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { TextAreaDef } from 'src/layout/TextArea/config.generated';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IDataModelBindingsSimple, TextBindingsForFormComponents } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { ILayoutCompTextArea } from 'src/layout/TextArea/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TextArea extends TextAreaDef {
   render(props: PropsFromGenericComponent<'TextArea'>): JSX.Element | null {
@@ -29,16 +25,3 @@ export class TextArea extends TextAreaDef {
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 }
-
-export const Config = {
-  def: new TextArea(),
-  rendersWithLabel: true as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompTextArea;
-  nodeItem: ExprResolved<ILayoutCompTextArea>;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: TextBindingsForFormComponents;
-  validDataModelBindings: IDataModelBindingsSimple;
-};

@@ -5,11 +5,9 @@ import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompGrid, ILayoutGridHierarchy } from 'src/layout/Grid/types';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Grid extends GridDef {
   private _hierarchyGenerator = new GridHierarchyGenerator();
@@ -34,16 +32,3 @@ export class Grid extends GridDef {
     return this._hierarchyGenerator;
   }
 }
-
-export const Config = {
-  def: new Grid(),
-  rendersWithLabel: true as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompGrid;
-  nodeItem: ILayoutGridHierarchy;
-  nodeObj: LayoutNode;
-  validTextResourceBindings: undefined;
-  validDataModelBindings: undefined;
-};

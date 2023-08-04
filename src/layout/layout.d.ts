@@ -127,7 +127,7 @@ export interface IDataModelBindingsList {
   list?: string;
 }
 
-type InnerDMB<T extends ComponentTypes> = ComponentTypeConfigs[T]['validDataModelBindings'];
+type InnerDMB<T extends ComponentTypes> = ComponentTypeConfigs[T]['nodeItem']['dataModelBindings'];
 
 /**
  * This is the type you should use when referencing a specific component type, and will give
@@ -137,17 +137,12 @@ export type IDataModelBindings<T extends ComponentTypes = ComponentTypes> =
   | UnionToIntersection<Exclude<InnerDMB<T>, undefined>>
   | undefined;
 
-type InnerTRB<T extends ComponentTypes> = ComponentRendersLabel<T> extends true
-  ? ComponentTypeConfigs[T]['validTextResourceBindings'] | TextBindingsForLabel
-  : ComponentTypeConfigs[T]['validTextResourceBindings'];
+type InnerTRB<T extends ComponentTypes> = Exclude<
+  ComponentTypeConfigs[T]['nodeItem']['textResourceBindings'],
+  undefined
+>;
 
-type TRBAsUnion<T extends ComponentTypes> = Exclude<InnerTRB<T>, undefined> extends never
-  ? undefined
-  : Exclude<InnerTRB<T>, undefined>;
-
-type TRBAsMap<T extends ComponentTypes, V> = {
-  [Binding in TRBAsUnion<T>]?: V;
-};
+type TRBAsMap<T extends ComponentTypes> = keyof InnerTRB<T> extends never ? undefined : Exclude<InnerTRB<T>, undefined>;
 
 export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
   | UnionToIntersection<TRBAsMap<T, string>>

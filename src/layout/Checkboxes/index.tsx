@@ -7,15 +7,11 @@ import { getOptionList } from 'src/hooks/useOptionList';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
-import type { ILayoutCompCheckboxes } from 'src/layout/Checkboxes/types';
-import type { IDataModelBindingsSimple, TextBindingsForFormComponents, TextBindingsForLabel } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { IOptions, IRepeatingGroups } from 'src/types';
 import type { LayoutNodeFromType } from 'src/utils/layout/hierarchy.types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
   render(props: PropsFromGenericComponent<'Checkboxes'>): JSX.Element | null {
@@ -52,18 +48,3 @@ export class Checkboxes extends CheckboxesDef {
     return <MultipleChoiceSummary formData={summaryData} />;
   }
 }
-
-export const Config = {
-  def: new Checkboxes(),
-  rendersWithLabel: false as const,
-};
-
-export type TypeConfig = {
-  layout: ILayoutCompCheckboxes;
-  nodeItem: ExprResolved<ILayoutCompCheckboxes>;
-  nodeObj: LayoutNode;
-  // We don't render the label in GenericComponent, but we still need the
-  // text resource bindings for rendering them on our own
-  validTextResourceBindings: TextBindingsForLabel | TextBindingsForFormComponents;
-  validDataModelBindings: IDataModelBindingsSimple;
-};
