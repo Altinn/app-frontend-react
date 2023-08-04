@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SummaryDef } from 'src/layout/Summary/config.generated';
+import { SummaryDef } from 'src/layout/Summary/config.def.generated';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 

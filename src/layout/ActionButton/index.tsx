@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ActionButtonComponent } from 'src/layout/ActionButton/ActionButtonComponent';
-import { ActionButtonDef } from 'src/layout/ActionButton/config.generated';
+import { ActionButtonDef } from 'src/layout/ActionButton/config.def.generated';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export class ActionButton extends ActionButtonDef {

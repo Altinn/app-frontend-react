@@ -5,7 +5,7 @@ import { getCommaSeparatedOptionsToText } from 'src/hooks/useCommaSeparatedOptio
 import { type IUseLanguage, useLanguage } from 'src/hooks/useLanguage';
 import { getOptionList } from 'src/hooks/useOptionList';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.generated';
+import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import type { IFormData } from 'src/features/formData';
 import type { PropsFromGenericComponent } from 'src/layout';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { GroupDef } from 'src/layout/Group/config.generated';
+import { GroupDef } from 'src/layout/Group/config.def.generated';
 import { GroupRenderer } from 'src/layout/Group/GroupRenderer';
 import { GroupHierarchyGenerator } from 'src/layout/Group/hierarchy';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';

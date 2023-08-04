@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ParagraphDef } from 'src/layout/Paragraph/config.generated';
+import { ParagraphDef } from 'src/layout/Paragraph/config.def.generated';
 import { ParagraphComponent } from 'src/layout/Paragraph/ParagraphComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 

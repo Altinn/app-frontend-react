@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Accordion as AccordionComponent } from 'src/layout/Accordion/Accordion';
-import { AccordionDef } from 'src/layout/Accordion/config.generated';
+import { AccordionDef } from 'src/layout/Accordion/config.def.generated';
 import { AccordionHierarchyGenerator } from 'src/layout/Accordion/hierarchy';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { getUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
-import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.generated';
+import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
 import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';

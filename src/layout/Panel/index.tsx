@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PanelDef } from 'src/layout/Panel/config.generated';
+import { PanelDef } from 'src/layout/Panel/config.def.generated';
 import { PanelComponent } from 'src/layout/Panel/PanelComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 

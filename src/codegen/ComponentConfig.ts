@@ -137,7 +137,7 @@ export class ComponentConfig extends GenerateComponentLike {
     return this;
   }
 
-  public toTypeScript(): string {
+  public generateConfigFile(): string {
     // Forces the objects to register in the context and be exported via the context symbols table
     this.exportedComp.exportAs(`Comp${this.typeSymbol}`);
     const ext = this.exportedComp.transformTo(Variant.External);
@@ -151,7 +151,6 @@ export class ComponentConfig extends GenerateComponentLike {
     }).transformTo(Variant.Internal);
 
     const staticElements = [
-      this.generateDefClass(),
       `export const Config = {
          def: new ${impl.toTypeScript()}(),
          rendersWithLabel: ${this.config.rendersWithLabel ? 'true' : 'false'} as const,
@@ -166,7 +165,7 @@ export class ComponentConfig extends GenerateComponentLike {
     return staticElements.join('\n\n');
   }
 
-  private generateDefClass(): string {
+  public generateDefClass(): string {
     const symbol = this.typeSymbol;
     const category = this.config.category;
     const categorySymbol = CategoryImports[category].transformTo(Variant.Internal).toTypeScript();

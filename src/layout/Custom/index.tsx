@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { CustomDef } from 'src/layout/Custom/config.generated';
+import { CustomDef } from 'src/layout/Custom/config.def.generated';
 import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { PropsFromGenericComponent } from 'src/layout';

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { getOptionList } from 'src/hooks/useOptionList';
 import { getSelectedValueToText } from 'src/hooks/useSelectedValueToText';
-import { RadioButtonsDef } from 'src/layout/RadioButtons/config.generated';
+import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
 import { RadioButtonContainerComponent } from 'src/layout/RadioButtons/RadioButtonsContainerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';

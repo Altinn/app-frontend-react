@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MapDef } from 'src/layout/Map/config.generated';
+import { MapDef } from 'src/layout/Map/config.def.generated';
 import { MapComponent } from 'src/layout/Map/MapComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import type { PropsFromGenericComponent } from 'src/layout';

@@ -2,7 +2,7 @@ import React from 'react';
 
 import moment from 'moment';
 
-import { DatepickerDef } from 'src/layout/Datepicker/config.generated';
+import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getDateConstraint, getDateFormat } from 'src/utils/dateHelpers';

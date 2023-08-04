@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { GridDef } from 'src/layout/Grid/config.generated';
+import { GridDef } from 'src/layout/Grid/config.def.generated';
 import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';

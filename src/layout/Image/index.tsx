@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ImageDef } from 'src/layout/Image/config.generated';
+import { ImageDef } from 'src/layout/Image/config.def.generated';
 import { ImageComponent } from 'src/layout/Image/ImageComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 

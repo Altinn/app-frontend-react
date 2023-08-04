@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
-import { AddressDef } from 'src/layout/Address/config.generated';
+import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';

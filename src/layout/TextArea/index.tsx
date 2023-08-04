@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { TextAreaDef } from 'src/layout/TextArea/config.generated';
+import { TextAreaDef } from 'src/layout/TextArea/config.def.generated';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';

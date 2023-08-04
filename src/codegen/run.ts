@@ -64,16 +64,20 @@ async function getComponentList() {
 
   const schemaDefs = generateCommonSchema();
   for (const key of sortedKeys) {
-    const tsPath = `src/layout/${key}/config.generated.ts`;
+    const tsPathConfig = `src/layout/${key}/config.generated.ts`;
+    const tsPathDef = `src/layout/${key}/config.def.generated.ts`;
 
     let config = null as unknown as ComponentConfig;
-    const content = await CodeGeneratorContext.generateFile(tsPath, () => {
+    const content = await CodeGeneratorContext.generateFile(tsPathConfig, () => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       config = require(`src/layout/${key}/config`).Config;
       config.setType(componentList[key], key);
-      return config.toTypeScript();
+      return config.generateConfigFile();
     });
-    promises.push(saveTsFile(tsPath, content));
+    const defClass = await CodeGeneratorContext.generateFile(tsPathDef, () => config.generateDefClass());
+
+    promises.push(saveTsFile(tsPathConfig, content));
+    promises.push(saveTsFile(tsPathDef, defClass));
 
     if (config) {
       schemaDefs[`Comp${key}`] = config.toJsonSchema();

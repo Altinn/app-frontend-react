@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
-import { FileUploadDef } from 'src/layout/FileUpload/config.generated';
+import { FileUploadDef } from 'src/layout/FileUpload/config.def.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { getUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
 import { attachmentsValid } from 'src/utils/validation/validation';

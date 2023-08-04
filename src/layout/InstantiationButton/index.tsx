@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { InstantiationButtonDef } from 'src/layout/InstantiationButton/config.generated';
+import { InstantiationButtonDef } from 'src/layout/InstantiationButton/config.def.generated';
 import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 

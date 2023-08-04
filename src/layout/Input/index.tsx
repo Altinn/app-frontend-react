@@ -3,7 +3,7 @@ import React from 'react';
 import { formatNumericText } from '@digdir/design-system-react';
 
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
-import { InputDef } from 'src/layout/Input/config.generated';
+import { InputDef } from 'src/layout/Input/config.def.generated';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import type { PropsFromGenericComponent } from 'src/layout';

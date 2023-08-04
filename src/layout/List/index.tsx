@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ListDef } from 'src/layout/List/config.generated';
+import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldName } from 'src/utils/formComponentUtils';
