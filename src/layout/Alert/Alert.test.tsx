@@ -4,8 +4,7 @@ import { screen } from '@testing-library/react';
 
 import { Alert } from 'src/layout/Alert/Alert';
 import { renderGenericComponentTest } from 'src/testUtils';
-import type { ExprResolved } from 'src/features/expressions/types';
-import type { ILayoutCompAlert } from 'src/layout/Alert/types';
+import type { CompAlertInternal } from 'src/layout/Alert/config.generated';
 
 describe('Alert', () => {
   it('should display title', () => {
@@ -39,7 +38,7 @@ const render = ({
   hidden,
   title,
   description,
-}: Partial<ExprResolved<ILayoutCompAlert>> & { title?: string; description?: string } = {}) =>
+}: Partial<CompAlertInternal> & { title?: string; description?: string } = {}) =>
   renderGenericComponentTest<'Alert'>({
     type: 'Alert',
     renderer: (props) => <Alert {...props} />,

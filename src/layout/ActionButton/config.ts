@@ -31,6 +31,7 @@ export const Config = new CG.component({
       'buttonStyle',
       new CG.enum('primary', 'secondary')
         .setTitle('Button style')
-        .setDescription('The style/color scheme of the button.'),
+        .setDescription('The style/color scheme of the button.')
+        .exportAs('ActionButtonStyle'),
     ),
   );

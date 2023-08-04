@@ -115,18 +115,6 @@ export type ILayoutComponentOrGroup = ILayoutGroup | ILayoutComponent;
 
 export type ComponentRendersLabel<T extends ComponentTypes> = (typeof ComponentConfigs)[T]['rendersWithLabel'];
 
-export interface IDataModelBindingsSimple {
-  simpleBinding?: string;
-}
-
-/**
- * A middle ground between group and simple bindings, a list binding can be used to
- * store a list of primitive values, like string[].
- */
-export interface IDataModelBindingsList {
-  list?: string;
-}
-
 type InnerDMB<T extends ComponentTypes> = ComponentTypeConfigs[T]['nodeItem']['dataModelBindings'];
 
 /**
