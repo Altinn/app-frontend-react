@@ -51,7 +51,7 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[defaultSelectedOption]);
 
-  if (instanceSelectionOptions?.sortDirection === 'desc' || !instanceSelectionOptions?.sortDirection) {
+  if (instanceSelectionOptions?.sortDirection !== 'asc') {
     instances = instances.slice().reverse();
   }
   const paginatedInstances = instances.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
