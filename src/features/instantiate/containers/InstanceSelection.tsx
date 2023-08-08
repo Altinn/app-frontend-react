@@ -49,9 +49,9 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
 
   const doesIndexExist = (selectedIndex: number) =>
-    rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0 ? selectedIndex : 0;
+    rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
 
-  const defaultSelectedOption = selectedIndex ? doesIndexExist(selectedIndex) : 0;
+  const defaultSelectedOption = selectedIndex && doesIndexExist(selectedIndex) ? selectedIndex : 0;
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[defaultSelectedOption]);
 
