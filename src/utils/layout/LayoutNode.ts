@@ -6,7 +6,7 @@ import { runValidationOnNodes } from 'src/utils/validation/validation';
 import type { ComponentClassMap } from 'src/layout';
 import type { ComponentCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { ComponentExceptGroup, ComponentTypes, IDataModelBindings } from 'src/layout/layout';
+import type { ComponentExceptGroup, ComponentTypes } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type {
   AnyItem,
@@ -136,8 +136,8 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
   public flat(includeGroups: true, onlyInRowIndex?: number): LayoutNode[];
   public flat(includeGroups: false, onlyInRowIndex?: number): LayoutNode<ComponentExceptGroup>[];
   public flat(includeGroups: boolean, onlyInRowIndex?: number): LayoutNode[] {
-    const out: LayoutNode[] = [];
-    const recurse = (item: LayoutNode, rowIndex?: number) => {
+    const out: BaseLayoutNode[] = [];
+    const recurse = (item: BaseLayoutNode, rowIndex?: number) => {
       if (includeGroups || item.item.type !== 'Group') {
         out.push(item);
       }
@@ -147,7 +147,7 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
     };
 
     recurse(this, onlyInRowIndex);
-    return out;
+    return out as LayoutNode[];
   }
 
   /**
@@ -267,7 +267,7 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
   /**
    * Returns all the current validations for this node. There will be different validations per binding.
    */
-  public getValidations(binding: keyof IDataModelBindings | string): IComponentBindingValidation;
+  public getValidations(binding: string): IComponentBindingValidation;
   public getValidations(binding?: undefined): IComponentValidations;
   public getValidations(binding?: string): IComponentBindingValidation | IComponentValidations {
     const pageKey = this.pageKey();
@@ -390,7 +390,7 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
    * Runs frontend validations for this node and returns an array of IValidationObject
    */
   runValidations(validationContext: IValidationContext, options?: IValidationOptions): IValidationObject[] {
-    return runValidationOnNodes([this], validationContext, options);
+    return runValidationOnNodes([this as LayoutNode], validationContext, options);
   }
 }
 

@@ -136,20 +136,21 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
             }
           });
           groupElementChildGroups.forEach((childGroupId: string) => {
-            const childGroup = groups.find((element) => element.id === childGroupId);
+            const childGroup = groups.find((element) => element.id === childGroupId) as CompGroupExternal;
             [...Array(index + 1)].forEach((_x: any, childGroupIndex: number) => {
               const groupId = `${childGroup?.id}-${childGroupIndex}`;
               repeatingGroups[groupId] = {
                 index: getIndexForNestedRepeatingGroup(
                   formData,
-                  childGroup?.dataModelBindings?.group,
+                  childGroup && 'dataModelBindings' in childGroup ? childGroup?.dataModelBindings?.group : undefined,
                   groupElement?.dataModelBindings?.group,
                   childGroupIndex,
                 ),
                 baseGroupId: childGroup?.id,
                 editIndex: -1,
                 multiPageIndex: -1,
-                dataModelBinding: childGroup?.dataModelBindings?.group,
+                dataModelBinding:
+                  childGroup && 'dataModelBindings' in childGroup ? childGroup?.dataModelBindings?.group : undefined,
               };
             });
           });
@@ -316,7 +317,7 @@ export function findChildren(
     for (const item of layout) {
       if (item.type === 'Group' && item.children) {
         for (const childId of item.children) {
-          const cleanId = item.edit?.multiPage ? childId.split(':')[1] : childId;
+          const cleanId = groupIsRepeatingExt(item) && item.edit?.multiPage ? childId.split(':')[1] : childId;
           if (item.id === root) {
             toConsider.add(cleanId);
           } else {
@@ -361,7 +362,7 @@ export function findChildren(
 export function topLevelComponents(layout: ILayout) {
   const inGroup = new Set<string>();
   layout.forEach((component) => {
-    if (component.type === 'Group') {
+    if (component.type === 'Group' && groupIsRepeatingExt(component)) {
       const childList = component.edit?.multiPage
         ? component.children.map((childId) => childId.split(':')[1] || childId)
         : component.children;

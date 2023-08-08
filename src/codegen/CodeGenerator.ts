@@ -166,7 +166,7 @@ export abstract class MaybeOptionalCodeGenerator<T> extends MaybeSymbolizedCodeG
   }
 
   containsVariationDifferences(): boolean {
-    const optionalIn = this.internal.optional && this.internal.optional.onlyIn;
+    const optionalIn = this.internal.optional !== false ? this.internal.optional.onlyIn : undefined;
     return super.containsVariationDifferences() || optionalIn !== undefined;
   }
 }

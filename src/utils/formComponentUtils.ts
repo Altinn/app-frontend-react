@@ -4,7 +4,12 @@ import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import type { IAttachment } from 'src/features/attachments';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { IGridStyling, IPageBreakInternal, ITableColumnFormatting } from 'src/layout/common.generated';
+import type {
+  IGridStyling,
+  IPageBreakInternal,
+  ITableColumnFormatting,
+  ITableColumnProperties,
+} from 'src/layout/common.generated';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IComponentValidations } from 'src/utils/validation/types';

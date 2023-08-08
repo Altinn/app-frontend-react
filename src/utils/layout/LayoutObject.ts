@@ -11,7 +11,7 @@ export interface LayoutObject<Item extends AnyItem = AnyItem, Child extends Layo
    * Looks for a matching component upwards in the hierarchy, returning the first one (or undefined if
    * none can be found)
    */
-  closest(matching: (item: Item) => boolean): Child | undefined;
+  closest(matching: (item: Item) => boolean): this | Child | undefined;
 
   /**
    * Returns a list of direct children, or finds the first node matching a given criteria

@@ -9,6 +9,7 @@ import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { renderWithProviders } from 'src/testUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
+import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompExternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidations } from 'src/utils/validation/types';
@@ -94,7 +95,7 @@ describe('SummaryComponent', () => {
       otherLayout.layouts && pageId && otherLayout.layouts[pageId] && otherLayout.layouts[pageId][0];
 
     if (firstComponent) {
-      firstComponent.textResourceBindings = {
+      (firstComponent as CompInputExternal).textResourceBindings = {
         title: 'default title',
       };
     }

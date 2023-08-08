@@ -1,5 +1,3 @@
-import type { UnionToIntersection } from 'utility-types';
-
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 
@@ -45,25 +43,16 @@ export type CompOrGroupExternal = CompGroupExternal | CompExternal;
 
 export type ComponentRendersLabel<T extends ComponentTypes> = (typeof ComponentConfigs)[T]['rendersWithLabel'];
 
-type InnerDMB<T extends ComponentTypes> = ComponentTypeConfigs[T]['nodeItem']['dataModelBindings'];
-
 /**
  * This is the type you should use when referencing a specific component type, and will give
  * you the correct data model bindings for that component.
  */
 export type IDataModelBindings<T extends ComponentTypes = ComponentTypes> =
-  | UnionToIntersection<Exclude<InnerDMB<T>, undefined>>
+  | ComponentTypeConfigs[T]['nodeItem']['dataModelBindings']
   | undefined;
 
-type InnerTRB<T extends ComponentTypes> = Exclude<
-  ComponentTypeConfigs[T]['nodeItem']['textResourceBindings'],
-  undefined
->;
-
-type TRBAsMap<T extends ComponentTypes> = keyof InnerTRB<T> extends never ? undefined : Exclude<InnerTRB<T>, undefined>;
-
 export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
-  | UnionToIntersection<TRBAsMap<T, string>>
+  | ComponentTypeConfigs[T]['nodeItem']['textResourceBindings']
   | undefined;
 
 export type ILayout = CompOrGroupExternal[];

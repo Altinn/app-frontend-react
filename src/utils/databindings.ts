@@ -3,9 +3,10 @@ import { dot, object } from 'dot-object';
 import { getParentGroup } from 'src/utils/validation/validation';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
+import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { CompFileUploadExternal } from 'src/layout/FileUpload/config.generated';
 import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
-import type { IDataModelBindings, ILayout } from 'src/layout/layout';
+import type { CompExternal, CompOrGroupExternal, IDataModelBindings, ILayout } from 'src/layout/layout';
 import type { IMapping, IRepeatingGroup, IRepeatingGroups } from 'src/types';
 
 /**
@@ -198,7 +199,7 @@ export function getGroupDataModelBinding(repeatingGroup: IRepeatingGroup, groupI
   if (parentGroup) {
     const splitId = groupId.split('-');
     const parentIndex = Number.parseInt(splitId[splitId.length - 1], 10);
-    const parentDataBinding = parentGroup.dataModelBindings?.group;
+    const parentDataBinding = 'dataModelBindings' in parentGroup ? parentGroup.dataModelBindings?.group : undefined;
     const indexedParentDataBinding = `${parentDataBinding}[${parentIndex}]`;
     if (repeatingGroup.dataModelBinding && parentDataBinding) {
       return repeatingGroup.dataModelBinding.replace(parentDataBinding, indexedParentDataBinding);
@@ -230,6 +231,30 @@ export function removeGroupData(
   return result;
 }
 
+function hasBindings(component: CompOrGroupExternal): component is Extract<CompExternal, { dataModelBindings: any }> {
+  return 'dataModelBindings' in component;
+}
+
+function hasSimpleBinding(binding: IDataModelBindings | undefined): binding is IDataModelBindingsSimple {
+  return binding && 'simpleBinding' in binding && typeof binding.simpleBinding === 'string';
+}
+
+function hasListBinding(binding: IDataModelBindings | undefined): binding is IDataModelBindingsList {
+  return binding && 'list' in binding && typeof binding.list === 'string';
+}
+
+function compHasSimpleBinding(
+  component: CompOrGroupExternal,
+): component is CompOrGroupExternal & { dataModelBindings: IDataModelBindingsSimple } {
+  return hasBindings(component) && hasSimpleBinding(component.dataModelBindings);
+}
+
+function compHasListBinding(
+  component: CompOrGroupExternal,
+): component is CompOrGroupExternal & { dataModelBindings: IDataModelBindingsList } {
+  return hasBindings(component) && hasListBinding(component.dataModelBindings);
+}
+
 export function removeAttachmentReference(
   formData: IFormData,
   attachmentId: string,
@@ -237,15 +262,15 @@ export function removeAttachmentReference(
   dataModelBindings: IDataModelBindings<'FileUpload' | 'FileUploadWithTag'>,
   componentId: string,
 ): IFormData {
-  if (!dataModelBindings || (!dataModelBindings.simpleBinding && !dataModelBindings.list)) {
+  if (!hasSimpleBinding(dataModelBindings) && !hasListBinding(dataModelBindings)) {
     return formData;
   }
 
   const result = { ...formData };
 
-  if (dataModelBindings.simpleBinding && typeof result[dataModelBindings.simpleBinding] === 'string') {
+  if (hasSimpleBinding(dataModelBindings) && typeof result[dataModelBindings.simpleBinding] === 'string') {
     delete result[dataModelBindings.simpleBinding];
-  } else if (dataModelBindings.list) {
+  } else if (hasListBinding(dataModelBindings)) {
     let index = -1;
     const dataModelWithoutIndex = getKeyWithoutIndex(dataModelBindings.list);
     for (const key in result) {
@@ -329,12 +354,14 @@ export function findChildAttachments(
   for (const key of formDataKeys) {
     const dataBinding = getKeyWithoutIndex(key);
     const component = components.find(
-      (c) => c.dataModelBindings?.simpleBinding === dataBinding || c.dataModelBindings?.list === dataBinding,
+      (c) =>
+        (compHasSimpleBinding(c) && c.dataModelBindings?.simpleBinding === dataBinding) ||
+        (compHasListBinding(c) && c.dataModelBindings?.list === dataBinding),
     ) as unknown as CompFileUploadExternal | CompFileUploadWithTagExternal;
 
     if (component) {
       const groupKeys = getKeyIndex(key);
-      if (component.dataModelBindings && 'list' in component.dataModelBindings) {
+      if (compHasListBinding(component)) {
         groupKeys.pop();
       }
 

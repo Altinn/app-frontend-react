@@ -23,9 +23,12 @@ describe('Hierarchical layout tools', () => {
   const input: Omit<CompInputExternal, 'id'> = {
     type: 'Input',
     hidden: ['equals', ['dataModel', 'Model.ShouldBeTrue'], 'true'],
+    dataModelBindings: {
+      simpleBinding: 'MyModel.Input',
+    },
   };
   const group: Omit<CompGroupNonRepeatingExternal, 'id' | 'children'> = { type: 'Group' };
-  const repGroup: Omit<CompGroupRepeatingExternal, 'id' | 'children'> = {
+  const repGroup: Omit<CompGroupRepeatingExternal, 'id' | 'children' | 'dataModelBindings'> = {
     type: 'Group',
     maxCount: 3,
     hidden: ['equals', ['dataModel', 'Model.ShouldBeFalse'], 'false'],
@@ -190,8 +193,8 @@ describe('Hierarchical layout tools', () => {
   describe('generateHierarchy', () => {
     it('should resolve a very simple layout', () => {
       const root = new LayoutPage();
-      const top1 = new BaseLayoutNode(components.top1 as AnyItem, root, root, dataSources);
-      const top2 = new BaseLayoutNode(components.top2 as AnyItem, root, root, dataSources);
+      const top1 = new BaseLayoutNode(components.top1 as AnyItem, root, root, dataSources) as LayoutNode;
+      const top2 = new BaseLayoutNode(components.top2 as AnyItem, root, root, dataSources) as LayoutNode;
       root._addChild(top1);
       root._addChild(top2);
 
@@ -449,10 +452,7 @@ describe('Hierarchical layout tools', () => {
   describe('LayoutPages', () => {
     const layout1: ILayout = [components.top1, components.top2];
 
-    const layout2: ILayout = [
-      { ...components.top1, readOnly: true },
-      { ...components.top2, readOnly: true },
-    ];
+    const layout2: ILayout = [{ ...components.top1 }, { ...components.top2, readOnly: true }];
 
     const layouts = {
       l1: generateHierarchy(layout1, {}, dataSources, getLayoutComponentObject),
@@ -464,7 +464,9 @@ describe('Hierarchical layout tools', () => {
 
     it('should find the component in the current layout first', () => {
       expect(collection1?.findById(components.top1.id)?.item.readOnly).toBeUndefined();
-      expect(collection2?.findById(components.top1.id)?.item.readOnly).toEqual(true);
+      expect(collection1?.findById(components.top2.id)?.item.readOnly).toBeUndefined();
+      expect(collection2?.findById(components.top1.id)?.item.readOnly).toBeUndefined();
+      expect(collection2?.findById(components.top2.id)?.item.readOnly).toEqual(true);
     });
 
     it('should find the current layout', () => {
