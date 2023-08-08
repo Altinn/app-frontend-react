@@ -28,8 +28,4 @@ export class GenerateEnum<T extends string | number> extends DescribableCodeGene
     // PRIORITY: Support 'real' typescript enums
     return symbol ? `type ${symbol} = ${out};` : out;
   }
-
-  containsVariationDifferences(): boolean {
-    return this.internal.source?.containsVariationDifferences() || false;
-  }
 }

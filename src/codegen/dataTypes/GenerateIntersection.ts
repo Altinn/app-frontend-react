@@ -12,7 +12,7 @@ export class GenerateIntersection<U extends CodeGenerator<any>[]> extends Descri
   }
 
   containsVariationDifferences(): boolean {
-    if (this.internal.source?.containsVariationDifferences()) {
+    if (super.containsVariationDifferences()) {
       return true;
     }
 

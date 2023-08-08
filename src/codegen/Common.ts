@@ -19,7 +19,7 @@ const common = {
       new CG.prop(
         'breakBefore',
         new CG.expr(ExprVal.String)
-          .optional('auto')
+          .optional({ default: 'auto' })
           .setTitle('Page break before')
           .setDescription(
             'PDF only: Value or expression indicating whether a page break should be added before the component. ' +
@@ -30,7 +30,7 @@ const common = {
       new CG.prop(
         'breakAfter',
         new CG.expr(ExprVal.String)
-          .optional('auto')
+          .optional({ default: 'auto' })
           .setTitle('Page break after')
           .setDescription(
             'PDF only: Value or expression indicating whether a page break should be added after the component. ' +
@@ -49,11 +49,11 @@ const common = {
   IGridSize: () => new CG.union(new CG.const('auto'), new CG.enum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)),
   IGridStyling: () =>
     new CG.obj(
-      new CG.prop('xs', CG.common('IGridSize').optional('auto')),
-      new CG.prop('sm', CG.common('IGridSize').optional('auto')),
-      new CG.prop('md', CG.common('IGridSize').optional('auto')),
-      new CG.prop('lg', CG.common('IGridSize').optional('auto')),
-      new CG.prop('xl', CG.common('IGridSize').optional('auto')),
+      new CG.prop('xs', CG.common('IGridSize').optional({ default: 'auto' })),
+      new CG.prop('sm', CG.common('IGridSize').optional({ default: 'auto' })),
+      new CG.prop('md', CG.common('IGridSize').optional({ default: 'auto' })),
+      new CG.prop('lg', CG.common('IGridSize').optional({ default: 'auto' })),
+      new CG.prop('xl', CG.common('IGridSize').optional({ default: 'auto' })),
     ),
   IGrid: () =>
     new CG.obj(
@@ -91,7 +91,7 @@ const common = {
       ),
       new CG.prop(
         'showIcon',
-        new CG.bool().optional(true).setTitle('Show icon').setDescription('Show icon in the panel header'),
+        new CG.bool().optional({ default: true }).setTitle('Show icon').setDescription('Show icon in the panel header'),
       ),
     ),
 
@@ -233,7 +233,7 @@ const common = {
       new CG.prop(
         'secure',
         new CG.bool()
-          .optional(false)
+          .optional({ default: false })
           .setTitle('Secure options (when using optionsId)')
           .setDescription(
             'Whether to call the secure API endpoint when fetching options from the ' +
@@ -262,14 +262,14 @@ const common = {
       new CG.prop(
         'lineWrap',
         new CG.bool()
-          .optional(true)
+          .optional({ default: true })
           .setTitle('Line Wrap')
           .setDescription('Toggle line wrapping on or off. Defaults to true'),
       ),
       new CG.prop(
         'maxHeight',
         new CG.num()
-          .optional(2)
+          .optional({ default: 2 })
           .setTitle('Max Height')
           .setDescription(
             'Determines the number of lines to display in table cell before hiding the rest of the ' +
@@ -283,7 +283,7 @@ const common = {
       new CG.prop(
         'width',
         new CG.str()
-          .optional('auto')
+          .optional({ default: 'auto' })
           .setTitle('Width')
           .setDescription("Width of cell in % or 'auto'. Defaults to 'auto'")
           .setPattern(/^([0-9]{1,2}%|100%|auto)$/),
@@ -317,7 +317,7 @@ const common = {
       new CG.prop(
         'hidden',
         new CG.expr(ExprVal.Boolean)
-          .optional(false)
+          .optional({ default: false })
           .setTitle('Hidden')
           .setDescription(
             'Boolean value or expression indicating if the component should be hidden. Defaults to false.',
@@ -345,7 +345,7 @@ const common = {
       new CG.prop(
         'readOnly',
         new CG.expr(ExprVal.Boolean)
-          .optional(false)
+          .optional({ default: false })
           .setTitle('Read only/disabled?')
           .setDescription(
             'Boolean value or expression indicating if the component should be read only/disabled. Defaults to false.',
@@ -354,7 +354,7 @@ const common = {
       new CG.prop(
         'required',
         new CG.expr(ExprVal.Boolean)
-          .optional(false)
+          .optional({ default: false })
           .setTitle('Required?')
           .setDescription(
             'Boolean value or expression indicating if the component should be required. Defaults to false.',
@@ -367,7 +367,7 @@ const common = {
       new CG.prop(
         'renderAsSummary',
         new CG.expr(ExprVal.Boolean)
-          .optional(false)
+          .optional({ default: false })
           .setTitle('Render as summary')
           .setDescription(
             'Boolean value or expression indicating if the component should be rendered as a summary. Defaults to false.',
@@ -391,8 +391,8 @@ const common = {
     ),
   GridRow: () =>
     new CG.obj(
-      new CG.prop('header', new CG.bool().optional(false).setTitle('Is header row?')),
-      new CG.prop('readOnly', new CG.bool().optional(false).setTitle('Is row read-only?')),
+      new CG.prop('header', new CG.bool().optional({ default: false }).setTitle('Is header row?')),
+      new CG.prop('readOnly', new CG.bool().optional({ default: false }).setTitle('Is row read-only?')),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
       new CG.prop(
         'cells',
@@ -427,7 +427,7 @@ const common = {
 
   SaveWhileTyping: () =>
     new CG.union(new CG.bool(), new CG.num())
-      .optional(true)
+      .optional({ default: true })
       .setTitle('Automatic saving while typing')
       .setDescription(
         'Boolean or number. True = feature on (default), false = feature off (saves on focus blur), number = timeout in milliseconds (400 by default)',

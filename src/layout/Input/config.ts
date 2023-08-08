@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -11,8 +11,8 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .addDataModelBinding('simple')
-  .addProperty(new CG.prop('saveWhileTyping', CG.common('SaveWhileTyping').optional(true)))
+  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional({ onlyIn: Variant.Internal }))
+  .addProperty(new CG.prop('saveWhileTyping', CG.common('SaveWhileTyping').optional({ default: true })))
   .addProperty(
     new CG.prop(
       'formatting',
@@ -88,7 +88,7 @@ export const Config = new CG.component({
               'These options are sent directly to react-number-format in order to make it possible to format pretty numbers in the input field.',
             ),
         ),
-        new CG.prop('align', new CG.enum('right', 'center', 'left').optional('left')),
+        new CG.prop('align', new CG.enum('right', 'center', 'left').optional({ default: 'left' })),
       )
         .optional()
         .exportAs('IInputFormatting')
@@ -109,7 +109,7 @@ export const Config = new CG.component({
     new CG.prop(
       'variant',
       new CG.enum('text', 'search')
-        .optional('text')
+        .optional({ default: 'text' })
         .setTitle('Input variant')
         .setDescription('The variant of the input field (text or search).'),
     ),

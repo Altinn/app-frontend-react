@@ -27,7 +27,7 @@ export const Config = new CG.component({
         new CG.prop(
           'allowPopups',
           new CG.bool()
-            .optional(false)
+            .optional({ default: false })
             .setTitle('Allow popups')
             .setDescription(
               'Sets "allow-popups" in the sandbox attribute on the iframe. ' +
@@ -37,7 +37,7 @@ export const Config = new CG.component({
         new CG.prop(
           'allowPopupsToEscapeSandbox',
           new CG.bool()
-            .optional(false)
+            .optional({ default: false })
             .setTitle('Allow popups to escape sandbox')
             .setDescription(
               'Sets "allow-popups-to-escape-sandbox" in the sandbox attribute on the iframe. ' +

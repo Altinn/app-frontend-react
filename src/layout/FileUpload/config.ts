@@ -18,8 +18,8 @@ export const Config = asUploaderComponent(
 
 export function asUploaderComponent(config: ComponentConfig) {
   return config
-    .addDataModelBinding('simple')
-    .addDataModelBinding('list')
+    .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional())
+    .addDataModelBinding(CG.common('IDataModelBindingsList').optional())
     .addProperty(
       new CG.prop(
         'maxFileSizeInMB',
@@ -47,7 +47,7 @@ export function asUploaderComponent(config: ComponentConfig) {
       new CG.prop(
         'hasCustomFileEndings',
         new CG.bool()
-          .optional(false)
+          .optional({ default: false })
           .setTitle('Has custom file endings')
           .setDescription('Boolean value indicating if the component has valid file endings'),
       ),
@@ -66,7 +66,7 @@ export function asUploaderComponent(config: ComponentConfig) {
       new CG.prop(
         'alertOnDelete',
         new CG.expr(ExprVal.Boolean)
-          .optional(false)
+          .optional({ default: false })
           .setTitle('Alert on delete')
           .setDescription(
             'Boolean value indicating if warning popup should be displayed when attempting to delete an element',

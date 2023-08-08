@@ -29,8 +29,4 @@ export class GenerateConst<Val extends string | boolean | number | null> extends
       const: this.value,
     };
   }
-
-  containsVariationDifferences(): boolean {
-    return this.internal.source?.containsVariationDifferences() || false;
-  }
 }

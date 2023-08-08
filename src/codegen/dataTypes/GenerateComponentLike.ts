@@ -1,7 +1,7 @@
 import { CG } from 'src/codegen/CG';
-import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
+import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 
@@ -55,31 +55,19 @@ export class GenerateComponentLike {
 
   /**
    * Adding multiple data model bindings to the component makes it a union
-   * PRIORITY: Support required and optional bindings
    */
-  public addDataModelBinding(type: 'simple' | 'list' | GenerateObject<any>): this {
-    const mapping = {
-      simple: CG.common(`IDataModelBindingsSimple`),
-      list: CG.common(`IDataModelBindingsList`),
-    };
-    const targetType = typeof type === 'string' ? mapping[type] : type;
-
+  public addDataModelBinding(
+    type: GenerateCommonImport<'IDataModelBindingsSimple' | 'IDataModelBindingsList'> | GenerateObject<any>,
+  ): this {
     const name = 'dataModelBindings';
-    const title = 'Data model bindings';
-    const description = 'Describes the location in the data model where the component should store its value(s)';
-
-    if (targetType instanceof GenerateObject) {
-      targetType.setTitle(title).setDescription(description).optional();
-    }
-
     const existing = this.inner.getProperty(name)?.type;
     if (existing && existing instanceof GenerateUnion) {
-      existing.addType(targetType);
+      existing.addType(type);
     } else if (existing) {
-      const union = new CG.union(existing, targetType).setTitle(title).setDescription(description).optional();
+      const union = new CG.union(existing, type);
       this.inner.addProperty(new CG.prop(name, union));
     } else {
-      this.inner.addProperty(new CG.prop(name, targetType));
+      this.inner.addProperty(new CG.prop(name, type));
     }
 
     return this;

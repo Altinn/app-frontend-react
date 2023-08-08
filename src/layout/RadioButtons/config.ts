@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -15,7 +15,7 @@ export const Config = new CG.component({
   // text resource bindings for rendering them on our own
   .addTextResourcesForLabel()
 
-  .addDataModelBinding('simple')
+  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional({ onlyIn: Variant.Internal }))
   .makeSelectionComponent()
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()))
   .addProperty(

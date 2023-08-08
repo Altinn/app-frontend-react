@@ -11,7 +11,7 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .addDataModelBinding('simple')
+  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional())
   .addProperty(
     new CG.prop(
       'layers',

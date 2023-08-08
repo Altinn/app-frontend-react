@@ -11,7 +11,7 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .addDataModelBinding(new CG.obj().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForList'))
+  .addDataModelBinding(new CG.obj().optional().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForList'))
   .addProperty(
     new CG.prop(
       'tableHeaders',
@@ -76,7 +76,7 @@ export const Config = new CG.component({
     new CG.prop(
       'secure',
       new CG.bool()
-        .optional(false)
+        .optional({ default: false })
         .setTitle('Secure')
         .setDescription('Boolean value indicating if the options should be instance aware. Defaults to false.'),
     ),

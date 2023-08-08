@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -11,5 +11,5 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .addDataModelBinding('list')
+  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional({ onlyIn: Variant.Internal }))
   .makeSelectionComponent();

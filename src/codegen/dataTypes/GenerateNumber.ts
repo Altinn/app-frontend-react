@@ -35,8 +35,4 @@ export class GenerateNumber extends DescribableCodeGenerator<number> {
       maximum: this.maximum,
     };
   }
-
-  containsVariationDifferences(): boolean {
-    return this.internal.source?.containsVariationDifferences() || false;
-  }
 }

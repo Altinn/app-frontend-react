@@ -39,8 +39,4 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
   toJsonSchema(): JSONSchema7 {
     throw new Error(`Cannot generate JsonSchema for imported '${this.val.import}'`);
   }
-
-  containsVariationDifferences(): boolean {
-    return this.internal.source?.containsVariationDifferences() || false;
-  }
 }

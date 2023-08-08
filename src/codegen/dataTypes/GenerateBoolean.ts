@@ -20,8 +20,4 @@ export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
       type: 'boolean',
     };
   }
-
-  containsVariationDifferences(): boolean {
-    return this.internal.source?.containsVariationDifferences() || false;
-  }
 }

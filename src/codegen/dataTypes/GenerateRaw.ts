@@ -17,10 +17,6 @@ export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
     super();
   }
 
-  containsVariationDifferences(): boolean {
-    return this.internal.source?.containsVariationDifferences() || false;
-  }
-
   toJsonSchema(): JSONSchema7 {
     if (!('jsonSchema' in this.raw)) {
       throw new Error('Raw type does not have a jsonSchema');

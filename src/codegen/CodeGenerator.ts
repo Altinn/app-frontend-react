@@ -17,12 +17,16 @@ export interface SymbolExt {
   exported: boolean;
 }
 
+export interface Optionality<T> {
+  default?: T;
+  onlyIn?: Variant;
+}
+
 export interface InternalConfig<T> {
   jsonSchema: JsonSchemaExt<T>;
   typeScript: TypeScriptExt;
   symbol?: SymbolExt;
-  optional: boolean;
-  default?: T;
+  optional: Optionality<T> | false;
   source?: CodeGenerator<any>;
 }
 
@@ -45,12 +49,15 @@ export abstract class CodeGenerator<T> {
       title: this.internal.jsonSchema.title,
       description: this.internal.jsonSchema.description,
       examples: this.internal.jsonSchema.examples.length ? (this.internal.jsonSchema.examples as any) : undefined,
-      default: this.internal.default as JSONSchema7Type,
+      default: this.internal.optional && (this.internal.optional.default as JSONSchema7Type),
     };
   }
 
   transformTo(variant: Variant): this | CodeGenerator<any> {
-    if (!this.currentVariant && this.containsVariationDifferences()) {
+    const isImplementedLocally =
+      this.containsVariationDifferences === CodeGenerator.prototype.containsVariationDifferences ||
+      this.containsVariationDifferences === MaybeOptionalCodeGenerator.prototype.containsVariationDifferences;
+    if (!this.currentVariant && this.containsVariationDifferences() && !isImplementedLocally) {
       throw new Error(
         'You need to implement transformTo for this code generator, as it contains variation differences',
       );
@@ -60,7 +67,10 @@ export abstract class CodeGenerator<T> {
     return this;
   }
 
-  abstract containsVariationDifferences(): boolean;
+  containsVariationDifferences(): boolean {
+    return this.internal.source?.containsVariationDifferences() || false;
+  }
+
   abstract toJsonSchema(): JSONSchema7;
   abstract toTypeScript(): string;
 }
@@ -143,10 +153,21 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
 }
 
 export abstract class MaybeOptionalCodeGenerator<T> extends MaybeSymbolizedCodeGenerator<T> {
-  optional(defaultValue?: T): this {
-    this.internal.optional = true;
-    this.internal.default = defaultValue;
+  optional(optionality?: Optionality<T>): this {
+    this.internal.optional = optionality || {};
     return this;
+  }
+
+  isOptional(): boolean {
+    const isOptional = this.internal.optional !== false;
+    const onlyIn = this.internal.optional && this.internal.optional.onlyIn;
+    const matchesCurrentVariant = !onlyIn || onlyIn === this.currentVariant;
+    return isOptional && matchesCurrentVariant;
+  }
+
+  containsVariationDifferences(): boolean {
+    const optionalIn = this.internal.optional && this.internal.optional.onlyIn;
+    return super.containsVariationDifferences() || optionalIn !== undefined;
   }
 }
 

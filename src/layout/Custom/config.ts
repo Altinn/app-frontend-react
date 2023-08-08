@@ -11,7 +11,9 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .addDataModelBinding(new CG.obj().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForCustom'))
+  .addDataModelBinding(
+    new CG.obj().optional().additionalProperties(new CG.str()).exportAs('IDataModelBindingsForCustom'),
+  )
   .addTextResource(
     new CG.trb({
       name: 'title',

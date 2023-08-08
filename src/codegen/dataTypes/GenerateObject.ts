@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CG, Variant } from 'src/codegen/CG';
-import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import { DescribableCodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { CodeGenerator, CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -127,10 +127,9 @@ export class GenerateObject<P extends Props>
   }
 
   containsVariationDifferences(): boolean {
-    if (this.internal.source?.containsVariationDifferences()) {
+    if (super.containsVariationDifferences()) {
       return true;
     }
-
     if (this.properties.some((prop) => prop.containsVariationDifferences())) {
       return true;
     }
@@ -184,7 +183,7 @@ export class GenerateObject<P extends Props>
         }),
       );
 
-      if (prop.type.internal.optional) {
+      if (prop.type instanceof MaybeOptionalCodeGenerator && prop.type.isOptional()) {
         adapted.optional();
       }
       adapted.currentVariant = this.currentVariant;
@@ -201,7 +200,7 @@ export class GenerateObject<P extends Props>
     const properties: string[] = this.getPropertiesAsExtensions().map((prop) => prop.toTypeScript());
 
     if (this._additionalProperties) {
-      if (this._additionalProperties.internal.optional) {
+      if (this._additionalProperties instanceof MaybeOptionalCodeGenerator && this._additionalProperties.isOptional()) {
         properties.push(`[key: string]: ${this._additionalProperties.toTypeScript()} | undefined;`);
       } else {
         properties.push(`[key: string]: ${this._additionalProperties.toTypeScript()};`);
@@ -239,7 +238,7 @@ export class GenerateObject<P extends Props>
       for (const e of this._extends) {
         for (const prop of e.getProperties()) {
           allProperties[prop.name] = true;
-          if (!prop.type.internal.optional) {
+          if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
             requiredProperties.push(prop.name);
           }
         }
@@ -250,7 +249,7 @@ export class GenerateObject<P extends Props>
           continue;
         }
         allProperties[prop.name] = true;
-        if (!prop.type.internal.optional) {
+        if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
           requiredProperties.push(prop.name);
         }
       }
@@ -291,7 +290,8 @@ export class GenerateObject<P extends Props>
     }
 
     const requiredProps = this.properties
-      .filter((prop) => !prop.type.internal.optional && prop.shouldExistIn(Variant.External))
+      .filter((prop) => !(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional())
+      .filter((prop) => prop.shouldExistIn(Variant.External))
       .map((prop) => prop.name);
 
     return {

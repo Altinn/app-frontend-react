@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -12,7 +12,7 @@ export const Config = new CG.component({
   },
 })
   .makeSelectionComponent()
-  .addDataModelBinding('simple')
+  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional({ onlyIn: Variant.Internal }))
 
   // We don't render the label in GenericComponent, but we still need the
   // text resource bindings for rendering them on our own

@@ -1,6 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { CodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { Variant } from 'src/codegen/CG';
 import type { Extract } from 'src/codegen/CodeGenerator';
 
@@ -67,7 +67,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
   }
 
   containsVariationDifferences(): boolean {
-    if (this.internal.source?.containsVariationDifferences()) {
+    if (super.containsVariationDifferences()) {
       return true;
     }
 
@@ -108,7 +108,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
       throw new Error('You need to transform this type to either external or internal before generating TypeScript');
     }
 
-    return this.type.internal.optional
+    return this.type instanceof MaybeOptionalCodeGenerator && this.type.isOptional()
       ? `${this.name}?: ${this.type.toTypeScript()};`
       : `${this.name}: ${this.type.toTypeScript()};`;
   }

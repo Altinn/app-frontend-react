@@ -91,7 +91,9 @@ export class ComponentConfig extends GenerateComponentLike {
     return super.addTextResourcesForLabel();
   }
 
-  addDataModelBinding(type: 'simple' | 'list' | GenerateObject<any>): this {
+  addDataModelBinding(
+    type: GenerateCommonImport<'IDataModelBindingsSimple' | 'IDataModelBindingsList'> | GenerateObject<any>,
+  ): this {
     this.ensureNotOverridden();
     return super.addDataModelBinding(type);
   }

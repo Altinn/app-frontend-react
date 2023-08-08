@@ -45,10 +45,6 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     };
   }
 
-  containsVariationDifferences(): boolean {
-    return this.internal.source?.containsVariationDifferences() || this.innerType.containsVariationDifferences();
-  }
-
   transformTo(variant: Variant): this | MaybeSymbolizedCodeGenerator<any> {
     if (this.currentVariant === variant) {
       return this;

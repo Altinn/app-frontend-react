@@ -29,8 +29,4 @@ export class GenerateString extends DescribableCodeGenerator<string> {
       pattern: this.pattern?.source,
     };
   }
-
-  containsVariationDifferences(): boolean {
-    return this.internal.source?.containsVariationDifferences() || false;
-  }
 }

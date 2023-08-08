@@ -47,7 +47,7 @@ const commonRepRowsProp = new CG.prop(
 const commonShowGroupingIndicatorProp = new CG.prop(
   'showGroupingIndicator',
   new CG.bool()
-    .optional(false)
+    .optional({ default: false })
     .setTitle('Show grouping indicator')
     .setDescription(
       'If set to true, non-repeating groups will show an indicator to the left of the entire group contents, ' +
@@ -64,7 +64,9 @@ const commonRepGroupDataModelBinding = new CG.obj(
         'Dot notation location for a repeating group structure (array of objects), where the data ' + 'is stored',
       ),
   ),
-).exportAs('IDataModelBindingsForGroup');
+)
+  .exportAs('IDataModelBindingsForGroup')
+  .optional({ onlyIn: Variant.Internal });
 
 Config.overrideExported(
   new CG.union(
@@ -139,7 +141,7 @@ function makeRepeatingGroup() {
           new CG.prop(
             'mode',
             new CG.enum('hideTable', 'showTable', 'showAll', 'onlyTable')
-              .optional('showTable')
+              .optional({ default: 'showTable' })
               .setTitle('Mode')
               .setDescription('The mode of the repeating group'),
           ),
@@ -158,35 +160,35 @@ function makeRepeatingGroup() {
           new CG.prop(
             'addButton',
             new CG.expr(ExprVal.Boolean)
-              .optional(true)
+              .optional({ default: true })
               .setTitle('Add button')
               .setDescription('Expression or boolean indicating whether to show the "Add" button'),
           ),
           new CG.prop(
             'saveButton',
             new CG.expr(ExprVal.Boolean)
-              .optional(true)
+              .optional({ default: true })
               .setTitle('Save button')
               .setDescription('Expression or boolean indicating whether to show the "Save" button'),
           ),
           new CG.prop(
             'deleteButton',
             new CG.expr(ExprVal.Boolean)
-              .optional(true)
+              .optional({ default: true })
               .setTitle('Delete button')
               .setDescription('Expression or boolean indicating whether to show the "Delete" button'),
           ),
           new CG.prop(
             'editButton',
             new CG.expr(ExprVal.Boolean)
-              .optional(true)
+              .optional({ default: true })
               .setTitle('Edit button')
               .setDescription('Expression or boolean indicating whether to show the "Edit" button'),
           ),
           new CG.prop(
             'multiPage',
             new CG.bool()
-              .optional(false)
+              .optional({ default: false })
               .setTitle('Multi page functionality')
               .setDescription(
                 'Turning this on makes it possible to display the edit mode for a repeating group with multiple ' +
@@ -197,7 +199,7 @@ function makeRepeatingGroup() {
           new CG.prop(
             'openByDefault',
             new CG.union(new CG.bool(), new CG.const('first'), new CG.const('last'))
-              .optional(false)
+              .optional({ default: false })
               .setTitle('Open by default')
               .setDescription(
                 'If set to true, a row of the repeating group will be opened by default, if the group has no ' +
@@ -207,7 +209,7 @@ function makeRepeatingGroup() {
           new CG.prop(
             'alertOnDelete',
             new CG.expr(ExprVal.Boolean)
-              .optional(false)
+              .optional({ default: false })
               .setTitle('Alert on delete')
               .setDescription(
                 'Expression or boolean indicating whether to show an alert when the user ' +
@@ -217,7 +219,7 @@ function makeRepeatingGroup() {
           new CG.prop(
             'saveAndNextButton',
             new CG.expr(ExprVal.Boolean)
-              .optional(false)
+              .optional({ default: false })
               .setTitle('Save and next button')
               .setDescription(
                 'Expression or boolean indicating whether to show the "Save and next" button when editing ' +
@@ -227,7 +229,7 @@ function makeRepeatingGroup() {
           new CG.prop(
             'alwaysShowAddButton',
             new CG.bool()
-              .optional(false)
+              .optional({ default: false })
               .setTitle('Always show add button')
               .setDescription(
                 'If set to true, the "Add" button will always be shown, even if the user is ' +
@@ -287,14 +289,14 @@ function makeRepeatingGroup() {
               new CG.prop(
                 'editInTable',
                 new CG.bool()
-                  .optional(false)
+                  .optional({ default: false })
                   .setTitle('Edit in table')
                   .setDescription('If set to true, the component will be editable directly in the table view. '),
               ),
               new CG.prop(
                 'showInExpandedEdit',
                 new CG.bool()
-                  .optional(true)
+                  .optional({ default: true })
                   .setTitle('Show in expanded edit')
                   .setDescription(
                     'If set to true, the component will be shown in the expanded edit view. This is also the default ' +
@@ -316,7 +318,7 @@ function makeRepeatingGroup() {
       new CG.prop(
         'hiddenRow',
         new CG.expr(ExprVal.Boolean)
-          .optional(false)
+          .optional({ default: false })
           .setTitle('Hidden row?')
           .setDescription(
             'Expression or boolean indicating whether each row should be hidden. An expression will be evaluated per ' +
@@ -350,7 +352,7 @@ function makeNonRepeatingGroup() {
       new CG.prop(
         'maxCount',
         new CG.int()
-          .optional(1)
+          .optional({ default: 1 })
           .setMax(1)
           .setTitle('Max number of rows')
           .setDescription(
@@ -390,7 +392,7 @@ function makeNonRepeatingPanelGroup() {
       new CG.prop(
         'maxCount',
         new CG.int()
-          .optional(1)
+          .optional({ default: 1 })
           .setMax(1)
           .setTitle('Max number of rows')
           .setDescription(
@@ -458,18 +460,7 @@ function makeRepeatingLikertGroup() {
         description: 'The description text for the Likert table (when edit.mode is "likert")',
       }),
     )
-    .addDataModelBinding(
-      new CG.obj(
-        new CG.prop(
-          'group',
-          new CG.str()
-            .setTitle('Group')
-            .setDescription(
-              'Dot notation location for a repeating group structure (array of objects), where the data ' + 'is stored',
-            ),
-        ),
-      ).exportAs('IDataModelBindingsForGroup'),
-    )
+    .addDataModelBinding(commonRepGroupDataModelBinding)
     .addProperty(
       new CG.prop(
         'edit',
@@ -498,7 +489,7 @@ function makeRepeatingLikertGroup() {
       new CG.prop(
         'maxCount',
         new CG.int()
-          .optional(1)
+          .optional({ default: 1 })
           .setMin(2)
           .setTitle('Max number of rows')
           .setDescription(

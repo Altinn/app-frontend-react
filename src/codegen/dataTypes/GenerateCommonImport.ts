@@ -103,7 +103,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
   }
 
   containsVariationDifferences(): boolean {
-    return commonContainsVariationDifferences(this.key);
+    return super.containsVariationDifferences() || commonContainsVariationDifferences(this.key);
   }
 
   getName(): string {

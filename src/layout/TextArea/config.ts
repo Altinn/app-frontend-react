@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -11,8 +11,8 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  .addDataModelBinding('simple')
-  .addProperty(new CG.prop('saveWhileTyping', CG.common('SaveWhileTyping').optional(true)))
+  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional({ onlyIn: Variant.Internal }))
+  .addProperty(new CG.prop('saveWhileTyping', CG.common('SaveWhileTyping').optional({ default: true })))
   .addProperty(new CG.prop('autocomplete', CG.common('HTMLAutoCompleteValues').optional()))
   .addProperty(
     new CG.prop(

@@ -1,6 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import { DescribableCodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { Variant } from 'src/codegen/CG';
 import type { CodeGenerator, Extract, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
@@ -20,7 +20,7 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
   }
 
   containsVariationDifferences(): boolean {
-    if (this.internal.source?.containsVariationDifferences()) {
+    if (super.containsVariationDifferences()) {
       return true;
     }
 
@@ -52,5 +52,11 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
       ...this.getInternalJsonSchema(),
       anyOf: this.types.map((type) => type.toJsonSchema()),
     };
+  }
+
+  isOptional(): boolean {
+    return (
+      super.isOptional() || this.types.some((type) => type instanceof MaybeOptionalCodeGenerator && type.isOptional())
+    );
   }
 }
