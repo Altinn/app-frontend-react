@@ -1,68 +1,10 @@
-import type { TextField } from '@digdir/design-system-react';
-import type { GridSize } from '@material-ui/core';
 import type { UnionToIntersection } from 'utility-types';
 
-import type { ExprVal } from 'src/features/expressions/types';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
-import type { ILabelSettings, IMapping, IOption, IOptionSource, Triggers } from 'src/types';
 
 export interface ILayouts {
   [id: string]: ILayout | undefined;
-}
-
-export interface ILayoutCompBase<Type extends ComponentTypes> {
-  id: string;
-  type: T;
-  dataModelBindings?: IDataModelBindings<Type>;
-  readOnly?: ExprVal.Boolean;
-  renderAsSummary?: ExprVal.Boolean;
-  required?: ExprVal.Boolean;
-  hidden?: ExprVal.Boolean;
-  textResourceBindings?: UnionToIntersection<TRBAsMap<Type, ExprVal.String>>;
-  grid?: IGrid;
-  triggers?: Triggers[];
-  labelSettings?: ILabelSettings;
-  pageBreak?: IPageBreak;
-}
-
-interface ISelectionComponent {
-  options?: IOption[];
-  optionsId?: string;
-  mapping?: IMapping;
-  secure?: boolean;
-  source?: IOptionSource;
-  preselectedOptionIndex?: number;
-}
-
-export type NumberFormatProps = Exclude<Parameters<typeof TextField>[0]['formatting'], undefined>['number'];
-
-/**
- * Number formatting options. Will be reduced to react-number-format options:
- * @see useMapToReactNumberConfig
- */
-export interface IInputFormatting {
-  // Newer Intl.NumberFormat options
-  currency?: string;
-  unit?: string;
-  position?: 'prefix' | 'suffix';
-
-  // Older options based on react-number-format
-  number?: NumberFormatProps;
-  align?: 'right' | 'center' | 'left';
-}
-
-export interface ITableColumnFormatting<T extends ITableColumnProperties = ITableColumnProperties> {
-  [key: string]: T;
-}
-
-export interface ITableColumnProperties {
-  width?: string;
-  alignText?: 'left' | 'center' | 'right';
-  textOverflow?: {
-    lineWrap?: boolean;
-    maxHeight?: number;
-  };
 }
 
 /**
@@ -125,21 +67,3 @@ export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
   | undefined;
 
 export type ILayout = CompOrGroupExternal[];
-
-export interface IGrid extends IGridStyling {
-  labelGrid?: IGridStyling;
-  innerGrid?: IGridStyling;
-}
-
-export interface IGridStyling {
-  xs?: GridSize;
-  sm?: GridSize;
-  md?: GridSize;
-  lg?: GridSize;
-  xl?: GridSize;
-}
-
-export interface IPageBreak {
-  breakBefore?: ExprVal.String; // 'auto' | 'always' | 'avoid'
-  breakAfter?: ExprVal.String; // 'auto' | 'always' | 'avoid'
-}

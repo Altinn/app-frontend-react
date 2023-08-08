@@ -1,7 +1,7 @@
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useOptionList } from 'src/hooks/useOptionList';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { ISelectionComponent } from 'src/layout/layout';
+import type { ISelectionComponent } from 'src/layout/common.generated';
 import type { IOption } from 'src/types';
 
 /**

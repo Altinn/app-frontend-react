@@ -3,8 +3,8 @@ import { dot, object } from 'dot-object';
 import { getParentGroup } from 'src/utils/validation/validation';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
-import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
+import type { CompFileUploadExternal } from 'src/layout/FileUpload/config.generated';
+import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { IDataModelBindings, ILayout } from 'src/layout/layout';
 import type { IMapping, IRepeatingGroup, IRepeatingGroups } from 'src/types';
 
@@ -304,7 +304,7 @@ export function deleteGroupData(
 
 interface FoundAttachment {
   attachment: IAttachment;
-  component: ILayoutCompFileUpload | ILayoutCompFileUploadWithTag;
+  component: CompFileUploadExternal | CompFileUploadWithTagExternal;
   componentId: string;
   index: number;
 }
@@ -330,7 +330,7 @@ export function findChildAttachments(
     const dataBinding = getKeyWithoutIndex(key);
     const component = components.find(
       (c) => c.dataModelBindings?.simpleBinding === dataBinding || c.dataModelBindings?.list === dataBinding,
-    ) as unknown as ILayoutCompFileUpload | ILayoutCompFileUploadWithTag;
+    ) as unknown as CompFileUploadExternal | CompFileUploadWithTagExternal;
 
     if (component) {
       const groupKeys = getKeyIndex(key);

@@ -1,6 +1,6 @@
 import { getFileEnding, removeFileEnding, shiftAttachmentRowInRepeatingGroup } from 'src/utils/attachment';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
-import type { ILayoutCompFileUpload } from 'src/layout/FileUpload/types';
+import type { CompFileUploadExternal } from 'src/layout/FileUpload/config.generated';
 import type { CompExternal } from 'src/layout/layout';
 
 describe('attachment utils', () => {
@@ -31,7 +31,7 @@ describe('attachment utils', () => {
     };
 
     const genericFileUploadProps: Pick<
-      ILayoutCompFileUpload,
+      CompFileUploadExternal,
       'maxFileSizeInMB' | 'maxNumberOfAttachments' | 'minNumberOfAttachments' | 'displayMode'
     > = {
       displayMode: 'simple',
