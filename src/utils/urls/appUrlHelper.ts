@@ -171,6 +171,7 @@ export const frontendVersionsCDN = `${appFrontendCDNPath}/index.json`;
 export interface IGetOptionsUrlParams {
   optionsId: string;
   dataMapping?: IMapping;
+  fixedQueryParameters?: Record<string, string>;
   formData?: IFormData;
   language?: string;
   secure?: boolean;
@@ -180,6 +181,7 @@ export interface IGetOptionsUrlParams {
 export const getOptionsUrl = ({
   optionsId,
   dataMapping,
+  fixedQueryParameters,
   formData,
   language,
   secure,
@@ -201,6 +203,7 @@ export const getOptionsUrl = ({
 
     params = {
       ...params,
+      ...fixedQueryParameters,
       ...mapped,
     };
   }

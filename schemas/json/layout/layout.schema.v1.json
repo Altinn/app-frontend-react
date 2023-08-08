@@ -295,6 +295,9 @@
         "mapping": {
           "$ref": "#/definitions/mapping",
           "description": "Optionally used to map options"
+        },
+        "queryParameters": {
+          "$ref": "#/definitions/queryParameters"
         }
       },
       "required": ["optionsId"]
@@ -387,6 +390,9 @@
         "mapping": {
           "$ref": "#/definitions/mapping",
           "description": "Creates a new app instance with data collected from a stateless part of the app."
+        },
+        "queryParameters": {
+          "$ref": "#/definitions/queryParameters"
         }
       }
     },
@@ -968,6 +974,9 @@
           "$ref": "#/definitions/mapping",
           "description": "Optionally used to map options"
         },
+        "queryParameters": {
+          "$ref": "#/definitions/queryParameters"
+        },
         "autocomplete": {
           "$ref": "#/definitions/autocomplete"
         }
@@ -1266,6 +1275,22 @@
         "type": "string"
       }
     },
+    "queryParameters": {
+      "type": "object",
+      "title": "Query parameters",
+      "description": "Fixed query parameters to add to the url.",
+      "patternProperties": {
+        "^.+$": {
+          "type": "string",
+          "title": "Query parameter value"
+        }
+      },
+      "examples": [
+        {
+          "level": "1"
+        }
+      ]
+    },
     "iframeComponent": {
       "type": "object",
       "properties": {
@@ -1347,6 +1372,9 @@
         "mapping": {
           "$ref": "#/definitions/mapping",
           "description": "(Optional) Used to map data model paths to query parameters when fetching list data."
+        },
+        "queryParameters": {
+          "$ref": "#/definitions/queryParameters"
         }
       },
       "required": [

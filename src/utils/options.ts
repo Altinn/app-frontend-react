@@ -11,12 +11,20 @@ import type { IOptionResources } from 'src/hooks/useGetOptions';
 import type { ILayout } from 'src/layout/layout';
 import type { IMapping, IOption, IOptions, IOptionsMetaData, IOptionSource, IRepeatingGroups } from 'src/types';
 import type { IDataSources } from 'src/types/shared';
-export function getOptionLookupKey({ id, mapping }: IOptionsMetaData) {
-  if (!mapping) {
+
+export function getOptionLookupKey({ id, mapping, fixedQueryParameters }: IOptionsMetaData) {
+  if (!mapping && !fixedQueryParameters) {
     return id;
   }
 
-  return JSON.stringify({ id, mapping });
+  const keyObject: any = { id };
+  if (mapping) {
+    keyObject.mapping = mapping;
+  }
+  if (fixedQueryParameters) {
+    keyObject.fixedQueryParameters = fixedQueryParameters;
+  }
+  return JSON.stringify(keyObject);
 }
 
 interface IGetOptionLookupKeysParam extends IOptionsMetaData {
