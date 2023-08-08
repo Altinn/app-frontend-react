@@ -48,10 +48,10 @@ export function InstanceSelection({ instances, onNewInstance }: IInstanceSelecti
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
 
-  const doesIndexExist = (selectedIndex: number) =>
-    rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
+  const doesIndexExist = (selectedIndex: number | undefined): selectedIndex is number =>
+    selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
 
-  const defaultSelectedOption = selectedIndex && doesIndexExist(selectedIndex) ? selectedIndex : 0;
+  const defaultSelectedOption = doesIndexExist(selectedIndex) ? selectedIndex : 0;
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[defaultSelectedOption]);
 
