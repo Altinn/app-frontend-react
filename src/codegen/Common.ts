@@ -161,7 +161,7 @@ const common = {
       new CG.prop('label', new CG.str()),
       new CG.prop('value', new CG.str()),
       new CG.prop('description', new CG.str().optional()),
-      new CG.prop('help', new CG.str().optional()),
+      new CG.prop('helpText', new CG.str().optional()),
     ).addExample({ label: '', value: '' }),
   IMapping: () =>
     new CG.obj()

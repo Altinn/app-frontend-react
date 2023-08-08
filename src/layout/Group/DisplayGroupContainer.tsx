@@ -9,12 +9,15 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import type { CompGroupNonRepeatingInternal } from 'src/layout/Group/config.generated';
+import type {
+  CompGroupNonRepeatingInternal,
+  CompGroupNonRepeatingPanelInternal,
+} from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayGroupContainer {
-  groupNode: LayoutNodeForGroup<CompGroupNonRepeatingInternal>;
+  groupNode: LayoutNodeForGroup<CompGroupNonRepeatingInternal | CompGroupNonRepeatingPanelInternal>;
   id?: string;
   onlyRowIndex?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;

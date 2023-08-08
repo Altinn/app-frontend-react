@@ -1,8 +1,13 @@
 import { GridHierarchyGenerator } from 'src/layout/Grid/hierarchy';
 import { nodesFromGridRow } from 'src/layout/Grid/tools';
+import {
+  groupIsNonRepeatingPanelExt,
+  groupIsRepeating,
+  groupIsRepeatingExt,
+} from 'src/layout/Group/LayoutNodeForGroup';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { HRepGroupRows } from 'src/layout/Group/config.generated';
+import type { CompGroupExternal, HRepGroupRows } from 'src/layout/Group/config.generated';
 import type { ITextResource } from 'src/types';
 import type {
   ChildFactory,
@@ -66,7 +71,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
 
   stage2(ctx: HierarchyContext): ChildFactory<'Group'> {
     const item = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
-    if (item.panel?.groupReference) {
+    if (groupIsNonRepeatingPanelExt(item) && item.panel?.groupReference) {
       return this.processPanelReference(ctx);
     }
 
@@ -128,7 +133,8 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
     return (props) => {
       delete (props.item as any)['children'];
       const me = ctx.generator.makeNode(props);
-      const groupId = props.item.panel?.groupReference?.group;
+      const item = props.item as CompGroupExternal;
+      const groupId = groupIsNonRepeatingPanelExt(item) && item.panel?.groupReference?.group;
       if (!groupId) {
         throw new Error(`Group ${props.item.id} is a panel reference but does not reference a group`);
       }
@@ -169,7 +175,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
 
       const childNodes: LayoutNode[] = [];
       for (const id of prototype.children) {
-        const [, childId] = me.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
+        const [, childId] = groupIsRepeating(me.item) && me.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
         const child = ctx.generator.newChild({
           ctx,
           parent: me,
@@ -195,17 +201,22 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       const prototype = ctx.generator.prototype(ctx.id) as UnprocessedItem<'Group'>;
 
       delete (props.item as any)['children'];
+      const item = props.item as CompGroupExternal;
       const me = ctx.generator.makeNode(props);
 
       const rows: HRepGroupRows = [];
       const lastIndex = (ctx.generator.repeatingGroups || {})[props.item.id]?.index;
-      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(lastIndex, props.item.edit);
+      const { startIndex, stopIndex } = getRepeatingGroupStartStopIndex(
+        lastIndex,
+        'edit' in props.item ? props.item.edit : {},
+      );
 
       for (let rowIndex = startIndex; rowIndex <= stopIndex; rowIndex++) {
         const rowChildren: LayoutNode[] = [];
 
         for (const id of prototype.children) {
-          const [multiPageIndex, childId] = props.item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
+          const [multiPageIndex, childId] =
+            groupIsRepeatingExt(item) && item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
           const child = ctx.generator.newChild({
             ctx,
             childId,
@@ -255,7 +266,10 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
         ref.nextChildren = nextChildren;
       }
 
-      for (const gridRows of [me.item.rowsBefore, me.item.rowsAfter]) {
+      for (const gridRows of [
+        'rowsBefore' in me.item ? me.item.rowsBefore : undefined,
+        'rowsAfter' in me.item ? me.item.rowsAfter : undefined,
+      ]) {
         if (gridRows) {
           this.innerGrid.stage2Rows(ctx, me, gridRows);
         }
@@ -281,9 +295,9 @@ const mutateComponentId: (rowIndex: number) => ChildMutator = (rowIndex) => (ite
   item.id += `-${rowIndex}`;
 };
 
-const mutateDataModelBindings: (props: ChildFactoryProps<'Group'>, rowIndex: number) => ChildMutator =
+const mutateDataModelBindings: (props: ChildFactoryProps<'Group'>, rowIndex: number) => ChildMutator<'Group'> =
   (props, rowIndex) => (item) => {
-    const groupBinding = props.item.dataModelBindings?.group;
+    const groupBinding = 'dataModelBindings' in props.item ? props.item.dataModelBindings?.group : undefined;
     const bindings = item.dataModelBindings || {};
     for (const key of Object.keys(bindings)) {
       if (groupBinding && bindings[key]) {

@@ -3,7 +3,14 @@ import type { JSONSchema7 } from 'json-schema';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import type { Variant } from 'src/codegen/CG';
-import type { CodeGenerator, Extract, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
+import type {
+  CodeGenerator,
+  CodeGenerator,
+  Extract,
+  Extract,
+  MaybeSymbolizedCodeGenerator,
+  MaybeSymbolizedCodeGenerator,
+} from 'src/codegen/CodeGenerator';
 
 /**
  * Generates an array with inner items of the given type
@@ -56,5 +63,9 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     out.currentVariant = variant;
 
     return out;
+  }
+
+  containsVariationDifferences(): boolean {
+    return super.containsVariationDifferences() || this.innerType.containsVariationDifferences();
   }
 }

@@ -12,6 +12,7 @@ import type { IMapping, IOption, IOptionSource } from 'src/layout/common.generat
 import type { ILayout } from 'src/layout/layout';
 import type { IOptions, IOptionsMetaData, IRepeatingGroups } from 'src/types';
 import type { IDataSources } from 'src/types/shared';
+
 export function getOptionLookupKey({ id, mapping }: IOptionsMetaData) {
   if (!mapping) {
     return id;

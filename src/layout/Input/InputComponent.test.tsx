@@ -93,7 +93,7 @@ describe('InputComponent', () => {
       },
       component: {
         formatting: {
-          num: {
+          number: {
             thousandSeparator: true,
             prefix: '$',
           },

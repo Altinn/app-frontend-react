@@ -14,7 +14,6 @@ const render = ({ component, genericProps }: Partial<RenderGenericComponentTestP
     renderer: (props) => <AddressComponent {...props} />,
     component: {
       simplified: true,
-      dataModelBindings: {},
       readOnly: false,
       required: false,
       textResourceBindings: {},
@@ -364,9 +363,6 @@ describe('AddressComponent', () => {
     render({
       component: {
         simplified: false,
-        labelSettings: {
-          optionalIndicator: true,
-        },
       },
     });
 
@@ -426,9 +422,6 @@ describe('AddressComponent', () => {
       component: {
         readOnly: true,
         simplified: false,
-        labelSettings: {
-          optionalIndicator: true,
-        },
       },
     });
 
@@ -449,9 +442,6 @@ describe('AddressComponent', () => {
       component: {
         required: true,
         simplified: false,
-        labelSettings: {
-          optionalIndicator: true,
-        },
       },
     });
 

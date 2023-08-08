@@ -23,7 +23,7 @@ export interface ChildFactoryProps<T extends ComponentTypes> extends CommonChild
 }
 
 export type ChildFactory<T extends ComponentTypes> = (props: ChildFactoryProps<T>) => LayoutNode;
-export type ChildMutator = (item: UnprocessedItem | AnyItem) => void;
+export type ChildMutator<T extends ComponentTypes = ComponentTypes> = (item: AnyItem<T>) => void;
 
 export type HierarchyContext = {
   id: string;
@@ -222,7 +222,7 @@ export class HierarchyGenerator {
 
     const allMutators = [...ctx.mutators, ...directMutators, ...recursiveMutators];
     for (const mutator of allMutators) {
-      mutator(clone);
+      mutator(clone as AnyItem<T>);
     }
 
     const instance = this.getInstance(clone.type);

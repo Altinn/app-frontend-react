@@ -111,7 +111,7 @@ describe('GenericComponent', () => {
         title: 'titleKey',
         description: 'descriptionKey',
       },
-    });
+    } as any);
 
     expect(screen.queryByTestId('description-mockId')).not.toBeInTheDocument();
     expect(screen.queryByTestId('label-mockId')).not.toBeInTheDocument();

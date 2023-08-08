@@ -38,7 +38,7 @@ const commonRepRowsProp = new CG.prop(
         new CG.import({
           import: 'HGroupExpressions',
           from: 'src/layout/Group/types',
-        }),
+        }).optional(),
       ),
     ).exportAs('HRepGroupRow'),
   ).exportAs('HRepGroupRows'),
