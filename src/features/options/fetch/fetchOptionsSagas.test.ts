@@ -58,6 +58,7 @@ describe('fetchOptionsSagas', () => {
           dataMapping: {
             some_field: 'some_url_parm',
           },
+          fixedQueryParameters: undefined,
           secure: undefined,
         })
         .run();
@@ -140,6 +141,7 @@ describe('fetchOptionsSagas', () => {
         .fork(fetchSpecificOptionSaga, {
           optionsId: 'fylke',
           dataMapping: undefined,
+          fixedQueryParameters: undefined,
           secure: undefined,
         })
         .fork(fetchSpecificOptionSaga, {
@@ -147,6 +149,7 @@ describe('fetchOptionsSagas', () => {
           dataMapping: {
             'FlytteFra.Fylke': 'fylke',
           },
+          fixedQueryParameters: undefined,
           secure: undefined,
         })
         .run();
@@ -200,6 +203,7 @@ describe('fetchOptionsSagas', () => {
           dataMapping: {
             'FlytteFra.Fylke': 'fylke',
           },
+          fixedQueryParameters: undefined,
           secure: undefined,
         })
         .fork(fetchSpecificOptionSaga, {
@@ -207,6 +211,7 @@ describe('fetchOptionsSagas', () => {
           dataMapping: {
             'FlytteTil.Fylke': 'fylke',
           },
+          fixedQueryParameters: undefined,
           secure: undefined,
         })
         .run();
