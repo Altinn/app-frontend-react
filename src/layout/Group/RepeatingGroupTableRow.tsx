@@ -14,11 +14,13 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type {
+  CompGroupRepeatingExternal,
+  CompGroupRepeatingInternal,
+  IGroupEditPropertiesInternal,
+} from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -100,11 +102,11 @@ export function RepeatingGroupTableRow({
   const edit = {
     ...group.edit,
     ...expressionsForRow?.edit,
-  } as ExprResolved<ILayoutGroup['edit']>;
+  } as IGroupEditPropertiesInternal;
   const resolvedTextBindings = {
     ...group.textResourceBindings,
     ...expressionsForRow?.textResourceBindings,
-  } as ExprResolved<ILayoutGroup['textResourceBindings']>;
+  } as CompGroupRepeatingInternal['textResourceBindings'];
 
   const tableNodes = getTableNodes(index) || [];
   const displayData = tableNodes.map((node) =>
@@ -303,9 +305,9 @@ export function RepeatingGroupTableRow({
 }
 
 export function shouldEditInTable(
-  groupEdit: ExprResolved<ILayoutGroup['edit']>,
+  groupEdit: IGroupEditPropertiesInternal,
   tableNode: LayoutNode,
-  columnSettings: ILayoutGroup['tableColumns'],
+  columnSettings: CompGroupRepeatingExternal['tableColumns'],
 ) {
   const column = columnSettings && columnSettings[tableNode.item.baseComponentId || tableNode.item.id];
   if (groupEdit?.mode === 'onlyTable' && column?.editInTable !== false) {
@@ -336,7 +338,7 @@ const DeleteElement = ({
   deleting: boolean;
   popoverOpen: boolean;
   setPopoverOpen: (open: boolean) => void;
-  edit: ExprResolved<ILayoutGroup['edit']>;
+  edit: IGroupEditPropertiesInternal;
   deleteButtonText: string;
   firstCellData: string | undefined;
   langAsString: (key: string) => string;

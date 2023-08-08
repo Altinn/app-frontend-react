@@ -1,6 +1,9 @@
-import type { CompGroupExternal, CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
+import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
 
-export function getFormLayoutGroupMock<T extends CompGroupExternal>(customMock?: Partial<T>, children?: string[]): T {
+export function getFormLayoutGroupMock(
+  customMock?: Partial<CompGroupRepeatingExternal>,
+  children?: string[],
+): CompGroupRepeatingExternal {
   const mockLayoutGroup = {
     id: 'container-closed-id',
     type: 'Group',
@@ -9,7 +12,7 @@ export function getFormLayoutGroupMock<T extends CompGroupExternal>(customMock?:
     dataModelBindings: {
       group: 'some-group',
     },
-  } as unknown as T;
+  } as CompGroupRepeatingExternal;
   return {
     ...mockLayoutGroup,
     ...customMock,

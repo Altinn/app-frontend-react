@@ -10,25 +10,20 @@ import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { IAttachments } from 'src/features/attachments';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
-import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
+import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IRepeatingGroupTableProps } from 'src/layout/Group/RepeatingGroupTable';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';
+import type { CompOrGroupExternal } from 'src/layout/layout';
 import type { IOption, ITextResource } from 'src/types';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 
 const user = userEvent.setup();
 
-const getLayout = (
-  group: ExprUnresolved<ILayoutGroup>,
-  components: ExprUnresolved<ILayoutComponent | ComponentInGroup>[],
-) => {
+const getLayout = (group: CompGroupRepeatingExternal, components: CompOrGroupExternal[]) => {
   const layout: ILayoutState = {
     layouts: {
       FormLayout: [group, ...components],
@@ -58,13 +53,13 @@ const getLayout = (
 };
 
 describe('RepeatingGroupTable', () => {
-  const group: ExprUnresolved<ILayoutGroup> = getFormLayoutGroupMock({
+  const group = getFormLayoutGroupMock({
     id: 'mock-container-id',
   });
   const textResources: ITextResource[] = [{ id: 'option.label', value: 'Value to be shown' }];
   const attachments: IAttachments = {};
   const options: IOption[] = [{ value: 'option.value', label: 'option.label' }];
-  const components: ExprUnresolved<ComponentInGroup>[] = [
+  const components: CompOrGroupExternal[] = [
     {
       id: 'field1',
       type: 'Input',
@@ -142,7 +137,7 @@ describe('RepeatingGroupTable', () => {
 
   describe('popOver warning', () => {
     it('should open and close delete-warning on delete click when alertOnDelete is active', async () => {
-      const group: ExprUnresolved<ILayoutGroup> = getFormLayoutGroupMock({
+      const group = getFormLayoutGroupMock({
         id: 'mock-container-id',
         edit: { alertOnDelete: true },
       });

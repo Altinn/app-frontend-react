@@ -3,7 +3,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { CG, Variant } from 'src/codegen/CG';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
-import type { CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
+import type { CodeGenerator, CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export type Props = GenerateProperty<any>[];
@@ -22,7 +22,7 @@ export class GenerateObject<P extends Props>
   implements CodeGeneratorWithProperties
 {
   private readonly properties: P;
-  private _additionalProperties: DescribableCodeGenerator<any> | false | undefined = false;
+  private _additionalProperties: CodeGenerator<any> | false | undefined = false;
   private _extends: Extendables[] = [];
 
   constructor(...properties: P) {
@@ -35,7 +35,7 @@ export class GenerateObject<P extends Props>
     return this;
   }
 
-  additionalProperties(type: DescribableCodeGenerator<any> | false | undefined) {
+  additionalProperties(type: CodeGenerator<any> | false | undefined) {
     this._additionalProperties = type;
     return this;
   }
@@ -183,6 +183,10 @@ export class GenerateObject<P extends Props>
           return out;
         }),
       );
+
+      if (prop.type.internal.optional) {
+        adapted.optional();
+      }
       adapted.currentVariant = this.currentVariant;
 
       const newProp = new CG.prop(prop.name, adapted);

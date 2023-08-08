@@ -46,7 +46,7 @@ const common = {
     new CG.enum('column', 'row', 'table').setTitle('Layout').setDescription('Define the layout style for the options'),
 
   // Grid styling:
-  IGridSize: () => new CG.union(new CG.const('auto'), new CG.int().setMin(1).setMax(12)),
+  IGridSize: () => new CG.union(new CG.const('auto'), new CG.enum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)),
   IGridStyling: () =>
     new CG.obj(
       new CG.prop('xs', CG.common('IGridSize').optional('auto')),
@@ -228,7 +228,7 @@ const common = {
     new CG.obj(
       new CG.prop(
         'options',
-        new CG.arr(CG.common('IOption').optional()).setTitle('Static options').setDescription('List of static options'),
+        new CG.arr(CG.common('IOption')).optional().setTitle('Static options').setDescription('List of static options'),
       ),
       new CG.prop(
         'secure',
@@ -277,7 +277,8 @@ const common = {
           ),
       ),
     ),
-  ITableColumnsProperties: () =>
+  ITableColumnFormatting: () => new CG.obj().additionalProperties(CG.common('ITableColumnProperties')),
+  ITableColumnProperties: () =>
     new CG.obj(
       new CG.prop(
         'width',
@@ -287,8 +288,8 @@ const common = {
           .setDescription("Width of cell in % or 'auto'. Defaults to 'auto'")
           .setPattern(/^([0-9]{1,2}%|100%|auto)$/),
       ),
-      new CG.prop('alignText', CG.common('ITableColumnsAlignText')),
-      new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow')),
+      new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
+      new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
     )
       .setTitle('Column options')
       .setDescription('Options for the row/column')
@@ -392,7 +393,7 @@ const common = {
     new CG.obj(
       new CG.prop('header', new CG.bool().optional(false).setTitle('Is header row?')),
       new CG.prop('readOnly', new CG.bool().optional(false).setTitle('Is row read-only?')),
-      new CG.prop('columnOptions', CG.common('ITableColumnsProperties').optional()),
+      new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
       new CG.prop(
         'cells',
         new CG.arr(

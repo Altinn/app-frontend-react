@@ -1,9 +1,8 @@
+import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IAttachmentState } from 'src/features/attachments';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
-import type { IGroupEditPropertiesInternal } from 'src/layout/Group/config.generated';
-import type { IGroupFilter, ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayout, ILayoutComponent } from 'src/layout/layout';
+import type { CompGroupExternal, IGroupEditPropertiesInternal, IGroupFilter } from 'src/layout/Group/config.generated';
+import type { CompExternal, ILayout } from 'src/layout/layout';
 import type {
   IFileUploadersWithTag,
   ILayoutNavigation,
@@ -90,14 +89,14 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   const groups = formLayout.filter((layoutElement) => layoutElement.type === 'Group');
 
   const childGroups: string[] = [];
-  groups.forEach((group: ExprUnresolved<ILayoutGroup>) => {
+  groups.forEach((group: CompGroupExternal) => {
     group.children?.forEach((childId: string) => {
       formLayout
         .filter((element) => {
           if (element.type !== 'Group') {
             return false;
           }
-          if (group.edit?.multiPage) {
+          if (groupIsRepeatingExt(group) && group.edit?.multiPage) {
             return childId.split(':')[1] === element.id;
           }
           return element.id === childId;
@@ -109,8 +108,8 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
   // filter away groups that should be rendered as child groups
   const filteredGroups = groups.filter((group) => childGroups.indexOf(group.id) === -1);
 
-  filteredGroups.forEach((groupElement: ExprUnresolved<ILayoutGroup>) => {
-    if (groupElement.maxCount && groupElement.maxCount > 1) {
+  filteredGroups.forEach((groupElement: CompGroupExternal) => {
+    if (groupIsRepeatingExt(groupElement) || groupIsRepeatingLikertExt(groupElement)) {
       const groupFormData = Object.keys(formData)
         .filter((key) => groupElement.dataModelBindings?.group && key.startsWith(groupElement.dataModelBindings.group))
         .sort();
@@ -126,7 +125,11 @@ export function getRepeatingGroups(formLayout: ILayout, formData: any) {
           };
           const groupElementChildGroups: string[] = [];
           groupElement.children?.forEach((id) => {
-            if (groupElement.edit?.multiPage && childGroups.includes(id.split(':')[1])) {
+            if (
+              groupIsRepeatingExt(groupElement) &&
+              groupElement.edit?.multiPage &&
+              childGroups.includes(id.split(':')[1])
+            ) {
               groupElementChildGroups.push(id.split(':')[1]);
             } else if (childGroups.includes(id)) {
               groupElementChildGroups.push(id);
@@ -300,11 +303,11 @@ export function hasRequiredFields(page: LayoutPage): boolean {
 export function findChildren(
   layout: ILayout,
   options?: {
-    matching?: (component: ExprUnresolved<ILayoutComponent>) => boolean;
+    matching?: (component: CompExternal) => boolean;
     rootGroupId?: string;
   },
-): ExprUnresolved<ILayoutComponent>[] {
-  const out: ExprUnresolved<ILayoutComponent>[] = [];
+): CompExternal[] {
+  const out: CompExternal[] = [];
   const root: string = options?.rootGroupId || '';
   const toConsider = new Set<string>();
   const otherGroupComponents: { [groupId: string]: Set<string> } = {};

@@ -115,8 +115,9 @@ function generateFullSchema(
 
   const notFoundRefs = [...allRefs].filter((ref) => !foundRefs.has(ref));
   const notFoundExceptComponents = notFoundRefs.filter((ref) => !ref.startsWith('Comp'));
-  if (notFoundExceptComponents.length) {
-    throw new Error(`Unused commons/refs: ${notFoundExceptComponents.join(', ')}`);
+  const finalSchemaDefs = structuredClone(schemaDefs);
+  for (const key of notFoundExceptComponents) {
+    delete finalSchemaDefs[key];
   }
 
   // PRIORITY: Make sure this new schema is compatible with the current schema in the repo
@@ -167,7 +168,7 @@ function generateFullSchema(
           then: { $ref: `#/definitions/Comp${key}` },
         })),
       },
-      ...schemaDefs,
+      ...finalSchemaDefs,
     },
   };
 }

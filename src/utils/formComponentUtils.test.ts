@@ -15,8 +15,10 @@ import {
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
-import type { IGridStyling, ILayoutComponent, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/layout';
+import type { IGridStyling, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type { CompExternal } from 'src/layout/layout';
 import type { AnyItem } from 'src/utils/layout/hierarchy.types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('formComponentUtils', () => {
   const mockAttachments: IAttachments = {
@@ -393,5 +395,5 @@ describe('formComponentUtils', () => {
   });
 });
 
-const fakeLayoutNode = (item: Partial<ILayoutComponent> & Partial<AnyItem>) =>
-  new BaseLayoutNode(item, new LayoutPage(), new LayoutPage(), {} as any);
+const fakeLayoutNode = (item: Partial<CompExternal> & Partial<AnyItem>) =>
+  new BaseLayoutNode(item as any, new LayoutPage(), new LayoutPage(), {} as any) as LayoutNode;

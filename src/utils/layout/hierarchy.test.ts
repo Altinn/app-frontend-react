@@ -7,9 +7,7 @@ import { generateHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { CompGroupNonRepeatingExternal, CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
-import type { ILayoutGroup } from 'src/layout/Group/types';
 import type { CompHeaderExternal } from 'src/layout/Header/config.generated';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { IDataModelBindings, ILayout, ILayouts } from 'src/layout/layout';
@@ -78,7 +76,7 @@ describe('Hierarchical layout tools', () => {
           { key: 'stop', value: '2' },
         ],
       },
-    } as Omit<ExprUnresolved<ILayoutGroup>, 'children'>,
+    } as Omit<CompGroupRepeatingExternal, 'children'>,
     group3h: { id: 'group3_header', ...header },
     group3i: { id: 'group3_input', ...input },
     group3n: { id: 'group3nested', ...repGroup },

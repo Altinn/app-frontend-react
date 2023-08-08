@@ -13,10 +13,10 @@ import classes from 'src/layout/Group/RepeatingGroup.module.css';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { RepeatingGroupTableRow } from 'src/layout/Group/RepeatingGroupTableRow';
 import { getColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import type { GridRowsInternal } from 'src/layout/common.generated';
+import type { GridRowsInternal, ITableColumnFormatting } from 'src/layout/common.generated';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { ITableColumnFormatting, ITextResourceBindings } from 'src/layout/layout';
+import type { ITextResourceBindings } from 'src/layout/layout';
 
 export interface IRepeatingGroupTableProps {
   node: LayoutNodeForGroup<CompGroupRepeatingInternal>;

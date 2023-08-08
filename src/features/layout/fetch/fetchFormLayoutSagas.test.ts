@@ -11,9 +11,9 @@ import {
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import * as networking from 'src/utils/network/networking';
 import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ILayoutCompSummary } from 'src/layout/Summary/types';
+import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
+import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { IHiddenLayoutsExpressions } from 'src/types';
 import type { IApplication, IInstance } from 'src/types/shared';
 
@@ -22,9 +22,9 @@ describe('fetchFormLayoutSagas', () => {
     it('should convert incorrectly cased types to the correct case', () => {
       expect(
         cleanLayout([
-          { type: 'group' } as any as ILayoutGroup,
-          { type: 'sUMMARY' } as any as ILayoutCompSummary,
-          { type: 'FileuploadwithTAG' } as any as ILayoutCompFileUploadWithTag,
+          { type: 'group' } as any as CompGroupExternal,
+          { type: 'sUMMARY' } as any as CompSummaryExternal,
+          { type: 'FileuploadwithTAG' } as any as CompFileUploadWithTagExternal,
           { type: 'ComponentThatDoesNotEXIST' } as any,
         ]),
       ).toEqual([

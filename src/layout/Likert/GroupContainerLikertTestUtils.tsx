@@ -8,15 +8,14 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { GroupContainerTester } from 'src/layout/Group/GroupContainerTestUtills';
 import { setupStore } from 'src/redux/store';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormDataState } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { ITextResourcesState } from 'src/features/textResources';
 import type { IValidationState } from 'src/features/validation/validationSlice';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentInGroup, ILayoutComponent } from 'src/layout/layout';
-import type { ILayoutCompLikert } from 'src/layout/Likert/types';
+import type { CompGroupExternal, CompGroupRepeatingLikertExternal } from 'src/layout/Group/config.generated';
+import type { CompOrGroupExternal } from 'src/layout/layout';
+import type { CompLikertExternal } from 'src/layout/Likert/config.generated';
 import type { IOption, ITextResource } from 'src/types';
 import type { ILayoutValidations } from 'src/utils/validation/types';
 
@@ -66,8 +65,8 @@ export const questionsWithAnswers = ({ questions, selectedAnswers }) => {
 };
 
 const createLikertContainer = (
-  props: Partial<ExprUnresolved<ILayoutGroup>> | undefined,
-): ExprUnresolved<ILayoutGroup> => ({
+  props: Partial<CompGroupRepeatingLikertExternal> | undefined,
+): CompGroupRepeatingLikertExternal => ({
   id: 'likert-repeating-group-id',
   type: 'Group',
   children: ['field1'],
@@ -81,9 +80,7 @@ const createLikertContainer = (
   ...props,
 });
 
-const createRadioButton = (
-  props: Partial<ExprUnresolved<ILayoutCompLikert>> | undefined,
-): ExprUnresolved<ILayoutCompLikert> => ({
+const createRadioButton = (props: Partial<CompLikertExternal> | undefined): CompLikertExternal => ({
   id: 'field1',
   type: 'Likert',
   dataModelBindings: {
@@ -109,8 +106,8 @@ export const createFormDataUpdateAction = (index: number, optionValue: string): 
 });
 
 const createLayout = (
-  container: ExprUnresolved<ILayoutGroup>,
-  components: ExprUnresolved<ILayoutComponent | ComponentInGroup>[],
+  container: CompGroupExternal,
+  components: CompOrGroupExternal[],
   groupIndex: number,
 ): ILayoutState => ({
   error: null,
@@ -189,8 +186,8 @@ interface IRenderProps {
   mobileView: boolean;
   mockQuestions: IQuestion[];
   mockOptions: IOption[];
-  radioButtonProps: Partial<ExprUnresolved<ILayoutCompLikert>>;
-  likertContainerProps: Partial<ExprUnresolved<ILayoutGroup>>;
+  radioButtonProps: Partial<CompLikertExternal>;
+  likertContainerProps: Partial<CompGroupRepeatingLikertExternal>;
   extraTextResources: ITextResource[];
   validations: ILayoutValidations;
 }
@@ -206,7 +203,7 @@ export const render = ({
 }: Partial<IRenderProps> = {}) => {
   const mockRadioButton = createRadioButton(radioButtonProps);
   const mockLikertContainer = createLikertContainer(likertContainerProps);
-  const components: ExprUnresolved<ComponentInGroup>[] = [mockRadioButton];
+  const components: CompOrGroupExternal[] = [mockRadioButton];
   const mockData: IFormDataState = {
     formData: generateMockFormData(mockQuestions),
     lastSavedFormData: {},

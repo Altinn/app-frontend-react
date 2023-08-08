@@ -8,9 +8,8 @@ import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { renderWithProviders } from 'src/testUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
-import type { ILayoutComponent } from 'src/layout/layout';
+import type { CompExternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidations } from 'src/utils/validation/types';
 
@@ -29,7 +28,7 @@ describe('SummaryComponent', () => {
                 textResourceBindings: {},
                 children: [],
                 maxCount: 10,
-              }) as ExprUnresolved<ILayoutComponent>,
+              }) as CompExternal,
           ),
         ],
       },

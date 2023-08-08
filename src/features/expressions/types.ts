@@ -96,6 +96,7 @@ export type Expression<F extends ExprFunction = ExprFunction> = MaybeRecursive<F
  * This type removes all expressions from the input type (replacing them with the type
  * the expression is expected to return)
  *
+ * @deprecated Use internal types for components instead
  * @see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
  * @see https://stackoverflow.com/a/54487392
  */
@@ -113,10 +114,7 @@ export type ExprResolved<T> = T extends ExprVal
  * This type replaces all potential expressions in the input type with an actual value OR expression returning that
  * value. An ExprUnresolved layout item is the type of a layout component when we get it from the layout API.
  *
- * @deprecated Try not to use types with unresolved expressions. Prefer to get your layout definitions from:
- * @see useExprContext
- * @see useResolvedNode
- * @see ResolvedNodesSelector
+ * @deprecated Use external types from component definitions instead
  */
 export type ExprUnresolved<T> = T extends ExprVal
   ? ExprValToActualOrExpr<T>

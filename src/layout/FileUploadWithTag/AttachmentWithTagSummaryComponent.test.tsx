@@ -6,14 +6,13 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
 import { renderWithProviders } from 'src/testUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayoutCompFileUploadWithTag } from 'src/layout/FileUploadWithTag/types';
+import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { RootState } from 'src/redux/store';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('AttachmentWithTagSummaryComponent', () => {
   const attachmentName = 'attachment-name-1';
-  const formLayoutItem: ExprUnresolved<ILayoutCompFileUploadWithTag> = {
+  const formLayoutItem: CompFileUploadWithTagExternal = {
     id: 'FileUploadWithTag',
     type: 'FileUploadWithTag',
     dataModelBindings: {},
@@ -26,7 +25,7 @@ describe('AttachmentWithTagSummaryComponent', () => {
     minNumberOfAttachments: 0,
   };
   const initialState = getInitialStateMock();
-  const mockState = (formLayoutItem: ExprUnresolved<ILayoutCompFileUploadWithTag>): Pick<RootState, 'formLayout'> => ({
+  const mockState = (formLayoutItem: CompFileUploadWithTagExternal): Pick<RootState, 'formLayout'> => ({
     formLayout: {
       layouts: {
         FormLayout: [formLayoutItem],
@@ -135,7 +134,7 @@ describe('AttachmentWithTagSummaryComponent', () => {
     expect(screen.getByText('ca option value')).toBeInTheDocument();
   });
 
-  const renderHelper = (options: ExprUnresolved<ILayoutCompFileUploadWithTag>, extendState?: Partial<RootState>) => {
+  const renderHelper = (options: CompFileUploadWithTagExternal, extendState?: Partial<RootState>) => {
     function Wrapper() {
       const node = useResolvedNode('FileUploadWithTag') as LayoutNode<'FileUploadWithTag'>;
       return <AttachmentWithTagSummaryComponent targetNode={node} />;

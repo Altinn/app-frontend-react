@@ -13,7 +13,7 @@ import classes from 'src/layout/Summary/SummaryComponent.module.css';
 import { SummaryContent } from 'src/layout/Summary/SummaryContent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useResolvedNode } from 'src/utils/layout/ExprContext';
-import type { IGrid } from 'src/layout/layout';
+import type { IGrid } from 'src/layout/common.generated';
 import type { SummaryDisplayProperties } from 'src/layout/Summary/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 

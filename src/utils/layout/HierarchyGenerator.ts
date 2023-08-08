@@ -1,13 +1,12 @@
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { DefGetter } from 'src/layout';
-import type { ComponentTypes, ILayout, ILayoutComponentExact, ILayouts } from 'src/layout/layout';
+import type { CompExternalExact, ComponentTypes, ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups, ITextResource } from 'src/types';
 import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export type UnprocessedItem<T extends ComponentTypes = ComponentTypes> = ExprUnresolved<ILayoutComponentExact<T>>;
+export type UnprocessedItem<T extends ComponentTypes = ComponentTypes> = CompExternalExact<T>;
 
 export interface Claim {
   childId: string;

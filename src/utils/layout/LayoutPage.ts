@@ -1,5 +1,6 @@
 import { runValidationOnNodes } from 'src/utils/validation/validation';
-import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
+import type { ComponentExceptGroup } from 'src/layout/layout';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutObject } from 'src/utils/layout/LayoutObject';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -88,7 +89,7 @@ export class LayoutPage implements LayoutObject {
    * @param includeGroups If true, also includes the group nodes
    */
   public flat(includeGroups: true): LayoutNode[];
-  public flat(includeGroups: false): LayoutNode<HComponent>[];
+  public flat(includeGroups: false): LayoutNode<ComponentExceptGroup>[];
   public flat(includeGroups: boolean): LayoutNode[] {
     if (!includeGroups) {
       return this.allChildren.filter((c) => c.item.type !== 'Group');

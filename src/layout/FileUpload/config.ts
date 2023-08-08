@@ -47,6 +47,7 @@ export function asUploaderComponent(config: ComponentConfig) {
       new CG.prop(
         'hasCustomFileEndings',
         new CG.bool()
+          .optional(false)
           .setTitle('Has custom file endings')
           .setDescription('Boolean value indicating if the component has valid file endings'),
       ),

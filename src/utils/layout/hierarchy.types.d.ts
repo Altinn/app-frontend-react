@@ -5,7 +5,7 @@ import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ComponentClassMapTypes } from 'src/layout';
 import type { ComponentCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { ComponentExceptGroup, ComponentTypes, IDataModelBindings } from 'src/layout/layout';
+import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
 import type { IValidations } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -19,11 +19,6 @@ interface HierarchyExtensions {
   baseDataModelBindings?: IDataModelBindings;
   multiPageIndex?: number;
 }
-
-/**
- * In the hierarchy, components and groups will always have their layout expressions evaluated and resolved.
- */
-export type HComponent<T extends ComponentExceptGroup = ComponentExceptGroup> = AnyItem<T>;
 
 /**
  * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the

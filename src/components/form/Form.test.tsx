@@ -8,8 +8,7 @@ import { getFormLayoutStateMock } from 'src/__mocks__/formLayoutStateMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Form } from 'src/components/form/Form';
 import { MemoryRouterWithRedirectingRoot, renderWithProviders } from 'src/testUtils';
-import type { ExprUnresolved } from 'src/features/expressions/types';
-import type { ILayout, ILayoutComponent } from 'src/layout/layout';
+import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { ILayoutCompSummary } from 'src/layout/Summary/types';
 import type { RootState } from 'src/redux/store';
 
@@ -140,7 +139,7 @@ describe('Form', () => {
       {
         id: 'navBar',
         type: 'NavigationBar',
-      } as ExprUnresolved<ILayoutComponent>,
+      } as CompExternal,
     ];
     renderForm(layoutWithNavBar);
     expect(screen.getByRole('navigation')).toBeInTheDocument();

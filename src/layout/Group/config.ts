@@ -302,7 +302,7 @@ function makeRepeatingGroup() {
                   ),
               ),
             )
-              .extends(CG.common('ITableColumnsProperties'))
+              .extends(CG.common('ITableColumnProperties'))
               .exportAs('IGroupColumnFormatting'),
           )
           .addExample({

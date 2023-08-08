@@ -2,11 +2,10 @@ import type { TextField } from '@digdir/design-system-react';
 import type { GridSize } from '@material-ui/core';
 import type { UnionToIntersection } from 'utility-types';
 
-import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
+import type { ExprVal } from 'src/features/expressions/types';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
-import type { ILayoutGroup } from 'src/layout/Group/types';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { ILabelSettings, IMapping, IOption, IOptionSource, Triggers } from 'src/types';
-import type { UnifyDMB, UnifyTRB } from 'src/utils/layout/hierarchy.types';
 
 export interface ILayouts {
   [id: string]: ILayout | undefined;
@@ -80,34 +79,31 @@ export type ComponentTypes = keyof typeof ComponentConfigs & keyof ComponentType
 type AllComponents = ComponentTypeConfigs[ComponentTypes]['layout'];
 
 export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
-export type ComponentInGroup = ILayoutComponent | ILayoutGroup;
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify
  * any valid component:
  *
- *  const myComponent:ILayoutComponent = ...
+ *  const myComponent:CompExternal = ...
  *
  * Or a component of a specific known type (gives you more valid options):
  *
- *  const myImageComponent:ILayoutComponent<'Image'> = ...
+ *  const myImageComponent:CompExternal<'Image'> = ...
  *
- * @deprecated
  * @see AnyItem
  * @see LayoutNode
  */
-export type ILayoutComponent<Type extends ComponentExceptGroup = ComponentExceptGroup> = UnifyDMB<
-  UnifyTRB<Extract<AllComponents, { type: Type }>>
+export type CompExternal<Type extends ComponentExceptGroup = ComponentExceptGroup> = Extract<
+  AllComponents,
+  { type: Type }
 >;
 
 /**
  * Alternative version of the one above
  */
-export type ILayoutComponentExact<Type extends ComponentTypes> = UnifyDMB<
-  UnifyTRB<ComponentTypeConfigs[Type]['layout']>
->;
+export type CompExternalExact<Type extends ComponentTypes> = ComponentTypeConfigs[Type]['layout'];
 
-export type ILayoutComponentOrGroup = ILayoutGroup | ILayoutComponent;
+export type CompOrGroupExternal = CompGroupExternal | CompExternal;
 
 export type ComponentRendersLabel<T extends ComponentTypes> = (typeof ComponentConfigs)[T]['rendersWithLabel'];
 
@@ -132,7 +128,7 @@ export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
   | UnionToIntersection<TRBAsMap<T, string>>
   | undefined;
 
-export type ILayout = ExprUnresolved<ILayoutComponentOrGroup>[];
+export type ILayout = CompOrGroupExternal[];
 
 export interface IGrid extends IGridStyling {
   labelGrid?: IGridStyling;

@@ -11,20 +11,19 @@ import { GroupContainerTester } from 'src/layout/Group/GroupContainerTestUtills'
 import { setupStore } from 'src/redux/store';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
 import { Triggers } from 'src/types';
-import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/layout/formLayoutTypes';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { ComponentInGroup } from 'src/layout/layout';
+import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
+import type { CompExternal } from 'src/layout/layout';
 
 const mockContainer = getFormLayoutGroupMock();
 
 interface IRender {
-  container?: ExprUnresolved<ILayoutGroup>;
+  container?: CompGroupRepeatingExternal;
 }
 
 function render({ container = mockContainer }: IRender = {}) {
-  const mockComponents: ExprUnresolved<ComponentInGroup[]> = [
+  const mockComponents: CompExternal[] = [
     {
       id: 'field1',
       type: 'Input',
@@ -144,7 +143,7 @@ describe('GroupContainer', () => {
   });
 
   it('should render add new button with custom label when supplied', () => {
-    const mockContainerWithLabel: ExprUnresolved<ILayoutGroup> = {
+    const mockContainerWithLabel: CompGroupRepeatingExternal = {
       textResourceBindings: {
         add_button: 'person',
       },
@@ -176,7 +175,7 @@ describe('GroupContainer', () => {
 
   it('calls setMultiPageIndex when adding a group element', async () => {
     const user = userEvent.setup();
-    const multiPageContainer: ExprUnresolved<ILayoutGroup> = {
+    const multiPageContainer: CompGroupRepeatingExternal = {
       ...mockContainer,
       edit: {
         ...mockContainer.edit,

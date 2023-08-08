@@ -3,15 +3,9 @@ import type React from 'react';
 import printStyles from 'src/styles/print.module.css';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import type { IAttachment } from 'src/features/attachments';
-import type { ExprResolved } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type {
-  IGridStyling,
-  ITableColumnFormatting,
-  ITableColumnProperties,
-  ITextResourceBindings,
-} from 'src/layout/layout';
-import type { IPageBreak } from 'src/layout/layout.d';
+import type { IGridStyling, IPageBreakInternal, ITableColumnFormatting } from 'src/layout/common.generated';
+import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IComponentValidations } from 'src/utils/validation/types';
 
@@ -206,7 +200,7 @@ export const gridBreakpoints = (grid?: IGridStyling) => {
   };
 };
 
-export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined) => {
+export const pageBreakStyles = (pageBreak: IPageBreakInternal | undefined) => {
   if (!pageBreak) {
     return {};
   }

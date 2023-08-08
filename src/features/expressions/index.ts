@@ -24,8 +24,8 @@ import type {
   ExprValToActual,
   FuncDef,
 } from 'src/features/expressions/types';
-import type { ILayoutGroup } from 'src/layout/Group/types';
-import type { IDataModelBindings, ILayoutComponent } from 'src/layout/layout';
+import type { CompGroupExternal } from 'src/layout/Group/config.generated';
+import type { CompExternal, IDataModelBindings } from 'src/layout/layout';
 import type { IAuthContext, IInstanceContext } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -778,7 +778,7 @@ window.evalExpression = () => {
   );
 };
 
-export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
+export const ExprConfigForComponent: ExprObjConfig<CompExternal> = {
   readOnly: {
     returnType: ExprVal.Boolean,
     defaultValue: false,
@@ -820,7 +820,7 @@ export const ExprConfigForComponent: ExprObjConfig<ILayoutComponent> = {
   },
 };
 
-export const ExprConfigForGroup: ExprObjConfig<ILayoutGroup> = {
+export const ExprConfigForGroup: ExprObjConfig<CompGroupExternal> = {
   ...ExprConfigForComponent,
   hiddenRow: {
     returnType: ExprVal.Boolean,

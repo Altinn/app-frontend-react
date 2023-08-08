@@ -1,4 +1,5 @@
-import type { AnyItem, HComponent } from 'src/utils/layout/hierarchy.types';
+import type { ComponentExceptGroup } from 'src/layout/layout';
+import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -28,7 +29,7 @@ export interface LayoutObject<Item extends AnyItem = AnyItem, Child extends Layo
    */
   flat(includeGroups: true, onlyInRows?: number): LayoutNode[];
 
-  flat(includeGroups: false, onlyInRows?: number): LayoutNode<HComponent>[];
+  flat(includeGroups: false, onlyInRows?: number): LayoutNode<ComponentExceptGroup>[];
 
   flat(includeGroups: boolean, onlyInRows?: number): LayoutNode[];
 }
