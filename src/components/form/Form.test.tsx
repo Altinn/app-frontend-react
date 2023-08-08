@@ -9,7 +9,7 @@ import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { Form } from 'src/components/form/Form';
 import { MemoryRouterWithRedirectingRoot, renderWithProviders } from 'src/testUtils';
 import type { CompExternal, ILayout } from 'src/layout/layout';
-import type { ILayoutCompSummary } from 'src/layout/Summary/types';
+import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { RootState } from 'src/redux/store';
 
 describe('Form', () => {
@@ -212,7 +212,7 @@ describe('Form', () => {
         type: 'Summary',
         pageRef: 'FormLayout',
         componentRef: 'field1',
-      } as ILayoutCompSummary,
+      } as CompSummaryExternal,
     ];
     renderForm(summaryComponent as ILayout);
     expect(screen.getByTestId('summary-the-summary')).toBeInTheDocument();

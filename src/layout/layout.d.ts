@@ -26,10 +26,6 @@ export interface ILayoutCompBase<Type extends ComponentTypes> {
   pageBreak?: IPageBreak;
 }
 
-interface ILayoutCompWillBeSavedWhileTyping {
-  saveWhileTyping?: boolean | number;
-}
-
 interface ISelectionComponent {
   options?: IOption[];
   optionsId?: string;
