@@ -203,12 +203,6 @@ export enum PresentationType {
   Stateless = 'stateless',
 }
 
-export enum LayoutStyle {
-  Column = 'column',
-  Row = 'row',
-  Table = 'table',
-}
-
 export type TriggersPageValidation =
   | Triggers.ValidateAllPages
   | Triggers.ValidateCurrentAndPreviousPages

@@ -2,10 +2,10 @@ import React from 'react';
 
 import { getOptionList } from 'src/hooks/useOptionList';
 import { getSelectedValueToText } from 'src/hooks/useSelectedValueToText';
+import { LayoutStyle } from 'src/layout/common.generated';
 import { LikertDef } from 'src/layout/Likert/config.def.generated';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { LayoutStyle } from 'src/types';
 import type { DisplayDataProps, PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

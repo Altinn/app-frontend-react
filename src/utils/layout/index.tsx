@@ -1,4 +1,4 @@
-import { LayoutStyle } from 'src/types';
+import { LayoutStyle } from 'src/layout/common.generated';
 import type { CompOrGroupExternal, ILayouts } from 'src/layout/layout';
 import type { ILayoutSet, ILayoutSets } from 'src/types';
 import type { IInstance } from 'src/types/shared';

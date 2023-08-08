@@ -43,7 +43,10 @@ const common = {
       .setDescription('Optionally insert page-break before/after component when rendered in PDF'),
 
   LayoutStyle: () =>
-    new CG.enum('column', 'row', 'table').setTitle('Layout').setDescription('Define the layout style for the options'),
+    new CG.enum('column', 'row', 'table')
+      .asRealEnum((value) => value.charAt(0).toUpperCase() + value.slice(1))
+      .setTitle('Layout')
+      .setDescription('Define the layout style for the options'),
 
   // Grid styling:
   IGridSize: () => new CG.union(new CG.const('auto'), new CG.enum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)),
