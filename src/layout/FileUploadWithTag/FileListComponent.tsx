@@ -13,7 +13,7 @@ import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { atleastOneTagExists } from 'src/utils/formComponentUtils';
 import type { IAttachment } from 'src/features/attachments';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { IOption } from 'src/types';
+import type { IOption } from 'src/layout/common.generated';
 
 export interface FileListProps {
   node: PropsFromGenericComponent<'FileUploadWithTag'>['node'];

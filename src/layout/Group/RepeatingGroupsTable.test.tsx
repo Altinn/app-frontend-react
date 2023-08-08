@@ -13,11 +13,12 @@ import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
+import type { IOption } from 'src/layout/common.generated';
 import type { CompGroupRepeatingExternal, CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IRepeatingGroupTableProps } from 'src/layout/Group/RepeatingGroupTable';
 import type { CompOrGroupExternal } from 'src/layout/layout';
-import type { IOption, ITextResource } from 'src/types';
+import type { ITextResource } from 'src/types';
 
 (global as any).ResizeObserver = ResizeObserverModule;
 

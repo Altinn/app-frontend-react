@@ -17,16 +17,9 @@ import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IFormData } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
-import type { ISelectionComponent } from 'src/layout/common.generated';
+import type { IOption, ISelectionComponent } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
-import type {
-  IFetchSpecificOptionSaga,
-  IOption,
-  IOptions,
-  IOptionsMetaData,
-  IRepeatingGroups,
-  IRuntimeState,
-} from 'src/types';
+import type { IFetchSpecificOptionSaga, IOptions, IOptionsMetaData, IRepeatingGroups, IRuntimeState } from 'src/types';
 
 export const formLayoutSelector = (state: IRuntimeState): ILayouts | null => state.formLayout?.layouts;
 export const formDataSelector = (state: IRuntimeState) => state.formData.formData;

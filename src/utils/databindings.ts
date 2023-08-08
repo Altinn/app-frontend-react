@@ -3,11 +3,11 @@ import { dot, object } from 'dot-object';
 import { getParentGroup } from 'src/utils/validation/validation';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
-import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
+import type { IDataModelBindingsList, IDataModelBindingsSimple, IMapping } from 'src/layout/common.generated';
 import type { CompFileUploadExternal } from 'src/layout/FileUpload/config.generated';
 import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { CompExternal, CompOrGroupExternal, IDataModelBindings, ILayout } from 'src/layout/layout';
-import type { IMapping, IRepeatingGroup, IRepeatingGroups } from 'src/types';
+import type { IRepeatingGroup, IRepeatingGroups } from 'src/types';
 
 /**
  * Converts the formdata in store (that is flat) to a JSON

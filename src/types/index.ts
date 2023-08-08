@@ -2,6 +2,7 @@ import { Triggers } from 'src/layout/common.generated';
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
+import type { IMapping, IOption } from 'src/layout/common.generated';
 import type { RootState } from 'src/redux/store';
 
 export interface IFormFileUploaderWithTag {
@@ -59,23 +60,8 @@ export interface INavigationConfig {
   [id: string]: ILayoutNavigation | undefined;
 }
 
-export interface IOption {
-  label: string;
-  value: any;
-  description?: string;
-  helpText?: string;
-}
-
 export interface IOptions {
   [key: string]: IOptionData | undefined;
-}
-
-export interface IOptionSource {
-  group: string;
-  label: string;
-  value: string;
-  description?: string;
-  helpText?: string;
 }
 
 export interface IOptionsActualData {
@@ -222,34 +208,8 @@ export function reducePageValidations(triggers?: Triggers[]): TriggersPageValida
     : undefined;
 }
 
-export interface ILabelSettings {
-  optionalIndicator?: boolean;
-}
-
 export enum DateFlags {
   Today = 'today',
-}
-
-/**
- * A 'mapping' is an object pointing from data model paths to query parameters. It is used to make options lookups
- * (and similar) configurable in a way that lets you (for example) implement searching. If you map the data model
- * path where a search string is stored, you can make the app automatically fetch new options from the backend every
- * time the search string changes.
- *
- * When used in repeating groups, it is expected you put index placeholders inside the data model path, so if your
- * group is bound to 'MyModel.Persons' and you're looking up 'MyModel.Persons.FirstName', the path to the data model
- * should be 'MyModel.Persons[{0}].FirstName'. This way, {0} is replaced with the current row index in the repeating
- * group at runtime.
- *
- * Format:
- * {
- *   'path.to.dataModel': 'queryParam',
- * }
- *
- * @see https://docs.altinn.studio/app/development/data/options/#pass-query-parameters-when-fetching-options
- */
-export interface IMapping {
-  [dataModelPath: string]: string;
 }
 
 export interface IFetchSpecificOptionSaga {
