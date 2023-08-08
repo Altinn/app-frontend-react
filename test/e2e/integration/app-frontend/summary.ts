@@ -2,7 +2,7 @@ import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
-import { Triggers } from 'src/types';
+import { Triggers } from 'src/layout/common.generated';
 import type { ILayout } from 'src/layout/layout';
 
 const appFrontend = new AppFrontend();

@@ -1,6 +1,6 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import { Triggers } from 'src/types';
+import { Triggers } from 'src/layout/common.generated';
 
 const appFrontend = new AppFrontend();
 

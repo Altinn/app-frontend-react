@@ -73,7 +73,7 @@ const common = {
       'validateCurrentAndPreviousPages',
       'validateAllPages',
       'validateRow',
-    ),
+    ).asRealEnum((value) => value.charAt(0).toUpperCase() + value.slice(1)),
   TriggerList: () =>
     new CG.arr(CG.common('Triggers'))
       .setTitle('Triggers')

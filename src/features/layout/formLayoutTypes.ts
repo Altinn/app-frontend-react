@@ -1,5 +1,6 @@
 import type { ExprUnresolved } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
+import type { Triggers } from 'src/layout/common.generated';
 import type { ILayouts } from 'src/layout/layout';
 import type {
   IFileUploadersWithTag,
@@ -8,7 +9,6 @@ import type {
   ILayoutSettings,
   INavigationConfig,
   IOption,
-  Triggers,
   TriggersPageValidation,
 } from 'src/types';
 

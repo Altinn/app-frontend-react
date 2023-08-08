@@ -6,7 +6,7 @@ import type { SagaIterator } from 'redux-saga';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { Triggers } from 'src/types';
+import { Triggers } from 'src/layout/common.generated';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
 import type { ExprConfig, ExprUnresolved } from 'src/features/expressions/types';

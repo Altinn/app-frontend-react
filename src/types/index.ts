@@ -1,3 +1,4 @@
+import { Triggers } from 'src/layout/common.generated';
 import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
@@ -206,15 +207,6 @@ export enum LayoutStyle {
   Column = 'column',
   Row = 'row',
   Table = 'table',
-}
-
-export enum Triggers {
-  Validation = 'validation',
-  CalculatePageOrder = 'calculatePageOrder',
-  ValidatePage = 'validatePage',
-  ValidateCurrentAndPreviousPages = 'validateCurrentAndPreviousPages',
-  ValidateAllPages = 'validateAllPages',
-  ValidateRow = 'validateRow',
 }
 
 export type TriggersPageValidation =
