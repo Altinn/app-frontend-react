@@ -20,9 +20,9 @@ export const Config = new CG.component({
   )
   .addTextResource(
     new CG.trb({
-      name: 'description',
-      title: 'Description',
-      description: 'The description/body of the alert',
+      name: 'body',
+      title: 'Body',
+      description: 'The body text of the alert',
     }),
   )
   .addProperty(

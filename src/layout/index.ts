@@ -4,6 +4,7 @@ import { type IUseLanguage, staticUseLanguageFromState } from 'src/hooks/useLang
 import { ComponentConfigs } from 'src/layout/components.generated';
 import type { IAttachments } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
+import type { IGrid } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { ComponentRendersLabel, ComponentTypes } from 'src/layout/layout';
 import type { AnyComponent, LayoutComponent } from 'src/layout/LayoutComponent';

@@ -6,6 +6,12 @@ import type { ComponentClassMapTypes } from 'src/layout';
 import type { ComponentCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { ComponentTypes, IDataModelBindings } from 'src/layout/layout';
+import type {
+  ActionComponent,
+  ContainerComponent,
+  FormComponent,
+  PresentationComponent,
+} from 'src/layout/LayoutComponent';
 import type { IValidations } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -52,6 +58,16 @@ export type LayoutNodeFromObj<T> = T extends { type: infer Type }
 
 export type TypesFromCategory<Type extends ComponentCategory> = $Keys<PickByValue<ComponentClassMapTypes, Type>>;
 
+export type DefFromCategory<C extends ComponentCategory> = C extends 'presentation'
+  ? PresentationComponent<any>
+  : C extends 'form'
+  ? FormComponent<any>
+  : C extends 'action'
+  ? ActionComponent<any>
+  : C extends 'container'
+  ? ContainerComponent<any>
+  : never;
+
 export type LayoutNodeFromCategory<Type> = Type extends ComponentCategory
-  ? LayoutNode<TypesFromCategory<Type>>
+  ? LayoutNode<TypesFromCategory<Type>> & DefFromCategory<Type>
   : LayoutNode;

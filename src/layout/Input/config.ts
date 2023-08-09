@@ -82,6 +82,7 @@ export const Config = new CG.component({
             new CG.prop('suffix', new CG.str().optional()),
             new CG.prop('prefix', new CG.str().optional()),
           )
+            .optional()
             .exportAs('NumberFormatProps')
             .setTitle('Number formatting options')
             .setDescription(

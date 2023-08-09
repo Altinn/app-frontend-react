@@ -2,6 +2,7 @@ import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { ComponentCategory } from 'src/layout/common';
 import {
   type DisplayData,
   type DisplayDataProps,
@@ -121,7 +122,7 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
    */
   abstract getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
 
-  useDisplayData(node: LayoutNodeFromType<Type>): string {
+  useDisplayData(node: LayoutNode<Type>): string {
     const displayDataProps = useAppSelector(getDisplayDataPropsFromState);
     return this.getDisplayData(node, displayDataProps);
   }
