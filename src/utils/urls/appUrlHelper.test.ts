@@ -258,6 +258,21 @@ describe('Frontend urlHelper.ts', () => {
         formData: {
           country: 'Norway',
         },
+        dataMapping: undefined,
+        fixedQueryParameters: {
+          level: '1',
+        },
+      });
+
+      expect(result).toEqual('https://local.altinn.cloud/ttd/test/api/options/country?level=1');
+    });
+
+    it('should return correct url when fixed query parameters and dataMapping is provided', () => {
+      const result = getOptionsUrl({
+        optionsId: 'country',
+        formData: {
+          country: 'Norway',
+        },
         dataMapping: {
           country: 'selectedCountry',
         },

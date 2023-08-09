@@ -193,19 +193,18 @@ export const getOptionsUrl = ({
   } else {
     url = new URL(`${appPath}/api/options/${optionsId}`);
   }
-  let params: Record<string, string> = {};
+
+  const params: Record<string, string> = {};
 
   if (language) {
     params.language = language;
   }
+  if (fixedQueryParameters) {
+    Object.assign(params, fixedQueryParameters);
+  }
   if (formData && dataMapping) {
     const mapped = mapFormData(formData, dataMapping);
-
-    params = {
-      ...params,
-      ...fixedQueryParameters,
-      ...mapped,
-    };
+    Object.assign(params, mapped);
   }
 
   url.search = new URLSearchParams(params).toString();

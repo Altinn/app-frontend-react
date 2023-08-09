@@ -281,6 +281,79 @@ describe('fetchOptionsSagas', () => {
         })
         .run();
     });
+
+    it('should include static query parameters in url', () => {
+      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+
+      const formData = {
+        'FlytteTil.Fylke': 'Oslo',
+      };
+
+      return expectSaga(fetchSpecificOptionSaga, {
+        optionsId: 'kommune',
+        dataMapping: undefined,
+        fixedQueryParameters: { level: '1' },
+        secure: undefined,
+      })
+        .provide([
+          [select(formDataSelector), formData],
+          [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
+          [select(instanceIdSelector), 'someId'],
+        ])
+        .call(networking.httpGet, 'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&level=1')
+        .run();
+    });
+
+    it('should include mapping in url', () => {
+      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+
+      const formData = {
+        'FlytteTil.Fylke': 'Oslo',
+      };
+
+      return expectSaga(fetchSpecificOptionSaga, {
+        optionsId: 'kommune',
+        dataMapping: {
+          'FlytteTil.Fylke': 'fylke',
+        },
+        fixedQueryParameters: undefined,
+        secure: undefined,
+      })
+        .provide([
+          [select(formDataSelector), formData],
+          [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
+          [select(instanceIdSelector), 'someId'],
+        ])
+        .call(networking.httpGet, 'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&fylke=Oslo')
+        .run();
+    });
+
+    it('should include static query parameters and mapping in request url', () => {
+      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+
+      const formData = {
+        'FlytteTil.Fylke': 'Oslo',
+      };
+
+      return expectSaga(fetchSpecificOptionSaga, {
+        optionsId: 'kommune',
+        dataMapping: {
+          'FlytteTil.Fylke': 'fylke',
+        },
+        fixedQueryParameters: { level: '1' },
+        secure: undefined,
+      })
+        .provide([
+          [select(formDataSelector), formData],
+          [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
+          [select(instanceIdSelector), 'someId'],
+        ])
+        .call(
+          networking.httpGet,
+          'https://local.altinn.cloud/ttd/test/api/options/kommune?language=nb&level=1&fylke=Oslo',
+        )
+        .run();
+    });
   });
 
   describe('instanceIdSelector', () => {
