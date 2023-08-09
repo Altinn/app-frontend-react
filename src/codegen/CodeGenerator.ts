@@ -1,8 +1,7 @@
 import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
-import { VariantSuffixes } from 'src/codegen/CG';
+import { Variant, VariantSuffixes } from 'src/codegen/CG';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
-import type { Variant } from 'src/codegen/CG';
 
 export interface JsonSchemaExt<T> {
   title: string | undefined;
@@ -46,10 +45,10 @@ export abstract class CodeGenerator<T> {
 
   protected getInternalJsonSchema(): JSONSchema7 {
     return {
-      title: this.internal.jsonSchema.title,
+      title: this.internal.jsonSchema.title || this.internal.symbol?.name || undefined,
       description: this.internal.jsonSchema.description,
       examples: this.internal.jsonSchema.examples.length ? (this.internal.jsonSchema.examples as any) : undefined,
-      default: this.internal.optional && (this.internal.optional.default as JSONSchema7Type),
+      default: this.internal.optional ? (this.internal.optional.default as JSONSchema7Type) : undefined,
     };
   }
 
@@ -110,14 +109,14 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     return this;
   }
 
-  getName(): string | undefined {
+  getName(respectVariationDifferences = true): string | undefined {
     if (!this.internal.symbol) {
       return undefined;
     }
     if (!this.currentVariant) {
       throw new Error('Cannot get name of symbolized code generator without variant - call transformTo() first');
     }
-    if (this.containsVariationDifferences()) {
+    if (respectVariationDifferences && this.containsVariationDifferences()) {
       return `${this.internal.symbol?.name}${VariantSuffixes[this.currentVariant]}`;
     }
 
@@ -148,6 +147,25 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
 
     return this.toTypeScriptDefinition(undefined);
   }
+
+  toJsonSchema(): JSONSchema7 {
+    if (!this.currentVariant || this.currentVariant === Variant.Internal) {
+      throw new Error('You need to transform this type to external before generating JsonSchema');
+    }
+
+    const name = this.getName(false);
+    if (name) {
+      CodeGeneratorContext.curFile().addSymbol(name, this.shouldBeExported(), this);
+
+      // If this type has a symbol, always use the symbol name
+      // as a reference instead of the full type definition
+      return { $ref: `#/definitions/${name}` };
+    }
+
+    return this.toJsonSchemaDefinition();
+  }
+
+  abstract toJsonSchemaDefinition(): JSONSchema7;
 
   abstract toTypeScriptDefinition(symbol: string | undefined): string;
 }

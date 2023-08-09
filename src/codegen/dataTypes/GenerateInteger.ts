@@ -15,10 +15,10 @@ export class GenerateInteger extends GenerateNumber {
     return symbol ? `type ${symbol} = number;` : 'number';
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
-      ...super.toJsonSchema(),
+      ...super.toJsonSchemaDefinition(),
       type: 'integer',
     };
   }

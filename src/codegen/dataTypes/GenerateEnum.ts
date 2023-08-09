@@ -29,7 +29,7 @@ export class GenerateEnum<T extends string | number> extends DescribableCodeGene
       .join('\n')}\n}`;
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       enum: this.values,

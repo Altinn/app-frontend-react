@@ -55,75 +55,51 @@ async function getComponentList() {
   promises.push(
     saveTsFile(
       commonTsPath,
-      CodeGeneratorContext.generateFile(commonTsPath, () => {
+      CodeGeneratorContext.generateTypeScript(commonTsPath, () => {
         generateCommonTypeScript();
         return ''; // Empty content, because all symbols are exported and registered in the context
       }),
     ),
   );
 
-  const schemaDefs = generateCommonSchema();
+  const configMap: { [key: string]: ComponentConfig } = {};
   for (const key of sortedKeys) {
     const tsPathConfig = `src/layout/${key}/config.generated.ts`;
     const tsPathDef = `src/layout/${key}/config.def.generated.ts`;
 
-    let config = null as unknown as ComponentConfig;
-    const content = await CodeGeneratorContext.generateFile(tsPathConfig, () => {
+    const content = await CodeGeneratorContext.generateTypeScript(tsPathConfig, () => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      config = require(`src/layout/${key}/config`).Config;
+      const config = require(`src/layout/${key}/config`).Config;
       config.setType(componentList[key], key);
+      configMap[key] = config;
       return config.generateConfigFile();
     });
-    const defClass = await CodeGeneratorContext.generateFile(tsPathDef, () => config.generateDefClass());
+    const defClass = await CodeGeneratorContext.generateTypeScript(tsPathDef, () => configMap[key].generateDefClass());
 
     promises.push(saveTsFile(tsPathConfig, content));
     promises.push(saveTsFile(tsPathDef, defClass));
-
-    if (config) {
-      schemaDefs[`Comp${key}`] = config.toJsonSchema();
-    }
   }
 
-  const fullSchema = generateFullSchema(sortedKeys, componentList, schemaDefs);
   const schemaPath = 'schemas/json/layout/layout.schema.v2.generated.json';
-  promises.push(saveFile(schemaPath, JSON.stringify(fullSchema, null, 2)));
+  const schema = await CodeGeneratorContext.generateJsonSchema(schemaPath, () => {
+    generateCommonSchema();
+    const base = generateFullSchema(sortedKeys, componentList);
+    for (const key of sortedKeys) {
+      const config = configMap[key];
+      base.definitions = base.definitions || {};
+      base.definitions[`Comp${key}`] = config.toJsonSchema();
+    }
+
+    return base;
+  });
+  promises.push(saveFile(schemaPath, JSON.stringify(schema.result, null, 2)));
 
   await Promise.all(promises);
 })();
 
-function generateFullSchema(
-  sortedKeys: string[],
-  componentList: { [p: string]: string },
-  schemaDefs: { [key: string]: JSONSchema7 },
-): JSONSchema7 {
-  const foundRefs = new Set<string>();
-  const allRefs = new Set<string>(Object.keys(schemaDefs));
-  for (const value of Object.values(schemaDefs)) {
-    const asJson = JSON.stringify(value);
-    const refRegex = /"\$ref":\s*"([^"]+)"/g;
-    const refMatches = asJson.match(refRegex);
-    if (refMatches) {
-      for (const ref of refMatches) {
-        const result = ref.replace('"$ref":', '').replace(/"/g, '').trim().replace('#/definitions/', '');
-        foundRefs.add(result);
-      }
-      // foundRefs.add(refMatches[1].replace('#/definitions/', ''));
-    } else if (asJson.includes('$ref')) {
-      throw new Error(`Could not find ref in ${asJson}`);
-    }
-  }
-
-  const notFoundRefs = [...allRefs].filter((ref) => !foundRefs.has(ref));
-  const notFoundExceptComponents = notFoundRefs.filter((ref) => !ref.startsWith('Comp'));
-  const finalSchemaDefs = structuredClone(schemaDefs);
-  for (const key of notFoundExceptComponents) {
-    delete finalSchemaDefs[key];
-  }
-
+function generateFullSchema(sortedKeys: string[], componentList: { [p: string]: string }): JSONSchema7 {
   // PRIORITY: Make sure this new schema is compatible with the current schema in the repo
   return {
-    $schema: 'http://json-schema.org/draft-07/schema#',
-    $id: 'https://altinncdn.no/schemas/json/layout/layout.schema.v1.json',
     title: 'Altinn layout',
     description: 'Schema that describes the layout configuration for Altinn applications.',
     type: 'object',
@@ -168,7 +144,6 @@ function generateFullSchema(
           then: { $ref: `#/definitions/Comp${key}` },
         })),
       },
-      ...finalSchemaDefs,
     },
   };
 }

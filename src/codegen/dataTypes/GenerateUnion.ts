@@ -47,7 +47,7 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
     return symbol ? `type ${symbol} = ${out};` : out;
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       anyOf: this.types.map((type) => type.toJsonSchema()),

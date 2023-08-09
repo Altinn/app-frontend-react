@@ -35,7 +35,7 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     return symbol ? `type ${symbol} = ${out};` : out;
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       type: 'array',

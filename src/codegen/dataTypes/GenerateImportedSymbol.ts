@@ -36,7 +36,7 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
     return this.val.import;
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     throw new Error(`Cannot generate JsonSchema for imported '${this.val.import}'`);
   }
 }

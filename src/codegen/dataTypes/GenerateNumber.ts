@@ -27,7 +27,7 @@ export class GenerateNumber extends DescribableCodeGenerator<number> {
     return symbol ? `type ${symbol} = number;` : 'number';
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       type: 'number',

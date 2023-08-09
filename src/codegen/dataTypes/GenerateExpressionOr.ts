@@ -85,7 +85,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     return symbol ? `type ${symbol} = ${toTsMap[this.valueType]};` : toTsMap[this.valueType];
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       ...toSchemaMap[this.valueType],

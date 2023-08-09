@@ -229,7 +229,7 @@ export class GenerateObject<P extends Props>
       : `{ ${properties.join('\n')} }${extendsIntersection}`;
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     this.ensureExtendsHaveNames();
     if (this._extends.length) {
       const allProperties: { [key: string]: true } = {};

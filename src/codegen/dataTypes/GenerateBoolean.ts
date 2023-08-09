@@ -14,7 +14,7 @@ export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
     return symbol ? `type ${symbol} = boolean;` : 'boolean';
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       type: 'boolean',

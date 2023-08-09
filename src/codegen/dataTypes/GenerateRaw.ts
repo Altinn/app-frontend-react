@@ -17,7 +17,7 @@ export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
     super();
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     if (!('jsonSchema' in this.raw)) {
       throw new Error('Raw type does not have a jsonSchema');
     }

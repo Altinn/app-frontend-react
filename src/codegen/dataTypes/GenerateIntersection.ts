@@ -19,7 +19,7 @@ export class GenerateIntersection<U extends CodeGenerator<any>[]> extends Descri
     return this.types.some((type) => type.containsVariationDifferences());
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       allOf: this.types.map((type) => type.toJsonSchema()),

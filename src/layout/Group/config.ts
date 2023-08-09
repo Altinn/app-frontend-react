@@ -11,19 +11,21 @@ export const Config = new CG.component({
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
-}).setLayoutNodeType(
-  new CG.import({
-    import: 'LayoutNodeForGroup',
-    from: 'src/layout/Group/LayoutNodeForGroup',
-  }),
-);
-
-const commonChildrenProp = new CG.prop(
-  'children',
-  new CG.arr(new CG.str())
-    .setTitle('Children')
-    .setDescription('Array of component IDs that should be displayed in the group'),
-).onlyIn(Variant.External);
+})
+  .setLayoutNodeType(
+    new CG.import({
+      import: 'LayoutNodeForGroup',
+      from: 'src/layout/Group/LayoutNodeForGroup',
+    }),
+  )
+  .addProperty(
+    new CG.prop(
+      'children',
+      new CG.arr(new CG.str())
+        .setTitle('Children')
+        .setDescription('Array of component IDs that should be displayed in the group'),
+    ).onlyIn(Variant.External),
+  );
 
 const commonNonRepChildComponents = new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal);
 
@@ -241,7 +243,6 @@ function makeRepeatingGroup() {
           .optional(),
       ),
     )
-    .addProperty(commonChildrenProp)
     .addProperty(commonRepRowsProp)
     .addProperty(
       new CG.prop(
@@ -346,7 +347,6 @@ function makeNonRepeatingGroup() {
         description: 'The body text shown underneath the title',
       }),
     )
-    .addProperty(commonChildrenProp)
     .addProperty(commonNonRepChildComponents)
     .addProperty(
       new CG.prop(
@@ -387,7 +387,6 @@ function makeNonRepeatingPanelGroup() {
         description: 'The body text of the Panel',
       }),
     )
-    .addProperty(commonChildrenProp)
     .addProperty(
       new CG.prop(
         'maxCount',
@@ -484,7 +483,6 @@ function makeRepeatingLikertGroup() {
         ).exportAs('IGroupEditPropertiesLikert'),
       ),
     )
-    .addProperty(commonChildrenProp)
     .addProperty(
       new CG.prop(
         'maxCount',

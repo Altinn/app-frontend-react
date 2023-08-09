@@ -22,7 +22,7 @@ export class GenerateString extends DescribableCodeGenerator<string> {
     return symbol ? `type ${symbol} = string;` : 'string';
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       type: 'string',

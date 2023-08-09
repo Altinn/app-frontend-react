@@ -1,5 +1,3 @@
-import type { JSONSchema7 } from 'json-schema';
-
 import { CG, Variant } from 'src/codegen/CG';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { ExprVal } from 'src/features/expressions/types';
@@ -488,11 +486,9 @@ export function generateCommonTypeScript() {
   }
 }
 
-export function generateCommonSchema(): { [key in ValidCommonKeys]: JSONSchema7 } {
-  const out: { [key: string]: JSONSchema7 } = {};
-
+export function generateCommonSchema() {
   for (const key in common) {
-    const val: CodeGenerator<any> = common[key]();
+    const val: MaybeSymbolizedCodeGenerator<any> = common[key]();
 
     if (val instanceof GenerateObject) {
       // We need to set this to undefined for common objects, because we have to collect all properties in one single
@@ -502,10 +498,8 @@ export function generateCommonSchema(): { [key in ValidCommonKeys]: JSONSchema7 
       val.additionalProperties(undefined);
     }
 
-    out[key] = val.toJsonSchema();
+    val.exportAs(key).transformTo(Variant.External).toJsonSchema();
   }
-
-  return out as { [key in ValidCommonKeys]: JSONSchema7 };
 }
 
 export function getSourceForCommon(key: ValidCommonKeys): CodeGenerator<any> {

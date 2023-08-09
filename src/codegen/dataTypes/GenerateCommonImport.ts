@@ -50,6 +50,10 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     return { $ref: `#/definitions/${this.key}` };
   }
 
+  toJsonSchemaDefinition(): JSONSchema7 {
+    throw new Error('Should not be called');
+  }
+
   private getSource(): CodeGenerator<any> {
     if (!this.source) {
       this.source = getSourceForCommon(this.key);

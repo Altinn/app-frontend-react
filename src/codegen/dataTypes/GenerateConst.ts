@@ -23,7 +23,7 @@ export class GenerateConst<Val extends string | boolean | number | null> extends
     return symbol ? `type ${symbol} = ${out};` : out;
   }
 
-  toJsonSchema(): JSONSchema7 {
+  toJsonSchemaDefinition(): JSONSchema7 {
     return {
       ...this.getInternalJsonSchema(),
       const: this.value,
