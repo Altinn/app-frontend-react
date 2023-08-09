@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { AttachmentSummaryComponent } from 'src/layout/FileUpload/AttachmentSummaryComponent';
 import { FileUploadDef } from 'src/layout/FileUpload/config.def.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
-import { getUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
+import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
+import { getUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { attachmentsValid } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';

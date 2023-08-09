@@ -23,7 +23,11 @@ export class Input extends InputDef {
 
     const text = formData[node.item.dataModelBindings.simpleBinding] || '';
 
-    const numberFormatting = getMapToReactNumberConfig(node.item.formatting as IInputFormatting, text, langTools);
+    const numberFormatting = getMapToReactNumberConfig(
+      node.item.formatting as IInputFormatting | undefined,
+      text,
+      langTools,
+    );
 
     if (numberFormatting?.number) {
       return formatNumericText(text, numberFormatting.number);

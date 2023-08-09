@@ -2,21 +2,20 @@ import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { useLanguage } from 'src/hooks/useLanguage';
-import { ComponentCategory } from 'src/layout/common';
+import {
+  type DisplayData,
+  type DisplayDataProps,
+  type EmptyFieldValidation,
+  getDisplayDataPropsFromState,
+  type PropsFromGenericComponent,
+  type SchemaValidation,
+} from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
-import type {
-  DisplayData,
-  DisplayDataProps,
-  EmptyFieldValidation,
-  PropsFromGenericComponent,
-  SchemaValidation,
-} from 'src/layout/index';
 import type { ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
@@ -122,13 +121,9 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
    */
   abstract getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
 
-  useDisplayData(node: LayoutNode<Type>): string {
-    const formData = useAppSelector((state) => state.formData.formData);
-    const attachments = useAppSelector((state) => state.attachments.attachments);
-    const options = useAppSelector((state) => state.optionState.options);
-    const uiConfig = useAppSelector((state) => state.formLayout.uiConfig);
-    const langTools = useLanguage();
-    return this.getDisplayData(node, { formData, attachments, options, uiConfig, langTools });
+  useDisplayData(node: LayoutNodeFromType<Type>): string {
+    const displayDataProps = useAppSelector(getDisplayDataPropsFromState);
+    return this.getDisplayData(node, displayDataProps);
   }
 
   /**

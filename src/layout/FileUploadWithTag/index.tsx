@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { getUploaderSummaryData } from 'src/layout/FileUpload/shared/summary';
-import { AttachmentWithTagSummaryComponent } from 'src/layout/FileUploadWithTag/AttachmentWithTagSummaryComponent';
+import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
+import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
+import { getUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
-import { FileUploadWithTagComponent } from 'src/layout/FileUploadWithTag/FileUploadWithTagComponent';
 import { AsciiUnitSeparator } from 'src/utils/attachment';
 import { attachmentIsMissingTag, attachmentsValid } from 'src/utils/validation/validation';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
@@ -15,7 +15,7 @@ import type { IValidationContext, IValidationObject } from 'src/utils/validation
 
 export class FileUploadWithTag extends FileUploadWithTagDef implements ComponentValidation {
   render(props: PropsFromGenericComponent<'FileUploadWithTag'>): JSX.Element | null {
-    return <FileUploadWithTagComponent {...props} />;
+    return <FileUploadComponent {...props} />;
   }
 
   renderDefaultValidations(): boolean {
@@ -29,7 +29,7 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements Component
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUploadWithTag'>): JSX.Element | null {
-    return <AttachmentWithTagSummaryComponent targetNode={targetNode} />;
+    return <AttachmentSummaryComponent targetNode={targetNode} />;
   }
 
   // This component does not have empty field validation, so has to override its inherited method
