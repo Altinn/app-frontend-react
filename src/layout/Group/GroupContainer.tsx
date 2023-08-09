@@ -15,7 +15,6 @@ import { Triggers } from 'src/layout/common.generated';
 import { RepeatingGroupsEditContainer } from 'src/layout/Group/RepeatingGroupsEditContainer';
 import { useRepeatingGroupsFocusContext } from 'src/layout/Group/RepeatingGroupsFocusContext';
 import { RepeatingGroupTable } from 'src/layout/Group/RepeatingGroupTable';
-import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { getRepeatingGroupFilteredIndices } from 'src/utils/formLayout';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
@@ -166,10 +165,6 @@ export function GroupContainer({ node }: IGroupProps): JSX.Element | null {
   }
 
   const isNested = node.parent instanceof BaseLayoutNode;
-
-  if (edit?.mode === 'likert') {
-    return <RepeatingGroupsLikertContainer node={node} />;
-  }
 
   const displayBtn =
     edit?.addButton !== false &&
