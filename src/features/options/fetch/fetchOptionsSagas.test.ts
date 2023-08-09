@@ -218,6 +218,71 @@ describe('fetchOptionsSagas', () => {
     });
   });
 
+  describe('Fixed query parameters', () => {
+    it('should include static query parameters and mapping', () => {
+      jest.spyOn(networking, 'httpGet').mockResolvedValue([]);
+      const formLayout: ILayouts = {
+        formLayout: [
+          {
+            id: 'fylke',
+            type: 'Dropdown',
+            textResourceBindings: {
+              title: 'fylke',
+            },
+            dataModelBindings: {
+              simpleBinding: 'FlytteFra.Fylke',
+            },
+            optionsId: 'fylke',
+            required: true,
+            queryParameters: {
+              level: '1',
+            },
+          },
+          {
+            id: 'kommune',
+            type: 'Dropdown',
+            textResourceBindings: {
+              title: 'kommune',
+            },
+            dataModelBindings: {
+              simpleBinding: 'FlytteTil.Kommune',
+            },
+            optionsId: 'kommune',
+            required: true,
+            mapping: {
+              'FlytteTil.Fylke': 'fylke',
+            },
+            queryParameters: {
+              level: '2',
+            },
+          },
+        ],
+      };
+
+      return expectSaga(fetchOptionsSaga)
+        .provide([
+          [selectNotNull(formLayoutSelector), formLayout],
+          [selectNotNull(repeatingGroupsSelector), {}],
+          [select(instanceIdSelector), 'someId'],
+        ])
+        .fork(fetchSpecificOptionSaga, {
+          optionsId: 'fylke',
+          dataMapping: undefined,
+          fixedQueryParameters: { level: '1' },
+          secure: undefined,
+        })
+        .fork(fetchSpecificOptionSaga, {
+          optionsId: 'kommune',
+          dataMapping: {
+            'FlytteTil.Fylke': 'fylke',
+          },
+          fixedQueryParameters: { level: '2' },
+          secure: undefined,
+        })
+        .run();
+    });
+  });
+
   describe('instanceIdSelector', () => {
     it('should return instance id if present', () => {
       const state = {
