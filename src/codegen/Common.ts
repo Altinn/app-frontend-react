@@ -216,7 +216,7 @@ const common = {
     )
       .setTitle('Option source')
       .setDescription('Allows for fetching options from the data model, pointing to a repeating group structure'),
-  ISelectionComponentMinimal: () =>
+  ISelectionComponent: () =>
     new CG.obj(
       new CG.prop(
         'optionsId',
@@ -226,9 +226,6 @@ const common = {
           .setDescription('ID of the option list to fetch from the server'),
       ),
       new CG.prop('mapping', CG.common('IMapping').optional()),
-    ),
-  ISelectionComponent: () =>
-    new CG.obj(
       new CG.prop(
         'options',
         new CG.arr(CG.common('IOption')).optional().setTitle('Static options').setDescription('List of static options'),
@@ -251,7 +248,7 @@ const common = {
           .setTitle('Preselected option index')
           .setDescription('Index of the option to preselect (if no option has been selected yet)'),
       ),
-    ).extends(CG.common('ISelectionComponentMinimal')),
+    ),
 
   // Table configuration:
   ITableColumnsAlignText: () =>

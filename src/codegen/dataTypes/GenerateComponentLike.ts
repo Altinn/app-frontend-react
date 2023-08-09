@@ -45,10 +45,8 @@ export class GenerateComponentLike {
     return this.extendTextResources(CG.common('TRBLabel'));
   }
 
-  public makeSelectionComponent(minimalFunctionality = false): this {
-    this.inner.extends(
-      minimalFunctionality ? CG.common('ISelectionComponentMinimal') : CG.common('ISelectionComponent'),
-    );
+  public makeSelectionComponent(): this {
+    this.inner.extends(CG.common('ISelectionComponent'));
 
     return this;
   }

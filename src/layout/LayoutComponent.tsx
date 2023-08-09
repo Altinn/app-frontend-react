@@ -183,7 +183,8 @@ export abstract class FormComponent<Type extends ComponentTypes>
     const validationObjects: IValidationObject[] = [];
 
     const bindings = Object.entries(node.item.dataModelBindings ?? {});
-    for (const [bindingKey, field] of bindings) {
+    for (const [bindingKey, _field] of bindings) {
+      const field = _field as string;
       const data = formDataToValidate[field];
 
       if (!data?.length) {

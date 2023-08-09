@@ -21,4 +21,12 @@ export const Config = asUploaderComponent(
       description: 'The title to show when selecting a tag for each uploaded file',
     }),
   )
-  .makeSelectionComponent(true);
+  .addProperty(
+    new CG.prop(
+      'optionsId',
+      new CG.str()
+        .setTitle('Dynamic options (fetched from server)')
+        .setDescription('ID of the option list to fetch from the server'),
+    ),
+  )
+  .addProperty(new CG.prop('mapping', CG.common('IMapping').optional()));
