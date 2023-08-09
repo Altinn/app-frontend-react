@@ -25,7 +25,7 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
     return def?.canRenderInTable() === true;
   }
 
-  stage1(generator, item: Pick<UnprocessedItem<'Grid'>, 'rows' | 'id'>): void {
+  stage1(generator: HierarchyGenerator, item: Pick<UnprocessedItem<'Grid'>, 'rows' | 'id'>): void {
     for (const row of item.rows) {
       for (const cell of row.cells) {
         if (cell && 'component' in cell) {

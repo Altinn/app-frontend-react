@@ -202,9 +202,6 @@ const render = ({ component, genericProps, attachments = getAttachments(), editI
       optionsId: 'test-options-id',
       textResourceBindings: {
         tagTitle: 'attachment-tag-title',
-        'attachment-tag-label-0': 'attachment-tag-value-0',
-        'attachment-tag-label-1': 'attachment-tag-value-1',
-        'attachment-tag-label-2': 'attachment-tag-value-2',
       },
       ...component,
     },

@@ -33,4 +33,5 @@ export const Config = new CG.component({
         .setTitle('Show back button')
         .setDescription("Shows two buttons (back/next) instead of just 'next'."),
     ),
-  );
+  )
+  .addProperty(new CG.prop('triggers', CG.common('TriggerList').optional()));

@@ -22,6 +22,7 @@ export const Config = new CG.component({
       .optional({ onlyIn: Variant.Internal })
       .exportAs('IDataModelBindingsForAddress'),
   )
+  .addProperty(new CG.prop('saveWhileTyping', CG.common('SaveWhileTyping').optional({ default: true })))
   .addProperty(
     new CG.prop(
       'simplified',

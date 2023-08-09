@@ -14,6 +14,7 @@ import type {
   ChildFactoryProps,
   ChildMutator,
   HierarchyContext,
+  HierarchyGenerator,
   UnprocessedItem,
 } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -36,15 +37,15 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
     this.innerGrid = new GridHierarchyGenerator();
   }
 
-  stage1(generator, item): void {
+  stage1(generator: HierarchyGenerator, item: UnprocessedItem<'Group'>): void {
     for (const id of item.children) {
-      const [, childId] = item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
+      const [, childId] = groupIsRepeatingExt(item) && item.edit?.multiPage ? id.split(':', 2) : [undefined, id];
       generator.claimChild({ childId, parentId: item.id });
     }
 
-    if (item.panel?.groupReference?.group) {
+    if (groupIsNonRepeatingPanelExt(item) && item.panel?.groupReference?.group) {
       const groupId = item.panel.groupReference.group;
-      const groupPrototype = generator.prototype(groupId) as UnprocessedItem<'Group'>;
+      const groupPrototype = generator.prototype(groupId);
       if (!groupPrototype) {
         window.logWarnOnce(`Group ${groupId} referenced by panel ${item.id} does not exist`);
         return;
@@ -52,19 +53,21 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
 
       this.groupPanelRefs[groupId] = {
         childPage: generator.topKey,
-        multiPage: item.edit?.multiPage,
+        multiPage: groupIsRepeatingExt(item) ? item.edit?.multiPage : undefined,
         children: item.children,
         parentPage: generator.topKey,
         parentId: item.id,
       };
     }
 
-    for (const rows of [item.rowsBefore, item.rowsAfter]) {
-      if (rows) {
-        this.innerGrid.stage1(generator, {
-          id: item.id,
-          rows,
-        });
+    if (groupIsRepeatingExt(item)) {
+      for (const rows of [item.rowsBefore, item.rowsAfter]) {
+        if (rows) {
+          this.innerGrid.stage1(generator, {
+            id: item.id,
+            rows,
+          });
+        }
       }
     }
   }

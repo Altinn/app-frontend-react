@@ -100,7 +100,7 @@ describe('repGroupDeleteRowSaga', function () {
           attachment,
           attachmentType: 'uploader',
           componentId: 'uploader-0',
-          dataModelBindings: {},
+          dataModelBindings: undefined,
         }),
       )
       .put(

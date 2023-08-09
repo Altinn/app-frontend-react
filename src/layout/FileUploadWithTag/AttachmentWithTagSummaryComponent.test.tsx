@@ -15,7 +15,6 @@ describe('AttachmentWithTagSummaryComponent', () => {
   const formLayoutItem: CompFileUploadWithTagExternal = {
     id: 'FileUploadWithTag',
     type: 'FileUploadWithTag',
-    dataModelBindings: {},
     textResourceBindings: {},
     optionsId: 'a',
     mapping: { a: 'b' },

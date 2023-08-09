@@ -103,7 +103,7 @@ export function* repGroupDeleteRowSaga({
           // Deleting attachment, but deliberately avoiding passing the dataModelBindings to avoid removing the formData
           // references. We're doing that ourselves here later, and having other sagas compete for it will cause race
           // conditions and lots of useless requests.
-          dataModelBindings: {},
+          dataModelBindings: undefined,
         }),
       );
 

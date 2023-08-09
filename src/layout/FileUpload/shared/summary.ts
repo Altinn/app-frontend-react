@@ -49,7 +49,10 @@ export function getUploaderSummaryData(
   formData: IFormData,
   attachments: IAttachments,
 ): IAttachment[] {
-  const listBinding = node.item.dataModelBindings?.list;
+  const listBinding =
+    node.item.dataModelBindings && 'list' in node.item.dataModelBindings
+      ? node.item.dataModelBindings?.list
+      : undefined;
   if (listBinding) {
     const values = extractListFromBinding(formData, listBinding);
     return attachmentsFromUuids(node.item.id, values, attachments).sort(sortAttachmentsByName);

@@ -15,6 +15,7 @@ import { QueueActions } from 'src/features/queue/queueSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { getLayoutComponentObject } from 'src/layout';
 import { ComponentCategory } from 'src/layout/common';
+import { groupIsRepeatingExt } from 'src/layout/Group/LayoutNodeForGroup';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { topLevelComponents } from 'src/utils/formLayout';
 import { httpGet } from 'src/utils/network/networking';
@@ -24,6 +25,7 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IPdfFormat, IPdfMethod } from 'src/features/pdf/data/types';
 import type { CompInstanceInformationExternal } from 'src/layout/InstanceInformation/config.generated';
 import type { ILayout, ILayouts } from 'src/layout/layout';
+import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
 import type { ILayoutSets, IRuntimeState, IUiConfig } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 
@@ -69,13 +71,16 @@ function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, lay
     ])
     .flatMap(([pageRef, components]: [string, ILayout]) => components?.map((component) => [pageRef, component]))
     .map(([pageRef, component]) => {
+      if (typeof component === 'string' || ('renderAsSummary' in component && component.renderAsSummary)) {
+        return null;
+      }
+
       const layoutComponent = getLayoutComponentObject(component.type);
 
       if (
-        !component.renderAsSummary &&
-        (component.type === 'Group' ||
-          layoutComponent.type === ComponentCategory.Form ||
-          layoutComponent.type === ComponentCategory.Presentation)
+        component.type === 'Group' ||
+        layoutComponent.type === ComponentCategory.Form ||
+        layoutComponent.type === ComponentCategory.Presentation
       ) {
         return {
           id: `__pdf__${component.id}`,
@@ -83,8 +88,8 @@ function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, lay
           componentRef: component.id,
           pageRef,
           excludedChildren: pdfFormat?.excludedComponents,
-          largeGroup: component.type === 'Group' && (!component.maxCount || component.maxCount <= 1),
-        };
+          largeGroup: component.type === 'Group' && !groupIsRepeatingExt(component),
+        } as CompSummaryExternal;
       }
       return null;
     })

@@ -54,7 +54,8 @@ export function* repGroupAddRowSaga({ payload: { groupId } }: PayloadAction<{ gr
       updatedRepeatingGroups[groupId] = {
         index: -1,
         baseGroupId: group.id,
-        dataModelBinding: group.dataModelBindings?.group,
+        dataModelBinding:
+          group.type === 'Group' && 'dataModelBindings' in group ? group.dataModelBindings?.group : undefined,
         editIndex: -1,
         multiPageIndex: -1,
       };

@@ -47,7 +47,7 @@ export function* removeHiddenValidationsSaga({
             ValidationActions.runSingleFieldValidation({
               componentId,
               layoutId,
-              dataModelBinding,
+              dataModelBinding: dataModelBinding as string,
             }),
           );
         }

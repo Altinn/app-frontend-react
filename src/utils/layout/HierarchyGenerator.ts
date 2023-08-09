@@ -263,7 +263,7 @@ export class HierarchyGenerator {
    * Gets the prototype of a given (base) component ID. This returns an un-editable object that is may be
    * useful when looking into the base definition/prototype of a component.
    */
-  prototype(id: string): UnprocessedItem | undefined {
+  prototype<T extends ComponentTypes>(id: string): UnprocessedItem<T> | undefined {
     const currenPageId = `${this.topKey}/${id}`;
     if (this.map[currenPageId]) {
       // Tries the current page first, to keep backwards compatibility
