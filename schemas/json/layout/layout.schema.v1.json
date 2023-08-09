@@ -1372,9 +1372,6 @@
         "mapping": {
           "$ref": "#/definitions/mapping",
           "description": "(Optional) Used to map data model paths to query parameters when fetching list data."
-        },
-        "queryParameters": {
-          "$ref": "#/definitions/queryParameters"
         }
       },
       "required": [
