@@ -39,6 +39,7 @@ interface IOptionLookupKeys {
 export function getOptionLookupKeys({
   id,
   mapping,
+  fixedQueryParameters,
   secure,
   repeatingGroups,
 }: IGetOptionLookupKeysParam): IOptionLookupKeys {
@@ -58,17 +59,17 @@ export function getOptionLookupKeys({
         };
         delete newMapping[mappingKey];
         newMapping[newMappingKey] = mapping[mappingKey];
-        lookupKeys.push({ id, mapping: newMapping, secure });
+        lookupKeys.push({ id, mapping: newMapping, fixedQueryParameters, secure });
       }
     });
 
     return {
       keys: lookupKeys,
-      keyWithIndexIndicator: { id, mapping, secure },
+      keyWithIndexIndicator: { id, mapping, fixedQueryParameters, secure },
     };
   }
 
-  lookupKeys.push({ id, mapping, secure });
+  lookupKeys.push({ id, mapping, fixedQueryParameters, secure });
   return {
     keys: lookupKeys,
   };

@@ -67,6 +67,7 @@ export function* fetchOptionsSaga(): SagaIterator {
           getOptionLookupKeys({
             id: optionsId,
             mapping,
+            fixedQueryParameters: queryParameters,
             secure,
             repeatingGroups,
           })) ||
@@ -77,21 +78,12 @@ export function* fetchOptionsSaga(): SagaIterator {
       }
 
       if (!keys?.length) {
-        const lookupKey = optionsId ? getOptionLookupKey({ id: optionsId, fixedQueryParameters: queryParameters }) : '';
-        if (optionsId && !fetchedOptions.includes(lookupKey)) {
-          yield fork(fetchSpecificOptionSaga, {
-            optionsId,
-            fixedQueryParameters: queryParameters,
-            secure,
-          });
-          fetchedOptions.push(lookupKey);
-        }
         continue;
       }
 
       for (const optionObject of keys) {
-        const { id, mapping, secure } = optionObject;
-        const lookupKey = getOptionLookupKey({ id, mapping, fixedQueryParameters: queryParameters });
+        const { id, mapping, fixedQueryParameters, secure } = optionObject;
+        const lookupKey = getOptionLookupKey({ id, mapping, fixedQueryParameters });
         if (optionsId && !fetchedOptions.includes(lookupKey)) {
           yield fork(fetchSpecificOptionSaga, {
             optionsId,
