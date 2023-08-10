@@ -33,28 +33,39 @@ export class GenerateObject<P extends Props>
   }
 
   extends(...symbols: Extendables[]): this {
-    this.ensureNotFrozen();
+    this.ensureMutable();
     for (const symbol of symbols) {
       if (symbol instanceof GenerateObject) {
-        symbol.ensureNotFrozen();
-        symbol._extendedBy.push(this);
+        if (symbol.isForwarding()) {
+          this.extends(symbol._extends[0]);
+        } else {
+          this.extendObject(symbol);
+        }
       } else {
         const source = getSourceForCommon(symbol.key);
         if (source instanceof GenerateObject) {
-          source.ensureNotFrozen();
-          source._extendedBy.push(this);
+          this.extendObject(source);
         } else {
           throw new Error(`Cannot extend ${symbol.key}, it is not an object`);
         }
       }
     }
 
-    this._extends.push(...symbols);
     return this;
   }
 
+  private extendObject(obj: GenerateObject<any>) {
+    obj.ensureMutable();
+    obj._extendedBy.push(this);
+    this._extends.push(obj);
+  }
+
+  private isForwarding(): boolean {
+    return this._extends.length === 1 && this.properties.length === 0;
+  }
+
   additionalProperties(type: CodeGenerator<any> | false) {
-    this.ensureNotFrozen();
+    this.ensureMutable();
     this._additionalProperties = type;
     return this;
   }
@@ -69,7 +80,7 @@ export class GenerateObject<P extends Props>
   }
 
   addProperty(prop: GenerateProperty<any>): this {
-    this.ensureNotFrozen();
+    this.ensureMutable();
     const { name, insertBefore, insertAfter, insertFirst } = prop.toObject();
     prop.setAsAdded();
 
@@ -125,7 +136,6 @@ export class GenerateObject<P extends Props>
     if (this.currentVariant === variant) {
       return this;
     }
-    this.internal.frozen = true;
 
     const newProps: Props = [];
     for (const prop of this.properties) {
@@ -252,8 +262,8 @@ export class GenerateObject<P extends Props>
       : `{ ${properties.join('\n')} }${extendsIntersection}`;
   }
 
-  private getPropertyList(): { all: { [key: string]: true }; required: string[] } {
-    const all: { [key: string]: true } = {};
+  private getPropertyList(): { all: { [key: string]: GenerateProperty<any> }; required: string[] } {
+    const all: { [key: string]: GenerateProperty<any> } = {};
     const required: string[] = [];
 
     for (const e of this._extends) {
@@ -264,7 +274,15 @@ export class GenerateObject<P extends Props>
 
       const { all: allFromExtend, required: requiredFromExtend } = obj.getPropertyList();
       for (const key of Object.keys(allFromExtend)) {
-        all[key] = true;
+        const ourProp = this.getProperty(key);
+        const theirProp = allFromExtend[key];
+        if (ourProp && ourProp.type instanceof GenerateObject) {
+          ourProp.type.extends(theirProp.type);
+        } else if (ourProp) {
+          throw new Error(`Cannot extend an object containing the same property (${key}) that is not an object`);
+        }
+
+        all[key] = theirProp;
       }
       required.push(...requiredFromExtend);
     }
@@ -273,7 +291,7 @@ export class GenerateObject<P extends Props>
       if (!prop.shouldExistIn(Variant.External)) {
         continue;
       }
-      all[prop.name] = true;
+      all[prop.name] = prop;
       if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
         required.push(prop.name);
       }
@@ -285,7 +303,15 @@ export class GenerateObject<P extends Props>
   toJsonSchemaDefinition(): JSONSchema7 {
     this.ensureExtendsHaveNames();
     if (this._extends.length) {
+      if (this.isForwarding()) {
+        return { $ref: `#/definitions/${this._extends[0].getName(false)}` };
+      }
+
       const { all: allProperties, required: requiredProperties } = this.getPropertyList();
+      const allPropsAsTrue: { [key: string]: true } = {};
+      for (const key of Object.keys(allProperties)) {
+        allPropsAsTrue[key] = true;
+      }
 
       const allOf = this._extends.map((e) => e.toJsonSchema());
       if (this.properties.length) {
@@ -300,7 +326,7 @@ export class GenerateObject<P extends Props>
               // extended, the objects would mutually exclude each other's properties. For that reason, we'll only
               // set it on the last object in the chain.
               type: 'object',
-              properties: allProperties,
+              properties: allPropsAsTrue,
               required: requiredProperties.length ? requiredProperties : undefined,
               additionalProperties: this.additionalPropertiesToJsonSchema(),
             }

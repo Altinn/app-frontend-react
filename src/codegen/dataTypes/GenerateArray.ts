@@ -17,13 +17,13 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
   }
 
   setMinItems(minItems: number): this {
-    this.ensureNotFrozen();
+    this.ensureMutable();
     this._minItems = minItems;
     return this;
   }
 
   setMaxItems(maxItems: number): this {
-    this.ensureNotFrozen();
+    this.ensureMutable();
     this._maxItems = maxItems;
     return this;
   }
@@ -52,7 +52,6 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
       return this;
     }
 
-    this.internal.frozen = true;
     const out = new GenerateArray(this.innerType.transformTo(variant));
     out.internal = structuredClone(this.internal);
     out.internal.source = this;

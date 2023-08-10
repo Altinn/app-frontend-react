@@ -46,7 +46,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
   }
 
   toJsonSchema(): JSONSchema7 {
-    this.internal.frozen = true;
+    this.freeze('toJsonSchema');
     return { $ref: `#/definitions/${this.key}` };
   }
 
@@ -95,7 +95,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
       from: 'src/layout/common.generated',
     });
 
-    this.internal.frozen = true;
+    this.freeze('toTypeScriptDefinition');
     return _import.toTypeScriptDefinition(undefined);
   }
 
@@ -103,7 +103,10 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     return super.containsVariationDifferences() || commonContainsVariationDifferences(this.key);
   }
 
-  getName(): string {
+  getName(respectVariationDifferences = true): string {
+    if (!respectVariationDifferences) {
+      return this.key;
+    }
     return this.realKey ?? this.key;
   }
 }

@@ -19,7 +19,7 @@ export class GenerateEnum<T extends string | number> extends DescribableCodeGene
   }
 
   asRealEnum(valueToName: ValueToNameFunc<T>): this {
-    this.ensureNotFrozen();
+    this.ensureMutable();
     this._asRealEnum = valueToName;
     return this;
   }
