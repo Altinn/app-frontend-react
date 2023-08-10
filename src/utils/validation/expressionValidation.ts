@@ -159,7 +159,10 @@ export function runExpressionValidationsOnNode(
   expressionValidations: IExpressionValidationDefinition,
   overrideFormData?: IFormData,
 ): IValidationObject[] {
-  if (!node.item.dataModelBindings || !node.item.baseDataModelBindings) {
+  const resolvedDataModelBindings = node.item.dataModelBindings;
+  const baseDataModelBindings = node.item.baseDataModelBindings ?? resolvedDataModelBindings;
+
+  if (!resolvedDataModelBindings || !baseDataModelBindings) {
     return [];
   }
 
@@ -180,14 +183,14 @@ export function runExpressionValidationsOnNode(
 
   const validationObjects: IValidationObject[] = [];
 
-  for (const [bindingKey, field] of Object.entries(node.item.baseDataModelBindings)) {
+  for (const [bindingKey, field] of Object.entries(baseDataModelBindings)) {
     const validationDefs = expressionValidations[field];
     if (!validationDefs) {
       continue;
     }
     for (const validationDef of validationDefs) {
       try {
-        const resolvedField = node.item.dataModelBindings[bindingKey];
+        const resolvedField = resolvedDataModelBindings[bindingKey];
         const resolvedCondition = resolveValidationCondition(validationDef.condition, resolvedField);
         const isInvalid = evalExpr(resolvedCondition, node, newDataSources, { config });
         if (isInvalid) {

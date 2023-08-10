@@ -8,6 +8,7 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
+import { useCustomValidationConfig } from 'src/hooks/queries/useCustomValidationConfig';
 import { useFooterLayoutQuery } from 'src/hooks/queries/useFooterLayoutQuery';
 import { useCurrentPartyQuery } from 'src/hooks/queries/useGetCurrentPartyQuery';
 import { usePartiesQuery } from 'src/hooks/queries/useGetPartiesQuery';
@@ -58,6 +59,8 @@ type AppInternalProps = {
 };
 
 const AppInternal = ({ applicationSettings }: AppInternalProps): JSX.Element | null => {
+  const backendFeatures = useAppSelector((state) => state.applicationMetadata.applicationMetadata?.features);
+  useCustomValidationConfig(Boolean(backendFeatures?.expressionValidation));
   const allowAnonymousSelector = makeGetAllowAnonymousSelector();
   const allowAnonymous: boolean = useAppSelector(allowAnonymousSelector);
 

@@ -109,6 +109,8 @@ export const redirectToUpgrade = (reqAuthLevel: string) => {
 
 export const getJsonSchemaUrl = () => `${appPath}/api/jsonschema/`;
 
+export const getCustomValidationConfigUrl = (dataTypeId: string) => `${appPath}/api/validationconfig/${dataTypeId}`;
+
 export const getLayoutSettingsUrl = (layoutset: string | null | undefined) => {
   if (layoutset === null || layoutset === undefined) {
     return `${appPath}/api/layoutsettings`;

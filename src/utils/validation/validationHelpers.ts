@@ -24,6 +24,7 @@ export function validationContextFromState(state: IRuntimeState): IValidationCon
     instance: state.instanceData.instance,
     layoutSets: state.formLayout.layoutsets,
     schemas: state.formDataModel.schemas,
+    customValidation: state.customValidation.customValidation,
   };
 }
 

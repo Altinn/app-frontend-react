@@ -4,6 +4,7 @@ import {
   implementsEmptyFieldValidation,
   implementsSchemaValidation,
 } from 'src/layout';
+import { runExpressionValidationsOnNode } from 'src/utils/validation/expressionValidation';
 import { getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
 import { emptyValidation } from 'src/utils/validation/validationHelpers';
 import type { IAttachment } from 'src/features/attachments';
@@ -65,6 +66,12 @@ export function runValidationOnNodes(
 
     if (implementsSchemaValidation(node.def) && !options?.skipSchemaValidation) {
       nodeValidations.push(...node.def.runSchemaValidation(node as any, schemaErrors));
+    }
+
+    if (validationContext.customValidation) {
+      nodeValidations.push(
+        ...runExpressionValidationsOnNode(node, validationContext.customValidation, options?.overrideFormData),
+      );
     }
 
     if (nodeValidations.length) {

@@ -5,6 +5,7 @@ import {
   applicationSettingsApiUrl,
   currentPartyUrl,
   getActiveInstancesUrl,
+  getCustomValidationConfigUrl,
   getFooterLayoutUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
@@ -17,6 +18,7 @@ import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
+import type { IExpressionValidationConfig } from 'src/utils/validation/types';
 
 export const doPartyValidation = (partyId: string) => httpPost(getPartyValidationUrl(partyId));
 
@@ -43,3 +45,6 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
 export const fetchUserProfile = (): Promise<IProfile> => httpGet(profileApiUrl);
 
 export const fetchRefreshJwtToken = () => httpGet(refreshJwtTokenUrl);
+
+export const fetchCustomValidationConfig = (dataTypeId: string): Promise<IExpressionValidationConfig | null> =>
+  httpGet(getCustomValidationConfigUrl(dataTypeId));

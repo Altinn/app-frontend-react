@@ -18,6 +18,7 @@ export type IValidationContext = {
   instance: IInstance | null;
   layoutSets: ILayoutSets | null;
   schemas: IJsonSchemas;
+  customValidation: IExpressionValidationDefinition | null;
 };
 
 /**
