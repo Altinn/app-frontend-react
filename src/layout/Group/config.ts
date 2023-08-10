@@ -136,6 +136,7 @@ function makeRepeatingGroup() {
       }),
     )
     .addDataModelBinding(commonRepGroupDataModelBinding)
+    .addProperty(new CG.prop('triggers', CG.common('TriggerList').optional()))
     .addProperty(
       new CG.prop(
         'edit',

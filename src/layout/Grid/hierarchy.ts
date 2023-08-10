@@ -28,7 +28,7 @@ export class GridHierarchyGenerator extends ComponentHierarchyGenerator<'Grid'> 
   stage1(generator: HierarchyGenerator, item: Pick<UnprocessedItem<'Grid'>, 'rows' | 'id'>): void {
     for (const row of item.rows) {
       for (const cell of row.cells) {
-        if (cell && 'component' in cell) {
+        if (cell && 'component' in cell && cell.component) {
           const childId = cell.component;
           if (!this.canRenderInTable(generator, childId)) {
             continue;

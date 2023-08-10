@@ -375,7 +375,9 @@ const common = {
 
   // Reusable Grid component properties (used by both Grid and repeating Group):
   GridComponentRef: () =>
-    new CG.obj(new CG.prop('component', new CG.str().setTitle('Component ID').setDescription('ID of the component'))),
+    new CG.obj(
+      new CG.prop('component', new CG.str().optional().setTitle('Component ID').setDescription('ID of the component')),
+    ),
   GridText: () =>
     new CG.obj(
       new CG.prop(
@@ -386,6 +388,18 @@ const common = {
       new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
       new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
     ),
+  GridCell: () =>
+    new CG.union(
+      new CG.linked(
+        CG.common('GridComponentRef'),
+        new CG.import({
+          import: 'GridComponent',
+          from: 'src/layout/Grid/types',
+        }),
+      ),
+      CG.null,
+      CG.common('GridText'),
+    ),
   GridRow: () =>
     new CG.obj(
       new CG.prop('header', new CG.bool().optional({ default: false }).setTitle('Is header row?')),
@@ -393,21 +407,9 @@ const common = {
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
       new CG.prop(
         'cells',
-        new CG.arr(
-          new CG.union(
-            new CG.linked(
-              CG.common('GridComponentRef'),
-              new CG.import({
-                import: 'GridComponent',
-                from: 'src/layout/Grid/types',
-              }),
-            ),
-            CG.null,
-            CG.common('GridText'),
-          )
-            .setTitle('Cells in table row')
-            .setDescription('The list of cells in this row'),
-        ),
+        new CG.arr(CG.common('GridCell'))
+          .setTitle('Cells in table row')
+          .setDescription('The list of cells in this row'),
       ),
     ),
   GridRows: () =>
