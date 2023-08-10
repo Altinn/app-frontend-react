@@ -487,7 +487,6 @@ function makeRepeatingLikertGroup() {
       new CG.prop(
         'maxCount',
         new CG.int()
-          .optional({ default: 1 })
           .setMin(2)
           .setTitle('Max number of rows')
           .setDescription(

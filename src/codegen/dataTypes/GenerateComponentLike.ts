@@ -14,7 +14,7 @@ import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/Generate
  * I.e., you could override the exported symbol to a GenerateUnion-type, and adding multiples of this type to the union.
  */
 export class GenerateComponentLike {
-  readonly inner = new CG.obj().extends(CG.common('ComponentBase'));
+  readonly inner = new CG.obj();
 
   public addProperty(prop: GenerateProperty<any>): this {
     this.inner.addProperty(prop);

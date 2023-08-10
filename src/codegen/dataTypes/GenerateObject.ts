@@ -2,6 +2,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CG, Variant } from 'src/codegen/CG';
 import { DescribableCodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
+import { getSourceForCommon } from 'src/codegen/Common';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { CodeGenerator, CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
@@ -229,30 +230,40 @@ export class GenerateObject<P extends Props>
       : `{ ${properties.join('\n')} }${extendsIntersection}`;
   }
 
+  private getPropertyList(): { all: { [key: string]: true }; required: string[] } {
+    const all: { [key: string]: true } = {};
+    const required: string[] = [];
+
+    for (const e of this._extends) {
+      const obj = e instanceof GenerateCommonImport ? getSourceForCommon(e.key) : e;
+      if (!(obj instanceof GenerateObject)) {
+        throw new Error(`Cannot extend a non-object type`);
+      }
+
+      const { all: allFromExtend, required: requiredFromExtend } = obj.getPropertyList();
+      for (const key of Object.keys(allFromExtend)) {
+        all[key] = true;
+      }
+      required.push(...requiredFromExtend);
+    }
+
+    for (const prop of this.properties) {
+      if (!prop.shouldExistIn(Variant.External)) {
+        continue;
+      }
+      all[prop.name] = true;
+      if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
+        required.push(prop.name);
+      }
+    }
+
+    return { all, required };
+  }
+
   toJsonSchemaDefinition(): JSONSchema7 {
     this.ensureExtendsHaveNames();
     if (this._extends.length) {
-      const allProperties: { [key: string]: true } = {};
-      const requiredProperties: string[] = [];
-
-      for (const e of this._extends) {
-        for (const prop of e.getProperties()) {
-          allProperties[prop.name] = true;
-          if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
-            requiredProperties.push(prop.name);
-          }
-        }
-      }
-
-      for (const prop of this.properties) {
-        if (!prop.shouldExistIn(Variant.External)) {
-          continue;
-        }
-        allProperties[prop.name] = true;
-        if (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional()) {
-          requiredProperties.push(prop.name);
-        }
-      }
+      const { all: allProperties, required: requiredProperties } = this.getPropertyList();
 
       const allOf = this._extends.map((e) => e.toJsonSchema());
       if (this.properties.length) {

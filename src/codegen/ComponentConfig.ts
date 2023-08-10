@@ -55,6 +55,7 @@ export class ComponentConfig extends GenerateComponentLike {
 
   constructor(public readonly config: RequiredComponentConfig) {
     super();
+    this.inner.extends(CG.common('ComponentBase'));
     if (config.category === ComponentCategory.Form) {
       this.inner.extends(CG.common('FormComponentProps'));
       this.extendTextResources(CG.common('TRBFormComp'));
