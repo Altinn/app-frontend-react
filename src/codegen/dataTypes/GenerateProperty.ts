@@ -13,6 +13,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
   private _insertAfter?: string;
   private _insertFirst = false;
   private _onlyVariant?: Variant;
+  private _added = false;
 
   constructor(
     public readonly name: string,
@@ -21,10 +22,18 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     super();
   }
 
+  protected ensureNotAdded(): void {
+    if (this._added) {
+      throw new Error('Cannot modify added property');
+    }
+  }
+
   /**
    * Important: Call this on the property object before adding it to the object
    */
   insertBefore(otherPropertyName: string): this {
+    this.ensureNotFrozen();
+    this.ensureNotAdded();
     this._insertBefore = otherPropertyName;
     return this;
   }
@@ -33,6 +42,8 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
    * Important: Call this on the property object before adding it to the object
    */
   insertAfter(otherPropertyName: string): this {
+    this.ensureNotFrozen();
+    this.ensureNotAdded();
     this._insertAfter = otherPropertyName;
     return this;
   }
@@ -41,6 +52,8 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
    * Important: Call this on the property object before adding it to the object
    */
   insertFirst(): this {
+    this.ensureNotFrozen();
+    this.ensureNotAdded();
     this._insertBefore = undefined;
     this._insertAfter = undefined;
     this._insertFirst = true;
@@ -48,6 +61,8 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
   }
 
   onlyIn(variant: Variant): this {
+    this.ensureNotFrozen();
+    this.ensureNotAdded();
     this._onlyVariant = variant;
     return this;
   }
@@ -90,6 +105,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
       return this;
     }
 
+    this.internal.frozen = true;
     const transformedType = this.type.transformTo(variant);
     const next = new GenerateProperty(this.name, transformedType);
     next._insertFirst = this._insertFirst;
@@ -115,5 +131,9 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
 
   toJsonSchema(): JSONSchema7 {
     throw new Error('Do not call this directly, generate JsonSchema for the object (or property type) instead');
+  }
+
+  setAsAdded() {
+    this._added = true;
   }
 }

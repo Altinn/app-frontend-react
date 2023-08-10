@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
-import { generateCommonSchema, generateCommonTypeScript } from 'src/codegen/Common';
+import { generateAllCommonTypes, generateCommonSchema, generateCommonTypeScript } from 'src/codegen/Common';
 import { saveFile, saveTsFile } from 'src/codegen/tools';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 
@@ -51,16 +51,9 @@ async function getComponentList() {
   const promises: Promise<void>[] = [];
   promises.push(saveFile('src/layout/components.generated.ts', componentIndex.join('\n')));
 
-  const commonTsPath = 'src/layout/common.generated.ts';
-  promises.push(
-    saveTsFile(
-      commonTsPath,
-      CodeGeneratorContext.generateTypeScript(commonTsPath, () => {
-        generateCommonTypeScript();
-        return ''; // Empty content, because all symbols are exported and registered in the context
-      }),
-    ),
-  );
+  // Make sure all common types has been generated first, so that they don't start extending
+  // each other after being frozen
+  generateAllCommonTypes();
 
   const configMap: { [key: string]: ComponentConfig } = {};
   for (const key of sortedKeys) {
@@ -93,6 +86,17 @@ async function getComponentList() {
     return base;
   });
   promises.push(saveFile(schemaPath, JSON.stringify(schema.result, null, 2)));
+
+  const commonTsPath = 'src/layout/common.generated.ts';
+  promises.push(
+    saveTsFile(
+      commonTsPath,
+      CodeGeneratorContext.generateTypeScript(commonTsPath, () => {
+        generateCommonTypeScript();
+        return ''; // Empty content, because all symbols are exported and registered in the context
+      }),
+    ),
+  );
 
   await Promise.all(promises);
 })();

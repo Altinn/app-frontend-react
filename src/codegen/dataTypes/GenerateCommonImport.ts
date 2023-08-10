@@ -5,7 +5,7 @@ import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { commonContainsVariationDifferences, getSourceForCommon } from 'src/codegen/Common';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { Variant } from 'src/codegen/CG';
-import type { CodeGenerator, CodeGeneratorWithProperties } from 'src/codegen/CodeGenerator';
+import type { CodeGeneratorWithProperties } from 'src/codegen/CodeGenerator';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
@@ -18,7 +18,6 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
   implements CodeGeneratorWithProperties
 {
   public readonly realKey?: string;
-  private source?: CodeGenerator<any>;
 
   constructor(
     public readonly key: T,
@@ -47,6 +46,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
   }
 
   toJsonSchema(): JSONSchema7 {
+    this.internal.frozen = true;
     return { $ref: `#/definitions/${this.key}` };
   }
 
@@ -54,16 +54,8 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     throw new Error('Should not be called');
   }
 
-  private getSource(): CodeGenerator<any> {
-    if (!this.source) {
-      this.source = getSourceForCommon(this.key);
-    }
-
-    return this.source;
-  }
-
   hasProperty(name: string): boolean {
-    const source = this.getSource();
+    const source = getSourceForCommon(this.key);
     if (source instanceof GenerateObject) {
       return source.hasProperty(name);
     }
@@ -72,7 +64,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
   }
 
   getProperty(name: string): GenerateProperty<any> | undefined {
-    const source = this.getSource();
+    const source = getSourceForCommon(this.key);
     if (source instanceof GenerateObject) {
       return source.getProperty(name);
     }
@@ -81,7 +73,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
   }
 
   getProperties(): GenerateProperty<any>[] {
-    const source = this.getSource();
+    const source = getSourceForCommon(this.key);
     if (source instanceof GenerateObject) {
       return source.getProperties();
     }
@@ -103,6 +95,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
       from: 'src/layout/common.generated',
     });
 
+    this.internal.frozen = true;
     return _import.toTypeScriptDefinition(undefined);
   }
 

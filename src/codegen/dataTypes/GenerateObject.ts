@@ -23,8 +23,9 @@ export class GenerateObject<P extends Props>
   implements CodeGeneratorWithProperties
 {
   private readonly properties: P;
-  private _additionalProperties: CodeGenerator<any> | false | undefined = false;
+  private _additionalProperties: CodeGenerator<any> | false = false;
   private _extends: Extendables[] = [];
+  private _extendedBy: GenerateObject<any>[] = [];
 
   constructor(...properties: P) {
     super();
@@ -32,11 +33,28 @@ export class GenerateObject<P extends Props>
   }
 
   extends(...symbols: Extendables[]): this {
+    this.ensureNotFrozen();
+    for (const symbol of symbols) {
+      if (symbol instanceof GenerateObject) {
+        symbol.ensureNotFrozen();
+        symbol._extendedBy.push(this);
+      } else {
+        const source = getSourceForCommon(symbol.key);
+        if (source instanceof GenerateObject) {
+          source.ensureNotFrozen();
+          source._extendedBy.push(this);
+        } else {
+          throw new Error(`Cannot extend ${symbol.key}, it is not an object`);
+        }
+      }
+    }
+
     this._extends.push(...symbols);
     return this;
   }
 
-  additionalProperties(type: CodeGenerator<any> | false | undefined) {
+  additionalProperties(type: CodeGenerator<any> | false) {
+    this.ensureNotFrozen();
     this._additionalProperties = type;
     return this;
   }
@@ -51,7 +69,9 @@ export class GenerateObject<P extends Props>
   }
 
   addProperty(prop: GenerateProperty<any>): this {
+    this.ensureNotFrozen();
     const { name, insertBefore, insertAfter, insertFirst } = prop.toObject();
+    prop.setAsAdded();
 
     // Replace property if it already exists
     const index = this.properties.findIndex((property) => property.name === name);
@@ -105,6 +125,7 @@ export class GenerateObject<P extends Props>
     if (this.currentVariant === variant) {
       return this;
     }
+    this.internal.frozen = true;
 
     const newProps: Props = [];
     for (const prop of this.properties) {
@@ -120,6 +141,7 @@ export class GenerateObject<P extends Props>
       ? (this._additionalProperties.transformTo(variant) as DescribableCodeGenerator<any>)
       : this._additionalProperties;
     next._extends = this._extends.map((e) => e.transformTo(variant));
+    next._extendedBy = this._extendedBy;
     next.internal = structuredClone(this.internal);
     next.internal.source = this;
     next.currentVariant = variant;
@@ -270,19 +292,22 @@ export class GenerateObject<P extends Props>
         allOf.push(this.innerToJsonSchema(false));
       }
 
+      const propertyListObj: JSONSchema7 | undefined =
+        this._extendedBy.length === 0
+          ? {
+              // This trick makes it possible to extend multiple other object, but still
+              // preserve the behaviour of additionalProperties = false. If it was set on each of the objects we
+              // extended, the objects would mutually exclude each other's properties. For that reason, we'll only
+              // set it on the last object in the chain.
+              type: 'object',
+              properties: allProperties,
+              required: requiredProperties.length ? requiredProperties : undefined,
+              additionalProperties: this.additionalPropertiesToJsonSchema(),
+            }
+          : undefined;
+
       return {
-        allOf: [
-          ...allOf,
-          {
-            // This trick makes it possible to extend multiple other object, but still
-            // preserve the behaviour of additionalProperties = false. If it was set on each of the objects we extended,
-            // the objects would mutually exclude each other's properties.
-            type: 'object',
-            properties: allProperties,
-            required: requiredProperties.length ? requiredProperties : undefined,
-            additionalProperties: this.additionalPropertiesToJsonSchema(),
-          },
-        ],
+        allOf: [...allOf, ...(propertyListObj ? [propertyListObj] : [])],
       };
     }
 
@@ -315,6 +340,12 @@ export class GenerateObject<P extends Props>
   }
 
   private additionalPropertiesToJsonSchema(): JSONSchema7['additionalProperties'] {
+    if (this._extendedBy.length && this._additionalProperties === false) {
+      return undefined;
+    } else if (this._extendedBy.length) {
+      throw new Error(`Cannot extend an object that has additionalProperties set`);
+    }
+
     if (this._additionalProperties === false) {
       return false;
     }

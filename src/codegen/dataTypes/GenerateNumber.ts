@@ -14,11 +14,13 @@ export class GenerateNumber extends DescribableCodeGenerator<number> {
   }
 
   setMin(minimum: number) {
+    this.ensureNotFrozen();
     this.minimum = minimum;
     return this;
   }
 
   setMax(maximum: number) {
+    this.ensureNotFrozen();
     this.maximum = maximum;
     return this;
   }

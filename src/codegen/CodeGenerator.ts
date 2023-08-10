@@ -27,6 +27,7 @@ export interface InternalConfig<T> {
   symbol?: SymbolExt;
   optional: Optionality<T> | false;
   source?: CodeGenerator<any>;
+  frozen: boolean;
 }
 
 export type Extract<Val extends CodeGenerator<any>> = Val extends CodeGenerator<infer X> ? X : never;
@@ -41,15 +42,23 @@ export abstract class CodeGenerator<T> {
     },
     typeScript: {},
     optional: false,
+    frozen: false,
   };
 
   protected getInternalJsonSchema(): JSONSchema7 {
+    this.internal.frozen = true;
     return {
       title: this.internal.jsonSchema.title || this.internal.symbol?.name || undefined,
       description: this.internal.jsonSchema.description,
       examples: this.internal.jsonSchema.examples.length ? (this.internal.jsonSchema.examples as any) : undefined,
       default: this.internal.optional ? (this.internal.optional.default as JSONSchema7Type) : undefined,
     };
+  }
+
+  protected ensureNotFrozen(): void {
+    if (this.internal.frozen) {
+      throw new Error('Cannot modify frozen code generator');
+    }
   }
 
   transformTo(variant: Variant): this | CodeGenerator<any> {
@@ -63,6 +72,7 @@ export abstract class CodeGenerator<T> {
     }
 
     this.currentVariant = variant;
+    this.internal.frozen = true;
     return this;
   }
 
@@ -76,6 +86,7 @@ export abstract class CodeGenerator<T> {
 
 export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
   exportAs(name: string): this {
+    this.ensureNotFrozen();
     if (this.currentVariant) {
       throw new Error('You have to call exportAs() before calling transformTo()');
     }
@@ -93,6 +104,7 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
   }
 
   named(name: string): this {
+    this.ensureNotFrozen();
     if (this.currentVariant) {
       throw new Error('You have to call named() before calling transformTo()');
     }
@@ -132,6 +144,7 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
   }
 
   toTypeScript(): string {
+    this.internal.frozen = true;
     if (!this.currentVariant) {
       throw new Error('You need to transform this type to either external or internal before generating TypeScript');
     }
@@ -149,6 +162,7 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
   }
 
   toJsonSchema(): JSONSchema7 {
+    this.internal.frozen = true;
     if (!this.currentVariant || this.currentVariant === Variant.Internal) {
       throw new Error('You need to transform this type to external before generating JsonSchema');
     }
@@ -172,6 +186,7 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
 
 export abstract class MaybeOptionalCodeGenerator<T> extends MaybeSymbolizedCodeGenerator<T> {
   optional(optionality?: Optionality<T>): this {
+    this.ensureNotFrozen();
     this.internal.optional = optionality || {};
     return this;
   }
@@ -191,16 +206,19 @@ export abstract class MaybeOptionalCodeGenerator<T> extends MaybeSymbolizedCodeG
 
 export abstract class DescribableCodeGenerator<T> extends MaybeOptionalCodeGenerator<T> {
   setTitle(title: string): this {
+    this.ensureNotFrozen();
     this.internal.jsonSchema.title = title;
     return this;
   }
 
   setDescription(description: string): this {
+    this.ensureNotFrozen();
     this.internal.jsonSchema.description = description;
     return this;
   }
 
   addExample(...examples: T[]): this {
+    this.ensureNotFrozen();
     this.internal.jsonSchema.examples.push(...examples);
     return this;
   }

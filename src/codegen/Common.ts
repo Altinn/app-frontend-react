@@ -1,7 +1,6 @@
 import { CG, Variant } from 'src/codegen/CG';
-import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { ExprVal } from 'src/features/expressions/types';
-import type { CodeGenerator, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 const common = {
   ILabelSettings: () =>
@@ -460,20 +459,41 @@ function makeTRB(keys: { [key: string]: TRB }) {
   for (const prop in keys) {
     const val = keys[prop];
     obj.addProperty(
-      new CG.prop(prop, new CG.expr(ExprVal.String).optional().setTitle(val.title).setDescription(val.description)),
+      new CG.trb({
+        name: prop,
+        title: val.title,
+        description: val.description,
+      }),
     );
   }
   return obj;
 }
 
+const implementationsCache: { [key: string]: MaybeSymbolizedCodeGenerator<any> } = {};
+export function getSourceForCommon(key: ValidCommonKeys) {
+  if (implementationsCache[key]) {
+    return implementationsCache[key];
+  }
+
+  const impl = common[key]();
+  impl.exportAs(key);
+  implementationsCache[key] = impl;
+  return impl;
+}
+
 export function commonContainsVariationDifferences(key: ValidCommonKeys): boolean {
-  return common[key]().containsVariationDifferences();
+  return getSourceForCommon(key).containsVariationDifferences();
+}
+
+export function generateAllCommonTypes() {
+  for (const key in common) {
+    getSourceForCommon(key as ValidCommonKeys);
+  }
 }
 
 export function generateCommonTypeScript() {
   for (const key in common) {
-    const val = common[key]() as MaybeSymbolizedCodeGenerator<any>;
-    val.exportAs(key);
+    const val = getSourceForCommon(key as ValidCommonKeys);
 
     // Calling toTypeScript() on an exported symbol will register it in the currently
     // generated file, so there's no need to output the result here
@@ -488,20 +508,7 @@ export function generateCommonTypeScript() {
 
 export function generateCommonSchema() {
   for (const key in common) {
-    const val: MaybeSymbolizedCodeGenerator<any> = common[key]();
-
-    if (val instanceof GenerateObject) {
-      // We need to set this to undefined for common objects, because we have to collect all properties in one single
-      // object when extending multiple objects, and the last object will then collect all properties and
-      // set additionalProperties to false in order to not have conflicts in JsonSchema where multiple objects
-      // define additionalProperties = false and mutually exclusive properties.
-      val.additionalProperties(undefined);
-    }
-
-    val.exportAs(key).transformTo(Variant.External).toJsonSchema();
+    const val = getSourceForCommon(key as ValidCommonKeys);
+    val.transformTo(Variant.External).toJsonSchema();
   }
-}
-
-export function getSourceForCommon(key: ValidCommonKeys): CodeGenerator<any> {
-  return common[key]();
 }

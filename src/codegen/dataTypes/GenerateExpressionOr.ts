@@ -53,6 +53,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
       this.currentVariant = variant;
       return this;
     }
+    this.internal.frozen = true;
 
     let out: GeneratorMap<Val> | undefined;
     if (this.valueType === ExprVal.Boolean) {

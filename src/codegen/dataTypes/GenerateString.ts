@@ -14,6 +14,7 @@ export class GenerateString extends DescribableCodeGenerator<string> {
   }
 
   setPattern(pattern: RegExp): this {
+    this.ensureNotFrozen();
     this.pattern = pattern;
     return this;
   }

@@ -16,6 +16,7 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
   }
 
   addType(type: CodeGenerator<any>) {
+    this.ensureNotFrozen();
     this.types.push(type as any);
   }
 
@@ -32,6 +33,7 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
       return this;
     }
 
+    this.internal.frozen = true;
     const types = this.types.map((type) => type.transformTo(variant));
     const out = new GenerateUnion(...types);
     out.internal = structuredClone(this.internal);
