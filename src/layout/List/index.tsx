@@ -42,7 +42,7 @@ export class List extends ListDef {
     const bindings = Object.values(node.item.dataModelBindings ?? {});
     let listHasErrors = false;
     for (const field of bindings) {
-      const data = formData[field];
+      const data = formData[field as string];
 
       if (!data?.length) {
         listHasErrors = true;
