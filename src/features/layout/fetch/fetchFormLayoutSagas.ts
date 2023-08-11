@@ -10,9 +10,9 @@ import { getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { httpGet } from 'src/utils/network/networking';
 import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
-import type { ExprObjConfig, ExprUnresolved, ExprVal } from 'src/features/expressions/types';
+import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
 import type { ComponentTypes, ILayout, ILayouts } from 'src/layout/layout';
-import type { IHiddenLayoutsExpressions, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
+import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 
 export const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.layoutsets;
@@ -53,7 +53,7 @@ export function* fetchLayoutSaga(): SagaIterator {
     const layoutResponse: any = yield call(httpGet, getLayoutsUrl(layoutSetId || null));
     const layouts: ILayouts = {};
     const navigationConfig: any = {};
-    const hiddenLayoutsExpressions: ExprUnresolved<IHiddenLayoutsExpressions> = {};
+    const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
     let firstLayoutKey: string;
     if (layoutResponse.data?.layout) {
       layouts.FormLayout = layoutResponse.data.layout;

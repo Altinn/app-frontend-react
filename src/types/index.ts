@@ -1,5 +1,5 @@
 import { Triggers } from 'src/layout/common.generated';
-import type { ExprUnresolved, ExprVal } from 'src/features/expressions/types';
+import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
 import type { IMapping, IOption } from 'src/layout/common.generated';
@@ -117,8 +117,8 @@ export interface ITextResource {
   variables?: IVariable[];
 }
 
-export interface IHiddenLayoutsExpressions {
-  [layoutKey: string]: ExprVal.Boolean | undefined;
+export interface IHiddenLayoutsExternal {
+  [layoutKey: string]: ExprValToActualOrExpr<ExprVal.Boolean> | undefined;
 }
 
 export interface IUiConfig {
@@ -169,7 +169,7 @@ export interface ITracks {
   /**
    * List of expressions containing logic used to show/hide certain layouts.
    */
-  hiddenExpr: ExprUnresolved<IHiddenLayoutsExpressions>;
+  hiddenExpr: IHiddenLayoutsExternal;
 }
 
 export interface IVariable {

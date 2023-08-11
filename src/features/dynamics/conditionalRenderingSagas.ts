@@ -9,9 +9,9 @@ import { ValidationActions } from 'src/features/validation/validationSlice';
 import { Triggers } from 'src/layout/common.generated';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
-import type { ExprConfig, ExprUnresolved } from 'src/features/expressions/types';
+import type { ExprConfig } from 'src/features/expressions/types';
 import type { IUpdateHiddenComponents } from 'src/features/layout/formLayoutTypes';
-import type { IHiddenLayoutsExpressions, IRuntimeState } from 'src/types';
+import type { IHiddenLayoutsExternal, IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { IValidations } from 'src/utils/validation/types';
 
@@ -78,7 +78,7 @@ export function runExpressionRules(layouts: LayoutPages, future: Set<string>) {
 
 export function runExpressionsForLayouts(
   nodes: LayoutPages,
-  hiddenLayoutsExpr: ExprUnresolved<IHiddenLayoutsExpressions>,
+  hiddenLayoutsExpr: IHiddenLayoutsExternal,
   dataSources: ContextDataSources,
 ): Set<string> {
   const config: ExprConfig<ExprVal.Boolean> = {

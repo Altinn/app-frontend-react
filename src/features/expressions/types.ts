@@ -111,22 +111,6 @@ export type ExprResolved<T> = T extends ExprVal
   : T;
 
 /**
- * This type replaces all potential expressions in the input type with an actual value OR expression returning that
- * value. An ExprUnresolved layout item is the type of a layout component when we get it from the layout API.
- *
- * @deprecated Use external types from component definitions instead
- */
-export type ExprUnresolved<T> = T extends ExprVal
-  ? ExprValToActualOrExpr<T>
-  : T extends any
-  ? T extends object
-    ? {
-        [P in keyof T]: ExprUnresolved<T[P]>;
-      }
-    : T
-  : T;
-
-/**
  * This type can be self-references in order to limit recursion depth for advanced types
  * @see https://stackoverflow.com/a/70552078
  */
