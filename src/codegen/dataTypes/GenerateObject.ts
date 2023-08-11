@@ -44,7 +44,12 @@ export class GenerateObject<P extends Props>
       } else {
         const source = getSourceForCommon(symbol.key);
         if (source instanceof GenerateObject) {
-          this.extendObject(source);
+          source.ensureMutable();
+          source._extendedBy.push(this);
+
+          // It's important we push the symbol, not the source, so we import from common.generated.ts
+          // instead of duplicating its code
+          this._extends.push(symbol);
         } else {
           throw new Error(`Cannot extend ${symbol.key}, it is not an object`);
         }
