@@ -2,7 +2,7 @@ import { Triggers } from 'src/layout/common.generated';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { IKeepComponentScrollPos } from 'src/features/layout/formLayoutTypes';
-import type { IMapping, IOption } from 'src/layout/common.generated';
+import type { ILayoutNavigation, IMapping, IOption } from 'src/layout/common.generated';
 import type { RootState } from 'src/redux/store';
 
 export interface IFormFileUploaderWithTag {
@@ -49,11 +49,6 @@ export interface IPagesSettings {
 
 export interface IComponentsSettings {
   excludeFromPdf?: string[];
-}
-
-export interface ILayoutNavigation {
-  next?: string;
-  previous?: string;
 }
 
 export interface INavigationConfig {

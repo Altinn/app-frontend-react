@@ -1,15 +1,10 @@
 import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/LayoutNodeForGroup';
 import type { IAttachmentState } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
+import type { ILayoutNavigation } from 'src/layout/common.generated';
 import type { CompGroupExternal, IGroupEditPropertiesInternal, IGroupFilter } from 'src/layout/Group/config.generated';
 import type { CompExternal, ILayout } from 'src/layout/layout';
-import type {
-  IFileUploadersWithTag,
-  ILayoutNavigation,
-  ILayoutSets,
-  IOptionsChosen,
-  IRepeatingGroups,
-} from 'src/types';
+import type { IFileUploadersWithTag, ILayoutSets, IOptionsChosen, IRepeatingGroups } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 

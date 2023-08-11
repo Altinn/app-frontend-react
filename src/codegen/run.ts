@@ -104,35 +104,9 @@ async function getComponentList() {
 function generateFullSchema(sortedKeys: string[], componentList: { [p: string]: string }): JSONSchema7 {
   // PRIORITY: Make sure this new schema is compatible with the current schema in the repo
   return {
-    title: 'Altinn layout',
-    description: 'Schema that describes the layout configuration for Altinn applications.',
-    type: 'object',
-    properties: {
-      $schema: { type: 'string' },
-      data: {
-        $ref: '#/definitions/data',
-      },
-    },
+    $ref: '#/definitions/ILayoutFile',
     definitions: {
-      data: {
-        title: 'The layout data',
-        description: 'Contains data describing the layout configuration.',
-        type: 'object',
-        properties: {
-          layout: {
-            $ref: '#/definitions/layout',
-          },
-        },
-      },
-      layout: {
-        title: 'The layout',
-        description: 'Array of components to be presented in the layout.',
-        type: 'array',
-        items: {
-          $ref: '#/definitions/component',
-        },
-      },
-      component: {
+      AnyComponent: {
         type: 'object',
         properties: {
           type: {

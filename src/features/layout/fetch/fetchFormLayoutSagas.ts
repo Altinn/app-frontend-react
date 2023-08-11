@@ -11,6 +11,7 @@ import { httpGet } from 'src/utils/network/networking';
 import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils/urls/appUrlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
+import type { ILayoutFileExternal } from 'src/layout/common.generated';
 import type { ComponentTypes, ILayout, ILayouts } from 'src/layout/layout';
 import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
 import type { IInstance } from 'src/types/shared';
@@ -50,12 +51,15 @@ export function* fetchLayoutSaga(): SagaIterator {
     const instance: IInstance | null = yield select(instanceSelector);
     const applicationMetadata: IApplicationMetadata = yield select(applicationMetadataSelector);
     const layoutSetId = getLayoutSetIdForApplication(applicationMetadata, instance, layoutSets);
-    const layoutResponse: any = yield call(httpGet, getLayoutsUrl(layoutSetId || null));
+    const layoutResponse: ILayoutFileExternal | { [key: string]: ILayoutFileExternal } = yield call(
+      httpGet,
+      getLayoutsUrl(layoutSetId || null),
+    );
     const layouts: ILayouts = {};
     const navigationConfig: any = {};
     const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
     let firstLayoutKey: string;
-    if (layoutResponse.data?.layout) {
+    if ('data' in layoutResponse && 'layout' in layoutResponse.data && layoutResponse.data.layout) {
       layouts.FormLayout = layoutResponse.data.layout;
       hiddenLayoutsExpressions.FormLayout = layoutResponse.data.hidden;
       firstLayoutKey = 'FormLayout';
@@ -74,9 +78,10 @@ export function* fetchLayoutSaga(): SagaIterator {
       }
 
       orderedLayoutKeys.forEach((key) => {
-        layouts[key] = cleanLayout(layoutResponse[key].data.layout);
-        hiddenLayoutsExpressions[key] = layoutResponse[key].data.hidden;
-        navigationConfig[key] = layoutResponse[key].data.navigation;
+        const file: ILayoutFileExternal = layoutResponse[key];
+        layouts[key] = cleanLayout(file.data.layout);
+        hiddenLayoutsExpressions[key] = file.data.hidden;
+        navigationConfig[key] = file.data.navigation;
       });
     }
 

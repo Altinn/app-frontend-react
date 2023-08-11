@@ -1,8 +1,8 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { Variant } from 'src/codegen/CG';
 import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+import type { Variant } from 'src/codegen/CG';
 
 export interface ImportDef {
   import: string;
@@ -19,21 +19,17 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> {
   }
 
   transformTo(variant: Variant): this | GenerateImportedSymbol<any> {
-    if (variant === Variant.External) {
-      throw new Error('Cannot generate external imports');
-    }
-
     this.currentVariant = variant;
     return this;
   }
 
   toTypeScriptDefinition(symbol: string | undefined): string {
-    if (symbol) {
+    if (symbol && symbol === this.val.import) {
       throw new Error('Do not re-define imported symbols');
     }
 
     CodeGeneratorContext.curFile().addImport(this.val.import, this.val.from);
-    return this.val.import;
+    return symbol ? `type ${symbol} = ${this.val.import};` : this.val.import;
   }
 
   toJsonSchemaDefinition(): JSONSchema7 {

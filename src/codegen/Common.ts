@@ -3,6 +3,47 @@ import { ExprVal } from 'src/features/expressions/types';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 
 const common = {
+  ILayoutFile: () =>
+    new CG.obj(
+      new CG.prop('$schema', new CG.str().optional()),
+      new CG.prop(
+        'data',
+        new CG.obj(
+          new CG.prop(
+            'layout',
+            new CG.arr(
+              new CG.raw({
+                typeScript: new CG.linked(
+                  new CG.import({
+                    import: 'CompOrGroupExternal',
+                    from: 'src/layout/layout.d',
+                  }),
+                  new CG.raw({
+                    typeScript: 'never',
+                  }),
+                ),
+                jsonSchema: () => ({
+                  $ref: '#/definitions/AnyComponent',
+                }),
+              }),
+            ),
+          ),
+          new CG.prop(
+            'hidden',
+            new CG.expr(ExprVal.Boolean)
+              .setTitle('Hidden')
+              .setDescription('Expression that will hide the page/form layout if true')
+              .optional({ default: false }),
+          ),
+          new CG.prop('navigation', CG.common('ILayoutNavigation').optional()),
+        ),
+      ),
+    )
+      .setTitle('Altinn layout')
+      .setDescription('Schema that describes the layout configuration for Altinn applications.'),
+  ILayoutNavigation: () =>
+    new CG.obj(new CG.prop('next', new CG.str().optional()), new CG.prop('previous', new CG.str().optional())),
+
   ILabelSettings: () =>
     new CG.obj(
       new CG.prop(
@@ -330,10 +371,8 @@ const common = {
       // Internal-only properties (PRIORITY: These should be removed, they're only here to reduce the enormous
       // number of errors after generated new types):
       new CG.prop('renderAsSummary', new CG.bool().optional()).onlyIn(Variant.Internal),
-      new CG.prop('dataModelBindings', new CG.raw({ typeScript: 'any' }).optional()).onlyIn(Variant.Internal),
       new CG.prop('readOnly', new CG.bool().optional()).onlyIn(Variant.Internal),
       new CG.prop('required', new CG.bool().optional()).onlyIn(Variant.Internal),
-      new CG.prop('textResourceBindings', new CG.raw({ typeScript: 'any' }).optional()).onlyIn(Variant.Internal),
       new CG.prop('labelSettings', CG.common('ILabelSettings').optional()).onlyIn(Variant.Internal),
       new CG.prop('triggers', CG.common('TriggerList').optional()).onlyIn(Variant.Internal),
     ),

@@ -16,23 +16,40 @@ export class GenerateLinked<
   External extends CodeGenerator<any>,
   Internal extends CodeGenerator<any>,
 > extends CodeGenerator<External> {
-  constructor(
-    public readonly ext: External,
-    public readonly int: Internal,
-  ) {
+  public ext: External;
+  public int: Internal;
+
+  constructor(ext: External, int: Internal) {
     super();
+    this.ext = ext;
+    this.int = int;
   }
 
-  transformTo(variant: Variant): this | CodeGenerator<any> {
-    return variant === Variant.External ? this.ext.transformTo(variant) : this.int.transformTo(variant);
+  transformTo(variant: Variant): this {
+    this.currentVariant = variant;
+    if (variant === Variant.Internal) {
+      this.int = this.int.transformTo(variant) as Internal;
+    } else {
+      this.ext = this.ext.transformTo(variant) as External;
+    }
+
+    return this;
   }
 
   toTypeScript(): string {
-    throw new Error('You need to transform this type to either external or internal before generating TypeScript');
+    if (!this.currentVariant) {
+      throw new Error('You need to transform this type to either external or internal before generating TypeScript');
+    }
+
+    return this.currentVariant === Variant.Internal ? this.int.toTypeScript() : this.ext.toTypeScript();
   }
 
   toJsonSchema(): JSONSchema7 {
-    return this.ext.transformTo(Variant.External).toJsonSchema();
+    if (!this.currentVariant) {
+      throw new Error('You need to transform this type to either external or internal before generating JsonSchema');
+    }
+
+    return this.currentVariant === Variant.Internal ? this.int.toJsonSchema() : this.ext.toJsonSchema();
   }
 
   containsVariationDifferences(): boolean {
