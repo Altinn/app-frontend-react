@@ -73,7 +73,7 @@ async function getComponentList() {
     promises.push(saveTsFile(tsPathDef, defClass));
   }
 
-  const schemaPath = 'schemas/json/layout/layout.schema.v2.generated.json';
+  const schemaPath = 'schemas/json/layout/layout.schema.v1.json';
   const schema = await CodeGeneratorContext.generateJsonSchema(schemaPath, () => {
     generateCommonSchema();
     const base = generateFullSchema(sortedKeys, componentList);
