@@ -40,6 +40,7 @@ export function* removeHiddenValidationsSaga({
         node &&
         'dataModelBindings' in node.item &&
         node.item.dataModelBindings &&
+        'triggers' in node.item &&
         node.item.triggers &&
         node.item.triggers.includes(Triggers.Validation)
       ) {

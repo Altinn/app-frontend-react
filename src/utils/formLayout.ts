@@ -281,7 +281,7 @@ export const getRepeatingGroupStartStopIndex = (
  * dynamic behaviour dictates it).
  */
 export function hasRequiredFields(page: LayoutPage): boolean {
-  return !!page.flat(true).find((n) => n.item.required === true);
+  return !!page.flat(true).find((n) => 'required' in n.item && n.item.required === true);
 }
 
 /**

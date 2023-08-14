@@ -158,7 +158,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
       return;
     }
 
-    if (item.readOnly) {
+    if ('readOnly' in item && item.readOnly) {
       return;
     }
 
@@ -168,8 +168,9 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     }
 
     const dataModelBinding = dataModelBindings[key];
+    const triggers = 'triggers' in item ? item.triggers : undefined;
     const singleFieldValidation: ISingleFieldValidation | undefined =
-      item.triggers && item.triggers.includes(Triggers.Validation)
+      triggers && triggers.includes(Triggers.Validation)
         ? {
             layoutId: currentView,
             dataModelBinding,
@@ -201,9 +202,9 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
         labelText={lang(titleTrb)}
         helpText={lang(helpTrb)}
         id={id}
-        readOnly={item.readOnly}
-        required={item.required}
-        labelSettings={item.labelSettings}
+        readOnly={'readOnly' in item ? item.readOnly : false}
+        required={'required' in item ? item.required : false}
+        labelSettings={'labelSettings' in item ? item.labelSettings : undefined}
       />
     );
   };
@@ -234,8 +235,8 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
         descriptionText={lang(descriptionTrb)}
         helpText={lang(helpTrb)}
         id={id}
-        required={item.required}
-        labelSettings={item.labelSettings}
+        required={'required' in item ? item.required : false}
+        labelSettings={'labelSettings' in item ? item.labelSettings : undefined}
         layout={('layout' in item && item.layout) || undefined}
       />
     );
@@ -260,7 +261,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
 
   const showValidationMessages = hasValidationMessages && layoutComponent.renderDefaultValidations();
 
-  if (node.item.renderAsSummary) {
+  if ('renderAsSummary' in node.item && node.item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
 
     if (!RenderSummary) {

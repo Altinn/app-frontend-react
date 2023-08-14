@@ -11,10 +11,6 @@ export const Config = new CG.component({
     renderInAccordionGroup: false,
   },
 })
-  // We don't render the label in GenericComponent, but we still need the
-  // text resource bindings for rendering them on our own
-  .addTextResourcesForLabel()
-
   .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional({ onlyIn: Variant.Internal }))
   .makeSelectionComponent()
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()))
@@ -27,3 +23,7 @@ export const Config = new CG.component({
         .setDescription('Boolean value indicating if the options should be displayed as cards. Defaults to false.'),
     ),
   );
+
+// We don't render the label in GenericComponent, but we still need the
+// text resource bindings for rendering them on our own
+Config.addTextResourcesForLabel().inner.extends(CG.common('LabeledComponentProps'));

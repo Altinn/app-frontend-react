@@ -32,3 +32,6 @@ export const Config = new CG.component({
         .setDescription('Whether to use the simplified address input or not'),
     ),
   );
+
+// Even though this component does not render a label, it's still possible to configure labelSettings on it
+Config.inner.extends(CG.common('LabeledComponentProps'));

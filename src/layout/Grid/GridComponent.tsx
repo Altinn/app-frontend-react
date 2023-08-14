@@ -226,7 +226,8 @@ function CellWithLabel({ className, columnStyleOptions, referenceComponent }: Ce
   const title = trb && 'title' in trb ? trb.title : undefined;
   const help = trb && 'help' in trb ? trb.help : undefined;
   const description = trb && 'description' in trb ? trb.description : undefined;
-  const { required } = referenceComponent?.item || {};
+  const required =
+    (referenceComponent && 'required' in referenceComponent.item && referenceComponent.item.required) ?? false;
   const componentId = referenceComponent?.item.id ?? referenceComponent?.item.baseComponentId;
 
   return (

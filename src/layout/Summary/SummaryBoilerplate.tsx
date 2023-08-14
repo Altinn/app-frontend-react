@@ -26,7 +26,7 @@ export function SummaryBoilerplate({
   overrides,
 }: SummaryBoilerplateProps) {
   const display = overrides?.display || summaryNode.item.display;
-  const readOnlyComponent = targetNode.item.readOnly === true;
+  const readOnlyComponent = 'readOnly' in targetNode.item && targetNode.item.readOnly === true;
   const hasValidationMessages = targetNode.hasValidationMessages();
   const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;
 

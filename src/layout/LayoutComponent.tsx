@@ -171,7 +171,7 @@ export abstract class FormComponent<Type extends ComponentTypes>
     { formData, langTools }: IValidationContext,
     overrideFormData?: IFormData,
   ): IValidationObject[] {
-    if (!node.item.required) {
+    if (!('required' in node.item) || !node.item.required) {
       return [];
     }
 

@@ -85,7 +85,9 @@ export function mapValidationIssues(
     return [];
   }
 
-  const allNodes = resolvedNodes.allNodes().filter((node) => !node.isHidden() && !node.item.renderAsSummary);
+  const allNodes = resolvedNodes
+    .allNodes()
+    .filter((node) => !node.isHidden() && !('renderAsSummary' in node.item && node.item.renderAsSummary));
 
   const validationOutputs: IValidationObject[] = [];
   for (const issue of issues) {

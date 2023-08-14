@@ -463,10 +463,20 @@ describe('Hierarchical layout tools', () => {
     const collection2 = new LayoutPages('l2', layouts);
 
     it('should find the component in the current layout first', () => {
-      expect(collection1?.findById(components.top1.id)?.item.readOnly).toBeUndefined();
-      expect(collection1?.findById(components.top2.id)?.item.readOnly).toBeUndefined();
-      expect(collection2?.findById(components.top1.id)?.item.readOnly).toBeUndefined();
-      expect(collection2?.findById(components.top2.id)?.item.readOnly).toEqual(true);
+      function expectReadOnly(
+        collection: LayoutPages<{ l1: LayoutPage; l2: LayoutPage }> | undefined,
+        id: string,
+        expected: true | undefined,
+      ) {
+        const item = collection?.findById(id)?.item;
+        const readOnly = item && 'readOnly' in item ? item.readOnly : undefined;
+        expect(readOnly).toEqual(expected);
+      }
+
+      expectReadOnly(collection1, components.top1.id, undefined);
+      expectReadOnly(collection1, components.top2.id, undefined);
+      expectReadOnly(collection2, components.top1.id, undefined);
+      expectReadOnly(collection2, components.top2.id, true);
     });
 
     it('should find the current layout', () => {

@@ -20,13 +20,12 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { CompGroupRepeatingInternal } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IGroupProps {
   node: LayoutNodeForGroup<CompGroupRepeatingInternal>;
 }
 
-const getValidationMethod = (node: LayoutNode) => {
+const getValidationMethod = (node: LayoutNodeForGroup<CompGroupRepeatingInternal>) => {
   // Validation for whole group takes precedent over single-row validation if both are present.
   const triggers = node.item.triggers;
   if (triggers && triggers.includes(Triggers.Validation)) {

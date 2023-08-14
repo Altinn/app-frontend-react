@@ -13,9 +13,8 @@ export const Config = new CG.component({
 })
   .makeSelectionComponent()
   .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional({ onlyIn: Variant.Internal }))
-
-  // We don't render the label in GenericComponent, but we still need the
-  // text resource bindings for rendering them on our own
-  .addTextResourcesForLabel()
-
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()));
+
+// We don't render the label in GenericComponent, but we still need the
+// text resource bindings for rendering them on our own
+Config.addTextResourcesForLabel().inner.extends(CG.common('LabeledComponentProps'));

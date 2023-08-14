@@ -19,7 +19,7 @@ interface PDFViewProps {
 }
 
 const PDFComponent = ({ node }: { node: LayoutNode }) => {
-  if (node.isType('Summary') || node.item.renderAsSummary) {
+  if (node.isType('Summary') || ('renderAsSummary' in node.item && node.item.renderAsSummary)) {
     return (
       <SummaryComponent
         summaryNode={node as LayoutNode<'Summary'>}
