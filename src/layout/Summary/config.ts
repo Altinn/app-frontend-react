@@ -1,4 +1,4 @@
-import { CG } from 'src/codegen/CG';
+import { CG, Variant } from 'src/codegen/CG';
 import { ComponentCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -14,9 +14,8 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'componentRef',
-      // PRIORITY: This should be required in external config, but optional in internal
-      // config (to make sure we check for it)
       new CG.str()
+        .optional({ onlyIn: Variant.Internal })
         .setTitle('Component reference')
         .setDescription('String value indicating which layout component (by ID) the summary is for.'),
     ),

@@ -208,6 +208,13 @@ const common = {
       .setDescription(
         'A mapping of key-value pairs (usually used for mapping a path in the data model to a query string parameter).',
       ),
+  IQueryParameters: () =>
+    new CG.obj()
+      .additionalProperties(new CG.str())
+      .setTitle('Query parameters')
+      .setDescription(
+        'A mapping of query string parameters to values. Will be appended to the URL when fetching options.',
+      ),
   IOptionSource: () =>
     new CG.obj(
       new CG.prop(
@@ -264,6 +271,7 @@ const common = {
           .setDescription('ID of the option list to fetch from the server'),
       ),
       new CG.prop('mapping', CG.common('IMapping').optional()),
+      new CG.prop('queryParameters', CG.common('IQueryParameters').optional()),
       new CG.prop(
         'options',
         new CG.arr(CG.common('IOption')).optional().setTitle('Static options').setDescription('List of static options'),
