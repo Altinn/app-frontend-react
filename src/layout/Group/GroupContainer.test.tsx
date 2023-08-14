@@ -8,9 +8,10 @@ import { getFormLayoutGroupMock } from 'src/__mocks__/formLayoutGroupMock';
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { Triggers } from 'src/layout/common.generated';
-import { GroupContainerTester } from 'src/layout/Group/GroupContainerTestUtills';
+import { GroupContainer } from 'src/layout/Group/GroupContainer';
 import { setupStore } from 'src/redux/store';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { IUpdateRepeatingGroupsEditIndex } from 'src/features/layout/formLayoutTypes';
 import type { CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
@@ -132,6 +133,15 @@ function render({ container = mockContainer }: IRender = {}) {
   const { store } = renderWithProviders(<GroupContainerTester id={container?.id} />, { store: mockStore });
 
   return store;
+}
+
+export function GroupContainerTester(props: { id: string }) {
+  const node = useResolvedNode(props.id);
+  if (!node || !(node.isType('Group') && node.isRepGroup())) {
+    throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
+  }
+
+  return <GroupContainer node={node} />;
 }
 
 const { setScreenWidth } = mockMediaQuery(992);

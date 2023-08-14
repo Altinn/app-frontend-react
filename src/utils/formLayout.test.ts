@@ -532,6 +532,7 @@ describe('findChildren', () => {
         type: 'Group',
         children: ['0:field2', '1:field3'],
         edit: { multiPage: true },
+        maxCount: 2,
       },
       {
         id: 'field2',

@@ -10,9 +10,9 @@ import {
   render,
   validateRadioLayout,
   validateTableLayout,
-} from 'src/layout/Likert/GroupContainerLikertTestUtils';
+} from 'src/layout/Likert/RepeatingGroupsLikertContainerTestUtils';
 
-describe('GroupContainerLikert', () => {
+describe('RepeatingGroupsLikertContainer', () => {
   jest.useFakeTimers();
 
   const user = userEvent.setup({

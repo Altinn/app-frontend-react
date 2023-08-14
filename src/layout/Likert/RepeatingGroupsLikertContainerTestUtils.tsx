@@ -5,9 +5,10 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import { GroupContainerTester } from 'src/layout/Group/GroupContainerTestUtills';
+import { RepeatingGroupsLikertContainer } from 'src/layout/Likert/RepeatingGroupsLikertContainer';
 import { setupStore } from 'src/redux/store';
 import { mockMediaQuery, renderWithProviders } from 'src/testUtils';
+import { useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { IFormDataState } from 'src/features/formData';
 import type { IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
@@ -236,12 +237,21 @@ export const render = ({
   const mockStoreDispatch = jest.fn();
   mockStore.dispatch = mockStoreDispatch;
   setScreenWidth(mobileView ? 600 : 1200);
-  renderWithProviders(<GroupContainerTester id={mockLikertContainer.id} />, {
+  renderWithProviders(<ContainerTester id={mockLikertContainer.id} />, {
     store: mockStore,
   });
 
   return { mockStoreDispatch };
 };
+
+export function ContainerTester(props: { id: string }) {
+  const node = useResolvedNode(props.id);
+  if (!node || !(node.isType('Group') && node.isRepGroupLikert())) {
+    throw new Error(`Could not resolve node with id ${props.id}, or unexpected node type`);
+  }
+
+  return <RepeatingGroupsLikertContainer node={node} />;
+}
 
 export const validateTableLayout = (questions: IQuestion[], options: IOption[]) => {
   screen.getByRole('table');

@@ -363,6 +363,9 @@ describe('AddressComponent', () => {
     render({
       component: {
         simplified: false,
+        labelSettings: {
+          optionalIndicator: true,
+        },
       },
     });
 
@@ -422,6 +425,9 @@ describe('AddressComponent', () => {
       component: {
         readOnly: true,
         simplified: false,
+        labelSettings: {
+          optionalIndicator: true,
+        },
       },
     });
 
