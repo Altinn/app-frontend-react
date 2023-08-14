@@ -120,11 +120,11 @@ export function getFieldName(
     return smartLowerCaseFirst(langAsString(`form_filler.${fieldKey}`));
   }
 
-  if (textResourceBindings?.shortName) {
+  if (textResourceBindings && 'shortName' in textResourceBindings && textResourceBindings.shortName) {
     return langAsString(textResourceBindings.shortName);
   }
 
-  if (textResourceBindings?.title) {
+  if (textResourceBindings && 'title' in textResourceBindings && textResourceBindings.title) {
     return smartLowerCaseFirst(langAsString(textResourceBindings.title));
   }
 

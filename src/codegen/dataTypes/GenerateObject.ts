@@ -123,6 +123,16 @@ export class GenerateObject<P extends Props>
     return this;
   }
 
+  removeProperty(name: string): this {
+    this.ensureMutable();
+    const index = this.properties.findIndex((property) => property.name === name);
+    if (index === -1) {
+      throw new Error(`Property ${name} not found`);
+    }
+    this.properties.splice(index, 1);
+    return this;
+  }
+
   getProperty(name: string): GenerateProperty<any> | undefined {
     if (!this.hasProperty(name)) {
       return undefined;

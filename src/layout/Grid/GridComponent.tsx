@@ -219,7 +219,13 @@ function CellWithText({ children, className, columnStyleOptions, help }: CellWit
 
 function CellWithLabel({ className, columnStyleOptions, referenceComponent }: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const { title, help, description } = (referenceComponent?.item.textResourceBindings as ITextResourceBindings) || {};
+  const refItem = referenceComponent?.item;
+  const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
+    | ITextResourceBindings
+    | undefined;
+  const title = trb && 'title' in trb ? trb.title : undefined;
+  const help = trb && 'help' in trb ? trb.help : undefined;
+  const description = trb && 'description' in trb ? trb.description : undefined;
   const { required } = referenceComponent?.item || {};
   const componentId = referenceComponent?.item.id ?? referenceComponent?.item.baseComponentId;
 

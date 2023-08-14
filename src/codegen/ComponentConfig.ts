@@ -56,6 +56,13 @@ export class ComponentConfig extends GenerateComponentLike {
   constructor(public readonly config: RequiredComponentConfig) {
     super();
     this.inner.extends(CG.common('ComponentBase'));
+    this.inner.addProperty(
+      new CG.prop('textResourceBindings', new CG.raw({ typeScript: 'undefined' }).optional()).onlyIn(Variant.Internal),
+    );
+    this.inner.addProperty(
+      new CG.prop('dataModelBindings', new CG.raw({ typeScript: 'undefined' }).optional()).onlyIn(Variant.Internal),
+    );
+
     if (config.category === ComponentCategory.Form) {
       this.inner.extends(CG.common('FormComponentProps'));
       this.extendTextResources(CG.common('TRBFormComp'));

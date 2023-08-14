@@ -43,13 +43,25 @@ export interface IRepeatingGroupTableRowProps {
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
-  return textResourceBindings?.tableTitle ?? textResourceBindings?.title ?? '';
+  if (!textResourceBindings) {
+    return '';
+  }
+
+  if ('tableTitle' in textResourceBindings) {
+    return textResourceBindings.tableTitle;
+  }
+
+  if ('title' in textResourceBindings) {
+    return textResourceBindings.title;
+  }
+
+  return '';
 }
 
 function getEditButtonText(
   isEditing: boolean,
   langTools: IUseLanguage,
-  textResourceBindings: ITextResourceBindings | undefined,
+  textResourceBindings: CompGroupRepeatingInternal['textResourceBindings'] | undefined,
 ) {
   const buttonTextKey = isEditing
     ? textResourceBindings?.edit_button_close
@@ -193,7 +205,7 @@ export function RepeatingGroupTableRow({
                     key={n.item.id}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
-                      {lang(getTableTitle(n.item.textResourceBindings))}:
+                      {lang(getTableTitle('textResourceBindings' in n.item ? n.item.textResourceBindings : {}))}:
                     </b>
                     <span className={classes.contentFormatting}>{displayData[i]}</span>
                     {i < length - 1 && <div style={{ height: 8 }} />}

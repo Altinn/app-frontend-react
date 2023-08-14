@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -22,7 +23,8 @@ export class GenerateComponentLike {
   }
 
   private ensureTextResourceBindings(): void {
-    if (!this.inner.getProperty('textResourceBindings')) {
+    const existing = this.inner.getProperty('textResourceBindings');
+    if (!existing || existing.type instanceof GenerateRaw) {
       this.inner.addProperty(new CG.prop('textResourceBindings', new CG.obj().optional()));
     }
   }
@@ -61,7 +63,7 @@ export class GenerateComponentLike {
     const existing = this.inner.getProperty(name)?.type;
     if (existing && existing instanceof GenerateUnion) {
       existing.addType(type);
-    } else if (existing) {
+    } else if (existing && !(existing instanceof GenerateRaw)) {
       const union = new CG.union(existing, type);
       this.inner.addProperty(new CG.prop(name, union));
     } else {

@@ -21,7 +21,7 @@ import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
-import type { ComponentTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
+import type { ComponentTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { AnyItem } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -90,8 +90,13 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
 }: IGenericComponentProps<Type>) {
   let item = node.item;
   const id = item.id;
-  const textBindings = node.item.textResourceBindings as ITextResourceBindings;
-  const dataModelBindings = node.item.dataModelBindings as IDataModelBindings;
+  const textBindings = ('textResourceBindings' in node.item ? node.item.textResourceBindings : undefined) as
+    | ITextResourceBindings
+    | undefined;
+  const dataModelBindings = 'dataModelBindings' in node.item ? node.item.dataModelBindings : undefined;
+  const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
+  const descriptionTrb = textBindings && 'description' in textBindings ? textBindings.description : undefined;
+  const helpTrb = textBindings && 'help' in textBindings ? textBindings.help : undefined;
 
   if (overrideItemProps) {
     item = {
@@ -193,8 +198,8 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     return (
       <Label
         key={`label-${id}`}
-        labelText={lang(textBindings?.title)}
-        helpText={lang(textBindings?.help)}
+        labelText={lang(titleTrb)}
+        helpText={lang(helpTrb)}
         id={id}
         readOnly={item.readOnly}
         required={item.required}
@@ -204,14 +209,14 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   };
 
   const RenderDescription = () => {
-    if (!textBindings?.description) {
+    if (!descriptionTrb) {
       return null;
     }
 
     return (
       <Description
         key={`description-${id}`}
-        description={lang(textBindings?.description)}
+        description={lang(descriptionTrb)}
         id={id}
       />
     );
@@ -225,9 +230,9 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     return (
       <Legend
         key={`legend-${id}`}
-        labelText={lang(textBindings?.title)}
-        descriptionText={lang(textBindings?.description)}
-        helpText={lang(textBindings?.help)}
+        labelText={lang(titleTrb)}
+        descriptionText={lang(descriptionTrb)}
+        helpText={lang(helpTrb)}
         id={id}
         required={item.required}
         labelSettings={item.labelSettings}

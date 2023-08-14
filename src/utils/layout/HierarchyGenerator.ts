@@ -395,7 +395,7 @@ export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
    * @see replaceTextResourceParams
    */
   rewriteTextBindings(node: LayoutNode<Type>, textResources: ITextResource[]) {
-    if (!node.item.textResourceBindings || node.rowIndex === undefined) {
+    if (!('textResourceBindings' in node.item) || !node.item.textResourceBindings || node.rowIndex === undefined) {
       return;
     }
 

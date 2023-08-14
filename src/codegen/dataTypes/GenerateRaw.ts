@@ -1,6 +1,6 @@
 import type { JSONSchema7 } from 'json-schema';
 
-import { CodeGenerator } from 'src/codegen/CodeGenerator';
+import { CodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { Variant } from 'src/codegen/CG';
 
 type RawTypeScript = {
@@ -13,7 +13,7 @@ type RawJsonSchema = {
 
 type RawDef = RawTypeScript | RawJsonSchema | (RawTypeScript & RawJsonSchema);
 
-export class GenerateRaw extends CodeGenerator<any> {
+export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
   private realJsonSchema?: JSONSchema7 | CodeGenerator<any>;
   private realTypeScript?: string | CodeGenerator<any>;
 
@@ -65,6 +65,14 @@ export class GenerateRaw extends CodeGenerator<any> {
     }
 
     return real;
+  }
+
+  toJsonSchemaDefinition(): JSONSchema7 {
+    throw new Error('Method not implemented.');
+  }
+
+  toTypeScriptDefinition(_symbol: string | undefined): string {
+    throw new Error('Method not implemented.');
   }
 
   containsVariationDifferences(): boolean {

@@ -38,6 +38,7 @@ export function* removeHiddenValidationsSaga({
       const node = layoutObj?.findById(componentId) || resolvedNodes.findById(componentId);
       if (
         node &&
+        'dataModelBindings' in node.item &&
         node.item.dataModelBindings &&
         node.item.triggers &&
         node.item.triggers.includes(Triggers.Validation)

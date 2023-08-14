@@ -25,7 +25,7 @@ import type {
   FuncDef,
 } from 'src/features/expressions/types';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
-import type { CompExternal, IDataModelBindings } from 'src/layout/layout';
+import type { CompExternal } from 'src/layout/layout';
 import type { IAuthContext, IInstanceContext } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -478,14 +478,16 @@ export const ExprFunctions = {
       const node = this.failWithoutNode();
       const closestComponent = node.closest((c) => c.id === id || c.baseComponentId === id);
       const component = closestComponent ?? (node instanceof LayoutPage ? node.findById(id) : node.top.findById(id));
-      const dataModelBindings = (component?.item.dataModelBindings as IDataModelBindings) || undefined;
-      const binding = dataModelBindings?.simpleBinding;
-      if (component && binding) {
+      const dataModelBindings =
+        component && 'dataModelBindings' in component.item ? component.item.dataModelBindings : undefined;
+      const simpleBinding =
+        dataModelBindings && 'simpleBinding' in dataModelBindings ? dataModelBindings.simpleBinding : undefined;
+      if (component && simpleBinding) {
         if (component.isHidden()) {
           return null;
         }
 
-        return (this.dataSources.formData && this.dataSources.formData[binding]) || null;
+        return (this.dataSources.formData && this.dataSources.formData[simpleBinding]) || null;
       }
 
       // Expressions can technically be used without having all the layouts available, which might lead to unexpected

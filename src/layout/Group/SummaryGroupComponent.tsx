@@ -14,6 +14,7 @@ import type {
   CompGroupNonRepeatingPanelInternal,
 } from 'src/layout/Group/config.generated';
 import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
+import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -42,11 +43,13 @@ export function SummaryGroupComponent({
 
   const groupHasErrors = targetNode.hasDeepValidationMessages();
 
-  const textBindings = targetNode.item.textResourceBindings;
-  const title = lang(textBindings?.summaryTitle ?? textBindings?.title);
-  const ariaLabel = langAsString(
-    textBindings?.summaryAccessibleTitle ?? textBindings?.summaryTitle ?? textBindings?.title,
-  );
+  const textBindings = targetNode.item.textResourceBindings as ITextResourceBindings;
+  const summaryAccessibleTitleTrb =
+    textBindings && 'summaryAccessibleTitle' in textBindings ? textBindings.summaryAccessibleTitle : undefined;
+  const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
+  const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
+  const title = lang(summaryTitleTrb ?? titleTrb);
+  const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
 
   const rowIndexes: (number | undefined)[] = [];
   if (targetNode.isRepGroup()) {

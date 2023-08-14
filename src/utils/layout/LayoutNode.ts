@@ -200,7 +200,7 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
 
   private firstDataModelBinding() {
     const firstBinding = Object.keys(this.item.dataModelBindings || {}).shift();
-    if (firstBinding && this.item.dataModelBindings) {
+    if (firstBinding && 'dataModelBindings' in this.item && this.item.dataModelBindings) {
       return this.item.dataModelBindings[firstBinding];
     }
 
@@ -355,7 +355,7 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
    * Gets the current form data for this component
    */
   public getFormData(): IComponentFormData {
-    if (!this.item.dataModelBindings) {
+    if (!('dataModelBindings' in this.item) || !this.item.dataModelBindings) {
       return {};
     }
 

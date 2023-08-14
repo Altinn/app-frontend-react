@@ -27,6 +27,10 @@ export const Config = new CG.component({
     ).onlyIn(Variant.External),
   );
 
+// Remove these so they're not set to undefined, as is the default for all other components. We override these anyway.
+Config.inner.removeProperty('textResourceBindings');
+Config.inner.removeProperty('dataModelBindings');
+
 const commonNonRepChildComponents = new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal);
 
 const commonRepRowsProp = new CG.prop(
@@ -69,6 +73,8 @@ const commonRepGroupDataModelBinding = new CG.obj(
 )
   .exportAs('IDataModelBindingsForGroup')
   .optional({ onlyIn: Variant.Internal });
+
+const commonUndefinedDataModelBinding = new CG.raw({ typeScript: 'undefined' }).optional();
 
 Config.overrideExported(
   new CG.union(
@@ -334,6 +340,7 @@ function makeRepeatingGroup() {
 
 function makeNonRepeatingGroup() {
   return new CG.componentLike()
+    .addProperty(new CG.prop('dataModelBindings', commonUndefinedDataModelBinding).onlyIn(Variant.Internal))
     .addTextResource(
       new CG.trb({
         name: 'title',
@@ -367,6 +374,7 @@ function makeNonRepeatingGroup() {
 
 function makeNonRepeatingPanelGroup() {
   return new CG.componentLike()
+    .addProperty(new CG.prop('dataModelBindings', commonUndefinedDataModelBinding).onlyIn(Variant.Internal))
     .addTextResource(
       new CG.trb({
         name: 'title',

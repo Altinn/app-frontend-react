@@ -33,10 +33,14 @@ export interface IRepeatingGroupTableProps {
 }
 
 function getTableTitle(textResourceBindings: ITextResourceBindings) {
-  if (textResourceBindings?.tableTitle) {
+  if (!textResourceBindings) {
+    return '';
+  }
+
+  if ('tableTitle' in textResourceBindings && textResourceBindings.tableTitle) {
     return textResourceBindings?.tableTitle;
   }
-  if (textResourceBindings?.title) {
+  if ('title' in textResourceBindings && textResourceBindings.title) {
     return textResourceBindings?.title;
   }
   return '';
@@ -222,7 +226,7 @@ export function RepeatingGroupTable({
                     className={classes.contentFormatting}
                     style={getColumnStylesRepeatingGroups(n, columnSettings)}
                   >
-                    {lang(getTableTitle(n.item.textResourceBindings))}
+                    {lang(getTableTitle('textResourceBindings' in n.item ? n.item.textResourceBindings : {}))}
                   </span>
                 </TableCell>
               ))}

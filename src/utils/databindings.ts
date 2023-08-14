@@ -236,11 +236,11 @@ function hasBindings(component: CompOrGroupExternal): component is Extract<CompE
 }
 
 function hasSimpleBinding(binding: IDataModelBindings | undefined): binding is IDataModelBindingsSimple {
-  return binding && 'simpleBinding' in binding && typeof binding.simpleBinding === 'string';
+  return !!(binding && 'simpleBinding' in binding && binding.simpleBinding);
 }
 
 function hasListBinding(binding: IDataModelBindings | undefined): binding is IDataModelBindingsList {
-  return binding && 'list' in binding && typeof binding.list === 'string';
+  return !!(binding && 'list' in binding && binding.list);
 }
 
 function compHasSimpleBinding(

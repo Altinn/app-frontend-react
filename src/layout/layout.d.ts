@@ -48,11 +48,9 @@ export type ComponentRendersLabel<T extends ComponentTypes> = (typeof ComponentC
  * you the correct data model bindings for that component.
  */
 export type IDataModelBindings<T extends ComponentTypes = ComponentTypes> =
-  | ComponentTypeConfigs[T]['nodeItem']['dataModelBindings']
-  | undefined;
+  ComponentTypeConfigs[T]['nodeItem']['dataModelBindings'];
 
 export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
-  | ComponentTypeConfigs[T]['nodeItem']['textResourceBindings']
-  | undefined;
+  ComponentTypeConfigs[T]['nodeItem']['textResourceBindings'];
 
 export type ILayout = CompOrGroupExternal[];

@@ -10,7 +10,7 @@ import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { CompGroupNonRepeatingExternal, CompGroupRepeatingExternal } from 'src/layout/Group/config.generated';
 import type { CompHeaderExternal } from 'src/layout/Header/config.generated';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
-import type { IDataModelBindings, ILayout, ILayouts } from 'src/layout/layout';
+import type { ILayout, ILayouts } from 'src/layout/layout';
 import type { IRepeatingGroups } from 'src/types';
 import type { AnyItem, HierarchyDataSources } from 'src/utils/layout/hierarchy.types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -691,8 +691,9 @@ describe('Hierarchical layout tools', () => {
       state.formLayout.uiConfig.currentView = 'page1';
       const resolved = resolvedLayoutsFromState(state);
       const dataBindingFor = (id: string) => {
-        const dmBindings = (resolved?.findById(id)?.item.dataModelBindings as IDataModelBindings) || undefined;
-        return dmBindings?.simpleBinding;
+        const item = resolved?.findById(id)?.item || undefined;
+        const dmBindings = item && 'dataModelBindings' in item ? item?.dataModelBindings : undefined;
+        return dmBindings && 'simpleBinding' in dmBindings ? dmBindings.simpleBinding : undefined;
       };
 
       expect(dataBindingFor('child-2')).toEqual('MyModel.MainGroup[2].Child');

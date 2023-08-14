@@ -108,7 +108,7 @@ export function mapValidationIssues(
         continue;
       }
 
-      if (node.item.dataModelBindings) {
+      if ('dataModelBindings' in node.item && node.item.dataModelBindings) {
         const bindings = Object.entries(node.item.dataModelBindings);
         for (const [bindingKey, bindingField] of bindings) {
           if (bindingField === field) {
