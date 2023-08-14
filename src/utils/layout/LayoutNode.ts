@@ -1,5 +1,4 @@
 import { getLayoutComponentObject } from 'src/layout';
-import { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
@@ -168,7 +167,12 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
       return true;
     }
 
-    if (this.parent instanceof LayoutNodeForGroup && this.parent.isRepGroup() && typeof this.rowIndex === 'number') {
+    if (
+      this.parent instanceof BaseLayoutNode &&
+      this.parent.isType('Group') &&
+      this.parent.isRepGroup() &&
+      typeof this.rowIndex === 'number'
+    ) {
       const isHiddenRow = this.parent.item.rows[this.rowIndex]?.groupExpressions?.hiddenRow;
       if (isHiddenRow) {
         return true;
@@ -244,9 +248,7 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
       }
 
       const arrayIndex =
-        ours.parentIndex === lastIdx && this instanceof LayoutNodeForGroup && this.isRepGroup()
-          ? rowIndex
-          : ours.arrayIndex;
+        ours.parentIndex === lastIdx && this.isType('Group') && this.isRepGroup() ? rowIndex : ours.arrayIndex;
 
       if (arrayIndex === undefined) {
         continue;
