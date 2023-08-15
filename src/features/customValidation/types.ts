@@ -1,6 +1,6 @@
-import type { IExpressionValidationDefinition } from 'src/utils/validation/types';
+import type { IExpressionValidations } from 'src/utils/validation/types';
 
 export type ICustomValidationState = {
-  customValidation: IExpressionValidationDefinition | null;
+  customValidation: IExpressionValidations | null;
   error: Error | null;
 };

@@ -1,7 +1,7 @@
 import { createSagaSlice } from 'src/redux/sagaSlice';
 import type { ICustomValidationState } from 'src/features/customValidation/types';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
-import type { IExpressionValidationDefinition } from 'src/utils/validation/types';
+import type { IExpressionValidations } from 'src/utils/validation/types';
 
 const initialState: ICustomValidationState = {
   customValidation: null,
@@ -14,7 +14,7 @@ export const customValidationSlice = () => {
     name: 'customValidation',
     initialState,
     actions: {
-      fetchCustomValidationsFulfilled: mkAction<IExpressionValidationDefinition | null>({
+      fetchCustomValidationsFulfilled: mkAction<IExpressionValidations | null>({
         reducer: (state, action) => {
           state.customValidation = action.payload;
           state.error = null;

@@ -5,11 +5,11 @@ import type { ExprConfig } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
+  IExpressionValidation,
   IExpressionValidationConfig,
-  IExpressionValidationDefinition,
-  IExpressionValidationObject,
-  IExpressionValidationResolved,
-  IExpressionValidationUnresolved,
+  IExpressionValidationRefResolved,
+  IExpressionValidationRefUnresolved,
+  IExpressionValidations,
   IValidationObject,
 } from 'src/utils/validation/types';
 
@@ -18,9 +18,9 @@ import type {
  */
 function resolveExpressionValidationDefinition(
   name: string,
-  definition: IExpressionValidationUnresolved,
-  config: { [name: string]: IExpressionValidationResolved },
-): IExpressionValidationResolved | null {
+  definition: IExpressionValidationRefUnresolved,
+  config: { [name: string]: IExpressionValidationRefResolved },
+): IExpressionValidationRefResolved | null {
   let resolvedDefinition = definition;
 
   if ('ref' in definition) {
@@ -46,18 +46,18 @@ function resolveExpressionValidationDefinition(
     return null;
   }
 
-  return resolvedDefinition as IExpressionValidationResolved;
+  return resolvedDefinition as IExpressionValidationRefResolved;
 }
 
 /**
  * Resolves a single expression validation definition.
  */
 function resolveExpressionValidation(
-  definition: IExpressionValidationUnresolved | string,
+  definition: IExpressionValidationRefUnresolved | string,
   field: string,
-  resolvedDefinitions: { [name: string]: IExpressionValidationResolved },
-): IExpressionValidationObject | null {
-  let expressionValidation: IExpressionValidationObject | null = null;
+  resolvedDefinitions: { [name: string]: IExpressionValidationRefResolved },
+): IExpressionValidation | null {
+  let expressionValidation: IExpressionValidation | null = null;
   if (typeof definition === 'string') {
     const reference = resolvedDefinitions[definition];
     if (!reference) {
@@ -72,7 +72,7 @@ function resolveExpressionValidation(
       ...reference,
     };
   } else {
-    let reference: IExpressionValidationResolved | undefined = undefined;
+    let reference: IExpressionValidationRefResolved | undefined = undefined;
     let resolvedDefinition = definition;
 
     if ('ref' in definition) {
@@ -89,7 +89,7 @@ function resolveExpressionValidation(
     expressionValidation = {
       severity: 'errors',
       ...resolvedDefinition,
-    } as IExpressionValidationObject;
+    } as IExpressionValidation;
   }
 
   if (!('message' in expressionValidation)) {
@@ -108,10 +108,8 @@ function resolveExpressionValidation(
 /**
  * Takes an expression validation config and returnes an object with the field validation definitions resolved.
  */
-export function resolveExpressionValidationConfig(
-  config: IExpressionValidationConfig,
-): IExpressionValidationDefinition {
-  const resolvedDefinitions: { [name: string]: IExpressionValidationResolved } = {};
+export function resolveExpressionValidationConfig(config: IExpressionValidationConfig): IExpressionValidations {
+  const resolvedDefinitions: { [name: string]: IExpressionValidationRefResolved } = {};
   for (const [name, definition] of Object.entries(config.definitions)) {
     const resolvedDefinition = resolveExpressionValidationDefinition(name, definition, resolvedDefinitions);
     if (!resolvedDefinition) {
@@ -119,7 +117,7 @@ export function resolveExpressionValidationConfig(
     }
     resolvedDefinitions[name] = resolvedDefinition;
   }
-  const resolvedExpressionValidationDefinitions: IExpressionValidationDefinition = {};
+  const resolvedExpressionValidationDefinitions: IExpressionValidations = {};
   for (const [field, definitions] of Object.entries(config.validations)) {
     for (const definition of definitions) {
       if (!resolvedExpressionValidationDefinitions[field]?.length) {
@@ -137,7 +135,7 @@ export function resolveExpressionValidationConfig(
 
 export function runExpressionValidationsOnNode(
   node: LayoutNode,
-  expressionValidations: IExpressionValidationDefinition,
+  expressionValidations: IExpressionValidations,
   overrideFormData?: IFormData,
 ): IValidationObject[] {
   const resolvedDataModelBindings = node.item.dataModelBindings;

@@ -18,7 +18,7 @@ export type IValidationContext = {
   instance: IInstance | null;
   layoutSets: ILayoutSets | null;
   schemas: IJsonSchemas;
-  customValidation: IExpressionValidationDefinition | null;
+  customValidation: IExpressionValidations | null;
 };
 
 /**
@@ -124,37 +124,37 @@ export interface IValidationIssue {
 }
 
 /**
- * Expression validation definition with all references and implicit values resolved.
+ * Expression validation object.
  */
-export type IExpressionValidationObject = {
+export type IExpressionValidation = {
   message: string;
   condition: Expression;
   severity: ValidationSeverity;
 };
 
 /**
- * Expression validation definition for all fields resolved.
+ * Expression validations for all fields.
  */
-export type IExpressionValidationDefinition = {
-  [field: string]: IExpressionValidationObject[];
+export type IExpressionValidations = {
+  [field: string]: IExpressionValidation[];
 };
 
 /**
- * Expression validation definition with references resolved.
+ * Expression validation or definition with references resolved.
  */
-export type IExpressionValidationResolved = {
+export type IExpressionValidationRefResolved = {
   message: string;
   condition: Expression;
   severity?: ValidationSeverity;
 };
 
 /**
- * Unresolved expression validation definition from the configuration file.
+ * Unresolved expression validation or definition from the configuration file.
  */
-export type IExpressionValidationUnresolved =
-  | IExpressionValidationResolved
+export type IExpressionValidationRefUnresolved =
+  | IExpressionValidationRefResolved
   | {
-      // If extending using a reference, assume that message and condition are inherited if undefined
+      // If extending using a reference, assume that message and condition are inherited if undefined. This must be verified at runtime.
       message?: string;
       condition?: Expression;
       severity?: ValidationSeverity;
@@ -165,6 +165,6 @@ export type IExpressionValidationUnresolved =
  * Expression validation configuration file type.
  */
 export type IExpressionValidationConfig = {
-  validations: { [field: string]: (IExpressionValidationUnresolved | string)[] };
-  definitions: { [name: string]: IExpressionValidationUnresolved };
+  validations: { [field: string]: (IExpressionValidationRefUnresolved | string)[] };
+  definitions: { [name: string]: IExpressionValidationRefUnresolved };
 };
