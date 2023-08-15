@@ -117,6 +117,11 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     shallowEqual,
   );
 
+  //Hide validation message if component maxLength is exceeded (handled by component's own message)
+  const componentMaxLength = node.item?.maxLength;
+  const isMaxLengthExceeded =
+    componentMaxLength && formData?.simpleBinding && formData?.simpleBinding?.length > componentMaxLength;
+
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
       grid: item.grid,
@@ -252,7 +257,8 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     overrideDisplay,
   };
 
-  const showValidationMessages = hasValidationMessages && layoutComponent.renderDefaultValidations();
+  const showValidationMessages =
+    hasValidationMessages && !isMaxLengthExceeded && layoutComponent.renderDefaultValidations();
 
   if (node.item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
