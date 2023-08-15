@@ -204,6 +204,10 @@ export class LayoutNode<Item extends AnyItem = AnyItem, Type extends ComponentTy
       }
     }
 
+    if (this.parent instanceof LayoutPage && this.parent.isHiddenViaTracks(this.dataSources.uiConfig)) {
+      return true;
+    }
+
     return this.parent instanceof LayoutNode && this.parent.isHidden(respectLegacy);
   }
 
