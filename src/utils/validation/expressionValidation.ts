@@ -1,7 +1,7 @@
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
-import type { ExprConfig, Expression } from 'src/features/expressions/types';
+import type { ExprConfig } from 'src/features/expressions/types';
 import type { IFormData } from 'src/features/formData';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
@@ -47,26 +47,6 @@ function resolveExpressionValidationDefinition(
   }
 
   return resolvedDefinition as IExpressionValidationResolved;
-}
-
-function resolveValidationCondition(condition: Expression, args: (string | number | boolean)[]): Expression {
-  function recurse(expression: Expression): void {
-    for (let i = 0; i < expression.length; i++) {
-      const value = expression[i];
-      if (!Array.isArray(value)) {
-        continue;
-      }
-      if (value[0] === 'argv') {
-        expression[i] = args[value[1] as number];
-      } else {
-        recurse(value as Expression);
-      }
-    }
-  }
-
-  const conditionCopy = structuredClone(condition);
-  recurse(conditionCopy);
-  return conditionCopy;
 }
 
 /**
@@ -192,8 +172,10 @@ export function runExpressionValidationsOnNode(
     for (const validationDef of validationDefs) {
       try {
         const resolvedField = resolvedDataModelBindings[bindingKey];
-        const resolvedCondition = resolveValidationCondition(validationDef.condition, [resolvedField]);
-        const isInvalid = evalExpr(resolvedCondition, node, newDataSources, { config });
+        const isInvalid = evalExpr(validationDef.condition, node, newDataSources, {
+          config,
+          positionalArguments: [resolvedField],
+        });
         if (isInvalid) {
           validationObjects.push(
             buildValidationObject(node, validationDef.severity, validationDef.message, bindingKey),

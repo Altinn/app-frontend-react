@@ -180,3 +180,5 @@ export type ExprObjConfig<
   : OmitNeverKeys<{
       [P in keyof Required<T>]: OmitNeverArrays<DistributiveExprConfig<Exclude<T[P], undefined>, Iterations>>;
     }>;
+
+export type ExprPositionalArgs = ExprValToActual<ExprVal.Any>[];
