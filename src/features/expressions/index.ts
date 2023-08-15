@@ -333,6 +333,13 @@ const authContextKeys: { [key in keyof IAuthContext]: true } = {
  * All the functions available to execute inside expressions
  */
 export const ExprFunctions = {
+  argv: defineFunc({
+    impl: (_idx) => {
+      throw new Error('Function not implemented.');
+    },
+    args: [ExprVal.Number] as const,
+    returns: ExprVal.Any,
+  }),
   equals: defineFunc({
     impl: (arg1, arg2) => arg1 === arg2,
     args: [ExprVal.String, ExprVal.String] as const,

@@ -49,15 +49,16 @@ function resolveExpressionValidationDefinition(
   return resolvedDefinition as IExpressionValidationResolved;
 }
 
-function resolveValidationCondition(condition: Expression, field: string): Expression {
-  const FIELD_REGEX = /\$\{field\}/;
-
+function resolveValidationCondition(condition: Expression, args: (string | number | boolean)[]): Expression {
   function recurse(expression: Expression): void {
     for (let i = 0; i < expression.length; i++) {
       const value = expression[i];
-      if (typeof value === 'string') {
-        expression[i] = value.replace(FIELD_REGEX, field);
-      } else if (Array.isArray(value)) {
+      if (!Array.isArray(value)) {
+        continue;
+      }
+      if (value[0] === 'argv') {
+        expression[i] = args[value[1] as number];
+      } else {
         recurse(value as Expression);
       }
     }
@@ -191,7 +192,7 @@ export function runExpressionValidationsOnNode(
     for (const validationDef of validationDefs) {
       try {
         const resolvedField = resolvedDataModelBindings[bindingKey];
-        const resolvedCondition = resolveValidationCondition(validationDef.condition, resolvedField);
+        const resolvedCondition = resolveValidationCondition(validationDef.condition, [resolvedField]);
         const isInvalid = evalExpr(resolvedCondition, node, newDataSources, { config });
         if (isInvalid) {
           validationObjects.push(
