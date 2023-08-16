@@ -53,6 +53,11 @@ export function EditWindowComponent({
   const { id, baseComponentId, textResourceBindings, readOnly } = node.item;
   const { lang, langAsString } = useLanguage();
 
+  const translatedOptions = options?.map((option) => ({
+    ...option,
+    label: langAsString(option.label) as string,
+  }));
+
   const onDropdownDataChange = (attachmentId: string, value: string) => {
     if (value !== undefined) {
       const option = options?.find((o) => o.value === value);
@@ -205,7 +210,7 @@ export function EditWindowComponent({
             <Select
               inputId={`attachment-tag-dropdown-${attachment.id}`}
               onChange={(value) => onDropdownDataChange(attachment.id, value)}
-              options={options ?? []}
+              options={translatedOptions ?? []}
               disabled={saveIsDisabled}
               error={attachmentValidations.filter((i) => i.id === attachment.id).length > 0}
               label={langAsString('general.choose')}
