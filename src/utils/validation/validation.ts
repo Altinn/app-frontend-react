@@ -41,7 +41,7 @@ export function runValidationOnNodes(
   const nodesToValidate = nodes.filter(
     (node) =>
       implementsAnyValidation(node.def) &&
-      !node.isHidden() &&
+      !node.isHidden({ respectTracks: true }) &&
       !('renderAsSummary' in node.item && node.item.renderAsSummary),
   );
 

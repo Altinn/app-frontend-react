@@ -32,7 +32,7 @@ export interface ILayoutSet {
 export interface ILayoutSettings {
   pages: IPagesSettings;
   components?: IComponentsSettings;
-  receiptLayoutName: string;
+  receiptLayoutName?: string;
 }
 
 export interface IPagesSettings {

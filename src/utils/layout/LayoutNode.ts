@@ -153,7 +153,11 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
    * Checks if this field should be hidden. This also takes into account the group this component is in, so the
    * methods returns true if the component is inside a hidden group.
    */
-  public isHidden(respectLegacy = true, respectDevTools = true): boolean {
+  public isHidden(
+    options: { respectLegacy?: boolean; respectDevTools?: boolean; respectTracks?: boolean } = {},
+  ): boolean {
+    const { respectLegacy = true, respectDevTools = true, respectTracks = false } = options;
+
     const hiddenList = respectLegacy ? this.dataSources.hiddenFields : new Set();
     if (respectDevTools && this.dataSources.devTools.isOpen && this.dataSources.devTools.hiddenComponents !== 'hide') {
       return false;
@@ -197,6 +201,14 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
       if (hiddenImplicitly) {
         return true;
       }
+    }
+
+    if (
+      respectTracks &&
+      this.parent instanceof LayoutPage &&
+      this.parent.isHiddenViaTracks(this.dataSources.uiConfig)
+    ) {
+      return true;
     }
 
     return this.parent instanceof BaseLayoutNode && this.parent.isHidden(respectLegacy);
