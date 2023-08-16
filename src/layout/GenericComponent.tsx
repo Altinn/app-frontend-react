@@ -261,7 +261,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   };
 
   const showValidationMessages =
-    hasValidationMessages && hideValidationMessage && layoutComponent.renderDefaultValidations();
+    hasValidationMessages && !hideValidationMessage && layoutComponent.renderDefaultValidations();
 
   if (node.item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
