@@ -40,7 +40,8 @@ export function runValidationOnNodes(
   options?: IValidationOptions,
 ): IValidationObject[] {
   const nodesToValidate = nodes.filter(
-    (node) => implementsAnyValidation(node.def) && !node.isHidden() && !node.item.renderAsSummary,
+    (node) =>
+      implementsAnyValidation(node.def) && !node.isHidden({ respectTracks: true }) && !node.item.renderAsSummary,
   );
 
   if (nodesToValidate.length === 0) {
