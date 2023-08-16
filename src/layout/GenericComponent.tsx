@@ -117,10 +117,13 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     shallowEqual,
   );
 
-  //Hide validation message if component maxLength is exceeded (handled by component's own message)
+  //Hide validation message if component maxLength exists and exceeded (handled by component's own message) and it's the only error
   const componentMaxLength = node.item?.maxLength;
-  const isMaxLengthExceeded =
-    componentMaxLength && formData?.simpleBinding && formData?.simpleBinding?.length > componentMaxLength;
+  const hideValidationMessage =
+    componentMaxLength &&
+    formData?.simpleBinding &&
+    formData?.simpleBinding?.length > componentMaxLength &&
+    componentValidations?.simpleBinding?.errors?.length === 1;
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
@@ -258,7 +261,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   };
 
   const showValidationMessages =
-    hasValidationMessages && !isMaxLengthExceeded && layoutComponent.renderDefaultValidations();
+    hasValidationMessages && hideValidationMessage && layoutComponent.renderDefaultValidations();
 
   if (node.item.renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
@@ -282,7 +285,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
       </FormComponentContext.Provider>
     );
   }
-
+  console.log(componentValidations?.simpleBinding?.errors?.length === 1);
   return (
     <FormComponentContext.Provider value={formComponentContext}>
       <Grid
