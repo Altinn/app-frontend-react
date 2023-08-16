@@ -211,7 +211,7 @@ export class BaseLayoutNode<Item extends AnyItem = AnyItem, Type extends Compone
       return true;
     }
 
-    return this.parent instanceof BaseLayoutNode && this.parent.isHidden(respectLegacy);
+    return this.parent instanceof BaseLayoutNode && this.parent.isHidden(options);
   }
 
   private firstDataModelBinding() {
