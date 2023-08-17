@@ -35,7 +35,7 @@ export enum ValidationIssueSources {
  * Some validations performed by the backend are also performed by the frontend.
  * We need to ignore these to prevent duplicate errors.
  */
-function shouldExcludeValidationIssue(issue: IValidationIssue): boolean {
+export function shouldExcludeValidationIssue(issue: IValidationIssue): boolean {
   /*
    * Legacy required validation detection
    * Remove this condition in v4, assuming that a minimum backend version is required.
