@@ -56,6 +56,7 @@ export function shouldExcludeValidationIssue(issue: IValidationIssue): boolean {
     return true;
   }
 
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
   if (issue.source === ValidationIssueSources.ModelState) {
     // This is handled by schema validation.
     return true;
