@@ -38,7 +38,6 @@ export function Form() {
           requiredValidationTextResources.push(langTools.langAsString(textResourceBindings?.requiredValidation));
         }
       });
-      console.log('requiredValidationTextResources', requiredValidationTextResources);
 
       return missingFieldsInLayoutValidations(validations[pageKey], requiredValidationTextResources, langTools);
     }

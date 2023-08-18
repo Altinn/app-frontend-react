@@ -380,12 +380,6 @@ export function missingFieldsInLayoutValidations(
     if (Array.isArray(e)) {
       return e.findIndex(lookForRequiredMsg) > -1;
     }
-    requiredValidationTextResources.forEach((textResource) => {
-      if (e.includes(textResource)) {
-        console.log('hello');
-        result = true;
-      }
-    });
     return (e?.props?.children as string).includes(requiredMessage);
   };
 
@@ -399,7 +393,15 @@ export function missingFieldsInLayoutValidations(
       }
 
       const errors = layoutValidations[component][binding]?.errors;
-      result = !!(errors && errors.length > 0 && errors.findIndex(lookForRequiredMsg) > -1);
+
+      const cusstomRequiredValidationMessageExists = errors?.some((error) =>
+        requiredValidationTextResources.includes(error),
+      );
+
+      result = !!(
+        (errors && errors.length > 0 && errors.findIndex(lookForRequiredMsg) > -1) ||
+        cusstomRequiredValidationMessageExists
+      );
     });
   });
 
