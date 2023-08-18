@@ -1,13 +1,5 @@
-.print {
-  display: none;
-}
-
 @media print {
-  .container {
-    display: none;
-  }
-
-  .print {
-    display: unset;
+  .accordion h2 > button {
+    display: unset !important;
   }
 }

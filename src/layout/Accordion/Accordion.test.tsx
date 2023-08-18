@@ -23,12 +23,7 @@ describe('Accordion', () => {
 const render = ({ title }: Partial<ILayoutAccordion> & { title?: string } = {}) =>
   renderGenericComponentTest<'Accordion'>({
     type: 'Accordion',
-    renderer: (props) => (
-      <Accordion
-        {...props}
-        renderPDFPreview={false}
-      />
-    ),
+    renderer: (props) => <Accordion {...props} />,
     component: {
       id: 'accordion-test-id',
       textResourceBindings: {

@@ -2,9 +2,11 @@ import React from 'react';
 
 import { AccordionGroup as AccordionGroupComponent } from 'src/layout/AccordionGroup/AccordionGroup';
 import { AccordionGroupHierarchyGenerator } from 'src/layout/AccordionGroup/hierarchy';
+import { SummaryAccordionGroupComponent } from 'src/layout/AccordionGroup/SummaryAccordionGroupComponent';
 import { PresentationComponent } from 'src/layout/LayoutComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IAccordionGroup, ILayoutAccordionGroup } from 'src/layout/AccordionGroup/types';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -17,6 +19,13 @@ export class AccordionGroup extends PresentationComponent<'AccordionGroup'> {
 
   hierarchyGenerator(): ComponentHierarchyGenerator<'AccordionGroup'> {
     return this._hierarchyGenerator;
+  }
+
+  renderSummary(props: SummaryRendererProps<'AccordionGroup'>): JSX.Element | null {
+    return <SummaryAccordionGroupComponent {...props} />;
+  }
+  renderSummaryBoilerplate(): boolean {
+    return false;
   }
 }
 
