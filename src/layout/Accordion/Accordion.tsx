@@ -9,9 +9,9 @@ import { AccordionItem } from 'src/layout/Accordion/AccordionItem';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-type IAccordionProps = PropsFromGenericComponent<'Accordion'> & { renderPDFPreview?: boolean };
+type IAccordionProps = PropsFromGenericComponent<'Accordion'>;
 
-export const Accordion = ({ node, renderPDFPreview = true }: IAccordionProps) => {
+export const Accordion = ({ node }: IAccordionProps) => {
   const { textResourceBindings, renderAsAccordionItem, headingLevel } = node.item;
   const { langAsString } = useLanguage();
 
