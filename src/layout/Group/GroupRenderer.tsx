@@ -60,6 +60,6 @@ export function GroupRenderer({ node }: GroupRendererProps) {
   }
 
   // Invalid configuration
-  window.logError(`Group ${node.item.id} has an invalid configuration.`);
+  window.logErrorOnce(`Group ${node.item.id} has an invalid configuration.`);
   return null;
 }

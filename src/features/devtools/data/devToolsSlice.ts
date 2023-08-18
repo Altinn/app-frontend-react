@@ -1,7 +1,7 @@
 import { previewPdfSaga } from 'src/features/devtools/data/devToolsSagas';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { createSagaSlice } from 'src/redux/sagaSlice';
-import type { IDevToolsState } from 'src/features/devtools/data/types';
+import type { IDevToolsLog, IDevToolsState } from 'src/features/devtools/data/types';
 import type { ActionsFromSlice, MkActionType } from 'src/redux/sagaSlice';
 
 export const initialState: IDevToolsState = {
@@ -81,9 +81,10 @@ export const devToolsSlice = () => {
           state.nodeInspector.selectedNodeId = action.payload.selectedNodeId;
         },
       }),
-      postLog: mkAction<{ index: number; level: 'info' | 'warn' | 'error'; message: string }>({
+      postLogs: mkAction<{ logs: IDevToolsLog[] }>({
         reducer: (state, action) => {
-          state.logs.push(action.payload);
+          const { logs } = action.payload;
+          state.logs.push(...logs);
         },
       }),
       logsClear: mkAction<void>({

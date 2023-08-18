@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { Heading } from '@digdir/design-system-react';
 
@@ -20,8 +20,6 @@ interface PDFViewProps {
 }
 
 const PDFComponent = ({ node }: { node: LayoutNode }) => {
-  const logRef = useRef(false);
-
   if (node.isType('Summary') || node.item.renderAsSummary) {
     return (
       <SummaryComponent
@@ -54,11 +52,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
       />
     );
   } else {
-    // Prevent triggering this warning multiple times
-    if (!logRef.current) {
-      logRef.current = true;
-      window.logWarn(`Component type: "${node.item.type}" is not allowed in PDF. Component id: "${node.item.id}"`);
-    }
+    window.logWarnOnce(`Component type: "${node.item.type}" is not allowed in PDF. Component id: "${node.item.id}"`);
     return null;
   }
 };
@@ -82,6 +76,7 @@ export const PDFView = ({ appName, appOwner }: PDFViewProps) => {
     >
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
       <Heading
+        spacing={true}
         level={1}
         size='large'
       >

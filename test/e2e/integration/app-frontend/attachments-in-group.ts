@@ -58,12 +58,18 @@ describe('Repeating group attachments', () => {
   };
 
   const uploadFile = ({ item, idx, fileName, verifyTableRow, tableRow, secondPage = false }: IUploadFileArgs) => {
+    cy.get(item.fileUploader).then((fileUploader) => {
+      const dropZoneContainer = fileUploader.find(item.dropZoneContainer);
+      if (!dropZoneContainer.length) {
+        cy.get(item.addMoreBtn).click();
+      }
+    });
     cy.get(item.dropZoneContainer).should('be.visible');
     cy.get(item.dropZone).selectFile(makeTestFile(fileName), { force: true });
 
     const attachment = item.attachments(idx);
     if (attachment.tagSelector !== undefined && attachment.tagSave !== undefined) {
-      cy.get(attachment.tagSelector).select('altinn');
+      cy.get(attachment.tagSelector).dsSelect('Altinn');
       cy.get(attachment.tagSave).click();
     }
 

@@ -60,7 +60,7 @@ describe('Summary', () => {
       cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', {
         force: true,
       });
-      cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+      cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
       cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
 
       cy.get(appFrontend.backToSummaryButton).click();
@@ -68,17 +68,16 @@ describe('Summary', () => {
       cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldDateFrom);
     });
 
-    // Summary of attachment components
     cy.get(appFrontend.changeOfName.summaryNameChanges)
       .siblings()
       .then((summary) => {
         cy.wrap(summary)
           .contains(mui.gridContainer, texts.uplodDocs)
-          .contains(mui.gridItem, 'test.pdf')
+          .contains(mui.gridContainer, 'test.pdf')
           .should('be.visible');
         cy.wrap(summary)
           .contains(mui.gridContainer, texts.uploadWithTag)
-          .contains(mui.gridItem, 'test.pdf')
+          .contains(mui.gridContainer, 'test.pdf')
           .should('contain.text', 'Adresse');
       });
 

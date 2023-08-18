@@ -2,10 +2,8 @@ import path from 'path';
 
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import { Common } from 'test/e2e/pageobjects/common';
 
 const appFrontend = new AppFrontend();
-const mui = new Common();
 
 describe('UI Components', () => {
   it('Image component with help text', () => {
@@ -48,8 +46,10 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadingAnimation).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadSuccess).should('exist');
 
-    const loadScript = '<script> setTimeout(() => location.reload(), 1000); </script>';
-    cy.get('body').invoke('append', loadScript);
+    cy.window().then((win) => {
+      setTimeout(() => win.location.reload(), 1000);
+    });
+
     cy.get(appFrontend.changeOfName.downloadAttachment).click();
 
     const downloadsFolder = Cypress.config('downloadsFolder');
@@ -66,14 +66,14 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploaded).then((table) => {
       cy.wrap(table).should('be.visible');
-      cy.wrap(table).find(mui.tableBody).find('tr').should('have.length', 1);
-      cy.wrap(table).find(mui.tableBody).find(mui.tableElement).eq(1).should('have.text', 'Adresse');
-      cy.wrap(table).find(mui.tableBody).find(mui.tableElement).last().find('button').click();
+      cy.wrap(table).find('tbody').find('tr').should('have.length', 1);
+      cy.wrap(table).find('tbody > tr > td').eq(2).should('have.text', 'Adresse');
+      cy.wrap(table).find('tbody > tr > td').last().find('button').click();
     });
     cy.snapshot('components:attachment-with-tags');
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).find('button:contains("Slett")').click();
@@ -88,12 +88,13 @@ describe('UI Components', () => {
       force: true,
     });
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
-    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).select('address');
+    cy.get(appFrontend.changeOfName.uploadWithTag.tagsDropDown).dsSelect('Adresse');
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.wait('@saveTags');
 
-    const loadScript = '<script> setTimeout(() => location.reload(), 1000); </script>';
-    cy.get('body').invoke('append', loadScript);
+    cy.window().then((win) => {
+      setTimeout(() => win.location.reload(), 1000);
+    });
 
     cy.get(appFrontend.changeOfName.downloadAttachment).click();
 

@@ -35,12 +35,13 @@ export const CheckboxContainerComponent = ({
     layout,
     readOnly,
     mapping,
+    queryParameters,
     source,
     textResourceBindings,
     required,
     labelSettings,
   } = node.item;
-  const apiOptions = useGetOptions({ optionsId, mapping, source });
+  const apiOptions = useGetOptions({ optionsId, mapping, queryParameters, source });
   const calculatedOptions = apiOptions || options || defaultOptions;
   const hasSelectedInitial = React.useRef(false);
   const optionsHasChanged = useHasChangedIgnoreUndefined(apiOptions);
@@ -114,7 +115,7 @@ export const CheckboxContainerComponent = ({
         disabled={readOnly}
         onChange={(values) => handleChange(values)}
         legend={overrideDisplay?.renderLegend === false ? null : labelText}
-        description={textResourceBindings?.description && langAsString(textResourceBindings.description)}
+        description={textResourceBindings?.description && lang(textResourceBindings.description)}
         error={!isValid}
         fieldSetProps={{
           'aria-label': overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined,

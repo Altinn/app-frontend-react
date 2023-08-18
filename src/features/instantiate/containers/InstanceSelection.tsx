@@ -43,16 +43,17 @@ function getDateDisplayString(timeStamp: string) {
 export function InstanceSelection({ instances, onNewInstance }: IInstanceSelectionProps) {
   const { data: applicationMetadata } = useApplicationMetadataQuery();
   const instanceSelectionOptions = applicationMetadata?.onEntry?.instanceSelection;
+  const selectedIndex = instanceSelectionOptions?.defaultSelectedOption;
   const { lang, langAsString, language } = useLanguage();
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
 
+  const doesIndexExist = (selectedIndex: number | undefined): selectedIndex is number =>
+    selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
+
+  const defaultSelectedOption = doesIndexExist(selectedIndex) ? selectedIndex : 0;
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(
-    (instanceSelectionOptions?.defaultRowsPerPage &&
-      rowsPerPageOptions[instanceSelectionOptions?.defaultRowsPerPage]) ??
-      rowsPerPageOptions[0],
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[defaultSelectedOption]);
 
   if (instanceSelectionOptions?.sortDirection === 'desc') {
     instances = instances.slice().reverse();
