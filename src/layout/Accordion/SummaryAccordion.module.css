@@ -24,3 +24,9 @@
 .container .header > h5 {
   margin: 0;
 }
+
+@media print {
+  .container {
+    break-inside: avoid;
+  }
+}
