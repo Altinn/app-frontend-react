@@ -124,7 +124,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
       return componentValidations?.simpleBinding;
     }
 
-    // If maxLength is set in both schema and component, don't display the schema message
+    // If maxLength is set in both schema and component, don't display the schema error message
     const errorMessageMaxLength = langAsString('validation_errors.maxLength', [maxLength]) as string;
     const componentErrors = componentValidations?.simpleBinding?.errors || [];
     const updatedErrors = componentErrors.filter((error: string) => error !== errorMessageMaxLength);

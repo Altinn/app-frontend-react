@@ -308,19 +308,33 @@ describe('UI Components', () => {
     });
   });
 
-  it('should countdown remaining letters', () => {
-    cy.goto('changename');
-    cy.get('#form-content-newFirstName').contains('Du har 4 av 4 tegn igjen');
-    cy.get(appFrontend.changeOfName.newFirstName).type('Per');
-    cy.get('#form-content-newFirstName').contains('Du har 1 av 4 tegn igjen');
-    cy.get(appFrontend.changeOfName.newFirstName).type('r');
-    cy.get('#form-content-newFirstName').contains('Du har 0 av 4 tegn igjen');
-    cy.get(appFrontend.changeOfName.newFirstName).type('r');
-    cy.get('#form-content-newFirstName').contains('Du har overskredet maks antall tegn med 1');
-    cy.get(appFrontend.errorReport).should('be.visible');
-    cy.get(appFrontend.errorReport).should('contain.text', 'Må summeres opp til 100%');
-    cy.get(appFrontend.errorReport).should('contain.text', 'Bruk 4 eller færre tegn');
-    cy.snapshot('components:text-countdown');
+  [4, 5].forEach((maxLength) => {
+    it(`should countdown remaining letters of ${maxLength} and display validation`, () => {
+      cy.interceptLayout('changename', (component) => {
+        if (component.type === 'Input' && component.id === 'newFirstName') {
+          component.maxLength = maxLength;
+        }
+      });
+
+      cy.goto('changename');
+      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength} av ${maxLength} tegn igjen`);
+      cy.get(appFrontend.changeOfName.newFirstName).type('Per');
+      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 3} av ${maxLength} tegn igjen`);
+      cy.get(appFrontend.changeOfName.newFirstName).type('r');
+      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 4} av ${maxLength} tegn igjen`);
+      cy.get(appFrontend.changeOfName.newFirstName).type('rrr');
+      cy.get('#form-content-newFirstName').contains(`Du har overskredet maks antall tegn med ${7 - maxLength}`);
+
+      // Display data model validation below component if maxLength in layout and datamodel is different
+      if (maxLength !== 4) {
+        cy.get('#form-content-newFirstName').should('contain', 'Bruk 4 eller færre tegn');
+      } else {
+        cy.get('#form-content-newFirstName').should('not.contain', 'Bruk 4 eller færre tegn');
+      }
+      cy.get(appFrontend.errorReport).should('be.visible');
+      cy.get(appFrontend.errorReport).should('contain.text', 'Må summeres opp til 100%');
+      cy.get(appFrontend.errorReport).should('contain.text', 'Bruk 4 eller færre tegn');
+    });
   });
 
   it('should remember values after refreshing', () => {
