@@ -45,6 +45,7 @@ export const DownloadXMLButton = () => {
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <Button
           variant='outline'
+          size='small'
           icon={<DownloadIcon aria-hidden={true} />}
           onClick={downloadXML}
         >
@@ -55,12 +56,13 @@ export const DownloadXMLButton = () => {
           onDrop={uploadXML}
           accept={{ 'application/xml': ['.xml'] }}
         >
-          {({ getRootProps, getInputProps, isDragActive, isDragReject }) => (
+          {({ getRootProps, getInputProps }) => (
             <Button
               {...getRootProps({
                 onClick: (e) => e.preventDefault(),
               })}
               variant='outline'
+              size='small'
               icon={<UploadIcon aria-hidden={true} />}
             >
               <input {...getInputProps()} />
