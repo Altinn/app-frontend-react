@@ -394,13 +394,13 @@ export function missingFieldsInLayoutValidations(
 
       const errors = layoutValidations[component][binding]?.errors;
 
-      const cusstomRequiredValidationMessageExists = errors?.some((error) =>
+      const customRequiredValidationMessageExists = errors?.some((error) =>
         requiredValidationTextResources.includes(error),
       );
 
       result = !!(
         (errors && errors.length > 0 && errors.findIndex(lookForRequiredMsg) > -1) ||
-        cusstomRequiredValidationMessageExists
+        customRequiredValidationMessageExists
       );
     });
   });
