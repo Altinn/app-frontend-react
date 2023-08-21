@@ -13,7 +13,6 @@ import { PartyActions } from 'src/features/party/partySlice';
 import { PDF_LAYOUT_NAME, PdfActions } from 'src/features/pdf/data/pdfSlice';
 import { QueueActions } from 'src/features/queue/queueSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
-import { ComponentType } from 'src/layout/LayoutComponent';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { httpGet } from 'src/utils/network/networking';
@@ -68,12 +67,7 @@ function generateAutomaticLayout(pdfFormat: IPdfFormat, uiConfig: IUiConfig, res
     )
     .flatMap(([pageName, nodes]) => nodes?.map((node) => [pageName, node] as const))
     .map(([pageName, node]) => {
-      if (
-        !node.item.renderAsSummary &&
-        (node.isType('Group') ||
-          node.isComponentType(ComponentType.Form) ||
-          node.isComponentType(ComponentType.Presentation))
-      ) {
+      if (node.def.shouldRenderInAutomaticPDF(node as any)) {
         return {
           id: `__pdf__${node.item.id}`,
           type: 'Summary',
