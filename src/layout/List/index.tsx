@@ -64,7 +64,7 @@ export class List extends FormComponent<'List'> {
     if (listHasErrors) {
       const fieldName = getFieldName(node.item.textResourceBindings, langTools, undefined);
       const message = textResourceBindings?.requiredValidation
-        ? langAsString(textResourceBindings?.requiredValidation)
+        ? langAsString(textResourceBindings?.requiredValidation, [fieldName])
         : langAsString('form_filler.error_required', [fieldName]);
       validationObjects.push(buildValidationObject(node, 'errors', message));
     }

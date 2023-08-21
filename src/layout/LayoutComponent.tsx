@@ -203,7 +203,7 @@ export abstract class FormComponent<Type extends ComponentTypes>
       if (!data?.length) {
         const fieldName = getFieldName(textResourceBindings, langTools, bindingKey);
         const errorMessage = textResourceBindings?.requiredValidation
-          ? langAsString(textResourceBindings?.requiredValidation)
+          ? langAsString(textResourceBindings?.requiredValidation, [fieldName])
           : langAsString('form_filler.error_required', [fieldName]);
 
         validationObjects.push(buildValidationObject(node, 'errors', errorMessage, bindingKey));
