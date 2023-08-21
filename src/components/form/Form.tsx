@@ -12,7 +12,24 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import { extractBottomButtons, hasRequiredFields } from 'src/utils/formLayout';
 import { useExprContext } from 'src/utils/layout/ExprContext';
 import { getFormHasErrors, missingFieldsInLayoutValidations } from 'src/utils/validation/validation';
+import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { ITextResourceBindings } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
+const getCustomRequiredValidationMessagesFromNodes = (nodes: LayoutNode[], langTools: IUseLanguage) => {
+  const requiredValidationTextResources: string[] = [];
+  nodes.forEach((node) => {
+    if (node.isRepGroup()) {
+      const repGroupValidationTextResources = getCustomRequiredValidationMessagesFromNodes(node.children(), langTools);
+      requiredValidationTextResources.push(...repGroupValidationTextResources);
+    }
+    const textResourceBindings = node.item.textResourceBindings as ITextResourceBindings;
+    if (node.item.required && textResourceBindings?.requiredValidation) {
+      requiredValidationTextResources.push(langTools.langAsString(textResourceBindings?.requiredValidation));
+    }
+  });
+  return requiredValidationTextResources;
+};
 
 export function Form() {
   const nodes = useExprContext();
@@ -31,15 +48,11 @@ export function Form() {
 
   const requiredFieldsMissing = React.useMemo(() => {
     if (validations && pageKey && validations[pageKey]) {
-      const requiredValidationTextResources: string[] = [];
-      mainNodes.forEach((node) => {
-        const textResourceBindings = node.item.textResourceBindings as ITextResourceBindings;
-        if (node.item.required && textResourceBindings?.requiredValidation) {
-          requiredValidationTextResources.push(langTools.langAsString(textResourceBindings?.requiredValidation));
-        }
-      });
-
-      return missingFieldsInLayoutValidations(validations[pageKey], requiredValidationTextResources, langTools);
+      return missingFieldsInLayoutValidations(
+        validations[pageKey],
+        getCustomRequiredValidationMessagesFromNodes(mainNodes, langTools),
+        langTools,
+      );
     }
 
     return false;
