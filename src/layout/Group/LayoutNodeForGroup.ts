@@ -46,6 +46,7 @@ export function groupIsNonRepeating(item: CompGroupInternal): item is CompGroupN
   return !item.maxCount || item.maxCount <= 1;
 }
 
+// eslint-disable-next-line sonarjs/no-identical-functions
 export function groupIsNonRepeatingExt(item: CompGroupExternal): item is CompGroupNonRepeatingExternal {
   if ('panel' in item) {
     return false;
@@ -62,6 +63,7 @@ export function groupIsNonRepeatingPanel(item: CompGroupInternal): item is CompG
   return false;
 }
 
+// eslint-disable-next-line sonarjs/no-identical-functions
 export function groupIsNonRepeatingPanelExt(item: CompGroupExternal): item is CompGroupNonRepeatingPanelExternal {
   if (!item.maxCount || item.maxCount <= 1) {
     return 'panel' in item;
@@ -78,6 +80,7 @@ export function groupIsRepeatingLikert(item: CompGroupInternal): item is CompGro
   return false;
 }
 
+// eslint-disable-next-line sonarjs/no-identical-functions
 export function groupIsRepeatingLikertExt(item: CompGroupExternal): item is CompGroupRepeatingLikertExternal {
   if (typeof item.maxCount === 'number' && item.maxCount > 1 && 'edit' in item) {
     return item.edit?.mode === 'likert';
