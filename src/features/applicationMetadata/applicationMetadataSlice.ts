@@ -19,6 +19,7 @@ export const applicationMetadataSlice = () => {
     actions: {
       getFulfilled: mkAction<IGetApplicationMetadataFulfilled>({
         reducer: (state, action) => {
+          console.log('Action: ', action);
           state.applicationMetadata = action.payload.applicationMetadata;
           state.error = null;
         },
