@@ -2,7 +2,7 @@ import React from 'react';
 import Dropzone from 'react-dropzone';
 import { useDispatch } from 'react-redux';
 
-import { Button, FieldSet } from '@digdir/design-system-react';
+import { Button, Fieldset } from '@digdir/design-system-react';
 import { DownloadIcon, UploadIcon } from '@navikt/aksel-icons';
 import axios from 'axios';
 
@@ -41,10 +41,11 @@ export const DownloadXMLButton = () => {
     }
   };
   return (
-    <FieldSet legend='Skjemadata'>
+    <Fieldset legend='Skjemadata'>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <Button
           variant='outline'
+          size='small'
           icon={<DownloadIcon aria-hidden={true} />}
           onClick={downloadXML}
         >
@@ -55,12 +56,13 @@ export const DownloadXMLButton = () => {
           onDrop={uploadXML}
           accept={{ 'application/xml': ['.xml'] }}
         >
-          {({ getRootProps, getInputProps, isDragActive, isDragReject }) => (
+          {({ getRootProps, getInputProps }) => (
             <Button
               {...getRootProps({
                 onClick: (e) => e.preventDefault(),
               })}
               variant='outline'
+              size='small'
               icon={<UploadIcon aria-hidden={true} />}
             >
               <input {...getInputProps()} />
@@ -69,6 +71,6 @@ export const DownloadXMLButton = () => {
           )}
         </Dropzone>
       </div>
-    </FieldSet>
+    </Fieldset>
   );
 };

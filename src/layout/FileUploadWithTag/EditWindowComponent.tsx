@@ -9,6 +9,7 @@ import { AttachmentActions } from 'src/features/attachments/attachmentSlice';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useFormattedOptions } from 'src/hooks/useFormattedOptions';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
@@ -53,6 +54,8 @@ export function EditWindowComponent({
   const dispatch = useAppDispatch();
   const { id, baseComponentId, textResourceBindings, readOnly } = node.item;
   const { lang, langAsString } = useLanguage();
+
+  const formattedOptions = useFormattedOptions(options);
 
   const onDropdownDataChange = (attachmentId: string, value: string) => {
     if (value !== undefined) {
@@ -206,7 +209,7 @@ export function EditWindowComponent({
             <Select
               inputId={`attachment-tag-dropdown-${attachment.id}`}
               onChange={(value) => onDropdownDataChange(attachment.id, value)}
-              options={options ?? []}
+              options={formattedOptions}
               disabled={saveIsDisabled}
               error={attachmentValidations.filter((i) => i.id === attachment.id).length > 0}
               label={langAsString('general.choose')}
@@ -229,6 +232,7 @@ export function EditWindowComponent({
               />
             ) : (
               <Button
+                size='small'
                 onClick={() => handleSave(attachment)}
                 id={`attachment-save-tag-button-${attachment.id}`}
                 disabled={saveIsDisabled}

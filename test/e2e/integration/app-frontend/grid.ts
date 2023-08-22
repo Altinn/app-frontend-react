@@ -34,7 +34,7 @@ describe('Grid component', () => {
     // Fill out the rest of the form, so that we can attempt to send it and only get the validation message we care
     // about for Grid.
     cy.navPage('form').click();
-    cy.get(appFrontend.changeOfName.newFirstName).type('first name');
+    cy.get(appFrontend.changeOfName.newFirstName).type('anna');
     cy.get(appFrontend.changeOfName.newLastName).type('last name');
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').dsCheck();
     cy.get(appFrontend.changeOfName.reasonRelationship).click();
@@ -150,6 +150,7 @@ describe('Grid component', () => {
     cy.get(appFrontend.grid.grid).find('tr:eq(2) td:eq(0)').should('contain.text', 'Dette er en beskrivende tekst');
     cy.get(appFrontend.grid.grid).find('tr:eq(2) td:eq(0)').find(appFrontend.helpText.open).click();
     cy.get(appFrontend.grid.grid).find('tr:eq(2) td:eq(0) label').click();
+    // eslint-disable-next-line cypress/unsafe-to-chain-command
     cy.focused().should('have.attr', 'id', 'fordeling-studie');
   });
 });

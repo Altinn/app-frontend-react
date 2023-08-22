@@ -1,18 +1,19 @@
 import React from 'react';
 
-import { Button, ButtonColor, ButtonVariant } from '@digdir/design-system-react';
+import { Button } from '@digdir/design-system-react';
 
 import type { PropsFromGenericComponent } from '..';
 
 import { useLanguage } from 'src/hooks/useLanguage';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { ButtonColor, ButtonVariant } from 'src/layout/Button/WrappedButton';
 import type { LinkStyle } from 'src/layout/Link/config.generated';
 
 export const buttonStyles: {
   [style in Exclude<LinkStyle, 'link'>]: { color: ButtonColor; variant: ButtonVariant };
 } = {
-  primary: { variant: ButtonVariant.Filled, color: ButtonColor.Success },
-  secondary: { variant: ButtonVariant.Outline, color: ButtonColor.Primary },
+  primary: { variant: 'filled', color: 'success' },
+  secondary: { variant: 'outline', color: 'primary' },
 };
 
 export type ILinkComponent = PropsFromGenericComponent<'Link'>;
@@ -44,6 +45,7 @@ export function LinkComponent({ node }: ILinkComponent) {
         style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
         color={color}
         variant={variant}
+        size='small'
         onClick={() => window.open(langAsString(textResourceBindings?.target), openInNewTab ? '_blank' : '_self')}
       >
         {lang(textResourceBindings?.title)}

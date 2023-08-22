@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { Button, ButtonColor, FieldSet } from '@digdir/design-system-react';
+import { Button, Fieldset } from '@digdir/design-system-react';
 import { FilePdfIcon } from '@navikt/aksel-icons';
 
 import { DevToolsActions } from 'src/features/devtools/data/devToolsSlice';
@@ -17,7 +17,7 @@ export const PDFPreviewButton = () => {
   }
 
   return (
-    <FieldSet
+    <Fieldset
       legend='Forhåndsvis PDF'
       description={
         !(window as any).chrome
@@ -27,12 +27,13 @@ export const PDFPreviewButton = () => {
     >
       <Button
         onClick={handler}
+        size='small'
         disabled={taskType !== ProcessTaskType.Data}
-        color={ButtonColor.Secondary}
+        color='secondary'
         icon={<FilePdfIcon aria-hidden />}
       >
         Forhåndsvis PDF
       </Button>
-    </FieldSet>
+    </Fieldset>
   );
 };
