@@ -124,7 +124,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   );
 
   const filterValidationErrors = () => {
-    const maxLength = node.item?.maxLength;
+    const maxLength = 'maxLength' in node.item && node.item.maxLength;
 
     if (!maxLength) {
       return componentValidations?.simpleBinding;
