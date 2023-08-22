@@ -6,7 +6,7 @@ export const Config = new CG.component({
   rendersWithLabel: false,
   capabilities: {
     renderInTable: true,
-    renderInButtonGroup: false,
+    renderInButtonGroup: true,
     renderInAccordion: false,
     renderInAccordionGroup: false,
   },
