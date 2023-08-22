@@ -396,6 +396,7 @@ function makeNonRepeatingPanelGroup() {
         description: 'The body text of the Panel',
       }),
     )
+    .addProperty(commonNonRepChildComponents)
     .addProperty(
       new CG.prop(
         'maxCount',
@@ -468,6 +469,7 @@ function makeRepeatingLikertGroup() {
         description: 'The description text for the Likert table (when edit.mode is "likert")',
       }),
     )
+    .addProperty(commonRepRowsProp)
     .addDataModelBinding(commonRepGroupDataModelBinding)
     .addProperty(
       new CG.prop(

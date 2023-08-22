@@ -7,7 +7,13 @@ import {
 } from 'src/layout/Group/LayoutNodeForGroup';
 import { getRepeatingGroupStartStopIndex } from 'src/utils/formLayout';
 import { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
-import type { CompGroupExternal, HRepGroupRows } from 'src/layout/Group/config.generated';
+import type {
+  CompGroupExternal,
+  CompGroupRepeatingInternal,
+  CompGroupRepeatingLikertInternal,
+  HRepGroupRows,
+} from 'src/layout/Group/config.generated';
+import type { LayoutNodeForGroup } from 'src/layout/Group/LayoutNodeForGroup';
 import type { ITextResource } from 'src/types';
 import type {
   ChildFactory,
@@ -78,7 +84,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
       return this.processPanelReference(ctx);
     }
 
-    const isRepeating = item.maxCount && item.maxCount > 1;
+    const isRepeating = groupIsRepeatingExt(item);
     if (isRepeating) {
       return this.processRepeating(ctx);
     }
@@ -87,11 +93,8 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
 
   childrenFromNode(node: LayoutNode<'Group'>, onlyInRowIndex?: number): LayoutNode[] {
     let list: LayoutNode[] = [];
-    if (node.isType('Group') && node.isRepGroup()) {
-      if (node.item.rowsBefore && onlyInRowIndex === undefined) {
-        list.push(...node.item.rowsBefore.map(nodesFromGridRow).flat());
-      }
 
+    function iterateRepGroup(node: LayoutNodeForGroup<CompGroupRepeatingLikertInternal | CompGroupRepeatingInternal>) {
       const maybeNodes =
         typeof onlyInRowIndex === 'number'
           ? node.item.rows.find((r) => r && r.index === onlyInRowIndex)?.items || []
@@ -105,11 +108,21 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
           list.push(node);
         }
       }
+    }
+
+    if (node.isRepGroup()) {
+      if (node.item.rowsBefore && onlyInRowIndex === undefined) {
+        list.push(...node.item.rowsBefore.map(nodesFromGridRow).flat());
+      }
+
+      iterateRepGroup(node);
 
       if (node.item.rowsAfter && onlyInRowIndex === undefined) {
         list.push(...node.item.rowsAfter.map(nodesFromGridRow).flat());
       }
-    } else if (node.isNonRepGroup()) {
+    } else if (node.isRepGroupLikert()) {
+      iterateRepGroup(node);
+    } else if (node.isNonRepGroup() || node.isNonRepPanelGroup()) {
       list = node.item.childComponents;
     }
 
@@ -187,7 +200,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
         child && childNodes.push(child as LayoutNode);
       }
 
-      if (me.isNonRepGroup()) {
+      if (me.isNonRepGroup() || me.isNonRepPanelGroup()) {
         me.item.childComponents = childNodes;
       }
 
@@ -278,7 +291,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
         }
       }
 
-      if (me.isRepGroup()) {
+      if (me.isRepGroup() || me.isRepGroupLikert()) {
         me.item.rows = rows;
       }
 
