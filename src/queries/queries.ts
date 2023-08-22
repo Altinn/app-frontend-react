@@ -8,6 +8,7 @@ import {
   getFooterLayoutUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
+  instancesControllerUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
   validPartiesUrl,
@@ -22,6 +23,9 @@ export const doPartyValidation = (partyId: string) => httpPost(getPartyValidatio
 
 export const fetchActiveInstances = (partyId: string): Promise<ISimpleInstance[]> =>
   httpGet(getActiveInstancesUrl(partyId));
+
+export const fetchCurrentInstance = (instanceId: string): Promise<ISimpleInstance> =>
+  httpGet(`${instancesControllerUrl}/${instanceId}`);
 
 export const fetchApplicationMetadata = (): Promise<IApplicationMetadata> => httpGet(applicationMetadataApiUrl);
 

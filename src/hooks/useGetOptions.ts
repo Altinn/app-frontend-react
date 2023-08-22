@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 
+import { useCurrentInstanceQuery } from 'src/hooks/queries/useCurrentInstanceQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
@@ -25,7 +26,9 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
     (state) => (source && getRelevantFormDataForOptionSource(state.formData.formData, source)) || {},
     shallowEqual,
   );
-  const instance = useAppSelector((state) => state.instanceData.instance);
+  const { instanceId } = window;
+  const { data: instance } = useCurrentInstanceQuery(instanceId || '', !!instanceId);
+
   const relevantTextResources: IOptionResources = useAppSelector((state) => {
     const { label, description, helpText } = source || {};
     const resources = state.textResources.resources;
