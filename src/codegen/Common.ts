@@ -417,7 +417,18 @@ const common = {
     new CG.obj(
       new CG.prop('component', new CG.str().optional().setTitle('Component ID').setDescription('ID of the component')),
     ),
-  GridText: () =>
+  GridCellLabelFrom: () =>
+    new CG.obj(
+      new CG.prop(
+        'labelFrom',
+        new CG.str()
+          .setTitle('Fetch label from other component')
+          .setDescription('Set this to a component id to display the label from that component'),
+      ),
+      new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
+      new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
+    ),
+  GridCellText: () =>
     new CG.obj(
       new CG.prop(
         'text',
@@ -437,7 +448,8 @@ const common = {
         }),
       ),
       CG.null,
-      CG.common('GridText'),
+      CG.common('GridCellText'),
+      CG.common('GridCellLabelFrom'),
     ),
   GridRow: () =>
     new CG.obj(

@@ -21,10 +21,10 @@ export function nodesFromGridRows(rows: GridRowsInternal): LayoutNode[] {
 export function nodesFromGridRow(row: GridRowInternal): LayoutNode[] {
   const out: LayoutNode[] = [];
   for (const cell of row.cells) {
-    if (cell && 'text' in cell) {
+    if (cell && ('text' in cell || 'labelFrom' in cell)) {
       continue;
     }
-    const node = cell?.node as LayoutNode;
+    const node = cell?.node;
     node && out.push(node);
   }
 
