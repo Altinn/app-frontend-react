@@ -4,7 +4,7 @@ import type { SagaIterator } from 'redux-saga';
 
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { selectFormLayoutState } from 'src/features/layout/update/updateFormLayoutSagas';
-import { groupIsRepeatingExt } from 'src/layout/Group/LayoutNodeForGroup';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import type { ILayoutState } from 'src/features/layout/formLayoutSlice';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
 import type { IRepeatingGroups } from 'src/types';

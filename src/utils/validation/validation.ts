@@ -4,7 +4,7 @@ import {
   implementsEmptyFieldValidation,
   implementsSchemaValidation,
 } from 'src/layout';
-import { groupIsRepeatingExt } from 'src/layout/Group/LayoutNodeForGroup';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { getSchemaValidationErrors } from 'src/utils/validation/schemaValidation';
 import { emptyValidation } from 'src/utils/validation/validationHelpers';
 import type { IAttachment } from 'src/features/attachments';

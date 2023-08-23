@@ -1,4 +1,4 @@
-import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/LayoutNodeForGroup';
+import { groupIsRepeatingExt, groupIsRepeatingLikertExt } from 'src/layout/Group/tools';
 import type { IAttachmentState } from 'src/features/attachments';
 import type { IFormData } from 'src/features/formData';
 import type { ILayoutNavigation } from 'src/layout/common.generated';

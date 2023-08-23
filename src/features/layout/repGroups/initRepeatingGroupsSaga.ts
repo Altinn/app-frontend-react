@@ -5,7 +5,7 @@ import type { SagaIterator } from 'redux-saga';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { selectFormData, selectFormLayouts } from 'src/features/layout/update/updateFormLayoutSagas';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { groupIsRepeatingExt } from 'src/layout/Group/LayoutNodeForGroup';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { getRepeatingGroupFilteredIndices, getRepeatingGroups } from 'src/utils/formLayout';
 import { selectNotNull } from 'src/utils/sagas';
 import { removeGroupValidationsByIndex } from 'src/utils/validation/validation';

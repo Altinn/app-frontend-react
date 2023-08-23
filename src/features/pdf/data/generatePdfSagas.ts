@@ -15,7 +15,7 @@ import { QueueActions } from 'src/features/queue/queueSlice';
 import { TextResourcesActions } from 'src/features/textResources/textResourcesSlice';
 import { getLayoutComponentObject } from 'src/layout';
 import { ComponentCategory } from 'src/layout/common';
-import { groupIsRepeatingExt } from 'src/layout/Group/LayoutNodeForGroup';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
 import { topLevelComponents } from 'src/utils/formLayout';
 import { httpGet } from 'src/utils/network/networking';

@@ -3,7 +3,7 @@ import { evalExprInObj, ExprConfigForComponent, ExprConfigForGroup } from 'src/f
 import { convertLayouts, getSharedTests } from 'src/features/expressions/shared';
 import { asExpression, preProcessLayout } from 'src/features/expressions/validation';
 import { getLayoutComponentObject } from 'src/layout';
-import { groupIsRepeatingExt } from 'src/layout/Group/LayoutNodeForGroup';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { generateEntireHierarchy } from 'src/utils/layout/HierarchyGenerator';
 import type { Layouts } from 'src/features/expressions/shared';
 import type { ILayout } from 'src/layout/layout';

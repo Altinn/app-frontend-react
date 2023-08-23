@@ -13,7 +13,7 @@ import {
 } from 'src/features/layout/update/updateFormLayoutSagas';
 import { OptionsActions } from 'src/features/options/optionsSlice';
 import { ValidationActions } from 'src/features/validation/validationSlice';
-import { groupIsRepeatingExt } from 'src/layout/Group/LayoutNodeForGroup';
+import { groupIsRepeatingExt } from 'src/layout/Group/tools';
 import { shiftAttachmentRowInRepeatingGroup } from 'src/utils/attachment';
 import { findChildAttachments, removeGroupData } from 'src/utils/databindings';
 import { findChildren, removeRepeatingGroupFromUIConfig, splitDashedKey } from 'src/utils/formLayout';
