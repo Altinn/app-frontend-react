@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 
+import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
 import { useCurrentInstanceQuery } from 'src/hooks/queries/useCurrentInstanceQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { buildInstanceContext } from 'src/utils/instanceContext';
@@ -28,6 +29,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
   );
   const { instanceId } = window;
   const { data: instance } = useCurrentInstanceQuery(instanceId || '', !!instanceId);
+  const { data: applicationSettings } = useApplicationSettingsQuery();
 
   const relevantTextResources: IOptionResources = useAppSelector((state) => {
     const { label, description, helpText } = source || {};
@@ -40,7 +42,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
     };
   }, shallowEqual);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const applicationSettings = useAppSelector((state) => state.applicationSettings?.applicationSettings);
+
   const optionState = useAppSelector((state) => state.optionState.options);
   const [options, setOptions] = useState<IOption[] | undefined>(undefined);
 
@@ -58,7 +60,7 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
 
     const dataSources: IDataSources = {
       dataModel: relevantFormData,
-      applicationSettings,
+      applicationSettings: applicationSettings || {},
       instanceContext,
     };
 
