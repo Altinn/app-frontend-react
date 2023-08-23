@@ -169,7 +169,7 @@ export class GroupHierarchyGenerator extends ComponentHierarchyGenerator<'Group'
           );
         }
 
-        if (me.isNonRepGroup()) {
+        if (me.isNonRepGroup() || me.isNonRepPanelGroup()) {
           me.item.childComponents = ref.nextChildren;
         }
       });
