@@ -27,4 +27,5 @@ export const Config = new CG.component({
     ).onlyIn(Variant.External),
   )
   .addProperty(new CG.prop('childComponents', new CG.arr(CG.layoutNode)).onlyIn(Variant.Internal))
-  .addProperty(new CG.prop('renderAsAccordionItem', new CG.bool().optional()).onlyIn(Variant.Internal));
+  .addProperty(new CG.prop('renderAsAccordionItem', new CG.bool().optional()).onlyIn(Variant.Internal))
+  .addProperty(new CG.prop('headingLevel', CG.common('HeadingLevel').optional()));

@@ -49,6 +49,14 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
     return false;
   }
 
+  shouldRenderInAutomaticPDF(node: LayoutNode<Type>): boolean {
+    if (!('renderAsSummary' in node.item)) {
+      return true;
+    }
+
+    return !node.item.renderAsSummary;
+  }
+
   /**
    * Return false to prevent this component from being rendered in a table
    * Should be configured as a capability in the component configuration (config.ts)
@@ -158,6 +166,10 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
 
 export abstract class ActionComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
   readonly type = ComponentCategory.Action;
+
+  shouldRenderInAutomaticPDF() {
+    return false;
+  }
 }
 
 export abstract class FormComponent<Type extends ComponentTypes>

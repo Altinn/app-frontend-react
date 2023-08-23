@@ -24,6 +24,10 @@ export class Summary extends SummaryDef {
     return null;
   }
 
+  shouldRenderInAutomaticPDF() {
+    return false;
+  }
+
   getDisplayData(): string {
     return '';
   }

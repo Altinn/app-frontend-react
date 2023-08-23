@@ -498,6 +498,8 @@ const common = {
       .setDescription(
         'Autocomplete hints to the browser. See https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete',
       ),
+
+  HeadingLevel: () => new CG.enum(2, 3, 4, 5, 6),
 };
 
 export type ValidCommonKeys = keyof typeof common;

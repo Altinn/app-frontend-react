@@ -9,6 +9,7 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Group/DisplayGroupContainer.module.css';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { HeadingLevel } from 'src/layout/common.generated';
 import type {
   CompGroupNonRepeatingInternal,
   CompGroupNonRepeatingPanelInternal,
@@ -22,8 +23,6 @@ export interface IDisplayGroupContainer {
   onlyRowIndex?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
-
-type HeadingLevel = 2 | 3 | 4 | 5 | 6;
 
 const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['size'] } = {
   [2]: 'medium',

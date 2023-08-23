@@ -15,6 +15,10 @@ export class ButtonGroup extends ButtonGroupDef {
     return <ButtonGroupComponent {...props} />;
   }
 
+  shouldRenderInAutomaticPDF() {
+    return false;
+  }
+
   hierarchyGenerator(): ComponentHierarchyGenerator<'ButtonGroup'> {
     return this._hierarchyGenerator;
   }
