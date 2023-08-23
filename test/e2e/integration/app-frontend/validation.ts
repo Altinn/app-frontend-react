@@ -4,7 +4,6 @@ import { Common } from 'test/e2e/pageobjects/common';
 
 import { Triggers } from 'src/layout/common.generated';
 import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
-import type { ILayoutCompInput } from 'src/layout/Input/types';
 import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 const appFrontend = new AppFrontend();
@@ -262,7 +261,7 @@ describe('Validation', () => {
     cy.get(appFrontend.errorReport).should('not.exist');
 
     // Setting single field validation to trigger on the 'sendersName' component
-    cy.changeLayout((component: ILayoutCompInput) => {
+    cy.changeLayout((component) => {
       if (component.id === 'sendersName' && component.type === 'Input') {
         // Make sure changing this field triggers single field validation
         component.triggers = [Triggers.Validation];

@@ -505,26 +505,27 @@ describe('Summary', () => {
       const components = [
         {
           id: 'dateOfEffect',
-          type: 'Datepicker',
+          type: 'Datepicker' as const,
           summaryComponent: '[data-testid=summary-summary-4]',
           defaultTitle: 'Dette vises når det ikke er satt summaryTitle',
         },
         {
           id: 'reference-group',
-          type: 'Group',
+          type: 'Group' as const,
           summaryComponent: '[data-testid=summary-group-component]',
           defaultTitle: 'Dette vises når det ikke er satt summaryTitle',
         },
       ];
 
       cy.interceptLayout('changename', (component) => {
-        const matchingComponent = components.find((c) => c.type === component.type && c.id === component.id);
-        if (matchingComponent) {
-          component.textResourceBindings = {
-            title: matchingComponent.defaultTitle,
-            summaryTitle: title?.summaryTitle,
-            summaryAccessibleTitle: title?.summaryAccessibleTitle,
-          };
+        for (const c of components) {
+          if (c.id === component.id && c.type === component.type) {
+            component.textResourceBindings = {
+              title: title?.summaryTitle,
+              summaryTitle: title?.summaryTitle,
+              summaryAccessibleTitle: title?.summaryAccessibleTitle,
+            };
+          }
         }
       });
 
@@ -584,7 +585,7 @@ function injectExtraPageAndSetTriggers(trigger?: Triggers | undefined) {
           showBackButton: true,
           textResourceBindings: {
             next: texts.next,
-            prev: texts.prev,
+            back: texts.prev,
           },
           triggers: trigger ? [trigger] : [],
         },
