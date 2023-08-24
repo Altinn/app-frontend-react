@@ -1,6 +1,7 @@
 import { CG, Variant } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { ComponentCategory } from 'src/layout/common';
+import type { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 
 export const Config = new CG.component({
   category: ComponentCategory.Container,
@@ -76,12 +77,19 @@ const commonRepGroupDataModelBinding = new CG.obj(
 
 const commonUndefinedDataModelBinding = new CG.raw({ typeScript: 'undefined' }).optional();
 
+function commonExtensions(subType: GenerateComponentLike) {
+  return subType
+    .extends(Config)
+    .extends(CG.common('SummarizableComponentProps'))
+    .extendTextResources(CG.common('TRBSummarizable'));
+}
+
 Config.overrideExported(
   new CG.union(
-    makeRepeatingGroup().extends(Config).inner.exportAs('CompGroupRepeating'),
-    makeNonRepeatingGroup().extends(Config).inner.exportAs('CompGroupNonRepeating'),
-    makeNonRepeatingPanelGroup().extends(Config).inner.exportAs('CompGroupNonRepeatingPanel'),
-    makeRepeatingLikertGroup().extends(Config).inner.exportAs('CompGroupRepeatingLikert'),
+    commonExtensions(makeRepeatingGroup()).inner.exportAs('CompGroupRepeating'),
+    commonExtensions(makeNonRepeatingGroup()).inner.exportAs('CompGroupNonRepeating'),
+    commonExtensions(makeNonRepeatingPanelGroup()).inner.exportAs('CompGroupNonRepeatingPanel'),
+    commonExtensions(makeRepeatingLikertGroup()).inner.exportAs('CompGroupRepeatingLikert'),
   ),
 );
 
