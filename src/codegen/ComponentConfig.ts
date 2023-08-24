@@ -112,7 +112,7 @@ export class ComponentConfig extends GenerateComponentLike {
   }
 
   /**
-   * PRIORITY: Add support for some required text resource bindings (but only make them required in external types)
+   * TODO: Add support for some required text resource bindings (but only make them required in external types)
    */
   addTextResource(arg: GenerateTextResourceBinding): this {
     this.ensureNotOverridden();

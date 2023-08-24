@@ -102,7 +102,6 @@ async function getComponentList() {
 })();
 
 function generateFullSchema(sortedKeys: string[], componentList: { [p: string]: string }): JSONSchema7 {
-  // PRIORITY: Make sure this new schema is compatible with the current schema in the repo
   return {
     $ref: '#/definitions/ILayoutFile',
     definitions: {
