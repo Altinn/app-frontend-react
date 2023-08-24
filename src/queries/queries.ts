@@ -8,6 +8,7 @@ import {
   getFetchFormDataUrl,
   getFooterLayoutUrl,
   getLayoutSetsUrl,
+  getLayoutsUrl,
   getPartyValidationUrl,
   instancesControllerUrl,
   profileApiUrl,
@@ -40,6 +41,8 @@ export const fetchParties = () => httpGet(validPartiesUrl);
 export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooterLayoutUrl());
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
+
+export const fetchLayout = (instanceId: string | null): Promise<ILayoutSets> => httpGet(getLayoutsUrl(instanceId));
 
 export const fetchFormData = (instanceId: string, currentTaskDataElementId: string): Promise<IFormData> =>
   httpGet(getFetchFormDataUrl(instanceId, currentTaskDataElementId));
