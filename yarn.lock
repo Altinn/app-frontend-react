@@ -2359,7 +2359,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/design-system-react@npm:^0.23.0":
+"@digdir/design-system-react@npm:^0.23.2":
   version: 0.23.2
   resolution: "@digdir/design-system-react@npm:0.23.2"
   dependencies:
@@ -2382,7 +2382,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/design-system-tokens@npm:^0.4.0, @digdir/design-system-tokens@npm:^0.4.1":
+"@digdir/design-system-tokens@npm:^0.4.1":
   version: 0.4.1
   resolution: "@digdir/design-system-tokens@npm:0.4.1"
   checksum: 38e672a6003175b432d48162332ca2cc3f39d8ce53440f48a324e1dcd66529f2e5ff26a26964407e0d2d97fd9172e81c14781cc927663a9647fd65ce04fc1ad0
@@ -5690,8 +5690,8 @@ __metadata:
     "@babel/runtime": ^7.21.0
     "@babel/runtime-corejs3": ^7.21.0
     "@date-io/moment": 1.3.13
-    "@digdir/design-system-react": ^0.23.0
-    "@digdir/design-system-tokens": ^0.4.0
+    "@digdir/design-system-react": ^0.23.2
+    "@digdir/design-system-tokens": ^0.4.1
     "@material-ui/core": 4.12.4
     "@material-ui/icons": 4.11.3
     "@material-ui/pickers": 3.3.10
