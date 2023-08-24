@@ -70,24 +70,31 @@ export const Config = new CG.component({
         // Older options based on react-number-format
         new CG.prop(
           'number',
-          new CG.obj(
-            new CG.prop('thousandSeparator', new CG.union(new CG.bool(), new CG.str()).optional()),
-            new CG.prop('decimalSeparator', new CG.str().optional()),
-            new CG.prop('allowedDecimalSeparators', new CG.arr(new CG.str()).optional()),
-            new CG.prop('thousandsGroupStyle', new CG.enum('thousand', 'lakh', 'wan', 'none').optional()),
-            new CG.prop('decimalScale', new CG.num().optional()),
-            new CG.prop('fixedDecimalScale', new CG.bool().optional()),
-            new CG.prop('allowNegative', new CG.bool().optional()),
-            new CG.prop('allowLeadingZeros', new CG.bool().optional()),
-            new CG.prop('suffix', new CG.str().optional()),
-            new CG.prop('prefix', new CG.str().optional()),
-          )
-            .optional()
-            .exportAs('NumberFormatProps')
-            .setTitle('Number formatting options')
-            .setDescription(
-              'These options are sent directly to react-number-format in order to make it possible to format pretty numbers in the input field.',
-            ),
+          new CG.union(
+            new CG.obj(
+              new CG.prop('format', new CG.str()),
+              new CG.prop('mask', new CG.union(new CG.str(), new CG.arr(new CG.str())).optional()),
+              new CG.prop('allowEmptyFormatting', new CG.bool().optional()),
+              new CG.prop('patternChar', new CG.str().optional()),
+            ).exportAs('PatternFormatProps'),
+            new CG.obj(
+              new CG.prop('thousandSeparator', new CG.union(new CG.bool(), new CG.str()).optional()),
+              new CG.prop('decimalSeparator', new CG.str().optional()),
+              new CG.prop('allowedDecimalSeparators', new CG.arr(new CG.str()).optional()),
+              new CG.prop('thousandsGroupStyle', new CG.enum('thousand', 'lakh', 'wan', 'none').optional()),
+              new CG.prop('decimalScale', new CG.num().optional()),
+              new CG.prop('fixedDecimalScale', new CG.bool().optional()),
+              new CG.prop('allowNegative', new CG.bool().optional()),
+              new CG.prop('allowLeadingZeros', new CG.bool().optional()),
+              new CG.prop('suffix', new CG.str().optional()),
+              new CG.prop('prefix', new CG.str().optional()),
+            )
+              .exportAs('NumberFormatProps')
+              .setTitle('Number formatting options')
+              .setDescription(
+                'These options are sent directly to react-number-format in order to make it possible to format pretty numbers in the input field.',
+              ),
+          ).optional(),
         ),
         new CG.prop('align', new CG.enum('right', 'center', 'left').optional({ default: 'left' })),
       )
