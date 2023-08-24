@@ -150,6 +150,8 @@ export const getRulehandlerUrl = (layoutset?: string) => {
   return `${appPath}/api/rulehandler/${layoutset}`;
 };
 
+export const getRepeatingGroupsUrl = () => `${appPath}/api/layout/uiconfig/repeatinggroups`;
+
 export const getCalculatePageOrderUrl = (stateless: boolean) => {
   if (stateless) {
     return `${appPath}/v1/pages/order`;

@@ -5,6 +5,7 @@ import {
   applicationSettingsApiUrl,
   currentPartyUrl,
   getActiveInstancesUrl,
+  getFetchFormDataUrl,
   getFooterLayoutUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
@@ -16,6 +17,7 @@ import {
 import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
+import type { IFormData } from 'src/features/formData';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
 import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
 
@@ -38,6 +40,9 @@ export const fetchParties = () => httpGet(validPartiesUrl);
 export const fetchFooterLayout = (): Promise<IFooterLayout> => httpGet(getFooterLayoutUrl());
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
+
+export const fetchFormData = (instanceId: string, currentTaskDataElementId: string): Promise<IFormData> =>
+  httpGet(getFetchFormDataUrl(instanceId, currentTaskDataElementId));
 
 export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
   httpGet(orgsListUrl, {

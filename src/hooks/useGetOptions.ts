@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 
+import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMetadataQuery';
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
 import { useCurrentInstanceQuery } from 'src/hooks/queries/useCurrentInstanceQuery';
+import { useFormDataQuery } from 'src/hooks/queries/useFormdataQuery';
+import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { getCurrentTaskDataElementId } from 'src/utils/appMetadata';
+import { convertModelToDataBinding } from 'src/utils/databindings';
 import { buildInstanceContext } from 'src/utils/instanceContext';
 import { getOptionLookupKey, getRelevantFormDataForOptionSource, setupSourceOptions } from 'src/utils/options';
 import type { IMapping, IOption, IOptionSource, ITextResource } from 'src/types';
@@ -29,7 +34,17 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
   );
   const { instanceId } = window;
   const { data: instance } = useCurrentInstanceQuery(instanceId || '', !!instanceId);
+  const { data: applicationMetadata } = useApplicationMetadataQuery();
+  const { data: layoutSets } = useLayoutSetsQuery();
+  const currentTaskDataElementId = getCurrentTaskDataElementId(
+    applicationMetadata || null,
+    instance || null,
+    layoutSets || null,
+  );
+  const { data: fetchedFormData } = useFormDataQuery(instanceId || '', currentTaskDataElementId || '');
+
   const { data: applicationSettings } = useApplicationSettingsQuery();
+  const formData = fetchedFormData && convertModelToDataBinding(fetchedFormData);
 
   const relevantTextResources: IOptionResources = useAppSelector((state) => {
     const { label, description, helpText } = source || {};
@@ -41,6 +56,9 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
       helpText: findResourceById(helpText),
     };
   }, shallowEqual);
+
+  console.log(formData);
+
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
 
   const optionState = useAppSelector((state) => state.optionState.options);
