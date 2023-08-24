@@ -425,9 +425,7 @@ const common = {
           .setTitle('Fetch label from other component')
           .setDescription('Set this to a component id to display the label from that component'),
       ),
-      new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
-      new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
-    ),
+    ).extends(CG.common('ITableColumnProperties')),
   GridCellText: () =>
     new CG.obj(
       new CG.prop(
@@ -435,9 +433,7 @@ const common = {
         new CG.str().setTitle('Text').setDescription('Text to display (can also be a key in text resources)'),
       ),
       new CG.prop('help', new CG.str().optional().setTitle('Help').setDescription('Help text to display')),
-      new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
-      new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
-    ),
+    ).extends(CG.common('ITableColumnProperties')),
   GridCell: () =>
     new CG.union(
       new CG.linked(
