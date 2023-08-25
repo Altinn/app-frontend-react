@@ -10,6 +10,7 @@ import type {
   IExpressionValidationRefResolved,
   IExpressionValidationRefUnresolved,
   IExpressionValidations,
+  IValidationContext,
   IValidationObject,
 } from 'src/utils/validation/types';
 
@@ -135,13 +136,13 @@ export function resolveExpressionValidationConfig(config: IExpressionValidationC
 
 export function runExpressionValidationsOnNode(
   node: LayoutNode,
-  expressionValidations: IExpressionValidations,
+  { customValidation, langTools }: IValidationContext,
   overrideFormData?: IFormData,
 ): IValidationObject[] {
   const resolvedDataModelBindings = node.item.dataModelBindings;
   const baseDataModelBindings = node.item.baseDataModelBindings ?? resolvedDataModelBindings;
 
-  if (!resolvedDataModelBindings || !baseDataModelBindings) {
+  if (!customValidation || !resolvedDataModelBindings || !baseDataModelBindings) {
     return [];
   }
 
@@ -163,7 +164,7 @@ export function runExpressionValidationsOnNode(
   const validationObjects: IValidationObject[] = [];
 
   for (const [bindingKey, field] of Object.entries(baseDataModelBindings)) {
-    const validationDefs = expressionValidations[field];
+    const validationDefs = customValidation[field];
     if (!validationDefs) {
       continue;
     }
@@ -175,9 +176,8 @@ export function runExpressionValidationsOnNode(
           positionalArguments: [resolvedField],
         });
         if (isInvalid) {
-          validationObjects.push(
-            buildValidationObject(node, validationDef.severity, validationDef.message, bindingKey),
-          );
+          const message = langTools.langAsString(validationDef.message);
+          validationObjects.push(buildValidationObject(node, validationDef.severity, message, bindingKey));
         }
       } catch (e) {
         window.logError(`Custom validation:\nValidation for ${field} failed to evaluate:\n`, e);

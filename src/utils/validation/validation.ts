@@ -29,6 +29,7 @@ export interface IValidationOptions {
   skipSchemaValidation?: boolean;
   skipComponentValidation?: boolean;
   skipEmptyFieldValidation?: boolean;
+  skipCustomValidation?: boolean;
 }
 /**
  * Runs all frontend validations on a list of nodes, and optionally skips some types of validations.
@@ -69,10 +70,8 @@ export function runValidationOnNodes(
       nodeValidations.push(...node.def.runSchemaValidation(node as any, schemaErrors));
     }
 
-    if (validationContext.customValidation) {
-      nodeValidations.push(
-        ...runExpressionValidationsOnNode(node, validationContext.customValidation, options?.overrideFormData),
-      );
+    if (validationContext.customValidation && !options?.skipCustomValidation) {
+      nodeValidations.push(...runExpressionValidationsOnNode(node, validationContext, options?.overrideFormData));
     }
 
     if (nodeValidations.length) {

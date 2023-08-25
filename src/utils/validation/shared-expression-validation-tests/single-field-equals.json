@@ -1,0 +1,46 @@
+{
+  "name": "Should return an error if equals condition is met",
+  "expects": [
+    {
+      "message": "none is not allowed",
+      "severity": "errors",
+      "field": "form.name",
+      "componentId": "name-input"
+    }
+  ],
+  "validationConfig": {
+    "validations": {
+      "form.name": ["none-is-not-allowed"],
+      "form.email": ["none-is-not-allowed"]
+    },
+    "definitions": {
+      "none-is-not-allowed": {
+        "message": "none is not allowed",
+        "severity": "errors",
+        "condition": ["equals", ["dataModel", ["argv", 0]], "none"]
+      }
+    }
+  },
+  "formData": {
+    "form": {
+      "name": "none",
+      "email": "email@address.com"
+    }
+  },
+  "layout": [
+    {
+      "id": "name-input",
+      "type": "Input",
+      "dataModelBindings": {
+        "simpleBinding": "form.name"
+      }
+    },
+    {
+      "id": "email-input",
+      "type": "Input",
+      "dataModelBindings": {
+        "simpleBinding": "form.email"
+      }
+    }
+  ]
+}
