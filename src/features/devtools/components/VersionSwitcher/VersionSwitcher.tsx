@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, FieldSet, Select, Spinner } from '@digdir/design-system-react';
+import { Button, Fieldset, Select, Spinner } from '@digdir/design-system-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -51,7 +51,7 @@ export const VersionSwitcher = () => {
   }
 
   return (
-    <FieldSet
+    <Fieldset
       legend='Frontend versjon'
       style={{ width: 250 }}
     >
@@ -63,12 +63,13 @@ export const VersionSwitcher = () => {
       {selectedVersion && <span>Last inn siden på nytt for å gå tilbake til opprinnelig versjon.</span>}
       <Button
         id='version-switcher-button'
+        size='small'
         style={{ width: '100%' }}
         disabled={!selectedVersion}
         onClick={onClick}
       >
         Bytt versjon
       </Button>
-    </FieldSet>
+    </Fieldset>
   );
 };

@@ -46,8 +46,9 @@ export function FeatureToggles() {
               <Checkbox
                 disabled={source === 'window'}
                 checked={overrides[key] ?? value}
-                checkboxId={`${key}-checkbox`}
+                id={`${key}-checkbox`}
                 onChange={(ev) => setFeature(key, ev.target.checked)}
+                value='nothing'
               />
             </div>
             <label
@@ -92,6 +93,7 @@ export function FeatureToggles() {
         ))}
         <div className={classes.button}>
           <Button
+            size='small'
             disabled={Object.keys(overrides).length <= 0}
             onClick={() => {
               const { org, app } = window;

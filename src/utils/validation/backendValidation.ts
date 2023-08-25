@@ -1,17 +1,9 @@
+import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
 import { buildValidationObject, unmappedError } from 'src/utils/validation/validationHelpers';
 import { validationTexts } from 'src/utils/validation/validationTexts';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
-import type { IValidationIssue, IValidationObject, ValidationSeverity } from 'src/utils/validation/types';
-
-export enum BackendValidationSeverity {
-  Unspecified = 0,
-  Error = 1,
-  Warning = 2,
-  Informational = 3,
-  Fixed = 4,
-  Success = 5,
-}
+import type { BackendValidationIssue, IValidationObject, ValidationSeverity } from 'src/utils/validation/types';
 
 /**
  * We need to map the severity we get from backend into the format used when storing in redux.
@@ -25,12 +17,21 @@ export const severityMap: { [s in BackendValidationSeverity]: ValidationSeverity
   [BackendValidationSeverity.Unspecified]: 'unspecified',
 };
 
+export enum ValidationIssueSources {
+  File = 'File',
+  ModelState = 'ModelState',
+  Required = 'Required',
+}
+
 /**
  * Some validations performed by the backend are also performed by the frontend.
  * We need to ignore these to prevent duplicate errors.
  */
-function shouldExcludeValidationIssue(issue: IValidationIssue): boolean {
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+export function shouldExcludeValidationIssue(issue: BackendValidationIssue): boolean {
+  /*
+   * Legacy required validation detection
+   * Remove this condition in v4, assuming that a minimum backend version is required.
+   */
   if (issue.code == 'required' && issue.code != issue.description) {
     // Ignore required validations from backend. They will be duplicated by frontend running the same logic.
     // verify that code != description because user validations always have code == description
@@ -41,13 +42,29 @@ function shouldExcludeValidationIssue(issue: IValidationIssue): boolean {
     // errors with a shared code. (eg, only display one error with code "required" per component)
     return true;
   }
+
+  if (issue.source === ValidationIssueSources.Required) {
+    // Required validations are handled by the frontend.
+    return true;
+  }
+
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if (issue.source === ValidationIssueSources.ModelState) {
+    // This is handled by schema validation.
+    return true;
+  }
+
   return false;
 }
 
 /**
  * Gets standard validation messages for backend validation issues.
  */
-export function getValidationMessage(issue: IValidationIssue, langTools: IUseLanguage, params?: string[]): string {
+export function getValidationMessage(
+  issue: BackendValidationIssue,
+  langTools: IUseLanguage,
+  params?: string[],
+): string {
   const { langAsString } = langTools;
   if (issue.customTextKey) {
     return langAsString(issue.customTextKey, params);
@@ -77,7 +94,7 @@ export function getValidationMessage(issue: IValidationIssue, langTools: IUseLan
  * Maps validation issues from the backend into the intermediate format used by the frontend.
  */
 export function mapValidationIssues(
-  issues: IValidationIssue[],
+  issues: BackendValidationIssue[],
   resolvedNodes: LayoutPages,
   langTools: IUseLanguage,
 ): IValidationObject[] {
@@ -85,7 +102,9 @@ export function mapValidationIssues(
     return [];
   }
 
-  const allNodes = resolvedNodes.allNodes().filter((node) => !node.isHidden() && !node.item.renderAsSummary);
+  const allNodes = resolvedNodes
+    .allNodes()
+    .filter((node) => !node.isHidden({ respectTracks: true }) && !node.item.renderAsSummary);
 
   const validationOutputs: IValidationObject[] = [];
   for (const issue of issues) {

@@ -3,6 +3,9 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Common } from 'test/e2e/pageobjects/common';
 
 import { Triggers } from 'src/types';
+import { BackendValidationSeverity } from 'src/utils/validation/backendValidationSeverity';
+import type { ILayoutCompInput } from 'src/layout/Input/types';
+import type { BackendValidationIssue } from 'src/utils/validation/types';
 
 const appFrontend = new AppFrontend();
 const mui = new Common();
@@ -217,6 +220,7 @@ describe('Validation', () => {
     for (const { text, shouldFocus } of expectedErrors) {
       cy.get(appFrontend.errorReport).should('contain.text', text);
       cy.get(`button:contains("${text}")`).click();
+      // eslint-disable-next-line cypress/unsafe-to-chain-command
       cy.focused().closest('[data-componentid]').should('have.attr', 'data-componentid', shouldFocus);
     }
   });
@@ -256,6 +260,33 @@ describe('Validation', () => {
     cy.get(appFrontend.group.comments).should('not.exist');
     cy.get(appFrontend.fieldValidation('comments')).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
+
+    // Setting single field validation to trigger on the 'sendersName' component
+    cy.changeLayout((component: ILayoutCompInput) => {
+      if (component.id === 'sendersName' && component.type === 'Input') {
+        // Make sure changing this field triggers single field validation
+        component.triggers = [Triggers.Validation];
+      }
+    });
+
+    cy.intercept('GET', '**/validate', [
+      {
+        code: 'Tullevalidering',
+        description: 'Tullevalidering',
+        field: 'Endringsmelding-grp-9786.Avgiver-grp-9787.OppgavegiverNavn-datadef-68.value',
+        severity: BackendValidationSeverity.Error,
+        scope: null,
+        targetId: 'sendersName',
+      },
+    ] as BackendValidationIssue[]);
+
+    // Verify that validation message is shown, but also make sure only one error message is shown
+    // (there is a hidden layout that also binds to the same location, and a bug caused it to show
+    // up twice because of that component on the hidden layout)
+    cy.gotoNavPage('hide');
+    cy.get(appFrontend.group.sendersName).type('hello world');
+    cy.get(appFrontend.errorReport).should('contain.text', 'Tullevalidering');
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
   });
 
   it('List component: validation messages should only show up once', () => {
@@ -471,6 +502,7 @@ describe('Validation', () => {
     // Note that we're testing expected functionality here, but if you're actually implementing this in an app, you
     // should trigger validation before saving and closing the group row, so that the user cannot reach this state
     // (although they still could if refreshing the page, so it's not the best idea).
+    // eslint-disable-next-line cypress/unsafe-to-chain-command
     cy.focused().should('have.text', 'Du må fylle ut 2. endre verdi til');
 
     // Clicking the next validation message should focus the component already open in editing mode
