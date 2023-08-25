@@ -4,6 +4,7 @@ import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { ProcessActions } from 'src/features/process/processSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
+import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
 import { useLanguage } from 'src/hooks/useLanguage';
 import classes from 'src/layout/Button/ButtonComponent.module.css';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
@@ -23,17 +24,17 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const props: IButtonProvidedProps = { ...componentProps, ...node.item, node };
 
   const dispatch = useAppDispatch();
-  const submittingId = useAppSelector((state) => state.formData.submittingId);
-  const confirmingId = useAppSelector((state) => state.process.completingId);
   const currentTaskType = useAppSelector((state) => state.instanceData.instance?.process?.currentTask?.altinnTaskType);
   const processActionsFeature = useAppSelector(
     (state) => state.applicationMetadata.applicationMetadata?.features?.processActions,
   );
   const { actions, write } = useAppSelector((state) => state.process);
+  const { canSubmit, busyWithId, message } = useCanSubmitForm();
 
   const disabled =
-    processActionsFeature &&
-    ((currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm));
+    !canSubmit ||
+    (processActionsFeature &&
+      ((currentTaskType === 'data' && !write) || (currentTaskType === 'confirmation' && !actions?.confirm)));
 
   const parentIsPage = node.parent instanceof LayoutPage;
 
@@ -70,17 +71,14 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
       }
     }
   };
-  const busyWithId = submittingId || confirmingId || '';
   return (
-    <div
-      className={classes.container}
-      style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
-    >
+    <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
       <SubmitButton
         onClick={() => submitTask({ componentId: id })}
         id={id}
         busyWithId={busyWithId}
         disabled={disabled}
+        message={message}
       >
         {lang(node.item.textResourceBindings?.title)}
       </SubmitButton>
