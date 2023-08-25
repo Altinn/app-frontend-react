@@ -42,7 +42,7 @@ export const WrappedButton = ({
     }
   };
   return (
-    <div>
+    <>
       <ButtonLoader isLoading={thisIsLoading}>
         <Button
           data-is-loading={thisIsLoading ? 'true' : 'false'}
@@ -57,6 +57,6 @@ export const WrappedButton = ({
         </Button>
       </ButtonLoader>
       {message && <span style={{ position: 'absolute' }}>{message}</span>}
-    </div>
+    </>
   );
 };

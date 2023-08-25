@@ -6,7 +6,6 @@ import { useAppDispatch } from 'src/hooks/useAppDispatch';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { useCanSubmitForm } from 'src/hooks/useCanSubmitForm';
 import { useLanguage } from 'src/hooks/useLanguage';
-import classes from 'src/layout/Button/ButtonComponent.module.css';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { SubmitButton } from 'src/layout/Button/SubmitButton';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -45,10 +44,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     }
 
     return (
-      <div
-        className={classes.container}
-        style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
-      >
+      <div style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}>
         <GenericButton {...props}>{lang(node.item.textResourceBindings?.title)}</GenericButton>
       </div>
     );
