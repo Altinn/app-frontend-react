@@ -5,8 +5,8 @@ import { useApplicationMetadataQuery } from 'src/hooks/queries/useApplicationMet
 import { useApplicationSettingsQuery } from 'src/hooks/queries/useApplicationSettingsQuery';
 import { useCurrentInstanceQuery } from 'src/hooks/queries/useCurrentInstanceQuery';
 import { useFormDataQuery } from 'src/hooks/queries/useFormdataQuery';
-import { useLayoutQuery } from 'src/hooks/queries/useLayoutQuery';
 import { useLayoutSetsQuery } from 'src/hooks/queries/useLayoutSetsQuery';
+import { useLayoutsQuery } from 'src/hooks/queries/useLayoutsQuery';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { getCurrentTaskDataElementId, getLayoutSetIdForApplication } from 'src/utils/appMetadata';
 import { convertModelToDataBinding } from 'src/utils/databindings';
@@ -36,8 +36,9 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
   const { instanceId } = window;
   const { data: instance } = useCurrentInstanceQuery(instanceId || '', !!instanceId);
   const { data: applicationMetadata } = useApplicationMetadataQuery();
+
   const { data: layoutSets } = useLayoutSetsQuery();
-  console.log(layoutSets);
+
   const currentTaskDataElementId = getCurrentTaskDataElementId(
     applicationMetadata || null,
     instance || null,
@@ -69,16 +70,11 @@ export const useGetOptions = ({ optionsId, mapping, queryParameters, source }: I
 
   const layoutSetId = getLayoutSetIdForApplication(applicationMetadata || null, instance, layoutSets);
 
-  const { data: layoutSet } = useLayoutQuery(layoutSetId || '', !!layoutSetId);
-
-  console.log(layoutSet);
-
-  // for (const layoutId of Object.keys(layoutSet)) {
-  //   console.log(layoutId);
-  // }
+  const { data: layouts } = useLayoutsQuery(layoutSetId || '', !!layoutSetId);
+  console.log(layouts);
 
   const optionState = useAppSelector((state) => state.optionState.options);
-
+  // console.log(optionState);
   const [options, setOptions] = useState<IOption[] | undefined>(undefined);
 
   useEffect(() => {
