@@ -296,7 +296,7 @@ describe('fetchOptionsSagas', () => {
         secure: undefined,
       })
         .provide([
-          [select(formDataSelector), formData],
+          [select(SagaFetchFormDataCompat), formData],
           [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
           [select(instanceIdSelector), 'someId'],
         ])
@@ -320,7 +320,7 @@ describe('fetchOptionsSagas', () => {
         secure: undefined,
       })
         .provide([
-          [select(formDataSelector), formData],
+          [select(SagaFetchFormDataCompat), formData],
           [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
           [select(instanceIdSelector), 'someId'],
         ])
@@ -344,7 +344,7 @@ describe('fetchOptionsSagas', () => {
         secure: undefined,
       })
         .provide([
-          [select(formDataSelector), formData],
+          [select(SagaFetchFormDataCompat), formData],
           [select(staticUseLanguageFromState), { selectedLanguage: 'nb' }],
           [select(instanceIdSelector), 'someId'],
         ])

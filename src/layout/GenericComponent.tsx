@@ -110,7 +110,7 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   const hidden = node.isHidden();
   const { lang, langAsString } = useLanguage();
 
-  const formData = FD.useBindings(node.item.dataModelBindings, 'current');
+  const formData = FD.useBindings(node.item.dataModelBindings as IDataModelBindings | undefined, 'current');
   const currentView = useAppSelector((state) => state.formLayout.uiConfig.currentView);
   const isValid = !node.hasValidationMessages('errors');
 

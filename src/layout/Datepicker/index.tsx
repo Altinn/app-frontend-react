@@ -31,6 +31,7 @@ export class Datepicker extends FormComponent<'Datepicker'> implements Component
     }
 
     const dateFormat = getDateFormat(node.item.format, selectedLanguage);
+    const data = formData[node.item.dataModelBindings?.simpleBinding] || '';
     return formatISOString(data, dateFormat) ?? '';
   }
 

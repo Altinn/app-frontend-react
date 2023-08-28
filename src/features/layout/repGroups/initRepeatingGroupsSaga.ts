@@ -2,7 +2,6 @@ import { put, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { SagaIterator } from 'redux-saga';
 
-import { FormDynamicsActions } from 'src/features/dynamics/formDynamicsSlice';
 import { SagaFetchFormDataCompat } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { selectFormLayouts } from 'src/features/layout/update/updateFormLayoutSagas';

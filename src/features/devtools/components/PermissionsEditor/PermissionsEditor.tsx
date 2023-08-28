@@ -27,7 +27,7 @@ export const PermissionsEditor = () => {
     mutator(processState);
 
     dispatch(ProcessActions.getFulfilled(processState));
-    dispatch(FormLayoutActions.updateLayouts({ layouts: {} }));
+    dispatch(FormLayoutActions.updateLayouts({}));
   }
 
   if (!shouldShow) {
