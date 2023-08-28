@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 
 import {
   runExpressionRules,
@@ -11,7 +11,7 @@ import { useAppSelector } from 'src/hooks/useAppSelector';
 import { runConditionalRenderingRules } from 'src/utils/conditionalRendering';
 import { _private, dataSourcesFromState } from 'src/utils/layout/hierarchy';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutNodeFromObj } from 'src/utils/layout/hierarchy.types';
+import type { HierarchyDataSources, LayoutNodeFromObj } from 'src/utils/layout/hierarchy.types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 export const ExprContext = React.createContext<LayoutPages | undefined>(undefined);
@@ -85,7 +85,8 @@ function useLegacyHiddenComponents(resolvedNodes: LayoutPages | undefined) {
   const formData = useAppSelector((state) => state.formData.formData);
   const rules = useAppSelector((state) => state.formDynamics.conditionalRendering);
   const repeatingGroups = useAppSelector((state) => state.formLayout.uiConfig.repeatingGroups);
-  const dataSources = useAppSelector(dataSourcesFromState);
+  const _dataSources = useAppSelector(dataSourcesFromState);
+  const dataSources: HierarchyDataSources = useMemo(() => ({ ..._dataSources, formData }), [_dataSources, formData]);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
