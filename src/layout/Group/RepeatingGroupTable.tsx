@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { useIsMobileOrTablet } from 'src/hooks/useIsMobile';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { ComponentCategory } from 'src/layout/common';
+import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
 import { nodesFromGridRows } from 'src/layout/Grid/tools';
@@ -76,7 +76,7 @@ export function RepeatingGroupTable({
         const { id, baseComponentId } = child.item;
         return !!(tableHeaders.includes(id) || (baseComponentId && tableHeaders.includes(baseComponentId)));
       }
-      return child.isCategory(ComponentCategory.Form);
+      return child.isCategory(CompCategory.Form);
     });
 
     // Sort using the order from tableHeaders

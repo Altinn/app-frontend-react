@@ -1,4 +1,4 @@
-import type { CompInternal, ComponentExceptGroup } from 'src/layout/layout';
+import type { CompExceptGroup, CompInternal } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
@@ -28,7 +28,7 @@ export interface LayoutObject<Item extends CompInternal = CompInternal, Child ex
    */
   flat(includeGroups: true, onlyInRows?: number): LayoutNode[];
 
-  flat(includeGroups: false, onlyInRows?: number): LayoutNode<ComponentExceptGroup>[];
+  flat(includeGroups: false, onlyInRows?: number): LayoutNode<CompExceptGroup>[];
 
   flat(includeGroups: boolean, onlyInRows?: number): LayoutNode[];
 }

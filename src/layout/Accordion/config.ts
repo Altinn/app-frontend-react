@@ -1,8 +1,8 @@
 import { CG, Variant } from 'src/codegen/CG';
-import { ComponentCategory } from 'src/layout/common';
+import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
-  category: ComponentCategory.Presentation,
+  category: CompCategory.Presentation,
   rendersWithLabel: false,
   capabilities: {
     renderInTable: false,

@@ -4,7 +4,7 @@ import cn from 'classnames';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
 import { useLanguage } from 'src/hooks/useLanguage';
-import { ComponentCategory } from 'src/layout/common';
+import { CompCategory } from 'src/layout/common';
 import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
@@ -134,7 +134,7 @@ export function SummaryGroupComponent({
                 .children(undefined, idx)
                 .filter((n) => !inExcludedChildren(n))
                 .map((child) => {
-                  if (child.isHidden() || !child.isCategory(ComponentCategory.Form)) {
+                  if (child.isHidden() || !child.isCategory(CompCategory.Form)) {
                     return;
                   }
                   const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def);

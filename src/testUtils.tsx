@@ -16,7 +16,7 @@ import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { ExprContextWrapper, useResolvedNode } from 'src/utils/layout/ExprContext';
 import type { AppQueriesContext } from 'src/contexts/appQueriesContext';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
-import type { CompExternalExact, ComponentTypes } from 'src/layout/layout';
+import type { CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppStore, RootState } from 'src/redux/store';
 import type { IRuntimeState } from 'src/types';
 
@@ -84,7 +84,7 @@ export const renderWithProviders = (
   };
 };
 
-export interface RenderGenericComponentTestProps<T extends ComponentTypes> {
+export interface RenderGenericComponentTestProps<T extends CompTypes> {
   type: T;
   renderer: (props: PropsFromGenericComponent<T>) => JSX.Element;
   component?: Partial<CompExternalExact<T>>;
@@ -93,7 +93,7 @@ export interface RenderGenericComponentTestProps<T extends ComponentTypes> {
   manipulateStore?: (store: ReturnType<typeof setupStore>['store']) => void;
 }
 
-export function renderGenericComponentTest<T extends ComponentTypes>({
+export function renderGenericComponentTest<T extends CompTypes>({
   type,
   renderer,
   component,

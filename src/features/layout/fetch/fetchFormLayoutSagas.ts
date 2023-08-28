@@ -12,7 +12,7 @@ import { getLayoutSetsUrl, getLayoutSettingsUrl, getLayoutsUrl } from 'src/utils
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { ExprObjConfig, ExprVal } from 'src/features/expressions/types';
 import type { ILayoutFileExternal } from 'src/layout/common.generated';
-import type { ComponentTypes, ILayout, ILayouts } from 'src/layout/layout';
+import type { CompTypes, ILayout, ILayouts } from 'src/layout/layout';
 import type { IHiddenLayoutsExternal, ILayoutSets, ILayoutSettings, IRuntimeState } from 'src/types';
 import type { IInstance } from 'src/types/shared';
 
@@ -20,13 +20,13 @@ export const layoutSetsSelector = (state: IRuntimeState) => state.formLayout.lay
 export const instanceSelector = (state: IRuntimeState) => state.instanceData.instance;
 export const applicationMetadataSelector = (state: IRuntimeState) => state.applicationMetadata.applicationMetadata;
 
-type ComponentTypeCaseMapping = { [key: string]: ComponentTypes };
+type ComponentTypeCaseMapping = { [key: string]: CompTypes };
 let componentTypeCaseMapping: ComponentTypeCaseMapping | undefined = undefined;
 function getCaseMapping(): ComponentTypeCaseMapping {
   if (!componentTypeCaseMapping) {
     componentTypeCaseMapping = {};
     for (const type in ComponentConfigs) {
-      componentTypeCaseMapping[type.toLowerCase()] = type as ComponentTypes;
+      componentTypeCaseMapping[type.toLowerCase()] = type as CompTypes;
     }
   }
 

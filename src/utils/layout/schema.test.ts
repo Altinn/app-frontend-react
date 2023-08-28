@@ -12,7 +12,7 @@ import textResourcesSchema from 'schemas/json/text-resources/text-resources.sche
 import type { ErrorObject } from 'ajv';
 
 import { getAllApps, getAllLayoutSets } from 'src/utils/layout/getAllLayoutSets';
-import type { ComponentTypes } from 'src/layout/layout';
+import type { CompTypes } from 'src/layout/layout';
 
 function withValues(targetObject: any) {
   return (err: ErrorObject) => {
@@ -203,7 +203,7 @@ function removeCommonLayoutErrors(obj: ErrorMap, target: any) {
         : isComponent
         ? value
         : undefined;
-      const componentType: ComponentTypes = componentValue ? componentValue.type : undefined;
+      const componentType: CompTypes = componentValue ? componentValue.type : undefined;
 
       if (componentType) {
         // Sets the component type in the error message so that it's easier for us to find out what's wrong

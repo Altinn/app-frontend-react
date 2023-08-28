@@ -3,7 +3,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { CG, Variant } from 'src/codegen/CG';
 import { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
-import { ComponentCategory } from 'src/layout/common';
+import { CompCategory } from 'src/layout/common';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -17,7 +17,7 @@ import type {
 } from 'src/layout/LayoutComponent';
 
 export interface RequiredComponentConfig {
-  category: ComponentCategory;
+  category: CompCategory;
   rendersWithLabel: boolean;
   capabilities: {
     renderInTable: boolean;
@@ -27,20 +27,20 @@ export interface RequiredComponentConfig {
   };
 }
 
-const CategoryImports: { [Category in ComponentCategory]: GenerateImportedSymbol<any> } = {
-  [ComponentCategory.Action]: new GenerateImportedSymbol<ActionComponent<any>>({
+const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any> } = {
+  [CompCategory.Action]: new GenerateImportedSymbol<ActionComponent<any>>({
     import: 'ActionComponent',
     from: 'src/layout/LayoutComponent',
   }),
-  [ComponentCategory.Form]: new GenerateImportedSymbol<FormComponent<any>>({
+  [CompCategory.Form]: new GenerateImportedSymbol<FormComponent<any>>({
     import: 'FormComponent',
     from: 'src/layout/LayoutComponent',
   }),
-  [ComponentCategory.Container]: new GenerateImportedSymbol<ContainerComponent<any>>({
+  [CompCategory.Container]: new GenerateImportedSymbol<ContainerComponent<any>>({
     import: 'ContainerComponent',
     from: 'src/layout/LayoutComponent',
   }),
-  [ComponentCategory.Presentation]: new GenerateImportedSymbol<PresentationComponent<any>>({
+  [CompCategory.Presentation]: new GenerateImportedSymbol<PresentationComponent<any>>({
     import: 'PresentationComponent',
     from: 'src/layout/LayoutComponent',
   }),
@@ -63,11 +63,11 @@ export class ComponentConfig extends GenerateComponentLike {
       new CG.prop('dataModelBindings', new CG.raw({ typeScript: 'undefined' }).optional()).onlyIn(Variant.Internal),
     );
 
-    if (config.category === ComponentCategory.Form) {
+    if (config.category === CompCategory.Form) {
       this.inner.extends(CG.common('FormComponentProps'));
       this.extendTextResources(CG.common('TRBFormComp'));
     }
-    if (config.category === ComponentCategory.Form || config.category === ComponentCategory.Container) {
+    if (config.category === CompCategory.Form || config.category === CompCategory.Container) {
       this.inner.extends(CG.common('SummarizableComponentProps'));
       this.extendTextResources(CG.common('TRBSummarizable'));
     }

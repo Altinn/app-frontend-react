@@ -1,11 +1,11 @@
 import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
-import { ComponentCategory } from 'src/layout/common';
+import { CompCategory } from 'src/layout/common';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 
 export const Config = asUploaderComponent(
   new CG.component({
-    category: ComponentCategory.Form,
+    category: CompCategory.Form,
     rendersWithLabel: true,
     capabilities: {
       renderInTable: false,

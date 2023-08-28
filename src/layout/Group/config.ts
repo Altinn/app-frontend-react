@@ -1,10 +1,10 @@
 import { CG, Variant } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
-import { ComponentCategory } from 'src/layout/common';
+import { CompCategory } from 'src/layout/common';
 import type { GenerateComponentLike } from 'src/codegen/dataTypes/GenerateComponentLike';
 
 export const Config = new CG.component({
-  category: ComponentCategory.Container,
+  category: CompCategory.Container,
   rendersWithLabel: false,
   capabilities: {
     renderInTable: false,

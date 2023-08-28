@@ -2,10 +2,10 @@ import type { $Keys, PickByValue } from 'utility-types';
 
 import type { IDevToolsState } from 'src/features/devtools/data/types';
 import type { ContextDataSources } from 'src/features/expressions/ExprContext';
-import type { ComponentCategory } from 'src/layout/common';
+import type { CompCategory } from 'src/layout/common';
 import type { ComponentConfigs, ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompGroupExternal } from 'src/layout/Group/config.generated';
-import type { ComponentClassMapTypes } from 'src/layout/index';
+import type { CompClassMapTypes } from 'src/layout/index';
 import type {
   ActionComponent,
   ContainerComponent,
@@ -26,10 +26,10 @@ export interface ILayouts {
  * type (ex. ILayoutCompTextArea), or ILayoutComponent<'TextArea'>.
  */
 
-export type ComponentTypes = keyof typeof ComponentConfigs & keyof ComponentTypeConfigs;
-type AllComponents = ComponentTypeConfigs[ComponentTypes]['layout'];
+export type CompTypes = keyof typeof ComponentConfigs & keyof ComponentTypeConfigs;
+type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
 
-export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
+export type CompExceptGroup = Exclude<CompTypes, 'Group'>;
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify
@@ -41,31 +41,28 @@ export type ComponentExceptGroup = Exclude<ComponentTypes, 'Group'>;
  *
  *  const myImageComponent:CompExternal<'Image'> = ...
  *
- * @see AnyItem
+ * @see CompInternal
  * @see LayoutNode
  */
-export type CompExternal<Type extends ComponentExceptGroup = ComponentExceptGroup> = Extract<
-  AllComponents,
-  { type: Type }
->;
+export type CompExternal<Type extends CompExceptGroup = CompExceptGroup> = Extract<AllComponents, { type: Type }>;
 
 /**
  * Alternative version of the one above
  */
-export type CompExternalExact<Type extends ComponentTypes> = ComponentTypeConfigs[Type]['layout'];
+export type CompExternalExact<Type extends CompTypes> = ComponentTypeConfigs[Type]['layout'];
 
 export type CompOrGroupExternal = CompGroupExternal | CompExternal;
 
-export type ComponentRendersLabel<T extends ComponentTypes> = (typeof ComponentConfigs)[T]['rendersWithLabel'];
+export type CompRendersLabel<T extends CompTypes> = (typeof ComponentConfigs)[T]['rendersWithLabel'];
 
 /**
  * This is the type you should use when referencing a specific component type, and will give
  * you the correct data model bindings for that component.
  */
-export type IDataModelBindings<T extends ComponentTypes = ComponentTypes> =
+export type IDataModelBindings<T extends CompTypes = CompTypes> =
   ComponentTypeConfigs[T]['nodeItem']['dataModelBindings'];
 
-export type ITextResourceBindings<T extends ComponentTypes = ComponentTypes> =
+export type ITextResourceBindings<T extends CompTypes = CompTypes> =
   ComponentTypeConfigs[T]['nodeItem']['textResourceBindings'];
 
 export type ILayout = CompOrGroupExternal[];
@@ -84,9 +81,9 @@ interface HierarchyExtensions {
  * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
  * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
  */
-type NodeItem<T extends ComponentTypes> = ComponentTypeConfigs[T]['nodeItem'];
+type NodeItem<T extends CompTypes> = ComponentTypeConfigs[T]['nodeItem'];
 
-export type CompInternal<T extends ComponentTypes = ComponentTypes> = NodeItem<T> & HierarchyExtensions;
+export type CompInternal<T extends CompTypes = CompTypes> = NodeItem<T> & HierarchyExtensions;
 
 /**
  * Any parent object of a LayoutNode (with for example repeating groups, the parent can be the group node, but above
@@ -95,10 +92,10 @@ export type CompInternal<T extends ComponentTypes = ComponentTypes> = NodeItem<T
 export type ParentNode = LayoutNode | LayoutPage;
 
 export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { type: infer Type }
-  ? Type extends ComponentTypes
+  ? Type extends CompTypes
     ? Type
-    : ComponentTypes
-  : ComponentTypes;
+    : CompTypes
+  : CompTypes;
 
 export interface HierarchyDataSources extends ContextDataSources {
   validations: IValidations;
@@ -106,14 +103,14 @@ export interface HierarchyDataSources extends ContextDataSources {
 }
 
 export type LayoutNodeFromObj<T> = T extends { type: infer Type }
-  ? Type extends ComponentTypes
+  ? Type extends CompTypes
     ? LayoutNode<Type>
     : LayoutNode
   : LayoutNode;
 
-export type TypesFromCategory<Type extends ComponentCategory> = $Keys<PickByValue<ComponentClassMapTypes, Type>>;
+export type TypesFromCategory<Type extends CompCategory> = $Keys<PickByValue<CompClassMapTypes, Type>>;
 
-export type DefFromCategory<C extends ComponentCategory> = C extends 'presentation'
+export type DefFromCategory<C extends CompCategory> = C extends 'presentation'
   ? PresentationComponent<any>
   : C extends 'form'
   ? FormComponent<any>
@@ -123,6 +120,6 @@ export type DefFromCategory<C extends ComponentCategory> = C extends 'presentati
   ? ContainerComponent<any>
   : never;
 
-export type LayoutNodeFromCategory<Type> = Type extends ComponentCategory
+export type LayoutNodeFromCategory<Type> = Type extends CompCategory
   ? LayoutNode<TypesFromCategory<Type>> & DefFromCategory<Type>
   : LayoutNode;

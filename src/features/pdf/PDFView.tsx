@@ -6,7 +6,7 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { PDF_LAYOUT_NAME } from 'src/features/pdf/data/pdfSlice';
 import classes from 'src/features/pdf/PDFView.module.css';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { ComponentCategory } from 'src/layout/common';
+import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { DisplayGroupContainer } from 'src/layout/Group/DisplayGroupContainer';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
@@ -41,7 +41,7 @@ const PDFComponent = ({ node }: { node: LayoutNode }) => {
         )}
       />
     );
-  } else if (node.isCategory(ComponentCategory.Presentation)) {
+  } else if (node.isCategory(CompCategory.Presentation)) {
     return (
       <GenericComponent
         node={node}

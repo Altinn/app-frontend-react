@@ -2,7 +2,7 @@ import React from 'react';
 
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { useAppSelector } from 'src/hooks/useAppSelector';
-import { ComponentCategory } from 'src/layout/common';
+import { CompCategory } from 'src/layout/common';
 import {
   type DisplayData,
   type DisplayDataProps,
@@ -17,7 +17,7 @@ import { SimpleComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGen
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { IFormData } from 'src/features/formData';
-import type { CompInternal, ComponentTypes, HierarchyDataSources, ITextResourceBindings } from 'src/layout/layout';
+import type { CompInternal, CompTypes, HierarchyDataSources, ITextResourceBindings } from 'src/layout/layout';
 import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { ComponentHierarchyGenerator } from 'src/utils/layout/HierarchyGenerator';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -27,7 +27,7 @@ import type { IValidationContext, IValidationObject } from 'src/utils/validation
 
 const defaultGenerator = new SimpleComponentHierarchyGenerator();
 
-export abstract class AnyComponent<Type extends ComponentTypes> {
+export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Given properties from GenericComponent, render this layout component
    */
@@ -107,11 +107,11 @@ export abstract class AnyComponent<Type extends ComponentTypes> {
   }
 }
 
-export abstract class PresentationComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  readonly type = ComponentCategory.Presentation;
+export abstract class PresentationComponent<Type extends CompTypes> extends AnyComponent<Type> {
+  readonly type = CompCategory.Presentation;
 }
 
-export interface SummaryRendererProps<Type extends ComponentTypes> {
+export interface SummaryRendererProps<Type extends CompTypes> {
   summaryNode: LayoutNode<'Summary'>;
   targetNode: LayoutNode<Type>;
   onChangeClick: () => void;
@@ -119,7 +119,7 @@ export interface SummaryRendererProps<Type extends ComponentTypes> {
   overrides?: ISummaryComponent['overrides'];
 }
 
-abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<Type> implements DisplayData<Type> {
+abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type> implements DisplayData<Type> {
   /**
    * Given a node (with group-index-aware data model bindings), this method should return a proper 'value' for the
    * current component/node. This value will be used to display form data in a repeating group table, and when rendering
@@ -163,19 +163,19 @@ abstract class _FormComponent<Type extends ComponentTypes> extends AnyComponent<
   }
 }
 
-export abstract class ActionComponent<Type extends ComponentTypes> extends AnyComponent<Type> {
-  readonly type = ComponentCategory.Action;
+export abstract class ActionComponent<Type extends CompTypes> extends AnyComponent<Type> {
+  readonly type = CompCategory.Action;
 
   shouldRenderInAutomaticPDF() {
     return false;
   }
 }
 
-export abstract class FormComponent<Type extends ComponentTypes>
+export abstract class FormComponent<Type extends CompTypes>
   extends _FormComponent<Type>
   implements EmptyFieldValidation, SchemaValidation
 {
-  readonly type = ComponentCategory.Form;
+  readonly type = CompCategory.Form;
 
   runEmptyFieldValidation(
     node: LayoutNode<Type>,
@@ -227,11 +227,11 @@ export abstract class FormComponent<Type extends ComponentTypes>
   }
 }
 
-export abstract class ContainerComponent<Type extends ComponentTypes> extends _FormComponent<Type> {
-  readonly type = ComponentCategory.Container;
+export abstract class ContainerComponent<Type extends CompTypes> extends _FormComponent<Type> {
+  readonly type = CompCategory.Container;
 }
 
-export type LayoutComponent<Type extends ComponentTypes = ComponentTypes> =
+export type LayoutComponent<Type extends CompTypes = CompTypes> =
   | PresentationComponent<Type>
   | FormComponent<Type>
   | ActionComponent<Type>

@@ -2,13 +2,13 @@ import { getLayoutComponentObject } from 'src/layout';
 import { DataBinding } from 'src/utils/databindings/DataBinding';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { runValidationOnNodes } from 'src/utils/validation/validation';
-import type { ComponentClassMap } from 'src/layout';
-import type { ComponentCategory } from 'src/layout/common';
+import type { CompClassMap } from 'src/layout';
+import type { CompCategory } from 'src/layout/common';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type {
+  CompExceptGroup,
   CompInternal,
-  ComponentExceptGroup,
-  ComponentTypes,
+  CompTypes,
   HierarchyDataSources,
   LayoutNodeFromCategory,
   ParentNode,
@@ -30,13 +30,11 @@ import type { IValidationOptions } from 'src/utils/validation/validation';
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class BaseLayoutNode<
-  Item extends CompInternal = CompInternal,
-  Type extends ComponentTypes = TypeFromConfig<Item>,
-> implements LayoutObject
+export class BaseLayoutNode<Item extends CompInternal = CompInternal, Type extends CompTypes = TypeFromConfig<Item>>
+  implements LayoutObject
 {
   public readonly itemWithExpressions: Item;
-  public readonly def: ComponentClassMap[Type];
+  public readonly def: CompClassMap[Type];
 
   public constructor(
     public item: Item,
@@ -49,11 +47,11 @@ export class BaseLayoutNode<
     this.itemWithExpressions = structuredClone(item);
   }
 
-  public isType<T extends ComponentTypes>(type: T): this is LayoutNode<T> {
+  public isType<T extends CompTypes>(type: T): this is LayoutNode<T> {
     return this.item.type === type;
   }
 
-  public isCategory<T extends ComponentCategory>(category: T): this is LayoutNodeFromCategory<T> {
+  public isCategory<T extends CompCategory>(category: T): this is LayoutNodeFromCategory<T> {
     return this.def.type === category;
   }
 
@@ -136,7 +134,7 @@ export class BaseLayoutNode<
    *        children of nested groups regardless of row-index.
    */
   public flat(includeGroups: true, onlyInRowIndex?: number): LayoutNode[];
-  public flat(includeGroups: false, onlyInRowIndex?: number): LayoutNode<ComponentExceptGroup>[];
+  public flat(includeGroups: false, onlyInRowIndex?: number): LayoutNode<CompExceptGroup>[];
   public flat(includeGroups: boolean, onlyInRowIndex?: number): LayoutNode[] {
     const out: BaseLayoutNode[] = [];
     const recurse = (item: BaseLayoutNode, rowIndex?: number) => {
@@ -411,6 +409,6 @@ export class BaseLayoutNode<
   }
 }
 
-export type LayoutNode<Type extends ComponentTypes = ComponentTypes> = Type extends ComponentTypes
+export type LayoutNode<Type extends CompTypes = CompTypes> = Type extends CompTypes
   ? ComponentTypeConfigs[Type]['nodeObj']
   : BaseLayoutNode;

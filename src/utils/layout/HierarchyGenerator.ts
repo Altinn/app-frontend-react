@@ -4,7 +4,7 @@ import type { DefGetter } from 'src/layout';
 import type {
   CompExternalExact,
   CompInternal,
-  ComponentTypes,
+  CompTypes,
   HierarchyDataSources,
   ILayout,
   ILayouts,
@@ -12,7 +12,7 @@ import type {
 import type { IRepeatingGroups, ITextResource } from 'src/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export type UnprocessedItem<T extends ComponentTypes = ComponentTypes> = CompExternalExact<T>;
+export type UnprocessedItem<T extends CompTypes = CompTypes> = CompExternalExact<T>;
 
 export interface Claim {
   childId: string;
@@ -24,12 +24,12 @@ export interface CommonChildFactoryProps {
   rowIndex?: number;
 }
 
-export interface ChildFactoryProps<T extends ComponentTypes> extends CommonChildFactoryProps {
+export interface ChildFactoryProps<T extends CompTypes> extends CommonChildFactoryProps {
   item: UnprocessedItem<T> | CompInternal<T>;
 }
 
-export type ChildFactory<T extends ComponentTypes> = (props: ChildFactoryProps<T>) => LayoutNode;
-export type ChildMutator<T extends ComponentTypes = ComponentTypes> = (item: CompInternal<T>) => void;
+export type ChildFactory<T extends CompTypes> = (props: ChildFactoryProps<T>) => LayoutNode;
+export type ChildMutator<T extends CompTypes = CompTypes> = (item: CompInternal<T>) => void;
 
 export type HierarchyContext = {
   id: string;
@@ -187,7 +187,7 @@ export class HierarchyGenerator {
    * Utility for generating a new instance of a child (during stage 2), which must have
    * been claimed beforehand (in stage 1). Runs mutations and returns a LayoutNode.
    */
-  newChild<T extends ComponentTypes>({
+  newChild<T extends CompTypes>({
     ctx,
     childPage = this.topKey,
     childId,
@@ -253,8 +253,8 @@ export class HierarchyGenerator {
   /**
    * Utility function to make it easier to create a LayoutNode object (used by processors in components)
    */
-  makeNode<T extends ComponentTypes>({ item, parent, rowIndex }: ChildFactoryProps<T>): LayoutNode<T> {
-    const def = this.getLayoutComponentObject(item.type as ComponentTypes);
+  makeNode<T extends CompTypes>({ item, parent, rowIndex }: ChildFactoryProps<T>): LayoutNode<T> {
+    const def = this.getLayoutComponentObject(item.type as CompTypes);
     if (!def) {
       throw new Error(`Could not find definition for component type '${item.type}'`);
     }
@@ -269,7 +269,7 @@ export class HierarchyGenerator {
    * Gets the prototype of a given (base) component ID. This returns an un-editable object that is may be
    * useful when looking into the base definition/prototype of a component.
    */
-  prototype<T extends ComponentTypes>(id: string): UnprocessedItem<T> | undefined {
+  prototype<T extends CompTypes>(id: string): UnprocessedItem<T> | undefined {
     const currenPageId = `${this.topKey}/${id}`;
     if (this.map[currenPageId]) {
       // Tries the current page first, to keep backwards compatibility
@@ -296,7 +296,7 @@ export class HierarchyGenerator {
   /**
    * Gets the ComponentHierarchyGenerator instance for a given component type
    */
-  private getInstance(type: ComponentTypes) {
+  private getInstance(type: CompTypes) {
     if (!this.instances[type]) {
       const def = this.getLayoutComponentObject(type);
       if (!def) {
@@ -367,7 +367,7 @@ export class HierarchyGenerator {
             mutators: [],
             generator: this,
           };
-          const processor = instance.stage2(ctx) as ChildFactory<ComponentTypes>;
+          const processor = instance.stage2(ctx) as ChildFactory<CompTypes>;
           processor({ item, parent: this.top });
         }
       }
@@ -385,7 +385,7 @@ export class HierarchyGenerator {
  * components that has no need to claim children or manipulate them, SimpleComponentHierarchyGenerator will
  * most likely suffice.
  */
-export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
+export abstract class ComponentHierarchyGenerator<Type extends CompTypes> {
   abstract stage1(generator: HierarchyGenerator, item: UnprocessedItem<Type>): void;
   abstract stage2(ctx: HierarchyContext): ChildFactory<Type>;
   abstract childrenFromNode(node: LayoutNode<Type>, onlyInRowIndex?: number): LayoutNode[];
@@ -427,7 +427,7 @@ export abstract class ComponentHierarchyGenerator<Type extends ComponentTypes> {
 /**
  * Most simple components does not need to claim any children, so they can use this standard implementation
  */
-export class SimpleComponentHierarchyGenerator<Type extends ComponentTypes> extends ComponentHierarchyGenerator<Type> {
+export class SimpleComponentHierarchyGenerator<Type extends CompTypes> extends ComponentHierarchyGenerator<Type> {
   stage1() {
     return undefined;
   }
