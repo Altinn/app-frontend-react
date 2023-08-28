@@ -186,6 +186,7 @@ export abstract class FormComponent<Type extends ComponentTypes>
     if (!('required' in node.item) || !node.item.required) {
       return [];
     }
+    const { langAsString } = langTools;
 
     const formDataToValidate = { ...formData, ...overrideFormData };
     const validationObjects: IValidationObject[] = [];
@@ -194,20 +195,16 @@ export abstract class FormComponent<Type extends ComponentTypes>
     for (const [bindingKey, _field] of bindings) {
       const field = _field as string;
       const data = formDataToValidate[field];
+      const textResourceBindings: ITextResourceBindings =
+        'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
 
       if (!data?.length) {
-        const textResourceBindings: ITextResourceBindings =
-          'textResourceBindings' in node.item ? node.item.textResourceBindings : {};
         const fieldName = getFieldName(textResourceBindings, langTools, bindingKey);
+        const errorMessage = textResourceBindings?.requiredValidation
+          ? langAsString(textResourceBindings?.requiredValidation, [fieldName])
+          : langAsString('form_filler.error_required', [fieldName]);
 
-        validationObjects.push(
-          buildValidationObject(
-            node,
-            'errors',
-            langTools.langAsString('form_filler.error_required', [fieldName]),
-            bindingKey,
-          ),
-        );
+        validationObjects.push(buildValidationObject(node, 'errors', errorMessage, bindingKey));
       }
     }
     return validationObjects;
