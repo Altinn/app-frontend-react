@@ -176,6 +176,11 @@ const common = {
         title: 'Short name (for validation)',
         description: 'Alternative name used for required validation messages (overrides the default title)',
       },
+      requiredValidation: {
+        title: 'Required validation message',
+        description:
+          'Full validation message shown when the component is required and no value has been entered (overrides both the default and shortName)',
+      },
     }),
   TRBLabel: () =>
     makeTRB({

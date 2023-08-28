@@ -6,7 +6,6 @@ import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { getFieldName } from 'src/utils/formComponentUtils';
 import { buildValidationObject } from 'src/utils/validation/validationHelpers';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { IValidationContext, IValidationObject } from 'src/utils/validation/types';
@@ -39,7 +38,7 @@ export class List extends ListDef {
     }
 
     const { langAsString } = langTools;
-    const textResourceBindings = node.item.textResourceBindings as ITextResourceBindings;
+    const textResourceBindings = node.item.textResourceBindings;
     const validationObjects: IValidationObject[] = [];
 
     const bindings = Object.values(node.item.dataModelBindings ?? {});
