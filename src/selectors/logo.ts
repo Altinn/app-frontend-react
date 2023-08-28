@@ -6,10 +6,11 @@ import {
   getShowAppOwnerInHeader,
   getUseAppLogoOrgSource,
 } from 'src/language/sharedLanguage';
-import { selectAllOrgs, selectApplicationMetadata, selectLangTools, selectOrg } from 'src/selectors/language';
+import { selectLangTools, selectOrg } from 'src/selectors/language';
+import { appMetaDataSelector, selectAllOrgs } from 'src/selectors/simpleSelectors';
 
-export const selectUseAppLogoOrgSource = createSelector(selectApplicationMetadata, getUseAppLogoOrgSource);
-export const selectShowAppOwnerInHeader = createSelector(selectApplicationMetadata, getShowAppOwnerInHeader);
+export const selectUseAppLogoOrgSource = createSelector(appMetaDataSelector, getUseAppLogoOrgSource);
+export const selectShowAppOwnerInHeader = createSelector(appMetaDataSelector, getShowAppOwnerInHeader);
 export const selectAppLogoAltText = createSelector(selectAllOrgs, selectOrg, selectLangTools, getAppLogoAltText);
 export const selectAppLogoUrl = createSelector(
   selectAllOrgs,
