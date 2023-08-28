@@ -13,8 +13,6 @@ export class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/signing-test */
     signingTest: 'signing-test',
-
-    tilflytter: 'tilflytter-',
   };
 
   //Start app instance page

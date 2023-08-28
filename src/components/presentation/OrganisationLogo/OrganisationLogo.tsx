@@ -3,12 +3,12 @@ import React from 'react';
 import classes from 'src/components/presentation/OrganisationLogo/OrganisationLogo.module.css';
 import { useAppSelector } from 'src/hooks/useAppSelector';
 import { selectAppOwner } from 'src/selectors/language';
-import { selectAppLogoAltText, selectAppLogoUrl, selectdisplayAppOwnerNameInHeader } from 'src/selectors/logo';
+import { selectAppLogoAltText, selectAppLogoUrl, selectDisplayAppOwnerNameInHeader } from 'src/selectors/logo';
 
 export const OrganisationLogo = () => {
   const appLogoUrl = useAppSelector(selectAppLogoUrl);
   const appLogoAltText = useAppSelector(selectAppLogoAltText);
-  const showAppOwner = useAppSelector(selectdisplayAppOwnerNameInHeader);
+  const showAppOwner = useAppSelector(selectDisplayAppOwnerNameInHeader);
   const appOwner = useAppSelector(selectAppOwner);
 
   return (

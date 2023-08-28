@@ -263,7 +263,7 @@ export function getAppName(applicationMetadata: IApplication | null, langTools: 
   return undefined;
 }
 
-function getOrgLogo(orgs: IAltinnOrgs | null, org: string | undefined, langTools: IUseLanguage) {
+function getOrgLogo(orgs: IAltinnOrgs | null, org: string | undefined) {
   if (orgs && typeof org === 'string' && orgs[org]) {
     return orgs[org].logo;
   }
@@ -280,7 +280,7 @@ export function getAppLogoUrl(
   useOrgAsSource: boolean,
 ) {
   if (useOrgAsSource) {
-    return getOrgLogo(orgs, org, langTools);
+    return getOrgLogo(orgs, org);
   }
 
   const appLogo = langTools.langAsString(appLogoKey);
@@ -288,7 +288,7 @@ export function getAppLogoUrl(
     return appLogo;
   }
 
-  return getOrgLogo(orgs, org, langTools);
+  return getOrgLogo(orgs, org);
 }
 
 const appLogoAltTextKey = 'appLogo.altText';
