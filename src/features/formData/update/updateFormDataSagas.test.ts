@@ -4,11 +4,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { getInitialStateMock } from 'src/__mocks__/initialStateMock';
 import { FormDataActions } from 'src/features/formData/formDataSlice';
-import {
-  deleteAttachmentReferenceSaga,
-  SelectAttachments,
-  SelectFormData,
-} from 'src/features/formData/update/updateFormDataSagas';
+import { deleteAttachmentReferenceSaga, SelectAttachments } from 'src/features/formData/update/updateFormDataSagas';
 import type { IAttachment, IAttachments } from 'src/features/attachments';
 import type { IDeleteAttachmentReference } from 'src/features/formData/formDataTypes';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -46,10 +42,7 @@ describe('updateFormDataSagas', () => {
       };
 
       return expectSaga(deleteAttachmentReferenceSaga, action)
-        .provide([
-          [select(SelectFormData), SelectFormData(state)],
-          [select(SelectAttachments), SelectAttachments(state)],
-        ])
+        .provide([[select(SelectAttachments), SelectAttachments(state)]])
         .put(
           FormDataActions.setFulfilled({
             formData: expectedUpdatedFormData,

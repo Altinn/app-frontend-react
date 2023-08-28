@@ -96,7 +96,7 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
 
   const [state, dispatch] = useFormDataStateMachine();
   const uuid = useFormDataUuid();
-  const enabled = uuid !== undefined && window.featureToggles.useNewFormDataHook;
+  const enabled = uuid !== undefined;
 
   const mutation = useMutation(async (arg?: MutationArg) => {
     if (!enabled) {
@@ -152,6 +152,8 @@ const useFormDataQuery = (): FormDataStorageExtended & FormDataStorageInternal =
 
 export function FormDataProvider({ children }) {
   const { dispatch, ...rest } = useFormDataQuery();
+  window.deprecated = window.deprecated || {};
+  window.deprecated.currentFormData = NewFD.useAsDotMap();
 
   return (
     <Provider

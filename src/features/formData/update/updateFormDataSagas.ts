@@ -10,7 +10,6 @@ import { removeAttachmentReference } from 'src/utils/databindings';
 import { ResolvedNodesSelector } from 'src/utils/layout/hierarchy';
 import { createComponentValidationResult, validationContextFromState } from 'src/utils/validation/validationHelpers';
 import type { IAttachments } from 'src/features/attachments';
-import type { IFormData } from 'src/features/formData';
 import type { IDeleteAttachmentReference, IUpdateFormData } from 'src/features/formData/formDataTypes';
 import type { IRuntimeState } from 'src/types';
 import type { LayoutPages } from 'src/utils/layout/LayoutPages';
@@ -90,14 +89,13 @@ function shouldUpdateFormData(currentData: any, newData: any): boolean {
   return currentData !== newData;
 }
 
-export const SelectFormData = SagaFetchFormDataCompat;
 export const SelectAttachments = (s: IRuntimeState) => s.attachments.attachments;
 
 export function* deleteAttachmentReferenceSaga({
   payload: { attachmentId, componentId, dataModelBindings },
 }: PayloadAction<IDeleteAttachmentReference>): SagaIterator {
   try {
-    const formData: IFormData = yield select(SelectFormData);
+    const formData = SagaFetchFormDataCompat();
     const attachments: IAttachments = yield select(SelectAttachments);
 
     const updatedFormData = removeAttachmentReference(

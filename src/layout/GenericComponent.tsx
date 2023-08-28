@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import { Description } from 'src/components/form/Description';
 import { Label } from 'src/components/form/Label';
 import { Legend } from 'src/components/form/Legend';
-import { FormDataActions } from 'src/features/formData/formDataSlice';
 import { FD } from 'src/features/formData2/Compatibility';
 import { FormLayoutActions } from 'src/features/layout/formLayoutSlice';
 import { useAppDispatch } from 'src/hooks/useAppDispatch';
@@ -16,10 +15,8 @@ import { useLanguage } from 'src/hooks/useLanguage';
 import { FormComponentContext, shouldComponentRenderLabel } from 'src/layout/index';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { makeGetFocus } from 'src/selectors/getLayoutData';
-import { Triggers } from 'src/types';
 import { gridBreakpoints, pageBreakStyles } from 'src/utils/formComponentUtils';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
-import type { ISingleFieldValidation } from 'src/features/formData/formDataTypes';
 import type { IComponentProps, IFormComponentContext, PropsFromGenericComponent } from 'src/layout/index';
 import type { ComponentTypes, IDataModelBindings, IGridStyling, ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
@@ -167,7 +164,10 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
   }
 
   const handleDataChange: IComponentProps['handleDataChange'] = (value, options = {}) => {
-    const { key = 'simpleBinding', validate = true } = options;
+    const {
+      key = 'simpleBinding',
+      // validate = true,
+    } = options;
 
     if (!dataModelBindings || !dataModelBindings[key]) {
       return;
@@ -183,29 +183,26 @@ export function GenericComponent<Type extends ComponentTypes = ComponentTypes>({
     }
 
     const dataModelBinding = dataModelBindings[key];
-    const singleFieldValidation: ISingleFieldValidation | undefined =
-      item.triggers && item.triggers.includes(Triggers.Validation)
-        ? {
-            layoutId: currentView,
-            dataModelBinding,
-          }
-        : undefined;
+    // const _singleFieldValidation: ISingleFieldValidation | undefined =
+    //   item.triggers && item.triggers.includes(Triggers.Validation)
+    //     ? {
+    //         layoutId: currentView,
+    //         dataModelBinding,
+    //       }
+    //     : undefined;
 
-    if (window.featureToggles.useNewFormDataHook) {
-      // TODO: Support validation, etc
-      fdMethods.setLeafValue(dataModelBinding, value);
-      return;
-    }
+    // PRIORITY: Support validation, etc
+    fdMethods.setLeafValue(dataModelBinding, value);
 
-    dispatch(
-      FormDataActions.update({
-        field: dataModelBinding,
-        data: value,
-        componentId: id,
-        skipValidation: !validate,
-        singleFieldValidation,
-      }),
-    );
+    // dispatch(
+    //   FormDataActions.update({
+    //     field: dataModelBinding,
+    //     data: value,
+    //     componentId: id,
+    //     skipValidation: !validate,
+    //     singleFieldValidation,
+    //   }),
+    // );
   };
 
   const layoutComponent = node.def as unknown as LayoutComponent<Type>;

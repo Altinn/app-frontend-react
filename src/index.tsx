@@ -19,7 +19,7 @@ import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ThemeWrapper } from 'src/components/ThemeWrapper';
 import { AppQueriesContextProvider } from 'src/contexts/appQueriesContext';
 import { DevTools } from 'src/features/devtools/DevTools';
-import { FormDataLegacyProvider, FormDataNewProvider } from 'src/features/formData2/Compatibility';
+import { FormDataProvider } from 'src/features/formData2/FormDataContext';
 import { DataModelSchemaContextWrapper } from 'src/hooks/useDataModelSchema';
 import * as queries from 'src/queries/queries';
 import { initSagas } from 'src/redux/sagas';
@@ -52,17 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <ErrorBoundary>
               <QueryClientProvider client={queryClient}>
                 <AppQueriesContextProvider {...queries}>
-                  <FormDataNewProvider>
-                    <FormDataLegacyProvider>
-                      <DataModelSchemaContextWrapper>
-                        <ExprContextWrapper>
-                          <DevTools>
-                            <App />
-                          </DevTools>
-                        </ExprContextWrapper>
-                      </DataModelSchemaContextWrapper>
-                    </FormDataLegacyProvider>
-                  </FormDataNewProvider>
+                  <FormDataProvider>
+                    <DataModelSchemaContextWrapper>
+                      <ExprContextWrapper>
+                        <DevTools>
+                          <App />
+                        </DevTools>
+                      </ExprContextWrapper>
+                    </DataModelSchemaContextWrapper>
+                  </FormDataProvider>
                 </AppQueriesContextProvider>
               </QueryClientProvider>
             </ErrorBoundary>
